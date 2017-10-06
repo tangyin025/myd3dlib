@@ -878,7 +878,7 @@ void CChildView::OnPaint()
 				}
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 				if (!pFrame->m_selactors.empty())
 				{
 					theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);

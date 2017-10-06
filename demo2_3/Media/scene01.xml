@@ -29,14 +29,933 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						</m_max>
 					</m_aabb>
 					<m_Actors class_id="8" tracking_level="0" version="0">
-						<count>0</count>
+						<count>3</count>
 						<item_version>0</item_version>
+						<item class_id="9" tracking_level="0" version="0">
+							<first class_id="10" tracking_level="0" version="1">
+								<px class_id="12" class_name="Actor" tracking_level="1" version="0" object_id="_2">
+									<OctActor class_id="11" tracking_level="1" version="0" object_id="_3"></OctActor>
+									<Component class_id="13" tracking_level="1" version="0" object_id="_4">
+										<m_Type>1</m_Type>
+										<m_Position>
+											<x>8.000000000e+000</x>
+											<y>1.242895603e+000</y>
+											<z>8.000000000e+000</z>
+										</m_Position>
+										<m_Rotation class_id="14" tracking_level="0" version="0">
+											<x>0.000000000e+000</x>
+											<y>0.000000000e+000</y>
+											<z>0.000000000e+000</z>
+											<w>9.999999404e-001</w>
+										</m_Rotation>
+										<m_Scale>
+											<x>1.000000000e+000</x>
+											<y>1.000000000e+000</y>
+											<z>1.000000000e+000</z>
+										</m_Scale>
+										<m_World class_id="15" tracking_level="0" version="0">
+											<_11>1.000000000e+000</_11>
+											<_12>0.000000000e+000</_12>
+											<_13>0.000000000e+000</_13>
+											<_14>0.000000000e+000</_14>
+											<_21>0.000000000e+000</_21>
+											<_22>1.000000000e+000</_22>
+											<_23>0.000000000e+000</_23>
+											<_24>0.000000000e+000</_24>
+											<_31>0.000000000e+000</_31>
+											<_32>0.000000000e+000</_32>
+											<_33>1.000000000e+000</_33>
+											<_34>0.000000000e+000</_34>
+											<_41>8.000000000e+000</_41>
+											<_42>1.242895603e+000</_42>
+											<_43>8.000000000e+000</_43>
+											<_44>1.000000000e+000</_44>
+										</m_World>
+									</Component>
+									<m_aabb>
+										<m_min>
+											<x>-1.000000000e+000</x>
+											<y>-1.399999976e+000</y>
+											<z>-9.980270267e-001</z>
+										</m_min>
+										<m_max>
+											<x>1.000000000e+000</x>
+											<y>1.399999976e+000</y>
+											<z>9.980270267e-001</z>
+										</m_max>
+									</m_aabb>
+									<m_Animator class_id="16" tracking_level="0" version="1">
+										<px class_id="-1"></px>
+									</m_Animator>
+									<m_Controller class_id="18" tracking_level="0" version="1">
+										<px class_id="-1"></px>
+									</m_Controller>
+									<m_Cmps class_id="20" tracking_level="0" version="0">
+										<count>1</count>
+										<item_version>1</item_version>
+										<item class_id="21" tracking_level="0" version="1">
+											<px class_id="22" class_name="MeshComponent" tracking_level="1" version="0" object_id="_5">
+												<RenderComponent class_id="23" tracking_level="0" version="0">
+													<Component object_id="_6">
+														<m_Type>3</m_Type>
+														<m_Position>
+															<x>0.000000000e+000</x>
+															<y>0.000000000e+000</y>
+															<z>0.000000000e+000</z>
+														</m_Position>
+														<m_Rotation>
+															<x>0.000000000e+000</x>
+															<y>0.000000000e+000</y>
+															<z>0.000000000e+000</z>
+															<w>1.000000000e+000</w>
+														</m_Rotation>
+														<m_Scale>
+															<x>1.000000000e+000</x>
+															<y>1.000000000e+000</y>
+															<z>1.000000000e+000</z>
+														</m_Scale>
+														<m_World>
+															<_11>1.000000000e+000</_11>
+															<_12>0.000000000e+000</_12>
+															<_13>0.000000000e+000</_13>
+															<_14>0.000000000e+000</_14>
+															<_21>0.000000000e+000</_21>
+															<_22>1.000000000e+000</_22>
+															<_23>0.000000000e+000</_23>
+															<_24>0.000000000e+000</_24>
+															<_31>0.000000000e+000</_31>
+															<_32>0.000000000e+000</_32>
+															<_33>1.000000000e+000</_33>
+															<_34>0.000000000e+000</_34>
+															<_41>8.000000000e+000</_41>
+															<_42>1.242895603e+000</_42>
+															<_43>8.000000000e+000</_43>
+															<_44>1.000000000e+000</_44>
+														</m_World>
+													</Component>
+												</RenderComponent>
+												<m_MeshRes class_id="24" tracking_level="0" version="0">
+													<m_Path>D:\Works\VC++\myd3dlib\demo2_3\Media\mesh\Helix.mesh.xml</m_Path>
+												</m_MeshRes>
+												<m_bInstance>0</m_bInstance>
+												<m_bUseAnimation>0</m_bUseAnimation>
+												<m_MaterialList class_id="25" tracking_level="0" version="0">
+													<count>1</count>
+													<item_version>1</item_version>
+													<item class_id="26" tracking_level="0" version="1">
+														<px class_id="27" tracking_level="1" version="0" object_id="_7">
+															<m_Shader>lambert1.fx</m_Shader>
+															<m_PassMask>11</m_PassMask>
+															<m_CullMode>2</m_CullMode>
+															<m_ZEnable>1</m_ZEnable>
+															<m_MeshColor class_id="28" tracking_level="0" version="0">
+																<x>1.000000000e+000</x>
+																<y>1.000000000e+000</y>
+																<z>1.000000000e+000</z>
+																<w>1.000000000e+000</w>
+															</m_MeshColor>
+															<m_MeshTexture class_id="29" tracking_level="0" version="0">
+																<m_Path>texture/White.dds</m_Path>
+															</m_MeshTexture>
+															<m_NormalTexture>
+																<m_Path>texture/Normal.dds</m_Path>
+															</m_NormalTexture>
+															<m_SpecularTexture>
+																<m_Path>texture/White.dds</m_Path>
+															</m_SpecularTexture>
+														</px>
+													</item>
+												</m_MaterialList>
+											</px>
+										</item>
+									</m_Cmps>
+									<ActorType>6</ActorType>
+								</px>
+							</first>
+							<second>
+								<m_min>
+									<x>7.000000000e+000</x>
+									<y>-1.571043730e-001</y>
+									<z>7.001973152e+000</z>
+								</m_min>
+								<m_max>
+									<x>9.000000000e+000</x>
+									<y>2.642895699e+000</y>
+									<z>8.998026848e+000</z>
+								</m_max>
+							</second>
+						</item>
+						<item>
+							<first>
+								<px class_id_reference="12" object_id="_8">
+									<OctActor object_id="_9"></OctActor>
+									<Component object_id="_10">
+										<m_Type>1</m_Type>
+										<m_Position>
+											<x>0.000000000e+000</x>
+											<y>0.000000000e+000</y>
+											<z>0.000000000e+000</z>
+										</m_Position>
+										<m_Rotation>
+											<x>0.000000000e+000</x>
+											<y>0.000000000e+000</y>
+											<z>0.000000000e+000</z>
+											<w>1.000000000e+000</w>
+										</m_Rotation>
+										<m_Scale>
+											<x>1.000000000e+000</x>
+											<y>1.000000000e+000</y>
+											<z>1.000000000e+000</z>
+										</m_Scale>
+										<m_World>
+											<_11>1.000000000e+000</_11>
+											<_12>0.000000000e+000</_12>
+											<_13>0.000000000e+000</_13>
+											<_14>0.000000000e+000</_14>
+											<_21>0.000000000e+000</_21>
+											<_22>1.000000000e+000</_22>
+											<_23>0.000000000e+000</_23>
+											<_24>0.000000000e+000</_24>
+											<_31>0.000000000e+000</_31>
+											<_32>0.000000000e+000</_32>
+											<_33>1.000000000e+000</_33>
+											<_34>0.000000000e+000</_34>
+											<_41>0.000000000e+000</_41>
+											<_42>0.000000000e+000</_42>
+											<_43>0.000000000e+000</_43>
+											<_44>1.000000000e+000</_44>
+										</m_World>
+									</Component>
+									<m_aabb>
+										<m_min>
+											<x>0.000000000e+000</x>
+											<y>-1.000000000e+000</y>
+											<z>0.000000000e+000</z>
+										</m_min>
+										<m_max>
+											<x>1.600000000e+001</x>
+											<y>1.000000000e+000</y>
+											<z>1.600000000e+001</z>
+										</m_max>
+									</m_aabb>
+									<m_Animator>
+										<px class_id="-1"></px>
+									</m_Animator>
+									<m_Controller>
+										<px class_id="-1"></px>
+									</m_Controller>
+									<m_Cmps>
+										<count>1</count>
+										<item_version>1</item_version>
+										<item>
+											<px class_id="30" class_name="Terrain" tracking_level="1" version="0" object_id="_11">
+												<RenderComponent>
+													<Component object_id="_12">
+														<m_Type>8</m_Type>
+														<m_Position>
+															<x>0.000000000e+000</x>
+															<y>0.000000000e+000</y>
+															<z>0.000000000e+000</z>
+														</m_Position>
+														<m_Rotation>
+															<x>0.000000000e+000</x>
+															<y>0.000000000e+000</y>
+															<z>0.000000000e+000</z>
+															<w>1.000000000e+000</w>
+														</m_Rotation>
+														<m_Scale>
+															<x>1.000000000e+000</x>
+															<y>1.000000000e+000</y>
+															<z>1.000000000e+000</z>
+														</m_Scale>
+														<m_World>
+															<_11>1.000000000e+000</_11>
+															<_12>0.000000000e+000</_12>
+															<_13>0.000000000e+000</_13>
+															<_14>0.000000000e+000</_14>
+															<_21>0.000000000e+000</_21>
+															<_22>1.000000000e+000</_22>
+															<_23>0.000000000e+000</_23>
+															<_24>0.000000000e+000</_24>
+															<_31>0.000000000e+000</_31>
+															<_32>0.000000000e+000</_32>
+															<_33>1.000000000e+000</_33>
+															<_34>0.000000000e+000</_34>
+															<_41>0.000000000e+000</_41>
+															<_42>0.000000000e+000</_42>
+															<_43>0.000000000e+000</_43>
+															<_44>1.000000000e+000</_44>
+														</m_World>
+													</Component>
+												</RenderComponent>
+												<m_HeightScale>1.000000000e+000</m_HeightScale>
+												<m_WrappedU>1.000000000e+000</m_WrappedU>
+												<m_WrappedV>1.000000000e+000</m_WrappedV>
+												<m_Material>
+													<px class_id_reference="27" object_id="_13">
+														<m_Shader>lambert1.fx</m_Shader>
+														<m_PassMask>11</m_PassMask>
+														<m_CullMode>2</m_CullMode>
+														<m_ZEnable>1</m_ZEnable>
+														<m_MeshColor>
+															<x>1.000000000e+000</x>
+															<y>1.000000000e+000</y>
+															<z>1.000000000e+000</z>
+															<w>1.000000000e+000</w>
+														</m_MeshColor>
+														<m_MeshTexture>
+															<m_Path>texture/White.dds</m_Path>
+														</m_MeshTexture>
+														<m_NormalTexture>
+															<m_Path>texture/Normal.dds</m_Path>
+														</m_NormalTexture>
+														<m_SpecularTexture>
+															<m_Path>texture/White.dds</m_Path>
+														</m_SpecularTexture>
+													</px>
+												</m_Material>
+												<HeightMap>
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+												</HeightMap>
+												<m_Root object_id="_14">
+													<OctNodeBase>
+														<m_aabb>
+															<m_min>
+																<x>0.000000000e+000</x>
+																<y>-3.000000000e+003</y>
+																<z>0.000000000e+000</z>
+															</m_min>
+															<m_max>
+																<x>1.600000000e+001</x>
+																<y>3.000000000e+003</y>
+																<z>1.600000000e+001</z>
+															</m_max>
+														</m_aabb>
+														<m_Actors>
+															<count>0</count>
+															<item_version>0</item_version>
+														</m_Actors>
+														<m_Childs class_id="31" tracking_level="0" version="0">
+															<elems>
+																<count>2</count>
+																<item class_id="32" tracking_level="0" version="1">
+																	<px class_id="33" class_name="OctNode1" tracking_level="1" version="0" object_id="_15">
+																		<OctNodeBase>
+																			<m_aabb>
+																				<m_min>
+																					<x>0.000000000e+000</x>
+																					<y>-3.000000000e+003</y>
+																					<z>0.000000000e+000</z>
+																				</m_min>
+																				<m_max>
+																					<x>8.000000000e+000</x>
+																					<y>3.000000000e+003</y>
+																					<z>1.600000000e+001</z>
+																				</m_max>
+																			</m_aabb>
+																			<m_Actors>
+																				<count>0</count>
+																				<item_version>0</item_version>
+																			</m_Actors>
+																			<m_Childs>
+																				<elems>
+																					<count>2</count>
+																					<item>
+																						<px class_id="34" class_name="OctNode2" tracking_level="1" version="0" object_id="_16">
+																							<OctNodeBase>
+																								<m_aabb>
+																									<m_min>
+																										<x>0.000000000e+000</x>
+																										<y>-3.000000000e+003</y>
+																										<z>0.000000000e+000</z>
+																									</m_min>
+																									<m_max>
+																										<x>8.000000000e+000</x>
+																										<y>0.000000000e+000</y>
+																										<z>1.600000000e+001</z>
+																									</m_max>
+																								</m_aabb>
+																								<m_Actors>
+																									<count>0</count>
+																									<item_version>0</item_version>
+																								</m_Actors>
+																								<m_Childs>
+																									<elems>
+																										<count>2</count>
+																										<item>
+																											<px class_id_reference="4" object_id="_17">
+																												<OctNodeBase>
+																													<m_aabb>
+																														<m_min>
+																															<x>0.000000000e+000</x>
+																															<y>-3.000000000e+003</y>
+																															<z>0.000000000e+000</z>
+																														</m_min>
+																														<m_max>
+																															<x>8.000000000e+000</x>
+																															<y>0.000000000e+000</y>
+																															<z>8.000000000e+000</z>
+																														</m_max>
+																													</m_aabb>
+																													<m_Actors>
+																														<count>1</count>
+																														<item_version>0</item_version>
+																														<item>
+																															<first>
+																																<px class_id="35" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_18">
+																																	<OctActor object_id="_19"></OctActor>
+																																	<m_aabb>
+																																		<m_min>
+																																			<x>0.000000000e+000</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>0.000000000e+000</z>
+																																		</m_min>
+																																		<m_max>
+																																			<x>8.000000000e+000</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>8.000000000e+000</z>
+																																		</m_max>
+																																	</m_aabb>
+																																	<m_Row>0</m_Row>
+																																	<m_Column>0</m_Column>
+																																</px>
+																															</first>
+																															<second>
+																																<m_min>
+																																	<x>0.000000000e+000</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>0.000000000e+000</z>
+																																</m_min>
+																																<m_max>
+																																	<x>8.000000000e+000</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>8.000000000e+000</z>
+																																</m_max>
+																															</second>
+																														</item>
+																													</m_Actors>
+																													<m_Childs>
+																														<elems>
+																															<count>2</count>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																														</elems>
+																													</m_Childs>
+																												</OctNodeBase>
+																												<m_Half>4.000000000e+000</m_Half>
+																												<m_MinBlock>1.000000000e+000</m_MinBlock>
+																											</px>
+																										</item>
+																										<item>
+																											<px class_id_reference="4" object_id="_20">
+																												<OctNodeBase>
+																													<m_aabb>
+																														<m_min>
+																															<x>0.000000000e+000</x>
+																															<y>-3.000000000e+003</y>
+																															<z>8.000000000e+000</z>
+																														</m_min>
+																														<m_max>
+																															<x>8.000000000e+000</x>
+																															<y>0.000000000e+000</y>
+																															<z>1.600000000e+001</z>
+																														</m_max>
+																													</m_aabb>
+																													<m_Actors>
+																														<count>1</count>
+																														<item_version>0</item_version>
+																														<item>
+																															<first>
+																																<px class_id_reference="35" object_id="_21">
+																																	<OctActor object_id="_22"></OctActor>
+																																	<m_aabb>
+																																		<m_min>
+																																			<x>0.000000000e+000</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>8.000000000e+000</z>
+																																		</m_min>
+																																		<m_max>
+																																			<x>8.000000000e+000</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>1.600000000e+001</z>
+																																		</m_max>
+																																	</m_aabb>
+																																	<m_Row>0</m_Row>
+																																	<m_Column>1</m_Column>
+																																</px>
+																															</first>
+																															<second>
+																																<m_min>
+																																	<x>0.000000000e+000</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>8.000000000e+000</z>
+																																</m_min>
+																																<m_max>
+																																	<x>8.000000000e+000</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>1.600000000e+001</z>
+																																</m_max>
+																															</second>
+																														</item>
+																													</m_Actors>
+																													<m_Childs>
+																														<elems>
+																															<count>2</count>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																														</elems>
+																													</m_Childs>
+																												</OctNodeBase>
+																												<m_Half>4.000000000e+000</m_Half>
+																												<m_MinBlock>1.000000000e+000</m_MinBlock>
+																											</px>
+																										</item>
+																									</elems>
+																								</m_Childs>
+																							</OctNodeBase>
+																							<m_Half>8.000000000e+000</m_Half>
+																							<m_MinBlock>1.000000000e+000</m_MinBlock>
+																						</px>
+																					</item>
+																					<item>
+																						<px class_id="-1"></px>
+																					</item>
+																				</elems>
+																			</m_Childs>
+																		</OctNodeBase>
+																		<m_Half>0.000000000e+000</m_Half>
+																		<m_MinBlock>1.000000000e+000</m_MinBlock>
+																	</px>
+																</item>
+																<item>
+																	<px class_id_reference="33" object_id="_23">
+																		<OctNodeBase>
+																			<m_aabb>
+																				<m_min>
+																					<x>8.000000000e+000</x>
+																					<y>-3.000000000e+003</y>
+																					<z>0.000000000e+000</z>
+																				</m_min>
+																				<m_max>
+																					<x>1.600000000e+001</x>
+																					<y>3.000000000e+003</y>
+																					<z>1.600000000e+001</z>
+																				</m_max>
+																			</m_aabb>
+																			<m_Actors>
+																				<count>0</count>
+																				<item_version>0</item_version>
+																			</m_Actors>
+																			<m_Childs>
+																				<elems>
+																					<count>2</count>
+																					<item>
+																						<px class_id_reference="34" object_id="_24">
+																							<OctNodeBase>
+																								<m_aabb>
+																									<m_min>
+																										<x>8.000000000e+000</x>
+																										<y>-3.000000000e+003</y>
+																										<z>0.000000000e+000</z>
+																									</m_min>
+																									<m_max>
+																										<x>1.600000000e+001</x>
+																										<y>0.000000000e+000</y>
+																										<z>1.600000000e+001</z>
+																									</m_max>
+																								</m_aabb>
+																								<m_Actors>
+																									<count>0</count>
+																									<item_version>0</item_version>
+																								</m_Actors>
+																								<m_Childs>
+																									<elems>
+																										<count>2</count>
+																										<item>
+																											<px class_id_reference="4" object_id="_25">
+																												<OctNodeBase>
+																													<m_aabb>
+																														<m_min>
+																															<x>8.000000000e+000</x>
+																															<y>-3.000000000e+003</y>
+																															<z>0.000000000e+000</z>
+																														</m_min>
+																														<m_max>
+																															<x>1.600000000e+001</x>
+																															<y>0.000000000e+000</y>
+																															<z>8.000000000e+000</z>
+																														</m_max>
+																													</m_aabb>
+																													<m_Actors>
+																														<count>1</count>
+																														<item_version>0</item_version>
+																														<item>
+																															<first>
+																																<px class_id_reference="35" object_id="_26">
+																																	<OctActor object_id="_27"></OctActor>
+																																	<m_aabb>
+																																		<m_min>
+																																			<x>8.000000000e+000</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>0.000000000e+000</z>
+																																		</m_min>
+																																		<m_max>
+																																			<x>1.600000000e+001</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>8.000000000e+000</z>
+																																		</m_max>
+																																	</m_aabb>
+																																	<m_Row>1</m_Row>
+																																	<m_Column>0</m_Column>
+																																</px>
+																															</first>
+																															<second>
+																																<m_min>
+																																	<x>8.000000000e+000</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>0.000000000e+000</z>
+																																</m_min>
+																																<m_max>
+																																	<x>1.600000000e+001</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>8.000000000e+000</z>
+																																</m_max>
+																															</second>
+																														</item>
+																													</m_Actors>
+																													<m_Childs>
+																														<elems>
+																															<count>2</count>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																														</elems>
+																													</m_Childs>
+																												</OctNodeBase>
+																												<m_Half>1.200000000e+001</m_Half>
+																												<m_MinBlock>1.000000000e+000</m_MinBlock>
+																											</px>
+																										</item>
+																										<item>
+																											<px class_id_reference="4" object_id="_28">
+																												<OctNodeBase>
+																													<m_aabb>
+																														<m_min>
+																															<x>8.000000000e+000</x>
+																															<y>-3.000000000e+003</y>
+																															<z>8.000000000e+000</z>
+																														</m_min>
+																														<m_max>
+																															<x>1.600000000e+001</x>
+																															<y>0.000000000e+000</y>
+																															<z>1.600000000e+001</z>
+																														</m_max>
+																													</m_aabb>
+																													<m_Actors>
+																														<count>1</count>
+																														<item_version>0</item_version>
+																														<item>
+																															<first>
+																																<px class_id_reference="35" object_id="_29">
+																																	<OctActor object_id="_30"></OctActor>
+																																	<m_aabb>
+																																		<m_min>
+																																			<x>8.000000000e+000</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>8.000000000e+000</z>
+																																		</m_min>
+																																		<m_max>
+																																			<x>1.600000000e+001</x>
+																																			<y>0.000000000e+000</y>
+																																			<z>1.600000000e+001</z>
+																																		</m_max>
+																																	</m_aabb>
+																																	<m_Row>1</m_Row>
+																																	<m_Column>1</m_Column>
+																																</px>
+																															</first>
+																															<second>
+																																<m_min>
+																																	<x>8.000000000e+000</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>8.000000000e+000</z>
+																																</m_min>
+																																<m_max>
+																																	<x>1.600000000e+001</x>
+																																	<y>0.000000000e+000</y>
+																																	<z>1.600000000e+001</z>
+																																</m_max>
+																															</second>
+																														</item>
+																													</m_Actors>
+																													<m_Childs>
+																														<elems>
+																															<count>2</count>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																															<item>
+																																<px class_id="-1"></px>
+																															</item>
+																														</elems>
+																													</m_Childs>
+																												</OctNodeBase>
+																												<m_Half>1.200000000e+001</m_Half>
+																												<m_MinBlock>1.000000000e+000</m_MinBlock>
+																											</px>
+																										</item>
+																									</elems>
+																								</m_Childs>
+																							</OctNodeBase>
+																							<m_Half>8.000000000e+000</m_Half>
+																							<m_MinBlock>1.000000000e+000</m_MinBlock>
+																						</px>
+																					</item>
+																					<item>
+																						<px class_id="-1"></px>
+																					</item>
+																				</elems>
+																			</m_Childs>
+																		</OctNodeBase>
+																		<m_Half>0.000000000e+000</m_Half>
+																		<m_MinBlock>1.000000000e+000</m_MinBlock>
+																	</px>
+																</item>
+															</elems>
+														</m_Childs>
+													</OctNodeBase>
+													<m_Half>8.000000000e+000</m_Half>
+													<m_MinBlock>1.000000000e+000</m_MinBlock>
+												</m_Root>
+												<m_LodMap class_id="36" tracking_level="0" version="0">
+													<count>4</count>
+													<item_version>0</item_version>
+													<item class_id="37" tracking_level="0" version="0">
+														<first>4.608000183e+001</first>
+														<second>0</second>
+													</item>
+													<item>
+														<first>1.843200073e+002</first>
+														<second>1</second>
+													</item>
+													<item>
+														<first>4.147200012e+002</first>
+														<second>2</second>
+													</item>
+													<item>
+														<first>7.372800293e+002</first>
+														<second>3</second>
+													</item>
+												</m_LodMap>
+											</px>
+										</item>
+									</m_Cmps>
+									<ActorType>0</ActorType>
+									<PxActorSize>628</PxActorSize>
+									<m_PxActor>
+U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABwARkGAAAA
+gAEAAACgqhgGAAAAgAIAAAAQ8RgGAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAABgtQ5a
+CAADAAAAAADEtQ5aAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwQ8RgGAAAAAM3Nzc3N
+zc3NEFQPWgcAAwAAAAAA0FQPWgMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
+PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzTD8DloGAAMASEcVBgAAAAAA
+AAAAcAEZBgEAAQECAAAAAQABAQAAAADNzc3Nzc3NzZDOAgYAAACFAAAAAM3Nzc3/////3FoDBgEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+AA==
+									</m_PxActor>
+								</px>
+							</first>
+							<second>
+								<m_min>
+									<x>0.000000000e+000</x>
+									<y>-1.000000000e+000</y>
+									<z>0.000000000e+000</z>
+								</m_min>
+								<m_max>
+									<x>1.600000000e+001</x>
+									<y>1.000000000e+000</y>
+									<z>1.600000000e+001</z>
+								</m_max>
+							</second>
+						</item>
+						<item>
+							<first>
+								<px class_id_reference="12" object_id="_31">
+									<OctActor object_id="_32"></OctActor>
+									<Component object_id="_33">
+										<m_Type>1</m_Type>
+										<m_Position>
+											<x>1.000000000e+001</x>
+											<y>1.000000000e+000</y>
+											<z>8.000000000e+000</z>
+										</m_Position>
+										<m_Rotation>
+											<x>0.000000000e+000</x>
+											<y>0.000000000e+000</y>
+											<z>0.000000000e+000</z>
+											<w>1.000000000e+000</w>
+										</m_Rotation>
+										<m_Scale>
+											<x>1.000000000e+000</x>
+											<y>1.000000000e+000</y>
+											<z>1.000000000e+000</z>
+										</m_Scale>
+										<m_World>
+											<_11>1.000000000e+000</_11>
+											<_12>0.000000000e+000</_12>
+											<_13>0.000000000e+000</_13>
+											<_14>0.000000000e+000</_14>
+											<_21>0.000000000e+000</_21>
+											<_22>1.000000000e+000</_22>
+											<_23>0.000000000e+000</_23>
+											<_24>0.000000000e+000</_24>
+											<_31>0.000000000e+000</_31>
+											<_32>0.000000000e+000</_32>
+											<_33>1.000000000e+000</_33>
+											<_34>0.000000000e+000</_34>
+											<_41>1.000000000e+001</_41>
+											<_42>1.000000000e+000</_42>
+											<_43>8.000000000e+000</_43>
+											<_44>1.000000000e+000</_44>
+										</m_World>
+									</Component>
+									<m_aabb>
+										<m_min>
+											<x>-2.500000000e+000</x>
+											<y>-2.500000000e+000</y>
+											<z>-2.500000000e+000</z>
+										</m_min>
+										<m_max>
+											<x>2.500000000e+000</x>
+											<y>2.500000000e+000</y>
+											<z>2.500000000e+000</z>
+										</m_max>
+									</m_aabb>
+									<m_Animator>
+										<px class_id="-1"></px>
+									</m_Animator>
+									<m_Controller>
+										<px class_id="-1"></px>
+									</m_Controller>
+									<m_Cmps>
+										<count>1</count>
+										<item_version>1</item_version>
+										<item>
+											<px class_id_reference="22" object_id="_34">
+												<RenderComponent>
+													<Component object_id="_35">
+														<m_Type>3</m_Type>
+														<m_Position>
+															<x>0.000000000e+000</x>
+															<y>0.000000000e+000</y>
+															<z>0.000000000e+000</z>
+														</m_Position>
+														<m_Rotation>
+															<x>0.000000000e+000</x>
+															<y>0.000000000e+000</y>
+															<z>0.000000000e+000</z>
+															<w>1.000000000e+000</w>
+														</m_Rotation>
+														<m_Scale>
+															<x>5.000000000e+000</x>
+															<y>5.000000000e+000</y>
+															<z>5.000000000e+000</z>
+														</m_Scale>
+														<m_World>
+															<_11>5.000000000e+000</_11>
+															<_12>0.000000000e+000</_12>
+															<_13>0.000000000e+000</_13>
+															<_14>0.000000000e+000</_14>
+															<_21>0.000000000e+000</_21>
+															<_22>5.000000000e+000</_22>
+															<_23>0.000000000e+000</_23>
+															<_24>0.000000000e+000</_24>
+															<_31>0.000000000e+000</_31>
+															<_32>0.000000000e+000</_32>
+															<_33>5.000000000e+000</_33>
+															<_34>0.000000000e+000</_34>
+															<_41>1.000000000e+001</_41>
+															<_42>1.000000000e+000</_42>
+															<_43>8.000000000e+000</_43>
+															<_44>1.000000000e+000</_44>
+														</m_World>
+													</Component>
+												</RenderComponent>
+												<m_MeshRes>
+													<m_Path>D:\Works\VC++\myd3dlib\demo2_3\Media\mesh\Cube.mesh.xml</m_Path>
+												</m_MeshRes>
+												<m_bInstance>0</m_bInstance>
+												<m_bUseAnimation>0</m_bUseAnimation>
+												<m_MaterialList>
+													<count>1</count>
+													<item_version>1</item_version>
+													<item>
+														<px class_id_reference="27" object_id="_36">
+															<m_Shader>light1.fx</m_Shader>
+															<m_PassMask>4</m_PassMask>
+															<m_CullMode>2</m_CullMode>
+															<m_ZEnable>1</m_ZEnable>
+															<m_MeshColor>
+																<x>1.000000000e+000</x>
+																<y>0.000000000e+000</y>
+																<z>0.000000000e+000</z>
+																<w>1.000000000e+000</w>
+															</m_MeshColor>
+															<m_MeshTexture>
+																<m_Path>texture/White.dds</m_Path>
+															</m_MeshTexture>
+															<m_NormalTexture>
+																<m_Path>texture/Normal.dds</m_Path>
+															</m_NormalTexture>
+															<m_SpecularTexture>
+																<m_Path>texture/White.dds</m_Path>
+															</m_SpecularTexture>
+														</px>
+													</item>
+												</m_MaterialList>
+											</px>
+										</item>
+									</m_Cmps>
+									<ActorType>6</ActorType>
+								</px>
+							</first>
+							<second>
+								<m_min>
+									<x>7.500000000e+000</x>
+									<y>-1.500000000e+000</y>
+									<z>5.500000000e+000</z>
+								</m_min>
+								<m_max>
+									<x>1.250000000e+001</x>
+									<y>3.500000000e+000</y>
+									<z>1.050000000e+001</z>
+								</m_max>
+							</second>
+						</item>
 					</m_Actors>
-					<m_Childs class_id="9" tracking_level="0" version="0">
+					<m_Childs>
 						<elems>
 							<count>2</count>
-							<item class_id="10" tracking_level="0" version="1">
-								<px class_id="11" class_name="OctNode1" tracking_level="1" version="0" object_id="_2">
+							<item>
+								<px class_id_reference="33" object_id="_37">
 									<OctNodeBase>
 										<m_aabb>
 											<m_min>
@@ -51,175 +970,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 											</m_max>
 										</m_aabb>
 										<m_Actors>
-											<count>1</count>
+											<count>0</count>
 											<item_version>0</item_version>
-											<item class_id="12" tracking_level="0" version="0">
-												<first class_id="13" tracking_level="0" version="1">
-													<px class_id="15" class_name="Actor" tracking_level="1" version="0" object_id="_3">
-														<OctActor class_id="14" tracking_level="1" version="0" object_id="_4"></OctActor>
-														<Component class_id="16" tracking_level="1" version="0" object_id="_5">
-															<m_Type>1</m_Type>
-															<m_Position>
-																<x>0.000000000e+000</x>
-																<y>0.000000000e+000</y>
-																<z>0.000000000e+000</z>
-															</m_Position>
-															<m_Rotation class_id="17" tracking_level="0" version="0">
-																<x>0.000000000e+000</x>
-																<y>0.000000000e+000</y>
-																<z>0.000000000e+000</z>
-																<w>1.000000000e+000</w>
-															</m_Rotation>
-															<m_Scale>
-																<x>1.000000000e+000</x>
-																<y>1.000000000e+000</y>
-																<z>1.000000000e+000</z>
-															</m_Scale>
-															<m_World class_id="18" tracking_level="0" version="0">
-																<_11>1.000000000e+000</_11>
-																<_12>0.000000000e+000</_12>
-																<_13>0.000000000e+000</_13>
-																<_14>0.000000000e+000</_14>
-																<_21>0.000000000e+000</_21>
-																<_22>1.000000000e+000</_22>
-																<_23>0.000000000e+000</_23>
-																<_24>0.000000000e+000</_24>
-																<_31>0.000000000e+000</_31>
-																<_32>0.000000000e+000</_32>
-																<_33>1.000000000e+000</_33>
-																<_34>0.000000000e+000</_34>
-																<_41>0.000000000e+000</_41>
-																<_42>0.000000000e+000</_42>
-																<_43>0.000000000e+000</_43>
-																<_44>1.000000000e+000</_44>
-															</m_World>
-														</Component>
-														<m_aabb>
-															<m_min>
-																<x>-1.000000000e+000</x>
-																<y>-1.000000000e+000</y>
-																<z>-1.000000000e+000</z>
-															</m_min>
-															<m_max>
-																<x>1.000000000e+000</x>
-																<y>1.000000000e+000</y>
-																<z>1.000000000e+000</z>
-															</m_max>
-														</m_aabb>
-														<m_Animator class_id="19" tracking_level="0" version="1">
-															<px class_id="-1"></px>
-														</m_Animator>
-														<m_Controller class_id="21" tracking_level="0" version="1">
-															<px class_id="-1"></px>
-														</m_Controller>
-														<m_Cmps class_id="23" tracking_level="0" version="0">
-															<count>1</count>
-															<item_version>1</item_version>
-															<item class_id="24" tracking_level="0" version="1">
-																<px class_id="25" class_name="MeshComponent" tracking_level="1" version="0" object_id="_6">
-																	<RenderComponent class_id="26" tracking_level="0" version="0">
-																		<Component object_id="_7">
-																			<m_Type>3</m_Type>
-																			<m_Position>
-																				<x>0.000000000e+000</x>
-																				<y>0.000000000e+000</y>
-																				<z>0.000000000e+000</z>
-																			</m_Position>
-																			<m_Rotation>
-																				<x>0.000000000e+000</x>
-																				<y>0.000000000e+000</y>
-																				<z>7.071067691e-001</z>
-																				<w>7.071067691e-001</w>
-																			</m_Rotation>
-																			<m_Scale>
-																				<x>1.000000000e+000</x>
-																				<y>1.000000000e+000</y>
-																				<z>1.000000000e+000</z>
-																			</m_Scale>
-																			<m_World>
-																				<_11>5.960464478e-008</_11>
-																				<_12>9.999999404e-001</_12>
-																				<_13>0.000000000e+000</_13>
-																				<_14>0.000000000e+000</_14>
-																				<_21>-9.999999404e-001</_21>
-																				<_22>5.960464478e-008</_22>
-																				<_23>0.000000000e+000</_23>
-																				<_24>0.000000000e+000</_24>
-																				<_31>0.000000000e+000</_31>
-																				<_32>0.000000000e+000</_32>
-																				<_33>1.000000000e+000</_33>
-																				<_34>0.000000000e+000</_34>
-																				<_41>0.000000000e+000</_41>
-																				<_42>0.000000000e+000</_42>
-																				<_43>0.000000000e+000</_43>
-																				<_44>1.000000000e+000</_44>
-																			</m_World>
-																		</Component>
-																	</RenderComponent>
-																	<m_MeshRes class_id="27" tracking_level="0" version="0">
-																		<m_Path>E:\Works\VC++\D3DSolution\myd3dlib\demo2_3\Media\mesh\Cone.mesh.xml</m_Path>
-																	</m_MeshRes>
-																	<m_bInstance>0</m_bInstance>
-																	<m_bUseAnimation>0</m_bUseAnimation>
-																	<m_MaterialList class_id="28" tracking_level="0" version="0">
-																		<count>1</count>
-																		<item_version>1</item_version>
-																		<item class_id="29" tracking_level="0" version="1">
-																			<px class_id="30" tracking_level="1" version="0" object_id="_8">
-																				<m_Shader>lambert1.fx</m_Shader>
-																				<m_PassMask>11</m_PassMask>
-																				<m_MeshColor class_id="31" tracking_level="0" version="0">
-																					<x>1.000000000e+000</x>
-																					<y>1.000000000e+000</y>
-																					<z>1.000000000e+000</z>
-																					<w>1.000000000e+000</w>
-																				</m_MeshColor>
-																				<m_MeshTexture class_id="32" tracking_level="0" version="0">
-																					<m_Path>texture/Checker.bmp</m_Path>
-																				</m_MeshTexture>
-																				<m_NormalTexture>
-																					<m_Path>texture/Normal.dds</m_Path>
-																				</m_NormalTexture>
-																				<m_SpecularTexture>
-																					<m_Path>texture/White.dds</m_Path>
-																				</m_SpecularTexture>
-																			</px>
-																		</item>
-																	</m_MaterialList>
-																</px>
-															</item>
-														</m_Cmps>
-														<ActorType>0</ActorType>
-														<PxActorSize>628</PxActorSize>
-														<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
-AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABQfL0HAAAA
-gAIAAADQqr0HAAAAgAAAAABgQtYHAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAACA0h1i
-CAADAAAAAADk0h1iAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzQqr0HAAAAAM3Nzc3N
-zc3NgHAeYgcAAwAAAAAAQHEeYgMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
-PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzQAZHmIGAAMAGHlQBQAAAAAA
-AAAAYELWBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzbAvRgUAAACFAAAAAM3Nzc3/////bLVGBQEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
-AA==
-														</m_PxActor>
-													</px>
-												</first>
-												<second>
-													<m_min>
-														<x>-1.000000000e+000</x>
-														<y>-1.000000000e+000</y>
-														<z>-1.000000000e+000</z>
-													</m_min>
-													<m_max>
-														<x>1.000000000e+000</x>
-														<y>1.000000000e+000</y>
-														<z>1.000000000e+000</z>
-													</m_max>
-												</second>
-											</item>
 										</m_Actors>
 										<m_Childs>
 											<elems>
@@ -228,7 +980,217 @@ AA==
 													<px class_id="-1"></px>
 												</item>
 												<item>
-													<px class_id="-1"></px>
+													<px class_id_reference="34" object_id="_38">
+														<OctNodeBase>
+															<m_aabb>
+																<m_min>
+																	<x>-1.000000000e+000</x>
+																	<y>0.000000000e+000</y>
+																	<z>-1.000000000e+000</z>
+																</m_min>
+																<m_max>
+																	<x>8.000000000e+000</x>
+																	<y>1.700000000e+001</y>
+																	<z>1.700000000e+001</z>
+																</m_max>
+															</m_aabb>
+															<m_Actors>
+																<count>1</count>
+																<item_version>0</item_version>
+																<item>
+																	<first>
+																		<px class_id_reference="12" object_id="_39">
+																			<OctActor object_id="_40"></OctActor>
+																			<Component object_id="_41">
+																				<m_Type>1</m_Type>
+																				<m_Position>
+																					<x>5.000000000e+000</x>
+																					<y>1.000000000e+000</y>
+																					<z>8.000000000e+000</z>
+																				</m_Position>
+																				<m_Rotation>
+																					<x>0.000000000e+000</x>
+																					<y>0.000000000e+000</y>
+																					<z>0.000000000e+000</z>
+																					<w>1.000000000e+000</w>
+																				</m_Rotation>
+																				<m_Scale>
+																					<x>1.000000000e+000</x>
+																					<y>1.000000000e+000</y>
+																					<z>1.000000000e+000</z>
+																				</m_Scale>
+																				<m_World>
+																					<_11>1.000000000e+000</_11>
+																					<_12>0.000000000e+000</_12>
+																					<_13>0.000000000e+000</_13>
+																					<_14>0.000000000e+000</_14>
+																					<_21>0.000000000e+000</_21>
+																					<_22>1.000000000e+000</_22>
+																					<_23>0.000000000e+000</_23>
+																					<_24>0.000000000e+000</_24>
+																					<_31>0.000000000e+000</_31>
+																					<_32>0.000000000e+000</_32>
+																					<_33>1.000000000e+000</_33>
+																					<_34>0.000000000e+000</_34>
+																					<_41>5.000000000e+000</_41>
+																					<_42>1.000000000e+000</_42>
+																					<_43>8.000000000e+000</_43>
+																					<_44>1.000000000e+000</_44>
+																				</m_World>
+																			</Component>
+																			<m_aabb>
+																				<m_min>
+																					<x>-1.000000000e+000</x>
+																					<y>-1.000000000e+000</y>
+																					<z>-1.000000000e+000</z>
+																				</m_min>
+																				<m_max>
+																					<x>1.000000000e+000</x>
+																					<y>1.000000000e+000</y>
+																					<z>1.000000000e+000</z>
+																				</m_max>
+																			</m_aabb>
+																			<m_Animator>
+																				<px class_id="-1"></px>
+																			</m_Animator>
+																			<m_Controller>
+																				<px class_id="-1"></px>
+																			</m_Controller>
+																			<m_Cmps>
+																				<count>1</count>
+																				<item_version>1</item_version>
+																				<item>
+																					<px class_id="38" class_name="StaticEmitterComponent" tracking_level="1" version="0" object_id="_42">
+																						<EmitterComponent class_id="39" tracking_level="0" version="0">
+																							<RenderComponent>
+																								<Component object_id="_43">
+																									<m_Type>6</m_Type>
+																									<m_Position>
+																										<x>0.000000000e+000</x>
+																										<y>0.000000000e+000</y>
+																										<z>0.000000000e+000</z>
+																									</m_Position>
+																									<m_Rotation>
+																										<x>0.000000000e+000</x>
+																										<y>0.000000000e+000</y>
+																										<z>0.000000000e+000</z>
+																										<w>1.000000000e+000</w>
+																									</m_Rotation>
+																									<m_Scale>
+																										<x>1.000000000e+000</x>
+																										<y>1.000000000e+000</y>
+																										<z>1.000000000e+000</z>
+																									</m_Scale>
+																									<m_World>
+																										<_11>1.000000000e+000</_11>
+																										<_12>0.000000000e+000</_12>
+																										<_13>0.000000000e+000</_13>
+																										<_14>0.000000000e+000</_14>
+																										<_21>0.000000000e+000</_21>
+																										<_22>1.000000000e+000</_22>
+																										<_23>0.000000000e+000</_23>
+																										<_24>0.000000000e+000</_24>
+																										<_31>0.000000000e+000</_31>
+																										<_32>0.000000000e+000</_32>
+																										<_33>1.000000000e+000</_33>
+																										<_34>0.000000000e+000</_34>
+																										<_41>5.000000000e+000</_41>
+																										<_42>1.000000000e+000</_42>
+																										<_43>8.000000000e+000</_43>
+																										<_44>1.000000000e+000</_44>
+																									</m_World>
+																								</Component>
+																							</RenderComponent>
+																							<m_Emitter class_id="40" tracking_level="0" version="1">
+																								<px class_id="41" tracking_level="1" version="0" object_id="_44"></px>
+																							</m_Emitter>
+																							<m_Material>
+																								<px class_id_reference="27" object_id="_45">
+																									<m_Shader>light1.fx</m_Shader>
+																									<m_PassMask>4</m_PassMask>
+																									<m_CullMode>2</m_CullMode>
+																									<m_ZEnable>0</m_ZEnable>
+																									<m_MeshColor>
+																										<x>1.000000000e+000</x>
+																										<y>1.000000000e+000</y>
+																										<z>1.000000000e+000</z>
+																										<w>1.000000000e+000</w>
+																									</m_MeshColor>
+																									<m_MeshTexture>
+																										<m_Path>texture/White.dds</m_Path>
+																									</m_MeshTexture>
+																									<m_NormalTexture>
+																										<m_Path></m_Path>
+																									</m_NormalTexture>
+																									<m_SpecularTexture>
+																										<m_Path></m_Path>
+																									</m_SpecularTexture>
+																								</px>
+																							</m_Material>
+																						</EmitterComponent>
+																						<ParticleList class_id="42" tracking_level="0" version="0">
+																							<count>1</count>
+																							<item_version>0</item_version>
+																							<item class_id="43" tracking_level="0" version="0">
+																								<m_Position>
+																									<x>0.000000000e+000</x>
+																									<y>0.000000000e+000</y>
+																									<z>0.000000000e+000</z>
+																								</m_Position>
+																								<m_Velocity>
+																									<x>0.000000000e+000</x>
+																									<y>0.000000000e+000</y>
+																									<z>0.000000000e+000</z>
+																								</m_Velocity>
+																								<m_Color>
+																									<x>0.000000000e+000</x>
+																									<y>0.000000000e+000</y>
+																									<z>1.000000000e+000</z>
+																									<w>1.000000000e+000</w>
+																								</m_Color>
+																								<m_Size class_id="44" tracking_level="0" version="0">
+																									<x>1.000000000e+001</x>
+																									<y>1.000000000e+001</y>
+																								</m_Size>
+																								<m_Angle>0.000000000e+000</m_Angle>
+																								<m_Time>0.000000000e+000</m_Time>
+																							</item>
+																						</ParticleList>
+																					</px>
+																				</item>
+																			</m_Cmps>
+																			<ActorType>6</ActorType>
+																		</px>
+																	</first>
+																	<second>
+																		<m_min>
+																			<x>4.000000000e+000</x>
+																			<y>0.000000000e+000</y>
+																			<z>7.000000000e+000</z>
+																		</m_min>
+																		<m_max>
+																			<x>6.000000000e+000</x>
+																			<y>2.000000000e+000</y>
+																			<z>9.000000000e+000</z>
+																		</m_max>
+																	</second>
+																</item>
+															</m_Actors>
+															<m_Childs>
+																<elems>
+																	<count>2</count>
+																	<item>
+																		<px class_id="-1"></px>
+																	</item>
+																	<item>
+																		<px class_id="-1"></px>
+																	</item>
+																</elems>
+															</m_Childs>
+														</OctNodeBase>
+														<m_Half>8.000000000e+000</m_Half>
+														<m_MinBlock>1.000000000e+000</m_MinBlock>
+													</px>
 												</item>
 											</elems>
 										</m_Childs>
@@ -238,7 +1200,71 @@ AA==
 								</px>
 							</item>
 							<item>
-								<px class_id="-1"></px>
+								<px class_id_reference="33" object_id="_46">
+									<OctNodeBase>
+										<m_aabb>
+											<m_min>
+												<x>8.000000000e+000</x>
+												<y>-1.700000000e+001</y>
+												<z>-1.000000000e+000</z>
+											</m_min>
+											<m_max>
+												<x>1.700000000e+001</x>
+												<y>1.700000000e+001</y>
+												<z>1.700000000e+001</z>
+											</m_max>
+										</m_aabb>
+										<m_Actors>
+											<count>0</count>
+											<item_version>0</item_version>
+										</m_Actors>
+										<m_Childs>
+											<elems>
+												<count>2</count>
+												<item>
+													<px class_id="-1"></px>
+												</item>
+												<item>
+													<px class_id_reference="34" object_id="_47">
+														<OctNodeBase>
+															<m_aabb>
+																<m_min>
+																	<x>8.000000000e+000</x>
+																	<y>0.000000000e+000</y>
+																	<z>-1.000000000e+000</z>
+																</m_min>
+																<m_max>
+																	<x>1.700000000e+001</x>
+																	<y>1.700000000e+001</y>
+																	<z>1.700000000e+001</z>
+																</m_max>
+															</m_aabb>
+															<m_Actors>
+																<count>0</count>
+																<item_version>0</item_version>
+															</m_Actors>
+															<m_Childs>
+																<elems>
+																	<count>2</count>
+																	<item>
+																		<px class_id="-1"></px>
+																	</item>
+																	<item>
+																		<px class_id="-1"></px>
+																	</item>
+																</elems>
+															</m_Childs>
+														</OctNodeBase>
+														<m_Half>8.000000000e+000</m_Half>
+														<m_MinBlock>1.000000000e+000</m_MinBlock>
+													</px>
+												</item>
+											</elems>
+										</m_Childs>
+									</OctNodeBase>
+									<m_Half>0.000000000e+000</m_Half>
+									<m_MinBlock>1.000000000e+000</m_MinBlock>
+								</px>
 							</item>
 						</elems>
 					</m_Childs>
@@ -247,8 +1273,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_9">
-			<OctNode0 object_id="_10">
+		<item object_id="_48">
+			<OctNode0 object_id="_49">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -282,8 +1308,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_11">
-			<OctNode0 object_id="_12">
+		<item object_id="_50">
+			<OctNode0 object_id="_51">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -317,8 +1343,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_13">
-			<OctNode0 object_id="_14">
+		<item object_id="_52">
+			<OctNode0 object_id="_53">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -352,8 +1378,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_15">
-			<OctNode0 object_id="_16">
+		<item object_id="_54">
+			<OctNode0 object_id="_55">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -387,8 +1413,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_17">
-			<OctNode0 object_id="_18">
+		<item object_id="_56">
+			<OctNode0 object_id="_57">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -422,8 +1448,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_19">
-			<OctNode0 object_id="_20">
+		<item object_id="_58">
+			<OctNode0 object_id="_59">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -457,8 +1483,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_21">
-			<OctNode0 object_id="_22">
+		<item object_id="_60">
+			<OctNode0 object_id="_61">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -492,8 +1518,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_23">
-			<OctNode0 object_id="_24">
+		<item object_id="_62">
+			<OctNode0 object_id="_63">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -527,8 +1553,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_25">
-			<OctNode0 object_id="_26">
+		<item object_id="_64">
+			<OctNode0 object_id="_65">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -562,8 +1588,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_27">
-			<OctNode0 object_id="_28">
+		<item object_id="_66">
+			<OctNode0 object_id="_67">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -597,8 +1623,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_29">
-			<OctNode0 object_id="_30">
+		<item object_id="_68">
+			<OctNode0 object_id="_69">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -632,8 +1658,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_31">
-			<OctNode0 object_id="_32">
+		<item object_id="_70">
+			<OctNode0 object_id="_71">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -667,8 +1693,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_33">
-			<OctNode0 object_id="_34">
+		<item object_id="_72">
+			<OctNode0 object_id="_73">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -702,8 +1728,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_35">
-			<OctNode0 object_id="_36">
+		<item object_id="_74">
+			<OctNode0 object_id="_75">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -737,8 +1763,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_37">
-			<OctNode0 object_id="_38">
+		<item object_id="_76">
+			<OctNode0 object_id="_77">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -772,8 +1798,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_39">
-			<OctNode0 object_id="_40">
+		<item object_id="_78">
+			<OctNode0 object_id="_79">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -807,8 +1833,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_41">
-			<OctNode0 object_id="_42">
+		<item object_id="_80">
+			<OctNode0 object_id="_81">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -842,8 +1868,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_43">
-			<OctNode0 object_id="_44">
+		<item object_id="_82">
+			<OctNode0 object_id="_83">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -877,8 +1903,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_45">
-			<OctNode0 object_id="_46">
+		<item object_id="_84">
+			<OctNode0 object_id="_85">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -912,8 +1938,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_47">
-			<OctNode0 object_id="_48">
+		<item object_id="_86">
+			<OctNode0 object_id="_87">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -947,8 +1973,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_49">
-			<OctNode0 object_id="_50">
+		<item object_id="_88">
+			<OctNode0 object_id="_89">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -982,8 +2008,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_51">
-			<OctNode0 object_id="_52">
+		<item object_id="_90">
+			<OctNode0 object_id="_91">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1017,8 +2043,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_53">
-			<OctNode0 object_id="_54">
+		<item object_id="_92">
+			<OctNode0 object_id="_93">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1052,8 +2078,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_55">
-			<OctNode0 object_id="_56">
+		<item object_id="_94">
+			<OctNode0 object_id="_95">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1087,8 +2113,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_57">
-			<OctNode0 object_id="_58">
+		<item object_id="_96">
+			<OctNode0 object_id="_97">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1122,8 +2148,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_59">
-			<OctNode0 object_id="_60">
+		<item object_id="_98">
+			<OctNode0 object_id="_99">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1157,8 +2183,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_61">
-			<OctNode0 object_id="_62">
+		<item object_id="_100">
+			<OctNode0 object_id="_101">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1192,8 +2218,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_63">
-			<OctNode0 object_id="_64">
+		<item object_id="_102">
+			<OctNode0 object_id="_103">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1227,8 +2253,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_65">
-			<OctNode0 object_id="_66">
+		<item object_id="_104">
+			<OctNode0 object_id="_105">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1262,8 +2288,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_67">
-			<OctNode0 object_id="_68">
+		<item object_id="_106">
+			<OctNode0 object_id="_107">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1297,8 +2323,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_69">
-			<OctNode0 object_id="_70">
+		<item object_id="_108">
+			<OctNode0 object_id="_109">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1332,8 +2358,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_71">
-			<OctNode0 object_id="_72">
+		<item object_id="_110">
+			<OctNode0 object_id="_111">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1367,8 +2393,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_73">
-			<OctNode0 object_id="_74">
+		<item object_id="_112">
+			<OctNode0 object_id="_113">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1402,8 +2428,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_75">
-			<OctNode0 object_id="_76">
+		<item object_id="_114">
+			<OctNode0 object_id="_115">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1437,8 +2463,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_77">
-			<OctNode0 object_id="_78">
+		<item object_id="_116">
+			<OctNode0 object_id="_117">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1472,8 +2498,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_79">
-			<OctNode0 object_id="_80">
+		<item object_id="_118">
+			<OctNode0 object_id="_119">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1507,8 +2533,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_81">
-			<OctNode0 object_id="_82">
+		<item object_id="_120">
+			<OctNode0 object_id="_121">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1542,8 +2568,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_83">
-			<OctNode0 object_id="_84">
+		<item object_id="_122">
+			<OctNode0 object_id="_123">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1577,8 +2603,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_85">
-			<OctNode0 object_id="_86">
+		<item object_id="_124">
+			<OctNode0 object_id="_125">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1612,8 +2638,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_87">
-			<OctNode0 object_id="_88">
+		<item object_id="_126">
+			<OctNode0 object_id="_127">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1647,8 +2673,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_89">
-			<OctNode0 object_id="_90">
+		<item object_id="_128">
+			<OctNode0 object_id="_129">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1682,8 +2708,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_91">
-			<OctNode0 object_id="_92">
+		<item object_id="_130">
+			<OctNode0 object_id="_131">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1717,8 +2743,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_93">
-			<OctNode0 object_id="_94">
+		<item object_id="_132">
+			<OctNode0 object_id="_133">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1752,8 +2778,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_95">
-			<OctNode0 object_id="_96">
+		<item object_id="_134">
+			<OctNode0 object_id="_135">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1787,8 +2813,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_97">
-			<OctNode0 object_id="_98">
+		<item object_id="_136">
+			<OctNode0 object_id="_137">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1822,8 +2848,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_99">
-			<OctNode0 object_id="_100">
+		<item object_id="_138">
+			<OctNode0 object_id="_139">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1857,8 +2883,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_101">
-			<OctNode0 object_id="_102">
+		<item object_id="_140">
+			<OctNode0 object_id="_141">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1892,8 +2918,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_103">
-			<OctNode0 object_id="_104">
+		<item object_id="_142">
+			<OctNode0 object_id="_143">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1927,8 +2953,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_105">
-			<OctNode0 object_id="_106">
+		<item object_id="_144">
+			<OctNode0 object_id="_145">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1962,8 +2988,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_107">
-			<OctNode0 object_id="_108">
+		<item object_id="_146">
+			<OctNode0 object_id="_147">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -1997,8 +3023,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_109">
-			<OctNode0 object_id="_110">
+		<item object_id="_148">
+			<OctNode0 object_id="_149">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2032,8 +3058,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_111">
-			<OctNode0 object_id="_112">
+		<item object_id="_150">
+			<OctNode0 object_id="_151">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2067,8 +3093,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_113">
-			<OctNode0 object_id="_114">
+		<item object_id="_152">
+			<OctNode0 object_id="_153">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2102,8 +3128,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_115">
-			<OctNode0 object_id="_116">
+		<item object_id="_154">
+			<OctNode0 object_id="_155">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2137,8 +3163,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_117">
-			<OctNode0 object_id="_118">
+		<item object_id="_156">
+			<OctNode0 object_id="_157">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2172,8 +3198,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_119">
-			<OctNode0 object_id="_120">
+		<item object_id="_158">
+			<OctNode0 object_id="_159">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2207,8 +3233,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_121">
-			<OctNode0 object_id="_122">
+		<item object_id="_160">
+			<OctNode0 object_id="_161">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2242,8 +3268,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_123">
-			<OctNode0 object_id="_124">
+		<item object_id="_162">
+			<OctNode0 object_id="_163">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2277,8 +3303,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_125">
-			<OctNode0 object_id="_126">
+		<item object_id="_164">
+			<OctNode0 object_id="_165">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2312,8 +3338,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_127">
-			<OctNode0 object_id="_128">
+		<item object_id="_166">
+			<OctNode0 object_id="_167">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2347,8 +3373,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_129">
-			<OctNode0 object_id="_130">
+		<item object_id="_168">
+			<OctNode0 object_id="_169">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2382,8 +3408,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_131">
-			<OctNode0 object_id="_132">
+		<item object_id="_170">
+			<OctNode0 object_id="_171">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2417,8 +3443,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_133">
-			<OctNode0 object_id="_134">
+		<item object_id="_172">
+			<OctNode0 object_id="_173">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2452,8 +3478,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_135">
-			<OctNode0 object_id="_136">
+		<item object_id="_174">
+			<OctNode0 object_id="_175">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2487,8 +3513,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_137">
-			<OctNode0 object_id="_138">
+		<item object_id="_176">
+			<OctNode0 object_id="_177">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2522,8 +3548,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_139">
-			<OctNode0 object_id="_140">
+		<item object_id="_178">
+			<OctNode0 object_id="_179">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2557,8 +3583,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_141">
-			<OctNode0 object_id="_142">
+		<item object_id="_180">
+			<OctNode0 object_id="_181">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2592,8 +3618,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_143">
-			<OctNode0 object_id="_144">
+		<item object_id="_182">
+			<OctNode0 object_id="_183">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2627,8 +3653,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_145">
-			<OctNode0 object_id="_146">
+		<item object_id="_184">
+			<OctNode0 object_id="_185">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2662,8 +3688,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_147">
-			<OctNode0 object_id="_148">
+		<item object_id="_186">
+			<OctNode0 object_id="_187">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2697,8 +3723,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_149">
-			<OctNode0 object_id="_150">
+		<item object_id="_188">
+			<OctNode0 object_id="_189">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2732,8 +3758,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_151">
-			<OctNode0 object_id="_152">
+		<item object_id="_190">
+			<OctNode0 object_id="_191">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2767,8 +3793,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_153">
-			<OctNode0 object_id="_154">
+		<item object_id="_192">
+			<OctNode0 object_id="_193">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2802,8 +3828,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_155">
-			<OctNode0 object_id="_156">
+		<item object_id="_194">
+			<OctNode0 object_id="_195">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2837,8 +3863,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_157">
-			<OctNode0 object_id="_158">
+		<item object_id="_196">
+			<OctNode0 object_id="_197">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2872,8 +3898,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_159">
-			<OctNode0 object_id="_160">
+		<item object_id="_198">
+			<OctNode0 object_id="_199">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2907,8 +3933,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_161">
-			<OctNode0 object_id="_162">
+		<item object_id="_200">
+			<OctNode0 object_id="_201">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2942,8 +3968,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_163">
-			<OctNode0 object_id="_164">
+		<item object_id="_202">
+			<OctNode0 object_id="_203">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -2977,8 +4003,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_165">
-			<OctNode0 object_id="_166">
+		<item object_id="_204">
+			<OctNode0 object_id="_205">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3012,8 +4038,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_167">
-			<OctNode0 object_id="_168">
+		<item object_id="_206">
+			<OctNode0 object_id="_207">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3047,8 +4073,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_169">
-			<OctNode0 object_id="_170">
+		<item object_id="_208">
+			<OctNode0 object_id="_209">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3082,8 +4108,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_171">
-			<OctNode0 object_id="_172">
+		<item object_id="_210">
+			<OctNode0 object_id="_211">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3117,8 +4143,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_173">
-			<OctNode0 object_id="_174">
+		<item object_id="_212">
+			<OctNode0 object_id="_213">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3152,8 +4178,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_175">
-			<OctNode0 object_id="_176">
+		<item object_id="_214">
+			<OctNode0 object_id="_215">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3187,8 +4213,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_177">
-			<OctNode0 object_id="_178">
+		<item object_id="_216">
+			<OctNode0 object_id="_217">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3222,8 +4248,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_179">
-			<OctNode0 object_id="_180">
+		<item object_id="_218">
+			<OctNode0 object_id="_219">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3257,8 +4283,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_181">
-			<OctNode0 object_id="_182">
+		<item object_id="_220">
+			<OctNode0 object_id="_221">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3292,8 +4318,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_183">
-			<OctNode0 object_id="_184">
+		<item object_id="_222">
+			<OctNode0 object_id="_223">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3327,8 +4353,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_185">
-			<OctNode0 object_id="_186">
+		<item object_id="_224">
+			<OctNode0 object_id="_225">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3362,8 +4388,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_187">
-			<OctNode0 object_id="_188">
+		<item object_id="_226">
+			<OctNode0 object_id="_227">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3397,8 +4423,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_189">
-			<OctNode0 object_id="_190">
+		<item object_id="_228">
+			<OctNode0 object_id="_229">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3432,8 +4458,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_191">
-			<OctNode0 object_id="_192">
+		<item object_id="_230">
+			<OctNode0 object_id="_231">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3467,8 +4493,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_193">
-			<OctNode0 object_id="_194">
+		<item object_id="_232">
+			<OctNode0 object_id="_233">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3502,8 +4528,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_195">
-			<OctNode0 object_id="_196">
+		<item object_id="_234">
+			<OctNode0 object_id="_235">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3537,8 +4563,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_197">
-			<OctNode0 object_id="_198">
+		<item object_id="_236">
+			<OctNode0 object_id="_237">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3572,8 +4598,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_199">
-			<OctNode0 object_id="_200">
+		<item object_id="_238">
+			<OctNode0 object_id="_239">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3607,8 +4633,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_201">
-			<OctNode0 object_id="_202">
+		<item object_id="_240">
+			<OctNode0 object_id="_241">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3642,8 +4668,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_203">
-			<OctNode0 object_id="_204">
+		<item object_id="_242">
+			<OctNode0 object_id="_243">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>
@@ -3677,8 +4703,8 @@ AA==
 				<m_MinBlock>1.000000000e+000</m_MinBlock>
 			</OctNode0>
 		</item>
-		<item object_id="_205">
-			<OctNode0 object_id="_206">
+		<item object_id="_244">
+			<OctNode0 object_id="_245">
 				<OctNodeBase>
 					<m_aabb>
 						<m_min>

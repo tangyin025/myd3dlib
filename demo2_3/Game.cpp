@@ -565,6 +565,8 @@ void Game::OnFrameRender(
 	{
 		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
+		pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+		pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 		DrawHelper::EndLine(pd3dDevice, Matrix4::identity);
