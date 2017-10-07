@@ -138,10 +138,10 @@ int FileOStream::write(const void * buff, unsigned write_size)
 	return _write(m_fp, buff, write_size);
 }
 
-std::string StreamDir::ReplaceSlash(const std::string & path)
+std::string StreamDir::ReplaceSlash(const char * path)
 {
 	size_t pos = 0;
-	std::string ret = path;
+	std::string ret(path);
 	while(std::string::npos != (pos = ret.find('/', pos)))
 	{
 		ret.replace(pos++, 1, 1, '\\');
@@ -149,10 +149,10 @@ std::string StreamDir::ReplaceSlash(const std::string & path)
 	return ret;
 }
 
-std::string StreamDir::ReplaceBackslash(const std::string & path)
+std::string StreamDir::ReplaceBackslash(const char * path)
 {
 	size_t pos = 0;
-	std::string ret = path;
+	std::string ret(path);
 	while(std::string::npos != (pos = ret.find('\\', pos)))
 	{
 		ret.replace(pos++, 1, 1, '/');
@@ -182,7 +182,7 @@ ZipIStreamDir::~ZipIStreamDir(void)
 	zzip_dir_close(m_zipdir);
 }
 
-bool ZipIStreamDir::CheckPath(const std::string & path)
+bool ZipIStreamDir::CheckPath(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
 	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, ReplaceBackslash(path).c_str(), ZZIP_CASEINSENSITIVE);
@@ -195,29 +195,29 @@ bool ZipIStreamDir::CheckPath(const std::string & path)
 	return true;
 }
 
-std::string ZipIStreamDir::GetFullPath(const std::string & path)
+std::string ZipIStreamDir::GetFullPath(const char * path)
 {
 	return std::string();
 }
 
-IStreamPtr ZipIStreamDir::OpenIStream(const std::string & path)
+IStreamPtr ZipIStreamDir::OpenIStream(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
 	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, ReplaceBackslash(path).c_str(), ZZIP_CASEINSENSITIVE);
 	if(NULL == zfile)
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
+		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path));
 	}
 
 	return IStreamPtr(new ZipIStream(zfile, m_DirSec));
 }
 
-bool FileIStreamDir::CheckPath(const std::string & path)
+bool FileIStreamDir::CheckPath(const char * path)
 {
 	return !GetFullPath(path).empty();
 }
 
-std::string FileIStreamDir::GetFullPath(const std::string & path)
+std::string FileIStreamDir::GetFullPath(const char * path)
 {
 	std::string fullPath;
 	char * lpFilePath;
@@ -225,7 +225,7 @@ std::string FileIStreamDir::GetFullPath(const std::string & path)
 	do
 	{
 		fullPath.resize(dwLen);
-		dwLen = SearchPathA(m_dir.c_str(), path.c_str(), NULL, fullPath.size(), &fullPath[0], &lpFilePath);
+		dwLen = SearchPathA(m_dir.c_str(), path, NULL, fullPath.size(), &fullPath[0], &lpFilePath);
 	}
 	while(dwLen > fullPath.size());
 
@@ -233,12 +233,12 @@ std::string FileIStreamDir::GetFullPath(const std::string & path)
 	return fullPath;
 }
 
-IStreamPtr FileIStreamDir::OpenIStream(const std::string & path)
+IStreamPtr FileIStreamDir::OpenIStream(const char * path)
 {
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path.c_str()));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path));
 	}
 
 	return FileIStream::Open(ms2ts(fullPath).c_str());
@@ -257,11 +257,11 @@ void StreamDirMgr::RegisterFileDir(const std::string & dir)
 	m_DirList.push_back(ResourceDirPtr(new FileIStreamDir(dir)));
 }
 
-bool StreamDirMgr::CheckPath(const std::string & path)
+bool StreamDirMgr::CheckPath(const char * path)
 {
-	if(!PathIsRelativeA(path.c_str()))
+	if(!PathIsRelativeA(path))
 	{
-		return PathFileExistsA(path.c_str());
+		return PathFileExistsA(path);
 	}
 
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
@@ -276,9 +276,9 @@ bool StreamDirMgr::CheckPath(const std::string & path)
 	return false;
 }
 
-std::string StreamDirMgr::GetFullPath(const std::string & path)
+std::string StreamDirMgr::GetFullPath(const char * path)
 {
-	if(!PathIsRelativeA(path.c_str()))
+	if(!PathIsRelativeA(path))
 	{
 		return path;
 	}
@@ -296,10 +296,9 @@ std::string StreamDirMgr::GetFullPath(const std::string & path)
 	// ! will return the default first combined path
 	if(!m_DirList.empty())
 	{
-		std::string ret;
-		ret.resize(MAX_PATH);
-		PathCombineA(&ret[0], m_DirList.front()->m_dir.c_str(), path.c_str());
-		ret = ZipIStreamDir::ReplaceSlash(ret);
+		std::string ret(MAX_PATH, '\0');
+		PathCombineA(&ret[0], m_DirList.front()->m_dir.c_str(), path);
+		ret = ZipIStreamDir::ReplaceSlash(ret.c_str());
 		std::string full_path;
 		full_path.resize(MAX_PATH);
 		GetFullPathNameA(ret.c_str(), full_path.size(), &full_path[0], NULL);
@@ -309,9 +308,9 @@ std::string StreamDirMgr::GetFullPath(const std::string & path)
 	return std::string();
 }
 
-IStreamPtr StreamDirMgr::OpenIStream(const std::string & path)
+IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 {
-	if(!PathIsRelativeA(path.c_str()))
+	if(!PathIsRelativeA(path))
 	{
 		return FileIStream::Open(ms2ts(path).c_str());
 	}
@@ -325,7 +324,7 @@ IStreamPtr StreamDirMgr::OpenIStream(const std::string & path)
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
+	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path));
 }
 
 AsynchronousIOMgr::AsynchronousIOMgr(void)
@@ -533,8 +532,7 @@ HRESULT ResourceMgr::Open(
 	UINT * pBytes)
 {
 	CachePtr cache;
-	std::string path;
-	path.resize(MAX_PATH);
+	std::string path(MAX_PATH, '\0');
 	HeaderMap::const_iterator header_iter = m_HeaderMap.find(pFileName);
 	if (header_iter != m_HeaderMap.end())
 	{
@@ -548,9 +546,9 @@ HRESULT ResourceMgr::Open(
 	{
 	case D3DXINC_SYSTEM:
 	case D3DXINC_LOCAL:
-		if(CheckPath(path))
+		if(CheckPath(path.c_str()))
 		{
-			cache = OpenIStream(path)->GetWholeCache();
+			cache = OpenIStream(path.c_str())->GetWholeCache();
 			*ppData = &(*cache)[0];
 			*pBytes = cache->size();
 			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
@@ -713,7 +711,7 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 	}
 }
 
-void ResourceMgr::LoadTextureAsync(const std::string & path, IResourceCallback * callback)
+void ResourceMgr::LoadTextureAsync(const char * path, IResourceCallback * callback)
 {
 	IORequestPtr request(new TextureIORequest(path));
 	request->m_callbacks.insert(callback);
@@ -731,7 +729,7 @@ public:
 	}
 };
 
-boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const std::string & path)
+boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new TextureIORequest(path));
@@ -740,14 +738,14 @@ boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const std::string & path
 	return boost::dynamic_pointer_cast<BaseTexture>(request->m_res);
 }
 
-void ResourceMgr::LoadMeshAsync(const std::string & path, IResourceCallback * callback)
+void ResourceMgr::LoadMeshAsync(const char * path, IResourceCallback * callback)
 {
 	IORequestPtr request(new MeshIORequest(path));
 	request->m_callbacks.insert(callback);
 	LoadIORequestAsync(path, request);
 }
 
-boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const std::string & path)
+boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new MeshIORequest(path));
@@ -756,14 +754,14 @@ boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const std::string & path)
 	return boost::dynamic_pointer_cast<OgreMesh>(request->m_res);
 }
 
-void ResourceMgr::LoadSkeletonAsync(const std::string & path, IResourceCallback * callback)
+void ResourceMgr::LoadSkeletonAsync(const char * path, IResourceCallback * callback)
 {
 	IORequestPtr request(new SkeletonIORequest(path));
 	request->m_callbacks.insert(callback);
 	LoadIORequestAsync(path, request);
 }
 
-boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const std::string & path)
+boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new SkeletonIORequest(path));
@@ -772,7 +770,7 @@ boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const std::st
 	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(request->m_res);
 }
 
-void ResourceMgr::LoadEffectAsync(const std::string & path, const std::string & macros, IResourceCallback * callback)
+void ResourceMgr::LoadEffectAsync(const char * path, const char * macros, IResourceCallback * callback)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	IORequestPtr request(new EffectIORequest(path, macros));
@@ -780,7 +778,7 @@ void ResourceMgr::LoadEffectAsync(const std::string & path, const std::string & 
 	LoadIORequestAsync(key, request);
 }
 
-boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const std::string & path, const std::string & macros)
+boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	SimpleResourceCallback cb;
@@ -790,7 +788,7 @@ boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const std::string & path, cons
 	return boost::dynamic_pointer_cast<Effect>(request->m_res);
 }
 
-void ResourceMgr::LoadFontAsync(const std::string & path, int height, IResourceCallback * callback)
+void ResourceMgr::LoadFontAsync(const char * path, int height, IResourceCallback * callback)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 	IORequestPtr request(new FontIORequest(path, height));
@@ -798,7 +796,7 @@ void ResourceMgr::LoadFontAsync(const std::string & path, int height, IResourceC
 	LoadIORequestAsync(key, request);
 }
 
-boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int height)
+boost::shared_ptr<Font> ResourceMgr::LoadFont(const char * path, int height)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 	SimpleResourceCallback cb;
@@ -810,9 +808,9 @@ boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int heig
 
 void TextureIORequest::LoadResource(void)
 {
-	if(ResourceMgr::getSingleton().CheckPath(m_path))
+	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path)->GetWholeCache();
+		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 	}
 }
 
@@ -851,9 +849,9 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 
 void MeshIORequest::LoadResource(void)
 {
-	if(ResourceMgr::getSingleton().CheckPath(m_path))
+	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path)->GetWholeCache();
+		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 		m_cache->push_back(0);
 		try
 		{
@@ -879,9 +877,9 @@ void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 
 void SkeletonIORequest::LoadResource(void)
 {
-	if(ResourceMgr::getSingleton().CheckPath(m_path))
+	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path)->GetWholeCache();
+		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 		m_cache->push_back(0);
 		try
 		{
@@ -905,7 +903,7 @@ void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	m_res = res;
 }
 
-EffectIORequest::EffectIORequest(const std::string & path, std::string macros)
+EffectIORequest::EffectIORequest(const char * path, std::string macros)
 	: m_path(path)
 {
 	boost::algorithm::split(m_macros, macros, boost::algorithm::is_any_of(" \t"), boost::algorithm::token_compress_on);
@@ -924,9 +922,9 @@ EffectIORequest::EffectIORequest(const std::string & path, std::string macros)
 
 void EffectIORequest::LoadResource(void)
 {
-	if(ResourceMgr::getSingleton().CheckPath(m_path))
+	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path)->GetWholeCache();
+		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 	}
 }
 
@@ -937,22 +935,22 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 	EffectPtr res(new Effect());
-	ResourceMgr::getSingleton().m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path);
+	ResourceMgr::getSingleton().m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path.c_str());
 	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_EffectInclude[0]);
 	res->CreateEffect(&(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), 0, ResourceMgr::getSingleton().m_EffectPool);
 	m_res = res;
 }
 
-std::string EffectIORequest::BuildKey(const std::string & path, const std::string & macros)
+std::string EffectIORequest::BuildKey(const char * path, const char * macros)
 {
-	return str_printf("%s %s", path.c_str(), macros.c_str());
+	return str_printf("%s %s", path, macros);
 }
 
 void FontIORequest::LoadResource(void)
 {
-	if(ResourceMgr::getSingleton().CheckPath(m_path))
+	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path)->GetWholeCache();
+		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
 	}
 }
 
@@ -967,7 +965,7 @@ void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	m_res = res;
 }
 
-std::string FontIORequest::BuildKey(const std::string & path, int height)
+std::string FontIORequest::BuildKey(const char * path, int height)
 {
-	return str_printf("%s %d", path.c_str(), height);
+	return str_printf("%s %d", path, height);
 }

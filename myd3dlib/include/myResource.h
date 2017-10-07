@@ -118,15 +118,15 @@ namespace my
 		{
 		}
 
-		static std::string ReplaceSlash(const std::string & path);
+		static std::string ReplaceSlash(const char * path);
 
-		static std::string ReplaceBackslash(const std::string & path);
+		static std::string ReplaceBackslash(const char * path);
 
-		virtual bool CheckPath(const std::string & path) = 0;
+		virtual bool CheckPath(const char * path) = 0;
 
-		virtual std::string GetFullPath(const std::string & path) = 0;
+		virtual std::string GetFullPath(const char * path) = 0;
 
-		virtual IStreamPtr OpenIStream(const std::string & path) = 0;
+		virtual IStreamPtr OpenIStream(const char * path) = 0;
 	};
 
 	class ZipIStreamDir : public StreamDir
@@ -141,11 +141,11 @@ namespace my
 
 		~ZipIStreamDir(void);
 
-		bool CheckPath(const std::string & path);
+		bool CheckPath(const char * path);
 
-		std::string GetFullPath(const std::string & path);
+		std::string GetFullPath(const char * path);
 
-		IStreamPtr OpenIStream(const std::string & path);
+		IStreamPtr OpenIStream(const char * path);
 	};
 
 	class FileIStreamDir : public StreamDir
@@ -156,11 +156,11 @@ namespace my
 		{
 		}
 
-		bool CheckPath(const std::string & path);
+		bool CheckPath(const char * path);
 
-		std::string GetFullPath(const std::string & path);
+		std::string GetFullPath(const char * path);
 
-		IStreamPtr OpenIStream(const std::string & path);
+		IStreamPtr OpenIStream(const char * path);
 	};
 
 	class StreamDirMgr
@@ -185,11 +185,11 @@ namespace my
 
 		void RegisterFileDir(const std::string & dir);
 
-		bool CheckPath(const std::string & path);
+		bool CheckPath(const char * path);
 
-		std::string GetFullPath(const std::string & path);
+		std::string GetFullPath(const char * path);
 
-		IStreamPtr OpenIStream(const std::string & path);
+		IStreamPtr OpenIStream(const char * path);
 	};
 
 	class IResourceCallback
@@ -379,25 +379,25 @@ namespace my
 
 		void OnIORequestReady(const std::string & key, IORequestPtr request);
 
-		void LoadTextureAsync(const std::string & path, IResourceCallback * callback);
+		void LoadTextureAsync(const char * path, IResourceCallback * callback);
 
-		boost::shared_ptr<BaseTexture> LoadTexture(const std::string & path);
+		boost::shared_ptr<BaseTexture> LoadTexture(const char * path);
 
-		void LoadMeshAsync(const std::string & path, IResourceCallback * callback);
+		void LoadMeshAsync(const char * path, IResourceCallback * callback);
 
-		boost::shared_ptr<OgreMesh> LoadMesh(const std::string & path);
+		boost::shared_ptr<OgreMesh> LoadMesh(const char * path);
 
-		void LoadSkeletonAsync(const std::string & path, IResourceCallback * callback);
+		void LoadSkeletonAsync(const char * path, IResourceCallback * callback);
 
-		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const std::string & path);
+		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
 
-		void LoadEffectAsync(const std::string & path, const std::string & macros, IResourceCallback * callback);
+		void LoadEffectAsync(const char * path, const char * macros, IResourceCallback * callback);
 
-		boost::shared_ptr<Effect> LoadEffect(const std::string & path, const std::string & macros);
+		boost::shared_ptr<Effect> LoadEffect(const char * path, const char * macros);
 
-		void LoadFontAsync(const std::string & path, int height, IResourceCallback * callback);
+		void LoadFontAsync(const char * path, int height, IResourceCallback * callback);
 
-		boost::shared_ptr<Font> LoadFont(const std::string & path, int height);
+		boost::shared_ptr<Font> LoadFont(const char * path, int height);
 	};
 
 	class TextureIORequest : public IORequest
@@ -408,7 +408,7 @@ namespace my
 		CachePtr m_cache;
 
 	public:
-		TextureIORequest(const std::string & path)
+		TextureIORequest(const char * path)
 			: m_path(path)
 		{
 		}
@@ -428,7 +428,7 @@ namespace my
 		rapidxml::xml_document<char> m_doc;
 
 	public:
-		MeshIORequest(const std::string & path)
+		MeshIORequest(const char * path)
 			: m_path(path)
 		{
 		}
@@ -448,7 +448,7 @@ namespace my
 		rapidxml::xml_document<char> m_doc;
 
 	public:
-		SkeletonIORequest(const std::string & path)
+		SkeletonIORequest(const char * path)
 			: m_path(path)
 		{
 		}
@@ -470,13 +470,13 @@ namespace my
 		CachePtr m_cache;
 
 	public:
-		EffectIORequest(const std::string & path, std::string macros);
+		EffectIORequest(const char * path, std::string macros);
 
 		virtual void LoadResource(void);
 
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
-		static std::string BuildKey(const std::string & path, const std::string & macros);
+		static std::string BuildKey(const char * path, const char * macros);
 	};
 
 	class FontIORequest : public IORequest
@@ -489,7 +489,7 @@ namespace my
 		CachePtr m_cache;
 
 	public:
-		FontIORequest(const std::string & path, int height)
+		FontIORequest(const char * path, int height)
 			: m_path(path)
 			, m_height(height)
 		{
@@ -499,6 +499,6 @@ namespace my
 
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
-		static std::string BuildKey(const std::string & path, int height);
+		static std::string BuildKey(const char * path, int height);
 	};
 }

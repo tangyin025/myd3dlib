@@ -1482,7 +1482,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainHeightMap:
 		{
 			std::string path = ts2ms(pProp->GetValue().bstrVal);
-			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path));
+			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
 			if (res)
 			{
 				Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;

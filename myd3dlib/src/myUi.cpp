@@ -236,7 +236,7 @@ void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(TexturePath);
 	if (!TexturePath.empty())
 	{
-		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(TexturePath);
+		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(TexturePath.c_str());
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Rect);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border);
@@ -270,7 +270,7 @@ void ControlSkin::load<boost::archive::polymorphic_iarchive>(boost::archive::pol
 	ar >> BOOST_SERIALIZATION_NVP(FontHeight);
 	if (!FontPath.empty())
 	{
-		m_Font = my::ResourceMgr::getSingleton().LoadFont(FontPath, FontHeight);
+		m_Font = my::ResourceMgr::getSingleton().LoadFont(FontPath.c_str(), FontHeight);
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);

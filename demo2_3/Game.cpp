@@ -405,12 +405,12 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("FModContext::Init failed");
 	}
 
-	if (!(m_Font = LoadFont(m_InitFont, 13)))
+	if (!(m_Font = LoadFont(m_InitFont.c_str(), 13)))
 	{
 		THROW_CUSEXCEPTION("create m_Font failed");
 	}
 
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect(m_InitUIEffect, "")));
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect(m_InitUIEffect.c_str(), "")));
 
 	m_Console = ConsolePtr(new Console());
 
@@ -802,7 +802,7 @@ my::DialogPtr Game::LoadDialog(const char * path)
 	return dlg;
 }
 
-void Game::SaveMaterial(MaterialPtr mat, const std::string & path)
+void Game::SaveMaterial(MaterialPtr mat, const char * path)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
