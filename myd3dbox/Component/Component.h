@@ -29,6 +29,8 @@ public:
 
 	BOOL m_ZEnable;
 
+	BOOL m_ZWriteEnable;
+
 	my::Vector4 m_MeshColor;
 
 	ResourceBundle<my::BaseTexture> m_MeshTexture;
@@ -42,6 +44,7 @@ public:
 		: m_PassMask(PassMaskNone)
 		, m_CullMode(D3DCULL_CW)
 		, m_ZEnable(TRUE)
+		, m_ZWriteEnable(TRUE)
 		, m_MeshColor(1,1,1,1)
 	{
 	}
@@ -57,6 +60,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
 		ar & BOOST_SERIALIZATION_NVP(m_CullMode);
 		ar & BOOST_SERIALIZATION_NVP(m_ZEnable);
+		ar & BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshColor);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);

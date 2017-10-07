@@ -308,8 +308,6 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
@@ -330,8 +328,6 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
 	NormalSurf.Release();
 	PositionSurf.Release();
@@ -360,8 +356,6 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
 			pRC->m_SkyLightAmbient.x, pRC->m_SkyLightAmbient.y, pRC->m_SkyLightAmbient.z, pRC->m_SkyLightAmbient.w), 0, 0));
 	}
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));

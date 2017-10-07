@@ -73,6 +73,7 @@ protected:
 		PropertyMaterialPassMask,
 		PropertyMaterialCullMode,
 		PropertyMaterialZEnable,
+		PropertyMaterialZWriteEnable,
 		PropertyMaterialMeshColor,
 		PropertyMaterialMeshColorAlpha,
 		PropertyMaterialMeshTexture,

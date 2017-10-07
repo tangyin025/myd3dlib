@@ -310,12 +310,13 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
 	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mat->m_CullMode - 1]);
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZEnable);
+	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZWriteEnable);
 	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(4)))->SetColor(color);
-	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_MeshColor.w);
-	pMaterial->GetSubItem(6)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(8)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(5)))->SetColor(color);
+	pMaterial->GetSubItem(6)->SetValue((_variant_t)mat->m_MeshColor.w);
+	pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	pMaterial->GetSubItem(8)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -632,6 +633,8 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pProp);
 	CCheckBoxProp * pZEnable = new CCheckBoxProp(_T("ZEnable"), mat->m_ZEnable, NULL, PropertyMaterialZEnable);
 	pMaterial->AddSubItem(pZEnable);
+	CCheckBoxProp * pZWriteEnable = new CCheckBoxProp(_T("ZWriteEnable"), mat->m_ZWriteEnable, NULL, PropertyMaterialZWriteEnable);
+	pMaterial->AddSubItem(pZWriteEnable);
 	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
 	CColorProp * pColor = new CColorProp(_T("MeshColor"), color, NULL, NULL, PropertyMaterialMeshColor);
 	pColor->EnableOtherButton(_T("Other..."));
@@ -1241,6 +1244,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 			material->m_ZEnable = pProp->GetValue().boolVal != 0;
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialZWriteEnable:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_ZWriteEnable = pProp->GetValue().boolVal != 0;
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

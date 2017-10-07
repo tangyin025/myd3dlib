@@ -75,6 +75,7 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable));
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, m_ZWriteEnable));
 	shader->SetVector("g_MeshColor", m_MeshColor);
 	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
 	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
