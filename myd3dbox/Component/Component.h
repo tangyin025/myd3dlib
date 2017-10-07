@@ -21,6 +21,13 @@ public:
 		PassMaskTransparent		= 1 << RenderPipeline::PassTypeTransparent,
 	};
 
+	enum BlendMode
+	{
+		BlendModeNone = 0,
+		BlendModeAlpha,
+		BlendModeAdditive,
+	};
+
 	std::string m_Shader;
 
 	unsigned int m_PassMask;
@@ -30,6 +37,8 @@ public:
 	BOOL m_ZEnable;
 
 	BOOL m_ZWriteEnable;
+
+	DWORD m_BlendMode;
 
 	my::Vector4 m_MeshColor;
 
@@ -45,6 +54,7 @@ public:
 		, m_CullMode(D3DCULL_CW)
 		, m_ZEnable(TRUE)
 		, m_ZWriteEnable(TRUE)
+		, m_BlendMode(BlendModeNone)
 		, m_MeshColor(1,1,1,1)
 	{
 	}
@@ -61,6 +71,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_CullMode);
 		ar & BOOST_SERIALIZATION_NVP(m_ZEnable);
 		ar & BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
+		ar & BOOST_SERIALIZATION_NVP(m_BlendMode);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshColor);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);

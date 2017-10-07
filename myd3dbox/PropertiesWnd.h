@@ -74,6 +74,7 @@ protected:
 		PropertyMaterialCullMode,
 		PropertyMaterialZEnable,
 		PropertyMaterialZWriteEnable,
+		PropertyMaterialBlendMode,
 		PropertyMaterialMeshColor,
 		PropertyMaterialMeshColorAlpha,
 		PropertyMaterialMeshTexture,

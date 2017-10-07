@@ -62,11 +62,18 @@ static LPCTSTR g_ActorTypeDesc[physx::PxActorType::eACTOR_COUNT + 1] =
 	_T("None")
 };
 
-static LPCTSTR g_CullModeDesc[3] =
+static LPCTSTR g_CullModeDesc[] =
 {
 	_T("D3DCULL_NONE"),
 	_T("D3DCULL_CW"),
 	_T("D3DCULL_CCW")
+};
+
+static LPCTSTR g_BlendModeDesc[] =
+{
+	_T("BlendModeNone"),
+	_T("BlendModeAlpha"),
+	_T("BlendModeAdditive")
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -311,12 +318,13 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mat->m_CullMode - 1]);
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZEnable);
 	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZWriteEnable);
+	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_BlendModeDesc[mat->m_BlendMode]);
 	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(5)))->SetColor(color);
-	pMaterial->GetSubItem(6)->SetValue((_variant_t)mat->m_MeshColor.w);
-	pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(8)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(6)))->SetColor(color);
+	pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshColor.w);
+	pMaterial->GetSubItem(8)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -619,22 +627,28 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mat);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Shader"), (_variant_t)ms2ts(mat->m_Shader).c_str(), NULL, PropertyMaterialShader);
 	pMaterial->AddSubItem(pProp);
-	pProp = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mat->m_PassMask), NULL, PropertyMaterialPassMask);
+	CComboProp * pPassMask = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mat->m_PassMask), NULL, PropertyMaterialPassMask);
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
 	{
-		pProp->AddOption(g_PassMaskDesc[i].desc, TRUE);
+		pPassMask->AddOption(g_PassMaskDesc[i].desc, TRUE);
 	}
-	pMaterial->AddSubItem(pProp);
-	pProp = new CComboProp(_T("CullMode"), (_variant_t)g_CullModeDesc[mat->m_CullMode - 1], NULL, PropertyMaterialCullMode);
+	pMaterial->AddSubItem(pPassMask);
+	CComboProp * pCullMode = new CComboProp(_T("CullMode"), (_variant_t)g_CullModeDesc[mat->m_CullMode - 1], NULL, PropertyMaterialCullMode);
 	for (unsigned int i = 0; i < _countof(g_CullModeDesc); i++)
 	{
-		pProp->AddOption(g_CullModeDesc[i], TRUE);
+		pCullMode->AddOption(g_CullModeDesc[i], TRUE);
 	}
-	pMaterial->AddSubItem(pProp);
+	pMaterial->AddSubItem(pCullMode);
 	CCheckBoxProp * pZEnable = new CCheckBoxProp(_T("ZEnable"), mat->m_ZEnable, NULL, PropertyMaterialZEnable);
 	pMaterial->AddSubItem(pZEnable);
 	CCheckBoxProp * pZWriteEnable = new CCheckBoxProp(_T("ZWriteEnable"), mat->m_ZWriteEnable, NULL, PropertyMaterialZWriteEnable);
 	pMaterial->AddSubItem(pZWriteEnable);
+	CComboProp * pBlendMode = new CComboProp(_T("BlendMode"), (_variant_t)g_BlendModeDesc[mat->m_BlendMode], NULL, PropertyMaterialBlendMode);
+	for (unsigned int i = 0; i < _countof(g_BlendModeDesc); i++)
+	{
+		pBlendMode->AddOption(g_BlendModeDesc[i], TRUE);
+	}
+	pMaterial->AddSubItem(pBlendMode);
 	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
 	CColorProp * pColor = new CColorProp(_T("MeshColor"), color, NULL, NULL, PropertyMaterialMeshColor);
 	pColor->EnableOtherButton(_T("Other..."));
@@ -1252,6 +1266,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 			material->m_ZWriteEnable = pProp->GetValue().boolVal != 0;
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialBlendMode:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			ASSERT(i >= 0 && i < _countof(g_BlendModeDesc));
+			material->m_BlendMode = i;
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

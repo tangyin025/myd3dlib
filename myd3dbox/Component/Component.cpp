@@ -76,6 +76,24 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable));
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, m_ZWriteEnable));
+	switch (m_BlendMode)
+	{
+	case BlendModeAlpha:
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+		break;
+	case BlendModeAdditive:
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
+		break;
+	default:
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		break;
+	}
 	shader->SetVector("g_MeshColor", m_MeshColor);
 	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
 	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());

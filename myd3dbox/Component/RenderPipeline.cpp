@@ -356,25 +356,15 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
 			pRC->m_SkyLightAmbient.x, pRC->m_SkyLightAmbient.y, pRC->m_SkyLightAmbient.z, pRC->m_SkyLightAmbient.w), 0, 0));
 	}
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
-	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
-	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
 	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+
 	pRC->m_OpaqueRT.Flip();
 
 	if (pRC->m_FxaaEnable)
@@ -382,6 +372,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		m_FxaaEffect->SetTexture("InputTexture", pRC->m_OpaqueRT.GetNextSource().get());
 		Vector4 RCPFrame(1.0f / pBackBufferSurfaceDesc->Width, 1.0f / pBackBufferSurfaceDesc->Height, 0.0f, 0.0f);
 		m_FxaaEffect->SetFloatArray("RCPFrame", &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
@@ -405,6 +396,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		UINT passes = m_DofEffect->Begin();
 		m_DofEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
@@ -430,8 +422,8 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
