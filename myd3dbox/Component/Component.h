@@ -13,6 +13,14 @@ typedef boost::shared_ptr<Material> MaterialPtr;
 class Material
 {
 public:
+	enum PassMask
+	{
+		PassMaskNone			= 0,
+		PassMaskLight			= 1 << RenderPipeline::PassTypeLight,
+		PassMaskOpaque			= 1 << RenderPipeline::PassTypeShadow | 1 << RenderPipeline::PassTypeNormal | 1 << RenderPipeline::PassTypeOpaque,
+		PassMaskTransparent		= 1 << RenderPipeline::PassTypeTransparent,
+	};
+
 	std::string m_Shader;
 
 	unsigned int m_PassMask;
@@ -31,7 +39,7 @@ public:
 
 public:
 	Material(void)
-		: m_PassMask(RenderPipeline::PassMaskNone)
+		: m_PassMask(PassMaskNone)
 		, m_CullMode(D3DCULL_CW)
 		, m_ZEnable(TRUE)
 		, m_MeshColor(1,1,1,1)

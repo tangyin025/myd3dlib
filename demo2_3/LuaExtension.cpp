@@ -898,10 +898,10 @@ static void ExportComponent(lua_State * L)
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
 			[
-				value("PassMaskNone", RenderPipeline::PassMaskNone),
-				value("PassMaskLight", RenderPipeline::PassMaskLight),
-				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
-				value("PassMaskTransparent", RenderPipeline::PassMaskTransparent)
+				value("PassMaskNone", Material::PassMaskNone),
+				value("PassMaskLight", Material::PassMaskLight),
+				value("PassMaskOpaque", Material::PassMaskOpaque),
+				value("PassMaskTransparent", Material::PassMaskTransparent)
 			]
 			.def(constructor<>())
 			.def_readwrite("Shader", &Material::m_Shader)

@@ -21,10 +21,10 @@ struct PassMaskDesc
 
 static const PassMaskDesc g_PassMaskDesc[4] =
 {
-	{_T("None"), RenderPipeline::PassMaskNone},
-	{_T("Light"), RenderPipeline::PassMaskLight},
-	{_T("Opaque"), RenderPipeline::PassMaskOpaque},
-	{_T("Transparent"), RenderPipeline::PassMaskTransparent},
+	{_T("None"), Material::PassMaskNone},
+	{_T("Light"), Material::PassMaskLight},
+	{_T("Opaque"), Material::PassMaskOpaque},
+	{_T("Transparent"), Material::PassMaskTransparent},
 };
 
 static LPCTSTR GetPassMaskDesc(DWORD mask)

@@ -65,7 +65,7 @@ public:
 		//mesh_cmp->m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 		//MaterialPtr lambert1(new Material());
 		//lambert1->m_Shader = "lambert1.fx";
-		//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		//lambert1->m_PassMask = Material::PassMaskOpaque;
 		//lambert1->m_MeshColor = Vector4(1,1,1,1);
 		//lambert1->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";
 		//lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
@@ -82,7 +82,7 @@ public:
 		//mesh_cmp->m_MeshRes.m_Path = "mesh/plane.mesh.xml";
 		//lambert1.reset(new Material());
 		//lambert1->m_Shader = "lambert1.fx";
-		//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		//lambert1->m_PassMask = Material::PassMaskOpaque;
 		//lambert1->m_MeshColor = Vector4(1,1,1,1);
 		//lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
 		//lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
@@ -116,7 +116,7 @@ public:
 		//emit_cmp->m_Emitter = emit;
 		//MaterialPtr particle1(new Material());
 		//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
-		//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+		//particle1->m_PassMask = Material::PassMaskTransparent;
 		//particle1->m_Shader = "particle1.fx";
 		//emit_cmp->m_Material = particle1;
 		//emit_cmp->RequestResource();
@@ -149,7 +149,7 @@ public:
 		//mesh_cmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 		//MaterialPtr lambert1(new Material());
 		//lambert1->m_Shader = "lambert1.fx";
-		//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		//lambert1->m_PassMask = Material::PassMaskOpaque;
 		//lambert1->m_MeshColor = Vector4(1,1,1,1);
 		//lambert1->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";
 		//lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";

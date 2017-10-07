@@ -24,14 +24,6 @@ public:
 		PassTypeNum
 	};
 
-	enum PassMask
-	{
-		PassMaskNone			= 0,
-		PassMaskLight			= 1 << PassTypeLight,
-		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
-		PassMaskTransparent		= 1 << PassTypeTransparent,
-	};
-
 	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
