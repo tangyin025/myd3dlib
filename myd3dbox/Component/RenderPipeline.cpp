@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <sstream>
 #include "RenderPipeline.h"
 
 using namespace my;
