@@ -121,8 +121,6 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
-	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
-
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void SaveDialog(my::DialogPtr dlg, const char * path);

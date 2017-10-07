@@ -722,64 +722,6 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	return seed;
 }
 
-my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
-{
-	_ASSERT(material && !material->m_Shader.empty());
-
-	ShaderCacheKey key(mesh_type, bInstance, material->m_Shader);
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
-	if (shader_iter != m_ShaderCache.end())
-	{
-		return shader_iter->second.get();
-	}
-
-	struct Header
-	{
-		static const char * vs_header(unsigned int mesh_type)
-		{
-			switch (mesh_type)
-			{
-			case RenderPipeline::MeshTypeAnimation:
-				return "MeshSkeleton.fx";
-			case RenderPipeline::MeshTypeParticle:
-				return "MeshParticle.fx";
-			case RenderPipeline::MeshTypeTerrain:
-				return "MeshTerrain.fx";
-			}
-			return "MeshStatic.fx";
-		}
-	};
-
-	std::ostringstream oss;
-	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
-	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
-	oss << "#define INSTANCE " << (unsigned int)bInstance << std::endl;
-	oss << "#include \"CommonHeader.fx\"" << std::endl;
-	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
-	oss << "#include \"" << material->m_Shader << "\"" << std::endl;
-	std::string source = oss.str();
-
-	CComPtr<ID3DXBuffer> buff;
-	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), NULL, this, &buff, NULL)))
-	{
-		OStreamPtr ostr = FileOStream::Open(str_printf(_T("%S_%u_%u.fx"), material->m_Shader.c_str(), mesh_type, bInstance).c_str());
-		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
-	}
-
-	EffectPtr shader(new Effect());
-	try
-	{
-		shader->CreateEffect(source.c_str(), source.size(), NULL, this, 0, m_EffectPool);
-	}
-	catch (const my::Exception & e)
-	{
-		m_EventLog(e.what().c_str());
-		shader.reset();
-	}
-	m_ShaderCache.insert(std::make_pair(key, shader));
-	return shader.get();
-}
-
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	m_WorldL.AddToPipeline(frustum, pipeline, PassMask, m_Player->GetWorldPosition());

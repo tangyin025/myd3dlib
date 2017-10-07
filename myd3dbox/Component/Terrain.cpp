@@ -645,7 +645,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
+					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						// ! do not use m_World for level offset

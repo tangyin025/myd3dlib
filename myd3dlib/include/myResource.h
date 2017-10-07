@@ -315,7 +315,7 @@ namespace my
 		, public AsynchronousIOMgr
 		, public ID3DXInclude
 	{
-	protected:
+	public:
 		friend class EffectIORequest;
 
 		typedef boost::weak_ptr<DeviceResourceBase> DeviceResourceBaseWeakPtr;
