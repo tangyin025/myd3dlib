@@ -69,18 +69,6 @@ CChildView::CChildView()
 	m_SwapChainBufferDesc.Width = 100;
 	m_SwapChainBufferDesc.Height = 100;
 	m_DepthStencil.reset(new my::Surface());
-	m_SkyBoxTextures[0].m_Path = "texture/Checker.bmp";
-	m_SkyBoxTextures[0].RequestResource();
-	m_SkyBoxTextures[1].m_Path = "texture/Checker.bmp";
-	m_SkyBoxTextures[1].RequestResource();
-	m_SkyBoxTextures[2].m_Path = "texture/Checker.bmp";
-	m_SkyBoxTextures[2].RequestResource();
-	m_SkyBoxTextures[3].m_Path = "texture/Checker.bmp";
-	m_SkyBoxTextures[3].RequestResource();
-	m_SkyBoxTextures[4].m_Path = "texture/Checker.bmp";
-	m_SkyBoxTextures[4].RequestResource();
-	m_SkyBoxTextures[5].m_Path = "texture/Checker.bmp";
-	m_SkyBoxTextures[5].RequestResource();
 	m_NormalRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
 	m_LightRT.reset(new my::Texture2D());
@@ -876,9 +864,9 @@ void CChildView::OnPaint()
 
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
-				m_BkColor = D3DCOLOR_ARGB(0,161,161,161);
-				V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+				//m_BgColor = D3DCOLOR_ARGB(0,161,161,161);
+				//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BgColor, 1.0f, 0)); // ! d3dmultisample will not work
+				//V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);

@@ -130,7 +130,7 @@ public:
 
 		my::Vector4 m_SkyLightAmbient;
 
-		DWORD m_BkColor;
+		DWORD m_BgColor;
 
 		bool m_SkyBoxEnable;
 

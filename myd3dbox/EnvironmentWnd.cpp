@@ -111,6 +111,10 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEular->AddSubItem(pProp);
 
+	CColorProp * pBgColor = new CColorProp(_T("BgColor"), 0, NULL, NULL, CameraPropertyBgColor);
+	pBgColor->EnableOtherButton(_T("Other..."));
+	pCamera->AddSubItem(pBgColor);
+
 	CMFCPropertyGridProperty * pSkyBox = new CSimpleProp(_T("SkyBox"), PropertySkyBox, FALSE);
 	m_wndPropList.AddProperty(pSkyBox, FALSE, FALSE);
 	CMFCPropertyGridProperty * pSkyBoxEnable = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SkyBoxPropertyEnable);
@@ -181,6 +185,8 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.x));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.y));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.z));
+
+	(DYNAMIC_DOWNCAST(CColorProp, pCamera->GetSubItem(CameraPropertyBgColor)))->SetColor(camera_prop_arg->pView->m_BgColor);
 
 	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
 	ASSERT_VALID(pSkyBox);
@@ -326,6 +332,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+			pView->m_BgColor = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
 			pView->m_Camera->UpdateViewProj();
 		}
 		break;
@@ -334,8 +341,17 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pView->m_SkyBoxEnable = pProp->GetSubItem(SkyBoxPropertyEnable)->GetValue().boolVal != 0;
 			for (unsigned int i = 0; i < _countof(pView->m_SkyBoxTextures); i++)
 			{
-				pView->m_SkyBoxTextures[i].m_Path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->GetValue().bstrVal);
-				pView->m_SkyBoxTextures[i].RequestResource();
+				std::string path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->GetValue().bstrVal);
+				if (path.empty())
+				{
+					pView->m_SkyBoxTextures[i].m_Path.clear();
+					pView->m_SkyBoxTextures[i].ReleaseResource();
+				}
+				else if (path != pView->m_SkyBoxTextures[i].m_Path)
+				{
+					pView->m_SkyBoxTextures[i].m_Path = path;
+					pView->m_SkyBoxTextures[i].RequestResource();
+				}
 			}
 		}
 		break;

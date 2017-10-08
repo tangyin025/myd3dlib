@@ -24,6 +24,7 @@ class CEnvironmentWnd : public CDockablePane
 		CameraPropertyLevelId,
 		CameraPropertyLookAt,
 		CameraPropertyEular,
+		CameraPropertyBgColor,
 	};
 
 	enum SkyBoxProperty
