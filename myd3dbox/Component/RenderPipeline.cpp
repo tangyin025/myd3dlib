@@ -6,7 +6,7 @@ using namespace my;
 RenderPipeline::IRenderContext::IRenderContext(void)
 	: m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
-	, m_BgColor(D3DCOLOR_ARGB(255,45,50,170))
+	, m_BgColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_SkyBoxEnable(false)
 	, m_WireFrame(false)
 	, m_DofEnable(false)
@@ -380,6 +380,7 @@ void RenderPipeline::OnFrameRender(
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
+	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(pRC->m_BgColor.x, pRC->m_BgColor.y, pRC->m_BgColor.z, pRC->m_BgColor.w);
 	if (pRC->m_SkyBoxEnable)
 	{
 		struct CUSTOMVERTEX
@@ -390,10 +391,10 @@ void RenderPipeline::OnFrameRender(
 		};
 		CUSTOMVERTEX vertices[] =
 		{
-			{-1,  1, -1, pRC->m_BgColor, 0, 0},
-			{-1, -1, -1, pRC->m_BgColor, 0, 1},
-			{ 1, -1, -1, pRC->m_BgColor, 1, 1},
-			{ 1,  1, -1, pRC->m_BgColor, 1, 0},
+			{-1,  1, -1, bgcolor, 0, 0},
+			{-1, -1, -1, bgcolor, 0, 1},
+			{ 1, -1, -1, bgcolor, 1, 1},
+			{ 1,  1, -1, bgcolor, 1, 0},
 		};
 		pd3dDevice->SetFVF(D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1);
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
@@ -423,7 +424,7 @@ void RenderPipeline::OnFrameRender(
 	}
 	else
 	{
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BgColor, 1.0f, 0)); // ! d3dmultisample will not work
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, bgcolor, 1.0f, 0)); // ! d3dmultisample will not work
 	}
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 

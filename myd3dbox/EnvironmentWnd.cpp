@@ -186,7 +186,11 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.y));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.z));
 
-	(DYNAMIC_DOWNCAST(CColorProp, pCamera->GetSubItem(CameraPropertyBgColor)))->SetColor(camera_prop_arg->pView->m_BgColor);
+	COLORREF color = RGB(
+		camera_prop_arg->pView->m_BgColor.x * 255,
+		camera_prop_arg->pView->m_BgColor.y * 255,
+		camera_prop_arg->pView->m_BgColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pCamera->GetSubItem(CameraPropertyBgColor)))->SetColor((_variant_t)color);
 
 	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
 	ASSERT_VALID(pSkyBox);
@@ -202,7 +206,7 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.y));
 	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.z));
 
-	COLORREF color = RGB(
+	color = RGB(
 		camera_prop_arg->pView->m_SkyLightDiffuse.x * 255,
 		camera_prop_arg->pView->m_SkyLightDiffuse.y * 255,
 		camera_prop_arg->pView->m_SkyLightDiffuse.z * 255);
@@ -332,7 +336,8 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
-			pView->m_BgColor = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
+			pView->m_BgColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 			pView->m_Camera->UpdateViewProj();
 		}
 		break;
