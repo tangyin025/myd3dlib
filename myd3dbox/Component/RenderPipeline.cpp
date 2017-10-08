@@ -6,7 +6,7 @@ using namespace my;
 RenderPipeline::IRenderContext::IRenderContext(void)
 	: m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
-	, m_BgColor(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
 	, m_SkyBoxEnable(false)
 	, m_WireFrame(false)
 	, m_DofEnable(false)
