@@ -41,6 +41,7 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum SSAOProperty
 	{
+		SSAOPropertyEnable,
 		SSAOPropertyBias,
 		SSAOPropertyIntensity,
 		SSAOPropertyRadius,

@@ -146,6 +146,8 @@ void CEnvironmentWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pSSAO = new CSimpleProp(_T("SSAO"), PropertySSAO, FALSE);
 	m_wndPropList.AddProperty(pSSAO, FALSE, FALSE);
+	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SSAOPropertyEnable);
+	pSSAO->AddSubItem(pProp);
 	pProp = new CSliderProp(_T("Bias"), (_variant_t)0l, NULL, SSAOPropertyBias);
 	pSSAO->AddSubItem(pProp);
 	pProp = new CSliderProp(_T("Intensity"), (_variant_t)0l, NULL, SSAOPropertyIntensity);
@@ -207,6 +209,7 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbient)))->SetColor((_variant_t)color);
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
+	pSSAO->GetSubItem(SSAOPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SsaoEnable);
 	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoBias/SSAO_BIAS_RANGE*CSliderProp::RANGE));
 	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoIntensity/SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
 	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoRadius/SSAO_RADIUS_RANGE*CSliderProp::RANGE));
@@ -353,6 +356,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertySSAO:
 		{
+			pView->m_SsaoEnable = pProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
 			pView->m_SsaoBias = pProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;
 			pView->m_SsaoIntensity = pProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
 			pView->m_SsaoRadius = pProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
