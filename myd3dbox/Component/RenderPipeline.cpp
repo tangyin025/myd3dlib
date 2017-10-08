@@ -4,9 +4,9 @@
 
 using namespace my;
 RenderPipeline::IRenderContext::IRenderContext(void)
-	: m_BkColor(D3DCOLOR_ARGB(255,45,50,170))
-	, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
+	: m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
+	, m_BkColor(D3DCOLOR_ARGB(255,45,50,170))
 	, m_WireFrame(false)
 	, m_DofEnable(false)
 	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
@@ -357,6 +357,7 @@ void RenderPipeline::OnFrameRender(
 	if (pRC->m_SsaoEnable)
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		m_SsaoEffect->SetFloat("g_bias", pRC->m_SsaoBias);
@@ -378,7 +379,39 @@ void RenderPipeline::OnFrameRender(
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
+	if (pRC->m_SkyBoxTexture)
+	{
+		struct CUSTOMVERTEX
+		{
+			float x, y, z;
+			D3DCOLOR color;
+			FLOAT tu, tv;
+		};
+		CUSTOMVERTEX vertices[] =
+		{
+			{-1,  1, -1, pRC->m_BkColor, 0, 0},
+			{-1, -1, -1, pRC->m_BkColor, 0, 1},
+			{ 1, -1, -1, pRC->m_BkColor, 1, 1},
+			{ 1,  1, -1, pRC->m_BkColor, 1, 0},
+		};
+		pd3dDevice->SetFVF(D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1);
+		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::Translation(pRC->m_Camera->m_Eye)));
+		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&pRC->m_Camera->m_View));
+		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&pRC->m_Camera->m_Proj));
+		V(pd3dDevice->SetTexture(0, pRC->m_SkyBoxTexture->m_ptr));
+		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
+		V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
+	}
+	else
+	{
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
+	}
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
 	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);

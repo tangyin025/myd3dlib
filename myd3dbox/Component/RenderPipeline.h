@@ -120,8 +120,6 @@ public:
 	class IRenderContext
 	{
 	public:
-		DWORD m_BkColor;
-
 		my::CameraPtr m_Camera;
 
 		my::CameraPtr m_SkyLightCam;
@@ -129,6 +127,10 @@ public:
 		my::Vector4 m_SkyLightDiffuse;
 
 		my::Vector4 m_SkyLightAmbient;
+
+		DWORD m_BkColor;
+
+		my::BaseTexturePtr m_SkyBoxTexture;
 
 		bool m_WireFrame;
 

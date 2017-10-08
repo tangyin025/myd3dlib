@@ -69,6 +69,7 @@ CChildView::CChildView()
 	m_SwapChainBufferDesc.Width = 100;
 	m_SwapChainBufferDesc.Height = 100;
 	m_DepthStencil.reset(new my::Surface());
+	m_SkyBoxTexture = theApp.LoadTexture("texture/Checker.bmp");
 	m_NormalRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
 	m_LightRT.reset(new my::Texture2D());
