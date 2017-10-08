@@ -408,16 +408,16 @@ void RenderPipeline::OnFrameRender(
 		my::Matrix4 transforms[6] =
 		{
 			my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationX(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationX(D3DXToRadian(180)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationX(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationY(D3DXToRadian(180)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
 			my::Matrix4::RotationY(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
 			my::Matrix4::RotationY(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationX(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationX(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
 		};
 		for (unsigned int i = 0; i < _countof(pRC->m_SkyBoxTextures); i++)
 		{
 			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&transforms[i]));
-			V(pd3dDevice->SetTexture(0, pRC->m_SkyBoxTextures[i] ? pRC->m_SkyBoxTextures[i]->m_ptr : NULL));
+			V(pd3dDevice->SetTexture(0, pRC->m_SkyBoxTextures[i].m_Res ? pRC->m_SkyBoxTextures[i].m_Res->m_ptr : NULL));
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
 		}
 	}

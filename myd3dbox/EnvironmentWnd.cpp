@@ -111,6 +111,19 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEular->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty * pSkyBox = new CSimpleProp(_T("SkyBox"), PropertySkyBox, FALSE);
+	m_wndPropList.AddProperty(pSkyBox, FALSE, FALSE);
+	CMFCPropertyGridProperty * pSkyBoxEnable = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SkyBoxPropertyEnable);
+	pSkyBox->AddSubItem(pSkyBoxEnable);
+	CMFCPropertyGridProperty * pSkyBoxTextures = new CSimpleProp(_T("Textures"), SkyBoxPropertyTextures, FALSE);
+	pSkyBox->AddSubItem(pSkyBoxTextures);
+	const TCHAR * tex_name[6] = {_T("Front"), _T("Back"), _T("Left"), _T("Right"), _T("Up"), _T("Down")};
+	for (unsigned int i = 0; i < _countof(tex_name); i++)
+	{
+		CMFCPropertyGridProperty * pProp = new CFileProp(tex_name[i], TRUE, _T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, i);
+		pSkyBoxTextures->AddSubItem(pProp);
+	}
+
 	CMFCPropertyGridProperty * pSkyLight = new CSimpleProp(_T("SkyLight"), PropertySkyLight, FALSE);
 	m_wndPropList.AddProperty(pSkyLight, FALSE, FALSE);
 	CMFCPropertyGridProperty * pSkyLightDir = new CSimpleProp(_T("Dir"), SkyLightPropertyDir, TRUE);
@@ -166,6 +179,15 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.x));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.y));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.z));
+
+	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
+	ASSERT_VALID(pSkyBox);
+	pSkyBox->GetSubItem(SkyBoxPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SkyBoxEnable);
+	for (unsigned int i = 0; i < _countof(camera_prop_arg->pView->m_SkyBoxTextures); i++)
+	{
+		pSkyBox->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->SetValue(
+			(_variant_t)ms2ts(camera_prop_arg->pView->m_SkyBoxTextures[i].m_Path).c_str());
+	}
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
 	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.x));
@@ -304,7 +326,16 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pView->m_Camera->UpdateViewProj();
 		}
 		break;
-
+	case PropertySkyBox:
+		{
+			pView->m_SkyBoxEnable = pProp->GetSubItem(SkyBoxPropertyEnable)->GetValue().boolVal != 0;
+			for (unsigned int i = 0; i < _countof(pView->m_SkyBoxTextures); i++)
+			{
+				pView->m_SkyBoxTextures[i].m_Path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->GetValue().bstrVal);
+				pView->m_SkyBoxTextures[i].RequestResource();
+			}
+		}
+		break;
 	case PropertySkyLight:
 		{
 			pView->m_SkyLightCam->m_Eular = my::Vector3(
@@ -320,7 +351,6 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pView->m_SkyLightAmbient.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 		}
 		break;
-
 	case PropertySSAO:
 		{
 			pView->m_SsaoBias = pProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;

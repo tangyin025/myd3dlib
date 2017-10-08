@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ResourceBundle.h"
+
 class Material;
 
 class RenderPipeline
@@ -132,7 +134,7 @@ public:
 
 		bool m_SkyBoxEnable;
 
-		my::BaseTexturePtr m_SkyBoxTextures[6];
+		ResourceBundle<my::BaseTexture> m_SkyBoxTextures[6];
 
 		bool m_WireFrame;
 

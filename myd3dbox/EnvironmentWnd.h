@@ -14,6 +14,7 @@ class CEnvironmentWnd : public CDockablePane
 	enum Property
 	{
 		PropertyCamera,
+		PropertySkyBox,
 		PropertySkyLight,
 		PropertySSAO,
 	};
@@ -23,6 +24,12 @@ class CEnvironmentWnd : public CDockablePane
 		CameraPropertyLevelId,
 		CameraPropertyLookAt,
 		CameraPropertyEular,
+	};
+
+	enum SkyBoxProperty
+	{
+		SkyBoxPropertyEnable,
+		SkyBoxPropertyTextures,
 	};
 
 	enum SkyLightProperty
