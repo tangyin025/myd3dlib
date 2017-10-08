@@ -69,21 +69,33 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, con
 		}
 	};
 
+	std::string name = PathFindFileNameA(path);
+	my::ResourceMgr::getSingleton().m_EffectInclude = my::ZipIStreamDir::ReplaceSlash(path);
+	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_EffectInclude[0]);
+
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
 	oss << "#define INSTANCE " << (unsigned int)bInstance << std::endl;
 	oss << "#include \"CommonHeader.fx\"" << std::endl;
 	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
-	oss << "#include \"" << path << "\"" << std::endl;
+	oss << "#include \"" << name << "\"" << std::endl;
 	std::string source = oss.str();
 
+#ifdef _DEBUG
 	CComPtr<ID3DXBuffer> buff;
 	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), NULL, my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
 	{
-		my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("%S_%u_%u.fx"), path, mesh_type, bInstance).c_str());
+		std::string::size_type ext_pos = name.find_last_of(".");
+		if (ext_pos != std::string::npos)
+		{
+			name.replace(ext_pos, 1, "\0");
+		}
+		std::basic_string<TCHAR> tmp_path = str_printf(_T("%S_%u_%u.fx"), name.c_str(), mesh_type, bInstance);
+		my::OStreamPtr ostr = my::FileOStream::Open(tmp_path.c_str());
 		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
 	}
+#endif
 
 	my::EffectPtr shader(new my::Effect());
 	try
@@ -92,8 +104,9 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, con
 	}
 	catch (const my::Exception & e)
 	{
-		my::DxutApp::getSingleton().m_EventLog(e.what().c_str());
 		shader.reset();
+		const std::string & what = e.what();
+		my::DxutApp::getSingleton().m_EventLog(what.c_str());
 	}
 	m_ShaderCache.insert(std::make_pair(key, shader));
 	return shader.get();
