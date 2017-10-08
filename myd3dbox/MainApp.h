@@ -26,9 +26,6 @@ public:
 	CMainApp();
 
 	HRESULT hr;
-	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
-	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
-	ShaderCacheMap m_ShaderCache;
 	my::UIRenderPtr m_UIRender;
 	my::FontPtr m_Font;
 

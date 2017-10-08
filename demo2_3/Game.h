@@ -24,12 +24,6 @@ class Game
 	, public FModContext
 {
 public:
-	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
-
-	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
-
-	ShaderCacheMap m_ShaderCache;
-
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 
 	ScrInfoType m_ScrInfos;

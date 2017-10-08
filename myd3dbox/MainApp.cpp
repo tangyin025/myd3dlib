@@ -327,8 +327,6 @@ void CMainApp::OnDestroyDevice(void)
 	RenderPipeline::OnDestroyDevice();
 
 	m_UIRender.reset();
-
-	m_ShaderCache.clear();
 }
 //
 //void CMainApp::OnResourceFailed(const std::string & error_str)

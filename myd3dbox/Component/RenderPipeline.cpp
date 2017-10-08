@@ -34,13 +34,16 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-static size_t hash_value(const RenderPipeline::ShaderCacheKey & key)
+namespace boost
 {
-	size_t seed = 0;
-	boost::hash_combine(seed, key.get<0>());
-	boost::hash_combine(seed, key.get<1>());
-	boost::hash_combine(seed, key.get<2>());
-	return seed;
+	static size_t hash_value(const RenderPipeline::ShaderCacheKey & key)
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, key.get<0>());
+		boost::hash_combine(seed, key.get<1>());
+		boost::hash_combine(seed, key.get<2>());
+		return seed;
+	}
 }
 
 my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, const char * path, unsigned int PassID)
@@ -274,6 +277,10 @@ void RenderPipeline::OnDestroyDevice(void)
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 
+	m_ShaderCache.clear();
+
+	m_ParticleDecl.Release();
+
 	ClearAllObjects();
 
 	unsigned int PassID = 0;
@@ -286,8 +293,6 @@ void RenderPipeline::OnDestroyDevice(void)
 		//}
 		m_Pass[PassID].m_MeshInstanceMap.clear();
 	}
-
-	m_ParticleDecl.Release();
 }
 
 void RenderPipeline::OnFrameRender(

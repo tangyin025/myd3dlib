@@ -533,8 +533,6 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
-	m_ShaderCache.clear();
-
 	ImeEditBox::Uninitialize();
 
 	FModContext::Shutdown();

@@ -625,7 +625,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(buff, NodeId, FALSE);
 	pParentCtrl->AddSubItem(pMaterial);
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mat);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Shader"), (_variant_t)ms2ts(mat->m_Shader).c_str(), NULL, PropertyMaterialShader);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(mat->m_Shader).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
 	pMaterial->AddSubItem(pProp);
 	CComboProp * pPassMask = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mat->m_PassMask), NULL, PropertyMaterialPassMask);
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)

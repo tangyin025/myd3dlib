@@ -139,7 +139,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												<m_WrappedV>1.000000000e+000</m_WrappedV>
 												<m_Material class_id="24" tracking_level="0" version="1">
 													<px class_id="25" tracking_level="1" version="0" object_id="_7">
-														<m_Shader>lambert1.fx</m_Shader>
+														<m_Shader>shader/lambert1.fx</m_Shader>
 														<m_PassMask>11</m_PassMask>
 														<m_CullMode>2</m_CullMode>
 														<m_ZEnable>1</m_ZEnable>
@@ -616,17 +616,17 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 									<ActorType>0</ActorType>
 									<PxActorSize>628</PxActorSize>
 									<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACQyy0GAAAA
-gAEAAADgqi0GAAAAgAIAAAAwuy0GAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAABgtdhZ
-CAADAAAAAADEtdhZAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwwuy0GAAAAAM3Nzc3N
-zc3NEFTZWQcAAwAAAAAA0FTZWQMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADgVAoIAAAA
+gAAAAADwVQoIAAAAgAIAAAAgVQoIAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAACA0thd
+CAACAAAAAADk0thdAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzgVAoIAAAAAM3Nzc3N
+zc3NgHDZXQcAAgAAAAAAQHHZXQMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzTD82FkGAAMAgMIkBgAAAAAA
-AAAAkMstBgEAAQECAAAAAQABAQAAAADNzc3Nzc3NzcC9EwYAAACFAAAAAM3Nzc3/////HEoUBgEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+zc3Nzc3Nzc0AAAAAAM3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzQAZ2V0GAAIA2PgCCAAAAAAA
+AAAAIFUKCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzaDrVwUAAACFAAAAAM3Nzc3/////nDdYBQEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 									</m_PxActor>
 								</px>
@@ -748,7 +748,7 @@ AA==
 													</Component>
 												</RenderComponent>
 												<m_MeshRes class_id="36" tracking_level="0" version="0">
-													<m_Path>D:\Works\VC++\myd3dlib\demo2_3\Media\mesh\Helix.mesh.xml</m_Path>
+													<m_Path>mesh/Helix.mesh.xml</m_Path>
 												</m_MeshRes>
 												<m_bInstance>0</m_bInstance>
 												<m_bUseAnimation>0</m_bUseAnimation>
@@ -757,7 +757,7 @@ AA==
 													<item_version>1</item_version>
 													<item>
 														<px class_id_reference="25" object_id="_30">
-															<m_Shader>lambert1.fx</m_Shader>
+															<m_Shader>shader/lambert1.fx</m_Shader>
 															<m_PassMask>11</m_PassMask>
 															<m_CullMode>2</m_CullMode>
 															<m_ZEnable>1</m_ZEnable>
@@ -988,7 +988,7 @@ AA==
 																							</m_Emitter>
 																							<m_Material>
 																								<px class_id_reference="25" object_id="_40">
-																									<m_Shader>light1.fx</m_Shader>
+																									<m_Shader>shader/light1.fx</m_Shader>
 																									<m_PassMask>4</m_PassMask>
 																									<m_CullMode>2</m_CullMode>
 																									<m_ZEnable>0</m_ZEnable>
@@ -1205,7 +1205,7 @@ AA==
 																		</Component>
 																	</RenderComponent>
 																	<m_MeshRes>
-																		<m_Path>D:\Works\VC++\myd3dlib\demo2_3\Media\mesh\Cube.mesh.xml</m_Path>
+																		<m_Path>mesh/Cube.mesh.xml</m_Path>
 																	</m_MeshRes>
 																	<m_bInstance>0</m_bInstance>
 																	<m_bUseAnimation>0</m_bUseAnimation>
@@ -1214,11 +1214,11 @@ AA==
 																		<item_version>1</item_version>
 																		<item>
 																			<px class_id_reference="25" object_id="_47">
-																				<m_Shader>light1.fx</m_Shader>
+																				<m_Shader>shader/light1.fx</m_Shader>
 																				<m_PassMask>4</m_PassMask>
-																				<m_CullMode>2</m_CullMode>
-																				<m_ZEnable>1</m_ZEnable>
-																				<m_ZWriteEnable>0</m_ZWriteEnable>
+																				<m_CullMode>3</m_CullMode>
+																				<m_ZEnable>0</m_ZEnable>
+																				<m_ZWriteEnable>1</m_ZWriteEnable>
 																				<m_BlendMode>2</m_BlendMode>
 																				<m_MeshColor>
 																					<x>0.000000000e+000</x>
