@@ -130,7 +130,9 @@ public:
 
 		DWORD m_BkColor;
 
-		my::BaseTexturePtr m_SkyBoxTexture;
+		bool m_SkyBoxEnable;
+
+		my::BaseTexturePtr m_SkyBoxTextures[6];
 
 		bool m_WireFrame;
 

@@ -7,6 +7,7 @@ RenderPipeline::IRenderContext::IRenderContext(void)
 	: m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
 	, m_BkColor(D3DCOLOR_ARGB(255,45,50,170))
+	, m_SkyBoxEnable(false)
 	, m_WireFrame(false)
 	, m_DofEnable(false)
 	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
@@ -379,7 +380,7 @@ void RenderPipeline::OnFrameRender(
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-	if (pRC->m_SkyBoxTexture)
+	if (pRC->m_SkyBoxEnable)
 	{
 		struct CUSTOMVERTEX
 		{
@@ -398,15 +399,27 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::Translation(pRC->m_Camera->m_Eye)));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&pRC->m_Camera->m_View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&pRC->m_Camera->m_Proj));
-		V(pd3dDevice->SetTexture(0, pRC->m_SkyBoxTexture->m_ptr));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
+		my::Matrix4 transforms[6] =
+		{
+			my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationX(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationX(D3DXToRadian(180)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationX(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationY(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+			my::Matrix4::RotationY(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
+		};
+		for (unsigned int i = 0; i < _countof(pRC->m_SkyBoxTextures); i++)
+		{
+			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&transforms[i]));
+			V(pd3dDevice->SetTexture(0, pRC->m_SkyBoxTextures[i] ? pRC->m_SkyBoxTextures[i]->m_ptr : NULL));
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
+		}
 	}
 	else
 	{
