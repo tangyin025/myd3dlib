@@ -66,6 +66,8 @@ public:
 
 	my::SurfacePtr m_ShadowDS;
 
+	ResourceBundle<my::BaseTexture> m_SkyBoxTextures[6];
+
 	my::EffectPtr m_SimpleSample;
 
 	my::EffectPtr m_DofEffect;
@@ -133,8 +135,6 @@ public:
 		my::Vector4 m_BgColor;
 
 		bool m_SkyBoxEnable;
-
-		ResourceBundle<my::BaseTexture> m_SkyBoxTextures[6];
 
 		bool m_WireFrame;
 
