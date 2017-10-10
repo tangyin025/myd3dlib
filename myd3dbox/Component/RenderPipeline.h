@@ -66,15 +66,33 @@ public:
 
 	my::SurfacePtr m_ShadowDS;
 
+	my::Vector4 m_BgColor;
+
+	my::CameraPtr m_SkyLightCam;
+
+	my::Vector4 m_SkyLightDiffuse;
+
+	my::Vector4 m_SkyLightAmbient;
+
 	ResourceBundle<my::BaseTexture> m_SkyBoxTextures[6];
 
 	my::EffectPtr m_SimpleSample;
 
 	my::EffectPtr m_DofEffect;
 
+	my::Vector4 m_DofParams;
+
 	my::EffectPtr m_FxaaEffect;
 
 	my::EffectPtr m_SsaoEffect;
+
+	float m_SsaoBias;
+
+	float m_SsaoIntensity;
+
+	float m_SsaoRadius;
+
+	float m_SsaoScale;
 
 	class IShaderSetter
 	{
@@ -126,33 +144,15 @@ public:
 	public:
 		my::CameraPtr m_Camera;
 
-		my::CameraPtr m_SkyLightCam;
-
-		my::Vector4 m_SkyLightDiffuse;
-
-		my::Vector4 m_SkyLightAmbient;
-
-		my::Vector4 m_BgColor;
-
 		bool m_SkyBoxEnable;
 
 		bool m_WireFrame;
 
 		bool m_DofEnable;
 
-		my::Vector4 m_DofParams;
-
 		bool m_FxaaEnable;
 
 		bool m_SsaoEnable;
-
-		float m_SsaoBias;
-
-		float m_SsaoIntensity;
-
-		float m_SsaoRadius;
-
-		float m_SsaoScale;
 
 		my::Texture2DPtr m_NormalRT;
 

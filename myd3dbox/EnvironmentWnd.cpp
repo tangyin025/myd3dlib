@@ -186,10 +186,7 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.y));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.z));
 
-	COLORREF color = RGB(
-		camera_prop_arg->pView->m_BgColor.x * 255,
-		camera_prop_arg->pView->m_BgColor.y * 255,
-		camera_prop_arg->pView->m_BgColor.z * 255);
+	COLORREF color = RGB(theApp.m_BgColor.x * 255, theApp.m_BgColor.y * 255, theApp.m_BgColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pCamera->GetSubItem(CameraPropertyBgColor)))->SetColor((_variant_t)color);
 
 	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
@@ -202,28 +199,22 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	}
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
-	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.x));
-	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.y));
-	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.z));
+	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Eular.x));
+	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Eular.y));
+	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Eular.z));
 
-	color = RGB(
-		camera_prop_arg->pView->m_SkyLightDiffuse.x * 255,
-		camera_prop_arg->pView->m_SkyLightDiffuse.y * 255,
-		camera_prop_arg->pView->m_SkyLightDiffuse.z * 255);
+	color = RGB(theApp.m_SkyLightDiffuse.x * 255, theApp.m_SkyLightDiffuse.y * 255, theApp.m_SkyLightDiffuse.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyDiffuse)))->SetColor((_variant_t)color);
 
-	color = RGB(
-		camera_prop_arg->pView->m_SkyLightAmbient.x * 255,
-		camera_prop_arg->pView->m_SkyLightAmbient.y * 255,
-		camera_prop_arg->pView->m_SkyLightAmbient.z * 255);
+	color = RGB(theApp.m_SkyLightAmbient.x * 255, theApp.m_SkyLightAmbient.y * 255, theApp.m_SkyLightAmbient.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbient)))->SetColor((_variant_t)color);
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
 	pSSAO->GetSubItem(SSAOPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SsaoEnable);
-	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoBias/SSAO_BIAS_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoIntensity/SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoRadius/SSAO_RADIUS_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoScale/SSAO_SCALE_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(theApp.m_SsaoBias / SSAO_BIAS_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(theApp.m_SsaoIntensity / SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(theApp.m_SsaoRadius / SSAO_RADIUS_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(theApp.m_SsaoScale / SSAO_SCALE_RANGE*CSliderProp::RANGE));
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -337,7 +328,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
-			pView->m_BgColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			theApp.m_BgColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 			pView->m_Camera->UpdateViewProj();
 		}
 		break;
@@ -362,26 +353,26 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertySkyLight:
 		{
-			pView->m_SkyLightCam->m_Eular = my::Vector3(
+			theApp.m_SkyLightCam->m_Eular = my::Vector3(
 				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
-			pView->m_SkyLightCam->UpdateViewProj();
+			theApp.m_SkyLightCam->UpdateViewProj();
 
 			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(SkyLightPropertyDiffuse)))->GetColor();
-			pView->m_SkyLightDiffuse.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			theApp.m_SkyLightDiffuse.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 
 			color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(SkyLightPropertyAmbient)))->GetColor();
-			pView->m_SkyLightAmbient.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			theApp.m_SkyLightAmbient.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 		}
 		break;
 	case PropertySSAO:
 		{
 			pView->m_SsaoEnable = pProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
-			pView->m_SsaoBias = pProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;
-			pView->m_SsaoIntensity = pProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
-			pView->m_SsaoRadius = pProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
-			pView->m_SsaoScale = pProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
+			theApp.m_SsaoBias = pProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;
+			theApp.m_SsaoIntensity = pProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
+			theApp.m_SsaoRadius = pProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
+			theApp.m_SsaoScale = pProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
 		}
 		break;
 	}

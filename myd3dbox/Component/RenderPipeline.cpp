@@ -4,19 +4,11 @@
 
 using namespace my;
 RenderPipeline::IRenderContext::IRenderContext(void)
-	: m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
-	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
-	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
-	, m_SkyBoxEnable(false)
+	: m_SkyBoxEnable(false)
 	, m_WireFrame(false)
 	, m_DofEnable(false)
-	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 	, m_FxaaEnable(false)
 	, m_SsaoEnable(false)
-	, m_SsaoBias(0.2f)
-	, m_SsaoIntensity(5.0f)
-	, m_SsaoRadius(100.0f)
-	, m_SsaoScale(10.0f)
 {
 }
 
@@ -28,6 +20,15 @@ RenderPipeline::RenderPipeline(void)
 	, SHADOW_EPSILON(0.001f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
+	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
+	, m_SkyLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_SkyLightAmbient(0.3f, 0.3f, 0.3f, 0.0f)
+	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
+	, m_SsaoBias(0.2f)
+	, m_SsaoIntensity(5.0f)
+	, m_SsaoRadius(100.0f)
+	, m_SsaoScale(10.0f)
+	, m_SkyLightCam(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100))
 {
 }
 
@@ -203,6 +204,9 @@ HRESULT RenderPipeline::OnCreateDevice(
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
 	m_MeshInstanceStride = offset;
 
+	m_SkyLightCam->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(0), 0);
+	m_SkyLightCam->UpdateViewProj();
+
 	if (!(m_SimpleSample = my::ResourceMgr::getSingleton().LoadEffect("shader/SimpleSample.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_SimpleSample failed");
@@ -319,11 +323,11 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
-	m_SimpleSample->SetMatrix("g_View", pRC->m_SkyLightCam->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetMatrix("g_View", m_SkyLightCam->m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
@@ -338,10 +342,10 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
 	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
 	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
-	m_SimpleSample->SetVector("g_SkyLightDir", -pRC->m_SkyLightCam->m_View.column<2>().xyz.normalize()); // ! RH -z
-	m_SimpleSample->SetMatrix("g_SkyLightViewProj", pRC->m_SkyLightCam->m_ViewProj);
-	m_SimpleSample->SetVector("g_SkyLightDiffuse", pRC->m_SkyLightDiffuse);
-	m_SimpleSample->SetVector("g_SkyLightAmbient", pRC->m_SkyLightAmbient);
+	m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLightCam->m_View.column<2>().xyz.normalize()); // ! RH -z
+	m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetVector("g_SkyLightDiffuse", m_SkyLightDiffuse);
+	m_SimpleSample->SetVector("g_SkyLightAmbient", m_SkyLightAmbient);
 	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT.get());
 	V(pd3dDevice->SetRenderTarget(0, NormalSurf));
 	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
@@ -361,10 +365,10 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_SsaoEffect->SetFloat("g_bias", pRC->m_SsaoBias);
-		m_SsaoEffect->SetFloat("g_intensity", pRC->m_SsaoIntensity);
-		m_SsaoEffect->SetFloat("g_sample_rad", pRC->m_SsaoRadius);
-		m_SsaoEffect->SetFloat("g_scale", pRC->m_SsaoScale);
+		m_SsaoEffect->SetFloat("g_bias", m_SsaoBias);
+		m_SsaoEffect->SetFloat("g_intensity", m_SsaoIntensity);
+		m_SsaoEffect->SetFloat("g_sample_rad", m_SsaoRadius);
+		m_SsaoEffect->SetFloat("g_scale", m_SsaoScale);
 		m_SsaoEffect->Begin();
 		m_SsaoEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
@@ -374,13 +378,13 @@ void RenderPipeline::OnFrameRender(
 	else
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
-			pRC->m_SkyLightAmbient.x, pRC->m_SkyLightAmbient.y, pRC->m_SkyLightAmbient.z, pRC->m_SkyLightAmbient.w), 0, 0));
+			m_SkyLightAmbient.x, m_SkyLightAmbient.y, m_SkyLightAmbient.z, m_SkyLightAmbient.w), 0, 0));
 	}
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(pRC->m_BgColor.x, pRC->m_BgColor.y, pRC->m_BgColor.z, pRC->m_BgColor.w);
+	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(m_BgColor.x, m_BgColor.y, m_BgColor.z, m_BgColor.w);
 	if (pRC->m_SkyBoxEnable)
 	{
 		struct CUSTOMVERTEX
@@ -455,7 +459,7 @@ void RenderPipeline::OnFrameRender(
 			pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE)); // ! d3dref only support D3DTEXF_NONE
 		pRC->m_DownFilterRT.Flip();
 
-		m_DofEffect->SetVector("g_DofParams", pRC->m_DofParams);
+		m_DofEffect->SetVector("g_DofParams", m_DofParams);
 		m_DofEffect->SetTexture("g_OpaqueRT", pRC->m_OpaqueRT.GetNextSource().get());
 		m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));

@@ -77,12 +77,7 @@ CChildView::CChildView()
 		m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new my::Texture2D());
 	}
-	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
-	m_SkyLightCam->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
-	m_SkyLightCam->UpdateViewProj();
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
-	m_SkyLightAmbient=my::Vector4(0.5,0.5,0.5,0);
-	m_SkyLightDiffuse=my::Vector4(0.5,0.5,0.5,0.5);
 }
 
 CChildView::~CChildView()
