@@ -36,6 +36,8 @@ public:
 	}
 
 	virtual void SetValue(const COleVariant& varValue);
+
+	DECLARE_DYNAMIC(CSimpleProp)
 };
 
 class CColorProp : public CMFCPropertyGridColorProperty
@@ -47,6 +49,8 @@ public:
 	}
 
 	void SetColor(COLORREF color);
+
+	DECLARE_DYNAMIC(CColorProp)
 };
 
 class CFileProp : public CMFCPropertyGridFileProperty
@@ -110,6 +114,8 @@ public:
 	virtual void OnSelectCombo();
 
 	int m_iSelIndex;
+
+	DECLARE_DYNAMIC(CComboProp)
 };
 
 class CCheckBoxProp : public CSimpleProp

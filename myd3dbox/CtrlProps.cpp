@@ -100,6 +100,8 @@ BOOL CMFCPropertyGridCtrlReader::DeleteProperty(CMFCPropertyGridProperty*& pProp
 	return TRUE;
 }
 
+IMPLEMENT_DYNAMIC(CSimpleProp, CMFCPropertyGridProperty)
+
 void CSimpleProp::SetValue(const COleVariant& varValue)
 {
 	ASSERT_VALID(this);
@@ -125,6 +127,8 @@ void CSimpleProp::SetValue(const COleVariant& varValue)
 		m_pWndList->EditItem(this);
 	}
 }
+
+IMPLEMENT_DYNAMIC(CColorProp, CMFCPropertyGridColorProperty)
 
 void CColorProp::SetColor(COLORREF color)
 {
@@ -273,6 +277,8 @@ void CPropSliderCtrl::OnKillFocus(CWnd* pNewWnd)
 
 	m_pProp->OnEndEdit();
 }
+
+IMPLEMENT_DYNAMIC(CComboProp, CSimpleProp)
 
 void CComboProp::OnSelectCombo()
 {
