@@ -1,11 +1,11 @@
 shared float g_Time;
 shared float2 g_ScreenDim;
 shared float4x4 g_World;
+shared float3 g_Eye;
 shared float4x4 g_View;
 shared float4x4 g_ViewProj;
 shared float4x4 g_InvViewProj;
-shared float3 g_Eye;
-shared float3 g_SkyLightDir;
+shared float4x4 g_SkyLightView;
 shared float4x4 g_SkyLightViewProj;
 shared float4 g_SkyLightDiffuse;
 shared float4 g_SkyLightAmbient;

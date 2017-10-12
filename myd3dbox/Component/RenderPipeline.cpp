@@ -326,8 +326,12 @@ void RenderPipeline::OnFrameRender(
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
-	m_SimpleSample->SetMatrix("g_View", m_SkyLightCam->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
+	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
+	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
+	m_SimpleSample->SetMatrix("g_SkyLightView", m_SkyLightCam->m_View); // ! RH -z
+	m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
@@ -338,12 +342,6 @@ void RenderPipeline::OnFrameRender(
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
-	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
-	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
-	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
-	m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLightCam->m_View.column<2>().xyz.normalize()); // ! RH -z
-	m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLightCam->m_ViewProj);
 	m_SimpleSample->SetVector("g_SkyLightDiffuse", m_SkyLightDiffuse);
 	m_SimpleSample->SetVector("g_SkyLightAmbient", m_SkyLightAmbient);
 	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT.get());

@@ -8,7 +8,7 @@ struct SHADOW_VS_OUTPUT
 SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
 {
     SHADOW_VS_OUTPUT Output;
-	Output.Pos = TransformPos(In);
+	Output.Pos = TransformPosShadow(In);
 	Output.Tex0 = Output.Pos.zw;
     return Output;    
 }
@@ -56,13 +56,13 @@ struct COLOR_VS_OUTPUT
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
 	float4 Pos2				: TEXCOORD2;
-	float4 PosLS			: TEXCOORD5;
+	float4 PosShadow		: TEXCOORD5;
 	float3 View				: TEXCOORD3;
 };
 
-float GetLigthAmount(float4 PosLS)
+float GetLigthAmount(float4 PosShadow)
 {
-	float2 ShadowTexC = PosLS.xy / PosLS.w * 0.5 + 0.5;
+	float2 ShadowTexC = PosShadow.xy / PosShadow.w * 0.5 + 0.5;
 	ShadowTexC.y = 1.0 - ShadowTexC.y;
 	if (ShadowTexC.x < 0 || ShadowTexC.x > 1 || ShadowTexC.y < 0 || ShadowTexC.y > 1)
 		return 1.0;
@@ -71,7 +71,7 @@ float GetLigthAmount(float4 PosLS)
 	float x, y;
 	for(x = -0.0; x <= 1.0; x += 1.0)
 		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLS.z / PosLS.w ? 0.0 : 1.0;
+			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosShadow.z / PosShadow.w ? 0.0 : 1.0;
 			
 	return LightAmount / 4;
 }
@@ -83,18 +83,19 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
 	Output.Pos2 = Output.Pos;
-	Output.PosLS = mul(TransformPosWS(In), g_SkyLightViewProj);
+	Output.PosShadow = mul(TransformPosWS(In), g_SkyLightViewProj);
 	Output.View = mul(g_Eye - PosWS, (float3x3)g_View);
     return Output;    
 }
 
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
-	float3 ViewSkyLightDir = mul(g_SkyLightDir, g_View);
+	float3 SkyLightDir = normalize(float3(g_SkyLightViewProj[0][2],g_SkyLightViewProj[1][2],g_SkyLightViewProj[2][2]));
+	float3 ViewSkyLightDir = mul(SkyLightDir, g_View);
 	float2 DiffuseTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	DiffuseTex.y = 1 - DiffuseTex.y;
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
-	float LightAmount = GetLigthAmount(In.PosLS);
+	float LightAmount = GetLigthAmount(In.PosShadow);
 	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
 	float3 SkyDiffuse = saturate(-dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightDiffuse.xyz;
 	float3 Ref = Reflection(Normal.xyz, In.View);
