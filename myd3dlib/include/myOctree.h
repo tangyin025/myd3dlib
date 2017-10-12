@@ -43,7 +43,7 @@ namespace my
 		struct QueryCallback
 		{
 		public:
-			virtual void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType) = 0;
+			virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType) = 0;
 		};
 
 		OctNodeBase * m_Parent;
@@ -58,36 +58,21 @@ namespace my
 
 		ChildArray m_Childs;
 
-	protected:
+	public:
 		OctNodeBase(OctNodeBase * Parent, const AABB & aabb)
 			: m_Parent(Parent)
 			, m_aabb(aabb)
 		{
 		}
 
-		OctNodeBase(void)
-			: m_Parent(NULL)
-			, m_aabb(AABB::Invalid())
-		{
-		}
-
-	public:
 		virtual ~OctNodeBase(void)
 		{
 		}
 
-		friend class boost::serialization::access;
-
-		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
-
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			boost::serialization::split_member(ar, *this, version);
+			ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		}
 
 		bool HaveNode(const OctNodeBase * node) const;
@@ -98,17 +83,17 @@ namespace my
 
 		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f) = 0;
 
-		void QueryActor(const Ray & ray, QueryCallback * callback);
+		void QueryActor(const Ray & ray, QueryCallback * callback) const;
 
-		void QueryActor(const AABB & aabb, QueryCallback * callback);
+		void QueryActor(const AABB & aabb, QueryCallback * callback) const;
 
-		void QueryActor(const Frustum & frustum, QueryCallback * callback);
+		void QueryActor(const Frustum & frustum, QueryCallback * callback) const;
 
-		void QueryActorAll(QueryCallback * callback);
+		void QueryActorAll(QueryCallback * callback) const;
 
-		void QueryActorIntersected(const AABB & aabb, QueryCallback * callback);
+		void QueryActorIntersected(const AABB & aabb, QueryCallback * callback) const;
 
-		void QueryActorIntersected(const Frustum & frustum, QueryCallback * callback);
+		void QueryActorIntersected(const Frustum & frustum, QueryCallback * callback) const;
 
 		bool RemoveActor(OctActorPtr actor);
 
@@ -131,13 +116,6 @@ namespace my
 
 		float m_MinBlock;
 
-	protected:
-		OctNode(void)
-			: m_Half(0)
-			, m_MinBlock(0)
-		{
-		}
-
 	public:
 		OctNode(OctNodeBase * Parent, const AABB & aabb, float MinBlock)
 			: OctNodeBase(Parent, aabb)
@@ -145,8 +123,6 @@ namespace my
 			, m_MinBlock(MinBlock)
 		{
 		}
-
-		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -184,6 +160,35 @@ namespace my
 				m_Actors.insert(std::make_pair(actor, aabb));
 				actor->m_Node = this;
 			}
+		}
+	};
+
+	class OctRoot : public OctNode<0>
+	{
+	protected:
+		OctRoot(void)
+			: OctNode<0>(NULL, AABB::Invalid(), 1)
+		{
+		}
+
+	public:
+		OctRoot(const AABB & aabb, float MinBlock)
+			: OctNode<0>(NULL, aabb, MinBlock)
+		{
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
 		}
 	};
 }

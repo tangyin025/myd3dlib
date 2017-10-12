@@ -5,33 +5,35 @@ class RenderPipeline;
 class WorldL;
 class PhysXSceneContext;
 
-class Octree : public my::OctNode<0>
+class Octree : public my::OctRoot
 {
 public:
 	WorldL * m_World;
 
 public:
-	Octree(void)
-		: m_World(NULL)
+	Octree(WorldL * world, const my::AABB & aabb, float MinBlock)
+		: m_World(world)
+		, OctRoot(aabb, MinBlock)
 	{
 	}
 
-	Octree(WorldL * world, const my::AABB & aabb, float MinBlock)
-		: m_World(world)
-		, OctNode(NULL, aabb, MinBlock)
+	Octree(void)
+		: m_World(NULL)
 	{
 	}
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< my::OctNode<0> >(*this));
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	}
 
 	CPoint GetId(void) const;
 
 	my::Vector3 GetOffset(void) const;
 };
+
+typedef boost::shared_ptr<Octree> OctreePtr;
 
 class WorldL
 {
@@ -64,8 +66,6 @@ public:
 		, m_LevelId(0,0)
 	{
 	}
-
-	friend class boost::serialization::access;
 
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;

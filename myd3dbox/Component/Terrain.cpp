@@ -127,7 +127,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
+	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
 {
 	CreateHeightMap();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -148,7 +148,7 @@ Terrain::Terrain(void)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
+	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
 {
 	CreateHeightMap();
 }
@@ -509,7 +509,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 			: terrain(_terrain)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Column] = chunk;
@@ -623,7 +623,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, shader(_shader)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			const Fragment & frag = terrain->GetFragment(

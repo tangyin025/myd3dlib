@@ -21,16 +21,24 @@ template<>
 void WorldL::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Dimension);
-	ar << BOOST_SERIALIZATION_NVP(m_levels);
+	unsigned int level_count = m_levels.size();
+	ar << BOOST_SERIALIZATION_NVP(level_count);
+	for (unsigned int i = 0; i < m_levels.size(); i++)
+	{
+		ar << boost::serialization::make_nvp(str_printf("level%d", i).c_str(), m_levels[i]);
+	}
 }
 
 template<>
 void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Dimension);
-	ar >> BOOST_SERIALIZATION_NVP(m_levels);
+	unsigned int level_count;
+	ar >> BOOST_SERIALIZATION_NVP(level_count);
+	m_levels.resize(level_count);
 	for (unsigned int i = 0; i < m_levels.size(); i++)
 	{
+		ar >> boost::serialization::make_nvp(str_printf("level%d", i).c_str(), m_levels[i]);
 		m_levels[i].m_World = this;
 	}
 }
@@ -94,7 +102,7 @@ void WorldL::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipelin
 					, ViewPos(_ViewPos)
 				{
 				}
-				void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+				void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					_ASSERT(dynamic_cast<Actor *>(oct_actor));
 					Actor * actor = static_cast<Actor *>(oct_actor);
@@ -157,7 +165,7 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 					, scene(_scene)
 				{
 				}
-				void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+				void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					_ASSERT(dynamic_cast<Actor *>(oct_actor));
 					Actor * actor = static_cast<Actor *>(oct_actor);

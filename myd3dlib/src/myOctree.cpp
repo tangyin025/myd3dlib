@@ -17,42 +17,6 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(OctActor)
 
-BOOST_CLASS_EXPORT(OctNodeBase)
-
-BOOST_CLASS_EXPORT_GUID(OctNode<0>, "OctNode0")
-
-BOOST_CLASS_EXPORT_GUID(OctNode<1>, "OctNode1")
-
-BOOST_CLASS_EXPORT_GUID(OctNode<2>, "OctNode2")
-
-template<>
-void OctNodeBase::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
-	ar << BOOST_SERIALIZATION_NVP(m_Actors);
-	ar << BOOST_SERIALIZATION_NVP(m_Childs);
-}
-
-template<>
-void OctNodeBase::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
-	ar >> BOOST_SERIALIZATION_NVP(m_Actors);
-	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
-	OctActorMap::iterator cmp_iter = m_Actors.begin();
-	for (; cmp_iter != m_Actors.end(); cmp_iter++)
-	{
-		cmp_iter->first->m_Node = this;
-	}
-	for (unsigned int i = 0; i < ChildArray::static_size; i++)
-	{
-		if (m_Childs[i])
-		{
-			m_Childs[i]->m_Parent = this;
-		}
-	}
-}
-
 bool OctNodeBase::HaveNode(const OctNodeBase * node) const
 {
 	if (this == node)
@@ -89,20 +53,20 @@ OctNodeBase * OctNodeBase::GetTopNode(void)
 	return m_Parent->GetTopNode();
 }
 
-void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback)
+void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback) const
 {
 	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
 	{
-		OctActorMap::iterator cmp_iter = m_Actors.begin();
+		OctActorMap::const_iterator cmp_iter = m_Actors.begin();
 		for(; cmp_iter != m_Actors.end(); cmp_iter++)
 		{
 			if (IntersectionTests::rayAndAABB(ray.p, ray.d, cmp_iter->second).first)
 			{
-				(*callback)(cmp_iter->first.get(), IntersectionTests::IntersectionTypeRay);
+				(*callback)(cmp_iter->first.get(), cmp_iter->second, IntersectionTests::IntersectionTypeRay);
 			}
 		}
 
-		ChildArray::iterator node_iter = m_Childs.begin();
+		ChildArray::const_iterator node_iter = m_Childs.begin();
 		for(; node_iter != m_Childs.end(); node_iter++)
 		{
 			if (*node_iter)
@@ -113,7 +77,7 @@ void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback)
+void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback) const
 {
 	switch (IntersectionTests::IntersectAABBAndAABB(m_aabb, aabb))
 	{
@@ -127,7 +91,7 @@ void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback)
+void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback) const
 {
 	switch(IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum))
 	{
@@ -141,15 +105,15 @@ void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActorAll(QueryCallback * callback)
+void OctNodeBase::QueryActorAll(QueryCallback * callback) const
 {
-	OctActorMap::iterator cmp_iter = m_Actors.begin();
+	OctActorMap::const_iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
 	{
-		(*callback)(cmp_iter->first.get(), IntersectionTests::IntersectionTypeInside);
+		(*callback)(cmp_iter->first.get(), cmp_iter->second, IntersectionTests::IntersectionTypeInside);
 	}
 
-	ChildArray::iterator node_iter = m_Childs.begin();
+	ChildArray::const_iterator node_iter = m_Childs.begin();
 	for(; node_iter != m_Childs.end(); node_iter++)
 	{
 		if (*node_iter)
@@ -159,9 +123,9 @@ void OctNodeBase::QueryActorAll(QueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callback)
+void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callback) const
 {
-	OctActorMap::iterator cmp_iter = m_Actors.begin();
+	OctActorMap::const_iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
 	{
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(cmp_iter->second, aabb);
@@ -169,12 +133,12 @@ void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callb
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(cmp_iter->first.get(), intersect_type);
+			(*callback)(cmp_iter->first.get(), cmp_iter->second, intersect_type);
 			break;
 		}
 	}
 
-	ChildArray::iterator node_iter = m_Childs.begin();
+	ChildArray::const_iterator node_iter = m_Childs.begin();
 	for(; node_iter != m_Childs.end(); node_iter++)
 	{
 		if (*node_iter)
@@ -184,9 +148,9 @@ void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callb
 	}
 }
 
-void OctNodeBase::QueryActorIntersected(const Frustum & frustum, QueryCallback * callback)
+void OctNodeBase::QueryActorIntersected(const Frustum & frustum, QueryCallback * callback) const
 {
-	OctActorMap::iterator cmp_iter = m_Actors.begin();
+	OctActorMap::const_iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
 	{
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(cmp_iter->second, frustum);
@@ -194,12 +158,12 @@ void OctNodeBase::QueryActorIntersected(const Frustum & frustum, QueryCallback *
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(cmp_iter->first.get(), intersect_type);
+			(*callback)(cmp_iter->first.get(), cmp_iter->second, intersect_type);
 			break;
 		}
 	}
 
-	ChildArray::iterator node_iter = m_Childs.begin();
+	ChildArray::const_iterator node_iter = m_Childs.begin();
 	for(; node_iter != m_Childs.end(); node_iter++)
 	{
 		if (*node_iter)
@@ -258,5 +222,45 @@ void OctNodeBase::Flush(void)
 				m_Childs[i].reset();
 			}
 		}
+	}
+}
+
+template<>
+void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	class Callback: public QueryCallback
+	{
+	public:
+		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
+
+		virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType)
+		{
+			_ASSERT(oct_actor);
+			actor_list.push_back(std::make_pair(oct_actor->shared_from_this(), aabb));
+		}
+	};
+
+	Callback cb;
+	QueryActorAll(&cb);
+	ar << boost::serialization::make_nvp("OctNode_0", boost::serialization::base_object< my::OctNode<0> >(*this));
+	ar << BOOST_SERIALIZATION_NVP(cb.actor_list);
+}
+
+template<>
+void OctRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	class Callback
+	{
+	public:
+		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
+	};
+
+	Callback cb;
+	ar >> boost::serialization::make_nvp("OctNode_0", boost::serialization::base_object< my::OctNode<0> >(*this));
+	ar >> BOOST_SERIALIZATION_NVP(cb.actor_list);
+	std::vector<std::pair<OctActorPtr, AABB> >::iterator actor_iter = cb.actor_list.begin();
+	for (; actor_iter != cb.actor_list.end(); actor_iter++)
+	{
+		AddActor(actor_iter->first, actor_iter->second, 0.1f);
 	}
 }

@@ -99,7 +99,7 @@ public:
 
 	MaterialPtr m_Material;
 
-	my::OctNode<0> m_Root;
+	my::OctRoot m_Root;
 
 	typedef boost::array<TerrainChunk *, COL_CHUNKS> ChunkArray;
 
