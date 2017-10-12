@@ -5,19 +5,19 @@ class RenderPipeline;
 class WorldL;
 class PhysXSceneContext;
 
-class Octree : public my::OctRoot
+class OctLevel : public my::OctRoot
 {
 public:
 	WorldL * m_World;
 
 public:
-	Octree(WorldL * world, const my::AABB & aabb, float MinBlock)
+	OctLevel(WorldL * world, const my::AABB & aabb, float MinBlock)
 		: m_World(world)
 		, OctRoot(aabb, MinBlock)
 	{
 	}
 
-	Octree(void)
+	OctLevel(void)
 		: m_World(NULL)
 	{
 	}
@@ -33,7 +33,7 @@ public:
 	my::Vector3 GetOffset(void) const;
 };
 
-typedef boost::shared_ptr<Octree> OctreePtr;
+typedef boost::shared_ptr<OctLevel> OctreePtr;
 
 class WorldL
 {
@@ -45,14 +45,14 @@ public:
 	struct QueryCallback
 	{
 	public:
-		virtual void operator() (Octree * level, const CPoint & level_id) = 0;
+		virtual void operator() (OctLevel * level, const CPoint & level_id) = 0;
 	};
 
 	long m_Dimension;
 
 	CPoint m_LevelId;
 
-	typedef std::vector<Octree> OctreeList;
+	typedef std::vector<OctLevel> OctreeList;
 
 	OctreeList m_levels;
 
@@ -79,14 +79,14 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	Octree * GetLevel(const CPoint & level_id)
+	OctLevel * GetLevel(const CPoint & level_id)
 	{
 		_ASSERT(level_id.x >= 0 && level_id.x < m_Dimension);
 		_ASSERT(level_id.y >= 0 && level_id.y < m_Dimension);
 		return &m_levels[level_id.y * m_Dimension + level_id.x];
 	}
 
-	CPoint GetLevelId(const Octree * level_ptr)
+	CPoint GetLevelId(const OctLevel * level_ptr)
 	{
 		int i = level_ptr - &m_levels[0];
 		_ASSERT(i >= 0 && i < m_Dimension * m_Dimension);
@@ -117,12 +117,12 @@ public:
 	bool ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene);
 };
 
-inline CPoint Octree::GetId(void) const
+inline CPoint OctLevel::GetId(void) const
 {
 	return m_World->GetLevelId(this);
 }
 
-inline my::Vector3 Octree::GetOffset(void) const
+inline my::Vector3 OctLevel::GetOffset(void) const
 {
 	return WorldL::CalculateOffset(m_World->m_LevelId, GetId());
 }

@@ -15,7 +15,7 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(Octree)
+BOOST_CLASS_EXPORT(OctLevel)
 
 template<>
 void WorldL::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
@@ -47,7 +47,7 @@ void WorldL::CreateLevels(long dimension)
 {
 	m_Dimension = dimension;
 	AABB level_bound(-LEVEL_EDGE, -LEVEL_SIZE - LEVEL_EDGE, -LEVEL_EDGE, LEVEL_SIZE + LEVEL_EDGE, LEVEL_SIZE + LEVEL_EDGE, LEVEL_SIZE + LEVEL_EDGE);
-	m_levels.resize(m_Dimension * m_Dimension, Octree(this, level_bound, 1.0f));
+	m_levels.resize(m_Dimension * m_Dimension, OctLevel(this, level_bound, 1.0f));
 }
 
 void WorldL::ClearAllLevels(void)
@@ -87,7 +87,7 @@ void WorldL::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipelin
 			, ViewPos(_ViewPos)
 		{
 		}
-		void operator () (Octree * level, const CPoint & level_id)
+		void operator () (OctLevel * level, const CPoint & level_id)
 		{
 			struct Callback : public my::OctNodeBase::QueryCallback
 			{
@@ -154,7 +154,7 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			, ViewDist(_ViewDist)
 		{
 		}
-		void operator () (Octree * level, const CPoint & level_id)
+		void operator () (OctLevel * level, const CPoint & level_id)
 		{
 			struct Callback : public my::OctNodeBase::QueryCallback
 			{

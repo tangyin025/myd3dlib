@@ -7,7 +7,7 @@ class Animator;
 
 class Controller;
 
-class Octree;
+class OctLevel;
 
 class Actor
 	: public my::OctActor
@@ -66,7 +66,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	Octree * GetLevel(void) const;
+	OctLevel * GetLevel(void) const;
 
 	my::Vector3 GetWorldPosition(void) const;
 

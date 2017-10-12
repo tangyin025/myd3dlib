@@ -130,9 +130,9 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	}
 }
 
-Octree * Actor::GetLevel(void) const
+OctLevel * Actor::GetLevel(void) const
 {
-	return dynamic_cast<Octree *>(m_Node->GetTopNode());
+	return dynamic_cast<OctLevel *>(m_Node->GetTopNode());
 }
 
 my::Vector3 Actor::GetWorldPosition(void) const

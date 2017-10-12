@@ -225,9 +225,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
 	//m_emitter->m_Emitter.reset(new my::Emitter());
 	//m_emitter->m_Material.reset(new Material());
-	//m_emitter->m_Material->m_Shader = "shader/lambert1.fx";
-	//m_emitter->m_Material->m_PassMask = Material::PassMaskOpaque;
-	//m_emitter->m_Material->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+	//m_emitter->m_Material->m_Shader = theApp.default_shader;
+	//m_emitter->m_Material->m_PassMask = theApp.default_pass_mask;
+	//m_emitter->m_Material->m_MeshTexture.m_Path = theApp.default_texture;
 	//m_emitter->RequestResource();
 	////m_emitter->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
 	return 0;
@@ -689,9 +689,9 @@ void CMainFrame::OnComponentMesh()
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr lambert1(new Material());
-		lambert1->m_Shader = "shader/lambert1.fx";
-		lambert1->m_PassMask = Material::PassMaskOpaque;
-		lambert1->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+		lambert1->m_Shader = theApp.default_shader;
+		lambert1->m_PassMask = theApp.default_pass_mask;
+		lambert1->m_MeshTexture.m_Path = theApp.default_texture;
 		lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
 		lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
 		mesh_cmp->m_MaterialList.push_back(lambert1);
@@ -741,9 +741,9 @@ void CMainFrame::OnComponentCloth()
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr lambert1(new Material());
-		lambert1->m_Shader = "shader/lambert1.fx";
-		lambert1->m_PassMask = Material::PassMaskOpaque;
-		lambert1->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+		lambert1->m_Shader = theApp.default_shader;
+		lambert1->m_PassMask = theApp.default_pass_mask;
+		lambert1->m_MeshTexture.m_Path = theApp.default_texture;
 		lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
 		lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
 		cloth_cmp->m_MaterialList.push_back(lambert1);
@@ -778,9 +778,9 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->m_Emitter.reset(new my::Emitter());
 	emit_cmp->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	MaterialPtr particle1(new Material());
-	particle1->m_Shader = "shader/particle1.fx";
-	particle1->m_PassMask = Material::PassMaskTransparent;
-	particle1->m_MeshTexture.m_Path = theApp.default_particle_texture;
+	particle1->m_Shader = theApp.default_shader;
+	particle1->m_PassMask = theApp.default_pass_mask;
+	particle1->m_MeshTexture.m_Path = theApp.default_texture;
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(this);
@@ -830,9 +830,9 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->m_SpawnSizeY.AddNode(0,1,0,0);
 	sphe_emit_cmp->m_SpawnSizeY.AddNode(10,10,0,0);
 	MaterialPtr particle1(new Material());
-	particle1->m_Shader = "shader/particle1.fx";
-	particle1->m_PassMask = Material::PassMaskTransparent;
-	particle1->m_MeshTexture.m_Path = theApp.default_particle_texture;
+	particle1->m_Shader = theApp.default_shader;
+	particle1->m_PassMask = theApp.default_pass_mask;
+	particle1->m_MeshTexture.m_Path = theApp.default_texture;
 	sphe_emit_cmp->m_Material = particle1;
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(this);
@@ -862,9 +862,9 @@ void CMainFrame::OnComponentTerrain()
 
 	TerrainPtr terrain(new Terrain(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1),1.0f,1.0f,1.0f));
 	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = "shader/lambert1.fx";
-	lambert1->m_PassMask = Material::PassMaskOpaque;
-	lambert1->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+	lambert1->m_Shader = theApp.default_shader;
+	lambert1->m_PassMask = theApp.default_pass_mask;
+	lambert1->m_MeshTexture.m_Path = theApp.default_texture;
 	lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
 	lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
 	terrain->m_Material = lambert1;

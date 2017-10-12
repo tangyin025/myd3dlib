@@ -1026,7 +1026,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			void operator() (Octree * level, const CPoint & level_id)
+			void operator() (OctLevel * level, const CPoint & level_id)
 			{
 				struct Callback : public my::OctNodeBase::QueryCallback
 				{
@@ -1072,7 +1072,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			void operator() (Octree * level, const CPoint & level_id)
+			void operator() (OctLevel * level, const CPoint & level_id)
 			{
 				struct Callback : public my::OctNodeBase::QueryCallback
 				{

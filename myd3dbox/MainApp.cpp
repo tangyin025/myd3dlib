@@ -190,11 +190,12 @@ BOOL CMainApp::InitInstance()
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
 	desc.add_options()
-		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
-		("default_mesh_texture", boost::program_options::value(&default_mesh_texture)->default_value("texture/White.dds"), "Default mesh texture")
+		("path", boost::program_options::value(&path_list), "Path")
+		("default_texture", boost::program_options::value(&default_texture)->default_value("texture/Checker.bmp"), "Default texture")
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
-		("default_particle_texture", boost::program_options::value(&default_particle_texture)->default_value("texture/White.dds"), "Default particle texture")
+		("default_shader", boost::program_options::value(&default_shader)->default_value("shader/lambert1.fx"), "Default shader")
+		("default_pass_mask", boost::program_options::value(&default_pass_mask)->default_value(Material::PassMaskOpaque), "Default pass mask")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);

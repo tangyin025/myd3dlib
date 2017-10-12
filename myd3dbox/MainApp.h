@@ -30,10 +30,11 @@ public:
 	my::FontPtr m_Font;
 
 	// cfg
-	std::string default_mesh_texture;
+	std::string default_texture;
 	std::string default_normal_texture;
 	std::string default_specular_texture;
-	std::string default_particle_texture;
+	std::string default_shader;
+	unsigned int default_pass_mask;
 
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
