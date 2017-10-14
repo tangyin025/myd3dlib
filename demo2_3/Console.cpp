@@ -178,6 +178,16 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					EventKeyDown(&ControlEventArgs());
 				ResetCaretBlink();
 				return true;
+
+			case VK_PRIOR:
+				if (EventPageUp)
+					EventPageUp(&ControlEventArgs());
+				return true;
+
+			case VK_NEXT:
+				if (EventPageDown)
+					EventPageDown(&ControlEventArgs());
+				return true;
 			}
 			break;
 		}
@@ -222,6 +232,8 @@ Console::Console(void)
 	m_Edit->EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
 	m_Edit->EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
 	m_Edit->EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
+	m_Edit->EventPageUp = boost::bind(&Console::OnEventPageUp, this, _1);
+	m_Edit->EventPageDown = boost::bind(&Console::OnEventPageDown, this, _1);
 	InsertControl(m_Edit);
 
 	m_Panel.reset(new MessagePanel());
@@ -296,6 +308,16 @@ void Console::OnEventKeyDown(ControlEventArgs * args)
 	{
 		m_Edit->SetText(*++m_strIter);
 	}
+}
+
+void Console::OnEventPageUp(my::ControlEventArgs * args)
+{
+	m_Panel->m_scrollbar->Scroll(-m_Panel->m_scrollbar->m_nPageSize);
+}
+
+void Console::OnEventPageDown(my::ControlEventArgs * args)
+{
+	m_Panel->m_scrollbar->Scroll( m_Panel->m_scrollbar->m_nPageSize);
 }
 
 void Console::OnEventLog(const char * str)

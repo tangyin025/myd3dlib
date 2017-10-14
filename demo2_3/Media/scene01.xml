@@ -486,7 +486,7 @@ AA==
 											</Component>
 										</RenderComponent>
 										<m_MeshRes class_id="32" tracking_level="0" version="0">
-											<m_Path>E:\Works\VC++\D3DSolution\myd3dlib\demo2_3\Media\mesh\Helix.mesh.xml</m_Path>
+											<m_Path>mesh\Helix.mesh.xml</m_Path>
 										</m_MeshRes>
 										<m_bInstance>0</m_bInstance>
 										<m_bUseAnimation>0</m_bUseAnimation>
@@ -642,7 +642,7 @@ AA==
 											</Component>
 										</RenderComponent>
 										<m_MeshRes>
-											<m_Path>E:\Works\VC++\D3DSolution\myd3dlib\demo2_3\Media\mesh\Cube.mesh.xml</m_Path>
+											<m_Path>mesh\Cube.mesh.xml</m_Path>
 										</m_MeshRes>
 										<m_bInstance>0</m_bInstance>
 										<m_bUseAnimation>0</m_bUseAnimation>

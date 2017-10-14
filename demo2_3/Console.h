@@ -59,6 +59,10 @@ public:
 
 	my::ControlEvent EventKeyDown;
 
+	my::ControlEvent EventPageUp;
+
+	my::ControlEvent EventPageDown;
+
 	ConsoleEditBox(void);
 
 	~ConsoleEditBox(void);
@@ -94,6 +98,10 @@ public:
 	void OnEventKeyUp(my::ControlEventArgs * args);
 
 	void OnEventKeyDown(my::ControlEventArgs * args);
+
+	void OnEventPageUp(my::ControlEventArgs * args);
+
+	void OnEventPageDown(my::ControlEventArgs * args);
 
 	void OnEventLog(const char * str);
 };
