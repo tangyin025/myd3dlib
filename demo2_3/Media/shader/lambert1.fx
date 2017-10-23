@@ -55,6 +55,7 @@ struct COLOR_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
+	float4 Color			: COLOR0;
 	float4 Pos2				: TEXCOORD2;
 	float4 PosShadow		: TEXCOORD5;
 	float3 View				: TEXCOORD3;
@@ -82,6 +83,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
+	Output.Color = TransformColor(In);
 	Output.Pos2 = Output.Pos;
 	Output.PosShadow = mul(TransformPosWS(In), g_SkyLightViewProj);
 	Output.View = mul(g_Eye - PosWS, (float3x3)g_View);
@@ -100,7 +102,7 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float3 SkyDiffuse = saturate(-dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightDiffuse.xyz;
 	float3 Ref = Reflection(Normal.xyz, In.View);
 	float SkySpecular = pow(saturate(dot(Ref, -ViewSkyLightDir) * LightAmount), 5) * g_SkyLightDiffuse.w;
-	float4 Diffuse = tex2D(MeshTextureSampler, In.Tex0) * g_MeshColor;
+	float4 Diffuse = tex2D(MeshTextureSampler, In.Tex0) * In.Color;
 	Diffuse *= tex2D(LightRTSampler, DiffuseTex) + float4(SkyDiffuse, SkySpecular);
 	float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * Diffuse.w;
 	Diffuse.xyz += Specular;
