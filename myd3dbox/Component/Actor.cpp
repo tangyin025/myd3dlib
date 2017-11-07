@@ -264,7 +264,7 @@ my::AABB Actor::CalculateAABB(void) const
 	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		ret.unionSelf((*cmp_iter)->CalculateAABB().transform((*cmp_iter)->CalculateLocal()));
+		ret.unionSelf((*cmp_iter)->CalculateAABB());
 	}
 	return ret;
 }
@@ -278,6 +278,11 @@ void Actor::UpdateAABB(void)
 	}
 }
 
+Matrix4 Actor::CalculateLocal(void) const
+{
+	return Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+}
+
 void Actor::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, GetWorldPosition());
@@ -285,18 +290,22 @@ void Actor::UpdateWorld(void)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->UpdateWorld();
+		(*cmp_iter)->OnPoseChanged();
 	}
 }
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
-	Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos);
+	Frustum loc_frustum = frustum.transform(m_World.transpose());
+
+	Vector3 loc_viewpos = ViewPos.transformCoord(m_World.inverse());
+
+	Component::AddToPipeline(loc_frustum, pipeline, PassMask, loc_viewpos);
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
+		(*cmp_iter)->AddToPipeline(loc_frustum, pipeline, PassMask, loc_viewpos);
 	}
 }
 

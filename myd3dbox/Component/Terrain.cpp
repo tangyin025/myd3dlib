@@ -578,7 +578,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DW
 {
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
-	shader->SetMatrix("g_World", m_World);
+	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
 	shader->SetFloat("g_HeightScale", m_HeightScale);
 
@@ -649,9 +649,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					if (shader)
 					{
 						// ! do not use m_World for level offset
-						Frustum loc_frustum = frustum.transform(m_World.transpose());
-						Vector3 loc_viewpos = ViewPos.transformCoord(m_World.inverse());
-						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, loc_viewpos, this, shader));
+						m_Root.QueryActor(frustum, &Callback(pipeline, PassID, ViewPos, this, shader));
 					}
 				}
 			}
@@ -659,7 +657,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(const my::Vector3 & Position, const my::Quaternion & Rotation)
+void Terrain::CreateHeightFieldShape(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
 	_ASSERT(!m_PxShape);
 
@@ -703,7 +701,7 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Position, const my::Qua
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Scale.y, m_Scale.x, m_Scale.z),
+		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * Scale.y, Scale.x, Scale.z),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));

@@ -85,7 +85,7 @@ void Character::UpdateWorld(void)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->UpdateWorld();
+		(*cmp_iter)->OnPoseChanged();
 	}
 }
 

@@ -104,29 +104,17 @@ template<>
 void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
-	ar << BOOST_SERIALIZATION_NVP(m_Position);
-	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
-	ar << BOOST_SERIALIZATION_NVP(m_Scale);
-	ar << BOOST_SERIALIZATION_NVP(m_World);
 }
 
 template<>
 void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
-	ar >> BOOST_SERIALIZATION_NVP(m_Position);
-	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
-	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
-	ar >> BOOST_SERIALIZATION_NVP(m_World);
 }
 
 void Component::CopyFrom(const Component & rhs)
 {
 	m_Type = rhs.m_Type;
-	m_Position = rhs.m_Position;
-	m_Rotation = rhs.m_Rotation;
-	m_Scale = rhs.m_Scale;
-	m_World = rhs.m_World;
 }
 
 ComponentPtr Component::Clone(void) const
@@ -158,14 +146,8 @@ void Component::Update(float fElapsedTime)
 {
 }
 
-my::Matrix4 Component::CalculateLocal(void) const
+void Component::OnPoseChanged(void)
 {
-	return my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
-}
-
-void Component::UpdateWorld(void)
-{
-	m_World = CalculateLocal() * m_Actor->m_World;
 }
 
 my::AABB Component::CalculateAABB(void) const
@@ -352,7 +334,7 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
-	shader->SetMatrix("g_World", m_World);
+	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
@@ -393,7 +375,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_World, shader, this);
+								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_Actor ? m_Actor->m_World : Matrix4::identity, shader, this);
 							}
 							else
 							{
@@ -734,7 +716,7 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
-	shader->SetMatrix("g_World", m_World);
+	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
@@ -852,13 +834,11 @@ void ClothComponent::UpdateCloth(void)
 	}
 }
 
-void ClothComponent::UpdateWorld(void)
+void ClothComponent::OnPoseChanged(void)
 {
-	RenderComponent::UpdateWorld();
-
 	if (m_Cloth)
 	{
-		m_Cloth->setTargetPose(physx::PxTransform((physx::PxMat44&)m_World));
+		m_Cloth->setTargetPose(physx::PxTransform((physx::PxMat44&)(m_Actor ? m_Actor->m_World : Matrix4::identity)));
 	}
 }
 
@@ -910,7 +890,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 	shader->SetFloat("g_Time", m_Emitter->m_Time);
 
-	shader->SetMatrix("g_World", m_World);
+	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
 	if (m_Material)
 	{

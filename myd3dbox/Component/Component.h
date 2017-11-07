@@ -118,14 +118,6 @@ public:
 
 	ComponentType m_Type;
 
-	my::Vector3 m_Position;
-
-	my::Quaternion m_Rotation;
-
-	my::Vector3 m_Scale;
-
-	my::Matrix4 m_World;
-
 	Actor * m_Actor;
 
 	bool m_Requested;
@@ -137,10 +129,6 @@ public:
 protected:
 	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
-		, m_Position(Position)
-		, m_Rotation(Rotation)
-		, m_Scale(Scale)
-		, m_World(my::Matrix4::Identity())
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{
@@ -149,10 +137,6 @@ protected:
 public:
 	Component(void)
 		: m_Type(ComponentTypeComponent)
-		, m_Position(0,0,0)
-		, m_Rotation(my::Quaternion::Identity())
-		, m_Scale(1,1,1)
-		, m_World(my::Matrix4::Identity())
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{
@@ -195,9 +179,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	my::Matrix4 CalculateLocal(void) const;
-
-	virtual void UpdateWorld(void);
+	virtual void OnPoseChanged(void);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -402,7 +384,7 @@ public:
 
 	void UpdateCloth(void);
 
-	virtual void UpdateWorld(void);
+	virtual void OnPoseChanged(void);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;

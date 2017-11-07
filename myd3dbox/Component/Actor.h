@@ -18,6 +18,14 @@ public:
 
 	my::AABB m_aabb;
 
+	my::Vector3 m_Position;
+
+	my::Quaternion m_Rotation;
+
+	my::Vector3 m_Scale;
+
+	my::Matrix4 m_World;
+
 	boost::shared_ptr<Animator> m_Animator;
 
 	boost::shared_ptr<Controller> m_Controller;
@@ -32,6 +40,10 @@ protected:
 	Actor(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: Component(Type, Position, Rotation, Scale)
 		, m_aabb(aabb)
+		, m_Position(Position)
+		, m_Rotation(Rotation)
+		, m_Scale(Scale)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
@@ -39,12 +51,20 @@ public:
 	Actor(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: Component(ComponentTypeActor, Position, Rotation, Scale)
 		, m_aabb(aabb)
+		, m_Position(Position)
+		, m_Rotation(Rotation)
+		, m_Scale(Scale)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
 	Actor(void)
 		: Component(ComponentTypeActor, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_aabb(-1,1)
+		, m_Position(0,0,0)
+		, m_Rotation(my::Quaternion::Identity())
+		, m_Scale(1,1,1)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
@@ -87,6 +107,8 @@ public:
 	virtual my::AABB CalculateAABB(void) const;
 
 	void UpdateAABB(void);
+
+	my::Matrix4 CalculateLocal(void) const;
 
 	virtual void UpdateWorld(void);
 
