@@ -326,7 +326,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			const my::Vector3 & Center = cmp->m_Actor->m_World.row<3>().xyz;
+			const my::Vector3 Center(0,0,0);
 			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
 			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
 			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
@@ -527,7 +527,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			const my::Vector3 & Center = cmp->m_Actor->m_World.row<3>().xyz;
+			const my::Vector3 Center(0,0,0);
 			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
 			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
 			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
