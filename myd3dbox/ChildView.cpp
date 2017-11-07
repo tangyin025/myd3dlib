@@ -195,7 +195,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			if (mesh_cmp->m_MeshRes.m_Res)
 			{
-				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_Actor->m_World);
 				theApp.m_SimpleSample->SetVector("g_MeshColor", my::Vector4(0,1,0,1));
 				theApp.m_SimpleSample->SetTechnique("RenderSceneWireColor");
 				UINT passes = theApp.m_SimpleSample->Begin();
@@ -216,7 +216,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			{
 				for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
 				{
-					PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
+					PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255,255,0,255));
 				}
 			}
 		}
@@ -237,13 +237,13 @@ double CChildView::EndPerformanceCount(void)
 
 bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp)
 {
-	my::Frustum local_ftm = frustum.transform(cmp->m_World.transpose());
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
 	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
+			my::Frustum local_ftm = frustum.transform(actor->m_World.transpose());
 			if (actor->m_Cmps.empty())
 			{
 				my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(actor->m_aabb, local_ftm);
@@ -255,7 +255,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
-				if (OverlapTestFrustumAndComponent(frustum, cmp_iter->get()))
+				if (OverlapTestFrustumAndComponent(local_ftm, cmp_iter->get()))
 				{
 					return true;
 				}
@@ -288,7 +288,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
 					mesh_cmp->m_Actor->m_Animator->m_DualQuats);
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				bool ret = OverlapTestFrustumAndMesh(frustum,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -305,7 +305,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			}
 			else
 			{
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				bool ret = OverlapTestFrustumAndMesh(frustum,
 					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumVertices(),
 					mesh->GetNumBytesPerVertex(),
@@ -326,7 +326,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			const my::Vector3 & Center = cmp->m_World.row<3>().xyz;
+			const my::Vector3 & Center = cmp->m_Actor->m_World.row<3>().xyz;
 			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
 			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
 			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
@@ -367,7 +367,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
 					cloth_cmp->m_Actor->m_Animator->m_DualQuats);
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				bool ret = OverlapTestFrustumAndMesh(frustum,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -382,7 +382,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			}
 			else
 			{
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				bool ret = OverlapTestFrustumAndMesh(frustum,
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexStride,
@@ -438,13 +438,13 @@ bool CChildView::OverlapTestFrustumAndMesh(
 
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp)
 {
-	my::Ray local_ray = ray.transform(cmp->m_World.inverse());
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
 	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
+			my::Ray local_ray = ray.transform(actor->m_World.inverse());
 			if (actor->m_Cmps.empty())
 			{
 				my::RayResult ret = my::IntersectionTests::rayAndAABB(local_ray.p, local_ray.d, actor->m_aabb);
@@ -457,9 +457,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
-				my::RayResult ret = OverlapTestRayAndComponent(ray, cmp_iter->get());
+				my::RayResult ret = OverlapTestRayAndComponent(local_ray, cmp_iter->get());
 				if (ret.first)
 				{
+					ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
 					return ret;
 				}
 			}
@@ -492,7 +493,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
 					mesh_cmp->m_Actor->m_Animator->m_DualQuats);
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = OverlapTestRayAndMesh(ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -505,7 +506,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			}
 			else
 			{
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = OverlapTestRayAndMesh(ray,
 					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumVertices(),
 					mesh->GetNumBytesPerVertex(),
@@ -518,7 +519,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			}
 			if (ret.first)
 			{
-				ret.second = (local_ray.d * ret.second).transformNormal(mesh_cmp->m_World).magnitude();
 				return ret;
 			}
 		}
@@ -527,7 +527,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			const my::Vector3 & Center = cmp->m_World.row<3>().xyz;
+			const my::Vector3 & Center = cmp->m_Actor->m_World.row<3>().xyz;
 			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
 			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
 			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
@@ -569,7 +569,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
 					cloth_cmp->m_Actor->m_Animator->m_DualQuats);
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = OverlapTestRayAndMesh(ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -580,7 +580,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			}
 			else
 			{
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = OverlapTestRayAndMesh(ray,
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexStride,
@@ -591,7 +591,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			}
 			if (ret.first)
 			{
-				ret.second = (local_ray.d * ret.second).transformNormal(cloth_cmp->m_World).magnitude();
 				return ret;
 			}
 		}
@@ -602,14 +601,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			struct Callback : public my::OctNodeBase::QueryCallback
 			{
 				const my::Ray & ray;
-				const my::Vector3 & LocalViewPos;
+				const my::Vector3 & ViewPos;
 				CChildView * pView;
 				Terrain * terrain;
 				my::RayResult ret;
-				Callback(const my::Ray & _ray, const my::Vector3 & _LocalViewPos, CChildView * _pView, Terrain * _terrain)
+				Callback(const my::Ray & _ray, const my::Vector3 & _ViewPos, CChildView * _pView, Terrain * _terrain)
 					: ray(_ray)
 					, pView(_pView)
-					, LocalViewPos(_LocalViewPos)
+					, ViewPos(_ViewPos)
 					, terrain(_terrain)
 					, ret(false, FLT_MAX)
 				{
@@ -618,11 +617,11 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				{
 					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 					const Terrain::Fragment & frag = terrain->GetFragment(
-						terrain->CalculateLod(chunk->m_Row, chunk->m_Column, LocalViewPos),
-						terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, LocalViewPos),
-						terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, LocalViewPos),
-						terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
-						terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, LocalViewPos));
+						terrain->CalculateLod(chunk->m_Row, chunk->m_Column, ViewPos),
+						terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, ViewPos),
+						terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, ViewPos),
+						terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, ViewPos),
+						terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, ViewPos));
 					my::RayResult result = pView->OverlapTestRayAndTerrainChunk(
 						ray,
 						terrain,
@@ -646,12 +645,11 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-			my::Vector3 loc_viewpos = model_view_camera->m_LookAt.transformCoord(terrain->m_World.inverse());
-			Callback cb(local_ray, loc_viewpos, this, terrain);
-			terrain->m_Root.QueryActor(local_ray, &cb);
+			my::Vector3 loc_viewpos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
+			Callback cb(ray, loc_viewpos, this, terrain);
+			terrain->m_Root.QueryActor(ray, &cb);
 			if (cb.ret.first)
 			{
-				cb.ret.second = (local_ray.d * cb.ret.second).transformNormal(terrain->m_World).magnitude();
 				return cb.ret;
 			}
 		}
@@ -1200,7 +1198,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			Actor::ComponentPtrList::iterator cmp_iter = actor_world_iter->first->m_Cmps.begin();
 			for (; cmp_iter != actor_world_iter->first->m_Cmps.end(); cmp_iter++)
 			{
-				(*cmp_iter)->UpdateWorld();
+				(*cmp_iter)->OnPoseChanged();
 			}
 		}
 		Invalidate();
