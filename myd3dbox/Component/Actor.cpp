@@ -296,16 +296,12 @@ void Actor::UpdateWorld(void)
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
-	Frustum loc_frustum = frustum.transform(m_World.transpose());
-
-	Vector3 loc_viewpos = ViewPos.transformCoord(m_World.inverse());
-
-	Component::AddToPipeline(loc_frustum, pipeline, PassMask, loc_viewpos);
+	Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->AddToPipeline(loc_frustum, pipeline, PassMask, loc_viewpos);
+		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 	}
 }
 

@@ -649,7 +649,10 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					if (shader)
 					{
 						// ! do not use m_World for level offset
-						m_Root.QueryActor(frustum, &Callback(pipeline, PassID, ViewPos, this, shader));
+						const Matrix4 & World = m_Actor ? m_Actor->m_World : Matrix4::identity;
+						Frustum loc_frustum = frustum.transform(World.transpose());
+						Vector3 loc_viewpos = ViewPos.transformCoord(World.inverse());
+						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, loc_viewpos, this, shader));
 					}
 				}
 			}
