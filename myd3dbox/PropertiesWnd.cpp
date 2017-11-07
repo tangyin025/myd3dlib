@@ -203,20 +203,8 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 
 	pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
-	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Position.x);
-	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Position.y);
-	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Position.z);
 
-	my::Vector3 angle = cmp->m_Rotation.ToEulerAngles();
-	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
-	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
-	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-
-	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Scale.x);
-	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Scale.y);
-	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Scale.z);
-
-	pComponent->GetSubItem(3)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
+	pComponent->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
 
 	switch (cmp->m_Type)
 	{
@@ -266,7 +254,17 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
+	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pComponent->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
+	pComponent->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
@@ -491,34 +489,6 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	ASSERT(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 
-	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyComponentPos, TRUE);
-	pComponent->AddSubItem(pPosition);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Position.x, NULL, PropertyComponentPosX);
-	pPosition->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)cmp->m_Position.y, NULL, PropertyComponentPosY);
-	pPosition->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)cmp->m_Position.z, NULL, PropertyComponentPosZ);
-	pPosition->AddSubItem(pProp);
-
-	my::Vector3 angle = cmp->m_Rotation.ToEulerAngles();
-	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyComponentRot, TRUE);
-	pComponent->AddSubItem(pRotate);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyComponentRotX);
-	pRotate->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyComponentRotY);
-	pRotate->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyComponentRotZ);
-	pRotate->AddSubItem(pProp);
-
-	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyComponentScale, TRUE);
-	pComponent->AddSubItem(pScale);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Scale.x, NULL, PropertyComponentScaleX);
-	pScale->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)cmp->m_Scale.y, NULL, PropertyComponentScaleY);
-	pScale->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)cmp->m_Scale.z, NULL, PropertyComponentScaleZ);
-	pScale->AddSubItem(pProp);
-
 	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
 	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
 	{
@@ -556,6 +526,7 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
+
 	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), PropertyActorLevelId, TRUE);
 	pComponent->AddSubItem(pLevelId);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -565,6 +536,7 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pLevelId->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)level_id.y, NULL, PropertyActorLevelIdY);
 	pLevelId->AddSubItem(pProp);
+
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
 	pComponent->AddSubItem(pAABB);
 	pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
@@ -579,12 +551,42 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyActorPos, TRUE);
+	pComponent->AddSubItem(pPosition);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)actor->m_Position.x, NULL, PropertyActorPosX);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)actor->m_Position.y, NULL, PropertyActorPosY);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)actor->m_Position.z, NULL, PropertyActorPosZ);
+	pPosition->AddSubItem(pProp);
+
+	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
+	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyActorRot, TRUE);
+	pComponent->AddSubItem(pRotate);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyActorRotX);
+	pRotate->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyActorRotY);
+	pRotate->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyActorRotZ);
+	pRotate->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyActorScale, TRUE);
+	pComponent->AddSubItem(pScale);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)actor->m_Scale.x, NULL, PropertyActorScaleX);
+	pScale->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)actor->m_Scale.y, NULL, PropertyActorScaleY);
+	pScale->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)actor->m_Scale.z, NULL, PropertyActorScaleZ);
+	pScale->AddSubItem(pProp);
+
 	CMFCPropertyGridProperty * pRigidActor = new CComboProp(_T("RigidActor"), g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT], NULL, PropertyActorRigidActor);
 	for (unsigned int i = 0; i < _countof(g_ActorTypeDesc); i++)
 	{
 		pRigidActor->AddOption(g_ActorTypeDesc[i], TRUE);
 	}
 	pComponent->AddSubItem(pRigidActor);
+
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
@@ -826,7 +828,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 3;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -840,7 +842,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	}
-	return 4;
+	return 1;
 }
 
 LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)
@@ -1027,49 +1029,48 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
-	case PropertyComponentPos:
-	case PropertyComponentPosX:
-	case PropertyComponentPosY:
-	case PropertyComponentPosZ:
-	case PropertyComponentRot:
-	case PropertyComponentRotX:
-	case PropertyComponentRotY:
-	case PropertyComponentRotZ:
-	case PropertyComponentScale:
-	case PropertyComponentScaleX:
-	case PropertyComponentScaleY:
-	case PropertyComponentScaleZ:
+	case PropertyActorPos:
+	case PropertyActorPosX:
+	case PropertyActorPosY:
+	case PropertyActorPosZ:
+	case PropertyActorRot:
+	case PropertyActorRotX:
+	case PropertyActorRotY:
+	case PropertyActorRotZ:
+	case PropertyActorScale:
+	case PropertyActorScaleX:
+	case PropertyActorScaleY:
+	case PropertyActorScaleZ:
 		{
-			Component * cmp = NULL;
+			Actor * actor = NULL;
 			CMFCPropertyGridProperty * pPosition = NULL, * pRotation = NULL, * pScale = NULL;
 			switch (PropertyId)
 			{
-			case PropertyComponentPos:
-			case PropertyComponentRot:
-			case PropertyComponentScale:
-				cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+			case PropertyActorPos:
+			case PropertyActorRot:
+			case PropertyActorScale:
+				actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
 				pPosition = pProp->GetParent()->GetSubItem(0);
 				pRotation = pProp->GetParent()->GetSubItem(1);
 				pScale = pProp->GetParent()->GetSubItem(2);
 				break;
 			default:
-				cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+				actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 				pPosition = pProp->GetParent()->GetParent()->GetSubItem(0);
 				pRotation = pProp->GetParent()->GetParent()->GetSubItem(1);
 				pScale = pProp->GetParent()->GetParent()->GetSubItem(2);
 				break;
 			}
-			cmp->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
-			cmp->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
-			cmp->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
-			cmp->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
+			actor->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
+			actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
 				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
 				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
 				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
-			cmp->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
-			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
-			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
-			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
+			actor->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			actor->UpdateAABB();
 			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
 			actor->UpdateRigidActorPose();
@@ -1085,37 +1086,37 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 			ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
 			cmp->ClearShape();
-			switch (i)
-			{
-			case physx::PxGeometryType::eSPHERE:
-				cmp->CreateSphereShape(1.0f, cmp->m_Position, cmp->m_Rotation);
-				break;
-			case physx::PxGeometryType::ePLANE:
-				cmp->CreatePlaneShape(cmp->m_Position, cmp->m_Rotation);
-				break;
-			case physx::PxGeometryType::eCAPSULE:
-				cmp->CreateCapsuleShape(1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
-				break;
-			case physx::PxGeometryType::eBOX:
-				cmp->CreateBoxShape(1.0f, 1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
-				break;
-			case physx::PxGeometryType::eCONVEXMESH:
-				break;
-			case physx::PxGeometryType::eTRIANGLEMESH:
-				if (cmp->m_Type == Component::ComponentTypeMesh)
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-					mesh_cmp->CreateTriangleMeshShape(cmp->m_Position, cmp->m_Rotation, cmp->m_Scale);
-				}
-				break;
-			case physx::PxGeometryType::eHEIGHTFIELD:
-				if (cmp->m_Type == Component::ComponentTypeTerrain)
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-					terrain->CreateHeightFieldShape(cmp->m_Position, cmp->m_Rotation);
-				}
-				break;
-			}
+			//switch (i)
+			//{
+			//case physx::PxGeometryType::eSPHERE:
+			//	cmp->CreateSphereShape(1.0f, cmp->m_Position, cmp->m_Rotation);
+			//	break;
+			//case physx::PxGeometryType::ePLANE:
+			//	cmp->CreatePlaneShape(cmp->m_Position, cmp->m_Rotation);
+			//	break;
+			//case physx::PxGeometryType::eCAPSULE:
+			//	cmp->CreateCapsuleShape(1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
+			//	break;
+			//case physx::PxGeometryType::eBOX:
+			//	cmp->CreateBoxShape(1.0f, 1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
+			//	break;
+			//case physx::PxGeometryType::eCONVEXMESH:
+			//	break;
+			//case physx::PxGeometryType::eTRIANGLEMESH:
+			//	if (cmp->m_Type == Component::ComponentTypeMesh)
+			//	{
+			//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			//		mesh_cmp->CreateTriangleMeshShape(cmp->m_Position, cmp->m_Rotation, cmp->m_Scale);
+			//	}
+			//	break;
+			//case physx::PxGeometryType::eHEIGHTFIELD:
+			//	if (cmp->m_Type == Component::ComponentTypeTerrain)
+			//	{
+			//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			//		terrain->CreateHeightFieldShape(cmp->m_Position, cmp->m_Rotation);
+			//	}
+			//	break;
+			//}
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
