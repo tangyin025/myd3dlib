@@ -25,6 +25,10 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
+	ar << BOOST_SERIALIZATION_NVP(m_Position);
+	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
+	ar << BOOST_SERIALIZATION_NVP(m_Scale);
+	ar << BOOST_SERIALIZATION_NVP(m_World);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
 	ar << BOOST_SERIALIZATION_NVP(m_Controller);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
@@ -66,6 +70,10 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
+	ar >> BOOST_SERIALIZATION_NVP(m_Position);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
+	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
+	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
 	if (m_Animator)
 	{

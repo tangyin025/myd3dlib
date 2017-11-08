@@ -1029,57 +1029,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
-	case PropertyActorPos:
-	case PropertyActorPosX:
-	case PropertyActorPosY:
-	case PropertyActorPosZ:
-	case PropertyActorRot:
-	case PropertyActorRotX:
-	case PropertyActorRotY:
-	case PropertyActorRotZ:
-	case PropertyActorScale:
-	case PropertyActorScaleX:
-	case PropertyActorScaleY:
-	case PropertyActorScaleZ:
-		{
-			Actor * actor = NULL;
-			CMFCPropertyGridProperty * pPosition = NULL, * pRotation = NULL, * pScale = NULL;
-			switch (PropertyId)
-			{
-			case PropertyActorPos:
-			case PropertyActorRot:
-			case PropertyActorScale:
-				actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
-				pPosition = pProp->GetParent()->GetSubItem(0);
-				pRotation = pProp->GetParent()->GetSubItem(1);
-				pScale = pProp->GetParent()->GetSubItem(2);
-				break;
-			default:
-				actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-				pPosition = pProp->GetParent()->GetParent()->GetSubItem(0);
-				pRotation = pProp->GetParent()->GetParent()->GetSubItem(1);
-				pScale = pProp->GetParent()->GetParent()->GetSubItem(2);
-				break;
-			}
-			actor->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
-			actor->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
-			actor->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
-			actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
-				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
-				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
-				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
-			actor->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
-			actor->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
-			actor->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
-			actor->UpdateAABB();
-			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
-			actor->UpdateRigidActorPose();
-			pFrame->UpdateSelBox();
-			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
 	case PropertyComponentShape:
 		{
 			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
@@ -1178,6 +1127,55 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
 			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
 			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyActorPos:
+	case PropertyActorPosX:
+	case PropertyActorPosY:
+	case PropertyActorPosZ:
+	case PropertyActorRot:
+	case PropertyActorRotX:
+	case PropertyActorRotY:
+	case PropertyActorRotZ:
+	case PropertyActorScale:
+	case PropertyActorScaleX:
+	case PropertyActorScaleY:
+	case PropertyActorScaleZ:
+		{
+			CMFCPropertyGridProperty * pComponent = NULL;
+			switch (PropertyId)
+			{
+			case PropertyActorPos:
+			case PropertyActorRot:
+			case PropertyActorScale:
+				pComponent = pProp->GetParent();
+				break;
+			default:
+				pComponent = pProp->GetParent()->GetParent();
+				break;
+			}
+			Actor * actor = dynamic_cast<Actor *>((Component *)pComponent->GetValue().ulVal);
+			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+			CMFCPropertyGridProperty * pPosition = pComponent->GetSubItem(PropId + 2);
+			CMFCPropertyGridProperty * pRotation = pComponent->GetSubItem(PropId + 3);
+			CMFCPropertyGridProperty * pScale = pComponent->GetSubItem(PropId + 4);
+			actor->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
+			actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
+				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
+				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
+				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
+			actor->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
+			actor->UpdateAABB();
+			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			actor->UpdateRigidActorPose();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
