@@ -1035,37 +1035,37 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 			ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
 			cmp->ClearShape();
-			//switch (i)
-			//{
-			//case physx::PxGeometryType::eSPHERE:
-			//	cmp->CreateSphereShape(1.0f, cmp->m_Position, cmp->m_Rotation);
-			//	break;
-			//case physx::PxGeometryType::ePLANE:
-			//	cmp->CreatePlaneShape(cmp->m_Position, cmp->m_Rotation);
-			//	break;
-			//case physx::PxGeometryType::eCAPSULE:
-			//	cmp->CreateCapsuleShape(1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
-			//	break;
-			//case physx::PxGeometryType::eBOX:
-			//	cmp->CreateBoxShape(1.0f, 1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
-			//	break;
-			//case physx::PxGeometryType::eCONVEXMESH:
-			//	break;
-			//case physx::PxGeometryType::eTRIANGLEMESH:
-			//	if (cmp->m_Type == Component::ComponentTypeMesh)
-			//	{
-			//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			//		mesh_cmp->CreateTriangleMeshShape(cmp->m_Position, cmp->m_Rotation, cmp->m_Scale);
-			//	}
-			//	break;
-			//case physx::PxGeometryType::eHEIGHTFIELD:
-			//	if (cmp->m_Type == Component::ComponentTypeTerrain)
-			//	{
-			//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			//		terrain->CreateHeightFieldShape(cmp->m_Position, cmp->m_Rotation);
-			//	}
-			//	break;
-			//}
+			switch (i)
+			{
+			case physx::PxGeometryType::eSPHERE:
+				cmp->CreateSphereShape(cmp->m_Actor->m_Scale.x);
+				break;
+			case physx::PxGeometryType::ePLANE:
+				cmp->CreatePlaneShape();
+				break;
+			case physx::PxGeometryType::eCAPSULE:
+				cmp->CreateCapsuleShape(cmp->m_Actor->m_Scale.x, cmp->m_Actor->m_Scale.y);
+				break;
+			case physx::PxGeometryType::eBOX:
+				cmp->CreateBoxShape(cmp->m_Actor->m_Scale.x, cmp->m_Actor->m_Scale.y, cmp->m_Actor->m_Scale.z);
+				break;
+			case physx::PxGeometryType::eCONVEXMESH:
+				break;
+			case physx::PxGeometryType::eTRIANGLEMESH:
+				if (cmp->m_Type == Component::ComponentTypeMesh)
+				{
+					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+					mesh_cmp->CreateTriangleMeshShape(cmp->m_Actor->m_Scale);
+				}
+				break;
+			case physx::PxGeometryType::eHEIGHTFIELD:
+				if (cmp->m_Type == Component::ComponentTypeTerrain)
+				{
+					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+					terrain->CreateHeightFieldShape(cmp->m_Actor->m_Scale);
+				}
+				break;
+			}
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
