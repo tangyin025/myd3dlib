@@ -135,6 +135,7 @@ void CPropertiesWnd::OnSelectionChanged(EventArgs * arg)
 	if (!pFrame->m_selactors.empty())
 	{
 		UpdatePropertiesActor(*pFrame->m_selactors.begin());
+		m_wndPropList.AdjustLayout();
 	}
 	else
 	{
@@ -151,6 +152,7 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArgs * arg)
 	if (actor_iter != pFrame->m_selactors.end())
 	{
 		UpdatePropertiesActor(*actor_iter);
+		m_wndPropList.AdjustLayout();
 	}
 }
 
@@ -221,7 +223,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 		}
 	}
 	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
-	m_wndPropList.AdjustLayout();
+	//m_wndPropList.AdjustLayout();
 }
 
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
@@ -989,6 +991,125 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
+	case PropertyActorLevelId:
+	case PropertyActorLevelIdX:
+	case PropertyActorLevelIdY:
+		{
+			CMFCPropertyGridProperty * pLevelId = NULL;
+			if (PropertyId == PropertyActorLevelId)
+			{
+				pLevelId = pProp;
+			}
+			else
+			{
+				pLevelId = pProp->GetParent();
+			}
+			Actor * actor = (Actor *)pLevelId->GetParent()->GetValue().ulVal;
+			CPoint level_id(
+				my::Clamp<long>(pLevelId->GetSubItem(0)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
+				my::Clamp<long>(pLevelId->GetSubItem(1)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
+			pFrame->m_WorldL.OnActorPoseChanged(actor, level_id);
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyActorAABB:
+	case PropertyActorMinX:
+	case PropertyActorMinY:
+	case PropertyActorMinZ:
+	case PropertyActorMaxX:
+	case PropertyActorMaxY:
+	case PropertyActorMaxZ:
+		{
+			CMFCPropertyGridProperty * pAABB = NULL;
+			switch (PropertyId)
+			{
+			case PropertyActorAABB:
+				pAABB = pProp;
+				break;
+			case PropertyActorMinX:
+			case PropertyActorMinY:
+			case PropertyActorMinZ:
+			case PropertyActorMaxX:
+			case PropertyActorMaxY:
+			case PropertyActorMaxZ:
+				pAABB = pProp->GetParent();
+				break;
+			}
+			Actor * actor = (Actor *)pAABB->GetParent()->GetValue().ulVal;
+			actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
+			actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
+			actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
+			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
+			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
+			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
+			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyActorPos:
+	case PropertyActorPosX:
+	case PropertyActorPosY:
+	case PropertyActorPosZ:
+	case PropertyActorRot:
+	case PropertyActorRotX:
+	case PropertyActorRotY:
+	case PropertyActorRotZ:
+	case PropertyActorScale:
+	case PropertyActorScaleX:
+	case PropertyActorScaleY:
+	case PropertyActorScaleZ:
+		{
+			CMFCPropertyGridProperty * pComponent = NULL;
+			switch (PropertyId)
+			{
+			case PropertyActorPos:
+			case PropertyActorRot:
+			case PropertyActorScale:
+				pComponent = pProp->GetParent();
+				break;
+			default:
+				pComponent = pProp->GetParent()->GetParent();
+				break;
+			}
+			Actor * actor = (Actor *)pComponent->GetValue().ulVal;
+			actor->m_Position.x = pComponent->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Position.y = pComponent->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Position.z = pComponent->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal;
+			actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
+				D3DXToRadian(pComponent->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal),
+				D3DXToRadian(pComponent->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal),
+				D3DXToRadian(pComponent->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal)));
+			actor->m_Scale.x = pComponent->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Scale.y = pComponent->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Scale.z = pComponent->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
+			actor->UpdateAABB();
+			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			actor->UpdateRigidActorPose();
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyActorRigidActor:
+		{
+			Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
+			actor->ClearRigidActor();
+			actor->CreateRigidActor((physx::PxActorType::Enum)i);
+			if (actor->IsRequested())
+			{
+				actor->OnEnterPxScene(pFrame);
+			}
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	case PropertyComponentShape:
 		{
 			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
@@ -1030,135 +1151,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	case PropertyActorLevelId:
-	case PropertyActorLevelIdX:
-	case PropertyActorLevelIdY:
-		{
-			CMFCPropertyGridProperty * pLevelId = NULL;
-			if (PropertyId == PropertyActorLevelId)
-			{
-				pLevelId = pProp;
-			}
-			else
-			{
-				pLevelId = pProp->GetParent();
-			}
-			Component * cmp = (Component *)pLevelId->GetParent()->GetValue().ulVal;
-			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			CPoint level_id(
-				my::Clamp<long>(pLevelId->GetSubItem(0)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
-				my::Clamp<long>(pLevelId->GetSubItem(1)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
-			pFrame->m_WorldL.OnActorPoseChanged(actor, level_id);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyActorAABB:
-	case PropertyActorMinX:
-	case PropertyActorMinY:
-	case PropertyActorMinZ:
-	case PropertyActorMaxX:
-	case PropertyActorMaxY:
-	case PropertyActorMaxZ:
-		{
-			CMFCPropertyGridProperty * pAABB = NULL;
-			switch (PropertyId)
-			{
-			case PropertyActorAABB:
-				pAABB = pProp;
-				break;
-			case PropertyActorMinX:
-			case PropertyActorMinY:
-			case PropertyActorMinZ:
-			case PropertyActorMaxX:
-			case PropertyActorMaxY:
-			case PropertyActorMaxZ:
-				pAABB = pProp->GetParent();
-				break;
-			}
-			Component * cmp = (Component *)pAABB->GetParent()->GetValue().ulVal;
-			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
-			actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
-			actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
-			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
-			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
-			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
-			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
-			pFrame->UpdateSelBox();
-			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyActorPos:
-	case PropertyActorPosX:
-	case PropertyActorPosY:
-	case PropertyActorPosZ:
-	case PropertyActorRot:
-	case PropertyActorRotX:
-	case PropertyActorRotY:
-	case PropertyActorRotZ:
-	case PropertyActorScale:
-	case PropertyActorScaleX:
-	case PropertyActorScaleY:
-	case PropertyActorScaleZ:
-		{
-			CMFCPropertyGridProperty * pComponent = NULL;
-			switch (PropertyId)
-			{
-			case PropertyActorPos:
-			case PropertyActorRot:
-			case PropertyActorScale:
-				pComponent = pProp->GetParent();
-				break;
-			default:
-				pComponent = pProp->GetParent()->GetParent();
-				break;
-			}
-			Actor * actor = (Actor *)pComponent->GetValue().ulVal;
-			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-			CMFCPropertyGridProperty * pPosition = pComponent->GetSubItem(PropId + 2);
-			CMFCPropertyGridProperty * pRotation = pComponent->GetSubItem(PropId + 3);
-			CMFCPropertyGridProperty * pScale = pComponent->GetSubItem(PropId + 4);
-			actor->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
-			actor->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
-			actor->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
-			actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
-				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
-				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
-				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
-			actor->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
-			actor->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
-			actor->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
-			actor->UpdateAABB();
-			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
-			actor->UpdateRigidActorPose();
-			pFrame->UpdateSelBox();
-			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyActorRigidActor:
-		{
-			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
-			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
-			actor->ClearRigidActor();
-			actor->CreateRigidActor((physx::PxActorType::Enum)i);
-			if (actor->IsRequested())
-			{
-				actor->OnEnterPxScene(pFrame);
-			}
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
+	//case PropertyComponentShapePos:
+	//case PropertyComponentShapePosX:
+	//case PropertyComponentShapePosY:
+	//case PropertyComponentShapePosZ:
+	//case PropertyComponentShapeRot:
+	//case PropertyComponentShapeRotX:
+	//case PropertyComponentShapeRotY:
+	//case PropertyComponentShapeRotZ:
+	//	// ! physx attached shape is not writable
+	//	break;
 	case PropertyMeshResPath:
 		{
 			//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
