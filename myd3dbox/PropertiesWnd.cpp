@@ -134,8 +134,7 @@ void CPropertiesWnd::OnSelectionChanged(EventArgs * arg)
 	ASSERT_VALID(pFrame);
 	if (!pFrame->m_selactors.empty())
 	{
-		UpdateProperties(NULL, 0, *pFrame->m_selactors.begin());
-		m_wndPropList.AdjustLayout();
+		UpdatePropertiesActor(*pFrame->m_selactors.begin());
 	}
 	else
 	{
@@ -151,8 +150,7 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArgs * arg)
 	CMainFrame::ActorSet::iterator actor_iter = pFrame->m_selactors.begin();
 	if (actor_iter != pFrame->m_selactors.end())
 	{
-		UpdateProperties(NULL, 0, *actor_iter);
-		m_wndPropList.AdjustLayout();
+		UpdatePropertiesActor(*actor_iter);
 	}
 }
 
@@ -176,31 +174,69 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 	}
 }
 
+void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
+{
+	CMFCPropertyGridProperty * pComponent = NULL;
+	if (m_wndPropList.GetPropertyCount() >= 1)
+	{
+		pComponent = m_wndPropList.GetProperty(0);
+	}
+	if (!pComponent || pComponent->GetData() != PropertyActor)
+	{
+		m_wndPropList.RemoveAll();
+		CreatePropertiesActor(actor);
+		return;
+	}
+	pComponent->SetName(GetComponentTypeName(actor->m_Type), FALSE);
+	pComponent->SetValue((_variant_t)(DWORD_PTR)actor);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CPoint level_id = actor->GetLevel()->GetId();
+	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)level_id.x);
+	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)level_id.y);
+	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
+	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
+	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
+	pComponent->GetSubItem(1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
+	pComponent->GetSubItem(1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
+	pComponent->GetSubItem(1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
+	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
+	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
+	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
+	pComponent->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pComponent->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pComponent->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pComponent->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
+	pComponent->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
+	pComponent->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
+	pComponent->GetSubItem(5)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	if (!actor->m_Cmps.empty())
+	{
+		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+		{
+			UpdateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(actor->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+		}
+	}
+	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
+	m_wndPropList.AdjustLayout();
+}
+
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
 {
 	CMFCPropertyGridProperty * pComponent = NULL;
-	if (pParentCtrl)
+	if (i < pParentCtrl->GetSubItemsCount())
 	{
-		if (i < pParentCtrl->GetSubItemsCount())
-		{
-			pComponent = pParentCtrl->GetSubItem(i);
-		}
+		pComponent = pParentCtrl->GetSubItem(i);
 	}
-	else
-	{
-		if (i < m_wndPropList.GetPropertyCount())
-		{
-			pComponent = m_wndPropList.GetProperty(i);
-		}
-	}
-
 	if (!pComponent || pComponent->GetData() != PropertyComponent)
 	{
 		RemovePropertiesFrom(pParentCtrl, i);
 		CreateProperties(pParentCtrl, i, cmp);
 		return;
 	}
-
 	pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 
@@ -208,12 +244,6 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeActor:
-		UpdatePropertiesActor(pComponent, dynamic_cast<Actor *>(cmp));
-		break;
-	case Component::ComponentTypeCharacter:
-		UpdatePropertiesCharacter(pComponent, dynamic_cast<Character *>(cmp));
-		break;
 	case Component::ComponentTypeMesh:
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
@@ -230,55 +260,6 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
 	}
-//	m_wndPropList.AdjustLayout();
-}
-
-void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
-{
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyActorLevelId)
-	{
-		RemovePropertiesFrom(pComponent, PropId);
-		CreatePropertiesActor(pComponent, actor);
-		return;
-	}
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	CPoint level_id = actor->GetLevel()->GetId();
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)level_id.x);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)level_id.y);
-	pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
-	pComponent->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
-	pComponent->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
-	pComponent->GetSubItem(PropId + 1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
-	pComponent->GetSubItem(PropId + 1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
-	pComponent->GetSubItem(PropId + 1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
-	pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
-	pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
-	pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
-	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
-	pComponent->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
-	if (!actor->m_Cmps.empty())
-	{
-		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
-		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
-		{
-			UpdateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(actor->m_Cmps.begin(), cmp_iter), cmp_iter->get());
-		}
-	}
-	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
-}
-
-void CPropertiesWnd::UpdatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
-{
-	UpdatePropertiesActor(pComponent, character);
 }
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -467,65 +448,11 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	UpdatePropertiesMaterial(pComponent, PropId + 7, terrain->m_Material.get());
 }
 
-void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
+void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 {
-	CMFCPropertyGridProperty * pComponent = NULL;
-	if (pParentCtrl)
-	{
-		while (i >= pParentCtrl->GetSubItemsCount())
-		{
-			pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
-			pParentCtrl->AddSubItem(pComponent);
-		}
-	}
-	else
-	{
-		while (i >= m_wndPropList.GetPropertyCount())
-		{
-			pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
-			m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
-		}
-	}
-	ASSERT(pComponent);
-	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
-
-	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
-	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
-	{
-		pShape->AddOption(g_ShapeTypeDesc[i], TRUE);
-	}
-	pComponent->AddSubItem(pShape);
-
-	switch (cmp->m_Type)
-	{
-	case Component::ComponentTypeActor:
-		CreatePropertiesActor(pComponent, dynamic_cast<Actor *>(cmp));
-		break;
-	case Component::ComponentTypeCharacter:
-		CreatePropertiesCharacter(pComponent, dynamic_cast<Character *>(cmp));
-		break;
-	case Component::ComponentTypeMesh:
-		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
-		break;
-	case Component::ComponentTypeCloth:
-		CreatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
-		break;
-	case Component::ComponentTypeStaticEmitter:
-		CreatePropertiesStaticEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
-		break;
-	case Component::ComponentTypeSphericalEmitter:
-		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
-		break;
-	case Component::ComponentTypeTerrain:
-		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
-		break;
-	}
-}
-
-void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
-{
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(actor->m_Type), PropertyActor, FALSE);
+	m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
+	pComponent->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
 
 	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), PropertyActorLevelId, TRUE);
 	pComponent->AddSubItem(pLevelId);
@@ -597,9 +524,42 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	}
 }
 
-void CPropertiesWnd::CreatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
+void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
 {
-	CreatePropertiesActor(pComponent, character);
+	CMFCPropertyGridProperty * pComponent = NULL;
+	while (i >= pParentCtrl->GetSubItemsCount())
+	{
+		pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
+		pParentCtrl->AddSubItem(pComponent);
+	}
+	ASSERT(pComponent);
+	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
+
+	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
+	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
+	{
+		pShape->AddOption(g_ShapeTypeDesc[i], TRUE);
+	}
+	pComponent->AddSubItem(pShape);
+
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeMesh:
+		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
+		break;
+	case Component::ComponentTypeCloth:
+		CreatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
+		break;
+	case Component::ComponentTypeStaticEmitter:
+		CreatePropertiesStaticEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
+		break;
+	case Component::ComponentTypeSphericalEmitter:
+		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
+		break;
+	case Component::ComponentTypeTerrain:
+		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
+		break;
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -828,7 +788,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
+		return 6;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -1158,7 +1118,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pComponent = pProp->GetParent()->GetParent();
 				break;
 			}
-			Actor * actor = dynamic_cast<Actor *>((Component *)pComponent->GetValue().ulVal);
+			Actor * actor = (Actor *)pComponent->GetValue().ulVal;
 			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 			CMFCPropertyGridProperty * pPosition = pComponent->GetSubItem(PropId + 2);
 			CMFCPropertyGridProperty * pRotation = pComponent->GetSubItem(PropId + 3);

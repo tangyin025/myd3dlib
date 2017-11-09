@@ -50,6 +50,7 @@ protected:
 		PropertyComponentShapeRotX,
 		PropertyComponentShapeRotY,
 		PropertyComponentShapeRotZ,
+		PropertyActor,
 		PropertyActorLevelId,
 		PropertyActorLevelIdX,
 		PropertyActorLevelIdY,
@@ -141,9 +142,8 @@ protected:
 	void OnSelectionChanged(EventArgs * arg);
 	void OnCmpAttriChanged(EventArgs * arg);
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
+	void UpdatePropertiesActor(Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
-	void UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
-	void UpdatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
@@ -154,9 +154,8 @@ protected:
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 
+	void CreatePropertiesActor(Actor * actor);
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
-	void CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
-	void CreatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
