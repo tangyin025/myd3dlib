@@ -185,13 +185,13 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
-	void CreateBoxShape(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation);
+	void CreateBoxShape(float hx, float hy, float hz);
 
-	void CreateCapsuleShape(float radius, float halfHeight, const my::Vector3 & Position, const my::Quaternion & Rotation);
+	void CreateCapsuleShape(float radius, float halfHeight);
 
-	void CreatePlaneShape(const my::Vector3 & Position, const my::Quaternion & Rotation);
+	void CreatePlaneShape(void);
 
-	void CreateSphereShape(float radius, const my::Vector3 & Position, const my::Quaternion & Rotation);
+	void CreateSphereShape(float radius);
 
 	virtual void ClearShape(void);
 };
@@ -284,7 +284,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
-	void CreateTriangleMeshShape(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
+	void CreateTriangleMeshShape(const my::Vector3 & Scale);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

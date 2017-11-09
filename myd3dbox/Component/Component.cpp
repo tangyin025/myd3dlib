@@ -159,7 +159,7 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 {
 }
 
-void Component::CreateBoxShape(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation)
+void Component::CreateBoxShape(float hx, float hy, float hz)
 {
 	_ASSERT(!m_PxShape);
 
@@ -173,12 +173,10 @@ void Component::CreateBoxShape(float hx, float hy, float hz, const my::Vector3 &
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateCapsuleShape(float radius, float halfHeight, const my::Vector3 & Position, const my::Quaternion & Rotation)
+void Component::CreateCapsuleShape(float radius, float halfHeight)
 {
 	_ASSERT(!m_PxShape);
 
@@ -192,12 +190,10 @@ void Component::CreateCapsuleShape(float radius, float halfHeight, const my::Vec
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreatePlaneShape(const my::Vector3 & Position, const my::Quaternion & Rotation)
+void Component::CreatePlaneShape(void)
 {
 	_ASSERT(!m_PxShape);
 
@@ -217,12 +213,10 @@ void Component::CreatePlaneShape(const my::Vector3 & Position, const my::Quatern
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateSphereShape(float radius, const my::Vector3 & Position, const my::Quaternion & Rotation)
+void Component::CreateSphereShape(float radius)
 {
 	_ASSERT(!m_PxShape);
 
@@ -235,8 +229,6 @@ void Component::CreateSphereShape(float radius, const my::Vector3 & Position, co
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
@@ -389,7 +381,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 {
 	_ASSERT(!m_PxShape);
 
@@ -453,12 +445,10 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Position, const 
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Scale, (physx::PxQuat&)Rotation);
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Scale, physx::PxQuat::createIdentity());
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
