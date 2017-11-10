@@ -6,6 +6,7 @@
 #include "Resource.h"
 #include "MainFrm.h"
 #include "MainApp.h"
+#include "ShapeDlg.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1115,52 +1116,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 			ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
-			cmp->ClearShape();
-			switch (i)
+			CShapeDlg dlg(pFrame, cmp, i);
+			if (dlg.DoModal() == IDOK)
 			{
-			case physx::PxGeometryType::eSPHERE:
-				cmp->CreateSphereShape(cmp->m_Actor->m_Scale.x);
-				break;
-			case physx::PxGeometryType::ePLANE:
-				cmp->CreatePlaneShape();
-				break;
-			case physx::PxGeometryType::eCAPSULE:
-				cmp->CreateCapsuleShape(cmp->m_Actor->m_Scale.x, cmp->m_Actor->m_Scale.y);
-				break;
-			case physx::PxGeometryType::eBOX:
-				cmp->CreateBoxShape(cmp->m_Actor->m_Scale.x, cmp->m_Actor->m_Scale.y, cmp->m_Actor->m_Scale.z);
-				break;
-			case physx::PxGeometryType::eCONVEXMESH:
-				break;
-			case physx::PxGeometryType::eTRIANGLEMESH:
-				if (cmp->m_Type == Component::ComponentTypeMesh)
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-					mesh_cmp->CreateTriangleMeshShape(cmp->m_Actor->m_Scale);
-				}
-				break;
-			case physx::PxGeometryType::eHEIGHTFIELD:
-				if (cmp->m_Type == Component::ComponentTypeTerrain)
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-					terrain->CreateHeightFieldShape(cmp->m_Actor->m_Scale);
-				}
-				break;
+				EventArgs arg;
+				pFrame->m_EventAttributeChanged(&arg);
 			}
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	//case PropertyComponentShapePos:
-	//case PropertyComponentShapePosX:
-	//case PropertyComponentShapePosY:
-	//case PropertyComponentShapePosZ:
-	//case PropertyComponentShapeRot:
-	//case PropertyComponentShapeRotX:
-	//case PropertyComponentShapeRotY:
-	//case PropertyComponentShapeRotZ:
-	//	// ! physx attached shape is not writable
-	//	break;
 	case PropertyMeshResPath:
 		{
 			//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);

@@ -605,8 +605,7 @@ void CMainFrame::OnFileSave()
 void CMainFrame::OnFileSaveAs()
 {
 	// TODO: Add your command handler code here
-	CShapeDlg dlg;
-	dlg.DoModal();
+	AfxMessageBox(_T("Hello, world!"));
 }
 
 void CMainFrame::OnCreateActor()

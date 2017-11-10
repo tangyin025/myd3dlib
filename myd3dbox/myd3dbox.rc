@@ -70,7 +70,9 @@ END
 //
 
 IDB_CLASS_VIEW_24       BITMAP                  "res\\classview_hc.bmp"
+
 IDB_CLASS_VIEW          BITMAP                  "res\\classview.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -117,6 +119,25 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,198,156,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,252,156,50,14
+    LTEXT           "Static",IDC_STATIC,42,54,19,8
+    EDITTEXT        IDC_EDIT1,69,54,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT2,138,54,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT3,207,54,55,14,ES_AUTOHSCROLL
+    LTEXT           "Static",IDC_STATIC,42,77,19,8
+    EDITTEXT        IDC_EDIT4,69,77,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT5,138,77,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT6,207,77,55,14,ES_AUTOHSCROLL
+    LTEXT           "Static",IDC_STATIC,42,100,19,8
+    EDITTEXT        IDC_EDIT7,69,100,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT8,138,100,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT9,207,100,55,14,ES_AUTOHSCROLL
+    CONTROL         "Radio1",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,11,25,38,10
+    CONTROL         "Radio1",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,52,25,38,10
+    CONTROL         "Radio1",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,93,25,38,10
+    CONTROL         "Radio1",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,134,25,38,10
+    CONTROL         "Radio1",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON,175,25,38,10
+    CONTROL         "Radio1",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON,216,25,38,10
+    CONTROL         "Radio1",IDC_RADIO7,"Button",BS_AUTORADIOBUTTON,257,25,38,10
 END
 
 
@@ -138,6 +159,17 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG1 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +187,9 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -297,7 +331,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\myd3dbox.ico"
+
 IDR_aaaTYPE             ICON                    "res\\myd3dboxDoc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

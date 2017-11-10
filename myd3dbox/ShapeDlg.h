@@ -1,5 +1,6 @@
 #pragma once
 
+class Component;
 
 // CShapeDlg dialog
 
@@ -8,7 +9,7 @@ class CShapeDlg : public CDialogEx
 	DECLARE_DYNAMIC(CShapeDlg)
 
 public:
-	CShapeDlg(CWnd* pParent = NULL);   // standard constructor
+	CShapeDlg(CWnd* pParent, Component * cmp, int type);   // standard constructor
 	virtual ~CShapeDlg();
 
 // Dialog Data
@@ -18,4 +19,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+	Component *m_cmp;
+	int m_type;
+	virtual void OnOK();
 };
