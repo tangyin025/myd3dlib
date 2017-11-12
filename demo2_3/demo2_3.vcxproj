@@ -150,6 +150,9 @@
     <ProjectReference Include="..\libboost_program_options\scripts\libboost_program_options.vcxproj">
       <Project>{79940869-b99a-42b6-9e8e-d683614c630a}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\libboost_regex\scripts\libboost_regex.vcxproj">
+      <Project>{607f6d3c-ffe5-4587-907f-ab016f0af2d1}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\libboost_serialization\scripts\libboost_serialization.vcxproj">
       <Project>{97882a3e-fe4e-4cff-9863-517ffd484289}</Project>
     </ProjectReference>

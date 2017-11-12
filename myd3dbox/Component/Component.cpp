@@ -159,7 +159,7 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 {
 }
 
-void Component::CreateBoxShape(float hx, float hy, float hz)
+void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz)
 {
 	_ASSERT(!m_PxShape);
 
@@ -173,10 +173,12 @@ void Component::CreateBoxShape(float hx, float hy, float hz)
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateCapsuleShape(float radius, float halfHeight)
+void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight)
 {
 	_ASSERT(!m_PxShape);
 
@@ -190,10 +192,12 @@ void Component::CreateCapsuleShape(float radius, float halfHeight)
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreatePlaneShape(void)
+void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot)
 {
 	_ASSERT(!m_PxShape);
 
@@ -213,10 +217,12 @@ void Component::CreatePlaneShape(void)
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateSphereShape(float radius)
+void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius)
 {
 	_ASSERT(!m_PxShape);
 
@@ -229,6 +235,8 @@ void Component::CreateSphereShape(float radius)
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }

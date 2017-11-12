@@ -185,13 +185,13 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
-	void CreateBoxShape(float hx, float hy, float hz);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz);
 
-	void CreateCapsuleShape(float radius, float halfHeight);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight);
 
-	void CreatePlaneShape(void);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot);
 
-	void CreateSphereShape(float radius);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
 
 	virtual void ClearShape(void);
 };

@@ -1117,10 +1117,24 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 			ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
 			CShapeDlg dlg(pFrame, cmp, i);
-			if (dlg.DoModal() == IDOK)
+			switch (i)
 			{
-				EventArgs arg;
-				pFrame->m_EventAttributeChanged(&arg);
+			case physx::PxGeometryType::eSPHERE:
+			case physx::PxGeometryType::ePLANE:
+			case physx::PxGeometryType::eCAPSULE:
+			case physx::PxGeometryType::eBOX:
+			case physx::PxGeometryType::eCONVEXMESH:
+			case physx::PxGeometryType::eTRIANGLEMESH:
+			case physx::PxGeometryType::eHEIGHTFIELD:
+				if (dlg.DoModal() == IDOK)
+				{
+					EventArgs arg;
+					pFrame->m_EventAttributeChanged(&arg);
+				}
+				break;
+			default:
+				cmp->ClearShape();
+				break;
 			}
 		}
 		break;

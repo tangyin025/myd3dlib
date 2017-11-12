@@ -21,5 +21,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	Component *m_cmp;
 	int m_type;
+	my::Vector3 m_pos;
+	my::Vector3 m_angle;
+	my::Vector3 m_param;
 	virtual void OnOK();
 };

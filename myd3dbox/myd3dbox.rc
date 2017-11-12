@@ -70,9 +70,7 @@ END
 //
 
 IDB_CLASS_VIEW_24       BITMAP                  "res\\classview_hc.bmp"
-
 IDB_CLASS_VIEW          BITMAP                  "res\\classview.bmp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -159,17 +157,6 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_DIALOG1 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
 #endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -187,9 +174,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -331,9 +316,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\myd3dbox.ico"
-
 IDR_aaaTYPE             ICON                    "res\\myd3dboxDoc.ico"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
