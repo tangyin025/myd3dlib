@@ -171,25 +171,23 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
+void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor)
+{
+	PushWireAABB(actor->m_Node->m_aabb.transform(
+		my::Matrix4::Translation(actor->GetLevel()->GetOffset())), D3DCOLOR_ARGB(255, 255, 0, 255));
+	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+	{
+		RenderSelectedComponent(pd3dDevice, cmp_iter->get());
+	}
+}
+
 void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeActor:
-	case Component::ComponentTypeCharacter:
-		{
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			PushWireAABB(actor->m_Node->m_aabb.transform(
-				my::Matrix4::Translation(actor->GetLevel()->GetOffset())), D3DCOLOR_ARGB(255,255,0,255));
-			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
-			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
-			{
-				RenderSelectedComponent(pd3dDevice, cmp_iter->get());
-			}
-		}
-		break;
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
@@ -235,34 +233,32 @@ double CChildView::EndPerformanceCount(void)
 	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
 }
 
+bool CChildView::OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor)
+{
+	my::Frustum local_ftm = frustum.transform(actor->m_World.transpose());
+	if (actor->m_Cmps.empty())
+	{
+		my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(actor->m_aabb, local_ftm);
+		if (intersect_type != my::IntersectionTests::IntersectionTypeOutside)
+		{
+			return true;
+		}
+	}
+	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+	{
+		if (OverlapTestFrustumAndComponent(local_ftm, cmp_iter->get()))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp)
 {
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeActor:
-	case Component::ComponentTypeCharacter:
-		{
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			my::Frustum local_ftm = frustum.transform(actor->m_World.transpose());
-			if (actor->m_Cmps.empty())
-			{
-				my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(actor->m_aabb, local_ftm);
-				if (intersect_type != my::IntersectionTests::IntersectionTypeOutside)
-				{
-					return true;
-				}
-			}
-			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
-			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
-			{
-				if (OverlapTestFrustumAndComponent(local_ftm, cmp_iter->get()))
-				{
-					return true;
-				}
-			}
-		}
-		break;
-
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
@@ -436,37 +432,35 @@ bool CChildView::OverlapTestFrustumAndMesh(
 	return false;
 }
 
+my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * actor)
+{
+	my::Ray local_ray = ray.transform(actor->m_World.inverse());
+	if (actor->m_Cmps.empty())
+	{
+		my::RayResult ret = my::IntersectionTests::rayAndAABB(local_ray.p, local_ray.d, actor->m_aabb);
+		if (ret.first)
+		{
+			ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
+			return ret;
+		}
+	}
+	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+	{
+		my::RayResult ret = OverlapTestRayAndComponent(local_ray, cmp_iter->get());
+		if (ret.first)
+		{
+			ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
+			return ret;
+		}
+	}
+	return my::RayResult(false, FLT_MAX);
+}
+
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp)
 {
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeActor:
-	case Component::ComponentTypeCharacter:
-		{
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			my::Ray local_ray = ray.transform(actor->m_World.inverse());
-			if (actor->m_Cmps.empty())
-			{
-				my::RayResult ret = my::IntersectionTests::rayAndAABB(local_ray.p, local_ray.d, actor->m_aabb);
-				if (ret.first)
-				{
-					ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
-					return ret;
-				}
-			}
-			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
-			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
-			{
-				my::RayResult ret = OverlapTestRayAndComponent(local_ray, cmp_iter->get());
-				if (ret.first)
-				{
-					ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
-					return ret;
-				}
-			}
-		}
-		break;
-
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
@@ -880,7 +874,7 @@ void CChildView::OnPaint()
 					CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 					{
-						RenderSelectedComponent(theApp.m_d3dDevice, *sel_iter);
+						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter);
 					}
 				}
 
@@ -1040,7 +1034,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 					void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 					{
 						Actor * actor = dynamic_cast<Actor *>(oct_actor);
-						if (actor && pView->OverlapTestFrustumAndComponent(ftm, actor))
+						if (actor && pView->OverlapTestFrustumAndActor(ftm, actor))
 						{
 							selacts.insert(actor);
 						}
@@ -1087,7 +1081,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 					{
 						Actor * actor = dynamic_cast<Actor *>(oct_actor);
 						my::RayResult ret;
-						if (actor && (ret = pView->OverlapTestRayAndComponent(ray, actor), ret.first))
+						if (actor && (ret = pView->OverlapTestRayAndActor(ray, actor), ret.first))
 						{
 							selacts.insert(std::make_pair(ret.second, actor));
 						}

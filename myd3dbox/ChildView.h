@@ -64,9 +64,11 @@ protected:
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor);
 	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
+	bool OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor);
 	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp);
 	bool OverlapTestFrustumAndMesh(
 		const my::Frustum & frustum,
@@ -77,6 +79,7 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
+	my::RayResult OverlapTestRayAndActor(const my::Ray & ray, Actor * actor);
 	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp);
 	my::RayResult OverlapTestRayAndMesh(
 		const my::Ray & ray,

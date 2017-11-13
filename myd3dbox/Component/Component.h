@@ -91,13 +91,13 @@ public:
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
 
-class Component;
-
-typedef boost::shared_ptr<Component> ComponentPtr;
-
 class Actor;
 
 class PhysXSceneContext;
+
+class Component;
+
+typedef boost::shared_ptr<Component> ComponentPtr;
 
 class Component
 {

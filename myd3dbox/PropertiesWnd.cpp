@@ -190,7 +190,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 		CreatePropertiesActor(actor);
 		return;
 	}
-	pComponent->SetName(GetComponentTypeName(actor->m_Type), FALSE);
+	pComponent->SetName(_T("Actor"), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)actor);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -453,7 +453,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 {
-	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(actor->m_Type), PropertyActor, FALSE);
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(_T("Actor"), PropertyActor, FALSE);
 	m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
 
@@ -1103,10 +1103,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
 			actor->ClearRigidActor();
 			actor->CreateRigidActor((physx::PxActorType::Enum)i);
-			if (actor->IsRequested())
-			{
-				actor->OnEnterPxScene(pFrame);
-			}
+			actor->OnEnterPxScene(pFrame);
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

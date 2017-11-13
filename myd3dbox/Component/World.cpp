@@ -130,11 +130,8 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 		if (IntersectionTests::IntersectionTypeOutside
 			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*actor_iter)->m_aabb.transform((*actor_iter)->m_World)))
 		{
-			if ((*actor_iter)->IsRequested())
-			{
-				(*actor_iter)->ReleaseResource();
-				(*actor_iter)->OnLeavePxScene(scene);
-			}
+			(*actor_iter)->ReleaseResource();
+			(*actor_iter)->OnLeavePxScene(scene);
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
 		else
@@ -174,11 +171,8 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 					{
 						actor->UpdateWorld();
 						actor->UpdateRigidActorPose();
-						if (!actor->IsRequested())
-						{
-							actor->RequestResource();
-							actor->OnEnterPxScene(scene);
-						}
+						actor->RequestResource();
+						actor->OnEnterPxScene(scene);
 						world->m_ViewedActors.insert(actor);
 					}
 				}

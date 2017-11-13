@@ -23,7 +23,6 @@ template<>
 void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Position);
 	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
@@ -68,7 +67,6 @@ template<>
 void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Position);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
@@ -150,7 +148,6 @@ my::Vector3 Actor::GetWorldPosition(void) const
 
 void Actor::CopyFrom(const Actor & rhs)
 {
-	Component::CopyFrom(rhs);
 	m_aabb = rhs.m_aabb;
 	m_Cmps.resize(rhs.m_Cmps.size());
 	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
@@ -159,7 +156,7 @@ void Actor::CopyFrom(const Actor & rhs)
 	}
 }
 
-ComponentPtr Actor::Clone(void) const
+ActorPtr Actor::Clone(void) const
 {
 	ActorPtr ret(new Actor());
 	ret->CopyFrom(*this);
@@ -168,10 +165,6 @@ ComponentPtr Actor::Clone(void) const
 
 void Actor::RequestResource(void)
 {
-	_ASSERT(!m_Requested);
-
-	Component::RequestResource();
-
 	if (m_Animator)
 	{
 		m_Animator->RequestResource();
@@ -186,8 +179,6 @@ void Actor::RequestResource(void)
 
 void Actor::ReleaseResource(void)
 {
-	_ASSERT(m_Requested);
-
 	if (m_Animator)
 	{
 		m_Animator->ReleaseResource();
@@ -198,14 +189,10 @@ void Actor::ReleaseResource(void)
 	{
 		(*cmp_iter)->ReleaseResource();
 	}
-
-	Component::ReleaseResource();
 }
 
 void Actor::OnEnterPxScene(PhysXSceneContext * scene)
 {
-	Component::OnEnterPxScene(scene);
-
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -230,8 +217,6 @@ void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 	{
 		(*cmp_iter)->OnLeavePxScene(scene);
 	}
-
-	Component::OnLeavePxScene(scene);
 }
 
 void Actor::Update(float fElapsedTime)
@@ -268,7 +253,7 @@ my::AABB Actor::CalculateAABB(void) const
 		return AABB(-1, 1);
 	}
 
-	AABB ret = Component::CalculateAABB();
+	AABB ret = AABB::Invalid();
 	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -304,8 +289,6 @@ void Actor::UpdateWorld(void)
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
-	Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos);
-
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{

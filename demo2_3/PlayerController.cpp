@@ -88,7 +88,6 @@ void PlayerController::OnMouseBtnUp(my::InputEventArg * arg)
 void PlayerController::OnKeyDown(my::InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-	_ASSERT(m_Actor->m_Type == Component::ComponentTypeCharacter);
 	Character * character = dynamic_cast<Character *>(m_Actor);
 	switch (karg.kc)
 	{

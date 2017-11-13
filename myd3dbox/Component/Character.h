@@ -24,7 +24,7 @@ public:
 
 public:
 	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
-		: Actor(ComponentTypeCharacter, Position, Rotation, Scale, aabb)
+		: Actor(Position, Rotation, Scale, aabb)
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
 		, m_MaxVelocity(10)
@@ -34,7 +34,7 @@ public:
 	}
 
 	Character(void)
-		: Actor(ComponentTypeCharacter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
+		: Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
 		, m_MaxVelocity(10)

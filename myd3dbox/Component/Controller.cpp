@@ -8,7 +8,6 @@ void CharacterController::Update(float fElapsedTime)
 {
 	Controller::Update(fElapsedTime);
 
-	_ASSERT(m_Actor->m_Type == Component::ComponentTypeCharacter);
 	Character * character = dynamic_cast<Character *>(m_Actor);
 	if (m_MoveAcceleration > 0)
 	{
