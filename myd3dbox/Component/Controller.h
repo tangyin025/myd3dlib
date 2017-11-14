@@ -1,21 +1,29 @@
 #pragma once
 
-class Actor;
-
 class Controller
 {
-public:
+protected:
+	friend class Actor;
+
 	Actor * m_Actor;
 
-public:
+protected:
 	Controller(void)
 		: m_Actor(NULL)
+	{
+	}
+
+public:
+	Controller(Actor * actor)
+		: m_Actor(actor)
 	{
 	}
 
 	virtual ~Controller(void)
 	{
 	}
+
+	friend class boost::serialization::access;
 
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
@@ -39,11 +47,20 @@ public:
 
 	float m_RotationSpeed;
 
-public:
+protected:
 	CharacterController(void)
 		: m_MoveOrientation(0)
 		, m_MoveAcceleration(0)
 		, m_RotationSpeed(D3DX_PI*3)
+	{
+	}
+
+public:
+	CharacterController(Actor * actor)
+		: Controller(actor)
+		, m_MoveOrientation(0)
+		, m_MoveAcceleration(0)
+		, m_RotationSpeed(D3DX_PI * 3)
 	{
 	}
 

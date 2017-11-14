@@ -9,8 +9,11 @@ public:
 
 	my::Vector2 m_MoveAxis;
 
-public:
+protected:
 	PlayerController(void);
+
+public:
+	PlayerController(Actor * actor);
 
 	~PlayerController(void);
 
@@ -19,6 +22,10 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(CharacterController);
 	}
+
+	void Init(void);
+
+	void Destroy(void);
 
 	virtual void Update(float fElapsedTime);
 

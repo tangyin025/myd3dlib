@@ -8,6 +8,24 @@ PlayerController::PlayerController(void)
 	: m_LookAngle(0,0,0)
 	, m_MoveAxis(0,0)
 {
+	Init();
+}
+
+PlayerController::PlayerController(Actor * actor)
+	: CharacterController(actor)
+	, m_LookAngle(0, 0, 0)
+	, m_MoveAxis(0, 0)
+{
+	Init();
+}
+
+PlayerController::~PlayerController(void)
+{
+	Destroy();
+}
+
+void PlayerController::Init(void)
+{
 	Game::getSingleton().m_mouse->m_MovedEvent.connect(boost::bind(&PlayerController::OnMouseMove, this, _1));
 	Game::getSingleton().m_mouse->m_PressedEvent.connect(boost::bind(&PlayerController::OnMouseBtnDown, this, _1));
 	Game::getSingleton().m_mouse->m_ReleasedEvent.connect(boost::bind(&PlayerController::OnMouseBtnUp, this, _1));
@@ -22,7 +40,7 @@ PlayerController::PlayerController(void)
 	}
 }
 
-PlayerController::~PlayerController(void)
+void PlayerController::Destroy(void)
 {
 	Game::getSingleton().m_mouse->m_MovedEvent.disconnect(boost::bind(&PlayerController::OnMouseMove, this, _1));
 	Game::getSingleton().m_mouse->m_PressedEvent.disconnect(boost::bind(&PlayerController::OnMouseBtnDown, this, _1));

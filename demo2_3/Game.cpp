@@ -421,8 +421,7 @@ HRESULT Game::OnCreateDevice(
 	LoadScene(m_InitScene.c_str());
 
 	m_Player.reset(new Character(m_InitPosition, Quaternion::identity, Vector3(1,1,1), AABB(-1,1)));
-	m_Player->m_Controller.reset(new PlayerController());
-	m_Player->m_Controller->m_Actor = m_Player.get();
+	m_Player->m_Controller.reset(new PlayerController(m_Player.get()));
 	m_WorldL.GetLevel(CPoint(0, 0))->AddActor(m_Player, m_Player->m_aabb.transform(m_Player->CalculateLocal()));
 
 	ExecuteCode(m_InitScript.c_str());
