@@ -770,7 +770,7 @@ void CChildView::PostCameraViewChanged(void)
 	if (m_CameraType == CameraTypePerspective)
 	{
 		my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-		if (pFrame->m_WorldL.ResetLevelId(model_view_camera->m_LookAt, pFrame))
+		if (pFrame->m_WorldL.ApplyWorldOffset(model_view_camera->m_LookAt, pFrame))
 		{
 			model_view_camera->UpdateViewProj();
 		}

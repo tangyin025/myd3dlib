@@ -112,17 +112,25 @@ public:
 
 	void OnActorPoseChanged(Actor * actor, CPoint level_id);
 
-	void ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene);
+	void ApplyWorldOffset(const CPoint & level_id, PhysXSceneContext * scene);
 
-	bool ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene);
+	bool ApplyWorldOffset(my::Vector3 & ViewPos, PhysXSceneContext * scene);
 };
 
 inline CPoint OctLevel::GetId(void) const
 {
-	return m_World->GetLevelId(this);
+	if (m_World)
+	{
+		return m_World->GetLevelId(this);
+	}
+	return CPoint(0, 0);
 }
 
 inline my::Vector3 OctLevel::GetOffset(void) const
 {
-	return WorldL::CalculateOffset(m_World->m_LevelId, GetId());
+	if (m_World)
+	{
+		return WorldL::CalculateOffset(m_World->m_LevelId, GetId());
+	}
+	return my::Vector3(0, 0, 0);
 }

@@ -143,7 +143,11 @@ OctLevel * Actor::GetLevel(void) const
 
 my::Vector3 Actor::GetWorldPosition(void) const
 {
-	return m_Position + GetLevel()->GetOffset();
+	if (m_Node)
+	{
+		return m_Position + GetLevel()->GetOffset();
+	}
+	return m_Position;
 }
 
 void Actor::CopyFrom(const Actor & rhs)

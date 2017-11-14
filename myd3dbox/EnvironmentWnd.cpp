@@ -305,7 +305,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				my::Clamp<long>(pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
 			if (new_level_id != pFrame->m_WorldL.m_LevelId)
 			{
-				pFrame->m_WorldL.ResetLevelId(new_level_id, pFrame);
+				pFrame->m_WorldL.ApplyWorldOffset(new_level_id, pFrame);
 			}
 
 			if (pView->m_CameraType == CChildView::CameraTypePerspective)

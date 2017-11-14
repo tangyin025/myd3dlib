@@ -227,7 +227,7 @@ void WorldL::OnActorPoseChanged(Actor * actor, CPoint level_id)
 	actor->UpdateWorld();
 }
 
-void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
+void WorldL::ApplyWorldOffset(const CPoint & level_id, PhysXSceneContext * scene)
 {
 	CPoint level_off = level_id - m_LevelId;
 	m_LevelId = level_id;
@@ -239,12 +239,12 @@ void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 	scene->m_PxScene->shiftOrigin(physx::PxVec3((float)level_off.x * LEVEL_SIZE, 0, (float)level_off.y * LEVEL_SIZE));
 }
 
-bool WorldL::ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene)
+bool WorldL::ApplyWorldOffset(my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	CPoint level_off((long)floor(ViewPos.x / LEVEL_SIZE), (long)floor(ViewPos.z / LEVEL_SIZE));
 	if (level_off.x != 0 || level_off.y != 0)
 	{
-		ResetLevelId(m_LevelId + level_off, scene);
+		ApplyWorldOffset(m_LevelId + level_off, scene);
 		ViewPos.x -= level_off.x * LEVEL_SIZE;
 		ViewPos.z -= level_off.y * LEVEL_SIZE;
 		return true;
