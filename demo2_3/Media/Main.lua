@@ -35,3 +35,5 @@ game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 -- cmp:CreateClothFromMesh(mesh,1)
 -- cmp:AddMaterial(lambert1)
 -- game.Player:AddComponent(cmp)
+
+game.Player.Controller=PlayerController(game.Player)

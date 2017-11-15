@@ -305,6 +305,7 @@ Game::Game(void)
 			.def("LoadScene", &Game::LoadScene)
 
 		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
+			.def(luabind::constructor<Actor *>())
 	];
 	luabind::globals(m_State)["game"] = this;
 
