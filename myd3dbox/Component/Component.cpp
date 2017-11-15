@@ -299,28 +299,34 @@ ComponentPtr MeshComponent::Clone(void) const
 
 void MeshComponent::RequestResource(void)
 {
-	Component::RequestResource();
-
-	m_MeshRes.RequestResource();
-
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	if (!IsRequested())
 	{
-		(*mat_iter)->RequestResource();
+		Component::RequestResource();
+
+		m_MeshRes.RequestResource();
+
+		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+		for (; mat_iter != m_MaterialList.end(); mat_iter++)
+		{
+			(*mat_iter)->RequestResource();
+		}
 	}
 }
 
 void MeshComponent::ReleaseResource(void)
 {
-	m_MeshRes.ReleaseResource();
-
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	if (IsRequested())
 	{
-		(*mat_iter)->ReleaseResource();
-	}
+		m_MeshRes.ReleaseResource();
 
-	Component::ReleaseResource();
+		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+		for (; mat_iter != m_MaterialList.end(); mat_iter++)
+		{
+			(*mat_iter)->ReleaseResource();
+		}
+
+		Component::ReleaseResource();
+	}
 }
 
 void MeshComponent::Update(float fElapsedTime)
@@ -654,24 +660,30 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 
 void ClothComponent::RequestResource(void)
 {
-	RenderComponent::RequestResource();
-
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	if (!IsRequested())
 	{
-		(*mat_iter)->RequestResource();
+		RenderComponent::RequestResource();
+
+		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+		for (; mat_iter != m_MaterialList.end(); mat_iter++)
+		{
+			(*mat_iter)->RequestResource();
+		}
 	}
 }
 
 void ClothComponent::ReleaseResource(void)
 {
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	if (IsRequested())
 	{
-		(*mat_iter)->ReleaseResource();
-	}
+		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+		for (; mat_iter != m_MaterialList.end(); mat_iter++)
+		{
+			(*mat_iter)->ReleaseResource();
+		}
 
-	RenderComponent::ReleaseResource();
+		RenderComponent::ReleaseResource();
+	}
 }
 
 void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
@@ -854,22 +866,28 @@ ComponentPtr EmitterComponent::Clone(void) const
 
 void EmitterComponent::RequestResource(void)
 {
-	Component::RequestResource();
-
-	if (m_Material)
+	if (!IsRequested())
 	{
-		m_Material->RequestResource();
+		Component::RequestResource();
+
+		if (m_Material)
+		{
+			m_Material->RequestResource();
+		}
 	}
 }
 
 void EmitterComponent::ReleaseResource(void)
 {
-	if (m_Material)
+	if (IsRequested())
 	{
-		m_Material->ReleaseResource();
-	}
+		if (m_Material)
+		{
+			m_Material->ReleaseResource();
+		}
 
-	Component::ReleaseResource();
+		Component::ReleaseResource();
+	}
 }
 
 void EmitterComponent::Update(float fElapsedTime)

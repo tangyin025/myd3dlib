@@ -42,7 +42,7 @@ public:
 		if (IsRequested())
 		{
 			my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_Path, this);
+			m_Res.reset();
 		}
-		m_Res.reset();
 	}
 };

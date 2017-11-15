@@ -523,28 +523,34 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 
 void Terrain::RequestResource(void)
 {
-	RenderComponent::RequestResource();
+	if (!IsRequested())
+	{
+		RenderComponent::RequestResource();
 
-	_ASSERT(!m_Decl);
-	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-	std::vector<D3DVERTEXELEMENT9> elems = m_VertexElems.BuildVertexElementList(0);
-	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-	elems.push_back(ve_end);
-	HRESULT hr;
-	V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
+		_ASSERT(!m_Decl);
+		IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
+		std::vector<D3DVERTEXELEMENT9> elems = m_VertexElems.BuildVertexElementList(0);
+		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+		elems.push_back(ve_end);
+		HRESULT hr;
+		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 
-	m_Material->RequestResource();
+		m_Material->RequestResource();
 
-	CreateVertices();
+		CreateVertices();
+	}
 }
 
 void Terrain::ReleaseResource(void)
 {
-	m_Decl.Release();
-	m_vb.OnDestroyDevice();
-	m_Fragment.clear();
-	m_Material->ReleaseResource();
-	RenderComponent::ReleaseResource();
+	if (IsRequested())
+	{
+		m_Decl.Release();
+		m_vb.OnDestroyDevice();
+		m_Fragment.clear();
+		m_Material->ReleaseResource();
+		RenderComponent::ReleaseResource();
+	}
 }
 
 void Terrain::CreateVertices(void)
