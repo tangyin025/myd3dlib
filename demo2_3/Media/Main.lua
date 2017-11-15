@@ -21,17 +21,17 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(0.5,0.5,0.5,0.5)
 game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
--- game.Player.MaxVelocity=10.0
--- game.Player.Resistance=50.0
--- toCharacterController(game.Player.Controller).RotationSpeed=3.14*3--crash client
-local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
-local lambert1=Material()
-lambert1.Shader="shader/lambert1.fx"
-lambert1.PassMask=Material.PassMaskOpaque
-lambert1.MeshTexture.Path="texture/Checker.bmp"
-lambert1.NormalTexture.Path="texture/Normal.dds"
-lambert1.SpecularTexture.Path="texture/White.dds"
-local cmp=ClothComponent()
-cmp:CreateClothFromMesh(mesh,1)
-cmp:AddMaterial(lambert1)
-game.Player:AddComponent(cmp)
+-- -- game.Player.MaxVelocity=10.0
+-- -- game.Player.Resistance=50.0
+-- -- toCharacterController(game.Player.Controller).RotationSpeed=3.14*3--crash client
+-- local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
+-- local lambert1=Material()
+-- lambert1.Shader="shader/lambert1.fx"
+-- lambert1.PassMask=Material.PassMaskOpaque
+-- lambert1.MeshTexture.Path="texture/Checker.bmp"
+-- lambert1.NormalTexture.Path="texture/Normal.dds"
+-- lambert1.SpecularTexture.Path="texture/White.dds"
+-- local cmp=ClothComponent()
+-- cmp:CreateClothFromMesh(mesh,1)
+-- cmp:AddMaterial(lambert1)
+-- game.Player:AddComponent(cmp)

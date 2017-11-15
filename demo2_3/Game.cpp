@@ -304,7 +304,7 @@ Game::Game(void)
 			.def("LoadComponent", &Game::LoadComponent)
 			.def("LoadScene", &Game::LoadScene)
 
-		//, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
+		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -421,7 +421,7 @@ HRESULT Game::OnCreateDevice(
 	LoadScene(m_InitScene.c_str());
 
 	m_Player.reset(new Character(m_InitPosition, Quaternion::identity, Vector3(1,1,1), AABB(-1,1)));
-	m_Player->m_Controller.reset(new PlayerController(m_Player.get()));
+
 	m_WorldL.GetLevel(CPoint(0, 0))->AddActor(m_Player, m_Player->m_aabb.transform(m_Player->CalculateLocal()));
 
 	ExecuteCode(m_InitScript.c_str());
