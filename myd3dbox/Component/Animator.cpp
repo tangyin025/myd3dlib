@@ -13,20 +13,6 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(AnimationNode)
 
-AnimationNode::AnimationNode(void)
-	: m_Owner(NULL)
-{
-}
-
-AnimationNode::~AnimationNode(void)
-{
-}
-
-void AnimationNode::SetOwner(Animator * Owner)
-{
-	m_Owner = Owner;
-}
-
 void AnimationNode::Advance(float duration)
 {
 }
@@ -37,15 +23,6 @@ my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 }
 
 BOOST_CLASS_EXPORT(Animator)
-
-Animator::Animator(void)
-	: m_Actor(NULL)
-{
-}
-
-Animator::~Animator(void)
-{
-}
 
 template<>
 void Animator::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
@@ -59,7 +36,8 @@ void Animator::load<boost::archive::polymorphic_iarchive>(boost::archive::polymo
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonRes);
 	ar >> BOOST_SERIALIZATION_NVP(m_Node);
-	m_Node->SetOwner(this);
+	m_Node->m_Owner = this;
+	m_Node->OnSetOwner();
 }
 
 void Animator::RequestResource(void)
@@ -106,15 +84,6 @@ void Animator::Update(float fElapsedTime)
 
 BOOST_CLASS_EXPORT(AnimationNodeSequence)
 
-AnimationNodeSequence::AnimationNodeSequence(void)
-	: m_Time(0)
-{
-}
-
-AnimationNodeSequence::~AnimationNodeSequence(void)
-{
-}
-
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
 	if (m_Owner->m_SkeletonRes.m_Res)
@@ -144,14 +113,33 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-AnimationNodeBlend::AnimationNodeBlend(void)
-	: m_BlendTime(0)
-	, m_ActiveChild(0)
+BOOST_CLASS_EXPORT(AnimationNodeBlend)
+
+template<>
+void AnimationNodeBlend::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+	ar << BOOST_SERIALIZATION_NVP(m_Childs);
+	ar << BOOST_SERIALIZATION_NVP(m_BlendTime);
+	ar << BOOST_SERIALIZATION_NVP(m_ActiveChild);
 }
 
-AnimationNodeBlend::~AnimationNodeBlend(void)
+template<>
+void AnimationNodeBlend::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
+	ar >> BOOST_SERIALIZATION_NVP(m_BlendTime);
+	ar >> BOOST_SERIALIZATION_NVP(m_ActiveChild);
+}
+
+void AnimationNodeBlend::OnSetOwner(void)
+{
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		m_Childs[i]->m_Owner = m_Owner;
+		m_Childs[i]->OnSetOwner();
+	}
 }
 
 void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTime)
@@ -160,17 +148,6 @@ void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTim
 	m_ActiveChild = ActiveChild;
 	m_BlendTime = BlendTime;
 	m_TargetWeight = (ActiveChild == 0 ? 0.0f : 1.0f);
-}
-
-void AnimationNodeBlend::SetOwner(Animator * Owner)
-{
-	AnimationNode::SetOwner(Owner);
-
-	AnimationNodePtrArray::iterator child_iter = m_Childs.begin();
-	for (; child_iter != m_Childs.end(); child_iter++)
-	{
-		(*child_iter)->SetOwner(Owner);
-	}
 }
 
 void AnimationNodeBlend::Advance(float fElapsedTime)
@@ -216,14 +193,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-AnimationNodeBlendBySpeed::AnimationNodeBlendBySpeed(void)
-	: m_Speed0(0.1f)
-{
-}
-
-AnimationNodeBlendBySpeed::~AnimationNodeBlendBySpeed(void)
-{
-}
+BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
 
 void AnimationNodeBlendBySpeed::Advance(float fElapsedTime)
 {

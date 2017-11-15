@@ -9,17 +9,32 @@ class AnimationNode
 public:
 	Animator * m_Owner;
 
-public:
-	AnimationNode(void);
+protected:
+	AnimationNode(void)
+		: m_Owner(NULL)
+	{
+	}
 
-	virtual ~AnimationNode(void);
+public:
+	AnimationNode(Animator * Owner)
+		: m_Owner(Owner)
+	{
+	}
+
+	virtual ~AnimationNode(void)
+	{
+	}
+
+	friend class boost::serialization::access;
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
 	}
 
-	virtual void SetOwner(Animator * Owner);
+	virtual void OnSetOwner(void)
+	{
+	}
 
 	virtual void Advance(float fElapsedTime);
 
@@ -41,10 +56,21 @@ public:
 
 	my::TransformList m_DualQuats;
 
-public:
-	Animator(void);
+protected:
+	Animator(void)
+		: m_Actor(NULL)
+	{
+	}
 
-	virtual ~Animator(void);
+public:
+	Animator(Actor * actor)
+		: m_Actor(actor)
+	{
+	}
+
+	virtual ~Animator(void)
+	{
+	}
 
 	friend class boost::serialization::access;
 
@@ -78,10 +104,24 @@ public:
 
 	std::string m_Root;
 
-public:
-	AnimationNodeSequence(void);
+protected:
+	AnimationNodeSequence(void)
+		: m_Time(0)
+	{
+	}
 
-	~AnimationNodeSequence(void);
+public:
+	AnimationNodeSequence(Animator * Owner)
+		: AnimationNode(Owner)
+		, m_Time(0)
+	{
+	}
+
+	~AnimationNodeSequence(void)
+	{
+	}
+
+	friend class boost::serialization::access;
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
@@ -107,31 +147,48 @@ public:
 
 	float m_BlendTime;
 
+	unsigned int m_ActiveChild;
+
 	float m_Weight;
 
 	float m_TargetWeight;
 
-	unsigned int m_ActiveChild;
+protected:
+	AnimationNodeBlend(void)
+		: m_BlendTime(0)
+		, m_ActiveChild(0)
+	{
+	}
 
 public:
-	AnimationNodeBlend(void);
+	AnimationNodeBlend(Animator * Owner)
+		: AnimationNode(Owner)
+		, m_BlendTime(0)
+		, m_ActiveChild(0)
+	{
+	}
 
-	~AnimationNodeBlend(void);
+	~AnimationNodeBlend(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_Childs);
-		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
-		ar & BOOST_SERIALIZATION_NVP(m_Weight);
-		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
-		ar & BOOST_SERIALIZATION_NVP(m_ActiveChild);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
+	virtual void OnSetOwner(void);
 
-	virtual void SetOwner(Animator * Owner);
+	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
 
 	virtual void Advance(float fElapsedTime);
 
@@ -145,10 +202,24 @@ class AnimationNodeBlendBySpeed : public AnimationNodeBlend
 public:
 	float m_Speed0;
 
-public:
-	AnimationNodeBlendBySpeed(void);
+protected:
+	AnimationNodeBlendBySpeed(void)
+		: m_Speed0(0.1f)
+	{
+	}
 
-	~AnimationNodeBlendBySpeed(void);
+public:
+	AnimationNodeBlendBySpeed(Animator * Owner)
+		: AnimationNodeBlend(Owner)
+		, m_Speed0(0.1f)
+	{
+	}
+
+	~AnimationNodeBlendBySpeed(void)
+	{
+	}
+
+	friend class boost::serialization::access;
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
