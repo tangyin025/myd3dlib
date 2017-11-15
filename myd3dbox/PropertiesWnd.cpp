@@ -190,7 +190,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 		CreatePropertiesActor(actor);
 		return;
 	}
-	pComponent->SetName(_T("Actor"), FALSE);
+	pComponent->SetName(GetComponentTypeName(Component::ComponentTypeActor), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)actor);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -453,7 +453,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 {
-	CMFCPropertyGridProperty * pComponent = new CSimpleProp(_T("Actor"), PropertyActor, FALSE);
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(Component::ComponentTypeActor), PropertyActor, FALSE);
 	m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
 
