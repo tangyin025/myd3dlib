@@ -8,7 +8,6 @@ struct VS_INPUT
 	float4 Pos3				: POSITION3;
 	float4 Pos4				: POSITION4;
 #endif
-	float4 Color			: COLOR0;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: NORMAL;
 	float3 Tangent			: TANGENT;
@@ -105,5 +104,5 @@ float4 TransformLightWS(VS_INPUT In)
 
 float4 TransformColor(VS_INPUT In)
 {
-	return In.Color;
+	return g_MeshColor;
 }

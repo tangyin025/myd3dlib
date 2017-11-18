@@ -52,7 +52,7 @@ void Animator::ReleaseResource(void)
 
 void Animator::Update(float fElapsedTime)
 {
-	if (m_SkeletonRes.m_Res)
+	if (m_SkeletonRes.m_Res && m_Node)
 	{
 		m_Node->Advance(fElapsedTime);
 		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
@@ -197,20 +197,25 @@ BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
 
 void AnimationNodeBlendBySpeed::Advance(float fElapsedTime)
 {
-	//if (m_Owner->m_Cmp->getVelocity().magnitudeSq() < m_Speed0)
-	//{
-	//	if (m_ActiveChild != 0)
-	//	{
-	//		SetActiveChild(0, 0.3f);
-	//	}
-	//}
-	//else
-	//{
-	//	if (m_ActiveChild != 1)
-	//	{
-	//		SetActiveChild(1, 0.3f);
-	//	}
-	//}
+	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
+	if (character)
+	{
+		float speed = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+		if (speed < m_Speed0)
+		{
+			if (m_ActiveChild != 0)
+			{
+				SetActiveChild(0, 0.3f);
+			}
+		}
+		else
+		{
+			if (m_ActiveChild != 1)
+			{
+				SetActiveChild(1, 0.3f);
+			}
+		}
+	}
 
 	AnimationNodeBlend::Advance(fElapsedTime);
 }

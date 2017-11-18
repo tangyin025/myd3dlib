@@ -45,19 +45,22 @@ lambert1.SpecularTexture.Path="texture/White.dds"
 local cmp=MeshComponent()
 cmp.MeshRes.Path="mesh/casual19_m_highpoly.mesh.xml"
 cmp:AddMaterial(lambert1)
+cmp.bUseAnimation=true
 game.Player:AddComponent(cmp)
+game.Player.Scale=Vector3(0.05,0.05,0.05)
 
--- game.Player.Animator=Animator(game.Player)
--- game.Player.Animator.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
--- local node_walk=AnimationNodeSequence(game.Player.Animator)
--- node_walk.Name="walk"
--- node_walk.Root="Bip01"
--- local node_idle=AnimationNodeSequence(game.Player.Animator)
--- node_idle.Name="idle"
--- node_idle.Root="Bip01"
--- local node_speed=AnimationNodeSequence(game.Player.Animator)
--- node_speed.Child0=node_idle
--- node_speed.Child1=node_walk
--- game.Player.Animator.Node=node_speed
+local anim=Animator(game.Player)
+anim.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
+local node_walk=AnimationNodeSequence(anim)
+node_walk.Name="walk"
+node_walk.Root="Bip01"
+local node_idle=AnimationNodeSequence(anim)
+node_idle.Name="idle"
+node_idle.Root="Bip01"
+local node_speed=AnimationNodeBlendBySpeed(anim)
+node_speed.Child0=node_idle
+node_speed.Child1=node_walk
+anim.Node=node_speed
+game.Player.Animator=anim
 
 game.Player.Controller=PlayerController(game.Player)
