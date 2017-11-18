@@ -36,4 +36,28 @@ game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 -- cmp:AddMaterial(lambert1)
 -- game.Player:AddComponent(cmp)
 
+local lambert1=Material()
+lambert1.Shader="shader/lambert1.fx"
+lambert1.PassMask=Material.PassMaskOpaque
+lambert1.MeshTexture.Path="texture/Checker.bmp"
+lambert1.NormalTexture.Path="texture/Normal.dds"
+lambert1.SpecularTexture.Path="texture/White.dds"
+local cmp=MeshComponent()
+cmp.MeshRes.Path="mesh/casual19_m_highpoly.mesh.xml"
+cmp:AddMaterial(lambert1)
+game.Player:AddComponent(cmp)
+
+-- game.Player.Animator=Animator(game.Player)
+-- game.Player.Animator.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
+-- local node_walk=AnimationNodeSequence(game.Player.Animator)
+-- node_walk.Name="walk"
+-- node_walk.Root="Bip01"
+-- local node_idle=AnimationNodeSequence(game.Player.Animator)
+-- node_idle.Name="idle"
+-- node_idle.Root="Bip01"
+-- local node_speed=AnimationNodeSequence(game.Player.Animator)
+-- node_speed.Child0=node_idle
+-- node_speed.Child1=node_walk
+-- game.Player.Animator.Node=node_speed
+
 game.Player.Controller=PlayerController(game.Player)

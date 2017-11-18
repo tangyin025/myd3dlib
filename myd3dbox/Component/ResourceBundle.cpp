@@ -8,8 +8,10 @@ void ResourceBundle<my::BaseTexture>::RequestResource(void)
 {
 	if (!IsRequested())
 	{
-		_ASSERT(!m_Path.empty());
-		my::ResourceMgr::getSingleton().LoadTextureAsync(m_Path.c_str(), this);
+		if (!m_Path.empty())
+		{
+			my::ResourceMgr::getSingleton().LoadTextureAsync(m_Path.c_str(), this);
+		}
 	}
 }
 
@@ -18,8 +20,10 @@ void ResourceBundle<my::OgreMesh>::RequestResource(void)
 {
 	if (!IsRequested())
 	{
-		_ASSERT(!m_Path.empty());
-		my::ResourceMgr::getSingleton().LoadMeshAsync(m_Path.c_str(), this);
+		if (!m_Path.empty())
+		{
+			my::ResourceMgr::getSingleton().LoadMeshAsync(m_Path.c_str(), this);
+		}
 	}
 }
 
@@ -28,7 +32,9 @@ void ResourceBundle<my::OgreSkeletonAnimation>::RequestResource(void)
 {
 	if (!IsRequested())
 	{
-		_ASSERT(!m_Path.empty());
-		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_Path.c_str(), this);
+		if (!m_Path.empty())
+		{
+			my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_Path.c_str(), this);
+		}
 	}
 }

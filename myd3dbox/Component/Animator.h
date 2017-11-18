@@ -190,6 +190,18 @@ public:
 
 	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
 
+	template <unsigned int i>
+	AnimationNodePtr GetChild(void) const
+	{
+		return m_Childs[i];
+	}
+
+	template <unsigned int i>
+	void SetChild(AnimationNodePtr node)
+	{
+		m_Childs[i] = node;
+	}
+
 	virtual void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
