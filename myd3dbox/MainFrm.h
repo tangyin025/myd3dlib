@@ -32,7 +32,7 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	WorldL m_WorldL;
+	my::OctRoot m_Root;
 	typedef boost::unordered_set<Actor *> ActorSet;
 	ActorSet m_selactors;
 	my::AABB m_selbox;
@@ -51,8 +51,6 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
-	void SafeAdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos);
-	void SafeChangeActorPose(Actor * actor, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
 	BOOL OnFrameTick(float fElapsedTime);

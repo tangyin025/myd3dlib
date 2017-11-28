@@ -124,7 +124,6 @@
   <ItemGroup>
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="Component\Controller.cpp" />
-    <ClCompile Include="Component\World.cpp" />
     <ClCompile Include="CtrlProps.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
     <ClCompile Include="EnvironmentWnd.cpp" />
@@ -152,7 +151,6 @@
   <ItemGroup>
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="Component\Controller.h" />
-    <ClInclude Include="Component\World.h" />
     <ClInclude Include="CtrlProps.h" />
     <ClInclude Include="DragableTreeCtrl.h" />
     <ClInclude Include="EnvironmentWnd.h" />

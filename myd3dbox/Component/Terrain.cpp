@@ -582,9 +582,11 @@ void Terrain::UpdateVertices(void)
 
 void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
+	_ASSERT(m_Actor);
+
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
-	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
+	shader->SetMatrix("g_World", m_Actor->m_World);
 
 	shader->SetFloat("g_HeightScale", m_HeightScale);
 
@@ -655,7 +657,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					if (shader)
 					{
 						// ! do not use m_World for level offset
-						const Matrix4 & World = m_Actor ? m_Actor->m_World : Matrix4::identity;
+						_ASSERT(m_Actor);
+						const Matrix4 & World = m_Actor->m_World;
 						Frustum loc_frustum = frustum.transform(World.transpose());
 						Vector3 loc_viewpos = ViewPos.transformCoord(World.inverse());
 						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, loc_viewpos, this, shader));
@@ -670,7 +673,9 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
+	_ASSERT(m_Actor);
+
+	if (!m_Actor->m_PxActor)
 	{
 		return;
 	}

@@ -9,7 +9,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
-#include "World.h"
 #include "PhysXContext.h"
 
 using namespace my;
@@ -44,12 +43,10 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	Vector3 Offset = GetLevel()->GetOffset();
-
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = 1.7f;
 	desc.radius = 0.5f;
-	desc.position = physx::PxExtendedVec3(m_Position.x + Offset.x, m_Position.y, m_Position.z + Offset.z);
+	desc.position = physx::PxExtendedVec3(m_Position.x, m_Position.y, m_Position.z);
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
@@ -80,13 +77,9 @@ void Character::Update(float fElapsedTime)
 
 void Character::UpdateWorld(void)
 {
-	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0), GetWorldPosition());
+	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0), m_Position);
 
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->OnUpdateWorld();
-	}
+	OnUpdateWorld();
 }
 
 void Character::OnPxThreadSubstep(float dtime)

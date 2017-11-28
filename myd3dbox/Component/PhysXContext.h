@@ -1,7 +1,6 @@
 #pragma once
 
 #include "PhysXPtr.h"
-#include "World.h"
 
 class PhysXAllocator : public physx::PxAllocatorCallback
 {

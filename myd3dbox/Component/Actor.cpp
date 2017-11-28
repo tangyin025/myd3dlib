@@ -3,7 +3,6 @@
 #include "Terrain.h"
 #include "Animator.h"
 #include "Controller.h"
-#include "World.h"
 #include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -136,20 +135,6 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	}
 }
 
-OctLevel * Actor::GetLevel(void) const
-{
-	return dynamic_cast<OctLevel *>(m_Node->GetTopNode());
-}
-
-my::Vector3 Actor::GetWorldPosition(void) const
-{
-	if (m_Node)
-	{
-		return m_Position + GetLevel()->GetOffset();
-	}
-	return m_Position;
-}
-
 void Actor::CopyFrom(const Actor & rhs)
 {
 	m_aabb = rhs.m_aabb;
@@ -275,14 +260,22 @@ void Actor::UpdateAABB(void)
 	}
 }
 
-Matrix4 Actor::CalculateLocal(void) const
-{
-	return Matrix4::Compose(m_Scale, m_Rotation, m_Position);
-}
-
 void Actor::UpdateWorld(void)
 {
-	m_World = Matrix4::Compose(m_Scale, m_Rotation, GetWorldPosition());
+	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+
+	OnUpdateWorld();
+}
+
+void Actor::OnUpdateWorld(void)
+{
+	if (m_Node)
+	{
+		ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(shared_from_this());
+		my::OctNodeBase * Root = m_Node->GetTopNode();
+		Root->RemoveActor(actor_ptr);
+		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
+	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -319,11 +312,11 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	{
 	case physx::PxActorType::eRIGID_STATIC:
 		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(
-			physx::PxTransform((physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation)));
+			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)));
 		break;
 	case physx::PxActorType::eRIGID_DYNAMIC:
 		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(
-			physx::PxTransform((physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation)));
+			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)));
 		break;
 	}
 	m_PxActor->userData = this;
@@ -357,12 +350,9 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
-void Actor::ChangePose(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void Actor::OnPoseChanged(void)
 {
-	m_Position = Position - GetLevel()->GetOffset();
-	m_Rotation = Rotation;
-	m_Scale = Scale;
-	GetLevel()->m_World->OnActorPoseChanged(this, GetLevel()->GetId());
+	UpdateWorld();
 }
 
 void Actor::UpdateRigidActorPose(void)
@@ -370,6 +360,6 @@ void Actor::UpdateRigidActorPose(void)
 	if (m_PxActor)
 	{
 		m_PxActor->setGlobalPose(physx::PxTransform(
-			(physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation));
+			(physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
 	}
 }

@@ -76,10 +76,6 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	OctLevel * GetLevel(void) const;
-
-	my::Vector3 GetWorldPosition(void) const;
-
 	void CopyFrom(const Actor & rhs);
 
 	virtual ActorPtr Clone(void) const;
@@ -98,9 +94,9 @@ public:
 
 	void UpdateAABB(void);
 
-	my::Matrix4 CalculateLocal(void) const;
-
 	virtual void UpdateWorld(void);
+
+	virtual void OnUpdateWorld(void);
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
@@ -114,7 +110,7 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
-	void ChangePose(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
+	virtual void OnPoseChanged(void);
 
 	void UpdateRigidActorPose(void);
 };

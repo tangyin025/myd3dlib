@@ -100,7 +100,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\myd3dbox\Component\Controller.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\World.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="LuaExtension.cpp" />
@@ -124,7 +123,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\myd3dbox\Component\Controller.h" />
-    <ClInclude Include="..\myd3dbox\Component\World.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="LuaExtension.h" />
