@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
+#include "../myd3dbox/Component/Terrain.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -230,6 +231,7 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
+	: m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS), 1.0f)
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -293,7 +295,7 @@ Game::Game(void)
 			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
 			.def_readonly("Console", &Game::m_Console)
-			.def_readonly("WorldL", &Game::m_WorldL)
+			.def_readonly("Root", &Game::m_Root)
 			.def_readwrite("Player", &Game::m_Player)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveDialog", &Game::SaveDialog)
@@ -423,7 +425,9 @@ HRESULT Game::OnCreateDevice(
 
 	m_Player.reset(new Character(m_InitPosition, Quaternion::identity, Vector3(1,1,1), AABB(-1,1)));
 
-	m_WorldL.GetLevel(CPoint(0, 0))->AddActor(m_Player, m_Player->m_aabb.transform(m_Player->CalculateLocal()));
+	m_Player->OnPoseChanged();
+
+	m_Root.AddActor(m_Player, m_Player->m_aabb.transform(m_Player->m_World));
 
 	ExecuteCode(m_InitScript.c_str());
 
@@ -521,7 +525,7 @@ void Game::OnDestroyDevice(void)
 
 	m_Player.reset();
 
-	m_WorldL.ClearAllLevels();
+	m_Root.ClearAllActor();
 
 	m_Console.reset();
 
@@ -609,13 +613,13 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	m_WorldL.ResetViewedActors(m_Player->GetWorldPosition(), this, 1000, 10);
+	//m_WorldL.ResetViewedActors(m_Player->GetWorldPosition(), this, 1000, 10);
 
-	WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
-	for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)
-	{
-		(*actor_iter)->Update(fElapsedTime);
-	}
+	//WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
+	//for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)
+	//{
+	//	(*actor_iter)->Update(fElapsedTime);
+	//}
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -636,7 +640,9 @@ void Game::OnFrameTick(
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
-		actor->ChangePose((my::Vector3 &)activeTransforms[i].actor2World.p, (my::Quaternion &)activeTransforms[i].actor2World.q, actor->m_Scale);
+		actor->m_Position = (my::Vector3 &)activeTransforms[i].actor2World.p;
+		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
+		actor->OnPoseChanged();
 	}
 }
 
@@ -722,7 +728,27 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	m_WorldL.AddToPipeline(frustum, pipeline, PassMask, m_Player->GetWorldPosition());
+	struct Callback : public my::OctNodeBase::QueryCallback
+	{
+		const my::Frustum & frustum;
+		RenderPipeline * pipeline;
+		unsigned int PassMask;
+		const my::Vector3 & ViewPos;
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos)
+			: frustum(_frustum)
+			, pipeline(_pipeline)
+			, PassMask(_PassMask)
+			, ViewPos(_ViewPos)
+		{
+		}
+		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Actor *>(oct_actor));
+			Actor * actor = static_cast<Actor *>(oct_actor);
+			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
+		}
+	};
+	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye));
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)
@@ -778,12 +804,12 @@ ComponentPtr Game::LoadComponent(const char * path)
 
 void Game::LoadScene(const char * path)
 {
-	m_WorldL.ClearAllLevels();
+	m_Root.ClearAllActor();
 	PhysXContext::ClearSerializedObjs();
 
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
 	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
-	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
+	ia >> boost::serialization::make_nvp("Root", m_Root);
 }

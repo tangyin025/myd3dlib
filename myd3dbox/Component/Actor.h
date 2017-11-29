@@ -7,8 +7,6 @@ class Animator;
 
 class Controller;
 
-class OctLevel;
-
 class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;

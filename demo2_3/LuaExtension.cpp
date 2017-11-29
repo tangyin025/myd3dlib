@@ -7,7 +7,6 @@
 #include "../myd3dbox/Component/Character.h"
 #include "../myd3dbox/Component/Animator.h"
 #include "../myd3dbox/Component/Controller.h"
-#include "../myd3dbox/Component/World.h"
 
 namespace luabind
 {
@@ -991,8 +990,8 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Controller", &Actor::m_Controller)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
 			.def("UpdateAABB", &Actor::UpdateAABB)
-			.def("CalculateLocal", &Actor::CalculateLocal)
 			.def("UpdateWorld", &Actor::UpdateWorld)
+			.def("OnWorldChanged", &Actor::OnWorldChanged)
 			.def("UpdateRigidActorPose", &Actor::UpdateRigidActorPose)
 			.def("ClearRigidActor", &Actor::ClearRigidActor)
 			.enum_("ActorType")
@@ -1004,6 +1003,8 @@ static void ExportComponent(lua_State * L)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
+			.def("OnPoseChanged", &Actor::OnPoseChanged)
+			.def("UpdateRigidActorPose", &Actor::UpdateRigidActorPose)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
@@ -1045,14 +1046,10 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeBlendBySpeed::m_Speed0)
 
-		//, class_<OctLevel, boost::shared_ptr<OctLevel> >("OctLevel")
-		//	.def("AddActor", &OctLevel::AddActor)
-		//	.def("RemoveActor", &OctLevel::RemoveActor)
-		//	.def("ClearAllActor", &OctLevel::ClearAllActor)
-
-		//, class_<WorldL>("WorldL")
-		//	.def_readwrite("EventActorEnter", &WorldL::m_EventActorEnter)
-		//	.def_readwrite("EventActorLeave", &WorldL::m_EventActorLeave)
+		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
+			.def("AddActor", &my::OctRoot::AddActor)
+			.def("RemoveActor", &my::OctRoot::RemoveActor)
+			.def("ClearAllActor", &my::OctRoot::ClearAllActor)
 
 		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 		, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)

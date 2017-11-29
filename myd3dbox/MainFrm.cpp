@@ -539,7 +539,7 @@ void CMainFrame::OnFileOpen()
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
-	ia >> BOOST_SERIALIZATION_NVP(m_Root);
+	ia >> boost::serialization::make_nvp("Root", m_Root);
 }
 
 void CMainFrame::OnFileSave()
@@ -562,7 +562,7 @@ void CMainFrame::OnFileSave()
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
-	oa << BOOST_SERIALIZATION_NVP(m_Root);
+	oa << boost::serialization::make_nvp("Root", m_Root);
 }
 
 void CMainFrame::OnFileSaveAs()

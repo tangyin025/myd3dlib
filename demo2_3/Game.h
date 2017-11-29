@@ -36,7 +36,7 @@ public:
 
 	ConsolePtr m_Console;
 
-	WorldL m_WorldL;
+	my::OctRoot m_Root;
 
 	CharacterPtr m_Player;
 
