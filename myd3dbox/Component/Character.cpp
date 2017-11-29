@@ -79,7 +79,7 @@ void Character::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0), m_Position);
 
-	OnUpdateWorld();
+	OnWorldChanged();
 }
 
 void Character::OnPxThreadSubstep(float dtime)

@@ -658,7 +658,7 @@ void CMainFrame::OnComponentMesh()
 	mesh_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnUpdateWorld();
+	(*actor_iter)->OnWorldChanged();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -710,7 +710,7 @@ void CMainFrame::OnComponentCloth()
 	cloth_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnUpdateWorld();
+	(*actor_iter)->OnWorldChanged();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -744,7 +744,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnUpdateWorld();
+	(*actor_iter)->OnWorldChanged();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -796,7 +796,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnUpdateWorld();
+	(*actor_iter)->OnWorldChanged();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -830,7 +830,7 @@ void CMainFrame::OnComponentTerrain()
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnUpdateWorld();
+	(*actor_iter)->OnWorldChanged();
 	UpdateSelBox();
 
 	EventArgs arg;

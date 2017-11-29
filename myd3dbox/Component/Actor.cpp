@@ -264,10 +264,10 @@ void Actor::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 
-	OnUpdateWorld();
+	OnWorldChanged();
 }
 
-void Actor::OnUpdateWorld(void)
+void Actor::OnWorldChanged(void)
 {
 	if (m_Node)
 	{
@@ -280,7 +280,7 @@ void Actor::OnUpdateWorld(void)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->OnUpdateWorld();
+		(*cmp_iter)->OnWorldChanged();
 	}
 }
 

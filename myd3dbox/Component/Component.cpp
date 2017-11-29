@@ -146,7 +146,7 @@ void Component::Update(float fElapsedTime)
 {
 }
 
-void Component::OnUpdateWorld(void)
+void Component::OnWorldChanged(void)
 {
 }
 
@@ -844,7 +844,7 @@ void ClothComponent::UpdateCloth(void)
 	}
 }
 
-void ClothComponent::OnUpdateWorld(void)
+void ClothComponent::OnWorldChanged(void)
 {
 	if (m_Cloth)
 	{

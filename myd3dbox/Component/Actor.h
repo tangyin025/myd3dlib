@@ -96,7 +96,7 @@ public:
 
 	virtual void UpdateWorld(void);
 
-	virtual void OnUpdateWorld(void);
+	virtual void OnWorldChanged(void);
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
