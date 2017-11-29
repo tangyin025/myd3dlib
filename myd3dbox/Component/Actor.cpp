@@ -263,8 +263,6 @@ void Actor::UpdateAABB(void)
 void Actor::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
-
-	OnWorldChanged();
 }
 
 void Actor::OnWorldChanged(void)
@@ -353,6 +351,8 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 void Actor::OnPoseChanged(void)
 {
 	UpdateWorld();
+
+	OnWorldChanged();
 }
 
 void Actor::UpdateRigidActorPose(void)

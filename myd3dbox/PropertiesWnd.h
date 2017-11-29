@@ -41,9 +41,6 @@ protected:
 	{
 		PropertyUnknown = 0,
 		PropertyActor,
-		PropertyActorLevelId,
-		PropertyActorLevelIdX,
-		PropertyActorLevelIdY,
 		PropertyActorAABB,
 		PropertyActorMinX,
 		PropertyActorMinY,

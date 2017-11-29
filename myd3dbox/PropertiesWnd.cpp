@@ -195,26 +195,23 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint level_id = actor->GetLevel()->GetId();
-	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)level_id.x);
-	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)level_id.y);
-	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
-	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
-	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
-	pComponent->GetSubItem(1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
-	pComponent->GetSubItem(1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
-	pComponent->GetSubItem(1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
-	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
-	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
-	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
+	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
+	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
+	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
+	pComponent->GetSubItem(0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
+	pComponent->GetSubItem(0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
+	pComponent->GetSubItem(0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
+	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
+	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
 	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
-	pComponent->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
-	pComponent->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
-	pComponent->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-	pComponent->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
-	pComponent->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
-	pComponent->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
-	pComponent->GetSubItem(5)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pComponent->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
+	pComponent->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
+	pComponent->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
+	pComponent->GetSubItem(4)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
@@ -457,19 +454,11 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
 
-	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), PropertyActorLevelId, TRUE);
-	pComponent->AddSubItem(pLevelId);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint level_id = actor->GetLevel()->GetId();
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)level_id.x, NULL, PropertyActorLevelIdX);
-	pLevelId->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)level_id.y, NULL, PropertyActorLevelIdY);
-	pLevelId->AddSubItem(pProp);
-
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
 	pComponent->AddSubItem(pAABB);
-	pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("miny"), (_variant_t)actor->m_aabb.m_min.y, NULL, PropertyActorMinY);
 	pAABB->AddSubItem(pProp);
@@ -791,7 +780,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 6;
+		return 5;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -992,28 +981,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
-	case PropertyActorLevelId:
-	case PropertyActorLevelIdX:
-	case PropertyActorLevelIdY:
-		{
-			CMFCPropertyGridProperty * pLevelId = NULL;
-			if (PropertyId == PropertyActorLevelId)
-			{
-				pLevelId = pProp;
-			}
-			else
-			{
-				pLevelId = pProp->GetParent();
-			}
-			Actor * actor = (Actor *)pLevelId->GetParent()->GetValue().ulVal;
-			CPoint level_id(
-				my::Clamp<long>(pLevelId->GetSubItem(0)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
-				my::Clamp<long>(pLevelId->GetSubItem(1)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
-			pFrame->m_WorldL.OnActorPoseChanged(actor, level_id);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
 	case PropertyActorAABB:
 	case PropertyActorMinX:
 	case PropertyActorMinY:
@@ -1044,7 +1011,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
 			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
 			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
-			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			actor->OnPoseChanged();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
@@ -1088,7 +1055,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_Scale.y = pComponent->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 			actor->m_Scale.z = pComponent->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 			actor->UpdateAABB();
-			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			actor->OnPoseChanged();
 			actor->UpdateRigidActorPose();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
@@ -1431,7 +1398,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->UpdateChunks();
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
-			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+			actor->OnPoseChanged();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
@@ -1459,7 +1426,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				terrain->UpdateHeightMap(res);
 				Actor * actor = terrain->m_Actor;
 				actor->UpdateAABB();
-				pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+				actor->OnPoseChanged();
 				pFrame->UpdateSelBox();
 				pFrame->UpdatePivotTransform();
 				EventArgs arg;
