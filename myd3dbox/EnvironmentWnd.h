@@ -21,7 +21,6 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum CameraProperty
 	{
-		CameraPropertyLevelId,
 		CameraPropertyLookAt,
 		CameraPropertyEular,
 		CameraPropertyBgColor,
@@ -47,12 +46,6 @@ class CEnvironmentWnd : public CDockablePane
 		SSAOPropertyIntensity,
 		SSAOPropertyRadius,
 		SSAOPropertyScale,
-	};
-
-	enum LevelIdProperty
-	{
-		LevelIdPropertyX,
-		LevelIdPropertyY,
 	};
 
 	enum Vector3Property

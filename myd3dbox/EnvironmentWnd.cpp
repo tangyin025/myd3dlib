@@ -86,16 +86,9 @@ void CEnvironmentWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pCamera = new CSimpleProp(_T("Camera"), PropertyCamera, FALSE);
 	m_wndPropList.AddProperty(pCamera, FALSE, FALSE);
-	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), CameraPropertyLevelId, TRUE);
-	pCamera->AddSubItem(pLevelId);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0l, NULL, LevelIdPropertyX);
-	pLevelId->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, NULL, LevelIdPropertyY);
-	pLevelId->AddSubItem(pProp);
-
 	CMFCPropertyGridProperty * pLookAt = new CSimpleProp(_T("LookAt"), CameraPropertyLookAt, TRUE);
 	pCamera->AddSubItem(pLookAt);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
 	pLookAt->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, Vector3PropertyY);
 	pLookAt->AddSubItem(pProp);
@@ -174,9 +167,6 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 
 	CMFCPropertyGridProperty * pCamera = m_wndPropList.GetProperty(PropertyCamera);
 	ASSERT_VALID(pCamera);
-	pCamera->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->SetValue((_variant_t)pFrame->m_WorldL.m_LevelId.x);
-	pCamera->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->SetValue((_variant_t)pFrame->m_WorldL.m_LevelId.y);
-
 	my::Vector3 LookAt = (camera_prop_arg->pView->m_CameraType == CChildView::CameraTypePerspective ? boost::dynamic_pointer_cast<my::ModelViewerCamera>(camera_prop_arg->pView->m_Camera)->m_LookAt : camera_prop_arg->pView->m_Camera->m_Eye);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)LookAt.x);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)LookAt.y);
@@ -300,14 +290,6 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 	case PropertyCamera:
 		{
-			CPoint new_level_id(
-				my::Clamp<long>(pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
-				my::Clamp<long>(pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
-			if (new_level_id != pFrame->m_WorldL.m_LevelId)
-			{
-				pFrame->m_WorldL.ApplyWorldOffset(new_level_id, pFrame);
-			}
-
 			if (pView->m_CameraType == CChildView::CameraTypePerspective)
 			{
 				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
