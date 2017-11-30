@@ -613,13 +613,24 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	//m_WorldL.ResetViewedActors(m_Player->GetWorldPosition(), this, 1000, 10);
-
-	//WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
-	//for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)
-	//{
-	//	(*actor_iter)->Update(fElapsedTime);
-	//}
+	ActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); )
+	{
+		Actor * actor = *actor_iter;
+		_ASSERT(actor->m_Node && actor->m_Node->m_Actors.find(actor->shared_from_this()) != actor->m_Node->m_Actors.end());
+		if (IntersectionTests::IntersectionTypeOutside !=
+			IntersectionTests::IntersectAABBAndAABB(AABB(-1000, 1000), actor->m_Node->m_Actors.find(actor->shared_from_this())->second))
+		{
+			actor->Update(fElapsedTime);
+			actor_iter++;
+		}
+		else
+		{
+			(*actor_iter)->ReleaseResource();
+			(*actor_iter)->OnLeavePxScene(this);
+			actor_iter = m_ViewedActors.erase(actor_iter);
+		}
+	}
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -745,6 +756,13 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
+			Game::ActorSet::const_iterator actor_iter = Game::getSingleton().m_ViewedActors.find(actor);
+			if (actor_iter == Game::getSingleton().m_ViewedActors.end())
+			{
+				actor->RequestResource();
+				actor->OnEnterPxScene(Game::getSingletonPtr());
+				Game::getSingleton().m_ViewedActors.insert(actor);
+			}
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 		}
 	};

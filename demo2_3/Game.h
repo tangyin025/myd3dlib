@@ -40,6 +40,10 @@ public:
 
 	CharacterPtr m_Player;
 
+	typedef boost::unordered_set<Actor *> ActorSet;
+
+	ActorSet m_ViewedActors;
+
 	std::string m_InitFont;
 
 	std::string m_InitUIEffect;
