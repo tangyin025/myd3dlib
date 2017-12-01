@@ -40,9 +40,9 @@ public:
 
 	CharacterPtr m_Player;
 
-	typedef boost::unordered_set<Actor *> ActorSet;
+	typedef boost::unordered_map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
 
-	ActorSet m_ViewedActors;
+	WeakActorMap m_ViewedActors;
 
 	std::string m_InitFont;
 
