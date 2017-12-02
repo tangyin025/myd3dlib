@@ -53,10 +53,12 @@ void Material::RequestResource(void)
 	{
 		m_MeshTexture.RequestResource();
 	}
+
 	if (!m_NormalTexture.m_Path.empty())
 	{
 		m_NormalTexture.RequestResource();
 	}
+
 	if (!m_SpecularTexture.m_Path.empty())
 	{
 		m_SpecularTexture.RequestResource();
@@ -126,12 +128,10 @@ ComponentPtr Component::Clone(void) const
 
 void Component::RequestResource(void)
 {
-	m_Requested = true;
 }
 
 void Component::ReleaseResource(void)
 {
-	m_Requested = false;
 }
 
 void Component::OnEnterPxScene(PhysXSceneContext * scene)
@@ -299,34 +299,28 @@ ComponentPtr MeshComponent::Clone(void) const
 
 void MeshComponent::RequestResource(void)
 {
-	if (!IsRequested())
+	Component::RequestResource();
+
+	m_MeshRes.RequestResource();
+
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
-		Component::RequestResource();
-
-		m_MeshRes.RequestResource();
-
-		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-		for (; mat_iter != m_MaterialList.end(); mat_iter++)
-		{
-			(*mat_iter)->RequestResource();
-		}
+		(*mat_iter)->RequestResource();
 	}
 }
 
 void MeshComponent::ReleaseResource(void)
 {
-	if (IsRequested())
+	m_MeshRes.ReleaseResource();
+
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
-		m_MeshRes.ReleaseResource();
-
-		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-		for (; mat_iter != m_MaterialList.end(); mat_iter++)
-		{
-			(*mat_iter)->ReleaseResource();
-		}
-
-		Component::ReleaseResource();
+		(*mat_iter)->ReleaseResource();
 	}
+
+	Component::ReleaseResource();
 }
 
 void MeshComponent::Update(float fElapsedTime)
@@ -660,30 +654,24 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 
 void ClothComponent::RequestResource(void)
 {
-	if (!IsRequested())
-	{
-		RenderComponent::RequestResource();
+	RenderComponent::RequestResource();
 
-		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-		for (; mat_iter != m_MaterialList.end(); mat_iter++)
-		{
-			(*mat_iter)->RequestResource();
-		}
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	{
+		(*mat_iter)->RequestResource();
 	}
 }
 
 void ClothComponent::ReleaseResource(void)
 {
-	if (IsRequested())
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
-		MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-		for (; mat_iter != m_MaterialList.end(); mat_iter++)
-		{
-			(*mat_iter)->ReleaseResource();
-		}
-
-		RenderComponent::ReleaseResource();
+		(*mat_iter)->ReleaseResource();
 	}
+
+	RenderComponent::ReleaseResource();
 }
 
 void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
@@ -866,28 +854,22 @@ ComponentPtr EmitterComponent::Clone(void) const
 
 void EmitterComponent::RequestResource(void)
 {
-	if (!IsRequested())
-	{
-		Component::RequestResource();
+	Component::RequestResource();
 
-		if (m_Material)
-		{
-			m_Material->RequestResource();
-		}
+	if (m_Material)
+	{
+		m_Material->RequestResource();
 	}
 }
 
 void EmitterComponent::ReleaseResource(void)
 {
-	if (IsRequested())
+	if (m_Material)
 	{
-		if (m_Material)
-		{
-			m_Material->ReleaseResource();
-		}
-
-		Component::ReleaseResource();
+		m_Material->ReleaseResource();
 	}
+
+	Component::ReleaseResource();
 }
 
 void EmitterComponent::Update(float fElapsedTime)

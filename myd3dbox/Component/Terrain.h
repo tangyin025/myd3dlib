@@ -158,8 +158,6 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	void CreateVertices(void);
-
 	void UpdateVertices(void);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);

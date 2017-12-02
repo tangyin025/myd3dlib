@@ -120,8 +120,6 @@ public:
 
 	Actor * m_Actor;
 
-	bool m_Requested;
-
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
 
 	PhysXPtr<physx::PxShape> m_PxShape;
@@ -130,7 +128,6 @@ protected:
 	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
 		, m_Actor(NULL)
-		, m_Requested(false)
 	{
 	}
 
@@ -138,7 +135,6 @@ public:
 	Component(void)
 		: m_Type(ComponentTypeComponent)
 		, m_Actor(NULL)
-		, m_Requested(false)
 	{
 	}
 
@@ -158,11 +154,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
-	}
-
-	bool IsRequested(void) const
-	{
-		return m_Requested;
 	}
 
 	void CopyFrom(const Component & rhs);

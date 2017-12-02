@@ -523,40 +523,34 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 
 void Terrain::RequestResource(void)
 {
-	if (!IsRequested())
-	{
-		RenderComponent::RequestResource();
+	RenderComponent::RequestResource();
 
-		_ASSERT(!m_Decl);
+	if (!m_Decl)
+	{
 		IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
 		std::vector<D3DVERTEXELEMENT9> elems = m_VertexElems.BuildVertexElementList(0);
 		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 		elems.push_back(ve_end);
 		HRESULT hr;
 		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
+	}
 
-		m_Material->RequestResource();
+	m_Material->RequestResource();
 
-		CreateVertices();
+	if (!m_vb.m_ptr)
+	{
+		m_vb.CreateVertexBuffer(Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+		UpdateVertices();
 	}
 }
 
 void Terrain::ReleaseResource(void)
 {
-	if (IsRequested())
-	{
-		m_Decl.Release();
-		m_vb.OnDestroyDevice();
-		m_Fragment.clear();
-		m_Material->ReleaseResource();
-		RenderComponent::ReleaseResource();
-	}
-}
-
-void Terrain::CreateVertices(void)
-{
-	m_vb.CreateVertexBuffer(Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
-	UpdateVertices();
+	m_Decl.Release();
+	m_vb.OnDestroyDevice();
+	m_Fragment.clear();
+	m_Material->ReleaseResource();
+	RenderComponent::ReleaseResource();
 }
 
 void Terrain::UpdateVertices(void)
