@@ -154,6 +154,8 @@ ActorPtr Actor::Clone(void) const
 
 void Actor::RequestResource(void)
 {
+	m_Requested = true;
+
 	if (m_Animator)
 	{
 		m_Animator->RequestResource();
@@ -168,6 +170,8 @@ void Actor::RequestResource(void)
 
 void Actor::ReleaseResource(void)
 {
+	m_Requested = false;
+
 	if (m_Animator)
 	{
 		m_Animator->ReleaseResource();

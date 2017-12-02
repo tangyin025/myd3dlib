@@ -764,6 +764,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 			Game::WeakActorMap::const_iterator actor_iter = Game::getSingleton().m_ViewedActors.find(actor);
 			if (actor_iter == Game::getSingleton().m_ViewedActors.end())
 			{
+				_ASSERT(!actor->IsRequested());
 				actor->RequestResource();
 				actor->OnEnterPxScene(Game::getSingletonPtr());
 				Game::getSingleton().m_ViewedActors.insert(std::make_pair(actor, boost::static_pointer_cast<Actor>(actor->shared_from_this())));

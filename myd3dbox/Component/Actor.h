@@ -27,6 +27,8 @@ public:
 
 	my::Matrix4 m_World;
 
+	bool m_Requested;
+
 	boost::shared_ptr<Animator> m_Animator;
 
 	boost::shared_ptr<Controller> m_Controller;
@@ -44,6 +46,7 @@ public:
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
+		, m_Requested(false)
 	{
 	}
 
@@ -53,6 +56,7 @@ public:
 		, m_Rotation(my::Quaternion::Identity())
 		, m_Scale(1,1,1)
 		, m_World(my::Matrix4::Identity())
+		, m_Requested(false)
 	{
 	}
 
@@ -72,6 +76,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
 	}
 
 	void CopyFrom(const Actor & rhs);
