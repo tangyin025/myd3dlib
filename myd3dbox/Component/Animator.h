@@ -157,6 +157,8 @@ protected:
 	AnimationNodeBlend(void)
 		: m_BlendTime(0)
 		, m_ActiveChild(0)
+		, m_Weight(0)
+		, m_TargetWeight(0)
 	{
 	}
 
@@ -165,6 +167,8 @@ public:
 		: AnimationNode(Owner)
 		, m_BlendTime(0)
 		, m_ActiveChild(0)
+		, m_Weight(0)
+		, m_TargetWeight(0)
 	{
 	}
 
