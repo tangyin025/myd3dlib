@@ -61,7 +61,7 @@ void PlayerController::Update(float fElapsedTime)
 	float move_step_sq = m_MoveAxis.magnitudeSq();
 	if (move_step_sq > 0.01)
 	{
-		m_MoveAcceleration = 20.0f;
+		m_MoveAcceleration = 70.0f;
 		m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
 	}
 	else

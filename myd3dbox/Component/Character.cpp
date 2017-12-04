@@ -84,10 +84,22 @@ void Character::OnPxThreadSubstep(float dtime)
 {
 	if (m_PxController)
 	{
-		m_Velocity += m_Acceleration * dtime;
 		float magnitude = sqrt(m_Velocity.x * m_Velocity.x + m_Velocity.z * m_Velocity.z);
+		float step = m_Resistance * dtime;
+		if (magnitude < step)
+		{
+			m_Velocity.x = 0;
+			m_Velocity.z = 0;
+		}
+		else
+		{
+			m_Velocity.x -= m_Velocity.x / magnitude * step;
+			m_Velocity.z -= m_Velocity.z / magnitude * step;
+		}
+		m_Velocity += m_Acceleration * dtime;
 		if (m_Acceleration.x != 0 || m_Acceleration.z != 0)
 		{
+			magnitude = sqrt(m_Velocity.x * m_Velocity.x + m_Velocity.z * m_Velocity.z);
 			if (magnitude > 0)
 			{
 				if (magnitude > m_MaxVelocity)
@@ -106,21 +118,6 @@ void Character::OnPxThreadSubstep(float dtime)
 				{
 					m_Orientation += Max(Delta, -Rotation);
 				}
-				UpdateWorld();
-			}
-		}
-		else
-		{
-			float step = m_Resistance * dtime;
-			if (magnitude < step)
-			{
-				m_Velocity.x = 0;
-				m_Velocity.z = 0;
-			}
-			else
-			{
-				m_Velocity.x -= m_Velocity.x / magnitude * step;
-				m_Velocity.z -= m_Velocity.z / magnitude * step;
 			}
 		}
 		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * dtime, 0.001f, dtime, physx::PxControllerFilters());

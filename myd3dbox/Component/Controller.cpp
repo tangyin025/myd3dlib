@@ -6,8 +6,6 @@ using namespace my;
 
 void CharacterController::Update(float fElapsedTime)
 {
-	Controller::Update(fElapsedTime);
-
 	Character * character = dynamic_cast<Character *>(m_Actor);
 	if (m_MoveAcceleration > 0)
 	{
