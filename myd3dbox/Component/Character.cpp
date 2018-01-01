@@ -95,8 +95,8 @@ void Character::OnPxThreadSubstep(float dtime)
 					m_Velocity.x = m_Velocity.x / magnitude * m_MaxVelocity;
 					m_Velocity.z = m_Velocity.z / magnitude * m_MaxVelocity;
 				}
-				float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
-				float Delta = fmod(TargetOrientation - m_Orientation + D3DX_PI, 2 * D3DX_PI) - D3DX_PI;
+				const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
+				const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
 				const float Rotation = D3DX_PI * 3 * dtime;
 				if (Delta > 0)
 				{
