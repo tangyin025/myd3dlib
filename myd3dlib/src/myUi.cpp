@@ -301,12 +301,6 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 	}
 }
 
-Control * Control::s_FocusControl = NULL;
-
-Control * Control::s_CaptureControl = NULL;
-
-Control * Control::s_MouseOverControl = NULL;
-
 Control::~Control(void)
 {
 	// ! must clear global reference
@@ -587,14 +581,14 @@ Vector2 Control::WorldToLocal(const Vector2 & pt) const
 
 void Control::SetFocus(void)
 {
-	if (s_FocusControl != this)
+	if (DialogMgr::getSingleton().s_FocusControl != this)
 	{
-		if (s_FocusControl)
+		if (DialogMgr::getSingleton().s_FocusControl)
 		{
-			s_FocusControl->OnFocusOut();
+			DialogMgr::getSingleton().s_FocusControl->OnFocusOut();
 		}
 
-		s_FocusControl = this;
+		DialogMgr::getSingleton().s_FocusControl = this;
 
 		OnFocusIn();
 	}
@@ -602,37 +596,37 @@ void Control::SetFocus(void)
 
 void Control::ReleaseFocus(void)
 {
-	if (s_FocusControl == this)
+	if (DialogMgr::getSingleton().s_FocusControl == this)
 	{
 		OnFocusOut();
 
-		s_FocusControl = NULL;
+		DialogMgr::getSingleton().s_FocusControl = NULL;
 	}
 }
 
 void Control::SetCapture(void)
 {
-	s_CaptureControl = this;
+	DialogMgr::getSingleton().s_CaptureControl = this;
 }
 
 void Control::ReleaseCapture(void)
 {
-	if (s_CaptureControl == this)
+	if (DialogMgr::getSingleton().s_CaptureControl == this)
 	{
-		s_CaptureControl = NULL;
+		DialogMgr::getSingleton().s_CaptureControl = NULL;
 	}
 }
 
 void Control::SetMouseOver(void)
 {
-	if (s_MouseOverControl != this)
+	if (DialogMgr::getSingleton().s_MouseOverControl != this)
 	{
-		if (s_MouseOverControl)
+		if (DialogMgr::getSingleton().s_MouseOverControl)
 		{
-			s_MouseOverControl->OnMouseLeave();
+			DialogMgr::getSingleton().s_MouseOverControl->OnMouseLeave();
 		}
 
-		s_MouseOverControl = this;
+		DialogMgr::getSingleton().s_MouseOverControl = this;
 
 		OnMouseEnter();
 	}
@@ -640,11 +634,11 @@ void Control::SetMouseOver(void)
 
 void Control::ReleaseMouseOver(void)
 {
-	if (s_MouseOverControl == this)
+	if (DialogMgr::getSingleton().s_MouseOverControl == this)
 	{
 		OnMouseLeave();
 
-		s_MouseOverControl = NULL;
+		DialogMgr::getSingleton().s_MouseOverControl = NULL;
 	}
 }
 
@@ -2475,7 +2469,8 @@ void Dialog::SetVisible(bool bVisible)
 {
 	if (m_bVisible != bVisible)
 	{
-		if (m_bVisible = bVisible)
+		m_bVisible = bVisible;
+		if (m_bVisible)
 		{
 			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 			for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
@@ -2491,9 +2486,9 @@ void Dialog::SetVisible(bool bVisible)
 		}
 		else
 		{
-			if (Control::s_FocusControl && ContainsControl(Control::s_FocusControl))
+			if (DialogMgr::getSingleton().s_FocusControl && ContainsControl(DialogMgr::getSingleton().s_FocusControl))
 			{
-				Control::s_FocusControl->ReleaseFocus();
+				DialogMgr::getSingleton().s_FocusControl->ReleaseFocus();
 			}
 		}
 	}
@@ -2576,8 +2571,8 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 
 bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (Control::s_FocusControl) {
-		if (Control::s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam)) {
+	if (s_FocusControl) {
+		if (s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam)) {
 			return true;
 		}
 	}
@@ -2589,8 +2584,8 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		{
-			if (Control::s_FocusControl) {
-				if (Control::s_FocusControl->HandleKeyboard(uMsg, wParam, lParam)) {
+			if (s_FocusControl) {
+				if (s_FocusControl->HandleKeyboard(uMsg, wParam, lParam)) {
 					return true;
 				}
 			}
@@ -2626,11 +2621,11 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hWnd, &ClientRect);
 			Ray ray = CalculateRay(Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
-			if (Control::s_CaptureControl) {
+			if (s_CaptureControl) {
 				Vector2 pt;
-				if (Control::s_CaptureControl->RayToWorld(ray, pt))
+				if (s_CaptureControl->RayToWorld(ray, pt))
 				{
-					if (Control::s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam)) {
+					if (s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam)) {
 						return true;
 					}
 				}
@@ -2672,9 +2667,9 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			if (dlg_iter == m_DlgList.rend() && Control::s_MouseOverControl)
+			if (dlg_iter == m_DlgList.rend() && s_MouseOverControl)
 			{
-				Control::s_MouseOverControl->ReleaseMouseOver();
+				s_MouseOverControl->ReleaseMouseOver();
 			}
 		}
 		break;
