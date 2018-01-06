@@ -829,11 +829,11 @@ ComponentPtr Game::LoadComponent(const char * path)
 void Game::LoadScene(const char * path)
 {
 	m_Root.ClearAllActor();
-	PhysXContext::ClearSerializedObjs();
+	PhysXSceneContext::ClearSerializedObjs();
 
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
 	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
+	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("Root", m_Root);
 }

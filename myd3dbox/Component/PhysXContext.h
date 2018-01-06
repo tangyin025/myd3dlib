@@ -31,16 +31,6 @@ public:
 
 	PhysXPtr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
-	typedef std::map<std::string, PhysXPtr<physx::PxTriangleMesh> > TriangleMeshMap;
-
-	TriangleMeshMap m_TriangleMeshes;
-
-	PhysXPtr<physx::PxSerializationRegistry> m_Registry;
-
-	PhysXPtr<physx::PxCollection> m_Collection;
-
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
 public:
 	PhysXContext(void)
 	{
@@ -48,24 +38,11 @@ public:
 
 	bool Init(void);
 
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::split_member(ar, *this, version);
-	}
-
-	void ClearSerializedObjs(void);
-
 	void Shutdown(void);
 };
 
 class PhysXSceneContext
+	: public my::SingleInstance<PhysXSceneContext>
 {
 public:
 	class StepperTask
@@ -102,6 +79,16 @@ public:
 
 	PhysXPtr<physx::PxControllerManager> m_ControllerMgr;
 
+	typedef std::map<std::string, PhysXPtr<physx::PxTriangleMesh> > TriangleMeshMap;
+
+	TriangleMeshMap m_TriangleMeshes;
+
+	PhysXPtr<physx::PxSerializationRegistry> m_Registry;
+
+	PhysXPtr<physx::PxCollection> m_Collection;
+
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
 public:
 	PhysXSceneContext(void)
 		: m_Completion0(this)
@@ -114,6 +101,20 @@ public:
 	}
 
 	bool Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher);
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	void ClearSerializedObjs(void);
 
 	void Shutdown(void);
 

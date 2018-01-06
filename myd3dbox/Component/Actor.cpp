@@ -53,9 +53,9 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 				}
 			}
 		}
-		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
+		physx::PxSerialization::complete(*collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
 		unsigned int PxActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
 		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -96,7 +96,7 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
-		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
+		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get()));
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{

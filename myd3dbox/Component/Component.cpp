@@ -416,8 +416,8 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 	}
 
 	PhysXPtr<physx::PxTriangleMesh> triangle_mesh;
-	PhysXContext::TriangleMeshMap::iterator tri_mesh_iter = PhysXContext::getSingleton().m_TriangleMeshes.find(key);
-	if (tri_mesh_iter != PhysXContext::getSingleton().m_TriangleMeshes.end())
+	PhysXSceneContext::TriangleMeshMap::iterator tri_mesh_iter = PhysXSceneContext::getSingleton().m_TriangleMeshes.find(key);
+	if (tri_mesh_iter != PhysXSceneContext::getSingleton().m_TriangleMeshes.end())
 	{
 		triangle_mesh = tri_mesh_iter->second;
 	}
@@ -448,7 +448,7 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 		}
 		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 		triangle_mesh.reset(PhysXContext::getSingleton().m_sdk->createTriangleMesh(readBuffer));
-		PhysXContext::getSingleton().m_TriangleMeshes.insert(std::make_pair(key, triangle_mesh));
+		PhysXSceneContext::getSingleton().m_TriangleMeshes.insert(std::make_pair(key, triangle_mesh));
 	}
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
@@ -503,9 +503,9 @@ void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::
 
 	PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
 	collection->add(*m_Cloth);
-	physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
+	physx::PxSerialization::complete(*collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
 	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
+	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
 	unsigned int ClothSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(ClothSize);
 	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -535,7 +535,7 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
+	PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get()));
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 	const unsigned int numObjs = collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)

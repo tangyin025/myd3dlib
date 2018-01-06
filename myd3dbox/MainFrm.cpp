@@ -454,7 +454,7 @@ void CMainFrame::ClearFileContext()
 {
 	m_Root.ClearAllActor();
 	m_selactors.clear();
-	theApp.ClearSerializedObjs();
+	ClearSerializedObjs();
 }
 
 void CMainFrame::OnDestroy()
@@ -538,7 +538,7 @@ void CMainFrame::OnFileOpen()
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
-	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
+	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("Root", m_Root);
 }
 
@@ -561,7 +561,7 @@ void CMainFrame::OnFileSave()
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
+	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	oa << boost::serialization::make_nvp("Root", m_Root);
 }
 
