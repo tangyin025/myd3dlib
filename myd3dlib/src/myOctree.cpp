@@ -57,12 +57,12 @@ void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback) const
 {
 	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
 	{
-		OctActorMap::const_iterator cmp_iter = m_Actors.begin();
-		for(; cmp_iter != m_Actors.end(); cmp_iter++)
+		OctActorMap::const_iterator actor_iter = m_Actors.begin();
+		for(; actor_iter != m_Actors.end(); actor_iter++)
 		{
-			if (IntersectionTests::rayAndAABB(ray.p, ray.d, cmp_iter->second).first)
+			if (IntersectionTests::rayAndAABB(ray.p, ray.d, actor_iter->second).first)
 			{
-				(*callback)(cmp_iter->first.get(), cmp_iter->second, IntersectionTests::IntersectionTypeRay);
+				(*callback)(actor_iter->first.get(), actor_iter->second, IntersectionTests::IntersectionTypeRay);
 			}
 		}
 
@@ -107,10 +107,10 @@ void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback) 
 
 void OctNodeBase::QueryActorAll(QueryCallback * callback) const
 {
-	OctActorMap::const_iterator cmp_iter = m_Actors.begin();
-	for(; cmp_iter != m_Actors.end(); cmp_iter++)
+	OctActorMap::const_iterator actor_iter = m_Actors.begin();
+	for(; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		(*callback)(cmp_iter->first.get(), cmp_iter->second, IntersectionTests::IntersectionTypeInside);
+		(*callback)(actor_iter->first.get(), actor_iter->second, IntersectionTests::IntersectionTypeInside);
 	}
 
 	ChildArray::const_iterator node_iter = m_Childs.begin();
@@ -125,15 +125,15 @@ void OctNodeBase::QueryActorAll(QueryCallback * callback) const
 
 void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callback) const
 {
-	OctActorMap::const_iterator cmp_iter = m_Actors.begin();
-	for(; cmp_iter != m_Actors.end(); cmp_iter++)
+	OctActorMap::const_iterator actor_iter = m_Actors.begin();
+	for(; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(cmp_iter->second, aabb);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor_iter->second, aabb);
 		switch(intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(cmp_iter->first.get(), cmp_iter->second, intersect_type);
+			(*callback)(actor_iter->first.get(), actor_iter->second, intersect_type);
 			break;
 		}
 	}
@@ -150,15 +150,15 @@ void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callb
 
 void OctNodeBase::QueryActorIntersected(const Frustum & frustum, QueryCallback * callback) const
 {
-	OctActorMap::const_iterator cmp_iter = m_Actors.begin();
-	for(; cmp_iter != m_Actors.end(); cmp_iter++)
+	OctActorMap::const_iterator actor_iter = m_Actors.begin();
+	for(; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(cmp_iter->second, frustum);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(actor_iter->second, frustum);
 		switch(intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(cmp_iter->first.get(), cmp_iter->second, intersect_type);
+			(*callback)(actor_iter->first.get(), actor_iter->second, intersect_type);
 			break;
 		}
 	}
@@ -178,10 +178,10 @@ bool OctNodeBase::RemoveActor(OctActorPtr actor)
 	if (actor->m_Node)
 	{
 		_ASSERT(HaveNode(actor->m_Node));
-		OctActorMap::iterator cmp_iter = actor->m_Node->m_Actors.find(actor);
-		if (cmp_iter != actor->m_Node->m_Actors.end())
+		OctActorMap::iterator actor_iter = actor->m_Node->m_Actors.find(actor);
+		if (actor_iter != actor->m_Node->m_Actors.end())
 		{
-			actor->m_Node->m_Actors.erase(cmp_iter);
+			actor->m_Node->m_Actors.erase(actor_iter);
 			actor->m_Node = NULL;
 			return true;
 		}
@@ -191,11 +191,11 @@ bool OctNodeBase::RemoveActor(OctActorPtr actor)
 
 void OctNodeBase::ClearAllActor(void)
 {
-	OctActorMap::iterator cmp_iter = m_Actors.begin();
-	for (; cmp_iter != m_Actors.end(); cmp_iter++)
+	OctActorMap::iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		_ASSERT(cmp_iter->first->m_Node == this);
-		cmp_iter->first->m_Node = NULL;
+		_ASSERT(actor_iter->first->m_Node == this);
+		actor_iter->first->m_Node = NULL;
 	}
 	m_Actors.clear();
 
