@@ -137,6 +137,8 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 template<>
 void PhysXSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
+	const_cast<PhysXSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
+	const_cast<PhysXSceneContext *>(this)->m_Collection.reset(PxCreateCollection());
 	TriangleMeshMap::const_iterator tri_mesh_iter = m_TriangleMeshes.begin();
 	for (; tri_mesh_iter != m_TriangleMeshes.end(); tri_mesh_iter++)
 	{
