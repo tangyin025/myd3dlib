@@ -613,29 +613,49 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
+	struct Callback : public my::OctNodeBase::QueryCallback
+	{
+		float fElapsedTime;
+		WeakActorMap & ViewedActors;
+		std::vector<Game::WeakActorMap::value_type> actor_list;
+		Callback(float _fElapsedTime, WeakActorMap & _ViewedActors)
+			: fElapsedTime(_fElapsedTime)
+			, ViewedActors(_ViewedActors)
+		{
+		}
+		void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Actor *>(oct_actor));
+			Actor * actor = static_cast<Actor *>(oct_actor);
+			Game::WeakActorMap::const_iterator actor_iter = ViewedActors.find(actor);
+			if (actor_iter != ViewedActors.end())
+			{
+				ViewedActors.erase(actor);
+			}
+			else
+			{
+				_ASSERT(!actor->IsRequested());
+				actor->RequestResource();
+				actor->OnEnterPxScene(Game::getSingletonPtr());
+			}
+			actor_list.push_back(std::make_pair(actor, boost::static_pointer_cast<Actor>(actor->shared_from_this())));
+			actor->Update(fElapsedTime);
+		}
+	};
+	Callback cb(fElapsedTime, m_ViewedActors);
+	m_Root.QueryActor(my::AABB(-1000, 1000), &cb);
 	WeakActorMap::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != m_ViewedActors.end(); )
+	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
 	{
 		ActorPtr actor = actor_iter->second.lock();
 		if (actor)
 		{
-			_ASSERT(actor->m_Node && actor->m_Node->m_Actors.find(actor) != actor->m_Node->m_Actors.end());
-			if (IntersectionTests::IntersectionTypeOutside !=
-				IntersectionTests::IntersectAABBAndAABB(AABB(-1000, 1000), actor->m_Node->m_Actors.find(actor)->second))
-			{
-				actor->Update(fElapsedTime);
-				actor_iter++;
-			}
-			else
-			{
-				actor->ReleaseResource();
-				actor->OnLeavePxScene(this);
-				actor_iter = m_ViewedActors.erase(actor_iter);
-			}
+			actor->OnLeavePxScene(this);
+			actor->ReleaseResource();
 		}
-		else
-			actor_iter = m_ViewedActors.erase(actor_iter);
 	}
+	m_ViewedActors.clear();
+	m_ViewedActors.insert(cb.actor_list.begin(), cb.actor_list.end());
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -761,14 +781,6 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
-			Game::WeakActorMap::const_iterator actor_iter = Game::getSingleton().m_ViewedActors.find(actor);
-			if (actor_iter == Game::getSingleton().m_ViewedActors.end())
-			{
-				_ASSERT(!actor->IsRequested());
-				actor->RequestResource();
-				actor->OnEnterPxScene(Game::getSingletonPtr());
-				Game::getSingleton().m_ViewedActors.insert(std::make_pair(actor, boost::static_pointer_cast<Actor>(actor->shared_from_this())));
-			}
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 		}
 	};
