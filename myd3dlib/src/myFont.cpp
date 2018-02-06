@@ -290,6 +290,11 @@ void Font::CreateFontFromFileInCache(
 
 void Font::OnResetDevice(void)
 {
+	Vector2 Viewport = DialogMgr::getSingleton().GetDlgViewport();
+
+	Vector2 Scale(DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width / Viewport.x, DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height / Viewport.y);
+
+	SetScale(Scale);
 }
 
 void Font::OnLostDevice(void)

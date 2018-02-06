@@ -444,6 +444,8 @@ HRESULT Game::OnResetDevice(
 {
 	m_EventLog("Game::OnResetDevice");
 
+	DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
+
 	if (FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
@@ -476,14 +478,6 @@ HRESULT Game::OnResetDevice(
 		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
 			pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
-
-	Vector2 Viewport(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
-
-	Vector2 Scale(pBackBufferSurfaceDesc->Width / Viewport.x, pBackBufferSurfaceDesc->Height / Viewport.y);
-
-	DialogMgr::SetDlgViewport(Viewport, D3DXToRadian(75.0f));
-
-	m_Font->SetScale(Scale);
 
 	if(m_Camera->EventAlign)
 	{

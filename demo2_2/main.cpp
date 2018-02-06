@@ -192,14 +192,20 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
+		Vector2 Viewport(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
+
+		DialogMgr::SetDlgViewport(Viewport, D3DXToRadian(75.0f));
+
+		DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
+		ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 		m_font->OnResetDevice();
 
 		if(FAILED(hr = D3DXCreateSprite(pd3dDevice, &m_sprite)))
 		{
 			return hr;
 		}
-
-		ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -211,6 +217,8 @@ public:
 		m_sprite.Release();
 
 		ResourceMgr::OnLostDevice();
+
+		DxutApp::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
@@ -222,6 +230,8 @@ public:
 		RemoveAllDlg();
 
 		ResourceMgr::OnDestroyDevice();
+
+		DxutApp::OnDestroyDevice();
 	}
 
 	void OnFrameRender(
