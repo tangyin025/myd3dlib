@@ -192,9 +192,7 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		Vector2 Viewport(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
-
-		DialogMgr::SetDlgViewport(Viewport, D3DXToRadian(75.0f));
+		DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
 
 		DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
