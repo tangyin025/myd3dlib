@@ -178,6 +178,11 @@ void InputDevice::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, 
 	}
 }
 
+Keyboard::Keyboard(void)
+{
+	ZeroMemory(&m_State, sizeof(m_State));
+}
+
 LPCTSTR Keyboard::TranslateKeyCode(KeyCode kc)
 {
 	switch (kc)
@@ -567,15 +572,9 @@ void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd)
 	dipdw.diph.dwHow        = DIPH_DEVICE;
 	dipdw.dwData            = KEYBOARD_DX_BUFFERSIZE;
 	SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph);
-
-	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-
-	Acquire();
-
-	ZeroMemory(&m_State, sizeof(m_State));
 }
 
-void Keyboard::Capture(void)
+bool Keyboard::Capture(void)
 {
 	BYTE OldState[256];
 	memcpy(OldState, m_State, sizeof(OldState));
@@ -586,7 +585,7 @@ void Keyboard::Capture(void)
 	{
 		if (FAILED(hr = m_ptr->Acquire()))
 		{
-			return;
+			return false;
 		}
 
 		GetDeviceData(sizeof(DIDEVICEOBJECTDATA), diBuff, &entries, 0);
@@ -605,6 +604,12 @@ void Keyboard::Capture(void)
 			m_ReleasedEvent(&KeyboardEventArg(kc));
 		}
 	}
+	return true;
+}
+
+Mouse::Mouse(void)
+{
+	ZeroMemory(&m_State, sizeof(m_State));
 }
 
 void Mouse::CreateMouse(LPDIRECTINPUT8 input, HWND hwnd)
@@ -618,15 +623,9 @@ void Mouse::CreateMouse(LPDIRECTINPUT8 input, HWND hwnd)
 	Create(device);
 
 	SetDataFormat(&c_dfDIMouse);
-
-	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-
-	Acquire();
-
-	ZeroMemory(&m_State, sizeof(m_State));
 }
 
-void Mouse::Capture(void)
+bool Mouse::Capture(void)
 {
 	DIMOUSESTATE OldState;
 	memcpy(&OldState, &m_State, sizeof(OldState));
@@ -635,7 +634,7 @@ void Mouse::Capture(void)
 	{
 		if(FAILED(hr = m_ptr->Acquire()))
 		{
-			return;
+			return false;
 		}
 
 		GetDeviceState(sizeof(m_State), &m_State);
@@ -663,6 +662,7 @@ void Mouse::Capture(void)
 	{
 		m_MovedEvent(&MouseMoveEventArg(m_State.lX, m_State.lY, m_State.lZ));
 	}
+	return true;
 }
 
 LPCTSTR Joystick::TranslateAxis(DWORD axis)
@@ -782,7 +782,7 @@ void Joystick::CheckAxis(LONG value, JoystickAxis axis)
 	}
 }
 
-void Joystick::Capture(void)
+bool Joystick::Capture(void)
 {
 	DIJOYSTATE OldState;
 	memcpy(&OldState, &m_State, sizeof(OldState));
@@ -791,7 +791,7 @@ void Joystick::Capture(void)
 	{
 		if(FAILED(hr = m_ptr->Acquire()))
 		{
-			return;
+			return false;
 		}
 
 		GetDeviceState(sizeof(m_State), &m_State);
@@ -831,6 +831,7 @@ void Joystick::Capture(void)
 			}
 		}
 	}
+	return true;
 }
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
@@ -840,9 +841,13 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 
 	m_keyboard.reset(new Keyboard);
 	m_keyboard->CreateKeyboard(m_input->m_ptr, hwnd);
+	m_keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	m_keyboard->Acquire();
 
 	m_mouse.reset(new Mouse);
 	m_mouse->CreateMouse(m_input->m_ptr, hwnd);
+	m_mouse->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+	m_mouse->Acquire();
 
 	JoystickEnumDesc desc;
 	desc.input = m_input->m_ptr;
@@ -869,16 +874,26 @@ void InputMgr::Destroy(void)
 	m_input.reset();
 }
 
-void InputMgr::Update(double fTime, float fElapsedTime)
+bool InputMgr::Capture(double fTime, float fElapsedTime)
 {
-	m_keyboard->Capture();
+	if (!m_keyboard->Capture())
+	{
+		return false;
+	}
 
-	m_mouse->Capture();
+	if (!m_mouse->Capture())
+	{
+		return false;
+	}
 
 	if (m_joystick)
 	{
-		m_joystick->Capture();
+		if (!m_joystick->Capture())
+		{
+			return false;
+		}
 	}
+	return true;
 }
 //
 //bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

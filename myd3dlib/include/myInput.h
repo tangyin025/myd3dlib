@@ -96,7 +96,7 @@ namespace my
 
 		void Destroy(void);
 
-		virtual void Capture(void) = 0;
+		virtual bool Capture(void) = 0;
 
 		void SetCooperativeLevel(HWND hwnd, DWORD dwFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 
@@ -284,9 +284,7 @@ namespace my
 		InputEvent m_ReleasedEvent;
 
 	public:
-		Keyboard(void)
-		{
-		}
+		Keyboard(void);
 
 		static LPCTSTR TranslateKeyCode(KeyCode kc);
 
@@ -294,7 +292,7 @@ namespace my
 
 		void CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd);
 
-		virtual void Capture(void);
+		virtual bool Capture(void);
 	};
 
 	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
@@ -341,13 +339,11 @@ namespace my
 		InputEvent m_ReleasedEvent;
 
 	public:
-		Mouse(void)
-		{
-		}
+		Mouse(void);
 
 		void CreateMouse(LPDIRECTINPUT8 input, HWND hwnd);
 
-		virtual void Capture(void);
+		virtual bool Capture(void);
 	};
 
 	typedef boost::shared_ptr<Mouse> MousePtr;
@@ -454,7 +450,7 @@ namespace my
 
 		void CheckAxis(LONG value, JoystickAxis axis);
 
-		void Capture(void);
+		bool Capture(void);
 	};
 
 	typedef boost::shared_ptr<Joystick> JoystickPtr;
@@ -493,7 +489,7 @@ namespace my
 
 		void Destroy(void);
 
-		void Update(double fTime, float fElapsedTime);
+		bool Capture(double fTime, float fElapsedTime);
 
 		//bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

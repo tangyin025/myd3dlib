@@ -599,7 +599,10 @@ void Game::OnFrameTick(
 
 	CheckIORequests();
 
-	InputMgr::Update(fTime, fElapsedTime);
+	if (!InputMgr::Capture(fTime, fElapsedTime))
+	{
+		// TODO: lost user input
+	}
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
