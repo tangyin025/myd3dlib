@@ -123,6 +123,10 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	case KC_D:
 		m_MoveAxis.x = -1.0f;
 		break;
+	case KC_LCONTROL:
+		Game::getSingleton().m_mouse->Unacquire();
+		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+		break;
 	}
 }
 
@@ -154,6 +158,10 @@ void PlayerController::OnKeyUp(my::InputEventArg * arg)
 		{
 			m_MoveAxis.x = 0;
 		}
+		break;
+	case KC_LCONTROL:
+		Game::getSingleton().m_mouse->Unacquire();
+		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 		break;
 	}
 }
