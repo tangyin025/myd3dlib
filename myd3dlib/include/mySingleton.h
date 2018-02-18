@@ -37,12 +37,12 @@ namespace my
 	public:
 		static DerivedClass * getSingletonPtr(void)
 		{
-			_ASSERT(NULL != s_ptr);
 			return dynamic_cast<DerivedClass *>(s_ptr);
 		}
 
 		static DerivedClass & getSingleton(void)
 		{
+			_ASSERT(NULL != s_ptr);
 			return *getSingletonPtr();
 		}
 
