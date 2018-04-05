@@ -421,7 +421,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	}
 
 	float fElapsedTime = my::Min(0.016f, m_fElapsedTime);
-	if ((DYNAMIC_DOWNCAST(CMainFrame, m_pMainWnd))->OnFrameTick(fElapsedTime))
+	if ((DYNAMIC_DOWNCAST(CMainFrame, m_pMainWnd))->OnFrameRender(fElapsedTime))
 	{
 		bContinue = TRUE;
 	}

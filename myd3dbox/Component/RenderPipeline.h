@@ -287,7 +287,7 @@ public:
 
 	void OnDestroyDevice(void);
 
-	void OnFrameRender(
+	virtual void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 		IRenderContext * pRC,

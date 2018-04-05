@@ -173,13 +173,20 @@ void DxutApp::OnDestroyDevice(void)
 	m_EventDeviceDestroy();
 }
 
-void DxutApp::OnFrameTick(
+void DxutApp::OnFrameRender(
 	double fTime,
-	float fElapsedTime)
+	float fElapsedTime,
+	bool bDeviceLost)
 {
-	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+	if (bDeviceLost)
+	{
+		Sleep(666);
+		return;
+	}
 
-	Present(0,0,0,0);
+	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
+
+	Present(0, 0, 0, 0);
 }
 
 LRESULT DxutApp::MsgProc(
@@ -1876,43 +1883,33 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 
 void DxutApp::Render3DEnvironment(void)
 {
-	if(m_DeviceLost)
+	if (m_DeviceLost)
 	{
-		if(FAILED(hr = m_d3dDevice->TestCooperativeLevel()))
+		if (FAILED(hr = m_d3dDevice->TestCooperativeLevel()))
 		{
-			if(D3DERR_DEVICELOST == hr)
+			if (SUCCEEDED(hr = Reset3DEnvironment(m_DeviceSettings)))
 			{
-				WaitMessage();
-				return;
+				m_DeviceLost = false;
 			}
-
-			if(FAILED(hr = Reset3DEnvironment(m_DeviceSettings)))
+			else if (D3DERR_DEVICELOST != hr)
 			{
-				if(D3DERR_DEVICELOST == hr)
-				{
-					WaitMessage();
-					return;
-				}
-
 				THROW_D3DEXCEPTION(hr);
 			}
 		}
-
-		m_DeviceLost = false;
 	}
 
 	UpdateClock();
 
 	m_dwFrames++;
 
-	if(m_fAbsoluteTime - m_fLastTime > 1.0f)
+	if (m_fAbsoluteTime - m_fLastTime > 1.0f)
 	{
 		m_fFps = (float)(m_dwFrames / (m_fAbsoluteTime - m_fLastTime));
 		m_fLastTime = m_fAbsoluteTime;
 		m_dwFrames = 0;
 	}
 
-	OnFrameTick(m_fAbsoluteTime, m_fElapsedTime);
+	OnFrameRender(m_fAbsoluteTime, m_fElapsedTime, m_DeviceLost);
 }
 
 void DxutApp::Present(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion)

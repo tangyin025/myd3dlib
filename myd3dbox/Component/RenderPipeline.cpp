@@ -300,7 +300,7 @@ void RenderPipeline::OnDestroyDevice(void)
 	}
 }
 
-void RenderPipeline::OnFrameRender(
+void RenderPipeline::OnRender(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 	IRenderContext * pRC,

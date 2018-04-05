@@ -551,49 +551,9 @@ void Game::OnDestroyDevice(void)
 }
 
 void Game::OnFrameRender(
-	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
-	float fElapsedTime)
-{
-	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
-
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
-
-		pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
-		pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-		DrawHelper::EndLine(pd3dDevice, Matrix4::identity);
-
-		m_UIRender->Begin();
-		m_UIRender->SetWorld(Matrix4::identity);
-		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
-		m_UIRender->End();
-		V(pd3dDevice->EndScene());
-	}
-}
-
-void Game::OnUIRender(
-	my::UIRender * ui_render,
-	double fTime,
-	float fElapsedTime)
-{
-	DialogMgr::Draw(ui_render, fTime, fElapsedTime);
-	_ASSERT(m_Font);
-	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
-	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
-	{
-		m_Font->PushString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
-	}
-	ui_render->Flush();
-}
-
-void Game::OnFrameTick(
-	double fTime,
-	float fElapsedTime)
+	float fElapsedTime,
+	bool bDeviceLost)
 {
 	DrawHelper::BeginLine();
 
@@ -662,9 +622,34 @@ void Game::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
+	if (!bDeviceLost)
+	{
+		m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
 
-	Present(NULL,NULL,NULL,NULL);
+		if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
+		{
+			OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
+
+			m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+			m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+			m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+			m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+			DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
+
+			m_UIRender->Begin();
+			m_UIRender->SetWorld(Matrix4::identity);
+			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+			OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
+			m_UIRender->End();
+			V(m_d3dDevice->EndScene());
+		}
+
+		Present(NULL, NULL, NULL, NULL);
+	}
+	else
+	{
+		Sleep(66);
+	}
 
 	PhysXSceneContext::TickPostRender(fElapsedTime);
 
@@ -677,6 +662,31 @@ void Game::OnFrameTick(
 		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
 		actor->OnPoseChanged();
 	}
+}
+
+void Game::OnRender(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+	IRenderContext * pRC,
+	double fTime,
+	float fElapsedTime)
+{
+	RenderPipeline::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
+}
+
+void Game::OnUIRender(
+	my::UIRender * ui_render,
+	double fTime,
+	float fElapsedTime)
+{
+	DialogMgr::Draw(ui_render, fTime, fElapsedTime);
+	_ASSERT(m_Font);
+	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
+	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
+	{
+		m_Font->PushString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5, (float)y, 500, 10), D3DCOLOR_ARGB(255, 255, 255, 0));
+	}
+	ui_render->Flush();
 }
 
 LRESULT Game::MsgProc(

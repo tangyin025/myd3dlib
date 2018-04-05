@@ -190,8 +190,10 @@ public:
 		Game::OnDestroyDevice();
 	}
 
-	virtual void OnFrameRender(
+	virtual void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime)
 	{
@@ -203,7 +205,7 @@ public:
 			swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), m_PassDrawCall[PassID]);
 		}
 
-		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+		Game::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
 	}
 
 	virtual void OnUIRender(

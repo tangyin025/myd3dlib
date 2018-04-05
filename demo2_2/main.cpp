@@ -232,21 +232,26 @@ public:
 		DxutApp::OnDestroyDevice();
 	}
 
-	void OnFrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
+	virtual void OnFrameRender(double fTime, float fElapsedTime, bool bDeviceLost)
 	{
+		CheckIORequests();
+
+		if (bDeviceLost)
+		{
+			Sleep(66);
+			return;
+		}
+
 		// Clear the render target and the zbuffer 
-		V( pd3dDevice->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB( 0, 45, 50, 170 ), 1.0f, 0 ) );
+		V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
 
 		// Render the scene
-		if( SUCCEEDED( pd3dDevice->BeginScene() ) )
+		if (SUCCEEDED(m_d3dDevice->BeginScene()))
 		{
 			V(m_sprite->Begin(D3DXSPRITE_ALPHABLEND));
 			wchar_t buff[256];
 			int len = swprintf_s(buff, _countof(buff), L"%.2f", m_fFps);
-			V(m_font->DrawTextW(m_sprite, buff, len, CRect(5,5,100,100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)));
+			V(m_font->DrawTextW(m_sprite, buff, len, CRect(5, 5, 100, 100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f)));
 			V(m_sprite->End());
 
 			m_UIRender->Begin();
@@ -254,15 +259,8 @@ public:
 			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 			m_UIRender->End();
-			V( pd3dDevice->EndScene() );
+			V(m_d3dDevice->EndScene());
 		}
-	}
-
-	virtual void OnFrameTick(double fTime, float fElapsedTime)
-	{
-		CheckIORequests();
-
-		OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
 		Present(0,0,0,0);
 	}
