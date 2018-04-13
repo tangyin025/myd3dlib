@@ -28,12 +28,49 @@ public:
 	UINT m_Passes;
 
 public:
-	EffectUIRender(IDirect3DDevice9 * pd3dDevice, my::EffectPtr effect)
-		: UIRender(pd3dDevice)
-		, m_UIEffect(effect)
-		, m_Passes(0)
+	EffectUIRender(void)
+		: m_Passes(0)
 	{
-		_ASSERT(m_UIEffect);
+	}
+
+	HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		if (FAILED(hr = UIRender::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hr;
+		}
+
+		m_UIEffect = my::ResourceMgr::getSingleton().LoadEffect(Game::getSingleton().m_InitUIEffect.c_str(), "");
+
+		return S_OK;
+	}
+
+	HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		if (FAILED(hr = UIRender::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hr;
+		}
+
+		return S_OK;
+	}
+
+	void OnLostDevice(void)
+	{
+		UIRender::OnLostDevice();
+	}
+
+	void OnDestroyDevice(void)
+	{
+		UIRender::OnDestroyDevice();
+
+		m_Device.Release();
+
+		m_UIEffect.reset();
 	}
 
 	void Begin(void)
@@ -231,7 +268,8 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS), 1.0f)
+	: m_UIRender(new EffectUIRender())
+	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS), 1.0f)
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -263,54 +301,6 @@ Game::Game(void)
 		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
 	}
 
-	LuaContext::Init();
-	lua_pushcfunction(m_State, lua_print);
-	lua_setglobal(m_State, "print");
-	lua_pushcfunction(m_State, luaB_loadfile);
-	lua_setglobal(m_State, "loadfile");
-	lua_pushcfunction(m_State, luaB_dofile);
-	lua_setglobal(m_State, "dofile");
-	lua_getglobal(m_State, "package");
-	lua_getfield(m_State, -1, "loaders");
-	lua_pushcfunction(m_State, loader_Lua);
-	lua_rawseti(m_State, -2, 2);
-	lua_getglobal(m_State, "os");
-	lua_pushcclosure(m_State, os_exit, 0);
-	lua_setfield(m_State, -2, "exit");
-	lua_settop(m_State, 0);
-	luabind::module(m_State)
-	[
-		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr> >("Game")
-			.def("AddTimer", &Game::AddTimer)
-			.def("InsertTimer", &Game::InsertTimer)
-			.def("RemoveTimer", &Game::RemoveTimer)
-			.def("RemoveAllTimer", &Game::RemoveAllTimer)
-			.def_readwrite("Camera", &Game::m_Camera)
-			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
-			.def_readwrite("SkyLightDiffuse", &Game::m_SkyLightDiffuse)
-			.def_readwrite("SkyLightAmbient", &Game::m_SkyLightAmbient)
-			.def_readwrite("WireFrame", &Game::m_WireFrame)
-			.def_readwrite("DofEnable", &Game::m_DofEnable)
-			.def_readwrite("DofParams", &Game::m_DofParams)
-			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
-			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
-			.def_readonly("Console", &Game::m_Console)
-			.def_readonly("Root", &Game::m_Root)
-			.def_readwrite("Player", &Game::m_Player)
-			.def("PlaySound", &Game::PlaySound)
-			.def("SaveDialog", &Game::SaveDialog)
-			.def("LoadDialog", &Game::LoadDialog)
-			.def("SaveMaterial", &Game::SaveMaterial)
-			.def("LoadMaterial", &Game::LoadMaterial)
-			.def("SaveComponent", &Game::SaveComponent)
-			.def("LoadComponent", &Game::LoadComponent)
-			.def("LoadScene", &Game::LoadScene)
-
-		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
-			.def(luabind::constructor<Actor *>())
-	];
-	luabind::globals(m_State)["game"] = this;
-
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
@@ -319,8 +309,6 @@ Game::Game(void)
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
-	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
-	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 }
 
 Game::~Game(void)
@@ -413,7 +401,10 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("create m_Font failed");
 	}
 
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect(m_InitUIEffect.c_str(), "")));
+	if (FAILED(hr = m_UIRender->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
 
 	m_Console = ConsolePtr(new Console());
 
@@ -428,6 +419,58 @@ HRESULT Game::OnCreateDevice(
 	m_Player->OnPoseChanged();
 
 	m_Root.AddActor(m_Player, m_Player->m_aabb.transform(m_Player->m_World));
+
+	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
+
+	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
+
+	LuaContext::Init();
+	lua_pushcfunction(m_State, lua_print);
+	lua_setglobal(m_State, "print");
+	lua_pushcfunction(m_State, luaB_loadfile);
+	lua_setglobal(m_State, "loadfile");
+	lua_pushcfunction(m_State, luaB_dofile);
+	lua_setglobal(m_State, "dofile");
+	lua_getglobal(m_State, "package");
+	lua_getfield(m_State, -1, "loaders");
+	lua_pushcfunction(m_State, loader_Lua);
+	lua_rawseti(m_State, -2, 2);
+	lua_getglobal(m_State, "os");
+	lua_pushcclosure(m_State, os_exit, 0);
+	lua_setfield(m_State, -2, "exit");
+	lua_settop(m_State, 0);
+	luabind::module(m_State)
+	[
+		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr> >("Game")
+			.def("AddTimer", &Game::AddTimer)
+			.def("InsertTimer", &Game::InsertTimer)
+			.def("RemoveTimer", &Game::RemoveTimer)
+			.def("RemoveAllTimer", &Game::RemoveAllTimer)
+			.def_readwrite("Camera", &Game::m_Camera)
+			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
+			.def_readwrite("SkyLightDiffuse", &Game::m_SkyLightDiffuse)
+			.def_readwrite("SkyLightAmbient", &Game::m_SkyLightAmbient)
+			.def_readwrite("WireFrame", &Game::m_WireFrame)
+			.def_readwrite("DofEnable", &Game::m_DofEnable)
+			.def_readwrite("DofParams", &Game::m_DofParams)
+			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
+			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
+			.def_readonly("Console", &Game::m_Console)
+			.def_readonly("Root", &Game::m_Root)
+			.def_readwrite("Player", &Game::m_Player)
+			.def("PlaySound", &Game::PlaySound)
+			.def("SaveDialog", &Game::SaveDialog)
+			.def("LoadDialog", &Game::LoadDialog)
+			.def("SaveMaterial", &Game::SaveMaterial)
+			.def("LoadMaterial", &Game::LoadMaterial)
+			.def("SaveComponent", &Game::SaveComponent)
+			.def("LoadComponent", &Game::LoadComponent)
+			.def("LoadScene", &Game::LoadScene)
+
+		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
+			.def(luabind::constructor<Actor *>())
+	];
+	luabind::globals(m_State)["game"] = this;
 
 	ExecuteCode(m_InitScript.c_str());
 
@@ -457,6 +500,11 @@ HRESULT Game::OnResetDevice(
 	}
 
 	if (FAILED(hr = RenderPipeline::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
+	if (FAILED(hr = m_UIRender->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -504,6 +552,8 @@ void Game::OnLostDevice(void)
 		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
 	}
 
+	m_UIRender->OnLostDevice();
+
 	RenderPipeline::OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
@@ -515,9 +565,11 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	ExecuteCode("collectgarbage(\"collect\")");
-
 	m_Player.reset();
+
+	m_Camera.reset();
+
+	m_SkyLightCam.reset();
 
 	m_Root.ClearAllActor();
 
@@ -525,9 +577,11 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
+	LuaContext::Shutdown();
+
 	m_SimpleSample.reset();
 
-	m_UIRender.reset();
+	m_UIRender->OnDestroyDevice();
 
 	RemoveAllTimer();
 

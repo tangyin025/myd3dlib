@@ -25,6 +25,8 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
+		my::Texture2DPtr m_WhiteTex;
+
 		typedef std::vector<CUSTOMVERTEX> VertexList;
 
 		typedef boost::unordered_map<BaseTexture *, VertexList> UILayer;
@@ -43,12 +45,21 @@ namespace my
 		DWORD State[16];
 
 	public:
-		UIRender(IDirect3DDevice9 * pd3dDevice)
-			: m_Device(pd3dDevice)
-		{
-		}
+		UIRender(void);
 
 		virtual ~UIRender(void);
+
+		virtual HRESULT OnCreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
 
 		virtual void Begin(void);
 

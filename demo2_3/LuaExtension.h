@@ -20,6 +20,8 @@ public:
 
 	void Init(void);
 
+	void Shutdown(void);
+
 	int docall(int narg, int clear);
 
 	int dostring(const char *s, const char *name);

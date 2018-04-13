@@ -1080,12 +1080,18 @@ void LuaContext::Init(void)
 	ExportComponent(m_State);
 }
 
-LuaContext::~LuaContext(void)
+void LuaContext::Shutdown(void)
 {
 	if (m_State)
 	{
 		lua_close(m_State);
+		m_State = NULL;
 	}
+}
+
+LuaContext::~LuaContext(void)
+{
+	_ASSERT(!m_State);
 }
 
 static int traceback (lua_State *L)

@@ -51,8 +51,47 @@ BOOST_CLASS_EXPORT(ComboBox)
 
 BOOST_CLASS_EXPORT(Dialog)
 
+UIRender::UIRender(void)
+	: m_WhiteTex(new my::Texture2D())
+{
+}
+
 UIRender::~UIRender(void)
 {
+	_ASSERT(!m_Device);
+	_ASSERT(!m_WhiteTex->m_ptr);
+}
+
+HRESULT UIRender::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	m_Device = pd3dDevice;
+
+	m_WhiteTex->CreateTexture(1, 1, 1, 0, D3DFMT_A8R8G8B8);
+	RECT rc = { 0, 0, 1, 1 };
+	D3DLOCKED_RECT SrcLrc = m_WhiteTex->LockRect(&rc, 0, 0);
+	D3DCOLOR * DstBits = (D3DCOLOR *)SrcLrc.pBits;
+	*DstBits = D3DCOLOR_ARGB(255, 255, 255, 255);
+	m_WhiteTex->UnlockRect();
+
+	return S_OK;
+}
+
+HRESULT UIRender::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
+}
+
+void UIRender::OnLostDevice(void)
+{
+}
+
+void UIRender::OnDestroyDevice(void)
+{
+	m_Device.Release();
 }
 
 void UIRender::Begin(void)
@@ -291,6 +330,10 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 			ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
 		}
 	}
+	else
+	{
+		ui_render->PushRectangle(rect, Rectangle(0, 0, 1, 1), color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
+	}
 }
 
 void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
@@ -353,9 +396,16 @@ void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 	{
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-		if(m_Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
+		if (m_Color & D3DCOLOR_ARGB(255, 0, 0, 0))
 		{
-			m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Color);
+			if (m_Skin)
+			{
+				m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Color);
+			}
+			else
+			{
+				ui_render->PushRectangle(Rect, Rectangle(0, 0, 1, 1), m_Color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
+			}
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();

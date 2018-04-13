@@ -33,6 +33,7 @@ CMainApp::CMainApp()
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+	m_UIRender.reset(new my::UIRender());
 }
 
 // The one and only CMainApp object
@@ -279,7 +280,11 @@ HRESULT CMainApp::OnCreateDevice(
 		return hr;
 	}
 
-	m_UIRender.reset(new my::UIRender(m_d3dDevice));
+	if (FAILED(hr = m_UIRender->OnCreateDevice(pd3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return hr;
+	}
 
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
 	{
@@ -307,11 +312,19 @@ HRESULT CMainApp::OnResetDevice(
 		return hr;
 	}
 
+	if (FAILED(hr = m_UIRender->OnResetDevice(pd3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return hr;
+	}
+
 	return S_OK;
 }
 
 void CMainApp::OnLostDevice(void)
 {
+	m_UIRender->OnLostDevice();
+
 	D3DContext::m_EventDeviceLost();
 
 	ResourceMgr::OnLostDevice();
@@ -321,6 +334,8 @@ void CMainApp::OnLostDevice(void)
 
 void CMainApp::OnDestroyDevice(void)
 {
+	m_UIRender->OnDestroyDevice();
+
 	D3DContext::m_EventDeviceDestroy();
 
 	ResourceMgr::OnDestroyDevice();
