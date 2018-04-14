@@ -454,7 +454,7 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 				{
 					if (EventMouseClick)
 					{
-						EventMouseClick(&MouseEventArgs(pt));
+						EventMouseClick(&MouseEventArgs(this, pt));
 					}
 				}
 				return true;
@@ -488,7 +488,7 @@ void Control::OnMouseEnter(const Vector2 & pt)
 
 		if (EventMouseEnter)
 		{
-			EventMouseEnter(&MouseEventArgs(pt));
+			EventMouseEnter(&MouseEventArgs(this, pt));
 		}
 	}
 }
@@ -501,7 +501,7 @@ void Control::OnMouseLeave(const Vector2 & pt)
 
 		if (EventMouseLeave)
 		{
-			EventMouseLeave(&MouseEventArgs(pt));
+			EventMouseLeave(&MouseEventArgs(this, pt));
 		}
 	}
 }
@@ -844,7 +844,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					if (EventMouseClick)
 					{
-						EventMouseClick(&MouseEventArgs(Vector2(0, 0)));
+						EventMouseClick(&MouseEventArgs(this, Vector2(0, 0)));
 					}
 				}
 				return true;
@@ -875,7 +875,7 @@ void Button::OnHotkey(void)
 	{
 		if(EventMouseClick)
 		{
-			EventMouseClick(&MouseEventArgs(Vector2(0, 0)));
+			EventMouseClick(&MouseEventArgs(this, Vector2(0, 0)));
 		}
 	}
 }
@@ -991,7 +991,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						DeleteSelectionText();
 						if(EventChange)
 						{
-							EventChange(&ControlEventArgs());
+							EventChange(&ControlEventArgs(this));
 						}
 					}
 					else if(m_nCaret > 0)
@@ -1001,7 +1001,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						m_Text.erase(m_nCaret, 1);
 						if(EventChange)
 						{
-							EventChange(&ControlEventArgs());
+							EventChange(&ControlEventArgs(this));
 						}
 					}
 					ResetCaretBlink();
@@ -1015,7 +1015,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						DeleteSelectionText();
 						if(EventChange)
 						{
-							EventChange(&ControlEventArgs());
+							EventChange(&ControlEventArgs(this));
 						}
 					}
 					break;
@@ -1024,7 +1024,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					PasteFromClipboard();
 					if(EventChange)
 					{
-						EventChange(&ControlEventArgs());
+						EventChange(&ControlEventArgs(this));
 					}
 					break;
 
@@ -1039,7 +1039,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case VK_RETURN:
 					if(EventEnter)
 					{
-						EventEnter(&ControlEventArgs());
+						EventEnter(&ControlEventArgs(this));
 					}
 					break;
 
@@ -1088,7 +1088,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					ResetCaretBlink();
 					if(EventChange)
 					{
-						EventChange(&ControlEventArgs());
+						EventChange(&ControlEventArgs(this));
 					}
 				}
 			}
@@ -1150,7 +1150,7 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					DeleteSelectionText();
 					if(EventChange)
 					{
-						EventChange(&ControlEventArgs());
+						EventChange(&ControlEventArgs(this));
 					}
 				}
 				else
@@ -1158,7 +1158,7 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_Text.erase(m_nCaret, 1);
 					if(EventChange)
 					{
-						EventChange(&ControlEventArgs());
+						EventChange(&ControlEventArgs(this));
 					}
 				}
 				ResetCaretBlink();
@@ -2010,7 +2010,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 					if(EventMouseClick)
 					{
-						EventMouseClick(&MouseEventArgs(pt));
+						EventMouseClick(&MouseEventArgs(this, pt));
 					}
 				}
 				return true;
@@ -2228,7 +2228,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								if(EventSelectionChanged)
 								{
-									EventSelectionChanged(&ControlEventArgs());
+									EventSelectionChanged(&ControlEventArgs(this));
 								}
 							}
 
@@ -2273,7 +2273,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								if(EventSelectionChanged)
 								{
-									EventSelectionChanged(&ControlEventArgs());
+									EventSelectionChanged(&ControlEventArgs(this));
 								}
 							}
 						}
@@ -2290,7 +2290,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								if(EventSelectionChanged)
 								{
-									EventSelectionChanged(&ControlEventArgs());
+									EventSelectionChanged(&ControlEventArgs(this));
 								}
 							}
 						}
@@ -2486,32 +2486,47 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
+	if (m_bEnabled && m_bVisible)
 	{
-		switch(uMsg)
+		switch (uMsg)
 		{
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(ContainsPoint(pt))
+			if (ContainsPoint(pt))
 			{
-				m_bMouseDrag = true;
+				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
+				SetFocus();
 				SetCapture();
 				return true;
 			}
 			break;
 
 		case WM_LBUTTONUP:
-			if(m_bMouseDrag)
+			if (m_bPressed)
 			{
 				ReleaseCapture();
-				m_bMouseDrag = false;
+				m_bPressed = false;
+
+				if (m_bMouseDrag)
+				{
+					m_bMouseDrag = false;
+				}
+				else if (EventMouseClick)
+				{
+					EventMouseClick(&MouseEventArgs(this, pt));
+				}
+				return true;
 			}
 			break;
 
 		case WM_MOUSEMOVE:
-			if(m_bMouseDrag)
+			if (m_bPressed)
 			{
+				if (!m_bMouseDrag)
+				{
+					m_bMouseDrag = true;
+				}
 				m_Location = pt - m_MouseOffset;
 			}
 			break;
@@ -2559,7 +2574,7 @@ void Dialog::Refresh(void)
 
 	if(EventRefresh)
 	{
-		EventRefresh(&ControlEventArgs());
+		EventRefresh(&ControlEventArgs(this));
 	}
 }
 
@@ -2594,7 +2609,7 @@ void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 	{
 		if((*dlg_iter)->EventAlign)
 		{
-			(*dlg_iter)->EventAlign(&ControlEventArgs());
+			(*dlg_iter)->EventAlign(&ControlEventArgs(dlg_iter->get()));
 		}
 	}
 }
@@ -2739,7 +2754,7 @@ void DialogMgr::InsertDlg(DialogPtr dlg)
 
 	if(dlg->EventAlign)
 	{
-		dlg->EventAlign(&ControlEventArgs());
+		dlg->EventAlign(&ControlEventArgs(dlg.get()));
 	}
 }
 

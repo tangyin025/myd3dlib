@@ -169,24 +169,24 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 			case VK_UP:
 				if(EventKeyUp)
-					EventKeyUp(&ControlEventArgs());
+					EventKeyUp(&ControlEventArgs(this));
 				ResetCaretBlink();
 				return true;
 
 			case VK_DOWN:
 				if(EventKeyDown)
-					EventKeyDown(&ControlEventArgs());
+					EventKeyDown(&ControlEventArgs(this));
 				ResetCaretBlink();
 				return true;
 
 			case VK_PRIOR:
 				if (EventPageUp)
-					EventPageUp(&ControlEventArgs());
+					EventPageUp(&ControlEventArgs(this));
 				return true;
 
 			case VK_NEXT:
 				if (EventPageDown)
-					EventPageDown(&ControlEventArgs());
+					EventPageDown(&ControlEventArgs(this));
 				return true;
 			}
 			break;

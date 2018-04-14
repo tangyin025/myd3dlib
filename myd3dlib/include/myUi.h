@@ -97,7 +97,7 @@ namespace my
 
 		ControlImage(void)
 			: m_Rect(0,0,100,100)
-			, m_Border(10,10,10,10)
+			, m_Border(0,0,0,0)
 		{
 		}
 
@@ -159,10 +159,17 @@ namespace my
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
+	class Control;
+
+	typedef boost::shared_ptr<Control> ControlPtr;
+
 	class ControlEventArgs
 	{
 	public:
-		ControlEventArgs(void)
+		Control * sender;
+
+		ControlEventArgs(Control * _sender)
+			: sender(_sender)
 		{
 		}
 
@@ -178,15 +185,12 @@ namespace my
 	public:
 		Vector2 pt;
 
-		MouseEventArgs(const Vector2 & _pt)
-			: pt(_pt)
+		MouseEventArgs(Control * _sender, const Vector2 & _pt)
+			: ControlEventArgs(_sender)
+			, pt(_pt)
 		{
 		}
 	};
-
-	class Control;
-
-	typedef boost::shared_ptr<Control> ControlPtr;
 
 	class Control
 	{

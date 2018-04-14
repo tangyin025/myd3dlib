@@ -131,6 +131,8 @@ protected:
 
 	my::UIRenderPtr m_UIRender;
 
+	my::Texture2DPtr m_Tex;
+
 public:
 	Demo(void)
 		: m_UIRender(new EffectUIRender())
@@ -174,66 +176,86 @@ public:
 			return hr;
 		}
 
+		//DialogPtr dlg(new Dialog());
+		//dlg->m_Color = D3DCOLOR_ARGB(150,0,0,0);
+		//dlg->m_Size = Vector2(640,480);
+		//dlg->m_Skin.reset(new ControlSkin());
+		//dlg->m_Skin->m_Image.reset(new ControlImage());
+		//dlg->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+		//dlg->m_Skin->m_Image->m_Rect = my::Rectangle(154,43,156,45);
+		//dlg->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
+
+		//ControlPtr lbl_title(new Control());
+		//lbl_title->m_Location = Vector2(17,13);
+		//lbl_title->m_Size = Vector2(256,42);
+		//lbl_title->m_Color = D3DCOLOR_ARGB(255,255,255,255);
+		//lbl_title->m_Skin.reset(new ControlSkin());
+		//lbl_title->m_Skin->m_Image.reset(new ControlImage());
+		//lbl_title->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+		//lbl_title->m_Skin->m_Image->m_Rect = my::Rectangle(0,0,256,42);
+		//lbl_title->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
+		//dlg->InsertControl(lbl_title);
+
+		//ButtonPtr btn_ok(new Button());
+		//btn_ok->m_Location = Vector2(230,439);
+		//btn_ok->m_Size = Vector2(80,32);
+		//btn_ok->m_Text = L"OK";
+		//ButtonSkinPtr btn_ok_skin(new ButtonSkin());
+		//btn_ok_skin->m_Font = my::ResourceMgr::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
+		//btn_ok_skin->m_Image.reset(new ControlImage());
+		//btn_ok_skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+		//btn_ok_skin->m_Image->m_Rect = my::Rectangle(52,43,68,59);
+		//btn_ok_skin->m_Image->m_Border = Vector4(7,7,7,7);
+		//btn_ok_skin->m_DisabledImage.reset(new ControlImage());
+		//btn_ok_skin->m_DisabledImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+		//btn_ok_skin->m_DisabledImage->m_Rect = my::Rectangle(1,43,17,59);
+		//btn_ok_skin->m_DisabledImage->m_Border = Vector4(7,7,7,7);
+		//btn_ok_skin->m_PressedImage.reset(new ControlImage());
+		//btn_ok_skin->m_PressedImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+		//btn_ok_skin->m_PressedImage->m_Rect = my::Rectangle(18,43,34,59);
+		//btn_ok_skin->m_PressedImage->m_Border = Vector4(7,7,7,7);
+		//btn_ok_skin->m_MouseOverImage.reset(new ControlImage());
+		//btn_ok_skin->m_MouseOverImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+		//btn_ok_skin->m_MouseOverImage->m_Rect = my::Rectangle(35,43,51,59);
+		//btn_ok_skin->m_MouseOverImage->m_Border = Vector4(7,7,7,7);
+		//btn_ok_skin->m_TextAlign = Font::AlignCenterMiddle;
+		//btn_ok_skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+		//btn_ok_skin->m_PressedOffset = Vector2(1,2);
+		//btn_ok->m_Skin = btn_ok_skin;
+		//dlg->InsertControl(btn_ok);
+
+		//std::ofstream ostr("ui.xml");
+		//boost::archive::polymorphic_xml_oarchive oa(ostr);
+		//oa << boost::serialization::make_nvp("ui", dlg);
+
+		////DialogPtr dlg;
+		////std::ifstream istr("ui.xml");
+		////boost::archive::polymorphic_xml_iarchive ia(istr);
+		////ia >> boost::serialization::make_nvp("ui", dlg);
+
+		//DialogMgr::InsertDlg(dlg);
+
+		m_Tex.reset(new my::Texture2D());
+		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
+
 		DialogPtr dlg(new Dialog());
-		dlg->m_Color = D3DCOLOR_ARGB(150,0,0,0);
-		dlg->m_Size = Vector2(640,480);
+		dlg->m_Size = Vector2(400, 400);
 		dlg->m_Skin.reset(new ControlSkin());
 		dlg->m_Skin->m_Image.reset(new ControlImage());
-		dlg->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		dlg->m_Skin->m_Image->m_Rect = my::Rectangle(154,43,156,45);
-		dlg->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
-
-		ControlPtr lbl_title(new Control());
-		lbl_title->m_Location = Vector2(17,13);
-		lbl_title->m_Size = Vector2(256,42);
-		lbl_title->m_Color = D3DCOLOR_ARGB(255,255,255,255);
-		lbl_title->m_Skin.reset(new ControlSkin());
-		lbl_title->m_Skin->m_Image.reset(new ControlImage());
-		lbl_title->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		lbl_title->m_Skin->m_Image->m_Rect = my::Rectangle(0,0,256,42);
-		lbl_title->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
-		dlg->InsertControl(lbl_title);
-
-		ButtonPtr btn_ok(new Button());
-		btn_ok->m_Location = Vector2(230,439);
-		btn_ok->m_Size = Vector2(80,32);
-		btn_ok->m_Text = L"OK";
-		ButtonSkinPtr btn_ok_skin(new ButtonSkin());
-		btn_ok_skin->m_Font = my::ResourceMgr::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
-		btn_ok_skin->m_Image.reset(new ControlImage());
-		btn_ok_skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_Image->m_Rect = my::Rectangle(52,43,68,59);
-		btn_ok_skin->m_Image->m_Border = Vector4(7,7,7,7);
-		btn_ok_skin->m_DisabledImage.reset(new ControlImage());
-		btn_ok_skin->m_DisabledImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_DisabledImage->m_Rect = my::Rectangle(1,43,17,59);
-		btn_ok_skin->m_DisabledImage->m_Border = Vector4(7,7,7,7);
-		btn_ok_skin->m_PressedImage.reset(new ControlImage());
-		btn_ok_skin->m_PressedImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_PressedImage->m_Rect = my::Rectangle(18,43,34,59);
-		btn_ok_skin->m_PressedImage->m_Border = Vector4(7,7,7,7);
-		btn_ok_skin->m_MouseOverImage.reset(new ControlImage());
-		btn_ok_skin->m_MouseOverImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_MouseOverImage->m_Rect = my::Rectangle(35,43,51,59);
-		btn_ok_skin->m_MouseOverImage->m_Border = Vector4(7,7,7,7);
-		btn_ok_skin->m_TextAlign = Font::AlignCenterMiddle;
-		btn_ok_skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-		btn_ok_skin->m_PressedOffset = Vector2(1,2);
-		btn_ok->m_Skin = btn_ok_skin;
-		dlg->InsertControl(btn_ok);
-
-		std::ofstream ostr("ui.xml");
-		boost::archive::polymorphic_xml_oarchive oa(ostr);
-		oa << boost::serialization::make_nvp("ui", dlg);
-
-		//DialogPtr dlg;
-		//std::ifstream istr("ui.xml");
-		//boost::archive::polymorphic_xml_iarchive ia(istr);
-		//ia >> boost::serialization::make_nvp("ui", dlg);
-
+		dlg->m_Skin->m_Image->m_Texture = m_Tex;
+		dlg->EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
 		DialogMgr::InsertDlg(dlg);
 
 		return S_OK;
+	}
+
+	void OnMouseClick(ControlEventArgs* args)
+	{
+		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(arg);
+		_ASSERT(mouse_arg);
+		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
+		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
+		m_Tex->UnlockRect();
 	}
 
 	virtual HRESULT OnResetDevice(
@@ -282,6 +304,8 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
+		m_Tex.reset();
+
 		m_font.Release();
 
 		RemoveAllDlg();
