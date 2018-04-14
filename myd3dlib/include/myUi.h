@@ -162,12 +162,27 @@ namespace my
 	class ControlEventArgs
 	{
 	public:
+		ControlEventArgs(void)
+		{
+		}
+
 		virtual ~ControlEventArgs(void)
 		{
 		}
 	};
 
 	typedef boost::function<void (ControlEventArgs *)> ControlEvent;
+
+	class MouseEventArgs : public ControlEventArgs
+	{
+	public:
+		Vector2 pt;
+
+		MouseEventArgs(const Vector2 & _pt)
+			: pt(_pt)
+		{
+		}
+	};
 
 	class Control;
 
@@ -202,9 +217,13 @@ namespace my
 
 		ControlSkinPtr m_Skin;
 
+		bool m_bPressed;
+
 		ControlEvent EventMouseEnter;
 
 		ControlEvent EventMouseLeave;
+
+		ControlEvent EventMouseClick;
 
 	public:
 		Control(void)
@@ -217,6 +236,7 @@ namespace my
 			, m_Size(100, 100)
 			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
 			, m_Parent(NULL)
+			, m_bPressed(false)
 		{
 		}
 
@@ -250,9 +270,9 @@ namespace my
 
 		virtual void OnFocusOut(void);
 
-		virtual void OnMouseEnter(void);
+		virtual void OnMouseEnter(const Vector2 & pt);
 
-		virtual void OnMouseLeave(void);
+		virtual void OnMouseLeave(const Vector2 & pt);
 
 		virtual void OnHotkey(void);
 
@@ -296,7 +316,7 @@ namespace my
 
 		void ReleaseCapture(void);
 
-		void SetMouseOver(void);
+		void SetMouseOver(const Vector2 & pt);
 
 		void ReleaseMouseOver(void);
 
@@ -405,16 +425,11 @@ namespace my
 	class Button : public Static
 	{
 	public:
-		bool m_bPressed;
-
 		D3DXCOLOR m_BlendColor;
-
-		ControlEvent EventClick;
 
 	public:
 		Button(void)
-			: m_bPressed(false)
-			, m_BlendColor(D3DCOLOR_ARGB(255,255,255,255))
+			: m_BlendColor(D3DCOLOR_ARGB(255,255,255,255))
 		{
 		}
 
@@ -422,7 +437,6 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
-			ar & BOOST_SERIALIZATION_NVP(m_bPressed);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);

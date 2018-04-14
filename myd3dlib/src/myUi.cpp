@@ -383,6 +383,7 @@ void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_Size);
 	ar >> BOOST_SERIALIZATION_NVP(m_Color);
 	ar >> BOOST_SERIALIZATION_NVP(m_Skin);
+
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
@@ -428,6 +429,39 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if (ContainsPoint(pt))
+			{
+				m_bPressed = true;
+				SetFocus();
+				SetCapture();
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if (m_bPressed)
+			{
+				ReleaseCapture();
+				m_bPressed = false;
+
+				if (ContainsPoint(pt))
+				{
+					if (EventMouseClick)
+					{
+						EventMouseClick(&MouseEventArgs(pt));
+					}
+				}
+				return true;
+			}
+			break;
+		}
+	}
 	return false;
 }
 
@@ -446,7 +480,7 @@ void Control::OnFocusOut(void)
 	m_bHasFocus = false;
 }
 
-void Control::OnMouseEnter(void)
+void Control::OnMouseEnter(const Vector2 & pt)
 {
 	if(m_bEnabled && m_bVisible)
 	{
@@ -454,12 +488,12 @@ void Control::OnMouseEnter(void)
 
 		if (EventMouseEnter)
 		{
-			EventMouseEnter(&ControlEventArgs());
+			EventMouseEnter(&MouseEventArgs(pt));
 		}
 	}
 }
 
-void Control::OnMouseLeave(void)
+void Control::OnMouseLeave(const Vector2 & pt)
 {
 	if(m_bEnabled && m_bVisible)
 	{
@@ -467,7 +501,7 @@ void Control::OnMouseLeave(void)
 
 		if (EventMouseLeave)
 		{
-			EventMouseLeave(&ControlEventArgs());
+			EventMouseLeave(&MouseEventArgs(pt));
 		}
 	}
 }
@@ -667,18 +701,18 @@ void Control::ReleaseCapture(void)
 	}
 }
 
-void Control::SetMouseOver(void)
+void Control::SetMouseOver(const Vector2 & pt)
 {
 	if (DialogMgr::getSingleton().s_MouseOverControl != this)
 	{
 		if (DialogMgr::getSingleton().s_MouseOverControl)
 		{
-			DialogMgr::getSingleton().s_MouseOverControl->OnMouseLeave();
+			DialogMgr::getSingleton().s_MouseOverControl->OnMouseLeave(pt);
 		}
 
 		DialogMgr::getSingleton().s_MouseOverControl = this;
 
-		OnMouseEnter();
+		OnMouseEnter(pt);
 	}
 }
 
@@ -686,7 +720,7 @@ void Control::ReleaseMouseOver(void)
 {
 	if (DialogMgr::getSingleton().s_MouseOverControl == this)
 	{
-		OnMouseLeave();
+		OnMouseLeave(Vector2(FLT_MAX, FLT_MAX));
 
 		DialogMgr::getSingleton().s_MouseOverControl = NULL;
 	}
@@ -808,9 +842,9 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					m_bPressed = false;
 
-					if(EventClick)
+					if (EventMouseClick)
 					{
-						EventClick(&ControlEventArgs());
+						EventMouseClick(&MouseEventArgs(Vector2(0, 0)));
 					}
 				}
 				return true;
@@ -823,38 +857,9 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
+	if (Control::HandleMouse(uMsg, pt, wParam, lParam))
 	{
-		switch(uMsg)
-		{
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONDBLCLK:
-			if(ContainsPoint(pt))
-			{
-				m_bPressed = true;
-				SetFocus();
-				SetCapture();
-				return true;
-			}
-			break;
-
-		case WM_LBUTTONUP:
-			if(m_bPressed)
-			{
-				ReleaseCapture();
-				m_bPressed = false;
-
-				if(ContainsPoint(pt))
-				{
-					if(EventClick)
-					{
-						EventClick(&ControlEventArgs());
-					}
-				}
-				return true;
-			}
-			break;
-		}
+		return true;
 	}
 	return false;
 }
@@ -868,9 +873,9 @@ void Button::OnHotkey(void)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if(EventClick)
+		if(EventMouseClick)
 		{
-			EventClick(&ControlEventArgs());
+			EventMouseClick(&MouseEventArgs(Vector2(0, 0)));
 		}
 	}
 }
@@ -1559,9 +1564,9 @@ bool ImeEditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool ImeEditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
+	if (EditBox::HandleMouse(uMsg, pt, wParam, lParam))
 	{
-		return EditBox::HandleMouse(uMsg, pt, wParam, lParam);
+		return true;
 	}
 	return false;
 }
@@ -2003,9 +2008,9 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				{
 					m_Checked = true;
 
-					if(EventClick)
+					if(EventMouseClick)
 					{
-						EventClick(&ControlEventArgs());
+						EventMouseClick(&MouseEventArgs(pt));
 					}
 				}
 				return true;
@@ -2695,7 +2700,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 							Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
 							if (ControlPtd)
 							{
-								ControlPtd->SetMouseOver();
+								ControlPtd->SetMouseOver(pt);
 
 								if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
 								{
@@ -2704,7 +2709,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 							}
 							else
 							{
-								(*dlg_iter)->SetMouseOver();
+								(*dlg_iter)->SetMouseOver(pt);
 							}
 
 							if((*dlg_iter)->HandleMouse(uMsg, pt, wParam, lParam))

@@ -434,7 +434,9 @@ static void ExportUI(lua_State * L)
 	[
 		def("ARGB", &ARGB)
 
-		, class_<my::ControlEventArgs, boost::shared_ptr<my::ControlEventArgs> >("ControlEventArgs")
+		, class_<my::ControlEventArgs>("ControlEventArgs")
+
+		, class_<my::MouseEventArgs, my::ControlEventArgs>("MouseEventArgs")
 
 		, class_<my::ControlEvent>("ControlEvent")
 
@@ -467,6 +469,7 @@ static void ExportUI(lua_State * L)
 			.def("FindControlRecurse", &my::Control::FindControlRecurse)
 			.def_readwrite("EventMouseEnter", &my::Control::EventMouseEnter)
 			.def_readwrite("EventMouseLeave", &my::Control::EventMouseLeave)
+			.def_readwrite("EventMouseClick", &my::Control::EventMouseClick)
 
 		, class_<my::Static, my::Control, boost::shared_ptr<my::Control> >("Static")
 			.def(constructor<>())
@@ -489,7 +492,6 @@ static void ExportUI(lua_State * L)
 
 		, class_<my::Button, my::Static, boost::shared_ptr<my::Control> >("Button")
 			.def(constructor<>())
-			.def_readwrite("EventClick", &my::Button::EventClick)
 			.def("SetHotkey", &my::Button::SetHotkey)
 
 		, class_<my::EditBoxSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("EditBoxSkin")
