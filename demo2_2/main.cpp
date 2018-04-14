@@ -251,10 +251,13 @@ public:
 
 	void OnMouseClick(ControlEventArgs* args)
 	{
-		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(arg);
+		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(args);
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
+		CPoint pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
+		DWORD * color = (DWORD *)((unsigned char *)lr.pBits + pt.x * sizeof(unsigned int) + pt.y * lr.Pitch);
+		*color = D3DCOLOR_ARGB(255, 255, 0, 0);
 		m_Tex->UnlockRect();
 	}
 
