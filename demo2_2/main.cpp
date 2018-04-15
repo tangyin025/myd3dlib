@@ -117,6 +117,88 @@ public:
 	}
 };
 
+template <typename T>
+class AStar
+{
+public:
+	std::set<int> open;
+	std::set<int> close;
+	std::map<int, float> gscore;
+	std::map<int, float> fscore;
+	std::map<int, int> from;
+	int width;
+	int height;
+	T * map;
+
+public:
+	AStar(int _width, int _height, T * _map)
+		: width(_width)
+		, height(_height)
+		, map(_map)
+	{
+	}
+
+	bool find(int start, int goal)
+	{
+		open.clear();
+		close.clear();
+		open.insert(start);
+
+		gscore[start] = 0;
+		fscore[start] = heuristic_cost_estimate(start, goal);
+
+		while (!open.empty())
+		{
+			int current = the_node_in_open_having_the_lowest_fScore_value();
+			if (current == goal)
+			{
+				return true;
+			}
+			open.erase(current);
+			close.insert(current);
+			std::vector<int> neighbors = get_neighbors();
+			std::vector<int>::const_iterator neighbor_iter = neighbors.begin();
+			for (; neighbor_iter != neighbors.end(); neighbor_iter++)
+			{
+				if (close.find(*neighbor_iter) != close.end())
+				{
+					continue;
+				}
+				float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
+				std::map<int, float>::iterator neighbor_gscore_iter = gscore.find(*neighbor_iter);
+				if (neighbor_gscore_iter != gscore.end() && tentative_gscore > neighbor_gscore_iter->second)
+				{
+					continue;
+				}
+				from[*neighbor_iter] = current;
+				gscore[*neighbor_iter] = tentative_gscore;
+				fscore[*neighbor_iter] = tentative_gscore + heuristic_cost_estimate(start, goal);
+			}
+		}
+		return false;
+	}
+
+	int the_node_in_open_having_the_lowest_fScore_value()
+	{
+		return *open.begin();
+	}
+
+	float heuristic_cost_estimate(int start, int goal)
+	{
+		return 0;
+	}
+
+	std::vector<int> get_neighbors(int node)
+	{
+		return std::vector<int>();
+	}
+
+	float dist_between(int start, int goal)
+	{
+		return 0;
+	}
+};
+
 class Demo
 	: public DxutApp
 	, public ResourceMgr
