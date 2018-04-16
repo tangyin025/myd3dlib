@@ -142,8 +142,8 @@ public:
 	{
 		open.clear();
 		close.clear();
-		open.insert(start);
 
+		open.insert(start);
 		gscore[start] = 0;
 		fscore[start] = heuristic_cost_estimate(start, goal);
 
@@ -164,15 +164,21 @@ public:
 				{
 					continue;
 				}
+				if (open.find(*neighbor_iter) == open.end())
+				{
+					open.insert(*neighbor_iter);
+					_ASSERT(gscore.find(*neighbor_iter) == gscore.end());
+					gscore[*neighbor_iter] = FLT_MAX;
+					fscore[*neighbor_iter] = FLT_MAX;
+				}
 				float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
-				std::map<int, float>::iterator neighbor_gscore_iter = gscore.find(*neighbor_iter);
-				if (neighbor_gscore_iter != gscore.end() && tentative_gscore > neighbor_gscore_iter->second)
+				if (tentative_gscore > gscore[*neighbor_iter])
 				{
 					continue;
 				}
-				from[*neighbor_iter] = current;
 				gscore[*neighbor_iter] = tentative_gscore;
 				fscore[*neighbor_iter] = tentative_gscore + heuristic_cost_estimate(start, goal);
+				from[*neighbor_iter] = current;
 			}
 		}
 		return false;
