@@ -169,7 +169,6 @@ public:
 					open.insert(*neighbor_iter);
 					_ASSERT(gscore.find(*neighbor_iter) == gscore.end());
 					gscore[*neighbor_iter] = FLT_MAX;
-					fscore[*neighbor_iter] = FLT_MAX;
 				}
 				float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
 				if (tentative_gscore > gscore[*neighbor_iter])
@@ -177,7 +176,7 @@ public:
 					continue;
 				}
 				gscore[*neighbor_iter] = tentative_gscore;
-				fscore[*neighbor_iter] = tentative_gscore + heuristic_cost_estimate(start, goal);
+				fscore[*neighbor_iter] = gscore[*neighbor_iter] + heuristic_cost_estimate(*neighbor_iter, goal);
 				from[*neighbor_iter] = current;
 			}
 		}
