@@ -6,8 +6,6 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/multi_array.hpp>
 #include <fstream>
 
@@ -117,131 +115,6 @@ public:
 				m_UIEffect->EndPass();
 			}
 		}
-	}
-};
-
-namespace boost
-{
-	static size_t hash_value(const CPoint & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.x);
-		boost::hash_combine(seed, key.y);
-		return seed;
-	}
-}
-
-template <typename T>
-class AStar
-{
-public:
-	boost::unordered_set<CPoint> open;
-	boost::unordered_set<CPoint> close;
-	boost::unordered_map<CPoint, float> gscore;
-	boost::unordered_map<CPoint, float> fscore;
-	boost::unordered_map<CPoint, CPoint> from;
-	boost::multi_array_ref<T, 2> map;
-
-public:
-	AStar(int _height, int _pitch, T * _map)
-		: map(_map, boost::extents[_height][_pitch / sizeof(T)])
-	{
-	}
-
-	bool find(const CPoint & start, const CPoint & goal)
-	{
-		open.clear();
-		close.clear();
-
-		open.insert(start);
-		gscore[start] = 0;
-		fscore[start] = heuristic_cost_estimate(start, goal);
-
-		while (!open.empty())
-		{
-			CPoint current = the_node_in_open_having_the_lowest_fScore_value();
-			if (current == goal)
-			{
-				return true;
-			}
-			open.erase(current);
-			close.insert(current);
-			std::vector<CPoint> neighbors = get_neighbors(current);
-			std::vector<CPoint>::const_iterator neighbor_iter = neighbors.begin();
-			for (; neighbor_iter != neighbors.end(); neighbor_iter++)
-			{
-				if (close.find(*neighbor_iter) != close.end())
-				{
-					continue;
-				}
-				if (open.find(*neighbor_iter) == open.end())
-				{
-					open.insert(*neighbor_iter);
-					_ASSERT(gscore.find(*neighbor_iter) == gscore.end());
-					gscore[*neighbor_iter] = FLT_MAX;
-				}
-				float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
-				if (tentative_gscore > gscore[*neighbor_iter])
-				{
-					continue;
-				}
-				gscore[*neighbor_iter] = tentative_gscore;
-				fscore[*neighbor_iter] = gscore[*neighbor_iter] + heuristic_cost_estimate(*neighbor_iter, goal);
-				from[*neighbor_iter] = current;
-			}
-		}
-		return false;
-	}
-
-	CPoint the_node_in_open_having_the_lowest_fScore_value()
-	{
-		float lowest_score = FLT_MAX;
-		boost::unordered_set<CPoint>::const_iterator ret = open.end();
-		boost::unordered_set<CPoint>::const_iterator iter = open.begin();
-		for (; iter != open.end(); iter++)
-		{
-			boost::unordered_map<CPoint, float>::const_iterator fscore_iter = fscore.find(*iter);
-			_ASSERT(fscore_iter != fscore.end());
-			if (fscore_iter->second < lowest_score)
-			{
-				lowest_score = fscore_iter->second;
-				ret = iter;
-			}
-		}
-		_ASSERT(ret != open.end());
-		return *ret;
-	}
-
-	float heuristic_cost_estimate(const CPoint & start, const CPoint & goal)
-	{
-		return abs(start.x - goal.x) + abs(start.y - goal.y);
-	}
-
-	std::vector<CPoint> get_neighbors(const CPoint & node)
-	{
-		std::vector<CPoint> ret;
-		int i = std::max<int>(node.x - 1, 0);
-		for (; i <= std::min<int>(node.x + 1, map.shape()[1] - 1); i++)
-		{
-			int j = std::max<int>(node.y - 1, 0);
-			for (; j <= std::min<int>(node.y + 1, map.shape()[0] - 1); j++)
-			{
-				if (i != node.x || j != node.y)
-				{
-					boost::multi_array_ref<BYTE, 1> color((BYTE*)&map[j][i], boost::extents[4]);
-					if (color[0] > 0 || color[1] > 0 || color[2] > 0)
-					{
-						ret.push_back(CPoint(i, j));
-					}
-				}
-			}
-		}
-		return ret;
-	}
-
-	float dist_between(const CPoint & start, const CPoint & goal)
-	{
-		return Vector2(start.x - goal.x, start.y - goal.y).magnitudeSq();
 	}
 };
 
@@ -379,22 +252,22 @@ public:
 
 	void OnMouseClick(ControlEventArgs* args)
 	{
-		static CPoint last_pt(0, 0);
+		static Vector2Int last_pt(0, 0);
 		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(args);
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
-		CPoint pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
-		AStar<DWORD> searcher(100, lr.Pitch, (DWORD*)lr.pBits);
+		Vector2Int pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
+		my::AStar2D<DWORD> searcher(100, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
 		bool ret = searcher.find(last_pt, pt);
 		if (ret)
 		{
 			DWORD color = D3DCOLOR_ARGB(255, my::Random<int>(1, 255), my::Random<int>(1, 255), my::Random<int>(1, 255));
-			searcher.map[pt.y][pt.x] = color;
-			boost::unordered_map<CPoint, CPoint>::const_iterator from_iter = searcher.from.find(pt);
+			const_cast<DWORD&>(searcher.map[pt.y][pt.x]) = color;
+			boost::unordered_map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.find(pt);
 			for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
 			{
-				searcher.map[from_iter->second.y][from_iter->second.x] = color;
+				const_cast<DWORD&>(searcher.map[from_iter->second.y][from_iter->second.x]) = color;
 			}
 			last_pt = pt;
 		}

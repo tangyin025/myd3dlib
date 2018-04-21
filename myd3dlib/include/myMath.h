@@ -2,6 +2,9 @@
 
 #include <d3dx9math.h>
 #include <boost/serialization/nvp.hpp>
+#include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/multi_array.hpp>
 
 #define EPSILON_E3			(1.0e-3)
 #define EPSILON_E4			(1.0e-4)
@@ -322,6 +325,172 @@ namespace my
 		static const Vector2 unitX;
 
 		static const Vector2 unitY;
+	};
+
+	class Vector2Int
+	{
+	public:
+		int x, y;
+
+	public:
+		Vector2Int(void)
+			//: x(0)
+			//, y(0)
+		{
+		}
+
+		Vector2Int(int _v)
+			: x(_v)
+			, y(_v)
+		{
+		}
+
+		Vector2Int(int _x, int _y)
+			: x(_x)
+			, y(_y)
+		{
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(x);
+			ar & BOOST_SERIALIZATION_NVP(y);
+		}
+
+	public:
+		int & operator [](size_t i)
+		{
+			return Subscribe<int>(*this, i);
+		}
+
+		const int & operator [](size_t i) const
+		{
+			return Subscribe<int>(*this, i);
+		}
+
+		bool operator ==(const Vector2Int & rhs) const
+		{
+			return x == rhs.x
+				&& y == rhs.y;
+		}
+
+		bool operator !=(const Vector2Int & rhs) const
+		{
+			return !operator ==(rhs);
+		}
+
+	public:
+		Vector2Int operator - (void) const
+		{
+			return Vector2Int(-x, -y);
+		}
+
+		Vector2Int operator + (const Vector2Int & rhs) const
+		{
+			return Vector2Int(x + rhs.x, y + rhs.y);
+		}
+
+		Vector2Int operator + (int scaler) const
+		{
+			return Vector2Int(x + scaler, y + scaler);
+		}
+
+		Vector2Int operator - (const Vector2Int & rhs) const
+		{
+			return Vector2Int(x - rhs.x, y - rhs.y);
+		}
+
+		Vector2Int operator - (int scaler) const
+		{
+			return Vector2Int(x - scaler, y - scaler);
+		}
+
+		Vector2Int operator * (const Vector2Int & rhs) const
+		{
+			return Vector2Int(x * rhs.x, y * rhs.y);
+		}
+
+		Vector2Int operator * (int scaler) const
+		{
+			return Vector2Int(x * scaler, y * scaler);
+		}
+
+		Vector2Int operator / (const Vector2Int & rhs) const
+		{
+			return Vector2Int(x / rhs.x, y / rhs.y);
+		}
+
+		Vector2Int operator / (int scaler) const
+		{
+			int invScaler = 1 / scaler;
+
+			return Vector2Int(x * invScaler, y * invScaler);
+		}
+
+		Vector2Int & operator += (const Vector2Int & rhs)
+		{
+			x += rhs.x;
+			y += rhs.y;
+			return *this;
+		}
+
+		Vector2Int & operator += (int scaler)
+		{
+			x += scaler;
+			y += scaler;
+			return *this;
+		}
+
+		Vector2Int & operator -= (const Vector2Int & rhs)
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			return *this;
+		}
+
+		Vector2Int & operator -= (int scaler)
+		{
+			x -= scaler;
+			y -= scaler;
+			return *this;
+		}
+
+		Vector2Int & operator *= (const Vector2Int & rhs)
+		{
+			x *= rhs.x;
+			y *= rhs.y;
+			return *this;
+		}
+
+		Vector2Int & operator *= (int scaler)
+		{
+			x *= scaler;
+			y *= scaler;
+			return *this;
+		}
+
+		Vector2Int & operator /= (const Vector2Int & rhs)
+		{
+			x /= rhs.x;
+			y /= rhs.y;
+			return *this;
+		}
+
+		Vector2Int & operator /= (int scaler)
+		{
+			int invScaler = 1 / scaler;
+			x *= invScaler;
+			y *= invScaler;
+			return *this;
+		}
+
+	public:
+		static const Vector2Int zero;
+
+		static const Vector2Int unitX;
+
+		static const Vector2Int unitY;
 	};
 
 	class Vector3
@@ -2901,4 +3070,144 @@ namespace my
 
 		AABB & transformSelf(const Matrix4 & m);
 	};
+
+	template <typename Index>
+	class AStar
+	{
+	public:
+		boost::unordered_set<Index> open;
+		boost::unordered_set<Index> close;
+		boost::unordered_map<Index, float> gscore;
+		boost::unordered_map<Index, float> fscore;
+		boost::unordered_map<Index, Index> from;
+
+	public:
+		bool find(const Index & start, const Index & goal)
+		{
+			open.clear();
+			close.clear();
+
+			open.insert(start);
+			gscore[start] = 0;
+			fscore[start] = heuristic_cost_estimate(start, goal);
+
+			while (!open.empty())
+			{
+				Index current = the_node_in_open_having_the_lowest_fScore_value();
+				if (current == goal)
+				{
+					return true;
+				}
+				open.erase(current);
+				close.insert(current);
+				std::vector<Index> neighbors = get_neighbors(current);
+				std::vector<Index>::const_iterator neighbor_iter = neighbors.begin();
+				for (; neighbor_iter != neighbors.end(); neighbor_iter++)
+				{
+					if (close.find(*neighbor_iter) != close.end())
+					{
+						continue;
+					}
+					if (open.find(*neighbor_iter) == open.end())
+					{
+						open.insert(*neighbor_iter);
+						_ASSERT(gscore.find(*neighbor_iter) == gscore.end());
+						gscore[*neighbor_iter] = FLT_MAX;
+					}
+					float tentative_gscore = gscore[current] + dist_between(current, *neighbor_iter);
+					if (tentative_gscore > gscore[*neighbor_iter])
+					{
+						continue;
+					}
+					gscore[*neighbor_iter] = tentative_gscore;
+					fscore[*neighbor_iter] = gscore[*neighbor_iter] + heuristic_cost_estimate(*neighbor_iter, goal);
+					from[*neighbor_iter] = current;
+				}
+			}
+			return false;
+		}
+
+		Index the_node_in_open_having_the_lowest_fScore_value()
+		{
+			float lowest_score = FLT_MAX;
+			boost::unordered_set<Index>::const_iterator ret = open.end();
+			boost::unordered_set<Index>::const_iterator iter = open.begin();
+			for (; iter != open.end(); iter++)
+			{
+				boost::unordered_map<Index, float>::const_iterator fscore_iter = fscore.find(*iter);
+				_ASSERT(fscore_iter != fscore.end());
+				if (fscore_iter->second < lowest_score)
+				{
+					lowest_score = fscore_iter->second;
+					ret = iter;
+				}
+			}
+			_ASSERT(ret != open.end());
+			return *ret;
+		}
+
+		virtual float heuristic_cost_estimate(const Index & start, const Index & goal) = 0;
+
+		virtual std::vector<Index> get_neighbors(const Index & pt) = 0;
+
+		virtual float dist_between(const Index & start, const Index & goal) = 0;
+	};
+
+	template <typename T>
+	class AStar2D : public AStar < Vector2Int >
+	{
+	public:
+		boost::const_multi_array_ref<T, 2> map;
+
+		T obstacle;
+
+	public:
+		AStar2D(int height, int pitch, T * pBits, T _obstacle)
+			: map(pBits, boost::extents[height][pitch / sizeof(T)])
+			, obstacle(_obstacle)
+		{
+		}
+
+		float heuristic_cost_estimate(const Vector2Int & start, const Vector2Int & goal)
+		{
+			return abs(start.x - goal.x) + abs(start.y - goal.y);
+		}
+
+		std::vector<Vector2Int> get_neighbors(const Vector2Int & pt)
+		{
+			std::vector<Vector2Int> ret;
+			int i = std::max<int>(pt.x - 1, 0);
+			for (; i <= std::min<int>(pt.x + 1, map.shape()[1] - 1); i++)
+			{
+				int j = std::max<int>(pt.y - 1, 0);
+				for (; j <= std::min<int>(pt.y + 1, map.shape()[0] - 1); j++)
+				{
+					if (i != pt.x || j != pt.y)
+					{
+						if (map[j][i] != obstacle)
+						{
+							ret.push_back(Vector2Int(i, j));
+						}
+					}
+				}
+			}
+			return ret;
+		}
+
+		float dist_between(const Vector2Int & start, const Vector2Int & goal)
+		{
+			return Vector2(start.x - goal.x, start.y - goal.y).magnitudeSq();
+		}
+	};
+}
+
+namespace boost
+{
+	static size_t hash_value(const my::Vector2Int & key)
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, key.x);
+		boost::hash_combine(seed, key.y);
+		return seed;
+	}
 }
