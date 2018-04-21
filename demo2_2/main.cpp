@@ -253,6 +253,9 @@ public:
 	void OnMouseClick(ControlEventArgs* args)
 	{
 		static Vector2Int last_pt(0, 0);
+		m_Tex->OnDestroyDevice();
+		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
+
 		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(args);
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
@@ -262,9 +265,15 @@ public:
 		bool ret = searcher.find(last_pt, pt);
 		if (ret)
 		{
-			DWORD color = D3DCOLOR_ARGB(255, my::Random<int>(1, 255), my::Random<int>(1, 255), my::Random<int>(1, 255));
+			DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
+			boost::unordered_map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.begin();
+			for (; from_iter != searcher.from.end(); from_iter++)
+			{
+				const_cast<DWORD&>(searcher.map[from_iter->second.y][from_iter->second.x]) = hover;
+			}
+			DWORD color = D3DCOLOR_ARGB(255, 255, 0, 0);
 			const_cast<DWORD&>(searcher.map[pt.y][pt.x]) = color;
-			boost::unordered_map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.find(pt);
+			from_iter = searcher.from.find(pt);
 			for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
 			{
 				const_cast<DWORD&>(searcher.map[from_iter->second.y][from_iter->second.x]) = color;
