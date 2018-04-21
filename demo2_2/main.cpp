@@ -6,6 +6,9 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/multi_array.hpp>
 #include <fstream>
 
 using namespace my;
@@ -117,28 +120,35 @@ public:
 	}
 };
 
+namespace boost
+{
+	static size_t hash_value(const CPoint & key)
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, key.x);
+		boost::hash_combine(seed, key.y);
+		return seed;
+	}
+}
+
 template <typename T>
 class AStar
 {
 public:
-	std::set<int> open;
-	std::set<int> close;
-	std::map<int, float> gscore;
-	std::map<int, float> fscore;
-	std::map<int, int> from;
-	int width;
-	int height;
-	T * map;
+	boost::unordered_set<CPoint> open;
+	boost::unordered_set<CPoint> close;
+	boost::unordered_map<CPoint, float> gscore;
+	boost::unordered_map<CPoint, float> fscore;
+	boost::unordered_map<CPoint, CPoint> from;
+	boost::multi_array_ref<T, 2> map;
 
 public:
-	AStar(int _width, int _height, T * _map)
-		: width(_width)
-		, height(_height)
-		, map(_map)
+	AStar(int _height, int _pitch, T * _map)
+		: map(_map, boost::extents[_height][_pitch / sizeof(T)])
 	{
 	}
 
-	bool find(int start, int goal)
+	bool find(const CPoint & start, const CPoint & goal)
 	{
 		open.clear();
 		close.clear();
@@ -149,15 +159,15 @@ public:
 
 		while (!open.empty())
 		{
-			int current = the_node_in_open_having_the_lowest_fScore_value();
+			CPoint current = the_node_in_open_having_the_lowest_fScore_value();
 			if (current == goal)
 			{
 				return true;
 			}
 			open.erase(current);
 			close.insert(current);
-			std::vector<int> neighbors = get_neighbors();
-			std::vector<int>::const_iterator neighbor_iter = neighbors.begin();
+			std::vector<CPoint> neighbors = get_neighbors(current);
+			std::vector<CPoint>::const_iterator neighbor_iter = neighbors.begin();
 			for (; neighbor_iter != neighbors.end(); neighbor_iter++)
 			{
 				if (close.find(*neighbor_iter) != close.end())
@@ -183,24 +193,55 @@ public:
 		return false;
 	}
 
-	int the_node_in_open_having_the_lowest_fScore_value()
+	CPoint the_node_in_open_having_the_lowest_fScore_value()
 	{
-		return *open.begin();
+		float lowest_score = FLT_MAX;
+		boost::unordered_set<CPoint>::const_iterator ret = open.end();
+		boost::unordered_set<CPoint>::const_iterator iter = open.begin();
+		for (; iter != open.end(); iter++)
+		{
+			boost::unordered_map<CPoint, float>::const_iterator fscore_iter = fscore.find(*iter);
+			_ASSERT(fscore_iter != fscore.end());
+			if (fscore_iter->second < lowest_score)
+			{
+				lowest_score = fscore_iter->second;
+				ret = iter;
+			}
+		}
+		_ASSERT(ret != open.end());
+		return *ret;
 	}
 
-	float heuristic_cost_estimate(int start, int goal)
+	float heuristic_cost_estimate(const CPoint & start, const CPoint & goal)
 	{
-		return 0;
+		return abs(start.x - goal.x) + abs(start.y - goal.y);
 	}
 
-	std::vector<int> get_neighbors(int node)
+	std::vector<CPoint> get_neighbors(const CPoint & node)
 	{
-		return std::vector<int>();
+		std::vector<CPoint> ret;
+		int i = std::max<int>(node.x - 1, 0);
+		for (; i <= std::min<int>(node.x + 1, map.shape()[1] - 1); i++)
+		{
+			int j = std::max<int>(node.y - 1, 0);
+			for (; j <= std::min<int>(node.y + 1, map.shape()[0] - 1); j++)
+			{
+				if (i != node.x || j != node.y)
+				{
+					boost::multi_array_ref<BYTE, 1> color((BYTE*)&map[j][i], boost::extents[4]);
+					if (color[0] > 0 || color[1] > 0 || color[2] > 0)
+					{
+						ret.push_back(CPoint(i, j));
+					}
+				}
+			}
+		}
+		return ret;
 	}
 
-	float dist_between(int start, int goal)
+	float dist_between(const CPoint & start, const CPoint & goal)
 	{
-		return 0;
+		return Vector2(start.x - goal.x, start.y - goal.y).magnitudeSq();
 	}
 };
 
@@ -338,13 +379,25 @@ public:
 
 	void OnMouseClick(ControlEventArgs* args)
 	{
+		static CPoint last_pt(0, 0);
 		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(args);
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
 		CPoint pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
-		DWORD * color = (DWORD *)((unsigned char *)lr.pBits + pt.x * sizeof(unsigned int) + pt.y * lr.Pitch);
-		*color = D3DCOLOR_ARGB(255, 255, 0, 0);
+		AStar<DWORD> searcher(100, lr.Pitch, (DWORD*)lr.pBits);
+		bool ret = searcher.find(last_pt, pt);
+		if (ret)
+		{
+			DWORD color = D3DCOLOR_ARGB(255, my::Random<int>(1, 255), my::Random<int>(1, 255), my::Random<int>(1, 255));
+			searcher.map[pt.y][pt.x] = color;
+			boost::unordered_map<CPoint, CPoint>::const_iterator from_iter = searcher.from.find(pt);
+			for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
+			{
+				searcher.map[from_iter->second.y][from_iter->second.x] = color;
+			}
+			last_pt = pt;
+		}
 		m_Tex->UnlockRect();
 	}
 

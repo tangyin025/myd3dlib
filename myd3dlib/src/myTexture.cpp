@@ -2,6 +2,7 @@
 #include "myTexture.h"
 #include "myException.h"
 #include "myDxutApp.h"
+#include "libc.h"
 
 using namespace my;
 
@@ -138,7 +139,7 @@ void Texture2D::CreateTexture(
 		Width, Height, MipLevels, Usage, Format, Pool, &pTexture, NULL);
 	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hr);
+		THROW_CUSEXCEPTION(str_printf("CreateTexture failed: %d, %d, %u", Width, Height, hr));
 	}
 
 	Create(pTexture);
@@ -157,7 +158,7 @@ void Texture2D::CreateAdjustedTexture(
 		Width, Height, MipLevels, Usage, Format, Pool, &pTexture);
 	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hr);
+		THROW_CUSEXCEPTION(str_printf("CreateAdjustedTexture failed: %d, %d, %u", Width, Height, hr));
 	}
 
 	Create(pTexture);
@@ -182,7 +183,7 @@ void Texture2D::CreateTextureFromFile(
 		pSrcFile, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
 	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hr);
+		THROW_CUSEXCEPTION(str_printf("CreateTextureFromFile failed: %S, %d, %d, %u", pSrcFile, Width, Height, hr));
 	}
 
 	Create(pTexture);
@@ -208,7 +209,7 @@ void Texture2D::CreateTextureFromFileInMemory(
 		pSrcData, SrcDataSize, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
 	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hr);
+		THROW_CUSEXCEPTION(str_printf("D3DXCreateTextureFromFileInMemoryEx failed: %p, %d, %d, %d, %u", pSrcData, SrcDataSize, Width, Height, hr));
 	}
 
 	Create(pTexture);
