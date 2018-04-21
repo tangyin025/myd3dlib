@@ -3071,18 +3071,26 @@ namespace my
 		AABB & transformSelf(const Matrix4 & m);
 	};
 
-	template <typename Index>
+	template <typename T>
 	class AStar
 	{
 	public:
-		boost::unordered_set<Index> open;
-		boost::unordered_set<Index> close;
-		boost::unordered_map<Index, float> gscore;
-		boost::unordered_map<Index, float> fscore;
-		boost::unordered_map<Index, Index> from;
+		boost::unordered_set<Vector2Int> open;
+		boost::unordered_set<Vector2Int> close;
+		boost::unordered_map<Vector2Int, float> gscore;
+		boost::unordered_map<Vector2Int, float> fscore;
+		boost::unordered_map<Vector2Int, Vector2Int> from;
+		boost::const_multi_array_ref<T, 2> map;
+		T obstacle;
 
 	public:
-		bool find(const Index & start, const Index & goal)
+		AStar(int height, int pitch, T * pBits, T _obstacle)
+			: map(pBits, boost::extents[height][pitch / sizeof(T)])
+			, obstacle(_obstacle)
+		{
+		}
+
+		bool find(const Vector2Int & start, const Vector2Int & goal)
 		{
 			open.clear();
 			close.clear();
@@ -3093,15 +3101,15 @@ namespace my
 
 			while (!open.empty())
 			{
-				Index current = the_node_in_open_having_the_lowest_fScore_value();
+				Vector2Int current = the_node_in_open_having_the_lowest_fScore_value();
 				if (current == goal)
 				{
 					return true;
 				}
 				open.erase(current);
 				close.insert(current);
-				std::vector<Index> neighbors = get_neighbors(current);
-				std::vector<Index>::const_iterator neighbor_iter = neighbors.begin();
+				std::vector<Vector2Int> neighbors = get_neighbors(current);
+				std::vector<Vector2Int>::const_iterator neighbor_iter = neighbors.begin();
 				for (; neighbor_iter != neighbors.end(); neighbor_iter++)
 				{
 					if (close.find(*neighbor_iter) != close.end())
@@ -3127,14 +3135,14 @@ namespace my
 			return false;
 		}
 
-		Index the_node_in_open_having_the_lowest_fScore_value()
+		Vector2Int the_node_in_open_having_the_lowest_fScore_value(void)
 		{
 			float lowest_score = FLT_MAX;
-			boost::unordered_set<Index>::const_iterator ret = open.end();
-			boost::unordered_set<Index>::const_iterator iter = open.begin();
+			boost::unordered_set<Vector2Int>::const_iterator ret = open.end();
+			boost::unordered_set<Vector2Int>::const_iterator iter = open.begin();
 			for (; iter != open.end(); iter++)
 			{
-				boost::unordered_map<Index, float>::const_iterator fscore_iter = fscore.find(*iter);
+				boost::unordered_map<Vector2Int, float>::const_iterator fscore_iter = fscore.find(*iter);
 				_ASSERT(fscore_iter != fscore.end());
 				if (fscore_iter->second < lowest_score)
 				{
@@ -3144,28 +3152,6 @@ namespace my
 			}
 			_ASSERT(ret != open.end());
 			return *ret;
-		}
-
-		virtual float heuristic_cost_estimate(const Index & start, const Index & goal) = 0;
-
-		virtual std::vector<Index> get_neighbors(const Index & pt) = 0;
-
-		virtual float dist_between(const Index & start, const Index & goal) = 0;
-	};
-
-	template <typename T>
-	class AStar2D : public AStar < Vector2Int >
-	{
-	public:
-		boost::const_multi_array_ref<T, 2> map;
-
-		T obstacle;
-
-	public:
-		AStar2D(int height, int pitch, T * pBits, T _obstacle)
-			: map(pBits, boost::extents[height][pitch / sizeof(T)])
-			, obstacle(_obstacle)
-		{
 		}
 
 		float heuristic_cost_estimate(const Vector2Int & start, const Vector2Int & goal)
