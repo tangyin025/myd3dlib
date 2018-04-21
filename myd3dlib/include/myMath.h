@@ -3196,7 +3196,15 @@ namespace my
 
 		float dist_between(const Vector2Int & start, const Vector2Int & goal)
 		{
-			return Vector2(start.x - goal.x, start.y - goal.y).magnitudeSq();
+			const float Dist[3][3] =
+			{
+				{ 1.4f, 1.0f, 1.4f },
+				{ 1.0f, 1.0f, 1.0f },
+				{ 1.4f, 1.0f, 1.4f },
+			};
+			_ASSERT(abs(goal.x - start.x) < 2);
+			_ASSERT(abs(goal.y - start.y) < 2);
+			return Dist[goal.y - start.y + 1][goal.x - start.x + 1];
 		}
 	};
 }
