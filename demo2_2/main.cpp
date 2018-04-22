@@ -269,14 +269,14 @@ public:
 			boost::unordered_map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.begin();
 			for (; from_iter != searcher.from.end(); from_iter++)
 			{
-				const_cast<DWORD&>(searcher.map[from_iter->second.y][from_iter->second.x]) = hover;
+				searcher.map[from_iter->second.y][from_iter->second.x] = hover;
 			}
 			DWORD color = D3DCOLOR_ARGB(255, 255, 0, 0);
-			const_cast<DWORD&>(searcher.map[pt.y][pt.x]) = color;
+			searcher.map[pt.y][pt.x] = color;
 			from_iter = searcher.from.find(pt);
 			for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
 			{
-				const_cast<DWORD&>(searcher.map[from_iter->second.y][from_iter->second.x]) = color;
+				searcher.map[from_iter->second.y][from_iter->second.x] = color;
 			}
 			last_pt = pt;
 		}

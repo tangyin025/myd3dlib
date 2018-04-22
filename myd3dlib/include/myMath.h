@@ -3080,7 +3080,7 @@ namespace my
 		boost::unordered_map<Vector2Int, float> gscore;
 		boost::unordered_map<Vector2Int, float> fscore;
 		boost::unordered_map<Vector2Int, Vector2Int> from;
-		boost::const_multi_array_ref<T, 2> map;
+		boost::multi_array_ref<T, 2> map;
 		T obstacle;
 
 	public:
@@ -3090,10 +3090,18 @@ namespace my
 		{
 		}
 
-		bool find(const Vector2Int & start, const Vector2Int & goal)
+		void cleanup(void)
 		{
 			open.clear();
 			close.clear();
+			gscore.clear();
+			fscore.clear();
+			from.clear();
+		}
+
+		bool find(const Vector2Int & start, const Vector2Int & goal)
+		{
+			cleanup();
 
 			open.insert(start);
 			gscore[start] = 0;
