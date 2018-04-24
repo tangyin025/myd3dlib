@@ -266,7 +266,7 @@ public:
 		if (ret)
 		{
 			DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
-			boost::unordered_map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.begin();
+			std::map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.begin();
 			for (; from_iter != searcher.from.end(); from_iter++)
 			{
 				searcher.map[from_iter->second.y][from_iter->second.x] = hover;

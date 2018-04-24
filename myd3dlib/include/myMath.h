@@ -1,9 +1,9 @@
 #pragma once
 
 #include <d3dx9math.h>
+#include <set>
+#include <map>
 #include <boost/serialization/nvp.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/multi_array.hpp>
 
 #define EPSILON_E3			(1.0e-3)
@@ -378,6 +378,21 @@ namespace my
 		bool operator !=(const Vector2Int & rhs) const
 		{
 			return !operator ==(rhs);
+		}
+
+		bool operator <(const Vector2Int & rhs) const
+		{
+			if (x < rhs.x)
+			{
+				return true;
+			}
+
+			if (x == rhs.x)
+			{
+				return y < rhs.y;
+			}
+
+			return false;
 		}
 
 	public:
@@ -3075,11 +3090,11 @@ namespace my
 	class AStar
 	{
 	public:
-		boost::unordered_set<Vector2Int> open;
-		boost::unordered_set<Vector2Int> close;
-		boost::unordered_map<Vector2Int, float> gscore;
-		boost::unordered_map<Vector2Int, float> fscore;
-		boost::unordered_map<Vector2Int, Vector2Int> from;
+		std::set<Vector2Int> open;
+		std::set<Vector2Int> close;
+		std::map<Vector2Int, float> gscore;
+		std::map<Vector2Int, float> fscore;
+		std::map<Vector2Int, Vector2Int> from;
 		boost::multi_array_ref<T, 2> map;
 		T obstacle;
 
@@ -3146,11 +3161,11 @@ namespace my
 		Vector2Int the_node_in_open_having_the_lowest_fScore_value(void)
 		{
 			float lowest_score = FLT_MAX;
-			boost::unordered_set<Vector2Int>::const_iterator ret = open.end();
-			boost::unordered_set<Vector2Int>::const_iterator iter = open.begin();
+			std::set<Vector2Int>::const_iterator ret = open.end();
+			std::set<Vector2Int>::const_iterator iter = open.begin();
 			for (; iter != open.end(); iter++)
 			{
-				boost::unordered_map<Vector2Int, float>::const_iterator fscore_iter = fscore.find(*iter);
+				std::map<Vector2Int, float>::const_iterator fscore_iter = fscore.find(*iter);
 				_ASSERT(fscore_iter != fscore.end());
 				if (fscore_iter->second < lowest_score)
 				{
@@ -3201,15 +3216,4 @@ namespace my
 			return Dist[goal.y - start.y + 1][goal.x - start.x + 1];
 		}
 	};
-}
-
-namespace boost
-{
-	static size_t hash_value(const my::Vector2Int & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.x);
-		boost::hash_combine(seed, key.y);
-		return seed;
-	}
 }
