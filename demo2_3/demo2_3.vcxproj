@@ -127,6 +127,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="LuaExtension.h" />
     <ClInclude Include="PlayerController.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Net\Socket.h" />
     <ClInclude Include="Net\SocketAPI.h" />
@@ -169,6 +170,12 @@
     <ProjectReference Include="..\zziplib\scripts\zziplib.vcxproj">
       <Project>{5d10d16e-e3aa-4430-83db-4a4fbb9a201d}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="demo2_3.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

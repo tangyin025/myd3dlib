@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "../myd3dbox/Component/Terrain.h"
+#include "resource.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -422,8 +423,6 @@ HRESULT Game::OnCreateDevice(
 
 	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
 
-	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
-
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
 	lua_setglobal(m_State, "print");
@@ -446,8 +445,9 @@ HRESULT Game::OnCreateDevice(
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
 			.def("RemoveAllTimer", &Game::RemoveAllTimer)
+			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
-			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
+			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)
 			.def_readwrite("SkyLightDiffuse", &Game::m_SkyLightDiffuse)
 			.def_readwrite("SkyLightAmbient", &Game::m_SkyLightAmbient)
 			.def_readwrite("WireFrame", &Game::m_WireFrame)
@@ -568,8 +568,6 @@ void Game::OnDestroyDevice(void)
 	m_Player.reset();
 
 	m_Camera.reset();
-
-	m_SkyLightCam.reset();
 
 	m_Root.ClearAllActor();
 
@@ -750,7 +748,14 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	if(m_Console
+	if (uMsg == ID_MAIN_TOGGLEREF)
+	{
+		ToggleREF();
+		*pbNoFurtherProcessing = true;
+		return 0;
+	}
+
+	if (m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
 		m_Console->SetVisible(!m_Console->GetVisible());

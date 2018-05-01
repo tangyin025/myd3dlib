@@ -520,8 +520,6 @@ void ResourceMgr::OnDestroyDevice(void)
 	m_Thread.CloseThread();
 
 	m_IORequestList.clear();
-
-	m_DirList.clear();
 }
 
 HRESULT ResourceMgr::Open(

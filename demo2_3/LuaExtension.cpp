@@ -844,6 +844,9 @@ static void ExportDevice(lua_State * L)
 			.def("GetDeviceInfo", &CD3D9Enumeration::GetDeviceInfo)
 			.def("GetDeviceSettingsCombo", (CD3D9EnumDeviceSettingsCombo *(CD3D9Enumeration::*)(UINT, D3DDEVTYPE, D3DFORMAT, D3DFORMAT, BOOL))&CD3D9Enumeration::GetDeviceSettingsCombo)
 
+		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
+			.def("PostMessage", &my::DxutWindow::PostMessage)
+
 		, class_<my::DxutApp, CD3D9Enumeration>("DxutApp")
 			.scope
 			[

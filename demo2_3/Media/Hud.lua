@@ -47,7 +47,7 @@ end
 local btn_toggle_ref=dlg:FindControl("btn_toggle_ref")
 btn_toggle_ref.EventMouseClick=function(args)
 	-- ! do not destroy device within lua context
-	-- game:ToggleREF()
+	game.wnd:PostMessage(40002,0,0)
 end
 
 local btn_change_device=dlg:FindControl("btn_change_device")

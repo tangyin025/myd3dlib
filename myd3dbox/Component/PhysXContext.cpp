@@ -194,6 +194,7 @@ void PhysXSceneContext::ClearSerializedObjs(void)
 
 void PhysXSceneContext::Shutdown(void)
 {
+	m_EventPxThreadSubstep.disconnect_all_slots();
 	ClearSerializedObjs();
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 	m_ControllerMgr.reset();
