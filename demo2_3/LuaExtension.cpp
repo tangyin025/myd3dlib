@@ -7,6 +7,7 @@
 #include "../myd3dbox/Component/Character.h"
 #include "../myd3dbox/Component/Animator.h"
 #include "../myd3dbox/Component/Controller.h"
+#include "../myd3dbox/Component/Terrain.h"
 
 namespace luabind
 {
@@ -940,7 +941,6 @@ static void ExportComponent(lua_State * L)
 		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
 
 		, class_<MeshComponent, RenderComponent, boost::shared_ptr<Component> >("MeshComponent")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
 			.def(constructor<>())
 			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
 			.def_readwrite("bInstance", &MeshComponent::m_bInstance)
@@ -950,7 +950,6 @@ static void ExportComponent(lua_State * L)
 			.def("AddMaterial", &MeshComponent::AddMaterial)
 
 		, class_<ClothComponent, RenderComponent, boost::shared_ptr<Component> >("ClothComponent")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
 			.def(constructor<>())
 			.def("CreateClothFromMesh", &ClothComponent::CreateClothFromMesh)
 			.def_readonly("MaterialList", &ClothComponent::m_MaterialList, luabind::return_stl_iterator)
@@ -961,11 +960,9 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Material", &EmitterComponent::m_Material)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
 			.def(constructor<>())
 
 		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
 			.def(constructor<>())
 			.def_readwrite("ParticleLifeTime", &SphericalEmitterComponent::m_ParticleLifeTime)
 			.def_readwrite("SpawnInterval", &SphericalEmitterComponent::m_SpawnInterval)
@@ -981,6 +978,9 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnSizeY", &SphericalEmitterComponent::m_SpawnSizeY)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
+
+		, class_<Terrain, RenderComponent, boost::shared_ptr<Component> >("Terrain")
+			.def(constructor<>())
 
 		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())

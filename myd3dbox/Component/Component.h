@@ -125,7 +125,7 @@ public:
 	PhysXPtr<physx::PxShape> m_PxShape;
 
 protected:
-	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+	Component(ComponentType Type)
 		: m_Type(Type)
 		, m_Actor(NULL)
 	{
@@ -192,8 +192,8 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 protected:
-	RenderComponent(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: Component(Type, Position, Rotation, Scale)
+	RenderComponent(ComponentType Type)
+		: Component(Type)
 	{
 	}
 
@@ -222,15 +222,8 @@ public:
 	MaterialPtrList m_MaterialList;
 
 public:
-	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
-		, m_bInstance(false)
-		, m_bUseAnimation(false)
-	{
-	}
-
 	MeshComponent(void)
-		: RenderComponent(ComponentTypeMesh, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: RenderComponent(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 	{
@@ -312,14 +305,8 @@ public:
 	PhysXPtr<physx::PxCloth> m_Cloth;
 
 public:
-	ClothComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(ComponentTypeCloth, Position, Rotation, Scale)
-		, m_bUseAnimation(false)
-	{
-	}
-
 	ClothComponent(void)
-		: RenderComponent(ComponentTypeCloth, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: RenderComponent(ComponentTypeCloth)
 		, m_bUseAnimation(false)
 	{
 	}
@@ -389,14 +376,14 @@ public:
 	MaterialPtr m_Material;
 
 protected:
-	EmitterComponent(ComponentType type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(type, Position, Rotation, Scale)
+	EmitterComponent(ComponentType type)
+		: RenderComponent(type)
 	{
 	}
 
 public:
 	EmitterComponent(void)
-		: RenderComponent(ComponentTypeEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: RenderComponent(ComponentTypeEmitter)
 	{
 	}
 
@@ -431,13 +418,8 @@ class StaticEmitterComponent
 	: public EmitterComponent
 {
 public:
-	StaticEmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: EmitterComponent(ComponentTypeStaticEmitter, Position, Rotation, Scale)
-	{
-	}
-
 	StaticEmitterComponent(void)
-		: EmitterComponent(ComponentTypeStaticEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: EmitterComponent(ComponentTypeStaticEmitter)
 	{
 	}
 
@@ -496,19 +478,8 @@ public:
 	float m_SpawnLoopTime;
 
 public:
-	SphericalEmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Position, Rotation, Scale)
-		, m_ParticleLifeTime(FLT_MAX)
-		, m_RemainingSpawnTime(0)
-		, m_SpawnInterval(FLT_MAX)
-		, m_HalfSpawnArea(0,0,0)
-		, m_SpawnSpeed(0)
-		, m_SpawnLoopTime(5)
-	{
-	}
-
 	SphericalEmitterComponent(void)
-		: EmitterComponent(ComponentTypeSphericalEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: EmitterComponent(ComponentTypeSphericalEmitter)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)

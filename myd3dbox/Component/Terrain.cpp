@@ -122,8 +122,8 @@ Terrain::VertexArray2D::VertexArray2D(void)
 
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
-Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, float HeightScale, float WrappedU, float WrappedV)
-	: RenderComponent(ComponentTypeTerrain, Position, Rotation, Scale)
+Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
+	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
@@ -144,7 +144,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 }
 
 Terrain::Terrain(void)
-	: RenderComponent(ComponentTypeTerrain, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)

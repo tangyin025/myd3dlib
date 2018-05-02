@@ -134,7 +134,7 @@ public:
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
 
 public:
-	Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, float HeightScale, float WrappedU, float WrappedV);
+	Terrain(float HeightScale, float WrappedU, float WrappedV);
 
 	Terrain(void);
 

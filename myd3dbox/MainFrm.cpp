@@ -639,7 +639,7 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
-	MeshComponentPtr mesh_cmp(new MeshComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	MeshComponentPtr mesh_cmp(new MeshComponent());
 	mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
 	mesh_cmp->m_MeshRes.OnReady(mesh);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
@@ -692,7 +692,7 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-	ClothComponentPtr cloth_cmp(new ClothComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	ClothComponentPtr cloth_cmp(new ClothComponent());
 	cloth_cmp->CreateClothFromMesh(mesh, 1);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
@@ -730,7 +730,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent());
 	emit_cmp->m_Emitter.reset(new my::Emitter());
 	emit_cmp->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	MaterialPtr particle1(new Material());
@@ -764,7 +764,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent());
 	sphe_emit_cmp->m_Emitter.reset(new my::Emitter());
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
@@ -816,7 +816,7 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	TerrainPtr terrain(new Terrain(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1),1.0f,1.0f,1.0f));
+	TerrainPtr terrain(new Terrain(1.0f,1.0f,1.0f));
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
