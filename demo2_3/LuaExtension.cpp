@@ -725,11 +725,11 @@ static void ExportResource(lua_State * L)
 			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
 
-		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
-		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
-		, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
-		, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
-		, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
+		//, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
+		//, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
+		//, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
+		//, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
+		//, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
 	];
 }
 
@@ -1055,8 +1055,8 @@ static void ExportComponent(lua_State * L)
 			.def("RemoveActor", &my::OctRoot::RemoveActor)
 			.def("ClearAllActor", &my::OctRoot::ClearAllActor)
 
-		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
-		, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
+		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
+		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
 }
 
