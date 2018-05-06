@@ -417,7 +417,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_Player.reset(new Character(m_InitPosition, Quaternion::identity, Vector3(1,1,1), AABB(-1,1)));
 
-	m_Player->OnPoseChanged();
+	m_Player->UpdateWorld();
 
 	m_Root.AddActor(m_Player, m_Player->m_aabb.transform(m_Player->m_World));
 
@@ -712,7 +712,8 @@ void Game::OnFrameRender(
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->m_Position = (my::Vector3 &)activeTransforms[i].actor2World.p;
 		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
-		actor->OnPoseChanged();
+		actor->UpdateWorld();
+		actor->OnWorldChanged();
 	}
 }
 

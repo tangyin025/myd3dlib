@@ -352,13 +352,6 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
-void Actor::OnPoseChanged(void)
-{
-	UpdateWorld();
-
-	OnWorldChanged();
-}
-
 void Actor::UpdateRigidActorPose(void)
 {
 	if (m_PxActor)

@@ -442,7 +442,8 @@ BOOL CMainFrame::OnFrameRender(float fElapsedTime)
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->m_Position = (my::Vector3 &)activeTransforms[i].actor2World.p;
 		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
-		actor->OnPoseChanged();
+		actor->UpdateWorld();
+		actor->OnWorldChanged();
 	}
 
 	EventArgs arg;

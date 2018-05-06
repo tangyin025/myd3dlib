@@ -1011,7 +1011,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
 			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
 			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
-			actor->OnPoseChanged();
+			actor->OnWorldChanged();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
@@ -1055,7 +1055,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_Scale.y = pComponent->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 			actor->m_Scale.z = pComponent->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 			actor->UpdateAABB();
-			actor->OnPoseChanged();
+			actor->UpdateWorld();
+			actor->OnWorldChanged();
 			actor->UpdateRigidActorPose();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
@@ -1398,7 +1399,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->UpdateChunks();
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
-			actor->OnPoseChanged();
+			actor->OnWorldChanged();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
@@ -1426,7 +1427,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				terrain->UpdateHeightMap(res);
 				Actor * actor = terrain->m_Actor;
 				actor->UpdateAABB();
-				actor->OnPoseChanged();
+				actor->OnWorldChanged();
 				pFrame->UpdateSelBox();
 				pFrame->UpdatePivotTransform();
 				EventArgs arg;

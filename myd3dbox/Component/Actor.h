@@ -117,7 +117,5 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
-	virtual void OnPoseChanged(void);
-
 	void UpdateRigidActorPose(void);
 };

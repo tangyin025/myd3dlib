@@ -1007,7 +1007,6 @@ static void ExportComponent(lua_State * L)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
-			.def("OnPoseChanged", &Actor::OnPoseChanged)
 			.def("UpdateRigidActorPose", &Actor::UpdateRigidActorPose)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
