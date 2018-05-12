@@ -64,3 +64,13 @@ anim.Node=node_speed
 game.Player.Animator=anim
 
 game.Player.Controller=PlayerController(game.Player)
+
+local cmp2=MeshComponent()
+cmp2.MeshRes.Path="mesh/Helix.mesh.xml"
+cmp2.MeshRes.EventReady=function(args)
+	cmp2.MeshRes.Res:Transform(Matrix4.Scaling(5,5,5))
+end
+cmp2:AddMaterial(lambert1)
+local act2=Actor()
+act2:AddComponent(cmp2)
+game.Root:AddActor(actor2oct(act2),AABB(-1,1),0.1)

@@ -1249,6 +1249,43 @@ void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinFaces)
 	simplified_mesh->SaveOgreMesh(path);
 }
 
+void OgreMesh::Transform(const my::Matrix4 & trans)
+{
+	VOID * pVertices = LockVertexBuffer();
+	DWORD NumVertices = GetNumVertices();
+	DWORD VertexStride = GetNumBytesPerVertex();
+	for (int vertex_i = 0; vertex_i < NumVertices; vertex_i++)
+	{
+		for (int UsageIndex = 0; UsageIndex < 1; UsageIndex++)
+		{
+			unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * VertexStride;
+			if (m_VertexElems.elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3)
+			{
+				Vector3 & Position = m_VertexElems.GetPosition(pVertex, UsageIndex);
+				Position = Position.transformCoord(trans);
+			}
+
+			if (m_VertexElems.elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3)
+			{
+				Vector3 & Normal = m_VertexElems.GetNormal(pVertex, UsageIndex);
+				Normal = Normal.transformNormal(trans);
+			}
+
+			if (m_VertexElems.elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3)
+			{
+				Vector3 & Binormal = m_VertexElems.GetBinormal(pVertex, UsageIndex);
+				Binormal = Binormal.transformNormal(trans);
+			}
+
+			if (m_VertexElems.elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3)
+			{
+				Vector3 & Tangent = m_VertexElems.GetTangent(pVertex, UsageIndex);
+				Tangent = Tangent.transformNormal(trans);
+			}
+		}
+	}
+}
+
 UINT OgreMesh::GetMaterialNum(void) const
 {
 	return m_MaterialNameList.size();

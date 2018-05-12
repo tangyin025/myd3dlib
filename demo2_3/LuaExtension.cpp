@@ -607,6 +607,7 @@ static void ExportResource(lua_State * L)
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
 			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
+			.def("Transform", &my::OgreMesh::Transform)
 			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
 			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
 
@@ -884,18 +885,21 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("Path", &ResourceBundle<my::BaseTexture>::m_Path)
 			.def_readwrite("Res", &ResourceBundle<my::BaseTexture>::m_Res)
+			.def_readwrite("EventReady", &ResourceBundle<my::BaseTexture>::m_EventReady)
 
 		, class_<ResourceBundle<my::OgreMesh> >("ResourceMeshBundle")
 			.def(constructor<const char *>())
 			.def(constructor<>())
 			.def_readwrite("Path", &ResourceBundle<my::OgreMesh>::m_Path)
 			.def_readwrite("Res", &ResourceBundle<my::OgreMesh>::m_Res)
+			.def_readwrite("EventReady", &ResourceBundle<my::OgreMesh>::m_EventReady)
 
 		, class_<ResourceBundle<my::OgreSkeletonAnimation> >("ResourceSkeletonBundle")
 			.def(constructor<const char *>())
 			.def(constructor<>())
 			.def_readwrite("Path", &ResourceBundle<my::OgreSkeletonAnimation>::m_Path)
 			.def_readwrite("Res", &ResourceBundle<my::OgreSkeletonAnimation>::m_Res)
+			.def_readwrite("EventReady", &ResourceBundle<my::OgreSkeletonAnimation>::m_EventReady)
 
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
@@ -1054,7 +1058,7 @@ static void ExportComponent(lua_State * L)
 			.def("RemoveActor", &my::OctRoot::RemoveActor)
 			.def("ClearAllActor", &my::OctRoot::ClearAllActor)
 
-		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
+		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
 }

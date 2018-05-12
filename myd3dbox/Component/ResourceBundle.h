@@ -8,6 +8,8 @@ public:
 
 	boost::shared_ptr<T> m_Res;
 
+	my::ControlEvent m_EventReady;
+
 public:
 	ResourceBundle(const char * Path)
 		: m_Path(Path)
@@ -27,6 +29,11 @@ public:
 	virtual void OnReady(my::DeviceResourceBasePtr res)
 	{
 		m_Res = boost::dynamic_pointer_cast<T>(res);
+
+		if (m_EventReady)
+		{
+			m_EventReady(&my::ControlEventArgs(NULL));
+		}
 	}
 
 	ResourceBundle & operator = (const ResourceBundle<T> & rhs)

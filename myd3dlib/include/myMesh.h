@@ -400,6 +400,8 @@ namespace my
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinFaces);
 
+		void Transform(const my::Matrix4 & trans);
+
 		UINT GetMaterialNum(void) const;
 
 		const std::string & GetMaterialName(DWORD AttribId) const;
