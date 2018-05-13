@@ -36,16 +36,17 @@ game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 -- cmp:AddMaterial(lambert1)
 -- game.Player:AddComponent(cmp)
 
+local local_trans=Matrix4.Compose(Vector3(0.02,0.02,0.02),Quaternion.Identity(),Vector3(0,-0.7,0))
 local lambert1=Material()
 lambert1.Shader="shader/lambert1.fx"
 lambert1.PassMask=Material.PassMaskOpaque
-lambert1.MeshTexture.Path="texture/Checker.bmp"
+lambert1.MeshTexture.Path="texture/White.dds"
 lambert1.NormalTexture.Path="texture/Normal.dds"
 lambert1.SpecularTexture.Path="texture/White.dds"
 local cmp=MeshComponent()
 cmp.MeshRes.Path="mesh/casual19_m_highpoly.mesh.xml"
 cmp.MeshRes.EventReady=function(args)
-	cmp.MeshRes.Res:Transform(Matrix4.Scaling(0.05,0.05,0.05))
+	cmp.MeshRes.Res:Transform(local_trans)
 end
 cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
@@ -54,7 +55,7 @@ game.Player:AddComponent(cmp)
 local anim=Animator(game.Player)
 anim.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonRes.EventReady=function(args)
-	anim.SkeletonRes.Res:Transform(Matrix4.Scaling(0.05,0.05,0.05))
+	anim.SkeletonRes.Res:Transform(local_trans)
 end
 local node_walk=AnimationNodeSequence(anim)
 node_walk.Name="walk"
@@ -69,13 +70,3 @@ anim.Node=node_speed
 game.Player.Animator=anim
 
 game.Player.Controller=PlayerController(game.Player)
-
--- local cmp2=MeshComponent()
--- cmp2.MeshRes.Path="mesh/Helix.mesh.xml"
--- cmp2.MeshRes.EventReady=function(args)
-	-- cmp2.MeshRes.Res:Transform(Matrix4.Scaling(5,5,5))
--- end
--- cmp2:AddMaterial(lambert1)
--- local act2=Actor()
--- act2:AddComponent(cmp2)
--- game.Root:AddActor(actor2oct(act2),AABB(-1,1),0.1)

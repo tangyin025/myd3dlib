@@ -736,11 +736,19 @@ void OgreSkeletonAnimation::Transform(const my::Matrix4 & trans)
 {
 	Vector3 pos, scale; Quaternion rot;
 	trans.Decompose(scale, rot, pos);
-	BoneList::iterator bone_iter = m_boneBindPose.begin();
-	for (; bone_iter != m_boneBindPose.end(); bone_iter++)
+	Matrix4 scale_rot = Matrix4::Compose(scale, rot, Vector3::zero);
+	for (unsigned int i = 0; i < m_boneBindPose.size(); i++)
 	{
-		bone_iter->m_position = bone_iter->m_position.transformCoord(trans);
-		bone_iter->m_rotation *= rot;
+		BoneIndexSet::const_iterator root_iter = m_boneRootSet.find(i);
+		if (root_iter != m_boneRootSet.end())
+		{
+			m_boneBindPose[i].m_position = m_boneBindPose[i].m_position.transformCoord(trans);
+		}
+		else
+		{
+			m_boneBindPose[i].m_position = m_boneBindPose[i].m_position.transformCoord(scale_rot);
+		}
+		m_boneBindPose[i].m_rotation *= rot;
 	}
 
 	OgreAnimationMap::iterator anim_iter = m_animationMap.begin();
@@ -749,11 +757,18 @@ void OgreSkeletonAnimation::Transform(const my::Matrix4 & trans)
 		OgreAnimation::iterator pose_iter = anim_iter->second.begin();
 		for (; pose_iter != anim_iter->second.end(); pose_iter++)
 		{
-			BoneList::iterator bone_iter = pose_iter->second.begin();
-			for (; bone_iter != pose_iter->second.end(); bone_iter++)
+			for (unsigned int i = 0; i < pose_iter->second.size(); i++)
 			{
-				bone_iter->m_position = bone_iter->m_position.transformCoord(trans);
-				bone_iter->m_rotation *= rot;
+				BoneIndexSet::const_iterator root_iter = m_boneRootSet.find(i);
+				if (root_iter != m_boneRootSet.end())
+				{
+					pose_iter->second[i].m_position = pose_iter->second[i].m_position.transformCoord(trans);
+				}
+				else
+				{
+					pose_iter->second[i].m_position = pose_iter->second[i].m_position.transformCoord(scale_rot);
+				}
+				pose_iter->second[i].m_rotation *= rot;
 			}
 		}
 	}

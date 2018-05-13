@@ -353,6 +353,7 @@ static void ExportMath(lua_State * L)
 			.def("lerpSelf", &my::Matrix4::lerpSelf)
 			.scope
 			[
+				def("Compose", (my::Matrix4(*)(const my::Vector3 &, const my::Quaternion &, const my::Vector3 &))&my::Matrix4::Compose),
 				def("Identity", &my::Matrix4::Identity),
 				def("LookAtLH", &my::Matrix4::LookAtLH),
 				def("LookAtRH", &my::Matrix4::LookAtRH),
