@@ -275,6 +275,8 @@ namespace my
 
 		void SaveOgreSkeletonAnimation(const char * path);
 
+		void Transform(const my::Matrix4 & trans);
+
 		void Clear(void);
 
 		const OgreAnimation * GetAnimation(const std::string & anim_name) const;

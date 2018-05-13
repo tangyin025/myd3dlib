@@ -44,13 +44,18 @@ lambert1.NormalTexture.Path="texture/Normal.dds"
 lambert1.SpecularTexture.Path="texture/White.dds"
 local cmp=MeshComponent()
 cmp.MeshRes.Path="mesh/casual19_m_highpoly.mesh.xml"
+cmp.MeshRes.EventReady=function(args)
+	cmp.MeshRes.Res:Transform(Matrix4.Scaling(0.05,0.05,0.05))
+end
 cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
 game.Player:AddComponent(cmp)
-game.Player.Scale=Vector3(0.05,0.05,0.05)
 
 local anim=Animator(game.Player)
 anim.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
+anim.SkeletonRes.EventReady=function(args)
+	anim.SkeletonRes.Res:Transform(Matrix4.Scaling(0.05,0.05,0.05))
+end
 local node_walk=AnimationNodeSequence(anim)
 node_walk.Name="walk"
 node_walk.Root="Bip01"
@@ -65,12 +70,12 @@ game.Player.Animator=anim
 
 game.Player.Controller=PlayerController(game.Player)
 
-local cmp2=MeshComponent()
-cmp2.MeshRes.Path="mesh/Helix.mesh.xml"
-cmp2.MeshRes.EventReady=function(args)
-	cmp2.MeshRes.Res:Transform(Matrix4.Scaling(5,5,5))
-end
-cmp2:AddMaterial(lambert1)
-local act2=Actor()
-act2:AddComponent(cmp2)
-game.Root:AddActor(actor2oct(act2),AABB(-1,1),0.1)
+-- local cmp2=MeshComponent()
+-- cmp2.MeshRes.Path="mesh/Helix.mesh.xml"
+-- cmp2.MeshRes.EventReady=function(args)
+	-- cmp2.MeshRes.Res:Transform(Matrix4.Scaling(5,5,5))
+-- end
+-- cmp2:AddMaterial(lambert1)
+-- local act2=Actor()
+-- act2:AddComponent(cmp2)
+-- game.Root:AddActor(actor2oct(act2),AABB(-1,1),0.1)

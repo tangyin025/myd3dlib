@@ -614,6 +614,7 @@ static void ExportResource(lua_State * L)
 		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
 			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
 			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
+			.def("Transform", &my::OgreSkeletonAnimation::Transform)
 
 		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
 		, class_<my::BaseEffect, boost::shared_ptr<my::BaseEffect> >("BaseEffect")

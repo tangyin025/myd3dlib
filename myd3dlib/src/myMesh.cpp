@@ -1249,7 +1249,7 @@ void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinFaces)
 	simplified_mesh->SaveOgreMesh(path);
 }
 
-void OgreMesh::Transform(const my::Matrix4 & trans)
+void OgreMesh::Transform(const Matrix4 & trans)
 {
 	VOID * pVertices = LockVertexBuffer();
 	DWORD NumVertices = GetNumVertices();
