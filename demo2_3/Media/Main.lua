@@ -21,22 +21,11 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(0.5,0.5,0.5,0.5)
 game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
--- -- game.Player.MaxVelocity=10.0
--- -- game.Player.Resistance=50.0
--- -- toCharacterController(game.Player.Controller).RotationSpeed=3.14*3--crash client
--- local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
--- local lambert1=Material()
--- lambert1.Shader="shader/lambert1.fx"
--- lambert1.PassMask=Material.PassMaskOpaque
--- lambert1.MeshTexture.Path="texture/Checker.bmp"
--- lambert1.NormalTexture.Path="texture/Normal.dds"
--- lambert1.SpecularTexture.Path="texture/White.dds"
--- local cmp=ClothComponent()
--- cmp:CreateClothFromMesh(mesh,1)
--- cmp:AddMaterial(lambert1)
--- game.Player:AddComponent(cmp)
+-- 创建玩家Actor
+local player=Character(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
 
-local local_trans=Matrix4.Compose(Vector3(0.02,0.02,0.02),Quaternion.Identity(),Vector3(0,-0.7,0))
+-- 加载皮肤
+local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.45,0))
 local lambert1=Material()
 lambert1.Shader="shader/lambert1.fx"
 lambert1.PassMask=Material.PassMaskOpaque
@@ -50,9 +39,10 @@ cmp.MeshRes.EventReady=function(args)
 end
 cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
-game.Player:AddComponent(cmp)
+player:AddComponent(cmp)
 
-local anim=Animator(game.Player)
+-- 加载动画树
+local anim=Animator(player)
 anim.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonRes.EventReady=function(args)
 	anim.SkeletonRes.Res:Transform(local_trans)
@@ -67,6 +57,11 @@ local node_speed=AnimationNodeBlendBySpeed(anim)
 node_speed.Child0=node_idle
 node_speed.Child1=node_walk
 anim.Node=node_speed
-game.Player.Animator=anim
+player.Animator=anim
 
-game.Player.Controller=PlayerController(game.Player)
+-- 创建控制器
+player.Controller=PlayerController(player)
+
+-- 加入场景
+player:UpdateWorld()
+game.Root:AddActor(player,player.aabb:transform(player.World),0.1)

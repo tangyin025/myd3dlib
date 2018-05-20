@@ -283,9 +283,6 @@ Game::Game(void)
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\aaa.fev"), "Sound")
 		("scene", boost::program_options::value(&m_InitScene)->default_value("scene01.xml"), "Scene")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
-		("positionx", boost::program_options::value(&m_InitPosition.x)->default_value(0.0f), "Position.x")
-		("positiony", boost::program_options::value(&m_InitPosition.y)->default_value(0.0f), "Position.y")
-		("positionz", boost::program_options::value(&m_InitPosition.z)->default_value(0.0f), "Position.z")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
@@ -415,12 +412,6 @@ HRESULT Game::OnCreateDevice(
 
 	LoadScene(m_InitScene.c_str());
 
-	m_Player.reset(new Character(m_InitPosition, Quaternion::identity, Vector3(1,1,1), AABB(-1,1)));
-
-	m_Player->UpdateWorld();
-
-	m_Root.AddActor(m_Player, m_Player->m_aabb.transform(m_Player->m_World));
-
 	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
 
 	LuaContext::Init();
@@ -457,7 +448,6 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readonly("Root", &Game::m_Root)
-			.def_readwrite("Player", &Game::m_Player)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveDialog", &Game::SaveDialog)
 			.def("LoadDialog", &Game::LoadDialog)
@@ -564,8 +554,6 @@ void Game::OnLostDevice(void)
 void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
-
-	m_Player.reset();
 
 	m_Camera.reset();
 

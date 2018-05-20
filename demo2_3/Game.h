@@ -38,8 +38,6 @@ public:
 
 	my::OctRoot m_Root;
 
-	CharacterPtr m_Player;
-
 	typedef boost::unordered_map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
 
 	WeakActorMap m_ViewedActors;
@@ -53,8 +51,6 @@ public:
 	std::string m_InitScene;
 
 	std::string m_InitScript;
-
-	my::Vector3 m_InitPosition;
 
 public:
 	Game(void);

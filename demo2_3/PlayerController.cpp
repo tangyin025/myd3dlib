@@ -75,7 +75,7 @@ void PlayerController::Update(float fElapsedTime)
 	Character * character = dynamic_cast<Character *>(m_Actor);
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
 	camera->m_Eular = m_LookAngle;
-	camera->m_Eye = character->m_Position + Rotation[2].xyz * 10;
+	camera->m_Eye = character->m_Position + Rotation[2].xyz * 3;
 	Game::getSingleton().m_SkyLightCam->m_Eye = character->m_Position;
 }
 

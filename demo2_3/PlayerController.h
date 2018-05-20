@@ -2,7 +2,9 @@
 
 #include "../myd3dbox/Component/Controller.h"
 
-class PlayerController : public CharacterController
+class PlayerController
+	: public CharacterController
+	, public my::SingleInstance<PlayerController>
 {
 public:
 	my::Vector3 m_LookAngle;

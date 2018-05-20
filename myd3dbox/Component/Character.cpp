@@ -44,8 +44,8 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
 	physx::PxCapsuleControllerDesc desc;
-	desc.height = 1.7f;
-	desc.radius = 0.5f;
+	desc.height = m_Height;
+	desc.radius = m_Radius;
 	desc.position = physx::PxExtendedVec3(m_Position.x, m_Position.y, m_Position.z);
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
