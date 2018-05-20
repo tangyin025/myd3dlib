@@ -5,8 +5,8 @@
 using namespace my;
 
 PlayerController::PlayerController(void)
-	: m_LookAngle(0,0,0)
-	, m_MoveAxis(0,0)
+	: m_LookAngle(0, 0, 0)
+	, m_MoveAxis(0, 0)
 {
 	Init();
 }
@@ -58,8 +58,7 @@ void PlayerController::Destroy(void)
 
 void PlayerController::Update(float fElapsedTime)
 {
-	float move_step_sq = m_MoveAxis.magnitudeSq();
-	if (move_step_sq > 0.01)
+	if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
 	{
 		m_MoveAcceleration = 100.0f;
 		m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
@@ -112,16 +111,16 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 		character->m_Velocity.y = 5.0f;
 		break;
 	case KC_W:
-		m_MoveAxis.y = 1.0f;
+		m_MoveAxis.y += 1;
 		break;
 	case KC_A:
-		m_MoveAxis.x = 1.0f;
+		m_MoveAxis.x += 1;
 		break;
 	case KC_S:
-		m_MoveAxis.y = -1.0f;
+		m_MoveAxis.y -= 1;
 		break;
 	case KC_D:
-		m_MoveAxis.x = -1.0f;
+		m_MoveAxis.x -= 1;
 		break;
 	case KC_LCONTROL:
 		Game::getSingleton().m_mouse->Unacquire();
@@ -136,28 +135,16 @@ void PlayerController::OnKeyUp(my::InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case KC_W:
-		if (m_MoveAxis.y > 0)
-		{
-			m_MoveAxis.y = 0;
-		}
+		m_MoveAxis.y -= 1;
 		break;
 	case KC_A:
-		if (m_MoveAxis.x > 0)
-		{
-			m_MoveAxis.x = 0;
-		}
+		m_MoveAxis.x -= 1;
 		break;
 	case KC_S:
-		if (m_MoveAxis.y < 0)
-		{
-			m_MoveAxis.y = 0;
-		}
+		m_MoveAxis.y += 1;
 		break;
 	case KC_D:
-		if (m_MoveAxis.x < 0)
-		{
-			m_MoveAxis.x = 0;
-		}
+		m_MoveAxis.x += 1;
 		break;
 	case KC_LCONTROL:
 		Game::getSingleton().m_mouse->Unacquire();
