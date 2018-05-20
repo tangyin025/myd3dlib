@@ -446,6 +446,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("DofParams", &Game::m_DofParams)
 			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
+			.property("VisualizationParameter", &Game::GetVisualizationParameter, &Game::SetVisualizationParameter)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readonly("Root", &Game::m_Root)
 			.def("PlaySound", &Game::PlaySound)

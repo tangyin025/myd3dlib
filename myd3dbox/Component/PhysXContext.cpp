@@ -109,11 +109,6 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 		THROW_CUSEXCEPTION("sdk->createScene failed");
 	}
 
-	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
-
 	m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene));
 	if (!m_ControllerMgr)
 	{
@@ -131,7 +126,21 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 	{
 		THROW_CUSEXCEPTION("PxCreateCollection failed");
 	}
+
 	return true;
+}
+
+float PhysXSceneContext::GetVisualizationParameter(void) const
+{
+	return m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES);
+}
+
+void PhysXSceneContext::SetVisualizationParameter(float param)
+{
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, param);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, param);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, param);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, param);
 }
 
 template<>

@@ -102,6 +102,10 @@ public:
 
 	bool Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher);
 
+	float GetVisualizationParameter(void) const;
+
+	void SetVisualizationParameter(float param);
+
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;
 

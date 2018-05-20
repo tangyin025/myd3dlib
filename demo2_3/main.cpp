@@ -56,11 +56,6 @@ public:
 		//RemoveDlg(m_Console);
 		//InsertDlg(m_Console);
 
-		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
-		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);
-
 		//MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.05f)), false));
 		//mesh_cmp->m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 		//MaterialPtr lambert1(new Material());
