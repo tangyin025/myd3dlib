@@ -53,7 +53,7 @@ public:
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
-	BOOL OnFrameRender(float fElapsedTime);
+	BOOL OnFrameTick(float fElapsedTime);
 
 // Implementation
 public:

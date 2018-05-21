@@ -420,7 +420,7 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-BOOL CMainFrame::OnFrameRender(float fElapsedTime)
+BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 {
 	if (m_selactors.empty())
 	{

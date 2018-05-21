@@ -591,10 +591,9 @@ void Game::OnDestroyDevice(void)
 	DxutApp::OnDestroyDevice();
 }
 
-void Game::OnFrameRender(
+void Game::OnFrameTick(
 	double fTime,
-	float fElapsedTime,
-	bool bDeviceLost)
+	float fElapsedTime)
 {
 	DrawHelper::BeginLine();
 
@@ -655,42 +654,35 @@ void Game::OnFrameRender(
 	m_ViewedActors.clear();
 	m_ViewedActors.insert(cb.actor_list.begin(), cb.actor_list.end());
 
-	ParallelTaskManager::DoAllParallelTasks();
-
-	PhysXSceneContext::TickPreRender(fElapsedTime);
-
 	m_SkyLightCam->UpdateViewProj();
 
 	m_Camera->UpdateViewProj();
 
-	if (!bDeviceLost)
+	ParallelTaskManager::DoAllParallelTasks();
+
+	PhysXSceneContext::TickPreRender(fElapsedTime);
+
+	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
+
+	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
+		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
-		if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
-		{
-			OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
+		m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+		m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+		m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+		m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+		DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
-			m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
-			m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-			m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-			m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-			DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
-
-			m_UIRender->Begin();
-			m_UIRender->SetWorld(Matrix4::identity);
-			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-			OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
-			m_UIRender->End();
-			V(m_d3dDevice->EndScene());
-		}
-
-		Present(NULL, NULL, NULL, NULL);
+		m_UIRender->Begin();
+		m_UIRender->SetWorld(Matrix4::identity);
+		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
+		m_UIRender->End();
+		V(m_d3dDevice->EndScene());
 	}
-	else
-	{
-		Sleep(66);
-	}
+
+	Present(NULL, NULL, NULL, NULL);
 
 	PhysXSceneContext::TickPostRender(fElapsedTime);
 

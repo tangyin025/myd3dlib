@@ -88,10 +88,9 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	virtual void OnFrameRender(
+	virtual void OnFrameTick(
 		double fTime,
-		float fElapsedTime,
-		bool bDeviceLost);
+		float fElapsedTime);
 
 	virtual void OnRender(
 		IDirect3DDevice9 * pd3dDevice,

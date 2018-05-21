@@ -165,10 +165,9 @@ namespace my
 
 		virtual void OnDestroyDevice(void);
 
-		virtual void OnFrameRender(
+		virtual void OnFrameTick(
 			double fTime,
-			float fElapsedTime,
-			bool bDeviceLost);
+			float fElapsedTime);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,
