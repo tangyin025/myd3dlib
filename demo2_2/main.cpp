@@ -252,7 +252,7 @@ public:
 
 	void OnMouseClick(ControlEventArgs* args)
 	{
-		static Vector2Int last_pt(0, 0);
+		static CPoint last_pt(0, 0);
 		m_Tex->OnDestroyDevice();
 		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
 
@@ -260,13 +260,13 @@ public:
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
-		Vector2Int pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
-		my::AStar<DWORD> searcher(100, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
+		CPoint pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
+		my::AStar2D<DWORD> searcher(100, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
 		bool ret = searcher.find(last_pt, pt);
 		if (ret)
 		{
 			DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
-			std::map<Vector2Int, Vector2Int>::const_iterator from_iter = searcher.from.begin();
+			std::map<CPoint, CPoint>::const_iterator from_iter = searcher.from.begin();
 			for (; from_iter != searcher.from.end(); from_iter++)
 			{
 				searcher.map[from_iter->second.y][from_iter->second.x] = hover;

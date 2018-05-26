@@ -9,7 +9,7 @@ class PlayerController
 public:
 	my::Vector3 m_LookAngle;
 
-	my::Vector2Int m_MoveAxis;
+	CPoint m_MoveAxis;
 
 protected:
 	PlayerController(void);
