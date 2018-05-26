@@ -20,3 +20,4 @@
 #include "myDxutApp.h"
 #include "myUtility.h"
 #include "myPhysics.h"
+#include "myNavigation.h"

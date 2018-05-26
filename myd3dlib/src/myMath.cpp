@@ -80,12 +80,6 @@ const Vector2 Vector2::unitX(1, 0);
 
 const Vector2 Vector2::unitY(0, 1);
 
-const Vector2Int Vector2Int::zero(0, 0);
-
-const Vector2Int Vector2Int::unitX(1, 0);
-
-const Vector2Int Vector2Int::unitY(0, 1);
-
 Vector4 Vector3::transform(const Matrix4 & m) const
 {
 	return Vector4(x, y, z, 1).transform(m);

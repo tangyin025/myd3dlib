@@ -1,6 +1,6 @@
 ﻿#include <myD3dLib.h>
 #include <boost/bind.hpp>
-#include <Opcode.h>
+//#include <Opcode.h>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>

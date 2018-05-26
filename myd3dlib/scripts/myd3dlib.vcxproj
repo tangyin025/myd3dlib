@@ -89,6 +89,7 @@
     <ClCompile Include="..\src\myInput.cpp" />
     <ClCompile Include="..\src\myMath.cpp" />
     <ClCompile Include="..\src\myMesh.cpp" />
+    <ClCompile Include="..\src\myNavigation.cpp" />
     <ClCompile Include="..\src\myOctree.cpp" />
     <ClCompile Include="..\src\myPhysics.cpp" />
     <ClCompile Include="..\src\myResource.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="..\include\myInput.h" />
     <ClInclude Include="..\include\myMath.h" />
     <ClInclude Include="..\include\myMesh.h" />
+    <ClInclude Include="..\include\myNavigation.h" />
     <ClInclude Include="..\include\myOctree.h" />
     <ClInclude Include="..\include\myPhysics.h" />
     <ClInclude Include="..\include\myResource.h" />
