@@ -842,12 +842,10 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	m_keyboard.reset(new Keyboard);
 	m_keyboard->CreateKeyboard(m_input->m_ptr, hwnd);
 	m_keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-	m_keyboard->Acquire();
 
 	m_mouse.reset(new Mouse);
 	m_mouse->CreateMouse(m_input->m_ptr, hwnd);
 	m_mouse->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-	m_mouse->Acquire();
 
 	JoystickEnumDesc desc;
 	desc.input = m_input->m_ptr;
