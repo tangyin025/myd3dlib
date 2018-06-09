@@ -29,11 +29,11 @@ local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),
 local lambert1=Material()
 lambert1.Shader="shader/lambert1.fx"
 lambert1.PassMask=Material.PassMaskOpaque
-lambert1.MeshTexture.Path="texture/White.dds"
-lambert1.NormalTexture.Path="texture/Normal.dds"
-lambert1.SpecularTexture.Path="texture/White.dds"
+lambert1.MeshTexture.Path="character/casual19_m_35.jpg"
+lambert1.NormalTexture.Path="character/casual19_m_35_normal.png"
+lambert1.SpecularTexture.Path="character/casual19_m_35_spec.png"
 local cmp=MeshComponent()
-cmp.MeshRes.Path="mesh/casual19_m_highpoly.mesh.xml"
+cmp.MeshRes.Path="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshRes.EventReady=function(args)
 	cmp.MeshRes.Res:Transform(local_trans)
 end
@@ -43,7 +43,7 @@ player:AddComponent(cmp)
 
 -- 加载动画树
 local anim=Animator(player)
-anim.SkeletonRes.Path="mesh/casual19_m_highpoly.skeleton.xml"
+anim.SkeletonRes.Path="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonRes.EventReady=function(args)
 	anim.SkeletonRes.Res:Transform(local_trans)
 end
