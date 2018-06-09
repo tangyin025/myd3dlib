@@ -18,7 +18,7 @@ game.SkyLightCam.Width=50
 game.SkyLightCam.Height=50
 game.SkyLightCam.Nz=-50
 game.SkyLightCam.Fz=50
-game.SkyLightDiffuse=Vector4(0.5,0.5,0.5,0.5)
+game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
 game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
 -- 创建玩家Actor
