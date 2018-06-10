@@ -580,7 +580,13 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 	const rapidxml::xml_node<char> * node_root)
 {
 	DEFINE_XML_NODE_SIMPLE(skeleton, root);
-	DEFINE_XML_NODE_SIMPLE(animations, skeleton);
+
+	rapidxml::xml_node<char> * node_animations = node_skeleton->first_node("animations");
+	if (NULL == node_animations)
+	{
+		return;
+	}
+
 	DEFINE_XML_NODE_SIMPLE(animation, animations);
 
 	for (; node_animation != NULL; node_animation = node_animation->next_sibling())
@@ -659,10 +665,9 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
 	AddOgreSkeletonAnimation(&doc);
 }
 
-void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(
-	LPCSTR pFilename)
+void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(const char * path)
 {
-	CachePtr cache = FileIStream::Open(ms2ts(pFilename).c_str())->GetWholeCache();
+	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(path)->GetWholeCache();
 	cache->push_back(0);
 	AddOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 }

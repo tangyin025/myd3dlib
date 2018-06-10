@@ -45,13 +45,17 @@ player:AddComponent(cmp)
 local anim=Animator(player)
 anim.SkeletonRes.Path="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonRes.EventReady=function(args)
+	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
+	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
+	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
+	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.SkeletonRes.Res:Transform(local_trans)
 end
 local node_walk=AnimationNodeSequence(anim)
-node_walk.Name="walk"
+node_walk.Name="run"
 node_walk.Root="Bip01"
 local node_idle=AnimationNodeSequence(anim)
-node_idle.Name="idle"
+node_idle.Name="idle1"
 node_idle.Root="Bip01"
 local node_speed=AnimationNodeBlendBySpeed(anim)
 node_speed.Child0=node_idle
