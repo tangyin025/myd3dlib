@@ -1595,10 +1595,13 @@ namespace my
 
 		static Quaternion RotationAxis(const Vector3 & v, float angle)
 		{
-			float c = cos(angle / 2);
-			float s = sin(angle / 2);
+			//float c = cos(angle / 2);
+			//float s = sin(angle / 2);
+			//return Quaternion(v.x * s, v.y * s, v.z * s, c);
 
-			return Quaternion(v.x * s, v.y * s, v.z * s, c);
+			Quaternion ret;
+			D3DXQuaternionRotationAxis((D3DXQUATERNION *)&ret, (D3DXVECTOR3 *)&v, angle);
+			return ret;
 		}
 
 		static Quaternion RotationMatrix(const Matrix4 & m)

@@ -271,7 +271,7 @@ namespace my
 			UINT srcDataLen);
 
 		void AddOgreSkeletonAnimationFromFile(
-			LPCTSTR pFilename);
+			LPCSTR pFilename);
 
 		void SaveOgreSkeletonAnimation(const char * path);
 

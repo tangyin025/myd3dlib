@@ -586,9 +586,10 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 	for (; node_animation != NULL; node_animation = node_animation->next_sibling())
 	{
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
-		if (m_animationMap.end() != m_animationMap.find(attr_name->value()))
+		OgreAnimationMap::iterator anim_iter = m_animationMap.find(attr_name->value());
+		if (anim_iter != m_animationMap.end())
 		{
-			THROW_CUSEXCEPTION(str_printf("animation \"%s\" have already existed", attr_name->value()));
+			m_animationMap.erase(anim_iter);
 		}
 
 		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
@@ -659,9 +660,9 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
 }
 
 void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(
-	LPCTSTR pFilename)
+	LPCSTR pFilename)
 {
-	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
+	CachePtr cache = FileIStream::Open(ms2ts(pFilename).c_str())->GetWholeCache();
 	cache->push_back(0);
 	AddOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 }
@@ -675,7 +676,7 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 	{
 		ofs << "\t\t<bone id=\"" << i << "\" name=\"" << FindBoneName(i) << "\">\n";
 		const Bone & bone = m_boneBindPose[i];
-		ofs << "\t\t\t<position x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.x << "\"/>\n";
+		ofs << "\t\t\t<position x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.z << "\"/>\n";
 		Vector3 axis; float angle;
 		bone.m_rotation.ToAxisAngle(axis, angle);
 		ofs << "\t\t\t<rotation angle=\"" << angle << "\">\n";
@@ -716,9 +717,9 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 				ofs << "\t\t\t\t\t\t\t<translate x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.x << "\"/>\n";
 				Vector3 axis; float angle;
 				bone.m_rotation.ToAxisAngle(axis, angle);
-				ofs << "\t\t\t\t\t\t\t<rotation angle=\"" << angle << "\">\n";
+				ofs << "\t\t\t\t\t\t\t<rotate angle=\"" << angle << "\">\n";
 				ofs << "\t\t\t\t\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
-				ofs << "\t\t\t\t\t\t\t</rotation>\n";
+				ofs << "\t\t\t\t\t\t\t</rotate>\n";
 				ofs << "\t\t\t\t\t\t\t<scale x=\"1\" y=\"1\" z=\"1\"/>\n";
 				ofs << "\t\t\t\t\t\t</keyframe>\n";
 			}
