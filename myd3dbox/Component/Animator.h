@@ -2,44 +2,7 @@
 
 #include "ResourceBundle.h"
 
-class Animator;
-
-class AnimationNode
-{
-public:
-	Animator * m_Owner;
-
-protected:
-	AnimationNode(void)
-		: m_Owner(NULL)
-	{
-	}
-
-public:
-	AnimationNode(Animator * Owner)
-		: m_Owner(Owner)
-	{
-	}
-
-	virtual ~AnimationNode(void)
-	{
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-	}
-
-	virtual void OnSetOwner(void)
-	{
-	}
-
-	virtual void Advance(float fElapsedTime);
-
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
-};
+class AnimationNode;
 
 typedef boost::shared_ptr<AnimationNode> AnimationNodePtr;
 
@@ -95,6 +58,43 @@ public:
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;
 
+class AnimationNode
+{
+public:
+	Animator * m_Owner;
+
+protected:
+	AnimationNode(void)
+		: m_Owner(NULL)
+	{
+	}
+
+public:
+	AnimationNode(Animator * Owner)
+		: m_Owner(Owner)
+	{
+	}
+
+	virtual ~AnimationNode(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+	}
+
+	virtual void OnSetOwner(void)
+	{
+	}
+
+	virtual void Tick(float fElapsedTime);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+};
+
 class AnimationNodeSequence : public AnimationNode
 {
 public:
@@ -131,7 +131,9 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Root);
 	}
 
-	virtual void Advance(float fElapsedTime);
+	virtual void Tick(float fElapsedTime);
+
+	void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
@@ -206,7 +208,7 @@ public:
 		m_Childs[i] = node;
 	}
 
-	virtual void Advance(float fElapsedTime);
+	virtual void Tick(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
@@ -244,7 +246,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
 	}
 
-	virtual void Advance(float fElapsedTime);
+	virtual void Tick(float fElapsedTime);
 };
 
 typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;

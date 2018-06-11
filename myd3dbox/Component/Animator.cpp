@@ -11,17 +11,6 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(AnimationNode)
-
-void AnimationNode::Advance(float duration)
-{
-}
-
-my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
-{
-	return pose;
-}
-
 BOOST_CLASS_EXPORT(Animator)
 
 template<>
@@ -54,7 +43,7 @@ void Animator::Update(float fElapsedTime)
 {
 	if (m_SkeletonRes.m_Res && m_Node)
 	{
-		m_Node->Advance(fElapsedTime);
+		m_Node->Tick(fElapsedTime);
 		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
 		BoneList bind_pose_hier(m_SkeletonRes.m_Res->m_boneBindPose.size());
@@ -82,7 +71,23 @@ void Animator::Update(float fElapsedTime)
 	}
 }
 
+BOOST_CLASS_EXPORT(AnimationNode)
+
+void AnimationNode::Tick(float duration)
+{
+}
+
+my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
+{
+	return pose;
+}
+
 BOOST_CLASS_EXPORT(AnimationNodeSequence)
+
+void AnimationNodeSequence::Tick(float fElapsedTime)
+{
+	Advance(fElapsedTime);
+}
 
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
@@ -150,12 +155,12 @@ void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTim
 	m_TargetWeight = (ActiveChild == 0 ? 0.0f : 1.0f);
 }
 
-void AnimationNodeBlend::Advance(float fElapsedTime)
+void AnimationNodeBlend::Tick(float fElapsedTime)
 {
 	AnimationNodePtrArray::iterator child_iter = m_Childs.begin();
 	for (; child_iter != m_Childs.end(); child_iter++)
 	{
-		(*child_iter)->Advance(fElapsedTime);
+		(*child_iter)->Tick(fElapsedTime);
 	}
 
 	if (m_BlendTime < fElapsedTime)
@@ -195,7 +200,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 
 BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
 
-void AnimationNodeBlendBySpeed::Advance(float fElapsedTime)
+void AnimationNodeBlendBySpeed::Tick(float fElapsedTime)
 {
 	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
 	if (character)
@@ -217,5 +222,5 @@ void AnimationNodeBlendBySpeed::Advance(float fElapsedTime)
 		}
 	}
 
-	AnimationNodeBlend::Advance(fElapsedTime);
+	AnimationNodeBlend::Tick(fElapsedTime);
 }
