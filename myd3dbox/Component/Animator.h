@@ -6,6 +6,8 @@ class AnimationNode;
 
 typedef boost::shared_ptr<AnimationNode> AnimationNodePtr;
 
+class AnimationNodeSequence;
+
 class Actor;
 
 class Animator
@@ -18,6 +20,10 @@ public:
 	AnimationNodePtr m_Node;
 
 	my::TransformList m_DualQuats;
+
+	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;
+
+	SequenceGroupMap m_SeqGroups;
 
 protected:
 	Animator(void)
@@ -54,6 +60,14 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void Update(float fElapsedTime);
+
+	void AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+
+	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+
+	SequenceGroupMap::iterator FindFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+
+	void UpdateGroupTime(const std::string & name, AnimationNodeSequence * sequence);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;
@@ -104,6 +118,8 @@ public:
 
 	std::string m_Root;
 
+	std::string m_Group;
+
 protected:
 	AnimationNodeSequence(void)
 		: m_Time(0)
@@ -115,10 +131,15 @@ public:
 		: AnimationNode(Owner)
 		, m_Time(0)
 	{
+		OnSetOwner();
 	}
 
 	~AnimationNodeSequence(void)
 	{
+		if (m_Owner && !m_Group.empty())
+		{
+			m_Owner->RemoveFromSequenceGroup(m_Group, this);
+		}
 	}
 
 	friend class boost::serialization::access;
@@ -129,13 +150,18 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
 		ar & BOOST_SERIALIZATION_NVP(m_Root);
+		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
+
+	virtual void OnSetOwner(void);
 
 	virtual void Tick(float fElapsedTime);
 
 	void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+
+	float GetLength(void) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;

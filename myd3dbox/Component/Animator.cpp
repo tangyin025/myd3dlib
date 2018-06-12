@@ -71,6 +71,45 @@ void Animator::Update(float fElapsedTime)
 	}
 }
 
+void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
+{
+	_ASSERT(FindFromSequenceGroup(name, sequence) == m_SeqGroups.end());
+	m_SeqGroups.insert(std::make_pair(name, sequence));
+}
+
+void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
+{
+	SequenceGroupMap::iterator seq_iter = FindFromSequenceGroup(name, sequence);
+	_ASSERT(seq_iter != m_SeqGroups.end());
+	m_SeqGroups.erase(seq_iter);
+}
+
+Animator::SequenceGroupMap::iterator Animator::FindFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
+{
+	SequenceGroupMap::iterator seq_iter = m_SeqGroups.find(name);
+	for (; seq_iter != m_SeqGroups.end(); seq_iter++)
+	{
+		if (seq_iter->second == sequence)
+		{
+			return seq_iter;
+		}
+	}
+	return m_SeqGroups.end();
+}
+
+void Animator::UpdateGroupTime(const std::string & name, AnimationNodeSequence * sequence)
+{
+	float alpha = sequence->m_Time / sequence->GetLength();
+	SequenceGroupMap::iterator seq_iter = m_SeqGroups.find(name);
+	for (; seq_iter != m_SeqGroups.end(); seq_iter++)
+	{
+		if (seq_iter->second != sequence)
+		{
+			seq_iter->second->m_Time = Lerp<float>(alpha, 0, seq_iter->second->GetLength());
+		}
+	}
+}
+
 BOOST_CLASS_EXPORT(AnimationNode)
 
 void AnimationNode::Tick(float duration)
@@ -84,21 +123,38 @@ my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 
 BOOST_CLASS_EXPORT(AnimationNodeSequence)
 
+void AnimationNodeSequence::OnSetOwner(void)
+{
+	if (m_Owner && !m_Group.empty())
+	{
+		m_Owner->AddToSequenceGroup(m_Group, this);
+	}
+}
+
 void AnimationNodeSequence::Tick(float fElapsedTime)
 {
-	Advance(fElapsedTime);
+	if (m_Group.empty())
+	{
+		Advance(fElapsedTime);
+	}
 }
 
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
 	if (m_Owner->m_SkeletonRes.m_Res)
 	{
-		const OgreAnimation * anim = m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name);
-		if (anim)
-		{
-			m_Time = fmod(m_Time + fElapsedTime, anim->GetTime());
-		}
+		m_Time = fmod(m_Time + fElapsedTime, GetLength());
 	}
+}
+
+float AnimationNodeSequence::GetLength(void) const
+{
+	const OgreAnimation * anim = m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name);
+	if (anim)
+	{
+		return anim->GetTime();
+	}
+	return 0;
 }
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
