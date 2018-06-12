@@ -21,11 +21,11 @@ public:
 
 	my::TransformList m_DualQuats;
 
-	typedef std::set<AnimationNodeSequence *> AnimationNodeSequenceSet;
+	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;
 
-	typedef std::map<std::string, AnimationNodeSequenceSet> SequenceGroupMap;
+	typedef std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> SequenceGroupMapRange;
 
-	SequenceGroupMap m_SeqGroups;
+	SequenceGroupMap m_SequenceGroups;
 
 protected:
 	Animator(void)

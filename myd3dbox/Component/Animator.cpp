@@ -44,7 +44,9 @@ void Animator::Update(float fElapsedTime)
 	if (m_SkeletonRes.m_Res && m_Node)
 	{
 		m_Node->Tick(fElapsedTime, 1.0f);
+
 		UpdateGroup(fElapsedTime);
+
 		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
 		BoneList bind_pose_hier(m_SkeletonRes.m_Res->m_boneBindPose.size());
@@ -61,6 +63,7 @@ void Animator::Update(float fElapsedTime)
 			anim_pose.BuildHierarchyBoneList(
 				anim_pose_hier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
 		}
+
 		BoneList final_pose(bind_pose_hier.size());
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
@@ -74,35 +77,49 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::UpdateGroup(float fElapsedTime)
 {
-	SequenceGroupMap::iterator group_iter = m_SeqGroups.begin();
-	for (; group_iter != m_SeqGroups.end(); group_iter++)
+	SequenceGroupMap::iterator seq_iter = m_SequenceGroups.begin();
+	while (seq_iter != m_SequenceGroups.end())
 	{
-		AnimationNodeSequenceSet::iterator seq_iter = group_iter->second.begin();
-		if (seq_iter != group_iter->second.end())
+		SequenceGroupMap::iterator master_seq_iter = seq_iter;
+		SequenceGroupMap::iterator next_seq_iter = seq_iter;
+		for (next_seq_iter++; next_seq_iter != m_SequenceGroups.end() && next_seq_iter->first == seq_iter->first; next_seq_iter++)
 		{
-			(*seq_iter)->Advance(fElapsedTime);
-			float time_percent = (*seq_iter)->m_Time / (*seq_iter)->GetLength();
-			seq_iter++;
-			for (; seq_iter != group_iter->second.end(); seq_iter++)
+			if (next_seq_iter->second->m_Weight > master_seq_iter->second->m_Weight)
 			{
-				(*seq_iter)->m_Time = Lerp<float>(time_percent, 0, (*seq_iter)->GetLength());
+				master_seq_iter = next_seq_iter;
 			}
 		}
+
+		_ASSERT(master_seq_iter != m_SequenceGroups.end());
+		master_seq_iter->second->Advance(fElapsedTime);
+		float time_pct = master_seq_iter->second->m_Time / master_seq_iter->second->GetLength();
+
+		SequenceGroupMap::iterator adjust_seq_iter = seq_iter;
+		for (; adjust_seq_iter != next_seq_iter; adjust_seq_iter++)
+		{
+			if (adjust_seq_iter != master_seq_iter)
+			{
+				adjust_seq_iter->second->m_Time = Lerp(0.0f, adjust_seq_iter->second->GetLength(), time_pct);
+			}
+		}
+		seq_iter = next_seq_iter;
 	}
 }
 
 void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	AnimationNodeSequenceSet & group = m_SeqGroups[name];
-	_ASSERT(group.find(sequence) == group.end());
-	group.insert(sequence);
+	SequenceGroupMapRange range = m_SequenceGroups.equal_range(name);
+	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
+	_ASSERT(seq_iter == range.second);
+	m_SequenceGroups.insert(std::make_pair(name, sequence));
 }
 
 void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	AnimationNodeSequenceSet & group = m_SeqGroups[name];
-	_ASSERT(group.find(sequence) != group.end());
-	group.erase(sequence);
+	SequenceGroupMapRange range = m_SequenceGroups.equal_range(name);
+	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
+	_ASSERT(seq_iter != range.second);
+	m_SequenceGroups.erase(seq_iter);
 }
 
 BOOST_CLASS_EXPORT(AnimationNode)
