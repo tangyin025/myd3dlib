@@ -21,7 +21,9 @@ public:
 
 	my::TransformList m_DualQuats;
 
-	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;
+	typedef std::set<AnimationNodeSequence *> AnimationNodeSequenceSet;
+
+	typedef std::map<std::string, AnimationNodeSequenceSet> SequenceGroupMap;
 
 	SequenceGroupMap m_SeqGroups;
 
@@ -61,13 +63,11 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	void UpdateGroup(float fElapsedTime);
+
 	void AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
 	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
-
-	SequenceGroupMap::iterator FindFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
-
-	void UpdateGroupTime(const std::string & name, AnimationNodeSequence * sequence);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

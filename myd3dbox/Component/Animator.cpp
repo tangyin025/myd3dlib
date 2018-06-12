@@ -44,6 +44,7 @@ void Animator::Update(float fElapsedTime)
 	if (m_SkeletonRes.m_Res && m_Node)
 	{
 		m_Node->Tick(fElapsedTime);
+		UpdateGroup(fElapsedTime);
 		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
 		BoneList bind_pose_hier(m_SkeletonRes.m_Res->m_boneBindPose.size());
@@ -71,43 +72,37 @@ void Animator::Update(float fElapsedTime)
 	}
 }
 
+void Animator::UpdateGroup(float fElapsedTime)
+{
+	SequenceGroupMap::iterator group_iter = m_SeqGroups.begin();
+	for (; group_iter != m_SeqGroups.end(); group_iter++)
+	{
+		AnimationNodeSequenceSet::iterator seq_iter = group_iter->second.begin();
+		if (seq_iter != group_iter->second.end())
+		{
+			(*seq_iter)->Advance(fElapsedTime);
+			float time_percent = (*seq_iter)->m_Time / (*seq_iter)->GetLength();
+			seq_iter++;
+			for (; seq_iter != group_iter->second.end(); seq_iter++)
+			{
+				(*seq_iter)->m_Time = Lerp<float>(time_percent, 0, (*seq_iter)->GetLength());
+			}
+		}
+	}
+}
+
 void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	_ASSERT(FindFromSequenceGroup(name, sequence) == m_SeqGroups.end());
-	m_SeqGroups.insert(std::make_pair(name, sequence));
+	AnimationNodeSequenceSet & group = m_SeqGroups[name];
+	_ASSERT(group.find(sequence) == group.end());
+	group.insert(sequence);
 }
 
 void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMap::iterator seq_iter = FindFromSequenceGroup(name, sequence);
-	_ASSERT(seq_iter != m_SeqGroups.end());
-	m_SeqGroups.erase(seq_iter);
-}
-
-Animator::SequenceGroupMap::iterator Animator::FindFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
-{
-	SequenceGroupMap::iterator seq_iter = m_SeqGroups.find(name);
-	for (; seq_iter != m_SeqGroups.end(); seq_iter++)
-	{
-		if (seq_iter->second == sequence)
-		{
-			return seq_iter;
-		}
-	}
-	return m_SeqGroups.end();
-}
-
-void Animator::UpdateGroupTime(const std::string & name, AnimationNodeSequence * sequence)
-{
-	float alpha = sequence->m_Time / sequence->GetLength();
-	SequenceGroupMap::iterator seq_iter = m_SeqGroups.find(name);
-	for (; seq_iter != m_SeqGroups.end(); seq_iter++)
-	{
-		if (seq_iter->second != sequence)
-		{
-			seq_iter->second->m_Time = Lerp<float>(alpha, 0, seq_iter->second->GetLength());
-		}
-	}
+	AnimationNodeSequenceSet & group = m_SeqGroups[name];
+	_ASSERT(group.find(sequence) != group.end());
+	group.erase(sequence);
 }
 
 BOOST_CLASS_EXPORT(AnimationNode)
