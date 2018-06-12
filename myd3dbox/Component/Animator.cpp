@@ -43,7 +43,7 @@ void Animator::Update(float fElapsedTime)
 {
 	if (m_SkeletonRes.m_Res && m_Node)
 	{
-		m_Node->Tick(fElapsedTime);
+		m_Node->Tick(fElapsedTime, 1.0f);
 		UpdateGroup(fElapsedTime);
 		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
@@ -107,10 +107,6 @@ void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSe
 
 BOOST_CLASS_EXPORT(AnimationNode)
 
-void AnimationNode::Tick(float duration)
-{
-}
-
 my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 {
 	return pose;
@@ -126,8 +122,10 @@ void AnimationNodeSequence::OnSetOwner(void)
 	}
 }
 
-void AnimationNodeSequence::Tick(float fElapsedTime)
+void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 {
+	m_Weight = fTotalWeight;
+
 	if (m_Group.empty())
 	{
 		Advance(fElapsedTime);
@@ -206,14 +204,8 @@ void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTim
 	m_TargetWeight = (ActiveChild == 0 ? 0.0f : 1.0f);
 }
 
-void AnimationNodeBlend::Tick(float fElapsedTime)
+void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 {
-	AnimationNodePtrArray::iterator child_iter = m_Childs.begin();
-	for (; child_iter != m_Childs.end(); child_iter++)
-	{
-		(*child_iter)->Tick(fElapsedTime);
-	}
-
 	if (m_BlendTime < fElapsedTime)
 	{
 		m_Weight = m_TargetWeight;
@@ -225,6 +217,10 @@ void AnimationNodeBlend::Tick(float fElapsedTime)
 		m_Weight += delta * fElapsedTime / m_BlendTime;
 		m_BlendTime -= fElapsedTime;
 	}
+
+	m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - m_Weight));
+
+	m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_Weight);
 }
 
 my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
@@ -251,7 +247,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 
 BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
 
-void AnimationNodeBlendBySpeed::Tick(float fElapsedTime)
+void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 {
 	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
 	if (character)
@@ -273,5 +269,5 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime)
 		}
 	}
 
-	AnimationNodeBlend::Tick(fElapsedTime);
+	AnimationNodeBlend::Tick(fElapsedTime, fTotalWeight);
 }

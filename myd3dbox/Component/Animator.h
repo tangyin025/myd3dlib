@@ -104,7 +104,9 @@ public:
 	{
 	}
 
-	virtual void Tick(float fElapsedTime);
+	virtual void Tick(float fElapsedTime, float fTotalWeight)
+	{
+	}
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
@@ -113,6 +115,8 @@ class AnimationNodeSequence : public AnimationNode
 {
 public:
 	float m_Time;
+
+	float m_Weight;
 
 	std::string m_Name;
 
@@ -123,6 +127,7 @@ public:
 protected:
 	AnimationNodeSequence(void)
 		: m_Time(0)
+		, m_Weight(0)
 	{
 	}
 
@@ -130,6 +135,7 @@ public:
 	AnimationNodeSequence(Animator * Owner)
 		: AnimationNode(Owner)
 		, m_Time(0)
+		, m_Weight(0)
 	{
 		OnSetOwner();
 	}
@@ -155,7 +161,7 @@ public:
 
 	virtual void OnSetOwner(void);
 
-	virtual void Tick(float fElapsedTime);
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	void Advance(float fElapsedTime);
 
@@ -234,7 +240,7 @@ public:
 		m_Childs[i] = node;
 	}
 
-	virtual void Tick(float fElapsedTime);
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
@@ -272,7 +278,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
 	}
 
-	virtual void Tick(float fElapsedTime);
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
 };
 
 typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;
