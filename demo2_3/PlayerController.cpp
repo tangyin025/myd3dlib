@@ -125,6 +125,8 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	case KC_LCONTROL:
 		Game::getSingleton().m_mouse->Unacquire();
 		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	case KC_LSHIFT:
+		character->m_MaxVelocity = 10.0f;
 		break;
 	}
 }
@@ -132,6 +134,7 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 void PlayerController::OnKeyUp(my::InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	Character * character = dynamic_cast<Character *>(m_Actor);
 	switch (karg.kc)
 	{
 	case KC_W:
@@ -149,6 +152,8 @@ void PlayerController::OnKeyUp(my::InputEventArg * arg)
 	case KC_LCONTROL:
 		Game::getSingleton().m_mouse->Unacquire();
 		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+	case KC_LSHIFT:
+		character->m_MaxVelocity = 3.0f;
 		break;
 	}
 }

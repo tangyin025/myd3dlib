@@ -33,7 +33,7 @@ public:
 		, m_Radius(Radius)
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
-		, m_MaxVelocity(10)
+		, m_MaxVelocity(3)
 		, m_Resistance(50)
 		, m_Orientation(0)
 	{
@@ -45,7 +45,7 @@ public:
 		, m_Radius(1.0f)
 		, m_Acceleration(0, 0, 0)
 		, m_Velocity(0,0,0)
-		, m_MaxVelocity(10)
+		, m_MaxVelocity(3)
 		, m_Resistance(50)
 		, m_Orientation(0)
 	{

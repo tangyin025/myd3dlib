@@ -1038,6 +1038,7 @@ static void ExportComponent(lua_State * L)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.def(constructor<Animator *>())
+			.def("OnSetOwner", &AnimationNode::OnSetOwner)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<Animator *>())

@@ -145,15 +145,10 @@ public:
 		, m_Rate(1)
 		, m_Weight(0)
 	{
-		OnSetOwner();
 	}
 
 	~AnimationNodeSequence(void)
 	{
-		if (m_Owner && !m_Group.empty())
-		{
-			m_Owner->RemoveFromSequenceGroup(m_Group, this);
-		}
 	}
 
 	friend class boost::serialization::access;

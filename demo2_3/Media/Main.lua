@@ -51,16 +51,28 @@ anim.SkeletonRes.EventReady=function(args)
 	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.SkeletonRes.Res:Transform(local_trans)
 end
-local node_walk=AnimationNodeSequence(anim)
-node_walk.Name="run"
-node_walk.Root="Bip01"
-local node_idle=AnimationNodeSequence(anim)
-node_idle.Name="idle1"
-node_idle.Root="Bip01"
-local node_speed=AnimationNodeBlendBySpeed(anim)
-node_speed.Child0=node_idle
-node_speed.Child1=node_walk
-anim.Node=node_speed
+local seq_idle=AnimationNodeSequence(anim)
+seq_idle.Name="idle1"
+seq_idle.Root="Bip01"
+local seq_walk=AnimationNodeSequence(anim)
+seq_walk.Name="walk"
+seq_walk.Root="Bip01"
+seq_walk.Group="move"
+seq_walk:OnSetOwner()
+local seq_run=AnimationNodeSequence(anim)
+seq_run.Name="run"
+seq_run.Root="Bip01"
+seq_run.Group="move"
+seq_run:OnSetOwner()
+local node_walk=AnimationNodeBlendBySpeed(anim)
+node_walk.Speed0=1.0
+node_walk.Child0=seq_idle
+node_walk.Child1=seq_walk
+local node_run=AnimationNodeBlendBySpeed(anim)
+node_run.Speed0=5.0
+node_run.Child0=node_walk
+node_run.Child1=seq_run
+anim.Node=node_run
 player.Animator=anim
 
 -- 创建控制器
