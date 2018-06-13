@@ -104,6 +104,10 @@ public:
 	{
 	}
 
+	virtual void UpdateRate(float fRate)
+	{
+	}
+
 	virtual void Tick(float fElapsedTime, float fTotalWeight)
 	{
 	}
@@ -116,6 +120,8 @@ class AnimationNodeSequence : public AnimationNode
 public:
 	float m_Time;
 
+	float m_Rate;
+
 	float m_Weight;
 
 	std::string m_Name;
@@ -127,6 +133,7 @@ public:
 protected:
 	AnimationNodeSequence(void)
 		: m_Time(0)
+		, m_Rate(1)
 		, m_Weight(0)
 	{
 	}
@@ -135,6 +142,7 @@ public:
 	AnimationNodeSequence(Animator * Owner)
 		: AnimationNode(Owner)
 		, m_Time(0)
+		, m_Rate(1)
 		, m_Weight(0)
 	{
 		OnSetOwner();
@@ -160,6 +168,8 @@ public:
 	}
 
 	virtual void OnSetOwner(void);
+
+	virtual void UpdateRate(float fRate);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
@@ -226,6 +236,8 @@ public:
 
 	virtual void OnSetOwner(void);
 
+	virtual void UpdateRate(float fRate);
+
 	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
 
 	template <unsigned int i>
@@ -282,3 +294,39 @@ public:
 };
 
 typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;
+
+class AnimationNodeRateBySpeed : public AnimationNode
+{
+public:
+	float m_BaseSpeed;
+
+protected:
+	AnimationNodeRateBySpeed(void)
+		: m_BaseSpeed(1.0f)
+	{
+	}
+
+public:
+	AnimationNodeRateBySpeed(Animator * Owner)
+		: AnimationNode(Owner)
+		, m_BaseSpeed(1.0f)
+	{
+	}
+
+	~AnimationNodeRateBySpeed(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeBlend);
+		ar & BOOST_SERIALIZATION_NVP(m_BaseSpeed);
+	}
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+};
+
+typedef boost::shared_ptr<AnimationNodeRateBySpeed> AnimationNodeRateBySpeedPtr;

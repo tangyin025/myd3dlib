@@ -139,6 +139,11 @@ void AnimationNodeSequence::OnSetOwner(void)
 	}
 }
 
+void AnimationNodeSequence::UpdateRate(float fRate)
+{
+	m_Rate = fRate;
+}
+
 void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 {
 	m_Weight = fTotalWeight;
@@ -153,7 +158,7 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 {
 	if (m_Owner->m_SkeletonRes.m_Res)
 	{
-		m_Time = fmod(m_Time + fElapsedTime, GetLength());
+		m_Time = fmod(m_Time + fElapsedTime * m_Rate, GetLength());
 	}
 }
 
@@ -210,6 +215,14 @@ void AnimationNodeBlend::OnSetOwner(void)
 	{
 		m_Childs[i]->m_Owner = m_Owner;
 		m_Childs[i]->OnSetOwner();
+	}
+}
+
+void AnimationNodeBlend::UpdateRate(float fRate)
+{
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		m_Childs[i]->UpdateRate(fRate);
 	}
 }
 
@@ -287,4 +300,16 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	}
 
 	AnimationNodeBlend::Tick(fElapsedTime, fTotalWeight);
+}
+
+void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
+{
+	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
+	if (character)
+	{
+		float speed = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+		UpdateRate(speed / m_BaseSpeed);
+	}
+
+	AnimationNode::Tick(fElapsedTime, fTotalWeight);
 }

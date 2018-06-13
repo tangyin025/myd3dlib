@@ -1043,6 +1043,7 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<Animator *>())
 			.def_readwrite("Name", &AnimationNodeSequence::m_Name)
 			.def_readwrite("Root", &AnimationNodeSequence::m_Root)
+			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 
 		, class_<AnimationNodeBlend, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlend")
 			.def(constructor<Animator *>())
@@ -1054,6 +1055,10 @@ static void ExportComponent(lua_State * L)
 		, class_<AnimationNodeBlendBySpeed, AnimationNodeBlend, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendBySpeed")
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeBlendBySpeed::m_Speed0)
+
+		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
+			.def(constructor<Animator *>())
+			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 
 		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
 			.def("AddActor", &my::OctRoot::AddActor)
