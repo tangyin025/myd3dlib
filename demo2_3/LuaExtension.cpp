@@ -1060,6 +1060,7 @@ static void ExportComponent(lua_State * L)
 		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
+			.def_readwrite("Child0", &AnimationNodeRateBySpeed::m_Child0)
 
 		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
 			.def("AddActor", &my::OctRoot::AddActor)

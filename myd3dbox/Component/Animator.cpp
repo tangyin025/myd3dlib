@@ -248,9 +248,9 @@ void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 		m_BlendTime -= fElapsedTime;
 	}
 
-	m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - m_Weight));
+	m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - m_TargetWeight));
 
-	m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_Weight);
+	m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_TargetWeight);
 }
 
 my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
@@ -302,14 +302,29 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	AnimationNodeBlend::Tick(fElapsedTime, fTotalWeight);
 }
 
+void AnimationNodeRateBySpeed::OnSetOwner(void)
+{
+	m_Child0->OnSetOwner();
+}
+
+void AnimationNodeRateBySpeed::UpdateRate(float fRate)
+{
+	m_Child0->UpdateRate(fRate);
+}
+
 void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 {
 	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
 	if (character)
 	{
-		float speed = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
-		UpdateRate(speed / m_BaseSpeed);
+		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+		UpdateRate(sqrtf(speed_sq) / m_BaseSpeed);
 	}
 
-	AnimationNode::Tick(fElapsedTime, fTotalWeight);
+	m_Child0->Tick(fElapsedTime, fTotalWeight);
+}
+
+my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
+{
+	return m_Child0->GetPose(pose);
 }

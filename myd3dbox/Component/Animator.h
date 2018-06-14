@@ -295,6 +295,8 @@ class AnimationNodeRateBySpeed : public AnimationNode
 public:
 	float m_BaseSpeed;
 
+	AnimationNodePtr m_Child0;
+
 protected:
 	AnimationNodeRateBySpeed(void)
 		: m_BaseSpeed(1.0f)
@@ -317,11 +319,18 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeBlend);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_BaseSpeed);
+		ar & BOOST_SERIALIZATION_NVP(m_Child0);
 	}
 
+	virtual void OnSetOwner(void);
+
+	virtual void UpdateRate(float fRate);
+
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeRateBySpeed> AnimationNodeRateBySpeedPtr;
