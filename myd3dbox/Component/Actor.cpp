@@ -212,6 +212,16 @@ void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 	}
 }
 
+void Actor::OnUpdatePxTransform(const physx::PxTransform & trans)
+{
+	m_Position = (my::Vector3 &)trans.p;
+	m_Rotation = (my::Quaternion &)trans.q;
+
+	UpdateWorld();
+
+	OnWorldChanged();
+}
+
 void Actor::Update(float fElapsedTime)
 {
 	if (m_Animator)
@@ -229,14 +239,6 @@ void Actor::Update(float fElapsedTime)
 	{
 		(*cmp_iter)->Update(fElapsedTime);
 	}
-
-	//if (m_PxActor && m_PxActor->isRigidDynamic())
-	//{
-	//	physx::PxTransform pose = m_PxActor->is<physx::PxRigidDynamic>()->getGlobalPose();
-	//	m_Position = (Vector3 &)pose.p - GetLevel()->GetOffset();
-	//	m_Rotation = (Quaternion &)pose.q;
-	//	UpdateWorld();
-	//}
 }
 
 my::AABB Actor::CalculateAABB(void) const
@@ -277,6 +279,11 @@ void Actor::OnWorldChanged(void)
 		my::OctNodeBase * Root = m_Node->GetTopNode();
 		Root->RemoveActor(actor_ptr);
 		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
+	}
+
+	if (m_PxActor)
+	{
+		m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
@@ -350,13 +357,4 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 		(*cmp_iter)->m_Actor = NULL;
 	}
 	m_Cmps.clear();
-}
-
-void Actor::UpdateRigidActorPose(void)
-{
-	if (m_PxActor)
-	{
-		m_PxActor->setGlobalPose(physx::PxTransform(
-			(physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
-	}
 }

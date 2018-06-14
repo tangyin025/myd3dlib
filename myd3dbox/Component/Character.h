@@ -77,9 +77,9 @@ public:
 
 	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
-	virtual void Update(float fElapsedTime);
+	virtual void OnUpdatePxTransform(const physx::PxTransform & trans);
 
-	virtual void UpdateWorld(void);
+	virtual void Update(float fElapsedTime);
 
 	virtual void OnPxThreadSubstep(float dtime);
 

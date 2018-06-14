@@ -691,10 +691,7 @@ void Game::OnFrameTick(
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
-		actor->m_Position = (my::Vector3 &)activeTransforms[i].actor2World.p;
-		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
-		actor->UpdateWorld();
-		actor->OnWorldChanged();
+		actor->OnUpdatePxTransform(activeTransforms[i].actor2World);
 	}
 }
 

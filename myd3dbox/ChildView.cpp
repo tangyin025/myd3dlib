@@ -1116,7 +1116,6 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			actor_world_iter->first->m_Rotation = Rotation;
 			actor_world_iter->first->m_Scale = Scale;
 			actor_world_iter->first->OnWorldChanged();
-			actor_world_iter->first->UpdateRigidActorPose();
 		}
 		m_selactorwlds.clear();
 		pFrame->UpdateSelBox();

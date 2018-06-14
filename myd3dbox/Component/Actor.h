@@ -95,13 +95,15 @@ public:
 
 	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
+	virtual void OnUpdatePxTransform(const physx::PxTransform & trans);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;
 
 	void UpdateAABB(void);
 
-	virtual void UpdateWorld(void);
+	void UpdateWorld(void);
 
 	virtual void OnWorldChanged(void);
 
@@ -116,6 +118,4 @@ public:
 	void RemoveComponent(ComponentPtr cmp);
 
 	void ClearAllComponent(ComponentPtr cmp);
-
-	void UpdateRigidActorPose(void);
 };

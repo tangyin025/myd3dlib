@@ -1057,7 +1057,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->UpdateAABB();
 			actor->UpdateWorld();
 			actor->OnWorldChanged();
-			actor->UpdateRigidActorPose();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;

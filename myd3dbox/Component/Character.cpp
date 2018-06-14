@@ -70,14 +70,20 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 	Actor::OnLeavePxScene(scene);
 }
 
+void Character::OnUpdatePxTransform(const physx::PxTransform & trans)
+{
+	m_Position = (my::Vector3 &)trans.p;
+
+	m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+
+	UpdateWorld();
+
+	OnWorldChanged();
+}
+
 void Character::Update(float fElapsedTime)
 {
 	Actor::Update(fElapsedTime);
-}
-
-void Character::UpdateWorld(void)
-{
-	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0), m_Position);
 }
 
 void Character::OnPxThreadSubstep(float dtime)
