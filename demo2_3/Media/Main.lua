@@ -41,7 +41,7 @@ cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 
--- 加载动画树
+-- 加载动画资源
 local anim=Animator(player)
 anim.SkeletonRes.Path="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonRes.EventReady=function(args)
@@ -51,6 +51,8 @@ anim.SkeletonRes.EventReady=function(args)
 	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.SkeletonRes.Res:Transform(local_trans)
 end
+
+-- 构建动画树
 local seq_idle=AnimationNodeSequence(anim)
 seq_idle.Name="idle1"
 seq_idle.Root="Bip01"
@@ -58,12 +60,10 @@ local seq_walk=AnimationNodeSequence(anim)
 seq_walk.Name="walk"
 seq_walk.Root="Bip01"
 seq_walk.Group="move"
-seq_walk:OnSetOwner()
 local seq_run=AnimationNodeSequence(anim)
 seq_run.Name="run"
 seq_run.Root="Bip01"
 seq_run.Group="move"
-seq_run:OnSetOwner()
 local node_walk=AnimationNodeBlendBySpeed(anim)
 node_walk.Speed0=1.0
 node_walk.Child0=seq_idle
@@ -73,6 +73,7 @@ node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=seq_run
 anim.Node=node_run
+anim.Node:OnSetOwner()
 player.Animator=anim
 
 -- 创建控制器
