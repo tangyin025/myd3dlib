@@ -41,26 +41,15 @@ class CharacterController
 	: public Controller
 {
 public:
-	float m_MoveOrientation;
-
-	float m_MoveAcceleration;
-
-	float m_RotationSpeed;
 
 protected:
 	CharacterController(void)
-		: m_MoveOrientation(0)
-		, m_MoveAcceleration(0)
-		, m_RotationSpeed(D3DX_PI*3)
 	{
 	}
 
 public:
 	CharacterController(Actor * actor)
 		: Controller(actor)
-		, m_MoveOrientation(0)
-		, m_MoveAcceleration(0)
-		, m_RotationSpeed(D3DX_PI * 3)
 	{
 	}
 

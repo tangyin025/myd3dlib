@@ -16,26 +16,11 @@ public:
 
 	PhysXPtr<physx::PxController> m_PxController;
 
-	my::Vector3 m_Acceleration;
-
-	my::Vector3 m_Velocity;
-
-	float m_MaxVelocity;
-
-	float m_Resistance;
-
-	float m_Orientation;
-
 public:
 	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius)
 		: Actor(Position, Rotation, Scale, aabb)
 		, m_Height(Height)
 		, m_Radius(Radius)
-		, m_Acceleration(0,0,0)
-		, m_Velocity(0,0,0)
-		, m_MaxVelocity(3)
-		, m_Resistance(50)
-		, m_Orientation(0)
 	{
 	}
 
@@ -43,11 +28,6 @@ public:
 		: Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
 		, m_Height(1.0f)
 		, m_Radius(1.0f)
-		, m_Acceleration(0, 0, 0)
-		, m_Velocity(0,0,0)
-		, m_MaxVelocity(3)
-		, m_Resistance(50)
-		, m_Orientation(0)
 	{
 	}
 

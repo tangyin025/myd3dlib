@@ -22,7 +22,7 @@ game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
 game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
 -- 创建玩家Actor
-local player=Character(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
+local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
 
 -- 加载皮肤
 local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.45,0))
@@ -91,4 +91,4 @@ game.Root:AddActor(player,player.aabb:transform(player.World),0.1)
 
 -- 特殊渲染选项
 game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.VisualizationParameter=1

@@ -1016,18 +1016,10 @@ static void ExportComponent(lua_State * L)
 		, class_<Character, Actor, boost::shared_ptr<my::OctActor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float>())
 			.def(constructor<>())
-			.def_readwrite("Acceleration", &Character::m_Acceleration)
-			.def_readwrite("Velocity", &Character::m_Velocity)
-			.def_readwrite("MaxVelocity", &Character::m_MaxVelocity)
-			.def_readwrite("Resistance", &Character::m_Resistance)
-			.def_readwrite("Orientation", &Character::m_Orientation)
 
 		, class_<Controller, boost::shared_ptr<Controller> >("Controller")
 
 		, class_<CharacterController, Controller, boost::shared_ptr<Controller> >("CharacterController")
-			.def_readwrite("MoveOrientation", &CharacterController::m_MoveOrientation)
-			.def_readonly("MoveAcceleration", &CharacterController::m_MoveAcceleration)
-			.def_readwrite("RotationSpeed", &CharacterController::m_RotationSpeed)
 
 		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
 			.def(constructor<Actor *>())

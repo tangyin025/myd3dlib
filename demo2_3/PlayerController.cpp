@@ -58,15 +58,15 @@ void PlayerController::Destroy(void)
 
 void PlayerController::Update(float fElapsedTime)
 {
-	if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
-	{
-		m_MoveAcceleration = 100.0f;
-		m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
-	}
-	else
-	{
-		m_MoveAcceleration = 0;
-	}
+	//if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
+	//{
+	//	m_MoveAcceleration = 100.0f;
+	//	m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
+	//}
+	//else
+	//{
+	//	m_MoveAcceleration = 0;
+	//}
 
 	CharacterController::Update(fElapsedTime);
 
@@ -108,7 +108,7 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case KC_SPACE:
-		character->m_Velocity.y = 5.0f;
+		//character->m_Velocity.y = 5.0f;
 		break;
 	case KC_W:
 		m_MoveAxis.y += 1;
@@ -125,8 +125,6 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	case KC_LCONTROL:
 		Game::getSingleton().m_mouse->Unacquire();
 		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-	case KC_LSHIFT:
-		character->m_MaxVelocity = 10.0f;
 		break;
 	}
 }
@@ -152,8 +150,6 @@ void PlayerController::OnKeyUp(my::InputEventArg * arg)
 	case KC_LCONTROL:
 		Game::getSingleton().m_mouse->Unacquire();
 		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-	case KC_LSHIFT:
-		character->m_MaxVelocity = 3.0f;
 		break;
 	}
 }
