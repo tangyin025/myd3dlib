@@ -282,7 +282,7 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
 	if (character)
 	{
-		float speed_sq = 0;// character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
 		if (speed_sq < m_Speed0 * m_Speed0)
 		{
 			if (m_ActiveChild != 0)
@@ -317,7 +317,7 @@ void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	Character * character = dynamic_cast<Character *>(m_Owner->m_Actor);
 	if (character)
 	{
-		float speed_sq = 0;// character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
 		UpdateRate(sqrtf(speed_sq) / m_BaseSpeed);
 	}
 

@@ -58,20 +58,20 @@ void PlayerController::Destroy(void)
 
 void PlayerController::Update(float fElapsedTime)
 {
-	//if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
-	//{
-	//	m_MoveAcceleration = 100.0f;
-	//	m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
-	//}
-	//else
-	//{
-	//	m_MoveAcceleration = 0;
-	//}
+	Character * character = dynamic_cast<Character *>(m_Actor);
+	if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
+	{
+		character->m_TargetSpeed = Game::getSingleton().m_keyboard->IsKeyDown(KC_LSHIFT) ? 10.0f : 2.0f;
+		character->m_TargetOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y) + D3DXToRadian(180);
+	}
+	else
+	{
+		character->m_TargetSpeed = 0;
+	}
 
 	CharacterController::Update(fElapsedTime);
 
 	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(Game::getSingleton().m_Camera.get());
-	Character * character = dynamic_cast<Character *>(m_Actor);
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
 	camera->m_Eular = m_LookAngle;
 	camera->m_Eye = character->m_Position + Rotation[2].xyz * 3;
@@ -108,7 +108,7 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case KC_SPACE:
-		//character->m_Velocity.y = 5.0f;
+		character->m_Velocity.y = 5.0f;
 		break;
 	case KC_W:
 		m_MoveAxis.y += 1;

@@ -607,6 +607,11 @@ bool Keyboard::Capture(void)
 	return true;
 }
 
+bool Keyboard::IsKeyDown(KeyCode kc)
+{
+	return m_State[kc] & 0x80;
+}
+
 Mouse::Mouse(void)
 {
 	ZeroMemory(&m_State, sizeof(m_State));

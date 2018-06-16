@@ -74,7 +74,7 @@ void Character::OnUpdatePxTransform(const physx::PxTransform & trans)
 {
 	m_Position = (my::Vector3 &)trans.p;
 
-	//m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+	m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
 
 	UpdateWorld();
 
@@ -90,7 +90,45 @@ void Character::OnPxThreadSubstep(float dtime)
 {
 	if (m_PxController)
 	{
-		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)Vector3(0,-1,0) * dtime, 0.001f, dtime, physx::PxControllerFilters());
+		Vector3 Acceleration = PhysXContext::getSingleton().Gravity;
+		Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
+		float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
+		float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
+		if (ForwardSpeed > m_TargetSpeed)
+		{
+			ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * dtime, m_TargetSpeed);
+		}
+		else
+		{
+			ForwardSpeed = my::Min(ForwardSpeed + m_PotentialEnergy * dtime, m_TargetSpeed);
+		}
+		if (LeftwardSpeed > 0)
+		{
+			LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * dtime, 0.0f);
+		}
+		else
+		{
+			LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * dtime, 0.0f);
+		}
+		m_Velocity = Vector3(
+			Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y,
+			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + Acceleration * dtime;
+		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * dtime, 0.001f, dtime, physx::PxControllerFilters());
+
+		if (ForwardSpeed > EPSILON_E6)
+		{
+			const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
+			const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
+			const float Rotation = D3DX_PI * 3 * dtime;
+			if (Delta > 0)
+			{
+				m_Orientation += Min(Delta, Rotation);
+			}
+			else
+			{
+				m_Orientation += Max(Delta, -Rotation);
+			}
+		}
 	}
 }
 

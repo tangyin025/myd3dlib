@@ -293,6 +293,8 @@ namespace my
 		void CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd);
 
 		virtual bool Capture(void);
+
+		bool IsKeyDown(KeyCode kc);
 	};
 
 	typedef boost::shared_ptr<Keyboard> KeyboardPtr;

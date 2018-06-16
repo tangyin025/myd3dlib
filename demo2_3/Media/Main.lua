@@ -91,4 +91,4 @@ game.Root:AddActor(player,player.aabb:transform(player.World),0.1)
 
 -- 特殊渲染选项
 game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.VisualizationParameter=1
