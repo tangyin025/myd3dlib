@@ -14,7 +14,7 @@ namespace my
 	public:
 		friend class OctNodeBase;
 
-		template <DWORD Offset> friend class OctNode;
+		template <DWORD Dim> friend class OctNode;
 
 		OctNodeBase * m_Node;
 
@@ -91,10 +91,6 @@ namespace my
 
 		void QueryActorAll(QueryCallback * callback) const;
 
-		void QueryActorIntersected(const AABB & aabb, QueryCallback * callback) const;
-
-		void QueryActorIntersected(const Frustum & frustum, QueryCallback * callback) const;
-
 		bool RemoveActor(OctActorPtr actor);
 
 		void ClearAllActor(void);
@@ -104,11 +100,11 @@ namespace my
 
 	typedef boost::shared_ptr<OctNodeBase> OctNodeBasePtr;
 
-	template <DWORD Offset>
+	template <DWORD Dim>
 	class OctNode : public OctNodeBase
 	{
 	public:
-		typedef OctNode<(Offset + 1) % 3> ChildOctNode;
+		typedef OctNode<(Dim + 1) % 3> ChildOctNode;
 
 		template <DWORD> friend class OctNode;
 
@@ -119,7 +115,7 @@ namespace my
 	public:
 		OctNode(OctNodeBase * Parent, const AABB & aabb, float MinBlock)
 			: OctNodeBase(Parent, aabb)
-			, m_Half((aabb.m_min[Offset] + aabb.m_max[Offset]) * 0.5f)
+			, m_Half((aabb.m_min[Dim] + aabb.m_max[Dim]) * 0.5f)
 			, m_MinBlock(MinBlock)
 		{
 		}
@@ -135,22 +131,22 @@ namespace my
 		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f)
 		{
 			_ASSERT(!actor->m_Node);
-			if (aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			if (aabb.m_max[Dim] < m_Half + threshold && m_aabb.m_max[Dim] - m_aabb.m_min[Dim] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
 					Vector3 _Max = m_aabb.m_max;
-					_Max[Offset] = m_Half;
+					_Max[Dim] = m_Half;
 					m_Childs[0].reset(new ChildOctNode(this, AABB(m_aabb.m_min, _Max), m_MinBlock));
 				}
 				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddActor(actor, aabb, threshold);
 			}
-			else if (aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			else if (aabb.m_min[Dim] > m_Half - threshold &&  m_aabb.m_max[Dim] - m_aabb.m_min[Dim] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
 					Vector3 _Min = m_aabb.m_min;
-					_Min[Offset] = m_Half;
+					_Min[Dim] = m_Half;
 					m_Childs[1].reset(new ChildOctNode(this, AABB(_Min, m_aabb.m_max), m_MinBlock));
 				}
 				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddActor(actor, aabb, threshold);

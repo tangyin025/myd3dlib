@@ -55,21 +55,21 @@ OctNodeBase * OctNodeBase::GetTopNode(void)
 
 void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback) const
 {
-	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
+	OctActorMap::const_iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		OctActorMap::const_iterator actor_iter = m_Actors.begin();
-		for(; actor_iter != m_Actors.end(); actor_iter++)
+		if (IntersectionTests::rayAndAABB(ray.p, ray.d, actor_iter->second).first)
 		{
-			if (IntersectionTests::rayAndAABB(ray.p, ray.d, actor_iter->second).first)
-			{
-				(*callback)(actor_iter->first.get(), actor_iter->second, IntersectionTests::IntersectionTypeRay);
-			}
+			(*callback)(actor_iter->first.get(), actor_iter->second, IntersectionTests::IntersectionTypeRay);
 		}
+	}
 
-		ChildArray::const_iterator node_iter = m_Childs.begin();
-		for(; node_iter != m_Childs.end(); node_iter++)
+	ChildArray::const_iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
 		{
-			if (*node_iter)
+			if (IntersectionTests::rayAndAABB(ray.p, ray.d, (*node_iter)->m_aabb).first)
 			{
 				(*node_iter)->QueryActor(ray, callback);
 			}
@@ -79,29 +79,69 @@ void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback) const
 
 void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback) const
 {
-	switch (IntersectionTests::IntersectAABBAndAABB(m_aabb, aabb))
+	OctActorMap::const_iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-	case IntersectionTests::IntersectionTypeInside:
-		QueryActorAll(callback);
-		break;
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor_iter->second, aabb);
+		switch (intersect_type)
+		{
+		case IntersectionTests::IntersectionTypeInside:
+		case IntersectionTests::IntersectionTypeIntersect:
+			(*callback)(actor_iter->first.get(), actor_iter->second, intersect_type);
+			break;
+		}
+	}
 
-	case IntersectionTests::IntersectionTypeIntersect:
-		QueryActorIntersected(aabb, callback);
-		break;
+	ChildArray::const_iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			switch (IntersectionTests::IntersectAABBAndAABB((*node_iter)->m_aabb, aabb))
+			{
+			case IntersectionTests::IntersectionTypeInside:
+				(*node_iter)->QueryActorAll(callback);
+				break;
+
+			case IntersectionTests::IntersectionTypeIntersect:
+				(*node_iter)->QueryActor(aabb, callback);
+				break;
+			}
+		}
 	}
 }
 
 void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback) const
 {
-	switch(IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum))
+	OctActorMap::const_iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-	case IntersectionTests::IntersectionTypeInside:
-		QueryActorAll(callback);
-		break;
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(actor_iter->second, frustum);
+		switch (intersect_type)
+		{
+		case IntersectionTests::IntersectionTypeInside:
+		case IntersectionTests::IntersectionTypeIntersect:
+			(*callback)(actor_iter->first.get(), actor_iter->second, intersect_type);
+			break;
+		}
+	}
 
-	case IntersectionTests::IntersectionTypeIntersect:
-		QueryActorIntersected(frustum, callback);
-		break;
+	ChildArray::const_iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			switch (IntersectionTests::IntersectAABBAndFrustum((*node_iter)->m_aabb, frustum))
+			{
+			case IntersectionTests::IntersectionTypeInside:
+				(*node_iter)->QueryActorAll(callback);
+				break;
+
+			case IntersectionTests::IntersectionTypeIntersect:
+				(*node_iter)->QueryActor(frustum, callback);
+				break;
+			}
+		}
 	}
 }
 
@@ -119,56 +159,6 @@ void OctNodeBase::QueryActorAll(QueryCallback * callback) const
 		if (*node_iter)
 		{
 			(*node_iter)->QueryActorAll(callback);
-		}
-	}
-}
-
-void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callback) const
-{
-	OctActorMap::const_iterator actor_iter = m_Actors.begin();
-	for(; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor_iter->second, aabb);
-		switch(intersect_type)
-		{
-		case IntersectionTests::IntersectionTypeInside:
-		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(actor_iter->first.get(), actor_iter->second, intersect_type);
-			break;
-		}
-	}
-
-	ChildArray::const_iterator node_iter = m_Childs.begin();
-	for(; node_iter != m_Childs.end(); node_iter++)
-	{
-		if (*node_iter)
-		{
-			(*node_iter)->QueryActor(aabb, callback);
-		}
-	}
-}
-
-void OctNodeBase::QueryActorIntersected(const Frustum & frustum, QueryCallback * callback) const
-{
-	OctActorMap::const_iterator actor_iter = m_Actors.begin();
-	for(; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(actor_iter->second, frustum);
-		switch(intersect_type)
-		{
-		case IntersectionTests::IntersectionTypeInside:
-		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(actor_iter->first.get(), actor_iter->second, intersect_type);
-			break;
-		}
-	}
-
-	ChildArray::const_iterator node_iter = m_Childs.begin();
-	for(; node_iter != m_Childs.end(); node_iter++)
-	{
-		if (*node_iter)
-		{
-			(*node_iter)->QueryActor(frustum, callback);
 		}
 	}
 }
