@@ -28,8 +28,8 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
 	, m_Column(Column)
 {
 	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
-	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 0) * (Terrain::VertexArray::static_size - 1));
-	m_aabb.m_max = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 1) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 1) * (Terrain::VertexArray::static_size - 1));
+	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Terrain::m_VertexTable.shape()[0] - 1), (m_Column + 0) * (Terrain::m_VertexTable.shape()[1] - 1));
+	m_aabb.m_max = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 1) * (Terrain::m_VertexTable.shape()[0] - 1), (m_Column + 1) * (Terrain::m_VertexTable.shape()[1] - 1));
 	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
@@ -49,12 +49,12 @@ void TerrainChunk::UpdateAABB(void)
 {
 	m_aabb = AABB::Invalid();
 	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
-	for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
+	for (unsigned int i = 0; i < Terrain::m_VertexTable.shape()[0]; i++)
 	{
-		const int row_i = m_Row * (Terrain::VertexArray2D::static_size - 1) + i;
-		for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
+		const int row_i = m_Row * (Terrain::m_VertexTable.shape()[0] - 1) + i;
+		for (unsigned int j = 0; j < Terrain::m_VertexTable.shape()[1]; j++)
 		{
-			const int col_i = m_Column * (Terrain::VertexArray::static_size - 1) + j;
+			const int col_i = m_Column * (Terrain::m_VertexTable.shape()[1] - 1) + j;
 			Vector3 Pos = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, row_i, col_i);
 			m_aabb.unionSelf(Pos);
 		}
@@ -104,6 +104,7 @@ unsigned int FillVert(T & setter)
 }
 
 Terrain::VertexArray2D::VertexArray2D(void)
+	: boost::multi_array<unsigned short, 2>(boost::extents[CHUNK_SIZE + 1][CHUNK_SIZE + 1])
 {
     struct Setter
     {
@@ -117,10 +118,10 @@ Terrain::VertexArray2D::VertexArray2D(void)
 			verts[i][j] = k;
         }
     };
-	FillVert<Setter, static_size>(Setter(*this));
+	FillVert<Setter, CHUNK_SIZE + 1>(Setter(*this));
 }
 
-const Terrain::VertexArray2D Terrain::m_VertTable;
+const Terrain::VertexArray2D Terrain::m_VertexTable;
 
 Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	: RenderComponent(ComponentTypeTerrain)
@@ -128,11 +129,12 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
 	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
+	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
 			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
@@ -149,6 +151,7 @@ Terrain::Terrain(void)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
 	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
+	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
 }
@@ -250,9 +253,9 @@ void Terrain::UpdateHeightMapNormal(void)
 
 void Terrain::UpdateChunks(void)
 {
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			m_Chunks[i][j]->UpdateAABB();
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
@@ -401,7 +404,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		}
         void set(int k, int i, int j)
         {
-			buff[k] = m_VertTable[i][j];
+			buff[k] = m_VertexTable[i][j];
         }
     };
 
@@ -414,7 +417,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		}
         void set(int k, int i, int j)
         {
-			buff[k] = m_VertTable[j][i];
+			buff[k] = m_VertexTable[j][i];
         }
     };
 
@@ -539,7 +542,7 @@ void Terrain::RequestResource(void)
 
 	if (!m_vb.m_ptr)
 	{
-		m_vb.CreateVertexBuffer(Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+		m_vb.CreateVertexBuffer(Terrain::m_VertexTable.shape()[0] * Terrain::m_VertexTable.shape()[1] * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 		UpdateVertices();
 	}
 }
@@ -558,11 +561,11 @@ void Terrain::UpdateVertices(void)
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
-		for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
+		for (unsigned int i = 0; i < Terrain::m_VertexTable.shape()[0]; i++)
 		{
-			for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
+			for (unsigned int j = 0; j < Terrain::m_VertexTable.shape()[1]; j++)
 			{
-				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertTable[i][j] * m_VertexStride;
+				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertexTable[i][j] * m_VertexStride;
 				unsigned char * pIndices = m_VertexElems.GetVertexValue<unsigned char>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
 				pIndices[0] = i;
 				pIndices[1] = j;
@@ -598,9 +601,9 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DW
 my::AABB Terrain::CalculateAABB(void) const
 {
 	AABB ret = RenderComponent::CalculateAABB();
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			ret.unionSelf(m_Chunks[i][j]->m_aabb);
 		}

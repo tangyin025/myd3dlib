@@ -53,22 +53,19 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const int ROW_CHUNKS = 2;
+	static const int ROW_CHUNKS = 8;
 
-	static const int COL_CHUNKS = 2;
+	static const int COL_CHUNKS = 8;
 
-	static const int CHUNK_SIZE = 8;
+	static const int CHUNK_SIZE = 32;
 
-	typedef boost::array<unsigned short, CHUNK_SIZE + 1> VertexArray;
-
-	class VertexArray2D
-		: public boost::array<VertexArray, VertexArray::static_size>
+	class VertexArray2D : public boost::multi_array < unsigned short, 2 >
 	{
 	public:
 		VertexArray2D(void);
 	};
 
-	static const VertexArray2D m_VertTable;
+	static const VertexArray2D m_VertexTable;
 
 	float m_HeightScale;
 
@@ -101,9 +98,7 @@ public:
 
 	my::OctRoot m_Root;
 
-	typedef boost::array<TerrainChunk *, COL_CHUNKS> ChunkArray;
-
-	typedef boost::array<ChunkArray, ROW_CHUNKS> ChunkArray2D;
+	typedef boost::multi_array<TerrainChunk *, 2> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
 
