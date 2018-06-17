@@ -63,52 +63,52 @@ void TerrainChunk::UpdateAABB(void)
 }
 
 template <class T, int N>
-unsigned int FillVert(T & tri, int hs, unsigned int k)
+unsigned int FillVert(T & setter, int hs, unsigned int k)
 {
     _ASSERT((hs & (hs - 1)) == 0);
     for (int i = 0; i < N - 1; i += hs * 2)
     {
         for (int j = 0; j < N - 1; j += hs * 2)
         {
-            tri.set(i + hs * 0, j + hs * 1, k++);
-            tri.set(i + hs * 1, j + hs * 0, k++);
-            tri.set(i + hs * 1, j + hs * 1, k++);
+            setter.set(i + hs * 0, j + hs * 1, k++);
+            setter.set(i + hs * 1, j + hs * 0, k++);
+            setter.set(i + hs * 1, j + hs * 1, k++);
             if (j + hs * 2 >= N - 1)
             {
-                tri.set(i + hs * 1, j + hs * 2, k++);
+                setter.set(i + hs * 1, j + hs * 2, k++);
             }
             if (i + hs * 2 >= N - 1)
             {
-                tri.set(i + hs * 2, j + hs * 1, k++);
+                setter.set(i + hs * 2, j + hs * 1, k++);
             }
         }
     }
 
     if (hs / 2 > 0)
     {
-        k = FillVert<T, N>(tri, hs / 2, k);
+        k = FillVert<T, N>(setter, hs / 2, k);
     }
     return k;
 }
 
 template <class T, int N>
-unsigned int FillVert(T & tri)
+unsigned int FillVert(T & setter)
 {
     BOOST_STATIC_ASSERT(((N - 1) & (N - 2)) == 0);
     unsigned int k = 0;
-    tri.set(0, 0, k++);
-    tri.set(0, N - 1, k++);
-    tri.set(N - 1, 0, k++);
-    tri.set(N - 1, N - 1, k++);
-    return FillVert<T, N>(tri, (N - 1) / 2, k);
+    setter.set(0, 0, k++);
+    setter.set(0, N - 1, k++);
+    setter.set(N - 1, 0, k++);
+    setter.set(N - 1, N - 1, k++);
+    return FillVert<T, N>(setter, (N - 1) / 2, k);
 }
 
 Terrain::VertexArray2D::VertexArray2D(void)
 {
-    struct Tri
+    struct Setter
     {
         VertexArray2D & verts;
-		Tri(VertexArray2D & _verts)
+		Setter(VertexArray2D & _verts)
 			: verts(_verts)
 		{
 		}
@@ -117,7 +117,7 @@ Terrain::VertexArray2D::VertexArray2D(void)
 			verts[i][j] = k;
         }
     };
-	FillVert<Tri, static_size>(Tri(*this));
+	FillVert<Setter, static_size>(Setter(*this));
 }
 
 const Terrain::VertexArray2D Terrain::m_VertTable;
@@ -283,7 +283,7 @@ void Terrain::CreateElements(void)
 }
 
 template <class T>
-unsigned int EdgeNv1(T & tri, int N, int r0, int rs, int c0, int cs)
+unsigned int EdgeNv1(T & setter, int N, int r0, int rs, int c0, int cs)
 {
     _ASSERT((N & (N - 1)) == 0);
     unsigned int k = 0;
@@ -292,24 +292,24 @@ unsigned int EdgeNv1(T & tri, int N, int r0, int rs, int c0, int cs)
         int cb = c0 + cs * i;
 		if (i < N - 1)
 		{
-			tri.set(k + 0, r0, cb);
-			tri.set(k + 1, r0, cb + cs);
-			tri.set(k + 2, r0 + rs, cb + cs);
+			setter.set(k + 0, r0, cb);
+			setter.set(k + 1, r0, cb + cs);
+			setter.set(k + 2, r0 + rs, cb + cs);
 			k += 3;
 
 			if (i > 0)
 			{
-				tri.set(k + 0, r0, cb);
-				tri.set(k + 1, r0 + rs, cb + cs);
-				tri.set(k + 2, r0 + rs, cb);
+				setter.set(k + 0, r0, cb);
+				setter.set(k + 1, r0 + rs, cb + cs);
+				setter.set(k + 2, r0 + rs, cb);
 				k += 3;
 			}
 		}
 		else
 		{
-			tri.set(k + 0, r0, cb);
-			tri.set(k + 1, r0, cb + cs);
-			tri.set(k + 2, r0 + rs, cb);
+			setter.set(k + 0, r0, cb);
+			setter.set(k + 1, r0, cb + cs);
+			setter.set(k + 2, r0 + rs, cb);
 			k += 3;
 		}
 	}
@@ -317,22 +317,22 @@ unsigned int EdgeNv1(T & tri, int N, int r0, int rs, int c0, int cs)
 };
 
 template <class T>
-unsigned int EdgeNvM(T & tri, int N, int M, int r0, int rs, int c0, int cs)
+unsigned int EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
 {
     _ASSERT((N & (N - 1)) == 0);
     _ASSERT((M & (M - 1)) == 0);
 	if (M == 1)
 	{
-		return EdgeNv1(tri, N, r0, rs, c0, cs);
+		return EdgeNv1(setter, N, r0, rs, c0, cs);
 	}
     unsigned int k = 0;
     for (int i = 0; i < N; i++)
     {
         int cb = c0 + cs * i * M;
 
-        tri.set(k + 0, r0, cb);
-        tri.set(k + 1, r0, cb + cs * M);
-        tri.set(k + 2, r0 + rs, cb + cs * M / 2);
+        setter.set(k + 0, r0, cb);
+        setter.set(k + 1, r0, cb + cs * M);
+        setter.set(k + 2, r0 + rs, cb + cs * M / 2);
         k += 3;
 
         int j = 0;
@@ -340,9 +340,9 @@ unsigned int EdgeNvM(T & tri, int N, int M, int r0, int rs, int c0, int cs)
         {
             if (i > 0 || j > 0)
             {
-                tri.set(k + 0, r0 + rs, cb + cs * j);
-                tri.set(k + 1, r0, cb);
-                tri.set(k + 2, r0 + rs, cb + cs * (j + 1));
+                setter.set(k + 0, r0 + rs, cb + cs * j);
+                setter.set(k + 1, r0, cb);
+                setter.set(k + 2, r0 + rs, cb + cs * (j + 1));
                 k += 3;
             }
         }
@@ -351,9 +351,9 @@ unsigned int EdgeNvM(T & tri, int N, int M, int r0, int rs, int c0, int cs)
         {
             if (i < N - 1 || j < M - 1)
             {
-                tri.set(k + 0, r0 + rs, cb + cs * j);
-                tri.set(k + 1, r0, cb + cs * M);
-                tri.set(k + 2, r0 + rs, cb + cs * (j + 1));
+                setter.set(k + 0, r0 + rs, cb + cs * j);
+                setter.set(k + 1, r0, cb + cs * M);
+                setter.set(k + 2, r0 + rs, cb + cs * (j + 1));
                 k += 3;
             }
         }
@@ -362,21 +362,21 @@ unsigned int EdgeNvM(T & tri, int N, int M, int r0, int rs, int c0, int cs)
 }
 
 template <class T>
-unsigned int FillNvM(T & tri, int N, int M, int r0, int rs, int c0, int cs)
+unsigned int FillNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
 {
     unsigned int k = 0;
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < M; j++)
         {
-            tri.set(k + 0, r0 + rs * (i + 0), c0 + cs * (j + 0));
-            tri.set(k + 1, r0 + rs * (i + 0), c0 + cs * (j + 1));
-            tri.set(k + 2, r0 + rs * (i + 1), c0 + cs * (j + 0));
+            setter.set(k + 0, r0 + rs * (i + 0), c0 + cs * (j + 0));
+            setter.set(k + 1, r0 + rs * (i + 0), c0 + cs * (j + 1));
+            setter.set(k + 2, r0 + rs * (i + 1), c0 + cs * (j + 0));
             k += 3;
 
-            tri.set(k + 0, r0 + rs * (i + 0), c0 + cs * (j + 1));
-            tri.set(k + 1, r0 + rs * (i + 1), c0 + cs * (j + 1));
-            tri.set(k + 2, r0 + rs * (i + 1), c0 + cs * (j + 0));
+            setter.set(k + 0, r0 + rs * (i + 0), c0 + cs * (j + 1));
+            setter.set(k + 1, r0 + rs * (i + 1), c0 + cs * (j + 1));
+            setter.set(k + 2, r0 + rs * (i + 1), c0 + cs * (j + 0));
             k += 3;
         }
     }
@@ -392,10 +392,10 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		return frag_iter->second;
 	}
 
-    struct Tri
+    struct Setter
     {
         WORD * buff;
-		Tri(WORD * _buff)
+		Setter(WORD * _buff)
 			: buff(_buff)
 		{
 		}
@@ -405,10 +405,10 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
         }
     };
 
-    struct TriTranspose
+    struct SetterTranspose
     {
         WORD * buff;
-		TriTranspose(WORD * _buff)
+		SetterTranspose(WORD * _buff)
 			: buff(_buff)
 		{
 		}
@@ -442,11 +442,11 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		unsigned int k = 0;
 		const int step = 1 << center;
-		k += FillNvM(Tri((WORD *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
-		k += EdgeNvM(TriTranspose((WORD *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
-		k += EdgeNvM(Tri((WORD *)pIndices + k), N[2], M[2], 0, step, 0, step);
-		k += EdgeNvM(TriTranspose((WORD *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
-		k += EdgeNvM(Tri((WORD *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
+		k += FillNvM(Setter((WORD *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
+		k += EdgeNvM(SetterTranspose((WORD *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
+		k += EdgeNvM(Setter((WORD *)pIndices + k), N[2], M[2], 0, step, 0, step);
+		k += EdgeNvM(SetterTranspose((WORD *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
+		k += EdgeNvM(Setter((WORD *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
 		_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
@@ -458,7 +458,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		const int step = 1 << center;
-		unsigned int k = FillNvM(Tri((WORD *)pIndices), N, N, 0, step, 0, step);
+		unsigned int k = FillNvM(Setter((WORD *)pIndices), N, N, 0, step, 0, step);
 		frag.ib.Unlock();
 	}
 	return frag;
