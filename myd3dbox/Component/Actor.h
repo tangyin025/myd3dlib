@@ -39,22 +39,23 @@ public:
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
+protected:
+	Actor(void)
+		: m_aabb(my::AABB::Invalid())
+		, m_Position(0, 0, 0)
+		, m_Rotation(my::Quaternion::Identity())
+		, m_Scale(1, 1, 1)
+		, m_World(my::Matrix4::Identity())
+		, m_Requested(false)
+	{
+	}
+
 public:
 	Actor(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: m_aabb(aabb)
 		, m_Position(Position)
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)
-		, m_World(my::Matrix4::Identity())
-		, m_Requested(false)
-	{
-	}
-
-	Actor(void)
-		: m_aabb(-1,1)
-		, m_Position(0,0,0)
-		, m_Rotation(my::Quaternion::Identity())
-		, m_Scale(1,1,1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 	{

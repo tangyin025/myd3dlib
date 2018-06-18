@@ -128,10 +128,11 @@ public:
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
 
+protected:
+	Terrain(void);
+
 public:
 	Terrain(float HeightScale, float WrappedU, float WrappedV);
-
-	Terrain(void);
 
 	virtual ~Terrain(void);
 

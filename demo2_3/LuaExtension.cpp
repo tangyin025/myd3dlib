@@ -986,11 +986,10 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
 
 		, class_<Terrain, RenderComponent, boost::shared_ptr<Component> >("Terrain")
-			.def(constructor<>())
+			.def(constructor<float, float, float>())
 
 		, class_<Actor, my::OctActor, boost::shared_ptr<my::OctActor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
-			.def(constructor<>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
 			.def_readwrite("Rotation", &Actor::m_Rotation)
@@ -1015,7 +1014,6 @@ static void ExportComponent(lua_State * L)
 
 		, class_<Character, Actor, boost::shared_ptr<my::OctActor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float>())
-			.def(constructor<>())
 
 		, class_<Controller, boost::shared_ptr<Controller> >("Controller")
 

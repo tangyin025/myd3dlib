@@ -125,6 +125,12 @@ public:
 	PhysXPtr<physx::PxShape> m_PxShape;
 
 protected:
+	Component(void)
+		: m_Type(ComponentTypeComponent)
+		, m_Actor(NULL)
+	{
+	}
+
 	Component(ComponentType Type)
 		: m_Type(Type)
 		, m_Actor(NULL)
@@ -132,12 +138,6 @@ protected:
 	}
 
 public:
-	Component(void)
-		: m_Type(ComponentTypeComponent)
-		, m_Actor(NULL)
-	{
-	}
-
 	virtual ~Component(void)
 	{
 	}
@@ -376,14 +376,14 @@ public:
 	MaterialPtr m_Material;
 
 protected:
-	EmitterComponent(ComponentType type)
-		: RenderComponent(type)
+	EmitterComponent(void)
+		: RenderComponent(ComponentTypeEmitter)
 	{
 	}
 
 public:
-	EmitterComponent(void)
-		: RenderComponent(ComponentTypeEmitter)
+	EmitterComponent(ComponentType type)
+		: RenderComponent(type)
 	{
 	}
 

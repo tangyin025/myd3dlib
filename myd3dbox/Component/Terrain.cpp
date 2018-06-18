@@ -123,6 +123,17 @@ Terrain::VertexArray2D::VertexArray2D(void)
 
 const Terrain::VertexArray2D Terrain::m_VertexTable;
 
+Terrain::Terrain(void)
+	: RenderComponent(ComponentTypeTerrain)
+	, m_HeightScale(1)
+	, m_WrappedU(1)
+	, m_WrappedV(1)
+	, m_Root(AABB(Vector3(0, -3000, 0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)))
+	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
+{
+	CreateHeightMap();
+}
+
 Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(HeightScale)
@@ -143,17 +154,6 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	}
 	InitLodMap();
 	CreateElements();
-}
-
-Terrain::Terrain(void)
-	: RenderComponent(ComponentTypeTerrain)
-	, m_HeightScale(1)
-	, m_WrappedU(1)
-	, m_WrappedV(1)
-	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)))
-	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
-{
-	CreateHeightMap();
 }
 
 Terrain::~Terrain(void)

@@ -62,7 +62,7 @@ void PlayerController::Update(float fElapsedTime)
 	if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
 	{
 		character->m_TargetSpeed = Game::getSingleton().m_keyboard->IsKeyDown(KC_LSHIFT) ? 10.0f : 2.0f;
-		character->m_TargetOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y) + D3DXToRadian(180);
+		character->m_TargetOrientation = m_LookAngle.y + atan2f((float)m_MoveAxis.x, (float)m_MoveAxis.y) + D3DXToRadian(180);
 	}
 	else
 	{

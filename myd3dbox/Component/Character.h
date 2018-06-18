@@ -28,12 +28,11 @@ public:
 
 	float m_Resistance;
 
-public:
-	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius)
-		: Actor(Position, Rotation, Scale, aabb)
-		, m_Height(Height)
-		, m_Radius(Radius)
-		, m_Velocity(0,0,0)
+protected:
+	Character(void)
+		: m_Height(1.0f)
+		, m_Radius(1.0f)
+		, m_Velocity(0, 0, 0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
 		, m_TargetOrientation(0)
@@ -42,10 +41,11 @@ public:
 	{
 	}
 
-	Character(void)
-		: Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
-		, m_Height(1.0f)
-		, m_Radius(1.0f)
+public:
+	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius)
+		: Actor(Position, Rotation, Scale, aabb)
+		, m_Height(Height)
+		, m_Radius(Radius)
 		, m_Velocity(0,0,0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
