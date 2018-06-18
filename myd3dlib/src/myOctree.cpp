@@ -17,6 +17,10 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(OctActor)
 
+const float OctNode::THRESHOLD = 0.1f;
+
+const float OctNode::MIN_BLOCK = 1.0f;
+
 bool OctNode::HaveNode(const OctNode * node) const
 {
 	if (this == node)
@@ -46,65 +50,65 @@ const OctNode * OctNode::GetTopNode(void) const
 	return m_Parent->GetTopNode();
 }
 
-void OctNode::AddActor(OctActorPtr actor, const AABB & aabb, float threshold, float MinBlock)
+void OctNode::AddActor(OctActorPtr actor, const AABB & aabb)
 {
 	_ASSERT(!actor->m_Node);
-	if (m_aabb.m_max.x - m_aabb.m_min.x > MinBlock + threshold || m_aabb.m_max.y - m_aabb.m_min.y > MinBlock + threshold || m_aabb.m_max.z - m_aabb.m_min.z > MinBlock + threshold)
+	if (m_aabb.m_max.x - m_aabb.m_min.x > MIN_BLOCK + THRESHOLD || m_aabb.m_max.y - m_aabb.m_min.y > MIN_BLOCK + THRESHOLD || m_aabb.m_max.z - m_aabb.m_min.z > MIN_BLOCK + THRESHOLD)
 	{
-		if (aabb.m_min.x > m_Half.x - threshold && aabb.m_max.x < m_aabb.m_max.x + threshold)
+		if (aabb.m_min.x > m_Half.x - THRESHOLD && aabb.m_max.x < m_aabb.m_max.x + THRESHOLD)
 		{
-			if (aabb.m_min.y > m_Half.y - threshold && aabb.m_max.y < m_aabb.m_max.y + threshold)
+			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_aabb.m_max.y + THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyPz], m_aabb.Slice<AABB::QuadrantPxPyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantPxPyPz], m_aabb.Slice<AABB::QuadrantPxPyPz>(m_Half), actor, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyNz], m_aabb.Slice<AABB::QuadrantPxPyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantPxPyNz], m_aabb.Slice<AABB::QuadrantPxPyNz>(m_Half), actor, aabb);
 					return;
 				}
 			}
-			else if (aabb.m_max.y < m_Half.y + threshold && aabb.m_min.y > m_aabb.m_min.y - threshold)
+			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_aabb.m_min.y - THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyPz], m_aabb.Slice<AABB::QuadrantPxNyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantPxNyPz], m_aabb.Slice<AABB::QuadrantPxNyPz>(m_Half), actor, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyNz], m_aabb.Slice<AABB::QuadrantPxNyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantPxNyNz], m_aabb.Slice<AABB::QuadrantPxNyNz>(m_Half), actor, aabb);
 					return;
 				}
 			}
 		}
-		else if (aabb.m_max.x < m_Half.x + threshold && aabb.m_min.x > m_aabb.m_min.x - threshold)
+		else if (aabb.m_max.x < m_Half.x + THRESHOLD && aabb.m_min.x > m_aabb.m_min.x - THRESHOLD)
 		{
-			if (aabb.m_min.y > m_Half.y - threshold && aabb.m_max.y < m_aabb.m_max.y + threshold)
+			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_aabb.m_max.y + THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyPz], m_aabb.Slice<AABB::QuadrantNxPyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantNxPyPz], m_aabb.Slice<AABB::QuadrantNxPyPz>(m_Half), actor, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyNz], m_aabb.Slice<AABB::QuadrantNxPyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantNxPyNz], m_aabb.Slice<AABB::QuadrantNxPyNz>(m_Half), actor, aabb);
 					return;
 				}
 			}
-			else if (aabb.m_max.y < m_Half.y + threshold && aabb.m_min.y > m_aabb.m_min.y - threshold)
+			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_aabb.m_min.y - THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyPz], m_aabb.Slice<AABB::QuadrantNxNyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantNxNyPz], m_aabb.Slice<AABB::QuadrantNxNyPz>(m_Half), actor, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyNz], m_aabb.Slice<AABB::QuadrantNxNyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					AddToChild(m_Childs[AABB::QuadrantNxNyNz], m_aabb.Slice<AABB::QuadrantNxNyNz>(m_Half), actor, aabb);
 					return;
 				}
 			}
@@ -114,13 +118,13 @@ void OctNode::AddActor(OctActorPtr actor, const AABB & aabb, float threshold, fl
 	actor->m_Node = this;
 }
 
-void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb, float threshold, float MinBlock)
+void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb)
 {
 	if (!child)
 	{
 		child.reset(new OctNode(this, child_aabb));
 	}
-	child->AddActor(actor, aabb, threshold, MinBlock);
+	child->AddActor(actor, aabb);
 }
 
 OctNode * OctNode::GetTopNode(void)
@@ -332,6 +336,6 @@ void OctRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	std::vector<std::pair<OctActorPtr, AABB> >::iterator actor_iter = cb.actor_list.begin();
 	for (; actor_iter != cb.actor_list.end(); actor_iter++)
 	{
-		AddActor(actor_iter->first, actor_iter->second, 0.1f, 1.0f);
+		AddActor(actor_iter->first, actor_iter->second);
 	}
 }

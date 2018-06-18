@@ -148,7 +148,7 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
-			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f, 1.0f);
+			m_Root.AddActor(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
 		}
 	}
@@ -260,7 +260,7 @@ void Terrain::UpdateChunks(void)
 			m_Chunks[i][j]->UpdateAABB();
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
 			m_Root.RemoveActor(chunk);
-			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
+			m_Root.AddActor(chunk, chunk->m_aabb);
 		}
 	}
 }

@@ -44,6 +44,10 @@ namespace my
 			virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType) = 0;
 		};
 
+		static const float THRESHOLD;
+
+		static const float MIN_BLOCK;
+
 		OctNode * m_Parent;
 
 		AABB m_aabb;
@@ -93,9 +97,9 @@ namespace my
 
 		OctNode * GetTopNode(void);
 
-		void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f, float MinBlock = 1.0f);
+		void AddActor(OctActorPtr actor, const AABB & aabb);
 
-		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb, float threshold, float MinBlock);
+		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb);
 
 		void QueryActor(const Ray & ray, QueryCallback * callback) const;
 

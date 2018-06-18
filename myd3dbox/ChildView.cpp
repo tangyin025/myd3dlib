@@ -1142,7 +1142,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				pFrame->m_Root.AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World), 0.1f);
+				pFrame->m_Root.AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				new_acts.insert(new_actor.get());
