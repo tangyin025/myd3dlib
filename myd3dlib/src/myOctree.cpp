@@ -17,7 +17,7 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(OctActor)
 
-bool OctNodeBase::HaveNode(const OctNodeBase * node) const
+bool OctNode::HaveNode(const OctNode * node) const
 {
 	if (this == node)
 	{
@@ -35,7 +35,9 @@ bool OctNodeBase::HaveNode(const OctNodeBase * node) const
 	return false;
 }
 
-const OctNodeBase * OctNodeBase::GetTopNode(void) const
+BOOST_CLASS_EXPORT(OctNode)
+
+const OctNode * OctNode::GetTopNode(void) const
 {
 	if (!m_Parent)
 	{
@@ -44,7 +46,84 @@ const OctNodeBase * OctNodeBase::GetTopNode(void) const
 	return m_Parent->GetTopNode();
 }
 
-OctNodeBase * OctNodeBase::GetTopNode(void)
+void OctNode::AddActor(OctActorPtr actor, const AABB & aabb, float threshold, float MinBlock)
+{
+	_ASSERT(!actor->m_Node);
+	if (m_aabb.m_max.x - m_aabb.m_min.x > MinBlock + threshold || m_aabb.m_max.y - m_aabb.m_min.y > MinBlock + threshold || m_aabb.m_max.z - m_aabb.m_min.z > MinBlock + threshold)
+	{
+		if (aabb.m_min.x > m_Half.x - threshold && aabb.m_max.x < m_aabb.m_max.x + threshold)
+		{
+			if (aabb.m_min.y > m_Half.y - threshold && aabb.m_max.y < m_aabb.m_max.y + threshold)
+			{
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantPxPyPz], m_aabb.Slice<AABB::QuadrantPxPyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantPxPyNz], m_aabb.Slice<AABB::QuadrantPxPyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+			}
+			else if (aabb.m_max.y < m_Half.y + threshold && aabb.m_min.y > m_aabb.m_min.y - threshold)
+			{
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantPxNyPz], m_aabb.Slice<AABB::QuadrantPxNyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantPxNyNz], m_aabb.Slice<AABB::QuadrantPxNyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+			}
+		}
+		else if (aabb.m_max.x < m_Half.x + threshold && aabb.m_min.x > m_aabb.m_min.x - threshold)
+		{
+			if (aabb.m_min.y > m_Half.y - threshold && aabb.m_max.y < m_aabb.m_max.y + threshold)
+			{
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantNxPyPz], m_aabb.Slice<AABB::QuadrantNxPyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantNxPyNz], m_aabb.Slice<AABB::QuadrantNxPyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+			}
+			else if (aabb.m_max.y < m_Half.y + threshold && aabb.m_min.y > m_aabb.m_min.y - threshold)
+			{
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_aabb.m_max.z + threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantNxNyPz], m_aabb.Slice<AABB::QuadrantNxNyPz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_aabb.m_min.z - threshold)
+				{
+					AddToChild(m_Childs[AABB::QuadrantNxNyNz], m_aabb.Slice<AABB::QuadrantNxNyNz>(m_Half), actor, aabb, threshold, MinBlock);
+					return;
+				}
+			}
+		}
+	}
+	m_Actors.insert(std::make_pair(actor, aabb));
+	actor->m_Node = this;
+}
+
+void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb, float threshold, float MinBlock)
+{
+	if (!child)
+	{
+		child.reset(new OctNode(this, child_aabb));
+	}
+	child->AddActor(actor, aabb, threshold, MinBlock);
+}
+
+OctNode * OctNode::GetTopNode(void)
 {
 	if (!m_Parent)
 	{
@@ -53,7 +132,7 @@ OctNodeBase * OctNodeBase::GetTopNode(void)
 	return m_Parent->GetTopNode();
 }
 
-void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback) const
+void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -77,7 +156,7 @@ void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback) const
 	}
 }
 
-void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback) const
+void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -111,7 +190,7 @@ void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback) const
 	}
 }
 
-void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback) const
+void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -145,7 +224,7 @@ void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback) 
 	}
 }
 
-void OctNodeBase::QueryActorAll(QueryCallback * callback) const
+void OctNode::QueryActorAll(QueryCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for(; actor_iter != m_Actors.end(); actor_iter++)
@@ -163,7 +242,7 @@ void OctNodeBase::QueryActorAll(QueryCallback * callback) const
 	}
 }
 
-bool OctNodeBase::RemoveActor(OctActorPtr actor)
+bool OctNode::RemoveActor(OctActorPtr actor)
 {
 	if (actor->m_Node)
 	{
@@ -179,7 +258,7 @@ bool OctNodeBase::RemoveActor(OctActorPtr actor)
 	return false;
 }
 
-void OctNodeBase::ClearAllActor(void)
+void OctNode::ClearAllActor(void)
 {
 	OctActorMap::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -199,7 +278,7 @@ void OctNodeBase::ClearAllActor(void)
 	}
 }
 
-void OctNodeBase::Flush(void)
+void OctNode::Flush(void)
 {
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
@@ -214,6 +293,8 @@ void OctNodeBase::Flush(void)
 		}
 	}
 }
+
+BOOST_CLASS_EXPORT(OctRoot)
 
 template<>
 void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
@@ -232,7 +313,7 @@ void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 
 	Callback cb;
 	QueryActorAll(&cb);
-	ar << boost::serialization::make_nvp("OctNode_0", boost::serialization::base_object< my::OctNode<0> >(*this));
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
 	ar << BOOST_SERIALIZATION_NVP(cb.actor_list);
 }
 
@@ -246,11 +327,11 @@ void OctRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	};
 
 	Callback cb;
-	ar >> boost::serialization::make_nvp("OctNode_0", boost::serialization::base_object< my::OctNode<0> >(*this));
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
 	ar >> BOOST_SERIALIZATION_NVP(cb.actor_list);
 	std::vector<std::pair<OctActorPtr, AABB> >::iterator actor_iter = cb.actor_list.begin();
 	for (; actor_iter != cb.actor_list.end(); actor_iter++)
 	{
-		AddActor(actor_iter->first, actor_iter->second, 0.1f);
+		AddActor(actor_iter->first, actor_iter->second, 0.1f, 1.0f);
 	}
 }

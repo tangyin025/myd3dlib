@@ -128,7 +128,7 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
+	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
@@ -137,7 +137,7 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
-			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
+			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f, 1.0f);
 			m_Chunks[i][j] = chunk.get();
 		}
 	}
@@ -150,7 +150,7 @@ Terrain::Terrain(void)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
+	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
@@ -505,7 +505,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMap);
-	struct Callback : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		Terrain * terrain;
 		Callback(Terrain * _terrain)
@@ -613,7 +613,7 @@ my::AABB Terrain::CalculateAABB(void) const
 
 void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
-	struct Callback : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		RenderPipeline * pipeline;
 		unsigned int PassID;

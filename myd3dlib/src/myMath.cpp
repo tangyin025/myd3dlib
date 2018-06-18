@@ -302,6 +302,54 @@ Frustum & Frustum::transformSelf(const Matrix4 & InverseTranspose)
 
 const AABB AABB::invalid(FLT_MAX, -FLT_MAX);
 
+template <>
+AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente)
+{
+	return AABB(cente.x, cente.y, cente.z, m_max.x, m_max.y, m_max.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente)
+{
+	return AABB(cente.x, cente.y, m_min.z, m_max.x, m_max.y, cente.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente)
+{
+	return AABB(cente.x, m_min.y, cente.z, m_max.x, cente.y, m_max.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente)
+{
+	return AABB(cente.x, m_min.y, m_min.z, m_max.x, cente.y, cente.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente)
+{
+	return AABB(m_min.x, cente.y, cente.z, cente.x, m_max.y, m_max.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente)
+{
+	return AABB(m_min.x, cente.y, m_min.z, cente.x, m_max.y, cente.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente)
+{
+	return AABB(m_min.x, m_min.y, cente.z, cente.x, cente.y, m_max.z);
+}
+
+template <>
+AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente)
+{
+	return AABB(m_min.x, m_min.y, m_min.z, cente.x, cente.y, cente.z);
+}
+
 AABB AABB::transform(const Matrix4 & m) const
 {
 	Vector3 v[] =

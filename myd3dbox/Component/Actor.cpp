@@ -276,7 +276,7 @@ void Actor::OnWorldChanged(void)
 	if (m_Node)
 	{
 		ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(shared_from_this());
-		my::OctNodeBase * Root = m_Node->GetTopNode();
+		my::OctNode * Root = m_Node->GetTopNode();
 		Root->RemoveActor(actor_ptr);
 		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
 	}

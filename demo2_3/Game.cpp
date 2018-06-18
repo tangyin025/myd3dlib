@@ -270,7 +270,7 @@ static int os_exit(lua_State * L)
 
 Game::Game(void)
 	: m_UIRender(new EffectUIRender())
-	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS), 1.0f)
+	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS))
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -610,7 +610,7 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	struct Callback : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		float fElapsedTime;
 		WeakActorMap & ViewedActors;
@@ -809,7 +809,7 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct Callback : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;

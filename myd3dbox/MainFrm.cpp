@@ -72,7 +72,7 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
 	, m_selbox(-1, 1)
-	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS), 1.0f)
+	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS))
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);

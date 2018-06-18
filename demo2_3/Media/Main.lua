@@ -87,7 +87,7 @@ player.Controller=PlayerController(player)
 
 -- 加入场景
 player:UpdateWorld()
-game.Root:AddActor(player,player.aabb:transform(player.World),0.1)
+game.Root:AddActor(player,player.aabb:transform(player.World),0.1,1.0)
 
 -- 特殊渲染选项
 game.SsaoEnable=true

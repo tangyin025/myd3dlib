@@ -167,7 +167,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	ASSERT_VALID(pFrame);
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
-	struct Callback : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -618,7 +618,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 
 	case Component::ComponentTypeTerrain:
 		{
-			struct Callback : public my::OctNodeBase::QueryCallback
+			struct Callback : public my::OctNode::QueryCallback
 			{
 				const my::Ray & ray;
 				const my::Vector3 & ViewPos;
@@ -1022,7 +1022,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			(float)pFrame->m_Tracker.m_rect.right,
 			(float)pFrame->m_Tracker.m_rect.bottom);
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		struct Callback : public my::OctNodeBase::QueryCallback
+		struct Callback : public my::OctNode::QueryCallback
 		{
 			CMainFrame::ActorSet & selacts;
 			const my::Frustum & ftm;
@@ -1048,7 +1048,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		typedef std::map<float, Actor *> ActorMap;
 		ActorMap selacts;
-		struct Callback : public my::OctNodeBase::QueryCallback
+		struct Callback : public my::OctNode::QueryCallback
 		{
 			ActorMap & selacts;
 			const my::Ray & ray;

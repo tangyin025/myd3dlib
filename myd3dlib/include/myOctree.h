@@ -12,11 +12,9 @@ namespace my
 	class OctActor : public boost::enable_shared_from_this<OctActor>
 	{
 	public:
-		friend class OctNodeBase;
+		friend class OctNode;
 
-		template <DWORD Dim> friend class OctNode;
-
-		OctNodeBase * m_Node;
+		OctNode * m_Node;
 
 	public:
 		OctActor(void)
@@ -37,7 +35,7 @@ namespace my
 
 	typedef boost::shared_ptr<OctActor> OctActorPtr;
 
-	class OctNodeBase
+	class OctNode
 	{
 	public:
 		struct QueryCallback
@@ -46,42 +44,58 @@ namespace my
 			virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType) = 0;
 		};
 
-		OctNodeBase * m_Parent;
+		OctNode * m_Parent;
 
 		AABB m_aabb;
+
+		Vector3 m_Half;
 
 		typedef std::map<OctActorPtr, AABB> OctActorMap;
 
 		OctActorMap m_Actors;
 
-		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
+		typedef boost::array<boost::shared_ptr<OctNode>, AABB::QuadrantNum> ChildArray;
 
 		ChildArray m_Childs;
 
-	public:
-		OctNodeBase(OctNodeBase * Parent, const AABB & aabb)
-			: m_Parent(Parent)
-			, m_aabb(aabb)
+	protected:
+		OctNode(void)
+			: m_Parent(NULL)
+			, m_aabb(AABB::Invalid())
+			, m_Half(0,0,0)
 		{
 		}
 
-		virtual ~OctNodeBase(void)
+	public:
+		OctNode(OctNode * Parent, const AABB & aabb)
+			: m_Parent(Parent)
+			, m_aabb(aabb)
+			, m_Half(aabb.Center())
 		{
 		}
+
+		virtual ~OctNode(void)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_NVP(m_aabb);
+			ar & BOOST_SERIALIZATION_NVP(m_Half);
 		}
 
-		bool HaveNode(const OctNodeBase * node) const;
+		bool HaveNode(const OctNode * node) const;
 
-		const OctNodeBase * GetTopNode(void) const;
+		const OctNode * GetTopNode(void) const;
 
-		OctNodeBase * GetTopNode(void);
+		OctNode * GetTopNode(void);
 
-		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f) = 0;
+		void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f, float MinBlock = 1.0f);
+
+		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb, float threshold, float MinBlock);
 
 		void QueryActor(const Ray & ray, QueryCallback * callback) const;
 
@@ -98,78 +112,19 @@ namespace my
 		void Flush(void);
 	};
 
-	typedef boost::shared_ptr<OctNodeBase> OctNodeBasePtr;
+	typedef boost::shared_ptr<OctNode> OctNodePtr;
 
-	template <DWORD Dim>
-	class OctNode : public OctNodeBase
-	{
-	public:
-		typedef OctNode<(Dim + 1) % 3> ChildOctNode;
-
-		template <DWORD> friend class OctNode;
-
-		float m_Half;
-
-		float m_MinBlock;
-
-	public:
-		OctNode(OctNodeBase * Parent, const AABB & aabb, float MinBlock)
-			: OctNodeBase(Parent, aabb)
-			, m_Half((aabb.m_min[Dim] + aabb.m_max[Dim]) * 0.5f)
-			, m_MinBlock(MinBlock)
-		{
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNodeBase);
-			ar & BOOST_SERIALIZATION_NVP(m_Half);
-			ar & BOOST_SERIALIZATION_NVP(m_MinBlock);
-		}
-
-		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f)
-		{
-			_ASSERT(!actor->m_Node);
-			if (aabb.m_max[Dim] < m_Half + threshold && m_aabb.m_max[Dim] - m_aabb.m_min[Dim] > m_MinBlock)
-			{
-				if (!m_Childs[0])
-				{
-					Vector3 _Max = m_aabb.m_max;
-					_Max[Dim] = m_Half;
-					m_Childs[0].reset(new ChildOctNode(this, AABB(m_aabb.m_min, _Max), m_MinBlock));
-				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddActor(actor, aabb, threshold);
-			}
-			else if (aabb.m_min[Dim] > m_Half - threshold &&  m_aabb.m_max[Dim] - m_aabb.m_min[Dim] > m_MinBlock)
-			{
-				if (!m_Childs[1])
-				{
-					Vector3 _Min = m_aabb.m_min;
-					_Min[Dim] = m_Half;
-					m_Childs[1].reset(new ChildOctNode(this, AABB(_Min, m_aabb.m_max), m_MinBlock));
-				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddActor(actor, aabb, threshold);
-			}
-			else
-			{
-				m_Actors.insert(std::make_pair(actor, aabb));
-				actor->m_Node = this;
-			}
-		}
-	};
-
-	class OctRoot : public OctNode<0>
+	class OctRoot : public OctNode
 	{
 	protected:
 		OctRoot(void)
-			: OctNode<0>(NULL, AABB::Invalid(), 1)
+			: OctNode(NULL, AABB::Invalid())
 		{
 		}
 
 	public:
-		OctRoot(const AABB & aabb, float MinBlock)
-			: OctNode<0>(NULL, aabb, MinBlock)
+		OctRoot(const AABB & aabb)
+			: OctNode(NULL, aabb)
 		{
 		}
 

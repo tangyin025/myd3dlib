@@ -2756,6 +2756,19 @@ namespace my
 	class AABB
 	{
 	public:
+		enum Quadrant
+		{
+			QuadrantPxPyPz = 0,
+			QuadrantPxPyNz,
+			QuadrantPxNyPz,
+			QuadrantPxNyNz,
+			QuadrantNxPyPz,
+			QuadrantNxPyNz,
+			QuadrantNxNyPz,
+			QuadrantNxNyNz,
+			QuadrantNum
+		};
+
 		Vector3 m_min;
 
 		Vector3 m_max;
@@ -2807,7 +2820,7 @@ namespace my
 		}
 
 	public:
-		Vector3 Center(void)
+		Vector3 Center(void) const
 		{
 			return Vector3(
 				Lerp(m_min.x, m_max.x, 0.5f),
@@ -2815,12 +2828,15 @@ namespace my
 				Lerp(m_min.z, m_max.z, 0.5f));
 		}
 
-		Vector3 Extent(void)
+		Vector3 Extent(void) const
 		{
 			return m_max - m_min;
 		}
 
-		AABB intersect(const AABB & rhs) const
+		template <UINT Quad>
+		AABB Slice(const Vector3 & cente);
+
+		AABB Intersect(const AABB & rhs) const
 		{
 			return AABB(
 				Max(m_min.x, rhs.m_min.x),
