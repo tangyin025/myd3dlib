@@ -128,7 +128,7 @@ Terrain::Terrain(void)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(AABB(Vector3(0, -3000, 0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)))
+	, m_Root(AABB(Vector3(0, 0, 0), Vector3(ROW_CHUNKS * CHUNK_SIZE, UCHAR_MAX * m_HeightScale, COL_CHUNKS * CHUNK_SIZE)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
@@ -139,7 +139,7 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)))
+	, m_Root(AABB(Vector3(0, 0, 0), Vector3(ROW_CHUNKS * CHUNK_SIZE, UCHAR_MAX * m_HeightScale, COL_CHUNKS * CHUNK_SIZE)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
