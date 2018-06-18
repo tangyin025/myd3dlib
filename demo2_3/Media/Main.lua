@@ -78,7 +78,10 @@ local node_run=AnimationNodeBlendBySpeed(anim)
 node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=rate_run
-anim.Node=node_run
+local node_slot=AnimationNodeSlot(anim)
+node_slot.Child0=node_run
+node_slot.Root="Bip01"
+anim.Node=node_slot
 anim.Node:OnSetOwner()
 player.Animator=anim
 

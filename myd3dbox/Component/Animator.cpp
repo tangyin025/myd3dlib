@@ -108,7 +108,7 @@ void Animator::UpdateGroup(float fElapsedTime)
 
 void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMapRange range = m_SequenceGroups.equal_range(name);
+	SequenceGroupMap::_Pairii range = m_SequenceGroups.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter == range.second);
 	m_SequenceGroups.insert(std::make_pair(name, sequence));
@@ -116,7 +116,7 @@ void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequenc
 
 void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMapRange range = m_SequenceGroups.equal_range(name);
+	SequenceGroupMap::_Pairii range = m_SequenceGroups.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter != range.second);
 	m_SequenceGroups.erase(seq_iter);
@@ -156,18 +156,18 @@ void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
-	if (m_Owner->m_SkeletonRes.m_Res)
-	{
-		m_Time = fmod(m_Time + fElapsedTime * m_Rate, GetLength());
-	}
+	m_Time = fmod(m_Time + fElapsedTime * m_Rate, GetLength());
 }
 
 float AnimationNodeSequence::GetLength(void) const
 {
-	const OgreAnimation * anim = m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name);
-	if (anim)
+	if (m_Owner->m_SkeletonRes.m_Res)
 	{
-		return anim->GetTime();
+		const OgreAnimation * anim = m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name);
+		if (anim)
+		{
+			return anim->GetTime();
+		}
 	}
 	return 0;
 }
@@ -185,6 +185,106 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 				anim->GetPose(pose, m_Owner->m_SkeletonRes.m_Res->m_boneHierarchy, root_iter->second, m_Time);
 			}
 		}
+	}
+	return pose;
+}
+
+BOOST_CLASS_EXPORT(AnimationNodeSlot)
+
+void AnimationNodeSlot::OnSetOwner(void)
+{
+	AnimationNodeSequence::OnSetOwner();
+
+	if (m_Child0)
+	{
+		m_Child0->OnSetOwner();
+	}
+}
+
+void AnimationNodeSlot::UpdateRate(float fRate)
+{
+	AnimationNodeSequence::UpdateRate(fRate);
+
+	if (m_Child0)
+	{
+		m_Child0->UpdateRate(fRate);
+	}
+}
+
+void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
+{
+	float TargetWeight = m_Playing ? 1.0f : 0.0f;
+	if (m_BlendTime < fElapsedTime)
+	{
+		m_Weight = TargetWeight;
+		m_BlendTime = 0;
+	}
+	else if (m_BlendTime > 0)
+	{
+		const float delta = TargetWeight - m_Weight;
+		m_Weight += delta * fElapsedTime / m_BlendTime;
+		m_BlendTime -= fElapsedTime;
+	}
+
+	m_Child0->Tick(fElapsedTime, fTotalWeight * (1 - TargetWeight));
+
+	AnimationNodeSequence::Tick(fElapsedTime, fTotalWeight * TargetWeight);
+}
+
+void AnimationNodeSlot::Advance(float fElapsedTime)
+{
+	if (m_Playing)
+	{
+		if (m_Time < GetLength())
+		{
+			m_Time += fElapsedTime * m_Rate;
+		}
+		else if (m_Loop)
+		{
+			m_Time = 0;
+		}
+		else
+		{
+			m_Playing = false;
+			m_BlendTime = 0.3f;
+		}
+	}
+}
+
+void AnimationNodeSlot::Play(const std::string & Name, bool Loop, float Rate)
+{
+	m_Time = 0;
+	m_Rate = Rate;
+	m_Name = Name;
+	m_Playing = true;
+	m_BlendTime = 0.3f;
+	m_Loop = Loop;
+}
+
+void AnimationNodeSlot::Stop(void)
+{
+	m_Playing = false;
+	m_BlendTime = 0.3f;
+}
+
+my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
+{
+	if (m_Weight <= 0.0f)
+	{
+		return m_Child0->GetPose(pose);
+	}
+
+	if (m_Weight >= 1.0f)
+	{
+		AnimationNodeSequence::GetPose(pose);
+	}
+
+	m_Child0->GetPose(pose);
+	my::BoneList child_pose(pose.size());
+	AnimationNodeSequence::GetPose(child_pose);
+	for (unsigned int i = 0; i < pose.size(); i++)
+	{
+		pose[i].LerpSelf(child_pose[i], m_Weight);
 	}
 	return pose;
 }

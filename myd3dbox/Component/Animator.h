@@ -23,8 +23,6 @@ public:
 
 	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;
 
-	typedef std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> SequenceGroupMapRange;
-
 	SequenceGroupMap m_SequenceGroups;
 
 protected:
@@ -168,7 +166,7 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	void Advance(float fElapsedTime);
+	virtual void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
@@ -176,6 +174,65 @@ public:
 };
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
+
+class AnimationNodeSlot : public AnimationNodeSequence
+{
+public:
+	bool m_Playing;
+
+	bool m_Loop;
+
+	AnimationNodePtr m_Child0;
+
+	float m_BlendTime;
+
+	float m_Weight;
+
+protected:
+	AnimationNodeSlot(void)
+		: m_Playing(false)
+		, m_Loop(false)
+		, m_BlendTime(0)
+		, m_Weight(0)
+	{
+	}
+
+public:
+	AnimationNodeSlot(Animator * Owner)
+		: AnimationNodeSequence(Owner)
+		, m_Playing(false)
+		, m_Loop(false)
+		, m_BlendTime(0)
+		, m_Weight(0)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSequence);
+		ar & BOOST_SERIALIZATION_NVP(m_Child0);
+		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
+	}
+
+	virtual void OnSetOwner(void);
+
+	virtual void UpdateRate(float fRate);
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual void Advance(float fElapsedTime);
+
+	void Play(const std::string & Name, bool Loop = false, float Rate = 1.0f);
+
+	void Stop(void);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+};
+
+typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;
 
 class AnimationNodeBlend : public AnimationNode
 {

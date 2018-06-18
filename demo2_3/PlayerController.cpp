@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PlayerController.h"
 #include "Game.h"
+#include "../myd3dbox/Component/Animator.h"
 
 using namespace my;
 
@@ -108,8 +109,15 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case KC_SPACE:
+	{
 		character->m_Velocity.y = 5.0f;
+		if (character->m_Animator->m_Node)
+		{
+			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(character->m_Animator->m_Node);
+			node_slot->Play("jumpforward", false, 2.0f);
+		}
 		break;
+	}
 	case KC_W:
 		m_MoveAxis.y += 1;
 		break;
