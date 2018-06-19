@@ -91,15 +91,18 @@ void Animator::UpdateGroup(float fElapsedTime)
 		}
 
 		_ASSERT(master_seq_iter != m_SequenceGroups.end());
-		master_seq_iter->second->Advance(fElapsedTime);
-		float time_pct = master_seq_iter->second->m_Time / master_seq_iter->second->GetLength();
-
-		SequenceGroupMap::iterator adjust_seq_iter = seq_iter;
-		for (; adjust_seq_iter != next_seq_iter; adjust_seq_iter++)
+		if (master_seq_iter->second->m_Weight > EPSILON_E3)
 		{
-			if (adjust_seq_iter != master_seq_iter)
+			master_seq_iter->second->Advance(fElapsedTime);
+			float time_pct = master_seq_iter->second->m_Time / master_seq_iter->second->GetLength();
+
+			SequenceGroupMap::iterator adjust_seq_iter = seq_iter;
+			for (; adjust_seq_iter != next_seq_iter; adjust_seq_iter++)
 			{
-				adjust_seq_iter->second->m_Time = Lerp(0.0f, adjust_seq_iter->second->GetLength(), time_pct);
+				if (adjust_seq_iter != master_seq_iter)
+				{
+					adjust_seq_iter->second->m_Time = Lerp(0.0f, adjust_seq_iter->second->GetLength(), time_pct);
+				}
 			}
 		}
 		seq_iter = next_seq_iter;
