@@ -12,8 +12,8 @@ PlayerController::PlayerController(void)
 	Init();
 }
 
-PlayerController::PlayerController(Actor * actor)
-	: CharacterController(actor)
+PlayerController::PlayerController(Character * character)
+	: CharacterController(character)
 	, m_LookAngle(0, 0, 0)
 	, m_MoveAxis(0, 0)
 {
@@ -59,15 +59,14 @@ void PlayerController::Destroy(void)
 
 void PlayerController::Update(float fElapsedTime)
 {
-	Character * character = dynamic_cast<Character *>(m_Actor);
 	if (m_MoveAxis.x != 0 || m_MoveAxis.y != 0)
 	{
-		character->m_TargetSpeed = Game::getSingleton().m_keyboard->IsKeyDown(KC_LSHIFT) ? 10.0f : 2.0f;
-		character->m_TargetOrientation = m_LookAngle.y + atan2f((float)m_MoveAxis.x, (float)m_MoveAxis.y) + D3DXToRadian(180);
+		m_Character->m_TargetSpeed = Game::getSingleton().m_keyboard->IsKeyDown(KC_LSHIFT) ? 10.0f : 2.0f;
+		m_Character->m_TargetOrientation = m_LookAngle.y + atan2f((float)m_MoveAxis.x, (float)m_MoveAxis.y) + D3DXToRadian(180);
 	}
 	else
 	{
-		character->m_TargetSpeed = 0;
+		m_Character->m_TargetSpeed = 0;
 	}
 
 	CharacterController::Update(fElapsedTime);
@@ -75,8 +74,8 @@ void PlayerController::Update(float fElapsedTime)
 	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(Game::getSingleton().m_Camera.get());
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
 	camera->m_Eular = m_LookAngle;
-	camera->m_Eye = character->m_Position + Rotation[2].xyz * 3;
-	Game::getSingleton().m_SkyLightCam->m_Eye = character->m_Position;
+	camera->m_Eye = m_Character->m_Position + Rotation[2].xyz * 3;
+	Game::getSingleton().m_SkyLightCam->m_Eye = m_Character->m_Position;
 }
 
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
@@ -105,15 +104,14 @@ void PlayerController::OnMouseBtnUp(my::InputEventArg * arg)
 void PlayerController::OnKeyDown(my::InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-	Character * character = dynamic_cast<Character *>(m_Actor);
 	switch (karg.kc)
 	{
 	case KC_SPACE:
 	{
-		character->m_Velocity.y = 5.0f;
-		if (character->m_Animator->m_Node)
+		m_Character->m_Velocity.y = 5.0f;
+		if (m_Character->m_Animator->m_Node)
 		{
-			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(character->m_Animator->m_Node);
+			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(m_Character->m_Animator->m_Node);
 			node_slot->Play("jumpforward", false, 2.0f);
 		}
 		break;
@@ -140,7 +138,6 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 void PlayerController::OnKeyUp(my::InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-	Character * character = dynamic_cast<Character *>(m_Actor);
 	switch (karg.kc)
 	{
 	case KC_W:

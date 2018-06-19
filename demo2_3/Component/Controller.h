@@ -40,7 +40,10 @@ typedef boost::shared_ptr<Controller> ControllerPtr;
 class CharacterController
 	: public Controller
 {
-public:
+protected:
+	friend class Character;
+
+	Character * m_Character;
 
 protected:
 	CharacterController(void)
@@ -48,10 +51,7 @@ protected:
 	}
 
 public:
-	CharacterController(Actor * actor)
-		: Controller(actor)
-	{
-	}
+	CharacterController(Character * character);
 
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)

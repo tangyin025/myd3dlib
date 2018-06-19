@@ -15,7 +15,7 @@ protected:
 	PlayerController(void);
 
 public:
-	PlayerController(Actor * actor);
+	PlayerController(Character * character);
 
 	~PlayerController(void);
 

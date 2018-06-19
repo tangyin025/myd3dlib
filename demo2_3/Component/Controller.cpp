@@ -4,7 +4,12 @@
 
 using namespace my;
 
+CharacterController::CharacterController(Character * character)
+	: Controller(character)
+	, m_Character(character)
+{
+}
+
 void CharacterController::Update(float fElapsedTime)
 {
-	Character * character = dynamic_cast<Character *>(m_Actor);
 }
