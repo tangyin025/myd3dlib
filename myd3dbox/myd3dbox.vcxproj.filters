@@ -48,40 +48,40 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Component\Actor.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Animator.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Character.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Component.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\FModContext.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\PhysXContext.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\RenderPipeline.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\ResourceBundle.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Terrain.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
     <ClCompile Include="ShapeDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EnvironmentWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Component\Controller.cpp">
+    <ClCompile Include="..\demo2_3\Component\Actor.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\Animator.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\Character.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\Component.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\Controller.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\FModContext.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\PhysXContext.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\RenderPipeline.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\ResourceBundle.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\demo2_3\Component\Terrain.cpp">
       <Filter>Component</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,43 +122,43 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Component\Actor.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Animator.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Character.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Component.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\FModContext.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\PhysXContext.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\PhysXPtr.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\RenderPipeline.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\ResourceBundle.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Terrain.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="ShapeDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EnvironmentWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Component\Controller.h">
+    <ClInclude Include="..\demo2_3\Component\Actor.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\Animator.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\Character.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\Controller.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\FModContext.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\PhysXContext.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\PhysXPtr.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\RenderPipeline.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\ResourceBundle.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\demo2_3\Component\Terrain.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>

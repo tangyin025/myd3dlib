@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "Component/RenderPipeline.h"
-#include "Component/Actor.h"
-#include "Component/Terrain.h"
+#include "../demo2_3/Component/RenderPipeline.h"
+#include "../demo2_3/Component/Actor.h"
+#include "../demo2_3/Component/Terrain.h"
 #include "EventDefine.h"
 
 class CMainDoc;

@@ -39,41 +39,41 @@
     <ClCompile Include="Net\SocketAPI.cpp">
       <Filter>Net</Filter>
     </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\Actor.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\Animator.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\Character.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\Component.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\FModContext.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\PhysXContext.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\RenderPipeline.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\ResourceBundle.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\Terrain.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\Controller.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
     <ClCompile Include="LuaExtension.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PlayerController.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Actor.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Animator.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Character.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Component.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Controller.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\FModContext.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\PhysXContext.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\RenderPipeline.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\ResourceBundle.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Component\Terrain.cpp">
+      <Filter>Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,39 +92,6 @@
     <ClInclude Include="Net\SocketAPI.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\Actor.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\Animator.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\Character.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\Component.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\FModContext.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\PhysXContext.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\PhysXPtr.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\RenderPipeline.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\ResourceBundle.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\Terrain.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\Controller.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="LuaExtension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -133,6 +100,39 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Actor.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Animator.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Character.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Controller.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\FModContext.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\PhysXContext.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\PhysXPtr.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\RenderPipeline.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ResourceBundle.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Terrain.h">
+      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

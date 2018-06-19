@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PlayerController.h"
 #include "Game.h"
-#include "../myd3dbox/Component/Animator.h"
+#include "Component/Animator.h"
 
 using namespace my;
 

@@ -122,8 +122,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\demo2_3\Component\Actor.cpp" />
+    <ClCompile Include="..\demo2_3\Component\Animator.cpp" />
+    <ClCompile Include="..\demo2_3\Component\Character.cpp" />
+    <ClCompile Include="..\demo2_3\Component\Component.cpp" />
+    <ClCompile Include="..\demo2_3\Component\Controller.cpp" />
+    <ClCompile Include="..\demo2_3\Component\FModContext.cpp" />
+    <ClCompile Include="..\demo2_3\Component\PhysXContext.cpp" />
+    <ClCompile Include="..\demo2_3\Component\RenderPipeline.cpp" />
+    <ClCompile Include="..\demo2_3\Component\ResourceBundle.cpp" />
+    <ClCompile Include="..\demo2_3\Component\Terrain.cpp" />
     <ClCompile Include="ChildView.cpp" />
-    <ClCompile Include="Component\Controller.cpp" />
     <ClCompile Include="CtrlProps.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
     <ClCompile Include="EnvironmentWnd.cpp" />
@@ -138,19 +147,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Component\Actor.cpp" />
-    <ClCompile Include="Component\Animator.cpp" />
-    <ClCompile Include="Component\Character.cpp" />
-    <ClCompile Include="Component\Component.cpp" />
-    <ClCompile Include="Component\FModContext.cpp" />
-    <ClCompile Include="Component\PhysXContext.cpp" />
-    <ClCompile Include="Component\RenderPipeline.cpp" />
-    <ClCompile Include="Component\ResourceBundle.cpp" />
-    <ClCompile Include="Component\Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\demo2_3\Component\Actor.h" />
+    <ClInclude Include="..\demo2_3\Component\Animator.h" />
+    <ClInclude Include="..\demo2_3\Component\Character.h" />
+    <ClInclude Include="..\demo2_3\Component\Component.h" />
+    <ClInclude Include="..\demo2_3\Component\Controller.h" />
+    <ClInclude Include="..\demo2_3\Component\FModContext.h" />
+    <ClInclude Include="..\demo2_3\Component\PhysXContext.h" />
+    <ClInclude Include="..\demo2_3\Component\PhysXPtr.h" />
+    <ClInclude Include="..\demo2_3\Component\RenderPipeline.h" />
+    <ClInclude Include="..\demo2_3\Component\ResourceBundle.h" />
+    <ClInclude Include="..\demo2_3\Component\Terrain.h" />
     <ClInclude Include="ChildView.h" />
-    <ClInclude Include="Component\Controller.h" />
     <ClInclude Include="CtrlProps.h" />
     <ClInclude Include="DragableTreeCtrl.h" />
     <ClInclude Include="EnvironmentWnd.h" />
@@ -164,16 +174,6 @@
     <ClInclude Include="ShapeDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Component\Actor.h" />
-    <ClInclude Include="Component\Animator.h" />
-    <ClInclude Include="Component\Character.h" />
-    <ClInclude Include="Component\Component.h" />
-    <ClInclude Include="Component\FModContext.h" />
-    <ClInclude Include="Component\PhysXContext.h" />
-    <ClInclude Include="Component\PhysXPtr.h" />
-    <ClInclude Include="Component\RenderPipeline.h" />
-    <ClInclude Include="Component\ResourceBundle.h" />
-    <ClInclude Include="Component\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\classview.bmp" />

@@ -8,8 +8,8 @@
 #endif
 
 #include "resource.h"       // main symbols
-#include "Component/RenderPipeline.h"
-#include "Component/PhysXContext.h"
+#include "../demo2_3/Component/RenderPipeline.h"
+#include "../demo2_3/Component/PhysXContext.h"
 
 
 // CMainApp:

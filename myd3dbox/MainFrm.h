@@ -7,9 +7,9 @@
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
 #include "EnvironmentWnd.h"
-#include "Component/Actor.h"
-#include "Component/PhysXContext.h"
-#include "Component/Terrain.h"
+#include "../demo2_3/Component/Actor.h"
+#include "../demo2_3/Component/PhysXContext.h"
+#include "../demo2_3/Component/Terrain.h"
 #include "Pivot.h"
 #include "EventDefine.h"
 

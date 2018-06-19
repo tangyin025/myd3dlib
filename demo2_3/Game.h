@@ -2,11 +2,11 @@
 
 #include "Console.h"
 #include "LuaExtension.h"
-#include "../myd3dbox/Component/RenderPipeline.h"
-#include "../myd3dbox/Component/Character.h"
-#include "../myd3dbox/Component/Controller.h"
-#include "../myd3dbox/Component/PhysXContext.h"
-#include "../myd3dbox/Component/FModContext.h"
+#include "Component/RenderPipeline.h"
+#include "Component/Character.h"
+#include "Component/Controller.h"
+#include "Component/PhysXContext.h"
+#include "Component/FModContext.h"
 
 class Game
 	: public my::DxutApp

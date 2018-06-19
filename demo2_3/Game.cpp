@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "../myd3dbox/Component/Terrain.h"
+#include "Component/Terrain.h"
 #include "resource.h"
 #include <sstream>
 #include <fstream>

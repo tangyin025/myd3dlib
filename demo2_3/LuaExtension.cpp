@@ -4,10 +4,10 @@
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
-#include "../myd3dbox/Component/Character.h"
-#include "../myd3dbox/Component/Animator.h"
-#include "../myd3dbox/Component/Controller.h"
-#include "../myd3dbox/Component/Terrain.h"
+#include "Component/Character.h"
+#include "Component/Animator.h"
+#include "Component/Controller.h"
+#include "Component/Terrain.h"
 
 namespace luabind
 {

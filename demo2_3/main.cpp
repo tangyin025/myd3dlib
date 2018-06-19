@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "../myd3dbox/Component/Terrain.h"
+#include "Component/Terrain.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>

@@ -99,7 +99,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\myd3dbox\Component\Controller.cpp" />
+    <ClCompile Include="Component\Actor.cpp" />
+    <ClCompile Include="Component\Animator.cpp" />
+    <ClCompile Include="Component\Character.cpp" />
+    <ClCompile Include="Component\Component.cpp" />
+    <ClCompile Include="Component\Controller.cpp" />
+    <ClCompile Include="Component\FModContext.cpp" />
+    <ClCompile Include="Component\PhysXContext.cpp" />
+    <ClCompile Include="Component\RenderPipeline.cpp" />
+    <ClCompile Include="Component\ResourceBundle.cpp" />
+    <ClCompile Include="Component\Terrain.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="LuaExtension.cpp" />
@@ -111,18 +120,19 @@
     </ClCompile>
     <ClCompile Include="Net\Socket.cpp" />
     <ClCompile Include="Net\SocketAPI.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\Actor.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\Animator.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\Character.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\Component.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\FModContext.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\PhysXContext.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\RenderPipeline.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\ResourceBundle.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\myd3dbox\Component\Controller.h" />
+    <ClInclude Include="Component\Actor.h" />
+    <ClInclude Include="Component\Animator.h" />
+    <ClInclude Include="Component\Character.h" />
+    <ClInclude Include="Component\Component.h" />
+    <ClInclude Include="Component\Controller.h" />
+    <ClInclude Include="Component\FModContext.h" />
+    <ClInclude Include="Component\PhysXContext.h" />
+    <ClInclude Include="Component\PhysXPtr.h" />
+    <ClInclude Include="Component\RenderPipeline.h" />
+    <ClInclude Include="Component\ResourceBundle.h" />
+    <ClInclude Include="Component\Terrain.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="LuaExtension.h" />
@@ -131,16 +141,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Net\Socket.h" />
     <ClInclude Include="Net\SocketAPI.h" />
-    <ClInclude Include="..\myd3dbox\Component\Actor.h" />
-    <ClInclude Include="..\myd3dbox\Component\Animator.h" />
-    <ClInclude Include="..\myd3dbox\Component\Character.h" />
-    <ClInclude Include="..\myd3dbox\Component\Component.h" />
-    <ClInclude Include="..\myd3dbox\Component\FModContext.h" />
-    <ClInclude Include="..\myd3dbox\Component\PhysXContext.h" />
-    <ClInclude Include="..\myd3dbox\Component\PhysXPtr.h" />
-    <ClInclude Include="..\myd3dbox\Component\RenderPipeline.h" />
-    <ClInclude Include="..\myd3dbox\Component\ResourceBundle.h" />
-    <ClInclude Include="..\myd3dbox\Component\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\freetype\scripts\freetype.vcxproj">

@@ -7,7 +7,7 @@
 
 #include "ChildView.h"
 #include "MainFrm.h"
-#include "Component/Animator.h"
+#include "../demo2_3/Component/Animator.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

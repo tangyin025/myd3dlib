@@ -5,8 +5,8 @@
 #include "MainApp.h"
 #include "ShapeDlg.h"
 #include "afxdialogex.h"
-#include "Component\Actor.h"
-#include "Component\Terrain.h"
+#include "../demo2_3/Component/Actor.h"
+#include "../demo2_3/Component/Terrain.h"
 
 // CShapeDlg dialog
 

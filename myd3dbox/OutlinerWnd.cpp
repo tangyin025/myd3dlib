@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "OutlinerWnd.h"
 #include "MainApp.h"
-#include "Component/Actor.h"
+#include "../demo2_3/Component/Actor.h"
 #include "MainFrm.h"
 
 #ifdef _DEBUG

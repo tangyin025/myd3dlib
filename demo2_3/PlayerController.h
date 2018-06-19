@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../myd3dbox/Component/Controller.h"
+#include "Component/Controller.h"
 
 class PlayerController
 	: public CharacterController

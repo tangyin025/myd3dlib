@@ -8,7 +8,7 @@
 #include "MainFrm.h"
 #include "ChildView.h"
 #include "ShapeDlg.h"
-#include "Component/Terrain.h"
+#include "../demo2_3/Component/Terrain.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
