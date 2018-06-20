@@ -270,7 +270,7 @@ static int os_exit(lua_State * L)
 
 Game::Game(void)
 	: m_UIRender(new EffectUIRender())
-	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * Terrain::COL_CHUNKS))
+	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;

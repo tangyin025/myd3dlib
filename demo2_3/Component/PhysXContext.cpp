@@ -278,7 +278,7 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 
 	_ASSERT(0 == m_ErrorState);
 
-	// ! take care of multi thread
+	// ! be aware of multi thread
 	m_EventPxThreadSubstep(m_Timer.m_Interval);
 
 	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)

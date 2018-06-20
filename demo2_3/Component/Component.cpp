@@ -834,9 +834,11 @@ void ClothComponent::UpdateCloth(void)
 
 void ClothComponent::OnWorldChanged(void)
 {
+	_ASSERT(m_Actor);
+
 	if (m_Cloth)
 	{
-		m_Cloth->setTargetPose(physx::PxTransform((physx::PxMat44&)(m_Actor ? m_Actor->m_World : Matrix4::identity)));
+		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
 	}
 }
 

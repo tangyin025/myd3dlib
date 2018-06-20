@@ -281,10 +281,11 @@ void Actor::OnWorldChanged(void)
 		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
 	}
 
-	if (m_PxActor)
-	{
-		m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
-	}
+	// ! conflict with OnUpdatePxTransform
+	//if (m_PxActor)
+	//{
+	//	m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+	//}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
