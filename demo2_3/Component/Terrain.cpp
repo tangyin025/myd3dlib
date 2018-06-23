@@ -128,7 +128,7 @@ Terrain::Terrain(void)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
+	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
@@ -139,7 +139,7 @@ Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(my::AABB(0, Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
+	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
 	CreateHeightMap();
@@ -581,7 +581,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DW
 {
 	_ASSERT(m_Actor);
 
-	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
+	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
 	shader->SetMatrix("g_World", m_Actor->m_World);
 

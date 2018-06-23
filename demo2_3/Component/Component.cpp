@@ -332,7 +332,7 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(AttribId < m_MaterialList.size());
 
-	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
+	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
 	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
@@ -712,7 +712,7 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 	_ASSERT(!m_VertexData.empty());
 	_ASSERT(AttribId < m_MaterialList.size());
 
-	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
+	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
 	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
@@ -888,7 +888,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 {
 	_ASSERT(0 == AttribId);
 
-	shader->SetFloat("g_Time", m_Emitter->m_Time);
+	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
 	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
 
@@ -962,7 +962,7 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 
 	_ASSERT(m_SpawnInterval > 0);
 
-	float SpawnTime = fmod(m_Emitter->m_Time, m_SpawnLoopTime);
+	float SpawnTime = fmod(D3DContext::getSingleton().m_fTotalTime, m_SpawnLoopTime);
 
 	while(m_RemainingSpawnTime >= 0)
 	{

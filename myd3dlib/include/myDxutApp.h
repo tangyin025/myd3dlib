@@ -43,6 +43,8 @@ namespace my
 
 		float m_fElapsedTime;
 
+		float m_fTotalTime;
+
 		Clock(void);
 
 		void UpdateClock(void);

@@ -113,10 +113,15 @@ Clock::Clock(void)
 	, m_llLastElapsedTime(0)
 	, m_fAbsoluteTime(0)
 	, m_fElapsedTime(0)
+	, m_fTotalTime(0)
 {
 	LARGE_INTEGER qwTicksPerSec;
 	QueryPerformanceFrequency(&qwTicksPerSec);
 	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
+
+	LARGE_INTEGER qwTime;
+	QueryPerformanceCounter(&qwTime);
+	m_llLastElapsedTime = qwTime.QuadPart;
 
 	UpdateClock();
 }
@@ -129,6 +134,8 @@ void Clock::UpdateClock(void)
 	m_fAbsoluteTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
 
 	m_fElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
+
+	m_fTotalTime += m_fElapsedTime;
 
 	m_llLastElapsedTime = qwTime.QuadPart;
 }

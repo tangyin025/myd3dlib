@@ -66,12 +66,9 @@ namespace my
 
 		ParticleList m_ParticleList;
 
-		float m_Time;
-
 	public:
 		Emitter(void)
 			: m_ParticleList(PARTICLE_INSTANCE_MAX)
-			, m_Time(0)
 		{
 		}
 
