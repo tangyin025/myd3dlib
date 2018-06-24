@@ -862,7 +862,7 @@ void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & V
 
 	if (m_Emitter)
 	{
-		if (m_Emitter->m_Type == Emitter::EmitterTypeWorld)
+		if (m_EmitterType == EmitterTypeWorld)
 		{
 			Vector3 Trans, Scale; Quaternion Rot;
 			m_Actor->m_World.Decompose(Scale, Rot, Trans);
@@ -920,7 +920,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
-	if (m_Emitter && m_Emitter->m_Type == Emitter::EmitterTypeWorld)
+	if (m_EmitterType == EmitterTypeWorld)
 	{
 		shader->SetMatrix("g_World", Matrix4::identity);
 	}

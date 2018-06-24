@@ -340,6 +340,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		CreatePropertiesStaticEmitter(pComponent, emit_cmp);
 		return;
 	}
+	pProp->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_Emitter->m_ParticleList.size());
 	for (unsigned int i = 0; i < emit_cmp->m_Emitter->m_ParticleList.size(); i++)
 	{
 		if ((unsigned int)pProp->GetSubItemsCount() <= i + 1)
@@ -404,7 +405,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
 {
 	_ASSERT(pSpline->GetData() >= PropertySphericalEmitterSpawnInclination && pSpline->GetData() <= PropertySphericalEmitterSpawnAngle);
-	_ASSERT(pSpline->GetValue().ulVal == (DWORD_PTR)spline);
+	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
 	pSpline->GetSubItem(0)->SetValue((_variant_t)spline->size());
 	unsigned int i = 0;
 	for (; i < spline->size(); i++)
@@ -638,7 +639,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)(size_t)emit_cmp->m_Emitter->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)emit_cmp->m_Emitter->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
 	pParticleList->AddSubItem(pProp);
 	for (unsigned int i = 0; i < emit_cmp->m_Emitter->m_ParticleList.size(); i++)
 	{
@@ -729,7 +730,7 @@ void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentPr
 	CMFCPropertyGridProperty * pSpline = new CSimpleProp(lpszName, PropertyId, TRUE);
 	pParentProp->AddSubItem(pSpline);
 	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)(size_t)spline->size(), NULL, PropertySplineNodeCount);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)spline->size(), NULL, PropertySplineNodeCount);
 	pSpline->AddSubItem(pProp);
 	for (unsigned int i = 0; i < spline->size(); i++)
 	{

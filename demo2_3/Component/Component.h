@@ -375,15 +375,25 @@ public:
 
 	MaterialPtr m_Material;
 
+	enum EmitterType
+	{
+		EmitterTypeWorld,
+		EmitterTypeLocal
+	};
+
+	EmitterType m_EmitterType;
+
 protected:
 	EmitterComponent(void)
 		: RenderComponent(ComponentTypeEmitter)
+		, m_EmitterType(EmitterTypeWorld)
 	{
 	}
 
 public:
 	EmitterComponent(ComponentType type)
 		: RenderComponent(type)
+		, m_EmitterType(EmitterTypeWorld)
 	{
 	}
 
@@ -395,6 +405,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
+		ar & BOOST_SERIALIZATION_NVP(m_EmitterType);
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
