@@ -2,10 +2,12 @@
 struct VS_INPUT
 {
 	float2 Tex0  			: TEXCOORD0;
+//#if INSTANCE
 	float4 Pos				: POSITION;
 	float3 Velocity			: NORMAL;
 	float4 Color			: TEXCOORD1;
 	float4 Tex2				: TEXCOORD2; // size_x, size_y, angle, time
+//#endif
 };
 
 float3 RotateAngleAxis(float3 v, float a, float3 N)

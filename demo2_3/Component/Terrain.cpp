@@ -613,6 +613,8 @@ my::AABB Terrain::CalculateAABB(void) const
 
 void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
+	_ASSERT(m_Actor);
+
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		RenderPipeline * pipeline;
@@ -654,7 +656,6 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					if (shader)
 					{
 						// ! do not use m_World for level offset
-						_ASSERT(m_Actor);
 						const Matrix4 & World = m_Actor->m_World;
 						Frustum loc_frustum = frustum.transform(World.transpose());
 						Vector3 loc_viewpos = ViewPos.transformCoord(World.inverse());

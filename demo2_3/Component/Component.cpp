@@ -332,9 +332,11 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(AttribId < m_MaterialList.size());
 
+	_ASSERT(m_Actor);
+
 	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
-	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
+	shader->SetMatrix("g_World", m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
@@ -359,6 +361,8 @@ my::AABB MeshComponent::CalculateAABB(void) const
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
+	_ASSERT(m_Actor);
+
 	if (m_MeshRes.m_Res)
 	{
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
@@ -375,7 +379,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_Actor ? m_Actor->m_World : Matrix4::identity, shader, this);
+								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_Actor->m_World, shader, this);
 							}
 							else
 							{
@@ -709,12 +713,15 @@ void ClothComponent::OnDestroyDevice(void)
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
-	_ASSERT(!m_VertexData.empty());
 	_ASSERT(AttribId < m_MaterialList.size());
+
+	_ASSERT(!m_VertexData.empty());
+
+	_ASSERT(m_Actor);
 
 	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
-	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
+	shader->SetMatrix("g_World", m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
@@ -888,9 +895,11 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 {
 	_ASSERT(0 == AttribId);
 
+	_ASSERT(m_Actor);
+
 	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
-	shader->SetMatrix("g_World", m_Actor ? m_Actor->m_World : Matrix4::identity);
+	shader->SetMatrix("g_World", m_Actor->m_World);
 
 	if (m_Material)
 	{

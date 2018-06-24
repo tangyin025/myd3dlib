@@ -2,15 +2,15 @@
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
+	float2 Tex0				: TEXCOORD0;
+	float3 Normal			: NORMAL;
+	float3 Tangent			: TANGENT;
 #if INSTANCE
 	float4 Pos1				: POSITION1;
 	float4 Pos2				: POSITION2;
 	float4 Pos3				: POSITION3;
 	float4 Pos4				: POSITION4;
 #endif
-	float2 Tex0				: TEXCOORD0;
-	float3 Normal			: NORMAL;
-	float3 Tangent			: TANGENT;
 };
 
 float4 TransformPosWS(VS_INPUT In)
