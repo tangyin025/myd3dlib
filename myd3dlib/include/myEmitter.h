@@ -66,15 +66,25 @@ namespace my
 
 		ParticleList m_ParticleList;
 
+		enum EmitterType
+		{
+			EmitterTypeWorld,
+			EmitterTypeLocal
+		};
+
+		EmitterType m_Type;
+
 	public:
 		Emitter(void)
 			: m_ParticleList(PARTICLE_INSTANCE_MAX)
+			, m_Type(EmitterTypeWorld)
 		{
 		}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
+			ar & BOOST_SERIALIZATION_NVP(m_Type);
 		}
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);

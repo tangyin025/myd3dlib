@@ -26,6 +26,8 @@ BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(ClothComponent)
 
+BOOST_CLASS_EXPORT(EmitterComponent)
+
 BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
@@ -854,6 +856,25 @@ void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 	RenderComponent::CopyFrom(rhs);
 }
 
+void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
+{
+	_ASSERT(m_Actor);
+
+	if (m_Emitter)
+	{
+		if (m_Emitter->m_Type == Emitter::EmitterTypeWorld)
+		{
+			Vector3 Trans, Scale; Quaternion Rot;
+			m_Actor->m_World.Decompose(Scale, Rot, Trans);
+			m_Emitter->Spawn(Position.transformCoord(m_Actor->m_World), Velocity * Scale, Color, Size * Scale.xy, Angle);
+		}
+		else
+		{
+			m_Emitter->Spawn(Position, Velocity, Color, Size, Angle);
+		}
+	}
+}
+
 ComponentPtr EmitterComponent::Clone(void) const
 {
 	EmitterComponentPtr ret(new EmitterComponent());
@@ -899,7 +920,14 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
-	shader->SetMatrix("g_World", m_Actor->m_World);
+	if (m_Emitter && m_Emitter->m_Type == Emitter::EmitterTypeWorld)
+	{
+		shader->SetMatrix("g_World", Matrix4::identity);
+	}
+	else
+	{
+		shader->SetMatrix("g_World", m_Actor->m_World);
+	}
 
 	if (m_Material)
 	{
@@ -975,7 +1003,7 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 
 	while(m_RemainingSpawnTime >= 0)
 	{
-		m_Emitter->Spawn(
+		Spawn(
 			Vector3(
 				Random(m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 				Random(m_HalfSpawnArea.y, m_HalfSpawnArea.y),

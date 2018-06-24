@@ -387,6 +387,8 @@ public:
 	{
 	}
 
+	friend class boost::serialization::access;
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -396,6 +398,8 @@ public:
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
+
+	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle);
 
 	virtual ComponentPtr Clone(void) const;
 
