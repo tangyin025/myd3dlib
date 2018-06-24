@@ -864,9 +864,7 @@ void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & V
 	{
 		if (m_EmitterType == EmitterTypeWorld)
 		{
-			Vector3 Trans, Scale; Quaternion Rot;
-			m_Actor->m_World.Decompose(Scale, Rot, Trans);
-			m_Emitter->Spawn(Position.transformCoord(m_Actor->m_World), Velocity * Scale, Color, Size * Scale.xy, Angle);
+			m_Emitter->Spawn(Position.transformCoord(m_Actor->m_World), Velocity.transformNormal(m_Actor->m_World), Color, Size * m_Actor->m_Scale.xy, Angle);
 		}
 		else
 		{
