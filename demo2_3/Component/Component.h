@@ -377,8 +377,8 @@ public:
 
 	enum EmitterType
 	{
-		EmitterTypeWorld,
-		EmitterTypeLocal
+		EmitterTypeLocal,
+		EmitterTypeWorld
 	};
 
 	EmitterType m_EmitterType;
@@ -386,14 +386,14 @@ public:
 protected:
 	EmitterComponent(void)
 		: RenderComponent(ComponentTypeEmitter)
-		, m_EmitterType(EmitterTypeWorld)
+		, m_EmitterType(EmitterTypeLocal)
 	{
 	}
 
 public:
 	EmitterComponent(ComponentType type)
 		: RenderComponent(type)
-		, m_EmitterType(EmitterTypeWorld)
+		, m_EmitterType(EmitterTypeLocal)
 	{
 	}
 

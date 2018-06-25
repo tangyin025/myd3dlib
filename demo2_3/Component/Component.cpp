@@ -862,13 +862,13 @@ void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & V
 
 	if (m_Emitter)
 	{
-		if (m_EmitterType == EmitterTypeWorld)
+		if (m_EmitterType == EmitterTypeLocal)
 		{
-			m_Emitter->Spawn(Position.transformCoord(m_Actor->m_World), Velocity.transformNormal(m_Actor->m_World), Color, Size * m_Actor->m_Scale.xy, Angle);
+			m_Emitter->Spawn(Position, Velocity, Color, Size, Angle);
 		}
 		else
 		{
-			m_Emitter->Spawn(Position, Velocity, Color, Size, Angle);
+			m_Emitter->Spawn(Position.transformCoord(m_Actor->m_World), Velocity.transformNormal(m_Actor->m_World), Color, Size * m_Actor->m_Scale.xy, Angle);
 		}
 	}
 }
@@ -918,13 +918,13 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
-	if (m_EmitterType == EmitterTypeWorld)
+	if (m_EmitterType == EmitterTypeLocal)
 	{
-		shader->SetMatrix("g_World", Matrix4::identity);
+		shader->SetMatrix("g_World", m_Actor->m_World);
 	}
 	else
 	{
-		shader->SetMatrix("g_World", m_Actor->m_World);
+		shader->SetMatrix("g_World", Matrix4::identity);
 	}
 
 	if (m_Material)
