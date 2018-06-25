@@ -79,8 +79,8 @@ static LPCTSTR g_BlendModeDesc[] =
 
 static LPCTSTR g_EmitterTypeDesc[] =
 {
-	_T("EmitterTypeWorld"),
-	_T("EmitterTypeLocal")
+	_T("EmitterTypeLocal"),
+	_T("EmitterTypeWorld")
 };
 
 /////////////////////////////////////////////////////////////////////////////
