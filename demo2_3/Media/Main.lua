@@ -88,6 +88,22 @@ player.Animator=anim
 -- 创建控制器
 player.Controller=PlayerController(player)
 
+-- 在角色手部绑定物体
+local actor=Actor(Vector3(0,3,0),Quaternion.Identity(),Vector3(0.3,0.3,0.3),AABB(-1,1))
+local lambert2=Material()
+lambert2.Shader="shader/lambert1.fx"
+lambert2.PassMask=Material.PassMaskOpaque
+lambert2.MeshTexture.Path="texture/Checker.bmp"
+lambert2.NormalTexture.Path="texture/Normal.dds"
+lambert2.SpecularTexture.Path="texture/White.dds"
+local cmp=MeshComponent()
+cmp.MeshRes.Path="mesh/Cube.mesh.xml"
+cmp:AddMaterial(lambert2)
+actor:AddComponent(cmp)
+actor.SlotType=Actor.SlotTypeBone
+actor.SlotParam=18
+player:AddChild(actor)
+
 -- 加入场景
 player:UpdateWorld()
 game.Root:AddActor(player,player.aabb:transform(player.World))

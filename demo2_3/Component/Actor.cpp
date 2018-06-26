@@ -159,6 +159,13 @@ ActorPtr Actor::Clone(void) const
 	return ret;
 }
 
+void Actor::AddChild(boost::shared_ptr<Actor> child)
+{
+	_ASSERT(child && !child->m_Parent);
+	m_Childs.push_back(child);
+	child->m_Parent = this;
+}
+
 void Actor::RequestResource(void)
 {
 	m_Requested = true;
@@ -260,7 +267,14 @@ void Actor::Update(float fElapsedTime)
 		switch (m_SlotType)
 		{
 		case SlotTypeBone:
-			// todo
+			if (m_Parent->m_Animator && !m_Parent->m_Animator->anim_pose_hier.empty())
+			{
+				const Bone & bone = m_Parent->m_Animator->anim_pose_hier[m_SlotParam];
+				m_Position = bone.m_position.transformCoord(m_Parent->m_World);
+				m_Rotation = bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Parent->m_World));
+				UpdateWorld();
+				OnWorldChanged();
+			}
 			break;
 		}
 	}
@@ -279,6 +293,12 @@ void Actor::Update(float fElapsedTime)
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->Update(fElapsedTime);
+	}
+
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
+	{
+		(*act_iter)->Update(fElapsedTime);
 	}
 }
 

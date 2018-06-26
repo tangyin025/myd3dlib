@@ -964,6 +964,7 @@ static void ExportComponent(lua_State * L)
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
 			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
 			.def_readwrite("Material", &EmitterComponent::m_Material)
+			.def("Spawn", &EmitterComponent::Spawn)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
 			.def(constructor<>())
@@ -988,7 +989,7 @@ static void ExportComponent(lua_State * L)
 		, class_<Terrain, RenderComponent, boost::shared_ptr<Component> >("Terrain")
 			.def(constructor<float, float, float>())
 
-		, class_<Actor, my::OctActor, boost::shared_ptr<my::OctActor> >("Actor")
+		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
@@ -998,6 +999,15 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Animator", &Actor::m_Animator)
 			.def_readwrite("Controller", &Actor::m_Controller)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
+			.enum_("_SlotType")
+			[
+				value("SlotTypeOffset", Actor::SlotTypeOffset),
+				value("SlotTypeBone", Actor::SlotTypeBone),
+				value("SlotTypeCloth", Actor::SlotTypeCloth)
+			]
+			.def_readwrite("SlotType", &Actor::m_SlotType)
+			.def_readwrite("SlotParam", &Actor::m_SlotParam)
+			.def("AddChild", &Actor::AddChild)
 			.def("UpdateAABB", &Actor::UpdateAABB)
 			.def("UpdateWorld", &Actor::UpdateWorld)
 			.def("OnWorldChanged", &Actor::OnWorldChanged)

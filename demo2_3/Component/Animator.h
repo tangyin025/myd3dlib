@@ -19,7 +19,7 @@ public:
 
 	AnimationNodePtr m_Node;
 
-	my::BoneList m_FinalPose;
+	my::BoneList anim_pose_hier;
 
 	my::TransformList m_DualQuats;
 

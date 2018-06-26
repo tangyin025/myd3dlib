@@ -111,6 +111,8 @@ public:
 
 	virtual ActorPtr Clone(void) const;
 
+	void AddChild(boost::shared_ptr<Actor> child);
+
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
