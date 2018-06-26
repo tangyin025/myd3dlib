@@ -138,10 +138,17 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 void Actor::CopyFrom(const Actor & rhs)
 {
 	m_aabb = rhs.m_aabb;
+
 	m_Cmps.resize(rhs.m_Cmps.size());
 	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
 	{
 		m_Cmps[i] = rhs.m_Cmps[i]->Clone();
+	}
+
+	m_Childs.resize(rhs.m_Childs.size());
+	for (unsigned int i = 0; i < rhs.m_Childs.size(); i++)
+	{
+		m_Childs[i] = rhs.m_Childs[i]->Clone();
 	}
 }
 
@@ -166,6 +173,12 @@ void Actor::RequestResource(void)
 	{
 		(*cmp_iter)->RequestResource();
 	}
+
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
+	{
+		(*act_iter)->RequestResource();
+	}
 }
 
 void Actor::ReleaseResource(void)
@@ -182,33 +195,51 @@ void Actor::ReleaseResource(void)
 	{
 		(*cmp_iter)->ReleaseResource();
 	}
+
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
+	{
+		(*act_iter)->ReleaseResource();
+	}
 }
 
 void Actor::OnEnterPxScene(PhysXSceneContext * scene)
 {
+	if (m_PxActor)
+	{
+		scene->m_PxScene->addActor(*m_PxActor);
+	}
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->OnEnterPxScene(scene);
 	}
 
-	if (m_PxActor)
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
 	{
-		scene->m_PxScene->addActor(*m_PxActor);
+		(*act_iter)->OnEnterPxScene(scene);
 	}
 }
 
 void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 {
-	if (m_PxActor)
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
 	{
-		scene->m_PxScene->removeActor(*m_PxActor, false);
+		(*act_iter)->OnLeavePxScene(scene);
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->OnLeavePxScene(scene);
+	}
+
+	if (m_PxActor)
+	{
+		scene->m_PxScene->removeActor(*m_PxActor, false);
 	}
 }
 
@@ -224,6 +255,16 @@ void Actor::OnUpdatePxTransform(const physx::PxTransform & trans)
 
 void Actor::Update(float fElapsedTime)
 {
+	if (m_Parent)
+	{
+		switch (m_SlotType)
+		{
+		case SlotTypeBone:
+			// todo
+			break;
+		}
+	}
+
 	if (m_Animator)
 	{
 		m_Animator->Update(fElapsedTime);
@@ -292,6 +333,12 @@ void Actor::OnWorldChanged(void)
 	{
 		(*cmp_iter)->OnWorldChanged();
 	}
+
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
+	{
+		(*act_iter)->OnWorldChanged();
+	}
 }
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
@@ -300,6 +347,12 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
+	}
+
+	ActorPtrList::iterator act_iter = m_Childs.begin();
+	for (; act_iter != m_Childs.end(); act_iter++)
+	{
+		(*act_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 	}
 }
 

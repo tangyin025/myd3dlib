@@ -19,6 +19,8 @@ public:
 
 	AnimationNodePtr m_Node;
 
+	my::BoneList m_FinalPose;
+
 	my::TransformList m_DualQuats;
 
 	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;

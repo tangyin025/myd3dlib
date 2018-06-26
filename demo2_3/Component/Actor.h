@@ -39,6 +39,23 @@ public:
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
+	Actor * m_Parent;
+
+	enum SlotType
+	{
+		SlotTypeOffset,
+		SlotTypeBone,
+		SlotTypeCloth,
+	};
+
+	SlotType m_SlotType;
+
+	unsigned int m_SlotParam;
+
+	typedef std::vector<ActorPtr> ActorPtrList;
+
+	ActorPtrList m_Childs;
+
 protected:
 	Actor(void)
 		: m_aabb(my::AABB::Invalid())
@@ -47,6 +64,9 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
+		, m_Parent(NULL)
+		, m_SlotType(SlotTypeOffset)
+		, m_SlotParam(0)
 	{
 	}
 
@@ -58,6 +78,9 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
+		, m_Parent(NULL)
+		, m_SlotType(SlotTypeOffset)
+		, m_SlotParam(0)
 	{
 	}
 
