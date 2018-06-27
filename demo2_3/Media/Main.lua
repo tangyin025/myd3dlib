@@ -40,6 +40,8 @@ end
 cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
+player:UpdateWorld()
+game.Root:AddActor(player,player.aabb:transform(player.World))
 
 -- 加载动画资源
 local anim=Animator(player)
@@ -89,7 +91,7 @@ player.Animator=anim
 player.Controller=PlayerController(player)
 
 -- 在角色手部绑定物体
-local actor=Actor(Vector3(0,3,0),Quaternion.Identity(),Vector3(0.3,0.3,0.3),AABB(-1,1))
+local actor2=Actor(Vector3(0,3,0),Quaternion.Identity(),Vector3(0.3,0.3,0.3),AABB(-1,1))
 local lambert2=Material()
 lambert2.Shader="shader/lambert1.fx"
 lambert2.PassMask=Material.PassMaskOpaque
@@ -99,14 +101,8 @@ lambert2.SpecularTexture.Path="texture/White.dds"
 local cmp=MeshComponent()
 cmp.MeshRes.Path="mesh/Cube.mesh.xml"
 cmp:AddMaterial(lambert2)
-actor:AddComponent(cmp)
-actor.SlotType=Actor.SlotTypeBone
-actor.SlotParam=18
-player:AddChild(actor)
-
--- 加入场景
-player:UpdateWorld()
-game.Root:AddActor(player,player.aabb:transform(player.World))
+actor2:AddComponent(cmp)
+game.Root:AddActor(actor2,actor2.aabb:transform(actor2.World))
 
 -- 特殊渲染选项
 game.SsaoEnable=true

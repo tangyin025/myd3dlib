@@ -39,22 +39,22 @@ public:
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
-	Actor * m_Parent;
+	//Actor * m_Parent;
 
-	enum SlotType
-	{
-		SlotTypeOffset,
-		SlotTypeBone,
-		SlotTypeCloth,
-	};
+	//enum SlotType
+	//{
+	//	SlotTypeOffset,
+	//	SlotTypeBone,
+	//	SlotTypeCloth,
+	//};
 
-	SlotType m_SlotType;
+	//SlotType m_SlotType;
 
-	unsigned int m_SlotParam;
+	//unsigned int m_SlotParam;
 
-	typedef std::vector<ActorPtr> ActorPtrList;
+	//typedef std::vector<ActorPtr> ActorPtrList;
 
-	ActorPtrList m_Childs;
+	//ActorPtrList m_Childs;
 
 protected:
 	Actor(void)
@@ -64,9 +64,6 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_Parent(NULL)
-		, m_SlotType(SlotTypeOffset)
-		, m_SlotParam(0)
 	{
 	}
 
@@ -78,9 +75,6 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_Parent(NULL)
-		, m_SlotType(SlotTypeOffset)
-		, m_SlotParam(0)
 	{
 	}
 
@@ -110,8 +104,6 @@ public:
 	void CopyFrom(const Actor & rhs);
 
 	virtual ActorPtr Clone(void) const;
-
-	void AddChild(boost::shared_ptr<Actor> child);
 
 	virtual void RequestResource(void);
 
