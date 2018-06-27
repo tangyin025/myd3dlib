@@ -18,6 +18,15 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Actor)
 
+Actor::~Actor(void)
+{
+	if (m_Base)
+	{
+		_ASSERT(m_Base->m_Suber == this);
+		m_Base->m_Suber = NULL;
+	}
+}
+
 template<>
 void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
@@ -217,29 +226,12 @@ void Actor::OnUpdatePxTransform(const physx::PxTransform & trans)
 {
 	m_Position = (my::Vector3 &)trans.p;
 	m_Rotation = (my::Quaternion &)trans.q;
-
 	UpdateWorld();
-
 	OnWorldChanged();
 }
 
 void Actor::Update(float fElapsedTime)
 {
-	//if (m_Parent)
-	//{
-	//	switch (m_SlotType)
-	//	{
-	//	case SlotTypeBone:
-	//		if (m_Parent->m_Animator && !m_Parent->m_Animator->anim_pose_hier.empty())
-	//		{
-	//			const Bone & bone = m_Parent->m_Animator->anim_pose_hier[m_SlotParam];
-	//			UpdatePose(bone.m_position.transformCoord(m_Parent->m_World),
-	//				bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Parent->m_World)));
-	//		}
-	//		break;
-	//	}
-	//}
-
 	if (m_Animator)
 	{
 		m_Animator->Update(fElapsedTime);
@@ -254,6 +246,12 @@ void Actor::Update(float fElapsedTime)
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->Update(fElapsedTime);
+	}
+
+	AttacherPtrList::iterator att_iter = m_Attaches.begin();
+	for (; att_iter != m_Attaches.end(); att_iter++)
+	{
+		(*att_iter)->Update(fElapsedTime);
 	}
 }
 
@@ -397,4 +395,35 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 		(*cmp_iter)->m_Actor = NULL;
 	}
 	m_Cmps.clear();
+}
+
+void Actor::Attach(ActorPtr other, int BoneId)
+{
+	_ASSERT(other->m_Base == NULL);
+	m_Attaches.insert(AttacherPtr(new BoneAttacher(this, other.get(), BoneId)));
+}
+
+void Actor::Dettach(ActorPtr other)
+{
+	_ASSERT(other->m_Base != NULL);
+	AttacherPtrList::iterator att_iter = m_Attaches.find(other->m_Base->shared_from_this());
+	_ASSERT(att_iter != m_Attaches.end());
+	m_Attaches.erase(att_iter);
+}
+
+void BoneAttacher::Update(float fElapsedTime)
+{
+	_ASSERT(m_Owner);
+
+	if (m_Suber)
+	{
+		if (m_Owner->m_Animator && !m_Owner->m_Animator->anim_pose_hier.empty())
+		{
+			const Bone & bone = m_Owner->m_Animator->anim_pose_hier[m_BoneId];
+			m_Suber->UpdatePose(bone.m_position.transformCoord(
+				m_Owner->m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Owner->m_World)));
+		}
+
+		m_Suber->Update(fElapsedTime);
+	}
 }

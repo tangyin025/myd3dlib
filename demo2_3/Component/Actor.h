@@ -11,6 +11,10 @@ class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
 
+class Attacher;
+
+typedef boost::shared_ptr<Attacher> AttacherPtr;
+
 class Actor
 	: public my::OctActor
 {
@@ -39,22 +43,11 @@ public:
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
-	//Actor * m_Parent;
+	Attacher * m_Base;
 
-	//enum SlotType
-	//{
-	//	SlotTypeOffset,
-	//	SlotTypeBone,
-	//	SlotTypeCloth,
-	//};
+	typedef std::set<AttacherPtr> AttacherPtrList;
 
-	//SlotType m_SlotType;
-
-	//unsigned int m_SlotParam;
-
-	//typedef std::vector<ActorPtr> ActorPtrList;
-
-	//ActorPtrList m_Childs;
+	AttacherPtrList m_Attaches;
 
 protected:
 	Actor(void)
@@ -64,6 +57,7 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
+		, m_Base(NULL)
 	{
 	}
 
@@ -75,12 +69,11 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
+		, m_Base(NULL)
 	{
 	}
 
-	virtual ~Actor(void)
-	{
-	}
+	virtual ~Actor(void);
 
 	friend class boost::serialization::access;
 
@@ -138,4 +131,61 @@ public:
 	void RemoveComponent(ComponentPtr cmp);
 
 	void ClearAllComponent(ComponentPtr cmp);
+
+	void Attach(ActorPtr other, int BoneId);
+
+	void Dettach(ActorPtr other);
+};
+
+class Attacher : public boost::enable_shared_from_this<Attacher>
+{
+public:
+	Actor * m_Owner;
+
+	Actor * m_Suber;
+
+protected:
+	Attacher(Actor * Owner, Actor * Suber)
+		: m_Owner(Owner)
+		, m_Suber(Suber)
+	{
+		if (m_Suber)
+		{
+			_ASSERT(m_Suber->m_Base == NULL);
+			m_Suber->m_Base = this;
+		}
+	}
+
+public:
+	virtual ~Attacher(void)
+	{
+		if (m_Suber)
+		{
+			_ASSERT(m_Suber->m_Base == this);
+			m_Suber->m_Base = NULL;
+		}
+	}
+
+	virtual void Update(float fElapsedTime)
+	{
+		if (m_Suber)
+		{
+			m_Suber->Update(fElapsedTime);
+		}
+	}
+};
+
+class BoneAttacher : public Attacher
+{
+protected:
+	int m_BoneId;
+
+public:
+	BoneAttacher(Actor * Owner, Actor * Suber, int BoneId)
+		: Attacher(Owner, Suber)
+		, m_BoneId(BoneId)
+	{
+	}
+
+	virtual void Update(float fElapsedTime);
 };

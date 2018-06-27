@@ -41,7 +41,7 @@ cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 player:UpdateWorld()
-game.Root:AddActor(player,player.aabb:transform(player.World))
+game.Root:AddActor(actor2oct(player),player.aabb:transform(player.World))
 
 -- 加载动画资源
 local anim=Animator(player)
@@ -102,7 +102,10 @@ local cmp=MeshComponent()
 cmp.MeshRes.Path="mesh/Cube.mesh.xml"
 cmp:AddMaterial(lambert2)
 actor2:AddComponent(cmp)
-game.Root:AddActor(actor2,actor2.aabb:transform(actor2.World))
+game.Root:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
+
+-- 将物体连接到角色手里
+player:Attach(actor2, 18)
 
 -- 特殊渲染选项
 game.SsaoEnable=true

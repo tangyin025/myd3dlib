@@ -391,6 +391,11 @@ static void ExportMath(lua_State * L)
 
 		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")
 
+		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
+			.def("AddActor", &my::OctRoot::AddActor)
+			.def("RemoveActor", &my::OctRoot::RemoveActor)
+			.def("ClearAllActor", &my::OctRoot::ClearAllActor)
+
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)
 			.def_readonly("Proj", &my::BaseCamera::m_Proj)
@@ -989,7 +994,7 @@ static void ExportComponent(lua_State * L)
 		, class_<Terrain, RenderComponent, boost::shared_ptr<Component> >("Terrain")
 			.def(constructor<float, float, float>())
 
-		, class_<Actor, my::OctActor, boost::shared_ptr<my::OctActor> >("Actor")
+		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
@@ -1003,6 +1008,8 @@ static void ExportComponent(lua_State * L)
 			.def("UpdateWorld", &Actor::UpdateWorld)
 			.def("OnWorldChanged", &Actor::OnWorldChanged)
 			.def("ClearRigidActor", &Actor::ClearRigidActor)
+			.def("Attach", &Actor::Attach)
+			.def("Dettach", &Actor::Dettach)
 			.enum_("ActorType")
 			[
 				value("eRIGID_STATIC", physx::PxActorType::eRIGID_STATIC),
@@ -1013,7 +1020,7 @@ static void ExportComponent(lua_State * L)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 
-		, class_<Character, Actor, boost::shared_ptr<my::OctActor> >("Character")
+		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float>())
 
 		, class_<Controller, boost::shared_ptr<Controller> >("Controller")
@@ -1057,11 +1064,6 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 			.def_readwrite("Child0", &AnimationNodeRateBySpeed::m_Child0)
-
-		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
-			.def("AddActor", &my::OctRoot::AddActor)
-			.def("RemoveActor", &my::OctRoot::RemoveActor)
-			.def("ClearAllActor", &my::OctRoot::ClearAllActor)
 
 		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)

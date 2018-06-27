@@ -38,7 +38,7 @@ public:
 
 	my::OctRoot m_Root;
 
-	typedef boost::unordered_map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
+	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
 
 	WeakActorMap m_ViewedActors;
 

@@ -614,7 +614,8 @@ void Game::OnFrameTick(
 	{
 		float fElapsedTime;
 		WeakActorMap & ViewedActors;
-		std::vector<Game::WeakActorMap::value_type> actor_list;
+		typedef std::vector<WeakActorMap::value_type> WeakActorList;
+		WeakActorList actor_list;
 		Callback(float _fElapsedTime, WeakActorMap & _ViewedActors)
 			: fElapsedTime(_fElapsedTime)
 			, ViewedActors(_ViewedActors)
@@ -636,7 +637,6 @@ void Game::OnFrameTick(
 				actor->OnEnterPxScene(Game::getSingletonPtr());
 			}
 			actor_list.push_back(std::make_pair(actor, boost::static_pointer_cast<Actor>(actor->shared_from_this())));
-			actor->Update(fElapsedTime);
 		}
 	};
 	Callback cb(fElapsedTime, m_ViewedActors);
@@ -647,12 +647,25 @@ void Game::OnFrameTick(
 		ActorPtr actor = actor_iter->second.lock();
 		if (actor)
 		{
+			_ASSERT(actor->IsRequested());
 			actor->OnLeavePxScene(this);
 			actor->ReleaseResource();
 		}
 	}
 	m_ViewedActors.clear();
-	m_ViewedActors.insert(cb.actor_list.begin(), cb.actor_list.end());
+	Callback::WeakActorList::iterator weak_act_iter = cb.actor_list.begin();
+	for (; weak_act_iter != cb.actor_list.end(); weak_act_iter++)
+	{
+		ActorPtr actor = weak_act_iter->second.lock();
+		if (actor)
+		{
+			if (!actor->m_Base)
+			{
+				actor->Update(fElapsedTime); // ! will change other actors scope, event if octree node
+			}
+			m_ViewedActors.insert(std::make_pair(actor.get(), actor));
+		}
+	}
 
 	m_SkyLightCam->UpdateViewProj();
 
