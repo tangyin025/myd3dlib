@@ -47,9 +47,9 @@ void Animator::Update(float fElapsedTime)
 
 		UpdateGroup(fElapsedTime);
 
-		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
+		anim_pose.resize(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
-		BoneList bind_pose_hier(m_SkeletonRes.m_Res->m_boneBindPose.size());
+		bind_pose_hier.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
 		anim_pose_hier.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
 		my::BoneIndexSet::const_iterator root_iter = m_SkeletonRes.m_Res->m_boneRootSet.begin();
 		for (; root_iter != m_SkeletonRes.m_Res->m_boneRootSet.end(); root_iter++)
@@ -64,7 +64,7 @@ void Animator::Update(float fElapsedTime)
 				anim_pose_hier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
 		}
 
-		my::BoneList final_pose(bind_pose_hier.size());
+		final_pose.resize(bind_pose_hier.size());
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
 			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
@@ -279,7 +279,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 
 	if (m_Weight >= 1.0f)
 	{
-		AnimationNodeSequence::GetPose(pose);
+		return AnimationNodeSequence::GetPose(pose);
 	}
 
 	m_Child0->GetPose(pose);
