@@ -270,10 +270,8 @@ void Actor::Update(float fElapsedTime)
 			if (m_Parent->m_Animator && !m_Parent->m_Animator->anim_pose_hier.empty())
 			{
 				const Bone & bone = m_Parent->m_Animator->anim_pose_hier[m_SlotParam];
-				m_Position = bone.m_position.transformCoord(m_Parent->m_World);
-				m_Rotation = bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Parent->m_World));
-				UpdateWorld();
-				OnWorldChanged();
+				UpdatePose(bone.m_position.transformCoord(m_Parent->m_World),
+					bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Parent->m_World)));
 			}
 			break;
 		}
@@ -299,6 +297,29 @@ void Actor::Update(float fElapsedTime)
 	for (; act_iter != m_Childs.end(); act_iter++)
 	{
 		(*act_iter)->Update(fElapsedTime);
+	}
+}
+
+void Actor::UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot)
+{
+	physx::PxRigidDynamic * rigidDynamic = NULL;
+	if (m_PxActor && (rigidDynamic = m_PxActor->isRigidDynamic()))
+	{
+		if (rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
+		{
+			rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+		}
+		else
+		{
+			m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+		}
+	}
+	else
+	{
+		m_Position = Pos;
+		m_Rotation = Rot;
+		UpdateWorld();
+		OnWorldChanged();
 	}
 }
 

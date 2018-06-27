@@ -125,6 +125,8 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	void UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot);
+
 	virtual my::AABB CalculateAABB(void) const;
 
 	void UpdateAABB(void);
