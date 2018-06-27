@@ -302,10 +302,10 @@ void Actor::Update(float fElapsedTime)
 
 void Actor::UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
-	physx::PxRigidDynamic * rigidDynamic = NULL;
-	if (m_PxActor && (rigidDynamic = m_PxActor->isRigidDynamic()))
+	if (m_PxActor)
 	{
-		if (rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
+		physx::PxRigidDynamic * rigidDynamic = m_PxActor->isRigidDynamic();
+		if (rigidDynamic && rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
 		{
 			rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 		}
