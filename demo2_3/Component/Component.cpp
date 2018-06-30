@@ -328,7 +328,6 @@ void MeshComponent::ReleaseResource(void)
 
 void MeshComponent::Update(float fElapsedTime)
 {
-	Component::Update(fElapsedTime);
 }
 
 void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
@@ -900,9 +899,6 @@ void EmitterComponent::ReleaseResource(void)
 
 void EmitterComponent::Update(float fElapsedTime)
 {
-	Emitter::Update(fElapsedTime);
-
-	Component::Update(fElapsedTime);
 }
 
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
@@ -967,7 +963,6 @@ ComponentPtr StaticEmitterComponent::Clone(void) const
 
 void StaticEmitterComponent::Update(float fElapsedTime)
 {
-	EmitterComponent::Update(fElapsedTime);
 }
 
 void SphericalEmitterComponent::CopyFrom(const SphericalEmitterComponent & rhs)
@@ -984,8 +979,6 @@ ComponentPtr SphericalEmitterComponent::Clone(void) const
 
 void SphericalEmitterComponent::Update(float fElapsedTime)
 {
-	EmitterComponent::Update(fElapsedTime);
-
 	RemoveDeadParticle(m_ParticleLifeTime);
 
 	m_RemainingSpawnTime += fElapsedTime;

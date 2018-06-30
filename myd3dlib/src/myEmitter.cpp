@@ -54,7 +54,3 @@ void Emitter::RemoveDeadParticle(float fParticleLifeTime)
 		m_ParticleList.rerase(m_ParticleList.begin(), part_iter);
 	}
 }
-
-void Emitter::Update(float fElapsedTime)
-{
-}
