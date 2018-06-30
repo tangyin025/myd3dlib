@@ -69,10 +69,6 @@ public:
 
 	float m_HeightScale;
 
-	float m_WrappedU;
-
-	float m_WrappedV;
-
 	my::Texture2D m_HeightMap;
 
 	my::D3DVertexElementSet m_VertexElems;

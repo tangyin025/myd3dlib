@@ -75,6 +75,9 @@ protected:
 		PropertyMaterialBlendMode,
 		PropertyMaterialMeshColor,
 		PropertyMaterialMeshColorAlpha,
+		PropertyMaterialRepeatUV,
+		PropertyMaterialRepeatUVX,
+		PropertyMaterialRepeatUVY,
 		PropertyMaterialMeshTexture,
 		PropertyMaterialNormalTexture,
 		PropertyMaterialSpecularTexture,
@@ -122,8 +125,6 @@ protected:
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,
 		PropertyTerrainHeightScale,
-		PropertyTerrainWrappedU,
-		PropertyTerrainWrappedV,
 		PropertyTerrainHeightMap,
 		PropertyCount
 	};

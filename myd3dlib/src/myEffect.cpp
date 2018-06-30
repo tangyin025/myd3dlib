@@ -657,14 +657,19 @@ void BaseEffect::SetValue(D3DXHANDLE hParameter, LPCVOID pData, UINT Bytes)
 	V(m_ptr->SetValue(hParameter, pData, Bytes));
 }
 
-void BaseEffect::SetVector(D3DXHANDLE hParameter, const Vector4 & Vector)
+void BaseEffect::SetVector(D3DXHANDLE hParameter, const Vector2 & Vector)
 {
-	V(m_ptr->SetVector(hParameter, (D3DXVECTOR4 *)&Vector));
+	V(m_ptr->SetFloatArray(hParameter, &Vector.x, 2));
 }
 
 void BaseEffect::SetVector(D3DXHANDLE hParameter, const Vector3 & Vector)
 {
 	V(m_ptr->SetFloatArray(hParameter, &Vector.x, 3));
+}
+
+void BaseEffect::SetVector(D3DXHANDLE hParameter, const Vector4 & Vector)
+{
+	V(m_ptr->SetVector(hParameter, (D3DXVECTOR4 *)&Vector));
 }
 
 void BaseEffect::SetVectorArray(D3DXHANDLE hParameter, const Vector4 * pVector, UINT Count)

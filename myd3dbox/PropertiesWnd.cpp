@@ -307,9 +307,11 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(6)))->SetColor(color);
 	pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshColor.w);
-	pMaterial->GetSubItem(8)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	pMaterial->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)mat->m_RepeatUV.x);
+	pMaterial->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)mat->m_RepeatUV.y);
+	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -451,10 +453,8 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->COL_CHUNKS);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->CHUNK_SIZE);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_WrappedU);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)terrain->m_WrappedV);
-	pComponent->GetSubItem(PropId + 6);
-	UpdatePropertiesMaterial(pComponent, PropId + 7, terrain->m_Material.get());
+	pComponent->GetSubItem(PropId + 4);
+	UpdatePropertiesMaterial(pComponent, PropId + 5, terrain->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -618,6 +618,12 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pColor);
 	CMFCPropertyGridProperty * pColorAlpha = new CSimpleProp(_T("MeshColorAlpha"), (_variant_t)mat->m_MeshColor.w, NULL, PropertyMaterialMeshColorAlpha);
 	pMaterial->AddSubItem(pColorAlpha);
+	CMFCPropertyGridProperty * pRepeatUV = new CSimpleProp(_T("RepeatUV"), PropertyMaterialRepeatUV, TRUE);
+	pMaterial->AddSubItem(pRepeatUV);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)mat->m_RepeatUV.x, NULL, PropertyMaterialRepeatUVX);
+	pRepeatUV->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)mat->m_RepeatUV.y, NULL, PropertyMaterialRepeatUVY);
+	pRepeatUV->AddSubItem(pProp);
 	pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)ms2ts(mat->m_MeshTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
 	pMaterial->AddSubItem(pProp);
 	pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)ms2ts(mat->m_NormalTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
@@ -787,10 +793,6 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("HeightScale"), (_variant_t)terrain->m_HeightScale, NULL, PropertyTerrainHeightScale);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("WrappedU"), (_variant_t)terrain->m_WrappedU, NULL, PropertyTerrainWrappedU);
-	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("WrappedV"), (_variant_t)terrain->m_WrappedV, NULL, PropertyTerrainWrappedV);
-	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, 0, terrain->m_Material.get());
@@ -813,7 +815,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 16;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	}
 	return 1;
 }
@@ -1224,6 +1226,29 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
+	case PropertyMaterialRepeatUV:
+	case PropertyMaterialRepeatUVX:
+	case PropertyMaterialRepeatUVY:
+		{
+			CMFCPropertyGridProperty * pMaterial = NULL;
+			switch (PropertyId)
+			{
+			case PropertyMaterialRepeatUV:
+				pMaterial = pProp->GetParent();
+				break;
+			case PropertyMaterialRepeatUVX:
+			case PropertyMaterialRepeatUVY:
+				pMaterial = pProp->GetParent()->GetParent();
+				break;
+			}
+			Material * material = (Material *)pMaterial->GetValue().ulVal;
+			material->m_RepeatUV = my::Vector2(
+				pMaterial->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal,
+				pMaterial->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal);
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	case PropertyMaterialMeshTexture:
 		{
 			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
@@ -1430,17 +1455,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->OnWorldChanged();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyTerrainWrappedU:
-	case PropertyTerrainWrappedV:
-		{
-			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;
-			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 5)->GetValue().fltVal;
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

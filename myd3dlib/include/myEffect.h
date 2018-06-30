@@ -268,9 +268,11 @@ namespace my
 
 		void SetValue(D3DXHANDLE hParameter, LPCVOID pData, UINT Bytes);
 
-		void SetVector(D3DXHANDLE hParameter, const Vector4 & Vector);
+		void SetVector(D3DXHANDLE hParameter, const Vector2 & Vector);
 
 		void SetVector(D3DXHANDLE hParameter, const Vector3 & Vector);
+
+		void SetVector(D3DXHANDLE hParameter, const Vector4 & Vector);
 
 		void SetVectorArray(D3DXHANDLE hParameter, const Vector4 * pVector, UINT Count);
 	};

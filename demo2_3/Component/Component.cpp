@@ -99,6 +99,7 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 		break;
 	}
 	shader->SetVector("g_MeshColor", m_MeshColor);
+	shader->SetVector("g_RepeatUV", m_RepeatUV);
 	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
 	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
 	shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());

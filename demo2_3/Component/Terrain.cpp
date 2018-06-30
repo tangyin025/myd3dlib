@@ -126,8 +126,6 @@ const Terrain::VertexArray2D Terrain::m_VertexTable;
 Terrain::Terrain(void)
 	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(1)
-	, m_WrappedU(1)
-	, m_WrappedV(1)
 	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
@@ -137,8 +135,6 @@ Terrain::Terrain(void)
 Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(HeightScale)
-	, m_WrappedU(WrappedU)
-	, m_WrappedV(WrappedV)
 	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
@@ -472,8 +468,6 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
-	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
@@ -492,8 +486,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
-	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
@@ -587,11 +579,13 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DW
 
 	shader->SetFloat("g_HeightScale", m_HeightScale);
 
-	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)ROW_CHUNKS * CHUNK_SIZE, (float)COL_CHUNKS * CHUNK_SIZE));
+	shader->SetVector("g_HeightTexSize", Vector2((float)ROW_CHUNKS * CHUNK_SIZE, (float)COL_CHUNKS * CHUNK_SIZE));
 
-	int ChunkId[3] = { LOWORD(AttribId), HIWORD(AttribId), CHUNK_SIZE };
+	int ChunkId[2] = { LOWORD(AttribId), HIWORD(AttribId) };
 
-	shader->SetIntArray("g_ChunkId", ChunkId, 3);
+	shader->SetIntArray("g_ChunkId", ChunkId, 2);
+
+	shader->SetInt("g_ChunkSize", CHUNK_SIZE);
 
 	shader->SetTexture("g_HeightTexture", &m_HeightMap);
 

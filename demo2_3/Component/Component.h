@@ -42,6 +42,8 @@ public:
 
 	my::Vector4 m_MeshColor;
 
+	my::Vector2 m_RepeatUV;
+
 	ResourceBundle<my::BaseTexture> m_MeshTexture;
 
 	ResourceBundle<my::BaseTexture> m_NormalTexture;
@@ -56,6 +58,7 @@ public:
 		, m_ZWriteEnable(TRUE)
 		, m_BlendMode(BlendModeNone)
 		, m_MeshColor(1,1,1,1)
+		, m_RepeatUV(1,1)
 	{
 	}
 
@@ -73,6 +76,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
 		ar & BOOST_SERIALIZATION_NVP(m_BlendMode);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshColor);
+		ar & BOOST_SERIALIZATION_NVP(m_RepeatUV);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_SpecularTexture);

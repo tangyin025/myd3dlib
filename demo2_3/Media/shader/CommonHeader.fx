@@ -16,6 +16,7 @@ shared texture g_LightRT;
 shared texture g_OpaqueRT;
 shared texture g_DownFilterRT;
 shared float4 g_MeshColor;
+shared float2 g_RepeatUV;
 shared texture g_MeshTexture;
 shared texture g_NormalTexture;
 shared texture g_SpecularTexture;

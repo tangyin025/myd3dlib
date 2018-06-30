@@ -5,8 +5,9 @@ struct VS_INPUT
 };
 
 float g_HeightScale;
-float4 g_WrappedUV;
-uint3 g_ChunkId;
+float2 g_HeightTexSize;
+uint2 g_ChunkId;
+uint g_ChunkSize;
 Texture2D g_HeightTexture;
 
 sampler HeightTextureSampler = sampler_state
@@ -21,9 +22,9 @@ sampler HeightTextureSampler = sampler_state
 
 float4 TransformPosWS(VS_INPUT In)
 {
-	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
+	int2 coord = int2(g_ChunkId.x * g_ChunkSize + In.Tex0.x, g_ChunkId.y * g_ChunkSize + In.Tex0.y);
 	float height = g_HeightScale * tex2Dlod(HeightTextureSampler,
-		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).a * 255;
+		float4(coord.y / g_HeightTexSize.y, coord.x / g_HeightTexSize.x, 0, 0)).a * 255;
 	return mul(float4(coord.x, height, coord.y, 1.0), g_World);
 }
 
@@ -40,23 +41,23 @@ float4 TransformPosShadow(VS_INPUT In)
 float2 TransformUV(VS_INPUT In)
 {
 	return float2(
-		(float)In.Tex0.x / g_ChunkId.z * g_WrappedUV.x,
-		(float)In.Tex0.y / g_ChunkId.z * g_WrappedUV.y);
+		(float)In.Tex0.x / g_ChunkSize * g_RepeatUV.x,
+		(float)In.Tex0.y / g_ChunkSize * g_RepeatUV.y);
 }
 
 float3 TransformNormal(VS_INPUT In)
 {
-	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
+	int2 coord = int2(g_ChunkId.x * g_ChunkSize + In.Tex0.x, g_ChunkId.y * g_ChunkSize + In.Tex0.y);
 	float3 normal = tex2Dlod(HeightTextureSampler,
-		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).rgb * 2 - 1;
+		float4(coord.y / g_HeightTexSize.y, coord.x / g_HeightTexSize.x, 0, 0)).rgb * 2 - 1;
 	return normalize(mul(normal, (float3x3)g_World));
 }
 
 float3 TransformTangent(VS_INPUT In)
 {
-	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
+	int2 coord = int2(g_ChunkId.x * g_ChunkSize + In.Tex0.x, g_ChunkId.y * g_ChunkSize + In.Tex0.y);
 	float3 normal = tex2Dlod(HeightTextureSampler,
-		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).rgb * 2 - 1;
+		float4(coord.y / g_HeightTexSize.y, coord.x / g_HeightTexSize.x, 0, 0)).rgb * 2 - 1;
 	float3 Tangent = cross(normal, float3(0,0,1));
 	return normalize(mul(Tangent, (float3x3)g_World));
 }

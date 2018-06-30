@@ -1,53 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="10">
+<boost_serialization signature="serialization::archive" version="14">
 <cmp class_id="0" tracking_level="0" version="1">
 	<px class_id="2" class_name="SphericalEmitterComponent" tracking_level="1" version="0" object_id="_0">
-		<RenderComponent class_id="3" tracking_level="0" version="0">
-			<Component class_id="1" tracking_level="1" version="0" object_id="_1">
-				<OctActor class_id="4" tracking_level="1" version="0" object_id="_2"></OctActor>
-				<m_Type>5</m_Type>
-				<m_Position class_id="5" tracking_level="0" version="0">
-					<x>0</x>
-					<y>0</y>
-					<z>0</z>
-				</m_Position>
-				<m_Rotation class_id="6" tracking_level="0" version="0">
-					<x>0</x>
-					<y>0</y>
-					<z>0</z>
-					<w>1</w>
-				</m_Rotation>
-				<m_Scale>
-					<x>1</x>
-					<y>1</y>
-					<z>1</z>
-				</m_Scale>
-				<m_Animator class_id="7" tracking_level="0" version="1">
-					<px class_id="-1"></px>
-				</m_Animator>
-				<m_Cmps class_id="9" tracking_level="0" version="0">
-					<count>0</count>
-					<item_version>1</item_version>
-				</m_Cmps>
-			</Component>
-		</RenderComponent>
-		<m_SpawnInterval>0.0099999998</m_SpawnInterval>
-		<m_HalfSpawnArea>
-			<x>0</x>
-			<y>0</y>
-			<z>0</z>
+		<EmitterComponent class_id="3" tracking_level="1" version="0" object_id="_1">
+			<RenderComponent class_id="4" tracking_level="0" version="0">
+				<Component class_id="1" tracking_level="1" version="0" object_id="_2">
+					<m_Type>7</m_Type>
+				</Component>
+			</RenderComponent>
+			<m_Material class_id="5" tracking_level="0" version="1">
+				<px class_id="6" tracking_level="1" version="0" object_id="_3">
+					<m_Shader>particle1.fx</m_Shader>
+					<m_PassMask>16</m_PassMask>
+					<m_CullMode>2</m_CullMode>
+					<m_ZEnable>1</m_ZEnable>
+					<m_ZWriteEnable>1</m_ZWriteEnable>
+					<m_BlendMode>0</m_BlendMode>
+					<m_MeshColor class_id="7" tracking_level="0" version="0">
+						<x>1.000000000e+000</x>
+						<y>1.000000000e+000</y>
+						<z>1.000000000e+000</z>
+						<w>1.000000000e+000</w>
+					</m_MeshColor>
+					<m_MeshTexture class_id="8" tracking_level="0" version="0">
+						<m_Path>texture/flare.dds</m_Path>
+					</m_MeshTexture>
+					<m_NormalTexture>
+						<m_Path></m_Path>
+					</m_NormalTexture>
+					<m_SpecularTexture>
+						<m_Path></m_Path>
+					</m_SpecularTexture>
+				</px>
+			</m_Material>
+			<m_EmitterType>0</m_EmitterType>
+		</EmitterComponent>
+		<m_SpawnInterval>9.999999776e-003</m_SpawnInterval>
+		<m_HalfSpawnArea class_id="9" tracking_level="0" version="0">
+			<x>0.000000000e+000</x>
+			<y>0.000000000e+000</y>
+			<z>0.000000000e+000</z>
 		</m_HalfSpawnArea>
-		<m_SpawnSpeed>5</m_SpawnSpeed>
+		<m_SpawnSpeed>5.000000000e+000</m_SpawnSpeed>
 		<m_SpawnInclination class_id="10" tracking_level="0" version="0">
 			<SplineNodeList class_id="11" tracking_level="0" version="0">
 				<count>1</count>
 				<item_version>0</item_version>
 				<item class_id="12" tracking_level="0" version="0">
-					<x>0</x>
-					<y>0.78539819</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>7.853981853e-001</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnInclination>
@@ -56,16 +60,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>0</y>
-					<k0>5.0265484</k0>
-					<k>5.0265484</k>
+					<x>0.000000000e+000</x>
+					<y>0.000000000e+000</y>
+					<k0>5.026548386e+000</k0>
+					<k>5.026548386e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>50.265484</y>
-					<k0>5.0265484</k0>
-					<k>5.0265484</k>
+					<x>1.000000000e+001</x>
+					<y>5.026548386e+001</y>
+					<k0>5.026548386e+000</k0>
+					<k>5.026548386e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnAzimuth>
@@ -74,16 +78,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>1</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>1.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>0</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>1.000000000e+001</x>
+					<y>0.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnColorR>
@@ -92,16 +96,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>1</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>1.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>0</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>1.000000000e+001</x>
+					<y>0.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnColorG>
@@ -110,16 +114,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>1</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>1.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>0</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>1.000000000e+001</x>
+					<y>0.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnColorB>
@@ -128,16 +132,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>1</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>1.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>0</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>1.000000000e+001</x>
+					<y>0.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnColorA>
@@ -146,16 +150,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>1</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>1.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>10</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>1.000000000e+001</x>
+					<y>1.000000000e+001</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnSizeX>
@@ -164,16 +168,16 @@
 				<count>2</count>
 				<item_version>0</item_version>
 				<item>
-					<x>0</x>
-					<y>1</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>0.000000000e+000</x>
+					<y>1.000000000e+000</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 				<item>
-					<x>10</x>
-					<y>10</y>
-					<k0>0</k0>
-					<k>0</k>
+					<x>1.000000000e+001</x>
+					<y>1.000000000e+001</y>
+					<k0>0.000000000e+000</k0>
+					<k>0.000000000e+000</k>
 				</item>
 			</SplineNodeList>
 		</m_SpawnSizeY>
@@ -183,28 +187,7 @@
 				<item_version>0</item_version>
 			</SplineNodeList>
 		</m_SpawnAngle>
-		<m_SpawnLoopTime>5</m_SpawnLoopTime>
-		<m_Material class_id="13" tracking_level="0" version="1">
-			<px class_id="14" tracking_level="1" version="0" object_id="_3">
-				<m_Shader>particle1.fx</m_Shader>
-				<m_PassMask>16</m_PassMask>
-				<m_MeshColor class_id="15" tracking_level="0" version="0">
-					<x>1</x>
-					<y>1</y>
-					<z>1</z>
-					<w>1</w>
-				</m_MeshColor>
-				<m_MeshTexture class_id="16" tracking_level="0" version="0">
-					<m_Path>texture/flare.dds</m_Path>
-				</m_MeshTexture>
-				<m_NormalTexture>
-					<m_Path></m_Path>
-				</m_NormalTexture>
-				<m_SpecularTexture>
-					<m_Path></m_Path>
-				</m_SpecularTexture>
-			</px>
-		</m_Material>
+		<m_SpawnLoopTime>5.000000000e+000</m_SpawnLoopTime>
 	</px>
 </cmp>
 </boost_serialization>

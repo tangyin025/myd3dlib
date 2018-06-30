@@ -52,7 +52,7 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return In.Tex0.xy;
+	return In.Tex0.xy * g_RepeatUV;
 }
 
 float3 TransformNormal(VS_INPUT In)
