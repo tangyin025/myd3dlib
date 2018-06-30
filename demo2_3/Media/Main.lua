@@ -98,29 +98,43 @@ lambert2.PassMask=Material.PassMaskOpaque
 lambert2.MeshTexture.Path="texture/Checker.bmp"
 lambert2.NormalTexture.Path="texture/Normal.dds"
 lambert2.SpecularTexture.Path="texture/White.dds"
-local cmp=MeshComponent()
-cmp.MeshRes.Path="mesh/Cube.mesh.xml"
-cmp:AddMaterial(lambert2)
-actor2:AddComponent(cmp)
+local cmp2=MeshComponent()
+cmp2.MeshRes.Path="mesh/Cylinder.mesh.xml"
+cmp2.MeshRes.EventReady=function(args)
+	cmp2.MeshRes.Res:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
+		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
+end
+cmp2:AddMaterial(lambert2)
+actor2:AddComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp:CreateBoxShape(Vector3(0,0,0),Quaternion.Identity(),0.5,0.5,0.5)
+cmp2:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
 game.Root:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
+player:Attach(actor2, 10)
+
+-- 在角色手部绑定物体
+local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local cmp2=MeshComponent()
+cmp2.MeshRes.Path="mesh/Cylinder.mesh.xml"
+cmp2:AddMaterial(lambert2)
+actor3:AddComponent(cmp2)
+actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+cmp2:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
+player:Attach(actor3, 29)
 
 -- 创建一个物理球
-local actor3=Actor(Vector3(0,5,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp=MeshComponent()
-cmp.MeshRes.Path="mesh/Sphere.mesh.xml"
-cmp:AddMaterial(lambert2)
-actor3:AddComponent(cmp)
+local actor3=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local cmp4=MeshComponent()
+cmp4.MeshRes.Path="mesh/Sphere.mesh.xml"
+cmp4:AddMaterial(lambert2)
+actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
+cmp4:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
 actor3:UpdateWorld()
 game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor3.World))
 
--- 将物体连接到角色手里
-player:Attach(actor2, 18)
-
 -- 特殊渲染选项
 game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.VisualizationParameter=1
