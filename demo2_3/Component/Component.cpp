@@ -168,6 +168,7 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 
 	if (!m_Actor || !m_Actor->m_PxActor)
 	{
+		DxutApp::getSingleton().m_EventLog("Component::CreateBoxShape failed: !m_Actor || !m_Actor->m_PxActor");
 		return;
 	}
 
@@ -187,6 +188,7 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 
 	if (!m_Actor || !m_Actor->m_PxActor)
 	{
+		DxutApp::getSingleton().m_EventLog("Component::CreateCapsuleShape failed: !m_Actor || !m_Actor->m_PxActor");
 		return;
 	}
 
@@ -206,6 +208,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 
 	if (!m_Actor || !m_Actor->m_PxActor)
 	{
+		DxutApp::getSingleton().m_EventLog("Component::CreatePlaneShape failed: !m_Actor || !m_Actor->m_PxActor");
 		return;
 	}
 
@@ -231,6 +234,7 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 
 	if (!m_Actor || !m_Actor->m_PxActor)
 	{
+		DxutApp::getSingleton().m_EventLog("Component::CreateSphereShape failed: !m_Actor || !m_Actor->m_PxActor");
 		return;
 	}
 

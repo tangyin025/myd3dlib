@@ -48,4 +48,6 @@ public:
 	void OnJoystickBtnDown(my::InputEventArg * arg);
 
 	void OnJoystickBtnUp(my::InputEventArg * arg);
+
+	void OnWindowActivate(bool bActivated);
 };

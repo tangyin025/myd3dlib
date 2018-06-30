@@ -39,6 +39,7 @@ void PlayerController::Init(void)
 		Game::getSingleton().m_joystick->m_BtnPressedEvent.connect(boost::bind(&PlayerController::OnJoystickBtnDown, this, _1));
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent.connect(boost::bind(&PlayerController::OnJoystickBtnUp, this, _1));
 	}
+	Game::getSingleton().m_wnd->m_ActivateEvent.connect(boost::bind(&PlayerController::OnWindowActivate, this, _1));
 }
 
 void PlayerController::Destroy(void)
@@ -55,6 +56,7 @@ void PlayerController::Destroy(void)
 		Game::getSingleton().m_joystick->m_BtnPressedEvent.disconnect(boost::bind(&PlayerController::OnJoystickBtnDown, this, _1));
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent.disconnect(boost::bind(&PlayerController::OnJoystickBtnUp, this, _1));
 	}
+	Game::getSingleton().m_wnd->m_ActivateEvent.disconnect(boost::bind(&PlayerController::OnWindowActivate, this, _1));
 }
 
 void PlayerController::Update(float fElapsedTime)
@@ -177,4 +179,12 @@ void PlayerController::OnJoystickBtnDown(my::InputEventArg * arg)
 void PlayerController::OnJoystickBtnUp(my::InputEventArg * arg)
 {
 	JoystickBtnEventArg & jbarg = *dynamic_cast<JoystickBtnEventArg *>(arg);
+}
+
+void PlayerController::OnWindowActivate(bool bActivated)
+{
+	if (!bActivated)
+	{
+		m_MoveAxis.SetPoint(0, 0);
+	}
 }

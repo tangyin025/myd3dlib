@@ -12,12 +12,16 @@ namespace my
 	class DxutWindow
 		: public Window
 	{
-	protected:
+	public:
 		bool m_Minimized;
 
 		bool m_Maximized;
 
 		bool m_InSizeMove;
+
+		typedef boost::signals2::signal<void(bool)> ActivateEvent;
+
+		ActivateEvent m_ActivateEvent;
 
 	public:
 		DxutWindow(void)

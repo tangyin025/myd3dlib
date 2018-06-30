@@ -59,6 +59,7 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case WM_ACTIVATEAPP:
+			m_ActivateEvent(wParam != 0);
 			break;
 
 		case WM_MENUCHAR:

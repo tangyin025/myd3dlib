@@ -123,4 +123,4 @@ player:Attach(actor2, 18)
 
 -- 特殊渲染选项
 game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.VisualizationParameter=1
