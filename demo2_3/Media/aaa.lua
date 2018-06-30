@@ -1,54 +1,33 @@
 
-material=Material()
-material.Shader="particle1.fx"
-material.PassMask=Material.PassMaskTransparent
-material.MeshTexture.Path="texture/flare.dds"
-game:SaveMaterial(material, "material/particle1.xml");
+particle1=Material()
+particle1.Shader="particle1.fx"
+particle1.PassMask=Material.PassMaskTransparent
+particle1.MeshTexture.Path="texture/flare.dds"
+game:SaveMaterial(particle1, "material/particle1.xml");
 
-material=Material()
-material.Shader="light1.fx"
-material.PassMask=Material.PassMaskLight
-material.MeshTexture.Path="texture/White.dds"
-game:SaveMaterial(material, "material/light1.xml");
+light1=Material()
+light1.Shader="light1.fx"
+light1.PassMask=Material.PassMaskLight
+light1.MeshTexture.Path="texture/White.dds"
+game:SaveMaterial(light1, "material/light1.xml");
 
-material=Material()
-material.Shader="lambert1.fx"
-material.PassMask=Material.PassMaskOpaque
-material.MeshTexture.Path="texture/casual19_m_35.jpg"
-material.NormalTexture.Path="texture/casual19_m_35_normal.png"
-material.SpecularTexture.Path="texture/casual19_m_35_spec.png"
-game:SaveMaterial(material, "material/casual19_m_highpolyPhong.xml");
+casual19_m_35=Material()
+casual19_m_35.Shader="lambert1.fx"
+casual19_m_35.PassMask=Material.PassMaskOpaque
+casual19_m_35.MeshTexture.Path="texture/casual19_m_35.jpg"
+casual19_m_35.NormalTexture.Path="texture/casual19_m_35_normal.png"
+casual19_m_35.SpecularTexture.Path="texture/casual19_m_35_spec.png"
+game:SaveMaterial(casual19_m_35, "material/casual19_m_highpolyPhong.xml");
 
-material=Material()
-material.Shader="lambert1.fx"
-material.PassMask=Material.PassMaskOpaque
-material.MeshTexture.Path="texture/sportive03_f_30_hair.jpg"
-material.NormalTexture.Path="texture/sportive03_f_30_hair_normal.png"
-material.SpecularTexture.Path="texture/sportive03_f_30_hair_spec.png"
-game:SaveMaterial(material, "material/sportive03_f_highpoly_hairPhong.xml");
+lambert1=Material()
+lambert1.Shader="lambert1.fx"
+lambert1.PassMask=Material.PassMaskOpaque
+lambert1.MeshTexture.Path="texture/Checker.bmp"
+lambert1.NormalTexture.Path="texture/Normal.dds"
+lambert1.SpecularTexture.Path="texture/White.dds"
+game:SaveMaterial(lambert1, "material/lambert1.xml");
 
-material=Material()
-material.Shader="lambert1.fx"
-material.PassMask=Material.PassMaskOpaque
-material.MeshTexture.Path="texture/sportive03_f_30.jpg"
-material.NormalTexture.Path="texture/sportive03_f_30_normal.png"
-material.SpecularTexture.Path="texture/sportive03_f_30_spec.png"
-game:SaveMaterial(material, "material/sportive03_f_highpolyPhong.xml");
-
-material=Material()
-material.Shader="lambert1.fx"
-material.PassMask=Material.PassMaskOpaque
-material.MeshTexture.Path="texture/wall.jpg"
-material.NormalTexture.Path="texture/wall_NM_height.DDS"
-material.SpecularTexture.Path="texture/White.dds"
-game:SaveMaterial(material, "material/lambert1.xml");
-game:SaveMaterial(material, "material/lambert2.xml");
-game:SaveMaterial(material, "material/lambert3.xml");
-game:SaveMaterial(material, "material/lambert4.xml");
-game:SaveMaterial(material, "material/lambert5.xml");
-
-local cmp = SphericalEmitterComponent(Vector3(0,0,0),Quaternion(0,0,0,1),Vector3(1,1,1))
-cmp.Emitter = Emitter()
+local cmp = SphericalEmitterComponent()
 cmp.SpawnInterval=1/100
 cmp.ParticleLifeTime=10
 cmp.SpawnSpeed=5
@@ -68,9 +47,5 @@ cmp.SpawnSizeX:AddNode(0,1,0,0)
 cmp.SpawnSizeX:AddNode(10,10,0,0)
 cmp.SpawnSizeY:AddNode(0,1,0,0)
 cmp.SpawnSizeY:AddNode(10,10,0,0)
-local material=Material()
-material.Shader="particle1.fx"
-material.PassMask=Material.PassMaskTransparent
-material.MeshTexture.Path="texture/flare.dds"
-cmp.Material = material
+cmp.Material = particle1
 game:SaveComponent(cmp,"emitter/emitter_01_cmp.xml")
