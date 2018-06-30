@@ -369,6 +369,17 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	m_PxActor->userData = this;
 }
 
+void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)
+{
+	_ASSERT(m_PxActor);
+
+	physx::PxRigidBody * body = m_PxActor->isRigidBody();
+	if (body)
+	{
+		body->setRigidBodyFlag(Flag, Value);
+	}
+}
+
 void Actor::AddComponent(ComponentPtr cmp)
 {
 	_ASSERT(!cmp->m_Actor);

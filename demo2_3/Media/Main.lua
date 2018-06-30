@@ -91,7 +91,7 @@ player.Animator=anim
 player.Controller=PlayerController(player)
 
 -- 在角色手部绑定物体
-local actor2=Actor(Vector3(0,3,0),Quaternion.Identity(),Vector3(0.3,0.3,0.3),AABB(-1,1))
+local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert2=Material()
 lambert2.Shader="shader/lambert1.fx"
 lambert2.PassMask=Material.PassMaskOpaque
@@ -102,11 +102,25 @@ local cmp=MeshComponent()
 cmp.MeshRes.Path="mesh/Cube.mesh.xml"
 cmp:AddMaterial(lambert2)
 actor2:AddComponent(cmp)
+actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+cmp:CreateBoxShape(Vector3(0,0,0),Quaternion.Identity(),0.5,0.5,0.5)
 game.Root:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
+
+-- 创建一个物理球
+local actor3=Actor(Vector3(0,5,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local cmp=MeshComponent()
+cmp.MeshRes.Path="mesh/Sphere.mesh.xml"
+cmp:AddMaterial(lambert2)
+actor3:AddComponent(cmp)
+actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+cmp:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
+actor3:UpdateWorld()
+game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor3.World))
 
 -- 将物体连接到角色手里
 player:Attach(actor2, 18)
 
 -- 特殊渲染选项
 game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.VisualizationParameter=1

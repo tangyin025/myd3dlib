@@ -1011,6 +1011,14 @@ static void ExportComponent(lua_State * L)
 				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC)
 			]
 			.def("CreateRigidActor", &Actor::CreateRigidActor)
+			.enum_("RigidBodyFlag")
+			[
+				value("eKINEMATIC", physx::PxRigidBodyFlag::eKINEMATIC),
+				value("eUSE_KINEMATIC_TARGET_FOR_SCENE_QUERIES", physx::PxRigidBodyFlag::eUSE_KINEMATIC_TARGET_FOR_SCENE_QUERIES),
+				value("eENABLE_CCD", physx::PxRigidBodyFlag::eENABLE_CCD),
+				value("eENABLE_CCD_FRICTION", physx::PxRigidBodyFlag::eENABLE_CCD_FRICTION)
+			]
+			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)

@@ -126,6 +126,8 @@ public:
 
 	void CreateRigidActor(physx::PxActorType::Enum ActorType);
 
+	void SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value);
+
 	void AddComponent(ComponentPtr cmp);
 
 	void RemoveComponent(ComponentPtr cmp);
