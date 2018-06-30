@@ -588,10 +588,6 @@ static void ExportEmitter(lua_State * L)
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
 			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
-
-		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
-			.def(constructor<>())
-			.def("Spawn", &my::Emitter::Spawn)
 	];
 }
 
@@ -967,7 +963,6 @@ static void ExportComponent(lua_State * L)
 			.def("AddMaterial", &ClothComponent::AddMaterial)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
-			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
 			.def_readwrite("Material", &EmitterComponent::m_Material)
 			.def("Spawn", &EmitterComponent::Spawn)
 

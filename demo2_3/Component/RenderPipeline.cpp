@@ -3,6 +3,7 @@
 #include "RenderPipeline.h"
 
 using namespace my;
+
 RenderPipeline::IRenderContext::IRenderContext(void)
 	: m_SkyBoxEnable(false)
 	, m_WireFrame(false)
@@ -252,7 +253,7 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_ParticleIndexBuffer.Unlock();
 
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
-	m_ParticleInstanceData.CreateVertexBuffer(m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
+	m_ParticleInstanceData.CreateVertexBuffer(m_ParticleInstanceStride * Emitter::PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
 
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 	m_MeshInstanceData.CreateVertexBuffer(m_MeshInstanceStride * MESH_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
@@ -734,7 +735,7 @@ void RenderPipeline::DrawMeshInstance(
 void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
-	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
+	_ASSERT(NumInstances <= Emitter::PARTICLE_INSTANCE_MAX);
 	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
 	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, D3DLOCK_DISCARD);
 	_ASSERT(pVertices);

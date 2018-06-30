@@ -7,13 +7,13 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#define PARTICLE_INSTANCE_MAX 4096u
-
 namespace my
 {
 	class Emitter
 	{
 	public:
+		static const unsigned int PARTICLE_INSTANCE_MAX = 4096;
+
 		class Particle
 		{
 		public:
@@ -83,8 +83,6 @@ namespace my
 
 		void Update(float fElapsedTime);
 	};
-
-	typedef boost::shared_ptr<Emitter> EmitterPtr;
 }
 
 namespace boost { 

@@ -369,10 +369,9 @@ typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 
 class EmitterComponent
 	: public RenderComponent
+	, public my::Emitter
 {
 public:
-	my::EmitterPtr m_Emitter;
-
 	MaterialPtr m_Material;
 
 	enum EmitterType
@@ -403,7 +402,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterType);
 	}
@@ -446,7 +444,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
-		ar & boost::serialization::make_nvp("ParticleList", m_Emitter->m_ParticleList);
+		ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
 	}
 
 	void CopyFrom(const StaticEmitterComponent & rhs);

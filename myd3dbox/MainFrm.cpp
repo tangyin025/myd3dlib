@@ -230,7 +230,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//m_emitter->m_Material->m_PassMask = theApp.default_pass_mask;
 	//m_emitter->m_Material->m_MeshTexture.m_Path = theApp.default_texture;
 	//m_emitter->RequestResource();
-	////m_emitter->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
+	////m_emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
 	return 0;
 }
 
@@ -729,8 +729,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	}
 
 	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent());
-	emit_cmp->m_Emitter.reset(new my::Emitter());
-	emit_cmp->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
+	emit_cmp->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	MaterialPtr particle1(new Material());
 	particle1->m_Shader = theApp.default_shader;
 	particle1->m_PassMask = theApp.default_pass_mask;
@@ -763,7 +762,6 @@ void CMainFrame::OnComponentSphericalemitter()
 	}
 
 	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent());
-	sphe_emit_cmp->m_Emitter.reset(new my::Emitter());
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;

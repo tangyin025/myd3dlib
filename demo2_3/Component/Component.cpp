@@ -860,16 +860,13 @@ void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & V
 {
 	_ASSERT(m_Actor);
 
-	if (m_Emitter)
+	if (m_EmitterType == EmitterTypeLocal)
 	{
-		if (m_EmitterType == EmitterTypeLocal)
-		{
-			m_Emitter->Spawn(Position, Velocity, Color, Size, Angle);
-		}
-		else
-		{
-			m_Emitter->Spawn(Position.transformCoord(m_Actor->m_World), Velocity.transformNormal(m_Actor->m_World), Color, Size * m_Actor->m_Scale.xy, Angle);
-		}
+		Emitter::Spawn(Position, Velocity, Color, Size, Angle);
+	}
+	else
+	{
+		Emitter::Spawn(Position.transformCoord(m_Actor->m_World), Velocity.transformNormal(m_Actor->m_World), Color, Size * m_Actor->m_Scale.xy, Angle);
 	}
 }
 
@@ -902,10 +899,7 @@ void EmitterComponent::ReleaseResource(void)
 
 void EmitterComponent::Update(float fElapsedTime)
 {
-	if (m_Emitter)
-	{
-		m_Emitter->Update(fElapsedTime);
-	}
+	Emitter::Update(fElapsedTime);
 
 	Component::Update(fElapsedTime);
 }
@@ -942,7 +936,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 
 void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
-	if (m_Material && m_Emitter && (m_Material->m_PassMask & PassMask))
+	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
@@ -951,7 +945,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
-					pipeline->PushEmitter(PassID, m_Emitter.get(), 0, shader, this);
+					pipeline->PushEmitter(PassID, this, 0, shader, this);
 				}
 			}
 		}
@@ -991,7 +985,7 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 {
 	EmitterComponent::Update(fElapsedTime);
 
-	m_Emitter->RemoveDeadParticle(m_ParticleLifeTime);
+	RemoveDeadParticle(m_ParticleLifeTime);
 
 	m_RemainingSpawnTime += fElapsedTime;
 

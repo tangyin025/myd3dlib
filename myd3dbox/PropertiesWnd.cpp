@@ -347,8 +347,8 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)g_EmitterTypeDesc[emit_cmp->m_EmitterType]);
-	pParticleList->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_Emitter->m_ParticleList.size());
-	for (unsigned int i = 0; i < emit_cmp->m_Emitter->m_ParticleList.size(); i++)
+	pParticleList->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_ParticleList.size());
+	for (unsigned int i = 0; i < emit_cmp->m_ParticleList.size(); i++)
 	{
 		if ((unsigned int)pParticleList->GetSubItemsCount() <= i + 1)
 		{
@@ -357,7 +357,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		}
 		UpdatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
-	RemovePropertiesFrom(pParticleList, 1 + emit_cmp->m_Emitter->m_ParticleList.size());
+	RemovePropertiesFrom(pParticleList, 1 + emit_cmp->m_ParticleList.size());
 	UpdatePropertiesMaterial(pComponent, PropId + 1, emit_cmp->m_Material.get());
 }
 
@@ -365,7 +365,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 {
 	CMFCPropertyGridProperty * pParticle = pParentProp->GetSubItem(NodeId + 1);
 	_ASSERT(pParticle);
-	my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+	my::Emitter::Particle & particle = emit_cmp->m_ParticleList[NodeId];
 	CMFCPropertyGridProperty * pProp = pParticle->GetSubItem(0)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionX); pProp->SetValue((_variant_t)particle.m_Position.x);
 	pProp = pParticle->GetSubItem(0)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionY); pProp->SetValue((_variant_t)particle.m_Position.y);
 	pProp = pParticle->GetSubItem(0)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionZ); pProp->SetValue((_variant_t)particle.m_Position.z);
@@ -653,9 +653,9 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->AddSubItem(pEmitterType);
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)emit_cmp->m_Emitter->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)emit_cmp->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
 	pParticleList->AddSubItem(pProp);
-	for (unsigned int i = 0; i < emit_cmp->m_Emitter->m_ParticleList.size(); i++)
+	for (unsigned int i = 0; i < emit_cmp->m_ParticleList.size(); i++)
 	{
 		CreatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
@@ -670,7 +670,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pParentProp->AddSubItem(pParticle);
 	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyEmitterParticlePosition, TRUE);
 	pParticle->AddSubItem(pPosition);
-	my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+	my::Emitter::Particle & particle = emit_cmp->m_ParticleList[NodeId];
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)particle.m_Position.x, NULL, PropertyEmitterParticlePositionX);
 	pPosition->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)particle.m_Position.y, NULL, PropertyEmitterParticlePositionY);
@@ -1273,7 +1273,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEmitterParticleCount:
 		{
 			EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-			emit_cmp->m_Emitter->m_ParticleList.resize(pProp->GetValue().uintVal,
+			emit_cmp->m_ParticleList.resize(pProp->GetValue().uintVal,
 				my::Emitter::Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0, 0));
 			UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
 			EventArgs arg;
@@ -1319,7 +1319,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			}
 			int NodeId = pParticle->GetData();
 			EmitterComponent * emit_cmp = (EmitterComponent *)pParticle->GetParent()->GetParent()->GetValue().ulVal;
-			my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+			my::Emitter::Particle & particle = emit_cmp->m_ParticleList[NodeId];
 			particle.m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
 			particle.m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
 			particle.m_Position.z = pParticle->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal;
