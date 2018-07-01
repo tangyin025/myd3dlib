@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "PhysXContext.h"
+#include "FModContext.h"
 #include "Component.h"
 #include "Terrain.h"
 #include <extensions/PxCollectionExt.h>
@@ -85,6 +86,25 @@ void PhysXContext::Shutdown(void)
 	m_Foundation.reset();
 }
 
+void PhysXContext::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+	switch (code)
+	{
+	case physx::PxErrorCode::eDEBUG_INFO:
+		my::D3DContext::getSingleton().m_EventLog(str_printf("%s (%d) : info: %s", file, line, message).c_str());
+		break;
+
+	case physx::PxErrorCode::eDEBUG_WARNING:
+	case physx::PxErrorCode::ePERF_WARNING:
+		my::D3DContext::getSingleton().m_EventLog(str_printf("%s (%d) : warning: %s", file, line, message).c_str());
+		break;
+
+	default:
+		my::D3DContext::getSingleton().m_EventLog(str_printf("%s, (%d) : error: %s", file, line, message).c_str());
+		break;
+	}
+}
+
 void PhysXSceneContext::StepperTask::run(void)
 {
 	m_PxScene->SubstepDone(this);
@@ -100,8 +120,10 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 {
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
 	sceneDesc.gravity = (physx::PxVec3&)PhysXContext::Gravity;
+	sceneDesc.simulationEventCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
-	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+	sceneDesc.filterShader = filter;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 	m_PxScene.reset(sdk->createScene(sceneDesc));
 	if (!m_PxScene)
@@ -337,4 +359,58 @@ void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 void PhysXSceneContext::Flush(void)
 {
 	m_PxScene->flush(false);
+}
+
+physx::PxFilterFlags PhysXSceneContext::filter(
+	physx::PxFilterObjectAttributes attributes0,
+	physx::PxFilterData filterData0,
+	physx::PxFilterObjectAttributes attributes1,
+	physx::PxFilterData filterData1,
+	physx::PxPairFlags& pairFlags,
+	const void* constantBlock,
+	physx::PxU32 constantBlockSize)
+{
+	pairFlags |= physx::PxPairFlag::eCONTACT_DEFAULT;
+	pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+	pairFlags |= physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+	return physx::PxFilterFlags();
+}
+
+void PhysXSceneContext::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
+{
+}
+
+void PhysXSceneContext::onWake(physx::PxActor** actors, physx::PxU32 count)
+{
+}
+
+void PhysXSceneContext::onSleep(physx::PxActor** actors, physx::PxU32 count)
+{
+}
+
+void PhysXSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
+{
+	std::vector<physx::PxContactPairPoint> contactPoints;
+	for (physx::PxU32 i = 0; i < nbPairs; i++)
+	{
+		physx::PxU32 contactCount = pairs[i].contactCount;
+		if (contactCount)
+		{
+			contactPoints.resize(contactCount);
+			pairs[i].extractContacts(&contactPoints[0], contactCount);
+			for (physx::PxU32 j = 0; j < contactCount; j++)
+			{
+				physx::PxVec3 point = contactPoints[j].position;
+				physx::PxVec3 impulse = contactPoints[j].impulse;
+				physx::PxU32 internalFaceIndex0 = contactPoints[j].internalFaceIndex0;
+				physx::PxU32 internalFaceIndex1 = contactPoints[j].internalFaceIndex1;
+
+				FModContext::getSingleton().PlaySound("aaa/untitled/15");
+			}
+		}
+	}
+}
+
+void PhysXSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
+{
 }

@@ -34,6 +34,12 @@ CMainApp::CMainApp()
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 	m_UIRender.reset(new my::UIRender());
+	m_EventLog.connect(boost::bind(&CMainApp::OnEventLog, this, _1));
+}
+
+CMainApp::~CMainApp()
+{
+	m_EventLog.disconnect(boost::bind(&CMainApp::OnEventLog, this, _1));
 }
 
 // The one and only CMainApp object
@@ -344,17 +350,6 @@ void CMainApp::OnDestroyDevice(void)
 
 	m_UIRender.reset();
 }
-//
-//void CMainApp::OnResourceFailed(const std::string & error_str)
-//{
-//	TRACE(ms2ts(error_str).c_str());
-//}
-
-void CMainApp::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
-{
-	TRACE(message);
-	TRACE("\n");
-}
 
 
 // CAboutDlg dialog used for App About
@@ -450,4 +445,11 @@ int CMainApp::ExitInstance()
 	PhysXContext::Shutdown();
 
 	return CWinAppEx::ExitInstance();
+}
+
+
+void CMainApp::OnEventLog(const char * str)
+{
+	TRACE(str);
+	TRACE("\n");
 }

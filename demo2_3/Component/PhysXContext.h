@@ -39,10 +39,13 @@ public:
 	bool Init(void);
 
 	void Shutdown(void);
+
+	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 };
 
 class PhysXSceneContext
 	: public my::SingleInstance<PhysXSceneContext>
+	, public physx::PxSimulationEventCallback
 {
 public:
 	class StepperTask
@@ -137,4 +140,23 @@ public:
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 
 	void Flush(void);
+
+	static physx::PxFilterFlags filter(
+		physx::PxFilterObjectAttributes attributes0,
+		physx::PxFilterData filterData0,
+		physx::PxFilterObjectAttributes attributes1,
+		physx::PxFilterData filterData1,
+		physx::PxPairFlags& pairFlags,
+		const void* constantBlock,
+		physx::PxU32 constantBlockSize);
+
+	virtual void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count);
+
+	virtual void onWake(physx::PxActor** actors, physx::PxU32 count);
+
+	virtual void onSleep(physx::PxActor** actors, physx::PxU32 count);
+
+	virtual void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs);
+
+	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count);
 };

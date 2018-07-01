@@ -768,25 +768,6 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-void Game::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
-{
-	switch(code)
-	{
-	case physx::PxErrorCode::eDEBUG_INFO:
-		m_EventLog(str_printf("%s (%d) : info: %s", file, line, message).c_str());
-		break;
-
-	case physx::PxErrorCode::eDEBUG_WARNING:
-	case physx::PxErrorCode::ePERF_WARNING:
-		m_EventLog(str_printf("%s (%d) : warning: %s", file, line, message).c_str());
-		break;
-
-	default:
-		m_EventLog(str_printf("%s, (%d) : error: %s", file, line, message).c_str());
-		break;
-	}
-}
-
 void Game::puts(const std::wstring & str)
 {
 	if (m_Console)

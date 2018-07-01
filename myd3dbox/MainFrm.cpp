@@ -729,7 +729,6 @@ void CMainFrame::OnComponentStaticEmitter()
 	}
 
 	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent());
-	emit_cmp->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	MaterialPtr particle1(new Material());
 	particle1->m_Shader = theApp.default_shader;
 	particle1->m_PassMask = theApp.default_pass_mask;
@@ -741,6 +740,8 @@ void CMainFrame::OnComponentStaticEmitter()
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->OnWorldChanged();
 	UpdateSelBox();
+
+	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f);
 
 	EventArgs arg;
 	m_EventAttributeChanged(&arg);

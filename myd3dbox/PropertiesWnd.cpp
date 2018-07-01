@@ -360,7 +360,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		UpdatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
 	RemovePropertiesFrom(pParticleList, 1 + emit_cmp->m_ParticleList.size());
-	UpdatePropertiesMaterial(pComponent, PropId + 1, emit_cmp->m_Material.get());
+	UpdatePropertiesMaterial(pComponent, PropId + 2, emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)

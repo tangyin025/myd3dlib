@@ -24,6 +24,7 @@ class CMainApp : public CWinAppEx
 {
 public:
 	CMainApp();
+	~CMainApp();
 
 	HRESULT hr;
 	my::UIRenderPtr m_UIRender;
@@ -51,8 +52,6 @@ public:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void OnLostDevice(void);
 	virtual void OnDestroyDevice(void);
-	//virtual void OnResourceFailed(const std::string & error_str);
-	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 
 // Implementation
 	UINT  m_nAppLook;
@@ -66,6 +65,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL OnIdle(LONG lCount);
 	virtual int ExitInstance();
+	void OnEventLog(const char * str);
 };
 
 extern CMainApp theApp;

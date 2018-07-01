@@ -111,8 +111,6 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
-
 	void puts(const std::wstring & str);
 
 	bool ExecuteCode(const char * code) throw();
