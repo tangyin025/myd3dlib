@@ -83,6 +83,10 @@ class AnimationNode
 public:
 	Animator * m_Owner;
 
+	typedef std::vector<AnimationNodePtr> AnimationNodePtrList;
+
+	AnimationNodePtrList m_Childs;
+
 protected:
 	AnimationNode(void)
 		: m_Owner(NULL)
@@ -90,8 +94,9 @@ protected:
 	}
 
 public:
-	AnimationNode(Animator * Owner)
+	AnimationNode(Animator * Owner, unsigned int ChildNum)
 		: m_Owner(Owner)
+		, m_Childs(ChildNum)
 	{
 	}
 
@@ -104,19 +109,26 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
+		ar & BOOST_SERIALIZATION_NVP(m_Childs);
 	}
 
-	virtual void OnSetOwner(void)
+	template <unsigned int i>
+	AnimationNodePtr GetChild(void) const
 	{
+		return m_Childs[i];
 	}
 
-	virtual void UpdateRate(float fRate)
+	template <unsigned int i>
+	void SetChild(AnimationNodePtr node)
 	{
+		m_Childs[i] = node;
 	}
 
-	virtual void Tick(float fElapsedTime, float fTotalWeight)
-	{
-	}
+	virtual void OnSetOwner(void);
+
+	virtual void UpdateRate(float fRate);
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
@@ -146,7 +158,7 @@ protected:
 
 public:
 	AnimationNodeSequence(Animator * Owner)
-		: AnimationNode(Owner)
+		: AnimationNode(Owner, 0)
 		, m_Time(0)
 		, m_Rate(1)
 		, m_Weight(0)
@@ -190,8 +202,6 @@ public:
 
 	bool m_Loop;
 
-	AnimationNodePtr m_Child0;
-
 	float m_BlendTime;
 
 	float m_Weight;
@@ -213,6 +223,7 @@ public:
 		, m_BlendTime(0)
 		, m_Weight(0)
 	{
+		m_Childs.resize(1);
 	}
 
 	friend class boost::serialization::access;
@@ -221,13 +232,8 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSequence);
-		ar & BOOST_SERIALIZATION_NVP(m_Child0);
 		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
 	}
-
-	virtual void OnSetOwner(void);
-
-	virtual void UpdateRate(float fRate);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
@@ -245,10 +251,6 @@ typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;
 class AnimationNodeBlend : public AnimationNode
 {
 public:
-	typedef boost::array<AnimationNodePtr, 2> AnimationNodePtrArray;
-
-	AnimationNodePtrArray m_Childs;
-
 	float m_BlendTime;
 
 	unsigned int m_ActiveChild;
@@ -268,7 +270,7 @@ protected:
 
 public:
 	AnimationNodeBlend(Animator * Owner)
-		: AnimationNode(Owner)
+		: AnimationNode(Owner, 2)
 		, m_BlendTime(0)
 		, m_ActiveChild(0)
 		, m_Weight(0)
@@ -283,34 +285,14 @@ public:
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
-
-	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		boost::serialization::split_member(ar, *this, version);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
+		ar & BOOST_SERIALIZATION_NVP(m_ActiveChild);
 	}
-
-	virtual void OnSetOwner(void);
-
-	virtual void UpdateRate(float fRate);
 
 	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
-
-	template <unsigned int i>
-	AnimationNodePtr GetChild(void) const
-	{
-		return m_Childs[i];
-	}
-
-	template <unsigned int i>
-	void SetChild(AnimationNodePtr node)
-	{
-		m_Childs[i] = node;
-	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
@@ -360,8 +342,6 @@ class AnimationNodeRateBySpeed : public AnimationNode
 public:
 	float m_BaseSpeed;
 
-	AnimationNodePtr m_Child0;
-
 protected:
 	AnimationNodeRateBySpeed(void)
 		: m_BaseSpeed(1.0f)
@@ -370,7 +350,7 @@ protected:
 
 public:
 	AnimationNodeRateBySpeed(Animator * Owner)
-		: AnimationNode(Owner)
+		: AnimationNode(Owner, 1)
 		, m_BaseSpeed(1.0f)
 	{
 	}
@@ -386,12 +366,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_BaseSpeed);
-		ar & BOOST_SERIALIZATION_NVP(m_Child0);
 	}
-
-	virtual void OnSetOwner(void);
-
-	virtual void UpdateRate(float fRate);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 

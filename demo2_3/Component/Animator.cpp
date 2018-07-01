@@ -127,6 +127,35 @@ void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSe
 
 BOOST_CLASS_EXPORT(AnimationNode)
 
+void AnimationNode::OnSetOwner(void)
+{
+	AnimationNodePtrList::iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			(*node_iter)->m_Owner = m_Owner;
+			(*node_iter)->OnSetOwner();
+		}
+	}
+}
+
+void AnimationNode::UpdateRate(float fRate)
+{
+	AnimationNodePtrList::iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			(*node_iter)->UpdateRate(fRate);
+		}
+	}
+}
+
+void AnimationNode::Tick(float fElapsedTime, float fTotalWeight)
+{
+}
+
 my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 {
 	return pose;
@@ -136,6 +165,8 @@ BOOST_CLASS_EXPORT(AnimationNodeSequence)
 
 void AnimationNodeSequence::OnSetOwner(void)
 {
+	AnimationNode::OnSetOwner();
+
 	if (m_Owner && !m_Group.empty())
 	{
 		m_Owner->AddToSequenceGroup(m_Group, this);
@@ -144,6 +175,8 @@ void AnimationNodeSequence::OnSetOwner(void)
 
 void AnimationNodeSequence::UpdateRate(float fRate)
 {
+	AnimationNode::UpdateRate(fRate);
+
 	m_Rate = fRate;
 }
 
@@ -194,26 +227,6 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 
 BOOST_CLASS_EXPORT(AnimationNodeSlot)
 
-void AnimationNodeSlot::OnSetOwner(void)
-{
-	AnimationNodeSequence::OnSetOwner();
-
-	if (m_Child0)
-	{
-		m_Child0->OnSetOwner();
-	}
-}
-
-void AnimationNodeSlot::UpdateRate(float fRate)
-{
-	AnimationNodeSequence::UpdateRate(fRate);
-
-	if (m_Child0)
-	{
-		m_Child0->UpdateRate(fRate);
-	}
-}
-
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
 	float TargetWeight = m_Playing ? 1.0f : 0.0f;
@@ -229,7 +242,10 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 		m_BlendTime -= fElapsedTime;
 	}
 
-	m_Child0->Tick(fElapsedTime, fTotalWeight * (1 - TargetWeight));
+	if (m_Childs[0])
+	{
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - TargetWeight));
+	}
 
 	AnimationNodeSequence::Tick(fElapsedTime, fTotalWeight * TargetWeight);
 }
@@ -274,7 +290,11 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 {
 	if (m_Weight <= 0.0f)
 	{
-		return m_Child0->GetPose(pose);
+		if (m_Childs[0])
+		{
+			return m_Childs[0]->GetPose(pose);
+		}
+		return pose;
 	}
 
 	if (m_Weight >= 1.0f)
@@ -282,56 +302,24 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		return AnimationNodeSequence::GetPose(pose);
 	}
 
-	m_Child0->GetPose(pose);
-	my::BoneList child_pose(pose.size());
-	AnimationNodeSequence::GetPose(child_pose);
+	if (m_Childs[0])
+	{
+		m_Childs[0]->GetPose(pose);
+	}
+	my::BoneList OtherPose(pose.size());
+	AnimationNodeSequence::GetPose(OtherPose);
 	for (unsigned int i = 0; i < pose.size(); i++)
 	{
-		pose[i].LerpSelf(child_pose[i], m_Weight);
+		pose[i].LerpSelf(OtherPose[i], m_Weight);
 	}
 	return pose;
 }
 
 BOOST_CLASS_EXPORT(AnimationNodeBlend)
 
-template<>
-void AnimationNodeBlend::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-	ar << BOOST_SERIALIZATION_NVP(m_Childs);
-	ar << BOOST_SERIALIZATION_NVP(m_BlendTime);
-	ar << BOOST_SERIALIZATION_NVP(m_ActiveChild);
-}
-
-template<>
-void AnimationNodeBlend::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
-	ar >> BOOST_SERIALIZATION_NVP(m_BlendTime);
-	ar >> BOOST_SERIALIZATION_NVP(m_ActiveChild);
-}
-
-void AnimationNodeBlend::OnSetOwner(void)
-{
-	for (unsigned int i = 0; i < m_Childs.size(); i++)
-	{
-		m_Childs[i]->m_Owner = m_Owner;
-		m_Childs[i]->OnSetOwner();
-	}
-}
-
-void AnimationNodeBlend::UpdateRate(float fRate)
-{
-	for (unsigned int i = 0; i < m_Childs.size(); i++)
-	{
-		m_Childs[i]->UpdateRate(fRate);
-	}
-}
-
 void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTime)
 {
-	_ASSERT(ActiveChild < AnimationNodePtrArray::static_size);
+	_ASSERT(ActiveChild < m_Childs.size());
 	m_ActiveChild = ActiveChild;
 	m_BlendTime = BlendTime;
 	m_TargetWeight = (ActiveChild == 0 ? 0.0f : 1.0f);
@@ -351,29 +339,49 @@ void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 		m_BlendTime -= fElapsedTime;
 	}
 
-	m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - m_TargetWeight));
+	if (m_Childs[0])
+	{
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - m_TargetWeight));
+	}
 
-	m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_TargetWeight);
+	if (m_Childs[1])
+	{
+		m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_TargetWeight);
+	}
 }
 
 my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 {
 	if (m_Weight <= 0.0f)
 	{
-		return m_Childs[0]->GetPose(pose);
+		if (m_Childs[0])
+		{
+			return m_Childs[0]->GetPose(pose);
+		}
+		return pose;
 	}
 
 	if (m_Weight >= 1.0f)
 	{
-		return m_Childs[1]->GetPose(pose);
+		if (m_Childs[1])
+		{
+			return m_Childs[1]->GetPose(pose);
+		}
+		return pose;
 	}
 
-	m_Childs[0]->GetPose(pose);
-	my::BoneList child_pose(pose.size());
-	m_Childs[1]->GetPose(child_pose);
+	if (m_Childs[0])
+	{
+		m_Childs[0]->GetPose(pose);
+	}
+	my::BoneList OtherPose(pose.size());
+	if (m_Childs[1])
+	{
+		m_Childs[1]->GetPose(OtherPose);
+	}
 	for (unsigned int i = 0; i < pose.size(); i++)
 	{
-		pose[i].LerpSelf(child_pose[i], m_Weight);
+		pose[i].LerpSelf(OtherPose[i], m_Weight);
 	}
 	return pose;
 }
@@ -405,15 +413,7 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	AnimationNodeBlend::Tick(fElapsedTime, fTotalWeight);
 }
 
-void AnimationNodeRateBySpeed::OnSetOwner(void)
-{
-	m_Child0->OnSetOwner();
-}
-
-void AnimationNodeRateBySpeed::UpdateRate(float fRate)
-{
-	m_Child0->UpdateRate(fRate);
-}
+BOOST_CLASS_EXPORT(AnimationNodeRateBySpeed)
 
 void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 {
@@ -422,12 +422,20 @@ void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	{
 		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
 		UpdateRate(sqrtf(speed_sq) / m_BaseSpeed);
+		DxutApp::getSingleton().m_EventLog(str_printf("%f, %f", sqrtf(speed_sq), m_BaseSpeed).c_str());
 	}
 
-	m_Child0->Tick(fElapsedTime, fTotalWeight);
+	if (m_Childs[0])
+	{
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
+	}
 }
 
 my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
 {
-	return m_Child0->GetPose(pose);
+	if (m_Childs[0])
+	{
+		return m_Childs[0]->GetPose(pose);
+	}
+	return pose;
 }
