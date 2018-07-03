@@ -24,12 +24,6 @@ class Game
 	, public FModContext
 {
 public:
-	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
-
-	ScrInfoType m_ScrInfos;
-
-	std::string m_LastErrorStr;
-
 	my::UIRenderPtr m_UIRender;
 
 	my::FontPtr m_Font;

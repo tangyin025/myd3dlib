@@ -85,6 +85,10 @@ namespace my
 
 		LogEvent m_EventLog;
 
+		typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
+
+		ScrInfoType m_ScrInfo;
+
 	public:
 		D3DContext(void)
 			: m_d3dThreadId(::GetCurrentThreadId())

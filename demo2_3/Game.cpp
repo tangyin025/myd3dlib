@@ -725,8 +725,8 @@ void Game::OnUIRender(
 {
 	DialogMgr::Draw(ui_render, fTime, fElapsedTime);
 	_ASSERT(m_Font);
-	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
-	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
+	ScrInfoType::const_iterator info_iter = m_ScrInfo.begin();
+	for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)
 	{
 		m_Font->PushString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5, (float)y, 500, 10), D3DCOLOR_ARGB(255, 255, 255, 0));
 	}

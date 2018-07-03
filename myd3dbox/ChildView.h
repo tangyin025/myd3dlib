@@ -55,7 +55,7 @@ protected:
 	D3DSURFACE_DESC m_SwapChainBufferDesc;
 	my::SurfacePtr m_DepthStencil;
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
-	ScrInfoType m_ScrInfos;
+	ScrInfoType m_ScrInfo;
 	LARGE_INTEGER m_qwTime[2];
 
 	typedef std::map<Actor *, my::Matrix4> ActorWorldMap;
