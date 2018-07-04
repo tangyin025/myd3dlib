@@ -422,7 +422,6 @@ void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 	{
 		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
 		UpdateRate(sqrtf(speed_sq) / m_BaseSpeed);
-		DxutApp::getSingleton().m_EventLog(str_printf("%f, %f", sqrtf(speed_sq), m_BaseSpeed).c_str());
 	}
 
 	if (m_Childs[0])

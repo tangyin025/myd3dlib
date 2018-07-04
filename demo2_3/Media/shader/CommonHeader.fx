@@ -115,3 +115,25 @@ float3 Reflection(float3 Normal, float3 View)
 {
 	return normalize(2 * dot(Normal, View) * Normal - View);
 }
+
+float4 AlignUnit(float4 pos)
+{
+	return float4(((floor((g_ScreenDim.x + pos.x / pos.w * g_ScreenDim.x) * 0.5 + 0.222222) - 0.5) * 2 - g_ScreenDim.x) / g_ScreenDim.x * pos.w, (g_ScreenDim.y - (floor((g_ScreenDim.y - pos.y / pos.w * g_ScreenDim.y) * 0.5 + 0.222222) - 0.5) * 2) / g_ScreenDim.y * pos.w, pos.z, pos.w);
+}
+
+float3 RotateAngleAxis(float3 v, float a, float3 N)
+{
+	float sin_a, cos_a;
+	sincos(a, sin_a, cos_a);
+	float Nxx = N.x * N.x;
+	float Nyy = N.y * N.y;
+	float Nzz = N.z * N.z;
+	float Nxy = N.x * N.y;
+	float Nyz = N.y * N.z;
+	float Nzx = N.z * N.x;
+	float3x3 mRotation = {
+		Nxx * (1 - cos_a) + cos_a,			Nxy * (1 - cos_a) + N.z * sin_a,	Nzx * (1 - cos_a) - N.y * sin_a,
+		Nxy * (1 - cos_a) - N.z * sin_a,	Nyy * (1 - cos_a) + cos_a,			Nyz * (1 - cos_a) + N.x * sin_a,
+		Nzx * (1 - cos_a) + N.y * sin_a,	Nyz * (1 - cos_a) - N.x * sin_a,	Nzz * (1 - cos_a) + cos_a};
+	return mul(v, mRotation);
+}

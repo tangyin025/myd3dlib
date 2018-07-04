@@ -13,19 +13,6 @@ struct VS_OUTPUT
 };
 
 //--------------------------------------------------------------------------------------
-// align_ui_unit
-//--------------------------------------------------------------------------------------
-
-float4 align_ui_unit(float4 pos, float2 ScreenDim)
-{
-	return float4(
-		((floor((ScreenDim.x + pos.x / pos.w * ScreenDim.x) * 0.5 + 0.222222) - 0.5) * 2 - ScreenDim.x) / ScreenDim.x * pos.w,
-		(ScreenDim.y - (floor((ScreenDim.y - pos.y / pos.w * ScreenDim.y) * 0.5 + 0.222222) - 0.5) * 2) / ScreenDim.y * pos.w,
-		pos.z,
-		pos.w);
-}
-
-//--------------------------------------------------------------------------------------
 // This shader computes standard transform and lighting
 //--------------------------------------------------------------------------------------
 
@@ -36,7 +23,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = align_ui_unit(mul(vPos, mul(g_World, g_ViewProj)), g_ScreenDim);
+    Output.Position = AlignUnit(mul(vPos, mul(g_World, g_ViewProj)));
     
     // Calc diffuse color    
     Output.Diffuse = vDiffuse;
