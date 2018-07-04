@@ -22,21 +22,6 @@ public:
 	{
 	}
 
-	void DrawTextAtWorld(
-		const Vector3 & pos,
-		LPCWSTR lpszText,
-		D3DCOLOR Color,
-		Font::Align align = Font::AlignCenterMiddle)
-	{
-		const Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
-		if(ptProj.z > 0.0f && ptProj.z < 1.0f)
-		{
-			const Vector2 vp = DialogMgr::GetDlgViewport();
-			const Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
-			m_Font->PushString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
-		}
-	}
-
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -209,8 +194,8 @@ public:
 		float fElapsedTime)
 	{
 		// »æÖÆ×ø±ê
-		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
-		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
+		DrawStringAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		DrawStringAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
 
 		Game::OnUIRender(ui_render, fTime, fElapsedTime);
 	}

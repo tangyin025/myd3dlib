@@ -111,6 +111,8 @@ public:
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
+	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
+
 	void SaveDialog(my::DialogPtr dlg, const char * path);
 
 	my::DialogPtr LoadDialog(const char * path);
