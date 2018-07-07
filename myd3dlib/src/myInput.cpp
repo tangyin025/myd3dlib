@@ -774,8 +774,6 @@ void Joystick::CreateJoystick(
 	//dipd.dwData = (DWORD)(dead_zone * 100);
 	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-
 	ZeroMemory(&m_State, sizeof(m_State));
 }
 
@@ -846,11 +844,11 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 
 	m_keyboard.reset(new Keyboard);
 	m_keyboard->CreateKeyboard(m_input->m_ptr, hwnd);
-	m_keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	m_keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE /*| DISCL_NOWINKEY*/);
 
 	m_mouse.reset(new Mouse);
 	m_mouse->CreateMouse(m_input->m_ptr, hwnd);
-	m_mouse->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+	m_mouse->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 
 	JoystickEnumDesc desc;
 	desc.input = m_input->m_ptr;
@@ -863,7 +861,11 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	desc.max_z =  255;
 	desc.dead_zone = 10;
 	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &desc, DIEDFL_ATTACHEDONLY);
-	m_joystick = desc.joystick;
+	if (desc.joystick)
+	{
+		m_joystick = desc.joystick;
+		m_joystick->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+	}
 
 	//::GetCursorPos(&m_MousePos);
 	//::ScreenToClient(hwnd, &m_MousePos);

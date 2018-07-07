@@ -85,9 +85,11 @@ namespace my
 
 		LogEvent m_EventLog;
 
-		typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
+		typedef boost::array<wchar_t, 256> ScrInfoBuff;
 
-		ScrInfoType m_ScrInfo;
+		typedef std::map<int, ScrInfoBuff> ScrInfoMap;
+
+		ScrInfoMap m_ScrInfo;
 
 	public:
 		D3DContext(void)

@@ -909,7 +909,7 @@ void CChildView::OnPaint()
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
-				ScrInfoType::const_iterator info_iter = m_ScrInfo.begin();
+				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 				for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 				{
 					theApp.m_Font->PushString(theApp.m_UIRender.get(), &info_iter->second[0], my::Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
