@@ -789,16 +789,6 @@ void CChildView::OnCmpAttriChanged(EventArgs * arg)
 	Invalidate();
 }
 
-void CChildView::PostCameraViewChanged(void)
-{
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	StartPerformanceCount();
-	Invalidate();
-	CEnvironmentWnd::CameraPropEventArgs arg(this);
-	pFrame->m_EventCameraPropChanged(&arg);
-}
-
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_VIEW, point.x, point.y, this, TRUE);
@@ -1192,11 +1182,19 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 			(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_bEatAltUp = TRUE;
 			break;
 
-		case WM_MOUSEMOVE:
+		case WM_LBUTTONUP:
+		case WM_MBUTTONUP:
+		case WM_RBUTTONUP:
 			{
-				m_Camera->UpdateViewProj();
-				PostCameraViewChanged();
+				CEnvironmentWnd::CameraPropEventArgs arg(this);
+				pFrame->m_EventCameraPropChanged(&arg);
 			}
+			break;
+
+		case WM_MOUSEMOVE:
+			m_Camera->UpdateViewProj();
+			StartPerformanceCount();
+			Invalidate();
 			break;
 		}
 		return TRUE;
@@ -1317,7 +1315,10 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				}
 			}
 			m_Camera->UpdateViewProj();
-			PostCameraViewChanged();
+			StartPerformanceCount();
+			Invalidate();
+			CEnvironmentWnd::CameraPropEventArgs arg(this);
+			pFrame->m_EventCameraPropChanged(&arg);
 		}
 		return;
 	}
@@ -1430,7 +1431,10 @@ void CChildView::OnUpdateRendermodeSsao(CCmdUI *pCmdUI)
 void CChildView::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	PostCameraViewChanged();
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CEnvironmentWnd::CameraPropEventArgs arg(this);
+	pFrame->m_EventCameraPropChanged(&arg);
 
 	__super::OnActivateView(bActivate, pActivateView, pDeactiveView);
 }

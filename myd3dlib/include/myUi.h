@@ -203,6 +203,12 @@ namespace my
 
 		Control * m_Parent;
 
+		static Control * s_FocusControl;
+
+		static Control * s_CaptureControl;
+
+		static Control * s_MouseOverControl;
+
 		bool m_bEnabled;
 
 		bool m_bVisible;
@@ -969,15 +975,8 @@ namespace my
 	typedef boost::shared_ptr<Dialog> DialogPtr;
 
 	class DialogMgr
-		: public SingleInstance<DialogMgr>
 	{
 	public:
-		Control * s_FocusControl;
-
-		Control * s_CaptureControl;
-
-		Control * s_MouseOverControl;
-
 		typedef std::list<DialogPtr> DialogPtrList;
 
 		DialogPtrList m_DlgList;
@@ -994,9 +993,6 @@ namespace my
 
 	public:
 		DialogMgr(void)
-			: s_FocusControl(NULL)
-			, s_CaptureControl(NULL)
-			, s_MouseOverControl(NULL)
 		{
 			SetDlgViewport(Vector2(800,600), D3DXToRadian(75.0f));
 		}

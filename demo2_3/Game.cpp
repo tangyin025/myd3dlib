@@ -447,6 +447,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
 			.property("VisualizationParameter", &Game::GetVisualizationParameter, &Game::SetVisualizationParameter)
+			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readonly("Root", &Game::m_Root)
 			.def("PlaySound", &Game::PlaySound)
@@ -479,6 +480,8 @@ HRESULT Game::OnResetDevice(
 	m_EventLog("Game::OnResetDevice");
 
 	DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
+
+	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Height / 600.0f));
 
 	if (FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
