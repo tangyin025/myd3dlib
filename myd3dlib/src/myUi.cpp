@@ -292,7 +292,7 @@ void ControlSkin::save<boost::archive::polymorphic_oarchive>(boost::archive::pol
 	std::vector<std::string> FontSeq;
 	boost::algorithm::split(FontSeq, my::ResourceMgr::getSingleton().GetResourceKey(m_Font), boost::is_any_of(" "), boost::algorithm::token_compress_off);
 	std::string FontPath = FontSeq.size() > 1 ? FontSeq[0] : std::string();
-	int FontHeight = FontSeq.size() > 2 ? boost::lexical_cast<int>(FontSeq[1]) : 13;
+	int FontHeight = FontSeq.size() > 1 ? boost::lexical_cast<int>(FontSeq[1]) : 13;
 	ar << BOOST_SERIALIZATION_NVP(FontPath);
 	ar << BOOST_SERIALIZATION_NVP(FontHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_TextColor);

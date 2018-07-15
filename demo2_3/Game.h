@@ -38,6 +38,8 @@ public:
 
 	std::string m_InitFont;
 
+	int m_InitFontHeight;
+
 	std::string m_InitUIEffect;
 
 	std::string m_InitSound;
