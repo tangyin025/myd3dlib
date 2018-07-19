@@ -166,6 +166,18 @@ public:
 
 		IRenderContext(void);
 
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
+		}
+
 		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
 
@@ -274,6 +286,22 @@ public:
 	static const char * PassTypeToStr(unsigned int pass_type);
 
 	static void UpdateQuad(QuadVertex * quad, const my::Vector2 & dim);
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,

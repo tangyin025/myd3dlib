@@ -452,7 +452,8 @@ void CMainFrame::ClearFileContext()
 {
 	m_Root.ClearAllActor();
 	m_selactors.clear();
-	ClearSerializedObjs();
+	PhysXSceneContext::ClearSerializedObjs();
+	theApp.ReleaseResource();
 }
 
 void CMainFrame::OnDestroy()
@@ -531,13 +532,21 @@ void CMainFrame::OnFileOpen()
 		return;
 	}
 
-	CWaitCursor waiter;
 	ClearFileContext();
+
 	m_strPathName = strPathName;
+
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	ASSERT_VALID(pView);
+	CWaitCursor waiter;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
+	ia >> boost::serialization::make_nvp("IRenderContext", (RenderPipeline::IRenderContext &)*pView);
+	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("Root", m_Root);
+
+	theApp.RequestResource();
 }
 
 void CMainFrame::OnFileSave()
@@ -556,9 +565,13 @@ void CMainFrame::OnFileSave()
 		}
 	}
 
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	ASSERT_VALID(pView);
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("IRenderContext", (RenderPipeline::IRenderContext &)*pView);
+	oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	oa << boost::serialization::make_nvp("Root", m_Root);
 }

@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include <sstream>
 #include "RenderPipeline.h"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
@@ -11,6 +20,26 @@ RenderPipeline::IRenderContext::IRenderContext(void)
 	, m_FxaaEnable(false)
 	, m_SsaoEnable(false)
 {
+}
+
+template<>
+void RenderPipeline::IRenderContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_WireFrame);
+	ar << BOOST_SERIALIZATION_NVP(m_DofEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_FxaaEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_SsaoEnable);
+}
+
+template<>
+void RenderPipeline::IRenderContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_WireFrame);
+	ar >> BOOST_SERIALIZATION_NVP(m_DofEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_FxaaEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_SsaoEnable);
 }
 
 RenderPipeline::RenderPipeline(void)
@@ -160,6 +189,56 @@ void RenderPipeline::UpdateQuad(QuadVertex * quad, const my::Vector2 & dim)
 	quad[3].rhw = 1.0f;
 	quad[3].u = 1.0f;
 	quad[3].v = 0.0f;
+}
+
+template<>
+void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyLightDiffuse);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyLightAmbient);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
+	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
+	ar << BOOST_SERIALIZATION_NVP(m_SsaoBias);
+	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
+	ar << BOOST_SERIALIZATION_NVP(m_SsaoRadius);
+	ar << BOOST_SERIALIZATION_NVP(m_SsaoScale);
+}
+
+template<>
+void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightDiffuse);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightAmbient);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
+	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
+	ar >> BOOST_SERIALIZATION_NVP(m_SsaoBias);
+	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
+	ar >> BOOST_SERIALIZATION_NVP(m_SsaoRadius);
+	ar >> BOOST_SERIALIZATION_NVP(m_SsaoScale);
+}
+
+void RenderPipeline::RequestResource(void)
+{
+	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
+	{
+		if (!m_SkyBoxTextures[i].m_Path.empty())
+		{
+			m_SkyBoxTextures[i].RequestResource();
+		}
+	}
+}
+
+void RenderPipeline::ReleaseResource(void)
+{
+	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
+	{
+		if (!m_SkyBoxTextures[i].m_Path.empty())
+		{
+			m_SkyBoxTextures[i].RequestResource();
+		}
+	}
 }
 
 HRESULT RenderPipeline::OnCreateDevice(

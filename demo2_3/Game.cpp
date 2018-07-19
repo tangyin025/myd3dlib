@@ -896,10 +896,15 @@ void Game::LoadScene(const char * path)
 {
 	m_Root.ClearAllActor();
 	PhysXSceneContext::ClearSerializedObjs();
+	RenderPipeline::ReleaseResource();
 
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
 	boost::archive::polymorphic_xml_iarchive ia(istr);
+	ia >> boost::serialization::make_nvp("IRenderContext", (IRenderContext &)*this);
+	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("Root", m_Root);
+
+	RenderPipeline::RequestResource();
 }

@@ -1,17 +1,75 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="14">
-<PhysXSceneContext class_id="0" tracking_level="0" version="0">
+<IRenderContext class_id="0" tracking_level="0" version="0">
+	<m_SkyBoxEnable>0</m_SkyBoxEnable>
+	<m_WireFrame>0</m_WireFrame>
+	<m_DofEnable>0</m_DofEnable>
+	<m_FxaaEnable>0</m_FxaaEnable>
+	<m_SsaoEnable>0</m_SsaoEnable>
+</IRenderContext>
+<RenderPipeline class_id="1" tracking_level="0" version="0">
+	<m_BgColor class_id="2" tracking_level="0" version="0">
+		<x>6.980392337e-001</x>
+		<y>6.980392337e-001</y>
+		<z>6.980392337e-001</z>
+		<w>1.000000000e+000</w>
+	</m_BgColor>
+	<m_SkyLightDiffuse>
+		<x>1.000000000e+000</x>
+		<y>1.000000000e+000</y>
+		<z>1.000000000e+000</z>
+		<w>1.000000000e+000</w>
+	</m_SkyLightDiffuse>
+	<m_SkyLightAmbient>
+		<x>3.000000119e-001</x>
+		<y>3.000000119e-001</y>
+		<z>3.000000119e-001</z>
+		<w>0.000000000e+000</w>
+	</m_SkyLightAmbient>
+	<m_SkyBoxTextures>
+		<count>6</count>
+		<item class_id="3" tracking_level="0" version="0">
+			<m_Path></m_Path>
+		</item>
+		<item>
+			<m_Path></m_Path>
+		</item>
+		<item>
+			<m_Path></m_Path>
+		</item>
+		<item>
+			<m_Path></m_Path>
+		</item>
+		<item>
+			<m_Path></m_Path>
+		</item>
+		<item>
+			<m_Path></m_Path>
+		</item>
+	</m_SkyBoxTextures>
+	<m_DofParams>
+		<x>5.000000000e+000</x>
+		<y>1.500000000e+001</y>
+		<z>2.500000000e+001</z>
+		<w>1.000000000e+000</w>
+	</m_DofParams>
+	<m_SsaoBias>2.000000030e-001</m_SsaoBias>
+	<m_SsaoIntensity>5.000000000e+000</m_SsaoIntensity>
+	<m_SsaoRadius>1.000000000e+002</m_SsaoRadius>
+	<m_SsaoScale>1.000000000e+001</m_SsaoScale>
+</RenderPipeline>
+<PhysXSceneContext class_id="4" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>
 	<StreamBuff>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 	</StreamBuff>
 </PhysXSceneContext>
-<Root class_id="1" tracking_level="1" version="0" object_id="_0">
-	<OctNode class_id="2" tracking_level="1" version="0" object_id="_1">
-		<m_aabb class_id="3" tracking_level="0" version="0">
-			<m_min class_id="4" tracking_level="0" version="0">
+<Root class_id="5" tracking_level="1" version="0" object_id="_0">
+	<OctNode class_id="6" tracking_level="1" version="0" object_id="_1">
+		<m_aabb class_id="7" tracking_level="0" version="0">
+			<m_min class_id="8" tracking_level="0" version="0">
 				<x>-1.024000000e+003</x>
 				<y>-1.024000000e+003</y>
 				<z>-1.024000000e+003</z>
@@ -28,13 +86,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 			<z>0.000000000e+000</z>
 		</m_Half>
 	</OctNode>
-	<cb.actor_list class_id="5" tracking_level="0" version="0">
+	<cb.actor_list class_id="9" tracking_level="0" version="0">
 		<count>1</count>
 		<item_version>0</item_version>
-		<item class_id="6" tracking_level="0" version="0">
-			<first class_id="7" tracking_level="0" version="1">
-				<px class_id="9" class_name="Actor" tracking_level="1" version="0" object_id="_2">
-					<OctActor class_id="8" tracking_level="1" version="0" object_id="_3"></OctActor>
+		<item class_id="10" tracking_level="0" version="0">
+			<first class_id="11" tracking_level="0" version="1">
+				<px class_id="13" class_name="Actor" tracking_level="1" version="0" object_id="_2">
+					<OctActor class_id="12" tracking_level="1" version="0" object_id="_3"></OctActor>
 					<m_aabb>
 						<m_min>
 							<x>-5.000000000e-001</x>
@@ -52,19 +110,19 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<y>0.000000000e+000</y>
 						<z>0.000000000e+000</z>
 					</m_Position>
-					<m_Rotation class_id="10" tracking_level="0" version="0">
+					<m_Rotation class_id="14" tracking_level="0" version="0">
 						<x>0.000000000e+000</x>
 						<y>0.000000000e+000</y>
 						<z>0.000000000e+000</z>
 						<w>1.000000000e+000</w>
 					</m_Rotation>
 					<m_Scale>
-						<x>5.120000000e+002</x>
+						<x>2.048000000e+003</x>
 						<y>1.000000000e+000</y>
-						<z>5.120000000e+002</z>
+						<z>2.048000000e+003</z>
 					</m_Scale>
-					<m_World class_id="11" tracking_level="0" version="0">
-						<_11>5.120000000e+002</_11>
+					<m_World class_id="15" tracking_level="0" version="0">
+						<_11>2.048000000e+003</_11>
 						<_12>0.000000000e+000</_12>
 						<_13>0.000000000e+000</_13>
 						<_14>0.000000000e+000</_14>
@@ -74,56 +132,56 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<_24>0.000000000e+000</_24>
 						<_31>0.000000000e+000</_31>
 						<_32>0.000000000e+000</_32>
-						<_33>5.120000000e+002</_33>
+						<_33>2.048000000e+003</_33>
 						<_34>0.000000000e+000</_34>
 						<_41>0.000000000e+000</_41>
 						<_42>0.000000000e+000</_42>
 						<_43>0.000000000e+000</_43>
 						<_44>1.000000000e+000</_44>
 					</m_World>
-					<m_Animator class_id="12" tracking_level="0" version="1">
+					<m_Animator class_id="16" tracking_level="0" version="1">
 						<px class_id="-1"></px>
 					</m_Animator>
-					<m_Controller class_id="14" tracking_level="0" version="1">
+					<m_Controller class_id="18" tracking_level="0" version="1">
 						<px class_id="-1"></px>
 					</m_Controller>
-					<m_Cmps class_id="16" tracking_level="0" version="0">
+					<m_Cmps class_id="20" tracking_level="0" version="0">
 						<count>1</count>
 						<item_version>1</item_version>
-						<item class_id="17" tracking_level="0" version="1">
-							<px class_id="19" class_name="MeshComponent" tracking_level="1" version="0" object_id="_4">
-								<RenderComponent class_id="20" tracking_level="0" version="0">
-									<Component class_id="18" tracking_level="1" version="0" object_id="_5">
+						<item class_id="21" tracking_level="0" version="1">
+							<px class_id="23" class_name="MeshComponent" tracking_level="1" version="0" object_id="_4">
+								<RenderComponent class_id="24" tracking_level="0" version="0">
+									<Component class_id="22" tracking_level="1" version="0" object_id="_5">
 										<m_Type>3</m_Type>
 									</Component>
 								</RenderComponent>
-								<m_MeshRes class_id="21" tracking_level="0" version="0">
+								<m_MeshRes class_id="25" tracking_level="0" version="0">
 									<m_Path>E:\Works\C++\myd3dlib\demo2_3\Media\mesh\plane.mesh.xml</m_Path>
 								</m_MeshRes>
 								<m_bInstance>0</m_bInstance>
 								<m_bUseAnimation>0</m_bUseAnimation>
-								<m_MaterialList class_id="22" tracking_level="0" version="0">
+								<m_MaterialList class_id="26" tracking_level="0" version="0">
 									<count>1</count>
 									<item_version>1</item_version>
-									<item class_id="23" tracking_level="0" version="1">
-										<px class_id="24" tracking_level="1" version="0" object_id="_6">
+									<item class_id="27" tracking_level="0" version="1">
+										<px class_id="28" tracking_level="1" version="0" object_id="_6">
 											<m_Shader>shader/lambert1.fx</m_Shader>
 											<m_PassMask>11</m_PassMask>
 											<m_CullMode>2</m_CullMode>
 											<m_ZEnable>1</m_ZEnable>
 											<m_ZWriteEnable>1</m_ZWriteEnable>
 											<m_BlendMode>0</m_BlendMode>
-											<m_MeshColor class_id="25" tracking_level="0" version="0">
+											<m_MeshColor>
 												<x>1.000000000e+000</x>
 												<y>1.000000000e+000</y>
 												<z>1.000000000e+000</z>
 												<w>1.000000000e+000</w>
 											</m_MeshColor>
-											<m_RepeatUV class_id="26" tracking_level="0" version="0">
-												<x>1.280000000e+002</x>
-												<y>1.280000000e+002</y>
+											<m_RepeatUV class_id="29" tracking_level="0" version="0">
+												<x>5.120000000e+002</x>
+												<y>5.120000000e+002</y>
 											</m_RepeatUV>
-											<m_MeshTexture class_id="27" tracking_level="0" version="0">
+											<m_MeshTexture>
 												<m_Path>texture/Checker.bmp</m_Path>
 											</m_MeshTexture>
 											<m_NormalTexture>
@@ -141,31 +199,31 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 					<ActorType>0</ActorType>
 					<PxActorSize>628</PxActorSize>
 					<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADAewwJAAAA
-gAAAAABQzgkJAAAAgAEAAABgq/wIAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAUn3EP
-CAADAAAAAAB4n3EPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzAewwJAAAAAM3Nzc3N
-zc3NUDxyDwcAAwAAAAAAED1yDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAAAg85MJAAAA
+gAEAAADg8pMJAAAAgAAAAADw85MJAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAUn/UP
+CAACAAAAAAB4n/UPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzg8pMJAAAAAM3Nzc3N
+zc3NUDz2DwcAAgAAAAAAED32DwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzWTlcQ8GAAMA8K6jBQAAAAAA
-AAAAUM4JCQEAAQECAAAAAQABAQAAAADNzc3Nzc3NzTB5oAUAAACFAAAAAM3Nzc3/////fAWhBQEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+zc3Nzc3Nzc0AAAAAAM3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzWTl9Q8GAAIAwOKVCQAAAAAA
+AAAAIPOTCQEAAQECAAAAAQABAQAAAADNzc3Nzc3NzaBNsgUAAACFAAAAAM3Nzc3//////OS7BQEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>
 				</px>
 			</first>
 			<second>
 				<m_min>
-					<x>-2.560000000e+002</x>
+					<x>-1.024000000e+003</x>
 					<y>-1.110219981e-016</y>
-					<z>-2.560000000e+002</z>
+					<z>-1.024000000e+003</z>
 				</m_min>
 				<m_max>
-					<x>2.560000000e+002</x>
+					<x>1.024000000e+003</x>
 					<y>1.110219981e-016</y>
-					<z>2.560000000e+002</z>
+					<z>1.024000000e+003</z>
 				</m_max>
 			</second>
 		</item>
