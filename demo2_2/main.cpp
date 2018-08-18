@@ -1,4 +1,5 @@
 ﻿#include <myD3dLib.h>
+#include <PrintCallStack.h>
 #include <boost/bind.hpp>
 //#include <Opcode.h>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -10,6 +11,12 @@
 #include <fstream>
 
 using namespace my;
+
+LONG WINAPI OnException(_EXCEPTION_POINTERS* ExceptionInfo)
+{
+	WriteMiniDump(ExceptionInfo, _T("aaa.dmp"));
+	return EXCEPTION_EXECUTE_HANDLER;
+}
 
 class EffectUIRender
 	: public my::UIRender
@@ -390,6 +397,8 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 #if defined(DEBUG) | defined(_DEBUG)
     _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif
+
+	SetUnhandledExceptionFilter(OnException);
 
 	return Demo().Run();
 }
