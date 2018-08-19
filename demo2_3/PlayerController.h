@@ -9,6 +9,8 @@ class PlayerController
 public:
 	my::Vector3 m_LookAngle;
 
+	float m_LookDist;
+
 	CPoint m_MoveAxis;
 
 protected:

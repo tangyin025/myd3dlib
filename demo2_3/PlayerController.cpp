@@ -7,6 +7,7 @@ using namespace my;
 
 PlayerController::PlayerController(void)
 	: m_LookAngle(0, 0, 0)
+	, m_LookDist(3)
 	, m_MoveAxis(0, 0)
 {
 	Init();
@@ -15,6 +16,7 @@ PlayerController::PlayerController(void)
 PlayerController::PlayerController(Character * character)
 	: CharacterController(character)
 	, m_LookAngle(0, 0, 0)
+	, m_LookDist(3)
 	, m_MoveAxis(0, 0)
 {
 	Init();
@@ -76,7 +78,7 @@ void PlayerController::Update(float fElapsedTime)
 	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(Game::getSingleton().m_Camera.get());
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
 	camera->m_Eular = m_LookAngle;
-	camera->m_Eye = m_Character->m_Position + Rotation[2].xyz * 3;
+	camera->m_Eye = m_Character->m_Position + Vector3(0, 0.75f, 0) + Rotation[2].xyz * m_LookDist;
 	Game::getSingleton().m_SkyLightCam->m_Eye = m_Character->m_Position;
 }
 
@@ -90,6 +92,10 @@ void PlayerController::OnMouseMove(my::InputEventArg * arg)
 	if (mmarg.y != 0)
 	{
 		m_LookAngle.x += -D3DXToRadian(mmarg.y);
+	}
+	if (mmarg.z != 0)
+	{
+		m_LookDist -= (float)mmarg.z / 480;
 	}
 }
 
