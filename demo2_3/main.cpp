@@ -7,6 +7,7 @@
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/vector.hpp>
 #include <fstream>
+#include <PrintCallStack.h>
 
 using namespace my;
 
@@ -230,6 +231,12 @@ public:
 // wWinMain
 // ------------------------------------------------------------------------------------------
 
+LONG WINAPI OnException(_EXCEPTION_POINTERS* ExceptionInfo)
+{
+	WriteMiniDump(ExceptionInfo, _T("aaa.dmp"));
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance,
 					HINSTANCE hPrevInstance,
 					LPWSTR lpCmdLine,
@@ -239,6 +246,8 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	// …Ë÷√crtdbgº‡ ”ƒ⁄¥Ê–π¬©
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+
+	SetUnhandledExceptionFilter(OnException);
 
 	return Demo().Run();
 }

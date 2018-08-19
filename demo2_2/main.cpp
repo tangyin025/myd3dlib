@@ -1,5 +1,4 @@
 ﻿#include <myD3dLib.h>
-#include <PrintCallStack.h>
 #include <boost/bind.hpp>
 //#include <Opcode.h>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -9,14 +8,9 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/multi_array.hpp>
 #include <fstream>
+#include <PrintCallStack.h>
 
 using namespace my;
-
-LONG WINAPI OnException(_EXCEPTION_POINTERS* ExceptionInfo)
-{
-	WriteMiniDump(ExceptionInfo, _T("aaa.dmp"));
-	return EXCEPTION_EXECUTE_HANDLER;
-}
 
 class EffectUIRender
 	: public my::UIRender
@@ -390,6 +384,12 @@ public:
 		return 0;
 	}
 };
+
+LONG WINAPI OnException(_EXCEPTION_POINTERS* ExceptionInfo)
+{
+	WriteMiniDump(ExceptionInfo, _T("aaa.dmp"));
+	return EXCEPTION_EXECUTE_HANDLER;
+}
 
 INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 {
