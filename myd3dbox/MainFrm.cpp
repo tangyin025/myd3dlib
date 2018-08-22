@@ -57,6 +57,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
+	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -906,4 +907,9 @@ void CMainFrame::OnViewClearshader()
 	theApp.m_ShaderCache.clear();
 	EventArgs arg;
 	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnToolsBuildnavigation()
+{
+	// TODO: Add your command handler code here
 }

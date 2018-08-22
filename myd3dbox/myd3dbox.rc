@@ -217,6 +217,10 @@ BEGIN
             MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
         END
     END
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "Build &Navigation",           ID_TOOLS_BUILDNAVIGATION
+    END
     POPUP "&View"
     BEGIN
         POPUP "&Toolbars and Docking Windows"
