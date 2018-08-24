@@ -16,6 +16,7 @@
 
 class CMainFrame : public CFrameWndEx
 	, public PhysXSceneContext
+	, public rcContext
 {
 	
 public: // create from serialization only
@@ -38,12 +39,15 @@ public:
 	ActorSet m_selactors;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
-	rcConfig m_cfg;
 	Event m_EventSelectionChanged;
 	Event m_EventSelectionPlaying;
 	Event m_EventPivotModeChanged;
 	Event m_EventAttributeChanged;
 	Event m_EventCameraPropChanged;
+	rcConfig m_cfg;
+	rcHeightfield* m_solid;
+	unsigned char* m_triareas;
+	rcCompactHeightfield* m_chf;
 
 // Operations
 public:
