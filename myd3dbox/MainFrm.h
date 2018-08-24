@@ -12,6 +12,7 @@
 #include "../demo2_3/Component/Terrain.h"
 #include "Pivot.h"
 #include "EventDefine.h"
+#include "Recast.h"
 
 class CMainFrame : public CFrameWndEx
 	, public PhysXSceneContext
@@ -37,6 +38,7 @@ public:
 	ActorSet m_selactors;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
+	rcConfig m_cfg;
 	Event m_EventSelectionChanged;
 	Event m_EventSelectionPlaying;
 	Event m_EventPivotModeChanged;

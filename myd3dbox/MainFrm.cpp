@@ -912,4 +912,22 @@ void CMainFrame::OnViewClearshader()
 void CMainFrame::OnToolsBuildnavigation()
 {
 	// TODO: Add your command handler code here
+	memset(&m_cfg, 0, sizeof(m_cfg));
+	m_cfg.cs = 0.3f;// m_cellSize;
+	m_cfg.ch = 0.2f;// m_cellHeight;
+	m_cfg.walkableSlopeAngle = 45.0f;// m_agentMaxSlope;
+	m_cfg.walkableHeight = 10;// (int)ceilf(m_agentHeight / m_cfg.ch);
+	m_cfg.walkableClimb = 4;// (int)floorf(m_agentMaxClimb / m_cfg.ch);
+	m_cfg.walkableRadius = 2;// (int)ceilf(m_agentRadius / m_cfg.cs);
+	m_cfg.maxEdgeLen = 40;// (int)(m_edgeMaxLen / m_cellSize);
+	m_cfg.maxSimplificationError = 1.3f;// m_edgeMaxError;
+	m_cfg.minRegionArea = 64;// (int)rcSqr(m_regionMinSize);		// Note: area = size*size
+	m_cfg.mergeRegionArea = 400;// (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
+	m_cfg.maxVertsPerPoly = 6;// (int)m_vertsPerPoly;
+	m_cfg.detailSampleDist = 1.8f;// m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
+	m_cfg.detailSampleMaxError = 0.2f;// m_cellHeight * m_detailSampleMaxError;
+
+	rcVcopy(m_cfg.bmin, &m_Root.m_aabb.m_min.x);
+	rcVcopy(m_cfg.bmax, &m_Root.m_aabb.m_max.x);
+	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 }
