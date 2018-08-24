@@ -194,6 +194,18 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DebugUtils\DebugUtils.vcxproj">
+      <Project>{1b6cc677-1d1e-4bab-9943-d4f0fc8c8e4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourCrowd\DetourCrowd.vcxproj">
+      <Project>{2ca9dcdf-2768-4ede-b9aa-47ba3d150838}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourTileCache\DetourTileCache.vcxproj">
+      <Project>{f3683163-8a98-4464-be2f-8a33e5865115}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Detour\Detour.vcxproj">
+      <Project>{e7e0b84b-e196-45f1-b017-aeb3121d2052}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\freetype\scripts\freetype.vcxproj">
       <Project>{ab3a72ec-552c-41bd-9d73-761d2419d4d1}</Project>
     </ProjectReference>
@@ -208,6 +220,9 @@
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\scripts\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Recast\Recast.vcxproj">
+      <Project>{bce7e203-90f1-41cd-95e4-d616e838986c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\zlib\scripts\zlib.vcxproj">
       <Project>{4b104248-0f92-4516-8d50-e87d5e9bb6b6}</Project>
