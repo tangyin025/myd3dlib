@@ -46,7 +46,7 @@ public:
 	Event m_EventCameraPropChanged;
 	rcConfig m_cfg;
 	rcHeightfield* m_solid;
-	unsigned char* m_triareas;
+	//unsigned char* m_triareas;
 	rcCompactHeightfield* m_chf;
 
 // Operations

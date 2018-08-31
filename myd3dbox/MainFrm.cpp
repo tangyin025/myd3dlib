@@ -911,11 +911,11 @@ void CMainFrame::OnViewClearshader()
 
 void CMainFrame::OnToolsBuildnavigation()
 {
-	// TODO: Add your command handler code here
-	const float* verts = 0;// m_geom->getMesh()->getVerts();
-	const int nverts = 100;// m_geom->getMesh()->getVertCount();
-	const int* tris = 0;// m_geom->getMesh()->getTris();
-	const int ntris = 10;// m_geom->getMesh()->getTriCount();
+	//// TODO: Add your command handler code here
+	//const float* verts = 0;// m_geom->getMesh()->getVerts();
+	//const int nverts = 100;// m_geom->getMesh()->getVertCount();
+	//const int* tris = 0;// m_geom->getMesh()->getTris();
+	//const int ntris = 10;// m_geom->getMesh()->getTriCount();
 
 	//
 	// Step 1. Initialize build config.
@@ -969,156 +969,182 @@ void CMainFrame::OnToolsBuildnavigation()
 		return;
 	}
 
-	// Allocate array that can hold triangle area types.
-	// If you have multiple meshes you need to process, allocate
-	// and array which can hold the max number of triangles you need to process.
-	m_triareas = new unsigned char[ntris];
-	if (!m_triareas)
-	{
-		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
-		return;
-	}
-
-	// Find triangles which are walkable based on their slope and rasterize them.
-	// If your input data is multiple meshes, you can transform them here, calculate
-	// the are type for each of the meshes and rasterize them.
-	memset(m_triareas, 0, ntris*sizeof(unsigned char));
-	rcMarkWalkableTriangles(this, m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
-	if (!rcRasterizeTriangles(this, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb))
-	{
-		this->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
-		return;
-	}
-
-	//if (!m_keepInterResults)
+	//// Allocate array that can hold triangle area types.
+	//// If you have multiple meshes you need to process, allocate
+	//// and array which can hold the max number of triangles you need to process.
+	//m_triareas = new unsigned char[ntris];
+	//if (!m_triareas)
 	//{
-	//	delete[] m_triareas;
-	//	m_triareas = 0;
+	//	this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
+	//	return;
 	//}
 
-	bool m_filterLowHangingObstacles = true;
-	bool m_filterLedgeSpans = true;
-	bool m_filterWalkableLowHeightSpans = true;
-
-	//
-	// Step 3. Filter walkables surfaces.
-	//
-
-	// Once all geoemtry is rasterized, we do initial pass of filtering to
-	// remove unwanted overhangs caused by the conservative rasterization
-	// as well as filter spans where the character cannot possibly stand.
-	if (m_filterLowHangingObstacles)
-		rcFilterLowHangingWalkableObstacles(this, m_cfg.walkableClimb, *m_solid);
-	if (m_filterLedgeSpans)
-		rcFilterLedgeSpans(this, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
-	if (m_filterWalkableLowHeightSpans)
-		rcFilterWalkableLowHeightSpans(this, m_cfg.walkableHeight, *m_solid);
-
-	//
-	// Step 4. Partition walkable surface to simple regions.
-	//
-
-	// Compact the heightfield so that it is faster to handle from now on.
-	// This will result more cache coherent data as well as the neighbours
-	// between walkable cells will be calculated.
-	m_chf = rcAllocCompactHeightfield();
-	if (!m_chf)
-	{
-		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
-		return;
-	}
-	if (!rcBuildCompactHeightfield(this, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid, *m_chf))
-	{
-		this->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
-		return;
-	}
-
-	//if (!m_keepInterResults)
+	//// Find triangles which are walkable based on their slope and rasterize them.
+	//// If your input data is multiple meshes, you can transform them here, calculate
+	//// the are type for each of the meshes and rasterize them.
+	//memset(m_triareas, 0, ntris*sizeof(unsigned char));
+	//rcMarkWalkableTriangles(this, m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
 	//{
-	//	rcFreeHeightField(m_solid);
-	//	m_solid = 0;
+	//	this->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
+	//	return;
+	//if (!rcRasterizeTriangles(this, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb))
 	//}
 
-	// Erode the walkable area by agent radius.
-	if (!rcErodeWalkableArea(this, m_cfg.walkableRadius, *m_chf))
+	struct Callback : public my::OctNode::QueryCallback
 	{
-		this->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
-		return;
-	}
-
-	//// (Optional) Mark areas.
-	//const ConvexVolume* vols = m_geom->getConvexVolumes();
-	//for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
-	//	rcMarkConvexPolyArea(this, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
-
-	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
-	// There are 3 martitioning methods, each with some pros and cons:
-	// 1) Watershed partitioning
-	//   - the classic Recast partitioning
-	//   - creates the nicest tessellation
-	//   - usually slowest
-	//   - partitions the heightfield into nice regions without holes or overlaps
-	//   - the are some corner cases where this method creates produces holes and overlaps
-	//      - holes may appear when a small obstacles is close to large open area (triangulation can handle this)
-	//      - overlaps may occur if you have narrow spiral corridors (i.e stairs), this make triangulation to fail
-	//   * generally the best choice if you precompute the nacmesh, use this if you have large open areas
-	// 2) Monotone partioning
-	//   - fastest
-	//   - partitions the heightfield into regions without holes and overlaps (guaranteed)
-	//   - creates long thin polygons, which sometimes causes paths with detours
-	//   * use this if you want fast navmesh generation
-	// 3) Layer partitoining
-	//   - quite fast
-	//   - partitions the heighfield into non-overlapping regions
-	//   - relies on the triangulation code to cope with holes (thus slower than monotone partitioning)
-	//   - produces better triangles than monotone partitioning
-	//   - does not have the corner cases of watershed partitioning
-	//   - can be slow and create a bit ugly tessellation (still better than monotone)
-	//     if you have large open areas with small obstacles (not a problem if you use tiles)
-	//   * good choice to use for tiled navmesh with medium and small sized tiles
-
-	enum SamplePartitionType
-	{
-		SAMPLE_PARTITION_WATERSHED,
-		SAMPLE_PARTITION_MONOTONE,
-		SAMPLE_PARTITION_LAYERS,
+		Callback()
+		{
+		}
+		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor * actor = dynamic_cast<Actor *>(oct_actor);
+			ASSERT(actor);
+			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+			{
+				if ((*cmp_iter)->m_Type == Component::ComponentTypeMesh)
+				{
+					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent*>(cmp_iter->get());
+					ASSERT(mesh_cmp);
+					if (!mesh_cmp->m_MeshRes.IsRequested())
+					{
+						mesh_cmp->m_MeshRes.RequestResource();
+					}
+				}
+			}
+		}
 	};
+	m_Root.QueryActorAll(&Callback());
 
-	int m_partitionType = SAMPLE_PARTITION_WATERSHED;
+	////if (!m_keepInterResults)
+	////{
+	////	delete[] m_triareas;
+	////	m_triareas = 0;
+	////}
 
-	if (m_partitionType == SAMPLE_PARTITION_WATERSHED)
-	{
-		// Prepare for region partitioning, by calculating distance field along the walkable surface.
-		if (!rcBuildDistanceField(this, *m_chf))
-		{
-			this->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
-			return;
-		}
+	//bool m_filterLowHangingObstacles = true;
+	//bool m_filterLedgeSpans = true;
+	//bool m_filterWalkableLowHeightSpans = true;
 
-		// Partition the walkable surface into simple regions without holes.
-		if (!rcBuildRegions(this, *m_chf, 0, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
-		{
-			this->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
-			return;
-		}
-	}
-	else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
-	{
-		// Partition the walkable surface into simple regions without holes.
-		// Monotone partitioning does not need distancefield.
-		if (!rcBuildRegionsMonotone(this, *m_chf, 0, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
-		{
-			this->log(RC_LOG_ERROR, "buildNavigation: Could not build monotone regions.");
-			return;
-		}
-	}
-	else // SAMPLE_PARTITION_LAYERS
-	{
-		// Partition the walkable surface into simple regions without holes.
-		if (!rcBuildLayerRegions(this, *m_chf, 0, m_cfg.minRegionArea))
-		{
-			this->log(RC_LOG_ERROR, "buildNavigation: Could not build layer regions.");
-			return;
-		}
-	}
+	////
+	//// Step 3. Filter walkables surfaces.
+	////
+
+	//// Once all geoemtry is rasterized, we do initial pass of filtering to
+	//// remove unwanted overhangs caused by the conservative rasterization
+	//// as well as filter spans where the character cannot possibly stand.
+	//if (m_filterLowHangingObstacles)
+	//	rcFilterLowHangingWalkableObstacles(this, m_cfg.walkableClimb, *m_solid);
+	//if (m_filterLedgeSpans)
+	//	rcFilterLedgeSpans(this, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
+	//if (m_filterWalkableLowHeightSpans)
+	//	rcFilterWalkableLowHeightSpans(this, m_cfg.walkableHeight, *m_solid);
+
+	////
+	//// Step 4. Partition walkable surface to simple regions.
+	////
+
+	//// Compact the heightfield so that it is faster to handle from now on.
+	//// This will result more cache coherent data as well as the neighbours
+	//// between walkable cells will be calculated.
+	//m_chf = rcAllocCompactHeightfield();
+	//if (!m_chf)
+	//{
+	//	this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
+	//	return;
+	//}
+	//if (!rcBuildCompactHeightfield(this, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid, *m_chf))
+	//{
+	//	this->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
+	//	return;
+	//}
+
+	////if (!m_keepInterResults)
+	////{
+	////	rcFreeHeightField(m_solid);
+	////	m_solid = 0;
+	////}
+
+	//// Erode the walkable area by agent radius.
+	//if (!rcErodeWalkableArea(this, m_cfg.walkableRadius, *m_chf))
+	//{
+	//	this->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+	//	return;
+	//}
+
+	////// (Optional) Mark areas.
+	////const ConvexVolume* vols = m_geom->getConvexVolumes();
+	////for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
+	////	rcMarkConvexPolyArea(this, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
+
+	//// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
+	//// There are 3 martitioning methods, each with some pros and cons:
+	//// 1) Watershed partitioning
+	////   - the classic Recast partitioning
+	////   - creates the nicest tessellation
+	////   - usually slowest
+	////   - partitions the heightfield into nice regions without holes or overlaps
+	////   - the are some corner cases where this method creates produces holes and overlaps
+	////      - holes may appear when a small obstacles is close to large open area (triangulation can handle this)
+	////      - overlaps may occur if you have narrow spiral corridors (i.e stairs), this make triangulation to fail
+	////   * generally the best choice if you precompute the nacmesh, use this if you have large open areas
+	//// 2) Monotone partioning
+	////   - fastest
+	////   - partitions the heightfield into regions without holes and overlaps (guaranteed)
+	////   - creates long thin polygons, which sometimes causes paths with detours
+	////   * use this if you want fast navmesh generation
+	//// 3) Layer partitoining
+	////   - quite fast
+	////   - partitions the heighfield into non-overlapping regions
+	////   - relies on the triangulation code to cope with holes (thus slower than monotone partitioning)
+	////   - produces better triangles than monotone partitioning
+	////   - does not have the corner cases of watershed partitioning
+	////   - can be slow and create a bit ugly tessellation (still better than monotone)
+	////     if you have large open areas with small obstacles (not a problem if you use tiles)
+	////   * good choice to use for tiled navmesh with medium and small sized tiles
+
+	//enum SamplePartitionType
+	//{
+	//	SAMPLE_PARTITION_WATERSHED,
+	//	SAMPLE_PARTITION_MONOTONE,
+	//	SAMPLE_PARTITION_LAYERS,
+	//};
+
+	//int m_partitionType = SAMPLE_PARTITION_WATERSHED;
+
+	//if (m_partitionType == SAMPLE_PARTITION_WATERSHED)
+	//{
+	//	// Prepare for region partitioning, by calculating distance field along the walkable surface.
+	//	if (!rcBuildDistanceField(this, *m_chf))
+	//	{
+	//		this->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
+	//		return;
+	//	}
+
+	//	// Partition the walkable surface into simple regions without holes.
+	//	if (!rcBuildRegions(this, *m_chf, 0, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
+	//	{
+	//		this->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
+	//		return;
+	//	}
+	//}
+	//else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
+	//{
+	//	// Partition the walkable surface into simple regions without holes.
+	//	// Monotone partitioning does not need distancefield.
+	//	if (!rcBuildRegionsMonotone(this, *m_chf, 0, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
+	//	{
+	//		this->log(RC_LOG_ERROR, "buildNavigation: Could not build monotone regions.");
+	//		return;
+	//	}
+	//}
+	//else // SAMPLE_PARTITION_LAYERS
+	//{
+	//	// Partition the walkable surface into simple regions without holes.
+	//	if (!rcBuildLayerRegions(this, *m_chf, 0, m_cfg.minRegionArea))
+	//	{
+	//		this->log(RC_LOG_ERROR, "buildNavigation: Could not build layer regions.");
+	//		return;
+	//	}
+	//}
 }
