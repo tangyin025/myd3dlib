@@ -373,7 +373,7 @@ namespace my
 
 		void LoadIORequestAndWait(const std::string & key, IORequestPtr request);
 
-		bool CheckIORequests(void);
+		bool CheckIORequests(DWORD dwMilliseconds);
 
 		void OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter);
 

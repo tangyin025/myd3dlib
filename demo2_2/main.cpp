@@ -345,7 +345,7 @@ public:
 
 	virtual void OnFrameTick(double fTime, float fElapsedTime)
 	{
-		CheckIORequests();
+		CheckIORequests(0);
 
 		// Clear the render target and the zbuffer 
 		V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));

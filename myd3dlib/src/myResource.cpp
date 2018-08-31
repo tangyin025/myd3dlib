@@ -632,14 +632,14 @@ void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr req
 	}
 }
 
-bool ResourceMgr::CheckIORequests(void)
+bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 	while (true)
 	{
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-		if (req_iter != m_IORequestList.end() && req_iter->second->m_LoadEvent.Wait(0))
+		if (req_iter != m_IORequestList.end() && req_iter->second->m_LoadEvent.Wait(dwMilliseconds))
 		{
 			OnIORequestIteratorReady(req_iter);
 		}

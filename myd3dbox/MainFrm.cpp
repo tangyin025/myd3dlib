@@ -992,13 +992,16 @@ void CMainFrame::OnToolsBuildnavigation()
 
 	struct Callback : public my::OctNode::QueryCallback
 	{
-		Callback()
+		Callback(void)
 		{
 		}
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
+			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			ASSERT_VALID(pFrame);
 			Actor * actor = dynamic_cast<Actor *>(oct_actor);
 			ASSERT(actor);
+			const float walkableThr = cosf(pFrame->m_cfg.walkableSlopeAngle / 180.0f*RC_PI);
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
@@ -1009,6 +1012,40 @@ void CMainFrame::OnToolsBuildnavigation()
 					if (!mesh_cmp->m_MeshRes.IsRequested())
 					{
 						mesh_cmp->m_MeshRes.RequestResource();
+						while (my::ResourceMgr::getSingleton().CheckIORequests(INFINITE))
+						{
+						}
+					}
+					my::OgreMeshPtr mesh = mesh_cmp->m_MeshRes.m_Res;
+					if (mesh)
+					{
+						void * pVertices = mesh->LockVertexBuffer(D3DLOCK_READONLY);
+						DWORD NumVertices = mesh->GetNumVertices();
+						DWORD VertexStride = mesh->GetNumBytesPerVertex();
+						void * pIndices = mesh->LockIndexBuffer(D3DLOCK_READONLY);
+						bool bIndices16 = !(mesh->GetOptions() & D3DXMESH_32BIT);
+						DWORD NumFaces = mesh->GetNumFaces();
+						ASSERT(mesh->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3);
+						for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+						{
+							int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
+							int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
+							int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
+
+							const my::Vector3 & v0 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride);
+							const my::Vector3 & v1 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
+							const my::Vector3 & v2 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
+
+							const my::Vector3 & n0 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i0 * VertexStride);
+							const my::Vector3 & n1 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i1 * VertexStride);
+							const my::Vector3 & n2 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i2 * VertexStride);
+
+							my::Vector3 Normal = (n0 + n1 + n2) / 3.0f;
+
+							rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
+						}
+						mesh->UnlockVertexBuffer();
+						mesh->UnlockIndexBuffer();
 					}
 				}
 			}

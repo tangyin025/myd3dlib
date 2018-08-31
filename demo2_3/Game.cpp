@@ -601,7 +601,7 @@ void Game::OnFrameTick(
 {
 	DrawHelper::BeginLine();
 
-	CheckIORequests();
+	CheckIORequests(0);
 
 	if (!InputMgr::Capture(fTime, fElapsedTime))
 	{

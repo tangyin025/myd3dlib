@@ -420,7 +420,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	Clock::UpdateClock();
 
 	BOOL bContinue = FALSE;
-	if (my::ResourceMgr::CheckIORequests())
+	if (my::ResourceMgr::CheckIORequests(0))
 	{
 		bContinue = TRUE;
 	}
