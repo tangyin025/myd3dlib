@@ -44,10 +44,13 @@ public:
 	Event m_EventPivotModeChanged;
 	Event m_EventAttributeChanged;
 	Event m_EventCameraPropChanged;
-	rcConfig m_cfg;
 	rcHeightfield* m_solid;
 	//unsigned char* m_triareas;
 	rcCompactHeightfield* m_chf;
+	rcContourSet* m_cset;
+	rcPolyMesh* m_pmesh;
+	rcConfig m_cfg;
+	rcPolyMeshDetail* m_dmesh;
 
 // Operations
 public:
