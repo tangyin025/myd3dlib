@@ -9,6 +9,7 @@
 #include "../demo2_3/Component/Actor.h"
 #include "../demo2_3/Component/Terrain.h"
 #include "EventDefine.h"
+#include "DebugDraw.h"
 
 class CMainDoc;
 
@@ -17,6 +18,7 @@ class CChildView
 	, public my::DialogMgr
 	, public RenderPipeline::IRenderContext
 	, public my::DrawHelper
+	, public duDebugDraw
 {
 protected: // create from serialization only
 	CChildView();
@@ -47,6 +49,7 @@ public:
 	CameraType m_CameraType;
 	BOOL m_bShowGrid;
 	BOOL m_bShowCmpHandle;
+	BOOL m_bShowNavigation;
 	BOOL m_bCopyActors;
 protected:
 
@@ -57,9 +60,18 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoMap;
 	ScrInfoMap m_ScrInfo;
 	LARGE_INTEGER m_qwTime[2];
-
 	typedef std::map<Actor *, my::Matrix4> ActorWorldMap;
 	ActorWorldMap m_selactorwlds;
+
+	struct Vertex
+	{
+		float x, y, z;
+		unsigned int color;
+		float u, v;
+	};
+	typedef std::vector<Vertex> VertexList;
+	VertexList m_verts;
+	duDebugDrawPrimitives m_prim;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
@@ -103,6 +115,16 @@ protected:
 	void OnSelectionPlaying(EventArgs * arg);
 	void OnPivotModeChanged(EventArgs * arg);
 	void OnCmpAttriChanged(EventArgs * arg);
+
+	virtual void depthMask(bool state);
+	virtual void texture(bool state);
+	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
+	virtual void vertex(const float* pos, unsigned int color);
+	virtual void vertex(const float x, const float y, const float z, unsigned int color);
+	virtual void vertex(const float* pos, unsigned int color, const float* uv);
+	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v);
+	virtual void end();
+	//virtual unsigned int areaToCol(unsigned int area);
 
 // Implementation
 public:
@@ -154,6 +176,8 @@ public:
 	afx_msg void OnRendermodeSsao();
 	afx_msg void OnUpdateRendermodeSsao(CCmdUI *pCmdUI);
 	virtual void OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView);
+	afx_msg void OnShowNavigation();
+	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

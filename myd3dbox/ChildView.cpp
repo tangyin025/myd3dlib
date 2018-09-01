@@ -8,6 +8,7 @@
 #include "ChildView.h"
 #include "MainFrm.h"
 #include "../demo2_3/Component/Animator.h"
+#include "DetourDebugDraw.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -51,6 +52,8 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_FXAA, &CChildView::OnUpdateRendermodeFxaa)
 	ON_COMMAND(ID_RENDERMODE_SSAO, &CChildView::OnRendermodeSsao)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_SSAO, &CChildView::OnUpdateRendermodeSsao)
+	ON_COMMAND(ID_SHOW_NAVIGATION, &CChildView::OnShowNavigation)
+	ON_UPDATE_COMMAND_UI(ID_SHOW_NAVIGATION, &CChildView::OnUpdateShowNavigation)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -61,6 +64,7 @@ CChildView::CChildView()
 	, m_CameraType(CameraTypeUnknown)
 	, m_bShowGrid(TRUE)
 	, m_bShowCmpHandle(TRUE)
+	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
 {
 	// TODO: add construction code here
@@ -789,6 +793,64 @@ void CChildView::OnCmpAttriChanged(EventArgs * arg)
 	Invalidate();
 }
 
+void CChildView::depthMask(bool state)
+{
+}
+
+void CChildView::texture(bool state)
+{
+}
+
+void CChildView::begin(duDebugDrawPrimitives prim, float size)
+{
+	m_prim = prim;
+	m_verts.clear();
+}
+
+void CChildView::vertex(const float* pos, unsigned int color)
+{
+	Vertex v = { pos[0], pos[1], pos[2], color, 0.0f, 0.0f };
+	m_verts.push_back(v);
+}
+
+void CChildView::vertex(const float x, const float y, const float z, unsigned int color)
+{
+	Vertex v = { x, y, z, color, 0.0f, 0.0f };
+	m_verts.push_back(v);
+}
+
+void CChildView::vertex(const float* pos, unsigned int color, const float* uv)
+{
+	Vertex v = { pos[0], pos[1], pos[2], color, uv[0], uv[1] };
+	m_verts.push_back(v);
+}
+
+void CChildView::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
+{
+	Vertex vert = { x, y, z, color, u, v };
+	m_verts.push_back(vert);
+}
+
+void CChildView::end()
+{
+	if (m_verts.empty())
+	{
+		return;
+	}
+	if (m_prim == DU_DRAW_LINES)
+	{
+		ASSERT(m_verts.size() % 2 == 0);
+		V(theApp.m_d3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+		V(theApp.m_d3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_verts.size() / 2, &m_verts[0], sizeof(Vertex)));
+	}
+	else if (m_prim == DU_DRAW_TRIS)
+	{
+		ASSERT(m_verts.size() % 3 == 0);
+		V(theApp.m_d3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+		V(theApp.m_d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, m_verts.size() / 3, &m_verts[0], sizeof(Vertex)));
+	}
+}
+
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_VIEW, point.x, point.y, this, TRUE);
@@ -881,6 +943,17 @@ void CChildView::OnPaint()
 					{
 						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter);
 					}
+				}
+
+				if (m_bShowNavigation && pFrame->m_navMesh && pFrame->m_navQuery)
+				{
+					V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+					V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
+					V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
+					V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
+					duDebugDrawNavMesh(this, *pFrame->m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
 				}
 
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
@@ -1437,4 +1510,19 @@ void CChildView::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDe
 	pFrame->m_EventCameraPropChanged(&arg);
 
 	__super::OnActivateView(bActivate, pActivateView, pDeactiveView);
+}
+
+
+void CChildView::OnShowNavigation()
+{
+	// TODO: Add your command handler code here
+	m_bShowNavigation = !m_bShowNavigation;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateShowNavigation(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_bShowNavigation);
 }

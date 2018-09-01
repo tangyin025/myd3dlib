@@ -77,9 +77,18 @@ CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
 	, m_selbox(-1, 1)
 	, m_Root(my::AABB(-1024, 1024))
+	, m_solid(NULL)
+	//, m_triareas(NULL)
+	, m_chf(NULL)
+	, m_cset(NULL)
+	, m_pmesh(NULL)
+	, m_dmesh(NULL)
+	, m_navMesh(NULL)
+	, m_navQuery(NULL)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
+	m_navQuery = dtAllocNavMeshQuery();
 }
 
 CMainFrame::~CMainFrame()
@@ -1035,13 +1044,13 @@ void CMainFrame::OnToolsBuildnavigation()
 							int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
 							int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
 
-							const my::Vector3 & v0 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride);
-							const my::Vector3 & v1 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
-							const my::Vector3 & v2 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
+							my::Vector3 v0 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride).transformCoord(actor->m_World);
+							my::Vector3 v1 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride).transformCoord(actor->m_World);
+							my::Vector3 v2 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride).transformCoord(actor->m_World);
 
-							const my::Vector3 & n0 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i0 * VertexStride);
-							const my::Vector3 & n1 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i1 * VertexStride);
-							const my::Vector3 & n2 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i2 * VertexStride);
+							my::Vector3 n0 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i0 * VertexStride).transformNormal(actor->m_World);
+							my::Vector3 n1 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i1 * VertexStride).transformNormal(actor->m_World);
+							my::Vector3 n2 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i2 * VertexStride).transformNormal(actor->m_World);
 
 							my::Vector3 Normal = (n0 + n1 + n2) / 3.0f;
 
@@ -1250,101 +1259,101 @@ void CMainFrame::OnToolsBuildnavigation()
 	// At this point the navigation mesh data is ready, you can access it from m_pmesh.
 	// See duDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access the data.
 
-	////
-	//// (Optional) Step 8. Create Detour data from Recast poly mesh.
-	////
+	//
+	// (Optional) Step 8. Create Detour data from Recast poly mesh.
+	//
 
-	//// The GUI may allow more max points per polygon than Detour can handle.
-	//// Only build the detour navmesh if we do not exceed the limit.
-	//if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
-	//{
-	//	unsigned char* navData = 0;
-	//	int navDataSize = 0;
+	// The GUI may allow more max points per polygon than Detour can handle.
+	// Only build the detour navmesh if we do not exceed the limit.
+	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
+	{
+		unsigned char* navData = 0;
+		int navDataSize = 0;
 
-	//	// Update poly flags from areas.
-	//	for (int i = 0; i < m_pmesh->npolys; ++i)
-	//	{
-	//		if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
-	//			m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
+		// Update poly flags from areas.
+		for (int i = 0; i < m_pmesh->npolys; ++i)
+		{
+			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
+				m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
 
-	//		if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-	//			m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
-	//			m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
-	//		{
-	//			m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
-	//		}
-	//		else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
-	//		{
-	//			m_pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
-	//		}
-	//		else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
-	//		{
-	//			m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
-	//		}
-	//	}
+			if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
+				m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
+				m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+			{
+				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+			}
+			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
+			{
+				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
+			}
+			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
+			{
+				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+			}
+		}
 
 
-	//	dtNavMeshCreateParams params;
-	//	memset(&params, 0, sizeof(params));
-	//	params.verts = m_pmesh->verts;
-	//	params.vertCount = m_pmesh->nverts;
-	//	params.polys = m_pmesh->polys;
-	//	params.polyAreas = m_pmesh->areas;
-	//	params.polyFlags = m_pmesh->flags;
-	//	params.polyCount = m_pmesh->npolys;
-	//	params.nvp = m_pmesh->nvp;
-	//	params.detailMeshes = m_dmesh->meshes;
-	//	params.detailVerts = m_dmesh->verts;
-	//	params.detailVertsCount = m_dmesh->nverts;
-	//	params.detailTris = m_dmesh->tris;
-	//	params.detailTriCount = m_dmesh->ntris;
-	//	params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
-	//	params.offMeshConRad = m_geom->getOffMeshConnectionRads();
-	//	params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
-	//	params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
-	//	params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
-	//	params.offMeshConUserID = m_geom->getOffMeshConnectionId();
-	//	params.offMeshConCount = m_geom->getOffMeshConnectionCount();
-	//	params.walkableHeight = m_agentHeight;
-	//	params.walkableRadius = m_agentRadius;
-	//	params.walkableClimb = m_agentMaxClimb;
-	//	rcVcopy(params.bmin, m_pmesh->bmin);
-	//	rcVcopy(params.bmax, m_pmesh->bmax);
-	//	params.cs = m_cfg.cs;
-	//	params.ch = m_cfg.ch;
-	//	params.buildBvTree = true;
+		dtNavMeshCreateParams params;
+		memset(&params, 0, sizeof(params));
+		params.verts = m_pmesh->verts;
+		params.vertCount = m_pmesh->nverts;
+		params.polys = m_pmesh->polys;
+		params.polyAreas = m_pmesh->areas;
+		params.polyFlags = m_pmesh->flags;
+		params.polyCount = m_pmesh->npolys;
+		params.nvp = m_pmesh->nvp;
+		params.detailMeshes = m_dmesh->meshes;
+		params.detailVerts = m_dmesh->verts;
+		params.detailVertsCount = m_dmesh->nverts;
+		params.detailTris = m_dmesh->tris;
+		params.detailTriCount = m_dmesh->ntris;
+		//params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
+		//params.offMeshConRad = m_geom->getOffMeshConnectionRads();
+		//params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
+		//params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
+		//params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
+		//params.offMeshConUserID = m_geom->getOffMeshConnectionId();
+		//params.offMeshConCount = m_geom->getOffMeshConnectionCount();
+		params.walkableHeight = 2.0f;// m_agentHeight;
+		params.walkableRadius = 0.6f;// m_agentRadius;
+		params.walkableClimb = 0.9f;// m_agentMaxClimb;
+		rcVcopy(params.bmin, m_pmesh->bmin);
+		rcVcopy(params.bmax, m_pmesh->bmax);
+		params.cs = m_cfg.cs;
+		params.ch = m_cfg.ch;
+		params.buildBvTree = true;
 
-	//	if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
-	//	{
-	//		this->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
-	//		return;
-	//	}
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+		{
+			this->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
+			return;
+		}
 
-	//	m_navMesh = dtAllocNavMesh();
-	//	if (!m_navMesh)
-	//	{
-	//		dtFree(navData);
-	//		this->log(RC_LOG_ERROR, "Could not create Detour navmesh");
-	//		return;
-	//	}
+		m_navMesh = dtAllocNavMesh();
+		if (!m_navMesh)
+		{
+			dtFree(navData);
+			this->log(RC_LOG_ERROR, "Could not create Detour navmesh");
+			return;
+		}
 
-	//	dtStatus status;
+		dtStatus status;
 
-	//	status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
-	//	if (dtStatusFailed(status))
-	//	{
-	//		dtFree(navData);
-	//		this->log(RC_LOG_ERROR, "Could not init Detour navmesh");
-	//		return;
-	//	}
+		status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
+		if (dtStatusFailed(status))
+		{
+			dtFree(navData);
+			this->log(RC_LOG_ERROR, "Could not init Detour navmesh");
+			return;
+		}
 
-	//	status = m_navQuery->init(m_navMesh, 2048);
-	//	if (dtStatusFailed(status))
-	//	{
-	//		this->log(RC_LOG_ERROR, "Could not init Detour navmesh query");
-	//		return;
-	//	}
-	//}
+		status = m_navQuery->init(m_navMesh, 2048);
+		if (dtStatusFailed(status))
+		{
+			this->log(RC_LOG_ERROR, "Could not init Detour navmesh query");
+			return;
+		}
+	}
 
 	this->stopTimer(RC_TIMER_TOTAL);
 

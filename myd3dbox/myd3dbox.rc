@@ -93,6 +93,7 @@ BEGIN
             MENUITEM "Grid",                        ID_SHOW_GRID
             MENUITEM "CmpHandle",                   ID_SHOW_CMPHANDLE
             MENUITEM "Collision",                   ID_SHOW_COLLISION
+            MENUITEM "Navigation",                  ID_SHOW_NAVIGATION
         END
         POPUP "Render Mode"
         BEGIN
