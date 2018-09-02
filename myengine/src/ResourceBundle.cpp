@@ -1,5 +1,6 @@
-#include "stdafx.h"
 #include "ResourceBundle.h"
+#include "myMesh.h"
+#include "mySkeleton.h"
 
 using namespace my;
 

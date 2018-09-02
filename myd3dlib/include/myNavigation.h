@@ -1,6 +1,10 @@
 #pragma once
 
+#include <set>
+#include <map>
 #include <boost/multi_array.hpp>
+#include <atlbase.h>
+#include <atltypes.h>
 
 namespace my
 {

@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 #include "myTask.h"
 #include <boost/bind.hpp>
 

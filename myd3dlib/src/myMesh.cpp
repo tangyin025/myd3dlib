@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "myMesh.h"
 #include "myCollision.h"
 #include "myResource.h"

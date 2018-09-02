@@ -1,5 +1,8 @@
 #pragma once
 
+#include "myUi.h"
+#include "myResource.h"
+
 template <class T>
 class ResourceBundle : public my::IResourceCallback
 {

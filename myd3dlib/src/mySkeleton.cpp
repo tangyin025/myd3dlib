@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 #include "mySkeleton.h"
 #include "libc.h"
 #include "myResource.h"

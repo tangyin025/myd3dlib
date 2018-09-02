@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include <boost/multi_array.hpp>
 
 class Terrain;
 

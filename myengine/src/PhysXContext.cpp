@@ -1,8 +1,9 @@
-#include "StdAfx.h"
 #include "PhysXContext.h"
 #include "FModContext.h"
 #include "Component.h"
 #include "Terrain.h"
+#include "myDxutApp.h"
+#include "libc.h"
 #include <extensions/PxCollectionExt.h>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>

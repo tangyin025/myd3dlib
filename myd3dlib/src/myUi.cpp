@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "myUi.h"
 #include "myDxutApp.h"
 #include "myCollision.h"

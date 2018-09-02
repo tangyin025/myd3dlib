@@ -2,8 +2,9 @@
 #ifndef __MYCOLLISION_H__
 #define __MYCOLLISION_H__
 
-#include "myMath.h"
 #include <vector>
+#include <boost/shared_ptr.hpp>
+#include "myMath.h"
 
 namespace my
 {

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "myMesh.h"
+#include "myEffect.h"
+#include "myUtility.h"
 #include "ResourceBundle.h"
 
 class Material;

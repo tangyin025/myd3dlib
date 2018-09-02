@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 #include "myOctree.h"
 #pragma warning(disable:4308)
 #include <boost/archive/polymorphic_iarchive.hpp>

@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "../demo2_3/Component/RenderPipeline.h"
-#include "../demo2_3/Component/Actor.h"
-#include "../demo2_3/Component/Terrain.h"
+#include "RenderPipeline.h"
+#include "Actor.h"
+#include "Terrain.h"
 #include "EventDefine.h"
 #include "DebugDraw.h"
 

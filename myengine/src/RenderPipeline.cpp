@@ -1,6 +1,9 @@
-#include "stdafx.h"
 #include <sstream>
 #include "RenderPipeline.h"
+#include "myDxutApp.h"
+#include "libc.h"
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>

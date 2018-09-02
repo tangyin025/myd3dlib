@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/serialization/access.hpp>
+#include <boost/shared_ptr.hpp>
+
 class Controller
 {
 protected:

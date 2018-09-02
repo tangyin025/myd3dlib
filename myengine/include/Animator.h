@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mySkeleton.h"
 #include "ResourceBundle.h"
 
 class AnimationNode;

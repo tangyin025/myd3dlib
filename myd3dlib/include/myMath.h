@@ -3,6 +3,7 @@
 #include <d3dx9math.h>
 #include <set>
 #include <map>
+#include <vector>
 #include <boost/serialization/nvp.hpp>
 
 #define EPSILON_E3			(1.0e-3)

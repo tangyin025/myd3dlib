@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "myTexture.h"
 #include "myException.h"
 #include "myDxutApp.h"

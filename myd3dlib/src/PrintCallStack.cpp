@@ -1,5 +1,5 @@
-#include "StdAfx.h"
 #include "PrintCallStack.h"
+#include <Windows.h>
 #include <DbgHelp.h>
 #include <sstream>
 

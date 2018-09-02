@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 #include "myUtility.h"
 #include "libc.h"
 #include "myCollision.h"

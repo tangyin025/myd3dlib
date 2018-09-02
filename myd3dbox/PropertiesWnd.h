@@ -2,8 +2,8 @@
 #pragma once
 
 #include "EventDefine.h"
-#include "../demo2_3/Component/Character.h"
-#include "../demo2_3/Component/Terrain.h"
+#include "Character.h"
+#include "Terrain.h"
 
 class CPropertiesToolBar : public CMFCToolBar
 {

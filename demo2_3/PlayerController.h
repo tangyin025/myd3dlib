@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component/Controller.h"
+#include "Controller.h"
 
 class PlayerController
 	: public CharacterController

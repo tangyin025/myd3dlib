@@ -1,5 +1,8 @@
 #pragma once
 
+#include <PxPhysicsAPI.h>
+#include <boost/shared_ptr.hpp>
+
 template<class T>
 struct PhysXDeleter
 {

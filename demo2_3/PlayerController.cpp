@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PlayerController.h"
 #include "Game.h"
-#include "Component/Animator.h"
+#include "Animator.h"
 
 using namespace my;
 

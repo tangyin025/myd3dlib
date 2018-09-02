@@ -1,10 +1,8 @@
-#include "stdafx.h"
 #include "myException.h"
+#include "myInput.h"
 #include <sstream>
 #include <d3d9.h>
-#include <dinput.h>
 #include <dsound.h>
-#include <tchar.h>
 #include "PrintCallStack.h"
 
 using namespace my;

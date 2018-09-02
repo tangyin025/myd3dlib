@@ -1,5 +1,7 @@
-#include "stdafx.h"
 #include "FModContext.h"
+#include <fmod_errors.h>
+#include "myResource.h"
+#include "libc.h"
 
 #define ERRCHECK(result) if ((result) != FMOD_OK) { \
 	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }

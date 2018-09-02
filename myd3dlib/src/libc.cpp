@@ -1,6 +1,7 @@
-#include "stdafx.h"
 #include "libc.h"
+#include <stdarg.h>
 #include <exception>
+#include <Windows.h>
 
 #define FAILED_THROW_STDEXCEPTION(expr) \
 	{ \

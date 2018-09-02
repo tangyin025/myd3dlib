@@ -56,7 +56,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)Opcode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -79,7 +79,7 @@
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)Opcode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -99,16 +99,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Component\Actor.cpp" />
-    <ClCompile Include="Component\Animator.cpp" />
-    <ClCompile Include="Component\Character.cpp" />
-    <ClCompile Include="Component\Component.cpp" />
-    <ClCompile Include="Component\Controller.cpp" />
-    <ClCompile Include="Component\FModContext.cpp" />
-    <ClCompile Include="Component\PhysXContext.cpp" />
-    <ClCompile Include="Component\RenderPipeline.cpp" />
-    <ClCompile Include="Component\ResourceBundle.cpp" />
-    <ClCompile Include="Component\Terrain.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="LuaExtension.cpp" />
@@ -122,17 +112,6 @@
     <ClCompile Include="Net\SocketAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Component\Actor.h" />
-    <ClInclude Include="Component\Animator.h" />
-    <ClInclude Include="Component\Character.h" />
-    <ClInclude Include="Component\Component.h" />
-    <ClInclude Include="Component\Controller.h" />
-    <ClInclude Include="Component\FModContext.h" />
-    <ClInclude Include="Component\PhysXContext.h" />
-    <ClInclude Include="Component\PhysXPtr.h" />
-    <ClInclude Include="Component\RenderPipeline.h" />
-    <ClInclude Include="Component\ResourceBundle.h" />
-    <ClInclude Include="Component\Terrain.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="LuaExtension.h" />
@@ -143,6 +122,18 @@
     <ClInclude Include="Net\SocketAPI.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DebugUtils\DebugUtils.vcxproj">
+      <Project>{1b6cc677-1d1e-4bab-9943-d4f0fc8c8e4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourCrowd\DetourCrowd.vcxproj">
+      <Project>{2ca9dcdf-2768-4ede-b9aa-47ba3d150838}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourTileCache\DetourTileCache.vcxproj">
+      <Project>{f3683163-8a98-4464-be2f-8a33e5865115}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Detour\Detour.vcxproj">
+      <Project>{e7e0b84b-e196-45f1-b017-aeb3121d2052}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\freetype\scripts\freetype.vcxproj">
       <Project>{ab3a72ec-552c-41bd-9d73-761d2419d4d1}</Project>
     </ProjectReference>
@@ -163,6 +154,12 @@
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\scripts\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\myengine\myengine.vcxproj">
+      <Project>{ecbe9ca0-c8a4-4594-ac78-d99d7264e54b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Recast\Recast.vcxproj">
+      <Project>{bce7e203-90f1-41cd-95e4-d616e838986c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\zlib\scripts\zlib.vcxproj">
       <Project>{4b104248-0f92-4516-8d50-e87d5e9bb6b6}</Project>

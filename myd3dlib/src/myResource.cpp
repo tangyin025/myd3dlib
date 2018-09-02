@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "myResource.h"
 #include "myDxutApp.h"
 #include "libc.h"
@@ -447,8 +446,8 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 
 IStreamBuff::IStreamBuff(IStreamPtr fptr, size_t buff_sz, size_t put_back)
 	: fptr_(fptr)
-	, put_back_(std::max(put_back, size_t(1)))
-	, buffer_(std::max(buff_sz, put_back_) + put_back_)
+	, put_back_(max(put_back, size_t(1)))
+	, buffer_(max(buff_sz, put_back_) + put_back_)
 {
 	char *end = &buffer_.front() + buffer_.size();
 	setg(end, end, end);

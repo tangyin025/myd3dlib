@@ -63,7 +63,7 @@
     <ClCompile>
       <AdditionalOptions>-Zm192 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)Opcode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -96,7 +96,7 @@
       <AdditionalOptions>-Zm192 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)Opcode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -122,16 +122,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\demo2_3\Component\Actor.cpp" />
-    <ClCompile Include="..\demo2_3\Component\Animator.cpp" />
-    <ClCompile Include="..\demo2_3\Component\Character.cpp" />
-    <ClCompile Include="..\demo2_3\Component\Component.cpp" />
-    <ClCompile Include="..\demo2_3\Component\Controller.cpp" />
-    <ClCompile Include="..\demo2_3\Component\FModContext.cpp" />
-    <ClCompile Include="..\demo2_3\Component\PhysXContext.cpp" />
-    <ClCompile Include="..\demo2_3\Component\RenderPipeline.cpp" />
-    <ClCompile Include="..\demo2_3\Component\ResourceBundle.cpp" />
-    <ClCompile Include="..\demo2_3\Component\Terrain.cpp" />
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CtrlProps.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
@@ -149,17 +139,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\demo2_3\Component\Actor.h" />
-    <ClInclude Include="..\demo2_3\Component\Animator.h" />
-    <ClInclude Include="..\demo2_3\Component\Character.h" />
-    <ClInclude Include="..\demo2_3\Component\Component.h" />
-    <ClInclude Include="..\demo2_3\Component\Controller.h" />
-    <ClInclude Include="..\demo2_3\Component\FModContext.h" />
-    <ClInclude Include="..\demo2_3\Component\PhysXContext.h" />
-    <ClInclude Include="..\demo2_3\Component\PhysXPtr.h" />
-    <ClInclude Include="..\demo2_3\Component\RenderPipeline.h" />
-    <ClInclude Include="..\demo2_3\Component\ResourceBundle.h" />
-    <ClInclude Include="..\demo2_3\Component\Terrain.h" />
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CtrlProps.h" />
     <ClInclude Include="DragableTreeCtrl.h" />
@@ -220,6 +199,9 @@
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\scripts\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\myengine\myengine.vcxproj">
+      <Project>{ecbe9ca0-c8a4-4594-ac78-d99d7264e54b}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Recast\Recast.vcxproj">
       <Project>{bce7e203-90f1-41cd-95e4-d616e838986c}</Project>

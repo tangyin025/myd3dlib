@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Animator.h"
 #include "Character.h"
 #include <boost/archive/polymorphic_iarchive.hpp>

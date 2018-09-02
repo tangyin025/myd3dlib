@@ -1,7 +1,7 @@
-#include "StdAfx.h"
 #include "Terrain.h"
 #include "Actor.h"
 #include "PhysXContext.h"
+#include "myDxutApp.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>

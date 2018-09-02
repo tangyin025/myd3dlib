@@ -1,6 +1,9 @@
 #pragma once
 
 #include "PhysXPtr.h"
+#include "mySingleton.h"
+#include "myMath.h"
+#include "myUtility.h"
 
 class PhysXAllocator : public physx::PxAllocatorCallback
 {

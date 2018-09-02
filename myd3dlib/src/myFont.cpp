@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "myFont.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H

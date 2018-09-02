@@ -7,7 +7,7 @@
 
 #include "ChildView.h"
 #include "MainFrm.h"
-#include "../demo2_3/Component/Animator.h"
+#include "Animator.h"
 #include "DetourDebugDraw.h"
 
 #ifdef _DEBUG

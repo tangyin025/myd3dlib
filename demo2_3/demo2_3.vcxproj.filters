@@ -16,9 +16,6 @@
     <Filter Include="Net">
       <UniqueIdentifier>{880b6dd8-95cc-4564-8cf6-c5cd91417a78}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Component">
-      <UniqueIdentifier>{89e6d814-0181-4d4b-b700-6ef040768e24}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Console.cpp">
@@ -45,36 +42,6 @@
     <ClCompile Include="PlayerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Component\Actor.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Animator.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Character.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Component.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Controller.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\FModContext.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\PhysXContext.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\RenderPipeline.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\ResourceBundle.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Component\Terrain.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Console.h">
@@ -100,39 +67,6 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Actor.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Animator.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Character.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Component.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Controller.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\FModContext.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\PhysXContext.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\PhysXPtr.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\RenderPipeline.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\ResourceBundle.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Terrain.h">
-      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 #include "myEmitter.h"
 #include "myDxutApp.h"
 #include <boost/archive/polymorphic_iarchive.hpp>

@@ -1,9 +1,10 @@
-#include "StdAfx.h"
 #include "Component.h"
 #include "Actor.h"
 #include "Terrain.h"
 #include "Animator.h"
 #include "PhysXContext.h"
+#include "myDxutApp.h"
+#include "libc.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>

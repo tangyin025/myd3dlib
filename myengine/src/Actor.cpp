@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Actor.h"
 #include "Terrain.h"
 #include "Animator.h"

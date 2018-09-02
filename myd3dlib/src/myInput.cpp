@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "myInput.h"
 #include "myException.h"
 

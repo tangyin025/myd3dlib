@@ -1,5 +1,8 @@
 #pragma once
 
+#include <fmod_event.hpp>
+#include "mySingleton.h"
+
 class FModContext
 	: public my::SingleInstance<FModContext>
 {

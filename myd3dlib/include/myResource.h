@@ -1,9 +1,14 @@
 #pragma once
 
 #include <unzip.h>
+#include <vector>
 #include <list>
-#include "myThread.h"
+#include <set>
+#include <d3d9.h>
+#include <d3dx9shader.h>
 #include <boost/weak_ptr.hpp>
+#include <boost/unordered_map.hpp>
+#include "myThread.h"
 #include "mySingleton.h"
 #include "zzip/zzip.h"
 #include "rapidxml.hpp"
