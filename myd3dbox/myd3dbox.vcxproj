@@ -129,6 +129,7 @@
     <ClCompile Include="EventDefine.cpp" />
     <ClCompile Include="MainApp.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="NavigationDlg.cpp" />
     <ClCompile Include="OutlinerWnd.cpp" />
     <ClCompile Include="Pivot.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="EventDefine.h" />
     <ClInclude Include="MainApp.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="NavigationDlg.h" />
     <ClInclude Include="OutlinerWnd.h" />
     <ClInclude Include="Pivot.h" />
     <ClInclude Include="PropertiesWnd.h" />
