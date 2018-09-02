@@ -1021,6 +1021,10 @@ void CMainFrame::OnToolsBuildnavigation()
 				{
 					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent*>(cmp_iter->get());
 					ASSERT(mesh_cmp);
+					if (!mesh_cmp->m_bNavigation)
+					{
+						continue;
+					}
 					if (!mesh_cmp->m_MeshRes.IsRequested())
 					{
 						mesh_cmp->m_MeshRes.RequestResource();
@@ -1029,36 +1033,69 @@ void CMainFrame::OnToolsBuildnavigation()
 						}
 					}
 					my::OgreMeshPtr mesh = mesh_cmp->m_MeshRes.m_Res;
-					if (mesh)
+					if (!mesh)
 					{
-						void * pVertices = mesh->LockVertexBuffer(D3DLOCK_READONLY);
-						DWORD NumVertices = mesh->GetNumVertices();
-						DWORD VertexStride = mesh->GetNumBytesPerVertex();
-						void * pIndices = mesh->LockIndexBuffer(D3DLOCK_READONLY);
-						bool bIndices16 = !(mesh->GetOptions() & D3DXMESH_32BIT);
-						DWORD NumFaces = mesh->GetNumFaces();
-						ASSERT(mesh->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3);
-						for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
-						{
-							int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
-							int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
-							int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
-
-							my::Vector3 v0 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride).transformCoord(actor->m_World);
-							my::Vector3 v1 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride).transformCoord(actor->m_World);
-							my::Vector3 v2 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride).transformCoord(actor->m_World);
-
-							my::Vector3 n0 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i0 * VertexStride).transformNormal(actor->m_World);
-							my::Vector3 n1 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i1 * VertexStride).transformNormal(actor->m_World);
-							my::Vector3 n2 = mesh->m_VertexElems.GetNormal((unsigned char *)pVertices + i2 * VertexStride).transformNormal(actor->m_World);
-
-							my::Vector3 Normal = (n0 + n1 + n2) / 3.0f;
-
-							rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
-						}
-						mesh->UnlockVertexBuffer();
-						mesh->UnlockIndexBuffer();
+						continue;
 					}
+					const void * pVertices = mesh->LockVertexBuffer(D3DLOCK_READONLY);
+					DWORD NumVertices = mesh->GetNumVertices();
+					DWORD VertexStride = mesh->GetNumBytesPerVertex();
+					const void * pIndices = mesh->LockIndexBuffer(D3DLOCK_READONLY);
+					bool bIndices16 = !(mesh->GetOptions() & D3DXMESH_32BIT);
+					DWORD NumFaces = mesh->GetNumFaces();
+					ASSERT(mesh->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3);
+					for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+					{
+						int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
+						int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
+						int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
+
+						my::Vector3 v0 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride).transformCoord(actor->m_World);
+						my::Vector3 v1 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride).transformCoord(actor->m_World);
+						my::Vector3 v2 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride).transformCoord(actor->m_World);
+
+						my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
+
+						rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
+					}
+					mesh->UnlockVertexBuffer();
+					mesh->UnlockIndexBuffer();
+				}
+				else if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+				{
+					Terrain * terrain = dynamic_cast<Terrain*>(cmp_iter->get());
+					ASSERT(terrain);
+					if (!terrain->m_bNavigation)
+					{
+						continue;
+					}
+					D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
+					for (unsigned int i = 0; i < terrain->ROW_CHUNKS; i++)
+					{
+						for (unsigned int j = 0; j < terrain->COL_CHUNKS; j++)
+						{
+							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
+							const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);
+							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
+							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
+							{
+								int i0 = *((WORD *)pIndices + face_i * 3 + 0);
+								int i1 = *((WORD *)pIndices + face_i * 3 + 1);
+								int i2 = *((WORD *)pIndices + face_i * 3 + 2);
+
+								my::Vector3 v0 = terrain->GetPosByVertexIndex(pVertices, i, j, i0, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+								my::Vector3 v1 = terrain->GetPosByVertexIndex(pVertices, i, j, i1, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+								my::Vector3 v2 = terrain->GetPosByVertexIndex(pVertices, i, j, i2, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+
+								my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
+
+								rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
+							}
+							terrain->m_vb.Unlock();
+							const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+						}
+					}
+					terrain->m_HeightMap.UnlockRect(0);
 				}
 			}
 		}

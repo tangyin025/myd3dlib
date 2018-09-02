@@ -91,6 +91,8 @@ public:
 
 	FragmentMap m_Fragment;
 
+	bool m_bNavigation;
+
 	MaterialPtr m_Material;
 
 	my::OctRoot m_Root;
@@ -117,9 +119,11 @@ public:
 
 	void UpdateChunks(void);
 
-	unsigned char GetSampleHeight(void * pBits, int pitch, int i, int j);
+	D3DCOLOR GetSampleValue(void * pBits, int pitch, int i, int j);
 
 	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j);
+
+	my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Column, int VertexIndex, void * pBits, int pitch);
 
 	void CreateElements(void);
 

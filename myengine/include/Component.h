@@ -140,6 +140,8 @@ public:
 
 	bool m_bUseAnimation;
 
+	bool m_bNavigation;
+
 	MaterialPtrList m_MaterialList;
 
 public:
@@ -147,6 +149,7 @@ public:
 		: RenderComponent(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
+		, m_bNavigation(false)
 	{
 	}
 

@@ -136,6 +136,7 @@ Terrain::Terrain(void)
 Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
 	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(HeightScale)
+	, m_bNavigation(false)
 	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
 {
@@ -262,17 +263,24 @@ void Terrain::UpdateChunks(void)
 	}
 }
 
-unsigned char Terrain::GetSampleHeight(void * pBits, int pitch, int i, int j)
+D3DCOLOR Terrain::GetSampleValue(void * pBits, int pitch, int i, int j)
 {
 	i = Clamp<int>(i, 0, ROW_CHUNKS * CHUNK_SIZE - 1);
 	j = Clamp<int>(j, 0, COL_CHUNKS * CHUNK_SIZE - 1);
 	D3DCOLOR * Bits = (D3DCOLOR *)((unsigned char *)pBits + i * pitch + j * sizeof(D3DCOLOR));
-	return GetCValue(*Bits);
+	return *Bits;
 }
 
 my::Vector3 Terrain::GetSamplePos(void * pBits, int pitch, int i, int j)
 {
-	return Vector3((float)i, m_HeightScale * GetSampleHeight(pBits, pitch, i, j), (float)j);
+	return Vector3((float)i, m_HeightScale * GetCValue(GetSampleValue(pBits, pitch, i, j)), (float)j);
+}
+
+my::Vector3 Terrain::GetPosByVertexIndex(const void * pVertices, int Row, int Column, int VertexIndex, void * pBits, int pitch)
+{
+	unsigned char * pVertex = (unsigned char *)pVertices + VertexIndex * m_VertexStride;
+	unsigned char * pIndices = m_VertexElems.GetVertexValue<unsigned char>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
+	return GetSamplePos(pBits, pitch, Row * CHUNK_SIZE + pIndices[0], Column * CHUNK_SIZE + pIndices[1]);
 }
 
 void Terrain::CreateElements(void)
@@ -469,6 +477,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
@@ -487,6 +496,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_bNavigation);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
@@ -691,7 +701,7 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
 	{
 		for (unsigned int j = 0; j < COL_CHUNKS * CHUNK_SIZE + 1; j++)
 		{
-			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].height = GetSampleHeight(lrc.pBits, lrc.Pitch, i, j);
+			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].height = GetCValue(GetSampleValue(lrc.pBits, lrc.Pitch, i, j));
 			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].materialIndex0 = physx::PxBitAndByte(0, false);
 			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].materialIndex1 = physx::PxBitAndByte(0, false);
 		}
