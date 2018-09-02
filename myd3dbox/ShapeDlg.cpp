@@ -30,6 +30,7 @@ CShapeDlg::~CShapeDlg()
 void CShapeDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Radio(pDX, IDC_RADIO1, m_type);
 	DDX_Text(pDX, IDC_EDIT1, m_pos.x);
 	DDX_Text(pDX, IDC_EDIT2, m_pos.y);
 	DDX_Text(pDX, IDC_EDIT3, m_pos.z);
