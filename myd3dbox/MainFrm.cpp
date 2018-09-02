@@ -9,6 +9,8 @@
 #include "ChildView.h"
 #include "ShapeDlg.h"
 #include "Terrain.h"
+#include "Material.h"
+#include "Character.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -554,7 +556,6 @@ void CMainFrame::OnFileOpen()
 	CWaitCursor waiter;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
-	ia >> boost::serialization::make_nvp("IRenderContext", (RenderPipeline::IRenderContext &)*pView);
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("Root", m_Root);
@@ -583,7 +584,6 @@ void CMainFrame::OnFileSave()
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("IRenderContext", (RenderPipeline::IRenderContext &)*pView);
 	oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	oa << boost::serialization::make_nvp("Root", m_Root);

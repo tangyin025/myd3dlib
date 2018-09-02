@@ -1,5 +1,6 @@
 #include "Terrain.h"
 #include "Actor.h"
+#include "Material.h"
 #include "PhysXContext.h"
 #include "myDxutApp.h"
 #include <boost/archive/polymorphic_iarchive.hpp>

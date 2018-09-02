@@ -202,7 +202,7 @@ BOOL CMainApp::InitInstance()
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
 		("default_shader", boost::program_options::value(&default_shader)->default_value("shader/lambert1.fx"), "Default shader")
-		("default_pass_mask", boost::program_options::value(&default_pass_mask)->default_value(Material::PassMaskOpaque), "Default pass mask")
+		("default_pass_mask", boost::program_options::value(&default_pass_mask)->default_value(RenderPipeline::PassMaskOpaque), "Default pass mask")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);

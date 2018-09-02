@@ -5,8 +5,6 @@
 #include "myUtility.h"
 #include "ResourceBundle.h"
 
-class Material;
-
 class RenderPipeline
 {
 public:
@@ -29,7 +27,15 @@ public:
 		PassTypeNum
 	};
 
-	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
+	enum PassMask
+	{
+		PassMaskNone = 0,
+		PassMaskLight = 1 << PassTypeLight,
+		PassMaskOpaque = 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
+		PassMaskTransparent = 1 << PassTypeTransparent,
+	};
+
+	typedef boost::tuple<MeshType, bool, std::string> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
@@ -167,18 +173,13 @@ public:
 
 		RTChain m_DownFilterRT;
 
-		IRenderContext(void);
-
-		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
+		IRenderContext(void)
+			: m_SkyBoxEnable(false)
+			, m_WireFrame(false)
+			, m_DofEnable(false)
+			, m_FxaaEnable(false)
+			, m_SsaoEnable(false)
 		{
-			boost::serialization::split_member(ar, *this, version);
 		}
 
 		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;

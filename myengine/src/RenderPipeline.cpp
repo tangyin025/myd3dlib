@@ -16,35 +16,6 @@
 
 using namespace my;
 
-RenderPipeline::IRenderContext::IRenderContext(void)
-	: m_SkyBoxEnable(false)
-	, m_WireFrame(false)
-	, m_DofEnable(false)
-	, m_FxaaEnable(false)
-	, m_SsaoEnable(false)
-{
-}
-
-template<>
-void RenderPipeline::IRenderContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
-	ar << BOOST_SERIALIZATION_NVP(m_WireFrame);
-	ar << BOOST_SERIALIZATION_NVP(m_DofEnable);
-	ar << BOOST_SERIALIZATION_NVP(m_FxaaEnable);
-	ar << BOOST_SERIALIZATION_NVP(m_SsaoEnable);
-}
-
-template<>
-void RenderPipeline::IRenderContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
-	ar >> BOOST_SERIALIZATION_NVP(m_WireFrame);
-	ar >> BOOST_SERIALIZATION_NVP(m_DofEnable);
-	ar >> BOOST_SERIALIZATION_NVP(m_FxaaEnable);
-	ar >> BOOST_SERIALIZATION_NVP(m_SsaoEnable);
-}
-
 RenderPipeline::RenderPipeline(void)
 	: m_ParticleVertexStride(0)
 	, m_ParticleInstanceStride(0)

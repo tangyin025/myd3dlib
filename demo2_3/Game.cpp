@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "Terrain.h"
+#include "Material.h"
 #include "resource.h"
 #include <sstream>
 #include <fstream>
@@ -901,7 +902,6 @@ void Game::LoadScene(const char * path)
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
 	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> boost::serialization::make_nvp("IRenderContext", (IRenderContext &)*this);
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("Root", m_Root);

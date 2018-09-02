@@ -2,7 +2,7 @@
 #pragma once
 
 #include "EventDefine.h"
-#include "Character.h"
+#include "Component.h"
 #include "Terrain.h"
 
 class CPropertiesToolBar : public CMFCToolBar
