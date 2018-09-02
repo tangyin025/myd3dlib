@@ -15,121 +15,121 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\archive_exception.cpp">
+    <ClCompile Include="src\archive_exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_archive.cpp">
+    <ClCompile Include="src\basic_archive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_iarchive.cpp">
+    <ClCompile Include="src\basic_iarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_iserializer.cpp">
+    <ClCompile Include="src\basic_iserializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_oarchive.cpp">
+    <ClCompile Include="src\basic_oarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_oserializer.cpp">
+    <ClCompile Include="src\basic_oserializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_pointer_iserializer.cpp">
+    <ClCompile Include="src\basic_pointer_iserializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_pointer_oserializer.cpp">
+    <ClCompile Include="src\basic_pointer_oserializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_serializer_map.cpp">
+    <ClCompile Include="src\basic_serializer_map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_text_iprimitive.cpp">
+    <ClCompile Include="src\basic_text_iprimitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_text_oprimitive.cpp">
+    <ClCompile Include="src\basic_text_oprimitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_text_wiprimitive.cpp">
+    <ClCompile Include="src\basic_text_wiprimitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_text_woprimitive.cpp">
+    <ClCompile Include="src\basic_text_woprimitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\basic_xml_archive.cpp">
+    <ClCompile Include="src\basic_xml_archive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\binary_iarchive.cpp">
+    <ClCompile Include="src\binary_iarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\binary_oarchive.cpp">
+    <ClCompile Include="src\binary_oarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\binary_wiarchive.cpp">
+    <ClCompile Include="src\binary_wiarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\binary_woarchive.cpp">
+    <ClCompile Include="src\binary_woarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\codecvt_null.cpp">
+    <ClCompile Include="src\codecvt_null.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\extended_type_info.cpp">
+    <ClCompile Include="src\extended_type_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\extended_type_info_no_rtti.cpp">
+    <ClCompile Include="src\extended_type_info_no_rtti.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\extended_type_info_typeid.cpp">
+    <ClCompile Include="src\extended_type_info_typeid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\polymorphic_iarchive.cpp">
+    <ClCompile Include="src\polymorphic_iarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\polymorphic_oarchive.cpp">
+    <ClCompile Include="src\polymorphic_oarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\stl_port.cpp">
+    <ClCompile Include="src\stl_port.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\text_iarchive.cpp">
+    <ClCompile Include="src\text_iarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\text_oarchive.cpp">
+    <ClCompile Include="src\text_oarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\text_wiarchive.cpp">
+    <ClCompile Include="src\text_wiarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\text_woarchive.cpp">
+    <ClCompile Include="src\text_woarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\utf8_codecvt_facet.cpp">
+    <ClCompile Include="src\utf8_codecvt_facet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\void_cast.cpp">
+    <ClCompile Include="src\void_cast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_archive_exception.cpp">
+    <ClCompile Include="src\xml_archive_exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_grammar.cpp">
+    <ClCompile Include="src\xml_grammar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_iarchive.cpp">
+    <ClCompile Include="src\xml_iarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_oarchive.cpp">
+    <ClCompile Include="src\xml_oarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_wgrammar.cpp">
+    <ClCompile Include="src\xml_wgrammar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_wiarchive.cpp">
+    <ClCompile Include="src\xml_wiarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xml_woarchive.cpp">
+    <ClCompile Include="src\xml_woarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\singleton.cpp">
+    <ClCompile Include="src\singleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

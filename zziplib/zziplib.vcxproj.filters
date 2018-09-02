@@ -15,81 +15,81 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\dir.c">
+    <ClCompile Include="src\dir.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\err.c">
+    <ClCompile Include="src\err.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\fetch.c">
+    <ClCompile Include="src\fetch.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\file.c">
+    <ClCompile Include="src\file.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\info.c">
+    <ClCompile Include="src\info.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\plugin.c">
+    <ClCompile Include="src\plugin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\stat.c">
+    <ClCompile Include="src\stat.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\zip.c">
+    <ClCompile Include="src\zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\zzip\__debug.h">
+    <ClInclude Include="include\zzip\__debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\__dirent.h">
+    <ClInclude Include="include\zzip\__dirent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\__hints.h">
+    <ClInclude Include="include\zzip\__hints.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\__mmap.h">
+    <ClInclude Include="include\zzip\__mmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\_config.h">
+    <ClInclude Include="include\zzip\_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\_msvc.h">
+    <ClInclude Include="include\zzip\_msvc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\conf.h">
+    <ClInclude Include="include\zzip\conf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\fetch.h">
+    <ClInclude Include="include\zzip\fetch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\file.h">
+    <ClInclude Include="include\zzip\file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\format.h">
+    <ClInclude Include="include\zzip\format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\info.h">
+    <ClInclude Include="include\zzip\info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\lib.h">
+    <ClInclude Include="include\zzip\lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\plugin.h">
+    <ClInclude Include="include\zzip\plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\stdint.h">
+    <ClInclude Include="include\zzip\stdint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\types.h">
+    <ClInclude Include="include\zzip\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\zzip.h">
+    <ClInclude Include="include\zzip\zzip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\zzip\zzip32.h">
+    <ClInclude Include="include\zzip\zzip32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

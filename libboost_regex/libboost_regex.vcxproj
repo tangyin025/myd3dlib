@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}</ProjectGuid>
-    <RootNamespace>zziplib</RootNamespace>
+    <ProjectGuid>{607F6D3C-FFE5-4587-907F-AB016F0AF2D1}</ProjectGuid>
+    <RootNamespace>libboost_regex</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -32,9 +32,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\D3DSolution.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\D3DSolution.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -51,8 +53,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;$(SolutionDir)zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -65,8 +67,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\include;$(SolutionDir)zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -75,33 +77,26 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\dir.c" />
-    <ClCompile Include="..\src\err.c" />
-    <ClCompile Include="..\src\fetch.c" />
-    <ClCompile Include="..\src\file.c" />
-    <ClCompile Include="..\src\info.c" />
-    <ClCompile Include="..\src\plugin.c" />
-    <ClCompile Include="..\src\stat.c" />
-    <ClCompile Include="..\src\zip.c" />
+    <ClCompile Include="src\c_regex_traits.cpp" />
+    <ClCompile Include="src\cpp_regex_traits.cpp" />
+    <ClCompile Include="src\cregex.cpp" />
+    <ClCompile Include="src\fileiter.cpp" />
+    <ClCompile Include="src\icu.cpp" />
+    <ClCompile Include="src\instances.cpp" />
+    <ClCompile Include="src\posix_api.cpp" />
+    <ClCompile Include="src\regex.cpp" />
+    <ClCompile Include="src\regex_debug.cpp" />
+    <ClCompile Include="src\regex_raw_buffer.cpp" />
+    <ClCompile Include="src\regex_traits_defaults.cpp" />
+    <ClCompile Include="src\static_mutex.cpp" />
+    <ClCompile Include="src\usinstances.cpp" />
+    <ClCompile Include="src\w32_regex_traits.cpp" />
+    <ClCompile Include="src\wc_regex_traits.cpp" />
+    <ClCompile Include="src\wide_posix_api.cpp" />
+    <ClCompile Include="src\winstances.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\zzip\__debug.h" />
-    <ClInclude Include="..\include\zzip\__dirent.h" />
-    <ClInclude Include="..\include\zzip\__hints.h" />
-    <ClInclude Include="..\include\zzip\__mmap.h" />
-    <ClInclude Include="..\include\zzip\_config.h" />
-    <ClInclude Include="..\include\zzip\_msvc.h" />
-    <ClInclude Include="..\include\zzip\conf.h" />
-    <ClInclude Include="..\include\zzip\fetch.h" />
-    <ClInclude Include="..\include\zzip\file.h" />
-    <ClInclude Include="..\include\zzip\format.h" />
-    <ClInclude Include="..\include\zzip\info.h" />
-    <ClInclude Include="..\include\zzip\lib.h" />
-    <ClInclude Include="..\include\zzip\plugin.h" />
-    <ClInclude Include="..\include\zzip\stdint.h" />
-    <ClInclude Include="..\include\zzip\types.h" />
-    <ClInclude Include="..\include\zzip\zzip.h" />
-    <ClInclude Include="..\include\zzip\zzip32.h" />
+    <ClInclude Include="src\internals.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{AB3A72EC-552C-41BD-9D73-761D2419D4D1}</ProjectGuid>
-    <RootNamespace>freetype</RootNamespace>
+    <ProjectGuid>{198A862B-2908-48A8-8654-5D6B4583E441}</ProjectGuid>
+    <RootNamespace>lua51</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -51,8 +51,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;FT2_BUILD_LIBRARY;FT_DEBUG_LEVEL_ERROR;FT_DEBUG_LEVEL_TRACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -65,8 +65,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -75,48 +75,61 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\autofit\autofit.c" />
-    <ClCompile Include="..\src\bdf\bdf.c" />
-    <ClCompile Include="..\src\cff\cff.c" />
-    <ClCompile Include="..\src\base\ftbase.c" />
-    <ClCompile Include="..\src\base\ftbitmap.c" />
-    <ClCompile Include="..\src\cache\ftccache.c" />
-    <ClCompile Include="..\src\ftdebug.c" />
-    <ClCompile Include="..\src\base\ftfstype.c" />
-    <ClCompile Include="..\src\base\ftgasp.c" />
-    <ClCompile Include="..\src\base\ftglyph.c" />
-    <ClCompile Include="..\src\gzip\ftgzip.c" />
-    <ClCompile Include="..\src\base\ftinit.c" />
-    <ClCompile Include="..\src\lzw\ftlzw.c" />
-    <ClCompile Include="..\src\base\ftstroke.c" />
-    <ClCompile Include="..\src\base\ftsystem.c" />
-    <ClCompile Include="..\src\smooth\smooth.c" />
-    <ClCompile Include="..\src\base\ftbbox.c" />
-    <ClCompile Include="..\src\base\ftmm.c" />
-    <ClCompile Include="..\src\base\ftpfr.c" />
-    <ClCompile Include="..\src\base\ftsynth.c" />
-    <ClCompile Include="..\src\base\fttype1.c" />
-    <ClCompile Include="..\src\base\ftwinfnt.c" />
-    <ClCompile Include="..\src\pcf\pcf.c" />
-    <ClCompile Include="..\src\pfr\pfr.c" />
-    <ClCompile Include="..\src\psaux\psaux.c" />
-    <ClCompile Include="..\src\pshinter\pshinter.c" />
-    <ClCompile Include="..\src\psnames\psmodule.c" />
-    <ClCompile Include="..\src\raster\raster.c" />
-    <ClCompile Include="..\src\sfnt\sfnt.c" />
-    <ClCompile Include="..\src\truetype\truetype.c" />
-    <ClCompile Include="..\src\type1\type1.c" />
-    <ClCompile Include="..\src\cid\type1cid.c" />
-    <ClCompile Include="..\src\type42\type42.c" />
-    <ClCompile Include="..\src\winfonts\winfnt.c" />
+    <ClCompile Include="src\bit.c" />
+    <ClCompile Include="src\lapi.c" />
+    <ClCompile Include="src\lauxlib.c" />
+    <ClCompile Include="src\lbaselib.c" />
+    <ClCompile Include="src\lcode.c" />
+    <ClCompile Include="src\ldblib.c" />
+    <ClCompile Include="src\ldebug.c" />
+    <ClCompile Include="src\ldo.c" />
+    <ClCompile Include="src\ldump.c" />
+    <ClCompile Include="src\lfunc.c" />
+    <ClCompile Include="src\lgc.c" />
+    <ClCompile Include="src\linit.c" />
+    <ClCompile Include="src\liolib.c" />
+    <ClCompile Include="src\llex.c" />
+    <ClCompile Include="src\lmathlib.c" />
+    <ClCompile Include="src\lmem.c" />
+    <ClCompile Include="src\loadlib.c" />
+    <ClCompile Include="src\lobject.c" />
+    <ClCompile Include="src\lopcodes.c" />
+    <ClCompile Include="src\loslib.c" />
+    <ClCompile Include="src\lparser.c" />
+    <ClCompile Include="src\lstate.c" />
+    <ClCompile Include="src\lstring.c" />
+    <ClCompile Include="src\lstrlib.c" />
+    <ClCompile Include="src\ltable.c" />
+    <ClCompile Include="src\ltablib.c" />
+    <ClCompile Include="src\ltm.c" />
+    <ClCompile Include="src\lundump.c" />
+    <ClCompile Include="src\lvm.c" />
+    <ClCompile Include="src\lzio.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ft2build.h" />
-    <ClInclude Include="..\include\freetype\config\ftconfig.h" />
-    <ClInclude Include="..\include\freetype\config\ftheader.h" />
-    <ClInclude Include="..\include\freetype\config\ftmodule.h" />
-    <ClInclude Include="..\include\freetype\config\ftoption.h" />
-    <ClInclude Include="..\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="include\lapi.h" />
+    <ClInclude Include="include\lauxlib.h" />
+    <ClInclude Include="include\lcode.h" />
+    <ClInclude Include="include\ldebug.h" />
+    <ClInclude Include="include\ldo.h" />
+    <ClInclude Include="include\lfunc.h" />
+    <ClInclude Include="include\lgc.h" />
+    <ClInclude Include="include\llex.h" />
+    <ClInclude Include="include\llimits.h" />
+    <ClInclude Include="include\lmem.h" />
+    <ClInclude Include="include\lobject.h" />
+    <ClInclude Include="include\lopcodes.h" />
+    <ClInclude Include="include\lparser.h" />
+    <ClInclude Include="include\lstate.h" />
+    <ClInclude Include="include\lstring.h" />
+    <ClInclude Include="include\ltable.h" />
+    <ClInclude Include="include\ltm.h" />
+    <ClInclude Include="include\lua.h" />
+    <ClInclude Include="include\luaconf.h" />
+    <ClInclude Include="include\lualib.h" />
+    <ClInclude Include="include\lundump.h" />
+    <ClInclude Include="include\lvm.h" />
+    <ClInclude Include="include\lzio.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

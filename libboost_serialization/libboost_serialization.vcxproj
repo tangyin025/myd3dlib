@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4B104248-0F92-4516-8D50-E87D5E9BB6B6}</ProjectGuid>
-    <RootNamespace>zlib</RootNamespace>
+    <ProjectGuid>{97882A3E-FE4E-4CFF-9863-517FFD484289}</ProjectGuid>
+    <RootNamespace>libboost_serialization</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -32,9 +32,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\D3DSolution.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\D3DSolution.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -51,8 +53,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -65,8 +67,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -75,38 +77,45 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\adler32.c" />
-    <ClCompile Include="..\src\compress.c" />
-    <ClCompile Include="..\src\crc32.c" />
-    <ClCompile Include="..\src\deflate.c" />
-    <ClCompile Include="..\src\gzclose.c" />
-    <ClCompile Include="..\src\gzlib.c" />
-    <ClCompile Include="..\src\gzread.c" />
-    <ClCompile Include="..\src\gzwrite.c" />
-    <ClCompile Include="..\src\infback.c" />
-    <ClCompile Include="..\src\inffast.c" />
-    <ClCompile Include="..\src\inflate.c" />
-    <ClCompile Include="..\src\inftrees.c" />
-    <ClCompile Include="..\src\ioapi.c" />
-    <ClCompile Include="..\src\trees.c" />
-    <ClCompile Include="..\src\uncompr.c" />
-    <ClCompile Include="..\src\unzip.c" />
-    <ClCompile Include="..\src\zutil.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\include\crc32.h" />
-    <ClInclude Include="..\include\deflate.h" />
-    <ClInclude Include="..\include\gzguts.h" />
-    <ClInclude Include="..\include\inffast.h" />
-    <ClInclude Include="..\include\inffixed.h" />
-    <ClInclude Include="..\include\inflate.h" />
-    <ClInclude Include="..\include\inftrees.h" />
-    <ClInclude Include="..\include\ioapi.h" />
-    <ClInclude Include="..\include\trees.h" />
-    <ClInclude Include="..\include\unzip.h" />
-    <ClInclude Include="..\include\zconf.h" />
-    <ClInclude Include="..\include\zlib.h" />
-    <ClInclude Include="..\include\zutil.h" />
+    <ClCompile Include="src\archive_exception.cpp" />
+    <ClCompile Include="src\basic_archive.cpp" />
+    <ClCompile Include="src\basic_iarchive.cpp" />
+    <ClCompile Include="src\basic_iserializer.cpp" />
+    <ClCompile Include="src\basic_oarchive.cpp" />
+    <ClCompile Include="src\basic_oserializer.cpp" />
+    <ClCompile Include="src\basic_pointer_iserializer.cpp" />
+    <ClCompile Include="src\basic_pointer_oserializer.cpp" />
+    <ClCompile Include="src\basic_serializer_map.cpp" />
+    <ClCompile Include="src\basic_text_iprimitive.cpp" />
+    <ClCompile Include="src\basic_text_oprimitive.cpp" />
+    <ClCompile Include="src\basic_text_wiprimitive.cpp" />
+    <ClCompile Include="src\basic_text_woprimitive.cpp" />
+    <ClCompile Include="src\basic_xml_archive.cpp" />
+    <ClCompile Include="src\binary_iarchive.cpp" />
+    <ClCompile Include="src\binary_oarchive.cpp" />
+    <ClCompile Include="src\binary_wiarchive.cpp" />
+    <ClCompile Include="src\binary_woarchive.cpp" />
+    <ClCompile Include="src\codecvt_null.cpp" />
+    <ClCompile Include="src\extended_type_info.cpp" />
+    <ClCompile Include="src\extended_type_info_no_rtti.cpp" />
+    <ClCompile Include="src\extended_type_info_typeid.cpp" />
+    <ClCompile Include="src\polymorphic_iarchive.cpp" />
+    <ClCompile Include="src\polymorphic_oarchive.cpp" />
+    <ClCompile Include="src\singleton.cpp" />
+    <ClCompile Include="src\stl_port.cpp" />
+    <ClCompile Include="src\text_iarchive.cpp" />
+    <ClCompile Include="src\text_oarchive.cpp" />
+    <ClCompile Include="src\text_wiarchive.cpp" />
+    <ClCompile Include="src\text_woarchive.cpp" />
+    <ClCompile Include="src\utf8_codecvt_facet.cpp" />
+    <ClCompile Include="src\void_cast.cpp" />
+    <ClCompile Include="src\xml_archive_exception.cpp" />
+    <ClCompile Include="src\xml_grammar.cpp" />
+    <ClCompile Include="src\xml_iarchive.cpp" />
+    <ClCompile Include="src\xml_oarchive.cpp" />
+    <ClCompile Include="src\xml_wgrammar.cpp" />
+    <ClCompile Include="src\xml_wiarchive.cpp" />
+    <ClCompile Include="src\xml_woarchive.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

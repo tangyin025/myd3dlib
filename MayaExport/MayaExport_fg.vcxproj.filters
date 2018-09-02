@@ -15,57 +15,57 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\material.cpp">
+    <ClCompile Include="src\material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\mesh.cpp">
+    <ClCompile Include="src\mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ogreExporter.cpp">
+    <ClCompile Include="src\ogreExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\paramlist.cpp">
+    <ClCompile Include="src\paramlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\particles.cpp">
+    <ClCompile Include="src\particles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\skeleton.cpp">
+    <ClCompile Include="src\skeleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\submesh.cpp">
+    <ClCompile Include="src\submesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\material.h">
+    <ClInclude Include="include\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\materialSet.h">
+    <ClInclude Include="include\materialSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\mayaExportLayer.h">
+    <ClInclude Include="include\mayaExportLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\mesh.h">
+    <ClInclude Include="include\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ogreExporter.h">
+    <ClInclude Include="include\ogreExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\paramlist.h">
+    <ClInclude Include="include\paramlist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\particles.h">
+    <ClInclude Include="include\particles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\singleton.h">
+    <ClInclude Include="include\singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\skeleton.h">
+    <ClInclude Include="include\skeleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\submesh.h">
+    <ClInclude Include="include\submesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

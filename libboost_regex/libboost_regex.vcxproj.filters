@@ -15,60 +15,60 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\c_regex_traits.cpp">
+    <ClCompile Include="src\c_regex_traits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\cpp_regex_traits.cpp">
+    <ClCompile Include="src\cpp_regex_traits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\cregex.cpp">
+    <ClCompile Include="src\cregex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\fileiter.cpp">
+    <ClCompile Include="src\fileiter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\icu.cpp">
+    <ClCompile Include="src\icu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\instances.cpp">
+    <ClCompile Include="src\instances.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\posix_api.cpp">
+    <ClCompile Include="src\posix_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\regex.cpp">
+    <ClCompile Include="src\regex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\regex_debug.cpp">
+    <ClCompile Include="src\regex_debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\regex_raw_buffer.cpp">
+    <ClCompile Include="src\regex_raw_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\regex_traits_defaults.cpp">
+    <ClCompile Include="src\regex_traits_defaults.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\static_mutex.cpp">
+    <ClCompile Include="src\static_mutex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\usinstances.cpp">
+    <ClCompile Include="src\usinstances.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\w32_regex_traits.cpp">
+    <ClCompile Include="src\w32_regex_traits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\wc_regex_traits.cpp">
+    <ClCompile Include="src\wc_regex_traits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\wide_posix_api.cpp">
+    <ClCompile Include="src\wide_posix_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\winstances.cpp">
+    <ClCompile Include="src\winstances.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\internals.hpp">
+    <ClInclude Include="src\internals.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
