@@ -281,7 +281,7 @@ dlg.EventAlign=function(args)
 end
 dlg.EventRefresh=function(args)
 	RefreshDisplayAdapter()
-	game:PlaySound("aaa/untitled/15")
+	game:PlaySound("demo2_3/untitled/15")
 end
 
 local local_device_settings=nil

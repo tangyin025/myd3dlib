@@ -1,6 +1,6 @@
 <project>
-<name>aaa</name>
-<guid>{f828b264-4a0c-4cda-9f55-6e50a1784bba}</guid>
+<name>demo2_3</name>
+<guid>{1dcb4bec-c306-48af-a4d2-5aa5644a9677}</guid>
 <version>4</version>
 <eventgroup_nextid>0</eventgroup_nextid>
 <soundbank_nextid>1</soundbank_nextid>
@@ -11,7 +11,7 @@
 <build_programmerreport>0</build_programmerreport>
 <build_applytemplate>0</build_applytemplate>
 <build_continue_on_error>0</build_continue_on_error>
-<currentbank>aaa_bank00</currentbank>
+<currentbank>demo2_3_bank00</currentbank>
 <currentlanguage>default</currentlanguage>
 <primarylanguage>default</primarylanguage>
 <language>default</language>
@@ -19,7 +19,7 @@
 <templatefileopen>1</templatefileopen>
 <eventcategory>
 <name>music</name>
-<guid>{f1817736-b2bb-4eac-a69e-90cf6e3bdffc}</guid>
+<guid>{58c46096-2022-4b5b-b3d7-ea6281679f31}</guid>
 <volume_db>0</volume_db>
 <pitch>0</pitch>
 <maxplaybacks>0</maxplaybacks>
@@ -29,15 +29,15 @@
 </eventcategory>
 <sounddeffolder>
 <name>master</name>
-<guid>{b7c288f4-7733-497c-aeab-7a1ca0b94fab}</guid>
+<guid>{cdbcd432-c71e-40d3-a5de-995b4a923f76}</guid>
 <open>0</open>
 <sounddeffolder>
 <name>__simpleevent_sounddef__</name>
-<guid>{04da9276-6aa2-41de-8dda-6f21ac0eda5a}</guid>
+<guid>{d6845203-cb9f-4ede-bc9b-063e214b099f}</guid>
 <open>0</open>
 <sounddef>
-<name>/__simpleevent_sounddef__/15_0</name>
-<guid>{7d30fe1b-1168-4a53-a3e2-ff64b23f1c71}</guid>
+<name>/__simpleevent_sounddef__/15_1</name>
+<guid>{2cf0ebbb-400c-4609-8416-50ec9b056b16}</guid>
 <type>randomnorepeat</type>
 <playlistmode>0</playlistmode>
 <randomrepeatsounds>0</randomrepeatsounds>
@@ -69,14 +69,14 @@
 <entrylistmode>1</entrylistmode>
 <waveform>
 <filename>15.wav</filename>
-<soundbankname>aaa_bank00</soundbankname>
+<soundbankname>demo2_3_bank00</soundbankname>
 <weight>100</weight>
 <percentagelocked>0</percentagelocked>
 </waveform>
 </sounddef>
 <sounddef>
-<name>/__simpleevent_sounddef__/20_1</name>
-<guid>{9402a985-ad4e-49b3-b834-107c5eaf6d99}</guid>
+<name>/__simpleevent_sounddef__/20_2</name>
+<guid>{c4c5db80-bd96-40b1-9799-ff7ffc37dd89}</guid>
 <type>randomnorepeat</type>
 <playlistmode>0</playlistmode>
 <randomrepeatsounds>0</randomrepeatsounds>
@@ -108,7 +108,7 @@
 <entrylistmode>1</entrylistmode>
 <waveform>
 <filename>20.wav</filename>
-<soundbankname>aaa_bank00</soundbankname>
+<soundbankname>demo2_3_bank00</soundbankname>
 <weight>100</weight>
 <percentagelocked>0</percentagelocked>
 </waveform>
@@ -117,7 +117,7 @@
 </sounddeffolder>
 <eventgroup>
 <name>untitled</name>
-<guid>{ea6bd786-cad8-4d4d-aeae-b38fa8d86137}</guid>
+<guid>{e7e169d1-ac67-4827-b94e-15a3ed317aea}</guid>
 <eventgroup_nextid>0</eventgroup_nextid>
 <event_nextid>1</event_nextid>
 <open>1</open>
@@ -125,7 +125,7 @@
 <simpleevent>
 <event>
 <name>15</name>
-<guid>{9c191c92-eb19-44f1-9275-0d485c71d6c1}</guid>
+<guid>{c6851c73-18b3-4300-801f-ff01756fafa1}</guid>
 <parameter_nextid>0</parameter_nextid>
 <layer_nextid>1</layer_nextid>
 <layer>
@@ -138,7 +138,7 @@
 <envlock>0</envlock>
 <priority>-1</priority>
 <sound>
-<name>/__simpleevent_sounddef__/15_0</name>
+<name>/__simpleevent_sounddef__/15_1</name>
 <x>0</x>
 <width>1</width>
 <startmode>0</startmode>
@@ -285,7 +285,7 @@
 <shuffleglobal>0</shuffleglobal>
 <sequentialrememberposition>0</sequentialrememberposition>
 <sequentialglobal>0</sequentialglobal>
-<bankname>aaa_bank00</bankname>
+<bankname>demo2_3_bank00</bankname>
 <_PC_resamplemode>Off</_PC_resamplemode>
 <_PC_automaticsampleratepercentage>100</_PC_automaticsampleratepercentage>
 <_PC_fixedsamplerate>48000</_PC_fixedsamplerate>
@@ -329,7 +329,7 @@
 <simpleevent>
 <event>
 <name>20</name>
-<guid>{daf27c28-2f7d-40a2-b117-124d45c37e6c}</guid>
+<guid>{b06faca7-47a5-4785-90d6-120173012cc8}</guid>
 <parameter_nextid>0</parameter_nextid>
 <layer_nextid>1</layer_nextid>
 <layer>
@@ -342,7 +342,7 @@
 <envlock>0</envlock>
 <priority>-1</priority>
 <sound>
-<name>/__simpleevent_sounddef__/20_1</name>
+<name>/__simpleevent_sounddef__/20_2</name>
 <x>0</x>
 <width>1</width>
 <startmode>0</startmode>
@@ -489,7 +489,7 @@
 <shuffleglobal>0</shuffleglobal>
 <sequentialrememberposition>0</sequentialrememberposition>
 <sequentialglobal>0</sequentialglobal>
-<bankname>aaa_bank00</bankname>
+<bankname>demo2_3_bank00</bankname>
 <_PC_resamplemode>Off</_PC_resamplemode>
 <_PC_automaticsampleratepercentage>100</_PC_automaticsampleratepercentage>
 <_PC_fixedsamplerate>48000</_PC_fixedsamplerate>
@@ -533,7 +533,7 @@
 </eventgroup>
 <default_soundbank_props>
 <name>default_soundbank_props</name>
-<guid>{bc92dc97-dea8-40d3-9c2a-ae2d66871f3a}</guid>
+<guid>{1b89a1bf-bd8d-4a4c-bf08-8b5f632a8435}</guid>
 <load_into_rsx>0</load_into_rsx>
 <disable_seeking>0</disable_seeking>
 <enable_syncpoints>1</enable_syncpoints>
@@ -607,8 +607,8 @@
 <_lang_default_rebuild>0</_lang_default_rebuild>
 </default_soundbank_props>
 <soundbank>
-<name>aaa_bank00</name>
-<guid>{064850fb-60ad-48da-9d4e-f469450f8400}</guid>
+<name>demo2_3_bank00</name>
+<guid>{859bd842-1001-48c5-b92b-924de33c5288}</guid>
 <load_into_rsx>0</load_into_rsx>
 <disable_seeking>0</disable_seeking>
 <enable_syncpoints>1</enable_syncpoints>
@@ -629,7 +629,7 @@
 <notes></notes>
 <waveform>
 <filename>15.wav</filename>
-<guid>{b9609bc1-bbcc-4e8d-b3c5-99034ea36e3d}</guid>
+<guid>{c54a9cb4-ed52-4539-9208-57df3dd0f8b5}</guid>
 <mindistance>1</mindistance>
 <maxdistance>10000</maxdistance>
 <deffreq>22050</deffreq>
@@ -683,7 +683,7 @@
 </waveform>
 <waveform>
 <filename>20.wav</filename>
-<guid>{5c2e235b-c264-4c81-91a0-aa55771fa3ab}</guid>
+<guid>{339cf2ca-bf35-4ba5-9ca4-4db0fc08ca72}</guid>
 <mindistance>1</mindistance>
 <maxdistance>10000</maxdistance>
 <deffreq>22050</deffreq>
@@ -787,7 +787,7 @@
 <_BB10_quality>50</_BB10_quality>
 <_BB10_forcesoftware>0</_BB10_forcesoftware>
 <_BB10_maxstreams>10</_BB10_maxstreams>
-<_lang_default_rebuild>0</_lang_default_rebuild>
+<_lang_default_rebuild>1</_lang_default_rebuild>
 </soundbank>
 <notes></notes>
 <currentplatform>PC</currentplatform>

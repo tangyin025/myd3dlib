@@ -282,7 +282,7 @@ Game::Game(void)
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(13), "Font Height")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
-		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\aaa.fev"), "Sound")
+		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("scene", boost::program_options::value(&m_InitScene)->default_value("scene01.xml"), "Scene")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
 		;
