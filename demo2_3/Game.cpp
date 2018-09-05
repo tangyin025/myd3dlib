@@ -283,7 +283,7 @@ Game::Game(void)
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(13), "Font Height")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
-		("scene", boost::program_options::value(&m_InitScene)->default_value("scene01.xml"), "Scene")
+		("scene", boost::program_options::value(&m_InitScene)/*->default_value("scene01.xml")*/, "Scene")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
 		;
 	boost::program_options::variables_map vm;
@@ -412,7 +412,10 @@ HRESULT Game::OnCreateDevice(
 
 	FModContext::LoadEventFile(m_InitSound.c_str());
 
-	LoadScene(m_InitScene.c_str());
+	if (!m_InitScene.empty())
+	{
+		LoadScene(m_InitScene.c_str());
+	}
 
 	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
 

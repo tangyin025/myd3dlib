@@ -21,23 +21,45 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
 game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
+-- 创建地面
+local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
+local cmp=MeshComponent()
+local lambert1=Material()
+lambert1.Shader="shader/lambert1.fx"
+lambert1.PassMask=Material.PassMaskOpaque
+lambert1.RepeatUV.x=64
+lambert1.RepeatUV.y=64
+lambert1.MeshTexture.Path="texture/Checker.bmp"
+lambert1.NormalTexture.Path="texture/Normal.dds"
+lambert1.SpecularTexture.Path="texture/White.dds"
+cmp:AddMaterial(lambert1)
+cmp.MeshRes.Path="mesh/plane.mesh.xml"
+cmp.MeshRes.EventReady=function(args)
+	cmp.MeshRes.Res:Transform(Matrix4.Scaling(256,1,256))
+end
+actor:AddComponent(cmp)
+actor:CreateRigidActor(Actor.eRIGID_STATIC)
+cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)))
+actor:UpdateWorld()
+game.Root:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
+
 -- 创建玩家Actor
 local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
 
 -- 加载皮肤
 local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.45,0))
-local lambert1=Material()
-lambert1.Shader="shader/lambert1.fx"
-lambert1.PassMask=Material.PassMaskOpaque
-lambert1.MeshTexture.Path="character/casual19_m_35.jpg"
-lambert1.NormalTexture.Path="character/casual19_m_35_normal.png"
-lambert1.SpecularTexture.Path="character/casual19_m_35_spec.png"
+local lambert2=Material()
+lambert2.Shader="shader/lambert1.fx"
+lambert2.PassMask=Material.PassMaskOpaque
+lambert2.MeshTexture.Path="character/casual19_m_35.jpg"
+lambert2.NormalTexture.Path="character/casual19_m_35_normal.png"
+lambert2.SpecularTexture.Path="character/casual19_m_35_spec.png"
 local cmp=MeshComponent()
 cmp.MeshRes.Path="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshRes.EventReady=function(args)
 	cmp.MeshRes.Res:Transform(local_trans)
 end
-cmp:AddMaterial(lambert1)
+cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 player:UpdateWorld()
@@ -92,19 +114,19 @@ player.Controller=PlayerController(player)
 
 -- 在角色手部绑定物体
 local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local lambert2=Material()
-lambert2.Shader="shader/lambert1.fx"
-lambert2.PassMask=Material.PassMaskOpaque
-lambert2.MeshTexture.Path="texture/Checker.bmp"
-lambert2.NormalTexture.Path="texture/Normal.dds"
-lambert2.SpecularTexture.Path="texture/White.dds"
+local lambert3=Material()
+lambert3.Shader="shader/lambert1.fx"
+lambert3.PassMask=Material.PassMaskOpaque
+lambert3.MeshTexture.Path="texture/Checker.bmp"
+lambert3.NormalTexture.Path="texture/Normal.dds"
+lambert3.SpecularTexture.Path="texture/White.dds"
 local cmp2=MeshComponent()
 cmp2.MeshRes.Path="mesh/Cylinder.mesh.xml"
 cmp2.MeshRes.EventReady=function(args)
 	cmp2.MeshRes.Res:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
 		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 end
-cmp2:AddMaterial(lambert2)
+cmp2:AddMaterial(lambert3)
 actor2:AddComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -114,26 +136,26 @@ player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
 local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp2=MeshComponent()
-cmp2.MeshRes.Path="mesh/Cylinder.mesh.xml"
-cmp2:AddMaterial(lambert2)
-actor3:AddComponent(cmp2)
+local cmp3=MeshComponent()
+cmp3.MeshRes.Path="mesh/Cylinder.mesh.xml"
+cmp3:AddMaterial(lambert3)
+actor3:AddComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp2:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
 game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
 player:Attach(actor3, 29)
 
 -- 创建一个物理球
-local actor3=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp4=MeshComponent()
 cmp4.MeshRes.Path="mesh/Sphere.mesh.xml"
-cmp4:AddMaterial(lambert2)
-actor3:AddComponent(cmp4)
-actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+cmp4:AddMaterial(lambert3)
+actor4:AddComponent(cmp4)
+actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp4:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
-actor3:UpdateWorld()
-game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor3.World))
+actor4:UpdateWorld()
+game.Root:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
 -- 特殊渲染选项
 game.SsaoEnable=true
