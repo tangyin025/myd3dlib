@@ -27,6 +27,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
 	, m_SkyLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_SkyLightAmbient(0.3f, 0.3f, 0.3f, 0.0f)
+	, m_SkyBoxEnable(false)
 	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
 	, m_SsaoBias(0.2f)
 	, m_SsaoIntensity(5.0f)
@@ -171,6 +172,7 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightDiffuse);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightAmbient);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
 	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoBias);
@@ -185,6 +187,7 @@ void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightDiffuse);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightAmbient);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
 	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoBias);
@@ -437,7 +440,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(m_BgColor.x, m_BgColor.y, m_BgColor.z, m_BgColor.w);
-	if (pRC->m_SkyBoxEnable)
+	if (m_SkyBoxEnable)
 	{
 		struct CUSTOMVERTEX
 		{

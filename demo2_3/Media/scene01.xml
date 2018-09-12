@@ -3,54 +3,55 @@
 <boost_serialization signature="serialization::archive" version="14">
 <RenderPipeline class_id="0" tracking_level="0" version="0">
 	<m_BgColor class_id="1" tracking_level="0" version="0">
-		<x>6.999999881e-001</x>
-		<y>6.999999881e-001</y>
-		<z>6.999999881e-001</z>
-		<w>1.000000000e+000</w>
+		<x>1.000000000e+00</x>
+		<y>9.843137264e-01</y>
+		<z>9.411764741e-01</z>
+		<w>1.000000000e+00</w>
 	</m_BgColor>
 	<m_SkyLightDiffuse>
-		<x>1.000000000e+000</x>
-		<y>1.000000000e+000</y>
-		<z>1.000000000e+000</z>
-		<w>1.000000000e+000</w>
+		<x>1.000000000e+00</x>
+		<y>1.000000000e+00</y>
+		<z>1.000000000e+00</z>
+		<w>1.000000000e+00</w>
 	</m_SkyLightDiffuse>
 	<m_SkyLightAmbient>
-		<x>3.000000119e-001</x>
-		<y>3.000000119e-001</y>
-		<z>3.000000119e-001</z>
-		<w>0.000000000e+000</w>
+		<x>3.000000119e-01</x>
+		<y>3.000000119e-01</y>
+		<z>3.000000119e-01</z>
+		<w>0.000000000e+00</w>
 	</m_SkyLightAmbient>
+	<m_SkyBoxEnable>1</m_SkyBoxEnable>
 	<m_SkyBoxTextures>
 		<count>6</count>
 		<item class_id="2" tracking_level="0" version="0">
-			<m_Path></m_Path>
+			<m_Path>texture\cloudy_noon_fr.jpg</m_Path>
 		</item>
 		<item>
-			<m_Path></m_Path>
+			<m_Path>texture\cloudy_noon_bk.jpg</m_Path>
 		</item>
 		<item>
-			<m_Path></m_Path>
+			<m_Path>texture\cloudy_noon_lf.jpg</m_Path>
 		</item>
 		<item>
-			<m_Path></m_Path>
+			<m_Path>texture\cloudy_noon_rt.jpg</m_Path>
 		</item>
 		<item>
-			<m_Path></m_Path>
+			<m_Path>texture\cloudy_noon_up.jpg</m_Path>
 		</item>
 		<item>
-			<m_Path></m_Path>
+			<m_Path>texture\cloudy_noon_dn.jpg</m_Path>
 		</item>
 	</m_SkyBoxTextures>
 	<m_DofParams>
-		<x>5.000000000e+000</x>
-		<y>1.500000000e+001</y>
-		<z>2.500000000e+001</z>
-		<w>1.000000000e+000</w>
+		<x>5.000000000e+00</x>
+		<y>1.500000000e+01</y>
+		<z>2.500000000e+01</z>
+		<w>1.000000000e+00</w>
 	</m_DofParams>
-	<m_SsaoBias>2.000000030e-001</m_SsaoBias>
-	<m_SsaoIntensity>5.000000000e+000</m_SsaoIntensity>
-	<m_SsaoRadius>1.000000000e+002</m_SsaoRadius>
-	<m_SsaoScale>1.000000000e+001</m_SsaoScale>
+	<m_SsaoBias>2.000000030e-01</m_SsaoBias>
+	<m_SsaoIntensity>5.000000000e+00</m_SsaoIntensity>
+	<m_SsaoRadius>1.000000000e+02</m_SsaoRadius>
+	<m_SsaoScale>1.000000000e+01</m_SsaoScale>
 </RenderPipeline>
 <PhysXSceneContext class_id="3" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>
@@ -63,20 +64,20 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 	<OctNode class_id="5" tracking_level="1" version="0" object_id="_1">
 		<m_aabb class_id="6" tracking_level="0" version="0">
 			<m_min class_id="7" tracking_level="0" version="0">
-				<x>-1.024000000e+003</x>
-				<y>-1.024000000e+003</y>
-				<z>-1.024000000e+003</z>
+				<x>-1.024000000e+03</x>
+				<y>-1.024000000e+03</y>
+				<z>-1.024000000e+03</z>
 			</m_min>
 			<m_max>
-				<x>1.024000000e+003</x>
-				<y>1.024000000e+003</y>
-				<z>1.024000000e+003</z>
+				<x>1.024000000e+03</x>
+				<y>1.024000000e+03</y>
+				<z>1.024000000e+03</z>
 			</m_max>
 		</m_aabb>
 		<m_Half>
-			<x>0.000000000e+000</x>
-			<y>0.000000000e+000</y>
-			<z>0.000000000e+000</z>
+			<x>0.000000000e+00</x>
+			<y>0.000000000e+00</y>
+			<z>0.000000000e+00</z>
 		</m_Half>
 	</OctNode>
 	<cb.actor_list class_id="8" tracking_level="0" version="0">
@@ -88,49 +89,49 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 					<OctActor class_id="11" tracking_level="1" version="0" object_id="_3"></OctActor>
 					<m_aabb>
 						<m_min>
-							<x>-5.000000000e-001</x>
-							<y>-1.110219981e-016</y>
-							<z>-5.000000000e-001</z>
+							<x>-5.000000000e-01</x>
+							<y>-1.110219981e-16</y>
+							<z>-5.000000000e-01</z>
 						</m_min>
 						<m_max>
-							<x>5.000000000e-001</x>
-							<y>1.110219981e-016</y>
-							<z>5.000000000e-001</z>
+							<x>5.000000000e-01</x>
+							<y>1.110219981e-16</y>
+							<z>5.000000000e-01</z>
 						</m_max>
 					</m_aabb>
 					<m_Position>
-						<x>0.000000000e+000</x>
-						<y>0.000000000e+000</y>
-						<z>0.000000000e+000</z>
+						<x>0.000000000e+00</x>
+						<y>0.000000000e+00</y>
+						<z>0.000000000e+00</z>
 					</m_Position>
 					<m_Rotation class_id="13" tracking_level="0" version="0">
-						<x>0.000000000e+000</x>
-						<y>0.000000000e+000</y>
-						<z>0.000000000e+000</z>
-						<w>1.000000000e+000</w>
+						<x>0.000000000e+00</x>
+						<y>0.000000000e+00</y>
+						<z>0.000000000e+00</z>
+						<w>1.000000000e+00</w>
 					</m_Rotation>
 					<m_Scale>
-						<x>5.120000000e+002</x>
-						<y>1.000000000e+000</y>
-						<z>5.120000000e+002</z>
+						<x>5.120000000e+02</x>
+						<y>1.000000000e+00</y>
+						<z>5.120000000e+02</z>
 					</m_Scale>
 					<m_World class_id="14" tracking_level="0" version="0">
-						<_11>5.120000000e+002</_11>
-						<_12>0.000000000e+000</_12>
-						<_13>0.000000000e+000</_13>
-						<_14>0.000000000e+000</_14>
-						<_21>0.000000000e+000</_21>
-						<_22>1.000000000e+000</_22>
-						<_23>0.000000000e+000</_23>
-						<_24>0.000000000e+000</_24>
-						<_31>0.000000000e+000</_31>
-						<_32>0.000000000e+000</_32>
-						<_33>5.120000000e+002</_33>
-						<_34>0.000000000e+000</_34>
-						<_41>0.000000000e+000</_41>
-						<_42>0.000000000e+000</_42>
-						<_43>0.000000000e+000</_43>
-						<_44>1.000000000e+000</_44>
+						<_11>5.120000000e+02</_11>
+						<_12>0.000000000e+00</_12>
+						<_13>0.000000000e+00</_13>
+						<_14>0.000000000e+00</_14>
+						<_21>0.000000000e+00</_21>
+						<_22>1.000000000e+00</_22>
+						<_23>0.000000000e+00</_23>
+						<_24>0.000000000e+00</_24>
+						<_31>0.000000000e+00</_31>
+						<_32>0.000000000e+00</_32>
+						<_33>5.120000000e+02</_33>
+						<_34>0.000000000e+00</_34>
+						<_41>0.000000000e+00</_41>
+						<_42>0.000000000e+00</_42>
+						<_43>0.000000000e+00</_43>
+						<_44>1.000000000e+00</_44>
 					</m_World>
 					<m_Animator class_id="15" tracking_level="0" version="1">
 						<px class_id="-1"></px>
@@ -149,7 +150,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 									</Component>
 								</RenderComponent>
 								<m_MeshRes class_id="24" tracking_level="0" version="0">
-									<m_Path>E:\Works\C++\myd3dlib\demo2_3\Media\mesh\plane.mesh.xml</m_Path>
+									<m_Path>mesh\plane.mesh.xml</m_Path>
 								</m_MeshRes>
 								<m_bInstance>0</m_bInstance>
 								<m_bUseAnimation>0</m_bUseAnimation>
@@ -166,14 +167,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 											<m_ZWriteEnable>1</m_ZWriteEnable>
 											<m_BlendMode>0</m_BlendMode>
 											<m_MeshColor>
-												<x>1.000000000e+000</x>
-												<y>1.000000000e+000</y>
-												<z>1.000000000e+000</z>
-												<w>1.000000000e+000</w>
+												<x>1.000000000e+00</x>
+												<y>1.000000000e+00</y>
+												<z>1.000000000e+00</z>
+												<w>1.000000000e+00</w>
 											</m_MeshColor>
 											<m_RepeatUV class_id="28" tracking_level="0" version="0">
-												<x>1.280000000e+002</x>
-												<y>1.280000000e+002</y>
+												<x>1.280000000e+02</x>
+												<y>1.280000000e+02</y>
 											</m_RepeatUV>
 											<m_MeshTexture>
 												<m_Path>texture/Checker.bmp</m_Path>
@@ -195,14 +196,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACgwRAJAAAA
-gAEAAAAgwygJAAAAgAAAAABgXCEJAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAUn41Q
-CAADAAAAAAB4n41QAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwgwygJAAAAAM3Nzc3N
-zc3NUDyOUAcAAwAAAAAAED2OUAMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABgihYSAAAA
+gAEAAAAgdlgNAAAAgAIAAADgEloNAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOt0P
+CAADAAAAAABUO90PAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzgEloNAAAAAM3Nzc3N
+zc3N9NbdDwcAAwAAAAAAtNfdDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzWTljVAGAAMAeNsiAQAAAAAA
-AAAAoMEQCQEAAQECAAAAAQABAQAAAADNzc3Nzc3NzUBwIQEAAACFAAAAAM3Nzc3/////nPwhAQEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiA3Q8GAAMASD4OEgAAAAAA
+AAAAYIoWEgEAAQECAAAAAQABAQAAAADNzc3Nzc3NzTDPJg0AAACFAAAAAM3Nzc3/////7FonDQEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>
@@ -210,14 +211,14 @@ AA==
 			</first>
 			<second>
 				<m_min>
-					<x>-2.560000000e+002</x>
-					<y>-1.110219981e-016</y>
-					<z>-2.560000000e+002</z>
+					<x>-2.560000000e+02</x>
+					<y>-1.110219981e-16</y>
+					<z>-2.560000000e+02</z>
 				</m_min>
 				<m_max>
-					<x>2.560000000e+002</x>
-					<y>1.110219981e-016</y>
-					<z>2.560000000e+002</z>
+					<x>2.560000000e+02</x>
+					<y>1.110219981e-16</y>
+					<z>2.560000000e+02</z>
 				</m_max>
 			</second>
 		</item>

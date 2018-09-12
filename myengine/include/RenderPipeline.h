@@ -83,6 +83,8 @@ public:
 
 	my::Vector4 m_SkyLightAmbient;
 
+	bool m_SkyBoxEnable;
+
 	ResourceBundle<my::BaseTexture> m_SkyBoxTextures[6];
 
 	my::EffectPtr m_SimpleSample;
@@ -153,8 +155,6 @@ public:
 	public:
 		my::CameraPtr m_Camera;
 
-		bool m_SkyBoxEnable;
-
 		bool m_WireFrame;
 
 		bool m_DofEnable;
@@ -174,8 +174,7 @@ public:
 		RTChain m_DownFilterRT;
 
 		IRenderContext(void)
-			: m_SkyBoxEnable(false)
-			, m_WireFrame(false)
+			: m_WireFrame(false)
 			, m_DofEnable(false)
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)

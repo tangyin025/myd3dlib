@@ -181,7 +181,7 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 
 	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
 	ASSERT_VALID(pSkyBox);
-	pSkyBox->GetSubItem(SkyBoxPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SkyBoxEnable);
+	pSkyBox->GetSubItem(SkyBoxPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)theApp.m_SkyBoxEnable);
 	for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 	{
 		pSkyBox->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->SetValue(
@@ -316,7 +316,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertySkyBox:
 		{
-			pView->m_SkyBoxEnable = pProp->GetSubItem(SkyBoxPropertyEnable)->GetValue().boolVal != 0;
+			theApp.m_SkyBoxEnable = pProp->GetSubItem(SkyBoxPropertyEnable)->GetValue().boolVal != 0;
 			for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 			{
 				std::string path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->GetValue().bstrVal);

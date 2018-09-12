@@ -604,6 +604,7 @@
 <_BB10_quality>50</_BB10_quality>
 <_BB10_forcesoftware>0</_BB10_forcesoftware>
 <_BB10_maxstreams>10</_BB10_maxstreams>
+<_lang_default_filename_prefix></_lang_default_filename_prefix>
 <_lang_default_rebuild>0</_lang_default_rebuild>
 </default_soundbank_props>
 <soundbank>
@@ -787,6 +788,7 @@
 <_BB10_quality>50</_BB10_quality>
 <_BB10_forcesoftware>0</_BB10_forcesoftware>
 <_BB10_maxstreams>10</_BB10_maxstreams>
+<_lang_default_filename_prefix></_lang_default_filename_prefix>
 <_lang_default_rebuild>1</_lang_default_rebuild>
 </soundbank>
 <notes></notes>
