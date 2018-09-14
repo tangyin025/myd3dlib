@@ -108,30 +108,9 @@ public:
 	virtual void ClearShape(void);
 };
 
-class RenderComponent
+class MeshComponent
 	: public Component
 	, public RenderPipeline::IShaderSetter
-{
-protected:
-	RenderComponent(ComponentType Type)
-		: Component(Type)
-	{
-	}
-
-public:
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	}
-
-	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId) = 0;
-};
-
-typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
-
-class MeshComponent
-	: public RenderComponent
 {
 public:
 	ResourceBundle<my::OgreMesh> m_MeshRes;
@@ -146,7 +125,7 @@ public:
 
 public:
 	MeshComponent(void)
-		: RenderComponent(ComponentTypeMesh)
+		: Component(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, m_bNavigation(false)
@@ -198,8 +177,9 @@ public:
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
 
 class ClothComponent
-	: public RenderComponent
+	: public Component
 	, public my::DeviceResourceBase
+	, public RenderPipeline::IShaderSetter
 {
 public:
 	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
@@ -230,7 +210,7 @@ public:
 
 public:
 	ClothComponent(void)
-		: RenderComponent(ComponentTypeCloth)
+		: Component(ComponentTypeCloth)
 		, m_bUseAnimation(false)
 	{
 	}
@@ -292,8 +272,9 @@ public:
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 
 class EmitterComponent
-	: public RenderComponent
+	: public Component
 	, public my::Emitter
+	, public RenderPipeline::IShaderSetter
 {
 public:
 	MaterialPtr m_Material;
@@ -308,14 +289,14 @@ public:
 
 protected:
 	EmitterComponent(void)
-		: RenderComponent(ComponentTypeEmitter)
+		: Component(ComponentTypeEmitter)
 		, m_EmitterType(EmitterTypeLocal)
 	{
 	}
 
 public:
 	EmitterComponent(ComponentType type)
-		: RenderComponent(type)
+		: Component(type)
 		, m_EmitterType(EmitterTypeLocal)
 	{
 	}
@@ -325,7 +306,7 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterType);
 	}

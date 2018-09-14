@@ -7,6 +7,7 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
+	, public RenderPipeline::IShaderSetter
 {
 public:
 	Terrain * m_Owner;
@@ -34,6 +35,8 @@ public:
 	}
 
 	void UpdateAABB(void);
+
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -51,7 +54,7 @@ struct Quad<1>
 };
 
 class Terrain
-	: public RenderComponent
+	: public Component
 {
 public:
 	static const int ROW_CHUNKS = 8;
@@ -156,8 +159,6 @@ public:
 	virtual void ReleaseResource(void);
 
 	void UpdateVertices(void);
-
-	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
 	virtual my::AABB CalculateAABB(void) const;
 

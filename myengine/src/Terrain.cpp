@@ -63,6 +63,29 @@ void TerrainChunk::UpdateAABB(void)
 	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
+void TerrainChunk::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+{
+	_ASSERT(m_Owner->m_Actor);
+
+	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
+
+	shader->SetMatrix("g_World", m_Owner->m_Actor->m_World);
+
+	shader->SetFloat("g_HeightScale", m_Owner->m_HeightScale);
+
+	shader->SetVector("g_HeightTexSize", Vector2((float)m_Owner->ROW_CHUNKS * m_Owner->CHUNK_SIZE, (float)m_Owner->COL_CHUNKS * m_Owner->CHUNK_SIZE));
+
+	int ChunkId[2] = { m_Row, m_Column };
+
+	shader->SetIntArray("g_ChunkId", ChunkId, 2);
+
+	shader->SetInt("g_ChunkSize", m_Owner->CHUNK_SIZE);
+
+	shader->SetTexture("g_HeightTexture", &m_Owner->m_HeightMap);
+
+	m_Owner->m_Material->OnSetShader(pd3dDevice, shader, AttribId);
+}
+
 template <class T, int N>
 unsigned int FillVert(T & setter, int hs, unsigned int k)
 {
@@ -125,7 +148,7 @@ Terrain::VertexArray2D::VertexArray2D(void)
 const Terrain::VertexArray2D Terrain::m_VertexTable;
 
 Terrain::Terrain(void)
-	: RenderComponent(ComponentTypeTerrain)
+	: Component(ComponentTypeTerrain)
 	, m_HeightScale(1)
 	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
 	, m_Chunks(boost::extents[ROW_CHUNKS][COL_CHUNKS])
@@ -134,7 +157,7 @@ Terrain::Terrain(void)
 }
 
 Terrain::Terrain(float HeightScale, float WrappedU, float WrappedV)
-	: RenderComponent(ComponentTypeTerrain)
+	: Component(ComponentTypeTerrain)
 	, m_HeightScale(HeightScale)
 	, m_bNavigation(false)
 	, m_Root(my::AABB(0, (float)Terrain::CHUNK_SIZE * my::Max(Terrain::ROW_CHUNKS, Terrain::COL_CHUNKS)))
@@ -475,7 +498,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 template<>
 void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
@@ -494,7 +517,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 template<>
 void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_bNavigation);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
@@ -529,7 +552,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 
 void Terrain::RequestResource(void)
 {
-	RenderComponent::RequestResource();
+	Component::RequestResource();
 
 	if (!m_Decl)
 	{
@@ -556,7 +579,7 @@ void Terrain::ReleaseResource(void)
 	m_vb.OnDestroyDevice();
 	m_Fragment.clear();
 	m_Material->ReleaseResource();
-	RenderComponent::ReleaseResource();
+	Component::ReleaseResource();
 }
 
 void Terrain::UpdateVertices(void)
@@ -580,32 +603,9 @@ void Terrain::UpdateVertices(void)
 	}
 }
 
-void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
-{
-	_ASSERT(m_Actor);
-
-	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
-
-	shader->SetMatrix("g_World", m_Actor->m_World);
-
-	shader->SetFloat("g_HeightScale", m_HeightScale);
-
-	shader->SetVector("g_HeightTexSize", Vector2((float)ROW_CHUNKS * CHUNK_SIZE, (float)COL_CHUNKS * CHUNK_SIZE));
-
-	int ChunkId[2] = { LOWORD(AttribId), HIWORD(AttribId) };
-
-	shader->SetIntArray("g_ChunkId", ChunkId, 2);
-
-	shader->SetInt("g_ChunkSize", CHUNK_SIZE);
-
-	shader->SetTexture("g_HeightTexture", &m_HeightMap);
-
-	m_Material->OnSetShader(pd3dDevice, shader, AttribId);
-}
-
 my::AABB Terrain::CalculateAABB(void) const
 {
-	AABB ret = RenderComponent::CalculateAABB();
+	AABB ret = Component::CalculateAABB();
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
@@ -645,7 +645,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, LocalViewPos));
 			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, MAKELONG(chunk->m_Row, chunk->m_Column), shader, terrain);
+				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, 0, shader, chunk);
 		}
 	};
 
@@ -726,7 +726,7 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
 
 void Terrain::ClearShape(void)
 {
-	RenderComponent::ClearShape();
+	Component::ClearShape();
 
 	m_PxHeightField.reset();
 }

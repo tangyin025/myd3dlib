@@ -951,9 +951,7 @@ static void ExportComponent(lua_State * L)
 			.def("CreateSphereShape", &Component::CreateSphereShape)
 			.def("ClearShape", &Component::ClearShape)
 
-		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
-
-		, class_<MeshComponent, RenderComponent, boost::shared_ptr<Component> >("MeshComponent")
+		, class_<MeshComponent, Component, boost::shared_ptr<Component> >("MeshComponent")
 			.def(constructor<>())
 			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
 			.def_readwrite("bInstance", &MeshComponent::m_bInstance)
@@ -962,13 +960,13 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("MaterialList", &MeshComponent::m_MaterialList, luabind::return_stl_iterator)
 			.def("AddMaterial", &MeshComponent::AddMaterial)
 
-		, class_<ClothComponent, RenderComponent, boost::shared_ptr<Component> >("ClothComponent")
+		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<>())
 			.def("CreateClothFromMesh", &ClothComponent::CreateClothFromMesh)
 			.def_readonly("MaterialList", &ClothComponent::m_MaterialList, luabind::return_stl_iterator)
 			.def("AddMaterial", &ClothComponent::AddMaterial)
 
-		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
+		, class_<EmitterComponent, Component, boost::shared_ptr<Component> >("EmitterComponent")
 			.def_readwrite("Material", &EmitterComponent::m_Material)
 			.def("Spawn", &EmitterComponent::Spawn)
 
@@ -992,7 +990,7 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
 
-		, class_<Terrain, RenderComponent, boost::shared_ptr<Component> >("Terrain")
+		, class_<Terrain, Component, boost::shared_ptr<Component> >("Terrain")
 			.def(constructor<float, float, float>())
 
 		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")

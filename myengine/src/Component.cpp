@@ -20,8 +20,6 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Component)
 
-BOOST_CLASS_EXPORT(RenderComponent)
-
 BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(ClothComponent)
@@ -194,7 +192,7 @@ void Component::ClearShape(void)
 template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshRes);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
@@ -205,7 +203,7 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 template<>
 void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshRes);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
@@ -215,7 +213,7 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 
 void MeshComponent::CopyFrom(const MeshComponent & rhs)
 {
-	RenderComponent::CopyFrom(rhs);
+	Component::CopyFrom(rhs);
 	m_MeshRes = rhs.m_MeshRes;
 	m_bInstance = rhs.m_bInstance;
 	m_bUseAnimation = rhs.m_bUseAnimation;
@@ -287,7 +285,7 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 my::AABB MeshComponent::CalculateAABB(void) const
 {
-	AABB ret = RenderComponent::CalculateAABB();
+	AABB ret = Component::CalculateAABB();
 	if (m_MeshRes.m_Res)
 	{
 		ret.unionSelf(m_MeshRes.m_Res->m_aabb);
@@ -427,7 +425,7 @@ namespace boost {
 template<>
 void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_AttribTable);
 	unsigned int VertexSize = m_VertexData.size();
 	ar << BOOST_SERIALIZATION_NVP(VertexSize);
@@ -455,7 +453,7 @@ void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::
 template<>
 void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_AttribTable);
 	unsigned int VertexSize;
 	ar >> BOOST_SERIALIZATION_NVP(VertexSize);
@@ -504,7 +502,7 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 
 void ClothComponent::CopyFrom(const ClothComponent & rhs)
 {
-	RenderComponent::CopyFrom(rhs);
+	Component::CopyFrom(rhs);
 }
 
 ComponentPtr ClothComponent::Clone(void) const
@@ -594,7 +592,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 
 void ClothComponent::RequestResource(void)
 {
-	RenderComponent::RequestResource();
+	Component::RequestResource();
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -611,12 +609,12 @@ void ClothComponent::ReleaseResource(void)
 		(*mat_iter)->ReleaseResource();
 	}
 
-	RenderComponent::ReleaseResource();
+	Component::ReleaseResource();
 }
 
 void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
 {
-	RenderComponent::OnEnterPxScene(scene);
+	Component::OnEnterPxScene(scene);
 
 	if (m_Cloth)
 	{
@@ -631,7 +629,7 @@ void ClothComponent::OnLeavePxScene(PhysXSceneContext * scene)
 		scene->m_PxScene->removeActor(*m_Cloth);
 	}
 
-	RenderComponent::OnLeavePxScene(scene);
+	Component::OnLeavePxScene(scene);
 }
 
 void ClothComponent::OnResetDevice(void)
@@ -672,7 +670,7 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 my::AABB ClothComponent::CalculateAABB(void) const
 {
-	AABB ret = RenderComponent::CalculateAABB();
+	AABB ret = Component::CalculateAABB();
 	if (!m_VertexData.empty())
 	{
 		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
@@ -787,7 +785,7 @@ void ClothComponent::OnWorldChanged(void)
 
 void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 {
-	RenderComponent::CopyFrom(rhs);
+	Component::CopyFrom(rhs);
 }
 
 void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
@@ -860,7 +858,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 my::AABB EmitterComponent::CalculateAABB(void) const
 {
-	AABB ret = RenderComponent::CalculateAABB();
+	AABB ret = Component::CalculateAABB();
 	ret.unionSelf(my::AABB(-1,1));
 	return ret;
 }
