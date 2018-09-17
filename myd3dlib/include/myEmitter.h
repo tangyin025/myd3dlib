@@ -62,7 +62,26 @@ namespace my
 			}
 		};
 
-		typedef boost::circular_buffer<Particle> ParticleList;
+		class ParticleList : public boost::circular_buffer<Particle>
+		{
+		public:
+			explicit ParticleList(capacity_type buffer_capacity)
+				: circular_buffer(buffer_capacity, allocator_type())
+			{
+			}
+
+			template<class Archive>
+			inline void serialize(Archive & ar, const unsigned int version)
+			{
+				boost::serialization::split_member(ar, *this, version);
+			}
+
+			template<class Archive>
+			void save(Archive & ar, const unsigned int version) const;
+
+			template<class Archive>
+			void load(Archive & ar, const unsigned int version);
+		};
 
 		ParticleList m_ParticleList;
 
@@ -81,20 +100,4 @@ namespace my
 
 		void RemoveDeadParticle(float fParticleLifeTime);
 	};
-}
-
-namespace boost { 
-	namespace serialization {
-		template<class Archive>
-		inline void serialize(Archive & ar, my::Emitter::ParticleList & t, const unsigned int version)
-		{
-			boost::serialization::split_free(ar, t, version);
-		}
-
-		template<class Archive>
-		void save(Archive & ar, const my::Emitter::ParticleList &t, const unsigned int version);
-
-		template<class Archive>
-		void load(Archive & ar, my::Emitter::ParticleList &t, const unsigned int version);
-	}
 }
