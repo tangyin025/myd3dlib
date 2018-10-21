@@ -450,6 +450,5 @@ int CMainApp::ExitInstance()
 
 void CMainApp::OnEventLog(const char * str)
 {
-	TRACE(str);
-	TRACE("\n");
+	MessageBoxA(NULL, str, NULL, MB_OK);
 }

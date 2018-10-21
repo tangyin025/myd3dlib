@@ -22,6 +22,7 @@ void Material::CopyFrom(const Material & rhs)
 	m_MeshTexture = rhs.m_MeshTexture;
 	m_NormalTexture = rhs.m_NormalTexture;
 	m_SpecularTexture = rhs.m_SpecularTexture;
+	m_ReflectTexture = rhs.m_ReflectTexture;
 }
 
 MaterialPtr Material::Clone(void) const
@@ -47,6 +48,11 @@ void Material::RequestResource(void)
 	{
 		m_SpecularTexture.RequestResource();
 	}
+
+	if (!m_ReflectTexture.m_Path.empty())
+	{
+		m_ReflectTexture.RequestResource();
+	}
 }
 
 void Material::ReleaseResource(void)
@@ -54,6 +60,7 @@ void Material::ReleaseResource(void)
 	m_MeshTexture.ReleaseResource();
 	m_NormalTexture.ReleaseResource();
 	m_SpecularTexture.ReleaseResource();
+	m_ReflectTexture.ReleaseResource();
 }
 
 void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
@@ -85,4 +92,5 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
 	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
 	shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
+	shader->SetTexture("g_ReflectTexture", m_ReflectTexture.m_Res.get());
 }

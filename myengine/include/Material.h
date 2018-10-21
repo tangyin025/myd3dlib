@@ -40,6 +40,8 @@ public:
 
 	ResourceBundle<my::BaseTexture> m_SpecularTexture;
 
+	ResourceBundle<my::BaseTexture> m_ReflectTexture;
+
 public:
 	Material(void)
 		: m_PassMask(0)
@@ -70,6 +72,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_SpecularTexture);
+		ar & BOOST_SERIALIZATION_NVP(m_ReflectTexture);
 	}
 
 	void CopyFrom(const Material & rhs);

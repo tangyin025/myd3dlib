@@ -314,6 +314,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
 	pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
 	pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	pMaterial->GetSubItem(12)->SetValue((_variant_t)mat->m_ReflectTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -634,6 +635,8 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)ms2ts(mat->m_NormalTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
 	pMaterial->AddSubItem(pProp);
 	pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)ms2ts(mat->m_SpecularTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
+	pMaterial->AddSubItem(pProp);
+	pProp = new CFileProp(_T("ReflectTexture"), TRUE, (_variant_t)ms2ts(mat->m_ReflectTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialReflectTexture);
 	pMaterial->AddSubItem(pProp);
 }
 
@@ -1293,6 +1296,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
+		break;
+	case PropertyMaterialReflectTexture:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_ReflectTexture.ReleaseResource();
+			material->m_ReflectTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_ReflectTexture.RequestResource();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+	}
 		break;
 	case PropertyClothSceneCollision:
 		{
