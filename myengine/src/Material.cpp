@@ -12,17 +12,79 @@
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(MaterialParameter)
+
+BOOST_CLASS_EXPORT(MaterialParameterFloat)
+
+BOOST_CLASS_EXPORT(MaterialParameterTexture)
+
 BOOST_CLASS_EXPORT(Material)
+
+void MaterialParameter::Init(my::Effect * shader)
+{
+	m_Handle = shader->GetParameterByName(NULL, m_Name.c_str());
+}
+
+void MaterialParameterFloat::Set(my::Effect * shader)
+{
+	_ASSERT(m_Handle);
+	shader->SetFloat(m_Handle, m_Value);
+}
+
+MaterialParameterPtr MaterialParameterFloat::Clone(void) const
+{
+	return boost::shared_ptr<MaterialParameterFloat>(new MaterialParameterFloat(m_Name.c_str(), m_Value));
+}
+
+void MaterialParameterTexture::Set(my::Effect * shader)
+{
+	_ASSERT(m_Handle);
+	shader->SetTexture(m_Handle, m_Texture.m_Res.get());
+}
+
+void MaterialParameterTexture::RequestResource(void)
+{
+	m_Texture.RequestResource();
+}
+
+void MaterialParameterTexture::ReleaseResource(void)
+{
+	m_Texture.ReleaseResource();
+}
+
+MaterialParameterPtr MaterialParameterTexture::Clone(void) const
+{
+	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name.c_str(), m_Texture.m_Path.c_str()));
+}
+
+template<>
+void Material::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_Shader);
+	ar << BOOST_SERIALIZATION_NVP(m_PassMask);
+	ar << BOOST_SERIALIZATION_NVP(m_CullMode);
+	ar << BOOST_SERIALIZATION_NVP(m_ZEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
+	ar << BOOST_SERIALIZATION_NVP(m_BlendMode);
+	ar << BOOST_SERIALIZATION_NVP(m_ParameterList);
+}
+
+template<>
+void Material::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_Shader);
+	ar >> BOOST_SERIALIZATION_NVP(m_PassMask);
+	ar >> BOOST_SERIALIZATION_NVP(m_CullMode);
+	ar >> BOOST_SERIALIZATION_NVP(m_ZEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
+	ar >> BOOST_SERIALIZATION_NVP(m_BlendMode);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParameterList);
+}
 
 void Material::CopyFrom(const Material & rhs)
 {
 	m_Shader = rhs.m_Shader;
 	m_PassMask = rhs.m_PassMask;
-	m_MeshColor = rhs.m_MeshColor;
-	m_MeshTexture = rhs.m_MeshTexture;
-	m_NormalTexture = rhs.m_NormalTexture;
-	m_SpecularTexture = rhs.m_SpecularTexture;
-	m_ReflectTexture = rhs.m_ReflectTexture;
 }
 
 MaterialPtr Material::Clone(void) const
@@ -34,33 +96,20 @@ MaterialPtr Material::Clone(void) const
 
 void Material::RequestResource(void)
 {
-	if (!m_MeshTexture.m_Path.empty())
+	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+	for (; param_iter != m_ParameterList.end(); param_iter++)
 	{
-		m_MeshTexture.RequestResource();
-	}
-
-	if (!m_NormalTexture.m_Path.empty())
-	{
-		m_NormalTexture.RequestResource();
-	}
-
-	if (!m_SpecularTexture.m_Path.empty())
-	{
-		m_SpecularTexture.RequestResource();
-	}
-
-	if (!m_ReflectTexture.m_Path.empty())
-	{
-		m_ReflectTexture.RequestResource();
+		(*param_iter)->RequestResource();
 	}
 }
 
 void Material::ReleaseResource(void)
 {
-	m_MeshTexture.ReleaseResource();
-	m_NormalTexture.ReleaseResource();
-	m_SpecularTexture.ReleaseResource();
-	m_ReflectTexture.ReleaseResource();
+	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+	for (; param_iter != m_ParameterList.end(); param_iter++)
+	{
+		(*param_iter)->ReleaseResource();
+	}
 }
 
 void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
@@ -87,10 +136,19 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		break;
 	}
-	shader->SetVector("g_MeshColor", m_MeshColor);
-	shader->SetVector("g_RepeatUV", m_RepeatUV);
-	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
-	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
-	shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
-	shader->SetTexture("g_ReflectTexture", m_ReflectTexture.m_Res.get());
+
+	if (!m_ParameterList.empty() && !m_ParameterList.front()->m_Handle)
+	{
+		MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+		for (; param_iter != m_ParameterList.end(); param_iter++)
+		{
+			(*param_iter)->Init(shader);
+		}
+	}
+
+	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+	for (; param_iter != m_ParameterList.end(); param_iter++)
+	{
+		(*param_iter)->Set(shader);
+	}
 }

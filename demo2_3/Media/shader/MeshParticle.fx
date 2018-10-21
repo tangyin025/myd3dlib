@@ -33,7 +33,7 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return In.Tex0.xy * g_RepeatUV;
+	return In.Tex0.xy;
 }
 
 float3 TransformNormal(VS_INPUT In)
@@ -49,9 +49,4 @@ float3 TransformTangent(VS_INPUT In)
 float4 TransformLightWS(VS_INPUT In)
 {
 	return float4(mul(In.Pos, g_World).xyz, In.Tex2.x * 0.5);
-}
-
-float4 TransformColor(VS_INPUT In)
-{
-	return In.Color;
 }

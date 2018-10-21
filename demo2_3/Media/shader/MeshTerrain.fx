@@ -41,8 +41,8 @@ float4 TransformPosShadow(VS_INPUT In)
 float2 TransformUV(VS_INPUT In)
 {
 	return float2(
-		(float)In.Tex0.x / g_ChunkSize * g_RepeatUV.x,
-		(float)In.Tex0.y / g_ChunkSize * g_RepeatUV.y);
+		(float)In.Tex0.x / g_ChunkSize,
+		(float)In.Tex0.y / g_ChunkSize);
 }
 
 float3 TransformNormal(VS_INPUT In)
@@ -65,9 +65,4 @@ float3 TransformTangent(VS_INPUT In)
 float4 TransformLightWS(VS_INPUT In)
 {
 	return float4(0,0,0,0);
-}
-
-float4 TransformColor(VS_INPUT In)
-{
-	return g_MeshColor;
 }

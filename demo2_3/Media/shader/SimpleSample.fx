@@ -8,6 +8,18 @@
 
 #include "CommonHeader.fx"
 
+float4 g_MeshColor;
+
+texture g_MeshTexture;
+
+sampler MeshTextureSampler = sampler_state
+{
+    Texture = <g_MeshTexture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+};
+
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
 //--------------------------------------------------------------------------------------

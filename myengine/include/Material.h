@@ -4,6 +4,142 @@
 #include "myMath.h"
 #include "ResourceBundle.h"
 
+class MaterialParameter;
+
+typedef boost::shared_ptr<MaterialParameter> MaterialParameterPtr;
+
+class MaterialParameter
+{
+public:
+	enum ParameterType
+	{
+		ParameterTypeNone = 0,
+		ParameterTypeFloat,
+		ParameterTypeTexture,
+	};
+
+	ParameterType m_Type;
+
+	std::string m_Name;
+
+	D3DXHANDLE m_Handle;
+
+protected:
+	MaterialParameter(void)
+		: m_Type(ParameterTypeNone)
+		, m_Name()
+		, m_Handle(NULL)
+	{
+	}
+
+	MaterialParameter(ParameterType Type, const char * Name)
+		: m_Type(Type)
+		, m_Name(Name)
+		, m_Handle(NULL)
+	{
+	}
+
+public:
+	virtual ~MaterialParameter(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_Type);
+		ar & BOOST_SERIALIZATION_NVP(m_Name);
+	}
+
+	void Init(my::Effect * shader);
+
+	virtual void Set(my::Effect * shader)
+	{
+	}
+
+	virtual void RequestResource(void)
+	{
+	}
+
+	virtual void ReleaseResource(void)
+	{
+	}
+
+	virtual MaterialParameterPtr Clone(void) const
+	{
+		return MaterialParameterPtr(new MaterialParameter(m_Type, m_Name.c_str()));
+	}
+};
+
+class MaterialParameterFloat : public MaterialParameter
+{
+public:
+	float m_Value;
+
+protected:
+	MaterialParameterFloat(void)
+		: m_Value(0)
+	{
+	}
+
+public:
+	MaterialParameterFloat(const char * Name, float Value)
+		: MaterialParameter(ParameterTypeFloat, Name)
+		, m_Value(Value)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual void Set(my::Effect * shader);
+
+	virtual MaterialParameterPtr Clone(void) const;
+};
+
+class MaterialParameterTexture : public MaterialParameter
+{
+public:
+	ResourceBundle<my::BaseTexture> m_Texture;
+
+protected:
+	MaterialParameterTexture(void)
+	{
+	}
+
+public:
+	MaterialParameterTexture(const char * Name, const char * Path)
+		: MaterialParameter(ParameterTypeTexture, Name)
+		, m_Texture(Path)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+		ar & BOOST_SERIALIZATION_NVP(m_Texture);
+	}
+
+	virtual void Set(my::Effect * shader);
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	virtual MaterialParameterPtr Clone(void) const;
+};
+
 class Material;
 
 typedef boost::shared_ptr<Material> MaterialPtr;
@@ -30,17 +166,9 @@ public:
 
 	DWORD m_BlendMode;
 
-	my::Vector4 m_MeshColor;
+	typedef std::vector<MaterialParameterPtr> MaterialParameterPtrList;
 
-	my::Vector2 m_RepeatUV;
-
-	ResourceBundle<my::BaseTexture> m_MeshTexture;
-
-	ResourceBundle<my::BaseTexture> m_NormalTexture;
-
-	ResourceBundle<my::BaseTexture> m_SpecularTexture;
-
-	ResourceBundle<my::BaseTexture> m_ReflectTexture;
+	MaterialParameterPtrList m_ParameterList;
 
 public:
 	Material(void)
@@ -49,8 +177,6 @@ public:
 		, m_ZEnable(TRUE)
 		, m_ZWriteEnable(TRUE)
 		, m_BlendMode(BlendModeNone)
-		, m_MeshColor(1, 1, 1, 1)
-		, m_RepeatUV(1, 1)
 	{
 	}
 
@@ -58,21 +184,18 @@ public:
 	{
 	}
 
-	template <class Archive>
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_Shader);
-		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
-		ar & BOOST_SERIALIZATION_NVP(m_CullMode);
-		ar & BOOST_SERIALIZATION_NVP(m_ZEnable);
-		ar & BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
-		ar & BOOST_SERIALIZATION_NVP(m_BlendMode);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshColor);
-		ar & BOOST_SERIALIZATION_NVP(m_RepeatUV);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
-		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);
-		ar & BOOST_SERIALIZATION_NVP(m_SpecularTexture);
-		ar & BOOST_SERIALIZATION_NVP(m_ReflectTexture);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	void CopyFrom(const Material & rhs);

@@ -1,4 +1,33 @@
 
+float4 g_MeshColor = { 1,1,1,1 };
+texture g_MeshTexture;
+texture g_NormalTexture;
+texture g_SpecularTexture;
+
+sampler MeshTextureSampler = sampler_state
+{
+    Texture = <g_MeshTexture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+};
+
+sampler NormalTextureSampler = sampler_state
+{
+	Texture = <g_NormalTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
+sampler SpecularTextureSampler = sampler_state
+{
+	Texture = <g_SpecularTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
 struct SHADOW_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
@@ -83,7 +112,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
-	Output.Color = TransformColor(In);
+	Output.Color = g_MeshColor;
 	Output.Pos2 = Output.Pos;
 	Output.PosShadow = mul(TransformPosWS(In), g_SkyLightViewProj);
 	Output.View = mul(g_Eye - PosWS, (float3x3)g_View);

@@ -1,4 +1,23 @@
 
+texture g_NormalTexture;
+texture g_ReflectTexture;
+
+sampler NormalTextureSampler = sampler_state
+{
+	Texture = <g_NormalTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
+sampler ReflectTextureSampler = sampler_state
+{
+	Texture = <g_ReflectTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
 #define WAVE_LENGTH0 3.0
 #define WAVE_LENGTH1 3.0
 #define WAVE_LENGTH2 3.0
