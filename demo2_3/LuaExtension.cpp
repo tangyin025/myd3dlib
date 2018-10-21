@@ -920,6 +920,8 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("CullMode", &Material::m_ZEnable)
 			.def_readwrite("ZWriteEnable", &Material::m_ZWriteEnable)
 			.def_readwrite("BlendMode", &Material::m_BlendMode)
+			.def("AddParameterFloat", &Material::AddParameterFloat)
+			.def("AddParameterTexture", &Material::AddParameterTexture)
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.enum_("ComponentType")

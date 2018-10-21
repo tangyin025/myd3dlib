@@ -152,3 +152,13 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 		(*param_iter)->Set(shader);
 	}
 }
+
+void Material::AddParameterFloat(const char * Name, float Value)
+{
+	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
+}
+
+void Material::AddParameterTexture(const char * Name, const char * Path)
+{
+	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Path)));
+}

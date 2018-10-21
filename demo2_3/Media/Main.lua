@@ -29,9 +29,9 @@ lambert1.Shader="shader/lambert1.fx"
 lambert1.PassMask=Material.PassMaskOpaque
 -- lambert1.RepeatUV.x=64
 -- lambert1.RepeatUV.y=64
--- lambert1.MeshTexture.Path="texture/Checker.bmp"
--- lambert1.NormalTexture.Path="texture/Normal.dds"
--- lambert1.SpecularTexture.Path="texture/White.dds"
+lambert1:AddParameterTexture("g_MeshTexture", "texture/Checker.bmp")
+lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 cmp:AddMaterial(lambert1)
 cmp.MeshRes.Path="mesh/plane.mesh.xml"
 cmp.MeshRes.EventReady=function(args)
@@ -51,9 +51,9 @@ local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),
 local lambert2=Material()
 lambert2.Shader="shader/lambert1.fx"
 lambert2.PassMask=Material.PassMaskOpaque
--- lambert2.MeshTexture.Path="character/casual19_m_35.jpg"
--- lambert2.NormalTexture.Path="character/casual19_m_35_normal.png"
--- lambert2.SpecularTexture.Path="character/casual19_m_35_spec.png"
+lambert2:AddParameterTexture("g_MeshTexture", "character/casual19_m_35.jpg")
+lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
+lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
 local cmp=MeshComponent()
 cmp.MeshRes.Path="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshRes.EventReady=function(args)
@@ -117,9 +117,9 @@ local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1
 local lambert3=Material()
 lambert3.Shader="shader/lambert1.fx"
 lambert3.PassMask=Material.PassMaskOpaque
--- lambert3.MeshTexture.Path="texture/Checker.bmp"
--- lambert3.NormalTexture.Path="texture/Normal.dds"
--- lambert3.SpecularTexture.Path="texture/White.dds"
+lambert3:AddParameterTexture("g_MeshTexture", "texture/Checker.bmp")
+lambert3:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert3:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent()
 cmp2.MeshRes.Path="mesh/Cylinder.mesh.xml"
 cmp2.MeshRes.EventReady=function(args)
