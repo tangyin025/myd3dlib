@@ -306,15 +306,15 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZEnable);
 	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZWriteEnable);
 	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_BlendModeDesc[mat->m_BlendMode]);
-	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(6)))->SetColor(color);
-	pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshColor.w);
-	pMaterial->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)mat->m_RepeatUV.x);
-	pMaterial->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)mat->m_RepeatUV.y);
-	pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
-	pMaterial->GetSubItem(12)->SetValue((_variant_t)mat->m_ReflectTexture.m_Path.c_str());
+	//COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
+	//(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(6)))->SetColor(color);
+	//pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshColor.w);
+	//pMaterial->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)mat->m_RepeatUV.x);
+	//pMaterial->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)mat->m_RepeatUV.y);
+	//pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	//pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	//pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	//pMaterial->GetSubItem(12)->SetValue((_variant_t)mat->m_ReflectTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -618,26 +618,26 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 		pBlendMode->AddOption(g_BlendModeDesc[i], TRUE);
 	}
 	pMaterial->AddSubItem(pBlendMode);
-	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
-	CColorProp * pColor = new CColorProp(_T("MeshColor"), color, NULL, NULL, PropertyMaterialMeshColor);
-	pColor->EnableOtherButton(_T("Other..."));
-	pMaterial->AddSubItem(pColor);
-	CMFCPropertyGridProperty * pColorAlpha = new CSimpleProp(_T("MeshColorAlpha"), (_variant_t)mat->m_MeshColor.w, NULL, PropertyMaterialMeshColorAlpha);
-	pMaterial->AddSubItem(pColorAlpha);
-	CMFCPropertyGridProperty * pRepeatUV = new CSimpleProp(_T("RepeatUV"), PropertyMaterialRepeatUV, TRUE);
-	pMaterial->AddSubItem(pRepeatUV);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)mat->m_RepeatUV.x, NULL, PropertyMaterialRepeatUVX);
-	pRepeatUV->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)mat->m_RepeatUV.y, NULL, PropertyMaterialRepeatUVY);
-	pRepeatUV->AddSubItem(pProp);
-	pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)ms2ts(mat->m_MeshTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
-	pMaterial->AddSubItem(pProp);
-	pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)ms2ts(mat->m_NormalTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
-	pMaterial->AddSubItem(pProp);
-	pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)ms2ts(mat->m_SpecularTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
-	pMaterial->AddSubItem(pProp);
-	pProp = new CFileProp(_T("ReflectTexture"), TRUE, (_variant_t)ms2ts(mat->m_ReflectTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialReflectTexture);
-	pMaterial->AddSubItem(pProp);
+	//COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
+	//CColorProp * pColor = new CColorProp(_T("MeshColor"), color, NULL, NULL, PropertyMaterialMeshColor);
+	//pColor->EnableOtherButton(_T("Other..."));
+	//pMaterial->AddSubItem(pColor);
+	//CMFCPropertyGridProperty * pColorAlpha = new CSimpleProp(_T("MeshColorAlpha"), (_variant_t)mat->m_MeshColor.w, NULL, PropertyMaterialMeshColorAlpha);
+	//pMaterial->AddSubItem(pColorAlpha);
+	//CMFCPropertyGridProperty * pRepeatUV = new CSimpleProp(_T("RepeatUV"), PropertyMaterialRepeatUV, TRUE);
+	//pMaterial->AddSubItem(pRepeatUV);
+	//pProp = new CSimpleProp(_T("x"), (_variant_t)mat->m_RepeatUV.x, NULL, PropertyMaterialRepeatUVX);
+	//pRepeatUV->AddSubItem(pProp);
+	//pProp = new CSimpleProp(_T("y"), (_variant_t)mat->m_RepeatUV.y, NULL, PropertyMaterialRepeatUVY);
+	//pRepeatUV->AddSubItem(pProp);
+	//pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)ms2ts(mat->m_MeshTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
+	//pMaterial->AddSubItem(pProp);
+	//pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)ms2ts(mat->m_NormalTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
+	//pMaterial->AddSubItem(pProp);
+	//pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)ms2ts(mat->m_SpecularTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
+	//pMaterial->AddSubItem(pProp);
+	//pProp = new CFileProp(_T("ReflectTexture"), TRUE, (_variant_t)ms2ts(mat->m_ReflectTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialReflectTexture);
+	//pMaterial->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -1223,90 +1223,90 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	case PropertyMaterialMeshColor:
-		{
-			CColorProp * pColor = DYNAMIC_DOWNCAST(CColorProp, pProp);
-			ASSERT(pColor);
-			COLORREF color = pColor->GetColor();
-			Material * material = (Material *)pColor->GetParent()->GetValue().ulVal;
-			material->m_MeshColor.x = GetRValue(color) / 255.0f;
-			material->m_MeshColor.y = GetGValue(color) / 255.0f;
-			material->m_MeshColor.z = GetBValue(color) / 255.0f;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialMeshColorAlpha:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_MeshColor.w = pProp->GetValue().fltVal;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialRepeatUV:
-	case PropertyMaterialRepeatUVX:
-	case PropertyMaterialRepeatUVY:
-		{
-			CMFCPropertyGridProperty * pMaterial = NULL;
-			switch (PropertyId)
-			{
-			case PropertyMaterialRepeatUV:
-				pMaterial = pProp->GetParent();
-				break;
-			case PropertyMaterialRepeatUVX:
-			case PropertyMaterialRepeatUVY:
-				pMaterial = pProp->GetParent()->GetParent();
-				break;
-			}
-			Material * material = (Material *)pMaterial->GetValue().ulVal;
-			material->m_RepeatUV = my::Vector2(
-				pMaterial->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal,
-				pMaterial->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialMeshTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_MeshTexture.ReleaseResource();
-			material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_MeshTexture.RequestResource();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialNormalTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_NormalTexture.ReleaseResource();
-			material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_NormalTexture.RequestResource();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialSpecularTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_SpecularTexture.ReleaseResource();
-			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_SpecularTexture.RequestResource();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialReflectTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_ReflectTexture.ReleaseResource();
-			material->m_ReflectTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_ReflectTexture.RequestResource();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-	}
-		break;
+	//case PropertyMaterialMeshColor:
+	//	{
+	//		CColorProp * pColor = DYNAMIC_DOWNCAST(CColorProp, pProp);
+	//		ASSERT(pColor);
+	//		COLORREF color = pColor->GetColor();
+	//		Material * material = (Material *)pColor->GetParent()->GetValue().ulVal;
+	//		material->m_MeshColor.x = GetRValue(color) / 255.0f;
+	//		material->m_MeshColor.y = GetGValue(color) / 255.0f;
+	//		material->m_MeshColor.z = GetBValue(color) / 255.0f;
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyMaterialMeshColorAlpha:
+	//	{
+	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+	//		material->m_MeshColor.w = pProp->GetValue().fltVal;
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyMaterialRepeatUV:
+	//case PropertyMaterialRepeatUVX:
+	//case PropertyMaterialRepeatUVY:
+	//	{
+	//		CMFCPropertyGridProperty * pMaterial = NULL;
+	//		switch (PropertyId)
+	//		{
+	//		case PropertyMaterialRepeatUV:
+	//			pMaterial = pProp->GetParent();
+	//			break;
+	//		case PropertyMaterialRepeatUVX:
+	//		case PropertyMaterialRepeatUVY:
+	//			pMaterial = pProp->GetParent()->GetParent();
+	//			break;
+	//		}
+	//		Material * material = (Material *)pMaterial->GetValue().ulVal;
+	//		material->m_RepeatUV = my::Vector2(
+	//			pMaterial->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal,
+	//			pMaterial->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal);
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyMaterialMeshTexture:
+	//	{
+	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+	//		material->m_MeshTexture.ReleaseResource();
+	//		material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+	//		material->m_MeshTexture.RequestResource();
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyMaterialNormalTexture:
+	//	{
+	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+	//		material->m_NormalTexture.ReleaseResource();
+	//		material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+	//		material->m_NormalTexture.RequestResource();
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyMaterialSpecularTexture:
+	//	{
+	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+	//		material->m_SpecularTexture.ReleaseResource();
+	//		material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+	//		material->m_SpecularTexture.RequestResource();
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyMaterialReflectTexture:
+	//	{
+	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+	//		material->m_ReflectTexture.ReleaseResource();
+	//		material->m_ReflectTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+	//		material->m_ReflectTexture.RequestResource();
+	//		EventArgs arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//}
+	//	break;
 	case PropertyClothSceneCollision:
 		{
 			ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
