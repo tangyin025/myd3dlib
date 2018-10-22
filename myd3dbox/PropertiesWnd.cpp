@@ -653,6 +653,26 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	//pMaterial->AddSubItem(pProp);
 	//pProp = new CFileProp(_T("ReflectTexture"), TRUE, (_variant_t)ms2ts(mat->m_ReflectTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialReflectTexture);
 	//pMaterial->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pParameterList = new CSimpleProp(_T("Parameters"), PropertyMaterialParameterList, TRUE);
+	pMaterial->AddSubItem(pParameterList);
+	Material::MaterialParameterPtrList::iterator param_iter = mat->m_ParameterList.begin();
+	for (; param_iter != mat->m_ParameterList.end(); param_iter++)
+	{
+		switch ((*param_iter)->m_Type)
+		{
+		case MaterialParameter::ParameterTypeFloat:
+			pProp = new CSimpleProp(ms2ts((*param_iter)->m_Name).c_str(), (_variant_t)
+				boost::dynamic_pointer_cast<MaterialParameterFloat>(*param_iter)->m_Value, NULL, PropertyMaterialParameterFloat);
+			pParameterList->AddSubItem(pProp);
+			break;
+		case MaterialParameter::ParameterTypeTexture:
+			pProp = new CFileProp(ms2ts((*param_iter)->m_Name).c_str(), TRUE, (_variant_t)
+				ms2ts(boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_Texture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
+			pParameterList->AddSubItem(pProp);
+			break;
+		}
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
