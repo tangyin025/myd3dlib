@@ -315,6 +315,21 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	//pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
 	//pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 	//pMaterial->GetSubItem(12)->SetValue((_variant_t)mat->m_ReflectTexture.m_Path.c_str());
+
+	for (int i = 0; i < mat->m_ParameterList.size(); i++)
+	{
+		switch (mat->m_ParameterList[i]->m_Type)
+		{
+		case MaterialParameter::ParameterTypeFloat:
+			pMaterial->GetSubItem(6)->GetSubItem(i)->SetValue((_variant_t)
+				boost::dynamic_pointer_cast<MaterialParameterFloat>(mat->m_ParameterList[i])->m_Value);
+			break;
+		case MaterialParameter::ParameterTypeTexture:
+			pMaterial->GetSubItem(6)->GetSubItem(i)->SetValue((_variant_t)
+				boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_Texture.m_Path.c_str());
+			break;
+		}
+	}
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
