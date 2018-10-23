@@ -674,6 +674,9 @@ void CMainFrame::OnComponentMesh()
 		//lambert1->m_MeshTexture.m_Path = theApp.default_texture;
 		//lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
 		//lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
+		lambert1->AddParameterTexture("g_MeshTexture", theApp.default_texture.c_str());
+		lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture.c_str());
+		lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture.c_str());
 		mesh_cmp->m_MaterialList.push_back(lambert1);
 	}
 	mesh_cmp->RequestResource();

@@ -1363,7 +1363,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			tex.RequestResource();
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
-	}
+		}
 		break;
 	case PropertyClothSceneCollision:
 		{
