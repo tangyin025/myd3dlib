@@ -316,7 +316,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	//pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 	//pMaterial->GetSubItem(12)->SetValue((_variant_t)mat->m_ReflectTexture.m_Path.c_str());
 
-	for (int i = 0; i < mat->m_ParameterList.size(); i++)
+	for (unsigned int i = 0; i < mat->m_ParameterList.size(); i++)
 	{
 		switch (mat->m_ParameterList[i]->m_Type)
 		{
@@ -654,7 +654,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	//pProp = new CFileProp(_T("ReflectTexture"), TRUE, (_variant_t)ms2ts(mat->m_ReflectTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialReflectTexture);
 	//pMaterial->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pParameterList = new CSimpleProp(_T("Parameters"), PropertyMaterialParameterList, TRUE);
+	CMFCPropertyGridProperty * pParameterList = new CSimpleProp(_T("Parameters"), PropertyMaterialParameterList, FALSE);
 	pMaterial->AddSubItem(pParameterList);
 	Material::MaterialParameterPtrList::iterator param_iter = mat->m_ParameterList.begin();
 	for (; param_iter != mat->m_ParameterList.end(); param_iter++)
@@ -1342,6 +1342,29 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		pFrame->m_EventAttributeChanged(&arg);
 	//}
 	//	break;
+	case PropertyMaterialParameterFloat:
+		{
+			Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+			INT i = CSimpleProp::GetSubIndexInParent(pProp);
+			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
+			boost::dynamic_pointer_cast<MaterialParameterFloat>(mat->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialParameterTexture:
+		{
+			Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+			INT i = CSimpleProp::GetSubIndexInParent(pProp);
+			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
+			ResourceBundle<my::BaseTexture> & tex = boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_Texture;
+			tex.ReleaseResource();
+			tex.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			tex.RequestResource();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+	}
+		break;
 	case PropertyClothSceneCollision:
 		{
 			ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;

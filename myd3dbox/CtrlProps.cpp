@@ -102,6 +102,23 @@ BOOL CMFCPropertyGridCtrlReader::DeleteProperty(CMFCPropertyGridProperty*& pProp
 
 IMPLEMENT_DYNAMIC(CSimpleProp, CMFCPropertyGridProperty)
 
+INT CSimpleProp::GetSubIndexInParent(CMFCPropertyGridProperty * pProp)
+{
+	CSimpleProp * pParent = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
+	INT i = 0;
+	for (POSITION pos = pParent->m_lstSubItems.GetHeadPosition(); pos != NULL; i++)
+	{
+		CMFCPropertyGridProperty* pSub = pParent->m_lstSubItems.GetNext(pos);
+		ASSERT_VALID(pSub);
+		if (pSub == pProp)
+		{
+			return i;
+		}
+	}
+	ASSERT(FALSE);
+	return 0;
+}
+
 void CSimpleProp::SetValue(const COleVariant& varValue)
 {
 	ASSERT_VALID(this);

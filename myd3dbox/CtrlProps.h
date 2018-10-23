@@ -35,6 +35,8 @@ public:
 	{
 	}
 
+	static INT GetSubIndexInParent(CMFCPropertyGridProperty * pProp);
+
 	virtual void SetValue(const COleVariant& varValue);
 
 	DECLARE_DYNAMIC(CSimpleProp)
