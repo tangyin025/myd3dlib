@@ -1,5 +1,6 @@
 #include "Material.h"
 #include "myEffect.h"
+#include <boost/regex.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -9,6 +10,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include "myDxutApp.h"
 
 using namespace my;
 
@@ -150,6 +152,22 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 	for (; param_iter != m_ParameterList.end(); param_iter++)
 	{
 		(*param_iter)->Set(shader);
+	}
+}
+
+void Material::ParseParamters(void)
+{
+	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
+	cache->push_back(0);
+	boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter");
+	boost::match_results<const char *> what;
+	if (boost::regex_search((const char *)&(*cache)[0], what, reg, boost::match_default))
+	{
+		for (int i = 0; i < what.length(); i++)
+		{
+			std::string str = what[i];
+			my::DxutApp::getSingleton().m_EventLog(str.c_str());
+		}
 	}
 }
 

@@ -1,8 +1,8 @@
 
-float4 g_MeshColor = { 1,1,1,1 };
-texture g_MeshTexture;
-texture g_NormalTexture;
-texture g_SpecularTexture;
+float4 g_MeshColor:MaterialParameter = { 1,1,1,1 };
+texture g_MeshTexture:MaterialParameter;
+texture g_NormalTexture:MaterialParameter;
+texture g_SpecularTexture:MaterialParameter;
 
 sampler MeshTextureSampler = sampler_state
 {

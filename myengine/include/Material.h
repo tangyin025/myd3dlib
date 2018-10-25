@@ -208,6 +208,8 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
+	void ParseParamters(void);
+
 	void AddParameterFloat(const char * Name, float Value);
 
 	void AddParameterTexture(const char * Name, const char * Path);

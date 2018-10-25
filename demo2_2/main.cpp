@@ -9,6 +9,8 @@
 #include <boost/multi_array.hpp>
 #include <fstream>
 #include <PrintCallStack.h>
+#include <shlobj.h>
+#include "Material.h"
 
 using namespace my;
 
@@ -178,6 +180,17 @@ public:
 			return hr;
 		}
 
+		TCHAR szPath[MAX_PATH];
+		if (SUCCEEDED(SHGetFolderPath(NULL,
+			CSIDL_APPDATA | CSIDL_FLAG_CREATE,
+			NULL,
+			0,
+			szPath)))
+		{
+			PathAppend(szPath, TEXT("New Doc.txt"));
+			//HANDLE hFile = CreateFile(szPath, ...);
+		}
+
 		//DialogPtr dlg(new Dialog());
 		//dlg->m_Color = D3DCOLOR_ARGB(150,0,0,0);
 		//dlg->m_Size = Vector2(640,480);
@@ -239,6 +252,10 @@ public:
 
 		m_Tex.reset(new my::Texture2D());
 		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
+
+		Material mat;
+		mat.m_Shader = "shader/lambert1.fx";
+		mat.ParseParamters();
 
 		DialogPtr dlg(new Dialog());
 		dlg->m_Size = Vector2(400, 400);
