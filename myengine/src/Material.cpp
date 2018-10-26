@@ -1,6 +1,7 @@
 #include "Material.h"
 #include "myEffect.h"
 #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -161,7 +162,7 @@ void Material::ParseShaderParamters(void)
 	{
 		CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 		cache->push_back(0);
-		boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter");
+		boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
 		boost::match_results<const char *> what;
 		const char * start = (const char *)&(*cache)[0];
 		const char * end = (const char *)&(*cache)[cache->size() - 1];
@@ -169,13 +170,29 @@ void Material::ParseShaderParamters(void)
 		{
 			std::string Type = what[1];
 			std::string Name = what[2];
+			std::string Annotations = what[3];
+			std::string Initialize = what[4];
 			if (Type == "float")
 			{
-				AddParameterFloat(Name.c_str(), 0.0f);
+				float Value = 0.0f;
+				boost::regex reg2("-?\\d+(\\.\\d+)?");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
+				{
+					Value = boost::lexical_cast<float>(what2[0]);
+				}
+				AddParameterFloat(Name.c_str(), Value);
 			}
 			else if (Type == "texture")
 			{
-				AddParameterTexture(Name.c_str(), "");
+				std::string Path;
+				boost::regex reg2("string\\s+Initialize\\s*=\\s*\\\"([^\"]+)\\\"");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Annotations, what2, reg2, boost::match_default))
+				{
+					Path = what2[1];
+				}
+				AddParameterTexture(Name.c_str(), Path.c_str());
 			}
 			start = what[0].second;
 		}
