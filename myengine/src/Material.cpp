@@ -155,18 +155,29 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, D
 	}
 }
 
-void Material::ParseParamters(void)
+void Material::ParseShaderParamters(void)
 {
-	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
-	cache->push_back(0);
-	boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter");
-	boost::match_results<const char *> what;
-	if (boost::regex_search((const char *)&(*cache)[0], what, reg, boost::match_default))
+	if (!m_Shader.empty())
 	{
-		for (int i = 0; i < what.length(); i++)
+		CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
+		cache->push_back(0);
+		boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter");
+		boost::match_results<const char *> what;
+		const char * start = (const char *)&(*cache)[0];
+		const char * end = (const char *)&(*cache)[cache->size() - 1];
+		while (boost::regex_search(start, end, what, reg, boost::match_default))
 		{
-			std::string str = what[i];
-			my::DxutApp::getSingleton().m_EventLog(str.c_str());
+			std::string Type = what[1];
+			std::string Name = what[2];
+			if (Type == "float")
+			{
+				AddParameterFloat(Name.c_str(), 0.0f);
+			}
+			else if (Type == "texture")
+			{
+				AddParameterTexture(Name.c_str(), "");
+			}
+			start = what[0].second;
 		}
 	}
 }
