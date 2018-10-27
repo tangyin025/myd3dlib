@@ -306,15 +306,6 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZEnable);
 	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZWriteEnable);
 	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_BlendModeDesc[mat->m_BlendMode]);
-	//COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
-	//(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(6)))->SetColor(color);
-	//pMaterial->GetSubItem(7)->SetValue((_variant_t)mat->m_MeshColor.w);
-	//pMaterial->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)mat->m_RepeatUV.x);
-	//pMaterial->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)mat->m_RepeatUV.y);
-	//pMaterial->GetSubItem(9)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	//pMaterial->GetSubItem(10)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	//pMaterial->GetSubItem(11)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
-	//pMaterial->GetSubItem(12)->SetValue((_variant_t)mat->m_ReflectTexture.m_Path.c_str());
 
 	for (unsigned int i = 0; i < mat->m_ParameterList.size(); i++)
 	{
@@ -324,6 +315,30 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 			pMaterial->GetSubItem(6)->GetSubItem(i)->SetValue((_variant_t)
 				boost::dynamic_pointer_cast<MaterialParameterFloat>(mat->m_ParameterList[i])->m_Value);
 			break;
+		case MaterialParameter::ParameterTypeFloat2:
+		{
+			const my::Vector2 & Value = boost::dynamic_pointer_cast<MaterialParameterFloat2>(mat->m_ParameterList[i])->m_Value;
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(0)->SetValue((_variant_t)Value.x);
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(1)->SetValue((_variant_t)Value.y);
+			break;
+		}
+		case MaterialParameter::ParameterTypeFloat3:
+		{
+			const my::Vector3 & Value = boost::dynamic_pointer_cast<MaterialParameterFloat3>(mat->m_ParameterList[i])->m_Value;
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(0)->SetValue((_variant_t)Value.x);
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(1)->SetValue((_variant_t)Value.y);
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(2)->SetValue((_variant_t)Value.z);
+			break;
+		}
+		case MaterialParameter::ParameterTypeFloat4:
+		{
+			const my::Vector4 & Value = boost::dynamic_pointer_cast<MaterialParameterFloat4>(mat->m_ParameterList[i])->m_Value;
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(0)->SetValue((_variant_t)Value.x);
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(1)->SetValue((_variant_t)Value.y);
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(2)->SetValue((_variant_t)Value.z);
+			pMaterial->GetSubItem(6)->GetSubItem(i)->GetSubItem(3)->SetValue((_variant_t)Value.w);
+			break;
+		}
 		case MaterialParameter::ParameterTypeTexture:
 			pMaterial->GetSubItem(6)->GetSubItem(i)->SetValue((_variant_t)
 				boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_Texture.m_Path.c_str());
@@ -633,26 +648,6 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 		pBlendMode->AddOption(g_BlendModeDesc[i], TRUE);
 	}
 	pMaterial->AddSubItem(pBlendMode);
-	//COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
-	//CColorProp * pColor = new CColorProp(_T("MeshColor"), color, NULL, NULL, PropertyMaterialMeshColor);
-	//pColor->EnableOtherButton(_T("Other..."));
-	//pMaterial->AddSubItem(pColor);
-	//CMFCPropertyGridProperty * pColorAlpha = new CSimpleProp(_T("MeshColorAlpha"), (_variant_t)mat->m_MeshColor.w, NULL, PropertyMaterialMeshColorAlpha);
-	//pMaterial->AddSubItem(pColorAlpha);
-	//CMFCPropertyGridProperty * pRepeatUV = new CSimpleProp(_T("RepeatUV"), PropertyMaterialRepeatUV, TRUE);
-	//pMaterial->AddSubItem(pRepeatUV);
-	//pProp = new CSimpleProp(_T("x"), (_variant_t)mat->m_RepeatUV.x, NULL, PropertyMaterialRepeatUVX);
-	//pRepeatUV->AddSubItem(pProp);
-	//pProp = new CSimpleProp(_T("y"), (_variant_t)mat->m_RepeatUV.y, NULL, PropertyMaterialRepeatUVY);
-	//pRepeatUV->AddSubItem(pProp);
-	//pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)ms2ts(mat->m_MeshTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
-	//pMaterial->AddSubItem(pProp);
-	//pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)ms2ts(mat->m_NormalTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
-	//pMaterial->AddSubItem(pProp);
-	//pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)ms2ts(mat->m_SpecularTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
-	//pMaterial->AddSubItem(pProp);
-	//pProp = new CFileProp(_T("ReflectTexture"), TRUE, (_variant_t)ms2ts(mat->m_ReflectTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialReflectTexture);
-	//pMaterial->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pParameterList = new CSimpleProp(_T("Parameters"), PropertyMaterialParameterList, FALSE);
 	pMaterial->AddSubItem(pParameterList);
@@ -666,6 +661,45 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 				boost::dynamic_pointer_cast<MaterialParameterFloat>(*param_iter)->m_Value, NULL, PropertyMaterialParameterFloat);
 			pParameterList->AddSubItem(pProp);
 			break;
+		case MaterialParameter::ParameterTypeFloat2:
+		{
+			const my::Vector2 & Value = boost::dynamic_pointer_cast<MaterialParameterFloat2>(*param_iter)->m_Value;
+			CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts((*param_iter)->m_Name).c_str(), PropertyMaterialParameterFloat2, TRUE);
+			pParameterList->AddSubItem(pParameter);
+			pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
+			pParameter->AddSubItem(pProp);
+			pProp = new CSimpleProp(_T("y"), (_variant_t)Value.y, NULL, PropertyMaterialParameterFloatValueY);
+			pParameter->AddSubItem(pProp);
+			break;
+		}
+		case MaterialParameter::ParameterTypeFloat3:
+		{
+			const my::Vector3 & Value = boost::dynamic_pointer_cast<MaterialParameterFloat3>(*param_iter)->m_Value;
+			CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts((*param_iter)->m_Name).c_str(), PropertyMaterialParameterFloat3, TRUE);
+			pParameterList->AddSubItem(pParameter);
+			pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
+			pParameter->AddSubItem(pProp);
+			pProp = new CSimpleProp(_T("y"), (_variant_t)Value.y, NULL, PropertyMaterialParameterFloatValueY);
+			pParameter->AddSubItem(pProp);
+			pProp = new CSimpleProp(_T("z"), (_variant_t)Value.z, NULL, PropertyMaterialParameterFloatValueZ);
+			pParameter->AddSubItem(pProp);
+			break;
+		}
+		case MaterialParameter::ParameterTypeFloat4:
+		{
+			const my::Vector4 & Value = boost::dynamic_pointer_cast<MaterialParameterFloat4>(*param_iter)->m_Value;
+			CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts((*param_iter)->m_Name).c_str(), PropertyMaterialParameterFloat4, TRUE);
+			pParameterList->AddSubItem(pParameter);
+			pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
+			pParameter->AddSubItem(pProp);
+			pProp = new CSimpleProp(_T("y"), (_variant_t)Value.y, NULL, PropertyMaterialParameterFloatValueY);
+			pParameter->AddSubItem(pProp);
+			pProp = new CSimpleProp(_T("z"), (_variant_t)Value.z, NULL, PropertyMaterialParameterFloatValueZ);
+			pParameter->AddSubItem(pProp);
+			pProp = new CSimpleProp(_T("w"), (_variant_t)Value.w, NULL, PropertyMaterialParameterFloatValueW);
+			pParameter->AddSubItem(pProp);
+			break;
+		}
 		case MaterialParameter::ParameterTypeTexture:
 			pProp = new CFileProp(ms2ts((*param_iter)->m_Name).c_str(), TRUE, (_variant_t)
 				ms2ts(boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_Texture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
@@ -1056,36 +1090,36 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyActorMaxX:
 	case PropertyActorMaxY:
 	case PropertyActorMaxZ:
+	{
+		CMFCPropertyGridProperty * pAABB = NULL;
+		switch (PropertyId)
 		{
-			CMFCPropertyGridProperty * pAABB = NULL;
-			switch (PropertyId)
-			{
-			case PropertyActorAABB:
-				pAABB = pProp;
-				break;
-			case PropertyActorMinX:
-			case PropertyActorMinY:
-			case PropertyActorMinZ:
-			case PropertyActorMaxX:
-			case PropertyActorMaxY:
-			case PropertyActorMaxZ:
-				pAABB = pProp->GetParent();
-				break;
-			}
-			Actor * actor = (Actor *)pAABB->GetParent()->GetValue().ulVal;
-			actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
-			actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
-			actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
-			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
-			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
-			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
-			actor->OnWorldChanged();
-			pFrame->UpdateSelBox();
-			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
+		case PropertyActorAABB:
+			pAABB = pProp;
+			break;
+		case PropertyActorMinX:
+		case PropertyActorMinY:
+		case PropertyActorMinZ:
+		case PropertyActorMaxX:
+		case PropertyActorMaxY:
+		case PropertyActorMaxZ:
+			pAABB = pProp->GetParent();
+			break;
 		}
+		Actor * actor = (Actor *)pAABB->GetParent()->GetValue().ulVal;
+		actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
+		actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
+		actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
+		actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
+		actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
+		actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
+		actor->OnWorldChanged();
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyActorPos:
 	case PropertyActorPosX:
 	case PropertyActorPosY:
@@ -1098,299 +1132,263 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyActorScaleX:
 	case PropertyActorScaleY:
 	case PropertyActorScaleZ:
+	{
+		CMFCPropertyGridProperty * pComponent = NULL;
+		switch (PropertyId)
 		{
-			CMFCPropertyGridProperty * pComponent = NULL;
-			switch (PropertyId)
-			{
-			case PropertyActorPos:
-			case PropertyActorRot:
-			case PropertyActorScale:
-				pComponent = pProp->GetParent();
-				break;
-			default:
-				pComponent = pProp->GetParent()->GetParent();
-				break;
-			}
-			Actor * actor = (Actor *)pComponent->GetValue().ulVal;
-			actor->m_Position.x = pComponent->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
-			actor->m_Position.y = pComponent->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
-			actor->m_Position.z = pComponent->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
-			actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
-				D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
-				D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
-				D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
-			actor->m_Scale.x = pComponent->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
-			actor->m_Scale.y = pComponent->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
-			actor->m_Scale.z = pComponent->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal;
-			actor->UpdateAABB();
-			actor->UpdateWorld();
-			actor->OnWorldChanged();
-			pFrame->UpdateSelBox();
-			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
+		case PropertyActorPos:
+		case PropertyActorRot:
+		case PropertyActorScale:
+			pComponent = pProp->GetParent();
+			break;
+		default:
+			pComponent = pProp->GetParent()->GetParent();
+			break;
 		}
+		Actor * actor = (Actor *)pComponent->GetValue().ulVal;
+		actor->m_Position.x = pComponent->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
+		actor->m_Position.y = pComponent->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
+		actor->m_Position.z = pComponent->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
+		actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
+			D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
+			D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
+			D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
+		actor->m_Scale.x = pComponent->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
+		actor->m_Scale.y = pComponent->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
+		actor->m_Scale.z = pComponent->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal;
+		actor->UpdateAABB();
+		actor->UpdateWorld();
+		actor->OnWorldChanged();
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyActorRigidActor:
-		{
-			Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
-			actor->ClearRigidActor();
-			actor->CreateRigidActor((physx::PxActorType::Enum)i);
-			actor->OnEnterPxScene(pFrame);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
+		actor->ClearRigidActor();
+		actor->CreateRigidActor((physx::PxActorType::Enum)i);
+		actor->OnEnterPxScene(pFrame);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyComponentShape:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
+		CShapeDlg dlg(pFrame, cmp, i);
+		switch (i)
 		{
-			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
-			CShapeDlg dlg(pFrame, cmp, i);
-			switch (i)
+		case physx::PxGeometryType::eSPHERE:
+		case physx::PxGeometryType::ePLANE:
+		case physx::PxGeometryType::eCAPSULE:
+		case physx::PxGeometryType::eBOX:
+		case physx::PxGeometryType::eCONVEXMESH:
+		case physx::PxGeometryType::eTRIANGLEMESH:
+		case physx::PxGeometryType::eHEIGHTFIELD:
+			if (dlg.DoModal() == IDOK)
 			{
-			case physx::PxGeometryType::eSPHERE:
-			case physx::PxGeometryType::ePLANE:
-			case physx::PxGeometryType::eCAPSULE:
-			case physx::PxGeometryType::eBOX:
-			case physx::PxGeometryType::eCONVEXMESH:
-			case physx::PxGeometryType::eTRIANGLEMESH:
-			case physx::PxGeometryType::eHEIGHTFIELD:
-				if (dlg.DoModal() == IDOK)
-				{
-					EventArgs arg;
-					pFrame->m_EventAttributeChanged(&arg);
-				}
-				break;
-			default:
-				cmp->ClearShape();
-				break;
+				EventArgs arg;
+				pFrame->m_EventAttributeChanged(&arg);
 			}
+			break;
+		default:
+			cmp->ClearShape();
+			break;
 		}
 		break;
+	}
 	case PropertyMeshResPath:
-		{
-			//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			//mesh_cmp->m_MeshRes.ReleaseResource();
-			//mesh_cmp->m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			//mesh_cmp->m_MeshRes.RequestResource();
-			//EventArgs arg;
-			//pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+		//mesh_cmp->m_MeshRes.ReleaseResource();
+		//mesh_cmp->m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
+		//mesh_cmp->m_MeshRes.RequestResource();
+		//EventArgs arg;
+		//pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMeshInstance:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMeshUseAnimation:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			mesh_cmp->m_bUseAnimation = pProp->GetValue().boolVal != 0;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+		mesh_cmp->m_bUseAnimation = pProp->GetValue().boolVal != 0;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMeshNavigation:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			mesh_cmp->m_bNavigation = pProp->GetValue().boolVal != 0;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+		mesh_cmp->m_bNavigation = pProp->GetValue().boolVal != 0;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMaterialShader:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMaterialPassMask:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			ASSERT(i >= 0 && i < _countof(g_PassMaskDesc));
-			material->m_PassMask = g_PassMaskDesc[i].mask;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_PassMaskDesc));
+		material->m_PassMask = g_PassMaskDesc[i].mask;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMaterialCullMode:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			ASSERT(i >= 0 && i < _countof(g_CullModeDesc));
-			material->m_CullMode = i + 1;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_CullModeDesc));
+		material->m_CullMode = i + 1;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMaterialZEnable:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_ZEnable = pProp->GetValue().boolVal != 0;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		material->m_ZEnable = pProp->GetValue().boolVal != 0;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMaterialZWriteEnable:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_ZWriteEnable = pProp->GetValue().boolVal != 0;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		material->m_ZWriteEnable = pProp->GetValue().boolVal != 0;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyMaterialBlendMode:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			ASSERT(i >= 0 && i < _countof(g_BlendModeDesc));
-			material->m_BlendMode = i;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_BlendModeDesc));
+		material->m_BlendMode = i;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
-	//case PropertyMaterialMeshColor:
-	//	{
-	//		CColorProp * pColor = DYNAMIC_DOWNCAST(CColorProp, pProp);
-	//		ASSERT(pColor);
-	//		COLORREF color = pColor->GetColor();
-	//		Material * material = (Material *)pColor->GetParent()->GetValue().ulVal;
-	//		material->m_MeshColor.x = GetRValue(color) / 255.0f;
-	//		material->m_MeshColor.y = GetGValue(color) / 255.0f;
-	//		material->m_MeshColor.z = GetBValue(color) / 255.0f;
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMaterialMeshColorAlpha:
-	//	{
-	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-	//		material->m_MeshColor.w = pProp->GetValue().fltVal;
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMaterialRepeatUV:
-	//case PropertyMaterialRepeatUVX:
-	//case PropertyMaterialRepeatUVY:
-	//	{
-	//		CMFCPropertyGridProperty * pMaterial = NULL;
-	//		switch (PropertyId)
-	//		{
-	//		case PropertyMaterialRepeatUV:
-	//			pMaterial = pProp->GetParent();
-	//			break;
-	//		case PropertyMaterialRepeatUVX:
-	//		case PropertyMaterialRepeatUVY:
-	//			pMaterial = pProp->GetParent()->GetParent();
-	//			break;
-	//		}
-	//		Material * material = (Material *)pMaterial->GetValue().ulVal;
-	//		material->m_RepeatUV = my::Vector2(
-	//			pMaterial->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal,
-	//			pMaterial->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal);
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMaterialMeshTexture:
-	//	{
-	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-	//		material->m_MeshTexture.ReleaseResource();
-	//		material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-	//		material->m_MeshTexture.RequestResource();
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMaterialNormalTexture:
-	//	{
-	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-	//		material->m_NormalTexture.ReleaseResource();
-	//		material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-	//		material->m_NormalTexture.RequestResource();
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMaterialSpecularTexture:
-	//	{
-	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-	//		material->m_SpecularTexture.ReleaseResource();
-	//		material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-	//		material->m_SpecularTexture.RequestResource();
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMaterialReflectTexture:
-	//	{
-	//		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-	//		material->m_ReflectTexture.ReleaseResource();
-	//		material->m_ReflectTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-	//		material->m_ReflectTexture.RequestResource();
-	//		EventArgs arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//}
-	//	break;
+	}
 	case PropertyMaterialParameterFloat:
-		{
-			Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-			INT i = CSimpleProp::GetSubIndexInParent(pProp);
-			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
-			boost::dynamic_pointer_cast<MaterialParameterFloat>(mat->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		INT i = CSimpleProp::GetSubIndexInParent(pProp);
+		ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
+		boost::dynamic_pointer_cast<MaterialParameterFloat>(mat->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
+	case PropertyMaterialParameterFloat2:
+	case PropertyMaterialParameterFloat3:
+	case PropertyMaterialParameterFloat4:
+	case PropertyMaterialParameterFloatValueX:
+	case PropertyMaterialParameterFloatValueY:
+	case PropertyMaterialParameterFloatValueZ:
+	case PropertyMaterialParameterFloatValueW:
+	{
+		CMFCPropertyGridProperty * pParameter = NULL;
+		switch (PropertyId)
+		{
+		case PropertyMaterialParameterFloat2:
+		case PropertyMaterialParameterFloat3:
+		case PropertyMaterialParameterFloat4:
+			pParameter = pProp;
+			break;
+		case PropertyMaterialParameterFloatValueX:
+		case PropertyMaterialParameterFloatValueY:
+		case PropertyMaterialParameterFloatValueZ:
+		case PropertyMaterialParameterFloatValueW:
+			pParameter = pProp->GetParent();
+			break;
+		}
+		ASSERT(pParameter);
+		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		INT i = CSimpleProp::GetSubIndexInParent(pProp);
+		switch (pProp->GetData())
+		{
+		case PropertyMaterialParameterFloat2:
+			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat2);
+			boost::dynamic_pointer_cast<MaterialParameterFloat2>(mat->m_ParameterList[i])->m_Value = my::Vector2(
+				pProp->GetSubItem(0)->GetValue().fltVal, pProp->GetSubItem(1)->GetValue().fltVal);
+			break;
+		case PropertyMaterialParameterFloat3:
+			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat3);
+			boost::dynamic_pointer_cast<MaterialParameterFloat3>(mat->m_ParameterList[i])->m_Value = my::Vector3(
+				pProp->GetSubItem(0)->GetValue().fltVal, pProp->GetSubItem(1)->GetValue().fltVal, pProp->GetSubItem(2)->GetValue().fltVal);
+			break;
+		case PropertyMaterialParameterFloat4:
+			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat4);
+			boost::dynamic_pointer_cast<MaterialParameterFloat4>(mat->m_ParameterList[i])->m_Value = my::Vector4(
+				pProp->GetSubItem(0)->GetValue().fltVal, pProp->GetSubItem(1)->GetValue().fltVal, pProp->GetSubItem(2)->GetValue().fltVal, pProp->GetSubItem(3)->GetValue().fltVal);
+			break;
+		}
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyMaterialParameterTexture:
-		{
-			Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-			INT i = CSimpleProp::GetSubIndexInParent(pProp);
-			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
-			ResourceBundle<my::BaseTexture> & tex = boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_Texture;
-			tex.ReleaseResource();
-			tex.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			tex.RequestResource();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		INT i = CSimpleProp::GetSubIndexInParent(pProp);
+		ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
+		ResourceBundle<my::BaseTexture> & tex = boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_Texture;
+		tex.ReleaseResource();
+		tex.m_Path = ts2ms(pProp->GetValue().bstrVal);
+		tex.RequestResource();
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyClothSceneCollision:
-		{
-			ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
-			cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal != 0);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
+		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal != 0);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyEmitterType:
-		{
-			EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
-			emit_cmp->m_EmitterType = (EmitterComponent::EmitterType)(DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
+		emit_cmp->m_EmitterType = (EmitterComponent::EmitterType)(DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyEmitterParticleCount:
-		{
-			EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-			emit_cmp->m_ParticleList.resize(pProp->GetValue().uintVal,
-				my::Emitter::Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0, 0));
-			UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
+	{
+		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		emit_cmp->m_ParticleList.resize(pProp->GetValue().uintVal,
+			my::Emitter::Particle(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
+		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertyEmitterParticlePosition:
 	case PropertyEmitterParticlePositionX:
 	case PropertyEmitterParticlePositionY:
@@ -1405,50 +1403,50 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEmitterParticleSizeX:
 	case PropertyEmitterParticleSizeY:
 	case PropertyEmitterParticleAngle:
+	{
+		CMFCPropertyGridProperty * pParticle = NULL;
+		switch (PropertyId)
 		{
-			CMFCPropertyGridProperty * pParticle = NULL;
-			switch (PropertyId)
-			{
-			case PropertyEmitterParticlePositionX:
-			case PropertyEmitterParticlePositionY:
-			case PropertyEmitterParticlePositionZ:
-			case PropertyEmitterParticleVelocityX:
-			case PropertyEmitterParticleVelocityY:
-			case PropertyEmitterParticleVelocityZ:
-			case PropertyEmitterParticleSizeX:
-			case PropertyEmitterParticleSizeY:
-				pParticle = pProp->GetParent()->GetParent();
-				break;
-			case PropertyEmitterParticlePosition:
-			case PropertyEmitterParticleVelocity:
-			case PropertyEmitterParticleColor:
-			case PropertyEmitterParticleColorAlpha:
-			case PropertyEmitterParticleSize:
-			case PropertyEmitterParticleAngle:
-				pParticle = pProp->GetParent();
-				break;
-			}
-			int NodeId = pParticle->GetData();
-			EmitterComponent * emit_cmp = (EmitterComponent *)pParticle->GetParent()->GetParent()->GetValue().ulVal;
-			my::Emitter::Particle & particle = emit_cmp->m_ParticleList[NodeId];
-			particle.m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
-			particle.m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
-			particle.m_Position.z = pParticle->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal;
-			particle.m_Velocity.x = pParticle->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
-			particle.m_Velocity.y = pParticle->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
-			particle.m_Velocity.z = pParticle->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pParticle->GetSubItem(2)))->GetColor();
-			particle.m_Color.x = GetRValue(color) / 255.0f;
-			particle.m_Color.y = GetGValue(color) / 255.0f;
-			particle.m_Color.z = GetBValue(color) / 255.0f;
-			particle.m_Color.w = pParticle->GetSubItem(3)->GetValue().fltVal;
-			particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
-			particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
-			particle.m_Angle = pParticle->GetSubItem(5)->GetValue().fltVal;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
+		case PropertyEmitterParticlePositionX:
+		case PropertyEmitterParticlePositionY:
+		case PropertyEmitterParticlePositionZ:
+		case PropertyEmitterParticleVelocityX:
+		case PropertyEmitterParticleVelocityY:
+		case PropertyEmitterParticleVelocityZ:
+		case PropertyEmitterParticleSizeX:
+		case PropertyEmitterParticleSizeY:
+			pParticle = pProp->GetParent()->GetParent();
+			break;
+		case PropertyEmitterParticlePosition:
+		case PropertyEmitterParticleVelocity:
+		case PropertyEmitterParticleColor:
+		case PropertyEmitterParticleColorAlpha:
+		case PropertyEmitterParticleSize:
+		case PropertyEmitterParticleAngle:
+			pParticle = pProp->GetParent();
+			break;
 		}
+		int NodeId = pParticle->GetData();
+		EmitterComponent * emit_cmp = (EmitterComponent *)pParticle->GetParent()->GetParent()->GetValue().ulVal;
+		my::Emitter::Particle & particle = emit_cmp->m_ParticleList[NodeId];
+		particle.m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
+		particle.m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
+		particle.m_Position.z = pParticle->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal;
+		particle.m_Velocity.x = pParticle->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
+		particle.m_Velocity.y = pParticle->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
+		particle.m_Velocity.z = pParticle->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pParticle->GetSubItem(2)))->GetColor();
+		particle.m_Color.x = GetRValue(color) / 255.0f;
+		particle.m_Color.y = GetGValue(color) / 255.0f;
+		particle.m_Color.z = GetBValue(color) / 255.0f;
+		particle.m_Color.w = pParticle->GetSubItem(3)->GetValue().fltVal;
+		particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+		particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
+		particle.m_Angle = pParticle->GetSubItem(5)->GetValue().fltVal;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertySphericalEmitterParticleLifeTime:
 	case PropertySphericalEmitterSpawnInterval:
 	case PropertySphericalEmitterHalfSpawnArea:
@@ -1457,85 +1455,110 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertySphericalEmitterHalfSpawnAreaZ:
 	case PropertySphericalEmitterSpawnSpeed:
 	case PropertySphericalEmitterSpawnLoopTime:
+	{
+		CMFCPropertyGridProperty * pComponent = NULL;
+		switch (PropertyId)
 		{
-			CMFCPropertyGridProperty * pComponent = NULL;
-			switch (PropertyId)
-			{
-			case PropertySphericalEmitterHalfSpawnAreaX:
-			case PropertySphericalEmitterHalfSpawnAreaY:
-			case PropertySphericalEmitterHalfSpawnAreaZ:
-				pComponent = pProp->GetParent()->GetParent();
-				break;
-			default:
-				pComponent = pProp->GetParent();
-				break;
-			}
-			SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
-			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-			sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 0)->GetValue().fltVal;
-			sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 1)->GetValue().fltVal;
-			sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
-			sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
-			sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
-			sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
-			sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 13)->GetValue().fltVal;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
+		case PropertySphericalEmitterHalfSpawnAreaX:
+		case PropertySphericalEmitterHalfSpawnAreaY:
+		case PropertySphericalEmitterHalfSpawnAreaZ:
+			pComponent = pProp->GetParent()->GetParent();
+			break;
+		default:
+			pComponent = pProp->GetParent();
+			break;
 		}
+		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 0)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 1)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 13)->GetValue().fltVal;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
 	case PropertySplineNodeCount:
 	case PropertySplineNodeX:
 	case PropertySplineNodeY:
 	case PropertySplineNodeK0:
 	case PropertySplineNodeK:
+	{
+		CMFCPropertyGridProperty * pSpline = NULL;
+		switch (PropertyId)
 		{
-			CMFCPropertyGridProperty * pSpline = NULL;
-			switch (PropertyId)
-			{
-			case PropertySplineNodeCount:
-				pSpline = pProp->GetParent();
-				break;
-			case PropertySplineNodeX:
-			case PropertySplineNodeY:
-			case PropertySplineNodeK0:
-			case PropertySplineNodeK:
-				pSpline = pProp->GetParent()->GetParent();
-				break;
-			}
-			SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pSpline->GetParent()->GetValue().ulVal;
-			my::Spline * spline = (my::Spline *)pSpline->GetValue().ulVal;
-			switch (PropertyId)
-			{
-			case PropertySplineNodeCount:
-				spline->resize(pProp->GetValue().uintVal, my::SplineNode(0, 0, 0, 0));
-				UpdatePropertiesSpline(pSpline, spline);
-				break;
-			case PropertySplineNodeX:
-			case PropertySplineNodeY:
-			case PropertySplineNodeK0:
-			case PropertySplineNodeK:
-				{
-					CMFCPropertyGridProperty * pNode = pProp->GetParent();
-					int id = pNode->GetData();
-					_ASSERT(id < (int)spline->size());
-					my::SplineNode & node = (*spline)[id];
-					node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
-					node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
-					node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
-					node.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
-				}
-				break;
-			}
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
+		case PropertySplineNodeCount:
+			pSpline = pProp->GetParent();
+			break;
+		case PropertySplineNodeX:
+		case PropertySplineNodeY:
+		case PropertySplineNodeK0:
+		case PropertySplineNodeK:
+			pSpline = pProp->GetParent()->GetParent();
+			break;
+		}
+		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pSpline->GetParent()->GetValue().ulVal;
+		my::Spline * spline = (my::Spline *)pSpline->GetValue().ulVal;
+		switch (PropertyId)
+		{
+		case PropertySplineNodeCount:
+			spline->resize(pProp->GetValue().uintVal, my::SplineNode(0, 0, 0, 0));
+			UpdatePropertiesSpline(pSpline, spline);
+			break;
+		case PropertySplineNodeX:
+		case PropertySplineNodeY:
+		case PropertySplineNodeK0:
+		case PropertySplineNodeK:
+		{
+			CMFCPropertyGridProperty * pNode = pProp->GetParent();
+			int id = pNode->GetData();
+			_ASSERT(id < (int)spline->size());
+			my::SplineNode & node = (*spline)[id];
+			node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
+			node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
+			node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
+			node.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
 		}
 		break;
+		}
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyTerrainHeightScale:
+	{
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+		terrain->m_HeightScale = pProp->GetValue().fltVal;
+		terrain->UpdateHeightMapNormal();
+		terrain->UpdateChunks();
+		Actor * actor = terrain->m_Actor;
+		actor->UpdateAABB();
+		actor->OnWorldChanged();
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyTerrainNavigation:
+	{
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+		terrain->m_bNavigation = pProp->GetValue().boolVal != 0;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyTerrainHeightMap:
+	{
+		std::string path = ts2ms(pProp->GetValue().bstrVal);
+		my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
+		if (res)
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->m_HeightScale = pProp->GetValue().fltVal;
-			terrain->UpdateHeightMapNormal();
-			terrain->UpdateChunks();
+			terrain->UpdateHeightMap(res);
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			actor->OnWorldChanged();
@@ -1545,32 +1568,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	case PropertyTerrainNavigation:
-		{
-			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->m_bNavigation = pProp->GetValue().boolVal != 0;
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyTerrainHeightMap:
-		{
-			std::string path = ts2ms(pProp->GetValue().bstrVal);
-			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
-			if (res)
-			{
-				Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-				terrain->UpdateHeightMap(res);
-				Actor * actor = terrain->m_Actor;
-				actor->UpdateAABB();
-				actor->OnWorldChanged();
-				pFrame->UpdateSelBox();
-				pFrame->UpdatePivotTransform();
-				EventArgs arg;
-				pFrame->m_EventAttributeChanged(&arg);
-			}
-		}
-		break;
+	}
 	}
 	return 0;
 }

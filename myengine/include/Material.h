@@ -16,7 +16,7 @@ public:
 		ParameterTypeNone = 0,
 		ParameterTypeFloat,
 		ParameterTypeFloat2,
-		ParameterTypeFLoat3,
+		ParameterTypeFloat3,
 		ParameterTypeFloat4,
 		ParameterTypeTexture,
 	};
@@ -115,13 +115,13 @@ public:
 
 protected:
 	MaterialParameterFloat2(void)
-		: m_Value(0,0)
+		: m_Value(0, 0)
 	{
 	}
 
 public:
 	MaterialParameterFloat2(const char * Name, const my::Vector2 & Value)
-		: MaterialParameter(ParameterTypeFloat, Name)
+		: MaterialParameter(ParameterTypeFloat2, Name)
 		, m_Value(Value)
 	{
 	}
@@ -147,13 +147,13 @@ public:
 
 protected:
 	MaterialParameterFloat3(void)
-		: m_Value(0, 0)
+		: m_Value(0, 0, 0)
 	{
 	}
 
 public:
 	MaterialParameterFloat3(const char * Name, const my::Vector3 & Value)
-		: MaterialParameter(ParameterTypeFloat, Name)
+		: MaterialParameter(ParameterTypeFloat3, Name)
 		, m_Value(Value)
 	{
 	}
@@ -179,13 +179,13 @@ public:
 
 protected:
 	MaterialParameterFloat4(void)
-		: m_Value(0, 0)
+		: m_Value(0, 0, 0, 1)
 	{
 	}
 
 public:
 	MaterialParameterFloat4(const char * Name, const my::Vector4 & Value)
-		: MaterialParameter(ParameterTypeFloat, Name)
+		: MaterialParameter(ParameterTypeFloat4, Name)
 		, m_Value(Value)
 	{
 	}
