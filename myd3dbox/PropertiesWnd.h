@@ -2,8 +2,24 @@
 #pragma once
 
 #include "EventDefine.h"
-#include "Component.h"
-#include "Terrain.h"
+
+class Actor;
+
+class Component;
+
+class MeshComponent;
+
+class ClothComponent;
+
+class EmitterComponent;
+
+class Material;
+
+class MaterialParameter;
+
+class SphericalEmitterComponent;
+
+class Terrain;
 
 class CPropertiesToolBar : public CMFCToolBar
 {
@@ -141,6 +157,7 @@ protected:
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat);
+	void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mat_param);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp);
@@ -153,6 +170,7 @@ protected:
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat);
+	void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mat_param);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp);
@@ -161,8 +179,8 @@ protected:
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
 	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 
-	static unsigned int GetComponentPropCount(Component::ComponentType type);
-	static LPCTSTR GetComponentTypeName(Component::ComponentType type);
+	static unsigned int GetComponentPropCount(DWORD type);
+	static LPCTSTR GetComponentTypeName(DWORD type);
 
 // Implementation
 public:
