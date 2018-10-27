@@ -15,6 +15,9 @@ public:
 	{
 		ParameterTypeNone = 0,
 		ParameterTypeFloat,
+		ParameterTypeFloat2,
+		ParameterTypeFLoat3,
+		ParameterTypeFloat4,
 		ParameterTypeTexture,
 	};
 
@@ -86,6 +89,102 @@ protected:
 
 public:
 	MaterialParameterFloat(const char * Name, float Value)
+		: MaterialParameter(ParameterTypeFloat, Name)
+		, m_Value(Value)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual void Set(my::Effect * shader);
+
+	virtual MaterialParameterPtr Clone(void) const;
+};
+
+class MaterialParameterFloat2 : public MaterialParameter
+{
+public:
+	my::Vector2 m_Value;
+
+protected:
+	MaterialParameterFloat2(void)
+		: m_Value(0,0)
+	{
+	}
+
+public:
+	MaterialParameterFloat2(const char * Name, const my::Vector2 & Value)
+		: MaterialParameter(ParameterTypeFloat, Name)
+		, m_Value(Value)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual void Set(my::Effect * shader);
+
+	virtual MaterialParameterPtr Clone(void) const;
+};
+
+class MaterialParameterFloat3 : public MaterialParameter
+{
+public:
+	my::Vector3 m_Value;
+
+protected:
+	MaterialParameterFloat3(void)
+		: m_Value(0, 0)
+	{
+	}
+
+public:
+	MaterialParameterFloat3(const char * Name, const my::Vector3 & Value)
+		: MaterialParameter(ParameterTypeFloat, Name)
+		, m_Value(Value)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual void Set(my::Effect * shader);
+
+	virtual MaterialParameterPtr Clone(void) const;
+};
+
+class MaterialParameterFloat4 : public MaterialParameter
+{
+public:
+	my::Vector4 m_Value;
+
+protected:
+	MaterialParameterFloat4(void)
+		: m_Value(0, 0)
+	{
+	}
+
+public:
+	MaterialParameterFloat4(const char * Name, const my::Vector4 & Value)
 		: MaterialParameter(ParameterTypeFloat, Name)
 		, m_Value(Value)
 	{
@@ -211,6 +310,12 @@ public:
 	void ParseShaderParamters(void);
 
 	void AddParameterFloat(const char * Name, float Value);
+
+	void AddParameterFloat2(const char * Name, const my::Vector2 & Value);
+
+	void AddParameterFloat3(const char * Name, const my::Vector3 & Value);
+
+	void AddParameterFloat4(const char * Name, const my::Vector4 & Value);
 
 	void AddParameterTexture(const char * Name, const char * Path);
 };

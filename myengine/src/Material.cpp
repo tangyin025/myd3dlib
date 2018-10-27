@@ -19,6 +19,12 @@ BOOST_CLASS_EXPORT(MaterialParameter)
 
 BOOST_CLASS_EXPORT(MaterialParameterFloat)
 
+BOOST_CLASS_EXPORT(MaterialParameterFloat2)
+
+BOOST_CLASS_EXPORT(MaterialParameterFloat3)
+
+BOOST_CLASS_EXPORT(MaterialParameterFloat4)
+
 BOOST_CLASS_EXPORT(MaterialParameterTexture)
 
 BOOST_CLASS_EXPORT(Material)
@@ -37,6 +43,39 @@ void MaterialParameterFloat::Set(my::Effect * shader)
 MaterialParameterPtr MaterialParameterFloat::Clone(void) const
 {
 	return boost::shared_ptr<MaterialParameterFloat>(new MaterialParameterFloat(m_Name.c_str(), m_Value));
+}
+
+void MaterialParameterFloat2::Set(my::Effect * shader)
+{
+	_ASSERT(m_Handle);
+	shader->SetFloatArray(m_Handle, &m_Value.x, 2);
+}
+
+MaterialParameterPtr MaterialParameterFloat2::Clone(void) const
+{
+	return boost::shared_ptr<MaterialParameterFloat2>(new MaterialParameterFloat2(m_Name.c_str(), m_Value));
+}
+
+void MaterialParameterFloat3::Set(my::Effect * shader)
+{
+	_ASSERT(m_Handle);
+	shader->SetFloatArray(m_Handle, &m_Value.x, 3);
+}
+
+MaterialParameterPtr MaterialParameterFloat3::Clone(void) const
+{
+	return boost::shared_ptr<MaterialParameterFloat3>(new MaterialParameterFloat3(m_Name.c_str(), m_Value));
+}
+
+void MaterialParameterFloat4::Set(my::Effect * shader)
+{
+	_ASSERT(m_Handle);
+	shader->SetFloatArray(m_Handle, &m_Value.x, 4);
+}
+
+MaterialParameterPtr MaterialParameterFloat4::Clone(void) const
+{
+	return boost::shared_ptr<MaterialParameterFloat4>(new MaterialParameterFloat4(m_Name.c_str(), m_Value));
 }
 
 void MaterialParameterTexture::Set(my::Effect * shader)
@@ -183,6 +222,45 @@ void Material::ParseShaderParamters(void)
 				}
 				AddParameterFloat(Name.c_str(), Value);
 			}
+			else if (Type == "float2")
+			{
+				Vector2 Value(0, 0);
+				boost::regex reg2("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<float>(what2[1]);
+					Value.y = boost::lexical_cast<float>(what2[3]);
+				}
+				AddParameterFloat2(Name.c_str(), Value);
+			}
+			else if (Type == "float3")
+			{
+				Vector3 Value(0, 0, 0);
+				boost::regex reg2("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<float>(what2[1]);
+					Value.y = boost::lexical_cast<float>(what2[3]);
+					Value.z = boost::lexical_cast<float>(what2[5]);
+				}
+				AddParameterFloat3(Name.c_str(), Value);
+			}
+			else if (Type == "float4")
+			{
+				Vector4 Value(0, 0, 0, 1);
+				boost::regex reg2("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+				boost::match_results<std::string::const_iterator> what2;
+				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
+				{
+					Value.x = boost::lexical_cast<float>(what2[1]);
+					Value.y = boost::lexical_cast<float>(what2[3]);
+					Value.z = boost::lexical_cast<float>(what2[5]);
+					Value.w = boost::lexical_cast<float>(what2[7]);
+				}
+				AddParameterFloat4(Name.c_str(), Value);
+			}
 			else if (Type == "texture")
 			{
 				std::string Path;
@@ -202,6 +280,21 @@ void Material::ParseShaderParamters(void)
 void Material::AddParameterFloat(const char * Name, float Value)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
+}
+
+void Material::AddParameterFloat2(const char * Name, const my::Vector2 & Value)
+{
+	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
+}
+
+void Material::AddParameterFloat3(const char * Name, const my::Vector3 & Value)
+{
+	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
+}
+
+void Material::AddParameterFloat4(const char * Name, const my::Vector4 & Value)
+{
+	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
 }
 
 void Material::AddParameterTexture(const char * Name, const char * Path)
