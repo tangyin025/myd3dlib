@@ -1258,7 +1258,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialShader:
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		material->ReleaseResource();
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
+		material->m_ParameterList.clear();
+		RemovePropertiesFrom(pProp->GetParent()->GetSubItem(6), 0);
+		material->ParseShaderParamters();
+		material->RequestResource();
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
