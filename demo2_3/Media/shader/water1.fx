@@ -1,4 +1,18 @@
 
+#define WAVE_LENGTH0 3.0
+#define WAVE_LENGTH1 3.0
+#define WAVE_LENGTH2 3.0
+#define PI 3.141596
+
+float g_Amplitude[3] = {0.03, 0.03, 0.03};
+float g_Frequency[3] = {2*PI/WAVE_LENGTH0, 2*PI/WAVE_LENGTH1, 2*PI/WAVE_LENGTH2};
+float g_Phase[3] = {0.2*2*PI/WAVE_LENGTH0, 0.2*2*PI/WAVE_LENGTH1, 0.2*2*PI/WAVE_LENGTH2};
+float g_GerstnerQ[3] = {0.6, 0.6, 0.6};
+float3 g_WaveDir[3] = { {1.0, 0, 1.0}, {1.0, 0, -1.0}, {1.0, 0, 1.0} };
+
+float g_FresExp:MaterialParameter = 3.0;
+float g_ReflStrength:MaterialParameter = 3.4;
+float3 g_WaterColor:MaterialParameter = { 0.00784, 0.03921, 0.12156 };
 texture g_NormalTexture:MaterialParameter<string Initialize="texture/WaterNormal2.png";>;
 texture g_ReflectTexture:MaterialParameter<string Initialize="texture/galileo_cross.dds";>;
 
@@ -17,20 +31,6 @@ sampler ReflectTextureSampler = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 };
-
-#define WAVE_LENGTH0 3.0
-#define WAVE_LENGTH1 3.0
-#define WAVE_LENGTH2 3.0
-#define PI 3.141596
-
-float g_Amplitude[3] = {0.03, 0.03, 0.03};
-float g_Frequency[3] = {2*PI/WAVE_LENGTH0, 2*PI/WAVE_LENGTH1, 2*PI/WAVE_LENGTH2};
-float g_Phase[3] = {0.2*2*PI/WAVE_LENGTH0, 0.2*2*PI/WAVE_LENGTH1, 0.2*2*PI/WAVE_LENGTH2};
-float g_GerstnerQ[3] = {0.6, 0.6, 0.6};
-float3 g_WaveDir[3] = { {1.0, 0, 1.0}, {1.0, 0, -1.0}, {1.0, 0, 1.0} };
-float g_FresExp = 3.0;
-float g_ReflStrength = 3.4;
-float3 g_WaterColor = { 2/255.0, 10/255.0, 31/255.0 };
 
 struct TRANSPARENT_VS_OUTPUT
 {
