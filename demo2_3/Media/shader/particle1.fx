@@ -1,10 +1,9 @@
 
-float4 g_MeshColor = { 1,1,1,1 };
-texture g_MeshTexture;
+texture g_Texture:MaterialParameter<string Initialize="texture/flare.dds";>;
 
-sampler MeshTextureSampler = sampler_state
+sampler TextureSampler = sampler_state
 {
-    Texture = <g_MeshTexture>;
+    Texture = <g_Texture>;
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
@@ -22,13 +21,13 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
     TRANSPARENT_VS_OUTPUT Output;
 	Output.Pos = TransformPos(In);
 	Output.Tex0 = TransformUV(In);
-	Output.Color = g_MeshColor;
+	Output.Color = TransformColor(In);
     return Output;    
 }
 
 float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR0
 { 
-	return tex2D(MeshTextureSampler, In.Tex0) * In.Color;
+	return tex2D(TextureSampler, In.Tex0) * In.Color;
 }
 
 technique RenderScene

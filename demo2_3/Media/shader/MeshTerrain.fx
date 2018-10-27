@@ -66,3 +66,8 @@ float4 TransformLightWS(VS_INPUT In)
 {
 	return float4(0,0,0,0);
 }
+
+float4 TransformColor(VS_INPUT In)
+{
+	return float4(1,1,1,1);
+}

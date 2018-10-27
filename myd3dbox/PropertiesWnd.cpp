@@ -1348,24 +1348,24 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		ASSERT(pParameter);
-		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-		INT i = CSimpleProp::GetSubIndexInParent(pProp);
-		switch (pProp->GetData())
+		Material * mat = (Material *)pParameter->GetParent()->GetParent()->GetValue().ulVal;
+		INT i = CSimpleProp::GetSubIndexInParent(pParameter);
+		switch (pParameter->GetData())
 		{
 		case PropertyMaterialParameterFloat2:
 			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat2);
 			boost::dynamic_pointer_cast<MaterialParameterFloat2>(mat->m_ParameterList[i])->m_Value = my::Vector2(
-				pProp->GetSubItem(0)->GetValue().fltVal, pProp->GetSubItem(1)->GetValue().fltVal);
+				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal);
 			break;
 		case PropertyMaterialParameterFloat3:
 			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat3);
 			boost::dynamic_pointer_cast<MaterialParameterFloat3>(mat->m_ParameterList[i])->m_Value = my::Vector3(
-				pProp->GetSubItem(0)->GetValue().fltVal, pProp->GetSubItem(1)->GetValue().fltVal, pProp->GetSubItem(2)->GetValue().fltVal);
+				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal);
 			break;
 		case PropertyMaterialParameterFloat4:
 			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat4);
 			boost::dynamic_pointer_cast<MaterialParameterFloat4>(mat->m_ParameterList[i])->m_Value = my::Vector4(
-				pProp->GetSubItem(0)->GetValue().fltVal, pProp->GetSubItem(1)->GetValue().fltVal, pProp->GetSubItem(2)->GetValue().fltVal, pProp->GetSubItem(3)->GetValue().fltVal);
+				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal, pParameter->GetSubItem(3)->GetValue().fltVal);
 			break;
 		}
 		EventArgs arg;

@@ -1,13 +1,11 @@
 
-float4 g_MeshColor = { 1,1,1,1 };
-
 struct LIGHT_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
+	float4 Color			: COLOR0;
 	float4 ScreenPos		: TEXCOORD0;
 	float4 Light			: TEXCOORD1;
 	float3 Eye				: TEXCOORD2;
-	float4 Color			: TEXCOORD3;
 };
 
 LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
@@ -15,11 +13,11 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 	LIGHT_VS_OUTPUT Output;
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
+	Output.Color = TransformColor(In);
 	Output.ScreenPos = Output.Pos;
 	Output.Light = TransformLightWS(In);
 	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View);
 	Output.Eye = mul(float4(g_Eye, 1.0), g_View);
-	Output.Color = g_MeshColor;
 	return Output;
 }
 

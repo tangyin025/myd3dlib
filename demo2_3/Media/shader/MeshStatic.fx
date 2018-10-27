@@ -54,5 +54,10 @@ float3 TransformTangent(VS_INPUT In)
 
 float4 TransformLightWS(VS_INPUT In)
 {
-	return float4(g_World[3].xyz,length(g_World[0].xyz));
+	return float4(g_World[3].xyz, length(g_World[0].xyz));
+}
+
+float4 TransformColor(VS_INPUT In)
+{
+	return float4(1,1,1,1);
 }

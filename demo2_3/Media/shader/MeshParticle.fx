@@ -50,3 +50,8 @@ float4 TransformLightWS(VS_INPUT In)
 {
 	return float4(mul(In.Pos, g_World).xyz, In.Tex2.x * 0.5);
 }
+
+float4 TransformColor(VS_INPUT In)
+{
+	return In.Color;
+}

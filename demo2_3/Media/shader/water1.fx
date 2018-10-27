@@ -1,6 +1,6 @@
 
-texture g_NormalTexture;
-texture g_ReflectTexture;
+texture g_NormalTexture:MaterialParameter<string Initialize="texture/WaterNormal2.png";>;
+texture g_ReflectTexture:MaterialParameter<string Initialize="texture/galileo_cross.dds";>;
 
 sampler NormalTextureSampler = sampler_state
 {
