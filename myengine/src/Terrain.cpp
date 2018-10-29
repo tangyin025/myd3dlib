@@ -81,6 +81,10 @@ void TerrainChunk::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shade
 
 	shader->SetInt("g_ChunkSize", m_Owner->CHUNK_SIZE);
 
+	int ChunkNum[2] = { m_Owner->ROW_CHUNKS, m_Owner->COL_CHUNKS };
+
+	shader->SetIntArray("g_ChunkNum", ChunkNum, 2);
+
 	shader->SetTexture("g_HeightTexture", &m_Owner->m_HeightMap);
 
 	m_Owner->m_Material->OnSetShader(pd3dDevice, shader, AttribId);
