@@ -188,7 +188,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		}
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
+			ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
 			if (!actor->IsRequested())
 			{
@@ -1099,7 +1099,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_actor);
-				if (actor && pView->OverlapTestFrustumAndActor(ftm, actor))
+				ASSERT(actor);
+				if (pView->OverlapTestFrustumAndActor(ftm, actor))
 				{
 					selacts.insert(actor);
 				}
@@ -1109,32 +1110,32 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		typedef std::map<float, Actor *> ActorMap;
-		ActorMap selacts;
 		struct Callback : public my::OctNode::QueryCallback
 		{
-			ActorMap & selacts;
 			const my::Ray & ray;
 			CChildView * pView;
-			Callback(ActorMap & _selacts, const my::Ray & _ray, CChildView * _pView)
-				: selacts(_selacts)
-				, ray(_ray)
+			typedef std::map<float, Actor *> ActorMap;
+			ActorMap selacts;
+			Callback(const my::Ray & _ray, CChildView * _pView)
+				: ray(_ray)
 				, pView(_pView)
 			{
 			}
 			void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_actor);
-				my::RayResult ret;
-				if (actor && (ret = pView->OverlapTestRayAndActor(ray, actor), ret.first))
+				ASSERT(actor);
+				my::RayResult ret = pView->OverlapTestRayAndActor(ray, actor);
+				if (ret.first)
 				{
 					selacts.insert(std::make_pair(ret.second, actor));
 				}
 			}
 		};
-		pFrame->m_Root.QueryActor(ray, &Callback(selacts, ray, this));
-		ActorMap::iterator cmp_iter = selacts.begin();
-		if (cmp_iter != selacts.end())
+		Callback cb(ray, this);
+		pFrame->m_Root.QueryActor(ray, &cb);
+		Callback::ActorMap::iterator cmp_iter = cb.selacts.begin();
+		if (cmp_iter != cb.selacts.end())
 		{
 			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cmp_iter->second);
 			if (sel_iter != pFrame->m_selactors.end())
