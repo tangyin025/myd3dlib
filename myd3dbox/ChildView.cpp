@@ -66,6 +66,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
+	, m_raytrunkid(0, 0)
 {
 	// TODO: add construction code here
 	m_SwapChainBuffer.reset(new my::Surface());
@@ -660,6 +661,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					if (result.first && result.second < ret.second)
 					{
 						ret = result;
+						pView->m_raytrunkid.SetPoint(chunk->m_Row, chunk->m_Column);
 					}
 				}
 			};
@@ -1114,11 +1116,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		{
 			const my::Ray & ray;
 			CChildView * pView;
-			typedef std::map<float, Actor *> ActorMap;
-			ActorMap selacts;
+			Actor * selact;
+			float seldist;
+			CPoint seltrunkid;
 			Callback(const my::Ray & _ray, CChildView * _pView)
 				: ray(_ray)
 				, pView(_pView)
+				, selact(NULL)
+				, seldist(FLT_MAX)
+				, seltrunkid(0, 0)
 			{
 			}
 			void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -1126,18 +1132,19 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				Actor * actor = dynamic_cast<Actor *>(oct_actor);
 				ASSERT(actor);
 				my::RayResult ret = pView->OverlapTestRayAndActor(ray, actor);
-				if (ret.first)
+				if (ret.first && ret.second < seldist)
 				{
-					selacts.insert(std::make_pair(ret.second, actor));
+					selact = actor;
+					seldist = ret.second;
+					seltrunkid = pView->m_raytrunkid;
 				}
 			}
 		};
 		Callback cb(ray, this);
 		pFrame->m_Root.QueryActor(ray, &cb);
-		Callback::ActorMap::iterator cmp_iter = cb.selacts.begin();
-		if (cmp_iter != cb.selacts.end())
+		if (cb.selact)
 		{
-			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cmp_iter->second);
+			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cb.selact);
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
@@ -1145,7 +1152,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 			else
 			{
-				pFrame->m_selactors.insert(cmp_iter->second);
+				pFrame->m_selactors.insert(cb.selact);
+				pFrame->m_seltrunkid = cb.seltrunkid;
 				bSelectionChanged = true;
 			}
 		}

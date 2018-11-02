@@ -77,6 +77,7 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
+	, m_seltrunkid(0, 0)
 	, m_selbox(-1, 1)
 	, m_Root(my::AABB(-1024, 1024))
 	, m_solid(NULL)
