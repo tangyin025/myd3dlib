@@ -8,7 +8,6 @@ float g_HeightScale;
 float2 g_HeightTexSize;
 int2 g_ChunkId;
 int g_ChunkSize;
-int2 g_ChunkNum;
 Texture2D g_HeightTexture;
 
 sampler HeightTextureSampler = sampler_state
@@ -41,9 +40,7 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return float2(
-		((float)g_ChunkId.x + (float)In.Tex0.x / g_ChunkSize) / g_ChunkNum.x,
-		((float)g_ChunkId.y + (float)In.Tex0.y / g_ChunkSize) / g_ChunkNum.y);
+	return float2((float)In.Tex0.x / g_ChunkSize, (float)In.Tex0.y / g_ChunkSize);
 }
 
 float3 TransformNormal(VS_INPUT In)
