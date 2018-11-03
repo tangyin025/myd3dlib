@@ -196,8 +196,8 @@ void Terrain::InitLodMap(void)
 unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos)
 {
 	float DistanceSq = Vector2(
-		(i + 0.5f) * CHUNK_SIZE - LocalViewPos.x,
-		(j + 0.5f) * CHUNK_SIZE - LocalViewPos.z).magnitudeSq();
+		(j + 0.5f) * CHUNK_SIZE - LocalViewPos.x,
+		(i + 0.5f) * CHUNK_SIZE - LocalViewPos.z).magnitudeSq();
 	LodMap::const_iterator lod_iter = m_LodMap.lower_bound(DistanceSq);
 	if (lod_iter != m_LodMap.end())
 	{
@@ -253,10 +253,10 @@ void Terrain::UpdateHeightMapNormal(void)
 			D3DCOLOR * Bits = (D3DCOLOR *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(D3DCOLOR));
 			Vector3 Pos = GetSamplePos(lrc.pBits, lrc.Pitch, i, j);
 			const Vector3 Dirs[4] = {
-				GetSamplePos(lrc.pBits, lrc.Pitch, i, j - 1) - Pos,
 				GetSamplePos(lrc.pBits, lrc.Pitch, i - 1, j) - Pos,
-				GetSamplePos(lrc.pBits, lrc.Pitch, i, j + 1) - Pos,
+				GetSamplePos(lrc.pBits, lrc.Pitch, i, j - 1) - Pos,
 				GetSamplePos(lrc.pBits, lrc.Pitch, i + 1, j) - Pos,
+				GetSamplePos(lrc.pBits, lrc.Pitch, i, j + 1) - Pos,
 			};
 			const Vector3 Nors[4] = {
 				Dirs[0].cross(Dirs[1]).normalize(),
@@ -296,7 +296,7 @@ D3DCOLOR Terrain::GetSampleValue(void * pBits, int pitch, int i, int j)
 
 my::Vector3 Terrain::GetSamplePos(void * pBits, int pitch, int i, int j)
 {
-	return Vector3((float)i, m_HeightScale * GetCValue(GetSampleValue(pBits, pitch, i, j)), (float)j);
+	return Vector3((float)j, m_HeightScale * GetCValue(GetSampleValue(pBits, pitch, i, j)), (float)i);
 }
 
 my::Vector3 Terrain::GetPosByVertexIndex(const void * pVertices, int Row, int Column, int VertexIndex, void * pBits, int pitch)
@@ -323,25 +323,22 @@ unsigned int EdgeNv1(T & setter, int N, int r0, int rs, int c0, int cs)
         int cb = c0 + cs * i;
 		if (i < N - 1)
 		{
-			setter.set(k + 0, r0, cb);
-			setter.set(k + 1, r0, cb + cs);
-			setter.set(k + 2, r0 + rs, cb + cs);
-			k += 3;
+			setter.set(k++, r0, cb);
+			setter.set(k++, r0 + rs, cb + cs);
+			setter.set(k++, r0, cb + cs);
 
 			if (i > 0)
 			{
-				setter.set(k + 0, r0, cb);
-				setter.set(k + 1, r0 + rs, cb + cs);
-				setter.set(k + 2, r0 + rs, cb);
-				k += 3;
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0 + rs, cb + cs);
 			}
 		}
 		else
 		{
-			setter.set(k + 0, r0, cb);
-			setter.set(k + 1, r0, cb + cs);
-			setter.set(k + 2, r0 + rs, cb);
-			k += 3;
+			setter.set(k++, r0, cb);
+			setter.set(k++, r0 + rs, cb);
+			setter.set(k++, r0, cb + cs);
 		}
 	}
 	return k;
@@ -361,20 +358,18 @@ unsigned int EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
     {
         int cb = c0 + cs * i * M;
 
-        setter.set(k + 0, r0, cb);
-        setter.set(k + 1, r0, cb + cs * M);
-        setter.set(k + 2, r0 + rs, cb + cs * M / 2);
-        k += 3;
+        setter.set(k++, r0, cb);
+        setter.set(k++, r0 + rs, cb + cs * M / 2);
+        setter.set(k++, r0, cb + cs * M);
 
         int j = 0;
         for (; j < M / 2; j++)
         {
             if (i > 0 || j > 0)
             {
-                setter.set(k + 0, r0 + rs, cb + cs * j);
-                setter.set(k + 1, r0, cb);
-                setter.set(k + 2, r0 + rs, cb + cs * (j + 1));
-                k += 3;
+                setter.set(k++, r0 + rs, cb + cs * j);
+                setter.set(k++, r0 + rs, cb + cs * (j + 1));
+                setter.set(k++, r0, cb);
             }
         }
 
@@ -382,10 +377,9 @@ unsigned int EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
         {
             if (i < N - 1 || j < M - 1)
             {
-                setter.set(k + 0, r0 + rs, cb + cs * j);
-                setter.set(k + 1, r0, cb + cs * M);
-                setter.set(k + 2, r0 + rs, cb + cs * (j + 1));
-                k += 3;
+                setter.set(k++, r0 + rs, cb + cs * j);
+                setter.set(k++, r0 + rs, cb + cs * (j + 1));
+                setter.set(k++, r0, cb + cs * M);
             }
         }
     }
@@ -400,15 +394,13 @@ unsigned int FillNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
     {
         for (int j = 0; j < M; j++)
         {
-            setter.set(k + 0, r0 + rs * (i + 0), c0 + cs * (j + 0));
-            setter.set(k + 1, r0 + rs * (i + 0), c0 + cs * (j + 1));
-            setter.set(k + 2, r0 + rs * (i + 1), c0 + cs * (j + 0));
-            k += 3;
+            setter.set(k++, r0 + rs * (i + 0), c0 + cs * (j + 0));
+            setter.set(k++, r0 + rs * (i + 1), c0 + cs * (j + 0));
+            setter.set(k++, r0 + rs * (i + 0), c0 + cs * (j + 1));
 
-            setter.set(k + 0, r0 + rs * (i + 0), c0 + cs * (j + 1));
-            setter.set(k + 1, r0 + rs * (i + 1), c0 + cs * (j + 1));
-            setter.set(k + 2, r0 + rs * (i + 1), c0 + cs * (j + 0));
-            k += 3;
+            setter.set(k++, r0 + rs * (i + 0), c0 + cs * (j + 1));
+            setter.set(k++, r0 + rs * (i + 1), c0 + cs * (j + 0));
+            setter.set(k++, r0 + rs * (i + 1), c0 + cs * (j + 1));
         }
     }
     return k;

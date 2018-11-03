@@ -22,8 +22,8 @@ sampler HeightTextureSampler = sampler_state
 
 float4 TransformPosWS(VS_INPUT In)
 {
-	int2 Pos = int2(g_ChunkId.x * g_ChunkSize + In.Tex0.x, g_ChunkId.y * g_ChunkSize + In.Tex0.y);
-	float4 Color = tex2Dlod(HeightTextureSampler, float4(Pos.y / g_HeightTexSize.y, Pos.x / g_HeightTexSize.x, 0, 0));
+	int2 Pos = int2(g_ChunkId.y * g_ChunkSize + In.Tex0.y, g_ChunkId.x * g_ChunkSize + In.Tex0.x);
+	float4 Color = tex2Dlod(HeightTextureSampler, float4(Pos.x / g_HeightTexSize.x, Pos.y / g_HeightTexSize.y, 0, 0));
 	float Height = g_HeightScale * Color.a * 255;
 	return mul(float4(Pos.x, Height, Pos.y, 1.0), g_World);
 }
@@ -40,21 +40,21 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return float2((float)In.Tex0.x / g_ChunkSize, (float)In.Tex0.y / g_ChunkSize);
+	return float2((float)In.Tex0.y / g_ChunkSize, (float)In.Tex0.x / g_ChunkSize);
 }
 
 float3 TransformNormal(VS_INPUT In)
 {
-	int2 Pos = int2(g_ChunkId.x * g_ChunkSize + In.Tex0.x, g_ChunkId.y * g_ChunkSize + In.Tex0.y);
-	float4 Color = tex2Dlod(HeightTextureSampler, float4(Pos.y / g_HeightTexSize.y, Pos.x / g_HeightTexSize.x, 0, 0));
+	int2 Pos = int2(g_ChunkId.y * g_ChunkSize + In.Tex0.y, g_ChunkId.x * g_ChunkSize + In.Tex0.x);
+	float4 Color = tex2Dlod(HeightTextureSampler, float4(Pos.x / g_HeightTexSize.x, Pos.y / g_HeightTexSize.y, 0, 0));
 	float3 Normal = Color.rgb * 2 - 1;
 	return normalize(mul(Normal, (float3x3)g_World));
 }
 
 float3 TransformTangent(VS_INPUT In)
 {
-	int2 Pos = int2(g_ChunkId.x * g_ChunkSize + In.Tex0.x, g_ChunkId.y * g_ChunkSize + In.Tex0.y);
-	float4 Color = tex2Dlod(HeightTextureSampler, float4(Pos.y / g_HeightTexSize.y, Pos.x / g_HeightTexSize.x, 0, 0));
+	int2 Pos = int2(g_ChunkId.y * g_ChunkSize + In.Tex0.y, g_ChunkId.x * g_ChunkSize + In.Tex0.x);
+	float4 Color = tex2Dlod(HeightTextureSampler, float4(Pos.x / g_HeightTexSize.x, Pos.y / g_HeightTexSize.y, 0, 0));
 	float3 Normal = Color.rgb * 2 - 1;
 	float3 Tangent = cross(Normal, float3(0,0,1));
 	return normalize(mul(Tangent, (float3x3)g_World));

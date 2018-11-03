@@ -241,13 +241,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeTerrain:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
-			{
-				for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
-				{
-					PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255,255,0,255));
-				}
-			}
+			PushWireAABB(terrain->m_Chunks[pFrame->m_seltrunkid.x][pFrame->m_seltrunkid.y]->m_aabb.transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
 		}
 		break;
 	}
