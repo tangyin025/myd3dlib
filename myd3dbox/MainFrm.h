@@ -39,7 +39,7 @@ public:
 	my::OctRoot m_Root;
 	typedef boost::unordered_set<Actor *> ActorSet;
 	ActorSet m_selactors;
-	CPoint m_seltrunkid;
+	CPoint m_selchunkid;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;

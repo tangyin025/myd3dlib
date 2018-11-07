@@ -77,7 +77,7 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
-	, m_seltrunkid(0, 0)
+	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
 	, m_Root(my::AABB(-1024, 1024))
 	, m_solid(NULL)
@@ -837,11 +837,17 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	TerrainPtr terrain(new Terrain(1.0f,1.0f,1.0f));
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = theApp.default_shader;
-	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->ParseShaderParamters();
-	terrain->m_Material = lambert1;
+	for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
+		{
+			MaterialPtr lambert1(new Material());
+			lambert1->m_Shader = theApp.default_shader;
+			lambert1->m_PassMask = theApp.default_pass_mask;
+			lambert1->ParseShaderParamters();
+			terrain->m_Chunks[i][j]->m_Material = lambert1;
+		}
+	}
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);

@@ -21,6 +21,8 @@ class SphericalEmitterComponent;
 
 class Terrain;
 
+class TerrainChunk;
+
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -164,7 +166,7 @@ protected:
 	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp);
 	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
-	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
+	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain, const CPoint & chunkid);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
@@ -177,10 +179,11 @@ protected:
 	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
-	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
+	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain, const CPoint & chunkid);
 
 	static unsigned int GetComponentPropCount(DWORD type);
 	static LPCTSTR GetComponentTypeName(DWORD type);
+	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
 
 // Implementation
 public:

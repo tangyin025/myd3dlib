@@ -83,7 +83,7 @@ void TerrainChunk::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shade
 
 	shader->SetTexture("g_HeightTexture", &m_Owner->m_HeightMap);
 
-	m_Owner->m_Material->OnSetShader(pd3dDevice, shader, AttribId);
+	m_Material->OnSetShader(pd3dDevice, shader, AttribId);
 }
 
 template <class T, int N>
@@ -493,7 +493,6 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
-	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
 	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, 0, 0);
@@ -512,7 +511,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_bNavigation);
-	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
 	ar >> boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
@@ -556,21 +554,33 @@ void Terrain::RequestResource(void)
 		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 	}
 
-	m_Material->RequestResource();
-
 	if (!m_vb.m_ptr)
 	{
 		m_vb.CreateVertexBuffer(Terrain::m_VertexTable.shape()[0] * Terrain::m_VertexTable.shape()[1] * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 		UpdateVertices();
 	}
+
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			m_Chunks[i][j]->m_Material->RequestResource();
+		}
+	}
 }
 
 void Terrain::ReleaseResource(void)
 {
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			m_Chunks[i][j]->m_Material->ReleaseResource();
+		}
+	}
 	m_Decl.Release();
 	m_vb.OnDestroyDevice();
 	m_Fragment.clear();
-	m_Material->ReleaseResource();
 	Component::ReleaseResource();
 }
 
@@ -615,52 +625,50 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		RenderPipeline * pipeline;
-		unsigned int PassID;
+		unsigned int PassMask;
 		const Vector3 & LocalViewPos;
 		Terrain * terrain;
-		Effect * shader;
-		Callback(RenderPipeline * _pipeline, unsigned int _PassID, const Vector3 & _LocalViewPos, Terrain * _terrain, Effect * _shader)
+		Callback(RenderPipeline * _pipeline, unsigned int _PassMask, const Vector3 & _LocalViewPos, Terrain * _terrain)
 			: pipeline(_pipeline)
-			, PassID(_PassID)
+			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
 			, terrain(_terrain)
-			, shader(_shader)
 		{
 		}
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
-			const Fragment & frag = terrain->GetFragment(
-				terrain->CalculateLod(chunk->m_Row, chunk->m_Column, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, LocalViewPos));
-			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, 0, shader, chunk);
+			if (chunk->m_Material && (chunk->m_Material->m_PassMask & PassMask))
+			{
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				{
+					if (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask))
+					{
+						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, chunk->m_Material->m_Shader.c_str(), PassID);
+						if (shader)
+						{
+							const Fragment & frag = terrain->GetFragment(
+								terrain->CalculateLod(chunk->m_Row, chunk->m_Column, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, LocalViewPos));
+							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
+								frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, 0, shader, chunk);
+						}
+					}
+				}
+			}
 		}
 	};
 
 	if (m_vb.m_ptr)
 	{
-		if (m_Material && (m_Material->m_PassMask & PassMask))
-		{
-			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-			{
-				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
-				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material->m_Shader.c_str(), PassID);
-					if (shader)
-					{
-						// ! do not use m_World for level offset
-						const Matrix4 & World = m_Actor->m_World;
-						Frustum loc_frustum = frustum.transform(World.transpose());
-						Vector3 loc_viewpos = ViewPos.transformCoord(World.inverse());
-						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, loc_viewpos, this, shader));
-					}
-				}
-			}
-		}
+		// ! do not use m_World for level offset
+		const Matrix4 & World = m_Actor->m_World;
+		Frustum loc_frustum = frustum.transform(World.transpose());
+		Vector3 loc_viewpos = ViewPos.transformCoord(World.inverse());
+		m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassMask, loc_viewpos, this));
 	}
 }
 

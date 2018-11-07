@@ -66,7 +66,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
-	, m_raytrunkid(0, 0)
+	, m_raychunkid(0, 0)
 {
 	// TODO: add construction code here
 	m_SwapChainBuffer.reset(new my::Surface());
@@ -241,7 +241,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeTerrain:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			PushWireAABB(terrain->m_Chunks[pFrame->m_seltrunkid.x][pFrame->m_seltrunkid.y]->m_aabb.transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
+			PushWireAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_aabb.transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
 		}
 		break;
 	}
@@ -655,7 +655,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					if (result.first && result.second < ret.second)
 					{
 						ret = result;
-						pView->m_raytrunkid.SetPoint(chunk->m_Row, chunk->m_Column);
+						pView->m_raychunkid.SetPoint(chunk->m_Row, chunk->m_Column);
 					}
 				}
 			};
@@ -1112,13 +1112,13 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			CChildView * pView;
 			Actor * selact;
 			float seldist;
-			CPoint seltrunkid;
+			CPoint selchunkid;
 			Callback(const my::Ray & _ray, CChildView * _pView)
 				: ray(_ray)
 				, pView(_pView)
 				, selact(NULL)
 				, seldist(FLT_MAX)
-				, seltrunkid(0, 0)
+				, selchunkid(0, 0)
 			{
 			}
 			void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -1130,7 +1130,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				{
 					selact = actor;
 					seldist = ret.second;
-					seltrunkid = pView->m_raytrunkid;
+					selchunkid = pView->m_raychunkid;
 				}
 			}
 		};
@@ -1147,7 +1147,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			else
 			{
 				pFrame->m_selactors.insert(cb.selact);
-				pFrame->m_seltrunkid = cb.seltrunkid;
+				pFrame->m_selchunkid = cb.selchunkid;
 				bSelectionChanged = true;
 			}
 		}

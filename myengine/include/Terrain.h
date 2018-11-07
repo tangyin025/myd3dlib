@@ -18,6 +18,8 @@ public:
 
 	int m_Column;
 
+	MaterialPtr m_Material;
+
 public:
 	TerrainChunk(Terrain * Owner, int Row, int Column);
 
@@ -32,6 +34,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Column);
+		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
 	void UpdateAABB(void);
@@ -95,8 +98,6 @@ public:
 	FragmentMap m_Fragment;
 
 	bool m_bNavigation;
-
-	MaterialPtr m_Material;
 
 	my::OctRoot m_Root;
 

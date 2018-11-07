@@ -62,7 +62,7 @@ protected:
 	LARGE_INTEGER m_qwTime[2];
 	typedef std::map<Actor *, my::Matrix4> ActorWorldMap;
 	ActorWorldMap m_selactorwlds;
-	CPoint m_raytrunkid;
+	CPoint m_raychunkid;
 
 	struct Vertex
 	{
