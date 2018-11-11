@@ -116,7 +116,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, con
 	{
 		shader.reset();
 		const std::string & what = e.what();
-		my::DxutApp::getSingleton().m_EventLog(what.c_str());
+		my::D3DContext::getSingleton().m_EventLog(what.c_str());
 	}
 	m_ShaderCache.insert(std::make_pair(key, shader));
 	return shader.get();
@@ -383,6 +383,7 @@ void RenderPipeline::OnRender(
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
+	m_SimpleSample->SetFloat("g_Time", my::D3DContext::getSingleton().m_fTotalTime);
 	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);

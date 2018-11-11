@@ -268,8 +268,6 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	_ASSERT(m_Actor);
 
-	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
-
 	shader->SetMatrix("g_World", m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
@@ -653,8 +651,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	_ASSERT(m_Actor);
 
-	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
-
 	shader->SetMatrix("g_World", m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
@@ -838,8 +834,6 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	_ASSERT(0 == AttribId);
 
 	_ASSERT(m_Actor);
-
-	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
 
 	if (m_EmitterType == EmitterTypeLocal)
 	{

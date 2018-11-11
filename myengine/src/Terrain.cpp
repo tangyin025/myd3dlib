@@ -67,8 +67,6 @@ void TerrainChunk::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shade
 {
 	_ASSERT(m_Owner->m_Actor);
 
-	shader->SetFloat("g_Time", D3DContext::getSingleton().m_fTotalTime);
-
 	shader->SetMatrix("g_World", m_Owner->m_Actor->m_World);
 
 	shader->SetFloat("g_HeightScale", m_Owner->m_HeightScale);
