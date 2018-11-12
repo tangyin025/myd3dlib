@@ -127,6 +127,16 @@ void Material::CopyFrom(const Material & rhs)
 {
 	m_Shader = rhs.m_Shader;
 	m_PassMask = rhs.m_PassMask;
+	m_CullMode = rhs.m_CullMode;
+	m_ZEnable = rhs.m_ZEnable;
+	m_ZWriteEnable = rhs.m_ZWriteEnable;
+	m_BlendMode = rhs.m_BlendMode;
+	m_ParameterList.clear();
+	MaterialParameterPtrList::const_iterator param_iter = rhs.m_ParameterList.begin();
+	for (; param_iter != rhs.m_ParameterList.end(); param_iter++)
+	{
+		m_ParameterList.push_back((*param_iter)->Clone());
+	}
 }
 
 MaterialPtr Material::Clone(void) const
