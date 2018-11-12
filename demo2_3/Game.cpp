@@ -800,15 +800,6 @@ bool Game::ExecuteCode(const char * code) throw()
 	return true;
 }
 
-static size_t hash_value(const Game::ShaderCacheKey & key)
-{
-	size_t seed = 0;
-	boost::hash_combine(seed, key.get<0>());
-	boost::hash_combine(seed, key.get<1>());
-	boost::hash_combine(seed, key.get<2>());
-	return seed;
-}
-
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	struct Callback : public my::OctNode::QueryCallback
