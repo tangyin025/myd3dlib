@@ -645,6 +645,7 @@ void RenderPipeline::ClearAllObjects(void)
 		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
 		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
 		{
+			mesh_inst_iter->second.setter = NULL;
 			mesh_inst_iter->second.m_TransformList.clear();
 		}
 		m_Pass[PassID].m_EmitterList.clear();
@@ -936,6 +937,10 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 		{
 			THROW_D3DEXCEPTION(hr);
 		}
+	}
+	else if (!atom_iter->second.setter)
+	{
+		atom_iter->second.setter = setter;
 	}
 	m_Pass[PassID].m_MeshInstanceMap[key].m_TransformList.push_back(World);
 }
