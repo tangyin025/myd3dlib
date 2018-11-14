@@ -1066,11 +1066,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	pFrame->m_Tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
-	bool bSelectionChanged = false;
 	if (!(nFlags & MK_SHIFT) && !pFrame->m_selactors.empty())
 	{
 		pFrame->m_selactors.clear();
-		bSelectionChanged = true;
 	}
 
 	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
@@ -1142,26 +1140,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
-				bSelectionChanged = true;
 			}
 			else
 			{
 				pFrame->m_selactors.insert(cb.selact);
 				pFrame->m_selchunkid = cb.selchunkid;
-				bSelectionChanged = true;
 			}
 		}
 	}
-
-	if (bSelectionChanged)
-	{
-		pFrame->UpdateSelBox();
-		pFrame->UpdatePivotTransform();
-		EventArgs arg;
-		pFrame->m_EventSelectionChanged(&arg);
-	}
-
-	Invalidate();
+	pFrame->OnSelChanged();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)

@@ -90,6 +90,7 @@ public:
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
 	BOOL OnFrameTick(float fElapsedTime);
+	void OnSelChanged();
 
 // Implementation
 public:

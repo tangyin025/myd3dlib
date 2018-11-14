@@ -464,6 +464,14 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 	return TRUE;
 }
 
+void CMainFrame::OnSelChanged()
+{
+	UpdateSelBox();
+	UpdatePivotTransform();
+	EventArgs arg;
+	m_EventSelectionChanged(&arg);
+}
+
 void CMainFrame::ClearFileContext()
 {
 	m_Root.ClearAllActor();
@@ -613,10 +621,7 @@ void CMainFrame::OnCreateActor()
 
 	m_selactors.clear();
 	m_selactors.insert(actor.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
-	EventArgs arg;
-	m_EventSelectionChanged(&arg);
+	OnSelChanged();
 }
 
 void CMainFrame::OnCreateCharacter()
@@ -636,10 +641,7 @@ void CMainFrame::OnCreateCharacter()
 
 	m_selactors.clear();
 	m_selactors.insert(character.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
-	EventArgs arg;
-	m_EventSelectionChanged(&arg);
+	OnSelChanged();
 }
 
 void CMainFrame::OnComponentMesh()
@@ -876,8 +878,7 @@ void CMainFrame::OnEditDelete()
 		(*actor_iter)->m_Node->GetTopNode()->RemoveActor((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
-	EventArgs arg;
-	m_EventSelectionChanged(&arg);
+	OnSelChanged();
 }
 
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
