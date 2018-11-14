@@ -2,6 +2,7 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 #include <Windows.h>
 #include "myException.h"
 
@@ -119,4 +120,51 @@ namespace my
 			SAFE_RELEASE(m_ptr);
 		}
 	};
+
+	class IResourceCallback
+	{
+	private:
+		friend class AsynchronousIOMgr;
+
+		friend class ResourceMgr;
+
+		bool m_Requested;
+
+	public:
+		IResourceCallback(void)
+			: m_Requested(false)
+		{
+		}
+
+		virtual ~IResourceCallback(void)
+		{
+			_ASSERT(!IsRequested());
+		}
+
+		bool IsRequested(void) const
+		{
+			return m_Requested;
+		}
+
+		virtual void OnReady(DeviceResourceBasePtr res) = 0;
+	};
+
+	class Control;
+
+	class ControlEventArgs
+	{
+	public:
+		Control * sender;
+
+		ControlEventArgs(Control * _sender)
+			: sender(_sender)
+		{
+		}
+
+		virtual ~ControlEventArgs(void)
+		{
+		}
+	};
+
+	typedef boost::function<void(ControlEventArgs *)> ControlEvent;
 }

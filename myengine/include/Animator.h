@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mySkeleton.h"
-#include "ResourceBundle.h"
 
 class AnimationNode;
 
@@ -11,12 +10,16 @@ class AnimationNodeSequence;
 
 class Actor;
 
-class Animator
+class Animator : public my::IResourceCallback
 {
 public:
 	Actor * m_Actor;
 
-	ResourceBundle<my::OgreSkeletonAnimation> m_SkeletonRes;
+	std::string m_SkeletonPath;
+
+	my::OgreSkeletonAnimationPtr m_Skeleton;
+
+	my::ControlEvent m_SkeletonEventReady;
 
 	AnimationNodePtr m_Node;
 
@@ -64,11 +67,13 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual void RequestResource(void);
+	virtual void OnReady(my::DeviceResourceBasePtr res);
 
-	virtual void ReleaseResource(void);
+	void RequestResource(void);
 
-	virtual void Update(float fElapsedTime);
+	void ReleaseResource(void);
+
+	void Update(float fElapsedTime);
 
 	void UpdateGroup(float fElapsedTime);
 

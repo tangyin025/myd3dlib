@@ -197,34 +197,6 @@ namespace my
 		IStreamPtr OpenIStream(const char * path);
 	};
 
-	class IResourceCallback
-	{
-	protected:
-		friend class AsynchronousIOMgr;
-
-		friend class ResourceMgr;
-
-		bool m_Requested;
-
-	public:
-		IResourceCallback(void)
-			: m_Requested(false)
-		{
-		}
-
-		virtual ~IResourceCallback(void)
-		{
-			_ASSERT(!IsRequested());
-		}
-
-		bool IsRequested(void) const
-		{
-			return m_Requested;
-		}
-
-		virtual void OnReady(DeviceResourceBasePtr res) = 0;
-	};
-
 	class IORequest
 	{
 	protected:

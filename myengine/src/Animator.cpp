@@ -15,52 +15,70 @@ BOOST_CLASS_EXPORT(Animator)
 template<>
 void Animator::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(m_SkeletonRes);
+	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ar << BOOST_SERIALIZATION_NVP(m_Node);
 }
 
 template<>
 void Animator::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonRes);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_Node);
 	m_Node->m_Owner = this;
 	m_Node->OnSetOwner();
 }
 
+void Animator::OnReady(my::DeviceResourceBasePtr res)
+{
+	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
+
+	if (m_SkeletonEventReady)
+	{
+		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
+	}
+}
+
 void Animator::RequestResource(void)
 {
-	m_SkeletonRes.RequestResource();
+	if (!m_SkeletonPath.empty())
+	{
+		_ASSERT(!m_Skeleton);
+
+		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), this);
+	}
 }
 
 void Animator::ReleaseResource(void)
 {
-	m_SkeletonRes.ReleaseResource();
+	if (!m_SkeletonPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, this);
+	}
 }
 
 void Animator::Update(float fElapsedTime)
 {
-	if (m_SkeletonRes.m_Res && m_Node)
+	if (m_Skeleton && m_Node)
 	{
 		m_Node->Tick(fElapsedTime, 1.0f);
 
 		UpdateGroup(fElapsedTime);
 
-		anim_pose.resize(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
+		anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
-		bind_pose_hier.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
-		anim_pose_hier.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
-		my::BoneIndexSet::const_iterator root_iter = m_SkeletonRes.m_Res->m_boneRootSet.begin();
-		for (; root_iter != m_SkeletonRes.m_Res->m_boneRootSet.end(); root_iter++)
+		bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
+		anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
+		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
+		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
 			anim_pose.IncrementSelf(
-				m_SkeletonRes.m_Res->m_boneBindPose, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter);
+				m_Skeleton->m_boneBindPose, m_Skeleton->m_boneHierarchy, *root_iter);
 
-			m_SkeletonRes.m_Res->m_boneBindPose.BuildHierarchyBoneList(
-				bind_pose_hier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
+			m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
+				bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
 
 			anim_pose.BuildHierarchyBoneList(
-				anim_pose_hier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
+				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
 		}
 
 		final_pose.resize(bind_pose_hier.size());
@@ -69,7 +87,7 @@ void Animator::Update(float fElapsedTime)
 			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
 			final_pose[i].m_position = (-bind_pose_hier[i].m_position).transform(final_pose[i].m_rotation) + anim_pose_hier[i].m_position;
 		}
-		m_DualQuats.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
+		m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
 		final_pose.BuildDualQuaternionList(m_DualQuats);
 	}
 }
@@ -196,9 +214,9 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 
 float AnimationNodeSequence::GetLength(void) const
 {
-	if (m_Owner->m_SkeletonRes.m_Res)
+	if (m_Owner->m_Skeleton)
 	{
-		const OgreAnimation * anim = m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name);
+		const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(m_Name);
 		if (anim)
 		{
 			return anim->GetTime();
@@ -209,15 +227,15 @@ float AnimationNodeSequence::GetLength(void) const
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 {
-	if (m_Owner->m_SkeletonRes.m_Res)
+	if (m_Owner->m_Skeleton)
 	{
-		const OgreAnimation * anim = m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name);
+		const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(m_Name);
 		if (anim)
 		{
-			boost::unordered_map<std::string, int>::const_iterator root_iter = m_Owner->m_SkeletonRes.m_Res->m_boneNameMap.find(m_Root);
-			if (root_iter != m_Owner->m_SkeletonRes.m_Res->m_boneNameMap.end())
+			boost::unordered_map<std::string, int>::const_iterator root_iter = m_Owner->m_Skeleton->m_boneNameMap.find(m_Root);
+			if (root_iter != m_Owner->m_Skeleton->m_boneNameMap.end())
 			{
-				anim->GetPose(pose, m_Owner->m_SkeletonRes.m_Res->m_boneHierarchy, root_iter->second, m_Time);
+				anim->GetPose(pose, m_Owner->m_Skeleton->m_boneHierarchy, root_iter->second, m_Time);
 			}
 		}
 	}

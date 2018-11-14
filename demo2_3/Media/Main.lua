@@ -67,13 +67,13 @@ game.Root:AddActor(actor2oct(player),player.aabb:transform(player.World))
 
 -- 加载动画资源
 local anim=Animator(player)
-anim.SkeletonRes.Path="character/casual19_m_highpoly.skeleton.xml"
-anim.SkeletonRes.EventReady=function(args)
-	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
-	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
-	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
-	anim.SkeletonRes.Res:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
-	anim.SkeletonRes.Res:Transform(local_trans)
+anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
+anim.SkeletonEventReady=function(args)
+	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
+	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
+	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
+	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
+	anim.Skeleton:Transform(local_trans)
 end
 
 -- 构建动画树

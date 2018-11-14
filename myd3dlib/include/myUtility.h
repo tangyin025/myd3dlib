@@ -1,12 +1,9 @@
 #pragma once
 
-#include "myResource.h"
-#include "mySkeleton.h"
-#include "myMesh.h"
-#include "myEffect.h"
-#include "myEmitter.h"
-#include "myUI.h"
-#include "myInput.h"
+#include "myMath.h"
+#include "mySingleton.h"
+#include <atlbase.h>
+#include <atltypes.h>
 #include <set>
 
 namespace my

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "myFont.h"
-#include <boost/function.hpp>
 #include <boost/array.hpp>
 #include <vector>
 #include <list>
@@ -162,23 +161,6 @@ namespace my
 	class Control;
 
 	typedef boost::shared_ptr<Control> ControlPtr;
-
-	class ControlEventArgs
-	{
-	public:
-		Control * sender;
-
-		ControlEventArgs(Control * _sender)
-			: sender(_sender)
-		{
-		}
-
-		virtual ~ControlEventArgs(void)
-		{
-		}
-	};
-
-	typedef boost::function<void (ControlEventArgs *)> ControlEvent;
 
 	class MouseEventArgs : public ControlEventArgs
 	{

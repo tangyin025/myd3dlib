@@ -1,6 +1,7 @@
 #include <sstream>
 #include "RenderPipeline.h"
 #include "myDxutApp.h"
+#include "myEmitter.h"
 #include "libc.h"
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>

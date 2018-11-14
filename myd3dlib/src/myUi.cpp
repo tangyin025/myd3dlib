@@ -1,5 +1,6 @@
 #include "myUi.h"
 #include "myDxutApp.h"
+#include "myResource.h"
 #include "myCollision.h"
 #include "myUtility.h"
 #include "ImeUi.h"

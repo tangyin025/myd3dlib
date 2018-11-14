@@ -374,6 +374,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequest(const std::string & key, my::IORequestPtr request)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	m_IORequestListMutex.Wait(INFINITE);
 
 	IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
@@ -403,6 +404,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResourceCallback * callback)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	m_IORequestListMutex.Wait(INFINITE);
 
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
@@ -438,6 +440,7 @@ void AsynchronousIOMgr::StartIORequestProc(void)
 void AsynchronousIOMgr::StopIORequestProc(void)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
 	m_IORequestListMutex.Release();
@@ -651,6 +654,8 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 
 void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	IORequestPtrPair pair = *req_iter;
 	m_IORequestListMutex.Wait(INFINITE);
 	m_IORequestList.erase(req_iter);

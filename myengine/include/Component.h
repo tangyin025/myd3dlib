@@ -1,6 +1,7 @@
 #pragma once
 
 #include "myOctree.h"
+#include "myEmitter.h"
 #include "RenderPipeline.h"
 #include "ResourceBundle.h"
 #include "PhysXPtr.h"

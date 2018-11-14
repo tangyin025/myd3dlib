@@ -1036,7 +1036,9 @@ static void ExportComponent(lua_State * L)
 
 		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
 			.def(constructor<Actor *>())
-			.def_readonly("SkeletonRes", &Animator::m_SkeletonRes)
+			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
+			.def_readonly("Skeleton", &Animator::m_Skeleton)
+			.def_readwrite("SkeletonEventReady", &Animator::m_SkeletonEventReady)
 			.def_readwrite("Node", &Animator::m_Node)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
