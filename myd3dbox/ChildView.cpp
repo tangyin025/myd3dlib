@@ -222,7 +222,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			if (mesh_cmp->m_MeshRes.m_Res)
+			if (mesh_cmp->m_Mesh)
 			{
 				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_Actor->m_World);
 				theApp.m_SimpleSample->SetVector("g_MeshColor", my::Vector4(0,1,0,1));
@@ -231,7 +231,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 				{
 					theApp.m_SimpleSample->BeginPass(0);
-					mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
+					mesh_cmp->m_Mesh->DrawSubset(i);
 					theApp.m_SimpleSample->EndPass();
 				}
 				theApp.m_SimpleSample->End();
@@ -287,8 +287,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			my::OgreMeshPtr mesh = mesh_cmp->m_MeshRes.m_Res;
-			if (!mesh)
+			if (!mesh_cmp->m_Mesh)
 			{
 				return false;
 			}
@@ -297,7 +296,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 				&& mesh_cmp->m_Actor->m_Animator
 				&& !mesh_cmp->m_Actor->m_Animator->m_DualQuats.empty())
 			{
-				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
+				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
 				elems.InsertPositionElement(0);
 				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
@@ -305,20 +304,20 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 					vertices.size(),
 					sizeof(vertices[0]),
 					elems,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumBytesPerVertex(),
-					mesh->m_VertexElems,
+					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+					mesh_cmp->m_Mesh->m_VertexElems,
 					mesh_cmp->m_Actor->m_Animator->m_DualQuats);
 				bool ret = OverlapTestFrustumAndMesh(frustum,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh_cmp->m_Mesh->GetNumFaces(),
 					elems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
+				mesh_cmp->m_Mesh->UnlockVertexBuffer();
+				mesh_cmp->m_Mesh->UnlockIndexBuffer();
 				if (ret)
 				{
 					return true;
@@ -327,15 +326,15 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			else
 			{
 				bool ret = OverlapTestFrustumAndMesh(frustum,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumVertices(),
-					mesh->GetNumBytesPerVertex(),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
-					mesh->m_VertexElems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
+					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+					mesh_cmp->m_Mesh->GetNumVertices(),
+					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh_cmp->m_Mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->m_VertexElems);
+				mesh_cmp->m_Mesh->UnlockVertexBuffer();
+				mesh_cmp->m_Mesh->UnlockIndexBuffer();
 				if (ret)
 				{
 					return true;
@@ -489,8 +488,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			my::OgreMeshPtr mesh = mesh_cmp->m_MeshRes.m_Res;
-			if (!mesh)
+			if (!mesh_cmp->m_Mesh)
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
@@ -500,7 +498,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				&& mesh_cmp->m_Actor->m_Animator
 				&& !mesh_cmp->m_Actor->m_Animator->m_DualQuats.empty())
 			{
-				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
+				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
 				elems.InsertPositionElement(0);
 				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
@@ -508,33 +506,33 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					vertices.size(),
 					sizeof(vertices[0]),
 					elems,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumBytesPerVertex(),
-					mesh->m_VertexElems,
+					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+					mesh_cmp->m_Mesh->m_VertexElems,
 					mesh_cmp->m_Actor->m_Animator->m_DualQuats);
 				ret = OverlapTestRayAndMesh(ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh_cmp->m_Mesh->GetNumFaces(),
 					elems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
+				mesh_cmp->m_Mesh->UnlockVertexBuffer();
+				mesh_cmp->m_Mesh->UnlockIndexBuffer();
 			}
 			else
 			{
 				ret = OverlapTestRayAndMesh(ray,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumVertices(),
-					mesh->GetNumBytesPerVertex(),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
-					mesh->m_VertexElems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
+					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
+					mesh_cmp->m_Mesh->GetNumVertices(),
+					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
+					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
+					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh_cmp->m_Mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->m_VertexElems);
+				mesh_cmp->m_Mesh->UnlockVertexBuffer();
+				mesh_cmp->m_Mesh->UnlockIndexBuffer();
 			}
 			if (ret.first)
 			{

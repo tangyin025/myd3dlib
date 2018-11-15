@@ -667,8 +667,7 @@ void CMainFrame::OnComponentMesh()
 	}
 
 	MeshComponentPtr mesh_cmp(new MeshComponent());
-	mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
-	mesh_cmp->m_MeshRes.OnReady(mesh);
+	mesh_cmp->m_MeshPath = ts2ms((LPCTSTR)strPathName);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr lambert1(new Material());
@@ -1027,41 +1026,40 @@ void CMainFrame::OnToolsBuildnavigation()
 					{
 						continue;
 					}
-					if (!mesh_cmp->m_MeshRes.IsRequested())
+					if (!mesh_cmp->IsRequested())
 					{
-						mesh_cmp->m_MeshRes.RequestResource();
+						mesh_cmp->RequestResource();
 						while (my::ResourceMgr::getSingleton().CheckIORequests(INFINITE))
 						{
 						}
 					}
-					my::OgreMeshPtr mesh = mesh_cmp->m_MeshRes.m_Res;
-					if (!mesh)
+					if (!mesh_cmp->m_Mesh)
 					{
 						continue;
 					}
-					const void * pVertices = mesh->LockVertexBuffer(D3DLOCK_READONLY);
-					DWORD NumVertices = mesh->GetNumVertices();
-					DWORD VertexStride = mesh->GetNumBytesPerVertex();
-					const void * pIndices = mesh->LockIndexBuffer(D3DLOCK_READONLY);
-					bool bIndices16 = !(mesh->GetOptions() & D3DXMESH_32BIT);
-					DWORD NumFaces = mesh->GetNumFaces();
-					ASSERT(mesh->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3);
+					const void * pVertices = mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY);
+					DWORD NumVertices = mesh_cmp->m_Mesh->GetNumVertices();
+					DWORD VertexStride = mesh_cmp->m_Mesh->GetNumBytesPerVertex();
+					const void * pIndices = mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY);
+					bool bIndices16 = !(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT);
+					DWORD NumFaces = mesh_cmp->m_Mesh->GetNumFaces();
+					ASSERT(mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3);
 					for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
 					{
 						int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
 						int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
 						int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
 
-						my::Vector3 v0 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride).transformCoord(actor->m_World);
-						my::Vector3 v1 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride).transformCoord(actor->m_World);
-						my::Vector3 v2 = mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride).transformCoord(actor->m_World);
+						my::Vector3 v0 = mesh_cmp->m_Mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride).transformCoord(actor->m_World);
+						my::Vector3 v1 = mesh_cmp->m_Mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride).transformCoord(actor->m_World);
+						my::Vector3 v2 = mesh_cmp->m_Mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride).transformCoord(actor->m_World);
 
 						my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
 
 						rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
 					}
-					mesh->UnlockVertexBuffer();
-					mesh->UnlockIndexBuffer();
+					mesh_cmp->m_Mesh->UnlockVertexBuffer();
+					mesh_cmp->m_Mesh->UnlockIndexBuffer();
 				}
 				else if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
 				{

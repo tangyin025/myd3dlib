@@ -281,7 +281,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 		CreatePropertiesMesh(pComponent, mesh_cmp);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshPath).c_str());
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bNavigation);
@@ -617,7 +617,7 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshPath).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
 	pComponent->AddSubItem(pProp);
