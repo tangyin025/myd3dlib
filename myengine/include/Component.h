@@ -3,7 +3,6 @@
 #include "myOctree.h"
 #include "myEmitter.h"
 #include "RenderPipeline.h"
-#include "ResourceBundle.h"
 #include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 
@@ -112,9 +111,14 @@ public:
 class MeshComponent
 	: public Component
 	, public RenderPipeline::IShaderSetter
+	, public my::IResourceCallback
 {
 public:
-	ResourceBundle<my::OgreMesh> m_MeshRes;
+	std::string m_MeshPath;
+
+	my::OgreMeshPtr m_Mesh;
+
+	my::ControlEvent m_MeshEventReady;
 
 	bool m_bInstance;
 
@@ -159,6 +163,8 @@ public:
 	void CopyFrom(const MeshComponent & rhs);
 
 	virtual ComponentPtr Clone(void) const;
+
+	virtual void OnReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 

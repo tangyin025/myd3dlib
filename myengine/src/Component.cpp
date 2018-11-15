@@ -193,7 +193,7 @@ template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	ar << BOOST_SERIALIZATION_NVP(m_MeshRes);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
@@ -204,7 +204,7 @@ template<>
 void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	ar >> BOOST_SERIALIZATION_NVP(m_MeshRes);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_bNavigation);
@@ -214,7 +214,7 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 void MeshComponent::CopyFrom(const MeshComponent & rhs)
 {
 	Component::CopyFrom(rhs);
-	m_MeshRes = rhs.m_MeshRes;
+	m_MeshPath = rhs.m_MeshPath;
 	m_bInstance = rhs.m_bInstance;
 	m_bUseAnimation = rhs.m_bUseAnimation;
 	m_bNavigation = rhs.m_bNavigation;
@@ -232,11 +232,26 @@ ComponentPtr MeshComponent::Clone(void) const
 	return ret;
 }
 
+void MeshComponent::OnReady(my::DeviceResourceBasePtr res)
+{
+	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+
+	if (m_MeshEventReady)
+	{
+		m_MeshEventReady(&my::ControlEventArgs(NULL));
+	}
+}
+
 void MeshComponent::RequestResource(void)
 {
 	Component::RequestResource();
 
-	m_MeshRes.RequestResource();
+	if (!m_MeshPath.empty())
+	{
+		_ASSERT(!m_Mesh);
+
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), this);
+	}
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -247,7 +262,10 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	m_MeshRes.ReleaseResource();
+	if (!m_MeshPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath, this);
+	}
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -284,9 +302,9 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 my::AABB MeshComponent::CalculateAABB(void) const
 {
 	AABB ret = Component::CalculateAABB();
-	if (m_MeshRes.m_Res)
+	if (m_Mesh)
 	{
-		ret.unionSelf(m_MeshRes.m_Res->m_aabb);
+		ret.unionSelf(m_Mesh->m_aabb);
 	}
 	return ret;
 }
@@ -295,7 +313,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 {
 	_ASSERT(m_Actor);
 
-	if (m_MeshRes.m_Res)
+	if (m_Mesh)
 	{
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
@@ -311,11 +329,11 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_Actor->m_World, shader, this);
+								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, m_Actor->m_World, shader, this);
 							}
 							else
 							{
-								pipeline->PushMesh(PassID, m_MeshRes.m_Res.get(), i, shader, this);
+								pipeline->PushMesh(PassID, m_Mesh.get(), i, shader, this);
 							}
 						}
 					}
@@ -340,12 +358,12 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 		return;
 	}
 
-	if (!m_MeshRes.m_Res)
+	if (!m_Mesh)
 	{
 		return;
 	}
 
-	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_MeshRes.m_Res);
+	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_Mesh);
 	if (key.empty())
 	{
 		return;
@@ -360,11 +378,11 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 	else
 	{
 		physx::PxTriangleMeshDesc desc;
-		desc.points.count = m_MeshRes.m_Res->GetNumVertices();
-		desc.points.stride = m_MeshRes.m_Res->GetNumBytesPerVertex();
-		desc.points.data = m_MeshRes.m_Res->LockVertexBuffer();
-		desc.triangles.count = m_MeshRes.m_Res->GetNumFaces();
-		if (m_MeshRes.m_Res->GetOptions() & D3DXMESH_32BIT)
+		desc.points.count = m_Mesh->GetNumVertices();
+		desc.points.stride = m_Mesh->GetNumBytesPerVertex();
+		desc.points.data = m_Mesh->LockVertexBuffer();
+		desc.triangles.count = m_Mesh->GetNumFaces();
+		if (m_Mesh->GetOptions() & D3DXMESH_32BIT)
 		{
 			desc.triangles.stride = 3 * sizeof(DWORD);
 		}
@@ -373,11 +391,11 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 			desc.triangles.stride = 3 * sizeof(WORD);
 			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 		}
-		desc.triangles.data = m_MeshRes.m_Res->LockIndexBuffer();
+		desc.triangles.data = m_Mesh->LockIndexBuffer();
 		physx::PxDefaultMemoryOutputStream writeBuffer;
 		bool status = PhysXContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
-		m_MeshRes.m_Res->UnlockIndexBuffer();
-		m_MeshRes.m_Res->UnlockVertexBuffer();
+		m_Mesh->UnlockIndexBuffer();
+		m_Mesh->UnlockVertexBuffer();
 		if (!status)
 		{
 			return;

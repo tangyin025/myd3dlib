@@ -33,9 +33,9 @@ lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 cmp:AddMaterial(lambert1)
-cmp.MeshRes.Path="mesh/plane.mesh.xml"
-cmp.MeshRes.EventReady=function(args)
-	cmp.MeshRes.Res:Transform(Matrix4.Scaling(256,1,256))
+cmp.MeshPath="mesh/plane.mesh.xml"
+cmp.MeshEventReady=function(args)
+	cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
 end
 actor:AddComponent(cmp)
 actor:CreateRigidActor(Actor.eRIGID_STATIC)
@@ -55,9 +55,9 @@ lambert2:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
 lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
 lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
 local cmp=MeshComponent()
-cmp.MeshRes.Path="character/casual19_m_highpoly.mesh.xml"
-cmp.MeshRes.EventReady=function(args)
-	cmp.MeshRes.Res:Transform(local_trans)
+cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
+cmp.MeshEventReady=function(args)
+	cmp.Mesh:Transform(local_trans)
 end
 cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
@@ -121,9 +121,9 @@ lambert3:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert3:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert3:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent()
-cmp2.MeshRes.Path="mesh/Cylinder.mesh.xml"
-cmp2.MeshRes.EventReady=function(args)
-	cmp2.MeshRes.Res:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
+cmp2.MeshPath="mesh/Cylinder.mesh.xml"
+cmp2.MeshEventReady=function(args)
+	cmp2.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
 		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 end
 cmp2:AddMaterial(lambert3)
@@ -137,7 +137,7 @@ player:Attach(actor2, 10)
 -- 在角色手部绑定物体
 local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp3=MeshComponent()
-cmp3.MeshRes.Path="mesh/Cylinder.mesh.xml"
+cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3:AddMaterial(lambert3)
 actor3:AddComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
@@ -149,7 +149,7 @@ player:Attach(actor3, 29)
 -- 创建一个物理球
 local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp4=MeshComponent()
-cmp4.MeshRes.Path="mesh/Sphere.mesh.xml"
+cmp4.MeshPath="mesh/Sphere.mesh.xml"
 cmp4:AddMaterial(lambert3)
 actor4:AddComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
