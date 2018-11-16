@@ -1,5 +1,7 @@
 #include "Material.h"
 #include "myEffect.h"
+#include "myDxutApp.h"
+#include "myResource.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -11,7 +13,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
-#include "myDxutApp.h"
 
 using namespace my;
 
@@ -78,25 +79,36 @@ MaterialParameterPtr MaterialParameterFloat4::Clone(void) const
 	return boost::shared_ptr<MaterialParameterFloat4>(new MaterialParameterFloat4(m_Name.c_str(), m_Value));
 }
 
-void MaterialParameterTexture::Set(my::Effect * shader)
+void MaterialParameterTexture::OnReady(my::DeviceResourceBasePtr res)
 {
-	_ASSERT(m_Handle);
-	shader->SetTexture(m_Handle, m_Texture.m_Res.get());
+	m_Texture = boost::dynamic_pointer_cast<my::BaseTexture>(res);
 }
 
 void MaterialParameterTexture::RequestResource(void)
 {
-	m_Texture.RequestResource();
+	if (!m_TexturePath.empty())
+	{
+		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), this);
+	}
 }
 
 void MaterialParameterTexture::ReleaseResource(void)
 {
-	m_Texture.ReleaseResource();
+	if (!m_TexturePath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, this);
+	}
+}
+
+void MaterialParameterTexture::Set(my::Effect * shader)
+{
+	_ASSERT(m_Handle);
+	shader->SetTexture(m_Handle, m_Texture.get());
 }
 
 MaterialParameterPtr MaterialParameterTexture::Clone(void) const
 {
-	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name.c_str(), m_Texture.m_Path.c_str()));
+	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name.c_str(), m_TexturePath.c_str()));
 }
 
 template<>

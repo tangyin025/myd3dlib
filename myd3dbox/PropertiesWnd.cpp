@@ -356,7 +356,7 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeTexture:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
-			dynamic_cast<MaterialParameterTexture *>(mat_param)->m_Texture.m_Path.c_str());
+			dynamic_cast<MaterialParameterTexture *>(mat_param)->m_TexturePath.c_str());
 		break;
 	}
 }
@@ -724,7 +724,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeTexture:
 		pProp = new CFileProp(ms2ts(mat_param->m_Name).c_str(), TRUE, (_variant_t)
-			ms2ts(dynamic_cast<MaterialParameterTexture *>(mat_param)->m_Texture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
+			ms2ts(dynamic_cast<MaterialParameterTexture *>(mat_param)->m_TexturePath).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	}
@@ -1391,10 +1391,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
-		ResourceBundle<my::BaseTexture> & tex = boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_Texture;
-		tex.ReleaseResource();
-		tex.m_Path = ts2ms(pProp->GetValue().bstrVal);
-		tex.RequestResource();
+		mat->m_ParameterList[i]->ReleaseResource();
+		boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_TexturePath = ts2ms(pProp->GetValue().bstrVal);
+		mat->m_ParameterList[i]->RequestResource();
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

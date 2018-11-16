@@ -2,7 +2,13 @@
 
 #include <boost/shared_ptr.hpp>
 #include "myMath.h"
-#include "ResourceBundle.h"
+#include "mySingleton.h"
+#include "myTexture.h"
+
+namespace my
+{
+	class Effect;
+};
 
 class MaterialParameter;
 
@@ -204,10 +210,12 @@ public:
 	virtual MaterialParameterPtr Clone(void) const;
 };
 
-class MaterialParameterTexture : public MaterialParameter
+class MaterialParameterTexture : public MaterialParameter, public my::IResourceCallback
 {
 public:
-	ResourceBundle<my::BaseTexture> m_Texture;
+	std::string m_TexturePath;
+
+	my::BaseTexturePtr m_Texture;
 
 protected:
 	MaterialParameterTexture(void)
@@ -217,7 +225,7 @@ protected:
 public:
 	MaterialParameterTexture(const char * Name, const char * Path)
 		: MaterialParameter(ParameterTypeTexture, Name)
-		, m_Texture(Path)
+		, m_TexturePath(Path)
 	{
 	}
 
@@ -230,11 +238,13 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Texture);
 	}
 
-	virtual void Set(my::Effect * shader);
+	virtual void OnReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void Set(my::Effect * shader);
 
 	virtual MaterialParameterPtr Clone(void) const;
 };
