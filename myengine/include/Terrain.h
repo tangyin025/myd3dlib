@@ -16,12 +16,12 @@ public:
 
 	int m_Row;
 
-	int m_Column;
+	int m_Col;
 
 	MaterialPtr m_Material;
 
 public:
-	TerrainChunk(Terrain * Owner, int Row, int Column);
+	TerrainChunk(Terrain * Owner, int Row, int Col);
 
 	TerrainChunk(void);
 
@@ -33,7 +33,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
-		ar & BOOST_SERIALIZATION_NVP(m_Column);
+		ar & BOOST_SERIALIZATION_NVP(m_Col);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
@@ -44,35 +44,19 @@ public:
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
-template <int N>
-struct Quad
-{
-	enum { value = Quad<N / 2>::value + 1 };
-};
-
-template <>
-struct Quad<1>
-{
-	enum { value = 0 };
-};
-
 class Terrain
 	: public Component
 {
 public:
-	static const int ROW_CHUNKS = 8;
+	int m_RowChunks;
 
-	static const int COL_CHUNKS = 8;
+	int m_ColChunks;
 
-	static const int CHUNK_SIZE = 32;
+	int m_ChunkSize;
 
-	class VertexArray2D : public boost::multi_array < unsigned short, 2 >
-	{
-	public:
-		VertexArray2D(void);
-	};
+	typedef boost::multi_array <unsigned short, 2> VertexArray2D;
 
-	static const VertexArray2D m_VertexTable;
+	VertexArray2D m_VertexTable;
 
 	float m_HeightScale;
 
@@ -127,7 +111,7 @@ public:
 
 	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j);
 
-	my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Column, int VertexIndex, void * pBits, int pitch);
+	my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch);
 
 	void CreateElements(void);
 
@@ -137,7 +121,7 @@ protected:
 	Terrain(void);
 
 public:
-	Terrain(float HeightScale, float WrappedU, float WrappedV);
+	Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale);
 
 	virtual ~Terrain(void);
 

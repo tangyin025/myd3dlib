@@ -62,15 +62,14 @@ namespace my
 
 		ChildArray m_Childs;
 
-	protected:
+	public:
 		OctNode(void)
 			: m_Parent(NULL)
 			, m_aabb(AABB::Invalid())
-			, m_Half(0,0,0)
+			, m_Half(0, 0, 0)
 		{
 		}
 
-	public:
 		OctNode(OctNode * Parent, const AABB & aabb)
 			: m_Parent(Parent)
 			, m_aabb(aabb)
@@ -120,13 +119,12 @@ namespace my
 
 	class OctRoot : public OctNode
 	{
-	protected:
+	public:
 		OctRoot(void)
 			: OctNode(NULL, AABB::Invalid())
 		{
 		}
 
-	public:
 		OctRoot(const AABB & aabb)
 			: OctNode(NULL, aabb)
 		{

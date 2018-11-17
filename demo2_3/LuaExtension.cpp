@@ -972,7 +972,7 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
 
 		, class_<Terrain, Component, boost::shared_ptr<Component> >("Terrain")
-			.def(constructor<float, float, float>())
+			.def(constructor<int, int, int, float>())
 
 		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())

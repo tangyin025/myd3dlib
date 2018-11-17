@@ -837,7 +837,7 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	TerrainPtr terrain(new Terrain(1.0f,1.0f,1.0f));
+	TerrainPtr terrain(new Terrain(8, 8, 32, 1.0f));
 	for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
@@ -1070,9 +1070,9 @@ void CMainFrame::OnToolsBuildnavigation()
 						continue;
 					}
 					D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-					for (unsigned int i = 0; i < terrain->ROW_CHUNKS; i++)
+					for (unsigned int i = 0; i < terrain->m_RowChunks; i++)
 					{
-						for (unsigned int j = 0; j < terrain->COL_CHUNKS; j++)
+						for (unsigned int j = 0; j < terrain->m_ColChunks; j++)
 						{
 							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
 							const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);

@@ -496,9 +496,9 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 		CreatePropertiesTerrain(pComponent, terrain, chunkid);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->ROW_CHUNKS);
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->COL_CHUNKS);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->CHUNK_SIZE);
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->m_RowChunks);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ColChunks);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_bNavigation);
 	pComponent->GetSubItem(PropId + 5);
@@ -880,13 +880,13 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->ROW_CHUNKS, NULL, PropertyTerrainRowChunks);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("ColChunks"), (_variant_t)terrain->COL_CHUNKS, NULL, PropertyTerrainColChunks);
+	pProp = new CSimpleProp(_T("ColChunks"), (_variant_t)terrain->m_ColChunks, NULL, PropertyTerrainColChunks);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("ChunkSize"), (_variant_t)terrain->CHUNK_SIZE, NULL, PropertyTerrainChunkSize);
+	pProp = new CSimpleProp(_T("ChunkSize"), (_variant_t)terrain->m_ChunkSize, NULL, PropertyTerrainChunkSize);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("HeightScale"), (_variant_t)terrain->m_HeightScale, NULL, PropertyTerrainHeightScale);

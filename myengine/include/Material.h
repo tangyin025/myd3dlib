@@ -237,7 +237,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
-		ar & BOOST_SERIALIZATION_NVP(m_Texture);
+		ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
 	}
 
 	virtual void OnReady(my::DeviceResourceBasePtr res);
