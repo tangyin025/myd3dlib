@@ -12,7 +12,7 @@ public:
 	virtual ~CNavigationDlg();
 
 // Dialog Data
-	enum { IDD = IDD_DIALOG2 };
+	enum { IDD = IDD_DIALOG3 };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
