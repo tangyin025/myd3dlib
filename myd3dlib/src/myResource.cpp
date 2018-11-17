@@ -377,13 +377,6 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 
 	m_IORequestListMutex.Wait(INFINITE);
 
-	IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
-	for (; callback_iter != request->m_callbacks.end(); callback_iter++)
-	{
-		_ASSERT(!(*callback_iter)->IsRequested());
-		(*callback_iter)->m_Requested = true;
-	}
-
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); req_iter++)
 	{
@@ -415,8 +408,6 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 			IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(callback);
 			if (callback_iter != req_iter->second->m_callbacks.end())
 			{
-				_ASSERT((*callback_iter)->IsRequested());
-				(*callback_iter)->m_Requested = false;
 				req_iter->second->m_callbacks.erase(callback_iter);
 				if (req_iter->second->m_callbacks.empty())
 				{
@@ -428,6 +419,22 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 	}
 
 	m_IORequestListMutex.Release();
+}
+
+bool AsynchronousIOMgr::FindIORequestCallback(IResourceCallback * callback)
+{
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+	for (; req_iter != m_IORequestList.end(); req_iter++)
+	{
+		IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(callback);
+		if (callback_iter != req_iter->second->m_callbacks.end())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void AsynchronousIOMgr::StartIORequestProc(void)
@@ -660,13 +667,6 @@ void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_it
 	m_IORequestListMutex.Wait(INFINITE);
 	m_IORequestList.erase(req_iter);
 	m_IORequestListMutex.Release();
-
-	IORequest::IResourceCallbackSet::iterator callback_iter = pair.second->m_callbacks.begin();
-	for (; callback_iter != pair.second->m_callbacks.end(); callback_iter++)
-	{
-		_ASSERT((*callback_iter)->IsRequested());
-		(*callback_iter)->m_Requested = false;
-	}
 
 	OnIORequestReady(pair.first, pair.second);
 }

@@ -1026,7 +1026,7 @@ void CMainFrame::OnToolsBuildnavigation()
 					{
 						continue;
 					}
-					if (!mesh_cmp->IsRequested())
+					if (!mesh_cmp->m_Mesh)
 					{
 						mesh_cmp->RequestResource();
 						while (my::ResourceMgr::getSingleton().CheckIORequests(INFINITE))
