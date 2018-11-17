@@ -1,5 +1,6 @@
 #include <sstream>
 #include "RenderPipeline.h"
+#include "myResource.h"
 #include "myDxutApp.h"
 #include "myEmitter.h"
 #include "libc.h"
@@ -189,10 +190,7 @@ void RenderPipeline::RequestResource(void)
 {
 	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 	{
-		if (!m_SkyBoxTextures[i].m_Path.empty())
-		{
-			m_SkyBoxTextures[i].RequestResource();
-		}
+		m_SkyBoxTextures[i].RequestResource();
 	}
 }
 
@@ -200,10 +198,7 @@ void RenderPipeline::ReleaseResource(void)
 {
 	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 	{
-		if (!m_SkyBoxTextures[i].m_Path.empty())
-		{
-			m_SkyBoxTextures[i].RequestResource();
-		}
+		m_SkyBoxTextures[i].ReleaseResource();
 	}
 }
 
@@ -466,9 +461,12 @@ void RenderPipeline::OnRender(
 		};
 		for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 		{
-			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&transforms[i]));
-			V(pd3dDevice->SetTexture(0, m_SkyBoxTextures[i].m_Res ? m_SkyBoxTextures[i].m_Res->m_ptr : NULL));
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
+			if (m_SkyBoxTextures[i].m_Texture)
+			{
+				V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&transforms[i]));
+				V(pd3dDevice->SetTexture(0, m_SkyBoxTextures[i].m_Texture->m_ptr));
+				V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
+			}
 		}
 	}
 	else

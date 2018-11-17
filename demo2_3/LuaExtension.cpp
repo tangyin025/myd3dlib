@@ -884,28 +884,7 @@ static void ExportComponent(lua_State * L)
 	using namespace luabind;
 	module(L)
 	[
-		class_<ResourceBundle<my::BaseTexture> >("ResourceTextureBundle")
-			.def(constructor<const char *>())
-			.def(constructor<>())
-			.def_readwrite("Path", &ResourceBundle<my::BaseTexture>::m_Path)
-			.def_readwrite("Res", &ResourceBundle<my::BaseTexture>::m_Res)
-			.def_readwrite("EventReady", &ResourceBundle<my::BaseTexture>::m_EventReady)
-
-		, class_<ResourceBundle<my::OgreMesh> >("ResourceMeshBundle")
-			.def(constructor<const char *>())
-			.def(constructor<>())
-			.def_readwrite("Path", &ResourceBundle<my::OgreMesh>::m_Path)
-			.def_readwrite("Res", &ResourceBundle<my::OgreMesh>::m_Res)
-			.def_readwrite("EventReady", &ResourceBundle<my::OgreMesh>::m_EventReady)
-
-		, class_<ResourceBundle<my::OgreSkeletonAnimation> >("ResourceSkeletonBundle")
-			.def(constructor<const char *>())
-			.def(constructor<>())
-			.def_readwrite("Path", &ResourceBundle<my::OgreSkeletonAnimation>::m_Path)
-			.def_readwrite("Res", &ResourceBundle<my::OgreSkeletonAnimation>::m_Res)
-			.def_readwrite("EventReady", &ResourceBundle<my::OgreSkeletonAnimation>::m_EventReady)
-
-		, class_<Material, boost::shared_ptr<Material> >("Material")
+		class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
 			[
 				value("PassMaskNone", RenderPipeline::PassMaskNone),

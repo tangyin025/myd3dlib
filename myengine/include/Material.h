@@ -213,6 +213,8 @@ public:
 class MaterialParameterTexture : public MaterialParameter, public my::IResourceCallback
 {
 public:
+	friend class RenderPipeline;
+
 	std::string m_TexturePath;
 
 	my::BaseTexturePtr m_Texture;

@@ -42,9 +42,6 @@
     <ClInclude Include="include\RenderPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ResourceBundle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,9 +72,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ResourceBundle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Terrain.cpp">

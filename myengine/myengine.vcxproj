@@ -83,7 +83,6 @@
     <ClInclude Include="include\PhysXContext.h" />
     <ClInclude Include="include\PhysXPtr.h" />
     <ClInclude Include="include\RenderPipeline.h" />
-    <ClInclude Include="include\ResourceBundle.h" />
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +95,6 @@
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\PhysXContext.cpp" />
     <ClCompile Include="src\RenderPipeline.cpp" />
-    <ClCompile Include="src\ResourceBundle.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

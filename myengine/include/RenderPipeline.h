@@ -3,7 +3,14 @@
 #include "myMesh.h"
 #include "myEffect.h"
 #include "myUtility.h"
-#include "ResourceBundle.h"
+#include "Material.h"
+#include <boost/unordered_map.hpp>
+#include <boost/array.hpp>
+
+namespace my
+{
+	class Emitter;
+};
 
 class RenderPipeline
 {
@@ -85,7 +92,7 @@ public:
 
 	bool m_SkyBoxEnable;
 
-	ResourceBundle<my::BaseTexture> m_SkyBoxTextures[6];
+	MaterialParameterTexture m_SkyBoxTextures[6];
 
 	my::EffectPtr m_SimpleSample;
 
