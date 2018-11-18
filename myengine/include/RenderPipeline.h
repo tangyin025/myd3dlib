@@ -248,7 +248,7 @@ public:
 		my::TransformList m_TransformList;
 	};
 
-	typedef std::tuple<my::Mesh *, DWORD, my::Effect *> MeshInstanceAtomKey;
+	typedef boost::tuple<my::Mesh *, DWORD, my::Effect *> MeshInstanceAtomKey;
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
 

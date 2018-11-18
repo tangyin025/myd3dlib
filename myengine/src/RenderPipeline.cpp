@@ -613,9 +613,9 @@ void RenderPipeline::RenderAllObjects(
 			DrawMeshInstance(
 				PassID,
 				pd3dDevice,
-				std::get<0>(mesh_inst_iter->first),
-				std::get<1>(mesh_inst_iter->first),
-				std::get<2>(mesh_inst_iter->first),
+				mesh_inst_iter->first.get<0>(),
+				mesh_inst_iter->first.get<1>(),
+				mesh_inst_iter->first.get<2>(),
 				mesh_inst_iter->second.setter,
 				mesh_inst_iter->second);
 			m_PassDrawCall[PassID]++;
@@ -897,6 +897,18 @@ void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD Attrib
 	atom.shader = shader;
 	atom.setter = setter;
 	m_Pass[PassID].m_MeshList.push_back(atom);
+}
+
+namespace boost
+{
+	static size_t hash_value(const RenderPipeline::MeshInstanceAtomKey & key)
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, key.get<0>());
+		boost::hash_combine(seed, key.get<1>());
+		boost::hash_combine(seed, key.get<2>());
+		return seed;
+	}
 }
 
 void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
