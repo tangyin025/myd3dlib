@@ -8,6 +8,7 @@
 #include "MainFrm.h"
 #include "ChildView.h"
 #include "ShapeDlg.h"
+#include "TerrainDlg.h"
 #include "Terrain.h"
 #include "Material.h"
 #include "Character.h"
@@ -837,7 +838,13 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	TerrainPtr terrain(new Terrain(8, 8, 32, 1.0f));
+	TerrainDlg dlg;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
 	for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)

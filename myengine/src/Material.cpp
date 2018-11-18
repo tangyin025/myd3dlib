@@ -43,7 +43,7 @@ void MaterialParameterFloat::Set(my::Effect * shader)
 
 MaterialParameterPtr MaterialParameterFloat::Clone(void) const
 {
-	return boost::shared_ptr<MaterialParameterFloat>(new MaterialParameterFloat(m_Name.c_str(), m_Value));
+	return boost::shared_ptr<MaterialParameterFloat>(new MaterialParameterFloat(m_Name, m_Value));
 }
 
 void MaterialParameterFloat2::Set(my::Effect * shader)
@@ -54,7 +54,7 @@ void MaterialParameterFloat2::Set(my::Effect * shader)
 
 MaterialParameterPtr MaterialParameterFloat2::Clone(void) const
 {
-	return boost::shared_ptr<MaterialParameterFloat2>(new MaterialParameterFloat2(m_Name.c_str(), m_Value));
+	return boost::shared_ptr<MaterialParameterFloat2>(new MaterialParameterFloat2(m_Name, m_Value));
 }
 
 void MaterialParameterFloat3::Set(my::Effect * shader)
@@ -65,7 +65,7 @@ void MaterialParameterFloat3::Set(my::Effect * shader)
 
 MaterialParameterPtr MaterialParameterFloat3::Clone(void) const
 {
-	return boost::shared_ptr<MaterialParameterFloat3>(new MaterialParameterFloat3(m_Name.c_str(), m_Value));
+	return boost::shared_ptr<MaterialParameterFloat3>(new MaterialParameterFloat3(m_Name, m_Value));
 }
 
 void MaterialParameterFloat4::Set(my::Effect * shader)
@@ -76,7 +76,7 @@ void MaterialParameterFloat4::Set(my::Effect * shader)
 
 MaterialParameterPtr MaterialParameterFloat4::Clone(void) const
 {
-	return boost::shared_ptr<MaterialParameterFloat4>(new MaterialParameterFloat4(m_Name.c_str(), m_Value));
+	return boost::shared_ptr<MaterialParameterFloat4>(new MaterialParameterFloat4(m_Name, m_Value));
 }
 
 void MaterialParameterTexture::OnReady(my::DeviceResourceBasePtr res)
@@ -108,7 +108,7 @@ void MaterialParameterTexture::Set(my::Effect * shader)
 
 MaterialParameterPtr MaterialParameterTexture::Clone(void) const
 {
-	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name.c_str(), m_TexturePath.c_str()));
+	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name, m_TexturePath));
 }
 
 template<>
@@ -242,7 +242,7 @@ void Material::ParseShaderParamters(void)
 				{
 					Value = boost::lexical_cast<float>(what2[0]);
 				}
-				AddParameterFloat(Name.c_str(), Value);
+				AddParameterFloat(Name, Value);
 			}
 			else if (Type == "float2")
 			{
@@ -254,7 +254,7 @@ void Material::ParseShaderParamters(void)
 					Value.x = boost::lexical_cast<float>(what2[1]);
 					Value.y = boost::lexical_cast<float>(what2[3]);
 				}
-				AddParameterFloat2(Name.c_str(), Value);
+				AddParameterFloat2(Name, Value);
 			}
 			else if (Type == "float3")
 			{
@@ -267,7 +267,7 @@ void Material::ParseShaderParamters(void)
 					Value.y = boost::lexical_cast<float>(what2[3]);
 					Value.z = boost::lexical_cast<float>(what2[5]);
 				}
-				AddParameterFloat3(Name.c_str(), Value);
+				AddParameterFloat3(Name, Value);
 			}
 			else if (Type == "float4")
 			{
@@ -281,7 +281,7 @@ void Material::ParseShaderParamters(void)
 					Value.z = boost::lexical_cast<float>(what2[5]);
 					Value.w = boost::lexical_cast<float>(what2[7]);
 				}
-				AddParameterFloat4(Name.c_str(), Value);
+				AddParameterFloat4(Name, Value);
 			}
 			else if (Type == "texture")
 			{
@@ -292,34 +292,34 @@ void Material::ParseShaderParamters(void)
 				{
 					Path = what2[1];
 				}
-				AddParameterTexture(Name.c_str(), Path.c_str());
+				AddParameterTexture(Name, Path);
 			}
 			start = what[0].second;
 		}
 	}
 }
 
-void Material::AddParameterFloat(const char * Name, float Value)
+void Material::AddParameterFloat(const std::string & Name, float Value)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat(Name, Value)));
 }
 
-void Material::AddParameterFloat2(const char * Name, const my::Vector2 & Value)
+void Material::AddParameterFloat2(const std::string & Name, const my::Vector2 & Value)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat2(Name, Value)));
 }
 
-void Material::AddParameterFloat3(const char * Name, const my::Vector3 & Value)
+void Material::AddParameterFloat3(const std::string & Name, const my::Vector3 & Value)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat3(Name, Value)));
 }
 
-void Material::AddParameterFloat4(const char * Name, const my::Vector4 & Value)
+void Material::AddParameterFloat4(const std::string & Name, const my::Vector4 & Value)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterFloat4(Name, Value)));
 }
 
-void Material::AddParameterTexture(const char * Name, const char * Path)
+void Material::AddParameterTexture(const std::string & Name, const std::string & Path)
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Path)));
 }

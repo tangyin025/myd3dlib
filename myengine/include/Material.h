@@ -41,7 +41,7 @@ protected:
 	{
 	}
 
-	MaterialParameter(ParameterType Type, const char * Name)
+	MaterialParameter(ParameterType Type, const std::string & Name)
 		: m_Type(Type)
 		, m_Name(Name)
 		, m_Handle(NULL)
@@ -78,7 +78,7 @@ public:
 
 	virtual MaterialParameterPtr Clone(void) const
 	{
-		return MaterialParameterPtr(new MaterialParameter(m_Type, m_Name.c_str()));
+		return MaterialParameterPtr(new MaterialParameter(m_Type, m_Name));
 	}
 };
 
@@ -94,7 +94,7 @@ protected:
 	}
 
 public:
-	MaterialParameterFloat(const char * Name, float Value)
+	MaterialParameterFloat(const std::string & Name, float Value)
 		: MaterialParameter(ParameterTypeFloat, Name)
 		, m_Value(Value)
 	{
@@ -126,7 +126,7 @@ protected:
 	}
 
 public:
-	MaterialParameterFloat2(const char * Name, const my::Vector2 & Value)
+	MaterialParameterFloat2(const std::string & Name, const my::Vector2 & Value)
 		: MaterialParameter(ParameterTypeFloat2, Name)
 		, m_Value(Value)
 	{
@@ -158,7 +158,7 @@ protected:
 	}
 
 public:
-	MaterialParameterFloat3(const char * Name, const my::Vector3 & Value)
+	MaterialParameterFloat3(const std::string & Name, const my::Vector3 & Value)
 		: MaterialParameter(ParameterTypeFloat3, Name)
 		, m_Value(Value)
 	{
@@ -190,7 +190,7 @@ protected:
 	}
 
 public:
-	MaterialParameterFloat4(const char * Name, const my::Vector4 & Value)
+	MaterialParameterFloat4(const std::string & Name, const my::Vector4 & Value)
 		: MaterialParameter(ParameterTypeFloat4, Name)
 		, m_Value(Value)
 	{
@@ -225,7 +225,7 @@ protected:
 	}
 
 public:
-	MaterialParameterTexture(const char * Name, const char * Path)
+	MaterialParameterTexture(const std::string & Name, const std::string & Path)
 		: MaterialParameter(ParameterTypeTexture, Name)
 		, m_TexturePath(Path)
 	{
@@ -321,13 +321,13 @@ public:
 
 	void ParseShaderParamters(void);
 
-	void AddParameterFloat(const char * Name, float Value);
+	void AddParameterFloat(const std::string & Name, float Value);
 
-	void AddParameterFloat2(const char * Name, const my::Vector2 & Value);
+	void AddParameterFloat2(const std::string & Name, const my::Vector2 & Value);
 
-	void AddParameterFloat3(const char * Name, const my::Vector3 & Value);
+	void AddParameterFloat3(const std::string & Name, const my::Vector3 & Value);
 
-	void AddParameterFloat4(const char * Name, const my::Vector4 & Value);
+	void AddParameterFloat4(const std::string & Name, const my::Vector4 & Value);
 
-	void AddParameterTexture(const char * Name, const char * Path);
+	void AddParameterTexture(const std::string & Name, const std::string & Path);
 };
