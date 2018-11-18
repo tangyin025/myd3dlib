@@ -255,7 +255,7 @@ namespace my
 
 		void RemoveIORequestCallback(const std::string & key, IResourceCallback * callback);
 
-		bool FindIORequestCallback(IResourceCallback * callback);
+		bool FindIORequestCallback(const IResourceCallback * callback);
 
 		void StartIORequestProc(void);
 

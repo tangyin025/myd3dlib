@@ -421,14 +421,14 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 	m_IORequestListMutex.Release();
 }
 
-bool AsynchronousIOMgr::FindIORequestCallback(IResourceCallback * callback)
+bool AsynchronousIOMgr::FindIORequestCallback(const IResourceCallback * callback)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for (; req_iter != m_IORequestList.end(); req_iter++)
 	{
-		IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(callback);
+		IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(const_cast<IResourceCallback *>(callback));
 		if (callback_iter != req_iter->second->m_callbacks.end())
 		{
 			return true;

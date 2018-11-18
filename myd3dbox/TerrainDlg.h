@@ -25,4 +25,7 @@ public:
 	CString m_DiffuseTexture;
 	CString m_NormalTexture;
 	CString m_SpecularTexture;
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton3();
 };

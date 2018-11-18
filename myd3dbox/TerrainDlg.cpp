@@ -40,7 +40,49 @@ void TerrainDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(TerrainDlg, CDialogEx)
+	ON_BN_CLICKED(IDC_BUTTON1, &TerrainDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &TerrainDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &TerrainDlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
 // TerrainDlg message handlers
+
+
+void TerrainDlg::OnBnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog dlg(TRUE, NULL, m_DiffuseTexture, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK != dlg.DoModal())
+	{
+		return;
+	}
+	m_DiffuseTexture = dlg.GetPathName();
+	UpdateData(FALSE);
+}
+
+
+void TerrainDlg::OnBnClickedButton2()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog dlg(TRUE, NULL, m_NormalTexture, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK != dlg.DoModal())
+	{
+		return;
+	}
+	m_NormalTexture = dlg.GetPathName();
+	UpdateData(FALSE);
+}
+
+
+void TerrainDlg::OnBnClickedButton3()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog dlg(TRUE, NULL, m_SpecularTexture, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK != dlg.DoModal())
+	{
+		return;
+	}
+	m_SpecularTexture = dlg.GetPathName();
+	UpdateData(FALSE);
+}

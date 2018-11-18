@@ -134,6 +134,8 @@ namespace my
 
 		virtual ~IResourceCallback(void);
 
+		bool IsRequested(void) const;
+
 		virtual void OnReady(DeviceResourceBasePtr res) = 0;
 	};
 

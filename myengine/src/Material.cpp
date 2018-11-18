@@ -323,3 +323,18 @@ void Material::AddParameterTexture(const std::string & Name, const std::string &
 {
 	m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterTexture(Name, Path)));
 }
+
+void Material::SetParameterTexture(const std::string & Name, const std::string & Path)
+{
+	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
+	for (; param_iter != m_ParameterList.end(); param_iter++)
+	{
+		if ((*param_iter)->m_Name == Name && (*param_iter)->m_Type == MaterialParameter::ParameterTypeTexture)
+		{
+			// ! SetParameterTexture must be call outside resource request
+			_ASSERT(!boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->IsRequested());
+			_ASSERT(!boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_Texture);
+			boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_TexturePath = Path;
+		}
+	}
+}

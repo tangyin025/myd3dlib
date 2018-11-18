@@ -330,4 +330,6 @@ public:
 	void AddParameterFloat4(const std::string & Name, const my::Vector4 & Value);
 
 	void AddParameterTexture(const std::string & Name, const std::string & Path);
+
+	void SetParameterTexture(const std::string & Name, const std::string & Path);
 };

@@ -904,6 +904,7 @@ static void ExportComponent(lua_State * L)
 			.def("AddParameterFloat3", &Material::AddParameterFloat3)
 			.def("AddParameterFloat4", &Material::AddParameterFloat4)
 			.def("AddParameterTexture", &Material::AddParameterTexture)
+			.def("SetParameterTexture", &Material::SetParameterTexture)
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.enum_("ComponentType")

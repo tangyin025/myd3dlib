@@ -28,5 +28,10 @@ DeviceResourceBase::~DeviceResourceBase(void)
 
 IResourceCallback::~IResourceCallback(void)
 {
-	_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(this));
+	_ASSERT(!IsRequested());
+}
+
+bool IResourceCallback::IsRequested(void) const
+{
+	return ResourceMgr::getSingleton().FindIORequestCallback(this);
 }
