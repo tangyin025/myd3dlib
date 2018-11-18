@@ -264,7 +264,7 @@ BEGIN
             MENUITEM "Cloth...",                    ID_COMPONENT_CLOTH
             MENUITEM "StaticEmitter",               ID_COMPONENT_STATICEMITTER
             MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
-            MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
+            MENUITEM "Terrain...",                  ID_COMPONENT_TERRAIN
         END
     END
     POPUP "&Tools"
