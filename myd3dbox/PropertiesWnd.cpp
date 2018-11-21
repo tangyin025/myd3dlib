@@ -298,48 +298,48 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	RemovePropertiesFrom(pMaterialList, mesh_cmp->m_MaterialList.size());
 }
 
-void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat)
+void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mtl)
 {
 	CMFCPropertyGridProperty * pMaterial = pParentCtrl->GetSubItem(NodeId);
-	pMaterial->SetValue((_variant_t)(DWORD_PTR)mat);
-	pMaterial->GetSubItem(0)->SetValue((_variant_t)mat->m_Shader.c_str());
-	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
-	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mat->m_CullMode - 1]);
-	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZEnable);
-	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mat->m_ZWriteEnable);
-	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_BlendModeDesc[mat->m_BlendMode]);
+	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
+	pMaterial->GetSubItem(0)->SetValue((_variant_t)mtl->m_Shader.c_str());
+	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mtl->m_PassMask));
+	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mtl->m_CullMode - 1]);
+	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZEnable);
+	pMaterial->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZWriteEnable);
+	pMaterial->GetSubItem(5)->SetValue((_variant_t)g_BlendModeDesc[mtl->m_BlendMode]);
 
 	CMFCPropertyGridProperty * pParameterList = pMaterial->GetSubItem(6);
-	for (unsigned int i = 0; i < mat->m_ParameterList.size(); i++)
+	for (unsigned int i = 0; i < mtl->m_ParameterList.size(); i++)
 	{
 		if ((unsigned int)pParameterList->GetSubItemsCount() <= i)
 		{
-			CreatePropertiesMaterialParameter(pParameterList, i, mat->m_ParameterList[i].get());
+			CreatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 			continue;
 		}
-		UpdatePropertiesMaterialParameter(pParameterList, i, mat->m_ParameterList[i].get());
+		UpdatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 	}
-	RemovePropertiesFrom(pParameterList, mat->m_ParameterList.size());
+	RemovePropertiesFrom(pParameterList, mtl->m_ParameterList.size());
 }
 
-void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mat_param)
+void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param)
 {
-	switch (mat_param->m_Type)
+	switch (mtl_param->m_Type)
 	{
 	case MaterialParameter::ParameterTypeFloat:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
-			dynamic_cast<MaterialParameterFloat *>(mat_param)->m_Value);
+			dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value);
 		break;
 	case MaterialParameter::ParameterTypeFloat2:
 	{
-		const my::Vector2 & Value = dynamic_cast<MaterialParameterFloat2 *>(mat_param)->m_Value;
+		const my::Vector2 & Value = dynamic_cast<MaterialParameterFloat2 *>(mtl_param)->m_Value;
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
 		break;
 	}
 	case MaterialParameter::ParameterTypeFloat3:
 	{
-		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mat_param)->m_Value;
+		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mtl_param)->m_Value;
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(2)->SetValue((_variant_t)Value.z);
@@ -347,7 +347,7 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeFloat4:
 	{
-		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4 *>(mat_param)->m_Value;
+		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4 *>(mtl_param)->m_Value;
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(0)->SetValue((_variant_t)Value.x);
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(1)->SetValue((_variant_t)Value.y);
 		pParentCtrl->GetSubItem(NodeId)->GetSubItem(2)->SetValue((_variant_t)Value.z);
@@ -356,7 +356,7 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeTexture:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
-			dynamic_cast<MaterialParameterTexture *>(mat_param)->m_TexturePath.c_str());
+			dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str());
 		break;
 	}
 }
@@ -633,32 +633,32 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	}
 }
 
-void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat)
+void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mtl)
 {
 	TCHAR buff[128];
 	_stprintf_s(buff, _countof(buff), _T("Material%d"), NodeId);
 	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(buff, NodeId, FALSE);
 	pParentCtrl->AddSubItem(pMaterial);
-	pMaterial->SetValue((_variant_t)(DWORD_PTR)mat);
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(mat->m_Shader).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
+	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(mtl->m_Shader).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
 	pMaterial->AddSubItem(pProp);
-	CComboProp * pPassMask = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mat->m_PassMask), NULL, PropertyMaterialPassMask);
+	CComboProp * pPassMask = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mtl->m_PassMask), NULL, PropertyMaterialPassMask);
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
 	{
 		pPassMask->AddOption(g_PassMaskDesc[i].desc, TRUE);
 	}
 	pMaterial->AddSubItem(pPassMask);
-	CComboProp * pCullMode = new CComboProp(_T("CullMode"), (_variant_t)g_CullModeDesc[mat->m_CullMode - 1], NULL, PropertyMaterialCullMode);
+	CComboProp * pCullMode = new CComboProp(_T("CullMode"), (_variant_t)g_CullModeDesc[mtl->m_CullMode - 1], NULL, PropertyMaterialCullMode);
 	for (unsigned int i = 0; i < _countof(g_CullModeDesc); i++)
 	{
 		pCullMode->AddOption(g_CullModeDesc[i], TRUE);
 	}
 	pMaterial->AddSubItem(pCullMode);
-	CCheckBoxProp * pZEnable = new CCheckBoxProp(_T("ZEnable"), mat->m_ZEnable, NULL, PropertyMaterialZEnable);
+	CCheckBoxProp * pZEnable = new CCheckBoxProp(_T("ZEnable"), mtl->m_ZEnable, NULL, PropertyMaterialZEnable);
 	pMaterial->AddSubItem(pZEnable);
-	CCheckBoxProp * pZWriteEnable = new CCheckBoxProp(_T("ZWriteEnable"), mat->m_ZWriteEnable, NULL, PropertyMaterialZWriteEnable);
+	CCheckBoxProp * pZWriteEnable = new CCheckBoxProp(_T("ZWriteEnable"), mtl->m_ZWriteEnable, NULL, PropertyMaterialZWriteEnable);
 	pMaterial->AddSubItem(pZWriteEnable);
-	CComboProp * pBlendMode = new CComboProp(_T("BlendMode"), (_variant_t)g_BlendModeDesc[mat->m_BlendMode], NULL, PropertyMaterialBlendMode);
+	CComboProp * pBlendMode = new CComboProp(_T("BlendMode"), (_variant_t)g_BlendModeDesc[mtl->m_BlendMode], NULL, PropertyMaterialBlendMode);
 	for (unsigned int i = 0; i < _countof(g_BlendModeDesc); i++)
 	{
 		pBlendMode->AddOption(g_BlendModeDesc[i], TRUE);
@@ -667,26 +667,26 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 
 	CMFCPropertyGridProperty * pParameterList = new CSimpleProp(_T("Parameters"), PropertyMaterialParameterList, FALSE);
 	pMaterial->AddSubItem(pParameterList);
-	for (unsigned int i = 0; i < mat->m_ParameterList.size(); i++)
+	for (unsigned int i = 0; i < mtl->m_ParameterList.size(); i++)
 	{
-		CreatePropertiesMaterialParameter(pParameterList, i, mat->m_ParameterList[i].get());
+		CreatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 	}
 }
 
-void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mat_param)
+void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param)
 {
 	CMFCPropertyGridProperty * pProp = NULL;
-	switch (mat_param->m_Type)
+	switch (mtl_param->m_Type)
 	{
 	case MaterialParameter::ParameterTypeFloat:
-		pProp = new CSimpleProp(ms2ts(mat_param->m_Name).c_str(), (_variant_t)
-			dynamic_cast<MaterialParameterFloat *>(mat_param)->m_Value, NULL, PropertyMaterialParameterFloat);
+		pProp = new CSimpleProp(ms2ts(mtl_param->m_Name).c_str(), (_variant_t)
+			dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value, NULL, PropertyMaterialParameterFloat);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	case MaterialParameter::ParameterTypeFloat2:
 	{
-		const my::Vector2 & Value = dynamic_cast<MaterialParameterFloat2 *>(mat_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mat_param->m_Name).c_str(), PropertyMaterialParameterFloat2, TRUE);
+		const my::Vector2 & Value = dynamic_cast<MaterialParameterFloat2 *>(mtl_param)->m_Value;
+		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mtl_param->m_Name).c_str(), PropertyMaterialParameterFloat2, TRUE);
 		pParentCtrl->AddSubItem(pParameter);
 		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 		pParameter->AddSubItem(pProp);
@@ -696,8 +696,8 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeFloat3:
 	{
-		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mat_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mat_param->m_Name).c_str(), PropertyMaterialParameterFloat3, TRUE);
+		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mtl_param)->m_Value;
+		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mtl_param->m_Name).c_str(), PropertyMaterialParameterFloat3, TRUE);
 		pParentCtrl->AddSubItem(pParameter);
 		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 		pParameter->AddSubItem(pProp);
@@ -709,8 +709,8 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeFloat4:
 	{
-		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4 *>(mat_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mat_param->m_Name).c_str(), PropertyMaterialParameterFloat4, TRUE);
+		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4 *>(mtl_param)->m_Value;
+		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mtl_param->m_Name).c_str(), PropertyMaterialParameterFloat4, TRUE);
 		pParentCtrl->AddSubItem(pParameter);
 		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 		pParameter->AddSubItem(pProp);
@@ -723,8 +723,8 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
-		pProp = new CFileProp(ms2ts(mat_param->m_Name).c_str(), TRUE, (_variant_t)
-			ms2ts(dynamic_cast<MaterialParameterTexture *>(mat_param)->m_TexturePath).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
+		pProp = new CFileProp(ms2ts(mtl_param->m_Name).c_str(), TRUE, (_variant_t)
+			ms2ts(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	}
@@ -1330,10 +1330,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialParameterFloat:
 	{
-		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
-		ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
-		boost::dynamic_pointer_cast<MaterialParameterFloat>(mat->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
+		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
+		boost::dynamic_pointer_cast<MaterialParameterFloat>(mtl->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -1362,23 +1362,23 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		ASSERT(pParameter);
-		Material * mat = (Material *)pParameter->GetParent()->GetParent()->GetValue().ulVal;
+		Material * mtl = (Material *)pParameter->GetParent()->GetParent()->GetValue().ulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pParameter);
 		switch (pParameter->GetData())
 		{
 		case PropertyMaterialParameterFloat2:
-			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat2);
-			boost::dynamic_pointer_cast<MaterialParameterFloat2>(mat->m_ParameterList[i])->m_Value = my::Vector2(
+			ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat2);
+			boost::dynamic_pointer_cast<MaterialParameterFloat2>(mtl->m_ParameterList[i])->m_Value = my::Vector2(
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal);
 			break;
 		case PropertyMaterialParameterFloat3:
-			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat3);
-			boost::dynamic_pointer_cast<MaterialParameterFloat3>(mat->m_ParameterList[i])->m_Value = my::Vector3(
+			ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat3);
+			boost::dynamic_pointer_cast<MaterialParameterFloat3>(mtl->m_ParameterList[i])->m_Value = my::Vector3(
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal);
 			break;
 		case PropertyMaterialParameterFloat4:
-			ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat4);
-			boost::dynamic_pointer_cast<MaterialParameterFloat4>(mat->m_ParameterList[i])->m_Value = my::Vector4(
+			ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat4);
+			boost::dynamic_pointer_cast<MaterialParameterFloat4>(mtl->m_ParameterList[i])->m_Value = my::Vector4(
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal, pParameter->GetSubItem(3)->GetValue().fltVal);
 			break;
 		}
@@ -1388,12 +1388,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialParameterTexture:
 	{
-		Material * mat = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
-		ASSERT(mat->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
-		mat->m_ParameterList[i]->ReleaseResource();
-		boost::dynamic_pointer_cast<MaterialParameterTexture>(mat->m_ParameterList[i])->m_TexturePath = ts2ms(pProp->GetValue().bstrVal);
-		mat->m_ParameterList[i]->RequestResource();
+		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
+		mtl->m_ParameterList[i]->ReleaseResource();
+		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = ts2ms(pProp->GetValue().bstrVal);
+		mtl->m_ParameterList[i]->RequestResource();
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

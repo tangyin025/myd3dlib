@@ -743,8 +743,8 @@ void RenderPipeline::DrawMeshInstance(
 	const DWORD NumInstances = atom.m_TransformList.size();
 	_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
-	Matrix4 * mat = (Matrix4 *)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
-	memcpy(mat, &atom.m_TransformList[0], NumInstances * m_MeshInstanceStride);
+	Matrix4 * mtl = (Matrix4 *)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
+	memcpy(mtl, &atom.m_TransformList[0], NumInstances * m_MeshInstanceStride);
 	m_MeshInstanceData.Unlock();
 
 	CComPtr<IDirect3DVertexBuffer9> vb = mesh->GetVertexBuffer();

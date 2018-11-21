@@ -252,10 +252,10 @@ void MeshComponent::RequestResource(void)
 		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), this);
 	}
 
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
-		(*mat_iter)->RequestResource();
+		(*mtl_iter)->RequestResource();
 	}
 }
 
@@ -266,10 +266,10 @@ void MeshComponent::ReleaseResource(void)
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath, this);
 	}
 
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
-		(*mat_iter)->ReleaseResource();
+		(*mtl_iter)->ReleaseResource();
 	}
 
 	Component::ReleaseResource();
@@ -609,19 +609,19 @@ void ClothComponent::RequestResource(void)
 {
 	Component::RequestResource();
 
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
-		(*mat_iter)->RequestResource();
+		(*mtl_iter)->RequestResource();
 	}
 }
 
 void ClothComponent::ReleaseResource(void)
 {
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
-		(*mat_iter)->ReleaseResource();
+		(*mtl_iter)->ReleaseResource();
 	}
 
 	Component::ReleaseResource();

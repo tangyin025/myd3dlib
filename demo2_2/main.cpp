@@ -253,9 +253,9 @@ public:
 		m_Tex.reset(new my::Texture2D());
 		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
 
-		Material mat;
-		mat.m_Shader = "shader/lambert1.fx";
-		mat.ParseShaderParamters();
+		Material mtl;
+		mtl.m_Shader = "shader/lambert1.fx";
+		mtl.ParseShaderParamters();
 
 		DialogPtr dlg(new Dialog());
 		dlg->m_Size = Vector2(400, 400);

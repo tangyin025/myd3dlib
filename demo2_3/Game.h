@@ -119,7 +119,7 @@ public:
 
 	my::DialogPtr LoadDialog(const char * path);
 
-	void Game::SaveMaterial(MaterialPtr mat, const char * path);
+	void Game::SaveMaterial(MaterialPtr mtl, const char * path);
 
 	MaterialPtr LoadMaterial(const char * path);
 

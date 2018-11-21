@@ -853,21 +853,21 @@ my::DialogPtr Game::LoadDialog(const char * path)
 	return dlg;
 }
 
-void Game::SaveMaterial(MaterialPtr mat, const char * path)
+void Game::SaveMaterial(MaterialPtr mtl, const char * path)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(mat);
+	oa << BOOST_SERIALIZATION_NVP(mtl);
 }
 
 MaterialPtr Game::LoadMaterial(const char * path)
 {
-	MaterialPtr mat;
+	MaterialPtr mtl;
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
 	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> BOOST_SERIALIZATION_NVP(mat);
-	return mat;
+	ia >> BOOST_SERIALIZATION_NVP(mtl);
+	return mtl;
 }
 
 void Game::SaveComponent(ComponentPtr cmp, const char * path)
