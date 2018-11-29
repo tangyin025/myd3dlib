@@ -409,7 +409,7 @@ void RenderPipeline::OnRender(
 		m_SsaoEffect->SetFloat("g_intensity", m_SsaoIntensity);
 		m_SsaoEffect->SetFloat("g_sample_rad", m_SsaoRadius);
 		m_SsaoEffect->SetFloat("g_scale", m_SsaoScale);
-		m_SsaoEffect->Begin();
+		m_SsaoEffect->Begin(0);
 		m_SsaoEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		m_SsaoEffect->EndPass();
@@ -488,7 +488,7 @@ void RenderPipeline::OnRender(
 		m_FxaaEffect->SetTexture("InputTexture", pRC->m_OpaqueRT.GetNextSource().get());
 		Vector4 RCPFrame(1.0f / pBackBufferSurfaceDesc->Width, 1.0f / pBackBufferSurfaceDesc->Height, 0.0f, 0.0f);
 		m_FxaaEffect->SetFloatArray("RCPFrame", &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
-		m_FxaaEffect->Begin();
+		m_FxaaEffect->Begin(0);
 		m_FxaaEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		m_FxaaEffect->EndPass();
@@ -509,7 +509,7 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		UINT passes = m_DofEffect->Begin();
+		UINT passes = m_DofEffect->Begin(0);
 		m_DofEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
@@ -668,17 +668,17 @@ void RenderPipeline::DrawIndexedPrimitive(
 	my::Effect * shader,
 	IShaderSetter * setter)
 {
-	HRESULT hr;
-	V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
-	V(pd3dDevice->SetVertexDeclaration(pDecl));
-	V(pd3dDevice->SetIndices(pIB));
-
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
+		HRESULT hr;
+		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
+		V(pd3dDevice->SetVertexDeclaration(pDecl));
+		V(pd3dDevice->SetIndices(pIB));
+		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
 	}
@@ -704,11 +704,12 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
+		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
 			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
 		shader->EndPass();
@@ -721,9 +722,10 @@ void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
+		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		shader->CommitChanges();
 		mesh->DrawSubset(AttribId);
 		shader->EndPass();
 	}
@@ -750,31 +752,30 @@ void RenderPipeline::DrawMeshInstance(
 	CComPtr<IDirect3DVertexBuffer9> vb = mesh->GetVertexBuffer();
 	CComPtr<IDirect3DIndexBuffer9> ib = mesh->GetIndexBuffer();
 
-	HRESULT hr;
-	V(pd3dDevice->SetStreamSource(0, vb, 0, atom.m_VertexStride));
-	V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
-	V(pd3dDevice->SetStreamSource(1, m_MeshInstanceData.m_ptr, 0, m_MeshInstanceStride));
-	V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
-	V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
-	V(pd3dDevice->SetIndices(ib));
-
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
+		HRESULT hr;
+		V(pd3dDevice->SetStreamSource(0, vb, 0, atom.m_VertexStride));
+		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
+		V(pd3dDevice->SetStreamSource(1, m_MeshInstanceData.m_ptr, 0, m_MeshInstanceStride));
+		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
+		V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
+		V(pd3dDevice->SetIndices(ib));
+		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
 			atom.m_AttribTable[AttribId].VertexStart,
 			atom.m_AttribTable[AttribId].VertexCount,
 			atom.m_AttribTable[AttribId].FaceStart * 3,
 			atom.m_AttribTable[AttribId].FaceCount));
+		V(pd3dDevice->SetStreamSourceFreq(0, 1));
+		V(pd3dDevice->SetStreamSourceFreq(1, 1));
 		shader->EndPass();
 	}
 	shader->End();
-
-	V(pd3dDevice->SetStreamSourceFreq(0,1));
-	V(pd3dDevice->SetStreamSourceFreq(1,1));
 }
 
 void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
@@ -803,20 +804,18 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetStreamSource(0, m_ParticleVertexBuffer.m_ptr, 0, m_ParticleVertexStride));
 		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
-
 		V(pd3dDevice->SetStreamSource(1, m_ParticleInstanceData.m_ptr, 0, m_ParticleInstanceStride));
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
-
 		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
 		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
+		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
-
 		V(pd3dDevice->SetStreamSourceFreq(0,1));
 		V(pd3dDevice->SetStreamSourceFreq(1,1));
 		shader->EndPass();
