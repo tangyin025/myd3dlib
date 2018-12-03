@@ -12,6 +12,8 @@ namespace my
 	class Emitter;
 };
 
+class Component;
+
 class RenderPipeline
 {
 public:
@@ -112,12 +114,6 @@ public:
 
 	float m_SsaoScale;
 
-	class IShaderSetter
-	{
-	public:
-		virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId) = 0;
-	};
-
 	struct RTChain
 	{
 		typedef boost::array<my::Texture2DPtr, 2> RTArray;
@@ -205,7 +201,8 @@ public:
 		UINT PrimitiveCount;
 		DWORD AttribId;
 		my::Effect * shader;
-		IShaderSetter * setter;
+		Component * cmp;
+		Material * mtl;
 	};
 
 	typedef std::vector<IndexedPrimitiveAtom> IndexedPrimitiveAtomList;
@@ -223,7 +220,8 @@ public:
 		UINT VertexStreamZeroStride;
 		DWORD AttribId;
 		my::Effect * shader;
-		IShaderSetter * setter;
+		Component * cmp;
+		Material * mtl;
 	};
 
 	typedef std::vector<IndexedPrimitiveUPAtom> IndexedPrimitiveUPAtomList;
@@ -233,14 +231,16 @@ public:
 		my::Mesh * mesh;
 		DWORD AttribId;
 		my::Effect * shader;
-		IShaderSetter * setter;
+		Component * cmp;
+		Material * mtl;
 	};
 
 	typedef std::vector<MeshAtom> MeshAtomList;
 
 	struct MeshInstanceAtom
 	{
-		IShaderSetter * setter;
+		Component * cmp;
+		Material * mtl;
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 		std::vector<D3DVERTEXELEMENT9> m_velist;
 		DWORD m_VertexStride;
@@ -257,7 +257,8 @@ public:
 		my::Emitter * emitter;
 		DWORD AttribId;
 		my::Effect * shader;
-		IShaderSetter * setter;
+		Component * cmp;
+		Material * mtl;
 	};
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
@@ -355,7 +356,8 @@ public:
 		UINT PrimitiveCount,
 		DWORD AttribId,
 		my::Effect * shader,
-		IShaderSetter * setter);
+		Component * cmp,
+		Material * mtl);
 
 	void DrawIndexedPrimitiveUP(
 		unsigned int PassID,
@@ -371,9 +373,10 @@ public:
 		UINT VertexStreamZeroStride,
 		DWORD AttribId,
 		my::Effect * shader,
-		IShaderSetter * setter);
+		Component * cmp,
+		Material * mtl);
 
-	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
 	void DrawMeshInstance(
 		unsigned int PassID,
@@ -381,10 +384,11 @@ public:
 		my::Mesh * mesh,
 		DWORD AttribId,
 		my::Effect * shader,
-		IShaderSetter * setter,
+		Component * cmp,
+		Material * mtl,
 		MeshInstanceAtom & atom);
 
-	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
 	void PushIndexedPrimitive(
 		unsigned int PassID,
@@ -400,7 +404,8 @@ public:
 		UINT PrimitiveCount,
 		DWORD AttribId,
 		my::Effect * shader,
-		IShaderSetter * setter);
+		Component * cmp,
+		Material * mtl);
 
 	void PushIndexedPrimitiveUP(
 		unsigned int PassID,
@@ -415,11 +420,12 @@ public:
 		UINT VertexStreamZeroStride,
 		DWORD AttribId,
 		my::Effect * shader,
-		IShaderSetter * setter);
+		Component * cmp,
+		Material * mtl);
 
-	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
-	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
+	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, Component * cmp, Material * mtl);
 
-	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 };

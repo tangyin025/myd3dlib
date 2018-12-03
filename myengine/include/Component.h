@@ -2,9 +2,15 @@
 
 #include "myOctree.h"
 #include "myEmitter.h"
-#include "RenderPipeline.h"
+#include "myMesh.h"
 #include "PhysXPtr.h"
+#include <atlbase.h>
 #include <boost/serialization/nvp.hpp>
+
+namespace my
+{
+	class Effect;
+};
 
 class Material;
 
@@ -15,6 +21,8 @@ typedef std::vector<MaterialPtr> MaterialPtrList;
 class Actor;
 
 class PhysXSceneContext;
+
+class RenderPipeline;
 
 class Component;
 
@@ -89,6 +97,8 @@ public:
 
 	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnWorldChanged(void);
@@ -110,7 +120,6 @@ public:
 
 class MeshComponent
 	: public Component
-	, public RenderPipeline::IShaderSetter
 	, public my::IResourceCallback
 {
 public:
@@ -170,9 +179,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void Update(float fElapsedTime);
-
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
+
+	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -186,7 +195,6 @@ typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
 class ClothComponent
 	: public Component
 	, public my::DeviceResourceBase
-	, public RenderPipeline::IShaderSetter
 {
 public:
 	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
@@ -281,7 +289,6 @@ typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 class EmitterComponent
 	: public Component
 	, public my::Emitter
-	, public RenderPipeline::IShaderSetter
 {
 public:
 	MaterialPtr m_Material;

@@ -3,6 +3,7 @@
 #include "myResource.h"
 #include "myDxutApp.h"
 #include "myEmitter.h"
+#include "Component.h"
 #include "libc.h"
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
@@ -573,7 +574,8 @@ void RenderPipeline::RenderAllObjects(
 			prim_iter->PrimitiveCount,
 			prim_iter->AttribId,
 			prim_iter->shader,
-			prim_iter->setter);
+			prim_iter->cmp,
+			prim_iter->mtl);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -594,14 +596,15 @@ void RenderPipeline::RenderAllObjects(
 			indexed_prim_iter->VertexStreamZeroStride,
 			indexed_prim_iter->AttribId,
 			indexed_prim_iter->shader,
-			indexed_prim_iter->setter);
+			indexed_prim_iter->cmp,
+			indexed_prim_iter->mtl);
 		m_PassDrawCall[PassID]++;
 	}
 
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawMesh(PassID, pd3dDevice, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
+		DrawMesh(PassID, pd3dDevice, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -616,7 +619,8 @@ void RenderPipeline::RenderAllObjects(
 				mesh_inst_iter->first.get<0>(),
 				mesh_inst_iter->first.get<1>(),
 				mesh_inst_iter->first.get<2>(),
-				mesh_inst_iter->second.setter,
+				mesh_inst_iter->second.cmp,
+				mesh_inst_iter->second.mtl,
 				mesh_inst_iter->second);
 			m_PassDrawCall[PassID]++;
 		}
@@ -627,7 +631,7 @@ void RenderPipeline::RenderAllObjects(
 	{
 		if (!emitter_iter->emitter->m_ParticleList.empty())
 		{
-			DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
+			DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->cmp, emitter_iter->mtl);
 			m_PassDrawCall[PassID]++;
 		}
 	}
@@ -644,7 +648,8 @@ void RenderPipeline::ClearAllObjects(void)
 		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
 		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
 		{
-			mesh_inst_iter->second.setter = NULL;
+			mesh_inst_iter->second.cmp = NULL;
+			mesh_inst_iter->second.mtl = NULL;
 			mesh_inst_iter->second.m_TransformList.clear();
 		}
 		m_Pass[PassID].m_EmitterList.clear();
@@ -666,7 +671,8 @@ void RenderPipeline::DrawIndexedPrimitive(
 	UINT PrimitiveCount,
 	DWORD AttribId,
 	my::Effect * shader,
-	IShaderSetter * setter)
+	Component * cmp,
+	Material * mtl)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
@@ -677,7 +683,8 @@ void RenderPipeline::DrawIndexedPrimitive(
 		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		V(pd3dDevice->SetIndices(pIB));
-		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, AttribId);
+		mtl->OnSetShader(pd3dDevice, shader, AttribId);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
@@ -699,7 +706,8 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	UINT VertexStreamZeroStride,
 	DWORD AttribId,
 	my::Effect * shader,
-	IShaderSetter * setter)
+	Component * cmp,
+	Material * mtl)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
@@ -708,7 +716,8 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, AttribId);
+		mtl->OnSetShader(pd3dDevice, shader, AttribId);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
 			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
@@ -717,14 +726,15 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
-		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, AttribId);
+		mtl->OnSetShader(pd3dDevice, shader, AttribId);
 		shader->CommitChanges();
 		mesh->DrawSubset(AttribId);
 		shader->EndPass();
@@ -738,7 +748,8 @@ void RenderPipeline::DrawMeshInstance(
 	my::Mesh * mesh,
 	DWORD AttribId,
 	my::Effect * shader,
-	IShaderSetter * setter,
+	Component * cmp,
+	Material * mtl,
 	MeshInstanceAtom & atom)
 {
 	_ASSERT(AttribId < atom.m_AttribTable.size());
@@ -764,7 +775,8 @@ void RenderPipeline::DrawMeshInstance(
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
 		V(pd3dDevice->SetIndices(ib));
-		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, AttribId);
+		mtl->OnSetShader(pd3dDevice, shader, AttribId);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
 			atom.m_AttribTable[AttribId].VertexStart,
@@ -778,7 +790,7 @@ void RenderPipeline::DrawMeshInstance(
 	shader->End();
 }
 
-void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
 	_ASSERT(NumInstances <= Emitter::PARTICLE_INSTANCE_MAX);
@@ -813,7 +825,8 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
 		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
-		setter->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, AttribId);
+		mtl->OnSetShader(pd3dDevice, shader, AttribId);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
 		V(pd3dDevice->SetStreamSourceFreq(0,1));
@@ -837,7 +850,8 @@ void RenderPipeline::PushIndexedPrimitive(
 	UINT PrimitiveCount,
 	DWORD AttribId,
 	my::Effect * shader,
-	IShaderSetter * setter)
+	Component * cmp,
+	Material * mtl)
 {
 	IndexedPrimitiveAtom atom;
 	atom.pDecl = pDecl;
@@ -852,7 +866,8 @@ void RenderPipeline::PushIndexedPrimitive(
 	atom.PrimitiveCount = PrimitiveCount;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
-	atom.setter = setter;
+	atom.cmp = cmp;
+	atom.mtl = mtl;
 	m_Pass[PassID].m_IndexedPrimitiveList.push_back(atom);
 }
 
@@ -869,7 +884,8 @@ void RenderPipeline::PushIndexedPrimitiveUP(
 	UINT VertexStreamZeroStride,
 	DWORD AttribId,
 	my::Effect * shader,
-	IShaderSetter * setter)
+	Component * cmp,
+	Material * mtl)
 {
 	IndexedPrimitiveUPAtom atom;
 	atom.pDecl = pDecl;
@@ -884,17 +900,19 @@ void RenderPipeline::PushIndexedPrimitiveUP(
 	atom.VertexStreamZeroStride = VertexStreamZeroStride;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
-	atom.setter = setter;
+	atom.cmp = cmp;
+	atom.mtl = mtl;
 	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
 	MeshAtom atom;
 	atom.mesh = mesh;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
-	atom.setter = setter;
+	atom.cmp = cmp;
+	atom.mtl = mtl;
 	m_Pass[PassID].m_MeshList.push_back(atom);
 }
 
@@ -910,14 +928,15 @@ namespace boost
 	}
 }
 
-void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, Component * cmp, Material * mtl)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader);
 	MeshInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_MeshInstanceMap.find(key);
 	if (atom_iter == m_Pass[PassID].m_MeshInstanceMap.end())
 	{
 		MeshInstanceAtom & atom = m_Pass[PassID].m_MeshInstanceMap[key];
-		atom.setter = setter;
+		atom.cmp = cmp;
+		atom.mtl = mtl;
 		DWORD submeshes = 0;
 		mesh->GetAttributeTable(NULL, &submeshes);
 		atom.m_AttribTable.resize(submeshes);
@@ -948,19 +967,21 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-	else if (!atom_iter->second.setter)
+	else if (!atom_iter->second.cmp)
 	{
-		atom_iter->second.setter = setter;
+		atom_iter->second.cmp = cmp;
+		atom_iter->second.mtl = mtl;
 	}
 	m_Pass[PassID].m_MeshInstanceMap[key].m_TransformList.push_back(World);
 }
 
-void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
 	EmitterAtom atom;
 	atom.emitter = emitter;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
-	atom.setter = setter;
+	atom.cmp = cmp;
+	atom.mtl = mtl;
 	m_Pass[PassID].m_EmitterList.push_back(atom);
 }

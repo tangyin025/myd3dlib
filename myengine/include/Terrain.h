@@ -1,13 +1,14 @@
 #pragma once
 
+#include "myTexture.h"
 #include "Component.h"
 #include <boost/multi_array.hpp>
+#include <boost/unordered_map.hpp>
 
 class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
-	, public RenderPipeline::IShaderSetter
 {
 public:
 	Terrain * m_Owner;
@@ -38,8 +39,6 @@ public:
 	}
 
 	void UpdateAABB(void);
-
-	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -142,6 +141,8 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
 	void UpdateVertices(void);
 

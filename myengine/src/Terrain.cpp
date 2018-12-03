@@ -2,7 +2,9 @@
 #include "Actor.h"
 #include "Material.h"
 #include "PhysXContext.h"
+#include "RenderPipeline.h"
 #include "myDxutApp.h"
+#include "myEffect.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -61,27 +63,6 @@ void TerrainChunk::UpdateAABB(void)
 		}
 	}
 	m_Owner->m_HeightMap.UnlockRect(0);
-}
-
-void TerrainChunk::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
-{
-	_ASSERT(m_Owner->m_Actor);
-
-	shader->SetMatrix("g_World", m_Owner->m_Actor->m_World);
-
-	shader->SetFloat("g_HeightScale", m_Owner->m_HeightScale);
-
-	shader->SetVector("g_HeightTexSize", Vector2((float)m_Owner->m_RowChunks * m_Owner->m_ChunkSize, (float)m_Owner->m_ColChunks * m_Owner->m_ChunkSize));
-
-	int ChunkId[2] = { m_Row, m_Col };
-
-	shader->SetIntArray("g_ChunkId", ChunkId, 2);
-
-	shader->SetInt("g_ChunkSize", m_Owner->m_ChunkSize);
-
-	shader->SetTexture("g_HeightTexture", &m_Owner->m_HeightMap);
-
-	m_Material->OnSetShader(pd3dDevice, shader, AttribId);
 }
 
 static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N, int hs, unsigned int k)
@@ -591,6 +572,25 @@ void Terrain::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
+void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+{
+	_ASSERT(m_Actor);
+
+	shader->SetMatrix("g_World", m_Actor->m_World);
+
+	shader->SetFloat("g_HeightScale", m_HeightScale);
+
+	shader->SetVector("g_HeightTexSize", Vector2((float)m_RowChunks * m_ChunkSize, (float)m_ColChunks * m_ChunkSize));
+
+	int ChunkId[2] = { LOWORD(AttribId), HIWORD(AttribId) };
+
+	shader->SetIntArray("g_ChunkId", ChunkId, 2);
+
+	shader->SetInt("g_ChunkSize", m_ChunkSize);
+
+	shader->SetTexture("g_HeightTexture", &m_HeightMap);
+}
+
 void Terrain::UpdateVertices(void)
 {
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
@@ -661,7 +661,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
 								terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
 							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-								frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, 0, shader, chunk);
+								frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, MAKELONG(chunk->m_Row, chunk->m_Col), shader, terrain, chunk->m_Material.get());
 						}
 					}
 				}

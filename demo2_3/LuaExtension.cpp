@@ -9,6 +9,7 @@
 #include "Controller.h"
 #include "Terrain.h"
 #include "Material.h"
+#include "RenderPipeline.h"
 
 namespace luabind
 {

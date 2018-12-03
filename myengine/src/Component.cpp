@@ -1,9 +1,12 @@
 #include "Component.h"
 #include "Actor.h"
 #include "myDxutApp.h"
-#include "PhysXContext.h"
+#include "myEffect.h"
 #include "myResource.h"
 #include "Animator.h"
+#include "Material.h"
+#include "PhysXContext.h"
+#include "RenderPipeline.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -66,6 +69,10 @@ void Component::OnEnterPxScene(PhysXSceneContext * scene)
 }
 
 void Component::OnLeavePxScene(PhysXSceneContext * scene)
+{
+}
+
+void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
 }
 
@@ -275,10 +282,6 @@ void MeshComponent::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void MeshComponent::Update(float fElapsedTime)
-{
-}
-
 void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(AttribId < m_MaterialList.size());
@@ -294,8 +297,10 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 			shader->SetMatrixArray("g_dualquat", &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
 	}
+}
 
-	m_MaterialList[AttribId]->OnSetShader(pd3dDevice, shader, AttribId);
+void MeshComponent::Update(float fElapsedTime)
+{
 }
 
 my::AABB MeshComponent::CalculateAABB(void) const
@@ -328,11 +333,11 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, m_Actor->m_World, shader, this);
+								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, m_Actor->m_World, shader, this, m_MaterialList[i].get());
 							}
 							else
 							{
-								pipeline->PushMesh(PassID, m_Mesh.get(), i, shader, this);
+								pipeline->PushMesh(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get());
 							}
 						}
 					}
@@ -677,8 +682,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 			shader->SetMatrixArray("g_dualquat", &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
 	}
-
-	m_MaterialList[AttribId]->OnSetShader(pd3dDevice, shader, AttribId);
 }
 
 my::AABB ClothComponent::CalculateAABB(void) const
@@ -723,7 +726,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 								&m_IndexData[m_AttribTable[i].FaceStart * 3],
 								D3DFMT_INDEX16,
 								&m_VertexData[0],
-								m_VertexStride, i, shader, this);
+								m_VertexStride, i, shader, this, m_MaterialList[i].get());
 						}
 					}
 				}
@@ -860,11 +863,6 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	{
 		shader->SetMatrix("g_World", Matrix4::identity);
 	}
-
-	if (m_Material)
-	{
-		m_Material->OnSetShader(pd3dDevice, shader, AttribId);
-	}
 }
 
 my::AABB EmitterComponent::CalculateAABB(void) const
@@ -885,7 +883,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
-					pipeline->PushEmitter(PassID, this, 0, shader, this);
+					pipeline->PushEmitter(PassID, this, 0, shader, this, m_Material.get());
 				}
 			}
 		}
