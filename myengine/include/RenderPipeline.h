@@ -239,16 +239,14 @@ public:
 
 	struct MeshInstanceAtom
 	{
-		Component * cmp;
-		Material * mtl;
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 		std::vector<D3DVERTEXELEMENT9> m_velist;
 		DWORD m_VertexStride;
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-		my::TransformList m_TransformList;
+		std::vector<Component *> cmps;
 	};
 
-	typedef boost::tuple<my::Mesh *, DWORD, my::Effect *> MeshInstanceAtomKey;
+	typedef boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *> MeshInstanceAtomKey;
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
 
@@ -384,7 +382,6 @@ public:
 		my::Mesh * mesh,
 		DWORD AttribId,
 		my::Effect * shader,
-		Component * cmp,
 		Material * mtl,
 		MeshInstanceAtom & atom);
 
@@ -425,7 +422,7 @@ public:
 
 	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
-	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, Component * cmp, Material * mtl);
+	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
 	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 };

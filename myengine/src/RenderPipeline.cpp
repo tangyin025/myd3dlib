@@ -4,6 +4,7 @@
 #include "myDxutApp.h"
 #include "myEmitter.h"
 #include "Component.h"
+#include "Actor.h"
 #include "libc.h"
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
@@ -611,7 +612,7 @@ void RenderPipeline::RenderAllObjects(
 	MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
 	for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
 	{
-		if (!mesh_inst_iter->second.m_TransformList.empty())
+		if (!mesh_inst_iter->second.cmps.empty())
 		{
 			DrawMeshInstance(
 				PassID,
@@ -619,8 +620,7 @@ void RenderPipeline::RenderAllObjects(
 				mesh_inst_iter->first.get<0>(),
 				mesh_inst_iter->first.get<1>(),
 				mesh_inst_iter->first.get<2>(),
-				mesh_inst_iter->second.cmp,
-				mesh_inst_iter->second.mtl,
+				mesh_inst_iter->first.get<3>(),
 				mesh_inst_iter->second);
 			m_PassDrawCall[PassID]++;
 		}
@@ -648,9 +648,7 @@ void RenderPipeline::ClearAllObjects(void)
 		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
 		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
 		{
-			mesh_inst_iter->second.cmp = NULL;
-			mesh_inst_iter->second.mtl = NULL;
-			mesh_inst_iter->second.m_TransformList.clear();
+			mesh_inst_iter->second.cmps.clear();
 		}
 		m_Pass[PassID].m_EmitterList.clear();
 	}
@@ -748,16 +746,18 @@ void RenderPipeline::DrawMeshInstance(
 	my::Mesh * mesh,
 	DWORD AttribId,
 	my::Effect * shader,
-	Component * cmp,
 	Material * mtl,
 	MeshInstanceAtom & atom)
 {
 	_ASSERT(AttribId < atom.m_AttribTable.size());
-	const DWORD NumInstances = atom.m_TransformList.size();
+	const DWORD NumInstances = atom.cmps.size();
 	_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
 	Matrix4 * trans = (Matrix4 *)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
-	memcpy(trans, &atom.m_TransformList[0], NumInstances * m_MeshInstanceStride);
+	for (DWORD i = 0; i < atom.cmps.size(); i++)
+	{
+		trans[i] = atom.cmps[i]->m_Actor->m_World;
+	}
 	m_MeshInstanceData.Unlock();
 
 	CComPtr<IDirect3DVertexBuffer9> vb = mesh->GetVertexBuffer();
@@ -775,7 +775,7 @@ void RenderPipeline::DrawMeshInstance(
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
 		V(pd3dDevice->SetIndices(ib));
-		cmp->OnSetShader(pd3dDevice, shader, AttribId);
+		atom.cmps[0]->OnSetShader(pd3dDevice, shader, AttribId);
 		mtl->OnSetShader(pd3dDevice, shader, AttribId);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
@@ -928,15 +928,13 @@ namespace boost
 	}
 }
 
-void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
-	MeshInstanceAtomKey key(mesh, AttribId, shader);
+	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl);
 	MeshInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_MeshInstanceMap.find(key);
 	if (atom_iter == m_Pass[PassID].m_MeshInstanceMap.end())
 	{
 		MeshInstanceAtom & atom = m_Pass[PassID].m_MeshInstanceMap[key];
-		atom.cmp = cmp;
-		atom.mtl = mtl;
 		DWORD submeshes = 0;
 		mesh->GetAttributeTable(NULL, &submeshes);
 		atom.m_AttribTable.resize(submeshes);
@@ -966,13 +964,12 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 		{
 			THROW_D3DEXCEPTION(hr);
 		}
+		atom.cmps.push_back(cmp);
 	}
-	else if (!atom_iter->second.cmp)
+	else
 	{
-		atom_iter->second.cmp = cmp;
-		atom_iter->second.mtl = mtl;
+		atom_iter->second.cmps.push_back(cmp);
 	}
-	m_Pass[PassID].m_MeshInstanceMap[key].m_TransformList.push_back(World);
 }
 
 void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)

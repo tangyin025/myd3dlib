@@ -333,7 +333,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, m_Actor->m_World, shader, this, m_MaterialList[i].get());
+								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get());
 							}
 							else
 							{
