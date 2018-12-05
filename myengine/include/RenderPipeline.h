@@ -246,7 +246,16 @@ public:
 		std::vector<Component *> cmps;
 	};
 
-	typedef boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *> MeshInstanceAtomKey;
+	class MeshInstanceAtomKey : public boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *>
+	{
+	public:
+		MeshInstanceAtomKey(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl)
+			: tuple(mesh, AttribId, shader, mtl)
+		{
+		}
+
+		bool operator == (const MeshInstanceAtomKey & rhs) const;
+	};
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
 

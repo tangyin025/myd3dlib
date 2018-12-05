@@ -645,11 +645,12 @@ void RenderPipeline::ClearAllObjects(void)
 		m_Pass[PassID].m_IndexedPrimitiveList.clear();
 		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
 		m_Pass[PassID].m_MeshList.clear();
-		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
-		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
-		{
-			mesh_inst_iter->second.cmps.clear();
-		}
+		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
+		//for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
+		//{
+		//	mesh_inst_iter->second.cmps.clear(); // ! mtl in hash key may invalid
+		//}
+		m_Pass[PassID].m_MeshInstanceMap.clear();
 		m_Pass[PassID].m_EmitterList.clear();
 	}
 }
@@ -914,6 +915,13 @@ void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD Attrib
 	atom.cmp = cmp;
 	atom.mtl = mtl;
 	m_Pass[PassID].m_MeshList.push_back(atom);
+}
+
+bool RenderPipeline::MeshInstanceAtomKey::operator == (const MeshInstanceAtomKey & rhs) const
+{
+	return get<0>() == rhs.get<0>()
+		&& get<1>() == rhs.get<1>()
+		&& get<2>() == rhs.get<2>();
 }
 
 namespace boost
