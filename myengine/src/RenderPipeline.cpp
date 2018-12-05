@@ -635,6 +635,22 @@ void RenderPipeline::RenderAllObjects(
 			m_PassDrawCall[PassID]++;
 		}
 	}
+
+	WorldEmitterAtomMap::iterator world_emitter_iter = m_Pass[PassID].m_WorldEmitterMap.begin();
+	for (; world_emitter_iter != m_Pass[PassID].m_WorldEmitterMap.end(); world_emitter_iter++)
+	{
+		if (!world_emitter_iter->second.emitters.empty())
+		{
+			DrawWorldEmitter(
+				PassID,
+				pd3dDevice,
+				world_emitter_iter->first.get<0>(),
+				world_emitter_iter->first.get<1>(),
+				world_emitter_iter->first.get<2>(),
+				world_emitter_iter->second);
+			m_PassDrawCall[PassID]++;
+		}
+	}
 }
 
 void RenderPipeline::ClearAllObjects(void)
@@ -741,14 +757,7 @@ void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice
 	shader->End();
 }
 
-void RenderPipeline::DrawMeshInstance(
-	unsigned int PassID,
-	IDirect3DDevice9 * pd3dDevice,
-	my::Mesh * mesh,
-	DWORD AttribId,
-	my::Effect * shader,
-	Material * mtl,
-	MeshInstanceAtom & atom)
+void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, MeshInstanceAtom & atom)
 {
 	_ASSERT(AttribId < atom.m_AttribTable.size());
 	const DWORD NumInstances = atom.cmps.size();
@@ -835,6 +844,11 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		shader->EndPass();
 	}
 	shader->End();
+}
+
+void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, DWORD AttribId, my::Effect * shader, Material * mtl, WorldEmitterAtom & atom)
+{
+
 }
 
 void RenderPipeline::PushIndexedPrimitive(
@@ -1039,4 +1053,25 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 	atom.cmp = cmp;
 	atom.mtl = mtl;
 	m_Pass[PassID].m_EmitterList.push_back(atom);
+}
+
+bool RenderPipeline::WorldEmitterAtomKey::operator == (const WorldEmitterAtomKey & rhs) const
+{
+	return true;
+}
+
+namespace boost
+{
+	size_t hash_value(const RenderPipeline::WorldEmitterAtomKey & key)
+	{
+		size_t seed = 0;
+		return seed;
+	}
+}
+
+void RenderPipeline::PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+{
+	WorldEmitterAtomKey key(AttribId, shader, mtl);
+	WorldEmitterAtom & atom = m_Pass[PassID].m_WorldEmitterMap[key];
+	atom.emitters.push_back(std::make_pair(emitter, cmp));
 }

@@ -883,7 +883,14 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
-					pipeline->PushEmitter(PassID, this, 0, shader, this, m_Material.get());
+					if (m_EmitterType == EmitterTypeLocal)
+					{
+						pipeline->PushEmitter(PassID, this, 0, shader, this, m_Material.get());
+					}
+					else
+					{
+						pipeline->PushWorldEmitter(PassID, this, 0, shader, this, m_Material.get());
+					}
 				}
 			}
 		}

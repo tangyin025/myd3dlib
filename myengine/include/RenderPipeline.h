@@ -270,6 +270,24 @@ public:
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
 
+	struct WorldEmitterAtom
+	{
+		std::vector<std::pair<my::Emitter *, Component *> > emitters;
+	};
+
+	class WorldEmitterAtomKey : public boost::tuple<DWORD, my::Effect *, Material *>
+	{
+	public:
+		WorldEmitterAtomKey(DWORD AttribId, my::Effect * shader, Material * mtl)
+			: tuple(AttribId, shader, mtl)
+		{
+		}
+
+		bool operator == (const WorldEmitterAtomKey & rhs) const;
+	};
+
+	typedef boost::unordered_map<WorldEmitterAtomKey, WorldEmitterAtom> WorldEmitterAtomMap;
+
 	struct Pass
 	{
 		IndexedPrimitiveAtomList m_IndexedPrimitiveList;
@@ -277,6 +295,7 @@ public:
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
 		EmitterAtomList m_EmitterList;
+		WorldEmitterAtomMap m_WorldEmitterMap;
 	};
 
 	boost::array<Pass, PassTypeNum> m_Pass;
@@ -385,16 +404,11 @@ public:
 
 	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
-	void DrawMeshInstance(
-		unsigned int PassID,
-		IDirect3DDevice9 * pd3dDevice,
-		my::Mesh * mesh,
-		DWORD AttribId,
-		my::Effect * shader,
-		Material * mtl,
-		MeshInstanceAtom & atom);
+	void DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, MeshInstanceAtom & atom);
 
 	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+
+	void DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, DWORD AttribId, my::Effect * shader, Material * mtl, WorldEmitterAtom & atom);
 
 	void PushIndexedPrimitive(
 		unsigned int PassID,
@@ -434,4 +448,6 @@ public:
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 
 	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+
+	void PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
 };
