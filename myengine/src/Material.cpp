@@ -30,6 +30,29 @@ BOOST_CLASS_EXPORT(MaterialParameterTexture)
 
 BOOST_CLASS_EXPORT(Material)
 
+bool MaterialParameter::operator == (const MaterialParameter & rhs) const
+{
+	if (m_Type == rhs.m_Type && m_Name == rhs.m_Name)
+	{
+		switch (m_Type)
+		{
+		case ParameterTypeNone:
+			return true;
+		case ParameterTypeFloat:
+			return static_cast<const MaterialParameterFloat &>(*this).m_Value == static_cast<const MaterialParameterFloat &>(rhs).m_Value;
+		case ParameterTypeFloat2:
+			return static_cast<const MaterialParameterFloat2 &>(*this).m_Value == static_cast<const MaterialParameterFloat2 &>(rhs).m_Value;
+		case ParameterTypeFloat3:
+			return static_cast<const MaterialParameterFloat3 &>(*this).m_Value == static_cast<const MaterialParameterFloat3 &>(rhs).m_Value;
+		case ParameterTypeFloat4:
+			return static_cast<const MaterialParameterFloat4 &>(*this).m_Value == static_cast<const MaterialParameterFloat4 &>(rhs).m_Value;
+		case ParameterTypeTexture:
+			return static_cast<const MaterialParameterTexture &>(*this).m_TexturePath == static_cast<const MaterialParameterTexture &>(rhs).m_TexturePath;
+		}
+	}
+	return false;
+}
+
 void MaterialParameter::Init(my::Effect * shader)
 {
 	m_Handle = shader->GetParameterByName(NULL, m_Name.c_str());
@@ -133,6 +156,28 @@ void Material::load<boost::archive::polymorphic_iarchive>(boost::archive::polymo
 	ar >> BOOST_SERIALIZATION_NVP(m_ZWriteEnable);
 	ar >> BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParameterList);
+}
+
+bool Material::operator == (const Material & rhs) const
+{
+	if (m_PassMask == rhs.m_PassMask
+		&& m_CullMode == rhs.m_CullMode
+		&& m_ZEnable == rhs.m_ZEnable
+		&& m_ZWriteEnable == rhs.m_ZWriteEnable
+		&& m_BlendMode == rhs.m_BlendMode
+		&& m_ParameterList.size() == rhs.m_ParameterList.size())
+	{
+		for (unsigned int i = 0; i < m_ParameterList.size(); i++)
+		{
+			if (*m_ParameterList[i] == *rhs.m_ParameterList[i])
+			{
+				continue;
+			}
+			return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 void Material::CopyFrom(const Material & rhs)

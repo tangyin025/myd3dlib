@@ -62,6 +62,8 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
 	}
 
+	bool operator == (const MaterialParameter & rhs) const;
+
 	void Init(my::Effect * shader);
 
 	virtual void Set(my::Effect * shader)
@@ -308,6 +310,8 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
+
+	bool operator == (const Material & rhs) const;
 
 	void CopyFrom(const Material & rhs);
 
