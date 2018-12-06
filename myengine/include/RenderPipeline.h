@@ -272,7 +272,12 @@ public:
 
 	struct WorldEmitterAtom
 	{
-		std::vector<std::pair<my::Emitter *, Component *> > emitters;
+		typedef std::vector<std::pair<my::Emitter *, Component *> > EmitterPairList;
+		EmitterPairList emitters;
+		DWORD TotalParticles;
+		WorldEmitterAtom()
+			: TotalParticles(0)
+		{}
 	};
 
 	class WorldEmitterAtomKey : public boost::tuple<DWORD, my::Effect *, Material *>

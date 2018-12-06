@@ -639,7 +639,7 @@ void RenderPipeline::RenderAllObjects(
 	WorldEmitterAtomMap::iterator world_emitter_iter = m_Pass[PassID].m_WorldEmitterMap.begin();
 	for (; world_emitter_iter != m_Pass[PassID].m_WorldEmitterMap.end(); world_emitter_iter++)
 	{
-		if (!world_emitter_iter->second.emitters.empty())
+		if (!world_emitter_iter->second.emitters.empty() && world_emitter_iter->second.TotalParticles > 0)
 		{
 			DrawWorldEmitter(
 				PassID,
@@ -802,24 +802,28 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 
 void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
-	const DWORD NumInstances = emitter->m_ParticleList.size();
-	_ASSERT(NumInstances <= Emitter::PARTICLE_INSTANCE_MAX);
+	const DWORD NumInstances = my::Min(emitter->m_ParticleList.size(), Emitter::PARTICLE_INSTANCE_MAX);
 	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
 	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, D3DLOCK_DISCARD);
 	_ASSERT(pVertices);
+	int NumRemaining = NumInstances;
 	Emitter::ParticleList::const_array_range array_one = emitter->m_ParticleList.array_one();
-	if (array_one.second > 0)
+	int count_one = my::Min<int>(NumRemaining, array_one.second);
+	if (count_one > 0)
 	{
-		size_t length = array_one.second * sizeof(Emitter::ParticleList::value_type);
+		size_t length = count_one * sizeof(Emitter::ParticleList::value_type);
 		memcpy(pVertices, array_one.first, length);
 		pVertices += length;
+		NumRemaining -= count_one;
 	}
 	Emitter::ParticleList::const_array_range array_two = emitter->m_ParticleList.array_two();
-	if (array_two.second > 0)
+	int count_two = my::Min<int>(NumRemaining, array_two.second);
+	if (count_two > 0)
 	{
-		size_t length = array_two.second * sizeof(Emitter::ParticleList::value_type);
+		size_t length = count_two * sizeof(Emitter::ParticleList::value_type);
 		memcpy(pVertices, array_two.first, length);
 		pVertices += length;
+		NumRemaining -= count_two;
 	}
 	m_ParticleInstanceData.Unlock();
 
@@ -848,7 +852,56 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 
 void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, DWORD AttribId, my::Effect * shader, Material * mtl, WorldEmitterAtom & atom)
 {
+	const DWORD NumInstances = my::Min(atom.TotalParticles, (DWORD)Emitter::PARTICLE_INSTANCE_MAX);
+	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
+	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, D3DLOCK_DISCARD);
+	_ASSERT(pVertices);
+	int NumRemaining = NumInstances;
+	WorldEmitterAtom::EmitterPairList::const_iterator emitter_pair_iter = atom.emitters.begin();
+	for (; NumRemaining > 0 && emitter_pair_iter != atom.emitters.end(); emitter_pair_iter++)
+	{
+		Emitter::ParticleList::const_array_range array_one = emitter_pair_iter->first->m_ParticleList.array_one();
+		int count_one = my::Min(NumRemaining, (int)array_one.second);
+		if (count_one > 0)
+		{
+			size_t length = count_one * sizeof(Emitter::ParticleList::value_type);
+			memcpy(pVertices, array_one.first, length);
+			pVertices += length;
+			NumRemaining -= count_one;
+		}
+		Emitter::ParticleList::const_array_range array_two = emitter_pair_iter->first->m_ParticleList.array_two();
+		int count_two = my::Min(NumRemaining, (int)array_two.second);
+		if (count_two > 0)
+		{
+			size_t length = count_two * sizeof(Emitter::ParticleList::value_type);
+			memcpy(pVertices, array_two.first, length);
+			pVertices += length;
+			NumRemaining -= count_two;
+		}
+	}
+	m_ParticleInstanceData.Unlock();
 
+	shader->SetTechnique("RenderScene");
+	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
+	{
+		shader->BeginPass(PassID);
+		HRESULT hr;
+		V(pd3dDevice->SetStreamSource(0, m_ParticleVertexBuffer.m_ptr, 0, m_ParticleVertexStride));
+		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
+		V(pd3dDevice->SetStreamSource(1, m_ParticleInstanceData.m_ptr, 0, m_ParticleInstanceStride));
+		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
+		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
+		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
+		atom.emitters[0].second->OnSetShader(pd3dDevice, shader, AttribId);
+		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		shader->CommitChanges();
+		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
+		V(pd3dDevice->SetStreamSourceFreq(0, 1));
+		V(pd3dDevice->SetStreamSourceFreq(1, 1));
+		shader->EndPass();
+	}
+	shader->End();
 }
 
 void RenderPipeline::PushIndexedPrimitive(
@@ -1074,4 +1127,5 @@ void RenderPipeline::PushWorldEmitter(unsigned int PassID, my::Emitter * emitter
 	WorldEmitterAtomKey key(AttribId, shader, mtl);
 	WorldEmitterAtom & atom = m_Pass[PassID].m_WorldEmitterMap[key];
 	atom.emitters.push_back(std::make_pair(emitter, cmp));
+	atom.TotalParticles += emitter->m_ParticleList.size();
 }
