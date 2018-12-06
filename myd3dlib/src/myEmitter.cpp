@@ -18,12 +18,17 @@ using namespace my;
 template<>
 void Emitter::ParticleList::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
+	capacity_type buffer_capacity = capacity();
+	ar << BOOST_SERIALIZATION_NVP(buffer_capacity);
 	boost::serialization::stl::save_collection<boost::archive::polymorphic_oarchive, ParticleList>(ar, *this);
 }
 
 template<>
 void Emitter::ParticleList::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
+	capacity_type buffer_capacity;
+	ar >> BOOST_SERIALIZATION_NVP(buffer_capacity);
+	set_capacity(buffer_capacity);
 	boost::serialization::item_version_type item_version(0);
 	boost::serialization::collection_size_type count;
 	ar >> BOOST_SERIALIZATION_NVP(count);

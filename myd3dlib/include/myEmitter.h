@@ -86,8 +86,8 @@ namespace my
 		ParticleList m_ParticleList;
 
 	public:
-		Emitter(void)
-			: m_ParticleList(PARTICLE_INSTANCE_MAX)
+		Emitter(unsigned int capacity)
+			: m_ParticleList(capacity)
 		{
 		}
 

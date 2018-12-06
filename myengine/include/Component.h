@@ -298,13 +298,15 @@ public:
 protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
+		, Emitter(1)
 		, m_EmitterToWorld(false)
 	{
 	}
 
 public:
-	EmitterComponent(ComponentType type)
+	EmitterComponent(ComponentType type, unsigned int capacity)
 		: Component(type)
+		, Emitter(capacity)
 		, m_EmitterToWorld(false)
 	{
 	}
@@ -345,7 +347,7 @@ class StaticEmitterComponent
 {
 public:
 	StaticEmitterComponent(void)
-		: EmitterComponent(ComponentTypeStaticEmitter)
+		: EmitterComponent(ComponentTypeStaticEmitter, 1)
 	{
 	}
 
@@ -405,7 +407,7 @@ public:
 
 public:
 	SphericalEmitterComponent(void)
-		: EmitterComponent(ComponentTypeSphericalEmitter)
+		: EmitterComponent(ComponentTypeSphericalEmitter, PARTICLE_INSTANCE_MAX)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
