@@ -668,6 +668,7 @@ void RenderPipeline::ClearAllObjects(void)
 		//}
 		m_Pass[PassID].m_MeshInstanceMap.clear();
 		m_Pass[PassID].m_EmitterList.clear();
+		m_Pass[PassID].m_WorldEmitterMap.clear();
 	}
 }
 
@@ -1110,7 +1111,9 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 
 bool RenderPipeline::WorldEmitterAtomKey::operator == (const WorldEmitterAtomKey & rhs) const
 {
-	return true;
+	return get<0>() == rhs.get<0>()
+		&& get<1>() == rhs.get<1>()
+		&& *get<2>() == *rhs.get<2>(); // ! mtl ptr must be valid object
 }
 
 namespace boost
@@ -1118,6 +1121,9 @@ namespace boost
 	size_t hash_value(const RenderPipeline::WorldEmitterAtomKey & key)
 	{
 		size_t seed = 0;
+		boost::hash_combine(seed, key.get<0>());
+		boost::hash_combine(seed, key.get<1>());
+		boost::hash_combine(seed, *key.get<2>());
 		return seed;
 	}
 }
