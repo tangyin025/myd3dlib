@@ -1403,8 +1403,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEmitterParticleCount:
 	{
 		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-		emit_cmp->m_ParticleList.resize(pProp->GetValue().uintVal,
-			my::Emitter::Particle(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
+		unsigned int new_size = pProp->GetValue().uintVal;
+		if (new_size < emit_cmp->m_ParticleList.size())
+		{
+			emit_cmp->m_ParticleList.set_capacity(new_size);
+		}
+		else
+		{
+			emit_cmp->m_ParticleList.resize(new_size, my::Emitter::Particle(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
+		}
 		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
