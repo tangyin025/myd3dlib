@@ -78,12 +78,6 @@ static LPCTSTR g_BlendModeDesc[] =
 	_T("BlendModeAdditive")
 };
 
-static LPCTSTR g_EmitterTypeDesc[] =
-{
-	_T("EmitterTypeLocal"),
-	_T("EmitterTypeWorld")
-};
-
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
 
@@ -395,7 +389,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		CreatePropertiesStaticEmitter(pComponent, emit_cmp);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)g_EmitterTypeDesc[emit_cmp->m_EmitterType]);
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)emit_cmp->m_EmitterToWorld);
 	pParticleList->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_ParticleList.size());
 	for (unsigned int i = 0; i < emit_cmp->m_ParticleList.size(); i++)
 	{
@@ -439,7 +433,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 		CreatePropertiesSphericalEmitter(pComponent, sphe_emit_cmp);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)g_EmitterTypeDesc[sphe_emit_cmp->m_EmitterType]);
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)sphe_emit_cmp->m_EmitterToWorld);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
 	pComponent->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
@@ -749,12 +743,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CComboProp * pEmitterType = new CComboProp(_T("EmitterType"), (_variant_t)g_EmitterTypeDesc[emit_cmp->m_EmitterType], NULL, PropertyEmitterType);
-	for (unsigned int i = 0; i < _countof(g_EmitterTypeDesc); i++)
-	{
-		pEmitterType->AddOption(g_EmitterTypeDesc[i], TRUE);
-	}
-	pComponent->AddSubItem(pEmitterType);
+	CMFCPropertyGridProperty * pEmitterToWorld = new CCheckBoxProp(_T("EmitterToWorld"), (_variant_t)emit_cmp->m_EmitterToWorld, NULL, PropertyEmitterToWorld);
+	pComponent->AddSubItem(pEmitterToWorld);
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)emit_cmp->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
@@ -814,12 +804,8 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CComboProp * pEmitterType = new CComboProp(_T("EmitterType"), (_variant_t)g_EmitterTypeDesc[sphe_emit_cmp->m_EmitterType], NULL, PropertyEmitterType);
-	for (unsigned int i = 0; i < _countof(g_EmitterTypeDesc); i++)
-	{
-		pEmitterType->AddOption(g_EmitterTypeDesc[i], TRUE);
-	}
-	pComponent->AddSubItem(pEmitterType);
+	CMFCPropertyGridProperty * pEmitterToWorld = new CCheckBoxProp(_T("EmitterToWorld"), (_variant_t)sphe_emit_cmp->m_EmitterToWorld, NULL, PropertyEmitterToWorld);
+	pComponent->AddSubItem(pEmitterToWorld);
 	CMFCPropertyGridProperty * pParticleLifeTime = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pParticleLifeTime);
 	CMFCPropertyGridProperty * pSpawnInterval = new CSimpleProp(_T("SpawnInterval"), (_variant_t)sphe_emit_cmp->m_SpawnInterval, NULL, PropertySphericalEmitterSpawnInterval);
@@ -1406,10 +1392,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyEmitterType:
+	case PropertyEmitterToWorld:
 	{
 		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
-		emit_cmp->m_EmitterType = (EmitterComponent::EmitterType)(DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		emit_cmp->m_EmitterToWorld = pProp->GetValue().boolVal != 0;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

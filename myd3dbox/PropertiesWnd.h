@@ -103,7 +103,7 @@ protected:
 		PropertyMaterialParameterFloatValueW,
 		PropertyMaterialParameterTexture,
 		PropertyClothSceneCollision,
-		PropertyEmitterType,
+		PropertyEmitterToWorld,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
 		PropertyEmitterParticlePosition,

@@ -808,7 +808,7 @@ void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & V
 {
 	_ASSERT(m_Actor);
 
-	if (m_EmitterType == EmitterTypeLocal)
+	if (!m_EmitterToWorld)
 	{
 		Emitter::Spawn(Position, Velocity, Color, Size, Angle);
 	}
@@ -855,7 +855,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 	_ASSERT(m_Actor);
 
-	if (m_EmitterType == EmitterTypeLocal)
+	if (!m_EmitterToWorld)
 	{
 		shader->SetMatrix("g_World", m_Actor->m_World);
 	}
@@ -883,7 +883,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
-					if (m_EmitterType == EmitterTypeLocal)
+					if (!m_EmitterToWorld)
 					{
 						pipeline->PushEmitter(PassID, this, 0, shader, this, m_Material.get());
 					}

@@ -293,25 +293,19 @@ class EmitterComponent
 public:
 	MaterialPtr m_Material;
 
-	enum EmitterType
-	{
-		EmitterTypeLocal,
-		EmitterTypeWorld
-	};
-
-	EmitterType m_EmitterType;
+	bool m_EmitterToWorld;
 
 protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
-		, m_EmitterType(EmitterTypeLocal)
+		, m_EmitterToWorld(false)
 	{
 	}
 
 public:
 	EmitterComponent(ComponentType type)
 		: Component(type)
-		, m_EmitterType(EmitterTypeLocal)
+		, m_EmitterToWorld(false)
 	{
 	}
 
@@ -322,7 +316,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
-		ar & BOOST_SERIALIZATION_NVP(m_EmitterType);
+		ar & BOOST_SERIALIZATION_NVP(m_EmitterToWorld);
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
