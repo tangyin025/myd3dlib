@@ -92,7 +92,7 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 	}
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemFont] = pProp);
 
-	pProp = new CSimpleProp(_T("字号"), (_variant_t)m_Font ? (long)m_Font->GetSize() : 16, _T("字体大小"), CPropertiesWnd::PropertyItemFontSize);
+	pProp = new CSimpleProp(_T("字号"), (_variant_t)(m_Font ? (long)m_Font->GetSize() : 16), _T("字体大小"), CPropertiesWnd::PropertyItemFontSize);
 	pProp->AddOption(_T("6"));
 	pProp->AddOption(_T("8"));
 	pProp->AddOption(_T("9"));
