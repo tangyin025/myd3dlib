@@ -425,6 +425,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 		ar & BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
