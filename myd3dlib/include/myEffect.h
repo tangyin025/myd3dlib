@@ -305,7 +305,7 @@ namespace my
 
 		void ApplyParameterBlock(D3DXHANDLE hParameterBlock);
 
-		UINT Begin(DWORD Flags = 0);
+		UINT Begin(DWORD Flags);
 
 		void BeginParameterBlock(void);
 

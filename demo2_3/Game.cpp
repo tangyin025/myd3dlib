@@ -79,7 +79,7 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_Passes = m_UIEffect->Begin();
+			m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		}
 	}
 

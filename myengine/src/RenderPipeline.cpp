@@ -411,7 +411,7 @@ void RenderPipeline::OnRender(
 		m_SsaoEffect->SetFloat("g_intensity", m_SsaoIntensity);
 		m_SsaoEffect->SetFloat("g_sample_rad", m_SsaoRadius);
 		m_SsaoEffect->SetFloat("g_scale", m_SsaoScale);
-		m_SsaoEffect->Begin(0);
+		m_SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_SsaoEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		m_SsaoEffect->EndPass();
@@ -490,7 +490,7 @@ void RenderPipeline::OnRender(
 		m_FxaaEffect->SetTexture("InputTexture", pRC->m_OpaqueRT.GetNextSource().get());
 		Vector4 RCPFrame(1.0f / pBackBufferSurfaceDesc->Width, 1.0f / pBackBufferSurfaceDesc->Height, 0.0f, 0.0f);
 		m_FxaaEffect->SetFloatArray("RCPFrame", &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
-		m_FxaaEffect->Begin(0);
+		m_FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_FxaaEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		m_FxaaEffect->EndPass();
@@ -511,7 +511,7 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		UINT passes = m_DofEffect->Begin(0);
+		UINT passes = m_DofEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_DofEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
@@ -542,6 +542,8 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 	V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
+	V(pd3dDevice->SetVertexShader(NULL));
+	V(pd3dDevice->SetPixelShader(NULL));
 	V(pd3dDevice->SetTexture(0, pRC->m_OpaqueRT.GetNextSource()->m_ptr));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
@@ -691,7 +693,7 @@ void RenderPipeline::DrawIndexedPrimitive(
 	Material * mtl)
 {
 	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
+	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
@@ -726,7 +728,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	Material * mtl)
 {
 	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
+	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
@@ -745,7 +747,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
 {
 	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
+	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
@@ -775,7 +777,7 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 	CComPtr<IDirect3DIndexBuffer9> ib = mesh->GetIndexBuffer();
 
 	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
+	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
@@ -829,7 +831,7 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	m_ParticleInstanceData.Unlock();
 
 	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
+	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
@@ -883,7 +885,7 @@ void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd
 	m_ParticleInstanceData.Unlock();
 
 	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
+	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);

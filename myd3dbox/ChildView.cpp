@@ -227,7 +227,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_Actor->m_World);
 				theApp.m_SimpleSample->SetVector("g_MeshColor", my::Vector4(0,1,0,1));
 				theApp.m_SimpleSample->SetTechnique("RenderSceneWireColor");
-				UINT passes = theApp.m_SimpleSample->Begin();
+				UINT passes = theApp.m_SimpleSample->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 				{
 					theApp.m_SimpleSample->BeginPass(0);

@@ -78,7 +78,7 @@ public:
 		{
 			m_UIEffect->SetVector("g_ScreenDim", Vector4(
 				(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
-			m_Passes = m_UIEffect->Begin();
+			m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		}
 	}
 
