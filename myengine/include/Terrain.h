@@ -47,6 +47,12 @@ class Terrain
 	: public Component
 {
 public:
+	enum RenderType
+	{
+		RenderTypeTerrain,
+		RenderTypeEmitter,
+	};
+
 	int m_RowChunks;
 
 	int m_ColChunks;
