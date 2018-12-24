@@ -9,6 +9,7 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
+	, public my::Emitter
 {
 public:
 	Terrain * m_Owner;

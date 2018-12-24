@@ -26,18 +26,20 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
-	: m_Owner(Owner)
+	: Emitter(PARTICLE_INSTANCE_MAX)
+	, m_Owner(Owner)
 	, m_Row(Row)
 	, m_Col(Col)
 {
-	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
+	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Owner->m_ChunkSize), (m_Col + 0) * (Owner->m_ChunkSize));
 	m_aabb.m_max = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 1) * (Owner->m_ChunkSize), (m_Col + 1) * (Owner->m_ChunkSize));
 	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
 TerrainChunk::TerrainChunk(void)
-	: m_Owner(NULL)
+	: Emitter(PARTICLE_INSTANCE_MAX)
+	, m_Owner(NULL)
 	, m_Row(0)
 	, m_Col(0)
 {
@@ -51,7 +53,7 @@ TerrainChunk::~TerrainChunk(void)
 void TerrainChunk::UpdateAABB(void)
 {
 	m_aabb = AABB::Invalid();
-	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
+	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	for (int i = 0; i < m_Owner->m_ChunkSize + 1; i++)
 	{
 		const int row_i = m_Row * m_Owner->m_ChunkSize + i;
@@ -219,7 +221,7 @@ void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 
 void Terrain::UpdateHeightMapNormal(void)
 {
-	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
+	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	for (int i = 0; i < m_RowChunks * m_ChunkSize; i++)
 	{
 		for (int j = 0; j < m_ColChunks * m_ChunkSize; j++)
@@ -476,7 +478,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
 	const DWORD BufferSize = m_RowChunks * m_ChunkSize * m_ColChunks * m_ChunkSize;
 	std::vector<unsigned char> buff(BufferSize);
-	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, 0, 0);
+	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, D3DLOCK_READONLY, 0);
 	std::copy(
 		boost::make_transform_iterator((unsigned int *)lrc.pBits, boost::lambda::_1 >> 24),
 		boost::make_transform_iterator((unsigned int *)lrc.pBits + BufferSize, boost::lambda::_1 >> 24), buff.begin());
@@ -708,7 +710,7 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
 		return;
 	}
 
-	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
+	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	std::vector<physx::PxHeightFieldSample> Samples(
 		(m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
 	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
