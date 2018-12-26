@@ -33,6 +33,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Col);
@@ -94,6 +95,8 @@ public:
 	typedef boost::multi_array<TerrainChunk *, 2> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
+
+	MaterialPtr m_GrassMaterial;
 
 	typedef std::map<float, unsigned int> LodMap;
 

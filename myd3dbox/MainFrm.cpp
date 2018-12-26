@@ -871,6 +871,14 @@ void CMainFrame::OnComponentTerrain()
 			terrain->m_Chunks[i][j]->m_Material = lambert1;
 		}
 	}
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = theApp.default_shader;
+	lambert1->m_PassMask = theApp.default_pass_mask;
+	lambert1->ParseShaderParamters();
+	lambert1->SetParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	lambert1->SetParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	lambert1->SetParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	terrain->m_GrassMaterial = lambert1;
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
