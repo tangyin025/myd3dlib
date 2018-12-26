@@ -677,7 +677,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					}
 				}
 
-				if (terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
+				if (!chunk->m_ParticleList.empty() && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
 				{
 					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
