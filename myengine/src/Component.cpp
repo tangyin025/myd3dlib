@@ -72,7 +72,7 @@ void Component::OnLeavePxScene(PhysXSceneContext * scene)
 {
 }
 
-void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 }
 
@@ -282,10 +282,8 @@ void MeshComponent::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
-	_ASSERT(AttribId < m_MaterialList.size());
-
 	_ASSERT(m_Actor);
 
 	shader->SetMatrix("g_World", m_Actor->m_World);
@@ -333,11 +331,11 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get());
+								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get(), i);
 							}
 							else
 							{
-								pipeline->PushMesh(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get());
+								pipeline->PushMesh(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get(), i);
 							}
 						}
 					}
@@ -665,10 +663,8 @@ void ClothComponent::OnDestroyDevice(void)
 	m_Decl.Release();
 }
 
-void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
-	_ASSERT(AttribId < m_MaterialList.size());
-
 	_ASSERT(!m_VertexData.empty());
 
 	_ASSERT(m_Actor);
@@ -726,7 +722,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 								&m_IndexData[m_AttribTable[i].FaceStart * 3],
 								D3DFMT_INDEX16,
 								&m_VertexData[0],
-								m_VertexStride, i, shader, this, m_MaterialList[i].get());
+								m_VertexStride, shader, this, m_MaterialList[i].get(), i);
 						}
 					}
 				}
@@ -851,10 +847,8 @@ void EmitterComponent::Update(float fElapsedTime)
 {
 }
 
-void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
-	_ASSERT(0 == AttribId);
-
 	_ASSERT(m_Actor);
 
 	if (!m_EmitterToWorld)
@@ -887,11 +881,11 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				{
 					if (!m_EmitterToWorld)
 					{
-						pipeline->PushEmitter(PassID, this, 0, shader, this, m_Material.get());
+						pipeline->PushEmitter(PassID, this, shader, this, m_Material.get(), 0);
 					}
 					else
 					{
-						pipeline->PushWorldEmitter(PassID, this, 0, shader, this, m_Material.get());
+						pipeline->PushWorldEmitter(PassID, this, shader, this, m_Material.get(), 0);
 					}
 				}
 			}

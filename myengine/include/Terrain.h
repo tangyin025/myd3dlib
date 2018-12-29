@@ -152,7 +152,7 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
 	void UpdateVertices(void);
 

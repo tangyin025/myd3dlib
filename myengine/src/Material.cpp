@@ -221,7 +221,7 @@ void Material::ReleaseResource(void)
 	}
 }
 
-void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));

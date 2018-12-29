@@ -199,10 +199,10 @@ public:
 		UINT VertexStride;
 		UINT StartIndex;
 		UINT PrimitiveCount;
-		DWORD AttribId;
 		my::Effect * shader;
 		Component * cmp;
 		Material * mtl;
+		LPARAM lparam;
 	};
 
 	typedef std::vector<IndexedPrimitiveAtom> IndexedPrimitiveAtomList;
@@ -218,10 +218,10 @@ public:
 		D3DFORMAT IndexDataFormat;
 		CONST void* pVertexStreamZeroData;
 		UINT VertexStreamZeroStride;
-		DWORD AttribId;
 		my::Effect * shader;
 		Component * cmp;
 		Material * mtl;
+		LPARAM lparam;
 	};
 
 	typedef std::vector<IndexedPrimitiveUPAtom> IndexedPrimitiveUPAtomList;
@@ -233,6 +233,7 @@ public:
 		my::Effect * shader;
 		Component * cmp;
 		Material * mtl;
+		LPARAM lparam;
 	};
 
 	typedef std::vector<MeshAtom> MeshAtomList;
@@ -246,11 +247,11 @@ public:
 		std::vector<Component *> cmps;
 	};
 
-	class MeshInstanceAtomKey : public boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *>
+	class MeshInstanceAtomKey : public boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *, LPARAM>
 	{
 	public:
-		MeshInstanceAtomKey(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl)
-			: tuple(mesh, AttribId, shader, mtl)
+		MeshInstanceAtomKey(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, LPARAM lparam)
+			: tuple(mesh, AttribId, shader, mtl, lparam)
 		{
 		}
 
@@ -262,10 +263,10 @@ public:
 	struct EmitterAtom
 	{
 		my::Emitter * emitter;
-		DWORD AttribId;
 		my::Effect * shader;
 		Component * cmp;
 		Material * mtl;
+		LPARAM lparam;
 	};
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
@@ -280,11 +281,11 @@ public:
 		{}
 	};
 
-	class WorldEmitterAtomKey : public boost::tuple<DWORD, my::Effect *, Material *>
+	class WorldEmitterAtomKey : public boost::tuple<my::Effect *, Material *, LPARAM>
 	{
 	public:
-		WorldEmitterAtomKey(DWORD AttribId, my::Effect * shader, Material * mtl)
-			: tuple(AttribId, shader, mtl)
+		WorldEmitterAtomKey(my::Effect * shader, Material * mtl, LPARAM lparam)
+			: tuple(shader, mtl, lparam)
 		{
 		}
 
@@ -385,10 +386,10 @@ public:
 		UINT VertexStride,
 		UINT StartIndex,
 		UINT PrimitiveCount,
-		DWORD AttribId,
 		my::Effect * shader,
 		Component * cmp,
-		Material * mtl);
+		Material * mtl,
+		LPARAM lparam);
 
 	void DrawIndexedPrimitiveUP(
 		unsigned int PassID,
@@ -402,18 +403,18 @@ public:
 		D3DFORMAT IndexDataFormat,
 		CONST void* pVertexStreamZeroData,
 		UINT VertexStreamZeroStride,
-		DWORD AttribId,
 		my::Effect * shader,
 		Component * cmp,
-		Material * mtl);
+		Material * mtl,
+		LPARAM lparam);
 
-	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, MeshInstanceAtom & atom);
+	void DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, LPARAM lparam, MeshInstanceAtom & atom);
 
-	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, DWORD AttribId, my::Effect * shader, Material * mtl, WorldEmitterAtom & atom);
+	void DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Effect * shader, Material * mtl, LPARAM lparam, WorldEmitterAtom & atom);
 
 	void PushIndexedPrimitive(
 		unsigned int PassID,
@@ -427,10 +428,10 @@ public:
 		UINT VertexStride,
 		UINT StartIndex,
 		UINT PrimitiveCount,
-		DWORD AttribId,
 		my::Effect * shader,
 		Component * cmp,
-		Material * mtl);
+		Material * mtl,
+		LPARAM lparam);
 
 	void PushIndexedPrimitiveUP(
 		unsigned int PassID,
@@ -443,16 +444,16 @@ public:
 		D3DFORMAT IndexDataFormat,
 		CONST void* pVertexStreamZeroData,
 		UINT VertexStreamZeroStride,
-		DWORD AttribId,
 		my::Effect * shader,
 		Component * cmp,
-		Material * mtl);
+		Material * mtl,
+		LPARAM lparam);
 
-	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+	void PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl);
+	void PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 };

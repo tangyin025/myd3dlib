@@ -579,18 +579,18 @@ void Terrain::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
+void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	_ASSERT(m_Actor);
 
-	switch (GetBValue(AttribId))
+	switch (GetBValue(lparam))
 	{
 	case RenderTypeTerrain:
 	{
 		shader->SetMatrix("g_World", m_Actor->m_World);
 		shader->SetFloat("g_HeightScale", m_HeightScale);
 		shader->SetVector("g_HeightTexSize", Vector2((float)m_RowChunks * m_ChunkSize, (float)m_ColChunks * m_ChunkSize));
-		int ChunkId[2] = { GetRValue(AttribId), GetGValue(AttribId) };
+		int ChunkId[2] = { GetRValue(lparam), GetGValue(lparam) };
 		shader->SetIntArray("g_ChunkId", ChunkId, 2);
 		shader->SetInt("g_ChunkSize", m_ChunkSize);
 		shader->SetTexture("g_HeightTexture", &m_HeightMap);
@@ -673,7 +673,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
 							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
 						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-							frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain), shader, terrain, chunk->m_Material.get());
+							frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
 					}
 				}
 
@@ -682,7 +682,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
 					{
-						pipeline->PushWorldEmitter(PassID, chunk, RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter), shader, terrain, terrain->m_GrassMaterial.get());
+						pipeline->PushWorldEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter));
 					}
 				}
 			}

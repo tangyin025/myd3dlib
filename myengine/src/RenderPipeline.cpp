@@ -575,10 +575,10 @@ void RenderPipeline::RenderAllObjects(
 			prim_iter->VertexStride,
 			prim_iter->StartIndex,
 			prim_iter->PrimitiveCount,
-			prim_iter->AttribId,
 			prim_iter->shader,
 			prim_iter->cmp,
-			prim_iter->mtl);
+			prim_iter->mtl,
+			prim_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -597,17 +597,17 @@ void RenderPipeline::RenderAllObjects(
 			indexed_prim_iter->IndexDataFormat,
 			indexed_prim_iter->pVertexStreamZeroData,
 			indexed_prim_iter->VertexStreamZeroStride,
-			indexed_prim_iter->AttribId,
 			indexed_prim_iter->shader,
 			indexed_prim_iter->cmp,
-			indexed_prim_iter->mtl);
+			indexed_prim_iter->mtl,
+			indexed_prim_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawMesh(PassID, pd3dDevice, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl);
+		DrawMesh(PassID, pd3dDevice, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -623,6 +623,7 @@ void RenderPipeline::RenderAllObjects(
 				mesh_inst_iter->first.get<1>(),
 				mesh_inst_iter->first.get<2>(),
 				mesh_inst_iter->first.get<3>(),
+				mesh_inst_iter->first.get<4>(),
 				mesh_inst_iter->second);
 			m_PassDrawCall[PassID]++;
 		}
@@ -633,7 +634,7 @@ void RenderPipeline::RenderAllObjects(
 	{
 		if (!emitter_iter->emitter->m_ParticleList.empty())
 		{
-			DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->cmp, emitter_iter->mtl);
+			DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->shader, emitter_iter->cmp, emitter_iter->mtl, emitter_iter->lparam);
 			m_PassDrawCall[PassID]++;
 		}
 	}
@@ -687,10 +688,10 @@ void RenderPipeline::DrawIndexedPrimitive(
 	UINT VertexStride,
 	UINT StartIndex,
 	UINT PrimitiveCount,
-	DWORD AttribId,
 	my::Effect * shader,
 	Component * cmp,
-	Material * mtl)
+	Material * mtl,
+	LPARAM lparam)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
@@ -701,8 +702,8 @@ void RenderPipeline::DrawIndexedPrimitive(
 		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		V(pd3dDevice->SetIndices(pIB));
-		cmp->OnSetShader(pd3dDevice, shader, AttribId);
-		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
@@ -722,10 +723,10 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	D3DFORMAT IndexDataFormat,
 	CONST void* pVertexStreamZeroData,
 	UINT VertexStreamZeroStride,
-	DWORD AttribId,
 	my::Effect * shader,
 	Component * cmp,
-	Material * mtl)
+	Material * mtl,
+	LPARAM lparam)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
@@ -734,8 +735,8 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		cmp->OnSetShader(pd3dDevice, shader, AttribId);
-		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
 			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
@@ -744,15 +745,15 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
-		cmp->OnSetShader(pd3dDevice, shader, AttribId);
-		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		mesh->DrawSubset(AttribId);
 		shader->EndPass();
@@ -760,7 +761,7 @@ void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice
 	shader->End();
 }
 
-void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, MeshInstanceAtom & atom)
+void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, LPARAM lparam, MeshInstanceAtom & atom)
 {
 	_ASSERT(AttribId < atom.m_AttribTable.size());
 	const DWORD NumInstances = atom.cmps.size();
@@ -788,8 +789,8 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
 		V(pd3dDevice->SetIndices(ib));
-		atom.cmps[0]->OnSetShader(pd3dDevice, shader, AttribId);
-		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		atom.cmps[0]->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
 			atom.m_AttribTable[AttribId].VertexStart,
@@ -803,7 +804,7 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 	shader->End();
 }
 
-void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	const DWORD NumInstances = my::Min(emitter->m_ParticleList.size(), Emitter::PARTICLE_INSTANCE_MAX);
 	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
@@ -842,8 +843,8 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
 		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
-		cmp->OnSetShader(pd3dDevice, shader, AttribId);
-		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		cmp->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
 		V(pd3dDevice->SetStreamSourceFreq(0,1));
@@ -853,7 +854,7 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	shader->End();
 }
 
-void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, DWORD AttribId, my::Effect * shader, Material * mtl, WorldEmitterAtom & atom)
+void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Effect * shader, Material * mtl, LPARAM lparam, WorldEmitterAtom & atom)
 {
 	const DWORD NumInstances = my::Min(atom.TotalParticles, (DWORD)Emitter::PARTICLE_INSTANCE_MAX);
 	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
@@ -896,8 +897,8 @@ void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
 		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
-		atom.emitters[0].second->OnSetShader(pd3dDevice, shader, AttribId);
-		mtl->OnSetShader(pd3dDevice, shader, AttribId);
+		atom.emitters[0].second->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
 		V(pd3dDevice->SetStreamSourceFreq(0, 1));
@@ -919,10 +920,10 @@ void RenderPipeline::PushIndexedPrimitive(
 	UINT VertexStride,
 	UINT StartIndex,
 	UINT PrimitiveCount,
-	DWORD AttribId,
 	my::Effect * shader,
 	Component * cmp,
-	Material * mtl)
+	Material * mtl,
+	LPARAM lparam)
 {
 	IndexedPrimitiveAtom atom;
 	atom.pDecl = pDecl;
@@ -935,10 +936,10 @@ void RenderPipeline::PushIndexedPrimitive(
 	atom.VertexStride = VertexStride;
 	atom.StartIndex = StartIndex;
 	atom.PrimitiveCount = PrimitiveCount;
-	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.cmp = cmp;
 	atom.mtl = mtl;
+	atom.lparam = lparam;
 	m_Pass[PassID].m_IndexedPrimitiveList.push_back(atom);
 }
 
@@ -953,10 +954,10 @@ void RenderPipeline::PushIndexedPrimitiveUP(
 	D3DFORMAT IndexDataFormat,
 	CONST void* pVertexStreamZeroData,
 	UINT VertexStreamZeroStride,
-	DWORD AttribId,
 	my::Effect * shader,
 	Component * cmp,
-	Material * mtl)
+	Material * mtl,
+	LPARAM lparam)
 {
 	IndexedPrimitiveUPAtom atom;
 	atom.pDecl = pDecl;
@@ -969,14 +970,14 @@ void RenderPipeline::PushIndexedPrimitiveUP(
 	atom.IndexDataFormat = IndexDataFormat;
 	atom.pVertexStreamZeroData = pVertexStreamZeroData;
 	atom.VertexStreamZeroStride = VertexStreamZeroStride;
-	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.cmp = cmp;
 	atom.mtl = mtl;
+	atom.lparam = lparam;
 	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	MeshAtom atom;
 	atom.mesh = mesh;
@@ -984,6 +985,7 @@ void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD Attrib
 	atom.shader = shader;
 	atom.cmp = cmp;
 	atom.mtl = mtl;
+	atom.lparam = lparam;
 	m_Pass[PassID].m_MeshList.push_back(atom);
 }
 
@@ -1056,9 +1058,9 @@ namespace boost
 	}
 }
 
-void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
-	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl);
+	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl, lparam);
 	MeshInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_MeshInstanceMap.find(key);
 	if (atom_iter == m_Pass[PassID].m_MeshInstanceMap.end())
 	{
@@ -1100,22 +1102,21 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 	}
 }
 
-void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	EmitterAtom atom;
 	atom.emitter = emitter;
-	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.cmp = cmp;
 	atom.mtl = mtl;
+	atom.lparam = lparam;
 	m_Pass[PassID].m_EmitterList.push_back(atom);
 }
 
 bool RenderPipeline::WorldEmitterAtomKey::operator == (const WorldEmitterAtomKey & rhs) const
 {
 	return get<0>() == rhs.get<0>()
-		&& get<1>() == rhs.get<1>()
-		&& *get<2>() == *rhs.get<2>(); // ! mtl ptr must be valid object
+		&& *get<1>() == *rhs.get<1>();
 }
 
 namespace boost
@@ -1124,15 +1125,14 @@ namespace boost
 	{
 		size_t seed = 0;
 		boost::hash_combine(seed, key.get<0>());
-		boost::hash_combine(seed, key.get<1>());
-		boost::hash_combine(seed, *key.get<2>());
+		boost::hash_combine(seed, *key.get<1>());
 		return seed;
 	}
 }
 
-void RenderPipeline::PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl)
+void RenderPipeline::PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
-	WorldEmitterAtomKey key(AttribId, shader, mtl);
+	WorldEmitterAtomKey key(shader, mtl, lparam);
 	WorldEmitterAtom & atom = m_Pass[PassID].m_WorldEmitterMap[key];
 	atom.emitters.push_back(std::make_pair(emitter, cmp));
 	atom.TotalParticles += emitter->m_ParticleList.size();

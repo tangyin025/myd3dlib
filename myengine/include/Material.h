@@ -321,7 +321,7 @@ public:
 
 	void ReleaseResource(void);
 
-	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
+	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
 	void ParseShaderParamters(void);
 
