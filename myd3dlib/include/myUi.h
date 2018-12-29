@@ -41,8 +41,6 @@ namespace my
 
 		UILayerList m_Layer;
 
-		DWORD State[16];
-
 	public:
 		UIRender(void);
 

@@ -75,14 +75,14 @@ technique RenderScene
     }
 }
 
-technique RenderSceneWireColor
+technique RenderSceneColor
 {
 	pass P0
 	{
-		FILLMODE=WIREFRAME;
-		CULLMODE=CW;
-		SLOPESCALEDEPTHBIAS=0;
-		DEPTHBIAS=0;
+		// FILLMODE=WIREFRAME;
+		// CULLMODE=CW;
+		// SLOPESCALEDEPTHBIAS=0;
+		// DEPTHBIAS=0;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePSColor(); 
 	}

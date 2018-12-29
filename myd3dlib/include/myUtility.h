@@ -32,7 +32,7 @@ namespace my
 
 		void BeginLine(void);
 
-		void EndLine(IDirect3DDevice9 * pd3dDevice, const Matrix4 & Transform = Matrix4::identity);
+		void EndLine(IDirect3DDevice9 * pd3dDevice);
 
 		void PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color);
 

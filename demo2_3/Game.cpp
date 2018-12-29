@@ -689,11 +689,16 @@ void Game::OnFrameTick(
 	{
 		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
-		m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
-		m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-		m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-		m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-		DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
+		V(m_d3dDevice->SetVertexShader(NULL));
+		V(m_d3dDevice->SetPixelShader(NULL));
+		V(m_d3dDevice->SetTexture(0, NULL));
+		V(m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+		V(m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+		V(m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+		V(m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
+		V(m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
+		V(m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
+		DrawHelper::EndLine(m_d3dDevice);
 
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);

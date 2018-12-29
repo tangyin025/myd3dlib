@@ -96,24 +96,8 @@ void UIRender::OnDestroyDevice(void)
 
 void UIRender::Begin(void)
 {
-	// ! Default UIRender rendering ui elements under Fixed Pipeline
-	V(m_Device->GetRenderState(D3DRS_CULLMODE, &State[0]));
-	V(m_Device->GetRenderState(D3DRS_LIGHTING, &State[1]));
-	V(m_Device->GetRenderState(D3DRS_ALPHABLENDENABLE, &State[2]));
-	V(m_Device->GetRenderState(D3DRS_SRCBLEND, &State[3]));
-	V(m_Device->GetRenderState(D3DRS_DESTBLEND, &State[4]));
-	V(m_Device->GetRenderState(D3DRS_ZENABLE, &State[5]));
-	V(m_Device->GetSamplerState(0, D3DSAMP_MAGFILTER, &State[6]));
-	V(m_Device->GetSamplerState(0, D3DSAMP_MINFILTER, &State[7]));
-	V(m_Device->GetSamplerState(0, D3DSAMP_MIPFILTER, &State[8]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_TEXCOORDINDEX, &State[9]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_COLOROP, &State[10]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_COLORARG1, &State[11]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_COLORARG2, &State[12]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_ALPHAOP, &State[13]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_ALPHAARG1, &State[14]));
-	V(m_Device->GetTextureStageState(0, D3DTSS_ALPHAARG2, &State[15]));
-
+	V(m_Device->SetVertexShader(NULL));
+	V(m_Device->SetPixelShader(NULL));
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
 	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
@@ -136,22 +120,6 @@ void UIRender::Begin(void)
 void UIRender::End(void)
 {
 	Flush();
-	V(m_Device->SetRenderState(D3DRS_CULLMODE, State[0]));
-	V(m_Device->SetRenderState(D3DRS_LIGHTING, State[1]));
-	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, State[2]));
-	V(m_Device->SetRenderState(D3DRS_SRCBLEND, State[3]));
-	V(m_Device->SetRenderState(D3DRS_DESTBLEND, State[4]));
-	V(m_Device->SetRenderState(D3DRS_ZENABLE, State[5]));
-	V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, State[6]));
-	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, State[7]));
-	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, State[8]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, State[9]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, State[10]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, State[11]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, State[12]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, State[13]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, State[14]));
-	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, State[15]));
 }
 
 void UIRender::SetWorld(const Matrix4 & World)

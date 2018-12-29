@@ -226,7 +226,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			{
 				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_Actor->m_World);
 				theApp.m_SimpleSample->SetVector("g_MeshColor", my::Vector4(0,1,0,1));
-				theApp.m_SimpleSample->SetTechnique("RenderSceneWireColor");
+				theApp.m_SimpleSample->SetTechnique("RenderSceneColor");
 				UINT passes = theApp.m_SimpleSample->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 				{
@@ -927,6 +927,7 @@ void CChildView::OnPaint()
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
 				if (!pFrame->m_selactors.empty())
 				{
 					theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
@@ -939,28 +940,28 @@ void CChildView::OnPaint()
 					}
 				}
 
+				V(theApp.m_d3dDevice->SetVertexShader(NULL));
+				V(theApp.m_d3dDevice->SetPixelShader(NULL));
+				V(theApp.m_d3dDevice->SetTexture(0, NULL));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
+				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
+				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
+				DrawHelper::EndLine(theApp.m_d3dDevice);
+
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 				if (m_bShowNavigation && pFrame->m_navMesh && pFrame->m_navQuery)
 				{
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
-					V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
-					V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
-					V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
 					duDebugDrawNavMesh(this, *pFrame->m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
 				}
 
-				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
-				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
-
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (!pFrame->m_selactors.empty())
 				{
 					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 				}
 
 				theApp.m_UIRender->Begin();
