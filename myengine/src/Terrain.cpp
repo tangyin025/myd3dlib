@@ -693,9 +693,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	if (m_vb.m_ptr)
 	{
 		// ! do not use m_World for level offset
-		const Matrix4 & World = m_Actor->m_World;
-		Frustum loc_frustum = frustum.transform(World.transpose());
-		Vector3 loc_viewpos = ViewPos.transformCoord(World.inverse());
+		Frustum loc_frustum = frustum.transform(m_Actor->m_World.transpose());
+		Vector3 loc_viewpos = ViewPos.transformCoord(m_Actor->m_World.inverse());
 		m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassMask, loc_viewpos, this));
 	}
 }
@@ -757,4 +756,17 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
+}
+
+void Terrain::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
+{
+	_ASSERT(m_Actor);
+
+	Vector3 loc_pos = Position.transformCoord(m_Actor->m_World.inverse());
+
+	int row = (int)floor(loc_pos.z / m_ChunkSize);
+
+	int col = (int)floor(loc_pos.x / m_ChunkSize);
+
+	m_Chunks[row][col]->Spawn(Position, Velocity, Color, Size, Angle);
 }

@@ -33,7 +33,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Emitter);
+		ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Col);
@@ -163,6 +163,8 @@ public:
 	void CreateHeightFieldShape(const my::Vector3 & Scale);
 
 	virtual void ClearShape(void);
+
+	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
