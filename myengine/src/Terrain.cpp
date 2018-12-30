@@ -598,6 +598,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	}
 	case RenderTypeEmitter:
 	{
+		shader->SetMatrix("g_World", m_Actor->m_World);
 		break;
 	}
 	default:
@@ -682,7 +683,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
 					{
-						pipeline->PushWorldEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter));
+						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter));
 					}
 				}
 			}
