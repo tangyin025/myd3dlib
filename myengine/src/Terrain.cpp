@@ -664,7 +664,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			{
 				if (chunk->m_Material && (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask)))
 				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, chunk->m_Material->m_Shader.c_str(), PassID);
+					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						const Fragment & frag = terrain->GetFragment(
@@ -680,7 +680,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 				if (!chunk->m_ParticleList.empty() && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
 				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
+					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, NULL, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter));

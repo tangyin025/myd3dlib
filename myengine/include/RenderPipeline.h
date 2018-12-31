@@ -44,7 +44,7 @@ public:
 		PassMaskTransparent = 1 << PassTypeTransparent,
 	};
 
-	typedef std::tuple<MeshType, bool, std::string> ShaderCacheKey;
+	typedef std::tuple<MeshType, std::string, std::string> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
@@ -319,7 +319,7 @@ public:
 
 	virtual ~RenderPipeline(void);
 
-	my::Effect * QueryShader(MeshType mesh_type, bool bInstance, const char * path, unsigned int PassID);
+	my::Effect * QueryShader(MeshType mesh_type, const char * macros, const char * path, unsigned int PassID);
 
 	static unsigned int PassTypeToMask(unsigned int pass_type)
 	{

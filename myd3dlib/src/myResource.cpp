@@ -911,11 +911,11 @@ EffectIORequest::EffectIORequest(const char * path, std::string macros)
 	boost::algorithm::split(m_macros, macros, boost::algorithm::is_any_of(" \t"), boost::algorithm::token_compress_on);
 
 	std::vector<std::string>::const_iterator macro_iter = m_macros.begin();
-	for(; macro_iter != m_macros.end(); )
+	for(; macro_iter != m_macros.end(); macro_iter++)
 	{
 		D3DXMACRO d3dmacro;
-		d3dmacro.Name = (macro_iter++)->c_str();
-		d3dmacro.Definition = macro_iter != m_macros.end() ? (macro_iter++)->c_str() : NULL;
+		d3dmacro.Name = macro_iter->c_str();
+		d3dmacro.Definition = NULL;
 		m_d3dmacros.push_back(d3dmacro);
 	}
 	D3DXMACRO end = {0};

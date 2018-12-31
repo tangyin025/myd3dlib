@@ -8,6 +8,7 @@
 #include "libc.h"
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -45,9 +46,9 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, const char * path, unsigned int PassID)
+my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const char * macros, const char * path, unsigned int PassID)
 {
-	ShaderCacheKey key(mesh_type, bInstance, path);
+	ShaderCacheKey key(mesh_type, macros ? macros : "", path);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -75,10 +76,26 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, con
 	my::ResourceMgr::getSingleton().m_EffectInclude = my::ZipIStreamDir::ReplaceSlash(path);
 	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_EffectInclude[0]);
 
+	std::vector<std::string> strmacros;
+	std::vector<D3DXMACRO> d3dmacros;
+	if (macros)
+	{
+		boost::algorithm::split(strmacros, macros, boost::algorithm::is_any_of(" _\t"), boost::algorithm::token_compress_on);
+		std::vector<std::string>::const_iterator macro_iter = strmacros.begin();
+		for (; macro_iter != strmacros.end(); macro_iter++)
+		{
+			D3DXMACRO d3dmacro;
+			d3dmacro.Name = macro_iter->c_str();
+			d3dmacro.Definition = NULL;
+			d3dmacros.push_back(d3dmacro);
+		}
+	}
+	D3DXMACRO end = { 0 };
+	d3dmacros.push_back(end);
+
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
-	oss << "#define INSTANCE " << (unsigned int)bInstance << std::endl;
 	oss << "#include \"CommonHeader.fx\"" << std::endl;
 	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
 	oss << "#include \"" << name << "\"" << std::endl;
@@ -86,14 +103,14 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, con
 
 #ifdef _DEBUG
 	CComPtr<ID3DXBuffer> buff;
-	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), NULL, my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
+	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), &d3dmacros[0], my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
 	{
 		std::string::size_type ext_pos = name.find_last_of(".");
 		if (ext_pos != std::string::npos)
 		{
 			name.replace(ext_pos, 1, "\0");
 		}
-		std::basic_string<TCHAR> tmp_path = str_printf(_T("%S_%u_%u.fx"), name.c_str(), mesh_type, bInstance);
+		std::basic_string<TCHAR> tmp_path = str_printf(_T("%S_%u_%S.fx"), name.c_str(), mesh_type, (macros ? macros : "NULL"));
 		my::OStreamPtr ostr = my::FileOStream::Open(tmp_path.c_str());
 		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
 	}
@@ -102,7 +119,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, bool bInstance, con
 	my::EffectPtr shader(new my::Effect());
 	try
 	{
-		shader->CreateEffect(source.c_str(), source.size(), NULL, my::ResourceMgr::getSingletonPtr(), 0, my::ResourceMgr::getSingleton().m_EffectPool);
+		shader->CreateEffect(source.c_str(), source.size(), &d3dmacros[0], my::ResourceMgr::getSingletonPtr(), 0, my::ResourceMgr::getSingleton().m_EffectPool);
 	}
 	catch (const my::Exception & e)
 	{

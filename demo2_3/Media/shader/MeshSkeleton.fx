@@ -7,7 +7,7 @@ struct VS_INPUT
 	float3 Tangent			: TANGENT;
 	float4 BlendWeights		: BLENDWEIGHT;
 	float4 BlendIndices		: BLENDINDICES;
-#if INSTANCE
+#ifdef INSTANCE
 	float4 Pos1				: POSITION1;
 	float4 Pos2				: POSITION2;
 	float4 Pos3				: POSITION3;
@@ -47,7 +47,7 @@ void GetSkinnedDual( VS_INPUT In,
 
 float4 TransformPosWS(VS_INPUT In)
 {
-#if INSTANCE
+#ifdef INSTANCE
 	float4x4 g_World = {In.Pos1, In.Pos2, In.Pos3, In.Pos4};
 #endif
 	float4 pos;
@@ -77,7 +77,7 @@ float2 TransformUV(VS_INPUT In)
 
 float3 TransformNormal(VS_INPUT In)
 {
-#if INSTANCE
+#ifdef INSTANCE
 	float4x4 g_World = {In.Pos1, In.Pos2, In.Pos3, In.Pos4};
 #endif
 	float2x4 dual;
@@ -88,7 +88,7 @@ float3 TransformNormal(VS_INPUT In)
 
 float3 TransformTangent(VS_INPUT In)
 {
-#if INSTANCE
+#ifdef INSTANCE
 	float4x4 g_World = {In.Pos1, In.Pos2, In.Pos3, In.Pos4};
 #endif
 	float2x4 dual;

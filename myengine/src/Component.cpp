@@ -326,7 +326,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
 						my::Effect * shader = pipeline->QueryShader(
-							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i]->m_Shader.c_str(), PassID);
+							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance ? "INSTANCE" : NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (m_bInstance)
@@ -712,7 +712,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
 						my::Effect * shader = pipeline->QueryShader(
-							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, false, m_MaterialList[i]->m_Shader.c_str(), PassID);
+							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
@@ -876,7 +876,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 		{
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material->m_Shader.c_str(), PassID);
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, NULL, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
 					if (!m_EmitterToWorld)

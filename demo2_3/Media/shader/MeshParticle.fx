@@ -2,7 +2,7 @@
 struct VS_INPUT
 {
 	float2 Tex0  			: TEXCOORD0;
-//#if INSTANCE
+//#ifdef INSTANCE
 	float4 Pos				: POSITION;
 	float3 Velocity			: NORMAL;
 	float4 Color			: TEXCOORD1;
