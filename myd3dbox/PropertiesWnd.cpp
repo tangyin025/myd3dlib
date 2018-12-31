@@ -180,65 +180,61 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 
 void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 {
-	CMFCPropertyGridProperty * pComponent = NULL;
+	CMFCPropertyGridProperty * pActor = NULL;
 	if (m_wndPropList.GetPropertyCount() >= 1)
 	{
-		pComponent = m_wndPropList.GetProperty(0);
+		pActor = m_wndPropList.GetProperty(0);
 	}
-	if (!pComponent || pComponent->GetData() != PropertyActor)
+	if (!pActor || pActor->GetData() != PropertyActor)
 	{
 		m_wndPropList.RemoveAll();
 		CreatePropertiesActor(actor);
 		return;
 	}
-	pComponent->SetName(GetComponentTypeName(Component::ComponentTypeActor), FALSE);
-	pComponent->SetValue((_variant_t)(DWORD_PTR)actor);
+	pActor->SetName(GetComponentTypeName(Component::ComponentTypeActor), FALSE);
+	pActor->SetValue((_variant_t)(DWORD_PTR)actor);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
-	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
-	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
-	pComponent->GetSubItem(0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
-	pComponent->GetSubItem(0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
-	pComponent->GetSubItem(0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
-	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
-	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
-	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
+	pActor->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
+	pActor->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
+	pActor->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
+	pActor->GetSubItem(0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
+	pActor->GetSubItem(0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
+	pActor->GetSubItem(0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pActor->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
+	pActor->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
+	pActor->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
 	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
-	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
-	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
-	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-	pComponent->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
-	pComponent->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
-	pComponent->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
-	pComponent->GetSubItem(4)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
-	if (!actor->m_Cmps.empty())
+	pActor->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pActor->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pActor->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
+	pActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
+	pActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
+	pActor->GetSubItem(4)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
 	{
-		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
-		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+		if ((unsigned int)pActor->GetSubItemsCount() <= i + 5)
 		{
-			UpdateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(actor->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+			CreateProperties(pActor, actor->m_Cmps[i].get());
+			continue;
 		}
+		if (pActor->GetSubItem(i + 5)->GetData() != GetComponentProp(actor->m_Cmps[i]->m_Type))
+		{
+			RemovePropertiesFrom(pActor, i + 5);
+			CreateProperties(pActor, actor->m_Cmps[i].get());
+			continue;
+		}
+		UpdateProperties(pActor->GetSubItem(i + 5), i, actor->m_Cmps[i].get());
 	}
-	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
+	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
 	//m_wndPropList.AdjustLayout();
 }
 
-void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
+void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp)
 {
-	CMFCPropertyGridProperty * pComponent = NULL;
-	if (i < pParentCtrl->GetSubItemsCount())
-	{
-		pComponent = pParentCtrl->GetSubItem(i);
-	}
-	if (!pComponent || pComponent->GetData() != PropertyComponent)
-	{
-		RemovePropertiesFrom(pParentCtrl, i);
-		CreateProperties(pParentCtrl, i, cmp);
-		return;
-	}
-	pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
+	//pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 
 	pComponent->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
@@ -505,14 +501,14 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 {
-	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(Component::ComponentTypeActor), PropertyActor, FALSE);
-	m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
-	pComponent->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
+	CMFCPropertyGridProperty * pActor = new CSimpleProp(GetComponentTypeName(Component::ComponentTypeActor), PropertyActor, FALSE);
+	m_wndPropList.AddProperty(pActor, FALSE, FALSE);
+	pActor->SetValue((_variant_t)(DWORD_PTR)actor); // ! only worked on 32bit system
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
-	pComponent->AddSubItem(pAABB);
+	pActor->AddSubItem(pAABB);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("miny"), (_variant_t)actor->m_aabb.m_min.y, NULL, PropertyActorMinY);
@@ -527,7 +523,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pAABB->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyActorPos, TRUE);
-	pComponent->AddSubItem(pPosition);
+	pActor->AddSubItem(pPosition);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)actor->m_Position.x, NULL, PropertyActorPosX);
 	pPosition->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)actor->m_Position.y, NULL, PropertyActorPosY);
@@ -537,7 +533,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 
 	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
 	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyActorRot, TRUE);
-	pComponent->AddSubItem(pRotate);
+	pActor->AddSubItem(pRotate);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyActorRotX);
 	pRotate->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyActorRotY);
@@ -546,7 +542,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pRotate->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyActorScale, TRUE);
-	pComponent->AddSubItem(pScale);
+	pActor->AddSubItem(pScale);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)actor->m_Scale.x, NULL, PropertyActorScaleX);
 	pScale->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)actor->m_Scale.y, NULL, PropertyActorScaleY);
@@ -559,27 +555,22 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	{
 		pRigidActor->AddOption(g_ActorTypeDesc[i], TRUE);
 	}
-	pComponent->AddSubItem(pRigidActor);
+	pActor->AddSubItem(pRigidActor);
 
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 		{
-			CreateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(actor->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+			CreateProperties(pActor, cmp_iter->get());
 		}
 	}
 }
 
-void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
+void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
 {
-	CMFCPropertyGridProperty * pComponent = NULL;
-	while (i >= pParentCtrl->GetSubItemsCount())
-	{
-		pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
-		pParentCtrl->AddSubItem(pComponent);
-	}
-	ASSERT(pComponent);
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), GetComponentProp(cmp->m_Type), FALSE);
+	pParentCtrl->AddSubItem(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 
 	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
@@ -889,6 +880,28 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
 	CreatePropertiesMaterial(pComponent, _T("GrassMaterial"), terrain->m_GrassMaterial.get());
+}
+
+CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
+{
+	switch (type)
+	{
+	case Component::ComponentTypeActor:
+		return PropertyActor;
+	case Component::ComponentTypeCharacter:
+		return PropertyCharacter;
+	case Component::ComponentTypeMesh:
+		return PropertyMesh;
+	case Component::ComponentTypeCloth:
+		return PropertyCloth;
+	case Component::ComponentTypeStaticEmitter:
+		return PropertyStaticEmitter;
+	case Component::ComponentTypeSphericalEmitter:
+		return PropertySphericalEmitter;
+	case Component::ComponentTypeTerrain:
+		return PropertyTerrain;
+	}
+	return PropertyUnknown;
 }
 
 unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)

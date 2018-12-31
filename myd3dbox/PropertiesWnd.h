@@ -79,8 +79,9 @@ protected:
 		PropertyActorScaleY,
 		PropertyActorScaleZ,
 		PropertyActorRigidActor,
-		PropertyComponent,
 		PropertyComponentShape,
+		PropertyCharacter,
+		PropertyMesh,
 		PropertyMeshResPath,
 		PropertyMeshInstance,
 		PropertyMeshUseAnimation,
@@ -103,7 +104,9 @@ protected:
 		PropertyMaterialParameterFloatValueZ,
 		PropertyMaterialParameterFloatValueW,
 		PropertyMaterialParameterTexture,
+		PropertyCloth,
 		PropertyClothSceneCollision,
+		PropertyStaticEmitter,
 		PropertyEmitterToWorld,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
@@ -121,6 +124,7 @@ protected:
 		PropertyEmitterParticleSizeX,
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
+		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleLifeTime,
 		PropertySphericalEmitterSpawnInterval,
 		PropertySphericalEmitterHalfSpawnArea,
@@ -143,6 +147,7 @@ protected:
 		PropertySplineNodeY,
 		PropertySplineNodeK0,
 		PropertySplineNodeK,
+		PropertyTerrain,
 		PropertyTerrainRowChunks,
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,
@@ -157,7 +162,7 @@ protected:
 	void OnCmpAttriChanged(EventArgs * arg);
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
 	void UpdatePropertiesActor(Actor * actor);
-	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
+	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
 	void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
@@ -170,7 +175,7 @@ protected:
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain, const CPoint & chunkid);
 
 	void CreatePropertiesActor(Actor * actor);
-	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
+	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl);
 	void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
@@ -182,6 +187,7 @@ protected:
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
 	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain, const CPoint & chunkid);
 
+	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);
 	static LPCTSTR GetComponentTypeName(DWORD type);
 	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
