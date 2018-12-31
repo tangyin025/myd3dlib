@@ -48,33 +48,14 @@ RenderPipeline::~RenderPipeline(void)
 
 my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const char * macros, const char * path, unsigned int PassID)
 {
-	ShaderCacheKey key(mesh_type, macros ? macros : "", path);
+	const char * name = PathFindFileNameA(path);
+	char key[MAX_PATH];
+	sprintf_s(key, sizeof(key), "%s_%u_%s", name, mesh_type, macros ? macros : "0");
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
 		return shader_iter->second.get();
 	}
-
-	struct Header
-	{
-		static const char * vs_header(unsigned int mesh_type)
-		{
-			switch (mesh_type)
-			{
-			case RenderPipeline::MeshTypeAnimation:
-				return "MeshSkeleton.fx";
-			case RenderPipeline::MeshTypeParticle:
-				return "MeshParticle.fx";
-			case RenderPipeline::MeshTypeTerrain:
-				return "MeshTerrain.fx";
-			}
-			return "MeshStatic.fx";
-		}
-	};
-
-	std::string name = PathFindFileNameA(path);
-	my::ResourceMgr::getSingleton().m_EffectInclude = my::ZipIStreamDir::ReplaceSlash(path);
-	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_EffectInclude[0]);
 
 	std::vector<std::string> strmacros;
 	std::vector<D3DXMACRO> d3dmacros;
@@ -93,25 +74,39 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const char * macros
 	D3DXMACRO end = { 0 };
 	d3dmacros.push_back(end);
 
+	struct Helper
+	{
+		static const char * vs_header(unsigned int mesh_type)
+		{
+			switch (mesh_type)
+			{
+			case RenderPipeline::MeshTypeAnimation:
+				return "MeshSkeleton.fx";
+			case RenderPipeline::MeshTypeParticle:
+				return "MeshParticle.fx";
+			case RenderPipeline::MeshTypeTerrain:
+				return "MeshTerrain.fx";
+			}
+			return "MeshStatic.fx";
+		}
+	};
+
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
 	oss << "#include \"CommonHeader.fx\"" << std::endl;
-	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
+	oss << "#include \"" << Helper::vs_header(mesh_type) << "\"" << std::endl;
 	oss << "#include \"" << name << "\"" << std::endl;
 	std::string source = oss.str();
+
+	my::ResourceMgr::getSingleton().m_EffectInclude = my::ZipIStreamDir::ReplaceSlash(path);
+	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_EffectInclude[0]);
 
 #ifdef _DEBUG
 	CComPtr<ID3DXBuffer> buff;
 	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), &d3dmacros[0], my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
 	{
-		std::string::size_type ext_pos = name.find_last_of(".");
-		if (ext_pos != std::string::npos)
-		{
-			name.replace(ext_pos, 1, "\0");
-		}
-		std::basic_string<TCHAR> tmp_path = str_printf(_T("%S_%u_%S.fx"), name.c_str(), mesh_type, (macros ? macros : "NULL"));
-		my::OStreamPtr ostr = my::FileOStream::Open(tmp_path.c_str());
+		my::OStreamPtr ostr = my::FileOStream::Open(ms2ts(key).c_str());
 		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
 	}
 #endif

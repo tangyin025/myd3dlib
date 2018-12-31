@@ -44,9 +44,7 @@ public:
 		PassMaskTransparent = 1 << PassTypeTransparent,
 	};
 
-	typedef std::tuple<MeshType, std::string, std::string> ShaderCacheKey;
-
-	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
+	typedef boost::unordered_map<std::string, my::EffectPtr> ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 
