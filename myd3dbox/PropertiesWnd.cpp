@@ -284,17 +284,18 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
 		{
-			CreatePropertiesMaterial(pMaterialList, i, mesh_cmp->m_MaterialList[i].get());
+			TCHAR buff[128];
+			_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
+			CreatePropertiesMaterial(pMaterialList, buff, mesh_cmp->m_MaterialList[i].get());
 			continue;
 		}
-		UpdatePropertiesMaterial(pMaterialList, i, mesh_cmp->m_MaterialList[i].get());
+		UpdatePropertiesMaterial(pMaterialList->GetSubItem(i), mesh_cmp->m_MaterialList[i].get());
 	}
 	RemovePropertiesFrom(pMaterialList, mesh_cmp->m_MaterialList.size());
 }
 
-void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mtl)
+void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
 {
-	CMFCPropertyGridProperty * pMaterial = pParentCtrl->GetSubItem(NodeId);
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
 	pMaterial->GetSubItem(0)->SetValue((_variant_t)mtl->m_Shader.c_str());
 	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mtl->m_PassMask));
@@ -371,10 +372,12 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
 		{
-			CreatePropertiesMaterial(pMaterialList, i, cloth_cmp->m_MaterialList[i].get());
+			TCHAR buff[128];
+			_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
+			CreatePropertiesMaterial(pMaterialList, buff, cloth_cmp->m_MaterialList[i].get());
 			continue;
 		}
-		UpdatePropertiesMaterial(pMaterialList, i, cloth_cmp->m_MaterialList[i].get());
+		UpdatePropertiesMaterial(pMaterialList->GetSubItem(i), cloth_cmp->m_MaterialList[i].get());
 	}
 	RemovePropertiesFrom(pMaterialList, cloth_cmp->m_MaterialList.size());
 }
@@ -382,6 +385,7 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)emit_cmp->m_EmitterToWorld);
 	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 1);
 	if (!pParticleList || pParticleList->GetData() != PropertyEmitterParticleList)
 	{
@@ -389,7 +393,6 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		CreatePropertiesStaticEmitter(pComponent, emit_cmp);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)emit_cmp->m_EmitterToWorld);
 	pParticleList->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_ParticleList.size());
 	for (unsigned int i = 0; i < emit_cmp->m_ParticleList.size(); i++)
 	{
@@ -401,7 +404,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		UpdatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
 	RemovePropertiesFrom(pParticleList, 1 + emit_cmp->m_ParticleList.size());
-	UpdatePropertiesMaterial(pComponent, PropId + 2, emit_cmp->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 2), emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)
@@ -450,7 +453,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnSizeY);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnAngle);
 	pComponent->GetSubItem(PropId + 14)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLoopTime);
-	UpdatePropertiesMaterial(pComponent, PropId + 15, sphe_emit_cmp->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 15), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -496,7 +499,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_bNavigation);
 	pComponent->GetSubItem(PropId + 5);
-	UpdatePropertiesMaterial(pComponent, PropId + 6, GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -623,15 +626,15 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->AddSubItem(pProp);
 	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 	{
-		CreatePropertiesMaterial(pProp, i, mesh_cmp->m_MaterialList[i].get());
+		TCHAR buff[128];
+		_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
+		CreatePropertiesMaterial(pProp, buff, mesh_cmp->m_MaterialList[i].get());
 	}
 }
 
-void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mtl)
+void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl)
 {
-	TCHAR buff[128];
-	_stprintf_s(buff, _countof(buff), _T("Material%d"), NodeId);
-	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(buff, NodeId, FALSE);
+	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(lpszName, PropertyMaterial, FALSE);
 	pParentCtrl->AddSubItem(pMaterial);
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(mtl->m_Shader).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
@@ -735,7 +738,9 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->AddSubItem(pProp);
 	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
 	{
-		CreatePropertiesMaterial(pProp, i, cloth_cmp->m_MaterialList[i].get());
+		TCHAR buff[128];
+		_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
+		CreatePropertiesMaterial(pProp, buff, cloth_cmp->m_MaterialList[i].get());
 	}
 }
 
@@ -753,7 +758,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	{
 		CreatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
-	CreatePropertiesMaterial(pComponent, 0, emit_cmp->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)
@@ -831,7 +836,7 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
 	pProp = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)sphe_emit_cmp->m_SpawnLoopTime, NULL, PropertySphericalEmitterSpawnLoopTime);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, 0, sphe_emit_cmp->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline)
@@ -881,7 +886,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, 0, GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
 }
 
 unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
