@@ -85,7 +85,7 @@ struct COLOR_VS_OUTPUT
 	float2 Tex0				: TEXCOORD0;
 	float4 Pos2				: TEXCOORD2;
 	float4 PosShadow		: TEXCOORD5;
-	float3 View				: TEXCOORD3;
+	float3 ViewDir			: TEXCOORD3;
 };
 
 float GetLigthAmount(float4 PosShadow)
@@ -112,7 +112,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.Tex0 = TransformUV(In);
 	Output.Pos2 = Output.Pos;
 	Output.PosShadow = mul(TransformPosWS(In), g_SkyLightViewProj);
-	Output.View = mul(g_Eye - PosWS, (float3x3)g_View);
+	Output.ViewDir = mul(g_Eye - PosWS, (float3x3)g_View);
     return Output;    
 }
 
@@ -126,7 +126,7 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float LightAmount = GetLigthAmount(In.PosShadow);
 	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
 	float3 SkyDiffuse = saturate(-dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightDiffuse.xyz;
-	float3 Ref = Reflection(Normal.xyz, In.View);
+	float3 Ref = Reflection(Normal.xyz, In.ViewDir);
 	float SkySpecular = pow(saturate(dot(Ref, -ViewSkyLightDir) * LightAmount), 5) * g_SkyLightDiffuse.w;
 	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
 	Diffuse *= tex2D(LightRTSampler, DiffuseTex) + float4(SkyDiffuse, SkySpecular);

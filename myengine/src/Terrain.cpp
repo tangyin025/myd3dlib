@@ -54,22 +54,39 @@ template<>
 void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-	ar << BOOST_SERIALIZATION_NVP(m_ParticleList);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
+	ParticleList::size_type buffer_size = m_ParticleList.size();
+	ar << BOOST_SERIALIZATION_NVP(buffer_size);
+	for (unsigned int i = 0; i < buffer_size; i++)
+	{
+		ar << boost::serialization::make_nvp("Position", m_ParticleList[i].m_Position);
+		ar << boost::serialization::make_nvp("Angle", m_ParticleList[i].m_Angle);
+	}
 }
 
 template<>
 void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-	ar >> BOOST_SERIALIZATION_NVP(m_ParticleList);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
+	ParticleList::size_type buffer_size;
+	ar >> BOOST_SERIALIZATION_NVP(buffer_size);
+	m_ParticleList.resize(buffer_size, Particle(Vector3(0, 0, 0), Vector3(0, 0, 0), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0));
+	for (unsigned int i = 0; i < buffer_size; i++)
+	{
+		ar >> boost::serialization::make_nvp("Position", m_ParticleList[i].m_Position);
+		m_ParticleList[i].m_Velocity = Vector3(0, 0, 0);
+		m_ParticleList[i].m_Color = Vector4(1, 1, 1, 1);
+		m_ParticleList[i].m_Size = Vector2(1, 1);
+		ar >> boost::serialization::make_nvp("Angle", m_ParticleList[i].m_Angle);
+		m_ParticleList[i].m_Time = 0;
+	}
 }
 
 void TerrainChunk::UpdateAABB(void)
@@ -702,7 +719,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 				if (!chunk->m_ParticleList.empty() && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
 				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, NULL, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
+					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter));
