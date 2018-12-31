@@ -25,6 +25,15 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 
 BOOST_CLASS_EXPORT(Terrain)
 
+TerrainChunk::TerrainChunk(void)
+	: Emitter(PARTICLE_INSTANCE_MAX)
+	, m_Owner(NULL)
+	, m_Row(0)
+	, m_Col(0)
+{
+	m_aabb = AABB::Invalid();
+}
+
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 	: Emitter(PARTICLE_INSTANCE_MAX)
 	, m_Owner(Owner)
@@ -37,17 +46,30 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
-TerrainChunk::TerrainChunk(void)
-	: Emitter(PARTICLE_INSTANCE_MAX)
-	, m_Owner(NULL)
-	, m_Row(0)
-	, m_Col(0)
-{
-	m_aabb = AABB::Invalid();
-}
-
 TerrainChunk::~TerrainChunk(void)
 {
+}
+
+template<>
+void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleList);
+	ar << BOOST_SERIALIZATION_NVP(m_aabb);
+	ar << BOOST_SERIALIZATION_NVP(m_Row);
+	ar << BOOST_SERIALIZATION_NVP(m_Col);
+	ar << BOOST_SERIALIZATION_NVP(m_Material);
+}
+
+template<>
+void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleList);
+	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
+	ar >> BOOST_SERIALIZATION_NVP(m_Row);
+	ar >> BOOST_SERIALIZATION_NVP(m_Col);
+	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 void TerrainChunk::UpdateAABB(void)

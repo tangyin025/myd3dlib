@@ -22,22 +22,26 @@ public:
 
 	MaterialPtr m_Material;
 
+protected:
+	TerrainChunk(void);
+
 public:
 	TerrainChunk(Terrain * Owner, int Row, int Col);
 
-	TerrainChunk(void);
-
 	virtual ~TerrainChunk(void);
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-		ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
-		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_Row);
-		ar & BOOST_SERIALIZATION_NVP(m_Col);
-		ar & BOOST_SERIALIZATION_NVP(m_Material);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	void UpdateAABB(void);
