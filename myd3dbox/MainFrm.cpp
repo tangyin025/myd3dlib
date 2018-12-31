@@ -890,7 +890,7 @@ void CMainFrame::OnComponentTerrain()
 	{
 		for (float z = 0.0f; z < terrain->m_RowChunks * terrain->m_ChunkSize - 0.1f; z += 1.0f)
 		{
-			terrain->Spawn(my::Vector3(x, 0, z), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0);
+			terrain->Spawn(my::Vector3(x, 0.5f, z), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), D3DXToRadian(my::Random(0, 359)));
 		}
 	}
 
