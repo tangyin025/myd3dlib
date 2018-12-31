@@ -876,7 +876,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 		{
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, NULL, m_Material->m_Shader.c_str(), PassID);
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "FACETOCAMERA", m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
 					if (!m_EmitterToWorld)

@@ -12,12 +12,20 @@ struct VS_INPUT
 
 float4 TransformPosWS(VS_INPUT In)
 {
+#ifdef FACETOCAMERA
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(g_View[0][1],g_View[1][1],g_View[2][1]);
 	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	float4 Off = float4(RotateAngleAxis(
-		Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x),
-		In.Tex2.z, Dir), 0);
+	float4 Off = float4(
+		RotateAngleAxis(Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x), In.Tex2.z, Dir), 0);
+#else
+	float s, c;
+	sincos(In.Tex2.z, s, c);
+	float3 Right = float3(c, 0, s);
+	float3 Up = float3(0, 1, 0);
+	float3 Dir = float3(-s, 0, c);
+	float4 Off = float4(Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x), 0);
+#endif
 	return Off + mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.Tex2.w), In.Pos.w), g_World);
 }
 
