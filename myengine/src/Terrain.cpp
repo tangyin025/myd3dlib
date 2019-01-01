@@ -670,7 +670,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	{
 		shader->SetMatrix("g_World", m_Actor->m_World);
 		shader->SetFloat("g_HeightScale", m_HeightScale);
-		shader->SetVector("g_HeightTexSize", Vector2((float)m_RowChunks * m_ChunkSize, (float)m_ColChunks * m_ChunkSize));
+		shader->SetVector("g_HeightTexSize", Vector2((float)m_ColChunks * m_ChunkSize, (float)m_RowChunks * m_ChunkSize));
 		int ChunkId[2] = { GetRValue(lparam), GetGValue(lparam) };
 		shader->SetIntArray("g_ChunkId", ChunkId, 2);
 		shader->SetInt("g_ChunkSize", m_ChunkSize);
@@ -803,21 +803,21 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
 	}
 
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	std::vector<physx::PxHeightFieldSample> Samples(
-		(m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
+	std::vector<physx::PxHeightFieldSample> Samples((m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
 	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 	{
 		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
 		{
-			Samples[i * (m_ColChunks * m_ChunkSize + 1) + j].height = GetCValue(GetSampleValue(lrc.pBits, lrc.Pitch, i, j));
-			Samples[i * (m_ColChunks * m_ChunkSize + 1) + j].materialIndex0 = physx::PxBitAndByte(0, false);
-			Samples[i * (m_ColChunks * m_ChunkSize + 1) + j].materialIndex1 = physx::PxBitAndByte(0, false);
+			// ! Reverse physx height field row, column
+			Samples[j * (m_RowChunks * m_ChunkSize + 1) + i].height = GetCValue(GetSampleValue(lrc.pBits, lrc.Pitch, i, j));
+			Samples[j * (m_RowChunks * m_ChunkSize + 1) + i].materialIndex0 = physx::PxBitAndByte(0, false);
+			Samples[j * (m_RowChunks * m_ChunkSize + 1) + i].materialIndex1 = physx::PxBitAndByte(0, false);
 		}
 	}
 	m_HeightMap.UnlockRect(0);
 	physx::PxHeightFieldDesc hfDesc;
-	hfDesc.nbRows             = m_RowChunks * m_ChunkSize + 1;
-	hfDesc.nbColumns          = m_ColChunks * m_ChunkSize + 1;
+	hfDesc.nbRows             = m_ColChunks * m_ChunkSize + 1;
+	hfDesc.nbColumns          = m_RowChunks * m_ChunkSize + 1;
 	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
 	hfDesc.samples.data       = &Samples[0];
 	hfDesc.samples.stride     = sizeof(Samples[0]);
@@ -847,7 +847,7 @@ void Terrain::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, 
 
 	int col = (int)floor(Position.x / m_ChunkSize);
 
-	if (row >= 0 && row < m_Chunks.shape()[0] && col >= 0 && col < m_Chunks.shape()[1])
+	if (row >= 0 && row < (int)m_Chunks.shape()[0] && col >= 0 && col < (int)m_Chunks.shape()[1])
 	{
 		m_Chunks[row][col]->Spawn(Position, Velocity, Color, Size, Angle);
 	}
