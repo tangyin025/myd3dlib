@@ -843,11 +843,12 @@ void Terrain::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, 
 {
 	_ASSERT(m_Actor);
 
-	Vector3 loc_pos = Position.transformCoord(m_Actor->m_World.inverse());
+	int row = (int)floor(Position.z / m_ChunkSize);
 
-	int row = (int)floor(loc_pos.z / m_ChunkSize);
+	int col = (int)floor(Position.x / m_ChunkSize);
 
-	int col = (int)floor(loc_pos.x / m_ChunkSize);
-
-	m_Chunks[row][col]->Spawn(Position, Velocity, Color, Size, Angle);
+	if (row >= 0 && row < m_Chunks.shape()[0] && col >= 0 && col < m_Chunks.shape()[1])
+	{
+		m_Chunks[row][col]->Spawn(Position, Velocity, Color, Size, Angle);
+	}
 }
