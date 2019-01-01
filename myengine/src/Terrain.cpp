@@ -301,7 +301,7 @@ void Terrain::UpdateChunks(void)
 	}
 }
 
-D3DCOLOR Terrain::GetSampleValue(void * pBits, int pitch, int i, int j)
+D3DCOLOR Terrain::GetSampleValue(void * pBits, int pitch, int i, int j) const
 {
 	i = Clamp<int>(i, 0, m_RowChunks * m_ChunkSize - 1);
 	j = Clamp<int>(j, 0, m_ColChunks * m_ChunkSize - 1);
@@ -309,9 +309,51 @@ D3DCOLOR Terrain::GetSampleValue(void * pBits, int pitch, int i, int j)
 	return *Bits;
 }
 
-my::Vector3 Terrain::GetSamplePos(void * pBits, int pitch, int i, int j)
+float Terrain::GetSampleHeight(void * pBits, int pitch, int i, int j) const
 {
-	return Vector3((float)j, m_HeightScale * GetCValue(GetSampleValue(pBits, pitch, i, j)), (float)i);
+	return m_HeightScale * GetCValue(GetSampleValue(pBits, pitch, i, j));
+}
+
+my::Vector3 Terrain::GetSamplePos(void * pBits, int pitch, int i, int j) const
+{
+	return Vector3((float)j, GetSampleHeight(pBits, pitch, i, j), (float)i);
+}
+
+float Terrain::GetPosHeight(void * pBits, int pitch, float x, float z) const
+{
+	int x0 = (int)floor(x);
+	int z0 = (int)floor(z);
+	Vector3 v0 = GetSamplePos(pBits, pitch, z0, x0);
+	Vector3 v1 = GetSamplePos(pBits, pitch, z0 + 1, x0);
+	Vector3 v2 = GetSamplePos(pBits, pitch, z0, x0 + 1);
+	Vector3 v3 = GetSamplePos(pBits, pitch, z0 + 1, x0 + 1);
+	Ray ray(Vector3(x, m_Root.m_aabb.m_max.y, z), Vector3(0, -1, 0));
+	RayResult result = CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
+	if (result.first)
+	{
+		return ray.p.y - result.second;
+	}
+
+	result = CollisionDetector::rayAndTriangle(ray.p, ray.d, v2, v1, v3);
+	if (result.first)
+	{
+		return ray.p.y - result.second;
+	}
+
+	if (x < x0 + 0.5f)
+	{
+		if (z < z0 + 0.5f)
+		{
+			return GetSampleHeight(pBits, pitch, z0, x0);
+		}
+		return GetSampleHeight(pBits, pitch, z0 + 1, x0);
+	}
+
+	if (z < z0 + 0.5f)
+	{
+		return GetSampleHeight(pBits, pitch, z0, x0 + 1);
+	}
+	return GetSampleHeight(pBits, pitch, z0 + 1, x0 + 1);
 }
 
 my::Vector3 Terrain::GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch)

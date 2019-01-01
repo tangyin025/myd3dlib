@@ -120,9 +120,13 @@ public:
 
 	void UpdateChunks(void);
 
-	D3DCOLOR GetSampleValue(void * pBits, int pitch, int i, int j);
+	D3DCOLOR GetSampleValue(void * pBits, int pitch, int i, int j) const;
 
-	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j);
+	float GetSampleHeight(void * pBits, int pitch, int i, int j) const;
+
+	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j) const;
+
+	float GetPosHeight(void * pBits, int pitch, float x, float z) const;
 
 	my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch);
 

@@ -70,7 +70,9 @@ END
 //
 
 IDB_CLASS_VIEW_24       BITMAP                  "res\\classview_hc.bmp"
+
 IDB_CLASS_VIEW          BITMAP                  "res\\classview.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -224,7 +226,9 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -270,6 +274,7 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "Build &Navigation",           ID_TOOLS_BUILDNAVIGATION
+        MENUITEM "Build &Grass",                ID_TOOLS_BUILDGRASS
     END
     POPUP "&View"
     BEGIN
@@ -370,7 +375,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\myd3dbox.ico"
+
 IDR_aaaTYPE             ICON                    "res\\myd3dboxDoc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
