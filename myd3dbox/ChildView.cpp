@@ -1053,7 +1053,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			m_selactorwlds[*sel_iter] = (*sel_iter)->m_World;
+			m_selactorwlds[*sel_iter][0].xyz = (*sel_iter)->m_Position;
+			m_selactorwlds[*sel_iter][1] = (my::Vector4 &)(*sel_iter)->m_Rotation;
+			m_selactorwlds[*sel_iter][2].xyz = (*sel_iter)->m_Scale;
 		}
 		m_bCopyActors = (nFlags & MK_SHIFT) ? TRUE : FALSE;
 		SetCapture();
@@ -1162,16 +1164,10 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
 		{
-			my::Vector3 Position, Scale; my::Quaternion Rotation;
-			actor_world_iter->first->m_World.Decompose(Scale, Rotation, Position);
-			actor_world_iter->first->m_Position = Position;
-			actor_world_iter->first->m_Rotation = Rotation;
-			actor_world_iter->first->m_Scale = Scale;
 			actor_world_iter->first->OnWorldChanged();
 		}
 		m_selactorwlds.clear();
 		pFrame->UpdateSelBox();
-		pFrame->UpdatePivotTransform();
 		ReleaseCapture();
 
 		EventArgs arg;
@@ -1207,19 +1203,16 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				actor_world_iter->first->m_World = actor_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
+				actor_world_iter->first->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
-				actor_world_iter->first->m_World = actor_world_iter->second
+				actor_world_iter->first->m_World = my::Matrix4::Compose(actor_world_iter->second[2].xyz, (my::Quaternion &)actor_world_iter->second[1], actor_world_iter->second[0].xyz)
 					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
-					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot)
+					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
 					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
+				actor_world_iter->first->m_World.Decompose(actor_world_iter->first->m_Scale, actor_world_iter->first->m_Rotation, actor_world_iter->first->m_Position);
 				break;
-			}
-			Actor::ComponentPtrList::iterator cmp_iter = actor_world_iter->first->m_Cmps.begin();
-			for (; cmp_iter != actor_world_iter->first->m_Cmps.end(); cmp_iter++)
-			{
-				(*cmp_iter)->OnWorldChanged();
 			}
 		}
 		Invalidate();

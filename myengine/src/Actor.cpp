@@ -310,6 +310,12 @@ void Actor::UpdateAABB(void)
 void Actor::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->OnWorldUpdated();
+	}
 }
 
 void Actor::OnWorldChanged(void)
@@ -327,12 +333,6 @@ void Actor::OnWorldChanged(void)
 	//{
 	//	m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
 	//}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->OnWorldChanged();
-	}
 }
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)

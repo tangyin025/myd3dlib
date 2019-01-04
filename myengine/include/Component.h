@@ -101,7 +101,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void OnWorldChanged(void);
+	virtual void OnWorldUpdated(void);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -281,7 +281,7 @@ public:
 
 	void UpdateCloth(void);
 
-	virtual void OnWorldChanged(void);
+	virtual void OnWorldUpdated(void);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;

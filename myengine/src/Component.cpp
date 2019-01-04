@@ -80,7 +80,7 @@ void Component::Update(float fElapsedTime)
 {
 }
 
-void Component::OnWorldChanged(void)
+void Component::OnWorldUpdated(void)
 {
 }
 
@@ -785,7 +785,7 @@ void ClothComponent::UpdateCloth(void)
 	}
 }
 
-void ClothComponent::OnWorldChanged(void)
+void ClothComponent::OnWorldUpdated(void)
 {
 	_ASSERT(m_Actor);
 
