@@ -69,7 +69,7 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 	Actor::OnLeavePxScene(scene);
 }
 
-void Character::OnUpdatePxTransform(const physx::PxTransform & trans)
+void Character::OnPxTransformChanged(const physx::PxTransform & trans)
 {
 	m_Position = (my::Vector3 &)trans.p;
 

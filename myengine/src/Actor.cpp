@@ -226,7 +226,7 @@ void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 	}
 }
 
-void Actor::OnUpdatePxTransform(const physx::PxTransform & trans)
+void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 {
 	m_Position = (my::Vector3 &)trans.p;
 	m_Rotation = (my::Quaternion &)trans.q;
@@ -322,7 +322,7 @@ void Actor::OnWorldChanged(void)
 		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
 	}
 
-	// ! conflict with OnUpdatePxTransform
+	// ! conflict with OnPxTransformChanged
 	//if (m_PxActor)
 	//{
 	//	m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));

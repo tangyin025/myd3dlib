@@ -458,7 +458,7 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
-		actor->OnUpdatePxTransform(activeTransforms[i].actor2World);
+		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
 	}
 
 	EventArgs arg;

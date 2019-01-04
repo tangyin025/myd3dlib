@@ -106,7 +106,7 @@ public:
 
 	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
-	virtual void OnUpdatePxTransform(const physx::PxTransform & trans);
+	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
 
 	virtual void Update(float fElapsedTime);
 
