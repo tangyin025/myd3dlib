@@ -791,9 +791,7 @@ void ClothComponent::OnWorldUpdated(void)
 
 	if (m_Cloth)
 	{
-		Vector3 pos, scale; Quaternion rot;
-		m_Actor->m_World.Decompose(scale, rot, pos);
-		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
 	}
 }
 
