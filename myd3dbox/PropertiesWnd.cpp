@@ -1198,6 +1198,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
+
+		if (actor->m_PxActor)
+		{
+			actor->m_PxActor->setGlobalPose(physx::PxTransform(
+				(physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
+		}
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
