@@ -231,7 +231,7 @@ void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 	m_Position = (my::Vector3 &)trans.p;
 	m_Rotation = (my::Quaternion &)trans.q;
 	UpdateWorld();
-	OnWorldChanged();
+	UpdateOctNode();
 }
 
 void Actor::Update(float fElapsedTime)
@@ -278,7 +278,7 @@ void Actor::UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 		m_Position = Pos;
 		m_Rotation = Rot;
 		UpdateWorld();
-		OnWorldChanged();
+		UpdateOctNode();
 	}
 }
 
@@ -318,7 +318,7 @@ void Actor::UpdateWorld(void)
 	}
 }
 
-void Actor::OnWorldChanged(void)
+void Actor::UpdateOctNode(void)
 {
 	if (m_Node)
 	{
@@ -327,13 +327,22 @@ void Actor::OnWorldChanged(void)
 		Root->RemoveActor(actor_ptr);
 		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
 	}
-
-	// ! conflict with OnPxTransformChanged
-	//if (m_PxActor)
-	//{
-	//	m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
-	//}
 }
+//
+//void Actor::UpdatePxTransform(void)
+//{
+//	// ! conflict with OnPxTransformChanged
+//	if (m_PxActor)
+//	{
+//		m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+//
+//		physx::PxRigidBody * body = m_PxActor->isRigidBody();
+//		if (body)
+//		{
+//			body->setLinearVelocity((physx::PxVec3 &)Vector3(0, 0, 0), true);
+//		}
+//	}
+//}
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {

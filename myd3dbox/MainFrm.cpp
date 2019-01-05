@@ -453,12 +453,23 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 
 	PhysXSceneContext::AdvanceSync(fElapsedTime);
 
+	bool haveSelActors = false;
 	physx::PxU32 nbActiveTransforms;
 	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(nbActiveTransforms);
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
+		if (!haveSelActors && m_selactors.end() != m_selactors.find(actor))
+		{
+			haveSelActors = true;
+		}
+	}
+
+	if (haveSelActors)
+	{
+		UpdateSelBox();
+		UpdatePivotTransform();
 	}
 
 	EventArgs arg;
@@ -685,7 +696,7 @@ void CMainFrame::OnComponentMesh()
 	mesh_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnWorldChanged();
+	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -738,7 +749,7 @@ void CMainFrame::OnComponentCloth()
 	cloth_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnWorldChanged();
+	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -773,7 +784,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnWorldChanged();
+	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
 	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f);
@@ -829,7 +840,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnWorldChanged();
+	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -884,7 +895,7 @@ void CMainFrame::OnComponentTerrain()
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->OnWorldChanged();
+	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
 	EventArgs arg;

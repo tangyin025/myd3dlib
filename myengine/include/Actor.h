@@ -118,7 +118,9 @@ public:
 
 	void UpdateWorld(void);
 
-	virtual void OnWorldChanged(void);
+	void UpdateOctNode(void);
+
+	//void UpdatePxTransform(void);
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 

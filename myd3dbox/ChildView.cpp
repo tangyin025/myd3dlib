@@ -1056,6 +1056,12 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			m_selactorwlds[*sel_iter][0].xyz = (*sel_iter)->m_Position;
 			m_selactorwlds[*sel_iter][1] = (my::Vector4 &)(*sel_iter)->m_Rotation;
 			m_selactorwlds[*sel_iter][2].xyz = (*sel_iter)->m_Scale;
+
+			physx::PxRigidBody * body = NULL;
+			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->isRigidBody()))
+			{
+				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, true);
+			}
 		}
 		m_bCopyActors = (nFlags & MK_SHIFT) ? TRUE : FALSE;
 		SetCapture();
@@ -1164,7 +1170,14 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
 		{
-			actor_world_iter->first->OnWorldChanged();
+			actor_world_iter->first->UpdateOctNode();
+
+			physx::PxRigidBody * body = NULL;
+			if (actor_world_iter->first->m_PxActor && (body = actor_world_iter->first->m_PxActor->isRigidBody()))
+			{
+				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, false);
+				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));
+			}
 		}
 		m_selactorwlds.clear();
 		pFrame->UpdateSelBox();
@@ -1213,6 +1226,12 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
 				actor_world_iter->first->m_World.Decompose(actor_world_iter->first->m_Scale, actor_world_iter->first->m_Rotation, actor_world_iter->first->m_Position);
 				break;
+			}
+
+			if (actor_world_iter->first->m_PxActor)
+			{
+				actor_world_iter->first->m_PxActor->setGlobalPose(physx::PxTransform(
+					(physx::PxVec3&)actor_world_iter->first->m_Position, (physx::PxQuat&)actor_world_iter->first->m_Rotation), true);
 			}
 		}
 		Invalidate();

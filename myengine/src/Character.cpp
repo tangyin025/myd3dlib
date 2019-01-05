@@ -77,7 +77,7 @@ void Character::OnPxTransformChanged(const physx::PxTransform & trans)
 
 	UpdateWorld();
 
-	OnWorldChanged();
+	UpdateOctNode();
 }
 
 void Character::Update(float fElapsedTime)
