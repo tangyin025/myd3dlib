@@ -26,8 +26,7 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(void)
-	: Emitter(PARTICLE_INSTANCE_MAX)
-	, m_Owner(NULL)
+	: m_Owner(NULL)
 	, m_Row(0)
 	, m_Col(0)
 {
@@ -35,8 +34,7 @@ TerrainChunk::TerrainChunk(void)
 }
 
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
-	: Emitter(PARTICLE_INSTANCE_MAX)
-	, m_Owner(Owner)
+	: m_Owner(Owner)
 	, m_Row(Row)
 	, m_Col(Col)
 {
@@ -58,13 +56,6 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	ParticleList::size_type buffer_size = m_ParticleList.size();
-	ar << BOOST_SERIALIZATION_NVP(buffer_size);
-	for (unsigned int i = 0; i < buffer_size; i++)
-	{
-		ar << boost::serialization::make_nvp("Position", m_ParticleList[i].m_Position);
-		ar << boost::serialization::make_nvp("Angle", m_ParticleList[i].m_Angle);
-	}
 }
 
 template<>
@@ -75,18 +66,6 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	ParticleList::size_type buffer_size;
-	ar >> BOOST_SERIALIZATION_NVP(buffer_size);
-	m_ParticleList.resize(buffer_size, Particle(Vector3(0, 0, 0), Vector3(0, 0, 0), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0));
-	for (unsigned int i = 0; i < buffer_size; i++)
-	{
-		ar >> boost::serialization::make_nvp("Position", m_ParticleList[i].m_Position);
-		m_ParticleList[i].m_Velocity = Vector3(0, 0, 0);
-		m_ParticleList[i].m_Color = Vector4(1, 1, 1, 1);
-		m_ParticleList[i].m_Size = Vector2(1, 1);
-		ar >> boost::serialization::make_nvp("Angle", m_ParticleList[i].m_Angle);
-		m_ParticleList[i].m_Time = 0;
-	}
 }
 
 void TerrainChunk::UpdateAABB(void)
@@ -147,6 +126,7 @@ static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N)
 
 Terrain::Terrain(void)
 	: Component(ComponentTypeTerrain)
+	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
@@ -157,6 +137,7 @@ Terrain::Terrain(void)
 
 Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain)
+	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
@@ -741,30 +722,24 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
-			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+			if (chunk->m_Material && chunk->m_Material->m_PassMask & PassMask)
 			{
-				if (chunk->m_Material && (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask)))
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
-					if (shader)
+					if (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask))
 					{
-						const Fragment & frag = terrain->GetFragment(
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
-						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-							frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
-					}
-				}
-
-				if (!chunk->m_ParticleList.empty() && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
-				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
-					if (shader)
-					{
-						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeEmitter));
+						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
+						if (shader)
+						{
+							const Fragment & frag = terrain->GetFragment(
+								terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
+								terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
+							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
+								frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
+						}
 					}
 				}
 			}
@@ -777,6 +752,21 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		Frustum loc_frustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 loc_viewpos = ViewPos.transformCoord(m_Actor->m_World.inverse());
 		m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassMask, loc_viewpos, this));
+	}
+
+	if (m_GrassMaterial && (m_GrassMaterial->m_PassMask & PassMask))
+	{
+		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+		{
+			if (RenderPipeline::PassTypeToMask(PassID) & (m_GrassMaterial->m_PassMask & PassMask))
+			{
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", m_GrassMaterial->m_Shader.c_str(), PassID);
+				if (shader)
+				{
+					pipeline->PushEmitter(PassID, this, shader, this, m_GrassMaterial.get(), RGB(0, 0, RenderTypeEmitter));
+				}
+			}
+		}
 	}
 }
 
@@ -837,18 +827,4 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
-}
-
-void Terrain::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
-{
-	_ASSERT(m_Actor);
-
-	int row = (int)floor(Position.z / m_ChunkSize);
-
-	int col = (int)floor(Position.x / m_ChunkSize);
-
-	if (row >= 0 && row < (int)m_Chunks.shape()[0] && col >= 0 && col < (int)m_Chunks.shape()[1])
-	{
-		m_Chunks[row][col]->Spawn(Position, Velocity, Color, Size, Angle);
-	}
 }

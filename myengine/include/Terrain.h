@@ -9,7 +9,6 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
-	, public my::Emitter
 {
 public:
 	Terrain * m_Owner;
@@ -51,6 +50,7 @@ typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
 class Terrain
 	: public Component
+	, public my::Emitter
 {
 public:
 	enum RenderType
@@ -171,8 +171,6 @@ public:
 	void CreateHeightFieldShape(const my::Vector3 & Scale);
 
 	virtual void ClearShape(void);
-
-	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
