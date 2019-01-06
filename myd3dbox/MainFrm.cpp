@@ -897,6 +897,7 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
+	m_selchunkid.SetPoint(0, 0);
 
 	EventArgs arg;
 	m_EventAttributeChanged(&arg);

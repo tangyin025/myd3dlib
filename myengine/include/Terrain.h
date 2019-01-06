@@ -171,6 +171,8 @@ public:
 	void CreateHeightFieldShape(const my::Vector3 & Scale);
 
 	virtual void ClearShape(void);
+
+	void UpdateGrass(const my::Vector3 & LocalViewPos);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

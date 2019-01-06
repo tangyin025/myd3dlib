@@ -746,11 +746,11 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 	};
 
+	Vector3 loc_viewpos = ViewPos.transformCoord(m_Actor->m_World.inverse());
 	if (m_vb.m_ptr)
 	{
 		// ! do not use m_World for level offset
 		Frustum loc_frustum = frustum.transform(m_Actor->m_World.transpose());
-		Vector3 loc_viewpos = ViewPos.transformCoord(m_Actor->m_World.inverse());
 		m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassMask, loc_viewpos, this));
 	}
 
@@ -767,6 +767,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				}
 			}
 		}
+		UpdateGrass(loc_viewpos);
 	}
 }
 
@@ -827,4 +828,25 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
+}
+
+void Terrain::UpdateGrass(const my::Vector3 & LocalViewPos)
+{
+	const float grass_density = 1.0f;
+	const int center_stage_x = (int)floor(LocalViewPos.x / grass_density);
+	const int center_stage_z = (int)floor(LocalViewPos.z / grass_density);
+	const int stage_radius = 10;
+	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
+	m_ParticleList.clear();
+	for (int stage_x = my::Max(0, center_stage_x - stage_radius); stage_x < my::Min((int)(m_ColChunks * m_ChunkSize / grass_density), center_stage_x + stage_radius); stage_x++)
+	{
+		for (int stage_z = my::Max(0, center_stage_z - stage_radius); stage_z < my::Min((int)(m_RowChunks * m_ChunkSize / grass_density), center_stage_z + stage_radius); stage_z++)
+		{
+			float x = stage_x * grass_density;
+			float z = stage_z * grass_density;
+			Spawn(my::Vector3(x, GetPosHeight(lrc.pBits, lrc.Pitch, x, z) + 0.5f, z), my::Vector3(0, 0, 0),
+				my::Vector4(1, 1, 1, 1), my::Vector2(1.0f, 1.0f), D3DXToRadian(boost::hash_value(std::make_pair(stage_x, stage_z)) / 360.0f));
+		}
+	}
+	m_HeightMap.UnlockRect(0);
 }
