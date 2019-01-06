@@ -122,7 +122,7 @@ public:
 
 	//void UpdatePxTransform(void);
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
 	void ClearRigidActor(void);
 

@@ -272,6 +272,7 @@ static int os_exit(lua_State * L)
 Game::Game(void)
 	: m_UIRender(new EffectUIRender())
 	, m_Root(my::AABB(-1024, 1024))
+	, m_TargetActor(NULL)
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -813,21 +814,23 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos)
+		const my::Vector3 & TargetPos;
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
+			, TargetPos(_TargetPos)
 		{
 		}
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
-			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
+			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
-	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye));
+	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_TargetActor ? m_TargetActor->m_Position : m_Camera->m_Eye));
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)

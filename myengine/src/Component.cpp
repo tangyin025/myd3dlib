@@ -89,7 +89,7 @@ my::AABB Component::CalculateAABB(void) const
 	return AABB::Invalid();
 }
 
-void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
+void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 }
 
@@ -311,7 +311,7 @@ my::AABB MeshComponent::CalculateAABB(void) const
 	return ret;
 }
 
-void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
+void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(m_Actor);
 
@@ -696,7 +696,7 @@ my::AABB ClothComponent::CalculateAABB(void) const
 	return ret;
 }
 
-void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
+void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	if (!m_VertexData.empty())
 	{
@@ -866,7 +866,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 	return ret;
 }
 
-void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
+void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{

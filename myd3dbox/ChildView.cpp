@@ -178,12 +178,14 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
+		const my::Vector3 & TargetPos;
 		CMainFrame * pFrame;
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, CMainFrame * _pFrame)
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
+			, TargetPos(_TargetPos)
 			, pFrame(_pFrame)
 		{
 		}
@@ -196,10 +198,10 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 				actor->RequestResource();
 				actor->OnEnterPxScene(pFrame);
 			}
-			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
+			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
-	pFrame->m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, model_view_camera->m_LookAt, pFrame));
+	pFrame->m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, model_view_camera->m_Eye, model_view_camera->m_LookAt, pFrame));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 

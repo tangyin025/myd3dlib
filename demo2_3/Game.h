@@ -36,6 +36,8 @@ public:
 
 	WeakActorMap m_ViewedActors;
 
+	Actor * m_TargetActor;
+
 	std::string m_InitFont;
 
 	int m_InitFontHeight;

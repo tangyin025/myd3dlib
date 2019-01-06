@@ -21,27 +21,28 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
 game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
--- 创建地面
-local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
-local cmp=MeshComponent()
-local lambert1=Material()
-lambert1.Shader="shader/lambert1.fx"
-lambert1.PassMask=Material.PassMaskOpaque
--- lambert1.RepeatUV.x=64
--- lambert1.RepeatUV.y=64
-lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
-cmp:AddMaterial(lambert1)
-cmp.MeshPath="mesh/plane.mesh.xml"
-cmp.MeshEventReady=function(args)
-	cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
-end
-actor:AddComponent(cmp)
-actor:CreateRigidActor(Actor.eRIGID_STATIC)
-cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)))
-actor:UpdateWorld()
-game.Root:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
+-- -- 创建地面
+-- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
+-- local cmp=MeshComponent()
+-- local lambert1=Material()
+-- lambert1.Shader="shader/lambert1.fx"
+-- lambert1.PassMask=Material.PassMaskOpaque
+-- -- lambert1.RepeatUV.x=64
+-- -- lambert1.RepeatUV.y=64
+-- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+-- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- cmp:AddMaterial(lambert1)
+-- cmp.MeshPath="mesh/plane.mesh.xml"
+-- cmp.MeshEventReady=function(args)
+	-- cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
+-- end
+-- actor:AddComponent(cmp)
+-- actor:CreateRigidActor(Actor.eRIGID_STATIC)
+-- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)))
+-- actor:UpdateWorld()
+-- game.Root:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
+game:LoadScene("scene01.xml")
 
 -- 创建玩家Actor
 local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
@@ -158,5 +159,5 @@ actor4:UpdateWorld()
 game.Root:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
 -- 特殊渲染选项
-game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.SsaoEnable=true
+-- game.VisualizationParameter=1

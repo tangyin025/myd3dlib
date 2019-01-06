@@ -702,7 +702,7 @@ my::AABB Terrain::CalculateAABB(void) const
 	return ret;
 }
 
-void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
+void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(m_Actor);
 
@@ -746,7 +746,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 	};
 
-	Vector3 loc_viewpos = ViewPos.transformCoord(m_Actor->m_World.inverse());
+	Vector3 loc_viewpos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 	if (m_vb.m_ptr)
 	{
 		// ! do not use m_World for level offset
@@ -835,7 +835,7 @@ void Terrain::UpdateGrass(const my::Vector3 & LocalViewPos)
 	const float grass_density = 1.0f;
 	const int center_stage_x = (int)floor(LocalViewPos.x / grass_density);
 	const int center_stage_z = (int)floor(LocalViewPos.z / grass_density);
-	const int stage_radius = 10;
+	const int stage_radius = 32;
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	m_ParticleList.clear();
 	for (int stage_x = my::Max(0, center_stage_x - stage_radius); stage_x < my::Min((int)(m_ColChunks * m_ChunkSize / grass_density), center_stage_x + stage_radius); stage_x++)

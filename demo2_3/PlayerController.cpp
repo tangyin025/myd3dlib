@@ -80,6 +80,7 @@ void PlayerController::Update(float fElapsedTime)
 	camera->m_Eular = m_LookAngle;
 	camera->m_Eye = m_Character->m_Position + Vector3(0, 0.75f, 0) + Rotation[2].xyz * m_LookDist;
 	Game::getSingleton().m_SkyLightCam->m_Eye = m_Character->m_Position;
+	Game::getSingleton().m_TargetActor = m_Character;
 }
 
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
