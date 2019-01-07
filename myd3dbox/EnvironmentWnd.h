@@ -34,7 +34,7 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum SkyLightProperty
 	{
-		SkyLightPropertyDir,
+		SkyLightPropertyEular,
 		SkyLightPropertyDiffuse,
 		SkyLightPropertyAmbient,
 	};

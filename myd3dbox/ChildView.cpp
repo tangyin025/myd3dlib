@@ -69,6 +69,7 @@ CChildView::CChildView()
 	, m_raychunkid(0, 0)
 {
 	// TODO: add construction code here
+	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
 	m_SwapChainBuffer.reset(new my::Surface());
 	ZeroMemory(&m_SwapChainBufferDesc, sizeof(m_SwapChainBufferDesc));
 	m_SwapChainBufferDesc.Width = 100;
@@ -170,7 +171,6 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -201,7 +201,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
-	pFrame->m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, model_view_camera->m_Eye, model_view_camera->m_LookAt, pFrame));
+	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+	pFrame->m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
@@ -665,8 +666,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-			my::Vector3 loc_viewpos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
-			Callback cb(ray, loc_viewpos, this, terrain);
+			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
+			Callback cb(ray, LocalViewPos, this, terrain);
 			terrain->m_Root.QueryActor(ray, &cb);
 			if (cb.ret.first)
 			{
@@ -919,6 +920,10 @@ void CChildView::OnPaint()
 				//V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
+				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+				m_SkyLightCam->m_Eye = model_view_camera->m_LookAt;
+				m_SkyLightCam->m_Eular = theApp.m_SkyLightEular;
+				m_SkyLightCam->UpdateViewProj();
 				theApp.OnRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());

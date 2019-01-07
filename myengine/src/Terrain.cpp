@@ -746,12 +746,12 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 	};
 
-	Vector3 loc_viewpos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 	if (m_vb.m_ptr)
 	{
 		// ! do not use m_World for level offset
-		Frustum loc_frustum = frustum.transform(m_Actor->m_World.transpose());
-		m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassMask, loc_viewpos, this));
+		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+		m_Root.QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
 	}
 
 	if (m_GrassMaterial && (m_GrassMaterial->m_PassMask & PassMask))
@@ -767,7 +767,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				}
 			}
 		}
-		UpdateGrass(loc_viewpos);
+		UpdateGrass(LocalViewPos);
 	}
 }
 

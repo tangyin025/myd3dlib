@@ -35,6 +35,7 @@ CMainApp::CMainApp()
 	// Place all significant initialization in InitInstance
 	m_UIRender.reset(new my::UIRender());
 	m_EventLog.connect(boost::bind(&CMainApp::OnEventLog, this, _1));
+	m_SkyLightEular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(0), 0);
 }
 
 CMainApp::~CMainApp()

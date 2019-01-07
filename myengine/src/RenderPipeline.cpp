@@ -38,7 +38,6 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
 	, m_SsaoScale(10.0f)
-	, m_SkyLightCam(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100))
 {
 }
 
@@ -259,9 +258,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
 	m_MeshInstanceStride = offset;
 
-	m_SkyLightCam->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(0), 0);
-	m_SkyLightCam->UpdateViewProj();
-
 	if (!(m_SimpleSample = my::ResourceMgr::getSingleton().LoadEffect("shader/SimpleSample.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_SimpleSample failed");
@@ -378,7 +374,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetFloat("g_Time", my::D3DContext::getSingleton().m_fTotalTime);
@@ -386,8 +382,8 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
 	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
-	m_SimpleSample->SetMatrix("g_SkyLightView", m_SkyLightCam->m_View); // ! RH -z
-	m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetMatrix("g_SkyLightView", pRC->m_SkyLightCam->m_View); // ! RH -z
+	m_SimpleSample->SetMatrix("g_SkyLightViewProj", pRC->m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));

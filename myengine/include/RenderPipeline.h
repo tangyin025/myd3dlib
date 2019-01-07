@@ -84,8 +84,6 @@ public:
 
 	my::Vector4 m_BgColor;
 
-	my::CameraPtr m_SkyLightCam;
-
 	my::Vector4 m_SkyLightDiffuse;
 
 	my::Vector4 m_SkyLightAmbient;
@@ -155,6 +153,8 @@ public:
 	{
 	public:
 		my::CameraPtr m_Camera;
+
+		my::CameraPtr m_SkyLightCam;
 
 		bool m_WireFrame;
 

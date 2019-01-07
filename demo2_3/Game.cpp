@@ -420,6 +420,8 @@ HRESULT Game::OnCreateDevice(
 
 	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
 
+	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
+
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
 	lua_setglobal(m_State, "print");
@@ -566,6 +568,8 @@ void Game::OnDestroyDevice(void)
 	m_EventLog("Game::OnDestroyDevice");
 
 	m_Camera.reset();
+
+	m_SkyLightCam.reset();
 
 	m_Root.ClearAllActor();
 
