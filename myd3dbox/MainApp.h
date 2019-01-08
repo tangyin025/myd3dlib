@@ -29,7 +29,6 @@ public:
 	HRESULT hr;
 	my::UIRenderPtr m_UIRender;
 	my::FontPtr m_Font;
-	my::Vector3 m_SkyLightEular;
 
 	// cfg
 	std::string default_texture;
