@@ -106,6 +106,8 @@ public:
 
 	int m_GrassStageRadius;
 
+	my::Vector2 m_GrassSize;
+
 	typedef std::map<float, unsigned int> LodMap;
 
 	LodMap m_LodMap;

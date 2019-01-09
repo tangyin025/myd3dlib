@@ -134,6 +134,7 @@ Terrain::Terrain(void)
 	, m_bNavigation(false)
 	, m_GrassDensity(1.0f)
 	, m_GrassStageRadius(32)
+	, m_GrassSize(1, 1)
 {
 }
 
@@ -150,6 +151,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
 	, m_GrassDensity(1.0f)
 	, m_GrassStageRadius(32)
+	, m_GrassSize(1, 1)
 {
 	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
 	CreateHeightMap();
@@ -846,8 +848,8 @@ void Terrain::UpdateGrass(const my::Vector3 & LocalViewPos)
 		{
 			float x = stage_x * m_GrassDensity;
 			float z = stage_z * m_GrassDensity;
-			Spawn(my::Vector3(x, GetPosHeight(lrc.pBits, lrc.Pitch, x, z) + 0.5f, z), my::Vector3(0, 0, 0),
-				my::Vector4(1, 1, 1, 1), my::Vector2(1.0f, 1.0f), D3DXToRadian(boost::hash_value(std::make_pair(stage_x, stage_z)) / (float)SIZE_MAX * 360.0f));
+			Spawn(my::Vector3(x, GetPosHeight(lrc.pBits, lrc.Pitch, x, z) + m_GrassSize.y * 0.5f, z),
+				my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), m_GrassSize, boost::hash_value(std::make_pair(stage_x, stage_z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
 		}
 	}
 	m_HeightMap.UnlockRect(0);
