@@ -144,14 +144,6 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//afx_msg void OnCameratypePerspective();
-	//afx_msg void OnUpdateCameratypePerspective(CCmdUI *pCmdUI);
-	//afx_msg void OnCameratypeFront();
-	//afx_msg void OnUpdateCameratypeFront(CCmdUI *pCmdUI);
-	//afx_msg void OnCameratypeSide();
-	//afx_msg void OnUpdateCameratypeSide(CCmdUI *pCmdUI);
-	//afx_msg void OnCameratypeTop();
-	//afx_msg void OnUpdateCameratypeTop(CCmdUI *pCmdUI);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnShowGrid();
 	afx_msg void OnUpdateShowGrid(CCmdUI *pCmdUI);

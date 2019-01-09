@@ -52,43 +52,37 @@
 #define IDC_RADIO5                      1013
 #define IDC_RADIO6                      1014
 #define IDC_RADIO7                      1015
-#define ID_VIEW_CAMERATYPE              32771
-#define ID_CAMERATYPE_PERSPECTIVE       32772
-#define ID_CAMERATYPE_FRONT             32773
-#define ID_CAMERATYPE_SIDE              32774
-#define ID_CAMERATYPE_TOP               32775
-#define ID_CREATE_COMPONENT             32776
-#define ID_COMPONENT_MESH               32777
-#define ID_COMPONENT_STATICEMITTER      32778
-#define ID_COMPONENT_SPHERICALEMITTER   32779
-#define ID_EDIT_DELETE                  32780
-#define ID_VIEW_PIVOT                   32781
-#define ID_PIVOT_MOVE                   32782
-#define ID_PIVOT_ROTATE                 32783
-#define ID_VIEW_SHOW                    32784
-#define ID_SHOW_GRID                    32785
-#define ID_SHOW_CMPHANDLE               32786
-#define ID_COMPONENT_TERRAIN            32787
-#define ID_VIEW_RENDERMODE              32788
-#define ID_RENDERMODE_WIREFRAME         32789
-#define ID_SHOW_COLLISION               32790
-#define ID_CREATE_ACTOR                 32791
-#define ID_RENDERMODE_DEPTHOFFIELD      32792
-#define ID_RENDERMODE_FXAA              32793
-#define ID_RENDERMODE_SSAO              32794
-#define ID_COMPONENT_CLOTH              32795
-#define ID_CREATE_CHARACTER             32896
-#define ID_VIEW_CLEARSHADER             32897
-#define ID_TOOLS_BUILDNAVIGATION        32898
-#define ID_SHOW_NAVIGATION              32899
-#define ID_TOOLS_BUILDGRASS             32900
+#define ID_CREATE_COMPONENT             32771
+#define ID_COMPONENT_MESH               32772
+#define ID_COMPONENT_STATICEMITTER      32773
+#define ID_COMPONENT_SPHERICALEMITTER   32774
+#define ID_EDIT_DELETE                  32775
+#define ID_VIEW_PIVOT                   32776
+#define ID_PIVOT_MOVE                   32777
+#define ID_PIVOT_ROTATE                 32778
+#define ID_VIEW_SHOW                    32779
+#define ID_SHOW_GRID                    32780
+#define ID_SHOW_CMPHANDLE               32781
+#define ID_COMPONENT_TERRAIN            32782
+#define ID_VIEW_RENDERMODE              32783
+#define ID_RENDERMODE_WIREFRAME         32784
+#define ID_SHOW_COLLISION               32785
+#define ID_CREATE_ACTOR                 32786
+#define ID_RENDERMODE_DEPTHOFFIELD      32787
+#define ID_RENDERMODE_FXAA              32788
+#define ID_RENDERMODE_SSAO              32789
+#define ID_COMPONENT_CLOTH              32790
+#define ID_CREATE_CHARACTER             32791
+#define ID_VIEW_CLEARSHADER             32792
+#define ID_TOOLS_BUILDNAVIGATION        32793
+#define ID_SHOW_NAVIGATION              32794
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        314
-#define _APS_NEXT_COMMAND_VALUE         32901
+#define _APS_NEXT_COMMAND_VALUE         32795
 #define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

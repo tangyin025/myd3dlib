@@ -29,14 +29,6 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
-	//ON_COMMAND(ID_CAMERATYPE_PERSPECTIVE, &CChildView::OnCameratypePerspective)
-	//ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_PERSPECTIVE, &CChildView::OnUpdateCameratypePerspective)
-	//ON_COMMAND(ID_CAMERATYPE_FRONT, &CChildView::OnCameratypeFront)
-	//ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_FRONT, &CChildView::OnUpdateCameratypeFront)
-	//ON_COMMAND(ID_CAMERATYPE_SIDE, &CChildView::OnCameratypeSide)
-	//ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_SIDE, &CChildView::OnUpdateCameratypeSide)
-	//ON_COMMAND(ID_CAMERATYPE_TOP, &CChildView::OnCameratypeTop)
-	//ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_TOP, &CChildView::OnUpdateCameratypeTop)
 	ON_WM_KEYDOWN()
 	ON_COMMAND(ID_SHOW_GRID, &CChildView::OnShowGrid)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_GRID, &CChildView::OnUpdateShowGrid)
@@ -1021,7 +1013,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	//OnCameratypePerspective();
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
@@ -1033,7 +1024,7 @@ void CChildView::OnDestroy()
 {
 	CView::OnDestroy();
 
-	//// TODO: Add your message handler code here
+	// TODO: Add your message handler code here
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
@@ -1276,75 +1267,6 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 
 	return __super::PreTranslateMessage(pMsg);
 }
-//
-//void CChildView::OnCameratypePerspective()
-//{
-//	// TODO: Add your command handler code here
-//	StartPerformanceCount();
-//	float fov = D3DXToRadian(75.0f);
-//	m_Camera.reset(new my::ModelViewerCamera(fov, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, 0.1f, 3000.0f));
-//	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
-//	m_Camera->UpdateViewProj();
-//	m_CameraType = CameraTypePerspective;
-//	Invalidate();
-//}
-//
-//void CChildView::OnUpdateCameratypePerspective(CCmdUI *pCmdUI)
-//{
-//	// TODO: Add your command update UI handler code here
-//	pCmdUI->SetCheck(m_CameraType == CameraTypePerspective);
-//}
-//
-//void CChildView::OnCameratypeFront()
-//{
-//	StartPerformanceCount();
-//	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
-//	m_Camera->m_Eye = my::Vector3::zero;
-//	m_Camera->m_Eular = my::Vector3::zero;
-//	m_Camera->UpdateViewProj();
-//	m_CameraType = CameraTypeFront;
-//	Invalidate();
-//}
-//
-//void CChildView::OnUpdateCameratypeFront(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_CameraType == CameraTypeFront);
-//}
-//
-//void CChildView::OnCameratypeSide()
-//{
-//	StartPerformanceCount();
-//	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
-//	m_Camera->m_Eye = my::Vector3::zero;
-//	m_Camera->m_Eular = my::Vector3(0,D3DXToRadian(90),0);
-//	m_Camera->UpdateViewProj();
-//	m_CameraType = CameraTypeSide;
-//	Invalidate();
-//}
-//
-//void CChildView::OnUpdateCameratypeSide(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_CameraType == CameraTypeSide);
-//}
-//
-//void CChildView::OnCameratypeTop()
-//{
-//	StartPerformanceCount();
-//	m_Camera.reset(new my::OrthoCamera(
-//		m_CameraDiagonal,m_SwapChainBufferDesc.Width/(float)m_SwapChainBufferDesc.Height,-1500,1500));
-//	m_Camera->m_Eye = my::Vector3::zero;
-//	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
-//	m_Camera->UpdateViewProj();
-//	m_CameraType = CameraTypeTop;
-//	Invalidate();
-//}
-//
-//void CChildView::OnUpdateCameratypeTop(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_CameraType == CameraTypeTop);
-//}
 
 void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {

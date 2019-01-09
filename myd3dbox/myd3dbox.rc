@@ -83,13 +83,6 @@ IDR_POPUP_VIEW MENU
 BEGIN
     POPUP "View"
     BEGIN
-        POPUP "Camera Type"
-        BEGIN
-            MENUITEM "Perspective",                 ID_CAMERATYPE_PERSPECTIVE
-            MENUITEM "Front",                       ID_CAMERATYPE_FRONT
-            MENUITEM "Side",                        ID_CAMERATYPE_SIDE
-            MENUITEM "Top",                         ID_CAMERATYPE_TOP
-        END
         POPUP "Show"
         BEGIN
             MENUITEM "Grid",                        ID_SHOW_GRID
@@ -274,7 +267,6 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "Build &Navigation",           ID_TOOLS_BUILDNAVIGATION
-        MENUITEM "Build &Grass",                ID_TOOLS_BUILDGRASS
     END
     POPUP "&View"
     BEGIN

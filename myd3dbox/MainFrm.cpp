@@ -64,7 +64,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
 	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
-	ON_COMMAND(ID_TOOLS_BUILDGRASS, &CMainFrame::OnToolsBuildgrass)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1440,35 +1439,4 @@ void CMainFrame::OnToolsBuildnavigation()
 	// Show performance stats.
 	duLogBuildTimes(*this, this->getAccumulatedTime(RC_TIMER_TOTAL));
 	this->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
-}
-
-void CMainFrame::OnToolsBuildgrass()
-{
-	// TODO: Add your command handler code here
-	//if (m_selactors.empty())
-	//{
-	//	return;
-	//}
-
-	//Actor * actor = *m_selactors.begin();
-	//for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
-	//{
-	//	if (actor->m_Cmps[i]->m_Type != Component::ComponentTypeTerrain)
-	//	{
-	//		continue;
-	//	}
-
-	//	TerrainPtr terrain = boost::dynamic_pointer_cast<Terrain>(actor->m_Cmps[i]);
-	//	ASSERT(terrain);
-	//	D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	//	for (float x = 0.0f; x < terrain->m_ColChunks * terrain->m_ChunkSize - 0.1f; x += 1.0f)
-	//	{
-	//		for (float z = 0.0f; z < terrain->m_RowChunks * terrain->m_ChunkSize - 0.1f; z += 1.0f)
-	//		{
-	//			terrain->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z) + 0.5f, z),
-	//				my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1.0f, 1.0f), D3DXToRadian(my::Random(0, 359)));
-	//		}
-	//	}
-	//	terrain->m_HeightMap.UnlockRect(0);
-	//}
 }
