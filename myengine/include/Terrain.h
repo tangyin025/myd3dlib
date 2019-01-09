@@ -102,6 +102,10 @@ public:
 
 	MaterialPtr m_GrassMaterial;
 
+	FLOAT m_GrassDensity;
+
+	int m_GrassStageRadius;
+
 	typedef std::map<float, unsigned int> LodMap;
 
 	LodMap m_LodMap;

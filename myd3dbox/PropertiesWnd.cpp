@@ -496,7 +496,9 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_bNavigation);
 	pComponent->GetSubItem(PropId + 5);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), terrain->m_GrassMaterial.get());
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)terrain->m_GrassDensity);
+	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)terrain->m_GrassStageRadius);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 9), terrain->m_GrassMaterial.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -879,6 +881,10 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
+	pProp = new CSimpleProp(_T("GrassDensity"), (_variant_t)terrain->m_GrassDensity, NULL, PropertyTerrainGrassDensity);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("GrassStageRadius"), (_variant_t)terrain->m_GrassStageRadius, NULL, PropertyTerrainGrassStageRadius);
+	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("GrassMaterial"), terrain->m_GrassMaterial.get());
 }
 
@@ -921,7 +927,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 16;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
 	}
 	return 1;
 }
@@ -1621,6 +1627,22 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
+		break;
+	}
+	case PropertyTerrainGrassDensity:
+	{
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+		terrain->m_GrassDensity = pProp->GetValue().fltVal;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyTerrainGrassStageRadius:
+	{
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+		terrain->m_GrassStageRadius = pProp->GetValue().intVal;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	}

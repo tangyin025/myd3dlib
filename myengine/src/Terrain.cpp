@@ -132,6 +132,8 @@ Terrain::Terrain(void)
 	, m_ChunkSize(8)
 	, m_HeightScale(1)
 	, m_bNavigation(false)
+	, m_GrassDensity(1.0f)
+	, m_GrassStageRadius(32)
 {
 }
 
@@ -146,6 +148,8 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_bNavigation(false)
 	, m_Root(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
+	, m_GrassDensity(1.0f)
+	, m_GrassStageRadius(32)
 {
 	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
 	CreateHeightMap();
@@ -832,20 +836,18 @@ void Terrain::ClearShape(void)
 
 void Terrain::UpdateGrass(const my::Vector3 & LocalViewPos)
 {
-	const float grass_density = 1.0f;
-	const int center_stage_x = (int)floor(LocalViewPos.x / grass_density);
-	const int center_stage_z = (int)floor(LocalViewPos.z / grass_density);
-	const int stage_radius = 32;
+	const int center_stage_x = (int)floor(LocalViewPos.x / m_GrassDensity);
+	const int center_stage_z = (int)floor(LocalViewPos.z / m_GrassDensity);
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	m_ParticleList.clear();
-	for (int stage_x = my::Max(0, center_stage_x - stage_radius); stage_x < my::Min((int)(m_ColChunks * m_ChunkSize / grass_density), center_stage_x + stage_radius); stage_x++)
+	for (int stage_x = my::Max(0, center_stage_x - m_GrassStageRadius); stage_x < my::Min((int)(m_ColChunks * m_ChunkSize / m_GrassDensity), center_stage_x + m_GrassStageRadius); stage_x++)
 	{
-		for (int stage_z = my::Max(0, center_stage_z - stage_radius); stage_z < my::Min((int)(m_RowChunks * m_ChunkSize / grass_density), center_stage_z + stage_radius); stage_z++)
+		for (int stage_z = my::Max(0, center_stage_z - m_GrassStageRadius); stage_z < my::Min((int)(m_RowChunks * m_ChunkSize / m_GrassDensity), center_stage_z + m_GrassStageRadius); stage_z++)
 		{
-			float x = stage_x * grass_density;
-			float z = stage_z * grass_density;
+			float x = stage_x * m_GrassDensity;
+			float z = stage_z * m_GrassDensity;
 			Spawn(my::Vector3(x, GetPosHeight(lrc.pBits, lrc.Pitch, x, z) + 0.5f, z), my::Vector3(0, 0, 0),
-				my::Vector4(1, 1, 1, 1), my::Vector2(1.0f, 1.0f), D3DXToRadian(boost::hash_value(std::make_pair(stage_x, stage_z)) / 360.0f));
+				my::Vector4(1, 1, 1, 1), my::Vector2(1.0f, 1.0f), D3DXToRadian(boost::hash_value(std::make_pair(stage_x, stage_z)) / (float)SIZE_MAX * 360.0f));
 		}
 	}
 	m_HeightMap.UnlockRect(0);
