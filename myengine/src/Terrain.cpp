@@ -773,7 +773,12 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				}
 			}
 		}
-		UpdateGrass(LocalViewPos);
+
+		if ((1 << RenderPipeline::PassTypeShadow) & PassMask)
+		{
+			// ! only shadow pass update grasses
+			UpdateGrass(LocalViewPos);
+		}
 	}
 }
 
