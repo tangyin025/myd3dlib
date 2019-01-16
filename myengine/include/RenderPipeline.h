@@ -94,13 +94,57 @@ public:
 
 	my::EffectPtr m_SimpleSample;
 
+	D3DXHANDLE handle_Time;
+
+	D3DXHANDLE handle_Eye;
+
+	D3DXHANDLE handle_View;
+
+	D3DXHANDLE handle_ViewProj;
+
+	D3DXHANDLE handle_InvViewProj;
+
+	D3DXHANDLE handle_SkyLightView;
+
+	D3DXHANDLE handle_SkyLightViewProj;
+
+	D3DXHANDLE handle_SkyLightDiffuse;
+
+	D3DXHANDLE handle_SkyLightAmbient;
+
+	D3DXHANDLE handle_ShadowRT;
+
+	D3DXHANDLE handle_NormalRT;
+
+	D3DXHANDLE handle_PositionRT;
+
+	D3DXHANDLE handle_LightRT;
+
 	my::EffectPtr m_DofEffect;
 
 	my::Vector4 m_DofParams;
 
+	D3DXHANDLE handle_DofParams;
+
+	D3DXHANDLE handle_OpaqueRT;
+
+	D3DXHANDLE handle_DownFilterRT;
+
 	my::EffectPtr m_FxaaEffect;
 
+	D3DXHANDLE handle_InputTexture;
+
+	D3DXHANDLE handle_RCPFrame;
+
 	my::EffectPtr m_SsaoEffect;
+
+	D3DXHANDLE handle_bias;
+
+	D3DXHANDLE handle_intensity;
+
+	D3DXHANDLE handle_sample_rad;
+
+	D3DXHANDLE handle_scale;
 
 	float m_SsaoBias;
 

@@ -263,20 +263,46 @@ HRESULT RenderPipeline::OnCreateDevice(
 		THROW_CUSEXCEPTION("create m_SimpleSample failed");
 	}
 
+	BOOST_VERIFY(handle_Time = m_SimpleSample->GetParameterByName(NULL, "g_Time"));
+	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
+	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
+	BOOST_VERIFY(handle_ViewProj = m_SimpleSample->GetParameterByName(NULL, "g_ViewProj"));
+	BOOST_VERIFY(handle_InvViewProj = m_SimpleSample->GetParameterByName(NULL, "g_InvViewProj"));
+	BOOST_VERIFY(handle_SkyLightView = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightView"));
+	BOOST_VERIFY(handle_SkyLightViewProj = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightViewProj"));
+	BOOST_VERIFY(handle_SkyLightDiffuse = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightDiffuse"));
+	BOOST_VERIFY(handle_SkyLightAmbient = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightAmbient"));
+	BOOST_VERIFY(handle_ShadowRT = m_SimpleSample->GetParameterByName(NULL, "g_ShadowRT"));
+	BOOST_VERIFY(handle_NormalRT = m_SimpleSample->GetParameterByName(NULL, "g_NormalRT"));
+	BOOST_VERIFY(handle_PositionRT = m_SimpleSample->GetParameterByName(NULL, "g_PositionRT"));
+	BOOST_VERIFY(handle_LightRT = m_SimpleSample->GetParameterByName(NULL, "g_LightRT"));
+
 	if (!(m_DofEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/DofEffect.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_DofEffect failed");
 	}
+
+	BOOST_VERIFY(handle_DofParams = m_SimpleSample->GetParameterByName(NULL, "g_DofParams"));
+	BOOST_VERIFY(handle_OpaqueRT = m_SimpleSample->GetParameterByName(NULL, "g_OpaqueRT"));
+	BOOST_VERIFY(handle_DownFilterRT = m_SimpleSample->GetParameterByName(NULL, "g_DownFilterRT"));
 
 	if (!(m_FxaaEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/FXAA.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_FxaaEffect failed");
 	}
 
+	BOOST_VERIFY(handle_InputTexture = m_SimpleSample->GetParameterByName(NULL, "InputTexture"));
+	BOOST_VERIFY(handle_RCPFrame = m_SimpleSample->GetParameterByName(NULL, "RCPFrame"));
+
 	if (!(m_SsaoEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/SSAO.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_SsaoEffect failed");
 	}
+
+	BOOST_VERIFY(handle_bias = m_SimpleSample->GetParameterByName(NULL, "g_bias"));
+	BOOST_VERIFY(handle_intensity = m_SimpleSample->GetParameterByName(NULL, "g_intensity"));
+	BOOST_VERIFY(handle_sample_rad = m_SimpleSample->GetParameterByName(NULL, "g_sample_rad"));
+	BOOST_VERIFY(handle_scale = m_SimpleSample->GetParameterByName(NULL, "g_scale"));
 	return S_OK;
 }
 
@@ -377,13 +403,13 @@ void RenderPipeline::OnRender(
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
-	m_SimpleSample->SetFloat("g_Time", my::D3DContext::getSingleton().m_fTotalTime);
-	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
-	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
-	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
-	m_SimpleSample->SetMatrix("g_SkyLightView", pRC->m_SkyLightCam->m_View); // ! RH -z
-	m_SimpleSample->SetMatrix("g_SkyLightViewProj", pRC->m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
+	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
+	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
+	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
+	m_SimpleSample->SetMatrix(handle_InvViewProj, pRC->m_Camera->m_InverseViewProj);
+	m_SimpleSample->SetMatrix(handle_SkyLightView, pRC->m_SkyLightCam->m_View); // ! RH -z
+	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, pRC->m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
@@ -394,9 +420,9 @@ void RenderPipeline::OnRender(
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
-	m_SimpleSample->SetVector("g_SkyLightDiffuse", m_SkyLightDiffuse);
-	m_SimpleSample->SetVector("g_SkyLightAmbient", m_SkyLightAmbient);
-	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT.get());
+	m_SimpleSample->SetVector(handle_SkyLightDiffuse, m_SkyLightDiffuse);
+	m_SimpleSample->SetVector(handle_SkyLightAmbient, m_SkyLightAmbient);
+	m_SimpleSample->SetTexture(handle_ShadowRT, m_ShadowRT.get());
 	V(pd3dDevice->SetRenderTarget(0, NormalSurf));
 	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
@@ -405,8 +431,8 @@ void RenderPipeline::OnRender(
 	NormalSurf.Release();
 	PositionSurf.Release();
 
-	m_SimpleSample->SetTexture("g_NormalRT", pRC->m_NormalRT.get());
-	m_SimpleSample->SetTexture("g_PositionRT", pRC->m_PositionRT.get());
+	m_SimpleSample->SetTexture(handle_NormalRT, pRC->m_NormalRT.get());
+	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	if (pRC->m_SsaoEnable)
@@ -415,10 +441,10 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_SsaoEffect->SetFloat("g_bias", m_SsaoBias);
-		m_SsaoEffect->SetFloat("g_intensity", m_SsaoIntensity);
-		m_SsaoEffect->SetFloat("g_sample_rad", m_SsaoRadius);
-		m_SsaoEffect->SetFloat("g_scale", m_SsaoScale);
+		m_SsaoEffect->SetFloat(handle_bias, m_SsaoBias);
+		m_SsaoEffect->SetFloat(handle_intensity, m_SsaoIntensity);
+		m_SsaoEffect->SetFloat(handle_sample_rad, m_SsaoRadius);
+		m_SsaoEffect->SetFloat(handle_scale, m_SsaoScale);
 		m_SsaoEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_SsaoEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
@@ -432,7 +458,7 @@ void RenderPipeline::OnRender(
 	}
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 
-	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
+	m_SimpleSample->SetTexture(handle_LightRT, pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(m_BgColor.x, m_BgColor.y, m_BgColor.z, m_BgColor.w);
 	if (m_SkyBoxEnable)
@@ -495,9 +521,9 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_FxaaEffect->SetTexture("InputTexture", pRC->m_OpaqueRT.GetNextSource().get());
+		m_FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
 		Vector4 RCPFrame(1.0f / pBackBufferSurfaceDesc->Width, 1.0f / pBackBufferSurfaceDesc->Height, 0.0f, 0.0f);
-		m_FxaaEffect->SetFloatArray("RCPFrame", &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
+		m_FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
 		m_FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_FxaaEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
@@ -512,9 +538,9 @@ void RenderPipeline::OnRender(
 			pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0), NULL, D3DTEXF_NONE)); // ! d3dref only support D3DTEXF_NONE
 		pRC->m_DownFilterRT.Flip();
 
-		m_DofEffect->SetVector("g_DofParams", m_DofParams);
-		m_DofEffect->SetTexture("g_OpaqueRT", pRC->m_OpaqueRT.GetNextSource().get());
-		m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT.GetNextSource().get());
+		m_DofEffect->SetVector(handle_DofParams, m_DofParams);
+		m_DofEffect->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
+		m_DofEffect->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -525,14 +551,14 @@ void RenderPipeline::OnRender(
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
 
-		m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT.GetNextSource().get());
+		m_DofEffect->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 		m_DofEffect->BeginPass(1);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
 
-		m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT.GetNextSource().get());
+		m_DofEffect->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 		m_DofEffect->BeginPass(2);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
