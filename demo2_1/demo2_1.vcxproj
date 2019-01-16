@@ -56,7 +56,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -78,7 +78,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
