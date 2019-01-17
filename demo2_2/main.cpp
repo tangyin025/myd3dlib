@@ -20,11 +20,20 @@ class EffectUIRender
 public:
 	my::EffectPtr m_UIEffect;
 
+	D3DXHANDLE handle_ScreenDim;
+
+	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_ViewProj;
+
 	UINT m_Passes;
 
 public:
 	EffectUIRender(void)
 		: m_Passes(0)
+		, handle_ScreenDim(NULL)
+		, handle_World(NULL)
+		, handle_ViewProj(NULL)
 	{
 	}
 
@@ -42,6 +51,10 @@ public:
 		{
 			return S_FALSE;
 		}
+
+		BOOST_VERIFY(handle_ScreenDim = m_UIEffect->GetParameterByName(NULL, "g_ScreenDim"));
+		BOOST_VERIFY(handle_World = m_UIEffect->GetParameterByName(NULL, "g_World"));
+		BOOST_VERIFY(handle_ViewProj = m_UIEffect->GetParameterByName(NULL, "g_ViewProj"));
 
 		return S_OK;
 	}
@@ -76,7 +89,7 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->SetVector("g_ScreenDim", Vector4(
+			m_UIEffect->SetVector(handle_ScreenDim, Vector4(
 				(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
 			m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		}
@@ -95,7 +108,7 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->SetMatrix("g_World", World);
+			m_UIEffect->SetMatrix(handle_World, World);
 		}
 	}
 
@@ -103,7 +116,7 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+			m_UIEffect->SetMatrix(handle_ViewProj, ViewProj);
 		}
 	}
 

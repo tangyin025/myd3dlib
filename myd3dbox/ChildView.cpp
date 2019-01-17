@@ -227,9 +227,9 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			if (mesh_cmp->m_Mesh)
 			{
-				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_Actor->m_World);
-				theApp.m_SimpleSample->SetVector("g_MeshColor", my::Vector4(0,1,0,1));
-				theApp.m_SimpleSample->SetTechnique("RenderSceneColor");
+				theApp.m_SimpleSample->SetTechnique(theApp.technique_RenderSceneColor);
+				theApp.m_SimpleSample->SetMatrix(theApp.handle_World, mesh_cmp->m_Actor->m_World);
+				theApp.m_SimpleSample->SetVector(theApp.handle_MeshColor, my::Vector4(0,1,0,1));
 				UINT passes = theApp.m_SimpleSample->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 				{
@@ -886,7 +886,7 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
+			theApp.m_SimpleSample->SetFloatArray(theApp.handle_ScreenDim, (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
 			DrawHelper::BeginLine();
 
@@ -922,8 +922,8 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
 				if (!pFrame->m_selactors.empty())
 				{
-					theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-					theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
+					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
 					PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
 					CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)

@@ -27,11 +27,17 @@ class EffectUIRender
 public:
 	my::EffectPtr m_UIEffect;
 
+	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_ViewProj;
+
 	UINT m_Passes;
 
 public:
 	EffectUIRender(void)
 		: m_Passes(0)
+		, handle_World(NULL)
+		, handle_ViewProj(NULL)
 	{
 	}
 
@@ -45,6 +51,13 @@ public:
 		}
 
 		m_UIEffect = my::ResourceMgr::getSingleton().LoadEffect(Game::getSingleton().m_InitUIEffect.c_str(), "");
+		if (!m_UIEffect)
+		{
+			return S_FALSE;
+		}
+
+		BOOST_VERIFY(handle_World = m_UIEffect->GetParameterByName(NULL, "g_World"));
+		BOOST_VERIFY(handle_ViewProj = m_UIEffect->GetParameterByName(NULL, "g_ViewProj"));
 
 		return S_OK;
 	}
@@ -96,7 +109,7 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->SetMatrix("g_World", World);
+			m_UIEffect->SetMatrix(handle_World, World);
 		}
 	}
 
@@ -104,7 +117,7 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+			m_UIEffect->SetMatrix(handle_ViewProj, ViewProj);
 		}
 	}
 
@@ -688,7 +701,7 @@ void Game::OnFrameTick(
 
 	PhysXSceneContext::TickPreRender(fElapsedTime);
 
-	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
+	m_SimpleSample->SetFloatArray(handle_ScreenDim, (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{

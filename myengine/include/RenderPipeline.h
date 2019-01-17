@@ -96,6 +96,10 @@ public:
 
 	D3DXHANDLE handle_Time;
 
+	D3DXHANDLE handle_ScreenDim;
+
+	D3DXHANDLE handle_World;
+
 	D3DXHANDLE handle_Eye;
 
 	D3DXHANDLE handle_View;
@@ -120,15 +124,15 @@ public:
 
 	D3DXHANDLE handle_LightRT;
 
+	D3DXHANDLE handle_OpaqueRT;
+
+	D3DXHANDLE handle_DownFilterRT;
+
 	my::EffectPtr m_DofEffect;
 
 	my::Vector4 m_DofParams;
 
 	D3DXHANDLE handle_DofParams;
-
-	D3DXHANDLE handle_OpaqueRT;
-
-	D3DXHANDLE handle_DownFilterRT;
 
 	my::EffectPtr m_FxaaEffect;
 

@@ -33,7 +33,31 @@ RenderPipeline::RenderPipeline(void)
 	, m_SkyLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_SkyLightAmbient(0.3f, 0.3f, 0.3f, 0.0f)
 	, m_SkyBoxEnable(false)
+	, handle_Time(NULL)
+	, handle_Eye(NULL)
+	, handle_ScreenDim(NULL)
+	, handle_World(NULL)
+	, handle_View(NULL)
+	, handle_ViewProj(NULL)
+	, handle_InvViewProj(NULL)
+	, handle_SkyLightView(NULL)
+	, handle_SkyLightViewProj(NULL)
+	, handle_SkyLightDiffuse(NULL)
+	, handle_SkyLightAmbient(NULL)
+	, handle_ShadowRT(NULL)
+	, handle_NormalRT(NULL)
+	, handle_PositionRT(NULL)
+	, handle_LightRT(NULL)
+	, handle_OpaqueRT(NULL)
+	, handle_DownFilterRT(NULL)
 	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
+	, handle_DofParams(NULL)
+	, handle_InputTexture(NULL)
+	, handle_RCPFrame(NULL)
+	, handle_bias(NULL)
+	, handle_intensity(NULL)
+	, handle_sample_rad(NULL)
+	, handle_scale(NULL)
 	, m_SsaoBias(0.2f)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
@@ -264,6 +288,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 	}
 
 	BOOST_VERIFY(handle_Time = m_SimpleSample->GetParameterByName(NULL, "g_Time"));
+	BOOST_VERIFY(handle_ScreenDim = m_SimpleSample->GetParameterByName(NULL, "g_ScreenDim"));
+	BOOST_VERIFY(handle_World = m_SimpleSample->GetParameterByName(NULL, "g_World"));
 	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
 	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
 	BOOST_VERIFY(handle_ViewProj = m_SimpleSample->GetParameterByName(NULL, "g_ViewProj"));
@@ -276,33 +302,33 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_NormalRT = m_SimpleSample->GetParameterByName(NULL, "g_NormalRT"));
 	BOOST_VERIFY(handle_PositionRT = m_SimpleSample->GetParameterByName(NULL, "g_PositionRT"));
 	BOOST_VERIFY(handle_LightRT = m_SimpleSample->GetParameterByName(NULL, "g_LightRT"));
+	BOOST_VERIFY(handle_OpaqueRT = m_SimpleSample->GetParameterByName(NULL, "g_OpaqueRT"));
+	BOOST_VERIFY(handle_DownFilterRT = m_SimpleSample->GetParameterByName(NULL, "g_DownFilterRT"));
 
 	if (!(m_DofEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/DofEffect.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_DofEffect failed");
 	}
 
-	BOOST_VERIFY(handle_DofParams = m_SimpleSample->GetParameterByName(NULL, "g_DofParams"));
-	BOOST_VERIFY(handle_OpaqueRT = m_SimpleSample->GetParameterByName(NULL, "g_OpaqueRT"));
-	BOOST_VERIFY(handle_DownFilterRT = m_SimpleSample->GetParameterByName(NULL, "g_DownFilterRT"));
+	BOOST_VERIFY(handle_DofParams = m_DofEffect->GetParameterByName(NULL, "g_DofParams"));
 
 	if (!(m_FxaaEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/FXAA.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_FxaaEffect failed");
 	}
 
-	BOOST_VERIFY(handle_InputTexture = m_SimpleSample->GetParameterByName(NULL, "InputTexture"));
-	BOOST_VERIFY(handle_RCPFrame = m_SimpleSample->GetParameterByName(NULL, "RCPFrame"));
+	BOOST_VERIFY(handle_InputTexture = m_FxaaEffect->GetParameterByName(NULL, "InputTexture"));
+	BOOST_VERIFY(handle_RCPFrame = m_FxaaEffect->GetParameterByName(NULL, "RCPFrame"));
 
 	if (!(m_SsaoEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/SSAO.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_SsaoEffect failed");
 	}
 
-	BOOST_VERIFY(handle_bias = m_SimpleSample->GetParameterByName(NULL, "g_bias"));
-	BOOST_VERIFY(handle_intensity = m_SimpleSample->GetParameterByName(NULL, "g_intensity"));
-	BOOST_VERIFY(handle_sample_rad = m_SimpleSample->GetParameterByName(NULL, "g_sample_rad"));
-	BOOST_VERIFY(handle_scale = m_SimpleSample->GetParameterByName(NULL, "g_scale"));
+	BOOST_VERIFY(handle_bias = m_SsaoEffect->GetParameterByName(NULL, "g_bias"));
+	BOOST_VERIFY(handle_intensity = m_SsaoEffect->GetParameterByName(NULL, "g_intensity"));
+	BOOST_VERIFY(handle_sample_rad = m_SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
+	BOOST_VERIFY(handle_scale = m_SsaoEffect->GetParameterByName(NULL, "g_scale"));
 	return S_OK;
 }
 
@@ -539,8 +565,8 @@ void RenderPipeline::OnRender(
 		pRC->m_DownFilterRT.Flip();
 
 		m_DofEffect->SetVector(handle_DofParams, m_DofParams);
-		m_DofEffect->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
-		m_DofEffect->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+		m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
+		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -551,14 +577,14 @@ void RenderPipeline::OnRender(
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
 
-		m_DofEffect->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 		m_DofEffect->BeginPass(1);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
 
-		m_DofEffect->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 		m_DofEffect->BeginPass(2);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
@@ -727,7 +753,7 @@ void RenderPipeline::DrawIndexedPrimitive(
 	Material * mtl,
 	LPARAM lparam)
 {
-	shader->SetTechnique("RenderScene");
+	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
@@ -736,7 +762,6 @@ void RenderPipeline::DrawIndexedPrimitive(
 		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		V(pd3dDevice->SetIndices(pIB));
-		cmp->OnSetShader(pd3dDevice, shader, lparam);
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
@@ -762,14 +787,13 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	Material * mtl,
 	LPARAM lparam)
 {
-	shader->SetTechnique("RenderScene");
+	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		cmp->OnSetShader(pd3dDevice, shader, lparam);
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
@@ -781,12 +805,11 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 
 void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
-	shader->SetTechnique("RenderScene");
+	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
-		cmp->OnSetShader(pd3dDevice, shader, lparam);
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		mesh->DrawSubset(AttribId);
@@ -811,7 +834,7 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 	CComPtr<IDirect3DVertexBuffer9> vb = mesh->GetVertexBuffer();
 	CComPtr<IDirect3DIndexBuffer9> ib = mesh->GetIndexBuffer();
 
-	shader->SetTechnique("RenderScene");
+	atom.cmps[0]->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
@@ -823,7 +846,6 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
 		V(pd3dDevice->SetIndices(ib));
-		atom.cmps[0]->OnSetShader(pd3dDevice, shader, lparam);
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
@@ -865,7 +887,7 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	}
 	m_ParticleInstanceData.Unlock();
 
-	shader->SetTechnique("RenderScene");
+	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
@@ -877,7 +899,6 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
 		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
-		cmp->OnSetShader(pd3dDevice, shader, lparam);
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
@@ -919,7 +940,7 @@ void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd
 	}
 	m_ParticleInstanceData.Unlock();
 
-	shader->SetTechnique("RenderScene");
+	atom.emitters[0].second->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
@@ -931,7 +952,6 @@ void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
 		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
-		atom.emitters[0].second->OnSetShader(pd3dDevice, shader, lparam);
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));

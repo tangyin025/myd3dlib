@@ -135,6 +135,15 @@ Terrain::Terrain(void)
 	, m_GrassDensity(1.0f)
 	, m_GrassStageRadius(32)
 	, m_GrassSize(1, 1)
+	, technique_RenderScene(NULL)
+	, handle_World(NULL)
+	, handle_HeightScale(NULL)
+	, handle_HeightTexSize(NULL)
+	, handle_ChunkId(NULL)
+	, handle_ChunkSize(NULL)
+	, handle_HeightTexture(NULL)
+	, technique_emitter_RenderScene(NULL)
+	, handle_emitter_World(NULL)
 {
 }
 
@@ -152,6 +161,15 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_GrassDensity(1.0f)
 	, m_GrassStageRadius(32)
 	, m_GrassSize(1, 1)
+	, technique_RenderScene(NULL)
+	, handle_World(NULL)
+	, handle_HeightScale(NULL)
+	, handle_HeightTexSize(NULL)
+	, handle_ChunkId(NULL)
+	, handle_ChunkSize(NULL)
+	, handle_HeightTexture(NULL)
+	, technique_emitter_RenderScene(NULL)
+	, handle_emitter_World(NULL)
 {
 	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
 	CreateHeightMap();
@@ -655,18 +673,20 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	{
 	case RenderTypeTerrain:
 	{
-		shader->SetMatrix("g_World", m_Actor->m_World);
-		shader->SetFloat("g_HeightScale", m_HeightScale);
-		shader->SetVector("g_HeightTexSize", Vector2((float)m_ColChunks * m_ChunkSize, (float)m_RowChunks * m_ChunkSize));
+		shader->SetTechnique(technique_RenderScene);
+		shader->SetMatrix(handle_World, m_Actor->m_World);
+		shader->SetFloat(handle_HeightScale, m_HeightScale);
+		shader->SetVector(handle_HeightTexSize, Vector2((float)m_ColChunks * m_ChunkSize, (float)m_RowChunks * m_ChunkSize));
 		int ChunkId[2] = { GetRValue(lparam), GetGValue(lparam) };
-		shader->SetIntArray("g_ChunkId", ChunkId, 2);
-		shader->SetInt("g_ChunkSize", m_ChunkSize);
-		shader->SetTexture("g_HeightTexture", &m_HeightMap);
+		shader->SetIntArray(handle_ChunkId, ChunkId, 2);
+		shader->SetInt(handle_ChunkSize, m_ChunkSize);
+		shader->SetTexture(handle_HeightTexture, &m_HeightMap);
 		break;
 	}
 	case RenderTypeEmitter:
 	{
-		shader->SetMatrix("g_World", m_Actor->m_World);
+		shader->SetTechnique(technique_emitter_RenderScene);
+		shader->SetMatrix(handle_emitter_World, m_Actor->m_World);
 		break;
 	}
 	default:
@@ -737,6 +757,17 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
 						if (shader)
 						{
+							if (!terrain->technique_RenderScene)
+							{
+								BOOST_VERIFY(terrain->technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
+								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+								BOOST_VERIFY(terrain->handle_HeightScale = shader->GetParameterByName(NULL, "g_HeightScale"));
+								BOOST_VERIFY(terrain->handle_HeightTexSize = shader->GetParameterByName(NULL, "g_HeightTexSize"));
+								BOOST_VERIFY(terrain->handle_ChunkId = shader->GetParameterByName(NULL, "g_ChunkId"));
+								BOOST_VERIFY(terrain->handle_ChunkSize = shader->GetParameterByName(NULL, "g_ChunkSize"));
+								BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
+							}
+
 							const Fragment & frag = terrain->GetFragment(
 								terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
 								terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
@@ -769,6 +800,12 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", m_GrassMaterial->m_Shader.c_str(), PassID);
 				if (shader)
 				{
+					if (!technique_emitter_RenderScene)
+					{
+						BOOST_VERIFY(technique_emitter_RenderScene = shader->GetTechniqueByName("RenderScene"));
+						BOOST_VERIFY(handle_emitter_World = shader->GetParameterByName(NULL, "g_World"));
+					}
+					
 					pipeline->PushEmitter(PassID, this, shader, this, m_GrassMaterial.get(), RGB(0, 0, RenderTypeEmitter));
 				}
 			}

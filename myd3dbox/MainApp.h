@@ -36,6 +36,8 @@ public:
 	std::string default_specular_texture;
 	std::string default_shader;
 	unsigned int default_pass_mask;
+	D3DXHANDLE technique_RenderSceneColor;
+	D3DXHANDLE handle_MeshColor;
 
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);

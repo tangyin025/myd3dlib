@@ -29,6 +29,9 @@ END_MESSAGE_MAP()
 CMainApp::CMainApp()
 {
 
+	default_pass_mask = 0;
+	technique_RenderSceneColor = NULL;
+	handle_MeshColor = NULL;
 	m_bHiColorIcons = TRUE;
 
 	// TODO: add construction code here,
@@ -285,6 +288,9 @@ HRESULT CMainApp::OnCreateDevice(
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
 	}
+
+	BOOST_VERIFY(technique_RenderSceneColor = m_SimpleSample->GetTechniqueByName("RenderSceneColor"));
+	BOOST_VERIFY(handle_MeshColor = m_SimpleSample->GetParameterByName(NULL, "g_MeshColor"));
 
 	if (FAILED(hr = m_UIRender->OnCreateDevice(pd3dDevice, &m_BackBufferSurfaceDesc)))
 	{

@@ -137,12 +137,21 @@ public:
 
 	MaterialPtrList m_MaterialList;
 
+	D3DXHANDLE technique_RenderScene;
+
+	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_dualquat;
+
 public:
 	MeshComponent(void)
 		: Component(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, m_bNavigation(false)
+		, technique_RenderScene(NULL)
+		, handle_World(NULL)
+		, handle_dualquat(NULL)
 	{
 	}
 
@@ -223,10 +232,19 @@ public:
 
 	PhysXPtr<physx::PxCloth> m_Cloth;
 
+	D3DXHANDLE technique_RenderScene;
+
+	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_dualquat;
+
 public:
 	ClothComponent(void)
 		: Component(ComponentTypeCloth)
 		, m_bUseAnimation(false)
+		, technique_RenderScene(NULL)
+		, handle_World(NULL)
+		, handle_dualquat(NULL)
 	{
 	}
 
@@ -295,11 +313,17 @@ public:
 
 	bool m_EmitterToWorld;
 
+	D3DXHANDLE technique_RenderScene;
+
+	D3DXHANDLE handle_World;
+
 protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterToWorld(false)
+		, technique_RenderScene(NULL)
+		, handle_World(NULL)
 	{
 	}
 
@@ -308,6 +332,8 @@ public:
 		: Component(type)
 		, Emitter(capacity)
 		, m_EmitterToWorld(false)
+		, technique_RenderScene(NULL)
+		, handle_World(NULL)
 	{
 	}
 

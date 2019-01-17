@@ -286,13 +286,15 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(m_Actor);
 
-	shader->SetMatrix("g_World", m_Actor->m_World);
+	shader->SetTechnique(technique_RenderScene);
+
+	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
 		if (!m_Actor->m_Animator->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray("g_dualquat", &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
+			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
 	}
 }
@@ -329,6 +331,16 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance ? "INSTANCE" : NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
+							if (!technique_RenderScene)
+							{
+								BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
+								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+								if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
+								{
+									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
+								}
+							}
+
 							if (m_bInstance)
 							{
 								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get(), i);
@@ -669,13 +681,15 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	_ASSERT(m_Actor);
 
-	shader->SetMatrix("g_World", m_Actor->m_World);
+	shader->SetTechnique(technique_RenderScene);
+
+	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
 		if (!m_Actor->m_Animator->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray("g_dualquat", &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
+			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
 	}
 }
@@ -715,6 +729,16 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
+							if (!technique_RenderScene)
+							{
+								BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
+								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+								if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
+								{
+									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
+								}
+							}
+
 							pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
 								m_AttribTable[i].VertexStart,
 								m_AttribTable[i].VertexCount,
@@ -851,11 +875,11 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 	if (!m_EmitterToWorld)
 	{
-		shader->SetMatrix("g_World", m_Actor->m_World);
+		shader->SetMatrix(handle_World, m_Actor->m_World);
 	}
 	else
 	{
-		shader->SetMatrix("g_World", Matrix4::identity);
+		shader->SetMatrix(handle_World, Matrix4::identity);
 	}
 }
 
@@ -877,6 +901,12 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "FACETOCAMERA", m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
+					if (!technique_RenderScene)
+					{
+						BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
+						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+					}
+
 					if (!m_EmitterToWorld)
 					{
 						pipeline->PushEmitter(PassID, this, shader, this, m_Material.get(), 0);
