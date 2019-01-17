@@ -1301,6 +1301,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		material->ReleaseResource();
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
 		material->m_ParameterList.clear();
+		// TODO: need update Component d3dxhandler's
 		RemovePropertiesFrom(pProp->GetParent()->GetSubItem(6), 0);
 		material->ParseShaderParamters();
 		material->RequestResource();
