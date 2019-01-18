@@ -896,3 +896,24 @@ void Terrain::UpdateGrass(const my::Vector3 & LocalViewPos)
 	}
 	m_HeightMap.UnlockRect(0);
 }
+
+void Terrain::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	handle_HeightScale = NULL;
+	handle_HeightTexSize = NULL;
+	handle_ChunkId = NULL;
+	handle_ChunkSize = NULL;
+	handle_HeightTexture = NULL;
+	technique_emitter_RenderScene = NULL;
+	handle_emitter_World = NULL;
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			m_Chunks[i][j]->m_Material->ParseShaderParameters();
+		}
+	}
+	m_GrassMaterial->ParseShaderParameters();
+}

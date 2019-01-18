@@ -1300,11 +1300,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 		material->ReleaseResource();
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-		material->m_ParameterList.clear();
-		// TODO: need update Component d3dxhandler's
-		RemovePropertiesFrom(pProp->GetParent()->GetSubItem(6), 0);
-		material->ParseShaderParamters();
 		material->RequestResource();
+		// ! clear shader handles and re-parse shader parameters
+		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
+		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+		{
+			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
+			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
+			{
+				(*cmp_iter)->OnShaderChanged();
+			}
+		}
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

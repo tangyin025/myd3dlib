@@ -323,7 +323,7 @@ public:
 
 	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	void ParseShaderParamters(void);
+	void ParseShaderParameters(void);
 
 	void AddParameterFloat(const std::string & Name, float Value);
 

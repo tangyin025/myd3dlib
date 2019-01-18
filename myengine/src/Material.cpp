@@ -262,7 +262,7 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, L
 	}
 }
 
-void Material::ParseShaderParamters(void)
+void Material::ParseShaderParameters(void)
 {
 	if (!m_Shader.empty())
 	{
@@ -272,6 +272,7 @@ void Material::ParseShaderParamters(void)
 		boost::match_results<const char *> what;
 		const char * start = (const char *)&(*cache)[0];
 		const char * end = (const char *)&(*cache)[cache->size() - 1];
+		m_ParameterList.clear();
 		while (boost::regex_search(start, end, what, reg, boost::match_default))
 		{
 			std::string Type = what[1];

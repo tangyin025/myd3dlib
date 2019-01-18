@@ -268,7 +268,7 @@ public:
 
 		Material mtl;
 		mtl.m_Shader = "shader/lambert1.fx";
-		mtl.ParseShaderParamters();
+		mtl.ParseShaderParameters();
 
 		DialogPtr dlg(new Dialog());
 		dlg->m_Size = Vector2(400, 400);

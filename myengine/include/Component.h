@@ -116,6 +116,8 @@ public:
 	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
 
 	virtual void ClearShape(void);
+
+	virtual void OnShaderChanged(void);
 };
 
 class MeshComponent
@@ -197,6 +199,8 @@ public:
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
 	void CreateTriangleMeshShape(const my::Vector3 & Scale);
+
+	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -300,6 +304,8 @@ public:
 	void UpdateCloth(void);
 
 	virtual void OnWorldUpdated(void);
+
+	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
@@ -364,6 +370,8 @@ public:
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
+	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;

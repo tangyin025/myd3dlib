@@ -195,6 +195,10 @@ void Component::ClearShape(void)
 	m_PxMaterial.reset();
 }
 
+void Component::OnShaderChanged(void)
+{
+}
+
 template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
@@ -427,6 +431,18 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+}
+
+void MeshComponent::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	handle_dualquat = NULL;
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	{
+		(*mtl_iter)->ParseShaderParameters();
+	}
 }
 
 namespace boost { 
@@ -819,6 +835,18 @@ void ClothComponent::OnWorldUpdated(void)
 	}
 }
 
+void ClothComponent::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	handle_dualquat = NULL;
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	{
+		(*mtl_iter)->ParseShaderParameters();
+	}
+}
+
 void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 {
 	Component::CopyFrom(rhs);
@@ -919,6 +947,13 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 			}
 		}
 	}
+}
+
+void EmitterComponent::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	m_Material->ParseShaderParameters();
 }
 
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)

@@ -196,6 +196,8 @@ public:
 
 	virtual void ClearShape(void);
 
+	virtual void OnShaderChanged(void);
+
 	void UpdateGrass(const my::Vector3 & LocalViewPos);
 };
 

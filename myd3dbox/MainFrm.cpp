@@ -685,7 +685,7 @@ void CMainFrame::OnComponentMesh()
 		MaterialPtr lambert1(new Material());
 		lambert1->m_Shader = theApp.default_shader;
 		lambert1->m_PassMask = theApp.default_pass_mask;
-		lambert1->ParseShaderParamters();
+		lambert1->ParseShaderParameters();
 		lambert1->SetParameterTexture("g_DiffuseTexture", theApp.default_texture);
 		lambert1->SetParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 		lambert1->SetParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
@@ -738,7 +738,7 @@ void CMainFrame::OnComponentCloth()
 		MaterialPtr lambert1(new Material());
 		lambert1->m_Shader = theApp.default_shader;
 		lambert1->m_PassMask = theApp.default_pass_mask;
-		lambert1->ParseShaderParamters();
+		lambert1->ParseShaderParameters();
 		lambert1->SetParameterTexture("g_DiffuseTexture", theApp.default_texture);
 		lambert1->SetParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 		lambert1->SetParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
@@ -774,7 +774,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->ParseShaderParamters();
+	lambert1->ParseShaderParameters();
 	lambert1->SetParameterTexture("g_DiffuseTexture", theApp.default_texture);
 	lambert1->SetParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 	lambert1->SetParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
@@ -830,7 +830,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->ParseShaderParamters();
+	lambert1->ParseShaderParameters();
 	lambert1->SetParameterTexture("g_DiffuseTexture", theApp.default_texture);
 	lambert1->SetParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 	lambert1->SetParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
@@ -875,7 +875,7 @@ void CMainFrame::OnComponentTerrain()
 			MaterialPtr lambert1(new Material());
 			lambert1->m_Shader = theApp.default_shader;
 			lambert1->m_PassMask = theApp.default_pass_mask;
-			lambert1->ParseShaderParamters();
+			lambert1->ParseShaderParameters();
 			lambert1->SetParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
 			lambert1->SetParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
 			lambert1->SetParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
@@ -885,7 +885,7 @@ void CMainFrame::OnComponentTerrain()
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->ParseShaderParamters();
+	lambert1->ParseShaderParameters();
 	lambert1->SetParameterTexture("g_DiffuseTexture", theApp.default_texture);
 	lambert1->SetParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 	lambert1->SetParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
