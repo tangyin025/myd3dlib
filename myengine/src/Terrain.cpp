@@ -183,7 +183,6 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 			m_Chunks[i][j] = chunk.get();
 		}
 	}
-	InitLodMap();
 	CreateElements();
 }
 
@@ -205,25 +204,12 @@ static int Quad(int v)
 	return Quad(v / 2) + 1;
 }
 
-void Terrain::InitLodMap(void)
-{
-	for (int i = 0; i <= Quad(m_ChunkSize); i++)
-	{
-		m_LodMap.insert(std::make_pair(pow(Vector2(m_ChunkSize * 0.6f, m_ChunkSize * 0.6f).magnitude() * (i + 1), 2), i));
-	}
-}
-
 unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos)
 {
 	float DistanceSq = Vector2(
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
-	LodMap::const_iterator lod_iter = m_LodMap.lower_bound(DistanceSq);
-	if (lod_iter != m_LodMap.end())
-	{
-		return lod_iter->second;
-	}
-	return Quad(m_ChunkSize);
+	return Min(Quad(m_ChunkSize), (int)sqrt(DistanceSq / m_ChunkSize / m_ChunkSize));
 }
 
 void Terrain::CreateHeightMap(void)
@@ -572,7 +558,6 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	ar << BOOST_SERIALIZATION_NVP(m_Root);
 	ar << BOOST_SERIALIZATION_NVP(m_GrassMaterial);
-	ar << BOOST_SERIALIZATION_NVP(m_LodMap);
 }
 
 template<>
@@ -597,7 +582,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_GrassMaterial);
-	ar >> BOOST_SERIALIZATION_NVP(m_LodMap);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	struct Callback : public my::OctNode::QueryCallback
 	{

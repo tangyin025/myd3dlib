@@ -108,10 +108,6 @@ public:
 
 	my::Vector2 m_GrassSize;
 
-	typedef std::map<float, unsigned int> LodMap;
-
-	LodMap m_LodMap;
-
 	PhysXPtr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE technique_RenderScene;
@@ -131,8 +127,6 @@ public:
 	D3DXHANDLE technique_emitter_RenderScene;
 
 	D3DXHANDLE handle_emitter_World;
-
-	void InitLodMap(void);
 
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
