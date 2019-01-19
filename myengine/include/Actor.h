@@ -41,6 +41,8 @@ public:
 
 	ComponentPtrList m_Cmps;
 
+	Component::LODMask m_Lod;
+
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
 	Attacher * m_Base;
@@ -57,6 +59,7 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
+		, m_Lod(Component::LOD0)
 		, m_Base(NULL)
 	{
 	}
@@ -69,6 +72,7 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
+		, m_Lod(Component::LOD0)
 		, m_Base(NULL)
 	{
 	}

@@ -21,7 +21,7 @@ struct PassMaskDesc
 	DWORD mask;
 };
 
-static const PassMaskDesc g_PassMaskDesc[4] =
+static const PassMaskDesc g_PassMaskDesc[] =
 {
 	{ _T("None"), RenderPipeline::PassMaskNone },
 	{ _T("Light"), RenderPipeline::PassMaskLight },
@@ -39,6 +39,28 @@ static LPCTSTR GetPassMaskDesc(DWORD mask)
 		}
 	}
 	return g_PassMaskDesc[0].desc;
+}
+
+static const PassMaskDesc g_LodMaskDesc[] =
+{
+	{ _T("LOD0"), Component::LOD0 },
+	{ _T("LOD1"), Component::LOD1 },
+	{ _T("LOD2"), Component::LOD2 },
+	{ _T("LOD0_1"), Component::LOD0_1 },
+	{ _T("LOD1_2"), Component::LOD1_2 },
+	{ _T("LOD0_1_2"), Component::LOD0_1_2 },
+};
+
+static LPCTSTR GetLodMaskDesc(DWORD mask)
+{
+	for (unsigned int i = 0; i < _countof(g_LodMaskDesc); i++)
+	{
+		if (g_LodMaskDesc[i].mask == mask)
+		{
+			return g_LodMaskDesc[i].desc;
+		}
+	}
+	return g_LodMaskDesc[0].desc;
 }
 
 static LPCTSTR g_ShapeTypeDesc[physx::PxGeometryType::eGEOMETRY_COUNT + 1] =
@@ -236,8 +258,8 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 {
 	//pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
-
-	pComponent->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
+	pComponent->GetSubItem(0)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
+	pComponent->GetSubItem(1)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -576,6 +598,13 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), GetComponentProp(cmp->m_Type), FALSE);
 	pParentCtrl->AddSubItem(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
+
+	CMFCPropertyGridProperty * pLodMask = new CComboProp(_T("LodMask"), (_variant_t)GetLodMaskDesc(cmp->m_LodMask), NULL, PropertyComponentLODMask);
+	for (unsigned int i = 0; i < _countof(g_LodMaskDesc); i++)
+	{
+		pLodMask->AddOption(g_LodMaskDesc[i].desc, TRUE);
+	}
+	pComponent->AddSubItem(pLodMask);
 
 	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
 	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
@@ -937,7 +966,9 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 11;
 	}
-	return 1;
+
+	ASSERT(Component::ComponentTypeComponent == type);
+	return 2;
 }
 
 LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
@@ -1230,6 +1261,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->ClearRigidActor();
 		actor->CreateRigidActor((physx::PxActorType::Enum)i);
 		actor->OnEnterPxScene(pFrame);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComponentLODMask:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_LodMaskDesc));
+		cmp->m_LodMask = (Component::LODMask)g_LodMaskDesc[i].mask;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

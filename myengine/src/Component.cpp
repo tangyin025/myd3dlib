@@ -36,17 +36,20 @@ template<>
 void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
+	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 }
 
 template<>
 void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
+	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 }
 
 void Component::CopyFrom(const Component & rhs)
 {
 	m_Type = rhs.m_Type;
+	m_LodMask = rhs.m_LodMask;
 }
 
 ComponentPtr Component::Clone(void) const

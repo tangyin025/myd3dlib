@@ -47,6 +47,18 @@ public:
 
 	ComponentType m_Type;
 
+	enum LODMask
+	{
+		LOD0 = 1 << 0,
+		LOD1 = 1 << 1,
+		LOD2 = 1 << 2,
+		LOD0_1 = LOD0 | LOD1,
+		LOD1_2 = LOD1 | LOD2,
+		LOD0_1_2 = LOD0 | LOD1 | LOD2,
+	};
+
+	LODMask m_LodMask;
+
 	Actor * m_Actor;
 
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
@@ -56,12 +68,14 @@ public:
 protected:
 	Component(void)
 		: m_Type(ComponentTypeComponent)
+		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 	{
 	}
 
 	Component(ComponentType Type)
 		: m_Type(Type)
+		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 	{
 	}

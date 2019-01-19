@@ -79,6 +79,7 @@ protected:
 		PropertyActorScaleY,
 		PropertyActorScaleZ,
 		PropertyActorRigidActor,
+		PropertyComponentLODMask,
 		PropertyComponentShape,
 		PropertyCharacter,
 		PropertyMesh,

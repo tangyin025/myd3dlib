@@ -249,7 +249,10 @@ void Actor::Update(float fElapsedTime)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->Update(fElapsedTime);
+		if ((*cmp_iter)->m_LodMask & m_Lod)
+		{
+			(*cmp_iter)->Update(fElapsedTime);
+		}
 	}
 
 	AttacherPtrList::iterator att_iter = m_Attaches.begin();
@@ -349,7 +352,10 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+		if ((*cmp_iter)->m_LodMask & m_Lod)
+		{
+			(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+		}
 	}
 }
 

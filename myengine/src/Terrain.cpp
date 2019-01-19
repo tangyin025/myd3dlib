@@ -694,6 +694,10 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	}
 }
 
+void Terrain::Update(float fElapsedTime)
+{
+}
+
 void Terrain::UpdateVertices(void)
 {
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
