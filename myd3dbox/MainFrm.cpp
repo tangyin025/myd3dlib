@@ -20,6 +20,8 @@
 #include "RecastDump.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
+#include "NavigationDlg.h"
+#include "SimplifyMeshDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -64,6 +66,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
 	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
+	ON_COMMAND(ID_TOOLS_SIMPLIFYMESH, &CMainFrame::OnToolsSimplifymesh)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -563,7 +566,7 @@ void CMainFrame::OnFileOpen()
 	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
 	INT_PTR nResult = dlg.DoModal();
 	strPathName.ReleaseBuffer();
-	if (nResult == IDCANCEL)
+	if (nResult != IDOK)
 	{
 		return;
 	}
@@ -594,7 +597,7 @@ void CMainFrame::OnFileSave()
 		dlg.m_ofn.lpstrFile = m_strPathName.GetBuffer(_MAX_PATH);
 		INT_PTR nResult = dlg.DoModal();
 		m_strPathName.ReleaseBuffer();
-		if (nResult == IDCANCEL)
+		if (nResult != IDOK)
 		{
 			return;
 		}
@@ -666,7 +669,7 @@ void CMainFrame::OnComponentMesh()
 	}
 
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK != dlg.DoModal())
+	if (dlg.DoModal() != IDOK)
 	{
 		return;
 	}
@@ -719,7 +722,7 @@ void CMainFrame::OnComponentCloth()
 
 
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK != dlg.DoModal())
+	if (dlg.DoModal() != IDOK)
 	{
 		return;
 	}
@@ -967,6 +970,12 @@ void CMainFrame::OnViewClearshader()
 void CMainFrame::OnToolsBuildnavigation()
 {
 	//// TODO: Add your command handler code here
+	CNavigationDlg dlg;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
 	//const float* verts = 0;// m_geom->getMesh()->getVerts();
 	//const int nverts = 100;// m_geom->getMesh()->getVertCount();
 	//const int* tris = 0;// m_geom->getMesh()->getTris();
@@ -1439,4 +1448,14 @@ void CMainFrame::OnToolsBuildnavigation()
 	// Show performance stats.
 	duLogBuildTimes(*this, this->getAccumulatedTime(RC_TIMER_TOTAL));
 	this->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
+}
+
+void CMainFrame::OnToolsSimplifymesh()
+{
+	// TODO: Add your command handler code here
+	CSimplifyMeshDlg dlg;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
 }
