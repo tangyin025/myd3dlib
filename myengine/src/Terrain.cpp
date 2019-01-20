@@ -209,7 +209,7 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 	float DistanceSq = Vector2(
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
-	return Min(Quad(m_ChunkSize), (int)sqrt(DistanceSq / m_ChunkSize / m_ChunkSize));
+	return Min(Quad(m_ChunkSize), (int)sqrt(DistanceSq / m_Actor->m_LodRatio / m_Actor->m_LodRatio));
 }
 
 void Terrain::CreateHeightMap(void)
