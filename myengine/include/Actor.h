@@ -128,6 +128,8 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
+	void UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
 	void ClearRigidActor(void);
 
 	void CreateRigidActor(physx::PxActorType::Enum ActorType);

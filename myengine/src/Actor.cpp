@@ -3,6 +3,7 @@
 #include "Animator.h"
 #include "Controller.h"
 #include "PhysXContext.h"
+#include "RenderPipeline.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -349,6 +350,12 @@ void Actor::UpdateOctNode(void)
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
+	if ((RenderPipeline::PassMaskLight | RenderPipeline::PassMaskOpaque | RenderPipeline::PassMaskTransparent) & PassMask)
+	{
+		// ! only scene pass update lod
+		UpdateLod(ViewPos, TargetPos);
+	}
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -356,6 +363,23 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 		{
 			(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
+	}
+}
+
+void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+{
+	float DistanceSq = (m_Position - ViewPos).magnitudeSq();
+	if (DistanceSq < 400.0f)
+	{
+		m_Lod = Component::LOD0;
+	}
+	else if (DistanceSq < 160000.0f)
+	{
+		m_Lod = Component::LOD1;
+	}
+	else
+	{
+		m_Lod = Component::LOD2;
 	}
 }
 
