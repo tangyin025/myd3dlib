@@ -78,6 +78,7 @@ protected:
 		PropertyActorScaleX,
 		PropertyActorScaleY,
 		PropertyActorScaleZ,
+		PropertyActorLodRatio,
 		PropertyActorRigidActor,
 		PropertyComponentLODMask,
 		PropertyComponentShape,

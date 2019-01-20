@@ -33,6 +33,10 @@ public:
 
 	bool m_Requested;
 
+	Component::LODMask m_Lod;
+
+	float m_LodRatio;
+
 	boost::shared_ptr<Animator> m_Animator;
 
 	boost::shared_ptr<Controller> m_Controller;
@@ -40,8 +44,6 @@ public:
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
-
-	Component::LODMask m_Lod;
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
@@ -60,6 +62,7 @@ protected:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_Lod(Component::LOD0)
+		, m_LodRatio(1.0f)
 		, m_Base(NULL)
 	{
 	}
@@ -73,6 +76,7 @@ public:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_Lod(Component::LOD0)
+		, m_LodRatio(1.0f)
 		, m_Base(NULL)
 	{
 	}

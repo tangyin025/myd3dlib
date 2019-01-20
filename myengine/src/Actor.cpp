@@ -36,6 +36,7 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
+	ar << BOOST_SERIALIZATION_NVP(m_LodRatio);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
 	ar << BOOST_SERIALIZATION_NVP(m_Controller);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
@@ -80,6 +81,7 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
+	ar >> BOOST_SERIALIZATION_NVP(m_LodRatio);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
 	if (m_Animator)
 	{
@@ -368,7 +370,7 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 
 void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	float DistanceSq = (m_Position - ViewPos).magnitudeSq();
+	float DistanceSq = (m_Position - ViewPos).magnitudeSq() / m_LodRatio / m_LodRatio;
 	if (DistanceSq < 400.0f)
 	{
 		m_Lod = Component::LOD0;

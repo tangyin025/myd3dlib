@@ -234,21 +234,23 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
 	pActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
 	pActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
-	pActor->GetSubItem(4)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	pActor->GetSubItem(4)->SetValue((_variant_t)actor->m_LodRatio);
+	pActor->GetSubItem(5)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
 	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
 	{
-		if ((unsigned int)pActor->GetSubItemsCount() <= i + 5)
+		if ((unsigned int)pActor->GetSubItemsCount() <= PropId + i)
 		{
 			CreateProperties(pActor, actor->m_Cmps[i].get());
 			continue;
 		}
-		if (pActor->GetSubItem(i + 5)->GetData() != GetComponentProp(actor->m_Cmps[i]->m_Type))
+		if (pActor->GetSubItem(PropId + i)->GetData() != GetComponentProp(actor->m_Cmps[i]->m_Type))
 		{
-			RemovePropertiesFrom(pActor, i + 5);
+			RemovePropertiesFrom(pActor, PropId + i);
 			CreateProperties(pActor, actor->m_Cmps[i].get());
 			continue;
 		}
-		UpdateProperties(pActor->GetSubItem(i + 5), i, actor->m_Cmps[i].get());
+		UpdateProperties(pActor->GetSubItem(PropId + i), i, actor->m_Cmps[i].get());
 	}
 	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
 	//m_wndPropList.AdjustLayout();
@@ -575,6 +577,9 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pScale->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)actor->m_Scale.z, NULL, PropertyActorScaleZ);
 	pScale->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pLodRatio = new CSimpleProp(_T("LodRatio"), (_variant_t)actor->m_LodRatio, NULL, PropertyActorLodRatio);
+	pActor->AddSubItem(pLodRatio);
 
 	CMFCPropertyGridProperty * pRigidActor = new CComboProp(_T("RigidActor"), g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT], NULL, PropertyActorRigidActor);
 	for (unsigned int i = 0; i < _countof(g_ActorTypeDesc); i++)
@@ -952,7 +957,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 5;
+		return 6;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -1249,6 +1254,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_PxActor->setGlobalPose(physx::PxTransform(
 				(physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
 		}
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorLodRatio:
+	{
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		actor->m_LodRatio = pProp->GetValue().fltVal;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
