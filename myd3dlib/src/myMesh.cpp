@@ -1237,10 +1237,10 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	ofs << "</mesh>\n";
 }
 
-void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinFaces)
+void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options)
 {
 	OgreMeshPtr simplified_mesh(new OgreMesh());
-	simplified_mesh->Create(SimplifyMesh(&m_Adjacency[0], MinFaces, D3DXMESHSIMP_FACE).Detach());
+	simplified_mesh->Create(SimplifyMesh(&m_Adjacency[0], MinValue, Options).Detach());
 	simplified_mesh->m_aabb = m_aabb;
 	simplified_mesh->m_Adjacency = m_Adjacency;
 	simplified_mesh->m_MaterialNameList = m_MaterialNameList;

@@ -398,7 +398,7 @@ namespace my
 
 		void SaveOgreMesh(const char * path);
 
-		void SaveSimplifiedOgreMesh(const char * path, DWORD MinFaces);
+		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);
 
 		void Transform(const Matrix4 & trans);
 
