@@ -1379,7 +1379,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 		material->ReleaseResource();
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-		material->RequestResource();
 		// ! clear shader handles and re-parse shader parameters
 		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
@@ -1390,6 +1389,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				(*cmp_iter)->OnShaderChanged();
 			}
 		}
+		material->RequestResource();
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
