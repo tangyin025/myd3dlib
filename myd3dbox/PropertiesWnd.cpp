@@ -332,6 +332,12 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMateri
 			CreatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 			continue;
 		}
+		if (pParameterList->GetSubItem(i)->GetData() != GetMaterialParameterTypeProp(mtl->m_ParameterList[i]->m_Type))
+		{
+			RemovePropertiesFrom(pParameterList, i);
+			CreatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
+			continue;
+		}
 		UpdatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 	}
 	RemovePropertiesFrom(pParameterList, mtl->m_ParameterList.size());
@@ -1006,6 +1012,25 @@ TerrainChunk * CPropertiesWnd::GetTerrainChunkSafe(Terrain * terrain, const CPoi
 		return terrain->m_Chunks[chunkid.x][chunkid.y];
 	}
 	return terrain->m_Chunks[0][0];
+}
+
+CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(DWORD type)
+{
+	switch (type)
+	{
+	case MaterialParameter::ParameterTypeFloat:
+		return PropertyMaterialParameterFloat;
+	case MaterialParameter::ParameterTypeFloat2:
+		return PropertyMaterialParameterFloat2;
+	case MaterialParameter::ParameterTypeFloat3:
+		return PropertyMaterialParameterFloat3;
+	case MaterialParameter::ParameterTypeFloat4:
+		return PropertyMaterialParameterFloat4;
+	case MaterialParameter::ParameterTypeTexture:
+		return PropertyMaterialParameterTexture;
+	}
+	ASSERT(FALSE);
+	return PropertyUnknown;
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)

@@ -198,6 +198,7 @@ protected:
 	static unsigned int GetComponentPropCount(DWORD type);
 	static LPCTSTR GetComponentTypeName(DWORD type);
 	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
+	static Property GetMaterialParameterTypeProp(DWORD type);
 
 // Implementation
 public:
