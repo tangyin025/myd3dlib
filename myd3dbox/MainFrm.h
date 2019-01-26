@@ -144,6 +144,7 @@ public:
 	afx_msg void OnViewClearshader();
 	afx_msg void OnToolsBuildnavigation();
 	afx_msg void OnToolsSimplifymesh();
+	afx_msg void OnToolsTerraingrassbrush();
 };
 
 
