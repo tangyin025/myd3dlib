@@ -156,11 +156,6 @@ protected:
 		PropertyTerrainHeightScale,
 		PropertyTerrainNavigation,
 		PropertyTerrainHeightMap,
-		PropertyTerrainGrassDensity,
-		PropertyTerrainGrassStageRadius,
-		PropertyTerrainGrassSize,
-		PropertyTerrainGrassSizeX,
-		PropertyTerrainGrassSizeY,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

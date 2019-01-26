@@ -9,6 +9,7 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
+	, public my::Emitter
 {
 public:
 	Terrain * m_Owner;
@@ -50,7 +51,6 @@ typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
 class Terrain
 	: public Component
-	, public my::Emitter
 {
 public:
 	enum RenderType
@@ -101,12 +101,6 @@ public:
 	ChunkArray2D m_Chunks;
 
 	MaterialPtr m_GrassMaterial;
-
-	FLOAT m_GrassDensity;
-
-	int m_GrassStageRadius;
-
-	my::Vector2 m_GrassSize;
 
 	PhysXPtr<physx::PxHeightField> m_PxHeightField;
 
@@ -193,8 +187,6 @@ public:
 	virtual void ClearShape(void);
 
 	virtual void OnShaderChanged(void);
-
-	void UpdateGrass(const my::Vector3 & LocalViewPos);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

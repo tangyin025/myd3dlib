@@ -526,11 +526,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_bNavigation);
 	pComponent->GetSubItem(PropId + 5);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)terrain->m_GrassDensity);
-	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)terrain->m_GrassStageRadius);
-	pComponent->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)terrain->m_GrassSize.x);
-	pComponent->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)terrain->m_GrassSize.y);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 10), terrain->m_GrassMaterial.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), terrain->m_GrassMaterial.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -923,16 +919,6 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
-	pProp = new CSimpleProp(_T("GrassDensity"), (_variant_t)terrain->m_GrassDensity, NULL, PropertyTerrainGrassDensity);
-	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("GrassStageRadius"), (_variant_t)terrain->m_GrassStageRadius, NULL, PropertyTerrainGrassStageRadius);
-	pComponent->AddSubItem(pProp);
-	CMFCPropertyGridProperty * pGrassSize = new CMFCPropertyGridProperty(_T("GrassSize"), PropertyTerrainGrassSize, TRUE);
-	pComponent->AddSubItem(pGrassSize);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)terrain->m_GrassSize.x, NULL, PropertyTerrainGrassSizeX);
-	pGrassSize->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)terrain->m_GrassSize.y, NULL, PropertyTerrainGrassSizeY);
-	pGrassSize->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("GrassMaterial"), terrain->m_GrassMaterial.get());
 }
 
@@ -975,7 +961,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 16;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 11;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -1721,45 +1707,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
-		break;
-	}
-	case PropertyTerrainGrassDensity:
-	{
-		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-		terrain->m_GrassDensity = pProp->GetValue().fltVal;
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyTerrainGrassStageRadius:
-	{
-		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-		terrain->m_GrassStageRadius = pProp->GetValue().intVal;
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyTerrainGrassSize:
-	case PropertyTerrainGrassSizeX:
-	case PropertyTerrainGrassSizeY:
-	{
-		CMFCPropertyGridProperty * pTerrain = NULL;
-		switch (PropertyId)
-		{
-		case PropertyTerrainGrassSize:
-			pTerrain = pProp->GetParent();
-			break;
-		case PropertyTerrainGrassSizeX:
-		case PropertyTerrainGrassSizeY:
-			pTerrain = pProp->GetParent()->GetParent();
-			break;
-		}
-		Terrain * terrain = (Terrain *)pTerrain->GetValue().ulVal;
-		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		terrain->m_GrassSize.x = pTerrain->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().fltVal;
-		terrain->m_GrassSize.y = pTerrain->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().fltVal;
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	}

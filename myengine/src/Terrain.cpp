@@ -27,6 +27,7 @@ BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(void)
 	: m_Owner(NULL)
+	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_Row(0)
 	, m_Col(0)
 {
@@ -35,6 +36,7 @@ TerrainChunk::TerrainChunk(void)
 
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 	: m_Owner(Owner)
+	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_Row(Row)
 	, m_Col(Col)
 {
@@ -126,15 +128,11 @@ static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N)
 
 Terrain::Terrain(void)
 	: Component(ComponentTypeTerrain)
-	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
 	, m_HeightScale(1)
 	, m_bNavigation(false)
-	, m_GrassDensity(1.0f)
-	, m_GrassStageRadius(32)
-	, m_GrassSize(1, 1)
 	, technique_RenderScene(NULL)
 	, handle_World(NULL)
 	, handle_HeightScale(NULL)
@@ -149,7 +147,6 @@ Terrain::Terrain(void)
 
 Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain)
-	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
@@ -158,9 +155,6 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_bNavigation(false)
 	, m_Root(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
-	, m_GrassDensity(1.0f)
-	, m_GrassStageRadius(32)
-	, m_GrassSize(1, 1)
 	, technique_RenderScene(NULL)
 	, handle_World(NULL)
 	, handle_HeightScale(NULL)
@@ -736,74 +730,59 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
-			if (chunk->m_Material && chunk->m_Material->m_PassMask & PassMask)
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				if (chunk->m_Material && (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask)))
 				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask))
+					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
+					if (shader)
 					{
-						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
-						if (shader)
+						if (!terrain->technique_RenderScene)
 						{
-							if (!terrain->technique_RenderScene)
-							{
-								BOOST_VERIFY(terrain->technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
-								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
-								BOOST_VERIFY(terrain->handle_HeightScale = shader->GetParameterByName(NULL, "g_HeightScale"));
-								BOOST_VERIFY(terrain->handle_HeightTexSize = shader->GetParameterByName(NULL, "g_HeightTexSize"));
-								BOOST_VERIFY(terrain->handle_ChunkId = shader->GetParameterByName(NULL, "g_ChunkId"));
-								BOOST_VERIFY(terrain->handle_ChunkSize = shader->GetParameterByName(NULL, "g_ChunkSize"));
-								BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
-							}
-
-							const Fragment & frag = terrain->GetFragment(
-								terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
-								terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
-								terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
-								terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
-								terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
-							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-								frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
+							BOOST_VERIFY(terrain->technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
+							BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(terrain->handle_HeightScale = shader->GetParameterByName(NULL, "g_HeightScale"));
+							BOOST_VERIFY(terrain->handle_HeightTexSize = shader->GetParameterByName(NULL, "g_HeightTexSize"));
+							BOOST_VERIFY(terrain->handle_ChunkId = shader->GetParameterByName(NULL, "g_ChunkId"));
+							BOOST_VERIFY(terrain->handle_ChunkSize = shader->GetParameterByName(NULL, "g_ChunkSize"));
+							BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
 						}
+
+						const Fragment & frag = terrain->GetFragment(
+							terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
+							terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
+							terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
+							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
+							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
+						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
+							frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
+					}
+				}
+
+				if (terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
+				{
+					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
+					if (shader)
+					{
+						if (!terrain->technique_emitter_RenderScene)
+						{
+							BOOST_VERIFY(terrain->technique_emitter_RenderScene = shader->GetTechniqueByName("RenderScene"));
+							BOOST_VERIFY(terrain->handle_emitter_World = shader->GetParameterByName(NULL, "g_World"));
+						}
+
+						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(0, 0, RenderTypeEmitter));
 					}
 				}
 			}
 		}
 	};
 
-	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 	if (m_vb.m_ptr)
 	{
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 		m_Root.QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
-	}
-
-	if (m_GrassMaterial && (m_GrassMaterial->m_PassMask & PassMask))
-	{
-		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-		{
-			if (RenderPipeline::PassTypeToMask(PassID) & (m_GrassMaterial->m_PassMask & PassMask))
-			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", m_GrassMaterial->m_Shader.c_str(), PassID);
-				if (shader)
-				{
-					if (!technique_emitter_RenderScene)
-					{
-						BOOST_VERIFY(technique_emitter_RenderScene = shader->GetTechniqueByName("RenderScene"));
-						BOOST_VERIFY(handle_emitter_World = shader->GetParameterByName(NULL, "g_World"));
-					}
-					
-					pipeline->PushEmitter(PassID, this, shader, this, m_GrassMaterial.get(), RGB(0, 0, RenderTypeEmitter));
-				}
-			}
-		}
-
-		if ((1 << RenderPipeline::PassTypeShadow) & PassMask)
-		{
-			// ! only shadow pass update grasses
-			UpdateGrass(LocalViewPos);
-		}
 	}
 }
 
@@ -864,25 +843,6 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
-}
-
-void Terrain::UpdateGrass(const my::Vector3 & LocalViewPos)
-{
-	const int center_stage_x = (int)floor(LocalViewPos.x / m_GrassDensity);
-	const int center_stage_z = (int)floor(LocalViewPos.z / m_GrassDensity);
-	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	m_ParticleList.clear();
-	for (int stage_x = my::Max(0, center_stage_x - m_GrassStageRadius); stage_x < my::Min((int)(m_ColChunks * m_ChunkSize / m_GrassDensity), center_stage_x + m_GrassStageRadius); stage_x++)
-	{
-		for (int stage_z = my::Max(0, center_stage_z - m_GrassStageRadius); stage_z < my::Min((int)(m_RowChunks * m_ChunkSize / m_GrassDensity), center_stage_z + m_GrassStageRadius); stage_z++)
-		{
-			float x = stage_x * m_GrassDensity;
-			float z = stage_z * m_GrassDensity;
-			Spawn(my::Vector3(x, GetPosHeight(lrc.pBits, lrc.Pitch, x, z) + m_GrassSize.y * 0.5f, z),
-				my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), m_GrassSize, boost::hash_value(std::make_pair(stage_x, stage_z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
-		}
-	}
-	m_HeightMap.UnlockRect(0);
 }
 
 void Terrain::OnShaderChanged(void)
