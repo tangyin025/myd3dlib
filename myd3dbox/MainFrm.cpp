@@ -1485,12 +1485,12 @@ void CMainFrame::OnToolsTerraingrassbrush()
 	}
 
 	D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	for (float x = 0; x < terrain->m_ColChunks * terrain->m_ChunkSize; x += 1.0f)
+	for (float z = 0; z < terrain->m_RowChunks * terrain->m_ChunkSize; z += 1.0f)
 	{
-		for (float z = 0; z < terrain->m_RowChunks * terrain->m_ChunkSize; z += 1.0f)
+		for (float x = 0; x < terrain->m_ColChunks * terrain->m_ChunkSize; x += 1.0f)
 		{
-			int i = (int)floor(x / terrain->m_ChunkSize);
-			int j = (int)floor(z / terrain->m_ChunkSize);
+			int i = (int)floor(z / terrain->m_ChunkSize);
+			int j = (int)floor(x / terrain->m_ChunkSize);
 			TerrainChunk * chunk = terrain->m_Chunks[i][j];
 			chunk->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z), z),
 				my::Vector3::zero, my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), boost::hash_value(std::make_pair(x, z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);

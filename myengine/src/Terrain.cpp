@@ -58,6 +58,7 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
+	ar << BOOST_SERIALIZATION_NVP(m_ParticleList);
 }
 
 template<>
@@ -68,6 +69,7 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
+	ar >> BOOST_SERIALIZATION_NVP(m_ParticleList);
 }
 
 void TerrainChunk::UpdateAABB(void)
