@@ -732,6 +732,12 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
+			const unsigned int lod[5] = {
+				terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)};
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (chunk->m_Material && (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask)))
@@ -750,18 +756,13 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
 						}
 
-						const Fragment & frag = terrain->GetFragment(
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
-							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos));
-						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-							frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
+						const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
+						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
+							0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
 					}
 				}
 
-				if (terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
+				if (lod[0] <= 0 && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
 				{
 					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
