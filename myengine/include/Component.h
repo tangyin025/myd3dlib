@@ -113,6 +113,8 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
+	virtual void OnShaderChanged(void);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnWorldUpdated(void);
@@ -130,8 +132,6 @@ public:
 	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
 
 	virtual void ClearShape(void);
-
-	virtual void OnShaderChanged(void);
 };
 
 class MeshComponent
@@ -206,6 +206,8 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
+	virtual void OnShaderChanged(void);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;
@@ -213,8 +215,6 @@ public:
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
 	void CreateTriangleMeshShape(const my::Vector3 & Scale);
-
-	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -309,6 +309,8 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
+	virtual void OnShaderChanged(void);
+
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
@@ -318,8 +320,6 @@ public:
 	void UpdateCloth(void);
 
 	virtual void OnWorldUpdated(void);
-
-	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
@@ -381,11 +381,11 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
+	virtual void OnShaderChanged(void);
+
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
-
-	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;

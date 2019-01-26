@@ -79,6 +79,10 @@ void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, 
 {
 }
 
+void Component::OnShaderChanged(void)
+{
+}
+
 void Component::Update(float fElapsedTime)
 {
 }
@@ -198,10 +202,6 @@ void Component::ClearShape(void)
 	m_PxMaterial.reset();
 }
 
-void Component::OnShaderChanged(void)
-{
-}
-
 template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
@@ -303,6 +303,18 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 		{
 			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
+	}
+}
+
+void MeshComponent::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	handle_dualquat = NULL;
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	{
+		(*mtl_iter)->ParseShaderParameters();
 	}
 }
 
@@ -434,18 +446,6 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
-}
-
-void MeshComponent::OnShaderChanged(void)
-{
-	technique_RenderScene = NULL;
-	handle_World = NULL;
-	handle_dualquat = NULL;
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->ParseShaderParameters();
-	}
 }
 
 namespace boost { 
@@ -713,6 +713,18 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 	}
 }
 
+void ClothComponent::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	handle_dualquat = NULL;
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	{
+		(*mtl_iter)->ParseShaderParameters();
+	}
+}
+
 my::AABB ClothComponent::CalculateAABB(void) const
 {
 	AABB ret = Component::CalculateAABB();
@@ -838,18 +850,6 @@ void ClothComponent::OnWorldUpdated(void)
 	}
 }
 
-void ClothComponent::OnShaderChanged(void)
-{
-	technique_RenderScene = NULL;
-	handle_World = NULL;
-	handle_dualquat = NULL;
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->ParseShaderParameters();
-	}
-}
-
 void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 {
 	Component::CopyFrom(rhs);
@@ -914,6 +914,13 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	}
 }
 
+void EmitterComponent::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	m_Material->ParseShaderParameters();
+}
+
 my::AABB EmitterComponent::CalculateAABB(void) const
 {
 	AABB ret = Component::CalculateAABB();
@@ -950,13 +957,6 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 			}
 		}
 	}
-}
-
-void EmitterComponent::OnShaderChanged(void)
-{
-	technique_RenderScene = NULL;
-	handle_World = NULL;
-	m_Material->ParseShaderParameters();
 }
 
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)

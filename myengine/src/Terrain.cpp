@@ -674,6 +674,27 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	}
 }
 
+void Terrain::OnShaderChanged(void)
+{
+	technique_RenderScene = NULL;
+	handle_World = NULL;
+	handle_HeightScale = NULL;
+	handle_HeightTexSize = NULL;
+	handle_ChunkId = NULL;
+	handle_ChunkSize = NULL;
+	handle_HeightTexture = NULL;
+	technique_emitter_RenderScene = NULL;
+	handle_emitter_World = NULL;
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			m_Chunks[i][j]->m_Material->ParseShaderParameters();
+		}
+	}
+	m_GrassMaterial->ParseShaderParameters();
+}
+
 void Terrain::Update(float fElapsedTime)
 {
 }
@@ -764,7 +785,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 				if (lod[0] <= 0 && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
 				{
-					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "TWOSIDENORMAL", terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
+					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, NULL, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
 					if (shader)
 					{
 						if (!terrain->technique_emitter_RenderScene)
@@ -846,25 +867,4 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
-}
-
-void Terrain::OnShaderChanged(void)
-{
-	technique_RenderScene = NULL;
-	handle_World = NULL;
-	handle_HeightScale = NULL;
-	handle_HeightTexSize = NULL;
-	handle_ChunkId = NULL;
-	handle_ChunkSize = NULL;
-	handle_HeightTexture = NULL;
-	technique_emitter_RenderScene = NULL;
-	handle_emitter_World = NULL;
-	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
-	{
-		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			m_Chunks[i][j]->m_Material->ParseShaderParameters();
-		}
-	}
-	m_GrassMaterial->ParseShaderParameters();
 }

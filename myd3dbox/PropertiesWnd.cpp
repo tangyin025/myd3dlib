@@ -1363,19 +1363,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialShader:
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-		material->ReleaseResource();
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-		// ! clear shader handles and re-parse shader parameters
+		// ! change shader will lead the whole component shader cache invalid
 		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
-			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
-			{
-				(*cmp_iter)->OnShaderChanged();
-			}
+			(*sel_iter)->ReleaseResource();
+			(*sel_iter)->OnShaderChanged();
+			(*sel_iter)->RequestResource();
 		}
-		material->RequestResource();
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

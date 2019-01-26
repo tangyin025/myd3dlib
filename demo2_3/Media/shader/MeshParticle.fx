@@ -54,12 +54,6 @@ float3 TransformNormal(VS_INPUT In)
 	float s, c;
 	sincos(In.Tex2.z, s, c);
 	float3 Dir = float3(-s, 0, c);
-#ifdef TWOSIDENORMAL
-	float4 Center = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.Tex2.w), In.Pos.w), g_World);
-	float3 ViewDir = g_Eye - Center.xyz;
-	if (dot(ViewDir, Dir) < 0)
-		return -Dir;
-#endif
 	return Dir;
 #endif
 }
@@ -73,13 +67,6 @@ float3 TransformTangent(VS_INPUT In)
 	float s, c;
 	sincos(In.Tex2.z, s, c);
 	float3 Right = float3(c, 0, s);
-#ifdef TWOSIDENORMAL
-	float3 Dir = float3(-s, 0, c);
-	float4 Center = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.Tex2.w), In.Pos.w), g_World);
-	float3 ViewDir = g_Eye - Center.xyz;
-	if (dot(ViewDir, Dir) < 0)
-		return -Dir;
-#endif
 	return Right;
 #endif
 }

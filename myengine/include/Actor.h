@@ -116,6 +116,8 @@ public:
 
 	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
 
+	virtual void OnShaderChanged(void);
+
 	virtual void Update(float fElapsedTime);
 
 	void UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot);

@@ -174,6 +174,8 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
+	virtual void OnShaderChanged(void);
+
 	virtual void Update(float fElapsedTime);
 
 	void UpdateVertices(void);
@@ -185,8 +187,6 @@ public:
 	void CreateHeightFieldShape(const my::Vector3 & Scale);
 
 	virtual void ClearShape(void);
-
-	virtual void OnShaderChanged(void);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
