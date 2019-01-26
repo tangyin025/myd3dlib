@@ -105,7 +105,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
 	Output.Pos2 = Output.Pos;
-	Output.PosShadow = mul(TransformPosWS(In), g_SkyLightViewProj);
+	Output.PosShadow = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewDir = mul(g_Eye - PosWS, (float3x3)g_View);
     return Output;    
 }

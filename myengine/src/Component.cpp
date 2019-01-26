@@ -278,6 +278,8 @@ void MeshComponent::ReleaseResource(void)
 	if (!m_MeshPath.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath, this);
+
+		m_Mesh.reset();
 	}
 
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();

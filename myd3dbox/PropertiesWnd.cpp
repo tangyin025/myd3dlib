@@ -1340,6 +1340,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
+		// ! update whole actor shader cache
+		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
+		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+		{
+			(*sel_iter)->ReleaseResource();
+			(*sel_iter)->OnShaderChanged();
+			(*sel_iter)->RequestResource();
+		}
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -1364,7 +1372,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-		// ! change shader will lead the whole component shader cache invalid
+		// ! update whole actor shader cache
 		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{

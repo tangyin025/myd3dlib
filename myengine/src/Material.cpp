@@ -111,6 +111,8 @@ void MaterialParameterTexture::RequestResource(void)
 {
 	if (!m_TexturePath.empty())
 	{
+		_ASSERT(!m_Texture);
+
 		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), this);
 	}
 }
@@ -120,6 +122,8 @@ void MaterialParameterTexture::ReleaseResource(void)
 	if (!m_TexturePath.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, this);
+
+		m_Texture.reset();
 	}
 }
 
