@@ -315,6 +315,8 @@ Game::Game(void)
 		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
 	}
 
+	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
+	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
@@ -430,10 +432,6 @@ HRESULT Game::OnCreateDevice(
 	{
 		LoadScene(m_InitScene.c_str());
 	}
-
-	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
-
-	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
 
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
@@ -580,15 +578,13 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	m_Camera.reset();
-
-	m_SkyLightCam.reset();
-
 	m_Root.ClearAllActor();
 
 	m_Console.reset();
 
 	RemoveAllDlg();
+
+	m_Camera->EventAlign.clear(); // ! clear boost function before shutdown lua context
 
 	LuaContext::Shutdown();
 
@@ -791,11 +787,11 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	//LRESULT lr;
-	//if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
-	//{
-	//	return lr;
-	//}
+	LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+	if(lr || *pbNoFurtherProcessing)
+	{
+		return lr;
+	}
 	return 0;
 }
 

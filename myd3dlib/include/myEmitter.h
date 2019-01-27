@@ -98,6 +98,8 @@ namespace my
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);
 
+		void RemoveAllParticle(void);
+
 		void RemoveDeadParticle(float fParticleLifeTime);
 	};
 }

@@ -42,6 +42,11 @@ void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, const Ve
 	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, D3DContext::getSingleton().m_fTotalTime));
 }
 
+void Emitter::RemoveAllParticle(void)
+{
+	m_ParticleList.clear();
+}
+
 void Emitter::RemoveDeadParticle(float fParticleLifeTime)
 {
 	ParticleList::iterator part_iter = m_ParticleList.begin();

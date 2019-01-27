@@ -151,5 +151,7 @@ technique RenderScene
     }
     pass PassTypeTransparent
     {          
+        VertexShader = compile vs_3_0 OpaqueVS();
+        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
 }

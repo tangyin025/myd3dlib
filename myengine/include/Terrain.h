@@ -132,6 +132,13 @@ public:
 
 	void UpdateChunks(void);
 
+	TerrainChunk * GetChunk(int i, int j)
+	{
+		TerrainChunk * ret = m_Chunks[i][j];
+		_ASSERT(ret->m_Row == i && ret->m_Col == j);
+		return ret;
+	}
+
 	D3DCOLOR GetSampleValue(void * pBits, int pitch, int i, int j) const;
 
 	float GetSampleHeight(void * pBits, int pitch, int i, int j) const;

@@ -153,7 +153,7 @@ static void ExportMath(lua_State * L)
 	using namespace luabind;
 	module(L)
 	[
-		class_<my::Vector2, boost::shared_ptr<my::Vector2> >("Vector2")
+		class_<my::Vector2>("Vector2")
 			.def(constructor<float, float>())
 			.def_readwrite("x", &my::Vector2::x)
 			.def_readwrite("y", &my::Vector2::y)
@@ -181,7 +181,7 @@ static void ExportMath(lua_State * L)
 			.def("transformNormalTranspose", &my::Vector2::transformNormalTranspose)
 			.def("transform", &my::Vector2::transform)
 
-		, class_<my::Vector3, boost::shared_ptr<my::Vector3> >("Vector3")
+		, class_<my::Vector3>("Vector3")
 			.def(constructor<float, float, float>())
 			.def_readwrite("x", &my::Vector3::x)
 			.def_readwrite("y", &my::Vector3::y)
@@ -210,7 +210,7 @@ static void ExportMath(lua_State * L)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
 			.def("transform", (my::Vector3 (my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
 
-		, class_<my::Vector4, boost::shared_ptr<my::Vector4> >("Vector4")
+		, class_<my::Vector4>("Vector4")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("x", &my::Vector4::x)
 			.def_readwrite("y", &my::Vector4::y)
@@ -235,7 +235,7 @@ static void ExportMath(lua_State * L)
 			.def("transform", &my::Vector4::transform)
 			.def("transformTranspose", &my::Vector4::transformTranspose)
 
-		, class_<my::Rectangle, boost::shared_ptr<my::Rectangle> >("Rectangle")
+		, class_<my::Rectangle>("Rectangle")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("l", &my::Rectangle::l)
 			.def_readwrite("t", &my::Rectangle::t)
@@ -286,7 +286,7 @@ static void ExportMath(lua_State * L)
 				def("RightBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightBottom)
 			]
 
-		, class_<my::Quaternion, boost::shared_ptr<my::Quaternion> >("Quaternion")
+		, class_<my::Quaternion>("Quaternion")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("x", &my::Quaternion::x)
 			.def_readwrite("y", &my::Quaternion::y)
@@ -325,7 +325,7 @@ static void ExportMath(lua_State * L)
 				def("RotationFromTo", &my::Quaternion::RotationFromTo)
 			]
 
-		, class_<my::Matrix4, boost::shared_ptr<my::Matrix4> >("Matrix4")
+		, class_<my::Matrix4>("Matrix4")
 			.def(self + other<const my::Matrix4 &>())
 			.def(self + float())
 			.def(self - other<const my::Matrix4 &>())
@@ -383,13 +383,18 @@ static void ExportMath(lua_State * L)
 				def("Translation", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]
 
-		, class_<my::AABB, boost::shared_ptr<my::AABB> >("AABB")
+		, class_<my::AABB>("AABB")
 			.def(constructor<float, float>())
 			.def(constructor<float, float, float, float, float, float>())
 			.def(constructor<const my::Vector3 &, const my::Vector3 &>())
 			.def_readwrite("min", &my::AABB::m_min)
 			.def_readwrite("max", &my::AABB::m_max)
 			.def("transform", &my::AABB::transform)
+
+		, class_<my::Emitter>("Emitter")
+			.def(constructor<unsigned int>())
+			.def("Spawn", &my::Emitter::Spawn)
+			.def("RemoveAllParticle", &my::Emitter::RemoveAllParticle)
 
 		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")
 
@@ -893,11 +898,23 @@ static void ExportComponent(lua_State * L)
 				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
 				value("PassMaskTransparent", RenderPipeline::PassMaskTransparent)
 			]
+			.enum_("CullMode")
+			[
+				value("CullModeNone", D3DCULL_NONE),
+				value("CullModeCW", D3DCULL_CW),
+				value("CullModeCCW", D3DCULL_CCW)
+			]
+			.enum_("BlendMode")
+			[
+				value("BlendModeNone", Material::BlendModeNone),
+				value("BlendModeAlpha", Material::BlendModeAlpha),
+				value("BlendModeAdditive", Material::BlendModeAdditive)
+			]
 			.def(constructor<>())
 			.def_readwrite("Shader", &Material::m_Shader)
 			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def_readwrite("CullMode", &Material::m_CullMode)
-			.def_readwrite("CullMode", &Material::m_ZEnable)
+			.def_readwrite("ZEnable", &Material::m_ZEnable)
 			.def_readwrite("ZWriteEnable", &Material::m_ZWriteEnable)
 			.def_readwrite("BlendMode", &Material::m_BlendMode)
 			.def("AddParameterFloat", &Material::AddParameterFloat)
@@ -973,11 +990,21 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
 
+		, class_<TerrainChunk, my::Emitter>("TerrainChunk")
+			.def_readonly("Owner", &TerrainChunk::m_Owner)
+			.def_readonly("aabb", &TerrainChunk::m_aabb)
+			.def_readonly("Row", &TerrainChunk::m_Row)
+			.def_readonly("Col", &TerrainChunk::m_Col)
+			.def_readwrite("Material", &TerrainChunk::m_Material)
+
 		, class_<Terrain, Component, boost::shared_ptr<Component> >("Terrain")
 			.def(constructor<int, int, int, float>())
 			.def_readonly("RowChunks", &Terrain::m_RowChunks)
 			.def_readonly("ColChunks", &Terrain::m_ColChunks)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
+			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
+			.def("GetChunk", &Terrain::GetChunk)
+			.def_readwrite("GrassMaterial", &Terrain::m_GrassMaterial)
 
 		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
