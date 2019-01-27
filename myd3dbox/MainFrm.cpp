@@ -22,6 +22,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
+#include "TerrainGrassBrashDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1464,6 +1465,12 @@ void CMainFrame::OnToolsSimplifymesh()
 void CMainFrame::OnToolsTerraingrassbrush()
 {
 	// TODO: Add your command handler code here
+	CTerrainGrassBrashDlg dlg;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
 	ActorSet::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
