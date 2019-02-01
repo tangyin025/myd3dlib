@@ -687,7 +687,7 @@ void Effect::CreateEffect(
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
 	hr = D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
-		pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
+		pSrcData, SrcDataLen, pDefines, pInclude, Flags | D3DXFX_LARGEADDRESSAWARE, pPool, &pEffect, &CompilationErrors);
 	if(FAILED(hr))
 	{
 		if(CompilationErrors)
@@ -711,7 +711,7 @@ void Effect::CreateEffectFromFile(
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
 	hr = D3DXCreateEffectFromFile(my::D3DContext::getSingleton().m_d3dDevice,
-		pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
+		pSrcFile, pDefines, pInclude, Flags | D3DXFX_LARGEADDRESSAWARE, pPool, &pEffect, &CompilationErrors);
 	if(FAILED(hr))
 	{
 		if(CompilationErrors)
