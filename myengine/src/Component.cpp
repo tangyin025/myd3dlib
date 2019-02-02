@@ -348,8 +348,17 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(
-							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance ? "INSTANCE" : NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
+						boost::array<D3DXMACRO, 3> macro = { {0} };
+						int j = 0;
+						if (m_bInstance)
+						{
+							macro[j++].Name = "INSTANCE";
+						}
+						if (m_bUseAnimation)
+						{
+							macro[j++].Name = "SKELETON";
+						}
+						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro.begin(), m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!technique_RenderScene)
@@ -758,8 +767,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(
-							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
+						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!technique_RenderScene)
@@ -938,7 +946,8 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 		{
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, "FACETOCAMERA", m_Material->m_Shader.c_str(), PassID);
+				D3DXMACRO macro[2] = { {"FACETOCAMERA",0},{0,0} };
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
 					if (!technique_RenderScene)

@@ -69,56 +69,51 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const char * macros, const char * path, unsigned int PassID)
+my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
 {
 	const char * name = PathFindFileNameA(path);
-	char key[MAX_PATH];
-	sprintf_s(key, sizeof(key), "%s_%u_%s", name, mesh_type, macros ? macros : "0");
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
+	size_t seed = 0;
+	boost::hash_combine(seed, mesh_type);
+	boost::hash_combine(seed, std::string(name));
+	if (pDefines)
+	{
+		const D3DXMACRO* macro_iter = pDefines;
+		for (; macro_iter->Name; macro_iter++)
+		{
+			boost::hash_combine(seed, std::string(macro_iter->Name));
+			if (macro_iter->Definition)
+			{
+				boost::hash_combine(seed, std::string(macro_iter->Definition));
+			}
+		}
+	}
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
 		return shader_iter->second.get();
 	}
 
-	std::vector<std::string> strmacros;
-	std::vector<D3DXMACRO> d3dmacros;
-	if (macros)
-	{
-		boost::algorithm::split(strmacros, macros, boost::algorithm::is_any_of(" _\t"), boost::algorithm::token_compress_on);
-		std::vector<std::string>::const_iterator macro_iter = strmacros.begin();
-		for (; macro_iter != strmacros.end(); macro_iter++)
-		{
-			D3DXMACRO d3dmacro;
-			d3dmacro.Name = macro_iter->c_str();
-			d3dmacro.Definition = NULL;
-			d3dmacros.push_back(d3dmacro);
-		}
-	}
-	D3DXMACRO end = { 0 };
-	d3dmacros.push_back(end);
-
-	struct Helper
-	{
-		static const char * vs_header(unsigned int mesh_type)
-		{
-			switch (mesh_type)
-			{
-			case RenderPipeline::MeshTypeAnimation:
-				return "MeshSkeleton.fx";
-			case RenderPipeline::MeshTypeParticle:
-				return "MeshParticle.fx";
-			case RenderPipeline::MeshTypeTerrain:
-				return "MeshTerrain.fx";
-			}
-			return "MeshStatic.fx";
-		}
-	};
-
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
 	oss << "#include \"CommonHeader.fx\"" << std::endl;
-	oss << "#include \"" << Helper::vs_header(mesh_type) << "\"" << std::endl;
+	oss << "#include \"";
+	switch (mesh_type)
+	{
+	case RenderPipeline::MeshTypeMesh:
+		oss << "MeshMesh.fx";
+		break;
+	case RenderPipeline::MeshTypeParticle:
+		oss << "MeshParticle.fx";
+		break;
+	case RenderPipeline::MeshTypeTerrain:
+		oss << "MeshTerrain.fx";
+		break;
+	default:
+		oss << "MeshUnknown.fx";
+		break;
+	}
+	oss << "\"" << std::endl;
 	oss << "#include \"" << name << "\"" << std::endl;
 	std::string source = oss.str();
 
@@ -127,17 +122,17 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const char * macros
 
 #ifdef _DEBUG
 	CComPtr<ID3DXBuffer> buff;
-	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), &d3dmacros[0], my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
+	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
 	{
-		my::OStreamPtr ostr = my::FileOStream::Open(ms2ts(key).c_str());
-		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
+		my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache_%zu.fx"), seed).c_str());
+		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize() - 1);
 	}
 #endif
 
 	my::EffectPtr shader(new my::Effect());
 	try
 	{
-		shader->CreateEffect(source.c_str(), source.size(), &d3dmacros[0], my::ResourceMgr::getSingletonPtr(), 0, my::ResourceMgr::getSingleton().m_EffectPool);
+		shader->CreateEffect(source.c_str(), source.size(), pDefines, my::ResourceMgr::getSingletonPtr(), 0, my::ResourceMgr::getSingleton().m_EffectPool);
 	}
 	catch (const my::Exception & e)
 	{
@@ -145,7 +140,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const char * macros
 		const std::string & what = e.what();
 		my::D3DContext::getSingleton().m_EventLog(what.c_str());
 	}
-	m_ShaderCache.insert(std::make_pair(key, shader));
+	m_ShaderCache.insert(std::make_pair(seed, shader));
 	return shader.get();
 }
 

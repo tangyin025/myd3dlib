@@ -19,10 +19,9 @@ class RenderPipeline
 public:
 	enum MeshType
 	{
-		MeshTypeStatic			= 0,
-		MeshTypeAnimation		= 1,
-		MeshTypeParticle		= 2,
-		MeshTypeTerrain			= 3,
+		MeshTypeMesh			= 0,
+		MeshTypeParticle		= 1,
+		MeshTypeTerrain			= 2,
 		MeshTypeNum
 	};
 
@@ -44,7 +43,7 @@ public:
 		PassMaskTransparent = 1 << PassTypeTransparent,
 	};
 
-	typedef boost::unordered_map<std::string, my::EffectPtr> ShaderCacheMap;
+	typedef boost::unordered_map<size_t, my::EffectPtr> ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 
@@ -365,7 +364,7 @@ public:
 
 	virtual ~RenderPipeline(void);
 
-	my::Effect * QueryShader(MeshType mesh_type, const char * macros, const char * path, unsigned int PassID);
+	my::Effect * QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID);
 
 	static unsigned int PassTypeToMask(unsigned int pass_type)
 	{
