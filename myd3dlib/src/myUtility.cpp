@@ -274,13 +274,13 @@ LRESULT ModelViewerCamera::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_LBUTTONDOWN:
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
 			m_DragMode = DragModeRotate;
-			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam), (short)HIWORD(lParam));
 			::SetCapture(hWnd);
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -288,7 +288,7 @@ LRESULT ModelViewerCamera::MsgProc(
 		break;
 
 	case WM_LBUTTONUP:
-		if(m_DragMode == DragModeRotate)
+		if (m_DragMode == DragModeRotate)
 		{
 			m_DragMode = DragModeNone;
 			::ReleaseCapture();
@@ -301,7 +301,7 @@ LRESULT ModelViewerCamera::MsgProc(
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
 			m_DragMode = DragModeTrake;
-			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam), (short)HIWORD(lParam));
 			::SetCapture(hWnd);
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -322,7 +322,7 @@ LRESULT ModelViewerCamera::MsgProc(
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
 			m_DragMode = DragModeZoom;
-			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam), (short)HIWORD(lParam));
 			::SetCapture(hWnd);
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -340,35 +340,37 @@ LRESULT ModelViewerCamera::MsgProc(
 		break;
 
 	case WM_MOUSEMOVE:
+	{
+		CPoint pt((short)LOWORD(lParam), (short)HIWORD(lParam));
+		switch (m_DragMode)
 		{
-			CPoint pt((short)LOWORD(lParam),(short)HIWORD(lParam));
-			switch (m_DragMode)
-			{
-			case DragModeRotate:
-				m_Eular.x -= D3DXToRadian((pt.y - m_DragPt.y) * 0.5f);
-				m_Eular.y -= D3DXToRadian((pt.x - m_DragPt.x) * 0.5f);
-				m_DragPt = pt;
-				*pbNoFurtherProcessing = true;
-				return 0;
-
-			case DragModeTrake:
-				{
-					Vector3 Right = m_View.column<0>().xyz.normalize();
-					Vector3 Up = m_View.column<1>().xyz.normalize();
-					m_LookAt += Right * (float)(m_DragPt.x - pt.x) * 0.03f + Up * (float)(pt.y - m_DragPt.y) * 0.03f;
-					m_DragPt = pt;
-					*pbNoFurtherProcessing = true;
-				}
-				return 0;
-
-			case DragModeZoom:
-				m_Distance += (m_DragPt.x - pt.x) * 0.03f;
-				m_DragPt = pt;
-				*pbNoFurtherProcessing = true;
-				return 0;
-			}
+		case DragModeRotate:
+		{
+			m_Eular.x -= D3DXToRadian((pt.y - m_DragPt.y) * 0.5f);
+			m_Eular.y -= D3DXToRadian((pt.x - m_DragPt.x) * 0.5f);
+			m_DragPt = pt;
+			*pbNoFurtherProcessing = true;
+			return 0;
 		}
-		break;
+		case DragModeTrake:
+		{
+			Vector3 Right = m_View.column<0>().xyz.normalize();
+			Vector3 Up = m_View.column<1>().xyz.normalize();
+			m_LookAt += Right * (float)(m_DragPt.x - pt.x) * 0.03f + Up * (float)(pt.y - m_DragPt.y) * 0.03f;
+			m_DragPt = pt;
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		case DragModeZoom:
+		{
+			m_Distance += (m_DragPt.x - pt.x) * 0.03f;
+			m_DragPt = pt;
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		}
+	}
+	break;
 
 	case WM_MOUSEWHEEL:
 		return 0;

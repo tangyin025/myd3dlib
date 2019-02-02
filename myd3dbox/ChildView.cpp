@@ -1233,38 +1233,120 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 {
 	// TODO: Add your specialized code here and/or call the base class
 	ASSERT(pMsg->hwnd == m_hWnd);
-	bool bNoFurtherProcessing = false;
-	m_Camera->MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam, &bNoFurtherProcessing);
-	if (bNoFurtherProcessing)
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+	switch (pMsg->message)
 	{
-		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-		ASSERT_VALID(pFrame);
-		switch (pMsg->message)
+	case WM_LBUTTONDOWN:
+		if ((GetKeyState(VK_MENU) & 0x8000) && model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeNone)
 		{
-		case WM_LBUTTONDOWN:
-		case WM_MBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-			(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_bEatAltUp = TRUE;
-			break;
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeRotate;
+			model_view_camera->m_DragPt.SetPoint((short)LOWORD(pMsg->lParam), (short)HIWORD(pMsg->lParam));
+			SetCapture();
+			pFrame->m_bEatAltUp = TRUE;
+			return TRUE;
+		}
+		break;
 
-		case WM_LBUTTONUP:
-		case WM_MBUTTONUP:
-		case WM_RBUTTONUP:
-			{
-				CEnvironmentWnd::CameraPropEventArgs arg(this);
-				pFrame->m_EventCameraPropChanged(&arg);
-			}
-			break;
+	case WM_LBUTTONUP:
+		if (model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeRotate)
+		{
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeNone;
+			ReleaseCapture();
+			CEnvironmentWnd::CameraPropEventArgs arg(this);
+			pFrame->m_EventCameraPropChanged(&arg);
+			return TRUE;
+		}
+		break;
 
-		case WM_MOUSEMOVE:
-			m_Camera->UpdateViewProj();
+	case WM_MBUTTONDOWN:
+		if ((GetKeyState(VK_MENU) & 0x8000) && model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeNone)
+		{
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeTrake;
+			model_view_camera->m_DragPt.SetPoint((short)LOWORD(pMsg->lParam), (short)HIWORD(pMsg->lParam));
+			SetCapture();
+			pFrame->m_bEatAltUp = TRUE;
+			return TRUE;
+		}
+		break;
+
+	case WM_MBUTTONUP:
+		if (model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeTrake)
+		{
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeNone;
+			ReleaseCapture();
+			CEnvironmentWnd::CameraPropEventArgs arg(this);
+			pFrame->m_EventCameraPropChanged(&arg);
+			return TRUE;
+		}
+		break;
+
+	case WM_RBUTTONDOWN:
+		if ((GetKeyState(VK_MENU) & 0x8000) && model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeNone)
+		{
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeZoom;
+			model_view_camera->m_DragPt.SetPoint((short)LOWORD(pMsg->lParam), (short)HIWORD(pMsg->lParam));
+			SetCapture();
+			pFrame->m_bEatAltUp = TRUE;
+			return TRUE;
+		}
+		break;
+
+	case WM_RBUTTONUP:
+		if (model_view_camera->m_DragMode == my::ModelViewerCamera::DragModeZoom)
+		{
+			model_view_camera->m_DragMode = my::ModelViewerCamera::DragModeNone;
+			ReleaseCapture();
+			CEnvironmentWnd::CameraPropEventArgs arg(this);
+			pFrame->m_EventCameraPropChanged(&arg);
+			return TRUE;
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+	{
+		CRect rc;
+		GetClientRect(&rc);
+		CPoint pt((short)LOWORD(pMsg->lParam), (short)HIWORD(pMsg->lParam));
+		my::Vector2 delta(
+			(float)(model_view_camera->m_DragPt.x - pt.x) / rc.Width() * model_view_camera->m_Distance,
+			(float)(pt.y - model_view_camera->m_DragPt.y) / rc.Height() * model_view_camera->m_Distance);
+		switch (model_view_camera->m_DragMode)
+		{
+		case my::ModelViewerCamera::DragModeRotate:
+		{
+			model_view_camera->m_Eular.x -= D3DXToRadian((pt.y - model_view_camera->m_DragPt.y) * 0.5f);
+			model_view_camera->m_Eular.y -= D3DXToRadian((pt.x - model_view_camera->m_DragPt.x) * 0.5f);
+			model_view_camera->m_DragPt = pt;
+			model_view_camera->UpdateViewProj();
 			StartPerformanceCount();
 			Invalidate();
-			break;
+			return TRUE;
 		}
-		return TRUE;
+		case my::ModelViewerCamera::DragModeTrake:
+		{
+			my::Vector3 Right = model_view_camera->m_View.column<0>().xyz.normalize();
+			my::Vector3 Up = model_view_camera->m_View.column<1>().xyz.normalize();
+			model_view_camera->m_LookAt += Right * delta.x + Up * delta.y;
+			model_view_camera->m_DragPt = pt;
+			model_view_camera->UpdateViewProj();
+			StartPerformanceCount();
+			Invalidate();
+			return TRUE;
+		}
+		case my::ModelViewerCamera::DragModeZoom:
+		{
+			model_view_camera->m_Distance += delta.x;
+			model_view_camera->m_DragPt = pt;
+			model_view_camera->UpdateViewProj();
+			StartPerformanceCount();
+			Invalidate();
+			return TRUE;
+		}
+		}
+		break;
 	}
-
+	}
 	return __super::PreTranslateMessage(pMsg);
 }
 
