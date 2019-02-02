@@ -65,7 +65,7 @@ public:
 
 	int m_ChunkSize;
 
-	typedef boost::multi_array <unsigned short, 2> VertexArray2D;
+	typedef boost::multi_array <unsigned int, 2> VertexArray2D;
 
 	VertexArray2D m_VertexTable;
 

@@ -748,13 +748,13 @@ my::RayResult CChildView::OverlapTestRayAndTerrainChunk(
 	D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, 0, 0);
 	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
 	{
-		int i0 = *((WORD *)pIndices + face_i * 3 + 0);
-		int i1 = *((WORD *)pIndices + face_i * 3 + 1);
-		int i2 = *((WORD *)pIndices + face_i * 3 + 2);
+		int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
+		int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
+		int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
 
-		unsigned char * pv0 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i0 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
-		unsigned char * pv1 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i1 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
-		unsigned char * pv2 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i2 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
+		short * pv0 = terrain->m_VertexElems.GetVertexValue<short>((unsigned char *)pVertices + i0 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
+		short * pv1 = terrain->m_VertexElems.GetVertexValue<short>((unsigned char *)pVertices + i1 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
+		short * pv2 = terrain->m_VertexElems.GetVertexValue<short>((unsigned char *)pVertices + i2 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
 
 		my::Vector3 v0 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkSize + pv0[0], chunk->m_Col * terrain->m_ChunkSize + pv0[1]);
 		my::Vector3 v1 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkSize + pv1[0], chunk->m_Col * terrain->m_ChunkSize + pv1[1]);

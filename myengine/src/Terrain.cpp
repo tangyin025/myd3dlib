@@ -89,7 +89,7 @@ void TerrainChunk::UpdateAABB(void)
 	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
-static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N, int hs, unsigned int k)
+static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N, int hs, Terrain::VertexArray2D::element k)
 {
     _ASSERT((hs & (hs - 1)) == 0);
     for (int i = 0; i < N - 1; i += hs * 2)
@@ -120,7 +120,7 @@ static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N, int h
 static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N)
 {
     _ASSERT(((N - 1) & (N - 2)) == 0);
-    unsigned int k = 0;
+	Terrain::VertexArray2D::element k = 0;
     verts[0][0] = k++;
     verts[0][N - 1] = k++;
     verts[N - 1][0] = k++;
@@ -346,14 +346,14 @@ float Terrain::GetPosHeight(void * pBits, int pitch, float x, float z) const
 my::Vector3 Terrain::GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch)
 {
 	unsigned char * pVertex = (unsigned char *)pVertices + VertexIndex * m_VertexStride;
-	unsigned char * pIndices = m_VertexElems.GetVertexValue<unsigned char>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
+	short * pIndices = m_VertexElems.GetVertexValue<short>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
 	return GetSamplePos(pBits, pitch, Row * m_ChunkSize + pIndices[0], Col * m_ChunkSize + pIndices[1]);
 }
 
 void Terrain::CreateElements(void)
 {
-	m_VertexElems.InsertVertexElement(0, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLMETHOD_DEFAULT);
-	WORD offset = sizeof(unsigned int);
+	m_VertexElems.InsertVertexElement(0, D3DDECLTYPE_SHORT4, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLMETHOD_DEFAULT);
+	DWORD offset = sizeof(short) * 4;
 	m_VertexStride = offset;
 }
 
@@ -452,7 +452,7 @@ unsigned int FillNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
 
 const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom)
 {
-	unsigned int id = ((center & 7) << 12) | ((left & 7) << 9) | ((top & 7) << 6) | ((right & 7) << 3) | ((bottom & 7) << 0);
+	unsigned int id = ((center & 15) << 16) | ((left & 15) << 12) | ((top & 15) << 8) | ((right & 15) << 4) | ((bottom & 15) << 0);
 	FragmentMap::iterator frag_iter = m_Fragment.find(id);
 	if (frag_iter != m_Fragment.end())
 	{
@@ -461,9 +461,9 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 
     struct Setter
     {
-		Terrain::VertexArray2D & verts;
-        WORD * buff;
-		Setter(Terrain::VertexArray2D & _verts, WORD * _buff)
+		VertexArray2D & verts;
+		VertexArray2D::element * buff;
+		Setter(VertexArray2D & _verts, VertexArray2D::element * _buff)
 			: verts(_verts)
 			, buff(_buff)
 		{
@@ -476,9 +476,9 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 
     struct SetterTranspose
     {
-		Terrain::VertexArray2D & verts;
-        WORD * buff;
-		SetterTranspose(Terrain::VertexArray2D & _verts, WORD * _buff)
+		VertexArray2D & verts;
+		VertexArray2D::element * buff;
+		SetterTranspose(VertexArray2D & _verts, VertexArray2D::element * _buff)
 			: verts(_verts)
 			, buff(_buff)
 		{
@@ -509,15 +509,15 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		frag.VertNum = (N[0] + 1) * (N[0] + 1);
 		frag.PrimitiveCount = (N[0] - 2) * (N[0] - 2) * 2
 			+ N[1] * (M[1] + 1) + N[2] * (M[2] + 1) + N[3] * (M[3] + 1) + N[4] * (M[4] + 1) - 8;
-		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(VertexArray2D::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
-		unsigned int k = 0;
+		VertexArray2D::element k = 0;
 		const int step = 1 << center;
-		k += FillNvM(Setter(m_VertexTable, (WORD *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
-		k += EdgeNvM(SetterTranspose(m_VertexTable, (WORD *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
-		k += EdgeNvM(Setter(m_VertexTable, (WORD *)pIndices + k), N[2], M[2], 0, step, 0, step);
-		k += EdgeNvM(SetterTranspose(m_VertexTable, (WORD *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
-		k += EdgeNvM(Setter(m_VertexTable, (WORD *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
+		k += FillNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
+		k += EdgeNvM(SetterTranspose(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
+		k += EdgeNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[2], M[2], 0, step, 0, step);
+		k += EdgeNvM(SetterTranspose(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
+		k += EdgeNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
 		_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
@@ -526,10 +526,10 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		const int N = m_ChunkSize >> center;
 		frag.VertNum = (N + 1) * (N + 1);
 		frag.PrimitiveCount = N * N * 2;
-		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(VertexArray2D::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		const int step = 1 << center;
-		unsigned int k = FillNvM(Setter(m_VertexTable, (WORD *)pIndices), N, N, 0, step, 0, step);
+		VertexArray2D::element k = FillNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices), N, N, 0, step, 0, step);
 		frag.ib.Unlock();
 	}
 	return frag;
@@ -709,7 +709,7 @@ void Terrain::UpdateVertices(void)
 			for (unsigned int j = 0; j < Terrain::m_VertexTable.shape()[1]; j++)
 			{
 				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertexTable[i][j] * m_VertexStride;
-				unsigned char * pIndices = m_VertexElems.GetVertexValue<unsigned char>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
+				short * pIndices = m_VertexElems.GetVertexValue<short>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
 				pIndices[0] = i;
 				pIndices[1] = j;
 				pIndices[2] = 0;
