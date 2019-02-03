@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
 #include <d3d9.h>
 #include <d3dx9shader.h>
 #include <boost/weak_ptr.hpp>
@@ -299,7 +300,7 @@ namespace my
 
 		typedef boost::weak_ptr<DeviceResourceBase> DeviceResourceBaseWeakPtr;
 
-		typedef boost::unordered_map<std::string, DeviceResourceBaseWeakPtr> DeviceResourceBaseWeakPtrSet;
+		typedef std::map<std::string, DeviceResourceBaseWeakPtr> DeviceResourceBaseWeakPtrSet;
 
 		DeviceResourceBaseWeakPtrSet m_ResourceWeakSet;
 

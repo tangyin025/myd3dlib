@@ -413,6 +413,7 @@ void MeshComponent::CreateTriangleMeshShape(void)
 		return;
 	}
 
+	key += "triangle";
 	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
 	PhysXSceneContext::PxObjectMap::iterator collection_obj_iter = PhysXSceneContext::getSingleton().m_CollectionObjs.find(key);
 	if (collection_obj_iter != PhysXSceneContext::getSingleton().m_CollectionObjs.end())
@@ -452,8 +453,69 @@ void MeshComponent::CreateTriangleMeshShape(void)
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
+		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
+}
+
+void MeshComponent::CreateConvexMeshShape(void)
+{
+	_ASSERT(!m_PxShape);
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	{
+		return;
+	}
+
+	if (!m_Mesh)
+	{
+		return;
+	}
+
+	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_Mesh);
+	if (key.empty())
+	{
+		return;
+	}
+
+	key += "convex";
+	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
+	PhysXSceneContext::PxObjectMap::iterator collection_obj_iter = PhysXSceneContext::getSingleton().m_CollectionObjs.find(key);
+	if (collection_obj_iter != PhysXSceneContext::getSingleton().m_CollectionObjs.end())
+	{
+		convex_mesh.reset(collection_obj_iter->second, collection_obj_iter->second->is<physx::PxConvexMesh>());
+	}
+	else
+	{
+		physx::PxConvexMeshDesc desc;
+		desc.points.count = m_Mesh->GetNumVertices();
+		desc.points.stride = m_Mesh->GetNumBytesPerVertex();
+		desc.points.data = m_Mesh->LockVertexBuffer();
+		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eINFLATE_CONVEX;
+		desc.vertexLimit = 256;
+		physx::PxDefaultMemoryOutputStream writeBuffer;
+		bool status = PhysXContext::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
+		m_Mesh->UnlockVertexBuffer();
+		if (!status)
+		{
+			return;
+		}
+		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		convex_mesh.reset(PhysXContext::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysXDeleter<physx::PxConvexMesh>());
+		PhysXSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, convex_mesh));
+	}
+
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);

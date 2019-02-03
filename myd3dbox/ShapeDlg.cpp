@@ -78,6 +78,11 @@ void CShapeDlg::OnOK()
 		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
+		if (m_cmp->m_Type == Component::ComponentTypeMesh)
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
+			mesh_cmp->CreateConvexMeshShape();
+		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
