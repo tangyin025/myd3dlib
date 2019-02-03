@@ -1132,9 +1132,9 @@ void CMainFrame::OnToolsBuildnavigation()
 							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
 							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
 							{
-								int i0 = *((WORD *)pIndices + face_i * 3 + 0);
-								int i1 = *((WORD *)pIndices + face_i * 3 + 1);
-								int i2 = *((WORD *)pIndices + face_i * 3 + 2);
+								int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
+								int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
+								int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
 
 								my::Vector3 v0 = terrain->GetPosByVertexIndex(pVertices, i, j, i0, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
 								my::Vector3 v1 = terrain->GetPosByVertexIndex(pVertices, i, j, i1, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
