@@ -387,7 +387,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
+void MeshComponent::CreateTriangleMeshShape(void)
 {
 	_ASSERT(!m_PxShape);
 
@@ -451,7 +451,7 @@ void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Scale)
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Scale, physx::PxQuat::createIdentity());
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));

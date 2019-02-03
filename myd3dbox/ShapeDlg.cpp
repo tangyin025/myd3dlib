@@ -83,14 +83,14 @@ void CShapeDlg::OnOK()
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateTriangleMeshShape(m_param);
+			mesh_cmp->CreateTriangleMeshShape();
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:
 		if (m_cmp->m_Type == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
-			terrain->CreateHeightFieldShape(m_param);
+			terrain->CreateHeightFieldShape();
 		}
 		break;
 	}

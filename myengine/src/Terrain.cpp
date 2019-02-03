@@ -810,7 +810,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
+void Terrain::CreateHeightFieldShape(void)
 {
 	_ASSERT(!m_PxShape);
 
@@ -856,7 +856,7 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Scale)
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * Scale.y, Scale.x, Scale.z),
+		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
