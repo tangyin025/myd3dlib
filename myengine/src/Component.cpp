@@ -414,10 +414,10 @@ void MeshComponent::CreateTriangleMeshShape(void)
 	}
 
 	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
-	PhysXSceneContext::TriangleMeshMap::iterator tri_mesh_iter = PhysXSceneContext::getSingleton().m_TriangleMeshes.find(key);
-	if (tri_mesh_iter != PhysXSceneContext::getSingleton().m_TriangleMeshes.end())
+	PhysXSceneContext::PxObjectMap::iterator collection_obj_iter = PhysXSceneContext::getSingleton().m_CollectionObjs.find(key);
+	if (collection_obj_iter != PhysXSceneContext::getSingleton().m_CollectionObjs.end())
 	{
-		triangle_mesh = tri_mesh_iter->second;
+		triangle_mesh.reset(collection_obj_iter->second, collection_obj_iter->second->is<physx::PxTriangleMesh>());
 	}
 	else
 	{
@@ -446,7 +446,7 @@ void MeshComponent::CreateTriangleMeshShape(void)
 		}
 		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 		triangle_mesh.reset(PhysXContext::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysXDeleter<physx::PxTriangleMesh>());
-		PhysXSceneContext::getSingleton().m_TriangleMeshes.insert(std::make_pair(key, triangle_mesh));
+		PhysXSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, triangle_mesh));
 	}
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());

@@ -100,13 +100,13 @@ public:
 
 	boost::shared_ptr<physx::PxControllerManager> m_ControllerMgr;
 
-	typedef std::map<std::string, boost::shared_ptr<physx::PxTriangleMesh> > TriangleMeshMap;
-
-	TriangleMeshMap m_TriangleMeshes;
-
 	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
 
 	boost::shared_ptr<physx::PxCollection> m_Collection;
+
+	typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > PxObjectMap;
+
+	PxObjectMap m_CollectionObjs;
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
