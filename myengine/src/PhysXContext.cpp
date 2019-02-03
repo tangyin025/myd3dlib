@@ -37,7 +37,7 @@ void PhysXAllocator::deallocate(void * ptr)
 
 bool PhysXContext::Init(void)
 {
-	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, *this)), m_Foundation))
+	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, *this), PhysXDeleter<physx::PxFoundation>()), m_Foundation))
 	{
 		THROW_CUSEXCEPTION("PxCreateFoundation failed");
 	}
@@ -49,12 +49,12 @@ bool PhysXContext::Init(void)
 #else
 		false,
 #endif
-		NULL)), m_sdk))
+		NULL), PhysXDeleter<physx::PxPhysics>()), m_sdk))
 	{
 		THROW_CUSEXCEPTION("PxCreatePhysics failed");
 	}
 
-	if(!(m_Cooking.reset(PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, physx::PxCookingParams(scale))), m_Cooking))
+	if(!(m_Cooking.reset(PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, physx::PxCookingParams(scale)), PhysXDeleter<physx::PxCooking>()), m_Cooking))
 	{
 		THROW_CUSEXCEPTION("PxCreateCooking failed");
 	}
@@ -64,7 +64,7 @@ bool PhysXContext::Init(void)
 		THROW_CUSEXCEPTION("PxInitExtensions failed");
 	}
 
-	if(!(m_CpuDispatcher.reset(physx::PxDefaultCpuDispatcherCreate(1, NULL)), m_CpuDispatcher))
+	if(!(m_CpuDispatcher.reset(physx::PxDefaultCpuDispatcherCreate(1, NULL), PhysXDeleter<physx::PxDefaultCpuDispatcher>()), m_CpuDispatcher))
 	{
 		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
 	}
@@ -126,25 +126,25 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 	sceneDesc.filterShader = filter;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
-	m_PxScene.reset(sdk->createScene(sceneDesc));
+	m_PxScene.reset(sdk->createScene(sceneDesc), PhysXDeleter<physx::PxScene>());
 	if (!m_PxScene)
 	{
 		THROW_CUSEXCEPTION("sdk->createScene failed");
 	}
 
-	m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene));
+	m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene), PhysXDeleter<physx::PxControllerManager>());
 	if (!m_ControllerMgr)
 	{
 		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
 	}
 
-	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
+	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
 	if (!m_Registry)
 	{
 		THROW_CUSEXCEPTION("physx::PxSerialization::createSerializationRegistry failed");
 	}
 
-	m_Collection.reset(PxCreateCollection());
+	m_Collection.reset(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
 	if (!m_Collection)
 	{
 		THROW_CUSEXCEPTION("PxCreateCollection failed");
@@ -169,8 +169,8 @@ void PhysXSceneContext::SetVisualizationParameter(float param)
 template<>
 void PhysXSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	const_cast<PhysXSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
-	const_cast<PhysXSceneContext *>(this)->m_Collection.reset(PxCreateCollection());
+	const_cast<PhysXSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
+	const_cast<PhysXSceneContext *>(this)->m_Collection.reset(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
 	TriangleMeshMap::const_iterator tri_mesh_iter = m_TriangleMeshes.begin();
 	for (; tri_mesh_iter != m_TriangleMeshes.end(); tri_mesh_iter++)
 	{
@@ -199,8 +199,8 @@ void PhysXSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archiv
 	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
-	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
-	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL));
+	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
+	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysXDeleter<physx::PxCollection>());
 	const unsigned int numObjs = m_Collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
@@ -208,7 +208,7 @@ void PhysXSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archiv
 		ar >> BOOST_SERIALIZATION_NVP(key);
 		physx::PxSerialObjectId id;
 		ar >> BOOST_SERIALIZATION_NVP(id);
-		PhysXPtr<physx::PxTriangleMesh> triangle_mesh(m_Collection->find(id)->is<physx::PxTriangleMesh>());
+		boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh(m_Collection->find(id)->is<physx::PxTriangleMesh>(), PhysXDeleter<physx::PxTriangleMesh>());
 		m_TriangleMeshes.insert(std::make_pair(key, triangle_mesh));
 	}
 }

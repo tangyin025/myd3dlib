@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PhysXPtr.h"
+#include <PxPhysicsAPI.h>
 #include "mySingleton.h"
 #include "myMath.h"
 #include "myUtility.h"
@@ -19,6 +19,19 @@ public:
 	void deallocate(void * ptr);
 };
 
+template<class T>
+struct PhysXDeleter
+{
+	typedef void result_type;
+
+	typedef T * argument_type;
+
+	void operator()(T * x) const
+	{
+		_ASSERT(x); x->release();
+	}
+};
+
 class PhysXContext
 	: public my::SingleInstance<PhysXContext>
 	, public physx::PxErrorCallback
@@ -28,13 +41,13 @@ public:
 
 	PhysXAllocator m_Allocator;
 
-	PhysXPtr<physx::PxFoundation> m_Foundation;
+	boost::shared_ptr<physx::PxFoundation> m_Foundation;
 
-	PhysXPtr<physx::PxPhysics> m_sdk;
+	boost::shared_ptr<physx::PxPhysics> m_sdk;
 
-	PhysXPtr<physx::PxCooking> m_Cooking;
+	boost::shared_ptr<physx::PxCooking> m_Cooking;
 
-	PhysXPtr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
+	boost::shared_ptr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
 public:
 	PhysXContext(void)
@@ -79,21 +92,21 @@ public:
 
 	physx::PxU32 m_ErrorState;
 
-	PhysXPtr<physx::PxScene> m_PxScene;
+	boost::shared_ptr<physx::PxScene> m_PxScene;
 
 	typedef boost::signals2::signal<void (float)> SubstepEvent;
 
 	SubstepEvent m_EventPxThreadSubstep;
 
-	PhysXPtr<physx::PxControllerManager> m_ControllerMgr;
+	boost::shared_ptr<physx::PxControllerManager> m_ControllerMgr;
 
-	typedef std::map<std::string, PhysXPtr<physx::PxTriangleMesh> > TriangleMeshMap;
+	typedef std::map<std::string, boost::shared_ptr<physx::PxTriangleMesh> > TriangleMeshMap;
 
 	TriangleMeshMap m_TriangleMeshes;
 
-	PhysXPtr<physx::PxSerializationRegistry> m_Registry;
+	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
 
-	PhysXPtr<physx::PxCollection> m_Collection;
+	boost::shared_ptr<physx::PxCollection> m_Collection;
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 

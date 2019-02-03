@@ -81,7 +81,6 @@
     <ClInclude Include="include\FModContext.h" />
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\PhysXContext.h" />
-    <ClInclude Include="include\PhysXPtr.h" />
     <ClInclude Include="include\RenderPipeline.h" />
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>

@@ -12,9 +12,9 @@ public:
 
 	float m_Radius;
 
-	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
-	PhysXPtr<physx::PxController> m_PxController;
+	boost::shared_ptr<physx::PxController> m_PxController;
 
 	my::Vector3 m_Velocity;
 

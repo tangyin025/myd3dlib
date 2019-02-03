@@ -102,7 +102,7 @@ public:
 
 	MaterialPtr m_GrassMaterial;
 
-	PhysXPtr<physx::PxHeightField> m_PxHeightField;
+	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE technique_RenderScene;
 

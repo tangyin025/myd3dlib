@@ -40,7 +40,7 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 {
 	Actor::OnEnterPxScene(scene);
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
 
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = m_Height;
@@ -50,7 +50,7 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
 	desc.userData = this;
-	m_PxController.reset(scene->m_ControllerMgr->createController(desc));
+	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysXDeleter<physx::PxController>());
 
 	physx::PxActor * actor = m_PxController->getActor();
 	actor->userData = this;

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <PxPhysicsAPI.h>
 #include "myOctree.h"
 #include "myEmitter.h"
 #include "myMesh.h"
-#include "PhysXPtr.h"
 #include <atlbase.h>
 #include <boost/serialization/nvp.hpp>
 
@@ -61,9 +61,9 @@ public:
 
 	Actor * m_Actor;
 
-	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
-	PhysXPtr<physx::PxShape> m_PxShape;
+	boost::shared_ptr<physx::PxShape> m_PxShape;
 
 protected:
 	Component(void)
@@ -246,9 +246,9 @@ public:
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
-	PhysXPtr<physx::PxClothFabric> m_Fabric;
+	boost::shared_ptr<physx::PxClothFabric> m_Fabric;
 
-	PhysXPtr<physx::PxCloth> m_Cloth;
+	boost::shared_ptr<physx::PxCloth> m_Cloth;
 
 	D3DXHANDLE technique_RenderScene;
 

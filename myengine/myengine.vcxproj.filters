@@ -36,9 +36,6 @@
     <ClInclude Include="include\PhysXContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\PhysXPtr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\RenderPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>

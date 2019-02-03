@@ -45,7 +45,7 @@ public:
 
 	ComponentPtrList m_Cmps;
 
-	PhysXPtr<physx::PxRigidActor> m_PxActor;
+	boost::shared_ptr<physx::PxRigidActor> m_PxActor;
 
 	Attacher * m_Base;
 
