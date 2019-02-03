@@ -341,7 +341,10 @@ LRESULT ModelViewerCamera::MsgProc(
 
 	case WM_MOUSEMOVE:
 	{
+		CRect rc;
+		::GetClientRect(hWnd, &rc);
 		CPoint pt((short)LOWORD(lParam), (short)HIWORD(lParam));
+		my::Vector2 delta((float)(m_DragPt.x - pt.x) / rc.Width() * m_Distance, (float)(pt.y - m_DragPt.y) / rc.Height() * m_Distance);
 		switch (m_DragMode)
 		{
 		case DragModeRotate:
@@ -356,21 +359,21 @@ LRESULT ModelViewerCamera::MsgProc(
 		{
 			Vector3 Right = m_View.column<0>().xyz.normalize();
 			Vector3 Up = m_View.column<1>().xyz.normalize();
-			m_LookAt += Right * (float)(m_DragPt.x - pt.x) * 0.03f + Up * (float)(pt.y - m_DragPt.y) * 0.03f;
+			m_LookAt += Right * delta.x + Up * delta.y;
 			m_DragPt = pt;
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
 		case DragModeZoom:
 		{
-			m_Distance += (m_DragPt.x - pt.x) * 0.03f;
+			m_Distance += delta.x;
 			m_DragPt = pt;
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
 		}
+		break;
 	}
-	break;
 
 	case WM_MOUSEWHEEL:
 		return 0;
