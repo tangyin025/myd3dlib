@@ -1067,68 +1067,94 @@ void CMainFrame::OnToolsBuildnavigation()
 			ASSERT_VALID(pFrame);
 			Actor * actor = dynamic_cast<Actor *>(oct_actor);
 			ASSERT(actor);
+			if (!actor->m_PxActor || !actor->m_PxActor->isRigidStatic())
+			{
+				return;
+			}
 			const float walkableThr = cosf(pFrame->m_cfg.walkableSlopeAngle / 180.0f*RC_PI);
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
-				if ((*cmp_iter)->m_Type == Component::ComponentTypeMesh)
+				Component * cmp = cmp_iter->get();
+				if (!cmp->m_PxShape)
 				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent*>(cmp_iter->get());
-					ASSERT(mesh_cmp);
-					if (!mesh_cmp->m_bNavigation)
+					continue;
+				}
+				switch (cmp->m_PxShape->getGeometryType())
+				{
+				case physx::PxGeometryType::eSPHERE:
+				case physx::PxGeometryType::ePLANE:
+				case physx::PxGeometryType::eCAPSULE:
+				case physx::PxGeometryType::eBOX:
+					TRACE("OnToolsBuildnavigation: unsupported collision shape");
+					continue;
+				case physx::PxGeometryType::eCONVEXMESH:
+				{
+					physx::PxConvexMeshGeometry geom;
+					VERIFY(cmp->m_PxShape->getConvexMeshGeometry(geom));
+					boost::const_multi_array_ref<physx::PxVec3, 1> verts(geom.convexMesh->getVertices(), boost::extents[geom.convexMesh->getNbVertices()]);
+					const physx::PxU8 * polys = geom.convexMesh->getIndexBuffer();
+					for (unsigned int i = 0; i < geom.convexMesh->getNbPolygons(); i++)
 					{
-						continue;
-					}
-					if (!mesh_cmp->m_Mesh)
-					{
-						mesh_cmp->RequestResource();
-						while (my::ResourceMgr::getSingleton().CheckIORequests(INFINITE))
+						physx::PxHullPolygon hullpoly;
+						geom.convexMesh->getPolygonData(i, hullpoly);
+						if (hullpoly.mNbVerts < 3)
 						{
+							TRACE("OnToolsBuildnavigation: invalid polygon");
+							continue;
+						}
+						for (int j = 2; j < hullpoly.mNbVerts; j++)
+						{
+							my::Vector3 v0 = ((my::Vector3 &)verts[polys[hullpoly.mIndexBase + 0]]).transformCoord(actor->m_World);
+							my::Vector3 v1 = ((my::Vector3 &)verts[polys[hullpoly.mIndexBase + j - 1]]).transformCoord(actor->m_World);
+							my::Vector3 v2 = ((my::Vector3 &)verts[polys[hullpoly.mIndexBase + j - 0]]).transformCoord(actor->m_World);
+							rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, hullpoly.mPlane[1] > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
 						}
 					}
-					if (!mesh_cmp->m_Mesh)
+					break;
+				}
+				case physx::PxGeometryType::eTRIANGLEMESH:
+				{
+					physx::PxTriangleMeshGeometry geom;
+					VERIFY(cmp->m_PxShape->getTriangleMeshGeometry(geom));
+					boost::const_multi_array_ref<physx::PxVec3, 1> verts(geom.triangleMesh->getVertices(), boost::extents[geom.triangleMesh->getNbVertices()]);
+					for (unsigned int i = 0; i < geom.triangleMesh->getNbTriangles(); i++)
 					{
-						continue;
-					}
-					const void * pVertices = mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY);
-					DWORD NumVertices = mesh_cmp->m_Mesh->GetNumVertices();
-					DWORD VertexStride = mesh_cmp->m_Mesh->GetNumBytesPerVertex();
-					const void * pIndices = mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY);
-					bool bIndices16 = !(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT);
-					DWORD NumFaces = mesh_cmp->m_Mesh->GetNumFaces();
-					ASSERT(mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3);
-					for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
-					{
-						int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
-						int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
-						int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
-
-						my::Vector3 v0 = mesh_cmp->m_Mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride).transformCoord(actor->m_World);
-						my::Vector3 v1 = mesh_cmp->m_Mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride).transformCoord(actor->m_World);
-						my::Vector3 v2 = mesh_cmp->m_Mesh->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride).transformCoord(actor->m_World);
-
+						my::Vector3 v0, v1, v2;
+						if (geom.triangleMesh->getTriangleMeshFlags().isSet(physx::PxTriangleMeshFlag::e16_BIT_INDICES))
+						{
+							boost::const_multi_array_ref<unsigned short, 1> tris((unsigned short *)geom.triangleMesh->getTriangles(), boost::extents[geom.triangleMesh->getNbTriangles() * 3]);
+							v0 = ((my::Vector3 &)verts[tris[i * 3 + 0]]).transformCoord(actor->m_World);
+							v1 = ((my::Vector3 &)verts[tris[i * 3 + 1]]).transformCoord(actor->m_World);
+							v2 = ((my::Vector3 &)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
+						}
+						else
+						{
+							boost::const_multi_array_ref<int, 1> tris((int *)geom.triangleMesh->getTriangles(), boost::extents[geom.triangleMesh->getNbTriangles() * 3]);
+							v0 = ((my::Vector3 &)verts[tris[i * 3 + 0]]).transformCoord(actor->m_World);
+							v1 = ((my::Vector3 &)verts[tris[i * 3 + 1]]).transformCoord(actor->m_World);
+							v2 = ((my::Vector3 &)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
+						}
 						my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-
 						rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
 					}
-					mesh_cmp->m_Mesh->UnlockVertexBuffer();
-					mesh_cmp->m_Mesh->UnlockIndexBuffer();
+					break;
 				}
-				else if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+				case physx::PxGeometryType::eHEIGHTFIELD:
 				{
 					Terrain * terrain = dynamic_cast<Terrain*>(cmp_iter->get());
-					ASSERT(terrain);
-					if (!terrain->m_bNavigation)
+					if (!terrain)
 					{
+						TRACE("OnToolsBuildnavigation: invalid terrain component");
 						continue;
 					}
 					D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
+					const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);
 					for (int i = 0; i < terrain->m_RowChunks; i++)
 					{
 						for (int j = 0; j < terrain->m_ColChunks; j++)
 						{
 							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
-							const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);
 							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
 							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
 							{
@@ -1144,11 +1170,13 @@ void CMainFrame::OnToolsBuildnavigation()
 
 								rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
 							}
-							terrain->m_vb.Unlock();
 							const_cast<my::IndexBuffer&>(frag.ib).Unlock();
 						}
 					}
+					terrain->m_vb.Unlock();
 					terrain->m_HeightMap.UnlockRect(0);
+					break;
+				}
 				}
 			}
 		}
