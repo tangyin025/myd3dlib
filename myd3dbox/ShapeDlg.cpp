@@ -19,6 +19,7 @@ CShapeDlg::CShapeDlg(CWnd* pParent, Component * m_cmp, int type)
 	, m_pos(0,0,0)
 	, m_angle(0, 0, 0)
 	, m_param(1,1,1)
+	, m_InflateConvex(FALSE)
 {
 
 }
@@ -40,6 +41,7 @@ void CShapeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT7, m_param.x);
 	DDX_Text(pDX, IDC_EDIT8, m_param.y);
 	DDX_Text(pDX, IDC_EDIT9, m_param.z);
+	DDX_Check(pDX, IDC_CHECK1, m_InflateConvex);
 }
 
 
@@ -81,7 +83,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateConvexMeshShape();
+			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:

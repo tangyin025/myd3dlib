@@ -25,4 +25,6 @@ protected:
 	my::Vector3 m_angle;
 	my::Vector3 m_param;
 	virtual void OnOK();
+public:
+	BOOL m_InflateConvex;
 };

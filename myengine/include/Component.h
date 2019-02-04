@@ -216,7 +216,7 @@ public:
 
 	void CreateTriangleMeshShape(void);
 
-	void CreateConvexMeshShape(void);
+	void CreateConvexMeshShape(bool bInflateConvex);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

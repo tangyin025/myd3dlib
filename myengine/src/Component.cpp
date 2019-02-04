@@ -459,7 +459,7 @@ void MeshComponent::CreateTriangleMeshShape(void)
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void MeshComponent::CreateConvexMeshShape(void)
+void MeshComponent::CreateConvexMeshShape(bool bInflateConvex)
 {
 	_ASSERT(!m_PxShape);
 
@@ -486,6 +486,10 @@ void MeshComponent::CreateConvexMeshShape(void)
 	}
 
 	key += "convex";
+	if (bInflateConvex)
+	{
+		key += "inflate";
+	}
 	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
 	PhysXSceneContext::PxObjectMap::iterator collection_obj_iter = PhysXSceneContext::getSingleton().m_CollectionObjs.find(key);
 	if (collection_obj_iter != PhysXSceneContext::getSingleton().m_CollectionObjs.end())
@@ -498,7 +502,11 @@ void MeshComponent::CreateConvexMeshShape(void)
 		desc.points.count = m_Mesh->GetNumVertices();
 		desc.points.stride = m_Mesh->GetNumBytesPerVertex();
 		desc.points.data = m_Mesh->LockVertexBuffer();
-		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eINFLATE_CONVEX;
+		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
+		if (bInflateConvex)
+		{
+			desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
+		}
 		desc.vertexLimit = 256;
 		physx::PxDefaultMemoryOutputStream writeBuffer;
 		bool status = PhysXContext::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
