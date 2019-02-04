@@ -149,8 +149,6 @@ public:
 
 	bool m_bUseAnimation;
 
-	bool m_bNavigation;
-
 	MaterialPtrList m_MaterialList;
 
 	D3DXHANDLE technique_RenderScene;
@@ -164,7 +162,6 @@ public:
 		: Component(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
-		, m_bNavigation(false)
 		, technique_RenderScene(NULL)
 		, handle_World(NULL)
 		, handle_dualquat(NULL)

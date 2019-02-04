@@ -87,7 +87,6 @@ protected:
 		PropertyMeshResPath,
 		PropertyMeshInstance,
 		PropertyMeshUseAnimation,
-		PropertyMeshNavigation,
 		PropertyMaterialList,
 		PropertyMaterial,
 		PropertyMaterialShader,
@@ -154,7 +153,6 @@ protected:
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,
 		PropertyTerrainHeightScale,
-		PropertyTerrainNavigation,
 		PropertyTerrainHeightMap,
 		PropertyCount
 	};

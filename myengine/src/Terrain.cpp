@@ -134,7 +134,6 @@ Terrain::Terrain(void)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
 	, m_HeightScale(1)
-	, m_bNavigation(false)
 	, technique_RenderScene(NULL)
 	, handle_World(NULL)
 	, handle_HeightScale(NULL)
@@ -154,7 +153,6 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_ChunkSize(ChunkSize)
 	, m_VertexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_HeightScale(HeightScale)
-	, m_bNavigation(false)
 	, m_Root(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
 	, technique_RenderScene(NULL)
@@ -543,7 +541,6 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
 	const DWORD BufferSize = m_RowChunks * m_ChunkSize * m_ColChunks * m_ChunkSize;
 	std::vector<unsigned char> buff(BufferSize);
 	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, D3DLOCK_READONLY, 0);
@@ -566,7 +563,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_VertexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_bNavigation);
 	CreateHeightMap();
 	const DWORD BufferSize = m_RowChunks * m_ChunkSize * m_ColChunks * m_ChunkSize;
 	std::vector<unsigned char> buff(BufferSize);

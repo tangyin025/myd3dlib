@@ -209,7 +209,6 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-	ar << BOOST_SERIALIZATION_NVP(m_bNavigation);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
@@ -220,7 +219,6 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-	ar >> BOOST_SERIALIZATION_NVP(m_bNavigation);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
@@ -230,7 +228,6 @@ void MeshComponent::CopyFrom(const MeshComponent & rhs)
 	m_MeshPath = rhs.m_MeshPath;
 	m_bInstance = rhs.m_bInstance;
 	m_bUseAnimation = rhs.m_bUseAnimation;
-	m_bNavigation = rhs.m_bNavigation;
 	m_MaterialList.resize(rhs.m_MaterialList.size());
 	for (unsigned int i = 0; i < rhs.m_MaterialList.size(); i++)
 	{

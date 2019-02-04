@@ -92,8 +92,6 @@ public:
 
 	FragmentMap m_Fragment;
 
-	bool m_bNavigation;
-
 	my::OctRoot m_Root;
 
 	typedef boost::multi_array<TerrainChunk *, 2> ChunkArray2D;

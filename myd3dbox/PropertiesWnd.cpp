@@ -298,8 +298,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshPath).c_str());
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bNavigation);
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 4);
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 3);
 	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
@@ -523,10 +522,9 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ColChunks);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_bNavigation);
-	pComponent->GetSubItem(PropId + 5);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), terrain->m_GrassMaterial.get());
+	pComponent->GetSubItem(PropId + 4);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_GrassMaterial.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -651,8 +649,6 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("UseAnimation"), (_variant_t)mesh_cmp->m_bUseAnimation, NULL, PropertyMeshUseAnimation);
-	pComponent->AddSubItem(pProp);
-	pProp = new CCheckBoxProp(_T("Navigation"), (_variant_t)mesh_cmp->m_bNavigation, NULL, PropertyMeshNavigation);
 	pComponent->AddSubItem(pProp);
 	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
 	pComponent->AddSubItem(pProp);
@@ -914,8 +910,6 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("HeightScale"), (_variant_t)terrain->m_HeightScale, NULL, PropertyTerrainHeightScale);
 	pComponent->AddSubItem(pProp);
-	pProp = new CCheckBoxProp(_T("Navigation"), (_variant_t)terrain->m_bNavigation, NULL, PropertyTerrainNavigation);
-	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
@@ -953,7 +947,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeStaticEmitter:
@@ -961,7 +955,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 16;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -1368,14 +1362,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyMeshNavigation:
-	{
-		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-		mesh_cmp->m_bNavigation = pProp->GetValue().boolVal != 0;
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
 	case PropertyMaterialShader:
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
@@ -1691,14 +1677,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyTerrainNavigation:
-	{
-		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-		terrain->m_bNavigation = pProp->GetValue().boolVal != 0;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
