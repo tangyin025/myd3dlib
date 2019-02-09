@@ -18,6 +18,7 @@
 
 class CMainFrame : public CFrameWndEx
 	, public PhysXSceneContext
+	, public ViewedActorMgr
 	, public rcContext
 {
 	

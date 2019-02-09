@@ -5,6 +5,7 @@
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <boost/array.hpp>
 #include <boost/function.hpp>
+#include <boost/unordered_map.hpp>
 #include <vector>
 
 namespace my
@@ -31,6 +32,8 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 		}
+
+		const AABB & GetOctAABB(void) const;
 	};
 
 	typedef boost::shared_ptr<OctActor> OctActorPtr;
@@ -54,7 +57,7 @@ namespace my
 
 		Vector3 m_Half;
 
-		typedef std::map<OctActorPtr, AABB> OctActorMap;
+		typedef boost::unordered_map<OctActorPtr, AABB> OctActorMap;
 
 		OctActorMap m_Actors;
 

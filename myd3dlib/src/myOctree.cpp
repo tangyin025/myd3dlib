@@ -16,6 +16,17 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(OctActor)
 
+const AABB & OctActor::GetOctAABB(void) const
+{
+	_ASSERT(m_Node);
+
+	OctNode::OctActorMap::const_iterator actor_iter = m_Node->m_Actors.find(boost::const_pointer_cast<OctActor>(shared_from_this()));
+
+	_ASSERT(actor_iter != m_Node->m_Actors.end());
+
+	return actor_iter->second;
+}
+
 const float OctNode::THRESHOLD = 0.1f;
 
 const float OctNode::MIN_BLOCK = 1.0f;

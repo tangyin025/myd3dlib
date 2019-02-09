@@ -632,60 +632,21 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	struct Callback : public my::OctNode::QueryCallback
+	const my::Vector3 & TargetPos = m_TargetActor ? m_TargetActor->m_Position : m_Camera->m_Eye;
+
+	ViewedActorMgr::CheckViewedActor(m_Root, this, AABB(TargetPos, 1000.0f), AABB(TargetPos, 1000.0f));
+
+	ViewedActorMgr::WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
+	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
 	{
-		float fElapsedTime;
-		WeakActorMap & ViewedActors;
-		typedef std::vector<WeakActorMap::value_type> WeakActorList;
-		WeakActorList actor_list;
-		Callback(float _fElapsedTime, WeakActorMap & _ViewedActors)
-			: fElapsedTime(_fElapsedTime)
-			, ViewedActors(_ViewedActors)
-		{
-		}
-		void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			Game::WeakActorMap::const_iterator actor_iter = ViewedActors.find(actor);
-			if (actor_iter != ViewedActors.end())
-			{
-				ViewedActors.erase(actor);
-			}
-			else
-			{
-				_ASSERT(!actor->IsRequested());
-				actor->RequestResource();
-				actor->OnEnterPxScene(Game::getSingletonPtr());
-			}
-			actor_list.push_back(std::make_pair(actor, boost::static_pointer_cast<Actor>(actor->shared_from_this())));
-		}
-	};
-	Callback cb(fElapsedTime, m_ViewedActors);
-	m_Root.QueryActor(my::AABB(-1000, 1000), &cb);
-	WeakActorMap::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
-	{
-		ActorPtr actor = actor_iter->second.lock();
-		if (actor)
-		{
-			_ASSERT(actor->IsRequested());
-			actor->OnLeavePxScene(this);
-			actor->ReleaseResource();
-		}
-	}
-	m_ViewedActors.clear();
-	Callback::WeakActorList::iterator weak_act_iter = cb.actor_list.begin();
-	for (; weak_act_iter != cb.actor_list.end(); weak_act_iter++)
-	{
-		ActorPtr actor = weak_act_iter->second.lock();
+		// ! Actor::Update will change other actors scope, event if octree node
+		ActorPtr actor = weak_actor_iter->second.lock();
 		if (actor)
 		{
 			if (!actor->m_Base)
 			{
-				actor->Update(fElapsedTime); // ! will change other actors scope, event if octree node
+				actor->Update(fElapsedTime);
 			}
-			m_ViewedActors.insert(std::make_pair(actor.get(), actor));
 		}
 	}
 
@@ -787,11 +748,11 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
-	if(lr || *pbNoFurtherProcessing)
-	{
-		return lr;
-	}
+	//LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+	//if(lr || *pbNoFurtherProcessing)
+	//{
+	//	return lr;
+	//}
 	return 0;
 }
 
@@ -843,7 +804,10 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
-	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_TargetActor ? m_TargetActor->m_Position : m_Camera->m_Eye));
+
+	const my::Vector3 & TargetPos = m_TargetActor ? m_TargetActor->m_Position : m_Camera->m_Eye;
+
+	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, TargetPos));
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)

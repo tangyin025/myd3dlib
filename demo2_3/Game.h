@@ -21,6 +21,7 @@ class Game
 	, public RenderPipeline::IRenderContext
 	, public PhysXContext
 	, public PhysXSceneContext
+	, public ViewedActorMgr
 	, public FModContext
 {
 public:
@@ -31,10 +32,6 @@ public:
 	ConsolePtr m_Console;
 
 	my::OctRoot m_Root;
-
-	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
-
-	WeakActorMap m_ViewedActors;
 
 	Actor * m_TargetActor;
 

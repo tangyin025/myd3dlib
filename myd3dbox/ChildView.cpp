@@ -193,11 +193,6 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
-			if (!actor->IsRequested())
-			{
-				actor->RequestResource();
-				actor->OnEnterPxScene(pFrame);
-			}
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
@@ -1260,6 +1255,8 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		{
 			m_Camera->UpdateViewProj();
 			StartPerformanceCount();
+			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+			pFrame->CheckViewedActor(pFrame->m_Root, pFrame, my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
 			Invalidate();
 			break;
 		}

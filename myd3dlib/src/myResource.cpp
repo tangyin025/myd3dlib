@@ -612,6 +612,8 @@ std::string ResourceMgr::GetResourceKey(DeviceResourceBasePtr res) const
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request)
 {
+	_ASSERT(!key.empty());
+
 	DeviceResourceBasePtr res = GetResource(key);
 	if (res)
 	{

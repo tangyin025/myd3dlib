@@ -2801,6 +2801,13 @@ namespace my
 		{
 		}
 
+		AABB(const Vector3 & center, float radius)
+			: m_min(center.x - radius, center.y - radius, center.z - radius)
+			, m_max(center.x + radius, center.y + radius, center.z + radius)
+		{
+			_ASSERT(radius >= 0);
+		}
+
 		static AABB Invalid(void)
 		{
 			return AABB(FLT_MAX, -FLT_MAX);

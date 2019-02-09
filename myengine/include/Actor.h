@@ -205,3 +205,14 @@ public:
 
 	virtual void Update(float fElapsedTime);
 };
+
+class ViewedActorMgr
+{
+public:
+	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
+
+	WeakActorMap m_ViewedActors;
+
+public:
+	void CheckViewedActor(const my::OctRoot & Root, PhysXSceneContext * scene, const my::AABB & In, const my::AABB & Out);
+};
