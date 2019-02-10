@@ -107,6 +107,7 @@ protected:
 	void OnSelectionPlaying(EventArgs * arg);
 	void OnPivotModeChanged(EventArgs * arg);
 	void OnCmpAttriChanged(EventArgs * arg);
+	void OnCameraPropChanged(EventArgs * arg);
 
 	virtual void depthMask(bool state);
 	virtual void texture(bool state);

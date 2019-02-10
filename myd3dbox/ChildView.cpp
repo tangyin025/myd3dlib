@@ -785,6 +785,11 @@ void CChildView::OnCmpAttriChanged(EventArgs * arg)
 	Invalidate();
 }
 
+void CChildView::OnCameraPropChanged(EventArgs * arg)
+{
+	Invalidate();
+}
+
 void CChildView::depthMask(bool state)
 {
 }
@@ -1012,6 +1017,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.connect(boost::bind(&CChildView::OnCameraPropChanged, this, _1));
 	return 0;
 }
 
@@ -1024,6 +1030,7 @@ void CChildView::OnDestroy()
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.disconnect(boost::bind(&CChildView::OnCameraPropChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -1256,7 +1263,8 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 			m_Camera->UpdateViewProj();
 			StartPerformanceCount();
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-			pFrame->CheckViewedActor(pFrame->m_Root, pFrame, my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
+			pFrame->CheckViewedActor(pFrame->m_Root, pFrame,
+				my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
 			Invalidate();
 			break;
 		}

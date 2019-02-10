@@ -5,7 +5,7 @@
 
 class Controller
 {
-protected:
+public:
 	friend class Actor;
 
 	Actor * m_Actor;

@@ -485,6 +485,11 @@ HRESULT Game::OnCreateDevice(
 
 	ExecuteCode(m_InitScript.c_str());
 
+	if (!PlayerController::getSingletonPtr())
+	{
+		THROW_CUSEXCEPTION("Error: PlayerController must be created by script");
+	}
+
 	DialogMgr::InsertDlg(m_Console);
 
 	m_EventLog("Game::OnCreateDevice");
@@ -632,9 +637,9 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	const my::Vector3 & TargetPos = m_TargetActor ? m_TargetActor->m_Position : m_Camera->m_Eye;
-
-	ViewedActorMgr::CheckViewedActor(m_Root, this, AABB(TargetPos, 1000.0f), AABB(TargetPos, 1000.0f));
+	ViewedActorMgr::CheckViewedActor(m_Root, this,
+		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f),
+		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
 
 	ViewedActorMgr::WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
 	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
@@ -805,9 +810,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		}
 	};
 
-	const my::Vector3 & TargetPos = m_TargetActor ? m_TargetActor->m_Position : m_Camera->m_Eye;
-
-	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, TargetPos));
+	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
