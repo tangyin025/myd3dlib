@@ -201,35 +201,42 @@ public:
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
 
-class AnimationNodeSlot : public AnimationNodeSequence
+class AnimationNodeSlot : public AnimationNode
 {
 public:
-	bool m_Playing;
+	struct Sequence
+	{
+	public:
+		float m_Time;
 
-	bool m_Loop;
+		float m_Rate;
 
-	float m_BlendTime;
+		float m_Weight;
 
-	float m_Weight;
+		std::string m_Name;
+
+		std::string m_Root;
+
+		bool m_Loop;
+
+		float m_BlendTime;
+
+		float m_TargetWeight;
+	};
+
+	typedef std::vector<Sequence> SequenceList;
+
+	SequenceList m_SeqSlot;
 
 protected:
 	AnimationNodeSlot(void)
-		: m_Playing(false)
-		, m_Loop(false)
-		, m_BlendTime(0)
-		, m_Weight(0)
 	{
 	}
 
 public:
 	AnimationNodeSlot(Animator * Owner)
-		: AnimationNodeSequence(Owner)
-		, m_Playing(false)
-		, m_Loop(false)
-		, m_BlendTime(0)
-		, m_Weight(0)
+		: AnimationNode(Owner, 1)
 	{
-		m_Childs.resize(1);
 	}
 
 	friend class boost::serialization::access;
@@ -237,15 +244,14 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSequence);
-		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual void Advance(float fElapsedTime);
 
-	void Play(const std::string & Name, bool Loop = false, float Rate = 1.0f);
+	void Play(const std::string & Name, const std::string & Root, bool Loop = false, float Rate = 1.0f);
 
 	void Stop(void);
 

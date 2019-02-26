@@ -1068,7 +1068,7 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Root", &AnimationNodeSequence::m_Root)
 			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 
-		, class_<AnimationNodeSlot, AnimationNodeSequence, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
+		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<Animator *>())
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)

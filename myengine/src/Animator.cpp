@@ -249,88 +249,110 @@ BOOST_CLASS_EXPORT(AnimationNodeSlot)
 
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
-	float TargetWeight = m_Playing ? 1.0f : 0.0f;
-	if (m_BlendTime < fElapsedTime)
+	SequenceList::iterator seq_iter = m_SeqSlot.begin();
+	for (; seq_iter != m_SeqSlot.end(); seq_iter++)
 	{
-		m_Weight = TargetWeight;
-		m_BlendTime = 0;
-	}
-	else if (m_BlendTime > 0)
-	{
-		const float delta = TargetWeight - m_Weight;
-		m_Weight += delta * fElapsedTime / m_BlendTime;
-		m_BlendTime -= fElapsedTime;
+		if (seq_iter->m_BlendTime < fElapsedTime)
+		{
+			seq_iter->m_Weight = seq_iter->m_TargetWeight;
+			seq_iter->m_BlendTime = 0;
+		}
+		else
+		{
+			const float delta = seq_iter->m_TargetWeight - seq_iter->m_Weight;
+			seq_iter->m_Weight += delta * fElapsedTime / seq_iter->m_BlendTime;
+			seq_iter->m_BlendTime -= fElapsedTime;
+		}
+
+		fTotalWeight *= 1 - seq_iter->m_TargetWeight;
 	}
 
 	if (m_Childs[0])
 	{
-		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - TargetWeight));
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 	}
 
-	AnimationNodeSequence::Tick(fElapsedTime, fTotalWeight * TargetWeight);
+	Advance(fElapsedTime);
 }
 
 void AnimationNodeSlot::Advance(float fElapsedTime)
 {
-	if (m_Playing)
+	if (m_Owner->m_Skeleton)
 	{
-		if (m_Time < GetLength())
+		SequenceList::iterator seq_iter = m_SeqSlot.begin();
+		while (seq_iter != m_SeqSlot.end())
 		{
-			m_Time += fElapsedTime * m_Rate;
-		}
-		else if (m_Loop)
-		{
-			m_Time = 0;
-		}
-		else
-		{
-			m_Playing = false;
-			m_BlendTime = 0.3f;
+			const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(seq_iter->m_Name);
+
+			float Length = anim ? anim->GetTime() : 0;
+
+			seq_iter->m_Time += fElapsedTime * seq_iter->m_Rate;
+
+			if (seq_iter->m_Time > Length)
+			{
+				if (seq_iter->m_Loop)
+				{
+					seq_iter->m_Time -= Length;
+				}
+				else if (seq_iter->m_TargetWeight > 0)
+				{
+					seq_iter->m_TargetWeight = 0;
+					seq_iter->m_BlendTime = 0.3f;
+				}
+				else if (seq_iter->m_BlendTime < fElapsedTime)
+				{
+					seq_iter = m_SeqSlot.erase(seq_iter);
+					continue;
+				}
+			}
+			seq_iter++;
 		}
 	}
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, bool Loop, float Rate)
+void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, bool Loop, float Rate)
 {
-	m_Time = 0;
-	m_Rate = Rate;
-	m_Name = Name;
-	m_Playing = true;
-	m_BlendTime = 0.3f;
-	m_Loop = Loop;
+	Sequence seq;
+	seq.m_Time = 0;
+	seq.m_Rate = Rate;
+	seq.m_Weight = 0;
+	seq.m_Name = Name;
+	seq.m_Root = Root;
+	seq.m_Loop = Loop;
+	seq.m_BlendTime = 0.3f;
+	seq.m_TargetWeight = 1.0f;
+	m_SeqSlot.insert(m_SeqSlot.begin(), seq);
 }
 
 void AnimationNodeSlot::Stop(void)
 {
-	m_Playing = false;
-	m_BlendTime = 0.3f;
+	m_SeqSlot.clear();
 }
 
 my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 {
-	if (m_Weight <= 0.0f)
-	{
-		if (m_Childs[0])
-		{
-			return m_Childs[0]->GetPose(pose);
-		}
-		return pose;
-	}
-
-	if (m_Weight >= 1.0f)
-	{
-		return AnimationNodeSequence::GetPose(pose);
-	}
-
 	if (m_Childs[0])
 	{
 		m_Childs[0]->GetPose(pose);
 	}
-	my::BoneList OtherPose(pose.size());
-	AnimationNodeSequence::GetPose(OtherPose);
-	for (unsigned int i = 0; i < pose.size(); i++)
+
+	if (m_Owner->m_Skeleton)
 	{
-		pose[i].LerpSelf(OtherPose[i], m_Weight);
+		SequenceList::const_reverse_iterator seq_iter = m_SeqSlot.rbegin();
+		for (; seq_iter != m_SeqSlot.rend(); seq_iter++)
+		{
+			const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(seq_iter->m_Name);
+			if (anim)
+			{
+				boost::unordered_map<std::string, int>::const_iterator root_iter = m_Owner->m_Skeleton->m_boneNameMap.find(seq_iter->m_Root);
+				if (root_iter != m_Owner->m_Skeleton->m_boneNameMap.end())
+				{
+					my::BoneList other(pose.size());
+					anim->GetPose(other, m_Owner->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Time);
+					pose.LerpSelf(other, m_Owner->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Weight);
+				}
+			}
+		}
 	}
 	return pose;
 }
