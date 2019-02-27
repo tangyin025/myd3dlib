@@ -249,8 +249,8 @@ BOOST_CLASS_EXPORT(AnimationNodeSlot)
 
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
-	SequenceList::iterator seq_iter = m_SeqSlot.begin();
-	for (; seq_iter != m_SeqSlot.end(); seq_iter++)
+	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
 		if (seq_iter->m_BlendTime < fElapsedTime)
 		{
@@ -279,10 +279,16 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 {
 	if (m_Owner->m_Skeleton)
 	{
-		SequenceList::iterator seq_iter = m_SeqSlot.begin();
-		while (seq_iter != m_SeqSlot.end())
+		SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+		while (seq_iter != m_SequenceSlot.end())
 		{
 			const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(seq_iter->m_Name);
+
+			if (seq_iter->m_TargetWeight <= 0 && seq_iter->m_BlendTime < fElapsedTime)
+			{
+				seq_iter = m_SequenceSlot.erase(seq_iter);
+				continue;
+			}
 
 			float Length = anim ? anim->GetTime() : 0;
 
@@ -297,12 +303,7 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 				else if (seq_iter->m_TargetWeight > 0)
 				{
 					seq_iter->m_TargetWeight = 0;
-					seq_iter->m_BlendTime = 0.3f;
-				}
-				else if (seq_iter->m_BlendTime < fElapsedTime)
-				{
-					seq_iter = m_SeqSlot.erase(seq_iter);
-					continue;
+					seq_iter->m_BlendTime = m_BlendOutTime;
 				}
 			}
 			seq_iter++;
@@ -319,14 +320,30 @@ void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root,
 	seq.m_Name = Name;
 	seq.m_Root = Root;
 	seq.m_Loop = Loop;
-	seq.m_BlendTime = 0.3f;
+	seq.m_BlendTime = m_BlendInTime;
 	seq.m_TargetWeight = 1.0f;
-	m_SeqSlot.insert(m_SeqSlot.begin(), seq);
+	m_SequenceSlot.insert(m_SequenceSlot.begin(), seq);
+
+	StopFrom(m_SequenceSlot.begin() + 1);
+}
+
+void AnimationNodeSlot::StopFrom(SequenceList::iterator seq_iter)
+{
+	while (seq_iter != m_SequenceSlot.end())
+	{
+		if (seq_iter->m_Loop || seq_iter->m_TargetWeight > 0)
+		{
+			seq_iter->m_Loop = false;
+			seq_iter->m_TargetWeight = 0;
+			seq_iter->m_BlendTime = m_BlendOutTime;
+		}
+		seq_iter++;
+	}
 }
 
 void AnimationNodeSlot::Stop(void)
 {
-	m_SeqSlot.clear();
+	StopFrom(m_SequenceSlot.begin());
 }
 
 my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
@@ -338,8 +355,8 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 
 	if (m_Owner->m_Skeleton)
 	{
-		SequenceList::const_reverse_iterator seq_iter = m_SeqSlot.rbegin();
-		for (; seq_iter != m_SeqSlot.rend(); seq_iter++)
+		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
+		for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
 		{
 			const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(seq_iter->m_Name);
 			if (anim)
@@ -440,14 +457,14 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 		{
 			if (m_ActiveChild != 0)
 			{
-				SetActiveChild(0, 0.3f);
+				SetActiveChild(0, m_BlendInTime);
 			}
 		}
 		else
 		{
 			if (m_ActiveChild != 1)
 			{
-				SetActiveChild(1, 0.3f);
+				SetActiveChild(1, m_BlendInTime);
 			}
 		}
 	}

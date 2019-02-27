@@ -1070,17 +1070,19 @@ static void ExportComponent(lua_State * L)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<Animator *>())
+			.def_readwrite("BlendInTime", &AnimationNodeSlot::m_BlendInTime)
+			.def_readwrite("BlendOutTime", &AnimationNodeSlot::m_BlendOutTime)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)
 
 		, class_<AnimationNodeBlend, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlend")
 			.def(constructor<Animator *>())
-			.def_readwrite("BlendTime", &AnimationNodeBlend::m_BlendTime)
 			.def_readwrite("ActiveChild", &AnimationNodeBlend::m_ActiveChild)
 
 		, class_<AnimationNodeBlendBySpeed, AnimationNodeBlend, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendBySpeed")
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeBlendBySpeed::m_Speed0)
+			.def_readwrite("BlendInTime", &AnimationNodeBlendBySpeed::m_BlendInTime)
 
 		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
 			.def(constructor<Animator *>())

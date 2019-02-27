@@ -226,16 +226,24 @@ public:
 
 	typedef std::vector<Sequence> SequenceList;
 
-	SequenceList m_SeqSlot;
+	SequenceList m_SequenceSlot;
+
+	float m_BlendInTime;
+
+	float m_BlendOutTime;
 
 protected:
 	AnimationNodeSlot(void)
+		: m_BlendInTime(0.3f)
+		, m_BlendOutTime(0.3f)
 	{
 	}
 
 public:
 	AnimationNodeSlot(Animator * Owner)
 		: AnimationNode(Owner, 1)
+		, m_BlendInTime(0.3f)
+		, m_BlendOutTime(0.3f)
 	{
 	}
 
@@ -245,6 +253,8 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_BlendInTime);
+		ar & BOOST_SERIALIZATION_NVP(m_BlendOutTime);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
@@ -252,6 +262,8 @@ public:
 	virtual void Advance(float fElapsedTime);
 
 	void Play(const std::string & Name, const std::string & Root, bool Loop = false, float Rate = 1.0f);
+
+	void StopFrom(SequenceList::iterator seq_iter);
 
 	void Stop(void);
 
@@ -318,9 +330,12 @@ class AnimationNodeBlendBySpeed : public AnimationNodeBlend
 public:
 	float m_Speed0;
 
+	float m_BlendInTime;
+
 protected:
 	AnimationNodeBlendBySpeed(void)
 		: m_Speed0(0.1f)
+		, m_BlendInTime(0.3f)
 	{
 	}
 
@@ -328,6 +343,7 @@ public:
 	AnimationNodeBlendBySpeed(Animator * Owner)
 		: AnimationNodeBlend(Owner)
 		, m_Speed0(0.1f)
+		, m_BlendInTime(0.3f)
 	{
 	}
 
