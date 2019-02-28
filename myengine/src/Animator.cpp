@@ -8,6 +8,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/bind.hpp>
 
 using namespace my;
 
@@ -311,7 +313,7 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 	}
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, bool Loop, float Rate)
+void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, int Priority, bool Loop, bool StopBehind, float Rate)
 {
 	Sequence seq;
 	seq.m_Time = 0;
@@ -319,12 +321,18 @@ void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root,
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
 	seq.m_Root = Root;
+	seq.m_Priority = Priority;
 	seq.m_Loop = Loop;
 	seq.m_BlendTime = m_BlendInTime;
 	seq.m_TargetWeight = 1.0f;
-	m_SequenceSlot.insert(m_SequenceSlot.begin(), seq);
+	SequenceList::iterator seq_iter = std::lower_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), seq,
+		boost::bind(std::greater<int>(), boost::bind(&Sequence::m_Priority, _1), seq.m_Priority));
+	seq_iter = m_SequenceSlot.insert(seq_iter, seq);
 
-	StopFrom(m_SequenceSlot.begin() + 1);
+	if (StopBehind)
+	{
+		StopFrom(seq_iter + 1);
+	}
 }
 
 void AnimationNodeSlot::StopFrom(SequenceList::iterator seq_iter)

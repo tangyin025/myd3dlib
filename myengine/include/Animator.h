@@ -217,6 +217,8 @@ public:
 
 		std::string m_Root;
 
+		int m_Priority;
+
 		bool m_Loop;
 
 		float m_BlendTime;
@@ -261,7 +263,7 @@ public:
 
 	virtual void Advance(float fElapsedTime);
 
-	void Play(const std::string & Name, const std::string & Root, bool Loop = false, float Rate = 1.0f);
+	void Play(const std::string & Name, const std::string & Root, int Priority, bool Loop = false, bool StopBehind = true, float Rate = 1.0f);
 
 	void StopFrom(SequenceList::iterator seq_iter);
 
