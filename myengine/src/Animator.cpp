@@ -313,7 +313,7 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 	}
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, int Priority, bool Loop, bool StopBehind, float Rate)
+void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, int Priority, bool Loop /*= false*/, bool StopBehind /*= true*/, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
 {
 	Sequence seq;
 	seq.m_Time = 0;
@@ -324,7 +324,7 @@ void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root,
 	seq.m_Priority = Priority;
 	seq.m_Loop = Loop;
 	seq.m_BlendTime = m_BlendInTime;
-	seq.m_TargetWeight = 1.0f;
+	seq.m_TargetWeight = Weight;
 	SequenceList::iterator seq_iter = std::lower_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), seq,
 		boost::bind(std::greater<int>(), boost::bind(&Sequence::m_Priority, _1), seq.m_Priority));
 	seq_iter = m_SequenceSlot.insert(seq_iter, seq);
