@@ -182,10 +182,10 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 
 Terrain::~Terrain(void)
 {
-	//m_HeightMap.OnDestroyDevice();
-	//_ASSERT(!m_Decl);
-	//_ASSERT(!m_vb.m_ptr);
-	//m_Root.ClearAllActor();
+	m_HeightMap.OnDestroyDevice();
+	m_Decl.Release();
+	m_vb.OnDestroyDevice();
+	m_Root.ClearAllActor();
 }
 
 static int Quad(int v)

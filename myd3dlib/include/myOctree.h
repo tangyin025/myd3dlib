@@ -25,7 +25,7 @@ namespace my
 
 		virtual ~OctActor(void)
 		{
-			//_ASSERT(!m_Node);
+			_ASSERT(!m_Node);
 		}
 
 		template<class Archive>
