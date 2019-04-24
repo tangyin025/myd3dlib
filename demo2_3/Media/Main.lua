@@ -142,8 +142,8 @@ player.Animator=anim
 -- 创建控制器
 player.Controller=PlayerController(player)
 
--- 在角色手部绑定物体
-local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+-- 创建一个物理球
+local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert3=Material()
 lambert3.Shader="shader/lambert1.fx"
 lambert3.PassMask=Material.PassMaskOpaque
@@ -151,41 +151,41 @@ lambert3:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert3:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert3:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent()
-cmp2.MeshPath="mesh/Cylinder.mesh.xml"
-cmp2.MeshEventReady=function(args)
-	cmp2.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
+cmp2.MeshPath="mesh/Sphere.mesh.xml"
+cmp2:AddMaterial(lambert3)
+actor4:AddComponent(cmp2)
+actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
+actor4:UpdateWorld()
+game.Root:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
+
+-- 在角色手部绑定物体
+local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local cmp3=MeshComponent()
+cmp3.MeshPath="mesh/Cylinder.mesh.xml"
+cmp3.MeshEventReady=function(args)
+	cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
 		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 end
-cmp2:AddMaterial(lambert3)
-actor2:AddComponent(cmp2)
+cmp3:AddMaterial(lambert3)
+actor2:AddComponent(cmp3)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp2:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
 game.Root:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
 player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
 local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp3=MeshComponent()
-cmp3.MeshPath="mesh/Cylinder.mesh.xml"
-cmp3:AddMaterial(lambert3)
-actor3:AddComponent(cmp3)
+local cmp4=MeshComponent()
+cmp4.MeshPath="mesh/Cylinder.mesh.xml"
+cmp4:AddMaterial(lambert3)
+actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
 game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
 player:Attach(actor3, 29)
-
--- 创建一个物理球
-local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp4=MeshComponent()
-cmp4.MeshPath="mesh/Sphere.mesh.xml"
-cmp4:AddMaterial(lambert3)
-actor4:AddComponent(cmp4)
-actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp4:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
-actor4:UpdateWorld()
-game.Root:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
 -- -- 特殊渲染选项
 -- game.SsaoEnable=true
