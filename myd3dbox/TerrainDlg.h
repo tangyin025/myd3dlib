@@ -22,6 +22,7 @@ public:
 	int m_RowChunks;
 	int m_ColChunks;
 	int m_ChunkSize;
+	my::Vector2 m_UvRepeat;
 	CString m_DiffuseTexture;
 	CString m_NormalTexture;
 	CString m_SpecularTexture;

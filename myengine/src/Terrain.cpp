@@ -30,6 +30,7 @@ TerrainChunk::TerrainChunk(void)
 	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_Row(0)
 	, m_Col(0)
+	, m_UvRepeat(1, 1)
 {
 	m_aabb = AABB::Invalid();
 }
@@ -39,6 +40,7 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 	, Emitter(PARTICLE_INSTANCE_MAX)
 	, m_Row(Row)
 	, m_Col(Col)
+	, m_UvRepeat(1, 1)
 {
 	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Owner->m_ChunkSize), (m_Col + 0) * (Owner->m_ChunkSize));
@@ -57,6 +59,7 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
+	ar << BOOST_SERIALIZATION_NVP(m_UvRepeat);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	ar << BOOST_SERIALIZATION_NVP(m_ParticleList);
 }
@@ -68,6 +71,7 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
+	ar >> BOOST_SERIALIZATION_NVP(m_UvRepeat);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParticleList);
 }
@@ -140,6 +144,7 @@ Terrain::Terrain(void)
 	, handle_HeightTexSize(NULL)
 	, handle_ChunkId(NULL)
 	, handle_ChunkSize(NULL)
+	, handle_UvRepeat(NULL)
 	, handle_HeightTexture(NULL)
 	, technique_emitter_RenderScene(NULL)
 	, handle_emitter_World(NULL)
@@ -162,6 +167,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, handle_HeightTexSize(NULL)
 	, handle_ChunkId(NULL)
 	, handle_ChunkSize(NULL)
+	, handle_UvRepeat(NULL)
 	, handle_HeightTexture(NULL)
 	, technique_emitter_RenderScene(NULL)
 	, handle_emitter_World(NULL)
@@ -658,6 +664,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 		int ChunkId[2] = { GetRValue(lparam), GetGValue(lparam) };
 		shader->SetIntArray(handle_ChunkId, ChunkId, 2);
 		shader->SetInt(handle_ChunkSize, m_ChunkSize);
+		shader->SetVector(handle_UvRepeat, m_Chunks[ChunkId[0]][ChunkId[1]]->m_UvRepeat);
 		shader->SetTexture(handle_HeightTexture, &m_HeightMap);
 		break;
 	}
@@ -681,6 +688,7 @@ void Terrain::OnShaderChanged(void)
 	handle_HeightTexSize = NULL;
 	handle_ChunkId = NULL;
 	handle_ChunkSize = NULL;
+	handle_UvRepeat = NULL;
 	handle_HeightTexture = NULL;
 	technique_emitter_RenderScene = NULL;
 	handle_emitter_World = NULL;
@@ -774,6 +782,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							BOOST_VERIFY(terrain->handle_HeightTexSize = shader->GetParameterByName(NULL, "g_HeightTexSize"));
 							BOOST_VERIFY(terrain->handle_ChunkId = shader->GetParameterByName(NULL, "g_ChunkId"));
 							BOOST_VERIFY(terrain->handle_ChunkSize = shader->GetParameterByName(NULL, "g_ChunkSize"));
+							BOOST_VERIFY(terrain->handle_UvRepeat = shader->GetParameterByName(NULL, "g_UvRepeat"));
 							BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
 						}
 

@@ -20,6 +20,8 @@ public:
 
 	int m_Col;
 
+	my::Vector2 m_UvRepeat;
+
 	MaterialPtr m_Material;
 
 protected:
@@ -113,6 +115,8 @@ public:
 	D3DXHANDLE handle_ChunkId;
 
 	D3DXHANDLE handle_ChunkSize;
+
+	D3DXHANDLE handle_UvRepeat;
 
 	D3DXHANDLE handle_HeightTexture;
 

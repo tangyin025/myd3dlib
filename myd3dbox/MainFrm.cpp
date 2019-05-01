@@ -877,6 +877,9 @@ void CMainFrame::OnComponentTerrain()
 	{
 		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
 		{
+			TerrainChunk * chunk = terrain->m_Chunks[i][j];
+			chunk->m_UvRepeat = dlg.m_UvRepeat;
+
 			MaterialPtr lambert1(new Material());
 			lambert1->m_Shader = theApp.default_shader;
 			lambert1->m_PassMask = theApp.default_pass_mask;
@@ -884,7 +887,7 @@ void CMainFrame::OnComponentTerrain()
 			lambert1->SetParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
 			lambert1->SetParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
 			lambert1->SetParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
-			terrain->m_Chunks[i][j]->m_Material = lambert1;
+			chunk->m_Material = lambert1;
 		}
 	}
 	MaterialPtr lambert1(new Material());
