@@ -120,6 +120,8 @@ public:
 
 	D3DXHANDLE handle_emitter_World;
 
+	D3DXHANDLE handle_emitter_ParticleOffset;
+
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
 	void CreateHeightMap(void);

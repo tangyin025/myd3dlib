@@ -143,6 +143,7 @@ Terrain::Terrain(void)
 	, handle_HeightTexture(NULL)
 	, technique_emitter_RenderScene(NULL)
 	, handle_emitter_World(NULL)
+	, handle_emitter_ParticleOffset(NULL)
 {
 }
 
@@ -164,6 +165,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, handle_HeightTexture(NULL)
 	, technique_emitter_RenderScene(NULL)
 	, handle_emitter_World(NULL)
+	, handle_emitter_ParticleOffset(NULL)
 {
 	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
 	CreateHeightMap();
@@ -663,6 +665,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	{
 		shader->SetTechnique(technique_emitter_RenderScene);
 		shader->SetMatrix(handle_emitter_World, m_Actor->m_World);
+		shader->SetVector(handle_emitter_ParticleOffset, Vector3(0, -0.5f, 0));
 		break;
 	}
 	default:
@@ -681,6 +684,7 @@ void Terrain::OnShaderChanged(void)
 	handle_HeightTexture = NULL;
 	technique_emitter_RenderScene = NULL;
 	handle_emitter_World = NULL;
+	handle_emitter_ParticleOffset = NULL;
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
@@ -788,6 +792,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 						{
 							BOOST_VERIFY(terrain->technique_emitter_RenderScene = shader->GetTechniqueByName("RenderScene"));
 							BOOST_VERIFY(terrain->handle_emitter_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(terrain->handle_emitter_ParticleOffset = shader->GetParameterByName(NULL, "g_ParticleOffset"));
 						}
 
 						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(0, 0, RenderTypeEmitter));

@@ -332,17 +332,23 @@ public:
 
 	bool m_EmitterToWorld;
 
+	my::Vector3 m_ParticleOffset;
+
 	D3DXHANDLE technique_RenderScene;
 
 	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_ParticleOffset;
 
 protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterToWorld(false)
+		, m_ParticleOffset(0,0,0)
 		, technique_RenderScene(NULL)
 		, handle_World(NULL)
+		, handle_ParticleOffset(NULL)
 	{
 	}
 
@@ -351,8 +357,10 @@ public:
 		: Component(type)
 		, Emitter(capacity)
 		, m_EmitterToWorld(false)
+		, m_ParticleOffset(0,0,0)
 		, technique_RenderScene(NULL)
 		, handle_World(NULL)
+		, handle_ParticleOffset(NULL)
 	{
 	}
 

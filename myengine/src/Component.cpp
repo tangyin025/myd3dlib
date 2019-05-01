@@ -989,12 +989,15 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	{
 		shader->SetMatrix(handle_World, Matrix4::identity);
 	}
+
+	shader->SetVector(handle_ParticleOffset, m_ParticleOffset);
 }
 
 void EmitterComponent::OnShaderChanged(void)
 {
 	technique_RenderScene = NULL;
 	handle_World = NULL;
+	handle_ParticleOffset = NULL;
 	m_Material->ParseShaderParameters();
 }
 
@@ -1021,6 +1024,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					{
 						BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+						BOOST_VERIFY(handle_ParticleOffset = shader->GetParameterByName(NULL, "g_ParticleOffset"));
 					}
 
 					if (!m_EmitterToWorld)

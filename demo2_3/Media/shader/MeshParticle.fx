@@ -1,7 +1,7 @@
 
 struct VS_INPUT
 {
-	float2 Tex0  			: TEXCOORD0;
+	float2 Tex0  			: TEXCOORD0; // uv
 //#ifdef INSTANCE
 	float4 Pos				: POSITION;
 	float3 Velocity			: NORMAL;
@@ -10,21 +10,24 @@ struct VS_INPUT
 //#endif
 };
 
+float3 g_ParticleOffset;
+
 float4 TransformPosWS(VS_INPUT In)
 {
 #ifdef FACETOCAMERA
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(g_View[0][1],g_View[1][1],g_View[2][1]);
 	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	float4 Offset = float4(
-		RotateAngleAxis(Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x), In.Tex2.z, Dir), 0);
+	float4 Offset = float4(RotateAngleAxis(
+		Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y + g_ParticleOffset.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x + g_ParticleOffset.x) + Dir * g_ParticleOffset.z, In.Tex2.z, Dir), 0);
 #else
 	float s, c;
 	sincos(In.Tex2.z, s, c);
 	float3 Right = float3(c, 0, s);
 	float3 Up = float3(0, 1, 0);
 	float3 Dir = float3(-s, 0, c);
-	float4 Offset = float4(Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x), 0);
+	float4 Offset = float4(
+		Up * lerp(In.Tex2.y * 0.5, -In.Tex2.y * 0.5, In.Tex0.y + g_ParticleOffset.y) + Right * lerp(-In.Tex2.x * 0.5, In.Tex2.x * 0.5, In.Tex0.x + g_ParticleOffset.x) + Dir * g_ParticleOffset.z, 0);
 #endif
 	float4 Center = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.Tex2.w), In.Pos.w), g_World);
 	return Center + Offset;
