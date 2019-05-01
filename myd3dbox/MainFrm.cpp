@@ -493,6 +493,7 @@ void CMainFrame::ClearFileContext()
 {
 	m_Root.ClearAllActor();
 	m_selactors.clear();
+	m_ViewedActors.clear();
 	PhysXSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();
 }
