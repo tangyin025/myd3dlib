@@ -529,8 +529,8 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_GrassMaterial.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), terrain->m_GrassMaterial.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -934,8 +934,8 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, _T("Material"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
 	CreatePropertiesMaterial(pComponent, _T("GrassMaterial"), terrain->m_GrassMaterial.get());
+	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), GetTerrainChunkSafe(terrain, chunkid)->m_Material.get());
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
