@@ -372,6 +372,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterToWorld);
+		ar & BOOST_SERIALIZATION_NVP(m_ParticleOffset);
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
