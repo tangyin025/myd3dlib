@@ -457,7 +457,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pParticleLifeTime = pComponent->GetSubItem(PropId + 1);
+	CMFCPropertyGridProperty * pParticleLifeTime = pComponent->GetSubItem(PropId + 2);
 	if (!pParticleLifeTime || pParticleLifeTime->GetData() != PropertySphericalEmitterParticleLifeTime)
 	{
 		RemovePropertiesFrom(pComponent, PropId);

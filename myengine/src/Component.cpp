@@ -630,6 +630,7 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 void ClothComponent::CopyFrom(const ClothComponent & rhs)
 {
 	Component::CopyFrom(rhs);
+	// TODO:
 }
 
 ComponentPtr ClothComponent::Clone(void) const
@@ -930,6 +931,7 @@ void ClothComponent::OnWorldUpdated(void)
 void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 {
 	Component::CopyFrom(rhs);
+	// TODO:
 }
 
 void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
@@ -1044,6 +1046,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)
 {
 	EmitterComponent::CopyFrom(rhs);
+	// TODO:
 }
 
 ComponentPtr StaticEmitterComponent::Clone(void) const
@@ -1060,6 +1063,7 @@ void StaticEmitterComponent::Update(float fElapsedTime)
 void SphericalEmitterComponent::CopyFrom(const SphericalEmitterComponent & rhs)
 {
 	EmitterComponent::CopyFrom(rhs);
+	// TODO:
 }
 
 ComponentPtr SphericalEmitterComponent::Clone(void) const

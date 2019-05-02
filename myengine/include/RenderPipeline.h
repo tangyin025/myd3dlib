@@ -17,6 +17,8 @@ class Component;
 class RenderPipeline
 {
 public:
+	static const unsigned int PARTICLE_INSTANCE_MAX = 4096;
+
 	enum MeshType
 	{
 		MeshTypeMesh			= 0,

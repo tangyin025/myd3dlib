@@ -463,7 +463,7 @@ public:
 
 public:
 	SphericalEmitterComponent(void)
-		: EmitterComponent(ComponentTypeSphericalEmitter, PARTICLE_INSTANCE_MAX)
+		: EmitterComponent(ComponentTypeSphericalEmitter, 1)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)

@@ -12,8 +12,6 @@ namespace my
 	class Emitter
 	{
 	public:
-		static const unsigned int PARTICLE_INSTANCE_MAX = 4096;
-
 		class Particle
 		{
 		public:
