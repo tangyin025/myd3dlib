@@ -130,6 +130,7 @@ protected:
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
 		PropertySphericalEmitter,
+		PropertySphericalEmitterParticleCapacity,
 		PropertySphericalEmitterParticleLifeTime,
 		PropertySphericalEmitterSpawnInterval,
 		PropertySphericalEmitterHalfSpawnArea,

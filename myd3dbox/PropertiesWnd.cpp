@@ -458,7 +458,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pParticleLifeTime = pComponent->GetSubItem(PropId + 2);
-	if (!pParticleLifeTime || pParticleLifeTime->GetData() != PropertySphericalEmitterParticleLifeTime)
+	if (!pParticleLifeTime || pParticleLifeTime->GetData() != PropertySphericalEmitterParticleCapacity)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesSphericalEmitter(pComponent, sphe_emit_cmp);
@@ -468,23 +468,24 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleOffset.x);
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleOffset.y);
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleOffset.z);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.y);
-	pComponent->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.z);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnSpeed);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 6), &sphe_emit_cmp->m_SpawnInclination);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 7), &sphe_emit_cmp->m_SpawnAzimuth);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 8), &sphe_emit_cmp->m_SpawnColorR);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 9), &sphe_emit_cmp->m_SpawnColorG);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 10), &sphe_emit_cmp->m_SpawnColorB);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 11), &sphe_emit_cmp->m_SpawnColorA);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnSizeX);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnSizeY);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnAngle);
-	pComponent->GetSubItem(PropId + 15)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLoopTime);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 16), sphe_emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleList.capacity());
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
+	pComponent->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
+	pComponent->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.y);
+	pComponent->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.z);
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnSpeed);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 7), &sphe_emit_cmp->m_SpawnInclination);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 8), &sphe_emit_cmp->m_SpawnAzimuth);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 9), &sphe_emit_cmp->m_SpawnColorR);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 10), &sphe_emit_cmp->m_SpawnColorG);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 11), &sphe_emit_cmp->m_SpawnColorB);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnColorA);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnSizeX);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnSizeY);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 15), &sphe_emit_cmp->m_SpawnAngle);
+	pComponent->GetSubItem(PropId + 16)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLoopTime);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 17), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -865,6 +866,8 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	pEmitterOffset->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)sphe_emit_cmp->m_ParticleOffset.z, NULL, PropertyEmitterOffsetZ);
 	pEmitterOffset->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("ParticleCapacity"), (_variant_t)sphe_emit_cmp->m_ParticleList.capacity(), NULL, PropertySphericalEmitterParticleCapacity);
+	pComponent->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pParticleLifeTime = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pParticleLifeTime);
 	CMFCPropertyGridProperty * pSpawnInterval = new CSimpleProp(_T("SpawnInterval"), (_variant_t)sphe_emit_cmp->m_SpawnInterval, NULL, PropertySphericalEmitterSpawnInterval);
@@ -987,7 +990,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 17;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 18;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	}
@@ -1645,6 +1648,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertySphericalEmitterParticleCapacity:
+	{
+		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
+		unsigned int new_size = pProp->GetValue().uintVal;
+		emit_cmp->m_ParticleList.set_capacity(new_size);
+		UpdatePropertiesSphericalEmitter(pProp->GetParent(), dynamic_cast<SphericalEmitterComponent *>(emit_cmp));
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertySphericalEmitterParticleLifeTime:
 	case PropertySphericalEmitterSpawnInterval:
 	case PropertySphericalEmitterHalfSpawnArea:
@@ -1668,13 +1681,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 2)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
-		sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 4)->GetSubItem(0)->GetValue().fltVal;
-		sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 4)->GetSubItem(1)->GetValue().fltVal;
-		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 4)->GetSubItem(2)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 5)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 15)->GetValue().fltVal;
+		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 4)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 6)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 16)->GetValue().fltVal;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
