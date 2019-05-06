@@ -260,7 +260,7 @@ void ModelViewerCamera::UpdateViewProj(void)
 
 	m_View = Matrix4::LookAtRH(m_Eye, m_LookAt, Rotation[1].xyz);
 
-	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, Max(m_Fz, m_Distance * 2.f));
 
 	m_ViewProj = m_View * m_Proj;
 
