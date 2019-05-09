@@ -227,24 +227,43 @@ void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 	{
 	case D3DFMT_A8:
 	case D3DFMT_L8:
+	{
+		RECT rc = { 0, 0, my::Min<LONG>(m_ColChunks * m_ChunkSize, SrcDesc.Width), my::Min<LONG>(m_RowChunks * m_ChunkSize, SrcDesc.Height) };
+		D3DLOCKED_RECT SrcLrc = HeightMap->LockRect(&rc, 0, 0);
+		D3DLOCKED_RECT DstLrc = m_HeightMap.LockRect(&rc, 0, 0);
+		boost::multi_array_ref<unsigned char, 2> srcbits((unsigned char *)SrcLrc.pBits, boost::extents[rc.bottom - rc.top][SrcLrc.Pitch / sizeof(unsigned char)]);
+		boost::multi_array_ref<D3DCOLOR, 2> dstbits((D3DCOLOR *)DstLrc.pBits, boost::extents[rc.bottom - rc.top][DstLrc.Pitch / sizeof(D3DCOLOR)]);
+		for (int i = rc.top; i < rc.bottom; i++)
 		{
-			RECT rc = { 0, 0, my::Min<LONG>(m_ColChunks * m_ChunkSize, SrcDesc.Width), my::Min<LONG>(m_RowChunks * m_ChunkSize, SrcDesc.Height) };
-			D3DLOCKED_RECT SrcLrc = HeightMap->LockRect(&rc, 0, 0);
-			D3DLOCKED_RECT DstLrc = m_HeightMap.LockRect(&rc, 0, 0);
-			for (int i = rc.top; i < rc.bottom; i++)
+			for (int j = rc.left; j < rc.right; j++)
 			{
-				for (int j = rc.left; j < rc.right; j++)
-				{
-					unsigned char height = *((unsigned char *)SrcLrc.pBits + i * SrcLrc.Pitch + j);
-					D3DCOLOR * DstBits = (D3DCOLOR *)((unsigned char *)DstLrc.pBits + i * DstLrc.Pitch + j * sizeof(D3DCOLOR));
-					*DstBits = D3DCOLOR_ARGB(height,0,0,0);
-				}
+				dstbits[i][j] = D3DCOLOR_ARGB(srcbits[i][j], 0, 0, 0);
 			}
-			m_HeightMap.UnlockRect(0);
-			HeightMap->UnlockRect(0);
 		}
+		m_HeightMap.UnlockRect(0);
+		HeightMap->UnlockRect(0);
 		break;
+	}
+	case D3DFMT_A8R8G8B8:
+	{
+		RECT rc = { 0, 0, my::Min<LONG>(m_ColChunks * m_ChunkSize, SrcDesc.Width), my::Min<LONG>(m_RowChunks * m_ChunkSize, SrcDesc.Height) };
+		D3DLOCKED_RECT SrcLrc = HeightMap->LockRect(&rc, 0, 0);
+		D3DLOCKED_RECT DstLrc = m_HeightMap.LockRect(&rc, 0, 0);
+		boost::multi_array_ref<D3DCOLOR, 2> srcbits((D3DCOLOR *)SrcLrc.pBits, boost::extents[rc.bottom - rc.top][SrcLrc.Pitch / sizeof(D3DCOLOR)]);
+		boost::multi_array_ref<D3DCOLOR, 2> dstbits((D3DCOLOR *)DstLrc.pBits, boost::extents[rc.bottom - rc.top][DstLrc.Pitch / sizeof(D3DCOLOR)]);
+		for (int i = rc.top; i < rc.bottom; i++)
+		{
+			for (int j = rc.left; j < rc.right; j++)
+			{
+				dstbits[i][j] = D3DCOLOR_ARGB(GetRValue(srcbits[i][j]), 0, 0, 0);
+			}
+		}
+		m_HeightMap.UnlockRect(0);
+		HeightMap->UnlockRect(0);
+		break;
+	}
 	default:
+		D3DContext::getSingleton().m_EventLog("Terrain::UpdateHeightMap: Unsupported SrcDesc.Format");
 		return;
 	}
 	UpdateHeightMapNormal();
