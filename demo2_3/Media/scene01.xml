@@ -124,9 +124,9 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						</m_max>
 					</m_aabb>
 					<m_Position>
-						<x>0.000000000e+00</x>
+						<x>-1.600000000e+01</x>
 						<y>0.000000000e+00</y>
-						<z>0.000000000e+00</z>
+						<z>-1.600000000e+01</z>
 					</m_Position>
 					<m_Rotation class_id="14" tracking_level="0" version="0">
 						<x>0.000000000e+00</x>
@@ -152,9 +152,9 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<_32>0.000000000e+00</_32>
 						<_33>1.000000000e+00</_33>
 						<_34>0.000000000e+00</_34>
-						<_41>0.000000000e+00</_41>
+						<_41>-1.600000000e+01</_41>
 						<_42>0.000000000e+00</_42>
-						<_43>0.000000000e+00</_43>
+						<_43>-1.600000000e+01</_43>
 						<_44>1.000000000e+00</_44>
 					</m_World>
 					<m_LodRatio>3.000000000e+01</m_LodRatio>
@@ -238,18 +238,22 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 													</m_aabb>
 													<m_Row>0</m_Row>
 													<m_Col>0</m_Col>
-													<m_Material class_id="25" tracking_level="0" version="1">
-														<px class_id="26" tracking_level="1" version="0" object_id="_22">
+													<m_UvRepeat class_id="25" tracking_level="0" version="0">
+														<x>8.000000000e+00</x>
+														<y>8.000000000e+00</y>
+													</m_UvRepeat>
+													<m_Material class_id="26" tracking_level="0" version="1">
+														<px class_id="27" tracking_level="1" version="0" object_id="_22">
 															<m_Shader>shader/lambert1.fx</m_Shader>
 															<m_PassMask>11</m_PassMask>
 															<m_CullMode>2</m_CullMode>
 															<m_ZEnable>1</m_ZEnable>
 															<m_ZWriteEnable>1</m_ZWriteEnable>
 															<m_BlendMode>0</m_BlendMode>
-															<m_ParameterList class_id="27" tracking_level="0" version="0">
+															<m_ParameterList class_id="28" tracking_level="0" version="0">
 																<count>3</count>
 																<item_version>1</item_version>
-																<item class_id="28" tracking_level="0" version="1">
+																<item class_id="29" tracking_level="0" version="1">
 																	<px class_id_reference="2" object_id="_23">
 																		<MaterialParameter object_id="_24">
 																			<m_Type>5</m_Type>
@@ -279,8 +283,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 															</m_ParameterList>
 														</px>
 													</m_Material>
-													<m_ParticleList class_id="29" tracking_level="0" version="0">
-														<buffer_capacity>4096</buffer_capacity>
+													<m_ParticleList class_id="30" tracking_level="0" version="0">
+														<buffer_capacity>1</buffer_capacity>
 														<count>0</count>
 														<item_version>0</item_version>
 													</m_ParticleList>
@@ -302,7 +306,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 									</cb.actor_list>
 								</m_Root>
 								<m_GrassMaterial>
-									<px class_id_reference="26" object_id="_29">
+									<px class_id_reference="27" object_id="_29">
 										<m_Shader>shader/lambert1.fx</m_Shader>
 										<m_PassMask>11</m_PassMask>
 										<m_CullMode>2</m_CullMode>
@@ -350,29 +354,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABAXhYIAAAA
-gAIAAACA7hIIAAAAgAEAAABA3hIIAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOtcP
-CAADAAAAAABUO9cPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxA3hIIAAAAAM3Nzc3N
-zc3N9NbXDwcAAwAAAAAAtNfXDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADw+M0HAAAA
+gAAAAADggsQHAAAAgAEAAAAwY80FAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOuUP
+CAADAAAAAABUO+UPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzw+M0HAAAAAM3Nzc3N
+zc3N9NblDwcAAwAAAAAAtNflDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiA1w8GAAMA4K7kBQAAAAAA
-AAAAgO4SCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzQD+7QUAAACFAAAAAM3Nzc3/////fEnuBQEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiA5Q8GAAMASMnhBQAAAAAA
+AAAA4ILEBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzRAu5AUAAACFAAAAAM3Nzc3/////TLPkBQEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>
 				</px>
 			</first>
 			<second>
 				<m_min>
-					<x>0.000000000e+00</x>
+					<x>-1.600000000e+01</x>
 					<y>-1.000000000e+00</y>
-					<z>0.000000000e+00</z>
+					<z>-1.600000000e+01</z>
 				</m_min>
 				<m_max>
-					<x>3.200000000e+01</x>
+					<x>1.600000000e+01</x>
 					<y>1.000000000e+00</y>
-					<z>3.200000000e+01</z>
+					<z>1.600000000e+01</z>
 				</m_max>
 			</second>
 		</item>
