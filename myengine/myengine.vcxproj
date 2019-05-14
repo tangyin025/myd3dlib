@@ -83,6 +83,7 @@
     <ClInclude Include="include\PhysXContext.h" />
     <ClInclude Include="include\RenderPipeline.h" />
     <ClInclude Include="include\Terrain.h" />
+    <ClInclude Include="include\Terrain2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp" />
@@ -95,6 +96,7 @@
     <ClCompile Include="src\PhysXContext.cpp" />
     <ClCompile Include="src\RenderPipeline.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
+    <ClCompile Include="src\Terrain2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
