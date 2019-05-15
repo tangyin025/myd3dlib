@@ -2,11 +2,35 @@
 
 #include "Component.h"
 
-class Terrain2 : public Component
+class TerrainNode;
+
+typedef boost::shared_ptr<TerrainNode> TerrainNodePtr;
+
+class TerrainNode
+{
+public:
+	my::AABB m_aabb;
+
+	typedef boost::array<TerrainNodePtr, 4> ChildArray;
+
+	ChildArray m_Childs;
+
+public:
+	TerrainNode(const my::AABB & aabb);
+
+	bool OnQuery(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
+	void QueryAll(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
+	void Query(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+};
+
+class Terrain2 : public Component, TerrainNode
 {
 public:
 	Terrain2(void)
 		: Component(ComponentTypeTerrain2)
+		, TerrainNode(my::AABB(-1000,1000))
 	{
 	}
 
