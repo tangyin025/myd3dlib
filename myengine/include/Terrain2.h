@@ -18,21 +18,36 @@ public:
 public:
 	TerrainNode(const my::AABB & aabb);
 
-	bool OnQuery(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	void Build(void);
 
-	void QueryAll(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	bool OnQuery(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void Query(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	void QueryAll(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
+	void Query(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
 class Terrain2 : public Component, TerrainNode
 {
 public:
-	Terrain2(void)
-		: Component(ComponentTypeTerrain2)
-		, TerrainNode(my::AABB(-1000,1000))
-	{
-	}
+	int m_Size;
+
+	my::D3DVertexElementSet m_VertexElems;
+
+	DWORD m_VertexStride;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	my::VertexBuffer m_vb;
+
+	my::IndexBuffer m_ib;
+
+	void UpdateVertices(void);
+
+public:
+	Terrain2(int Size);
+
+	Terrain2(void);
 
 	virtual ~Terrain2(void)
 	{

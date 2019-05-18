@@ -93,7 +93,7 @@ void Component::OnWorldUpdated(void)
 
 my::AABB Component::CalculateAABB(void) const
 {
-	return AABB::Invalid();
+	return AABB(-1, 1);
 }
 
 void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)

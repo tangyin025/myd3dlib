@@ -902,8 +902,10 @@ void CMainFrame::OnComponentTerrain()
 	//UpdateSelBox();
 	//m_selchunkid.SetPoint(0, 0);
 
-	Terrain2Ptr terrain(new Terrain2());
-	(*actor_iter)->AddComponent(terrain);
+	Terrain2Ptr terrain2(new Terrain2(512));
+	terrain2->RequestResource();
+	terrain2->OnEnterPxScene(this);
+	(*actor_iter)->AddComponent(terrain2);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
