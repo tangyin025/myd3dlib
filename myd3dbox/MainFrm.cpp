@@ -864,11 +864,11 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	//TerrainDlg dlg;
-	//if (dlg.DoModal() != IDOK)
-	//{
-	//	return;
-	//}
+	TerrainDlg dlg;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
 
 	//TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
 	//for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
@@ -903,6 +903,13 @@ void CMainFrame::OnComponentTerrain()
 	//m_selchunkid.SetPoint(0, 0);
 
 	Terrain2Ptr terrain2(new Terrain2(512));
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = theApp.default_shader;
+	lambert1->m_PassMask = theApp.default_pass_mask;
+	lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
+	lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
+	lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
+	terrain2->m_Material = lambert1;
 	terrain2->RequestResource();
 	terrain2->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain2);

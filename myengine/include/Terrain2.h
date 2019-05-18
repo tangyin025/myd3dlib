@@ -4,11 +4,21 @@
 
 class TerrainNode;
 
+class Terrain2;
+
 typedef boost::shared_ptr<TerrainNode> TerrainNodePtr;
 
 class TerrainNode
 {
 public:
+	Terrain2 * m_Owner;
+
+	int m_iStart;
+
+	int m_jStart;
+
+	int m_NodeSize;
+
 	my::AABB m_aabb;
 
 	typedef boost::array<TerrainNodePtr, 4> ChildArray;
@@ -16,7 +26,7 @@ public:
 	ChildArray m_Childs;
 
 public:
-	TerrainNode(const my::AABB & aabb);
+	TerrainNode(Terrain2 * Owner, int iStart, int jStart, int NodeSize);
 
 	void Build(void);
 
@@ -27,7 +37,7 @@ public:
 	void Query(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
-class Terrain2 : public Component, TerrainNode
+class Terrain2 : public Component, public TerrainNode
 {
 public:
 	int m_Size;
@@ -41,6 +51,14 @@ public:
 	my::VertexBuffer m_vb;
 
 	my::IndexBuffer m_ib;
+
+	MaterialPtr m_Material;
+
+	D3DXHANDLE technique_RenderScene;
+
+	D3DXHANDLE handle_World;
+
+	D3DXHANDLE handle_ChunkSize;
 
 	void UpdateVertices(void);
 
