@@ -645,54 +645,59 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 void Terrain::CreateHeightFieldShape(void)
 {
-	//_ASSERT(!m_PxShape);
+	_ASSERT(!m_PxShape);
 
-	//_ASSERT(m_Actor);
+	_ASSERT(m_Actor);
 
-	//if (!m_Actor->m_PxActor)
-	//{
-	//	return;
-	//}
+	if (!m_Actor->m_PxActor)
+	{
+		return;
+	}
 
-	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-	//	&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	//{
-	//	return;
-	//}
+	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	{
+		return;
+	}
 
-	//if (!m_HeightMap.m_ptr)
-	//{
-	//	return;
-	//}
+	std::vector<physx::PxHeightFieldSample> Samples((m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
+	for (int raw = 0; raw < m_RowChunks; raw++)
+	{
+		for (int col = 0; col < m_ColChunks; col++)
+		{
+			TerrainChunk * chunk = m_Chunks[raw][col];
+			VOID * pVertices = chunk->m_vb.Lock(0, 0, 0);
+			for (unsigned int i = 0; i < ((raw < m_RowChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); i++)
+			{
+				for (unsigned int j = 0; j < ((col < m_ColChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); j++)
+				{
+					//// ! Reverse physx height field row, column
+					unsigned char * pVertex = (unsigned char *)pVertices + m_VertexTable[i][j] * m_VertexStride;
+					int sample_i = (col * m_ChunkSize + j) * (m_RowChunks * m_ChunkSize + 1) + raw * m_ChunkSize + i;
+					Samples[sample_i].height = m_VertexElems.GetPosition(pVertex).y / m_HeightScale;
+					Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
+					Samples[sample_i].materialIndex1 = physx::PxBitAndByte(0, false);
+				}
+			}
+			chunk->m_vb.Unlock();
+		}
+	}
 
-	//D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	//std::vector<physx::PxHeightFieldSample> Samples((m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
-	//for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
-	//{
-	//	for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
-	//	{
-	//		// ! Reverse physx height field row, column
-	//		Samples[j * (m_RowChunks * m_ChunkSize + 1) + i].height = GetSampleValue(lrc.pBits, lrc.Pitch, i, j);
-	//		Samples[j * (m_RowChunks * m_ChunkSize + 1) + i].materialIndex0 = physx::PxBitAndByte(0, false);
-	//		Samples[j * (m_RowChunks * m_ChunkSize + 1) + i].materialIndex1 = physx::PxBitAndByte(0, false);
-	//	}
-	//}
-	//m_HeightMap.UnlockRect(0);
-	//physx::PxHeightFieldDesc hfDesc;
-	//hfDesc.nbRows             = m_ColChunks * m_ChunkSize + 1;
-	//hfDesc.nbColumns          = m_RowChunks * m_ChunkSize + 1;
-	//hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
-	//hfDesc.samples.data       = &Samples[0];
-	//hfDesc.samples.stride     = sizeof(Samples[0]);
-	//m_PxHeightField.reset(PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc), PhysXDeleter<physx::PxHeightField>());
+	physx::PxHeightFieldDesc hfDesc;
+	hfDesc.nbRows             = m_ColChunks * m_ChunkSize + 1;
+	hfDesc.nbColumns          = m_RowChunks * m_ChunkSize + 1;
+	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
+	hfDesc.samples.data       = &Samples[0];
+	hfDesc.samples.stride     = sizeof(Samples[0]);
+	m_PxHeightField.reset(PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc), PhysXDeleter<physx::PxHeightField>());
 
-	//m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
 
-	//m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-	//	physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
-	//	*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
+		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
+		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
 
-	//m_Actor->m_PxActor->attachShape(*m_PxShape);
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
 void Terrain::ClearShape(void)

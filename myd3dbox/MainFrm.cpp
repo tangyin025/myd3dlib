@@ -1161,34 +1161,32 @@ void CMainFrame::OnToolsBuildnavigation()
 						TRACE("OnToolsBuildnavigation: invalid terrain component");
 						continue;
 					}
-					_ASSERT(false);
-					//D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-					//const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);
-					//for (int i = 0; i < terrain->m_RowChunks; i++)
-					//{
-					//	for (int j = 0; j < terrain->m_ColChunks; j++)
-					//	{
-					//		const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
-					//		const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
-					//		for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
-					//		{
-					//			int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
-					//			int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
-					//			int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
+					for (int i = 0; i < terrain->m_RowChunks; i++)
+					{
+						for (int j = 0; j < terrain->m_ColChunks; j++)
+						{
+							TerrainChunk * chunk = terrain->m_Chunks[i][j];
+							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
+							const void * pVertices = chunk->m_vb.Lock(0, 0, D3DLOCK_READONLY);
+							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
+							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
+							{
+								int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
+								int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
+								int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
 
-					//			my::Vector3 v0 = terrain->GetPosByVertexIndex(pVertices, i, j, i0, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
-					//			my::Vector3 v1 = terrain->GetPosByVertexIndex(pVertices, i, j, i1, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
-					//			my::Vector3 v2 = terrain->GetPosByVertexIndex(pVertices, i, j, i2, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+								my::Vector3 v0 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * terrain->m_VertexStride).transformCoord(actor->m_World);
+								my::Vector3 v1 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * terrain->m_VertexStride).transformCoord(actor->m_World);
+								my::Vector3 v2 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * terrain->m_VertexStride).transformCoord(actor->m_World);
 
-					//			my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
+								my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
 
-					//			rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
-					//		}
-					//		const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-					//	}
-					//}
-					//terrain->m_vb.Unlock();
-					//terrain->m_HeightMap.UnlockRect(0);
+								rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
+							}
+							const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+							chunk->m_vb.Unlock();
+						}
+					}
 					break;
 				}
 				}
