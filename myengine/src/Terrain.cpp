@@ -45,6 +45,7 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 
 TerrainChunk::~TerrainChunk(void)
 {
+	m_vb.OnDestroyDevice();
 }
 
 template<>
