@@ -19,6 +19,8 @@ public:
 
 	int m_Col;
 
+	my::VertexBuffer m_vb;
+
 	MaterialPtr m_Material;
 
 protected:
@@ -44,6 +46,8 @@ public:
 	}
 
 	void UpdateAABB(void);
+
+	void UpdateVertices(my::Texture2D * HeightMap);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -64,15 +68,11 @@ public:
 
 	float m_HeightScale;
 
-	my::Texture2D m_HeightMap;
-
 	my::D3DVertexElementSet m_VertexElems;
 
 	DWORD m_VertexStride;
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
-	my::VertexBuffer m_vb;
 
 	struct Fragment
 	{
@@ -97,42 +97,33 @@ public:
 
 	D3DXHANDLE handle_World;
 
-	D3DXHANDLE handle_HeightScale;
-
-	D3DXHANDLE handle_HeightTexSize;
-
-	D3DXHANDLE handle_ChunkId;
-
-	D3DXHANDLE handle_ChunkSize;
-
-	D3DXHANDLE handle_HeightTexture;
-
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
-	void CreateHeightMap(void);
-
-	void UpdateHeightMap(my::Texture2DPtr HeightMap);
-
-	void UpdateHeightMapNormal(void);
-
-	void UpdateChunks(void);
+	void UpdateHeightMap(my::Texture2D * HeightMap);
 
 	TerrainChunk * GetChunk(int i, int j)
 	{
-		TerrainChunk * ret = m_Chunks[i][j];
-		_ASSERT(ret->m_Row == i && ret->m_Col == j);
-		return ret;
+		TerrainChunk * ret = m_Chunks[i][j]; _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
 	}
 
-	D3DCOLOR GetSampleValue(void * pBits, int pitch, int i, int j) const;
+	unsigned char GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
+	{
+		_ASSERT(i >= 0 && i < desc.Height);
+		_ASSERT(j >= 0 && j < desc.Width);
+		return *((unsigned char *)lrc.pBits + i * lrc.Pitch + j);
+	}
 
-	float GetSampleHeight(void * pBits, int pitch, int i, int j) const;
+	float GetSampleHeight(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
+	{
+		return m_HeightScale * GetSampleValue(desc, lrc, i, j);
+	}
 
-	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j) const;
+	my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
+	{
+		return my::Vector3((float)j, GetSampleHeight(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
+	}
 
-	float GetPosHeight(void * pBits, int pitch, float x, float z) const;
-
-	my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch);
+	//my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch);
 
 	void CreateElements(void);
 
@@ -169,8 +160,6 @@ public:
 	virtual void OnShaderChanged(void);
 
 	virtual void Update(float fElapsedTime);
-
-	void UpdateVertices(void);
 
 	virtual my::AABB CalculateAABB(void) const;
 

@@ -94,15 +94,6 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
-	my::RayResult OverlapTestRayAndTerrainChunk(
-		const my::Ray & ray,
-		Terrain * terrain,
-		TerrainChunk * chunk,
-		void * pVertices,
-		DWORD NumVerts,
-		DWORD VertexStride,
-		void * pIndices,
-		DWORD NumFaces);
 	void OnSelectionChanged(EventArgs * arg);
 	void OnSelectionPlaying(EventArgs * arg);
 	void OnPivotModeChanged(EventArgs * arg);

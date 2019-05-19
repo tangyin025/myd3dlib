@@ -561,27 +561,27 @@ void CMainFrame::OnFileNew()
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())));
 	//m_cmps.push_back(rigid_cmp);
 
-	Terrain2Ptr quad_terrain(new QuadTerrain(512));
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = theApp.default_shader;
-	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	quad_terrain->m_Material = lambert1;
+	//Terrain2Ptr quad_terrain(new QuadTerrain(512));
+	//MaterialPtr lambert1(new Material());
+	//lambert1->m_Shader = theApp.default_shader;
+	//lambert1->m_PassMask = theApp.default_pass_mask;
+	//lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	//lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	//lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	//quad_terrain->m_Material = lambert1;
 
-	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	actor->AddComponent(quad_terrain);
-	actor->UpdateAABB();
-	actor->UpdateWorld();
-	actor->RequestResource();
-	actor->OnEnterPxScene(this);
-	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	//actor->AddComponent(quad_terrain);
+	//actor->UpdateAABB();
+	//actor->UpdateWorld();
+	//actor->RequestResource();
+	//actor->OnEnterPxScene(this);
+	//m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
 
-	m_selactors.clear();
-	m_selactors.insert(actor.get());
-	m_selchunkid.SetPoint(0, 0);
-	OnSelChanged();
+	//m_selactors.clear();
+	//m_selactors.insert(actor.get());
+	//m_selchunkid.SetPoint(0, 0);
+	//OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
@@ -1161,33 +1161,34 @@ void CMainFrame::OnToolsBuildnavigation()
 						TRACE("OnToolsBuildnavigation: invalid terrain component");
 						continue;
 					}
-					D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-					const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);
-					for (int i = 0; i < terrain->m_RowChunks; i++)
-					{
-						for (int j = 0; j < terrain->m_ColChunks; j++)
-						{
-							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
-							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
-							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
-							{
-								int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
-								int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
-								int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
+					_ASSERT(false);
+					//D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
+					//const void * pVertices = terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY);
+					//for (int i = 0; i < terrain->m_RowChunks; i++)
+					//{
+					//	for (int j = 0; j < terrain->m_ColChunks; j++)
+					//	{
+					//		const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
+					//		const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
+					//		for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
+					//		{
+					//			int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
+					//			int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
+					//			int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
 
-								my::Vector3 v0 = terrain->GetPosByVertexIndex(pVertices, i, j, i0, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
-								my::Vector3 v1 = terrain->GetPosByVertexIndex(pVertices, i, j, i1, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
-								my::Vector3 v2 = terrain->GetPosByVertexIndex(pVertices, i, j, i2, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+					//			my::Vector3 v0 = terrain->GetPosByVertexIndex(pVertices, i, j, i0, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+					//			my::Vector3 v1 = terrain->GetPosByVertexIndex(pVertices, i, j, i1, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
+					//			my::Vector3 v2 = terrain->GetPosByVertexIndex(pVertices, i, j, i2, lrc.pBits, lrc.Pitch).transformCoord(actor->m_World);
 
-								my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
+					//			my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
 
-								rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
-							}
-							const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-						}
-					}
-					terrain->m_vb.Unlock();
-					terrain->m_HeightMap.UnlockRect(0);
+					//			rcRasterizeTriangle(pFrame, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pFrame->m_solid, pFrame->m_cfg.walkableClimb);
+					//		}
+					//		const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+					//	}
+					//}
+					//terrain->m_vb.Unlock();
+					//terrain->m_HeightMap.UnlockRect(0);
 					break;
 				}
 				}
@@ -1506,43 +1507,43 @@ void CMainFrame::OnToolsSimplifymesh()
 void CMainFrame::OnToolsTerraingrassbrush()
 {
 	// TODO: Add your command handler code here
-	CTerrainGrassBrashDlg dlg;
-	if (dlg.DoModal() != IDOK)
-	{
-		return;
-	}
+	//CTerrainGrassBrashDlg dlg;
+	//if (dlg.DoModal() != IDOK)
+	//{
+	//	return;
+	//}
 
-	ActorSet::iterator actor_iter = m_selactors.begin();
-	if (actor_iter == m_selactors.end())
-	{
-		return;
-	}
+	//ActorSet::iterator actor_iter = m_selactors.begin();
+	//if (actor_iter == m_selactors.end())
+	//{
+	//	return;
+	//}
 
-	Terrain * terrain = NULL;
-	Actor::ComponentPtrList::iterator cmp_iter = (*actor_iter)->m_Cmps.begin();
-	for (; cmp_iter != (*actor_iter)->m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
-		{
-			terrain = dynamic_cast<Terrain *>(cmp_iter->get());
-		}
-	}
-	if (!terrain)
-	{
-		return;
-	}
+	//Terrain * terrain = NULL;
+	//Actor::ComponentPtrList::iterator cmp_iter = (*actor_iter)->m_Cmps.begin();
+	//for (; cmp_iter != (*actor_iter)->m_Cmps.end(); cmp_iter++)
+	//{
+	//	if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+	//	{
+	//		terrain = dynamic_cast<Terrain *>(cmp_iter->get());
+	//	}
+	//}
+	//if (!terrain)
+	//{
+	//	return;
+	//}
 
-	D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	for (float z = 0; z < terrain->m_RowChunks * terrain->m_ChunkSize; z += 1.0f)
-	{
-		for (float x = 0; x < terrain->m_ColChunks * terrain->m_ChunkSize; x += 1.0f)
-		{
-			int i = (int)floor(z / terrain->m_ChunkSize);
-			int j = (int)floor(x / terrain->m_ChunkSize);
-			TerrainChunk * chunk = terrain->m_Chunks[i][j];
-			//chunk->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z), z),
-			//	my::Vector3::zero, my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), boost::hash_value(std::make_pair(x, z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
-		}
-	}
-	terrain->m_HeightMap.UnlockRect();
+	//D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
+	//for (float z = 0; z < terrain->m_RowChunks * terrain->m_ChunkSize; z += 1.0f)
+	//{
+	//	for (float x = 0; x < terrain->m_ColChunks * terrain->m_ChunkSize; x += 1.0f)
+	//	{
+	//		int i = (int)floor(z / terrain->m_ChunkSize);
+	//		int j = (int)floor(x / terrain->m_ChunkSize);
+	//		TerrainChunk * chunk = terrain->m_Chunks[i][j];
+	//		//chunk->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z), z),
+	//		//	my::Vector3::zero, my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), boost::hash_value(std::make_pair(x, z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
+	//	}
+	//}
+	//terrain->m_HeightMap.UnlockRect();
 }

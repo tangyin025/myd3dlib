@@ -108,6 +108,7 @@ QuadTerrain::QuadTerrain(void)
 	, technique_RenderScene(NULL)
 	, handle_World(NULL)
 {
+	CreateElements();
 }
 
 QuadTerrain::~QuadTerrain(void)

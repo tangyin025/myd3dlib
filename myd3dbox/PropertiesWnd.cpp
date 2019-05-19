@@ -1731,13 +1731,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 		terrain->m_HeightScale = pProp->GetValue().fltVal;
-		terrain->UpdateHeightMapNormal();
-		terrain->UpdateChunks();
-		Actor * actor = terrain->m_Actor;
-		actor->UpdateAABB();
-		actor->UpdateOctNode();
-		pFrame->UpdateSelBox();
-		pFrame->UpdatePivotTransform();
+		//terrain->UpdateHeightMapNormal();
+		//terrain->UpdateChunks();
+		//Actor * actor = terrain->m_Actor;
+		//actor->UpdateAABB();
+		//actor->UpdateOctNode();
+		//pFrame->UpdateSelBox();
+		//pFrame->UpdatePivotTransform();
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -1749,7 +1749,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		if (res)
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->UpdateHeightMap(res);
+			terrain->UpdateHeightMap(res.get());
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			actor->UpdateOctNode();

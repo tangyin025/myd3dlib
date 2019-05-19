@@ -637,16 +637,16 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 						terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
 						terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
 						terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
-					my::RayResult result = pView->OverlapTestRayAndTerrainChunk(
+					my::RayResult result = pView->OverlapTestRayAndMesh(
 						ray,
-						terrain,
-						chunk,
-						terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY),
+						chunk->m_vb.Lock(0, 0, D3DLOCK_READONLY),
 						frag.VertNum,
 						terrain->m_VertexStride,
 						const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
-						frag.PrimitiveCount);
-					terrain->m_vb.Unlock();
+						false,
+						frag.PrimitiveCount,
+						terrain->m_VertexElems);
+					chunk->m_vb.Unlock();
 					const_cast<my::IndexBuffer&>(frag.ib).Unlock();
 					if (result.first && result.second < ret.second)
 					{
@@ -656,10 +656,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				}
 			};
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			if (!terrain->m_vb.m_ptr)
-			{
-				return my::RayResult(false, FLT_MAX);
-			}
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
 			Callback cb(ray, LocalViewPos, this, terrain);
@@ -726,42 +722,6 @@ my::RayResult CChildView::OverlapTestRayAndMesh(
 			ret = result;
 		}
 	}
-	return ret;
-}
-
-my::RayResult CChildView::OverlapTestRayAndTerrainChunk(
-	const my::Ray & ray,
-	Terrain * terrain,
-	TerrainChunk * chunk,
-	void * pVertices,
-	DWORD NumVerts,
-	DWORD VertexStride,
-	void * pIndices,
-	DWORD NumFaces)
-{
-	my::RayResult ret(false, FLT_MAX);
-	D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, 0, 0);
-	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
-	{
-		int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
-		int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
-		int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
-
-		short * pv0 = terrain->m_VertexElems.GetVertexValue<short>((unsigned char *)pVertices + i0 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
-		short * pv1 = terrain->m_VertexElems.GetVertexValue<short>((unsigned char *)pVertices + i1 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
-		short * pv2 = terrain->m_VertexElems.GetVertexValue<short>((unsigned char *)pVertices + i2 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
-
-		my::Vector3 v0 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkSize + pv0[0], chunk->m_Col * terrain->m_ChunkSize + pv0[1]);
-		my::Vector3 v1 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkSize + pv1[0], chunk->m_Col * terrain->m_ChunkSize + pv1[1]);
-		my::Vector3 v2 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkSize + pv2[0], chunk->m_Col * terrain->m_ChunkSize + pv2[1]);
-
-		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
-		if (result.first && result.second < ret.second)
-		{
-			ret = result;
-		}
-	}
-	terrain->m_HeightMap.UnlockRect(0);
 	return ret;
 }
 
