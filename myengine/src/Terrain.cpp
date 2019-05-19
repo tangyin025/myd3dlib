@@ -633,10 +633,13 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 	};
 
-	// ! do not use m_World for level offset
-	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-	m_Root.QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
+	if (m_Decl)
+	{
+		// ! do not use m_World for level offset
+		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		m_Root.QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
+	}
 }
 
 void Terrain::CreateHeightFieldShape(void)
