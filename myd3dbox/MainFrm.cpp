@@ -560,6 +560,28 @@ void CMainFrame::OnFileNew()
 	//rigid_cmp->RequestResource();
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())));
 	//m_cmps.push_back(rigid_cmp);
+
+	Terrain2Ptr terrain2(new Terrain2(512));
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = theApp.default_shader;
+	lambert1->m_PassMask = theApp.default_pass_mask;
+	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	terrain2->m_Material = lambert1;
+
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	actor->AddComponent(terrain2);
+	actor->UpdateAABB();
+	actor->UpdateWorld();
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
+	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
+
+	m_selactors.clear();
+	m_selactors.insert(actor.get());
+	m_selchunkid.SetPoint(0, 0);
+	OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
@@ -901,22 +923,6 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 	m_selchunkid.SetPoint(0, 0);
-
-	//Terrain2Ptr terrain2(new Terrain2(512));
-	//MaterialPtr lambert1(new Material());
-	//lambert1->m_Shader = theApp.default_shader;
-	//lambert1->m_PassMask = theApp.default_pass_mask;
-	//lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
-	//lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
-	//lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
-	//terrain2->m_Material = lambert1;
-	//terrain2->RequestResource();
-	//terrain2->OnEnterPxScene(this);
-	//(*actor_iter)->AddComponent(terrain2);
-	//(*actor_iter)->UpdateAABB();
-	//(*actor_iter)->UpdateOctNode();
-	//UpdateSelBox();
-	//m_selchunkid.SetPoint(0, 0);
 
 	EventArgs arg;
 	m_EventAttributeChanged(&arg);
