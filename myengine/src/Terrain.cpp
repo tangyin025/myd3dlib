@@ -267,13 +267,6 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap)
 	}
 	}
 }
-//
-//my::Vector3 Terrain::GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch)
-//{
-//	unsigned char * pVertex = (unsigned char *)pVertices + VertexIndex * m_VertexStride;
-//	short * pIndices = m_VertexElems.GetVertexValue<short>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
-//	return GetSamplePos(pBits, pitch, Row * m_ChunkSize + pIndices[0], Col * m_ChunkSize + pIndices[1]);
-//}
 
 void Terrain::CreateElements(void)
 {

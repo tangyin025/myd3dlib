@@ -123,8 +123,6 @@ public:
 		return my::Vector3((float)j, GetSampleHeight(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
 	}
 
-	//my::Vector3 GetPosByVertexIndex(const void * pVertices, int Row, int Col, int VertexIndex, void * pBits, int pitch);
-
 	void CreateElements(void);
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
