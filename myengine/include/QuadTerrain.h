@@ -2,16 +2,16 @@
 
 #include "Component.h"
 
-class TerrainNode;
+class QuadTerrainNode;
 
-class Terrain2;
+class QuadTerrain;
 
-typedef boost::shared_ptr<TerrainNode> TerrainNodePtr;
+typedef boost::shared_ptr<QuadTerrainNode> TerrainNodePtr;
 
-class TerrainNode
+class QuadTerrainNode
 {
 public:
-	Terrain2 * m_Owner;
+	QuadTerrain * m_Owner;
 
 	int m_iStart;
 
@@ -26,7 +26,7 @@ public:
 	ChildArray m_Childs;
 
 public:
-	TerrainNode(Terrain2 * Owner, int iStart, int jStart, int NodeSize);
+	QuadTerrainNode(QuadTerrain * Owner, int iStart, int jStart, int NodeSize);
 
 	void Build(void);
 
@@ -37,7 +37,7 @@ public:
 	void Query(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
-class Terrain2 : public Component, public TerrainNode
+class QuadTerrain : public Component, public QuadTerrainNode
 {
 public:
 	int m_Size;
@@ -63,11 +63,11 @@ public:
 	void UpdateVertices(void);
 
 public:
-	Terrain2(int Size);
+	QuadTerrain(int Size);
 
-	Terrain2(void);
+	QuadTerrain(void);
 
-	virtual ~Terrain2(void);
+	virtual ~QuadTerrain(void);
 
 	friend class boost::serialization::access;
 
@@ -98,4 +98,4 @@ public:
 	virtual void ClearShape(void);
 };
 
-typedef boost::shared_ptr<Terrain2> Terrain2Ptr;
+typedef boost::shared_ptr<QuadTerrain> Terrain2Ptr;

@@ -10,7 +10,7 @@
 #include "ShapeDlg.h"
 #include "TerrainDlg.h"
 #include "Terrain.h"
-#include "Terrain2.h"
+#include "QuadTerrain.h"
 #include "Material.h"
 #include "Character.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -561,17 +561,17 @@ void CMainFrame::OnFileNew()
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())));
 	//m_cmps.push_back(rigid_cmp);
 
-	Terrain2Ptr terrain2(new Terrain2(512));
+	Terrain2Ptr quad_terrain(new QuadTerrain(512));
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
 	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
 	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	terrain2->m_Material = lambert1;
+	quad_terrain->m_Material = lambert1;
 
 	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	actor->AddComponent(terrain2);
+	actor->AddComponent(quad_terrain);
 	actor->UpdateAABB();
 	actor->UpdateWorld();
 	actor->RequestResource();

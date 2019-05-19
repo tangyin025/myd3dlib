@@ -1,4 +1,4 @@
-#include "Terrain2.h"
+#include "QuadTerrain.h"
 #include "myDxutApp.h"
 #include "Actor.h"
 #include "RenderPipeline.h"
@@ -6,7 +6,7 @@
 
 using namespace my;
 
-TerrainNode::TerrainNode(Terrain2 * Owner, int iStart, int jStart, int NodeSize)
+QuadTerrainNode::QuadTerrainNode(QuadTerrain * Owner, int iStart, int jStart, int NodeSize)
 	: m_Owner(Owner)
 	, m_iStart(iStart)
 	, m_jStart(jStart)
@@ -15,20 +15,20 @@ TerrainNode::TerrainNode(Terrain2 * Owner, int iStart, int jStart, int NodeSize)
 	m_aabb = my::AABB(iStart, m_Owner->m_aabb.m_min.y, jStart, iStart + NodeSize, m_Owner->m_aabb.m_max.y, jStart + NodeSize);
 }
 
-void TerrainNode::Build(void)
+void QuadTerrainNode::Build(void)
 {
 	//const Vector3 extent = m_aabb.Extent();
 	//if (extent.x > (2 - EPSILON_E3) && extent.y > (2 - EPSILON_E3))
 	//{
 	//	const Vector3 center = m_aabb.Center();
-	//	m_Childs[0].reset(new TerrainNode(AABB(m_aabb.m_min.x, m_aabb.m_min.y, m_aabb.m_min.z, center.x, center.y, m_aabb.m_max.z)));
-	//	m_Childs[1].reset(new TerrainNode(AABB(center.x, m_aabb.m_min.y, m_aabb.m_min.z, m_aabb.m_max.x, center.y, m_aabb.m_max.z)));
-	//	m_Childs[2].reset(new TerrainNode(AABB(m_aabb.m_min.x, center.y, m_aabb.m_min.z, center.x, m_aabb.m_max.y, m_aabb.m_max.z)));
-	//	m_Childs[3].reset(new TerrainNode(AABB(center.x, center.y, m_aabb.m_min.z, m_aabb.m_max.x, m_aabb.m_max.y, m_aabb.m_max.z)));
+	//	m_Childs[0].reset(new QuadTerrainNode(AABB(m_aabb.m_min.x, m_aabb.m_min.y, m_aabb.m_min.z, center.x, center.y, m_aabb.m_max.z)));
+	//	m_Childs[1].reset(new QuadTerrainNode(AABB(center.x, m_aabb.m_min.y, m_aabb.m_min.z, m_aabb.m_max.x, center.y, m_aabb.m_max.z)));
+	//	m_Childs[2].reset(new QuadTerrainNode(AABB(m_aabb.m_min.x, center.y, m_aabb.m_min.z, center.x, m_aabb.m_max.y, m_aabb.m_max.z)));
+	//	m_Childs[3].reset(new QuadTerrainNode(AABB(center.x, center.y, m_aabb.m_min.z, m_aabb.m_max.x, m_aabb.m_max.y, m_aabb.m_max.z)));
 	//}
 }
 
-bool TerrainNode::OnQuery(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+bool QuadTerrainNode::OnQuery(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	const int ibuff[] =
 	{
@@ -56,7 +56,7 @@ bool TerrainNode::OnQuery(const my::Frustum & frustum, DWORD * pib, int & nib, u
 	return true;
 }
 
-void TerrainNode::QueryAll(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void QuadTerrainNode::QueryAll(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	if (!OnQuery(frustum, pib, nib, PassMask, ViewPos, TargetPos))
 	{
@@ -68,7 +68,7 @@ void TerrainNode::QueryAll(const my::Frustum & frustum, DWORD * pib, int & nib, 
 	}
 }
 
-void TerrainNode::Query(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void QuadTerrainNode::Query(const my::Frustum & frustum, DWORD * pib, int & nib, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	if (!OnQuery(frustum, pib, nib, PassMask, ViewPos, TargetPos))
 	{
@@ -89,9 +89,9 @@ void TerrainNode::Query(const my::Frustum & frustum, DWORD * pib, int & nib, uns
 	}
 }
 
-Terrain2::Terrain2(int Size)
+QuadTerrain::QuadTerrain(int Size)
 	: Component(ComponentTypeTerrain2)
-	, TerrainNode(this, 0, 0, Size)
+	, QuadTerrainNode(this, 0, 0, Size)
 	, m_Size(Size)
 	, m_VertexStride(0)
 	, technique_RenderScene(NULL)
@@ -100,9 +100,9 @@ Terrain2::Terrain2(int Size)
 	CreateElements();
 }
 
-Terrain2::Terrain2(void)
+QuadTerrain::QuadTerrain(void)
 	: Component(ComponentTypeTerrain2)
-	, TerrainNode(this, 0, 0, 0)
+	, QuadTerrainNode(this, 0, 0, 0)
 	, m_Size(0)
 	, m_VertexStride(0)
 	, technique_RenderScene(NULL)
@@ -110,14 +110,14 @@ Terrain2::Terrain2(void)
 {
 }
 
-Terrain2::~Terrain2(void)
+QuadTerrain::~QuadTerrain(void)
 {
 	m_Decl.Release();
 	m_vb.OnDestroyDevice();
 	m_ib.OnDestroyDevice();
 }
 
-void Terrain2::CreateElements(void)
+void QuadTerrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
@@ -130,7 +130,7 @@ void Terrain2::CreateElements(void)
 	m_VertexStride = offset;
 }
 
-void Terrain2::UpdateVertices(void)
+void QuadTerrain::UpdateVertices(void)
 {
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
@@ -150,7 +150,7 @@ void Terrain2::UpdateVertices(void)
 	}
 }
 
-void Terrain2::RequestResource(void)
+void QuadTerrain::RequestResource(void)
 {
 	_ASSERT((m_Size & m_Size - 1) == 0);
 
@@ -180,7 +180,7 @@ void Terrain2::RequestResource(void)
 	m_Material->RequestResource();
 }
 
-void Terrain2::ReleaseResource(void)
+void QuadTerrain::ReleaseResource(void)
 {
 	m_Decl.Release();
 	m_vb.OnDestroyDevice();
@@ -189,26 +189,26 @@ void Terrain2::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void Terrain2::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
+void QuadTerrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	_ASSERT(m_Actor);
 	shader->SetTechnique(technique_RenderScene);
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 }
 
-void Terrain2::OnShaderChanged(void)
+void QuadTerrain::OnShaderChanged(void)
 {
 	technique_RenderScene = NULL;
 	handle_World = NULL;
 	m_Material->ParseShaderParameters();
 }
 
-void Terrain2::Update(float fElapsedTime)
+void QuadTerrain::Update(float fElapsedTime)
 {
 
 }
 
-void Terrain2::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void QuadTerrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	if (m_vb.m_ptr)
 	{
@@ -217,7 +217,7 @@ void Terrain2::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipel
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 		DWORD * pib = (DWORD *)m_ib.Lock(0, 0, 0);
 		int nib = 0;
-		TerrainNode::Query(LocalFrustum, pib, nib, PassMask, LocalViewPos, TargetPos);
+		QuadTerrainNode::Query(LocalFrustum, pib, nib, PassMask, LocalViewPos, TargetPos);
 		m_ib.Unlock();
 		if (nib > 0 && m_Material && (m_Material->m_PassMask & PassMask))
 		{
@@ -243,7 +243,7 @@ void Terrain2::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipel
 	}
 }
 
-void Terrain2::ClearShape(void)
+void QuadTerrain::ClearShape(void)
 {
 	Component::ClearShape();
 }
