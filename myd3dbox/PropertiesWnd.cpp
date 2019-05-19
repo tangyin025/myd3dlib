@@ -530,12 +530,8 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), terrain->m_GrassMaterial.get());
-
 	TerrainChunk * chunk = GetTerrainChunkSafe(terrain, chunkid);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)chunk->m_UvRepeat.x);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)chunk->m_UvRepeat.y);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), chunk->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), chunk->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -941,15 +937,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, _T("GrassMaterial"), terrain->m_GrassMaterial.get());
-
 	TerrainChunk * chunk = GetTerrainChunkSafe(terrain, chunkid);
-	CMFCPropertyGridProperty * pUvRepeat = new CSimpleProp(_T("ChunkUvRepeat"), PropertyTerrainChunkUvRepeat, TRUE);
-	pComponent->AddSubItem(pUvRepeat);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)chunk->m_UvRepeat.x, NULL, PropertyTerrainChunkUvRepeatX);
-	pUvRepeat->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)chunk->m_UvRepeat.y, NULL, PropertyTerrainChunkUvRepeatY);
-	pUvRepeat->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), chunk->m_Material.get());
 }
 
@@ -992,7 +980,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 18;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -1770,30 +1758,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
-		break;
-	}
-	case PropertyTerrainChunkUvRepeat:
-	case PropertyTerrainChunkUvRepeatX:
-	case PropertyTerrainChunkUvRepeatY:
-	{
-		CMFCPropertyGridProperty * pComponent = NULL;
-		switch (PropertyId)
-		{
-		case PropertyTerrainChunkUvRepeatX:
-		case PropertyTerrainChunkUvRepeatY:
-			pComponent = pProp->GetParent()->GetParent();
-			break;
-		default:
-			pComponent = pProp->GetParent();
-			break;
-		}
-		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
-		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		TerrainChunk * chunk = GetTerrainChunkSafe(terrain, pFrame->m_selchunkid);
-		chunk->m_UvRepeat.x = pComponent->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal;
-		chunk->m_UvRepeat.y = pComponent->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal;
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	}

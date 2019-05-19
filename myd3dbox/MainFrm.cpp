@@ -897,25 +897,17 @@ void CMainFrame::OnComponentTerrain()
 	{
 		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
 		{
-			TerrainChunk * chunk = terrain->m_Chunks[i][j];
-			chunk->m_UvRepeat = dlg.m_UvRepeat;
-
 			MaterialPtr lambert1(new Material());
 			lambert1->m_Shader = theApp.default_shader;
 			lambert1->m_PassMask = theApp.default_pass_mask;
 			lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
 			lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
 			lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
+
+			TerrainChunk * chunk = terrain->m_Chunks[i][j];
 			chunk->m_Material = lambert1;
 		}
 	}
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = theApp.default_shader;
-	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	terrain->m_GrassMaterial = lambert1;
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
@@ -1548,8 +1540,8 @@ void CMainFrame::OnToolsTerraingrassbrush()
 			int i = (int)floor(z / terrain->m_ChunkSize);
 			int j = (int)floor(x / terrain->m_ChunkSize);
 			TerrainChunk * chunk = terrain->m_Chunks[i][j];
-			chunk->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z), z),
-				my::Vector3::zero, my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), boost::hash_value(std::make_pair(x, z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
+			//chunk->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z), z),
+			//	my::Vector3::zero, my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), boost::hash_value(std::make_pair(x, z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
 		}
 	}
 	terrain->m_HeightMap.UnlockRect();

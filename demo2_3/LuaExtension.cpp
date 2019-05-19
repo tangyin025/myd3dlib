@@ -1004,7 +1004,6 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
-			.def_readwrite("GrassMaterial", &Terrain::m_GrassMaterial)
 
 		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())

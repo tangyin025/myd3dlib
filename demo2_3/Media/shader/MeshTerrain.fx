@@ -8,7 +8,6 @@ float g_HeightScale;
 float2 g_HeightTexSize;
 int2 g_ChunkId;
 int g_ChunkSize;
-float2 g_UvRepeat;
 Texture2D g_HeightTexture;
 
 sampler HeightTextureSampler = sampler_state

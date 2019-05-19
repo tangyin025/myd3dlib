@@ -9,7 +9,6 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
-	, public my::Emitter
 {
 public:
 	Terrain * m_Owner;
@@ -19,8 +18,6 @@ public:
 	int m_Row;
 
 	int m_Col;
-
-	my::Vector2 m_UvRepeat;
 
 	MaterialPtr m_Material;
 
@@ -55,12 +52,6 @@ class Terrain
 	: public Component
 {
 public:
-	enum RenderType
-	{
-		RenderTypeTerrain,
-		RenderTypeEmitter,
-	};
-
 	int m_RowChunks;
 
 	int m_ColChunks;
@@ -100,8 +91,6 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	MaterialPtr m_GrassMaterial;
-
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE technique_RenderScene;
@@ -116,15 +105,7 @@ public:
 
 	D3DXHANDLE handle_ChunkSize;
 
-	D3DXHANDLE handle_UvRepeat;
-
 	D3DXHANDLE handle_HeightTexture;
-
-	D3DXHANDLE technique_emitter_RenderScene;
-
-	D3DXHANDLE handle_emitter_World;
-
-	D3DXHANDLE handle_emitter_ParticleOffset;
 
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 

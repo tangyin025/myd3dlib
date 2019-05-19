@@ -27,20 +27,16 @@ BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(void)
 	: m_Owner(NULL)
-	, Emitter(1)
 	, m_Row(0)
 	, m_Col(0)
-	, m_UvRepeat(1, 1)
 {
 	m_aabb = AABB::Invalid();
 }
 
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 	: m_Owner(Owner)
-	, Emitter(1)
 	, m_Row(Row)
 	, m_Col(Col)
-	, m_UvRepeat(1, 1)
 {
 	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
 	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Owner->m_ChunkSize), (m_Col + 0) * (Owner->m_ChunkSize));
@@ -59,9 +55,7 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
-	ar << BOOST_SERIALIZATION_NVP(m_UvRepeat);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	ar << BOOST_SERIALIZATION_NVP(m_ParticleList);
 }
 
 template<>
@@ -71,9 +65,7 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
-	ar >> BOOST_SERIALIZATION_NVP(m_UvRepeat);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	ar >> BOOST_SERIALIZATION_NVP(m_ParticleList);
 }
 
 void TerrainChunk::UpdateAABB(void)
@@ -144,11 +136,7 @@ Terrain::Terrain(void)
 	, handle_HeightTexSize(NULL)
 	, handle_ChunkId(NULL)
 	, handle_ChunkSize(NULL)
-	, handle_UvRepeat(NULL)
 	, handle_HeightTexture(NULL)
-	, technique_emitter_RenderScene(NULL)
-	, handle_emitter_World(NULL)
-	, handle_emitter_ParticleOffset(NULL)
 {
 }
 
@@ -167,11 +155,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, handle_HeightTexSize(NULL)
 	, handle_ChunkId(NULL)
 	, handle_ChunkSize(NULL)
-	, handle_UvRepeat(NULL)
 	, handle_HeightTexture(NULL)
-	, technique_emitter_RenderScene(NULL)
-	, handle_emitter_World(NULL)
-	, handle_emitter_ParticleOffset(NULL)
 {
 	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
 	CreateHeightMap();
@@ -577,7 +561,6 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	const_cast<my::Texture2D&>(m_HeightMap).UnlockRect(0);
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	ar << BOOST_SERIALIZATION_NVP(m_Root);
-	ar << BOOST_SERIALIZATION_NVP(m_GrassMaterial);
 }
 
 template<>
@@ -600,7 +583,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		boost::make_transform_iterator(buff.begin() + BufferSize, boost::lambda::ll_static_cast<unsigned int>(boost::lambda::_1) << 24), (unsigned int *)lrc.pBits);
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
-	ar >> BOOST_SERIALIZATION_NVP(m_GrassMaterial);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -648,8 +630,6 @@ void Terrain::RequestResource(void)
 			m_Chunks[i][j]->m_Material->RequestResource();
 		}
 	}
-
-	m_GrassMaterial->RequestResource();
 }
 
 void Terrain::ReleaseResource(void)
@@ -663,7 +643,6 @@ void Terrain::ReleaseResource(void)
 			m_Chunks[i][j]->m_Material->ReleaseResource();
 		}
 	}
-	m_GrassMaterial->ReleaseResource();
 	m_Fragment.clear();
 	Component::ReleaseResource();
 }
@@ -672,31 +651,14 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 {
 	_ASSERT(m_Actor);
 
-	switch (GetBValue(lparam))
-	{
-	case RenderTypeTerrain:
-	{
-		shader->SetTechnique(technique_RenderScene);
-		shader->SetMatrix(handle_World, m_Actor->m_World);
-		shader->SetFloat(handle_HeightScale, m_HeightScale);
-		shader->SetVector(handle_HeightTexSize, Vector2((float)m_ColChunks * m_ChunkSize, (float)m_RowChunks * m_ChunkSize));
-		int ChunkId[2] = { GetRValue(lparam), GetGValue(lparam) };
-		shader->SetIntArray(handle_ChunkId, ChunkId, 2);
-		shader->SetInt(handle_ChunkSize, m_ChunkSize);
-		shader->SetVector(handle_UvRepeat, m_Chunks[ChunkId[0]][ChunkId[1]]->m_UvRepeat);
-		shader->SetTexture(handle_HeightTexture, &m_HeightMap);
-		break;
-	}
-	case RenderTypeEmitter:
-	{
-		shader->SetTechnique(technique_emitter_RenderScene);
-		shader->SetMatrix(handle_emitter_World, m_Actor->m_World);
-		shader->SetVector(handle_emitter_ParticleOffset, Vector3(0, -0.5f, 0));
-		break;
-	}
-	default:
-		break;
-	}
+	shader->SetTechnique(technique_RenderScene);
+	shader->SetMatrix(handle_World, m_Actor->m_World);
+	shader->SetFloat(handle_HeightScale, m_HeightScale);
+	shader->SetVector(handle_HeightTexSize, Vector2((float)m_ColChunks * m_ChunkSize, (float)m_RowChunks * m_ChunkSize));
+	int ChunkId[2] = { LOWORD(lparam), HIWORD(lparam) };
+	shader->SetIntArray(handle_ChunkId, ChunkId, 2);
+	shader->SetInt(handle_ChunkSize, m_ChunkSize);
+	shader->SetTexture(handle_HeightTexture, &m_HeightMap);
 }
 
 void Terrain::OnShaderChanged(void)
@@ -707,11 +669,7 @@ void Terrain::OnShaderChanged(void)
 	handle_HeightTexSize = NULL;
 	handle_ChunkId = NULL;
 	handle_ChunkSize = NULL;
-	handle_UvRepeat = NULL;
 	handle_HeightTexture = NULL;
-	technique_emitter_RenderScene = NULL;
-	handle_emitter_World = NULL;
-	handle_emitter_ParticleOffset = NULL;
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
@@ -719,7 +677,6 @@ void Terrain::OnShaderChanged(void)
 			m_Chunks[i][j]->m_Material->ParseShaderParameters();
 		}
 	}
-	m_GrassMaterial->ParseShaderParameters();
 }
 
 void Terrain::Update(float fElapsedTime)
@@ -780,50 +737,38 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
-			const unsigned int lod[5] = {
+			const unsigned int lod[5] =
+			{
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)};
-			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)
+			};
+			if (chunk->m_Material && chunk->m_Material->m_PassMask & PassMask)
 			{
-				if (chunk->m_Material && (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask)))
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
-					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
-					if (shader)
+					if (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask))
 					{
-						if (!terrain->technique_RenderScene)
+						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
+						if (shader)
 						{
-							BOOST_VERIFY(terrain->technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
-							BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
-							BOOST_VERIFY(terrain->handle_HeightScale = shader->GetParameterByName(NULL, "g_HeightScale"));
-							BOOST_VERIFY(terrain->handle_HeightTexSize = shader->GetParameterByName(NULL, "g_HeightTexSize"));
-							BOOST_VERIFY(terrain->handle_ChunkId = shader->GetParameterByName(NULL, "g_ChunkId"));
-							BOOST_VERIFY(terrain->handle_ChunkSize = shader->GetParameterByName(NULL, "g_ChunkSize"));
-							BOOST_VERIFY(terrain->handle_UvRepeat = shader->GetParameterByName(NULL, "g_UvRepeat"));
-							BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
+							if (!terrain->technique_RenderScene)
+							{
+								BOOST_VERIFY(terrain->technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
+								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+								BOOST_VERIFY(terrain->handle_HeightScale = shader->GetParameterByName(NULL, "g_HeightScale"));
+								BOOST_VERIFY(terrain->handle_HeightTexSize = shader->GetParameterByName(NULL, "g_HeightTexSize"));
+								BOOST_VERIFY(terrain->handle_ChunkId = shader->GetParameterByName(NULL, "g_ChunkId"));
+								BOOST_VERIFY(terrain->handle_ChunkSize = shader->GetParameterByName(NULL, "g_ChunkSize"));
+								BOOST_VERIFY(terrain->handle_HeightTexture = shader->GetParameterByName(NULL, "g_HeightTexture"));
+							}
+
+							const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
+							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
+								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
 						}
-
-						const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
-						pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-							0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), RGB(chunk->m_Row, chunk->m_Col, RenderTypeTerrain));
-					}
-				}
-
-				if (lod[0] <= 0 && terrain->m_GrassMaterial && (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask)))
-				{
-					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, NULL, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
-					if (shader)
-					{
-						if (!terrain->technique_emitter_RenderScene)
-						{
-							BOOST_VERIFY(terrain->technique_emitter_RenderScene = shader->GetTechniqueByName("RenderScene"));
-							BOOST_VERIFY(terrain->handle_emitter_World = shader->GetParameterByName(NULL, "g_World"));
-							BOOST_VERIFY(terrain->handle_emitter_ParticleOffset = shader->GetParameterByName(NULL, "g_ParticleOffset"));
-						}
-
-						pipeline->PushEmitter(PassID, chunk, shader, terrain, terrain->m_GrassMaterial.get(), RGB(0, 0, RenderTypeEmitter));
 					}
 				}
 			}

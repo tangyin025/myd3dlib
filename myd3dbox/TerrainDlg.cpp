@@ -16,7 +16,6 @@ TerrainDlg::TerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
-	, m_UvRepeat(1, 1)
 	, m_DiffuseTexture(ms2ts(theApp.default_texture).c_str())
 	, m_NormalTexture(ms2ts(theApp.default_normal_texture).c_str())
 	, m_SpecularTexture(ms2ts(theApp.default_specular_texture).c_str())
@@ -37,8 +36,6 @@ void TerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT4, m_DiffuseTexture);
 	DDX_Text(pDX, IDC_EDIT5, m_NormalTexture);
 	DDX_Text(pDX, IDC_EDIT6, m_SpecularTexture);
-	DDX_Text(pDX, IDC_EDIT7, m_UvRepeat.x);
-	DDX_Text(pDX, IDC_EDIT8, m_UvRepeat.y);
 }
 
 
