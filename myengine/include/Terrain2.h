@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "myTexture.h"
 
 class TerrainNode;
 
@@ -54,22 +55,46 @@ public:
 
 	MaterialPtr m_Material;
 
+	float m_HeightScale;
+
+	my::Texture2D m_HeightMap;
+
 	D3DXHANDLE technique_RenderScene;
 
 	D3DXHANDLE handle_World;
 
+	D3DXHANDLE handle_HeightScale;
+
+	D3DXHANDLE handle_HeightTexSize;
+
+	D3DXHANDLE handle_ChunkId;
+
 	D3DXHANDLE handle_ChunkSize;
 
+	D3DXHANDLE handle_HeightTexture;
+
 	void UpdateVertices(void);
+
+	void CreateHeightMap(void);
+
+	D3DCOLOR GetSampleValue(void * pBits, int pitch, int i, int j) const;
+
+	float GetSampleHeight(void * pBits, int pitch, int i, int j) const;
+
+	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j) const;
+
+	float GetPosHeight(void * pBits, int pitch, float x, float z) const;
+
+	void CreateElements(void);
+
+	void UpdateHeightMapNormal(void);
 
 public:
 	Terrain2(int Size);
 
 	Terrain2(void);
 
-	virtual ~Terrain2(void)
-	{
-	}
+	virtual ~Terrain2(void);
 
 	friend class boost::serialization::access;
 

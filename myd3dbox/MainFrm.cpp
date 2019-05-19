@@ -870,53 +870,53 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	//TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
-	//for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
-	//{
-	//	for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
-	//	{
-	//		TerrainChunk * chunk = terrain->m_Chunks[i][j];
-	//		chunk->m_UvRepeat = dlg.m_UvRepeat;
+	TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
+	for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
+		{
+			TerrainChunk * chunk = terrain->m_Chunks[i][j];
+			chunk->m_UvRepeat = dlg.m_UvRepeat;
 
-	//		MaterialPtr lambert1(new Material());
-	//		lambert1->m_Shader = theApp.default_shader;
-	//		lambert1->m_PassMask = theApp.default_pass_mask;
-	//		lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
-	//		lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
-	//		lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
-	//		chunk->m_Material = lambert1;
-	//	}
-	//}
-	//MaterialPtr lambert1(new Material());
-	//lambert1->m_Shader = theApp.default_shader;
-	//lambert1->m_PassMask = theApp.default_pass_mask;
-	//lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	//lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	//lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	//terrain->m_GrassMaterial = lambert1;
-	//terrain->RequestResource();
-	//terrain->OnEnterPxScene(this);
-	//(*actor_iter)->AddComponent(terrain);
-	//(*actor_iter)->UpdateAABB();
-	//(*actor_iter)->UpdateOctNode();
-	//UpdateSelBox();
-	//m_selchunkid.SetPoint(0, 0);
-
-	Terrain2Ptr terrain2(new Terrain2(512));
+			MaterialPtr lambert1(new Material());
+			lambert1->m_Shader = theApp.default_shader;
+			lambert1->m_PassMask = theApp.default_pass_mask;
+			lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
+			lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
+			lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
+			chunk->m_Material = lambert1;
+		}
+	}
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
-	lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
-	lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
-	terrain2->m_Material = lambert1;
-	terrain2->RequestResource();
-	terrain2->OnEnterPxScene(this);
-	(*actor_iter)->AddComponent(terrain2);
+	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	terrain->m_GrassMaterial = lambert1;
+	terrain->RequestResource();
+	terrain->OnEnterPxScene(this);
+	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 	m_selchunkid.SetPoint(0, 0);
+
+	//Terrain2Ptr terrain2(new Terrain2(512));
+	//MaterialPtr lambert1(new Material());
+	//lambert1->m_Shader = theApp.default_shader;
+	//lambert1->m_PassMask = theApp.default_pass_mask;
+	//lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms((LPCTSTR)dlg.m_DiffuseTexture));
+	//lambert1->AddParameterTexture("g_NormalTexture", ts2ms((LPCTSTR)dlg.m_NormalTexture));
+	//lambert1->AddParameterTexture("g_SpecularTexture", ts2ms((LPCTSTR)dlg.m_SpecularTexture));
+	//terrain2->m_Material = lambert1;
+	//terrain2->RequestResource();
+	//terrain2->OnEnterPxScene(this);
+	//(*actor_iter)->AddComponent(terrain2);
+	//(*actor_iter)->UpdateAABB();
+	//(*actor_iter)->UpdateOctNode();
+	//UpdateSelBox();
+	//m_selchunkid.SetPoint(0, 0);
 
 	EventArgs arg;
 	m_EventAttributeChanged(&arg);
