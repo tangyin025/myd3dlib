@@ -86,7 +86,7 @@ CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
-	, m_Root(my::AABB(-1024, 1024))
+	, m_Root(my::AABB(-4096, 4096))
 	, m_solid(NULL)
 	//, m_triareas(NULL)
 	, m_chf(NULL)
@@ -1171,9 +1171,9 @@ void CMainFrame::OnToolsBuildnavigation()
 							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
 							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
 							{
-								int i0 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 0);
-								int i1 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 1);
-								int i2 = *((Terrain::VertexArray2D::element *)pIndices + face_i * 3 + 2);
+								int i0 = *((Terrain::IndexTable::element *)pIndices + face_i * 3 + 0);
+								int i1 = *((Terrain::IndexTable::element *)pIndices + face_i * 3 + 1);
+								int i2 = *((Terrain::IndexTable::element *)pIndices + face_i * 3 + 2);
 
 								my::Vector3 v0 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * terrain->m_VertexStride).transformCoord(actor->m_World);
 								my::Vector3 v1 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * terrain->m_VertexStride).transformCoord(actor->m_World);

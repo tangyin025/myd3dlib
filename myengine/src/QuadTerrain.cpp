@@ -90,7 +90,7 @@ void QuadTerrainNode::Query(const my::Frustum & frustum, DWORD * pib, int & nib,
 }
 
 QuadTerrain::QuadTerrain(int Size)
-	: Component(ComponentTypeTerrain2)
+	: Component(ComponentTypeQuadTerrain)
 	, QuadTerrainNode(this, 0, 0, Size)
 	, m_Size(Size)
 	, m_VertexStride(0)
@@ -101,7 +101,7 @@ QuadTerrain::QuadTerrain(int Size)
 }
 
 QuadTerrain::QuadTerrain(void)
-	: Component(ComponentTypeTerrain2)
+	: Component(ComponentTypeQuadTerrain)
 	, QuadTerrainNode(this, 0, 0, 0)
 	, m_Size(0)
 	, m_VertexStride(0)

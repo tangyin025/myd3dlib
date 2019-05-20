@@ -42,8 +42,7 @@ public:
 		ComponentTypeStaticEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
-		ComponentTypeTerrain2,
-		//ComponentTypeRigid,
+		ComponentTypeQuadTerrain,
 	};
 
 	ComponentType m_Type;

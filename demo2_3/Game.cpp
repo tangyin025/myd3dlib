@@ -284,7 +284,7 @@ static int os_exit(lua_State * L)
 
 Game::Game(void)
 	: m_UIRender(new EffectUIRender())
-	, m_Root(my::AABB(-1024, 1024))
+	, m_Root(my::AABB(-4096, 4096))
 	, m_TargetActor(NULL)
 {
 	boost::program_options::options_description desc("Options");

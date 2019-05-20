@@ -40,7 +40,7 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 {
 	m_aabb.m_min = Vector3(m_Col * m_Owner->m_ChunkSize, -1, m_Row * m_Owner->m_ChunkSize);
 	m_aabb.m_max = Vector3(m_Col * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize, 1, m_Row * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize);
-	m_vb.CreateVertexBuffer(m_Owner->m_VertexTable.shape()[0] * m_Owner->m_VertexTable.shape()[1] * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_vb.CreateVertexBuffer(m_Owner->m_IndexTable.shape()[0] * m_Owner->m_IndexTable.shape()[1] * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -56,7 +56,7 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	const DWORD BufferSize = m_Owner->m_VertexTable.shape()[0] * m_Owner->m_VertexTable.shape()[1] * m_Owner->m_VertexStride;
+	const DWORD BufferSize = m_Owner->m_IndexTable.shape()[0] * m_Owner->m_IndexTable.shape()[1] * m_Owner->m_VertexStride;
 	ar << BOOST_SERIALIZATION_NVP(BufferSize);
 	void * pVertices = const_cast<my::VertexBuffer&>(m_vb).Lock(0, 0, D3DLOCK_READONLY);
 	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
@@ -86,11 +86,11 @@ void TerrainChunk::UpdateAABB(void)
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
-		for (unsigned int i = 0; i < m_Owner->m_VertexTable.shape()[0]; i++)
+		for (unsigned int i = 0; i < m_Owner->m_IndexTable.shape()[0]; i++)
 		{
-			for (unsigned int j = 0; j < m_Owner->m_VertexTable.shape()[1]; j++)
+			for (unsigned int j = 0; j < m_Owner->m_IndexTable.shape()[1]; j++)
 			{
-				unsigned char * pVertex = (unsigned char *)pVertices + m_Owner->m_VertexTable[i][j] * m_Owner->m_VertexStride;
+				unsigned char * pVertex = (unsigned char *)pVertices + m_Owner->m_IndexTable[i][j] * m_Owner->m_VertexStride;
 				m_aabb.unionSelf(m_Owner->m_VertexElems.GetPosition(pVertex));
 			}
 		}
@@ -105,9 +105,9 @@ void TerrainChunk::UpdateVertices(my::Texture2D * HeightMap)
 	{
 		D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
 		D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
-		for (unsigned int i = 0; i < m_Owner->m_VertexTable.shape()[0]; i++)
+		for (unsigned int i = 0; i < m_Owner->m_IndexTable.shape()[0]; i++)
 		{
-			for (unsigned int j = 0; j < m_Owner->m_VertexTable.shape()[1]; j++)
+			for (unsigned int j = 0; j < m_Owner->m_IndexTable.shape()[1]; j++)
 			{
 				int pos_i = m_Row * m_Owner->m_ChunkSize + i;
 				int pos_j = m_Col * m_Owner->m_ChunkSize + j;
@@ -126,7 +126,7 @@ void TerrainChunk::UpdateVertices(my::Texture2D * HeightMap)
 				};
 				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
 
-				unsigned char * pVertex = (unsigned char *)pVertices + m_Owner->m_VertexTable[i][j] * m_Owner->m_VertexStride;
+				unsigned char * pVertex = (unsigned char *)pVertices + m_Owner->m_IndexTable[i][j] * m_Owner->m_VertexStride;
 				m_Owner->m_VertexElems.SetPosition(pVertex, Pos);
 				m_Owner->m_VertexElems.SetNormal(pVertex, Normal);
 				m_Owner->m_VertexElems.SetTangent(pVertex, Normal.cross(Vector3(0, 0, 1)));
@@ -138,7 +138,7 @@ void TerrainChunk::UpdateVertices(my::Texture2D * HeightMap)
 	}
 }
 
-static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N, int hs, Terrain::VertexArray2D::element k)
+static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)
 {
     _ASSERT((hs & (hs - 1)) == 0);
     for (int i = 0; i < N - 1; i += hs * 2)
@@ -166,10 +166,10 @@ static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N, int h
     return k;
 }
 
-static unsigned int FillVertexTable(Terrain::VertexArray2D & verts, int N)
+static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N)
 {
     _ASSERT(((N - 1) & (N - 2)) == 0);
-	Terrain::VertexArray2D::element k = 0;
+	Terrain::IndexTable::element k = 0;
     verts[0][0] = k++;
     verts[0][N - 1] = k++;
     verts[N - 1][0] = k++;
@@ -194,7 +194,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
-	, m_VertexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
+	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_HeightScale(HeightScale)
 	, m_Root(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
@@ -202,7 +202,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, handle_World(NULL)
 {
 	CreateElements();
-	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
+	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	my::Texture2D HeightMap;
 	HeightMap.CreateTexture(1, 1, 1, 0, D3DFMT_A8);
 	D3DLOCKED_RECT lrc = HeightMap.LockRect(NULL, 0, 0);
@@ -385,9 +385,9 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 
     struct Setter
     {
-		VertexArray2D & verts;
-		VertexArray2D::element * buff;
-		Setter(VertexArray2D & _verts, VertexArray2D::element * _buff)
+		IndexTable & verts;
+		IndexTable::element * buff;
+		Setter(IndexTable & _verts, IndexTable::element * _buff)
 			: verts(_verts)
 			, buff(_buff)
 		{
@@ -400,9 +400,9 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 
     struct SetterTranspose
     {
-		VertexArray2D & verts;
-		VertexArray2D::element * buff;
-		SetterTranspose(VertexArray2D & _verts, VertexArray2D::element * _buff)
+		IndexTable & verts;
+		IndexTable::element * buff;
+		SetterTranspose(IndexTable & _verts, IndexTable::element * _buff)
 			: verts(_verts)
 			, buff(_buff)
 		{
@@ -433,15 +433,15 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		frag.VertNum = (N[0] + 1) * (N[0] + 1);
 		frag.PrimitiveCount = (N[0] - 2) * (N[0] - 2) * 2
 			+ N[1] * (M[1] + 1) + N[2] * (M[2] + 1) + N[3] * (M[3] + 1) + N[4] * (M[4] + 1) - 8;
-		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(VertexArray2D::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
-		VertexArray2D::element k = 0;
+		IndexTable::element k = 0;
 		const int step = 1 << center;
-		k += FillNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
-		k += EdgeNvM(SetterTranspose(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
-		k += EdgeNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[2], M[2], 0, step, 0, step);
-		k += EdgeNvM(SetterTranspose(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
-		k += EdgeNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
+		k += FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
+		k += EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
+		k += EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[2], M[2], 0, step, 0, step);
+		k += EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
+		k += EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
 		_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
@@ -450,10 +450,10 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		const int N = m_ChunkSize >> center;
 		frag.VertNum = (N + 1) * (N + 1);
 		frag.PrimitiveCount = N * N * 2;
-		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(VertexArray2D::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		const int step = 1 << center;
-		VertexArray2D::element k = FillNvM(Setter(m_VertexTable, (VertexArray2D::element *)pIndices), N, N, 0, step, 0, step);
+		IndexTable::element k = FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices), N, N, 0, step, 0, step);
 		frag.ib.Unlock();
 	}
 	return frag;
@@ -477,8 +477,8 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkSize);
-	m_VertexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
-	FillVertexTable(m_VertexTable, m_ChunkSize + 1);
+	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
+	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
@@ -665,7 +665,7 @@ void Terrain::CreateHeightFieldShape(void)
 				for (unsigned int j = 0; j < ((col < m_ColChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); j++)
 				{
 					//// ! Reverse physx height field row, column
-					unsigned char * pVertex = (unsigned char *)pVertices + m_VertexTable[i][j] * m_VertexStride;
+					unsigned char * pVertex = (unsigned char *)pVertices + m_IndexTable[i][j] * m_VertexStride;
 					int sample_i = (col * m_ChunkSize + j) * (m_RowChunks * m_ChunkSize + 1) + raw * m_ChunkSize + i;
 					Samples[sample_i].height = m_VertexElems.GetPosition(pVertex).y / m_HeightScale;
 					Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
