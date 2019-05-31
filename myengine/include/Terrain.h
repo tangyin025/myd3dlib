@@ -108,8 +108,8 @@ public:
 
 	unsigned char GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
 	{
-		_ASSERT(i >= 0 && i < desc.Height);
-		_ASSERT(j >= 0 && j < desc.Width);
+		_ASSERT(i >= 0 && i < (int)desc.Height);
+		_ASSERT(j >= 0 && j < (int)desc.Width);
 		return *((unsigned char *)lrc.pBits + i * lrc.Pitch + j);
 	}
 

@@ -38,8 +38,8 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
 	, m_Row(Row)
 	, m_Col(Col)
 {
-	m_aabb.m_min = Vector3(m_Col * m_Owner->m_ChunkSize, -1, m_Row * m_Owner->m_ChunkSize);
-	m_aabb.m_max = Vector3(m_Col * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize, 1, m_Row * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize);
+	m_aabb.m_min = Vector3((float)m_Col * m_Owner->m_ChunkSize, -1, (float)m_Row * m_Owner->m_ChunkSize);
+	m_aabb.m_max = Vector3((float)m_Col * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize, 1, (float)m_Row * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize);
 	m_vb.CreateVertexBuffer(m_Owner->m_IndexTable.shape()[0] * m_Owner->m_IndexTable.shape()[1] * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 }
 
@@ -660,14 +660,14 @@ void Terrain::CreateHeightFieldShape(void)
 		{
 			TerrainChunk * chunk = m_Chunks[raw][col];
 			VOID * pVertices = chunk->m_vb.Lock(0, 0, 0);
-			for (unsigned int i = 0; i < ((raw < m_RowChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); i++)
+			for (int i = 0; i < ((raw < m_RowChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); i++)
 			{
-				for (unsigned int j = 0; j < ((col < m_ColChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); j++)
+				for (int j = 0; j < ((col < m_ColChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); j++)
 				{
 					//// ! Reverse physx height field row, column
 					unsigned char * pVertex = (unsigned char *)pVertices + m_IndexTable[i][j] * m_VertexStride;
 					int sample_i = (col * m_ChunkSize + j) * (m_RowChunks * m_ChunkSize + 1) + raw * m_ChunkSize + i;
-					Samples[sample_i].height = m_VertexElems.GetPosition(pVertex).y / m_HeightScale;
+					Samples[sample_i].height = (signed short)(m_VertexElems.GetPosition(pVertex).y / m_HeightScale);
 					Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
 					Samples[sample_i].materialIndex1 = physx::PxBitAndByte(0, false);
 				}
