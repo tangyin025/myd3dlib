@@ -81,7 +81,6 @@
     <ClInclude Include="include\FModContext.h" />
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\PhysXContext.h" />
-    <ClInclude Include="include\QuadTerrain.h" />
     <ClInclude Include="include\RenderPipeline.h" />
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>
@@ -94,7 +93,6 @@
     <ClCompile Include="src\FModContext.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\PhysXContext.cpp" />
-    <ClCompile Include="src\QuadTerrain.cpp" />
     <ClCompile Include="src\RenderPipeline.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>

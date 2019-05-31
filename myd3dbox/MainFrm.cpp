@@ -10,7 +10,6 @@
 #include "ShapeDlg.h"
 #include "TerrainDlg.h"
 #include "Terrain.h"
-#include "QuadTerrain.h"
 #include "Material.h"
 #include "Character.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -529,49 +528,25 @@ void CMainFrame::OnFileNew()
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 
-	//unsigned int numRows = 5;
-	//unsigned int numCols = 5;
-	//PxHeightFieldSample* samples = (PxHeightFieldSample*)malloc(sizeof(PxHeightFieldSample)*(numRows*numCols));
-	//for (unsigned i = 0; i < numRows; i++)
+	//TerrainPtr terrain(new Terrain(1, 1, 32, 0.1f));
+	//for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
 	//{
-	//	for (unsigned int j = 0; j < numCols; j++)
+	//	for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
 	//	{
-	//		PxHeightFieldSample & sample = samples[i * numCols + j];
-	//		sample.height = 0;
-	//		sample.materialIndex0 = PxBitAndByte(0, false);
-	//		sample.materialIndex1 = PxBitAndByte(0, false);
+	//		MaterialPtr lambert1(new Material());
+	//		lambert1->m_Shader = theApp.default_shader;
+	//		lambert1->m_PassMask = theApp.default_pass_mask;
+	//		lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	//		lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	//		lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+
+	//		TerrainChunk * chunk = terrain->m_Chunks[i][j];
+	//		chunk->m_Material = lambert1;
 	//	}
 	//}
 
-	//PxHeightFieldDesc hfDesc;
-	//hfDesc.format             = PxHeightFieldFormat::eS16_TM;
-	//hfDesc.nbColumns          = numCols;
-	//hfDesc.nbRows             = numRows;
-	//hfDesc.samples.data       = samples;
-	//hfDesc.samples.stride     = sizeof(PxHeightFieldSample);
-	//PxHeightField* aHeightField = PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc);
-	//float heightScale = 1.0f;
-	//float rowScale = 3.0f;
-	//float colScale = 3.0f;
-	//PxHeightFieldGeometry hfGeom(aHeightField, PxMeshGeometryFlags(), heightScale, rowScale, colScale);
-
-	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	//rigid_cmp->m_RigidActor->createShape(hfGeom, *theApp.m_PxMaterial, PxTransform::createIdentity());
-	//rigid_cmp->RequestResource();
-	//m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())));
-	//m_cmps.push_back(rigid_cmp);
-
-	//Terrain2Ptr quad_terrain(new QuadTerrain(512));
-	//MaterialPtr lambert1(new Material());
-	//lambert1->m_Shader = theApp.default_shader;
-	//lambert1->m_PassMask = theApp.default_pass_mask;
-	//lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	//lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	//lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	//quad_terrain->m_Material = lambert1;
-
 	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	//actor->AddComponent(quad_terrain);
+	//actor->AddComponent(terrain);
 	//actor->UpdateAABB();
 	//actor->UpdateWorld();
 	//actor->RequestResource();
