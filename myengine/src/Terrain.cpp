@@ -98,25 +98,24 @@ void TerrainChunk::UpdateAABB(void)
 	}
 }
 
-void TerrainChunk::UpdateVertices(my::Texture2D * HeightMap)
+template <typename T>
+void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 {
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
-		D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
-		D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
 		for (unsigned int i = 0; i < m_Owner->m_IndexTable.shape()[0]; i++)
 		{
 			for (unsigned int j = 0; j < m_Owner->m_IndexTable.shape()[1]; j++)
 			{
 				int pos_i = m_Row * m_Owner->m_ChunkSize + i;
 				int pos_j = m_Col * m_Owner->m_ChunkSize + j;
-				const Vector3 Pos = m_Owner->GetSamplePos(desc, lrc, pos_i, pos_j);
+				const Vector3 Pos = m_Owner->GetSamplePos<T>(desc, lrc, pos_i, pos_j);
 				const Vector3 Dirs[4] = {
-					m_Owner->GetSamplePos(desc, lrc, pos_i - 1, pos_j) - Pos,
-					m_Owner->GetSamplePos(desc, lrc, pos_i, pos_j - 1) - Pos,
-					m_Owner->GetSamplePos(desc, lrc, pos_i + 1, pos_j) - Pos,
-					m_Owner->GetSamplePos(desc, lrc, pos_i, pos_j + 1) - Pos,
+					m_Owner->GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j) - Pos,
+					m_Owner->GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1) - Pos,
+					m_Owner->GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j) - Pos,
+					m_Owner->GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1) - Pos,
 				};
 				const Vector3 Nors[4] = {
 					Dirs[0].cross(Dirs[1]).normalize(),
@@ -133,7 +132,6 @@ void TerrainChunk::UpdateVertices(my::Texture2D * HeightMap)
 				m_Owner->m_VertexElems.SetTexcoord(pVertex, Vector2((float)j / m_Owner->m_ChunkSize, (float)i / m_Owner->m_ChunkSize));
 			}
 		}
-		HeightMap->UnlockRect(0);
 		m_vb.Unlock();
 	}
 }
@@ -204,10 +202,10 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	CreateElements();
 	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	my::Texture2D HeightMap;
-	HeightMap.CreateTexture(1, 1, 1, 0, D3DFMT_A8);
+	HeightMap.CreateTexture(1, 1, 1, 0, D3DFMT_L8);
+	D3DSURFACE_DESC desc = HeightMap.GetLevelDesc(0);
 	D3DLOCKED_RECT lrc = HeightMap.LockRect(NULL, 0, 0);
 	memset(lrc.pBits, 0, lrc.Pitch * 1 * sizeof(unsigned char));
-	HeightMap.UnlockRect(0);
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
@@ -215,9 +213,10 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
 			m_Root.AddActor(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
-			chunk->UpdateVertices(&HeightMap);
+			chunk->UpdateVertices<unsigned char>(desc, lrc);
 		}
 	}
+	HeightMap.UnlockRect(0);
 }
 
 Terrain::~Terrain(void)
@@ -244,28 +243,31 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 	return Min(Quad(m_ChunkSize), (int)sqrt(DistanceSq / m_Actor->m_LodRatio / m_Actor->m_LodRatio));
 }
 
-void Terrain::UpdateHeightMap(my::Texture2D * HeightMap)
+void Terrain::UpdateHeightField(my::Texture2D * HeightMap)
 {
-	D3DSURFACE_DESC SrcDesc = HeightMap->GetLevelDesc(0);
-	switch (SrcDesc.Format)
+	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
+	D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
-	case D3DFMT_A8:
-	case D3DFMT_L8:
-	{
-		for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
-			for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+			switch (desc.Format)
 			{
-				m_Chunks[i][j]->UpdateVertices(HeightMap);
-				m_Chunks[i][j]->UpdateAABB();
-				TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
-				m_Root.RemoveActor(chunk);
-				m_Root.AddActor(chunk, chunk->m_aabb);
+			case D3DFMT_A8:
+			case D3DFMT_L8:
+				m_Chunks[i][j]->UpdateVertices<unsigned char>(desc, lrc);
+				break;
+			case D3DFMT_L16:
+				m_Chunks[i][j]->UpdateVertices<unsigned short>(desc, lrc);
+				break;
 			}
+			m_Chunks[i][j]->UpdateAABB();
+			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
+			m_Root.RemoveActor(chunk);
+			m_Root.AddActor(chunk, chunk->m_aabb);
 		}
-		break;
 	}
-	}
+	HeightMap->UnlockRect(0);
 }
 
 void Terrain::CreateElements(void)

@@ -20,6 +20,12 @@ Exception::~Exception(void)
 {
 }
 
+ComException::ComException(HRESULT hres, const char * file, int line)
+	: Exception(file, line)
+	, m_hres(hres)
+{
+}
+
 const char * ComException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
@@ -104,6 +110,12 @@ std::string ComException::what(void) const
 	return osstr.str();
 }
 
+D3DException::D3DException(HRESULT hres, const char * file, int line)
+	: Exception(file, line)
+	, m_hres(hres)
+{
+}
+
 const char * D3DException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
@@ -151,6 +163,12 @@ std::string D3DException::what(void) const
 	osstr << m_file << " (" << m_line << "): " << Translate(m_hres) << std::endl;
 	osstr << m_call;
 	return osstr.str();
+}
+
+DInputException::DInputException(HRESULT hres, const char * file, int line)
+	: Exception(file, line)
+	, m_hres(hres)
+{
 }
 
 const char * DInputException::Translate(HRESULT hres) throw()
@@ -211,6 +229,12 @@ std::string DInputException::what(void) const
 	return osstr.str();
 }
 
+DSoundException::DSoundException(HRESULT hres, const char * file, int line)
+	: Exception(file, line)
+	, m_hres(hres)
+{
+}
+
 const char * DSoundException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
@@ -253,6 +277,12 @@ std::string DSoundException::what(void) const
 	return osstr.str();
 }
 
+WinException::WinException(DWORD code, const char * file, int line)
+	: Exception(file, line)
+	, m_code(code)
+{
+}
+
 std::string WinException::Translate(DWORD code) throw()
 {
 	std::string desc;
@@ -274,6 +304,12 @@ std::string WinException::what(void) const
 	osstr << m_file << " (" << m_line << "): " << Translate(m_code) << std::endl;
 	osstr << m_call;
 	return osstr.str();
+}
+
+CustomException::CustomException(const std::string & desc, const char * file, int line)
+	: Exception(file, line)
+	, m_desc(desc)
+{
 }
 
 std::string CustomException::what(void) const

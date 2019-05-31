@@ -1749,7 +1749,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		if (res)
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->UpdateHeightMap(res.get());
+			terrain->UpdateHeightField(res.get());
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			actor->UpdateOctNode();

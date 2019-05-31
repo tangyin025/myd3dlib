@@ -47,7 +47,8 @@ public:
 
 	void UpdateAABB(void);
 
-	void UpdateVertices(my::Texture2D * HeightMap);
+	template <typename T>
+	void UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -99,28 +100,31 @@ public:
 
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
-	void UpdateHeightMap(my::Texture2D * HeightMap);
+	void UpdateHeightField(my::Texture2D * HeightMap);
 
 	TerrainChunk * GetChunk(int i, int j)
 	{
 		TerrainChunk * ret = m_Chunks[i][j]; _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
 	}
 
-	unsigned char GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
+	template <typename T>
+	T GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
 	{
 		_ASSERT(i >= 0 && i < (int)desc.Height);
 		_ASSERT(j >= 0 && j < (int)desc.Width);
-		return *((unsigned char *)lrc.pBits + i * lrc.Pitch + j);
+		return *(T *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(T));
 	}
 
+	template <typename T>
 	float GetSampleHeight(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
 	{
-		return m_HeightScale * GetSampleValue(desc, lrc, i, j);
+		return m_HeightScale * GetSampleValue<T>(desc, lrc, i, j);
 	}
 
+	template <typename T>
 	my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
 	{
-		return my::Vector3((float)j, GetSampleHeight(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
+		return my::Vector3((float)j, GetSampleHeight<T>(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
 	}
 
 	void CreateElements(void);

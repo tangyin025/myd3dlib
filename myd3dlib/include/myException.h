@@ -29,11 +29,7 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		ComException(HRESULT hres, const char * file, int line)
-			: Exception(file, line)
-			, m_hres(hres)
-		{
-		}
+		ComException(HRESULT hres, const char * file, int line);
 
 		static const char * Translate(HRESULT hres) throw();
 
@@ -46,11 +42,7 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		D3DException(HRESULT hres, const char * file, int line)
-			: Exception(file, line)
-			, m_hres(hres)
-		{
-		}
+		D3DException(HRESULT hres, const char * file, int line);
 
 		static const char * Translate(HRESULT hres) throw();
 
@@ -63,11 +55,7 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		DInputException(HRESULT hres, const char * file, int line)
-			: Exception(file, line)
-			, m_hres(hres)
-		{
-		}
+		DInputException(HRESULT hres, const char * file, int line);
 
 		static const char * Translate(HRESULT hres) throw();
 
@@ -80,11 +68,7 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		DSoundException(HRESULT hres, const char * file, int line)
-			: Exception(file, line)
-			, m_hres(hres)
-		{
-		}
+		DSoundException(HRESULT hres, const char * file, int line);
 
 		static const char * Translate(HRESULT hres) throw();
 
@@ -97,11 +81,7 @@ namespace my
 		DWORD m_code;
 
 	public:
-		WinException(DWORD code, const char * file, int line)
-			: Exception(file, line)
-			, m_code(code)
-		{
-		}
+		WinException(DWORD code, const char * file, int line);
 
 		static std::string Translate(DWORD code) throw();
 
@@ -114,11 +94,7 @@ namespace my
 		std::string m_desc;
 
 	public:
-		CustomException(const std::string & desc, const char * file, int line)
-			: Exception(file, line)
-			, m_desc(desc)
-		{
-		}
+		CustomException(const std::string & desc, const char * file, int line);
 
 		virtual std::string what(void) const;
 	};
