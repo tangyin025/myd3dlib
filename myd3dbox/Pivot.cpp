@@ -69,46 +69,33 @@ void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
 		{
 			const float alpha = D3DXToRadian(360.0f / pices);
 			const float theta[2] = { i * alpha, (i + 1) * alpha };
-			unsigned int p = 0;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset + header, 0, 0).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
+			vertices[(j * pices + i) * stage + 0].pos = Vector3(offset + header, 0, 0).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 0].color = Color[j];
+			vertices[(j * pices + i) * stage + 1].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 1].color = Color[j];
+			vertices[(j * pices + i) * stage + 2].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 2].color = Color[j];
 
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, 0, 0).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
+			vertices[(j * pices + i) * stage + 3].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 3].color = Color[j];
+			vertices[(j * pices + i) * stage + 4].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 4].color = Color[j];
+			vertices[(j * pices + i) * stage + 5].pos = Vector3(offset, 0, 0).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 5].color = Color[j];
 
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
+			vertices[(j * pices + i) * stage + 6].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 6].color = Color[j];
+			vertices[(j * pices + i) * stage + 7].pos = Vector3(offset, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 7].color = Color[j];
+			vertices[(j * pices + i) * stage + 8].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 8].color = Color[j];
 
-			vertices[(j * pices + i) * stage + p].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(0, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
+			vertices[(j * pices + i) * stage + 9].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 9].color = Color[j];
+			vertices[(j * pices + i) * stage + 10].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 10].color = Color[j];
+			vertices[(j * pices + i) * stage + 11].pos = Vector3(0, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 11].color = Color[j];
 		}
 	}
 
@@ -142,26 +129,19 @@ void Pivot::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 		{
 			const float alpha = D3DXToRadian(360.0f / pices);
 			const float theta[2] = { i * alpha, (i + 1) * alpha };
-			unsigned int p = 0;
-			vertices[(j * pices + i) * stage + p].pos = Vector3( radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(-radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(-radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
+			vertices[(j * pices + i) * stage + 0].pos = Vector3( radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 0].color = Color[j];
+			vertices[(j * pices + i) * stage + 1].pos = Vector3(-radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 1].color = Color[j];
+			vertices[(j * pices + i) * stage + 2].pos = Vector3(-radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 2].color = Color[j];
 
-			vertices[(j * pices + i) * stage + p].pos = Vector3( radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3(-radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
-			vertices[(j * pices + i) * stage + p].pos = Vector3( radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + p].color = Color[j];
-			p++;
+			vertices[(j * pices + i) * stage + 3].pos = Vector3( radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 3].color = Color[j];
+			vertices[(j * pices + i) * stage + 4].pos = Vector3(-radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 4].color = Color[j];
+			vertices[(j * pices + i) * stage + 5].pos = Vector3( radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[(j * pices + i) * stage + 5].color = Color[j];
 		}
 	}
 
