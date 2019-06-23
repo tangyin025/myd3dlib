@@ -12,7 +12,7 @@ static const float header = 1.0f;
 static const float pivot_round = 0.1f;
 
 static const Matrix4 Transform[3] = {
-	Matrix4::Identity(), Matrix4::RotationZ(D3DXToRadian(90)), Matrix4::RotationY(D3DXToRadian(-90)) };
+	Matrix4::Identity(), Matrix4::RotationX(D3DXToRadian(90)) * Matrix4::RotationZ(D3DXToRadian(90)), Matrix4::RotationX(D3DXToRadian(-90)) * Matrix4::RotationY(D3DXToRadian(-90)) };
 
 Pivot::Pivot(void)
 	: m_Mode(PivotModeMove)
@@ -54,62 +54,75 @@ void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale, const
 		D3DCOLOR color;
 	};
 
+	const D3DCOLOR box_color[3] =
+	{
+		m_DragAxis == PivotDragPlanX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
+		m_DragAxis == PivotDragPlanY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
+		m_DragAxis == PivotDragPlanZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
+	};
+
+	const AABB box(0, offset * 0.5f);
+	const unsigned int box_stage = 2 * 3;
 	const unsigned int pices = 12;
 	const unsigned int stage = 4 * 3;
-	boost::array<Vertex, pices * stage * 3> vertices;
-	const D3DCOLOR Color[3] =
+	boost::array<Vertex, box_stage * 3 + pices * stage * 3> vertices;
+	for (unsigned int j = 0; j < 3; j++)
+	{
+		vertices[j * box_stage + 0].pos = Vector3(0, box.m_max[(j + 1) % 3], box.m_min[(j + 2) % 3]).transformCoord(Transform[j]);
+		vertices[j * box_stage + 0].color = box_color[j];
+		vertices[j * box_stage + 1].pos = Vector3(0, box.m_max[(j + 1) % 3], box.m_max[(j + 2) % 3]).transformCoord(Transform[j]);
+		vertices[j * box_stage + 1].color = box_color[j];
+		vertices[j * box_stage + 2].pos = Vector3(0, box.m_min[(j + 1) % 3], box.m_max[(j + 2) % 3]).transformCoord(Transform[j]);
+		vertices[j * box_stage + 2].color = box_color[j];
+
+		vertices[j * box_stage + 3].pos = Vector3(0, box.m_max[(j + 1) % 3], box.m_min[(j + 2) % 3]).transformCoord(Transform[j]);
+		vertices[j * box_stage + 3].color = box_color[j];
+		vertices[j * box_stage + 4].pos = Vector3(0, box.m_min[(j + 1) % 3], box.m_max[(j + 2) % 3]).transformCoord(Transform[j]);
+		vertices[j * box_stage + 4].color = box_color[j];
+		vertices[j * box_stage + 5].pos = Vector3(0, box.m_min[(j + 1) % 3], box.m_min[(j + 2) % 3]).transformCoord(Transform[j]);
+		vertices[j * box_stage + 5].color = box_color[j];
+	}
+
+	const D3DCOLOR color[3] =
 	{
 		m_DragAxis == PivotDragAxisX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
 		m_DragAxis == PivotDragAxisY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
 		m_DragAxis == PivotDragAxisZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
 	};
+
 	for (unsigned int j = 0; j < 3; j++)
 	{
 		for (unsigned int i = 0; i < pices; i++)
 		{
 			const float alpha = D3DXToRadian(360.0f / pices);
 			const float theta[2] = { i * alpha, (i + 1) * alpha };
-			vertices[(j * pices + i) * stage + 0].pos = Vector3(offset + header, 0, 0).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 0].color = Color[j];
-			vertices[(j * pices + i) * stage + 1].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 1].color = Color[j];
-			vertices[(j * pices + i) * stage + 2].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 2].color = Color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 0].pos = Vector3(offset + header, 0, 0).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 0].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 1].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 1].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 2].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 2].color = color[j];
 
-			vertices[(j * pices + i) * stage + 3].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 3].color = Color[j];
-			vertices[(j * pices + i) * stage + 4].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 4].color = Color[j];
-			vertices[(j * pices + i) * stage + 5].pos = Vector3(offset, 0, 0).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 5].color = Color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 3].pos = Vector3(offset, radius[0] * cos(theta[1]), radius[0] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 3].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 4].pos = Vector3(offset, radius[0] * cos(theta[0]), radius[0] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 4].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 5].pos = Vector3(offset, 0, 0).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 5].color = color[j];
 
-			vertices[(j * pices + i) * stage + 6].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 6].color = Color[j];
-			vertices[(j * pices + i) * stage + 7].pos = Vector3(offset, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 7].color = Color[j];
-			vertices[(j * pices + i) * stage + 8].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 8].color = Color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 6].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 6].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 7].pos = Vector3(offset, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 7].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 8].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 8].color = color[j];
 
-			vertices[(j * pices + i) * stage + 9].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 9].color = Color[j];
-			vertices[(j * pices + i) * stage + 10].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 10].color = Color[j];
-			vertices[(j * pices + i) * stage + 11].pos = Vector3(0, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 11].color = Color[j];
-
-			//vertices[(j * pices + i) * stage + 12].pos = Vector3(0, offset, -offset).transformCoord(Transform[j]);
-			//vertices[(j * pices + i) * stage + 12].color = Color[j];
-			//vertices[(j * pices + i) * stage + 13].pos = Vector3(0, offset, offset).transformCoord(Transform[j]);
-			//vertices[(j * pices + i) * stage + 13].color = Color[j];
-			//vertices[(j * pices + i) * stage + 14].pos = Vector3(0, -offset, offset).transformCoord(Transform[j]);
-			//vertices[(j * pices + i) * stage + 14].color = Color[j];
-
-			//vertices[(j * pices + i) * stage + 15].pos = Vector3(0, offset, -offset).transformCoord(Transform[j]);
-			//vertices[(j * pices + i) * stage + 15].color = Color[j];
-			//vertices[(j * pices + i) * stage + 16].pos = Vector3(0, -offset, offset).transformCoord(Transform[j]);
-			//vertices[(j * pices + i) * stage + 16].color = Color[j];
-			//vertices[(j * pices + i) * stage + 17].pos = Vector3(0, -offset, -offset).transformCoord(Transform[j]);
-			//vertices[(j * pices + i) * stage + 17].color = Color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 9].pos = Vector3(offset, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 9].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 10].pos = Vector3(0, radius[1] * cos(theta[0]), radius[1] * sin(theta[0])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 10].color = color[j];
+			vertices[box_stage * 3 + (j * pices + i) * stage + 11].pos = Vector3(0, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
+			vertices[box_stage * 3 + (j * pices + i) * stage + 11].color = color[j];
 		}
 	}
 
@@ -117,7 +130,7 @@ void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale, const
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
@@ -129,15 +142,16 @@ void Pivot::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 		D3DCOLOR color;
 	};
 
-	const unsigned int pices = 36;
-	const unsigned int stage = 2 * 3;
-	boost::array<Vertex, pices * stage * 3> vertices;
-	const D3DCOLOR Color[3] =
+	const D3DCOLOR color[3] =
 	{
 		m_DragAxis == PivotDragAxisX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
 		m_DragAxis == PivotDragAxisY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
 		m_DragAxis == PivotDragAxisZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
 	};
+
+	const unsigned int pices = 36;
+	const unsigned int stage = 2 * 3;
+	boost::array<Vertex, pices * stage * 3> vertices;
 	for (unsigned int j = 0; j < 3; j++)
 	{
 		for (unsigned int i = 0; i < pices; i++)
@@ -145,18 +159,18 @@ void Pivot::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 			const float alpha = D3DXToRadian(360.0f / pices);
 			const float theta[2] = { i * alpha, (i + 1) * alpha };
 			vertices[(j * pices + i) * stage + 0].pos = Vector3( radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 0].color = Color[j];
+			vertices[(j * pices + i) * stage + 0].color = color[j];
 			vertices[(j * pices + i) * stage + 1].pos = Vector3(-radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 1].color = Color[j];
+			vertices[(j * pices + i) * stage + 1].color = color[j];
 			vertices[(j * pices + i) * stage + 2].pos = Vector3(-radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 2].color = Color[j];
+			vertices[(j * pices + i) * stage + 2].color = color[j];
 
 			vertices[(j * pices + i) * stage + 3].pos = Vector3( radius[0], (offset + header) * cos(theta[0]), (offset + header) * sin(theta[0])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 3].color = Color[j];
+			vertices[(j * pices + i) * stage + 3].color = color[j];
 			vertices[(j * pices + i) * stage + 4].pos = Vector3(-radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 4].color = Color[j];
+			vertices[(j * pices + i) * stage + 4].color = color[j];
 			vertices[(j * pices + i) * stage + 5].pos = Vector3( radius[0], (offset + header) * cos(theta[1]), (offset + header) * sin(theta[1])).transformCoord(Transform[j]);
-			vertices[(j * pices + i) * stage + 5].color = Color[j];
+			vertices[(j * pices + i) * stage + 5].color = color[j];
 		}
 	}
 
@@ -194,13 +208,25 @@ bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 	m_DragAxis = PivotDragNone;
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
-		Ray local_ray = ray.transform(trans[i]);
+		const Ray local_ray = ray.transform(trans[i]);
 		RayResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0] + pivot_round, offset + header);
 		if (res.first && res.second < minT)
 		{
 			minT = res.second;
 			m_DragAxis = (PivotDragAxis)(PivotDragAxisX + i);
-			m_DragPt = (local_ray.p + local_ray.d * minT).transformCoord(Transform[i] * World);
+			m_DragPt = (local_ray.p + local_ray.d * res.second).transformCoord(Transform[i] * World);
+		}
+
+		res = IntersectionTests::rayAndParallelPlane(local_ray.p, local_ray.d, 0, 0);
+		if (res.first && res.second < minT)
+		{
+			Vector3 local = local_ray.p + local_ray.d * res.second;
+			if (local.y > 0 && local.y < offset * 0.5f && local.z > 0 && local.z < offset * 0.5f)
+			{
+				minT = res.second;
+				m_DragAxis = (PivotDragAxis)(PivotDragPlanX + i);
+				m_DragPt = local.transformCoord(Transform[i] * World);
+			}
 		}
 	}
 	switch (m_DragAxis)
@@ -221,6 +247,24 @@ bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
+		m_Captured = true;
+		return true;
+	case PivotDragPlanX:
+		m_DragPos = m_Pos;
+		m_DragPlane.normal = Vector3::unitX;
+		m_DragPlane.d = -m_DragPt.x;
+		m_Captured = true;
+		return true;
+	case PivotDragPlanY:
+		m_DragPos = m_Pos;
+		m_DragPlane.normal = Vector3::unitY;
+		m_DragPlane.d = -m_DragPt.y;
+		m_Captured = true;
+		return true;
+	case PivotDragPlanZ:
+		m_DragPos = m_Pos;
+		m_DragPlane.normal = Vector3::unitZ;
+		m_DragPlane.d = -m_DragPt.z;
 		m_Captured = true;
 		return true;
 	}
@@ -299,6 +343,18 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 			m_DragDeltaPos = Vector3(0, 0, pt.z - m_DragPt.z);
 			m_Pos = m_DragPos + m_DragDeltaPos;
 			return true;
+		case PivotDragPlanX:
+			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, pt.z - m_DragPt.z);
+			m_Pos = m_DragPos + m_DragDeltaPos;
+			return true;
+		case PivotDragPlanY:
+			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, pt.z - m_DragPt.z);
+			m_Pos = m_DragPos + m_DragDeltaPos;
+			return true;
+		case PivotDragPlanZ:
+			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, pt.y - m_DragPt.y, 0);
+			m_Pos = m_DragPos + m_DragDeltaPos;
+			return true;
 		}
 	}
 	return false;
@@ -343,6 +399,9 @@ bool Pivot::OnLButtonUp(const my::Ray & ray)
 	case PivotDragAxisX:
 	case PivotDragAxisY:
 	case PivotDragAxisZ:
+	case PivotDragPlanX:
+	case PivotDragPlanY:
+	case PivotDragPlanZ:
 		m_Captured = false;
 		m_DragDeltaPos = Vector3(0,0,0);
 		m_DragDeltaRot = Quaternion::Identity();

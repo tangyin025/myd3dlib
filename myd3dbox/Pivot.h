@@ -9,6 +9,9 @@ public:
 		PivotDragAxisX,
 		PivotDragAxisY,
 		PivotDragAxisZ,
+		PivotDragPlanX,
+		PivotDragPlanY,
+		PivotDragPlanZ,
 	};
 
 	enum PivotMode
