@@ -38,7 +38,7 @@ void Pivot::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, c
 	switch (m_Mode)
 	{
 	case PivotModeMove:
-		DrawMoveController(pd3dDevice, Scale);
+		DrawMoveController(pd3dDevice, Scale, camera->m_View.column<2>().xyz);
 		break;
 	case PivotModeRot:
 		DrawRotController(pd3dDevice, Scale);
@@ -46,7 +46,7 @@ void Pivot::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, c
 	}
 }
 
-void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
+void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale, const my::Vector3 & View)
 {
 	struct Vertex
 	{
@@ -55,7 +55,7 @@ void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
 	};
 
 	const unsigned int pices = 12;
-	const unsigned int stage = 12;
+	const unsigned int stage = 4 * 3;
 	boost::array<Vertex, pices * stage * 3> vertices;
 	const D3DCOLOR Color[3] =
 	{
@@ -96,6 +96,20 @@ void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
 			vertices[(j * pices + i) * stage + 10].color = Color[j];
 			vertices[(j * pices + i) * stage + 11].pos = Vector3(0, radius[1] * cos(theta[1]), radius[1] * sin(theta[1])).transformCoord(Transform[j]);
 			vertices[(j * pices + i) * stage + 11].color = Color[j];
+
+			//vertices[(j * pices + i) * stage + 12].pos = Vector3(0, offset, -offset).transformCoord(Transform[j]);
+			//vertices[(j * pices + i) * stage + 12].color = Color[j];
+			//vertices[(j * pices + i) * stage + 13].pos = Vector3(0, offset, offset).transformCoord(Transform[j]);
+			//vertices[(j * pices + i) * stage + 13].color = Color[j];
+			//vertices[(j * pices + i) * stage + 14].pos = Vector3(0, -offset, offset).transformCoord(Transform[j]);
+			//vertices[(j * pices + i) * stage + 14].color = Color[j];
+
+			//vertices[(j * pices + i) * stage + 15].pos = Vector3(0, offset, -offset).transformCoord(Transform[j]);
+			//vertices[(j * pices + i) * stage + 15].color = Color[j];
+			//vertices[(j * pices + i) * stage + 16].pos = Vector3(0, -offset, offset).transformCoord(Transform[j]);
+			//vertices[(j * pices + i) * stage + 16].color = Color[j];
+			//vertices[(j * pices + i) * stage + 17].pos = Vector3(0, -offset, -offset).transformCoord(Transform[j]);
+			//vertices[(j * pices + i) * stage + 17].color = Color[j];
 		}
 	}
 
@@ -103,6 +117,7 @@ void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
@@ -115,7 +130,7 @@ void Pivot::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 	};
 
 	const unsigned int pices = 36;
-	const unsigned int stage = 6;
+	const unsigned int stage = 2 * 3;
 	boost::array<Vertex, pices * stage * 3> vertices;
 	const D3DCOLOR Color[3] =
 	{
@@ -149,6 +164,7 @@ void Pivot::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
 	V(pd3dDevice->SetTexture(0, NULL));
+	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 

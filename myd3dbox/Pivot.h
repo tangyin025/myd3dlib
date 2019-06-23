@@ -46,7 +46,7 @@ public:
 
 	void Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc, float Scale);
 
-	void DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale);
+	void DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale, const my::Vector3 & View);
 
 	void DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale);
 
