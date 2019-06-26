@@ -83,7 +83,7 @@ void Animator::Update(float fElapsedTime)
 				bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
 
 			anim_pose.BuildHierarchyBoneList(
-				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
+				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, m_Actor->m_Rotation, m_Actor->m_Position);
 		}
 
 		final_pose.resize(bind_pose_hier.size());

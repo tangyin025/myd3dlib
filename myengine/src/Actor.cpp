@@ -485,8 +485,7 @@ void BoneAttacher::Update(float fElapsedTime)
 		if (m_Owner->m_Animator && !m_Owner->m_Animator->anim_pose_hier.empty())
 		{
 			const Bone & bone = m_Owner->m_Animator->anim_pose_hier[m_BoneId];
-			m_Suber->UpdatePose(bone.m_position.transformCoord(
-				m_Owner->m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Owner->m_World)));
+			m_Suber->UpdatePose(bone.m_position, bone.m_rotation);
 		}
 
 		m_Suber->Update(fElapsedTime);
