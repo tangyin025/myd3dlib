@@ -39,6 +39,17 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 	{
 		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
 	}
+
+	bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
+	my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
+	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
+	{
+		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
+			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0));
+	}
+	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
+	final_pose.resize(m_Skeleton->m_boneBindPose.size());
 }
 
 void Animator::RequestResource(void)
@@ -69,24 +80,17 @@ void Animator::Update(float fElapsedTime)
 
 		UpdateGroup(fElapsedTime);
 
-		anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
 		m_Node->GetPose(anim_pose);
-		bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
-		anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
 			anim_pose.IncrementSelf(
 				m_Skeleton->m_boneBindPose, m_Skeleton->m_boneHierarchy, *root_iter);
 
-			m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-				bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
-
 			anim_pose.BuildHierarchyBoneList(
 				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, m_Actor->m_Rotation, m_Actor->m_Position);
 		}
 
-		final_pose.resize(bind_pose_hier.size());
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
 			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
