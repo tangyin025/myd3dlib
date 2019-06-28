@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mySkeleton.h"
+#include "myPhysics.h"
 
 class AnimationNode;
 
@@ -36,6 +37,12 @@ public:
 	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;
 
 	SequenceGroupMap m_SequenceGroups;
+
+	typedef std::vector<my::Particle> ParticleList;
+
+	typedef std::map<int, ParticleList> ParticleListMap;
+
+	ParticleListMap m_ParticleListMap;
 
 protected:
 	Animator(void)
@@ -80,6 +87,10 @@ public:
 	void AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
 	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+
+	void AddParticleList(const std::string & bone_name);
+
+	void UpdateParticleList(ParticleList & particle_list, int root_i);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;
