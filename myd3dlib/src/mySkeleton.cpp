@@ -249,7 +249,8 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
 	const Quaternion & rootRotation,
-	const Vector3 & rootPosition)
+	const Vector3 & rootPosition,
+	const BoneIndexSet & leafNodeIndices)
 {
 	_ASSERT(hierarchyBoneList.size() == size());
 	_ASSERT(hierarchyBoneList.size() == boneHierarchy.size());
@@ -260,10 +261,13 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	hier_bone.m_rotation = bone.m_rotation * rootRotation;
 	hier_bone.m_position = bone.m_position.transform(rootRotation) + rootPosition;
 
-	int node_i = boneHierarchy[root_i].m_child;
-	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	if (leafNodeIndices.end() == leafNodeIndices.find(root_i))
 	{
-		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone.m_rotation, hier_bone.m_position);
+		int node_i = boneHierarchy[root_i].m_child;
+		for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+		{
+			BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone.m_rotation, hier_bone.m_position);
+		}
 	}
 
 	return hierarchyBoneList;

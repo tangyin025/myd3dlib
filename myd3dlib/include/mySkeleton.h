@@ -155,7 +155,8 @@ namespace my
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
-			const Vector3 & rootPosition = Vector3::zero);
+			const Vector3 & rootPosition = Vector3::zero,
+			const BoneIndexSet & leafNodeIndices = BoneIndexSet());
 
 		TransformList & BuildTransformList(
 			TransformList & transformList) const;

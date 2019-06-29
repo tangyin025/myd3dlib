@@ -41,15 +41,18 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 	}
 
 	bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
+	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
 	my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 	{
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0));
+			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0), BoneIndexSet());
+
+		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
+			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0), BoneIndexSet());
 	}
-	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
-	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
-	final_pose.resize(m_Skeleton->m_boneBindPose.size());
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 }
 
 void Animator::RequestResource(void)
@@ -88,19 +91,19 @@ void Animator::Update(float fElapsedTime)
 				m_Skeleton->m_boneBindPose, m_Skeleton->m_boneHierarchy, *root_iter);
 
 			anim_pose.BuildHierarchyBoneList(
-				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, m_Actor->m_Rotation, m_Actor->m_Position);
+				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, m_Actor->m_Rotation, m_Actor->m_Position, m_JiggleBones);
+		}
+
+		BoneIndexSet::const_iterator bone_index_iter = m_JiggleBones.begin();
+		for (; bone_index_iter != m_JiggleBones.end(); bone_index_iter++)
+		{
+			;
 		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
 			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
 			final_pose[i].m_position = (-bind_pose_hier[i].m_position).transform(final_pose[i].m_rotation) + anim_pose_hier[i].m_position;
-		}
-
-		ParticleListMap::iterator particle_list_iter = m_ParticleListMap.begin();
-		for (; particle_list_iter != m_ParticleListMap.end(); particle_list_iter++)
-		{
-			UpdateParticleList(particle_list_iter->second, particle_list_iter->first);
 		}
 
 		m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
@@ -156,37 +159,6 @@ void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSe
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter != range.second);
 	m_SequenceGroups.erase(seq_iter);
-}
-
-void Animator::AddParticleList(const std::string & bone_name)
-{
-	OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = m_Skeleton->m_boneNameMap.find(bone_name);
-	if (bone_name_iter == m_Skeleton->m_boneNameMap.end())
-	{
-		return;
-	}
-
-	ParticleListMap::iterator particle_list_iter = m_ParticleListMap.find(bone_name_iter->second);
-	if (particle_list_iter == m_ParticleListMap.end())
-	{
-		return;
-	}
-
-	ParticleList & particle_list = m_ParticleListMap[bone_name_iter->second];
-	int node_i = bone_name_iter->second;
-	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
-	{
-		Particle particle(
-			bind_pose_hier[node_i].m_position, Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1.0f, 1.0f);
-		particle_list.push_back(particle);
-	}
-}
-
-void Animator::UpdateParticleList(ParticleList & particle_list, int root_i)
-{
-	_ASSERT(root_i < m_Skeleton->m_boneHierarchy.size());
-
-	int node_i = m_Skeleton->m_boneHierarchy[root_i].m_child;
 }
 
 BOOST_CLASS_EXPORT(AnimationNode)
