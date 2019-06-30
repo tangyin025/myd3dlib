@@ -46,10 +46,10 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 	{
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0), BoneIndexSet());
+			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0));
 
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0), BoneIndexSet());
+			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion(0, 0, 0, 1), Vector3(0, 0, 0));
 	}
 	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
@@ -91,13 +91,7 @@ void Animator::Update(float fElapsedTime)
 				m_Skeleton->m_boneBindPose, m_Skeleton->m_boneHierarchy, *root_iter);
 
 			anim_pose.BuildHierarchyBoneList(
-				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, m_Actor->m_Rotation, m_Actor->m_Position, m_JiggleBones);
-		}
-
-		BoneIndexSet::const_iterator bone_index_iter = m_JiggleBones.begin();
-		for (; bone_index_iter != m_JiggleBones.end(); bone_index_iter++)
-		{
-			;
+				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, m_Actor->m_Rotation, m_Actor->m_Position);
 		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)

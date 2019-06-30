@@ -37,8 +37,6 @@ public:
 
 	SequenceGroupMap m_SequenceGroups;
 
-	my::BoneIndexSet m_JiggleBones;
-
 protected:
 	Animator(void)
 		: m_Actor(NULL)
