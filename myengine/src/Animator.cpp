@@ -193,22 +193,25 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, int root_i, float f
 {
 	int node_i = m_Skeleton->m_boneHierarchy[root_i].m_child;
 	int jiggle_i = 0;
-	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_child, jiggle_i++)
+	for (; node_i >= 0; root_i = node_i, node_i = m_Skeleton->m_boneHierarchy[node_i].m_child, jiggle_i++)
 	{
-		Bone parent = anim_pose_hier[root_i];
-		Bone target = anim_pose_hier[node_i];
+		const Bone & parent = anim_pose_hier[root_i];
+		Bone target(
+			m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
+			m_Skeleton->m_boneBindPose[node_i].m_position.transform(parent.GetRotation()) + parent.GetPosition());
 		JiggleBone & jiggle_bone = context.m_BoneList[jiggle_i];
 		Vector3 distance = target.GetPosition() - jiggle_bone.GetPosition();
 		float length = distance.magnitude();
 		Vector3 direction = distance.normalize();
-		Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * (length /*- context.restLength*/)) : Vector3(0, 0, 0);
+		Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * (length - context.restLength)) : Vector3(0, 0, 0);
 		Vector3 acceleration = Vector3::Gravity + force * context.inverseMass;
 		jiggle_bone.velocity += acceleration * fElapsedTime;
 		jiggle_bone.velocity *= pow(context.damping, fElapsedTime);
-		jiggle_bone.m_position += jiggle_bone.velocity * fElapsedTime;
-		//Vector3 distance_result = target.GetPosition() - jiggle_bone.GetPosition();
-		//float length_result = distance_result.dot(direction);
-		//jiggle_bone.m_rotation.lerpSelf(target.m_rotation, length_result / length);
+		Vector3 position = jiggle_bone.GetPosition() + jiggle_bone.velocity * fElapsedTime;
+		Vector3 d0 = target.GetPosition() - parent.GetPosition();
+		Vector3 d1 = position - parent.GetPosition();
+		jiggle_bone.SetPosition(parent.GetPosition() + d1.normalize() * d0.magnitude());
+		jiggle_bone.SetRotation(target.GetRotation() * Quaternion::RotationFromTo(d0, d1));
 		anim_pose_hier[node_i] = jiggle_bone;
 	}
 }

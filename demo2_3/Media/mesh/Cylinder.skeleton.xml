@@ -1,13 +1,31 @@
 <skeleton>
 	<bones>
 		<bone id="0" name="joint1">
-			<position x="0" y="-2" z="0"/>
+			<position x="0" y="0" z="0"/>
 			<rotation angle="1.5708">
 				<axis x="0" y="0" z="1"/>
 			</rotation>
 		</bone>
 		<bone id="1" name="joint2">
-			<position x="4" y="8.88178e-16" z="0"/>
+			<position x="2" y="4.44089e-16" z="0"/>
+			<rotation angle="0">
+				<axis x="0" y="0" z="1"/>
+			</rotation>
+		</bone>
+		<bone id="2" name="joint3">
+			<position x="2" y="4.44089e-16" z="0"/>
+			<rotation angle="0">
+				<axis x="0" y="0" z="1"/>
+			</rotation>
+		</bone>
+		<bone id="3" name="joint4">
+			<position x="2" y="4.44089e-16" z="0"/>
+			<rotation angle="0">
+				<axis x="0" y="0" z="1"/>
+			</rotation>
+		</bone>
+		<bone id="4" name="joint5">
+			<position x="2" y="4.44089e-16" z="0"/>
 			<rotation angle="1.5708">
 				<axis x="0" y="0" z="-1"/>
 			</rotation>
@@ -15,5 +33,8 @@
 	</bones>
 	<bonehierarchy>
 		<boneparent bone="joint2" parent="joint1"/>
+		<boneparent bone="joint3" parent="joint2"/>
+		<boneparent bone="joint4" parent="joint3"/>
+		<boneparent bone="joint5" parent="joint4"/>
 	</bonehierarchy>
 </skeleton>
