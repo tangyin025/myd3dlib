@@ -161,7 +161,7 @@ void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSe
 	m_SequenceGroups.erase(seq_iter);
 }
 
-void Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping)
+void Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant, float restLength)
 {
 	_ASSERT(mass > 0);
 
@@ -178,6 +178,8 @@ void Animator::AddJiggleBone(const std::string & bone_name, float mass, float da
 	JiggleBoneContext & context = m_JiggleBones[bone_name_iter->second];
 	context.inverseMass = 1.0f / mass;
 	context.damping = damping;
+	context.springConstant = springConstant;
+	context.restLength = restLength;
 	int node_i = m_Skeleton->m_boneHierarchy[bone_name_iter->second].m_child;
 	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
 	{

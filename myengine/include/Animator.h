@@ -127,7 +127,7 @@ public:
 
 	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
-	void AddJiggleBone(const std::string & bone_name, float mass, float damping);
+	void AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant, float restLength);
 
 	void UpdateJiggleBone(JiggleBoneContext & context, int root_i, float fElapsedTime);
 };
