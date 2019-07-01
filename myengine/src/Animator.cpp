@@ -35,11 +35,6 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 {
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 
-	if (m_SkeletonEventReady)
-	{
-		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
-	}
-
 	bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
 	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
 	my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
@@ -53,6 +48,11 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 	}
 	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+
+	if (m_SkeletonEventReady)
+	{
+		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
+	}
 }
 
 void Animator::RequestResource(void)
@@ -194,8 +194,8 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, int root_i, float f
 	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_child, jiggle_i++)
 	{
 		Bone parent = anim_pose_hier[root_i];
-		Bone target = m_Skeleton->m_boneBindPose[node_i].Increment(parent);
-		JiggleBone jiggle_bone = context.m_BoneList[jiggle_i];
+		Bone target = anim_pose_hier[node_i];
+		JiggleBone & jiggle_bone = context.m_BoneList[jiggle_i];
 		Vector3 distance = target.GetPosition() - jiggle_bone.GetPosition();
 		float length = distance.magnitude();
 		Vector3 direction = distance.normalize();
@@ -204,9 +204,9 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, int root_i, float f
 		jiggle_bone.velocity += acceleration * fElapsedTime;
 		jiggle_bone.velocity *= pow(context.damping, fElapsedTime);
 		jiggle_bone.m_position += jiggle_bone.velocity * fElapsedTime;
-		Vector3 distance_result = target.GetPosition() - jiggle_bone.GetPosition();
-		float length_result = distance_result.dot(direction);
-		jiggle_bone.m_rotation.lerpSelf(target.m_rotation, length_result / length);
+		//Vector3 distance_result = target.GetPosition() - jiggle_bone.GetPosition();
+		//float length_result = distance_result.dot(direction);
+		//jiggle_bone.m_rotation.lerpSelf(target.m_rotation, length_result / length);
 		anim_pose_hier[node_i] = jiggle_bone;
 	}
 }
@@ -244,6 +244,10 @@ void AnimationNode::Tick(float fElapsedTime, float fTotalWeight)
 
 my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 {
+	if (m_Owner->m_Skeleton)
+	{
+		pose = m_Owner->m_Skeleton->m_boneBindPose;
+	}
 	return pose;
 }
 

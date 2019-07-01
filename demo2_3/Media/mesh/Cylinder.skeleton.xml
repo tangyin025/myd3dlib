@@ -1,0 +1,19 @@
+<skeleton>
+	<bones>
+		<bone id="0" name="joint1">
+			<position x="0" y="-2" z="0"/>
+			<rotation angle="1.5708">
+				<axis x="0" y="0" z="1"/>
+			</rotation>
+		</bone>
+		<bone id="1" name="joint2">
+			<position x="4" y="8.88178e-16" z="0"/>
+			<rotation angle="1.5708">
+				<axis x="0" y="0" z="-1"/>
+			</rotation>
+		</bone>
+	</bones>
+	<bonehierarchy>
+		<boneparent bone="joint2" parent="joint1"/>
+	</bonehierarchy>
+</skeleton>

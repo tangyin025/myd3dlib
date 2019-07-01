@@ -23,6 +23,7 @@
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
 #include "TerrainGrassBrashDlg.h"
+#include "Animator.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -545,18 +546,49 @@ void CMainFrame::OnFileNew()
 	//	}
 	//}
 
-	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	//actor->AddComponent(terrain);
-	//actor->UpdateAABB();
-	//actor->UpdateWorld();
-	//actor->RequestResource();
-	//actor->OnEnterPxScene(this);
-	//m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	MeshComponentPtr mesh_cmp(new MeshComponent());
+	mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = theApp.default_shader;
+	lambert1->m_PassMask = theApp.default_pass_mask;
+	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	mesh_cmp->m_MaterialList.push_back(lambert1);
+	mesh_cmp->m_bUseAnimation = true;
 
-	//m_selactors.clear();
-	//m_selactors.insert(actor.get());
-	//m_selchunkid.SetPoint(0, 0);
-	//OnSelChanged();
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	actor->AddComponent(mesh_cmp);
+	actor->UpdateAABB();
+	actor->UpdateWorld();
+
+	class Aaa
+	{
+	public:
+		Animator * anim;
+		void foo(my::ControlEventArgs *)
+		{
+			anim->AddJiggleBone("joint1", 1.0f, 1.0f);
+		}
+	};
+
+	static Aaa a;
+
+	AnimatorPtr anim(new Animator(actor.get()));
+	anim->m_SkeletonPath = "mesh/Cylinder.skeleton.xml";
+	anim->m_SkeletonEventReady = boost::bind(&Aaa::foo, &a, _1);
+	anim->m_Node.reset(new AnimationNode(anim.get(), 0));
+	a.anim = anim.get();
+	actor->m_Animator = anim;
+
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
+	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
+
+	m_selactors.clear();
+	m_selactors.insert(actor.get());
+	m_selchunkid.SetPoint(0, 0);
+	OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
