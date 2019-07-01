@@ -199,7 +199,7 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, int root_i, float f
 		Vector3 distance = target.GetPosition() - jiggle_bone.GetPosition();
 		float length = distance.magnitude();
 		Vector3 direction = distance.normalize();
-		Vector3 force = direction * (-context.springConstant * (length - context.restLength));
+		Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * (length /*- context.restLength*/)) : Vector3(0, 0, 0);
 		Vector3 acceleration = Vector3::Gravity + force * context.inverseMass;
 		jiggle_bone.velocity += acceleration * fElapsedTime;
 		jiggle_bone.velocity *= pow(context.damping, fElapsedTime);
@@ -244,9 +244,10 @@ void AnimationNode::Tick(float fElapsedTime, float fTotalWeight)
 
 my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 {
-	if (m_Owner->m_Skeleton)
+	for (unsigned int i = 0; i < m_Owner->m_Skeleton->m_boneBindPose.size(); i++)
 	{
-		pose = m_Owner->m_Skeleton->m_boneBindPose;
+		pose[i].SetPosition(Vector3(0, 0, 0));
+		pose[i].SetRotation(Quaternion::Identity());
 	}
 	return pose;
 }
