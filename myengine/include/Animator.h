@@ -37,6 +37,52 @@ public:
 
 	SequenceGroupMap m_SequenceGroups;
 
+	class JiggleBone : public my::Bone
+	{
+	public:
+		my::Vector3 velocity;
+
+	public:
+		JiggleBone(void)
+		{
+		}
+
+		JiggleBone(const my::Quaternion & rotation, const my::Vector3 & position, const my::Vector3 & _velocity)
+			: Bone(rotation, position)
+			, velocity(_velocity)
+		{
+		}
+	};
+
+	typedef std::vector<JiggleBone> JiggleBoneList;
+
+	class JiggleBoneContext
+	{
+	public:
+		JiggleBoneList m_BoneList;
+
+		float inverseMass;
+
+		float damping;
+
+		float springConstant;
+
+		float restLength;
+
+	public:
+		JiggleBoneContext(void)
+			: inverseMass(1.0f)
+			, damping(1.0f)
+			, springConstant(1.0f)
+			, restLength(1.0f)
+		{
+		}
+	};
+
+	typedef std::map<int, JiggleBoneContext> JiggleBoneContextMap;
+
+	JiggleBoneContextMap m_JiggleBones;
+
 protected:
 	Animator(void)
 		: m_Actor(NULL)
@@ -80,6 +126,10 @@ public:
 	void AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
 	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+
+	void AddJiggleBone(const std::string & bone_name, float mass, float damping);
+
+	void UpdateJiggleBone(JiggleBoneContext & context, int root_i, float fElapsedTime);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;
