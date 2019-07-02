@@ -43,13 +43,16 @@ public:
 	class JiggleBoneContext
 	{
 	public:
+		int root_i;
+
 		ParticleList m_ParticleList;
 
 		float springConstant;
 
 	public:
 		JiggleBoneContext(void)
-			: springConstant(-100.0f)
+			: root_i(-1)
+			, springConstant(-1.0f)
 		{
 		}
 	};
@@ -104,7 +107,9 @@ public:
 
 	int AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
 
-	void UpdateJiggleBone(JiggleBoneContext & context, int root_i, float fElapsedTime);
+	void AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping);
+
+	void UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int node_i, int & particle_i, float fElapsedTime);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

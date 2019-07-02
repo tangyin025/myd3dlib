@@ -97,7 +97,8 @@ void Animator::Update(float fElapsedTime)
 		JiggleBoneContextMap::iterator context_iter = m_JiggleBones.begin();
 		for (; context_iter != m_JiggleBones.end(); context_iter++)
 		{
-			UpdateJiggleBone(context_iter->second, context_iter->first, fElapsedTime);
+			int particle_i = 0;
+			UpdateJiggleBone(context_iter->second, context_iter->second.root_i, context_iter->first, particle_i, fElapsedTime);
 		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
@@ -181,42 +182,51 @@ int Animator::AddJiggleBone(const std::string & bone_name, float mass, float dam
 		return -1;
 	}
 
-	JiggleBoneContext & context = m_JiggleBones[root_i];
+	JiggleBoneContext & context = m_JiggleBones[bone_name_iter->second];
+	context.root_i = root_i;
 	context.springConstant = springConstant;
-	int node_i = bone_name_iter->second;
-	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
-	{
-		const Bone & bone = bind_pose_hier[node_i];
-		context.m_ParticleList.push_back(Particle(
-			bone.GetPosition() + m_Actor->m_Position, Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
-	}
+	AddJiggleBone(context, bone_name_iter->second, mass, damping);
 	return root_i;
 }
 
-void Animator::UpdateJiggleBone(JiggleBoneContext & context, int root_i, float fElapsedTime)
+void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
 {
-	int node_i = m_Skeleton->m_boneHierarchy[root_i].m_child;
-	int jiggle_i = 0;
-	for (; node_i >= 0; root_i = node_i, node_i = m_Skeleton->m_boneHierarchy[node_i].m_child, jiggle_i++)
+	context.m_ParticleList.push_back(Particle(
+		bind_pose_hier[node_i].GetPosition() + m_Actor->m_Position, Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
+	node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_sibling)
 	{
-		const Bone & parent = anim_pose_hier[root_i];
-		Bone target(
-			m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
-			m_Skeleton->m_boneBindPose[node_i].m_position.transform(parent.GetRotation()) + parent.GetPosition());
-		Particle & particle = context.m_ParticleList[jiggle_i];
-		particle.clearAccumulator();
-		particle.setAcceleration(Vector3::Gravity);
-		Vector3 distance = target.GetPosition() - particle.getPosition();
-		float length = distance.magnitude();
-		Vector3 direction = distance.normalize();
-		Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * length) : Vector3(0, 0, 0);
-		particle.addForce(force);
-		particle.integrate(fElapsedTime);
-		Vector3 d0 = target.GetPosition() - parent.GetPosition();
-		Vector3 d1 = particle.getPosition() - parent.GetPosition();
-		particle.setPosition(parent.GetPosition() + d1.normalize() * d0.magnitude());
-		anim_pose_hier[node_i].SetPosition(particle.getPosition());
-		anim_pose_hier[node_i].SetRotation(target.GetRotation() * Quaternion::RotationFromTo(d0, d1));
+		AddJiggleBone(context, node_i, mass, damping);
+	}
+}
+
+void Animator::UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int node_i, int & particle_i, float fElapsedTime)
+{
+	const Bone & parent = anim_pose_hier[parent_i];
+	Bone target(
+		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
+		m_Skeleton->m_boneBindPose[node_i].m_position.transform(parent.GetRotation()) + parent.GetPosition());
+	Particle & particle = context.m_ParticleList[particle_i];
+	particle.clearAccumulator();
+	particle.setAcceleration(Vector3::Gravity);
+	Vector3 distance = target.GetPosition() - particle.getPosition();
+	float length = distance.magnitude();
+	Vector3 direction = distance.normalize();
+	Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * length) : Vector3(0, 0, 0);
+	particle.addForce(force);
+	particle.integrate(fElapsedTime);
+	Vector3 d0 = target.GetPosition() - parent.GetPosition();
+	Vector3 d1 = particle.getPosition() - parent.GetPosition();
+	particle.setPosition(parent.GetPosition() + d1.normalize() * d0.magnitude());
+	anim_pose_hier[node_i].SetPosition(particle.getPosition());
+	anim_pose_hier[node_i].SetRotation(target.GetRotation() * Quaternion::RotationFromTo(d0, d1));
+
+	particle_i++;
+	parent_i = node_i;
+	node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_sibling)
+	{
+		UpdateJiggleBone(context, parent_i, node_i, particle_i, fElapsedTime);
 	}
 }
 
