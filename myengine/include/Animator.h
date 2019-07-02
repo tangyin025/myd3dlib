@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mySkeleton.h"
+#include "myPhysics.h"
 
 class AnimationNode;
 
@@ -37,44 +38,18 @@ public:
 
 	SequenceGroupMap m_SequenceGroups;
 
-	class JiggleBone : public my::Bone
-	{
-	public:
-		my::Vector3 velocity;
-
-	public:
-		JiggleBone(void)
-		{
-		}
-
-		JiggleBone(const my::Quaternion & rotation, const my::Vector3 & position, const my::Vector3 & _velocity)
-			: Bone(rotation, position)
-			, velocity(_velocity)
-		{
-		}
-	};
-
-	typedef std::vector<JiggleBone> JiggleBoneList;
+	typedef std::vector<my::Particle> ParticleList;
 
 	class JiggleBoneContext
 	{
 	public:
-		JiggleBoneList m_BoneList;
-
-		float inverseMass;
-
-		float damping;
+		ParticleList m_ParticleList;
 
 		float springConstant;
 
-		float restLength;
-
 	public:
 		JiggleBoneContext(void)
-			: inverseMass(1.0f)
-			, damping(1.0f)
-			, springConstant(1.0f)
-			, restLength(1.0f)
+			: springConstant(-100.0f)
 		{
 		}
 	};
@@ -127,7 +102,7 @@ public:
 
 	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
-	void AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant, float restLength);
+	int AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
 
 	void UpdateJiggleBone(JiggleBoneContext & context, int root_i, float fElapsedTime);
 };
