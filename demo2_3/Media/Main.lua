@@ -105,6 +105,7 @@ anim.SkeletonEventReady=function(args)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.Skeleton:Transform(local_trans)
+	anim:AddJiggleBone("Bip01_R_Clavicle",1,0.01,-100)
 end
 
 -- 构建动画树

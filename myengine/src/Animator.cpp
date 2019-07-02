@@ -35,6 +35,11 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 {
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 
+	if (m_SkeletonEventReady)
+	{
+		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
+	}
+
 	bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
 	anim_pose_hier.resize(m_Skeleton->m_boneBindPose.size());
 	my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
@@ -48,11 +53,6 @@ void Animator::OnReady(my::DeviceResourceBasePtr res)
 	}
 	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
-
-	if (m_SkeletonEventReady)
-	{
-		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
-	}
 }
 
 void Animator::RequestResource(void)
@@ -176,7 +176,7 @@ int Animator::AddJiggleBone(const std::string & bone_name, float mass, float dam
 		return -1;
 	}
 
-	int root_i = m_Skeleton->m_boneHierarchy.FindParent(bone_name_iter->second);
+	int root_i = m_Skeleton->FindParent(bone_name_iter->second);
 	if (-1 == root_i)
 	{
 		return -1;
@@ -192,7 +192,7 @@ int Animator::AddJiggleBone(const std::string & bone_name, float mass, float dam
 void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
 {
 	context.m_ParticleList.push_back(Particle(
-		bind_pose_hier[node_i].GetPosition() + m_Actor->m_Position, Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
+		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
 	node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
 	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_sibling)
 	{
