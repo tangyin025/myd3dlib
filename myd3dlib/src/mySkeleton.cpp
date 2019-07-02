@@ -443,16 +443,38 @@ const char * OgreSkeleton::FindBoneName(int node_i) const
 	return "";
 }
 
-int OgreSkeleton::FindParent(int node_i) const
+int OgreSkeleton::FindParent(int target_i) const
 {
-	int parent_i = 0;
-	for (; parent_i < m_boneHierarchy.size(); parent_i++)
+	my::BoneIndexSet::const_iterator root_iter = m_boneRootSet.begin();
+	for (; root_iter != m_boneRootSet.end(); root_iter++)
 	{
-		if (m_boneHierarchy[parent_i].m_child == node_i)
+		int ret = FindParent(-1, *root_iter, target_i);
+		if (ret >= 0)
 		{
-			return parent_i;
+			return ret;
 		}
 	}
+
+	return -1;
+}
+
+int OgreSkeleton::FindParent(int parent_i, int current_i, int target_i) const
+{
+	if (current_i == target_i)
+	{
+		return parent_i;
+	}
+
+	int node_i = m_boneHierarchy[current_i].m_child;
+	for (; node_i >= 0; node_i = m_boneHierarchy[node_i].m_sibling)
+	{
+		int ret = FindParent(current_i, node_i, target_i);
+		if (ret >= 0)
+		{
+			return ret;
+		}
+	}
+
 	return -1;
 }
 

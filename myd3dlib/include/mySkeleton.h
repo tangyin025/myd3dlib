@@ -234,7 +234,9 @@ namespace my
 
 		const char * FindBoneName(int node_i) const;
 
-		int FindParent(int node_i) const;
+		int FindParent(int target_i) const;
+
+		int FindParent(int parent_i, int current_i, int target_i) const;
 
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
