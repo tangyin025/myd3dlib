@@ -568,7 +568,7 @@ void CMainFrame::OnFileNew()
 		Animator * anim;
 		void foo(my::ControlEventArgs *)
 		{
-			anim->AddJiggleBone("joint1", 1.0f, 0.01f, -100.0f, 0);
+			anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f, 0);
 		}
 	};
 

@@ -67,6 +67,19 @@ bool BoneHierarchy::IsChild(int root_i, int child_i) const
 	return false;
 }
 
+int BoneHierarchy::FindParent(int node_i) const
+{
+	int parent_i = 0;
+	for (; parent_i < (int)size(); parent_i++)
+	{
+		if (operator[](parent_i).m_child == node_i)
+		{
+			return parent_i;
+		}
+	}
+	return -1;
+}
+
 BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
 	BoneHierarchy & leafedBoneHierarchy,
 	int root_i,

@@ -40,6 +40,8 @@ namespace my
 
 		bool IsChild(int root_i, int child_i) const;
 
+		int FindParent(int node_i) const;
+
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
 			int root_i,

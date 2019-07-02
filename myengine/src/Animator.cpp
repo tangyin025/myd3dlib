@@ -175,12 +175,18 @@ void Animator::AddJiggleBone(const std::string & bone_name, float mass, float da
 		return;
 	}
 
-	JiggleBoneContext & context = m_JiggleBones[bone_name_iter->second];
+	int root_i = m_Skeleton->m_boneHierarchy.FindParent(bone_name_iter->second);
+	if (-1 == root_i)
+	{
+		return;
+	}
+
+	JiggleBoneContext & context = m_JiggleBones[root_i];
 	context.inverseMass = 1.0f / mass;
 	context.damping = damping;
 	context.springConstant = springConstant;
 	context.restLength = restLength;
-	int node_i = m_Skeleton->m_boneHierarchy[bone_name_iter->second].m_child;
+	int node_i = bone_name_iter->second;
 	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
 	{
 		const Bone & bone = bind_pose_hier[node_i];
