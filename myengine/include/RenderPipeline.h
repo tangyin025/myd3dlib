@@ -23,7 +23,6 @@ public:
 	{
 		MeshTypeMesh			= 0,
 		MeshTypeParticle		= 1,
-		MeshTypeTerrain			= 2,
 		MeshTypeNum
 	};
 
