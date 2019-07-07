@@ -63,7 +63,7 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
 	Pos.xyz += translation;
 	Pos.w = 1;
-    return Pos;
+    return mul(Pos, g_World);
 #else
 	return mul(In.Pos, g_World);
 #endif
@@ -93,7 +93,7 @@ float3 TransformNormal(VS_INPUT In)
 	float2x4 dual;
 	GetSkinnedDual(In, dual);
 	float3 Normal = In.Normal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Normal.xyz) + dual[0].w * In.Normal.xyz);
-	return normalize(Normal);
+	return normalize(mul(Normal, (float3x3)g_World));
 #else
 	return normalize(mul(In.Normal, (float3x3)g_World));
 #endif
@@ -108,7 +108,7 @@ float3 TransformTangent(VS_INPUT In)
 	float2x4 dual;
 	GetSkinnedDual(In, dual);
 	float3 Tangent = In.Tangent.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Tangent.xyz) + dual[0].w * In.Tangent.xyz);;
-	return normalize(Tangent);
+	return normalize(mul(Tangent, (float3x3)g_World));
 #else
 	return normalize(mul(In.Tangent, (float3x3)g_World));
 #endif
