@@ -109,7 +109,7 @@ public:
 
 	void AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping);
 
-	void UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int node_i, int & particle_i, float fElapsedTime);
+	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

@@ -98,7 +98,10 @@ void Animator::Update(float fElapsedTime)
 		for (; context_iter != m_JiggleBones.end(); context_iter++)
 		{
 			int particle_i = 0;
-			UpdateJiggleBone(context_iter->second, context_iter->second.root_i, context_iter->first, particle_i, fElapsedTime);
+			Bone parent(
+				anim_pose_hier[context_iter->second.root_i].m_rotation * m_Actor->m_Rotation,
+				anim_pose_hier[context_iter->second.root_i].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position);
+			UpdateJiggleBone(context_iter->second, parent, context_iter->first, particle_i, fElapsedTime);
 		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
@@ -200,11 +203,8 @@ void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass
 	}
 }
 
-void Animator::UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int node_i, int & particle_i, float fElapsedTime)
+void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime)
 {
-	Bone parent(
-		anim_pose_hier[parent_i].m_rotation * m_Actor->m_Rotation,
-		anim_pose_hier[parent_i].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position);
 	Bone target(
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
 		m_Skeleton->m_boneBindPose[node_i].m_position.transform(parent.GetRotation()) + parent.GetPosition());
@@ -219,16 +219,18 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int n
 	particle.integrate(fElapsedTime);
 	Vector3 d0 = target.GetPosition() - parent.GetPosition();
 	Vector3 d1 = particle.getPosition() - parent.GetPosition();
-	particle.setPosition(parent.GetPosition() + d1.normalize() * d0.magnitude());
-	anim_pose_hier[node_i].SetRotation(target.GetRotation() * Quaternion::RotationFromTo(d0, d1) * m_Actor->m_Rotation.conjugate());
-	anim_pose_hier[node_i].SetPosition((particle.getPosition() - m_Actor->m_Position).transform(m_Actor->m_Rotation.conjugate()));
+	Bone final(
+		target.GetRotation() * Quaternion::RotationFromTo(d0, d1),
+		parent.GetPosition() + d1.normalize() * d0.magnitude());
+	particle.setPosition(final.GetPosition());
+	anim_pose_hier[node_i].SetRotation(final.GetRotation() * m_Actor->m_Rotation.conjugate());
+	anim_pose_hier[node_i].SetPosition((final.GetPosition() - m_Actor->m_Position).transform(m_Actor->m_Rotation.conjugate()));
 
 	particle_i++;
-	parent_i = node_i;
 	node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
 	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_sibling)
 	{
-		UpdateJiggleBone(context, parent_i, node_i, particle_i, fElapsedTime);
+		UpdateJiggleBone(context, final, node_i, particle_i, fElapsedTime);
 	}
 }
 
