@@ -202,7 +202,9 @@ void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass
 
 void Animator::UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int node_i, int & particle_i, float fElapsedTime)
 {
-	const Bone & parent = anim_pose_hier[parent_i];
+	Bone parent(
+		anim_pose_hier[parent_i].m_rotation * m_Actor->m_Rotation,
+		anim_pose_hier[parent_i].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position);
 	Bone target(
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
 		m_Skeleton->m_boneBindPose[node_i].m_position.transform(parent.GetRotation()) + parent.GetPosition());
@@ -218,8 +220,8 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, int parent_i, int n
 	Vector3 d0 = target.GetPosition() - parent.GetPosition();
 	Vector3 d1 = particle.getPosition() - parent.GetPosition();
 	particle.setPosition(parent.GetPosition() + d1.normalize() * d0.magnitude());
-	anim_pose_hier[node_i].SetPosition(particle.getPosition());
-	anim_pose_hier[node_i].SetRotation(target.GetRotation() * Quaternion::RotationFromTo(d0, d1));
+	anim_pose_hier[node_i].SetRotation(target.GetRotation() * Quaternion::RotationFromTo(d0, d1) * m_Actor->m_Rotation.conjugate());
+	anim_pose_hier[node_i].SetPosition((particle.getPosition() - m_Actor->m_Position).transform(m_Actor->m_Rotation.conjugate()));
 
 	particle_i++;
 	parent_i = node_i;
