@@ -189,12 +189,12 @@ Terrain::Terrain(void)
 
 Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain)
+	, OctRoot(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_HeightScale(HeightScale)
-	, m_Root(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
 	, technique_RenderScene(NULL)
 	, handle_World(NULL)
@@ -211,7 +211,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
-			m_Root.AddActor(chunk, chunk->m_aabb);
+			AddActor(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
 			chunk->UpdateVertices<unsigned char>(desc, lrc);
 		}
@@ -222,7 +222,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 Terrain::~Terrain(void)
 {
 	m_Decl.Release();
-	m_Root.ClearAllActor();
+	ClearAllActor();
 }
 
 static int Quad(int v)
@@ -263,8 +263,8 @@ void Terrain::UpdateHeightField(my::Texture2D * HeightMap)
 			}
 			m_Chunks[i][j]->UpdateAABB();
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
-			m_Root.RemoveActor(chunk);
-			m_Root.AddActor(chunk, chunk->m_aabb);
+			RemoveActor(chunk);
+			AddActor(chunk, chunk->m_aabb);
 		}
 	}
 	HeightMap->UnlockRect(0);
@@ -465,24 +465,24 @@ template<>
 void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar << BOOST_SERIALIZATION_NVP(m_Root);
 }
 
 template<>
 void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -498,7 +498,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 			chunk->m_Owner = terrain;
 		}
 	};
-	m_Root.QueryActorAll(&Callback(this));
+	QueryActorAll(&Callback(this));
 }
 
 void Terrain::RequestResource(void)
@@ -634,7 +634,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		m_Root.QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
+		QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
 	}
 }
 

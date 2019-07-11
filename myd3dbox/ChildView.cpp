@@ -656,7 +656,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
 			Callback cb(ray, LocalViewPos, this, terrain);
-			terrain->m_Root.QueryActor(ray, &cb);
+			terrain->QueryActor(ray, &cb);
 			if (cb.ret.first)
 			{
 				return cb.ret;

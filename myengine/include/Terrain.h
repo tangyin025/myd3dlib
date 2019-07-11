@@ -55,6 +55,7 @@ typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
 class Terrain
 	: public Component
+	, public my::OctRoot
 {
 public:
 	int m_RowChunks;
@@ -85,8 +86,6 @@ public:
 	typedef boost::unordered_map<unsigned int, Fragment> FragmentMap;
 
 	FragmentMap m_Fragment;
-
-	my::OctRoot m_Root;
 
 	typedef boost::multi_array<TerrainChunk *, 2> ChunkArray2D;
 
