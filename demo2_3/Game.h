@@ -21,6 +21,7 @@ class Game
 	, public RenderPipeline::IRenderContext
 	, public PhysXContext
 	, public PhysXSceneContext
+	, public my::OctRoot
 	, public ViewedActorMgr
 	, public FModContext
 {
@@ -30,8 +31,6 @@ public:
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
-
-	my::OctRoot m_Root;
 
 	Actor * m_TargetActor;
 

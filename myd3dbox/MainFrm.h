@@ -18,6 +18,7 @@
 
 class CMainFrame : public CFrameWndEx
 	, public PhysXSceneContext
+	, public my::OctRoot
 	, public ViewedActorMgr
 	, public rcContext
 {
@@ -37,7 +38,6 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	my::OctRoot m_Root;
 	typedef boost::unordered_set<Actor *> ActorSet;
 	ActorSet m_selactors;
 	CPoint m_selchunkid;

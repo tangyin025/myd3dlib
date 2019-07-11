@@ -83,10 +83,10 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-	: m_bEatAltUp(FALSE)
+	: OctRoot(my::AABB(-4096, 4096))
+	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
-	, m_Root(my::AABB(-4096, 4096))
 	, m_solid(NULL)
 	//, m_triareas(NULL)
 	, m_chf(NULL)
@@ -492,7 +492,7 @@ void CMainFrame::OnSelChanged()
 
 void CMainFrame::ClearFileContext()
 {
-	m_Root.ClearAllActor();
+	ClearAllActor();
 	m_selactors.clear();
 	m_ViewedActors.clear();
 	PhysXSceneContext::ClearSerializedObjs();
@@ -546,49 +546,49 @@ void CMainFrame::OnFileNew()
 	//	}
 	//}
 
-	MeshComponentPtr mesh_cmp(new MeshComponent());
-	mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = theApp.default_shader;
-	lambert1->m_PassMask = theApp.default_pass_mask;
-	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	mesh_cmp->m_MaterialList.push_back(lambert1);
-	mesh_cmp->m_bUseAnimation = true;
+	//MeshComponentPtr mesh_cmp(new MeshComponent());
+	//mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
+	//MaterialPtr lambert1(new Material());
+	//lambert1->m_Shader = theApp.default_shader;
+	//lambert1->m_PassMask = theApp.default_pass_mask;
+	//lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	//lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	//lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	//mesh_cmp->m_MaterialList.push_back(lambert1);
+	//mesh_cmp->m_bUseAnimation = true;
 
-	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	actor->AddComponent(mesh_cmp);
-	actor->UpdateAABB();
-	actor->UpdateWorld();
+	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	//actor->AddComponent(mesh_cmp);
+	//actor->UpdateAABB();
+	//actor->UpdateWorld();
 
-	class Aaa
-	{
-	public:
-		Animator * anim;
-		void foo(my::ControlEventArgs *)
-		{
-			anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f);
-		}
-	};
+	//class Aaa
+	//{
+	//public:
+	//	Animator * anim;
+	//	void foo(my::ControlEventArgs *)
+	//	{
+	//		anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f);
+	//	}
+	//};
 
-	static Aaa a;
+	//static Aaa a;
 
-	AnimatorPtr anim(new Animator(actor.get()));
-	anim->m_SkeletonPath = "mesh/Cylinder.skeleton.xml";
-	anim->m_SkeletonEventReady = boost::bind(&Aaa::foo, &a, _1);
-	anim->m_Node.reset(new AnimationNode(anim.get(), 0));
-	a.anim = anim.get();
-	actor->m_Animator = anim;
+	//AnimatorPtr anim(new Animator(actor.get()));
+	//anim->m_SkeletonPath = "mesh/Cylinder.skeleton.xml";
+	//anim->m_SkeletonEventReady = boost::bind(&Aaa::foo, &a, _1);
+	//anim->m_Node.reset(new AnimationNode(anim.get(), 0));
+	//a.anim = anim.get();
+	//actor->m_Animator = anim;
 
-	actor->RequestResource();
-	actor->OnEnterPxScene(this);
-	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	//actor->RequestResource();
+	//actor->OnEnterPxScene(this);
+	//AddActor(actor, actor->m_aabb.transform(actor->m_World));
 
-	m_selactors.clear();
-	m_selactors.insert(actor.get());
-	m_selchunkid.SetPoint(0, 0);
-	OnSelChanged();
+	//m_selactors.clear();
+	//m_selactors.insert(actor.get());
+	//m_selchunkid.SetPoint(0, 0);
+	//OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
@@ -615,7 +615,7 @@ void CMainFrame::OnFileOpen()
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	ia >> boost::serialization::make_nvp("Root", m_Root);
+	ia >> boost::serialization::make_nvp("Root", (my::OctRoot &)*this);
 
 	theApp.RequestResource();
 }
@@ -643,7 +643,7 @@ void CMainFrame::OnFileSave()
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	oa << boost::serialization::make_nvp("Root", m_Root);
+	oa << boost::serialization::make_nvp("Root", (my::OctRoot &)*this);
 }
 
 void CMainFrame::OnFileSaveAs()
@@ -663,7 +663,7 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
-	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	AddActor(actor, actor->m_aabb.transform(actor->m_World));
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 
@@ -683,7 +683,7 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f));
 	character->UpdateWorld();
-	m_Root.AddActor(character, character->m_aabb.transform(character->m_World));
+	AddActor(character, character->m_aabb.transform(character->m_World));
 	character->RequestResource();
 	character->OnEnterPxScene(this);
 
@@ -1027,8 +1027,8 @@ void CMainFrame::OnToolsBuildnavigation()
 	m_cfg.detailSampleDist = 1.8f;// m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = 0.2f;// m_cellHeight * m_detailSampleMaxError;
 
-	rcVcopy(m_cfg.bmin, &m_Root.m_aabb.m_min.x);
-	rcVcopy(m_cfg.bmax, &m_Root.m_aabb.m_max.x);
+	rcVcopy(m_cfg.bmin, &m_aabb.m_min.x);
+	rcVcopy(m_cfg.bmax, &m_aabb.m_max.x);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
@@ -1204,7 +1204,7 @@ void CMainFrame::OnToolsBuildnavigation()
 			}
 		}
 	};
-	m_Root.QueryActorAll(&Callback());
+	QueryActorAll(&Callback());
 
 	//if (!m_keepInterResults)
 	//{

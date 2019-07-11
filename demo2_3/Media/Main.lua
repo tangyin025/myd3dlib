@@ -50,7 +50,7 @@ game:LoadScene("scene01.xml")
 -- terrain.GrassMaterial=grass1
 -- actor:AddComponent(terrain)
 -- actor:UpdateWorld()
--- game.Root:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
+-- game:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
 
 -- -- 创建地面
 -- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
@@ -72,7 +72,7 @@ game:LoadScene("scene01.xml")
 -- actor:CreateRigidActor(Actor.eRIGID_STATIC)
 -- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)))
 -- actor:UpdateWorld()
--- game.Root:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
+-- game:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
 
 -- 创建玩家Actor
 local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
@@ -94,7 +94,7 @@ cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 player:UpdateWorld()
-game.Root:AddActor(actor2oct(player),player.aabb:transform(player.World))
+game:AddActor(actor2oct(player),player.aabb:transform(player.World))
 
 -- 加载动画资源
 local anim=Animator(player)
@@ -105,7 +105,7 @@ anim.SkeletonEventReady=function(args)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.Skeleton:Transform(local_trans)
-	-- anim:AddJiggleBone("Bip01_R_Forearm",1,0.01,-100)
+	anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
 end
 
 -- 构建动画树
@@ -158,35 +158,35 @@ actor4:AddComponent(cmp2)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
 actor4:UpdateWorld()
-game.Root:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
+game:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
--- 在角色手部绑定物体
-local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp3=MeshComponent()
-cmp3.MeshPath="mesh/Cylinder.mesh.xml"
-cmp3.MeshEventReady=function(args)
-	cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
-		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
-end
-cmp3:AddMaterial(lambert3)
-actor2:AddComponent(cmp3)
-actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
-game.Root:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
-player:Attach(actor2, 10)
+-- -- 在角色手部绑定物体
+-- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+-- local cmp3=MeshComponent()
+-- cmp3.MeshPath="mesh/Cylinder.mesh.xml"
+-- cmp3.MeshEventReady=function(args)
+	-- cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
+		-- Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
+-- end
+-- cmp3:AddMaterial(lambert3)
+-- actor2:AddComponent(cmp3)
+-- actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+-- actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+-- cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+-- game:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
+-- player:Attach(actor2, 10)
 
--- 在角色手部绑定物体
-local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp4=MeshComponent()
-cmp4.MeshPath="mesh/Cylinder.mesh.xml"
-cmp4:AddMaterial(lambert3)
-actor3:AddComponent(cmp4)
-actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
-game.Root:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
-player:Attach(actor3, 29)
+-- -- 在角色手部绑定物体
+-- local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+-- local cmp4=MeshComponent()
+-- cmp4.MeshPath="mesh/Cylinder.mesh.xml"
+-- cmp4:AddMaterial(lambert3)
+-- actor3:AddComponent(cmp4)
+-- actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+-- actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+-- cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+-- game:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
+-- player:Attach(actor3, 29)
 
 -- -- 特殊渲染选项
 -- game.SsaoEnable=true

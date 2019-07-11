@@ -283,8 +283,8 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: m_UIRender(new EffectUIRender())
-	, m_Root(my::AABB(-4096, 4096))
+	: OctRoot(my::AABB(-4096, 4096))
+	, m_UIRender(new EffectUIRender())
 	, m_TargetActor(NULL)
 {
 	boost::program_options::options_description desc("Options");
@@ -450,7 +450,7 @@ HRESULT Game::OnCreateDevice(
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr> >("Game")
+		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr, my::OctRoot> >("Game")
 			.def("AddTimer", &Game::AddTimer)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -468,7 +468,6 @@ HRESULT Game::OnCreateDevice(
 			.property("VisualizationParameter", &Game::GetVisualizationParameter, &Game::SetVisualizationParameter)
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
-			.def_readonly("Root", &Game::m_Root)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveDialog", &Game::SaveDialog)
 			.def("LoadDialog", &Game::LoadDialog)
@@ -583,7 +582,7 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	m_Root.ClearAllActor();
+	ClearAllActor();
 
 	m_Console.reset();
 
@@ -637,7 +636,7 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	ViewedActorMgr::CheckViewedActor(m_Root, this,
+	ViewedActorMgr::CheckViewedActor(*this, this,
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f),
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
 
@@ -810,7 +809,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		}
 	};
 
-	m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
+	QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
@@ -877,7 +876,7 @@ ComponentPtr Game::LoadComponent(const char * path)
 
 void Game::LoadScene(const char * path)
 {
-	m_Root.ClearAllActor();
+	ClearAllActor();
 	PhysXSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 
@@ -886,7 +885,7 @@ void Game::LoadScene(const char * path)
 	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	ia >> boost::serialization::make_nvp("Root", m_Root);
+	ia >> boost::serialization::make_nvp("Root", (my::OctRoot &)*this);
 
 	RenderPipeline::RequestResource();
 }

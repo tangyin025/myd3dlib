@@ -197,7 +197,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-	pFrame->m_Root.QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame));
+	pFrame->QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
@@ -1032,7 +1032,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				}
 			}
 		};
-		pFrame->m_Root.QueryActor(ftm, &Callback(pFrame->m_selactors, ftm, this));
+		pFrame->QueryActor(ftm, &Callback(pFrame->m_selactors, ftm, this));
 	}
 	else
 	{
@@ -1065,7 +1065,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		Callback cb(ray, this);
-		pFrame->m_Root.QueryActor(ray, &cb);
+		pFrame->QueryActor(ray, &cb);
 		if (cb.selact)
 		{
 			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cb.selact);
@@ -1128,7 +1128,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				pFrame->m_Root.AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
+				pFrame->AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				new_acts.insert(new_actor.get());
@@ -1195,7 +1195,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 			m_Camera->UpdateViewProj();
 			StartPerformanceCount();
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-			pFrame->CheckViewedActor(pFrame->m_Root, pFrame,
+			pFrame->CheckViewedActor(*pFrame, pFrame,
 				my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
 			Invalidate();
 			break;
