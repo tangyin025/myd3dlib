@@ -11,8 +11,6 @@ class TerrainChunk
 	: public my::OctActor
 {
 public:
-	Terrain * m_Owner;
-
 	my::AABB m_aabb;
 
 	int m_Row;
@@ -27,7 +25,7 @@ protected:
 	TerrainChunk(void);
 
 public:
-	TerrainChunk(Terrain * Owner, int Row, int Col);
+	TerrainChunk(int Row, int Col, int ChunkSize);
 
 	virtual ~TerrainChunk(void);
 
@@ -72,7 +70,7 @@ public:
 
 	my::D3DVertexElementSet m_VertexElems;
 
-	DWORD m_VertexStride;
+	static const DWORD m_VertexStride = 44;
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 

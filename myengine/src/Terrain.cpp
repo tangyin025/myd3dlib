@@ -26,21 +26,18 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(void)
-	: m_Owner(NULL)
+	: m_aabb(my::AABB::Invalid())
 	, m_Row(0)
 	, m_Col(0)
 {
-	m_aabb = AABB::Invalid();
 }
 
-TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Col)
-	: m_Owner(Owner)
+TerrainChunk::TerrainChunk(int Row, int Col, int ChunkSize)
+	: m_aabb((float)Col * ChunkSize, -1, (float)Row * ChunkSize, (float)Col * ChunkSize + ChunkSize, 1, (float)Row * ChunkSize + ChunkSize)
 	, m_Row(Row)
 	, m_Col(Col)
 {
-	m_aabb.m_min = Vector3((float)m_Col * m_Owner->m_ChunkSize, -1, (float)m_Row * m_Owner->m_ChunkSize);
-	m_aabb.m_max = Vector3((float)m_Col * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize, 1, (float)m_Row * m_Owner->m_ChunkSize + m_Owner->m_ChunkSize);
-	m_vb.CreateVertexBuffer(m_Owner->m_IndexTable.shape()[0] * m_Owner->m_IndexTable.shape()[1] * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_vb.CreateVertexBuffer((ChunkSize + 1) * (ChunkSize + 1) * Terrain::m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -56,10 +53,10 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	const DWORD BufferSize = m_Owner->m_IndexTable.shape()[0] * m_Owner->m_IndexTable.shape()[1] * m_Owner->m_VertexStride;
-	ar << BOOST_SERIALIZATION_NVP(BufferSize);
+	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_vb).GetDesc();
+	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
 	void * pVertices = const_cast<my::VertexBuffer&>(m_vb).Lock(0, 0, D3DLOCK_READONLY);
-	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
+	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
 	const_cast<my::VertexBuffer&>(m_vb).Unlock();
 }
 
@@ -82,16 +79,18 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 
 void TerrainChunk::UpdateAABB(void)
 {
-	m_aabb = AABB::Invalid();
+	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
+	_ASSERT(terrain);
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
-		for (unsigned int i = 0; i < m_Owner->m_IndexTable.shape()[0]; i++)
+		m_aabb = AABB::Invalid();
+		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
 		{
-			for (unsigned int j = 0; j < m_Owner->m_IndexTable.shape()[1]; j++)
+			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
 			{
-				unsigned char * pVertex = (unsigned char *)pVertices + m_Owner->m_IndexTable[i][j] * m_Owner->m_VertexStride;
-				m_aabb.unionSelf(m_Owner->m_VertexElems.GetPosition(pVertex));
+				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
+				m_aabb.unionSelf(terrain->m_VertexElems.GetPosition(pVertex));
 			}
 		}
 		m_vb.Unlock();
@@ -101,21 +100,23 @@ void TerrainChunk::UpdateAABB(void)
 template <typename T>
 void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 {
+	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
+	_ASSERT(terrain);
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
-		for (unsigned int i = 0; i < m_Owner->m_IndexTable.shape()[0]; i++)
+		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
 		{
-			for (unsigned int j = 0; j < m_Owner->m_IndexTable.shape()[1]; j++)
+			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
 			{
-				int pos_i = m_Row * m_Owner->m_ChunkSize + i;
-				int pos_j = m_Col * m_Owner->m_ChunkSize + j;
-				const Vector3 Pos = m_Owner->GetSamplePos<T>(desc, lrc, pos_i, pos_j);
+				int pos_i = m_Row * terrain->m_ChunkSize + i;
+				int pos_j = m_Col * terrain->m_ChunkSize + j;
+				const Vector3 Pos = terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j);
 				const Vector3 Dirs[4] = {
-					m_Owner->GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j) - Pos,
-					m_Owner->GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1) - Pos,
-					m_Owner->GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j) - Pos,
-					m_Owner->GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1) - Pos,
 				};
 				const Vector3 Nors[4] = {
 					Dirs[0].cross(Dirs[1]).normalize(),
@@ -125,11 +126,11 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 				};
 				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
 
-				unsigned char * pVertex = (unsigned char *)pVertices + m_Owner->m_IndexTable[i][j] * m_Owner->m_VertexStride;
-				m_Owner->m_VertexElems.SetPosition(pVertex, Pos);
-				m_Owner->m_VertexElems.SetNormal(pVertex, Normal);
-				m_Owner->m_VertexElems.SetTangent(pVertex, Normal.cross(Vector3(0, 0, 1)));
-				m_Owner->m_VertexElems.SetTexcoord(pVertex, Vector2((float)j / m_Owner->m_ChunkSize, (float)i / m_Owner->m_ChunkSize));
+				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
+				terrain->m_VertexElems.SetPosition(pVertex, Pos);
+				terrain->m_VertexElems.SetNormal(pVertex, Normal);
+				terrain->m_VertexElems.SetTangent(pVertex, Normal.cross(Vector3(0, 0, 1)));
+				terrain->m_VertexElems.SetTexcoord(pVertex, Vector2((float)j / terrain->m_ChunkSize, (float)i / terrain->m_ChunkSize));
 			}
 		}
 		m_vb.Unlock();
@@ -210,7 +211,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
-			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
+			TerrainChunkPtr chunk(new TerrainChunk(i, j, m_ChunkSize));
 			AddActor(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
 			chunk->UpdateVertices<unsigned char>(desc, lrc);
@@ -280,7 +281,7 @@ void Terrain::CreateElements(void)
 	offset += sizeof(Vector3);
 	m_VertexElems.InsertTexcoordElement(offset);
 	offset += sizeof(Vector2);
-	m_VertexStride = offset;
+	_ASSERT(m_VertexStride == offset);
 }
 
 template <class T>
@@ -495,7 +496,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Col] = chunk;
-			chunk->m_Owner = terrain;
 		}
 	};
 	QueryActorAll(&Callback(this));

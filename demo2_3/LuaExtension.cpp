@@ -991,7 +991,6 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
 
 		, class_<TerrainChunk, my::Emitter>("TerrainChunk")
-			.def_readonly("Owner", &TerrainChunk::m_Owner)
 			.def_readonly("aabb", &TerrainChunk::m_aabb)
 			.def_readonly("Row", &TerrainChunk::m_Row)
 			.def_readonly("Col", &TerrainChunk::m_Col)
