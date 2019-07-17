@@ -71,9 +71,9 @@ public:
 		}
 	};
 
-	typedef std::vector<IKContext> IKContextList;
+	typedef std::map<int, IKContext> IKContextMap;
 
-	IKContextList m_Iks;
+	IKContextMap m_Iks;
 
 protected:
 	Animator(void)
@@ -119,11 +119,13 @@ public:
 
 	void RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
-	int AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
+	void AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
 
 	void AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping);
 
 	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime);
+
+	void AddIK(const std::string & bone_name);
 
 	void UpdateIK(IKContext & ik);
 };

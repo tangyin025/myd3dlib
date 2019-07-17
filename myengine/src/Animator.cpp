@@ -105,10 +105,10 @@ void Animator::Update(float fElapsedTime)
 			UpdateJiggleBone(jb_iter->second, parent, jb_iter->first, particle_i, fElapsedTime);
 		}
 
-		IKContextList::iterator ik_iter = m_Iks.begin();
+		IKContextMap::iterator ik_iter = m_Iks.begin();
 		for (; ik_iter != m_Iks.end(); ik_iter++)
 		{
-			UpdateIK(*ik_iter);
+			UpdateIK(ik_iter->second);
 		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
@@ -172,7 +172,7 @@ void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSe
 	m_SequenceGroups.erase(seq_iter);
 }
 
-int Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)
+void Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)
 {
 	_ASSERT(mass > 0);
 
@@ -183,20 +183,19 @@ int Animator::AddJiggleBone(const std::string & bone_name, float mass, float dam
 	OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = m_Skeleton->m_boneNameMap.find(bone_name);
 	if (bone_name_iter == m_Skeleton->m_boneNameMap.end())
 	{
-		return -1;
+		return;
 	}
 
 	int root_i = m_Skeleton->FindParent(bone_name_iter->second);
 	if (-1 == root_i)
 	{
-		return -1;
+		return;
 	}
 
 	JiggleBoneContext & context = m_JiggleBones[bone_name_iter->second];
 	context.root_i = root_i;
 	context.springConstant = springConstant;
 	AddJiggleBone(context, bone_name_iter->second, mass, damping);
-	return root_i;
 }
 
 void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
@@ -241,13 +240,42 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & pa
 	}
 }
 
+void Animator::AddIK(const std::string & bone_name)
+{
+	_ASSERT(m_Actor);
+
+	_ASSERT(m_Skeleton);
+
+	OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = m_Skeleton->m_boneNameMap.find(bone_name);
+	if (bone_name_iter == m_Skeleton->m_boneNameMap.end())
+	{
+		return;
+	}
+
+	IKContext & ik = m_Iks[bone_name_iter->second];
+	int node_i = bone_name_iter->second;
+	for (int i = 0; i < 3; i++, node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
+	{
+		if (node_i < 0)
+		{
+			m_Iks.erase(bone_name_iter->second);
+			return;
+		}
+		ik.id[i] = node_i;
+	}
+}
+
 void Animator::UpdateIK(IKContext & ik)
 {
+	PhysXSceneContext * scene = dynamic_cast<PhysXSceneContext *>(m_Actor->m_Node->GetTopNode());
+	_ASSERT(scene);
+
 	Vector3 pos[3] = {
 		anim_pose_hier[ik.id[0]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position,
 		anim_pose_hier[ik.id[1]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position,
-		anim_pose_hier[ik.id[2]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position };
-	PhysXSceneContext * scene = dynamic_cast<PhysXSceneContext *>(m_Actor->m_Node->GetTopNode());
+		anim_pose_hier[ik.id[2]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position
+	};
+
 	Vector3 dir = pos[2] - pos[0];
 	float length = dir.magnitude();
 	dir *= 1 / length;

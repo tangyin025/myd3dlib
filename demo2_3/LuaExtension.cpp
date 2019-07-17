@@ -1052,7 +1052,7 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
 			.def_readwrite("SkeletonEventReady", &Animator::m_SkeletonEventReady)
 			.def_readwrite("Node", &Animator::m_Node)
-			.def("AddJiggleBone", (int (Animator::*)(const std::string &, float, float, float))&Animator::AddJiggleBone)
+			.def("AddJiggleBone", (void (Animator::*)(const std::string &, float, float, float))&Animator::AddJiggleBone)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.def(constructor<Animator *, unsigned int>())
