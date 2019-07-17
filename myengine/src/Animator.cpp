@@ -1,6 +1,7 @@
 #include "Animator.h"
 #include "Character.h"
 #include "myResource.h"
+#include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -94,14 +95,20 @@ void Animator::Update(float fElapsedTime)
 				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
 		}
 
-		JiggleBoneContextMap::iterator context_iter = m_JiggleBones.begin();
-		for (; context_iter != m_JiggleBones.end(); context_iter++)
+		JiggleBoneContextMap::iterator jb_iter = m_JiggleBones.begin();
+		for (; jb_iter != m_JiggleBones.end(); jb_iter++)
 		{
 			int particle_i = 0;
 			Bone parent(
-				anim_pose_hier[context_iter->second.root_i].m_rotation * m_Actor->m_Rotation,
-				anim_pose_hier[context_iter->second.root_i].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position);
-			UpdateJiggleBone(context_iter->second, parent, context_iter->first, particle_i, fElapsedTime);
+				anim_pose_hier[jb_iter->second.root_i].m_rotation * m_Actor->m_Rotation,
+				anim_pose_hier[jb_iter->second.root_i].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position);
+			UpdateJiggleBone(jb_iter->second, parent, jb_iter->first, particle_i, fElapsedTime);
+		}
+
+		IKContextList::iterator ik_iter = m_Iks.begin();
+		for (; ik_iter != m_Iks.end(); ik_iter++)
+		{
+			UpdateIK(*ik_iter);
 		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
@@ -231,6 +238,24 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & pa
 	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_sibling)
 	{
 		UpdateJiggleBone(context, final, node_i, particle_i, fElapsedTime);
+	}
+}
+
+void Animator::UpdateIK(IKContext & ik)
+{
+	Vector3 pos[3] = {
+		anim_pose_hier[ik.id[0]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position,
+		anim_pose_hier[ik.id[1]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position,
+		anim_pose_hier[ik.id[2]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position };
+	PhysXSceneContext * scene = dynamic_cast<PhysXSceneContext *>(m_Actor->m_Node->GetTopNode());
+	Vector3 dir = pos[2] - pos[0];
+	float length = dir.magnitude();
+	dir *= 1 / length;
+	physx::PxRaycastBuffer hit;
+	bool status = scene->m_PxScene->raycast((physx::PxVec3&)pos[0], (physx::PxVec3&)dir, length, hit, physx::PxHitFlag::eDEFAULT);
+	if (status)
+	{
+		hit.block.position;
 	}
 }
 

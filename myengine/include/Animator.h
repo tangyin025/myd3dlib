@@ -61,6 +61,20 @@ public:
 
 	JiggleBoneContextMap m_JiggleBones;
 
+	class IKContext
+	{
+	public:
+		int id[3];
+
+		IKContext(void)
+		{
+		}
+	};
+
+	typedef std::vector<IKContext> IKContextList;
+
+	IKContextList m_Iks;
+
 protected:
 	Animator(void)
 		: m_Actor(NULL)
@@ -110,6 +124,8 @@ public:
 	void AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping);
 
 	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime);
+
+	void UpdateIK(IKContext & ik);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;
