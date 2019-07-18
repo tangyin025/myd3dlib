@@ -280,12 +280,12 @@ void Animator::UpdateIK(IKContext & ik)
 	float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
 	Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
 	float theta[2] = {
-		acos(Vector3::CosTheta(normal[0], normal[2])),
-		acos(Vector3::CosTheta(-normal[0], normal[1]))
+		D3DXToDegree(acos(Vector3::CosTheta(normal[0], normal[2]))),
+		D3DXToDegree(acos(Vector3::CosTheta(-normal[0], normal[1])))
 	};
 
 	physx::PxRaycastBuffer hit;
-	bool status = scene->m_PxScene->raycast((physx::PxVec3&)pos[0], (physx::PxVec3&)dir[2], length[2], hit, physx::PxHitFlag::eDEFAULT);
+	bool status = scene->m_PxScene->raycast((physx::PxVec3&)pos[0], (physx::PxVec3&)normal[2], length[2], hit, physx::PxHitFlag::eDEFAULT);
 	if (!status)
 	{
 		return;
@@ -294,8 +294,8 @@ void Animator::UpdateIK(IKContext & ik)
 	Vector3 dir3 = (Vector3 &)hit.block.position - pos[0];
 	float length3 = dir3.magnitude();
 	float new_theta[2] = {
-		acos((length3 * length3 + length[1] * length[1] - length[0] * length[0]) / (2 * length3 * length[1])),
-		acos((length[0] * length[0] + length3 * length3 - length[1] * length[1]) / (2 * length[0] * length3))
+		D3DXToDegree(acos((length3 * length3 + length[1] * length[1] - length[0] * length[0]) / (2 * length3 * length[1]))),
+		D3DXToDegree(acos((length[0] * length[0] + length3 * length3 - length[1] * length[1]) / (2 * length[0] * length3)))
 	};
 }
 

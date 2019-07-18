@@ -546,49 +546,56 @@ void CMainFrame::OnFileNew()
 	//	}
 	//}
 
-	//MeshComponentPtr mesh_cmp(new MeshComponent());
+	MeshComponentPtr mesh_cmp(new MeshComponent());
 	//mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
-	//MaterialPtr lambert1(new Material());
-	//lambert1->m_Shader = theApp.default_shader;
-	//lambert1->m_PassMask = theApp.default_pass_mask;
-	//lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	//lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	//lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	//mesh_cmp->m_MaterialList.push_back(lambert1);
-	//mesh_cmp->m_bUseAnimation = true;
+	mesh_cmp->m_MeshPath = "character/aaa.mesh.xml";
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = theApp.default_shader;
+	lambert1->m_PassMask = theApp.default_pass_mask;
+	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	mesh_cmp->m_MaterialList.push_back(lambert1);
+	mesh_cmp->m_bUseAnimation = true;
 
-	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	//actor->AddComponent(mesh_cmp);
-	//actor->UpdateAABB();
-	//actor->UpdateWorld();
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	actor->AddComponent(mesh_cmp);
+	actor->UpdateAABB();
+	actor->UpdateWorld();
 
-	//class Aaa
-	//{
-	//public:
-	//	Animator * anim;
-	//	void foo(my::ControlEventArgs *)
-	//	{
-	//		anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f);
-	//	}
-	//};
+	class Aaa
+	{
+	public:
+		Animator * anim;
+		void foo(my::ControlEventArgs *)
+		{
+			//anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f);
+			anim->AddIK("joint1");
+		}
+	};
 
-	//static Aaa a;
+	static Aaa a;
 
-	//AnimatorPtr anim(new Animator(actor.get()));
+	AnimatorPtr anim(new Animator(actor.get()));
+	a.anim = anim.get();
 	//anim->m_SkeletonPath = "mesh/Cylinder.skeleton.xml";
-	//anim->m_SkeletonEventReady = boost::bind(&Aaa::foo, &a, _1);
+	anim->m_SkeletonPath = "character/aaa.skeleton.xml";
+	anim->m_SkeletonEventReady = boost::bind(&Aaa::foo, &a, _1);
 	//anim->m_Node.reset(new AnimationNode(anim.get(), 0));
-	//a.anim = anim.get();
-	//actor->m_Animator = anim;
+	AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
+	seq->m_Root = "joint1";
+	seq->m_Name = "clip1";
+	anim->m_Node = seq;
+	actor->m_Animator = anim;
 
-	//actor->RequestResource();
-	//actor->OnEnterPxScene(this);
-	//AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
+	AddActor(actor, actor->m_aabb.transform(actor->m_World));
 
-	//m_selactors.clear();
-	//m_selactors.insert(actor.get());
-	//m_selchunkid.SetPoint(0, 0);
-	//OnSelChanged();
+	m_selactors.clear();
+	m_selactors.insert(actor.get());
+	m_selchunkid.SetPoint(0, 0);
+	OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
