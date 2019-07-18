@@ -276,15 +276,27 @@ void Animator::UpdateIK(IKContext & ik)
 		anim_pose_hier[ik.id[2]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position
 	};
 
-	Vector3 dir = pos[2] - pos[0];
-	float length = dir.magnitude();
-	dir *= 1 / length;
+	Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
+	float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
+	Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
+	float theta[2] = {
+		acos(Vector3::CosTheta(normal[0], normal[2])),
+		acos(Vector3::CosTheta(-normal[0], normal[1]))
+	};
+
 	physx::PxRaycastBuffer hit;
-	bool status = scene->m_PxScene->raycast((physx::PxVec3&)pos[0], (physx::PxVec3&)dir, length, hit, physx::PxHitFlag::eDEFAULT);
-	if (status)
+	bool status = scene->m_PxScene->raycast((physx::PxVec3&)pos[0], (physx::PxVec3&)dir[2], length[2], hit, physx::PxHitFlag::eDEFAULT);
+	if (!status)
 	{
-		hit.block.position;
+		return;
 	}
+
+	Vector3 dir3 = (Vector3 &)hit.block.position - pos[0];
+	float length3 = dir3.magnitude();
+	float new_theta[2] = {
+		acos((length3 * length3 + length[1] * length[1] - length[0] * length[0]) / (2 * length3 * length[1])),
+		acos((length[0] * length[0] + length3 * length3 - length[1] * length[1]) / (2 * length[0] * length3))
+	};
 }
 
 BOOST_CLASS_EXPORT(AnimationNode)

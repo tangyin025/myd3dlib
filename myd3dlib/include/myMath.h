@@ -619,6 +619,13 @@ namespace my
 			return atan2(sin, cos);
 		}
 
+		static float CosTheta(const Vector3 & v0, const Vector3 & v1)
+		{
+			float determinant = v0.magnitude() * v1.magnitude();
+			_ASSERT(determinant != 0);
+			return v0.dot(v1) / determinant;
+		}
+
 		static const Vector3 zero;
 
 		static const Vector3 one;
