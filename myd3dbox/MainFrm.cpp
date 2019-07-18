@@ -592,6 +592,18 @@ void CMainFrame::OnFileNew()
 	actor->OnEnterPxScene(this);
 	AddActor(actor, actor->m_aabb.transform(actor->m_World));
 
+	actor.reset(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-512, 512)));
+	mesh_cmp.reset(new MeshComponent());
+	mesh_cmp->AddMaterial(lambert1);
+	mesh_cmp->m_MeshPath = "mesh/plane.mesh.xml";
+	actor->AddComponent(mesh_cmp);
+	actor->CreateRigidActor(physx::PxActorType::eRIGID_STATIC);
+	mesh_cmp->CreatePlaneShape(my::Vector3(0, 0, 0), my::Quaternion::RotationYawPitchRoll(0, 0, D3DXToRadian(90)));
+	actor->UpdateWorld();
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
+	AddActor(actor, actor->m_aabb.transform(actor->m_World));
+
 	m_selactors.clear();
 	m_selactors.insert(actor.get());
 	m_selchunkid.SetPoint(0, 0);

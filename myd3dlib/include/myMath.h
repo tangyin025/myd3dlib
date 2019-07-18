@@ -626,6 +626,11 @@ namespace my
 			return v0.dot(v1) / determinant;
 		}
 
+		static float Cosine(float a, float b, float c)
+		{
+			return (b * b + c * c - a * a) / (2 * b * c);
+		}
+
 		static const Vector3 zero;
 
 		static const Vector3 one;

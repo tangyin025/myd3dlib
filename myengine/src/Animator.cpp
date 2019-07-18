@@ -294,8 +294,8 @@ void Animator::UpdateIK(IKContext & ik)
 	Vector3 dir3 = (Vector3 &)hit.block.position - pos[0];
 	float length3 = dir3.magnitude();
 	float new_theta[2] = {
-		D3DXToDegree(acos((length3 * length3 + length[1] * length[1] - length[0] * length[0]) / (2 * length3 * length[1]))),
-		D3DXToDegree(acos((length[0] * length[0] + length3 * length3 - length[1] * length[1]) / (2 * length[0] * length3)))
+		D3DXToDegree(acos(Vector3::Cosine(length[1], length[0], length3))),
+		D3DXToDegree(acos(Vector3::Cosine(length3, length[1], length[0])))
 	};
 }
 
