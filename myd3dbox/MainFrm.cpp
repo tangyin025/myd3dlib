@@ -582,7 +582,7 @@ void CMainFrame::OnFileNew()
 		void foo(my::ControlEventArgs *)
 		{
 			//anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f);
-			anim->AddIK("joint1");
+			anim->AddIK("joint1", 2.0f);
 		}
 	};
 

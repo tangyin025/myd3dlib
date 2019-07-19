@@ -45,16 +45,9 @@ public:
 	public:
 		int root_i;
 
-		ParticleList m_ParticleList;
-
 		float springConstant;
 
-	public:
-		JiggleBoneContext(void)
-			: root_i(-1)
-			, springConstant(-1.0f)
-		{
-		}
+		ParticleList m_ParticleList;
 	};
 
 	typedef std::map<int, JiggleBoneContext> JiggleBoneContextMap;
@@ -66,9 +59,7 @@ public:
 	public:
 		int id[3];
 
-		IKContext(void)
-		{
-		}
+		float hitRadius;
 	};
 
 	typedef std::map<int, IKContext> IKContextMap;
@@ -125,7 +116,7 @@ public:
 
 	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime);
 
-	void AddIK(const std::string & bone_name);
+	void AddIK(const std::string & bone_name, float hitRadius);
 
 	void UpdateIK(IKContext & ik);
 

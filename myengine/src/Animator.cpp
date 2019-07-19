@@ -240,7 +240,7 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & pa
 	}
 }
 
-void Animator::AddIK(const std::string & bone_name)
+void Animator::AddIK(const std::string & bone_name, float hitRadius)
 {
 	_ASSERT(m_Actor);
 
@@ -254,7 +254,7 @@ void Animator::AddIK(const std::string & bone_name)
 
 	IKContext & ik = m_Iks[bone_name_iter->second];
 	int node_i = bone_name_iter->second;
-	for (int i = 0; i < 3; i++, node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
+	for (int i = 0; i < _countof(ik.id); i++, node_i = m_Skeleton->m_boneHierarchy[node_i].m_child)
 	{
 		if (node_i < 0)
 		{
@@ -263,6 +263,7 @@ void Animator::AddIK(const std::string & bone_name)
 		}
 		ik.id[i] = node_i;
 	}
+	ik.hitRadius = hitRadius;
 }
 
 void Animator::UpdateIK(IKContext & ik)
@@ -282,32 +283,29 @@ void Animator::UpdateIK(IKContext & ik)
 		acos(Vector3::CosTheta(normal[0], normal[2])),
 		acos(Vector3::CosTheta(-normal[0], normal[1])) };
 
-	physx::PxRaycastBuffer hit;
-	bool status = scene->m_PxScene->raycast(
-		(physx::PxVec3&)(pos[0].transform(m_Actor->m_Rotation) + m_Actor->m_Position),
+	physx::PxSweepBuffer hit;
+	physx::PxSphereGeometry sphere(ik.hitRadius);
+	bool status = scene->m_PxScene->sweep(sphere,
+		physx::PxTransform((physx::PxVec3&)(pos[0].transform(m_Actor->m_Rotation) + m_Actor->m_Position)),
 		(physx::PxVec3&)normal[2].transform(m_Actor->m_Rotation), length[2], hit, physx::PxHitFlag::eDEFAULT);
-	if (!status)
+	if (status && hit.block.distance > 0)
 	{
-		return;
+		float new_theta[2] = {
+			acos(Vector3::Cosine(length[1], length[0], hit.block.distance)),
+			acos(Vector3::Cosine(hit.block.distance, length[1], length[0])) };
+		Quaternion rot[2] = {
+			Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
+			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
+
+		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+			ik.id[0], rot[0], anim_pose_hier[ik.id[0]].m_position);
+
+		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+			ik.id[1], rot[1], anim_pose_hier[ik.id[1]].m_position);
+
+		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+			ik.id[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ik.id[2]].m_position);
 	}
-
-	Vector3 dir3 = ((Vector3 &)hit.block.position - m_Actor->m_Position).transform(m_Actor->m_Rotation.conjugate()) - pos[0];
-	float length3 = dir3.magnitude();
-	float new_theta[2] = {
-		acos(Vector3::Cosine(length[1], length[0], length3)),
-		acos(Vector3::Cosine(length3, length[1], length[0])) };
-	Quaternion rot[2] = {
-		Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
-		Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
-
-	TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-		ik.id[0], rot[0], anim_pose_hier[ik.id[0]].m_position);
-
-	TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-		ik.id[1], rot[1], anim_pose_hier[ik.id[1]].m_position);
-
-	TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-		ik.id[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ik.id[2]].m_position);
 }
 
 void Animator::TransformHierarchyBoneList(
