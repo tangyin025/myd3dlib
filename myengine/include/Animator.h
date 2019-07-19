@@ -128,6 +128,13 @@ public:
 	void AddIK(const std::string & bone_name);
 
 	void UpdateIK(IKContext & ik);
+
+	static void TransformHierarchyBoneList(
+		my::BoneList & boneList,
+		const my::BoneHierarchy & boneHierarchy,
+		int root_i,
+		const my::Quaternion & Rotation,
+		const my::Vector3 & Position);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

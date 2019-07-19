@@ -271,32 +271,57 @@ void Animator::UpdateIK(IKContext & ik)
 	_ASSERT(scene);
 
 	Vector3 pos[3] = {
-		anim_pose_hier[ik.id[0]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position,
-		anim_pose_hier[ik.id[1]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position,
-		anim_pose_hier[ik.id[2]].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position
-	};
+		anim_pose_hier[ik.id[0]].m_position,
+		anim_pose_hier[ik.id[1]].m_position,
+		anim_pose_hier[ik.id[2]].m_position };
 
 	Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
 	float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
 	Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
 	float theta[2] = {
-		D3DXToDegree(acos(Vector3::CosTheta(normal[0], normal[2]))),
-		D3DXToDegree(acos(Vector3::CosTheta(-normal[0], normal[1])))
-	};
+		acos(Vector3::CosTheta(normal[0], normal[2])),
+		acos(Vector3::CosTheta(-normal[0], normal[1])) };
 
 	physx::PxRaycastBuffer hit;
-	bool status = scene->m_PxScene->raycast((physx::PxVec3&)pos[0], (physx::PxVec3&)normal[2], length[2], hit, physx::PxHitFlag::eDEFAULT);
+	bool status = scene->m_PxScene->raycast(
+		(physx::PxVec3&)(pos[0].transform(m_Actor->m_Rotation) + m_Actor->m_Position),
+		(physx::PxVec3&)normal[2].transform(m_Actor->m_Rotation), length[2], hit, physx::PxHitFlag::eDEFAULT);
 	if (!status)
 	{
 		return;
 	}
 
-	Vector3 dir3 = (Vector3 &)hit.block.position - pos[0];
+	Vector3 dir3 = ((Vector3 &)hit.block.position - m_Actor->m_Position).transform(m_Actor->m_Rotation.conjugate()) - pos[0];
 	float length3 = dir3.magnitude();
 	float new_theta[2] = {
-		D3DXToDegree(acos(Vector3::Cosine(length[1], length[0], length3))),
-		D3DXToDegree(acos(Vector3::Cosine(length3, length[1], length[0])))
-	};
+		acos(Vector3::Cosine(length[1], length[0], length3)),
+		acos(Vector3::Cosine(length3, length[1], length[0])) };
+
+	TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+		ik.id[0], Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]), anim_pose_hier[ik.id[0]].m_position);
+
+	TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+		ik.id[1], Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]), anim_pose_hier[ik.id[1]].m_position);
+}
+
+void Animator::TransformHierarchyBoneList(
+	my::BoneList & boneList,
+	const my::BoneHierarchy & boneHierarchy,
+	int root_i,
+	const my::Quaternion & Rotation,
+	const my::Vector3 & Position)
+{
+	BoneHierarchy::const_reference node = boneHierarchy[root_i];
+	BoneList::reference bone = boneList[root_i];
+	bone.m_rotation *= Rotation;
+	bone.m_position = (bone.m_position - Position).transform(Rotation) + Position;
+
+	int node_i = boneHierarchy[root_i].m_child;
+	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	{
+		TransformHierarchyBoneList(boneList, boneHierarchy, node_i, Rotation, Position);
+	}
+
 }
 
 BOOST_CLASS_EXPORT(AnimationNode)

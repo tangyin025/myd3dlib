@@ -546,19 +546,31 @@ void CMainFrame::OnFileNew()
 	//	}
 	//}
 
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-512, 512)));
 	MeshComponentPtr mesh_cmp(new MeshComponent());
-	//mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
-	mesh_cmp->m_MeshPath = "character/aaa.mesh.xml";
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = theApp.default_shader;
 	lambert1->m_PassMask = theApp.default_pass_mask;
 	lambert1->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
 	lambert1->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
 	lambert1->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	mesh_cmp->AddMaterial(lambert1);
+	mesh_cmp->m_MeshPath = "mesh/plane.mesh.xml";
+	actor->AddComponent(mesh_cmp);
+	actor->CreateRigidActor(physx::PxActorType::eRIGID_STATIC);
+	mesh_cmp->CreatePlaneShape(my::Vector3(0, 0, 0), my::Quaternion::RotationYawPitchRoll(0, 0, D3DXToRadian(90)));
+	actor->UpdateWorld();
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
+	AddActor(actor, actor->m_aabb.transform(actor->m_World));
+
+	mesh_cmp.reset(new MeshComponent());
+	//mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
+	mesh_cmp->m_MeshPath = "character/aaa.mesh.xml";
 	mesh_cmp->m_MaterialList.push_back(lambert1);
 	mesh_cmp->m_bUseAnimation = true;
 
-	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	actor.reset(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	actor->AddComponent(mesh_cmp);
 	actor->UpdateAABB();
 	actor->UpdateWorld();
@@ -588,18 +600,6 @@ void CMainFrame::OnFileNew()
 	anim->m_Node = seq;
 	actor->m_Animator = anim;
 
-	actor->RequestResource();
-	actor->OnEnterPxScene(this);
-	AddActor(actor, actor->m_aabb.transform(actor->m_World));
-
-	actor.reset(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-512, 512)));
-	mesh_cmp.reset(new MeshComponent());
-	mesh_cmp->AddMaterial(lambert1);
-	mesh_cmp->m_MeshPath = "mesh/plane.mesh.xml";
-	actor->AddComponent(mesh_cmp);
-	actor->CreateRigidActor(physx::PxActorType::eRIGID_STATIC);
-	mesh_cmp->CreatePlaneShape(my::Vector3(0, 0, 0), my::Quaternion::RotationYawPitchRoll(0, 0, D3DXToRadian(90)));
-	actor->UpdateWorld();
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 	AddActor(actor, actor->m_aabb.transform(actor->m_World));
