@@ -608,7 +608,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask))
 					{
-						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
+						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!terrain->technique_RenderScene)

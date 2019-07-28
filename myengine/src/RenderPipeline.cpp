@@ -106,6 +106,9 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	case RenderPipeline::MeshTypeParticle:
 		oss << "MeshParticle.fx";
 		break;
+	case RenderPipeline::MeshTypeTerrain:
+		oss << "MeshTerrain.fx";
+		break;
 	default:
 		oss << "MeshUnknown.fx";
 		break;
