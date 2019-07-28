@@ -530,8 +530,9 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
+	pComponent->GetSubItem(PropId + 5);
 	TerrainChunk * chunk = GetTerrainChunkSafe(terrain, chunkid);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), chunk->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), chunk->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -937,6 +938,8 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
+	pProp = new CFileProp(_T("SplatMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainSplatMap);
+	pComponent->AddSubItem(pProp);
 	TerrainChunk * chunk = GetTerrainChunkSafe(terrain, chunkid);
 	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), chunk->m_Material.get());
 }
@@ -980,7 +983,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 18;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -1749,12 +1752,25 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		if (res)
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->UpdateHeightField(res.get());
+			terrain->UpdateHeightMap(res.get());
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			actor->UpdateOctNode();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	}
+	case PropertyTerrainSplatMap:
+	{
+		std::string path = ts2ms(pProp->GetValue().bstrVal);
+		my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
+		if (res)
+		{
+			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+			terrain->UpdateSplatmap(res.get());
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

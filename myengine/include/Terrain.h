@@ -99,8 +99,6 @@ public:
 
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
-	void UpdateHeightField(my::Texture2D * HeightMap);
-
 	TerrainChunk * GetChunk(int i, int j)
 	{
 		TerrainChunk * ret = m_Chunks[i][j]; _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
@@ -169,6 +167,10 @@ public:
 	void CreateHeightFieldShape(void);
 
 	virtual void ClearShape(void);
+
+	void UpdateHeightMap(my::Texture2D * HeightMap);
+
+	void UpdateSplatmap(my::Texture2D * ColorMap);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

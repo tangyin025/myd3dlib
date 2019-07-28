@@ -144,6 +144,7 @@ void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
+		boost::multi_array_ref<D3DCOLOR, 2> Color((D3DCOLOR *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(D3DCOLOR)]);
 		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
 		{
 			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
@@ -151,12 +152,8 @@ void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 				int pos_i = m_Row * terrain->m_ChunkSize + i;
 				int pos_j = m_Col * terrain->m_ChunkSize + j;
 
-				boost::multi_array_ref<D3DXCOLOR, 2> Color((D3DXCOLOR *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(D3DXCOLOR)]);
-				int color_i = Clamp<int>(pos_i, 0, desc.Height);
-				int color_j = Clamp<int>(pos_j, 0, desc.Width);
-
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-				terrain->m_VertexElems.SetColor(pVertex, Color[color_i][color_j]);
+				terrain->m_VertexElems.SetColor(pVertex, Color[Clamp<int>(pos_i, 0, desc.Height)][Clamp<int>(pos_j, 0, desc.Width)]);
 			}
 		}
 		m_vb.Unlock();
@@ -268,33 +265,6 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
 	return Min(Quad(m_ChunkSize), (int)sqrt(DistanceSq / m_Actor->m_LodRatio / m_Actor->m_LodRatio));
-}
-
-void Terrain::UpdateHeightField(my::Texture2D * HeightMap)
-{
-	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
-	D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
-	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
-	{
-		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			switch (desc.Format)
-			{
-			case D3DFMT_A8:
-			case D3DFMT_L8:
-				m_Chunks[i][j]->UpdateVertices<unsigned char>(desc, lrc);
-				break;
-			case D3DFMT_L16:
-				m_Chunks[i][j]->UpdateVertices<unsigned short>(desc, lrc);
-				break;
-			}
-			m_Chunks[i][j]->UpdateAABB();
-			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
-			RemoveActor(chunk);
-			AddActor(chunk, chunk->m_aabb);
-		}
-	}
-	HeightMap->UnlockRect(0);
 }
 
 void Terrain::CreateElements(void)
@@ -728,4 +698,51 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
+}
+
+void Terrain::UpdateHeightMap(my::Texture2D * HeightMap)
+{
+	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
+	D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			switch (desc.Format)
+			{
+			case D3DFMT_A8:
+			case D3DFMT_L8:
+				m_Chunks[i][j]->UpdateVertices<unsigned char>(desc, lrc);
+				break;
+			case D3DFMT_L16:
+				m_Chunks[i][j]->UpdateVertices<unsigned short>(desc, lrc);
+				break;
+			}
+			m_Chunks[i][j]->UpdateAABB();
+			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
+			RemoveActor(chunk);
+			AddActor(chunk, chunk->m_aabb);
+		}
+	}
+	HeightMap->UnlockRect(0);
+}
+
+void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
+{
+	D3DSURFACE_DESC desc = ColorMap->GetLevelDesc(0);
+	D3DLOCKED_RECT lrc = ColorMap->LockRect(NULL, D3DLOCK_READONLY, 0);
+	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			switch (desc.Format)
+			{
+			case D3DFMT_A8R8G8B8:
+			case D3DFMT_X8R8G8B8:
+				m_Chunks[i][j]->UpdateColors(desc, lrc);
+				break;
+			}
+		}
+	}
+	ColorMap->UnlockRect(0);
 }

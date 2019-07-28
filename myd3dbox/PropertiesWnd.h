@@ -159,6 +159,7 @@ protected:
 		PropertyTerrainChunkSize,
 		PropertyTerrainHeightScale,
 		PropertyTerrainHeightMap,
+		PropertyTerrainSplatMap,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
