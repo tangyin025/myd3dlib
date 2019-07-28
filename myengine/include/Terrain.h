@@ -47,6 +47,8 @@ public:
 
 	template <typename T>
 	void UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
+
+	void UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -70,7 +72,7 @@ public:
 
 	my::D3DVertexElementSet m_VertexElems;
 
-	static const DWORD m_VertexStride = 44;
+	static const DWORD m_VertexStride = 48;
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 

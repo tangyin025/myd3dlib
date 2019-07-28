@@ -137,6 +137,32 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 	}
 }
 
+void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
+{
+	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
+	_ASSERT(terrain);
+	VOID * pVertices = m_vb.Lock(0, 0, 0);
+	if (pVertices)
+	{
+		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
+		{
+			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
+			{
+				int pos_i = m_Row * terrain->m_ChunkSize + i;
+				int pos_j = m_Col * terrain->m_ChunkSize + j;
+
+				boost::multi_array_ref<D3DXCOLOR, 2> Color((D3DXCOLOR *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(D3DXCOLOR)]);
+				int color_i = Clamp<int>(pos_i, 0, desc.Height);
+				int color_j = Clamp<int>(pos_j, 0, desc.Width);
+
+				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
+				terrain->m_VertexElems.SetColor(pVertex, Color[color_i][color_j]);
+			}
+		}
+		m_vb.Unlock();
+	}
+}
+
 static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)
 {
     _ASSERT((hs & (hs - 1)) == 0);
@@ -275,6 +301,8 @@ void Terrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
+	m_VertexElems.InsertColorElement(offset);
+	offset += sizeof(D3DCOLOR);
 	m_VertexElems.InsertNormalElement(offset);
 	offset += sizeof(Vector3);
 	m_VertexElems.InsertTangentElement(offset);
