@@ -24,40 +24,12 @@ game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 -- 加载场景资源
 game:LoadScene("scene01.xml")
 
--- -- 地形测试场景
--- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-100,100))
--- local terrain = Terrain(1,1,32,1);
--- for i=0,terrain.RowChunks-1 do
-	-- for j=0,terrain.ColChunks-1 do
-		-- local chunk=terrain:GetChunk(i,j)
-		-- local lambert1=Material()
-		-- lambert1.Shader="shader/lambert1.fx"
-		-- lambert1.PassMask=Material.PassMaskOpaque
-		-- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-		-- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-		-- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
-		-- chunk.Material=lambert1
-		
-		-- chunk:Spawn(Vector3(0.1,0,0.1),Vector3(0,0,0),Vector4(1,1,1,1),Vector2(1,1),math.rad(0))
-	-- end
--- end
--- local grass1=Material()
--- grass1.Shader="shader/grass1.fx"
--- grass1.PassMask=Material.PassMaskTransparent
--- grass1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
--- grass1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
--- grass1.CullMode=Material.CullModeNone
--- terrain.GrassMaterial=grass1
--- actor:AddComponent(terrain)
--- actor:UpdateWorld()
--- game:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
-
 -- -- 创建地面
 -- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
 -- local cmp=MeshComponent()
 -- local lambert1=Material()
 -- lambert1.Shader="shader/lambert1.fx"
--- lambert1.PassMask=Material.PassMaskOpaque
+-- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
 -- -- lambert1.RepeatUV.x=64
 -- -- lambert1.RepeatUV.y=64
 -- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
@@ -81,7 +53,7 @@ local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(
 local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.45,0))
 local lambert2=Material()
 lambert2.Shader="shader/lambert1.fx"
-lambert2.PassMask=Material.PassMaskOpaque
+lambert2.PassMask=Material.PassMaskShadowNormalOpaque
 lambert2:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
 lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
 lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
@@ -105,7 +77,9 @@ anim.SkeletonEventReady=function(args)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.Skeleton:Transform(local_trans)
-	anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
+	-- anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
+	-- anim:AddIK("Bip01_L_Thigh", 0.1)
+	-- anim:AddIK("Bip01_R_Thigh", 0.1)
 end
 
 -- 构建动画树
@@ -147,7 +121,7 @@ player.Controller=PlayerController(player)
 local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert3=Material()
 lambert3.Shader="shader/lambert1.fx"
-lambert3.PassMask=Material.PassMaskOpaque
+lambert3.PassMask=Material.PassMaskShadowNormalOpaque
 lambert3:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert3:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert3:AddParameterTexture("g_SpecularTexture", "texture/White.dds")

@@ -896,6 +896,8 @@ static void ExportComponent(lua_State * L)
 				value("PassMaskNone", RenderPipeline::PassMaskNone),
 				value("PassMaskLight", RenderPipeline::PassMaskLight),
 				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
+				value("PassMaskNormalOpaque", RenderPipeline::PassMaskNormalOpaque),
+				value("PassMaskShadowNormalOpaque", RenderPipeline::PassMaskShadowNormalOpaque),
 				value("PassMaskTransparent", RenderPipeline::PassMaskTransparent)
 			]
 			.enum_("CullMode")
