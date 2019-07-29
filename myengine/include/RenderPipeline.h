@@ -41,7 +41,9 @@ public:
 	{
 		PassMaskNone = 0,
 		PassMaskLight = 1 << PassTypeLight,
-		PassMaskOpaque = 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
+		PassMaskOpaque = 1 << PassTypeOpaque,
+		PassMaskNormalOpaque = 1 << PassTypeNormal | 1 << PassTypeOpaque,
+		PassMaskShadowNormalOpaque = 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
 		PassMaskTransparent = 1 << PassTypeTransparent,
 	};
 

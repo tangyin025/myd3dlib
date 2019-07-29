@@ -20,6 +20,8 @@ CPropertiesWnd::PassMaskDesc CPropertiesWnd::g_PassMaskDesc[] =
 	{ _T("None"), RenderPipeline::PassMaskNone },
 	{ _T("Light"), RenderPipeline::PassMaskLight },
 	{ _T("Opaque"), RenderPipeline::PassMaskOpaque },
+	{ _T("NormalOpaque"), RenderPipeline::PassMaskNormalOpaque },
+	{ _T("ShadowNormalOpaque"), RenderPipeline::PassMaskShadowNormalOpaque },
 	{ _T("Transparent"), RenderPipeline::PassMaskTransparent },
 };
 
@@ -176,21 +178,11 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArgs * arg)
 
 void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i)
 {
-	if (pParentCtrl)
+	ASSERT_VALID(pParentCtrl);
+	while (pParentCtrl->GetSubItemsCount() > i)
 	{
-		while (pParentCtrl->GetSubItemsCount() > i)
-		{
-			CMFCPropertyGridProperty * pProp = pParentCtrl->GetSubItem(i);
-			static_cast<CMFCPropertyGridPropertyReader *>(pParentCtrl)->RemoveSubItem(pProp, TRUE);
-		}
-	}
-	else
-	{
-		while (m_wndPropList.GetPropertyCount() > i)
-		{
-			CMFCPropertyGridProperty * pProp = m_wndPropList.GetProperty(i);
-			static_cast<CMFCPropertyGridCtrlReader &>(m_wndPropList).DeleteProperty(pProp, FALSE, FALSE);
-		}
+		CMFCPropertyGridProperty * pProp = pParentCtrl->GetSubItem(i);
+		static_cast<CMFCPropertyGridPropertyReader *>(pParentCtrl)->RemoveSubItem(pProp, TRUE);
 	}
 }
 

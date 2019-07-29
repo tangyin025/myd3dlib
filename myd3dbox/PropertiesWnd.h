@@ -50,22 +50,22 @@ public:
 		m_wndPropList.SetGroupNameFullWidth(bSet);
 	}
 
-	struct PassMaskDesc
-	{
-		LPCTSTR desc;
-		DWORD mask;
-	};
-	static PassMaskDesc g_PassMaskDesc[4];
-	static LPCTSTR GetPassMaskDesc(DWORD mask);
-	static LPCTSTR g_CullModeDesc[3];
-	static LPCTSTR g_BlendModeDesc[3];
-
 protected:
 	CFont m_fntPropList;
 	CComboBox m_wndObjectCombo;
 	//CPropertiesToolBar m_wndToolBar;
 	CMFCPropertyGridCtrl m_wndPropList;
 public:
+	struct PassMaskDesc
+	{
+		LPCTSTR desc;
+		DWORD mask;
+	};
+	static PassMaskDesc g_PassMaskDesc[6];
+	static LPCTSTR GetPassMaskDesc(DWORD mask);
+	static LPCTSTR g_CullModeDesc[3];
+	static LPCTSTR g_BlendModeDesc[3];
+
 	enum Property
 	{
 		PropertyUnknown = 0,
@@ -177,12 +177,12 @@ public:
 
 	void OnSelectionChanged(EventArgs * arg);
 	void OnCmpAttriChanged(EventArgs * arg);
-	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
+	static void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
 	void UpdatePropertiesActor(Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
-	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
-	void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
+	static void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
+	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp);

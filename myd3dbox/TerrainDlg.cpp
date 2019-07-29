@@ -18,9 +18,6 @@ TerrainDlg::TerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
-	//, m_DiffuseTexture(ms2ts(theApp.default_texture).c_str())
-	//, m_NormalTexture(ms2ts(theApp.default_normal_texture).c_str())
-	//, m_SpecularTexture(ms2ts(theApp.default_specular_texture).c_str())
 {
 	m_Material.m_Shader = theApp.default_shader;
 	m_Material.ParseShaderParameters();
@@ -36,25 +33,18 @@ void TerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT1, m_RowChunks);
 	DDX_Text(pDX, IDC_EDIT2, m_ColChunks);
 	DDX_Text(pDX, IDC_EDIT3, m_ChunkSize);
-	//  DDX_Text(pDX, IDC_EDIT4, m_DiffuseTexture);
-	//  DDX_Text(pDX, IDC_EDIT5, m_NormalTexture);
-	//  DDX_Text(pDX, IDC_EDIT6, m_SpecularTexture);
 	DDX_Control(pDX, IDC_MFCPROPERTYGRID1, m_PropGridCtrl);
 	if (!pDX->m_bSaveAndValidate)
 	{
 		m_PropGridCtrl.RemoveAll();
 		CMFCPropertyGridProperty * pComponent = new CSimpleProp(CPropertiesWnd::GetComponentTypeName(Component::ComponentTypeComponent), CPropertiesWnd::PropertyMesh, FALSE);
-		m_PropGridCtrl.AddProperty(pComponent, FALSE, FALSE);
+		m_PropGridCtrl.AddProperty(pComponent, FALSE, TRUE);
 		CPropertiesWnd::CreatePropertiesMaterial(pComponent, _T("Material"), &m_Material);
-		m_PropGridCtrl.AdjustLayout();
 	}
 }
 
 
 BEGIN_MESSAGE_MAP(TerrainDlg, CDialogEx)
-//	ON_BN_CLICKED(IDC_BUTTON1, &TerrainDlg::OnBnClickedButton1)
-//	ON_BN_CLICKED(IDC_BUTTON2, &TerrainDlg::OnBnClickedButton2)
-//	ON_BN_CLICKED(IDC_BUTTON3, &TerrainDlg::OnBnClickedButton3)
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertyChanged)
 END_MESSAGE_MAP()
 
@@ -62,37 +52,18 @@ END_MESSAGE_MAP()
 // TerrainDlg message handlers
 
 
-//void TerrainDlg::OnBnClickedButton1()
-//{
-//	// TODO: Add your control notification handler code here
-//	CFileDialog dlg(TRUE, NULL, m_DiffuseTexture, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-//	if (IDOK == dlg.DoModal())
-//	{
-//		GetDlgItem(IDC_EDIT4)->SetWindowText(dlg.GetPathName());
-//	}
-//}
+BOOL TerrainDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
 
+	// TODO:  Add extra initialization here
+	CRect rc;
+	m_PropGridCtrl.GetWindowRect(&rc);
+	m_PropGridCtrl.SendMessage(WM_SIZE, SIZE_RESTORED, MAKELPARAM(rc.Width(), rc.Height()));
 
-//void TerrainDlg::OnBnClickedButton2()
-//{
-//	// TODO: Add your control notification handler code here
-//	CFileDialog dlg(TRUE, NULL, m_NormalTexture, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-//	if (IDOK == dlg.DoModal())
-//	{
-//		GetDlgItem(IDC_EDIT5)->SetWindowText(dlg.GetPathName());
-//	}
-//}
-
-
-//void TerrainDlg::OnBnClickedButton3()
-//{
-//	// TODO: Add your control notification handler code here
-//	CFileDialog dlg(TRUE, NULL, m_SpecularTexture, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-//	if (IDOK == dlg.DoModal())
-//	{
-//		GetDlgItem(IDC_EDIT6)->SetWindowText(dlg.GetPathName());
-//	}
-//}
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // EXCEPTION: OCX Property Pages should return FALSE
+}
 
 LRESULT TerrainDlg::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
@@ -106,8 +77,8 @@ LRESULT TerrainDlg::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
 		material->ParseShaderParameters();
-		UpdateData(TRUE);
-		UpdateData(FALSE);
+		CPropertiesWnd::UpdatePropertiesMaterial(pProp->GetParent(), material);
+		m_PropGridCtrl.AdjustLayout();
 		break;
 	}
 	case CPropertiesWnd::PropertyMaterialPassMask:
@@ -205,11 +176,10 @@ LRESULT TerrainDlg::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
-		mtl->m_ParameterList[i]->ReleaseResource();
 		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = ts2ms(pProp->GetValue().bstrVal);
-		mtl->m_ParameterList[i]->RequestResource();
 		break;
 	}
 	}
 	return 0;
 }
+
