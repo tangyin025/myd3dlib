@@ -2,6 +2,7 @@
 #include "myEffect.h"
 #include "myDxutApp.h"
 #include "myResource.h"
+#include "RenderPipeline.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -268,84 +269,132 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, L
 
 void Material::ParseShaderParameters(void)
 {
-	if (!m_Shader.empty())
+	if (m_Shader.empty())
 	{
-		CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
-		cache->push_back(0);
-		boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
-		boost::match_results<const char *> what;
-		const char * start = (const char *)&(*cache)[0];
-		const char * end = (const char *)&(*cache)[cache->size() - 1];
-		m_ParameterList.clear();
-		while (boost::regex_search(start, end, what, reg, boost::match_default))
+		return;
+	}
+
+	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
+	cache->push_back(0);
+	boost::regex reg_type("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
+	boost::match_results<const char *> what;
+	const char * start = (const char *)&(*cache)[0];
+	const char * end = (const char *)&(*cache)[cache->size() - 1];
+	m_ParameterList.clear();
+	while (boost::regex_search(start, end, what, reg_type, boost::match_default))
+	{
+		std::string Type = what[1];
+		std::string Name = what[2];
+		std::string Annotations = what[3];
+		std::string Initialize = what[4];
+		if (Type == "float")
 		{
-			std::string Type = what[1];
-			std::string Name = what[2];
-			std::string Annotations = what[3];
-			std::string Initialize = what[4];
-			if (Type == "float")
+			float Value = 0.0f;
+			boost::regex reg_value("-?\\d+(\\.\\d+)?");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
 			{
-				float Value = 0.0f;
-				boost::regex reg2("-?\\d+(\\.\\d+)?");
-				boost::match_results<std::string::const_iterator> what2;
-				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
-				{
-					Value = boost::lexical_cast<float>(what2[0]);
-				}
-				AddParameterFloat(Name, Value);
+				Value = boost::lexical_cast<float>(what2[0]);
 			}
-			else if (Type == "float2")
-			{
-				Vector2 Value(0, 0);
-				boost::regex reg2("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-				boost::match_results<std::string::const_iterator> what2;
-				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
-				{
-					Value.x = boost::lexical_cast<float>(what2[1]);
-					Value.y = boost::lexical_cast<float>(what2[3]);
-				}
-				AddParameterFloat2(Name, Value);
-			}
-			else if (Type == "float3")
-			{
-				Vector3 Value(0, 0, 0);
-				boost::regex reg2("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-				boost::match_results<std::string::const_iterator> what2;
-				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
-				{
-					Value.x = boost::lexical_cast<float>(what2[1]);
-					Value.y = boost::lexical_cast<float>(what2[3]);
-					Value.z = boost::lexical_cast<float>(what2[5]);
-				}
-				AddParameterFloat3(Name, Value);
-			}
-			else if (Type == "float4")
-			{
-				Vector4 Value(0, 0, 0, 1);
-				boost::regex reg2("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
-				boost::match_results<std::string::const_iterator> what2;
-				if (boost::regex_search(Initialize, what2, reg2, boost::match_default))
-				{
-					Value.x = boost::lexical_cast<float>(what2[1]);
-					Value.y = boost::lexical_cast<float>(what2[3]);
-					Value.z = boost::lexical_cast<float>(what2[5]);
-					Value.w = boost::lexical_cast<float>(what2[7]);
-				}
-				AddParameterFloat4(Name, Value);
-			}
-			else if (Type == "texture")
-			{
-				std::string Path;
-				boost::regex reg2("string\\s+Initialize\\s*=\\s*\\\"([^\"]+)\\\"");
-				boost::match_results<std::string::const_iterator> what2;
-				if (boost::regex_search(Annotations, what2, reg2, boost::match_default))
-				{
-					Path = what2[1];
-				}
-				AddParameterTexture(Name, Path);
-			}
-			start = what[0].second;
+			AddParameterFloat(Name, Value);
 		}
+		else if (Type == "float2")
+		{
+			Vector2 Value(0, 0);
+			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			{
+				Value.x = boost::lexical_cast<float>(what2[1]);
+				Value.y = boost::lexical_cast<float>(what2[3]);
+			}
+			AddParameterFloat2(Name, Value);
+		}
+		else if (Type == "float3")
+		{
+			Vector3 Value(0, 0, 0);
+			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			{
+				Value.x = boost::lexical_cast<float>(what2[1]);
+				Value.y = boost::lexical_cast<float>(what2[3]);
+				Value.z = boost::lexical_cast<float>(what2[5]);
+			}
+			AddParameterFloat3(Name, Value);
+		}
+		else if (Type == "float4")
+		{
+			Vector4 Value(0, 0, 0, 1);
+			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Initialize, what2, reg_value, boost::match_default))
+			{
+				Value.x = boost::lexical_cast<float>(what2[1]);
+				Value.y = boost::lexical_cast<float>(what2[3]);
+				Value.z = boost::lexical_cast<float>(what2[5]);
+				Value.w = boost::lexical_cast<float>(what2[7]);
+			}
+			AddParameterFloat4(Name, Value);
+		}
+		else if (Type == "texture")
+		{
+			std::string Path;
+			boost::regex reg_value("string\\s+Initialize\\s*=\\s*\\\"([^\"]+)\\\"");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
+			{
+				Path = what2[1];
+			}
+			AddParameterTexture(Name, Path);
+		}
+		start = what[0].second;
+	}
+
+	boost::regex reg_pass("pass\\s+(\\w+)(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
+	start = (const char *)&(*cache)[0];
+	end = (const char *)&(*cache)[cache->size() - 1];
+	m_PassMask = 0;
+	while (boost::regex_search(start, end, what, reg_pass, boost::match_default))
+	{
+		std::string Pass = what[1];
+		std::string assignment = what[3];
+		if (Pass == "PassTypeShadow")
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeShadow;
+			}
+		}
+		else if (Pass == "PassTypeNormal")
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeNormal;
+			}
+		}
+		else if (Pass == "PassTypeLight")
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
+			}
+		}
+		else if (Pass == "PassTypeOpaque")
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeOpaque;
+			}
+		}
+		else if (Pass == "PassTypeTransparent")
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeTransparent;
+			}
+		}
+		start = what[0].second;
 	}
 }
 
