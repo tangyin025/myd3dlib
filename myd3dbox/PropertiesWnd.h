@@ -50,6 +50,16 @@ public:
 		m_wndPropList.SetGroupNameFullWidth(bSet);
 	}
 
+	struct PassMaskDesc
+	{
+		LPCTSTR desc;
+		DWORD mask;
+	};
+	static PassMaskDesc g_PassMaskDesc[4];
+	static LPCTSTR GetPassMaskDesc(DWORD mask);
+	static LPCTSTR g_CullModeDesc[3];
+	static LPCTSTR g_BlendModeDesc[3];
+
 protected:
 	CFont m_fntPropList;
 	CComboBox m_wndObjectCombo;

@@ -153,7 +153,7 @@ void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 				int pos_j = m_Col * terrain->m_ChunkSize + j;
 
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-				terrain->m_VertexElems.SetColor(pVertex, Color[Clamp<int>(pos_i, 0, desc.Height)][Clamp<int>(pos_j, 0, desc.Width)]);
+				terrain->m_VertexElems.SetColor(pVertex, Color[Clamp<int>(pos_i, 0, desc.Height - 1)][Clamp<int>(pos_j, 0, desc.Width - 1)]);
 			}
 		}
 		m_vb.Unlock();

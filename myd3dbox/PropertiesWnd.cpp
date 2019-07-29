@@ -15,13 +15,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-struct PassMaskDesc
-{
-	LPCTSTR desc;
-	DWORD mask;
-};
-
-static const PassMaskDesc g_PassMaskDesc[] =
+CPropertiesWnd::PassMaskDesc CPropertiesWnd::g_PassMaskDesc[] =
 {
 	{ _T("None"), RenderPipeline::PassMaskNone },
 	{ _T("Light"), RenderPipeline::PassMaskLight },
@@ -29,7 +23,7 @@ static const PassMaskDesc g_PassMaskDesc[] =
 	{ _T("Transparent"), RenderPipeline::PassMaskTransparent },
 };
 
-static LPCTSTR GetPassMaskDesc(DWORD mask)
+LPCTSTR CPropertiesWnd::GetPassMaskDesc(DWORD mask)
 {
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
 	{
@@ -41,7 +35,21 @@ static LPCTSTR GetPassMaskDesc(DWORD mask)
 	return g_PassMaskDesc[0].desc;
 }
 
-static const PassMaskDesc g_LodMaskDesc[] =
+LPCTSTR CPropertiesWnd::g_CullModeDesc[] =
+{
+	_T("D3DCULL_NONE"),
+	_T("D3DCULL_CW"),
+	_T("D3DCULL_CCW")
+};
+
+LPCTSTR CPropertiesWnd::g_BlendModeDesc[] =
+{
+	_T("BlendModeNone"),
+	_T("BlendModeAlpha"),
+	_T("BlendModeAdditive")
+};
+
+static const CPropertiesWnd::PassMaskDesc g_LodMaskDesc[] =
 {
 	{ _T("LOD0"), Component::LOD0 },
 	{ _T("LOD1"), Component::LOD1 },
@@ -84,20 +92,6 @@ static LPCTSTR g_ActorTypeDesc[physx::PxActorType::eACTOR_COUNT + 1] =
 	_T("ArticulationLink"),
 	_T("Cloth"),
 	_T("None")
-};
-
-static LPCTSTR g_CullModeDesc[] =
-{
-	_T("D3DCULL_NONE"),
-	_T("D3DCULL_CW"),
-	_T("D3DCULL_CCW")
-};
-
-static LPCTSTR g_BlendModeDesc[] =
-{
-	_T("BlendModeNone"),
-	_T("BlendModeAlpha"),
-	_T("BlendModeAdditive")
 };
 
 /////////////////////////////////////////////////////////////////////////////
