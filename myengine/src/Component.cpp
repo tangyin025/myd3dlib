@@ -292,8 +292,6 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(m_Actor);
 
-	shader->SetTechnique(technique_RenderScene);
-
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
@@ -307,7 +305,6 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 void MeshComponent::OnShaderChanged(void)
 {
-	technique_RenderScene = NULL;
 	handle_World = NULL;
 	handle_dualquat = NULL;
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
@@ -358,9 +355,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro.begin(), m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
-							if (!technique_RenderScene)
+							if (!handle_World)
 							{
-								BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 								{
@@ -779,8 +775,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	_ASSERT(m_Actor);
 
-	shader->SetTechnique(technique_RenderScene);
-
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
@@ -794,7 +788,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 void ClothComponent::OnShaderChanged(void)
 {
-	technique_RenderScene = NULL;
 	handle_World = NULL;
 	handle_dualquat = NULL;
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
@@ -838,9 +831,8 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
-							if (!technique_RenderScene)
+							if (!handle_World)
 							{
-								BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 								{
@@ -997,7 +989,6 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 void EmitterComponent::OnShaderChanged(void)
 {
-	technique_RenderScene = NULL;
 	handle_World = NULL;
 	handle_ParticleOffset = NULL;
 	m_Material->ParseShaderParameters();
@@ -1022,9 +1013,8 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
-					if (!technique_RenderScene)
+					if (!handle_World)
 					{
-						BOOST_VERIFY(technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 						BOOST_VERIFY(handle_ParticleOffset = shader->GetParameterByName(NULL, "g_ParticleOffset"));
 					}

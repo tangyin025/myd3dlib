@@ -927,12 +927,12 @@ void CMainFrame::OnComponentTerrain()
 			lambert1->m_Shader = theApp.default_shader;
 			lambert1->m_PassMask = theApp.default_pass_mask;
 			TCHAR buff[128];
-			_stprintf_s(buff, _countof(buff), (LPCTSTR)dlg.m_DiffuseTexture, j, terrain->m_Chunks.shape()[0] - i - 1);
-			lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms(buff));
-			_stprintf_s(buff, _countof(buff), (LPCTSTR)dlg.m_NormalTexture, j, terrain->m_Chunks.shape()[0] - i - 1);
-			lambert1->AddParameterTexture("g_NormalTexture", ts2ms(buff));
-			_stprintf_s(buff, _countof(buff), (LPCTSTR)dlg.m_SpecularTexture, j, terrain->m_Chunks.shape()[0] - i - 1);
-			lambert1->AddParameterTexture("g_SpecularTexture", ts2ms(buff));
+			//_stprintf_s(buff, _countof(buff), (LPCTSTR)dlg.m_DiffuseTexture, j, terrain->m_Chunks.shape()[0] - i - 1);
+			//lambert1->AddParameterTexture("g_DiffuseTexture", ts2ms(buff));
+			//_stprintf_s(buff, _countof(buff), (LPCTSTR)dlg.m_NormalTexture, j, terrain->m_Chunks.shape()[0] - i - 1);
+			//lambert1->AddParameterTexture("g_NormalTexture", ts2ms(buff));
+			//_stprintf_s(buff, _countof(buff), (LPCTSTR)dlg.m_SpecularTexture, j, terrain->m_Chunks.shape()[0] - i - 1);
+			//lambert1->AddParameterTexture("g_SpecularTexture", ts2ms(buff));
 
 			TerrainChunk * chunk = terrain->m_Chunks[i][j];
 			chunk->m_Material = lambert1;

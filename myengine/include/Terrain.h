@@ -93,8 +93,6 @@ public:
 
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
-	D3DXHANDLE technique_RenderScene;
-
 	D3DXHANDLE handle_World;
 
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);

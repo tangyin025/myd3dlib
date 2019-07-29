@@ -55,6 +55,7 @@ protected:
 	CComboBox m_wndObjectCombo;
 	//CPropertiesToolBar m_wndToolBar;
 	CMFCPropertyGridCtrl m_wndPropList;
+public:
 	enum Property
 	{
 		PropertyUnknown = 0,
@@ -183,8 +184,8 @@ protected:
 	void CreatePropertiesActor(Actor * actor);
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
-	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl);
-	void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
+	static void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl);
+	static void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp);

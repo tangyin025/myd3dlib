@@ -205,7 +205,6 @@ Terrain::Terrain(void)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
 	, m_HeightScale(1)
-	, technique_RenderScene(NULL)
 	, handle_World(NULL)
 {
 	CreateElements();
@@ -220,7 +219,6 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_HeightScale(HeightScale)
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
-	, technique_RenderScene(NULL)
 	, handle_World(NULL)
 {
 	CreateElements();
@@ -539,13 +537,12 @@ void Terrain::ReleaseResource(void)
 void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	_ASSERT(m_Actor);
-	shader->SetTechnique(technique_RenderScene);
+
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 }
 
 void Terrain::OnShaderChanged(void)
 {
-	technique_RenderScene = NULL;
 	handle_World = NULL;
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
@@ -611,9 +608,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
 						if (shader)
 						{
-							if (!terrain->technique_RenderScene)
+							if (!terrain->handle_World)
 							{
-								BOOST_VERIFY(terrain->technique_RenderScene = shader->GetTechniqueByName("RenderScene"));
 								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
 							}
 
