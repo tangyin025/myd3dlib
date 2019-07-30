@@ -56,6 +56,7 @@
 #define IDC_RADIO7                      1015
 #define IDC_CHECK1                      1016
 #define IDC_MFCPROPERTYGRID1            1017
+#define IDC_EDIT10                      1017
 #define ID_CREATE_COMPONENT             32771
 #define ID_COMPONENT_MESH               32772
 #define ID_COMPONENT_STATICEMITTER      32773

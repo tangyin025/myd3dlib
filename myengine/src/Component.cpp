@@ -100,7 +100,7 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 {
 }
 
-void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz)
+void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -117,10 +117,12 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight)
+void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -137,10 +139,12 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot)
+void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -163,10 +167,12 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius)
+void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -182,6 +188,8 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
@@ -380,7 +388,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-void MeshComponent::CreateTriangleMeshShape(void)
+void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -449,10 +457,12 @@ void MeshComponent::CreateTriangleMeshShape(void)
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
 
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
+
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void MeshComponent::CreateConvexMeshShape(bool bInflateConvex)
+void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -518,6 +528,8 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex)
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }

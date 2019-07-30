@@ -123,13 +123,13 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
 
-	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0);
 
-	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, unsigned int filterWord0);
 
-	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, unsigned int filterWord0);
 
 	virtual void ClearShape(void);
 };
@@ -208,9 +208,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateTriangleMeshShape(void);
+	void CreateTriangleMeshShape(unsigned int filterWord0);
 
-	void CreateConvexMeshShape(bool bInflateConvex);
+	void CreateConvexMeshShape(bool bInflateConvex, unsigned int filterWord0);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

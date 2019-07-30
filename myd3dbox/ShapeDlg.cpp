@@ -19,6 +19,7 @@ CShapeDlg::CShapeDlg(CWnd* pParent, Component * m_cmp, int type)
 	, m_pos(0,0,0)
 	, m_angle(0, 0, 0)
 	, m_param(1,1,1)
+	, m_filterWord0(1)
 	, m_InflateConvex(FALSE)
 {
 
@@ -41,6 +42,7 @@ void CShapeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT7, m_param.x);
 	DDX_Text(pDX, IDC_EDIT8, m_param.y);
 	DDX_Text(pDX, IDC_EDIT9, m_param.z);
+	DDX_Text(pDX, IDC_EDIT10, m_filterWord0);
 	DDX_Check(pDX, IDC_CHECK1, m_InflateConvex);
 }
 
@@ -68,36 +70,36 @@ void CShapeDlg::OnOK()
 	switch (m_type)
 	{
 	case physx::PxGeometryType::eSPHERE:
-		m_cmp->CreateSphereShape(m_pos, rot, m_param.x);
+		m_cmp->CreateSphereShape(m_pos, rot, m_param.x, m_filterWord0);
 		break;
 	case physx::PxGeometryType::ePLANE:
-		m_cmp->CreatePlaneShape(m_pos, rot);
+		m_cmp->CreatePlaneShape(m_pos, rot, m_filterWord0);
 		break;
 	case physx::PxGeometryType::eCAPSULE:
-		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y);
+		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y, m_filterWord0);
 		break;
 	case physx::PxGeometryType::eBOX:
-		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z);
+		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z, m_filterWord0);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE);
+			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE, m_filterWord0);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateTriangleMeshShape();
+			mesh_cmp->CreateTriangleMeshShape(m_filterWord0);
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:
 		if (m_cmp->m_Type == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
-			terrain->CreateHeightFieldShape();
+			terrain->CreateHeightFieldShape(m_filterWord0);
 		}
 		break;
 	}

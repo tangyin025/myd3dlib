@@ -632,7 +632,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(void)
+void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
 
@@ -685,6 +685,8 @@ void Terrain::CreateHeightFieldShape(void)
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+
+	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }

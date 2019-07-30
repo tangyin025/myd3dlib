@@ -42,7 +42,7 @@ game:LoadScene("scene01.xml")
 -- end
 -- actor:AddComponent(cmp)
 -- actor:CreateRigidActor(Actor.eRIGID_STATIC)
--- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)))
+-- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
 -- actor:UpdateWorld()
 -- game:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
 
@@ -78,8 +78,8 @@ anim.SkeletonEventReady=function(args)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
 	anim.Skeleton:Transform(local_trans)
 	-- anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	-- anim:AddIK("Bip01_L_Thigh", 0.1)
-	-- anim:AddIK("Bip01_R_Thigh", 0.1)
+	anim:AddIK("Bip01_L_Thigh", 0.1, 1)
+	anim:AddIK("Bip01_R_Thigh", 0.1, 1)
 end
 
 -- 构建动画树
@@ -130,7 +130,7 @@ cmp2.MeshPath="mesh/Sphere.mesh.xml"
 cmp2:AddMaterial(lambert3)
 actor4:AddComponent(cmp2)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
+cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 actor4:UpdateWorld()
 game:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
@@ -146,7 +146,7 @@ game:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 -- actor2:AddComponent(cmp3)
 -- actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 -- actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
--- cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+-- cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 -- game:AddActor(actor2oct(actor2),actor2.aabb:transform(actor2.World))
 -- player:Attach(actor2, 10)
 
@@ -158,7 +158,7 @@ game:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 -- actor3:AddComponent(cmp4)
 -- actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 -- actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
--- cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25)
+-- cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 -- game:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
 -- player:Attach(actor3, 29)
 

@@ -60,6 +60,8 @@ public:
 		int id[3];
 
 		float hitRadius;
+
+		unsigned int filterWord0;
 	};
 
 	typedef std::map<int, IKContext> IKContextMap;
@@ -116,7 +118,7 @@ public:
 
 	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime);
 
-	void AddIK(const std::string & bone_name, float hitRadius);
+	void AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0);
 
 	void UpdateIK(IKContext & ik);
 

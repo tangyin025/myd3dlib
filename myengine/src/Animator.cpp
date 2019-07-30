@@ -240,7 +240,7 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & pa
 	}
 }
 
-void Animator::AddIK(const std::string & bone_name, float hitRadius)
+void Animator::AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0)
 {
 	_ASSERT(m_Actor);
 
@@ -263,7 +263,10 @@ void Animator::AddIK(const std::string & bone_name, float hitRadius)
 		}
 		ik.id[i] = node_i;
 	}
+
 	ik.hitRadius = hitRadius;
+
+	ik.filterWord0 = filterWord0;
 }
 
 void Animator::UpdateIK(IKContext & ik)
@@ -285,9 +288,11 @@ void Animator::UpdateIK(IKContext & ik)
 
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(ik.hitRadius);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData();
+	filterData.data.word0 = ik.filterWord0;
 	bool status = scene->m_PxScene->sweep(sphere,
 		physx::PxTransform((physx::PxVec3&)(pos[0].transform(m_Actor->m_Rotation) + m_Actor->m_Position)),
-		(physx::PxVec3&)normal[2].transform(m_Actor->m_Rotation), length[2], hit, physx::PxHitFlag::eDEFAULT);
+		(physx::PxVec3&)normal[2].transform(m_Actor->m_Rotation), length[2], hit, physx::PxHitFlag::eDEFAULT, filterData);
 	if (status && hit.block.distance > 0)
 	{
 		float new_theta[2] = {
