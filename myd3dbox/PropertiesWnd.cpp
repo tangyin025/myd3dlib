@@ -247,7 +247,8 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	//pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	pComponent->GetSubItem(0)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
-	pComponent->GetSubItem(1)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
+
+	UpdatePropertiesShape(pComponent->GetSubItem(1), cmp);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -269,6 +270,17 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp), pFrame->m_selchunkid);
 		break;
 	}
+}
+
+void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Component * cmp)
+{
+	pShape->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
+	physx::PxFilterData filterData;
+	if (cmp->m_PxShape)
+	{
+		filterData = cmp->m_PxShape->getQueryFilterData();
+	}
+	pShape->GetSubItem(1)->SetValue((_variant_t)filterData.word0);
 }
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -605,12 +617,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	}
 	pComponent->AddSubItem(pLodMask);
 
-	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
-	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
-	{
-		pShape->AddOption(g_ShapeTypeDesc[i], TRUE);
-	}
-	pComponent->AddSubItem(pShape);
+	CreatePropertiesShape(pComponent, cmp);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -632,6 +639,26 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp), pFrame->m_selchunkid);
 		break;
 	}
+}
+
+void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
+{
+	CMFCPropertyGridProperty * pShape = new CSimpleProp(_T("Shape"), PropertyShape, FALSE);
+	pParentCtrl->AddSubItem(pShape);
+	CMFCPropertyGridProperty * pType = new CComboProp(_T("Type"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyShapeType);
+	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
+	{
+		pType->AddOption(g_ShapeTypeDesc[i], TRUE);
+	}
+	pShape->AddSubItem(pType);
+	physx::PxFilterData filterData;
+	if (cmp->m_PxShape)
+	{
+		filterData = cmp->m_PxShape->getQueryFilterData();
+	}
+	CMFCPropertyGridProperty * pFilterData = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
+	pFilterData->Enable(FALSE);
+	pShape->AddSubItem(pFilterData);
 }
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -1307,9 +1334,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyComponentShape:
+	case PropertyShapeType:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
 		CShapeDlg dlg(pFrame, cmp, i);

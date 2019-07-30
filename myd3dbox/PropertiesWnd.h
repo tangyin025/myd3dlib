@@ -92,7 +92,9 @@ public:
 		PropertyActorLodRatio,
 		PropertyActorRigidActor,
 		PropertyComponentLODMask,
-		PropertyComponentShape,
+		PropertyShape,
+		PropertyShapeType,
+		PropertyShapeFilterData,
 		PropertyCharacter,
 		PropertyMesh,
 		PropertyMeshResPath,
@@ -180,6 +182,7 @@ public:
 	static void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
 	void UpdatePropertiesActor(Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);
+	void UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Component * cmp);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	static void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
 	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
@@ -193,6 +196,7 @@ public:
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp);
+	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, Component * cmp);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	static void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl);
 	static void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
