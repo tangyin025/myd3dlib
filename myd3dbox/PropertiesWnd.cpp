@@ -276,11 +276,17 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Co
 {
 	pShape->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
 	physx::PxFilterData filterData;
+	physx::PxShapeFlags shapeFlags;
 	if (cmp->m_PxShape)
 	{
 		filterData = cmp->m_PxShape->getQueryFilterData();
+		shapeFlags = cmp->m_PxShape->getFlags();
 	}
 	pShape->GetSubItem(1)->SetValue((_variant_t)filterData.word0);
+	pShape->GetSubItem(2)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE));
+	pShape->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE));
+	pShape->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eTRIGGER_SHAPE));
+	pShape->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eVISUALIZATION));
 	UpdatePropertiesShapeShow(pShape, cmp->m_PxShape != NULL);
 }
 
@@ -661,12 +667,22 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	}
 	pShape->AddSubItem(pType);
 	physx::PxFilterData filterData;
+	physx::PxShapeFlags shapeFlags;
 	if (cmp->m_PxShape)
 	{
 		filterData = cmp->m_PxShape->getQueryFilterData();
+		shapeFlags = cmp->m_PxShape->getFlags();
 	}
-	CMFCPropertyGridProperty * pFilterData = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
-	pShape->AddSubItem(pFilterData);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
+	pShape->AddSubItem(pProp);
+	pProp = new CCheckBoxProp(_T("Simulation"), shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE), NULL, PropertyShapeSimulation);
+	pShape->AddSubItem(pProp);
+	pProp = new CCheckBoxProp(_T("SceneQuery"), shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE), NULL, PropertyShapeSceneQuery);
+	pShape->AddSubItem(pProp);
+	pProp = new CCheckBoxProp(_T("Trigger"), shapeFlags.isSet(physx::PxShapeFlag::eTRIGGER_SHAPE), NULL, PropertyShapeTrigger);
+	pShape->AddSubItem(pProp);
+	pProp = new CCheckBoxProp(_T("Visualization"), shapeFlags.isSet(physx::PxShapeFlag::eVISUALIZATION), NULL, PropertyShapeVisualization);
+	pShape->AddSubItem(pProp);
 	UpdatePropertiesShapeShow(pShape, cmp->m_PxShape != NULL);
 }
 
@@ -1381,6 +1397,46 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		physx::PxFilterData filterData = cmp->m_PxShape->getQueryFilterData();
 		filterData.word0 = pProp->GetValue().uintVal;
 		cmp->m_PxShape->setQueryFilterData(filterData);
+		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyShapeSimulation:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
+		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, pProp->GetValue().boolVal != 0);
+		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyShapeSceneQuery:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
+		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, pProp->GetValue().boolVal != 0);
+		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyShapeTrigger:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
+		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, pProp->GetValue().boolVal != 0);
+		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyShapeVisualization:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
+		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
