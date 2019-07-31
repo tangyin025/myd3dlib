@@ -281,6 +281,15 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Co
 		filterData = cmp->m_PxShape->getQueryFilterData();
 	}
 	pShape->GetSubItem(1)->SetValue((_variant_t)filterData.word0);
+	UpdatePropertiesShapeShow(pShape, cmp->m_PxShape != NULL);
+}
+
+void CPropertiesWnd::UpdatePropertiesShapeShow(CMFCPropertyGridProperty * pShape, BOOL bShow)
+{
+	for (int i = 1; i < pShape->GetSubItemsCount(); i++)
+	{
+		pShape->GetSubItem(i)->Show(bShow, FALSE);
+	}
 }
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -658,6 +667,7 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	}
 	CMFCPropertyGridProperty * pFilterData = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
 	pShape->AddSubItem(pFilterData);
+	UpdatePropertiesShapeShow(pShape, cmp->m_PxShape != NULL);
 }
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -1355,8 +1365,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		default:
+		{
 			cmp->ClearShape();
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
 			break;
+		}
 		}
 		break;
 	}

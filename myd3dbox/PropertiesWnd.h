@@ -183,6 +183,7 @@ public:
 	void UpdatePropertiesActor(Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);
 	void UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Component * cmp);
+	void UpdatePropertiesShapeShow(CMFCPropertyGridProperty * pShape, BOOL bShow);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	static void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
 	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
