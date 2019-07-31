@@ -275,18 +275,27 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Component * cmp)
 {
 	pShape->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
+	physx::PxTransform localPose;
 	physx::PxFilterData filterData;
 	physx::PxShapeFlags shapeFlags;
 	if (cmp->m_PxShape)
 	{
+		localPose = cmp->m_PxShape->getLocalPose();
 		filterData = cmp->m_PxShape->getQueryFilterData();
 		shapeFlags = cmp->m_PxShape->getFlags();
 	}
-	pShape->GetSubItem(1)->SetValue((_variant_t)filterData.word0);
-	pShape->GetSubItem(2)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE));
-	pShape->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE));
-	pShape->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eTRIGGER_SHAPE));
-	pShape->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eVISUALIZATION));
+	pShape->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)localPose.p.x);
+	pShape->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)localPose.p.y);
+	pShape->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)localPose.p.z);
+	my::Vector3 angle = ((my::Quaternion &)localPose.q).ToEulerAngles();
+	pShape->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pShape->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pShape->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pShape->GetSubItem(3)->SetValue((_variant_t)filterData.word0);
+	pShape->GetSubItem(4)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE));
+	pShape->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE));
+	pShape->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eTRIGGER_SHAPE));
+	pShape->GetSubItem(7)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eVISUALIZATION));
 	UpdatePropertiesShapeShow(pShape, cmp->m_PxShape != NULL);
 }
 
@@ -666,14 +675,37 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 		pType->AddOption(g_ShapeTypeDesc[i], TRUE);
 	}
 	pShape->AddSubItem(pType);
+
+	physx::PxTransform localPose;
 	physx::PxFilterData filterData;
 	physx::PxShapeFlags shapeFlags;
 	if (cmp->m_PxShape)
 	{
+		localPose = cmp->m_PxShape->getLocalPose();
 		filterData = cmp->m_PxShape->getQueryFilterData();
 		shapeFlags = cmp->m_PxShape->getFlags();
 	}
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
+
+	CMFCPropertyGridProperty * pLocalPos = new CSimpleProp(_T("LocalPos"), PropertyShapeLocalPos, TRUE);
+	pShape->AddSubItem(pLocalPos);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)localPose.p.x, NULL, PropertyShapeLocalPosX);
+	pLocalPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)localPose.p.y, NULL, PropertyShapeLocalPosY);
+	pLocalPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)localPose.p.z, NULL, PropertyShapeLocalPosZ);
+	pLocalPos->AddSubItem(pProp);
+
+	my::Vector3 angle = ((my::Quaternion &)localPose.q).ToEulerAngles();
+	CMFCPropertyGridProperty * pLocalRot = new CSimpleProp(_T("LocalRot"), PropertyShapeLocalRot, TRUE);
+	pShape->AddSubItem(pLocalRot);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyShapeLocalRotX);
+	pLocalRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyShapeLocalRotY);
+	pLocalRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyShapeLocalRotZ);
+	pLocalRot->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
 	pShape->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("Simulation"), shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE), NULL, PropertyShapeSimulation);
 	pShape->AddSubItem(pProp);
@@ -1291,29 +1323,29 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyActorScaleY:
 	case PropertyActorScaleZ:
 	{
-		CMFCPropertyGridProperty * pComponent = NULL;
+		CMFCPropertyGridProperty * pActor = NULL;
 		switch (PropertyId)
 		{
 		case PropertyActorPos:
 		case PropertyActorRot:
 		case PropertyActorScale:
-			pComponent = pProp->GetParent();
+			pActor = pProp->GetParent();
 			break;
 		default:
-			pComponent = pProp->GetParent()->GetParent();
+			pActor = pProp->GetParent()->GetParent();
 			break;
 		}
-		Actor * actor = (Actor *)pComponent->GetValue().ulVal;
-		actor->m_Position.x = pComponent->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
-		actor->m_Position.y = pComponent->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
-		actor->m_Position.z = pComponent->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
+		Actor * actor = (Actor *)pActor->GetValue().ulVal;
+		actor->m_Position.x = pActor->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
+		actor->m_Position.y = pActor->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
+		actor->m_Position.z = pActor->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
 		actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
-			D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
-			D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
-			D3DXToRadian(pComponent->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
-		actor->m_Scale.x = pComponent->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
-		actor->m_Scale.y = pComponent->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
-		actor->m_Scale.z = pComponent->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal;
+			D3DXToRadian(pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
+			D3DXToRadian(pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
+			D3DXToRadian(pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
+		actor->m_Scale.x = pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
+		actor->m_Scale.y = pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
+		actor->m_Scale.z = pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal;
 		actor->UpdateAABB();
 		actor->UpdateWorld();
 		actor->UpdateOctNode();
@@ -1390,9 +1422,52 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
+	case PropertyShapeLocalPos:
+	case PropertyShapeLocalPosX:
+	case PropertyShapeLocalPosY:
+	case PropertyShapeLocalPosZ:
+	case PropertyShapeLocalRot:
+	case PropertyShapeLocalRotX:
+	case PropertyShapeLocalRotY:
+	case PropertyShapeLocalRotZ:
+	{
+		CMFCPropertyGridProperty * pShape = NULL;
+		switch (PropertyId)
+		{
+		case PropertyShapeLocalPos:
+		case PropertyShapeLocalRot:
+			pShape = pProp->GetParent();
+			break;
+		case PropertyShapeLocalPosX:
+		case PropertyShapeLocalPosY:
+		case PropertyShapeLocalPosZ:
+		case PropertyShapeLocalRotX:
+		case PropertyShapeLocalRotY:
+		case PropertyShapeLocalRotZ:
+			pShape = pProp->GetParent()->GetParent();
+			break;
+		}
+		Component * cmp = (Component *)pShape->GetParent()->GetValue().ulVal;
+		ASSERT(cmp->m_PxShape);
+		physx::PxVec3 localPos(
+			pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal,
+			pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal,
+			pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal);
+		physx::PxQuat localRot = (physx::PxQuat &)my::Quaternion::RotationEulerAngles(my::Vector3(
+			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
+			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
+			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
+		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
+		cmp->m_PxShape->setLocalPose(physx::PxTransform(localPos, localRot));
+		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyShapeFilterData:
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		ASSERT(cmp->m_PxShape);
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		physx::PxFilterData filterData = cmp->m_PxShape->getQueryFilterData();
 		filterData.word0 = pProp->GetValue().uintVal;
@@ -1405,6 +1480,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyShapeSimulation:
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		ASSERT(cmp->m_PxShape);
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
@@ -1415,6 +1491,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyShapeSceneQuery:
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		ASSERT(cmp->m_PxShape);
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
@@ -1425,6 +1502,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyShapeTrigger:
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		ASSERT(cmp->m_PxShape);
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
@@ -1435,6 +1513,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyShapeVisualization:
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		ASSERT(cmp->m_PxShape);
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
