@@ -657,7 +657,6 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 		filterData = cmp->m_PxShape->getQueryFilterData();
 	}
 	CMFCPropertyGridProperty * pFilterData = new CSimpleProp(_T("FilterData"), (_variant_t)filterData.word0, NULL, PropertyShapeFilterData);
-	pFilterData->Enable(FALSE);
 	pShape->AddSubItem(pFilterData);
 }
 
@@ -1359,6 +1358,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->ClearShape();
 			break;
 		}
+		break;
+	}
+	case PropertyShapeFilterData:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
+		physx::PxFilterData filterData = cmp->m_PxShape->getQueryFilterData();
+		filterData.word0 = pProp->GetValue().uintVal;
+		cmp->m_PxShape->setQueryFilterData(filterData);
+		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyMeshResPath:
