@@ -344,19 +344,29 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			const my::Vector3 Center(0,0,0);
-			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
-			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
-			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-			my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
-			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+			EmitterComponent * emitter = dynamic_cast<EmitterComponent *>(cmp);
+			if (emitter->m_ParticleList.empty())
 			{
 				return true;
 			}
-			result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
-			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
+			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				return true;
+				const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
+				const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
+				const my::Vector3 Offset = emitter->m_ParticleOffset.transformNormal(m_Camera->m_View);
+				const my::Vector3 Center = part_iter->m_Position + Offset;
+				const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+				my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
+				if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+				{
+					return true;
+				}
+				result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
+				if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+				{
+					return true;
+				}
 			}
 		}
 		break;
@@ -539,19 +549,29 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			const my::Vector3 Center(0,0,0);
-			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
-			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
-			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-			my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
-			if (ret.first)
+			EmitterComponent * emitter = dynamic_cast<EmitterComponent *>(cmp);
+			if (emitter->m_ParticleList.empty())
 			{
-				return ret;
+				return my::RayResult(true, ray.p.dot(m_Camera->m_View.column<2>().xyz));
 			}
-			ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
-			if (ret.first)
+			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
+			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				return ret;
+				const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
+				const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
+				const my::Vector3 Offset = emitter->m_ParticleOffset.transformNormal(m_Camera->m_View);
+				const my::Vector3 Center = part_iter->m_Position + Offset;
+				const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+				my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
+				if (ret.first)
+				{
+					return ret;
+				}
+				ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
+				if (ret.first)
+				{
+					return ret;
+				}
 			}
 		}
 		break;
