@@ -19,8 +19,6 @@ public:
 
 	my::VertexBuffer m_vb;
 
-	MaterialPtr m_Material;
-
 protected:
 	TerrainChunk(void);
 
@@ -90,6 +88,8 @@ public:
 	typedef boost::multi_array<TerrainChunk *, 2> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
+
+	MaterialPtr m_Material;
 
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 

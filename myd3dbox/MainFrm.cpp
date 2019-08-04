@@ -919,14 +919,13 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
-	for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
-	{
-		for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
-		{
-			TerrainChunk * chunk = terrain->m_Chunks[i][j];
-			chunk->m_Material = dlg.m_Material.Clone();
-		}
-	}
+	MaterialPtr mtl(new Material());
+	mtl->m_Shader = theApp.default_shader;
+	mtl->m_PassMask = theApp.default_pass_mask;
+	mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
+	mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	terrain->m_Material = mtl;
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);

@@ -267,7 +267,7 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 		UpdatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
 		break;
 	case Component::ComponentTypeTerrain:
-		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp), pFrame->m_selchunkid);
+		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
 	}
 }
@@ -537,14 +537,14 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
 }
 
-void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain, const CPoint & chunkid)
+void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyTerrainRowChunks)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
-		CreatePropertiesTerrain(pComponent, terrain, chunkid);
+		CreatePropertiesTerrain(pComponent, terrain);
 		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->m_RowChunks);
@@ -553,8 +553,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
 	pComponent->GetSubItem(PropId + 5);
-	TerrainChunk * chunk = GetTerrainChunkSafe(terrain, chunkid);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), chunk->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -660,7 +659,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
 		break;
 	case Component::ComponentTypeTerrain:
-		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp), pFrame->m_selchunkid);
+		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
 	}
 }
@@ -991,7 +990,7 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pNode->AddSubItem(pProp);
 }
 
-void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain, const CPoint & chunkid)
+void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
@@ -1010,8 +1009,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("SplatMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainSplatMap);
 	pComponent->AddSubItem(pProp);
-	TerrainChunk * chunk = GetTerrainChunkSafe(terrain, chunkid);
-	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), chunk->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), terrain->m_Material.get());
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)

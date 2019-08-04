@@ -214,47 +214,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 													</m_aabb>
 													<m_Row>0</m_Row>
 													<m_Col>0</m_Col>
-													<m_Material class_id="25" tracking_level="0" version="1">
-														<px class_id="26" tracking_level="1" version="0" object_id="_22">
-															<m_Shader>shader/mtl_lambert1.fx</m_Shader>
-															<m_PassMask>11</m_PassMask>
-															<m_CullMode>2</m_CullMode>
-															<m_ZEnable>1</m_ZEnable>
-															<m_ZWriteEnable>1</m_ZWriteEnable>
-															<m_BlendMode>0</m_BlendMode>
-															<m_ParameterList class_id="27" tracking_level="0" version="0">
-																<count>3</count>
-																<item_version>1</item_version>
-																<item class_id="28" tracking_level="0" version="1">
-																	<px class_id_reference="2" object_id="_23">
-																		<MaterialParameter object_id="_24">
-																			<m_Type>5</m_Type>
-																			<m_Name>g_DiffuseTexture</m_Name>
-																		</MaterialParameter>
-																		<m_TexturePath>texture/Checker.bmp</m_TexturePath>
-																	</px>
-																</item>
-																<item>
-																	<px class_id_reference="2" object_id="_25">
-																		<MaterialParameter object_id="_26">
-																			<m_Type>5</m_Type>
-																			<m_Name>g_NormalTexture</m_Name>
-																		</MaterialParameter>
-																		<m_TexturePath>texture/Normal.dds</m_TexturePath>
-																	</px>
-																</item>
-																<item>
-																	<px class_id_reference="2" object_id="_27">
-																		<MaterialParameter object_id="_28">
-																			<m_Type>5</m_Type>
-																			<m_Name>g_SpecularTexture</m_Name>
-																		</MaterialParameter>
-																		<m_TexturePath>texture/White.dds</m_TexturePath>
-																	</px>
-																</item>
-															</m_ParameterList>
-														</px>
-													</m_Material>
 													<BufferSize>52272</BufferSize>
 													<VertexBuffer>
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAQgAAAAAA
@@ -1197,6 +1156,47 @@ AIA/
 								<m_ColChunks>1</m_ColChunks>
 								<m_ChunkSize>32</m_ChunkSize>
 								<m_HeightScale>1.000000000e+00</m_HeightScale>
+								<m_Material class_id="25" tracking_level="0" version="1">
+									<px class_id="26" tracking_level="1" version="0" object_id="_22">
+										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
+										<m_PassMask>11</m_PassMask>
+										<m_CullMode>2</m_CullMode>
+										<m_ZEnable>1</m_ZEnable>
+										<m_ZWriteEnable>1</m_ZWriteEnable>
+										<m_BlendMode>0</m_BlendMode>
+										<m_ParameterList class_id="27" tracking_level="0" version="0">
+											<count>3</count>
+											<item_version>1</item_version>
+											<item class_id="28" tracking_level="0" version="1">
+												<px class_id_reference="2" object_id="_23">
+													<MaterialParameter object_id="_24">
+														<m_Type>5</m_Type>
+														<m_Name>g_DiffuseTexture</m_Name>
+													</MaterialParameter>
+													<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+												</px>
+											</item>
+											<item>
+												<px class_id_reference="2" object_id="_25">
+													<MaterialParameter object_id="_26">
+														<m_Type>5</m_Type>
+														<m_Name>g_NormalTexture</m_Name>
+													</MaterialParameter>
+													<m_TexturePath>texture/Normal.dds</m_TexturePath>
+												</px>
+											</item>
+											<item>
+												<px class_id_reference="2" object_id="_27">
+													<MaterialParameter object_id="_28">
+														<m_Type>5</m_Type>
+														<m_Name>g_SpecularTexture</m_Name>
+													</MaterialParameter>
+													<m_TexturePath>texture/White.dds</m_TexturePath>
+												</px>
+											</item>
+										</m_ParameterList>
+									</px>
+								</m_Material>
 							</px>
 						</item>
 					</m_Cmps>
@@ -1205,14 +1205,14 @@ AIA/
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACQxgIIAAAA
-gAAAAADATgEIAAAAgAIAAADQ1gIIAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOmIP
-CAADAAAAAABUO2IPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMyQxgIIAAAAAM3Nzc3N
-zc3N9NZiDwcAAwAAAAAAtNdiDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACwl3IIAAAA
+gAIAAACg+l8GAAAAgAAAAACAm24IAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOpUA
+CAADAAAAAABUO5UAAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMyg+l8GAAAAAM3Nzc3N
+zc3N9NaVAAcAAwAAAAAAtNeVAAMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAYg8GAAMA6JUUBgAAAAAA
-AAAA0NYCCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzcCwFAYAAACFAAAAAM3Nzc3/////bEz9BwEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAlQAGAAMAqKRzBgAAAAAA
+AAAAgJtuCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzQCXbwYAAACFAAAAAM3Nzc3/////HDZrCAEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>

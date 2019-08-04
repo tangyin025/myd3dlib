@@ -52,7 +52,6 @@ void TerrainChunk::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
-	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_vb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
 	void * pVertices = const_cast<my::VertexBuffer&>(m_vb).Lock(0, 0, D3DLOCK_READONLY);
@@ -67,7 +66,6 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
-	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
 	m_vb.OnDestroyDevice();
@@ -467,6 +465,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar << BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 template<>
@@ -480,6 +479,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -511,25 +511,13 @@ void Terrain::RequestResource(void)
 		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 	}
 
-	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
-	{
-		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			m_Chunks[i][j]->m_Material->RequestResource();
-		}
-	}
+	m_Material->RequestResource();
 }
 
 void Terrain::ReleaseResource(void)
 {
 	m_Decl.Release();
-	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
-	{
-		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			m_Chunks[i][j]->m_Material->ReleaseResource();
-		}
-	}
+	m_Material->ReleaseResource();
 	m_Fragment.clear();
 	Component::ReleaseResource();
 }
@@ -544,13 +532,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 void Terrain::OnShaderChanged(void)
 {
 	handle_World = NULL;
-	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
-	{
-		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			m_Chunks[i][j]->m_Material->ParseShaderParameters();
-		}
-	}
+	m_Material->ParseShaderParameters();
 }
 
 void Terrain::Update(float fElapsedTime)
@@ -599,13 +581,13 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)
 			};
-			if (chunk->m_Material && chunk->m_Material->m_PassMask & PassMask)
+			if (terrain->m_Material && terrain->m_Material->m_PassMask & PassMask)
 			{
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (chunk->m_Material->m_PassMask & PassMask))
+					if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_Material->m_PassMask & PassMask))
 					{
-						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, chunk->m_Material->m_Shader.c_str(), PassID);
+						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, terrain->m_Material->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!terrain->handle_World)
@@ -615,7 +597,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 							const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
 							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
+								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
 						}
 					}
 				}
