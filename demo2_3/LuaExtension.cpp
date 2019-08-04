@@ -1042,7 +1042,7 @@ static void ExportComponent(lua_State * L)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float>())
+			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
 
 		, class_<Controller, boost::shared_ptr<Controller> >("Controller")
 

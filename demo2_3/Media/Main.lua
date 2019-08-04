@@ -47,10 +47,10 @@ game:LoadScene("scene01.xml")
 -- game:AddActor(actor2oct(actor),actor.aabb:transform(actor.World))
 
 -- 创建玩家Actor
-local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1, 0.3)
+local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 
 -- 加载皮肤
-local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.45,0))
+local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.47,0))
 local lambert2=Material()
 lambert2.Shader="shader/mtl_lambert1.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque

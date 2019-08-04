@@ -12,6 +12,8 @@ public:
 
 	float m_Radius;
 
+	float m_ContactOffset;
+
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 	boost::shared_ptr<physx::PxController> m_PxController;
@@ -32,6 +34,7 @@ protected:
 	Character(void)
 		: m_Height(1.0f)
 		, m_Radius(1.0f)
+		, m_ContactOffset(0.1f)
 		, m_Velocity(0, 0, 0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
@@ -42,10 +45,11 @@ protected:
 	}
 
 public:
-	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius)
+	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset)
 		: Actor(Position, Rotation, Scale, aabb)
 		, m_Height(Height)
 		, m_Radius(Radius)
+		, m_ContactOffset(0.1f)
 		, m_Velocity(0,0,0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
