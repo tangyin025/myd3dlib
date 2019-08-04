@@ -267,7 +267,7 @@ public:
 		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
 
 		Material mtl;
-		mtl.m_Shader = "shader/lambert1.fx";
+		mtl.m_Shader = "shader/mtl_lambert1.fx";
 		mtl.ParseShaderParameters();
 
 		DialogPtr dlg(new Dialog());

@@ -1,18 +1,18 @@
 
 particle1=Material()
-particle1.Shader="particle1.fx"
+particle1.Shader="mtl_particle1.fx"
 particle1.PassMask=Material.PassMaskTransparent
 particle1.MeshTexture.Path="texture/flare.dds"
 game:SaveMaterial(particle1, "material/particle1.xml");
 
 light1=Material()
-light1.Shader="light1.fx"
+light1.Shader="mtl_light1.fx"
 light1.PassMask=Material.PassMaskLight
 light1.MeshTexture.Path="texture/White.dds"
 game:SaveMaterial(light1, "material/light1.xml");
 
 casual19_m_35=Material()
-casual19_m_35.Shader="lambert1.fx"
+casual19_m_35.Shader="mtl_lambert1.fx"
 casual19_m_35.PassMask=Material.PassMaskOpaque
 casual19_m_35.MeshTexture.Path="texture/casual19_m_35.jpg"
 casual19_m_35.NormalTexture.Path="texture/casual19_m_35_normal.png"
@@ -20,7 +20,7 @@ casual19_m_35.SpecularTexture.Path="texture/casual19_m_35_spec.png"
 game:SaveMaterial(casual19_m_35, "material/casual19_m_highpolyPhong.xml");
 
 lambert1=Material()
-lambert1.Shader="lambert1.fx"
+lambert1.Shader="mtl_lambert1.fx"
 lambert1.PassMask=Material.PassMaskOpaque
 lambert1.MeshTexture.Path="texture/Checker.bmp"
 lambert1.NormalTexture.Path="texture/Normal.dds"

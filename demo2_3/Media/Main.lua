@@ -28,7 +28,7 @@ game:LoadScene("scene01.xml")
 -- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
 -- local cmp=MeshComponent()
 -- local lambert1=Material()
--- lambert1.Shader="shader/lambert1.fx"
+-- lambert1.Shader="shader/mtl_lambert1.fx"
 -- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
 -- -- lambert1.RepeatUV.x=64
 -- -- lambert1.RepeatUV.y=64
@@ -52,7 +52,7 @@ local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(
 -- 加载皮肤
 local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.45,0))
 local lambert2=Material()
-lambert2.Shader="shader/lambert1.fx"
+lambert2.Shader="shader/mtl_lambert1.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
 lambert2:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
 lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
@@ -120,7 +120,7 @@ player.Controller=PlayerController(player)
 -- 创建一个物理球
 local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert3=Material()
-lambert3.Shader="shader/lambert1.fx"
+lambert3.Shader="shader/mtl_lambert1.fx"
 lambert3.PassMask=Material.PassMaskShadowNormalOpaque
 lambert3:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert3:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")

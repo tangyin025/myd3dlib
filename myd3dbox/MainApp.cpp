@@ -204,7 +204,7 @@ BOOL CMainApp::InitInstance()
 		("default_texture", boost::program_options::value(&default_texture)->default_value("texture/Checker.bmp"), "Default texture")
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
-		("default_shader", boost::program_options::value(&default_shader)->default_value("shader/lambert1.fx"), "Default shader")
+		("default_shader", boost::program_options::value(&default_shader)->default_value("shader/mtl_lambert1.fx"), "Default shader")
 		("default_pass_mask", boost::program_options::value(&default_pass_mask)->default_value(RenderPipeline::PassMaskShadowNormalOpaque), "Default pass mask")
 		;
 	boost::program_options::variables_map vm;
