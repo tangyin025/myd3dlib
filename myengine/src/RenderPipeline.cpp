@@ -30,8 +30,8 @@ RenderPipeline::RenderPipeline(void)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
 	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
-	, m_SkyLightDiffuse(1.0f, 1.0f, 1.0f, 1.0f)
-	, m_SkyLightAmbient(0.3f, 0.3f, 0.3f, 0.0f)
+	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_AmbientColor(0.3f, 0.3f, 0.3f, 0.0f)
 	, m_SkyBoxEnable(false)
 	, handle_Time(NULL)
 	, handle_Eye(NULL)
@@ -42,8 +42,8 @@ RenderPipeline::RenderPipeline(void)
 	, handle_InvViewProj(NULL)
 	, handle_SkyLightView(NULL)
 	, handle_SkyLightViewProj(NULL)
-	, handle_SkyLightDiffuse(NULL)
-	, handle_SkyLightAmbient(NULL)
+	, handle_SkyLightColor(NULL)
+	, handle_AmbientColor(NULL)
 	, handle_ShadowRT(NULL)
 	, handle_NormalRT(NULL)
 	, handle_PositionRT(NULL)
@@ -192,8 +192,8 @@ template<>
 void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
-	ar << BOOST_SERIALIZATION_NVP(m_SkyLightDiffuse);
-	ar << BOOST_SERIALIZATION_NVP(m_SkyLightAmbient);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
+	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
 	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
@@ -207,8 +207,8 @@ template<>
 void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightDiffuse);
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightAmbient);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
+	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
 	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
@@ -291,8 +291,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_InvViewProj = m_SimpleSample->GetParameterByName(NULL, "g_InvViewProj"));
 	BOOST_VERIFY(handle_SkyLightView = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightView"));
 	BOOST_VERIFY(handle_SkyLightViewProj = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightViewProj"));
-	BOOST_VERIFY(handle_SkyLightDiffuse = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightDiffuse"));
-	BOOST_VERIFY(handle_SkyLightAmbient = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightAmbient"));
+	BOOST_VERIFY(handle_SkyLightColor = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightColor"));
+	BOOST_VERIFY(handle_AmbientColor = m_SimpleSample->GetParameterByName(NULL, "g_AmbientColor"));
 	BOOST_VERIFY(handle_ShadowRT = m_SimpleSample->GetParameterByName(NULL, "g_ShadowRT"));
 	BOOST_VERIFY(handle_NormalRT = m_SimpleSample->GetParameterByName(NULL, "g_NormalRT"));
 	BOOST_VERIFY(handle_PositionRT = m_SimpleSample->GetParameterByName(NULL, "g_PositionRT"));
@@ -441,8 +441,8 @@ void RenderPipeline::OnRender(
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
-	m_SimpleSample->SetVector(handle_SkyLightDiffuse, m_SkyLightDiffuse);
-	m_SimpleSample->SetVector(handle_SkyLightAmbient, m_SkyLightAmbient);
+	m_SimpleSample->SetVector(handle_SkyLightColor, m_SkyLightColor);
+	m_SimpleSample->SetVector(handle_AmbientColor, m_AmbientColor);
 	m_SimpleSample->SetTexture(handle_ShadowRT, m_ShadowRT.get());
 	V(pd3dDevice->SetRenderTarget(0, NormalSurf));
 	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
@@ -475,7 +475,7 @@ void RenderPipeline::OnRender(
 	else
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
-			m_SkyLightAmbient.x, m_SkyLightAmbient.y, m_SkyLightAmbient.z, m_SkyLightAmbient.w), 0, 0));
+			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, m_AmbientColor.w), 0, 0));
 	}
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 

@@ -87,9 +87,9 @@ public:
 
 	my::Vector4 m_BgColor;
 
-	my::Vector4 m_SkyLightDiffuse;
+	my::Vector4 m_SkyLightColor;
 
-	my::Vector4 m_SkyLightAmbient;
+	my::Vector4 m_AmbientColor;
 
 	bool m_SkyBoxEnable;
 
@@ -115,9 +115,9 @@ public:
 
 	D3DXHANDLE handle_SkyLightViewProj;
 
-	D3DXHANDLE handle_SkyLightDiffuse;
+	D3DXHANDLE handle_SkyLightColor;
 
-	D3DXHANDLE handle_SkyLightAmbient;
+	D3DXHANDLE handle_AmbientColor;
 
 	D3DXHANDLE handle_ShadowRT;
 

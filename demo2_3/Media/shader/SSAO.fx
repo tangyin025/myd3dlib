@@ -47,7 +47,7 @@ float4 MainPS(VS_OUTPUT In) : COLOR0
 	{
 		ao += doAmbientOcclusion(In.TextureUV,offs[i]*g_sample_rad/g_ScreenDim/p.z,p,n);
 	}
-	return g_SkyLightAmbient * (1.0 - ao / 16);
+	return g_AmbientColor * (1.0 - ao / 16);
 }
 
 technique RenderScene
