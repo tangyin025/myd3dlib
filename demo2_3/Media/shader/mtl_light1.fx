@@ -23,11 +23,11 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 
 float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
-	float2 NormalTex = In.ScreenPos.xy / In.ScreenPos.w * 0.5 + 0.5;
-	NormalTex.y = 1 - NormalTex.y;
-	NormalTex = NormalTex + float2(0.5, 0.5) / g_ScreenDim;
-	float3 Normal = tex2D(NormalRTSampler, NormalTex).xyz;
-	float3 ViewPos = tex2D(PositionRTSampler, NormalTex).xyz;
+	float2 ScreenTex = In.ScreenPos.xy / In.ScreenPos.w * 0.5 + 0.5;
+	ScreenTex.y = 1 - ScreenTex.y;
+	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim;
+	float3 Normal = tex2D(NormalRTSampler, ScreenTex).xyz;
+	float3 ViewPos = tex2D(PositionRTSampler, ScreenTex).xyz;
 	float3 LightVec = In.Light.xyz - ViewPos;
 	float LightDist = length(LightVec);
 	LightVec = LightVec / LightDist;
