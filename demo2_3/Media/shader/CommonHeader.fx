@@ -1,5 +1,7 @@
 shared float g_Time;
 shared float2 g_ScreenDim;
+shared float g_ShadowMapSize;
+shared float g_ShadowEpsilon;
 shared float4x4 g_World;
 shared float3 g_Eye;
 shared float4x4 g_View;
@@ -94,4 +96,20 @@ float3 RotateAngleAxis(float3 v, float a, float3 N)
 		Nxy * (1 - cos_a) - N.z * sin_a,	Nyy * (1 - cos_a) + cos_a,			Nyz * (1 - cos_a) + N.x * sin_a,
 		Nzx * (1 - cos_a) + N.y * sin_a,	Nyz * (1 - cos_a) - N.x * sin_a,	Nzz * (1 - cos_a) + cos_a};
 	return mul(v, mRotation);
+}
+
+float GetLigthAmount(float4 PosShadow)
+{
+	float2 ShadowTexC = PosShadow.xy / PosShadow.w * 0.5 + 0.5;
+	ShadowTexC.y = 1.0 - ShadowTexC.y;
+	if (ShadowTexC.x < 0 || ShadowTexC.x > 1 || ShadowTexC.y < 0 || ShadowTexC.y > 1)
+		return 1.0;
+	
+	float LightAmount = 0;
+	float x, y;
+	for(x = -0.0; x <= 1.0; x += 1.0)
+		for(y = -0.0; y <= 1.0; y+= 1.0)
+			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / g_ShadowMapSize) + g_ShadowEpsilon < PosShadow.z / PosShadow.w ? 0.0 : 1.0;
+			
+	return LightAmount / 4;
 }

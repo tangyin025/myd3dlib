@@ -662,8 +662,6 @@ void Game::OnFrameTick(
 
 	PhysXSceneContext::TickPreRender(fElapsedTime);
 
-	m_SimpleSample->SetFloatArray(handle_ScreenDim, (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
-
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
 		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);

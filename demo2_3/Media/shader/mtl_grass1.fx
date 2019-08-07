@@ -77,26 +77,10 @@ struct COLOR_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
-	float4 ScreenPos		: TEXCOORD2;
+	float4 PosScreen		: TEXCOORD2;
 	float4 PosShadow		: TEXCOORD5;
 	float3 ViewDir			: TEXCOORD3;
 };
-
-float GetLigthAmount(float4 PosShadow)
-{
-	float2 ShadowTexC = PosShadow.xy / PosShadow.w * 0.5 + 0.5;
-	ShadowTexC.y = 1.0 - ShadowTexC.y;
-	if (ShadowTexC.x < 0 || ShadowTexC.x > 1 || ShadowTexC.y < 0 || ShadowTexC.y > 1)
-		return 1.0;
-	
-	float LightAmount = 0;
-	float x, y;
-	for(x = -0.0; x <= 1.0; x += 1.0)
-		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosShadow.z / PosShadow.w ? 0.0 : 1.0;
-			
-	return LightAmount / 4;
-}
 
 COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 {
@@ -104,7 +88,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
-	Output.ScreenPos = Output.Pos;
+	Output.PosScreen = Output.Pos;
 	Output.PosShadow = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewDir = mul(g_Eye - PosWS, (float3x3)g_View);
     return Output;    
@@ -114,7 +98,7 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
 	float3 SkyLightDir = normalize(float3(g_SkyLightViewProj[0][2],g_SkyLightViewProj[1][2],g_SkyLightViewProj[2][2]));
 	float3 ViewSkyLightDir = mul(SkyLightDir, g_View);
-	float2 ScreenTex = In.ScreenPos.xy / In.ScreenPos.w * 0.5 + 0.5;
+	float2 ScreenTex = In.PosScreen.xy / In.PosScreen.w * 0.5 + 0.5;
 	ScreenTex.y = 1 - ScreenTex.y;
 	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float LightAmount = GetLigthAmount(In.PosShadow);

@@ -838,8 +838,6 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			theApp.m_SimpleSample->SetFloatArray(theApp.handle_ScreenDim, (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
-
 			DrawHelper::BeginLine();
 
 			if (m_bShowGrid)

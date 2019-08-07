@@ -36,6 +36,8 @@ RenderPipeline::RenderPipeline(void)
 	, handle_Time(NULL)
 	, handle_Eye(NULL)
 	, handle_ScreenDim(NULL)
+	, handle_ShadowMapSize(NULL)
+	, handle_ShadowEpsilon(NULL)
 	, handle_World(NULL)
 	, handle_View(NULL)
 	, handle_ViewProj(NULL)
@@ -284,6 +286,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 
 	BOOST_VERIFY(handle_Time = m_SimpleSample->GetParameterByName(NULL, "g_Time"));
 	BOOST_VERIFY(handle_ScreenDim = m_SimpleSample->GetParameterByName(NULL, "g_ScreenDim"));
+	BOOST_VERIFY(handle_ShadowMapSize = m_SimpleSample->GetParameterByName(NULL, "g_ShadowMapSize"));
+	BOOST_VERIFY(handle_ShadowEpsilon = m_SimpleSample->GetParameterByName(NULL, "g_ShadowEpsilon"));
 	BOOST_VERIFY(handle_World = m_SimpleSample->GetParameterByName(NULL, "g_World"));
 	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
 	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
@@ -425,6 +429,9 @@ void RenderPipeline::OnRender(
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
+	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
+	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
+	m_SimpleSample->SetFloat(handle_ShadowEpsilon, SHADOW_EPSILON);
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);

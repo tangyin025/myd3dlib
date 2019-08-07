@@ -101,6 +101,10 @@ public:
 
 	D3DXHANDLE handle_ScreenDim;
 
+	D3DXHANDLE handle_ShadowMapSize;
+
+	D3DXHANDLE handle_ShadowEpsilon;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_Eye;
