@@ -403,39 +403,6 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if (m_bEnabled && m_bVisible)
-	{
-		switch (uMsg)
-		{
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONDBLCLK:
-			if (ContainsPoint(pt))
-			{
-				m_bPressed = true;
-				SetFocus();
-				SetCapture();
-				return true;
-			}
-			break;
-
-		case WM_LBUTTONUP:
-			if (m_bPressed)
-			{
-				ReleaseCapture();
-				m_bPressed = false;
-
-				if (ContainsPoint(pt))
-				{
-					if (EventMouseClick)
-					{
-						EventMouseClick(&MouseEventArgs(this, pt));
-					}
-				}
-				return true;
-			}
-			break;
-		}
-	}
 	return false;
 }
 
@@ -831,9 +798,38 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if (Control::HandleMouse(uMsg, pt, wParam, lParam))
+	if (m_bEnabled && m_bVisible)
 	{
-		return true;
+		switch (uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if (ContainsPoint(pt))
+			{
+				m_bPressed = true;
+				SetFocus();
+				SetCapture();
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if (m_bPressed)
+			{
+				ReleaseCapture();
+				m_bPressed = false;
+
+				if (ContainsPoint(pt))
+				{
+					if (EventMouseClick)
+					{
+						EventMouseClick(&MouseEventArgs(this, pt));
+					}
+				}
+				return true;
+			}
+			break;
+		}
 	}
 	return false;
 }
@@ -2175,7 +2171,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				m_bPressed = true;
 				m_bOpened = !m_bOpened;
 				SetFocus();
-				SetCapture();
 				return true;
 			}
 
@@ -2192,12 +2187,8 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 						if(ItemRect.PtInRect(ptLocal))
 						{
-							m_bOpened = false;
-
 							if(m_iSelected != i)
 							{
-								ReleaseCapture();
-
 								m_iSelected = i;
 
 								if(EventSelectionChanged)
@@ -2205,7 +2196,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 									EventSelectionChanged(&ControlEventArgs(this));
 								}
 							}
-
+							m_bOpened = false;
 							break;
 						}
 					}
@@ -2218,7 +2209,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed && ContainsPoint(pt))
 			{
 				m_bPressed = false;
-
+				ReleaseCapture();
 				return true;
 			}
 			break;
@@ -2470,7 +2461,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
-				SetFocus();
+				//SetFocus();
 				SetCapture();
 				return true;
 			}
@@ -2673,6 +2664,18 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						return true;
 					}
 				}
+				break;
+			}
+
+			if (Control::s_FocusControl) {
+				Vector2 pt;
+				if (Control::s_FocusControl->RayToWorld(ray, pt))
+				{
+					if (Control::s_FocusControl->HandleMouse(uMsg, pt, wParam, lParam)) {
+						return true;
+					}
+				}
+				//break;
 			}
 
 			DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
