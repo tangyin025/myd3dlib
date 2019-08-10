@@ -385,7 +385,9 @@ HRESULT Game::OnCreateDevice(
 
 	InputMgr::Create(m_hinst, m_wnd->m_hWnd);
 
-	ParallelTaskManager::StartParallelThread(3);
+	ResourceMgr::StartIORequestProc(4);
+
+	ParallelTaskManager::StartParallelThread(4);
 
 	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
@@ -883,7 +885,7 @@ void Game::LoadScene(const char * path)
 	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	ia >> boost::serialization::make_nvp("Root", (my::OctRoot &)*this);
+	ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
 
 	RenderPipeline::RequestResource();
 }

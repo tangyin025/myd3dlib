@@ -73,6 +73,7 @@ void ParallelTaskManager::StopParallelThread(void)
 	for(size_t i = 0; i < m_Threads.size(); i++)
 	{
 		m_Threads[i]->WaitForThreadStopped(INFINITE);
+		m_Threads[i]->CloseThread();
 	}
 
 	m_Threads.clear();

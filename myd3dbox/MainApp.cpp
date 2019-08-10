@@ -283,6 +283,8 @@ HRESULT CMainApp::OnCreateDevice(
 		return hr;
 	}
 
+	my::ResourceMgr::StartIORequestProc(4);
+
 	if (FAILED(hr = RenderPipeline::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));

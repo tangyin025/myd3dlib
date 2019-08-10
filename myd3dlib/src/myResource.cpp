@@ -328,7 +328,6 @@ IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 
 AsynchronousIOMgr::AsynchronousIOMgr(void)
 	: m_bStopped(false)
-	, m_Thread(boost::bind(&AsynchronousIOMgr::IORequestProc, this))
 {
 }
 
@@ -340,7 +339,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(!req_iter->second->m_LoadEvent.Wait(0))
+			if(!req_iter->second->m_PreLoadEvent.Wait(0))
 			{
 				_ASSERT(!req_iter->second->m_callbacks.empty());
 				break;
@@ -351,13 +350,15 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			// ! req_iter will be invalid after release mutex
 			IORequestPtr request = req_iter->second;
 
+			request->m_PreLoadEvent.SetEvent();
+
 			m_IORequestListMutex.Release();
 
 			// ! HAVENT HANDLED EXCEPTION YET
 			request->LoadResource();
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe
-			request->m_LoadEvent.SetEvent();
+			request->m_PostLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
@@ -437,11 +438,16 @@ bool AsynchronousIOMgr::FindIORequestCallback(const IResourceCallback * callback
 	return false;
 }
 
-void AsynchronousIOMgr::StartIORequestProc(void)
+void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 {
 	m_bStopped = false;
-	m_Thread.CreateThread();
-	m_Thread.ResumeThread();
+	for (unsigned int i = 0; i < lMaximumCount; i++)
+	{
+		ThreadPtr thread(new Thread(boost::bind(&AsynchronousIOMgr::IORequestProc, this)));
+		thread->CreateThread();
+		thread->ResumeThread();
+		m_Threads.push_back(thread);
+	}
 }
 
 void AsynchronousIOMgr::StopIORequestProc(void)
@@ -451,7 +457,14 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
 	m_IORequestListMutex.Release();
-	m_IORequestListCondition.Wake(1);
+	m_IORequestListCondition.Wake(m_Threads.size());
+
+	for (unsigned int i = 0; i < m_Threads.size(); i++)
+	{
+		m_Threads[i]->WaitForThreadStopped(INFINITE);
+		m_Threads[i]->CloseThread();
+	}
+	m_Threads.clear();
 }
 
 IStreamBuff::IStreamBuff(IStreamPtr fptr, size_t buff_sz, size_t put_back)
@@ -500,8 +513,6 @@ HRESULT ResourceMgr::OnCreateDevice(
 		return hr;
 	}
 
-	StartIORequestProc();
-
 	return S_OK;
 }
 
@@ -523,10 +534,6 @@ void ResourceMgr::OnDestroyDevice(void)
 	m_ResourceWeakSet.clear();
 
 	m_EffectPool.Release();
-
-	m_Thread.WaitForThreadStopped(INFINITE);
-
-	m_Thread.CloseThread();
 
 	m_IORequestList.clear();
 }
@@ -619,7 +626,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsyn
 	{
 		request->m_res = res;
 
-		request->m_LoadEvent.SetEvent();
+		request->m_PostLoadEvent.SetEvent();
 
 		OnIORequestReady(key, request);
 
@@ -636,7 +643,7 @@ void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr req
 	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request);
 	if (req_iter != m_IORequestList.end())
 	{
-		if (req_iter->second->m_LoadEvent.Wait(INFINITE))
+		if (req_iter->second->m_PostLoadEvent.Wait(INFINITE))
 		{
 			OnIORequestIteratorReady(req_iter);
 		}
@@ -650,7 +657,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 	while (true)
 	{
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-		if (req_iter != m_IORequestList.end() && req_iter->second->m_LoadEvent.Wait(dwMilliseconds))
+		if (req_iter != m_IORequestList.end() && req_iter->second->m_PostLoadEvent.Wait(dwMilliseconds))
 		{
 			OnIORequestIteratorReady(req_iter);
 		}
@@ -675,7 +682,7 @@ void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_it
 
 void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request)
 {
-	_ASSERT(request->m_LoadEvent.Wait(0));
+	_ASSERT(request->m_PostLoadEvent.Wait(0));
 
 	if(!request->m_res)
 	{

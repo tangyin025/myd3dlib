@@ -205,7 +205,9 @@ namespace my
 
 		friend class ResourceMgr;
 
-		Event m_LoadEvent;
+		Event m_PreLoadEvent;
+
+		Event m_PostLoadEvent;
 
 		typedef std::set<IResourceCallback *> IResourceCallbackSet;
 
@@ -215,7 +217,8 @@ namespace my
 
 	public:
 		IORequest(void)
-			: m_LoadEvent(NULL, TRUE, FALSE, NULL)
+			: m_PreLoadEvent(NULL, TRUE, FALSE, NULL)
+			, m_PostLoadEvent(NULL, TRUE, FALSE, NULL)
 		{
 		}
 
@@ -230,7 +233,7 @@ namespace my
 
 	typedef boost::shared_ptr<IORequest> IORequestPtr;
 
-	class AsynchronousIOMgr : public StreamDirMgr
+	class AsynchronousIOMgr
 	{
 	protected:
 		typedef std::pair<std::string, IORequestPtr> IORequestPtrPair;
@@ -245,7 +248,9 @@ namespace my
 
 		bool m_bStopped;
 
-		Thread m_Thread;
+		typedef std::vector<ThreadPtr> ThreadPtrList;
+
+		ThreadPtrList m_Threads;
 
 	public:
 		AsynchronousIOMgr(void);
@@ -258,7 +263,7 @@ namespace my
 
 		bool FindIORequestCallback(const IResourceCallback * callback);
 
-		void StartIORequestProc(void);
+		void StartIORequestProc(LONG lMaximumCount);
 
 		void StopIORequestProc(void);
 	};
@@ -292,6 +297,7 @@ namespace my
 
 	class ResourceMgr
 		: public SingleInstance<ResourceMgr>
+		, public StreamDirMgr
 		, public AsynchronousIOMgr
 		, public ID3DXInclude
 	{

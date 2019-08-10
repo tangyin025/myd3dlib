@@ -634,7 +634,7 @@ void CMainFrame::OnFileOpen()
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	ia >> boost::serialization::make_nvp("Root", (my::OctRoot &)*this);
+	ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
 
 	theApp.RequestResource();
 }
@@ -662,7 +662,7 @@ void CMainFrame::OnFileSave()
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	oa << boost::serialization::make_nvp("Root", (my::OctRoot &)*this);
+	oa << boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
 }
 
 void CMainFrame::OnFileSaveAs()

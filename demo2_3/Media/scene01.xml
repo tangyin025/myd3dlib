@@ -84,33 +84,31 @@ U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 	</StreamBuff>
 </PhysXSceneContext>
-<Root class_id="5" tracking_level="1" version="0" object_id="_12">
-	<OctNode class_id="6" tracking_level="1" version="0" object_id="_13">
-		<m_aabb class_id="7" tracking_level="0" version="0">
-			<m_min class_id="8" tracking_level="0" version="0">
-				<x>-4.096000000e+03</x>
-				<y>-4.096000000e+03</y>
-				<z>-4.096000000e+03</z>
-			</m_min>
-			<m_max>
-				<x>4.096000000e+03</x>
-				<y>4.096000000e+03</y>
-				<z>4.096000000e+03</z>
-			</m_max>
-		</m_aabb>
-		<m_Half>
-			<x>0.000000000e+00</x>
-			<y>0.000000000e+00</y>
-			<z>0.000000000e+00</z>
-		</m_Half>
-	</OctNode>
-	<cb.actor_list class_id="9" tracking_level="0" version="0">
+<StreamRoot class_id="5" tracking_level="1" version="0" object_id="_12">
+	<m_aabb class_id="6" tracking_level="0" version="0">
+		<m_min class_id="7" tracking_level="0" version="0">
+			<x>-4.096000000e+03</x>
+			<y>-4.096000000e+03</y>
+			<z>-4.096000000e+03</z>
+		</m_min>
+		<m_max>
+			<x>4.096000000e+03</x>
+			<y>4.096000000e+03</y>
+			<z>4.096000000e+03</z>
+		</m_max>
+	</m_aabb>
+	<m_Half>
+		<x>0.000000000e+00</x>
+		<y>0.000000000e+00</y>
+		<z>0.000000000e+00</z>
+	</m_Half>
+	<cb.actor_list class_id="8" tracking_level="0" version="0">
 		<count>1</count>
 		<item_version>0</item_version>
-		<item class_id="10" tracking_level="0" version="0">
-			<first class_id="11" tracking_level="0" version="1">
-				<px class_id="13" class_name="Actor" tracking_level="1" version="0" object_id="_14">
-					<OctActor class_id="12" tracking_level="1" version="0" object_id="_15"></OctActor>
+		<item class_id="9" tracking_level="0" version="0">
+			<first class_id="10" tracking_level="0" version="1">
+				<px class_id="12" class_name="Actor" tracking_level="1" version="0" object_id="_13">
+					<OctActor class_id="11" tracking_level="1" version="0" object_id="_14"></OctActor>
 					<m_aabb>
 						<m_min>
 							<x>-1.000000000e+00</x>
@@ -128,7 +126,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<y>0.000000000e+00</y>
 						<z>-1.600000000e+01</z>
 					</m_Position>
-					<m_Rotation class_id="14" tracking_level="0" version="0">
+					<m_Rotation class_id="13" tracking_level="0" version="0">
 						<x>0.000000000e+00</x>
 						<y>0.000000000e+00</y>
 						<z>0.000000000e+00</z>
@@ -139,7 +137,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<y>1.000000000e+00</y>
 						<z>1.000000000e+00</z>
 					</m_Scale>
-					<m_World class_id="15" tracking_level="0" version="0">
+					<m_World class_id="14" tracking_level="0" version="0">
 						<_11>1.000000000e+00</_11>
 						<_12>0.000000000e+00</_12>
 						<_13>0.000000000e+00</_13>
@@ -158,48 +156,46 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<_44>1.000000000e+00</_44>
 					</m_World>
 					<m_LodRatio>3.000000000e+01</m_LodRatio>
-					<m_Animator class_id="16" tracking_level="0" version="1">
+					<m_Animator class_id="15" tracking_level="0" version="1">
 						<px class_id="-1"></px>
 					</m_Animator>
-					<m_Controller class_id="18" tracking_level="0" version="1">
+					<m_Controller class_id="17" tracking_level="0" version="1">
 						<px class_id="-1"></px>
 					</m_Controller>
-					<m_Cmps class_id="20" tracking_level="0" version="0">
+					<m_Cmps class_id="19" tracking_level="0" version="0">
 						<count>1</count>
 						<item_version>1</item_version>
-						<item class_id="21" tracking_level="0" version="1">
-							<px class_id="23" class_name="Terrain" tracking_level="1" version="0" object_id="_16">
-								<Component class_id="22" tracking_level="1" version="0" object_id="_17">
+						<item class_id="20" tracking_level="0" version="1">
+							<px class_id="22" class_name="Terrain" tracking_level="1" version="0" object_id="_15">
+								<Component class_id="21" tracking_level="1" version="0" object_id="_16">
 									<m_Type>8</m_Type>
 									<m_LodMask>7</m_LodMask>
 								</Component>
-								<OctRoot object_id="_18">
-									<OctNode object_id="_19">
-										<m_aabb>
-											<m_min>
-												<x>0.000000000e+00</x>
-												<y>0.000000000e+00</y>
-												<z>0.000000000e+00</z>
-											</m_min>
-											<m_max>
-												<x>3.200000000e+01</x>
-												<y>3.200000000e+01</y>
-												<z>3.200000000e+01</z>
-											</m_max>
-										</m_aabb>
-										<m_Half>
-											<x>1.600000000e+01</x>
-											<y>1.600000000e+01</y>
-											<z>1.600000000e+01</z>
-										</m_Half>
-									</OctNode>
+								<OctRoot class_id="23" tracking_level="1" version="0" object_id="_17">
+									<m_aabb>
+										<m_min>
+											<x>0.000000000e+00</x>
+											<y>0.000000000e+00</y>
+											<z>0.000000000e+00</z>
+										</m_min>
+										<m_max>
+											<x>3.200000000e+01</x>
+											<y>3.200000000e+01</y>
+											<z>3.200000000e+01</z>
+										</m_max>
+									</m_aabb>
+									<m_Half>
+										<x>1.600000000e+01</x>
+										<y>1.600000000e+01</y>
+										<z>1.600000000e+01</z>
+									</m_Half>
 									<cb.actor_list>
 										<count>1</count>
 										<item_version>0</item_version>
 										<item>
 											<first>
-												<px class_id="24" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_20">
-													<OctActor object_id="_21"></OctActor>
+												<px class_id="24" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_18">
+													<OctActor object_id="_19"></OctActor>
 													<m_aabb>
 														<m_min>
 															<x>0.000000000e+00</x>
@@ -1157,7 +1153,7 @@ AIA/
 								<m_ChunkSize>32</m_ChunkSize>
 								<m_HeightScale>1.000000000e+00</m_HeightScale>
 								<m_Material class_id="25" tracking_level="0" version="1">
-									<px class_id="26" tracking_level="1" version="0" object_id="_22">
+									<px class_id="26" tracking_level="1" version="0" object_id="_20">
 										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
 										<m_PassMask>11</m_PassMask>
 										<m_CullMode>2</m_CullMode>
@@ -1168,8 +1164,8 @@ AIA/
 											<count>3</count>
 											<item_version>1</item_version>
 											<item class_id="28" tracking_level="0" version="1">
-												<px class_id_reference="2" object_id="_23">
-													<MaterialParameter object_id="_24">
+												<px class_id_reference="2" object_id="_21">
+													<MaterialParameter object_id="_22">
 														<m_Type>5</m_Type>
 														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
@@ -1177,8 +1173,8 @@ AIA/
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="2" object_id="_25">
-													<MaterialParameter object_id="_26">
+												<px class_id_reference="2" object_id="_23">
+													<MaterialParameter object_id="_24">
 														<m_Type>5</m_Type>
 														<m_Name>g_NormalTexture</m_Name>
 													</MaterialParameter>
@@ -1186,8 +1182,8 @@ AIA/
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="2" object_id="_27">
-													<MaterialParameter object_id="_28">
+												<px class_id_reference="2" object_id="_25">
+													<MaterialParameter object_id="_26">
 														<m_Type>5</m_Type>
 														<m_Name>g_SpecularTexture</m_Name>
 													</MaterialParameter>
@@ -1205,14 +1201,14 @@ AIA/
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAAAQQAsIAAAA
-gAEAAADABw4IAAAAgAIAAABAGfsFAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOk8P
-CAADAAAAAABUO08PAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxAGfsFAAAAAM3Nzc3N
-zc3N9NZPDwcAAwAAAAAAtNdPDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADQq9UIAAAA
+gAAAAAAgfsgIAAAAgAEAAACAm9UIAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOl4P
+CAADAAAAAABUO14PAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzQq9UIAAAAAM3Nzc3N
+zc3N9NZeDwcAAwAAAAAAtNdeDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiATw8GAAMA6O4DCAAAAAAA
-AAAAEEALCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzQDvCQYAAACFAAAAAM3Nzc3/////3CsNBgEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAXg8GAAMAuPC8CAAAAAAA
+AAAAIH7ICAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzXAGHAYAAACFAAAAAM3Nzc3/////3M8gBgEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>
@@ -1232,6 +1228,6 @@ AA==
 			</second>
 		</item>
 	</cb.actor_list>
-</Root>
+</StreamRoot>
 </boost_serialization>
 
