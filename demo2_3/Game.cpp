@@ -283,7 +283,7 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: OctRoot(my::AABB(-4096, 4096))
+	: StreamRoot(my::AABB(-4096, 4096))
 	, m_UIRender(new EffectUIRender())
 	, m_TargetActor(NULL)
 {
@@ -450,7 +450,7 @@ HRESULT Game::OnCreateDevice(
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr, my::OctRoot> >("Game")
+		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr, my::OctNode> >("Game")
 			.def("AddTimer", &Game::AddTimer)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -636,11 +636,11 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	ViewedActorMgr::CheckViewedActor(*this, this,
+	CheckViewedActor(this,
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f),
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
 
-	ViewedActorMgr::WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
+	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
 	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
 	{
 		// ! Actor::Update will change other actors scope, event if octree node

@@ -9,6 +9,7 @@
 #include "EnvironmentWnd.h"
 #include "Actor.h"
 #include "PhysXContext.h"
+#include "StreamRoot.h"
 #include "Terrain.h"
 #include "Pivot.h"
 #include "EventDefine.h"
@@ -18,8 +19,7 @@
 
 class CMainFrame : public CFrameWndEx
 	, public PhysXSceneContext
-	, public my::OctRoot
-	, public ViewedActorMgr
+	, public StreamRoot
 	, public rcContext
 {
 	

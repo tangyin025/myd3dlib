@@ -83,7 +83,7 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-	: OctRoot(my::AABB(-4096, 4096))
+	: StreamRoot(my::AABB(-4096, 4096))
 	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)

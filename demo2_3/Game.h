@@ -6,6 +6,7 @@
 #include "Character.h"
 #include "Controller.h"
 #include "PhysXContext.h"
+#include "StreamRoot.h"
 #include "FModContext.h"
 
 class Game
@@ -21,8 +22,7 @@ class Game
 	, public RenderPipeline::IRenderContext
 	, public PhysXContext
 	, public PhysXSceneContext
-	, public my::OctRoot
-	, public ViewedActorMgr
+	, public StreamRoot
 	, public FModContext
 {
 public:
