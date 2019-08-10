@@ -583,6 +583,8 @@ HRESULT ResourceMgr::Close(
 
 DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	DeviceResourceBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
 	{
@@ -599,6 +601,8 @@ DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 
 void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	_ASSERT(!GetResource(key));
 
 	m_ResourceWeakSet[key] = res;
@@ -606,6 +610,8 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 
 std::string ResourceMgr::GetResourceKey(DeviceResourceBasePtr res) const
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	DeviceResourceBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
 	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
 	{

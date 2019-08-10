@@ -5,7 +5,6 @@
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <boost/array.hpp>
 #include <boost/function.hpp>
-#include <boost/unordered_map.hpp>
 #include <vector>
 
 namespace my
@@ -57,7 +56,7 @@ namespace my
 
 		Vector3 m_Half;
 
-		typedef boost::unordered_map<OctActorPtr, AABB> OctActorMap;
+		typedef std::map<OctActorPtr, AABB> OctActorMap;
 
 		OctActorMap m_Actors;
 
@@ -84,6 +83,11 @@ namespace my
 		{
 		}
 
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+		}
+
 		bool HaveNode(const OctNode * node) const;
 
 		const OctNode * GetTopNode(void) const;
@@ -92,7 +96,7 @@ namespace my
 
 		void AddActor(OctActorPtr actor, const AABB & aabb);
 
-		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb);
+		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb);
 
 		void QueryActor(const Ray & ray, QueryCallback * callback) const;
 

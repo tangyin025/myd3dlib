@@ -12,15 +12,57 @@
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(StreamNode)
+
+template<>
+void StreamNode::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
+	ar << BOOST_SERIALIZATION_NVP(m_aabb);
+	ar << BOOST_SERIALIZATION_NVP(m_Half);
+	ar << BOOST_SERIALIZATION_NVP(m_Actors);
+	ar << BOOST_SERIALIZATION_NVP(m_Childs);
+}
+
+template<>
+void StreamNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
+	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
+	ar >> BOOST_SERIALIZATION_NVP(m_Half);
+	ar >> BOOST_SERIALIZATION_NVP(m_Actors);
+	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
+	OctActorMap::iterator cmp_iter = m_Actors.begin();
+	for (; cmp_iter != m_Actors.end(); cmp_iter++)
+	{
+		cmp_iter->first->m_Node = this;
+	}
+	for (unsigned int i = 0; i < ChildArray::static_size; i++)
+	{
+		if (m_Childs[i])
+		{
+			m_Childs[i]->m_Parent = this;
+		}
+	}
+}
+
+void StreamNode::AddToChild(ChildArray::reference & child, const my::AABB & child_aabb, my::OctActorPtr actor, const my::AABB & aabb)
+{
+	if (!child)
+	{
+		child.reset(new StreamNode(this, child_aabb));
+	}
+	child->AddActor(actor, aabb);
+}
+
 BOOST_CLASS_EXPORT(StreamRoot)
 
 StreamRoot::StreamRoot(void)
-	: OctNode(NULL, AABB::Invalid())
 {
 }
 
 StreamRoot::StreamRoot(const my::AABB & aabb)
-	: OctNode(NULL, aabb)
+	: StreamNode(NULL, aabb)
 {
 }
 
@@ -31,43 +73,13 @@ StreamRoot::~StreamRoot()
 template<>
 void StreamRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	class Callback : public QueryCallback
-	{
-	public:
-		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
-
-		virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType)
-		{
-			_ASSERT(oct_actor);
-			actor_list.push_back(std::make_pair(oct_actor->shared_from_this(), aabb));
-		}
-	};
-
-	Callback cb;
-	QueryActorAll(&cb);
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
-	ar << BOOST_SERIALIZATION_NVP(m_Half);
-	ar << BOOST_SERIALIZATION_NVP(cb.actor_list);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(StreamNode);
 }
 
 template<>
 void StreamRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	class Callback
-	{
-	public:
-		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
-	};
-
-	Callback cb;
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
-	ar >> BOOST_SERIALIZATION_NVP(m_Half);
-	ar >> BOOST_SERIALIZATION_NVP(cb.actor_list);
-	std::vector<std::pair<OctActorPtr, AABB> >::iterator actor_iter = cb.actor_list.begin();
-	for (; actor_iter != cb.actor_list.end(); actor_iter++)
-	{
-		AddActor(actor_iter->first, actor_iter->second);
-	}
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(StreamNode);
 }
 
 void StreamRoot::CheckViewedActor(PhysXSceneContext * scene, const my::AABB & In, const my::AABB & Out)

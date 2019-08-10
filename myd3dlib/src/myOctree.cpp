@@ -27,6 +27,8 @@ const AABB & OctActor::GetOctAABB(void) const
 	return actor_iter->second;
 }
 
+BOOST_CLASS_EXPORT(OctNode)
+
 const float OctNode::THRESHOLD = 0.1f;
 
 const float OctNode::MIN_BLOCK = 1.0f;
@@ -50,6 +52,15 @@ bool OctNode::HaveNode(const OctNode * node) const
 }
 
 const OctNode * OctNode::GetTopNode(void) const
+{
+	if (!m_Parent)
+	{
+		return this;
+	}
+	return m_Parent->GetTopNode();
+}
+
+OctNode * OctNode::GetTopNode(void)
 {
 	if (!m_Parent)
 	{
@@ -133,15 +144,6 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 		child.reset(new OctNode(this, child_aabb));
 	}
 	child->AddActor(actor, aabb);
-}
-
-OctNode * OctNode::GetTopNode(void)
-{
-	if (!m_Parent)
-	{
-		return this;
-	}
-	return m_Parent->GetTopNode();
 }
 
 void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const

@@ -6,7 +6,34 @@ class Actor;
 
 class PhysXSceneContext;
 
-class StreamRoot : public my::OctNode
+class StreamNode : public my::OctNode
+{
+public:
+	StreamNode(void)
+	{
+	}
+
+	StreamNode(my::OctNode * Parent, const my::AABB & aabb)
+		: OctNode(Parent, aabb)
+	{
+	}
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual void AddToChild(ChildArray::reference & child, const my::AABB & child_aabb, my::OctActorPtr actor, const my::AABB & aabb);
+};
+
+class StreamRoot : public StreamNode
 {
 public:
 	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
