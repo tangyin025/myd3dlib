@@ -49,8 +49,6 @@ bool OctNode::HaveNode(const OctNode * node) const
 	return false;
 }
 
-BOOST_CLASS_EXPORT(OctNode)
-
 const OctNode * OctNode::GetTopNode(void) const
 {
 	if (!m_Parent)
@@ -327,7 +325,8 @@ void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 
 	Callback cb;
 	QueryActorAll(&cb);
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
+	ar << BOOST_SERIALIZATION_NVP(m_aabb);
+	ar << BOOST_SERIALIZATION_NVP(m_Half);
 	ar << BOOST_SERIALIZATION_NVP(cb.actor_list);
 }
 
@@ -341,7 +340,8 @@ void OctRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	};
 
 	Callback cb;
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
+	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
+	ar >> BOOST_SERIALIZATION_NVP(m_Half);
 	ar >> BOOST_SERIALIZATION_NVP(cb.actor_list);
 	std::vector<std::pair<OctActorPtr, AABB> >::iterator actor_iter = cb.actor_list.begin();
 	for (; actor_iter != cb.actor_list.end(); actor_iter++)
