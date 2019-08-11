@@ -192,7 +192,7 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
-	virtual void OnReady(my::DeviceResourceBasePtr res);
+	virtual void OnReady(my::IORequest * request);
 
 	virtual void RequestResource(void);
 

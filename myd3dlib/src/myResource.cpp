@@ -667,30 +667,34 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-	while (true)
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+	for (; req_iter != m_IORequestList.end(); )
 	{
-		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-		if (req_iter != m_IORequestList.end() && req_iter->second->m_PostLoadEvent.Wait(dwMilliseconds))
+		if (req_iter->second->m_PostLoadEvent.Wait(dwMilliseconds))
 		{
-			OnIORequestIteratorReady(req_iter);
+			req_iter = OnIORequestIteratorReady(req_iter);
 		}
 		else
-			break;
+		{
+			req_iter++;
+		}
 	}
 
 	return !m_IORequestList.empty();
 }
 
-void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)
+ResourceMgr::IORequestPtrPairList::iterator ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 	IORequestPtrPair pair = *req_iter;
 	m_IORequestListMutex.Wait(INFINITE);
-	m_IORequestList.erase(req_iter);
+	IORequestPtrPairList::iterator ret_iter = m_IORequestList.erase(req_iter);
 	m_IORequestListMutex.Release();
 
 	OnIORequestReady(pair.first, pair.second);
+
+	return ret_iter;
 }
 
 void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request)
@@ -730,7 +734,7 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		{
 			_ASSERT(*callback_iter);
 
-			(*callback_iter)->OnReady(request->m_res);
+			(*callback_iter)->OnReady(request.get());
 		}
 	}
 }
@@ -747,9 +751,9 @@ class SimpleResourceCallback : public IResourceCallback
 public:
 	DeviceResourceBasePtr m_res;
 
-	virtual void OnReady(DeviceResourceBasePtr res)
+	virtual void OnReady(IORequest * request)
 	{
-		m_res = res;
+		m_res = request->m_res;
 	}
 };
 

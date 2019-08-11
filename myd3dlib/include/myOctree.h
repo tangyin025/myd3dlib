@@ -40,10 +40,16 @@ namespace my
 	class OctNode
 	{
 	public:
-		struct QueryCallback
+		struct QueryActorCallback
 		{
 		public:
 			virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType) = 0;
+		};
+
+		struct QueryNodeCallback
+		{
+		public:
+			virtual void operator() (OctNode * oct_node, IntersectionTests::IntersectionType) = 0;
 		};
 
 		static const float THRESHOLD;
@@ -107,13 +113,17 @@ namespace my
 
 		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb);
 
-		void QueryActor(const Ray & ray, QueryCallback * callback) const;
+		void QueryActor(const Ray & ray, QueryActorCallback * callback) const;
 
-		void QueryActor(const AABB & aabb, QueryCallback * callback) const;
+		void QueryActor(const AABB & aabb, QueryActorCallback * callback) const;
 
-		void QueryActor(const Frustum & frustum, QueryCallback * callback) const;
+		void QueryActor(const Frustum & frustum, QueryActorCallback * callback) const;
 
-		void QueryActorAll(QueryCallback * callback) const;
+		void QueryActorAll(QueryActorCallback * callback) const;
+
+		void QueryNode(const AABB & aabb, QueryNodeCallback * callback);
+
+		void QueryNodeAll(QueryNodeCallback * callback);
 
 		bool RemoveActor(OctActorPtr actor);
 

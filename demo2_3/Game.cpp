@@ -786,7 +786,7 @@ bool Game::ExecuteCode(const char * code) throw()
 
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct Callback : public my::OctNode::QueryCallback
+	struct Callback : public my::OctNode::QueryActorCallback
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -886,6 +886,8 @@ void Game::LoadScene(const char * path)
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
+	StreamRoot::m_Path = path;
+	StreamRoot::m_Ready = false;
 
 	RenderPipeline::RequestResource();
 }

@@ -176,7 +176,7 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 	child->AddActor(actor, aabb);
 }
 
-void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
+void OctNode::QueryActor(const Ray & ray, QueryActorCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -200,7 +200,7 @@ void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
 	}
 }
 
-void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
+void OctNode::QueryActor(const AABB & aabb, QueryActorCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -234,7 +234,7 @@ void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
 	}
 }
 
-void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) const
+void OctNode::QueryActor(const Frustum & frustum, QueryActorCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -268,7 +268,7 @@ void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) cons
 	}
 }
 
-void OctNode::QueryActorAll(QueryCallback * callback) const
+void OctNode::QueryActorAll(QueryActorCallback * callback) const
 {
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for(; actor_iter != m_Actors.end(); actor_iter++)
@@ -282,6 +282,44 @@ void OctNode::QueryActorAll(QueryCallback * callback) const
 		if (*node_iter)
 		{
 			(*node_iter)->QueryActorAll(callback);
+		}
+	}
+}
+
+void OctNode::QueryNode(const AABB & aabb, QueryNodeCallback * callback)
+{
+	(*callback)(this, IntersectionTests::IntersectionTypeIntersect);
+
+	ChildArray::const_iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			switch (IntersectionTests::IntersectAABBAndAABB((*node_iter)->m_aabb, aabb))
+			{
+			case IntersectionTests::IntersectionTypeInside:
+				(*node_iter)->QueryNodeAll(callback);
+				break;
+
+			case IntersectionTests::IntersectionTypeIntersect:
+				(*node_iter)->QueryNode(aabb, callback);
+				break;
+			}
+		}
+	}
+
+}
+
+void OctNode::QueryNodeAll(QueryNodeCallback * callback)
+{
+	(*callback)(this, IntersectionTests::IntersectionTypeInside);
+
+	ChildArray::const_iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			(*node_iter)->QueryNodeAll(callback);
 		}
 	}
 }
@@ -343,7 +381,7 @@ BOOST_CLASS_EXPORT(OctRoot)
 template<>
 void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	class Callback: public QueryCallback
+	class Callback: public QueryActorCallback
 	{
 	public:
 		std::vector<std::pair<OctActorPtr, AABB> > actor_list;

@@ -42,7 +42,7 @@ public:
 
 	std::string BuildPath(const char * RootPath);
 
-	virtual void OnReady(my::DeviceResourceBasePtr res);
+	virtual void OnReady(my::IORequest * request);
 
 	void SaveAllActor(const char * RootPath);
 };
@@ -52,6 +52,10 @@ typedef boost::shared_ptr<StreamNode> StreamNodePtr;
 class StreamRoot : public StreamNode
 {
 public:
+	typedef std::set<StreamNode *> StreamNodeSet;
+
+	StreamNodeSet m_ViewedNodes;
+
 	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
 
 	WeakActorMap m_ViewedActors;
@@ -74,5 +78,5 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StreamNode);
 	}
 
-	void CheckViewedActor(PhysXSceneContext * scene, const my::AABB & In, const my::AABB & Out);
+	bool CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In, const my::AABB & Out);
 };

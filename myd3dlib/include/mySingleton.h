@@ -124,6 +124,8 @@ namespace my
 	class IResourceCallback
 	{
 	public:
+		friend class IORequest;
+
 		friend class AsynchronousIOMgr;
 
 		friend class ResourceMgr;
@@ -136,7 +138,7 @@ namespace my
 
 		bool IsRequested(void) const;
 
-		virtual void OnReady(DeviceResourceBasePtr res) = 0;
+		virtual void OnReady(IORequest * request) = 0;
 	};
 
 	class Control;

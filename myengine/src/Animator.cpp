@@ -32,9 +32,9 @@ void Animator::load<boost::archive::polymorphic_iarchive>(boost::archive::polymo
 	m_Node->OnSetOwner();
 }
 
-void Animator::OnReady(my::DeviceResourceBasePtr res)
+void Animator::OnReady(my::IORequest * request)
 {
-	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
+	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(request->m_res);
 
 	if (m_SkeletonEventReady)
 	{

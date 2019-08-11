@@ -1089,7 +1089,7 @@ void CMainFrame::OnToolsBuildnavigation()
 	//if (!rcRasterizeTriangles(this, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb))
 	//}
 
-	struct Callback : public my::OctNode::QueryCallback
+	struct Callback : public my::OctNode::QueryActorCallback
 	{
 		Callback(void)
 		{

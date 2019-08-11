@@ -98,7 +98,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual void OnReady(my::DeviceResourceBasePtr res);
+	virtual void OnReady(my::IORequest * request);
 
 	void RequestResource(void);
 

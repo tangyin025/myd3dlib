@@ -481,7 +481,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
-	struct Callback : public my::OctNode::QueryCallback
+	struct Callback : public my::OctNode::QueryActorCallback
 	{
 		Terrain * terrain;
 		Callback(Terrain * _terrain)
@@ -557,7 +557,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 {
 	_ASSERT(m_Actor);
 
-	struct Callback : public my::OctNode::QueryCallback
+	struct Callback : public my::OctNode::QueryActorCallback
 	{
 		RenderPipeline * pipeline;
 		unsigned int PassMask;

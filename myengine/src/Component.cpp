@@ -250,9 +250,9 @@ ComponentPtr MeshComponent::Clone(void) const
 	return ret;
 }
 
-void MeshComponent::OnReady(my::DeviceResourceBasePtr res)
+void MeshComponent::OnReady(my::IORequest * request)
 {
-	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(request->m_res);
 
 	if (m_MeshEventReady)
 	{

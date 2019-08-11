@@ -11,29 +11,12 @@
 
 using namespace my;
 
-class StreamNodeResource : public DeviceResourceBase
-{
-public:
-	OctNode::OctActorMap m_Actors;
-
-public:
-	StreamNodeResource(void)
-	{
-	}
-
-	~StreamNodeResource(void)
-	{
-	}
-};
-
-typedef boost::shared_ptr<StreamNodeResource> StreamNodeResourcePtr;
-
 class StreamNodeIORequest : public IORequest
 {
-protected:
+public:
 	std::string m_path;
 
-	StreamNodeResourcePtr m_NodeRes;
+	OctNode::OctActorMap m_Actors;
 
 public:
 	StreamNodeIORequest(const std::string & path)
@@ -46,18 +29,13 @@ public:
 		IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
 		std::istream istr(&buff);
 		boost::archive::polymorphic_xml_iarchive ia(istr);
-		m_NodeRes.reset(new StreamNodeResource());
-		ia >> boost::serialization::make_nvp("Actors", m_NodeRes->m_Actors);
+		//ia.template register_type<Actor>();
+		ia >> BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
 	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if (!m_NodeRes)
-		{
-			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-		}
-
-		m_res = m_NodeRes;
+		m_res.reset(new DeviceResourceBase());
 	}
 };
 
@@ -83,7 +61,7 @@ void StreamNode::RequestResource(void)
 		_ASSERT(!m_Ready);
 
 		IORequestPtr request(new StreamNodeIORequest(Path));
-		request->PushCallback(this);
+		request->m_callbacks.insert(this);
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(Path, request, true);
 	}
 }
@@ -107,15 +85,15 @@ std::string StreamNode::BuildPath(const char * RootPath)
 		RootPath, m_aabb.m_min.x, m_aabb.m_min.y, m_aabb.m_min.z, m_aabb.m_max.x, m_aabb.m_max.y, m_aabb.m_max.z);
 }
 
-void StreamNode::OnReady(my::DeviceResourceBasePtr res)
+void StreamNode::OnReady(my::IORequest * request)
 {
-	StreamNodeResourcePtr node = boost::dynamic_pointer_cast<StreamNodeResource>(res);
+	StreamNodeIORequest * node_request = dynamic_cast<StreamNodeIORequest *>(request);
 
-	_ASSERT(node);
+	_ASSERT(node_request);
 
 	_ASSERT(m_Actors.empty());
 
-	m_Actors.insert(node->m_Actors.begin(), node->m_Actors.end());
+	m_Actors.insert(node_request->m_Actors.begin(), node_request->m_Actors.end());
 
 	m_Ready = true;
 }
@@ -159,55 +137,68 @@ StreamRoot::~StreamRoot()
 {
 }
 
-void StreamRoot::CheckViewedActor(PhysXSceneContext * scene, const my::AABB & In, const my::AABB & Out)
+bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In, const my::AABB & Out)
 {
-	struct Callback : public my::OctNode::QueryCallback
+	struct Callback : public OctNode::QueryNodeCallback
 	{
-		WeakActorMap & ViewedActors;
-		PhysXSceneContext * scene;
-		typedef std::vector<ActorPtr> ActorList;
-		ActorList actor_list;
-		Callback(WeakActorMap & _ViewedActors, PhysXSceneContext * _scene)
-			: ViewedActors(_ViewedActors)
-			, scene(_scene)
+		StreamNodeSet & m_ViewedNodes;
+
+		WeakActorMap & m_ViewedActors;
+
+		PhysXSceneContext * m_Scene;
+
+		AABB m_aabb;
+
+		bool AllLoaded;
+
+		Callback(StreamNodeSet & ViewedNodes, WeakActorMap & ViewedActors, PhysXSceneContext * Scene, const AABB & aabb)
+			: m_ViewedNodes(ViewedNodes)
+			, m_ViewedActors(ViewedActors)
+			, m_Scene(Scene)
+			, m_aabb(aabb)
+			, AllLoaded(true)
 		{
 		}
-		void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType)
+
+		void operator() (OctNode * oct_node, IntersectionTests::IntersectionType intersect_type)
 		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			WeakActorMap::const_iterator actor_iter = ViewedActors.find(actor);
-			if (actor_iter != ViewedActors.end())
+			StreamNode * node = dynamic_cast<StreamNode *>(oct_node);
+			_ASSERT(node);
+			if (!node->m_Ready && !node->IsRequested())
 			{
-				ViewedActors.erase(actor);
+				node->RequestResource();
+				m_ViewedNodes.insert(node);
+				AllLoaded = false;
+				return;
 			}
-			else if (!actor->IsRequested())
+
+			OctActorMap::const_iterator actor_iter = node->m_Actors.begin();
+			for (; actor_iter != node->m_Actors.end(); actor_iter++)
 			{
-				actor->RequestResource();
-				actor->OnEnterPxScene(scene);
+				IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor_iter->second, m_aabb);
+				switch (intersect_type)
+				{
+				case IntersectionTests::IntersectionTypeInside:
+				case IntersectionTests::IntersectionTypeIntersect:
+				{
+					Actor * actor = static_cast<Actor *>(actor_iter->first.get());
+					if (!actor->IsRequested())
+					{
+						actor->RequestResource();
+						actor->OnEnterPxScene(m_Scene);
+						m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor_iter->first)));
+					}
+					break;
+				}
+				}
 			}
-			actor_list.push_back(boost::static_pointer_cast<Actor>(actor->shared_from_this()));
 		}
 	};
 
-	Callback cb(m_ViewedActors, scene);
-	QueryActor(In, &cb);
+	Callback cb(m_ViewedNodes, m_ViewedActors, Scene, In);
+	QueryNode(In, &cb);
 
-	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
-	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
-	{
-		ActorPtr actor = weak_actor_iter->second.lock();
-		if (actor && actor->IsRequested() && !actor->GetOctAABB().Intersect(Out).IsValid())
-		{
-			actor->OnLeavePxScene(scene);
-			actor->ReleaseResource();
-		}
-	}
+	// todo: OnLeavePxScene, ReleaseResource
 
-	m_ViewedActors.clear();
-	Callback::ActorList::iterator actor_iter = cb.actor_list.begin();
-	for (; actor_iter != cb.actor_list.end(); actor_iter++)
-	{
-		m_ViewedActors.insert(std::make_pair(actor_iter->get(), *actor_iter));
-	}
+	return cb.AllLoaded;
 }

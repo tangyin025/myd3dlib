@@ -200,7 +200,7 @@ namespace my
 
 	class IORequest
 	{
-	protected:
+	public:
 		friend class AsynchronousIOMgr;
 
 		friend class ResourceMgr;
@@ -224,11 +224,6 @@ namespace my
 
 		virtual ~IORequest(void)
 		{
-		}
-
-		void PushCallback(IResourceCallback * cb)
-		{
-			m_callbacks.insert(cb);
 		}
 
 		virtual void LoadResource(void) = 0;
@@ -366,7 +361,7 @@ namespace my
 
 		bool CheckIORequests(DWORD dwMilliseconds);
 
-		void OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter);
+		IORequestPtrPairList::iterator OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter);
 
 		void OnIORequestReady(const std::string & key, IORequestPtr request);
 
