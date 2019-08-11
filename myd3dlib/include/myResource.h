@@ -257,7 +257,7 @@ namespace my
 
 		DWORD IORequestProc(void);
 
-		IORequestPtrPairList::iterator PushIORequest(const std::string & key, my::IORequestPtr request);
+		IORequestPtrPairList::iterator PushIORequest(const std::string & key, my::IORequestPtr request, bool front);
 
 		void RemoveIORequestCallback(const std::string & key, IResourceCallback * callback);
 
@@ -355,7 +355,7 @@ namespace my
 
 		std::string GetResourceKey(DeviceResourceBasePtr res) const;
 
-		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request);
+		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front);
 
 		void LoadIORequestAndWait(const std::string & key, IORequestPtr request);
 

@@ -372,7 +372,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 	return 0;
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequest(const std::string & key, my::IORequestPtr request)
+AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequest(const std::string & key, my::IORequestPtr request, bool front)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
@@ -389,7 +389,14 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 		}
 	}
 
-	m_IORequestList.push_back(std::make_pair(key, request));
+	if (front)
+	{
+		m_IORequestList.push_front(std::make_pair(key, request));
+	}
+	else
+	{
+		m_IORequestList.push_back(std::make_pair(key, request));
+	}
 	m_IORequestListMutex.Release();
 	m_IORequestListCondition.Wake(1);
 	return --m_IORequestList.end();
@@ -623,7 +630,7 @@ std::string ResourceMgr::GetResourceKey(DeviceResourceBasePtr res) const
 	return std::string();
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request)
+AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front)
 {
 	_ASSERT(!key.empty());
 
@@ -639,14 +646,14 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsyn
 		return m_IORequestList.end();
 	}
 
-	return PushIORequest(key, request);
+	return PushIORequest(key, request, front);
 }
 
 void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr request)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request);
+	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, true);
 	if (req_iter != m_IORequestList.end())
 	{
 		if (req_iter->second->m_PostLoadEvent.Wait(INFINITE))
@@ -732,7 +739,7 @@ void ResourceMgr::LoadTextureAsync(const char * path, IResourceCallback * callba
 {
 	IORequestPtr request(new TextureIORequest(path));
 	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request);
+	LoadIORequestAsync(path, request, false);
 }
 
 class SimpleResourceCallback : public IResourceCallback
@@ -759,7 +766,7 @@ void ResourceMgr::LoadMeshAsync(const char * path, IResourceCallback * callback)
 {
 	IORequestPtr request(new MeshIORequest(path));
 	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request);
+	LoadIORequestAsync(path, request, false);
 }
 
 boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path)
@@ -775,7 +782,7 @@ void ResourceMgr::LoadSkeletonAsync(const char * path, IResourceCallback * callb
 {
 	IORequestPtr request(new SkeletonIORequest(path));
 	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request);
+	LoadIORequestAsync(path, request, false);
 }
 
 boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
@@ -792,7 +799,7 @@ void ResourceMgr::LoadEffectAsync(const char * path, const char * macros, IResou
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	IORequestPtr request(new EffectIORequest(path, macros));
 	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(key, request);
+	LoadIORequestAsync(key, request, false);
 }
 
 boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
@@ -810,7 +817,7 @@ void ResourceMgr::LoadFontAsync(const char * path, int height, IResourceCallback
 	std::string key = FontIORequest::BuildKey(path, height);
 	IORequestPtr request(new FontIORequest(path, height));
 	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(key, request);
+	LoadIORequestAsync(key, request, false);
 }
 
 boost::shared_ptr<Font> ResourceMgr::LoadFont(const char * path, int height)
@@ -887,6 +894,7 @@ void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
+
 	OgreMeshPtr res(new OgreMesh());
 	res->CreateMeshFromOgreXml(&m_doc);
 	m_res = res;
@@ -915,6 +923,7 @@ void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
+
 	OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
 	res->CreateOgreSkeletonAnimation(&m_doc);
 	m_res = res;
@@ -951,6 +960,7 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
+
 	EffectPtr res(new Effect());
 	ResourceMgr::getSingleton().m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path.c_str());
 	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_EffectInclude[0]);
@@ -977,6 +987,7 @@ void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
+
 	FontPtr res(new Font());
 	res->CreateFontFromFileInCache(m_cache, m_height);
 	m_res = res;
