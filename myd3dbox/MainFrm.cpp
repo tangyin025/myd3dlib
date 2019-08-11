@@ -635,6 +635,8 @@ void CMainFrame::OnFileOpen()
 	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
+	StreamRoot::m_Path = ts2ms((LPCTSTR)m_strPathName);
+	StreamRoot::m_Ready = false;
 
 	theApp.RequestResource();
 }
