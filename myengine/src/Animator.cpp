@@ -68,7 +68,7 @@ void Animator::RequestResource(void)
 
 void Animator::ReleaseResource(void)
 {
-	if (!m_SkeletonPath.empty())
+	if (!m_SkeletonPath.empty() && !m_Skeleton)
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, this);
 

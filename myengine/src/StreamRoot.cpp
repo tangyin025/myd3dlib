@@ -1,50 +1,67 @@
 #include "StreamRoot.h"
 #include "Actor.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
-#include <boost/serialization/string.hpp>
+#include "myResource.h"
+#include "libc.h"
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/binary_object.hpp>
-#include <boost/serialization/export.hpp>
+#include <fstream>
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(StreamNode)
-
-template<>
-void StreamNode::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+class StreamNodeResource : public DeviceResourceBase
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
-	ar << BOOST_SERIALIZATION_NVP(m_Half);
-	ar << BOOST_SERIALIZATION_NVP(m_Actors);
-	ar << BOOST_SERIALIZATION_NVP(m_Childs);
-}
+public:
+	OctNode::OctActorMap m_Actors;
 
-template<>
-void StreamNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNode);
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
-	ar >> BOOST_SERIALIZATION_NVP(m_Half);
-	ar >> BOOST_SERIALIZATION_NVP(m_Actors);
-	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
-	OctActorMap::iterator cmp_iter = m_Actors.begin();
-	for (; cmp_iter != m_Actors.end(); cmp_iter++)
+public:
+	StreamNodeResource(void)
 	{
-		cmp_iter->first->m_Node = this;
 	}
-	for (unsigned int i = 0; i < ChildArray::static_size; i++)
+
+	~StreamNodeResource(void)
 	{
-		if (m_Childs[i])
+	}
+};
+
+typedef boost::shared_ptr<StreamNodeResource> StreamNodeResourcePtr;
+
+class StreamNodeIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	StreamNodeResourcePtr m_NodeRes;
+
+public:
+	StreamNodeIORequest(const std::string & path)
+		: m_path(path)
+	{
+	}
+
+	virtual void LoadResource(void)
+	{
+		IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+		std::istream istr(&buff);
+		boost::archive::polymorphic_xml_iarchive ia(istr);
+		m_NodeRes.reset(new StreamNodeResource());
+		ia >> boost::serialization::make_nvp("Actors", m_NodeRes->m_Actors);
+	}
+
+	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if (!m_NodeRes)
 		{
-			m_Childs[i]->m_Parent = this;
+			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 		}
+
+		m_res = m_NodeRes;
 	}
-}
+};
+
+//
+//BOOST_CLASS_EXPORT(StreamNode)
 
 void StreamNode::AddToChild(ChildArray::reference & child, const my::AABB & child_aabb, my::OctActorPtr actor, const my::AABB & aabb)
 {
@@ -55,7 +72,76 @@ void StreamNode::AddToChild(ChildArray::reference & child, const my::AABB & chil
 	child->AddActor(actor, aabb);
 }
 
-BOOST_CLASS_EXPORT(StreamRoot)
+void StreamNode::RequestResource(void)
+{
+	StreamRoot * Root = dynamic_cast<StreamRoot *>(GetTopNode());
+	_ASSERT(Root);
+	std::string Path = BuildPath(Root->m_Path.c_str());
+	if (!Path.empty())
+	{
+		_ASSERT(!m_Ready);
+
+		IORequestPtr request(new StreamNodeIORequest(Path));
+		request->PushCallback(this);
+		my::ResourceMgr::getSingleton().LoadIORequestAsync(Path, request, true);
+	}
+}
+
+void StreamNode::ReleaseResource(void)
+{
+	StreamRoot * Root = dynamic_cast<StreamRoot *>(GetTopNode());
+	_ASSERT(Root);
+	std::string Path = BuildPath(Root->m_Path.c_str());
+	if (!Path.empty() && !m_Ready)
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(Path, this);
+	}
+
+	m_Ready = false;
+}
+
+std::string StreamNode::BuildPath(const char * RootPath)
+{
+	return str_printf("%s.%05.0f_%05.0f_%05.0f_%05.0f_%05.0f_%05.0f",
+		RootPath, m_aabb.m_min.x, m_aabb.m_min.y, m_aabb.m_min.z, m_aabb.m_max.x, m_aabb.m_max.y, m_aabb.m_max.z);
+}
+
+void StreamNode::OnReady(my::DeviceResourceBasePtr res)
+{
+	StreamNodeResourcePtr node = boost::dynamic_pointer_cast<StreamNodeResource>(res);
+
+	_ASSERT(node);
+
+	_ASSERT(m_Actors.empty());
+
+	m_Actors.insert(node->m_Actors.begin(), node->m_Actors.end());
+
+	m_Ready = true;
+}
+
+void StreamNode::SaveAllActor(const char * RootPath)
+{
+	if (m_Ready)
+	{
+		StreamRoot * Root = dynamic_cast<StreamRoot *>(GetTopNode());
+		_ASSERT(Root);
+		std::string Path = BuildPath(RootPath);
+		std::basic_ofstream<char> ofs(Path);
+		boost::archive::polymorphic_xml_oarchive oa(ofs);
+		oa << BOOST_SERIALIZATION_NVP(m_Actors);
+	}
+
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		if (m_Childs[i])
+		{
+			boost::dynamic_pointer_cast<StreamNode>(m_Childs[i])->SaveAllActor(RootPath);
+		}
+	}
+}
+
+//
+//BOOST_CLASS_EXPORT(StreamRoot)
 
 StreamRoot::StreamRoot(void)
 {
@@ -68,18 +154,6 @@ StreamRoot::StreamRoot(const my::AABB & aabb)
 
 StreamRoot::~StreamRoot()
 {
-}
-
-template<>
-void StreamRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(StreamNode);
-}
-
-template<>
-void StreamRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(StreamNode);
 }
 
 void StreamRoot::CheckViewedActor(PhysXSceneContext * scene, const my::AABB & In, const my::AABB & Out)

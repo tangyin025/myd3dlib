@@ -120,7 +120,7 @@ void MaterialParameterTexture::RequestResource(void)
 
 void MaterialParameterTexture::ReleaseResource(void)
 {
-	if (!m_TexturePath.empty())
+	if (!m_TexturePath.empty() && !m_Texture)
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, this);
 

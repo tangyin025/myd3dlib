@@ -33,6 +33,36 @@ const float OctNode::THRESHOLD = 0.1f;
 
 const float OctNode::MIN_BLOCK = 1.0f;
 
+template<>
+void OctNode::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_aabb);
+	ar << BOOST_SERIALIZATION_NVP(m_Half);
+	//ar << BOOST_SERIALIZATION_NVP(m_Actors);
+	ar << BOOST_SERIALIZATION_NVP(m_Childs);
+}
+
+template<>
+void OctNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
+	ar >> BOOST_SERIALIZATION_NVP(m_Half);
+	//ar >> BOOST_SERIALIZATION_NVP(m_Actors);
+	//OctActorMap::iterator cmp_iter = m_Actors.begin();
+	//for (; cmp_iter != m_Actors.end(); cmp_iter++)
+	//{
+	//	cmp_iter->first->m_Node = this;
+	//}
+	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
+	for (unsigned int i = 0; i < ChildArray::static_size; i++)
+	{
+		if (m_Childs[i])
+		{
+			m_Childs[i]->m_Parent = this;
+		}
+	}
+}
+
 bool OctNode::HaveNode(const OctNode * node) const
 {
 	if (this == node)

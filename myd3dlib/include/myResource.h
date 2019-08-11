@@ -226,6 +226,11 @@ namespace my
 		{
 		}
 
+		void PushCallback(IResourceCallback * cb)
+		{
+			m_callbacks.insert(cb);
+		}
+
 		virtual void LoadResource(void) = 0;
 
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;

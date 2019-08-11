@@ -280,7 +280,7 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	if (!m_MeshPath.empty())
+	if (!m_MeshPath.empty() && !m_Mesh)
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_MeshPath, this);
 
