@@ -663,6 +663,7 @@ void CMainFrame::OnFileSave()
 	oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
 	oa << boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
+
 	StreamRoot::SaveAllActor(ts2ms((LPCTSTR)m_strPathName).c_str());
 }
 

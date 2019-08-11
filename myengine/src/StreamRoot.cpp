@@ -7,6 +7,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
+#include "Material.h"
 
 using namespace my;
 
@@ -102,7 +103,7 @@ void StreamNode::ReleaseResource(void)
 
 std::string StreamNode::BuildPath(const char * RootPath)
 {
-	return str_printf("%s.%05.0f_%05.0f_%05.0f_%05.0f_%05.0f_%05.0f",
+	return str_printf("%s.%+05.0f%+05.0f%+05.0f%+05.0f%+05.0f%+05.0f",
 		RootPath, m_aabb.m_min.x, m_aabb.m_min.y, m_aabb.m_min.z, m_aabb.m_max.x, m_aabb.m_max.y, m_aabb.m_max.z);
 }
 
@@ -128,6 +129,8 @@ void StreamNode::SaveAllActor(const char * RootPath)
 		std::string Path = BuildPath(RootPath);
 		std::basic_ofstream<char> ofs(Path);
 		boost::archive::polymorphic_xml_oarchive oa(ofs);
+		// ! https://www.boost.org/doc/libs/1_63_0/libs/serialization/doc/serialization.html#registration
+		oa.template register_type<MaterialParameterTexture>();
 		oa << BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
