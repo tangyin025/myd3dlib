@@ -1,4 +1,4 @@
-#include "StreamRoot.h"
+#include "StreamNode.h"
 #include "Actor.h"
 #include "myResource.h"
 #include "libc.h"
@@ -29,7 +29,7 @@ public:
 		IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
 		std::istream istr(&buff);
 		boost::archive::polymorphic_xml_iarchive ia(istr);
-		//ia.template register_type<Actor>();
+		ia.template register_type<MaterialParameterTexture>();
 		ia >> BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 

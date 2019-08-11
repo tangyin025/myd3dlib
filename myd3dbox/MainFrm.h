@@ -9,7 +9,7 @@
 #include "EnvironmentWnd.h"
 #include "Actor.h"
 #include "PhysXContext.h"
-#include "StreamRoot.h"
+#include "StreamNode.h"
 #include "Terrain.h"
 #include "Pivot.h"
 #include "EventDefine.h"

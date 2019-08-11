@@ -6,7 +6,7 @@
 #include "Character.h"
 #include "Controller.h"
 #include "PhysXContext.h"
-#include "StreamRoot.h"
+#include "StreamNode.h"
 #include "FModContext.h"
 
 class Game

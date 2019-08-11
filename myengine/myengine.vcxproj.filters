@@ -45,7 +45,7 @@
     <ClInclude Include="include\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\StreamRoot.h">
+    <ClInclude Include="include\StreamNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <ClCompile Include="src\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\StreamRoot.cpp">
+    <ClCompile Include="src\StreamNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
