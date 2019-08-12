@@ -94,6 +94,11 @@ void StreamNode::OnReady(my::IORequest * request)
 	_ASSERT(m_Actors.empty());
 
 	m_Actors.insert(node_request->m_Actors.begin(), node_request->m_Actors.end());
+	OctActorMap::iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
+	{
+		actor_iter->first->m_Node = this;
+	}
 
 	m_Ready = true;
 }

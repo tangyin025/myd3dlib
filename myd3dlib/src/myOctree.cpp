@@ -48,10 +48,10 @@ void OctNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Half);
 	//ar >> BOOST_SERIALIZATION_NVP(m_Actors);
-	//OctActorMap::iterator cmp_iter = m_Actors.begin();
-	//for (; cmp_iter != m_Actors.end(); cmp_iter++)
+	//OctActorMap::iterator actor_iter = m_Actors.begin();
+	//for (; actor_iter != m_Actors.end(); actor_iter++)
 	//{
-	//	cmp_iter->first->m_Node = this;
+	//	actor_iter->first->m_Node = this;
 	//}
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
 	for (unsigned int i = 0; i < ChildArray::static_size; i++)
