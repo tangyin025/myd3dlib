@@ -6,6 +6,7 @@ using namespace my;
 
 DeviceResourceBase::DeviceResourceBase(void)
 {
+	// ! boost signals is thread-safety, ref: https://www.boost.org/doc/libs/1_63_0/doc/html/signals2/thread-safety.html
 	D3DContext::getSingleton().m_EventDeviceReset.connect(boost::bind(&DeviceResourceBase::OnResetDevice, this));
 
 	D3DContext::getSingleton().m_EventDeviceLost.connect(boost::bind(&DeviceResourceBase::OnLostDevice, this));

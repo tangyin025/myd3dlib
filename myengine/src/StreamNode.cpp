@@ -112,7 +112,7 @@ void StreamNode::SaveAllActor(const char * RootPath)
 		std::string Path = BuildPath(RootPath);
 		std::basic_ofstream<char> ofs(Path);
 		boost::archive::polymorphic_xml_oarchive oa(ofs);
-		// ! https://www.boost.org/doc/libs/1_63_0/libs/serialization/doc/serialization.html#registration
+		// ! solve the strange runtime error, ref: https://www.boost.org/doc/libs/1_63_0/libs/serialization/doc/serialization.html#registration
 		oa.template register_type<MaterialParameterTexture>();
 		oa << BOOST_SERIALIZATION_NVP(m_Actors);
 	}
