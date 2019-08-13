@@ -5,6 +5,7 @@
 #include "RenderPipeline.h"
 #include "myDxutApp.h"
 #include "myEffect.h"
+#include "myResource.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -68,11 +69,15 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_vb.OnDestroyDevice();
 	m_vb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
 	void * pVertices = m_vb.Lock(0, 0, 0);
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	ar >> boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_vb.Unlock();
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 }
 
 void TerrainChunk::UpdateAABB(void)

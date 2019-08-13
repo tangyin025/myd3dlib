@@ -385,6 +385,16 @@ HRESULT Game::OnCreateDevice(
 
 	InputMgr::Create(m_hinst, m_wnd->m_hWnd);
 
+	if (!PhysXContext::Init())
+	{
+		THROW_CUSEXCEPTION("PhysXContext::Init failed");
+	}
+
+	if (!PhysXSceneContext::Init(m_sdk.get(), m_CpuDispatcher.get()))
+	{
+		THROW_CUSEXCEPTION("PhysXSceneContext::Init failed");
+	}
+
 	ResourceMgr::StartIORequestProc(4);
 
 	ParallelTaskManager::StartParallelThread(4);
@@ -397,16 +407,6 @@ HRESULT Game::OnCreateDevice(
 	if (FAILED(hr = RenderPipeline::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
-	}
-
-	if (!PhysXContext::Init())
-	{
-		THROW_CUSEXCEPTION("PhysXContext::Init failed");
-	}
-
-	if (!PhysXSceneContext::Init(m_sdk.get(), m_CpuDispatcher.get()))
-	{
-		THROW_CUSEXCEPTION("PhysXSceneContext::Init failed");
 	}
 
 	if (!FModContext::Init())
@@ -600,6 +600,10 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
+	ParallelTaskManager::StopParallelThread();
+
+	ResourceMgr::OnDestroyDevice();
+
 	ImeEditBox::Uninitialize();
 
 	FModContext::Shutdown();
@@ -610,10 +614,6 @@ void Game::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	ParallelTaskManager::StopParallelThread();
-
-	ResourceMgr::OnDestroyDevice();
-
 	InputMgr::Destroy();
 
 	DxutApp::OnDestroyDevice();
@@ -623,16 +623,11 @@ void Game::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
+	m_d3dDeviceSec.Leave();
+
 	DrawHelper::BeginLine();
 
 	CheckIORequests(0);
-
-	if (!InputMgr::Capture(fTime, fElapsedTime))
-	{
-		// TODO: lost user input
-	}
-
-	TimerMgr::Update(fTime, fElapsedTime);
 
 	PhysXSceneContext::PushRenderBuffer(this);
 
@@ -641,6 +636,15 @@ void Game::OnFrameTick(
 	CheckViewedActor(this,
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f),
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
+
+	m_d3dDeviceSec.Enter();
+
+	if (!InputMgr::Capture(fTime, fElapsedTime))
+	{
+		// TODO: lost user input
+	}
+
+	TimerMgr::Update(fTime, fElapsedTime);
 
 	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
 	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
@@ -689,6 +693,8 @@ void Game::OnFrameTick(
 
 	Present(NULL, NULL, NULL, NULL);
 
+	m_d3dDeviceSec.Leave();
+
 	PhysXSceneContext::TickPostRender(fElapsedTime);
 
 	physx::PxU32 nbActiveTransforms;
@@ -698,6 +704,8 @@ void Game::OnFrameTick(
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
 	}
+
+	m_d3dDeviceSec.Enter();
 }
 
 void Game::OnRender(

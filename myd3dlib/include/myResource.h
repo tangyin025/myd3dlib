@@ -349,6 +349,10 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
+		void EnterDeviceSectionIfNotMainThread(void);
+
+		void LeaveDeviceSectionIfNotMainThread(void);
+
 		DeviceResourceBasePtr GetResource(const std::string & key);
 
 		void AddResource(const std::string & key, DeviceResourceBasePtr res);

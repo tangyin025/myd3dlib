@@ -65,6 +65,8 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
 
+		CriticalSection m_d3dDeviceSec;
+
 		DXUTD3D9DeviceSettings m_DeviceSettings;
 
 		D3DSURFACE_DESC m_BackBufferSurfaceDesc;

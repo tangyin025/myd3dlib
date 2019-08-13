@@ -448,6 +448,9 @@ bool AsynchronousIOMgr::FindIORequestCallback(const IResourceCallback * callback
 void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 {
 	m_bStopped = false;
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+
 	for (unsigned int i = 0; i < lMaximumCount; i++)
 	{
 		ThreadPtr thread(new Thread(boost::bind(&AsynchronousIOMgr::IORequestProc, this)));
@@ -460,6 +463,8 @@ void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 void AsynchronousIOMgr::StopIORequestProc(void)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
@@ -588,6 +593,22 @@ HRESULT ResourceMgr::Close(
 	return S_OK;
 }
 
+void ResourceMgr::EnterDeviceSectionIfNotMainThread(void)
+{
+	if (GetCurrentThreadId() != D3DContext::getSingleton().m_d3dThreadId)
+	{
+		D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+	}
+}
+
+void ResourceMgr::LeaveDeviceSectionIfNotMainThread(void)
+{
+	if (GetCurrentThreadId() != D3DContext::getSingleton().m_d3dThreadId)
+	{
+		D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+	}
+}
+
 DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
@@ -632,6 +653,8 @@ std::string ResourceMgr::GetResourceKey(DeviceResourceBasePtr res) const
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	_ASSERT(!key.empty());
 
 	DeviceResourceBasePtr res = GetResource(key);
@@ -653,6 +676,8 @@ void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr req
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
 	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, true);
 	if (req_iter != m_IORequestList.end())
 	{
@@ -661,6 +686,8 @@ void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr req
 			OnIORequestIteratorReady(req_iter);
 		}
 	}
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 }
 
 bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
