@@ -1212,9 +1212,9 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		{
 			m_Camera->UpdateViewProj();
 			StartPerformanceCount();
-			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-			pFrame->CheckViewedActor(pFrame,
-				my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
+			//my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+			//pFrame->CheckViewedActor(pFrame,
+			//	my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f));
 			Invalidate();
 			break;
 		}

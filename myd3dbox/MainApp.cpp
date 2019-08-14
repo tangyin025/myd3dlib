@@ -359,6 +359,15 @@ void CMainApp::OnDestroyDevice(void)
 	m_UIRender.reset();
 }
 
+void CMainApp::OnIORequestReady(const std::string & key, my::IORequestPtr request)
+{
+	ResourceMgr::OnIORequestReady(key, request);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	EventArgs arg;
+	pFrame->m_EventSelectionPlaying(&arg);
+}
 
 // CAboutDlg dialog used for App About
 
@@ -429,8 +438,19 @@ BOOL CMainApp::OnIdle(LONG lCount)
 
 	m_d3dDeviceSec.Leave();
 
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+	ASSERT_VALID(pView);
 	BOOL bContinue = FALSE;
 	if (my::ResourceMgr::CheckIORequests(0))
+	{
+		bContinue = TRUE;
+	}
+
+	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
+	if (!pFrame->CheckViewedActor(pFrame,
+		my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f)))
 	{
 		bContinue = TRUE;
 	}
@@ -440,18 +460,13 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		bContinue = TRUE;
 	}
 
+	m_d3dDeviceSec.Enter();
+
 	float fElapsedTime = my::Min(0.016f, m_fElapsedTime);
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	if (!pFrame->m_selactors.empty())
 	{
-		m_d3dDeviceSec.Enter();
 		pFrame->OnFrameTick(fElapsedTime);
 		bContinue = TRUE;
-	}
-
-	if (!bContinue)
-	{
-		m_d3dDeviceSec.Enter();
 	}
 
 	return bContinue;

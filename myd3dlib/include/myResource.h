@@ -369,7 +369,7 @@ namespace my
 
 		IORequestPtrPairList::iterator OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter);
 
-		void OnIORequestReady(const std::string & key, IORequestPtr request);
+		virtual void OnIORequestReady(const std::string & key, IORequestPtr request);
 
 		void LoadTextureAsync(const char * path, IResourceCallback * callback);
 

@@ -740,12 +740,12 @@ ResourceMgr::IORequestPtrPairList::iterator ResourceMgr::OnIORequestIteratorRead
 
 	IORequestPtrPair pair = *req_iter;
 	m_IORequestListMutex.Wait(INFINITE);
-	IORequestPtrPairList::iterator ret_iter = m_IORequestList.erase(req_iter);
+	IORequestPtrPairList::iterator ret = m_IORequestList.erase(req_iter);
 	m_IORequestListMutex.Release();
 
 	OnIORequestReady(pair.first, pair.second);
 
-	return ret_iter;
+	return ret;
 }
 
 void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request)

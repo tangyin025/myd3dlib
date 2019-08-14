@@ -54,6 +54,7 @@ public:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void OnLostDevice(void);
 	virtual void OnDestroyDevice(void);
+	virtual void OnIORequestReady(const std::string & key, my::IORequestPtr request);
 
 // Implementation
 	UINT  m_nAppLook;
