@@ -154,14 +154,14 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 
 		AABB m_aabb;
 
-		bool AllLoaded;
+		bool IsNodeLoaded;
 
 		Callback(StreamNodeSet & ViewedNodes, WeakActorMap & ViewedActors, PhysXSceneContext * Scene, const AABB & aabb)
 			: m_ViewedNodes(ViewedNodes)
 			, m_ViewedActors(ViewedActors)
 			, m_Scene(Scene)
 			, m_aabb(aabb)
-			, AllLoaded(true)
+			, IsNodeLoaded(true)
 		{
 		}
 
@@ -169,11 +169,14 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 		{
 			StreamNode * node = dynamic_cast<StreamNode *>(oct_node);
 			_ASSERT(node);
-			if (!node->m_Ready && !node->IsRequested())
+			if (!node->m_Ready)
 			{
-				node->RequestResource();
-				m_ViewedNodes.insert(node);
-				AllLoaded = false;
+				if (!node->IsRequested())
+				{
+					node->RequestResource();
+					m_ViewedNodes.insert(node);
+				}
+				IsNodeLoaded = false;
 				return;
 			}
 
@@ -205,5 +208,5 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 
 	// todo: OnLeavePxScene, ReleaseResource
 
-	return cb.AllLoaded;
+	return cb.IsNodeLoaded;
 }

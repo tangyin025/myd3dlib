@@ -32,6 +32,7 @@ CMainApp::CMainApp()
 	default_pass_mask = 0;
 	technique_RenderSceneColor = NULL;
 	handle_MeshColor = NULL;
+	m_bNeedDraw = FALSE;
 	m_bHiColorIcons = TRUE;
 
 	// TODO: add construction code here,
@@ -359,16 +360,6 @@ void CMainApp::OnDestroyDevice(void)
 	m_UIRender.reset();
 }
 
-void CMainApp::OnIORequestReady(const std::string & key, my::IORequestPtr request)
-{
-	ResourceMgr::OnIORequestReady(key, request);
-
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	EventArgs arg;
-	pFrame->m_EventSelectionPlaying(&arg);
-}
-
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialog
@@ -443,16 +434,18 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	ASSERT_VALID(pView);
 	BOOL bContinue = FALSE;
-	if (my::ResourceMgr::CheckIORequests(0))
-	{
-		bContinue = TRUE;
-	}
-
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
 	if (!pFrame->CheckViewedActor(pFrame,
 		my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f)))
 	{
 		bContinue = TRUE;
+		m_bNeedDraw = TRUE;
+	}
+
+	if (my::ResourceMgr::CheckIORequests(0))
+	{
+		bContinue = TRUE;
+		m_bNeedDraw = TRUE;
 	}
 
 	if (CWinAppEx::OnIdle(lCount))
@@ -466,7 +459,18 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	if (!pFrame->m_selactors.empty())
 	{
 		pFrame->OnFrameTick(fElapsedTime);
+
+		EventArgs arg;
+		pFrame->m_EventSelectionPlaying(&arg);
+
 		bContinue = TRUE;
+	}
+	else if (!bContinue && m_bNeedDraw)
+	{
+		EventArgs arg;
+		pFrame->m_EventSelectionPlaying(&arg);
+
+		m_bNeedDraw = FALSE;
 	}
 
 	return bContinue;

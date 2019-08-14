@@ -38,7 +38,7 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	typedef boost::unordered_set<Actor *> ActorSet;
+	typedef std::set<Actor *> ActorSet;
 	ActorSet m_selactors;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;

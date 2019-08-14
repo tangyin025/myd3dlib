@@ -38,6 +38,7 @@ public:
 	unsigned int default_pass_mask;
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;
+	BOOL m_bNeedDraw;
 
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
@@ -54,7 +55,6 @@ public:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void OnLostDevice(void);
 	virtual void OnDestroyDevice(void);
-	virtual void OnIORequestReady(const std::string & key, my::IORequestPtr request);
 
 // Implementation
 	UINT  m_nAppLook;

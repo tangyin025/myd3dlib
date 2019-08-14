@@ -328,12 +328,11 @@ void MeshComponent::Update(float fElapsedTime)
 
 my::AABB MeshComponent::CalculateAABB(void) const
 {
-	AABB ret = Component::CalculateAABB();
 	if (m_Mesh)
 	{
-		ret.unionSelf(m_Mesh->m_aabb);
+		m_Mesh->m_aabb;
 	}
-	return ret;
+	return Component::CalculateAABB();
 }
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
@@ -811,9 +810,9 @@ void ClothComponent::OnShaderChanged(void)
 
 my::AABB ClothComponent::CalculateAABB(void) const
 {
-	AABB ret = Component::CalculateAABB();
 	if (!m_VertexData.empty())
 	{
+		AABB ret = AABB::Invalid();
 		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
 		const unsigned int NumVertices = m_VertexData.size() / m_VertexStride;
 		for (unsigned int i = 0; i < NumVertices; i++)
@@ -821,8 +820,9 @@ my::AABB ClothComponent::CalculateAABB(void) const
 			unsigned char * pVertex = pVertices + i * m_VertexStride;
 			ret.unionSelf(m_VertexElems.GetPosition(pVertex));
 		}
+		return ret;
 	}
-	return ret;
+	return Component::CalculateAABB();
 }
 
 void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
@@ -1008,9 +1008,17 @@ void EmitterComponent::OnShaderChanged(void)
 
 my::AABB EmitterComponent::CalculateAABB(void) const
 {
-	AABB ret = Component::CalculateAABB();
-	ret.unionSelf(my::AABB(-1,1));
-	return ret;
+	if (!m_ParticleList.empty())
+	{
+		AABB ret = AABB::Invalid();
+		ParticleList::const_iterator part_iter = m_ParticleList.begin();
+		for (; part_iter != m_ParticleList.end(); part_iter++)
+		{
+			ret.unionSelf(AABB(part_iter->m_Position, part_iter->m_Size.x * 0.5f));
+		}
+		return ret;
+	}
+	return Component::CalculateAABB();
 }
 
 void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)

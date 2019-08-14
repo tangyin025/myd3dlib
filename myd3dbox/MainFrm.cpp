@@ -471,9 +471,6 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		UpdateSelBox();
 		UpdatePivotTransform();
 	}
-
-	EventArgs arg;
-	m_EventSelectionPlaying(&arg);
 }
 
 void CMainFrame::OnSelChanged()
@@ -833,11 +830,10 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
+	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
-
-	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f);
 
 	EventArgs arg;
 	m_EventAttributeChanged(&arg);

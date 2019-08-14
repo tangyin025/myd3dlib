@@ -547,7 +547,7 @@ void Terrain::Update(float fElapsedTime)
 
 my::AABB Terrain::CalculateAABB(void) const
 {
-	AABB ret = Component::CalculateAABB();
+	AABB ret = AABB::Invalid();
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)

@@ -164,4 +164,4 @@ game:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.VisualizationParameter=1
