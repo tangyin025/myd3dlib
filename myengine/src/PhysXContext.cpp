@@ -138,18 +138,6 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
 	}
 
-	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
-	if (!m_Registry)
-	{
-		THROW_CUSEXCEPTION("physx::PxSerialization::createSerializationRegistry failed");
-	}
-
-	m_Collection.reset(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
-	if (!m_Collection)
-	{
-		THROW_CUSEXCEPTION("PxCreateCollection failed");
-	}
-
 	return true;
 }
 

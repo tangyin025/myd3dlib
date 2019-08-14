@@ -427,6 +427,8 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	// TODO: Add your specialized code here and/or call the base class
 	Clock::UpdateClock();
 
+	m_d3dDeviceSec.Leave();
+
 	BOOL bContinue = FALSE;
 	if (my::ResourceMgr::CheckIORequests(0))
 	{
@@ -439,9 +441,17 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	}
 
 	float fElapsedTime = my::Min(0.016f, m_fElapsedTime);
-	if ((DYNAMIC_DOWNCAST(CMainFrame, m_pMainWnd))->OnFrameTick(fElapsedTime))
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	if (!pFrame->m_selactors.empty())
 	{
+		m_d3dDeviceSec.Enter();
+		pFrame->OnFrameTick(fElapsedTime);
 		bContinue = TRUE;
+	}
+
+	if (!bContinue)
+	{
+		m_d3dDeviceSec.Enter();
 	}
 
 	return bContinue;

@@ -348,17 +348,17 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			// ! req_iter will be invalid after release mutex
-			IORequestPtr request = req_iter->second;
+			boost::weak_ptr<IORequest> request = req_iter->second;
 
-			request->m_PreLoadEvent.SetEvent();
+			request.lock()->m_PreLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Release();
 
 			// ! HAVENT HANDLED EXCEPTION YET
-			request->LoadResource();
+			request.lock()->LoadResource();
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe
-			request->m_PostLoadEvent.SetEvent();
+			request.lock()->m_PostLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
@@ -425,6 +425,30 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 			break;
 		}
 	}
+
+	m_IORequestListMutex.Release();
+}
+
+void AsynchronousIOMgr::RemoveAllIORequest(void)
+{
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+	m_IORequestListMutex.Wait(INFINITE);
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+	for (; req_iter != m_IORequestList.end(); req_iter++)
+	{
+		if (req_iter->second->m_PreLoadEvent.Wait(0))
+		{
+			req_iter->second->m_PostLoadEvent.Wait(INFINITE);
+		}
+	}
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+
+	m_IORequestList.clear();
 
 	m_IORequestListMutex.Release();
 }

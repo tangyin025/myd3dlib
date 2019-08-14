@@ -443,13 +443,8 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-BOOL CMainFrame::OnFrameTick(float fElapsedTime)
+void CMainFrame::OnFrameTick(float fElapsedTime)
 {
-	if (m_selactors.empty())
-	{
-		return FALSE;
-	}
-
 	ActorSet::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
@@ -479,7 +474,6 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 
 	EventArgs arg;
 	m_EventSelectionPlaying(&arg);
-	return TRUE;
 }
 
 void CMainFrame::OnSelChanged()
@@ -495,6 +489,7 @@ void CMainFrame::ClearFileContext()
 	ClearAllActor();
 	m_selactors.clear();
 	m_ViewedActors.clear();
+	theApp.RemoveAllIORequest();
 	PhysXSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();
 }
@@ -506,8 +501,8 @@ void CMainFrame::OnDestroy()
 	// TODO: Add your message handler code here
 	//m_emitter.reset();
 	ClearFileContext();
-	PhysXSceneContext::Shutdown();
 	theApp.DestroyD3DDevice();
+	PhysXSceneContext::Shutdown();
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
