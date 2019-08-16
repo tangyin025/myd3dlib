@@ -11,6 +11,10 @@
 #include <luabind/iterator_policy.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 #include "PlayerController.h"
@@ -834,8 +838,21 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)
 {
 	std::ofstream ostr(GetFullPath(path).c_str());
-	boost::archive::polymorphic_xml_oarchive oa(ostr);
-	oa << BOOST_SERIALIZATION_NVP(dlg);
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (Ext == ".xml")
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
+	}
+	else if (Ext == ".txt")
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
+	}
+	*oa << BOOST_SERIALIZATION_NVP(dlg);
 }
 
 my::DialogPtr Game::LoadDialog(const char * path)
@@ -843,16 +860,42 @@ my::DialogPtr Game::LoadDialog(const char * path)
 	DialogPtr dlg;
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
-	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> BOOST_SERIALIZATION_NVP(dlg);
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (Ext == ".xml")
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (Ext == ".txt")
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	*ia >> BOOST_SERIALIZATION_NVP(dlg);
 	return dlg;
 }
 
 void Game::SaveMaterial(MaterialPtr mtl, const char * path)
 {
-	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	oa << BOOST_SERIALIZATION_NVP(mtl);
+	std::ofstream ostr(GetFullPath(path).c_str());
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (Ext == ".xml")
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
+	}
+	else if (Ext == ".txt")
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
+	}
+	*oa << BOOST_SERIALIZATION_NVP(mtl);
 }
 
 MaterialPtr Game::LoadMaterial(const char * path)
@@ -860,16 +903,42 @@ MaterialPtr Game::LoadMaterial(const char * path)
 	MaterialPtr mtl;
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
-	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> BOOST_SERIALIZATION_NVP(mtl);
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (Ext == ".xml")
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (Ext == ".txt")
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	*ia >> BOOST_SERIALIZATION_NVP(mtl);
 	return mtl;
 }
 
 void Game::SaveComponent(ComponentPtr cmp, const char * path)
 {
 	std::ofstream ostr(GetFullPath(path).c_str());
-	boost::archive::polymorphic_xml_oarchive oa(ostr);
-	oa << BOOST_SERIALIZATION_NVP(cmp);
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (Ext == ".xml")
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
+	}
+	else if (Ext == ".txt")
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
+	}
+	*oa << BOOST_SERIALIZATION_NVP(cmp);
 }
 
 ComponentPtr Game::LoadComponent(const char * path)
@@ -877,8 +946,21 @@ ComponentPtr Game::LoadComponent(const char * path)
 	ComponentPtr cmp;
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
-	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> BOOST_SERIALIZATION_NVP(cmp);
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (Ext == ".xml")
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (Ext == ".txt")
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	*ia >> BOOST_SERIALIZATION_NVP(cmp);
 	return cmp;
 }
 
@@ -890,10 +972,23 @@ void Game::LoadScene(const char * path)
 
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
-	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
+	std::string Ext(PathFindExtensionA(path));
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (Ext == ".xml")
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (Ext == ".txt")
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
+	*ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
+	*ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
 	StreamRoot::m_Path = path;
 	StreamRoot::m_Ready = false;
 

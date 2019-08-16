@@ -14,6 +14,10 @@
 #include "Character.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <fstream>
@@ -623,10 +627,23 @@ void CMainFrame::OnFileOpen()
 	ASSERT_VALID(pView);
 	CWaitCursor waiter;
 	std::basic_ifstream<char> ifs(m_strPathName);
-	boost::archive::polymorphic_xml_iarchive ia(ifs);
-	ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
+	std::basic_string<TCHAR> Ext(PathFindExtension((LPCTSTR)m_strPathName));
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (Ext == _T(".xml"))
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(ifs));
+	}
+	else if (Ext == _T(".txt"))
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(ifs));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(ifs));
+	}
+	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	*ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
+	*ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
 	StreamRoot::m_Path = ts2ms((LPCTSTR)m_strPathName);
 	StreamRoot::m_Ready = false;
 
@@ -653,10 +670,23 @@ void CMainFrame::OnFileSave()
 	ASSERT_VALID(pView);
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
-	boost::archive::polymorphic_xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	oa << boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
+	std::basic_string<TCHAR> Ext(PathFindExtension(m_strPathName));
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (Ext == _T(".xml"))
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
+	}
+	else if (Ext == _T(".txt"))
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
+	}
+	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	*oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
+	*oa << boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
 
 	StreamRoot::SaveAllActor(ts2ms((LPCTSTR)m_strPathName).c_str());
 }

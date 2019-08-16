@@ -4,6 +4,10 @@
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
@@ -28,9 +32,22 @@ public:
 	{
 		IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
 		std::istream istr(&buff);
-		boost::archive::polymorphic_xml_iarchive ia(istr);
-		ia.template register_type<MaterialParameterTexture>();
-		ia >> BOOST_SERIALIZATION_NVP(m_Actors);
+		std::string Ext(PathFindExtensionA(m_path.c_str()));
+		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+		if (Ext == ".xml")
+		{
+			ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+		}
+		else if (Ext == ".txt")
+		{
+			ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+		}
+		else
+		{
+			ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+		}
+		ia->template register_type<MaterialParameterTexture>();
+		*ia >> BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
 	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
@@ -119,10 +136,23 @@ void StreamNode::SaveAllActor(const char * RootPath)
 		_ASSERT(Root);
 		std::string Path = BuildPath(RootPath);
 		std::basic_ofstream<char> ofs(Path);
-		boost::archive::polymorphic_xml_oarchive oa(ofs);
+		std::string Ext(PathFindExtensionA(Path.c_str()));
+		boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+		if (Ext == ".xml")
+		{
+			oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
+		}
+		else if (Ext == ".txt")
+		{
+			oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
+		}
+		else
+		{
+			oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
+		}
 		// ! solve the strange runtime error, ref: https://www.boost.org/doc/libs/1_63_0/libs/serialization/doc/serialization.html#registration
-		oa.template register_type<MaterialParameterTexture>();
-		oa << BOOST_SERIALIZATION_NVP(m_Actors);
+		oa->template register_type<MaterialParameterTexture>();
+		*oa << BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
