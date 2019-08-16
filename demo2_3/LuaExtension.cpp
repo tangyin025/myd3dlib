@@ -148,6 +148,11 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
+my::OctActorPtr actor2oct(ActorPtr actor)
+{
+	return actor;
+}
+
 static void ExportMath(lua_State * L)
 {
 	using namespace luabind;
@@ -1090,7 +1095,8 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 
-		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
+		, def("actor2oct", actor2oct)
+		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
 }

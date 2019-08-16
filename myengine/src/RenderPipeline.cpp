@@ -197,7 +197,11 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
-	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
+	// ! archive_exception::unregistered_class for polymorphic pointer of MaterialParameterTexture
+	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
+	{
+		ar << boost::serialization::make_nvp(str_printf("m_SkyBoxTextures%u", i).c_str(), m_SkyBoxTextures[i].m_TexturePath);
+	}
 	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoBias);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
@@ -212,7 +216,10 @@ void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxTextures);
+	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
+	{
+		ar >> boost::serialization::make_nvp(str_printf("m_SkyBoxTextures%u", i).c_str(), m_SkyBoxTextures[i].m_TexturePath);
+	}
 	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoBias);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="14">
+<boost_serialization signature="serialization::archive" version="17">
 <RenderPipeline class_id="0" tracking_level="0" version="0">
 	<m_BgColor class_id="1" tracking_level="0" version="0">
 		<x>6.999999881e-01</x>
@@ -21,51 +21,12 @@
 		<w>0.000000000e+00</w>
 	</m_AmbientColor>
 	<m_SkyBoxEnable>0</m_SkyBoxEnable>
-	<m_SkyBoxTextures>
-		<count>6</count>
-		<item class_id="2" tracking_level="1" version="0" object_id="_0">
-			<MaterialParameter class_id="3" tracking_level="1" version="0" object_id="_1">
-				<m_Type>0</m_Type>
-				<m_Name></m_Name>
-			</MaterialParameter>
-			<m_TexturePath></m_TexturePath>
-		</item>
-		<item object_id="_2">
-			<MaterialParameter object_id="_3">
-				<m_Type>0</m_Type>
-				<m_Name></m_Name>
-			</MaterialParameter>
-			<m_TexturePath></m_TexturePath>
-		</item>
-		<item object_id="_4">
-			<MaterialParameter object_id="_5">
-				<m_Type>0</m_Type>
-				<m_Name></m_Name>
-			</MaterialParameter>
-			<m_TexturePath></m_TexturePath>
-		</item>
-		<item object_id="_6">
-			<MaterialParameter object_id="_7">
-				<m_Type>0</m_Type>
-				<m_Name></m_Name>
-			</MaterialParameter>
-			<m_TexturePath></m_TexturePath>
-		</item>
-		<item object_id="_8">
-			<MaterialParameter object_id="_9">
-				<m_Type>0</m_Type>
-				<m_Name></m_Name>
-			</MaterialParameter>
-			<m_TexturePath></m_TexturePath>
-		</item>
-		<item object_id="_10">
-			<MaterialParameter object_id="_11">
-				<m_Type>0</m_Type>
-				<m_Name></m_Name>
-			</MaterialParameter>
-			<m_TexturePath></m_TexturePath>
-		</item>
-	</m_SkyBoxTextures>
+	<m_SkyBoxTextures0></m_SkyBoxTextures0>
+	<m_SkyBoxTextures1></m_SkyBoxTextures1>
+	<m_SkyBoxTextures2></m_SkyBoxTextures2>
+	<m_SkyBoxTextures3></m_SkyBoxTextures3>
+	<m_SkyBoxTextures4></m_SkyBoxTextures4>
+	<m_SkyBoxTextures5></m_SkyBoxTextures5>
 	<m_DofParams>
 		<x>5.000000000e+00</x>
 		<y>1.500000000e+01</y>
@@ -77,18 +38,18 @@
 	<m_SsaoRadius>1.000000000e+02</m_SsaoRadius>
 	<m_SsaoScale>1.000000000e+01</m_SsaoScale>
 </RenderPipeline>
-<PhysXSceneContext class_id="4" tracking_level="0" version="0">
+<PhysXSceneContext class_id="2" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>
 	<StreamBuff>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 	</StreamBuff>
 </PhysXSceneContext>
-<StreamRoot class_id="5" tracking_level="1" version="0" object_id="_12">
-	<StreamNode class_id="6" tracking_level="1" version="0" object_id="_13">
-		<OctNode class_id="7" tracking_level="1" version="0" object_id="_14">
-			<m_aabb class_id="8" tracking_level="0" version="0">
-				<m_min class_id="9" tracking_level="0" version="0">
+<StreamRoot class_id="3" tracking_level="1" version="0" object_id="_0">
+	<StreamNode class_id="4" tracking_level="1" version="0" object_id="_1">
+		<OctNode class_id="5" tracking_level="1" version="0" object_id="_2">
+			<m_aabb class_id="6" tracking_level="0" version="0">
+				<m_min class_id="7" tracking_level="0" version="0">
 					<x>-4.096000000e+03</x>
 					<y>-4.096000000e+03</y>
 					<z>-4.096000000e+03</z>
@@ -104,10 +65,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 				<y>0.000000000e+00</y>
 				<z>0.000000000e+00</z>
 			</m_Half>
-			<m_Childs class_id="10" tracking_level="0" version="0">
+			<m_Childs class_id="8" tracking_level="0" version="0">
 				<elems>
 					<count>8</count>
-					<item class_id="11" tracking_level="0" version="1">
+					<item class_id="9" tracking_level="0" version="1">
 						<px class_id="-1"></px>
 					</item>
 					<item>

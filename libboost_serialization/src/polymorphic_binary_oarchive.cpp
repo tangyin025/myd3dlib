@@ -1,7 +1,7 @@
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
-// xml_iarchive.cpp:
+// polymorphic_binary_oarchive.cpp:
 
-// (C) Copyright 2002 Robert Ramey - http://www.rrsd.com . 
+// (C) Copyright 2018 Robert Ramey - http://www.rrsd.com .
 // Use, modification and distribution is subject to the Boost Software
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -14,20 +14,17 @@
 
 #define BOOST_ARCHIVE_SOURCE
 #include <boost/serialization/config.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/detail/archive_serializer_map.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 
-// explicitly instantiate for this type of xml stream
+// explicitly instantiate for this type of text stream
 #include <boost/archive/impl/archive_serializer_map.ipp>
-#include <boost/archive/impl/basic_xml_iarchive.ipp>
-#include <boost/archive/impl/xml_iarchive_impl.ipp>
 
 namespace boost {
 namespace archive {
+namespace detail {
 
-template class detail::archive_serializer_map<xml_iarchive>;
-template class basic_xml_iarchive<xml_iarchive> ;
-template class xml_iarchive_impl<xml_iarchive> ;
+template class detail::archive_serializer_map<polymorphic_binary_oarchive>;
 
-} // namespace archive
-} // namespace boost
+} // detail
+} // archive
+} // boost

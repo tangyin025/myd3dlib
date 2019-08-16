@@ -46,7 +46,7 @@ public:
 		{
 			ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
 		}
-		ia->template register_type<MaterialParameterTexture>();
+		//ia->template register_type<MaterialParameterTexture>();
 		*ia >> BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
@@ -151,7 +151,7 @@ void StreamNode::SaveAllActor(const char * RootPath)
 			oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
 		}
 		// ! solve the strange runtime error, ref: https://www.boost.org/doc/libs/1_63_0/libs/serialization/doc/serialization.html#registration
-		oa->template register_type<MaterialParameterTexture>();
+		//oa->template register_type<MaterialParameterTexture>();
 		*oa << BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 

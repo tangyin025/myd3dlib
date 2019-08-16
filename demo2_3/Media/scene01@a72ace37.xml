@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="14">
-<m_Actors class_id="1" tracking_level="0" version="0">
+<boost_serialization signature="serialization::archive" version="17">
+<m_Actors class_id="0" tracking_level="0" version="0">
 	<count>1</count>
 	<item_version>0</item_version>
-	<item class_id="2" tracking_level="0" version="0">
-		<first class_id="3" tracking_level="0" version="1">
-			<px class_id="5" class_name="Actor" tracking_level="1" version="0" object_id="_0">
-				<OctActor class_id="4" tracking_level="1" version="0" object_id="_1"></OctActor>
-				<m_aabb class_id="6" tracking_level="0" version="0">
-					<m_min class_id="7" tracking_level="0" version="0">
+	<item class_id="1" tracking_level="0" version="0">
+		<first class_id="2" tracking_level="0" version="1">
+			<px class_id="4" class_name="Actor" tracking_level="1" version="0" object_id="_0">
+				<OctActor class_id="3" tracking_level="1" version="0" object_id="_1"></OctActor>
+				<m_aabb class_id="5" tracking_level="0" version="0">
+					<m_min class_id="6" tracking_level="0" version="0">
 						<x>0.000000000e+00</x>
 						<y>-1.000000000e+00</y>
 						<z>0.000000000e+00</z>
@@ -25,7 +25,7 @@
 					<y>0.000000000e+00</y>
 					<z>-1.600000000e+01</z>
 				</m_Position>
-				<m_Rotation class_id="8" tracking_level="0" version="0">
+				<m_Rotation class_id="7" tracking_level="0" version="0">
 					<x>0.000000000e+00</x>
 					<y>0.000000000e+00</y>
 					<z>0.000000000e+00</z>
@@ -36,7 +36,7 @@
 					<y>1.000000000e+00</y>
 					<z>1.000000000e+00</z>
 				</m_Scale>
-				<m_World class_id="9" tracking_level="0" version="0">
+				<m_World class_id="8" tracking_level="0" version="0">
 					<_11>1.000000000e+00</_11>
 					<_12>0.000000000e+00</_12>
 					<_13>0.000000000e+00</_13>
@@ -55,22 +55,22 @@
 					<_44>1.000000000e+00</_44>
 				</m_World>
 				<m_LodRatio>3.000000000e+01</m_LodRatio>
-				<m_Animator class_id="10" tracking_level="0" version="1">
+				<m_Animator class_id="9" tracking_level="0" version="1">
 					<px class_id="-1"></px>
 				</m_Animator>
-				<m_Controller class_id="12" tracking_level="0" version="1">
+				<m_Controller class_id="11" tracking_level="0" version="1">
 					<px class_id="-1"></px>
 				</m_Controller>
-				<m_Cmps class_id="14" tracking_level="0" version="0">
+				<m_Cmps class_id="13" tracking_level="0" version="0">
 					<count>1</count>
 					<item_version>1</item_version>
-					<item class_id="15" tracking_level="0" version="1">
-						<px class_id="17" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
-							<Component class_id="16" tracking_level="1" version="0" object_id="_3">
+					<item class_id="14" tracking_level="0" version="1">
+						<px class_id="16" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
+							<Component class_id="15" tracking_level="1" version="0" object_id="_3">
 								<m_Type>8</m_Type>
 								<m_LodMask>7</m_LodMask>
 							</Component>
-							<OctRoot class_id="18" tracking_level="1" version="0" object_id="_4">
+							<OctRoot class_id="17" tracking_level="1" version="0" object_id="_4">
 								<m_aabb>
 									<m_min>
 										<x>0.000000000e+00</x>
@@ -88,12 +88,12 @@
 									<y>1.600000000e+01</y>
 									<z>1.600000000e+01</z>
 								</m_Half>
-								<cb.actor_list class_id="19" tracking_level="0" version="0">
+								<cb.actor_list class_id="18" tracking_level="0" version="0">
 									<count>1</count>
 									<item_version>0</item_version>
-									<item class_id="20" tracking_level="0" version="0">
+									<item class_id="19" tracking_level="0" version="0">
 										<first>
-											<px class_id="21" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_5">
+											<px class_id="20" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_5">
 												<OctActor object_id="_6"></OctActor>
 												<m_aabb>
 													<m_min>
@@ -1051,20 +1051,20 @@ AIA/
 							<m_ColChunks>1</m_ColChunks>
 							<m_ChunkSize>32</m_ChunkSize>
 							<m_HeightScale>1.000000000e+00</m_HeightScale>
-							<m_Material class_id="22" tracking_level="0" version="1">
-								<px class_id="23" tracking_level="1" version="0" object_id="_7">
+							<m_Material class_id="21" tracking_level="0" version="1">
+								<px class_id="22" tracking_level="1" version="0" object_id="_7">
 									<m_Shader>shader/mtl_lambert1.fx</m_Shader>
 									<m_PassMask>11</m_PassMask>
 									<m_CullMode>2</m_CullMode>
 									<m_ZEnable>1</m_ZEnable>
 									<m_ZWriteEnable>1</m_ZWriteEnable>
 									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList class_id="24" tracking_level="0" version="0">
+									<m_ParameterList class_id="23" tracking_level="0" version="0">
 										<count>3</count>
 										<item_version>1</item_version>
-										<item class_id="25" tracking_level="0" version="1">
-											<px class_id="0" tracking_level="1" version="0" object_id="_8">
-												<MaterialParameter class_id="26" tracking_level="1" version="0" object_id="_9">
+										<item class_id="24" tracking_level="0" version="1">
+											<px class_id="26" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_8">
+												<MaterialParameter class_id="25" tracking_level="1" version="0" object_id="_9">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -1072,7 +1072,7 @@ AIA/
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="0" object_id="_10">
+											<px class_id_reference="26" object_id="_10">
 												<MaterialParameter object_id="_11">
 													<m_Type>5</m_Type>
 													<m_Name>g_NormalTexture</m_Name>
@@ -1081,7 +1081,7 @@ AIA/
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="0" object_id="_12">
+											<px class_id_reference="26" object_id="_12">
 												<MaterialParameter object_id="_13">
 													<m_Type>5</m_Type>
 													<m_Name>g_SpecularTexture</m_Name>
@@ -1100,14 +1100,14 @@ AIA/
 				<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADAJ3kEAAAA
-gAEAAACwKE8NAAAAgAIAAABAvQ4HAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOp4P
-CAADAAAAAABUO54PAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxAvQ4HAAAAAM3Nzc3N
-zc3N9NaeDwcAAwAAAAAAtNeeDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACAwdkIAAAA
+gAEAAADwkNkIAAAAgAIAAAAwsdkIAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOnkP
+CAADAAAAAABUO3kPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwwsdkIAAAAAM3Nzc3N
+zc3N9NZ5DwcAAwAAAAAAtNd5DwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAng8GAAMAyCpYDAAAAAAA
-AAAAwCd5BAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzcCPJQ0AAACFAAAAAM3Nzc3//////BQmDQEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAeQ8GAAMA0JAYBgAAAAAA
+AAAAgMHZCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzYARIwYAAACFAAAAAM3Nzc3/////7Hm9CAEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 				</m_PxActor>

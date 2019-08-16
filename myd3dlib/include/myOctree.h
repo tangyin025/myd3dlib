@@ -3,9 +3,9 @@
 #include "myCollision.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include <boost/array.hpp>
 #include <boost/function.hpp>
 #include <vector>
+#include <array>
 
 namespace my
 {
@@ -66,7 +66,7 @@ namespace my
 
 		OctActorMap m_Actors;
 
-		typedef boost::array<boost::shared_ptr<OctNode>, AABB::QuadrantNum> ChildArray;
+		typedef std::array<boost::shared_ptr<OctNode>, AABB::QuadrantNum> ChildArray;
 
 		ChildArray m_Childs;
 

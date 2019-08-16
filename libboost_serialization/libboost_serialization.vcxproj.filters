@@ -129,7 +129,34 @@
     <ClCompile Include="src\xml_woarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\singleton.cpp">
+    <ClCompile Include="src\polymorphic_binary_iarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_binary_oarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_text_iarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_text_oarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_text_wiarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_text_woarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_xml_iarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_xml_oarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_xml_wiarchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polymorphic_xml_woarchive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/array.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -54,7 +55,7 @@ void OctNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	//	actor_iter->first->m_Node = this;
 	//}
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
-	for (unsigned int i = 0; i < ChildArray::static_size; i++)
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
 		if (m_Childs[i])
 		{

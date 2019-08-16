@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <BOOST_DIR>D:\Games\boost_1_63_0\</BOOST_DIR>
+    <BOOST_DIR>D:\Games\boost_1_70_0\</BOOST_DIR>
     <PHYSX_DIR>D:\Games\PhysX-3.3\PhysXSDK\</PHYSX_DIR>
     <FMOD_DIR>D:\Games\fmodapi44425win-installer\</FMOD_DIR>
     <MAYA_DIR>C:\Program Files\Autodesk\Maya2009\</MAYA_DIR>
