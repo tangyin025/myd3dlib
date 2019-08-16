@@ -81,8 +81,16 @@ void StreamNode::ReleaseResource(void)
 
 std::string StreamNode::BuildPath(const char * RootPath)
 {
-	return str_printf("%s.%+05.0f%+05.0f%+05.0f%+05.0f%+05.0f%+05.0f",
-		RootPath, m_aabb.m_min.x, m_aabb.m_min.y, m_aabb.m_min.z, m_aabb.m_max.x, m_aabb.m_max.y, m_aabb.m_max.z);
+	std::string PathWithoutExt(RootPath, (LPCSTR)PathFindExtensionA(const_cast<char*>(RootPath)));
+	std::string Ext(PathFindExtensionA(const_cast<char*>(RootPath)));
+	size_t seed = 0;
+	boost::hash_combine(seed, m_aabb.m_min.x);
+	boost::hash_combine(seed, m_aabb.m_min.y);
+	boost::hash_combine(seed, m_aabb.m_min.z);
+	boost::hash_combine(seed, m_aabb.m_max.x);
+	boost::hash_combine(seed, m_aabb.m_max.y);
+	boost::hash_combine(seed, m_aabb.m_max.z);
+	return str_printf("%s@%08x%s", PathWithoutExt.c_str(), seed, Ext.c_str());
 }
 
 void StreamNode::OnReady(my::IORequest * request)
