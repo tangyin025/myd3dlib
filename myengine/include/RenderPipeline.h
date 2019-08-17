@@ -91,8 +91,6 @@ public:
 
 	my::Vector4 m_AmbientColor;
 
-	bool m_SkyBoxEnable;
-
 	MaterialParameterTexture m_SkyBoxTextures[6];
 
 	my::EffectPtr m_SimpleSample;

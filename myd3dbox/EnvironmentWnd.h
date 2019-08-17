@@ -28,8 +28,12 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum SkyBoxProperty
 	{
-		SkyBoxPropertyEnable,
-		SkyBoxPropertyTextures,
+		SkyBoxPropertyTextureFront,
+		SkyBoxPropertyTextureBack,
+		SkyBoxPropertyTextureLeft,
+		SkyBoxPropertyTextureRight,
+		SkyBoxPropertyTextureUp,
+		SkyBoxPropertyTextureDown,
 	};
 
 	enum SkyLightProperty

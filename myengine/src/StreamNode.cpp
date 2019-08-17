@@ -87,12 +87,12 @@ void StreamNode::ReleaseResource(void)
 	StreamRoot * Root = dynamic_cast<StreamRoot *>(GetTopNode());
 	_ASSERT(Root);
 	std::string Path = BuildPath(Root->m_Path.c_str());
-	if (!Path.empty() && !m_Ready)
+	if (!Path.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(Path, this);
-	}
 
-	m_Ready = false;
+		m_Ready = false;
+	}
 }
 
 std::string StreamNode::BuildPath(const char * RootPath)

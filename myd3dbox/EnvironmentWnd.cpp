@@ -110,15 +110,11 @@ void CEnvironmentWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pSkyBox = new CSimpleProp(_T("SkyBox"), PropertySkyBox, FALSE);
 	m_wndPropList.AddProperty(pSkyBox, FALSE, FALSE);
-	CMFCPropertyGridProperty * pSkyBoxEnable = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SkyBoxPropertyEnable);
-	pSkyBox->AddSubItem(pSkyBoxEnable);
-	CMFCPropertyGridProperty * pSkyBoxTextures = new CSimpleProp(_T("Textures"), SkyBoxPropertyTextures, FALSE);
-	pSkyBox->AddSubItem(pSkyBoxTextures);
 	const TCHAR * tex_name[6] = {_T("Front"), _T("Back"), _T("Left"), _T("Right"), _T("Up"), _T("Down")};
 	for (unsigned int i = 0; i < _countof(tex_name); i++)
 	{
-		CMFCPropertyGridProperty * pProp = new CFileProp(tex_name[i], TRUE, _T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, i);
-		pSkyBoxTextures->AddSubItem(pProp);
+		CMFCPropertyGridProperty * pProp = new CFileProp(tex_name[i], TRUE, _T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, SkyBoxPropertyTextureFront + i);
+		pSkyBox->AddSubItem(pProp);
 	}
 
 	CMFCPropertyGridProperty * pSkyLight = new CSimpleProp(_T("SkyLight"), PropertySkyLight, FALSE);
@@ -181,10 +177,9 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 
 	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
 	ASSERT_VALID(pSkyBox);
-	pSkyBox->GetSubItem(SkyBoxPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)theApp.m_SkyBoxEnable);
 	for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 	{
-		pSkyBox->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->SetValue(
+		pSkyBox->GetSubItem(SkyBoxPropertyTextureFront + i)->SetValue(
 			(_variant_t)ms2ts(theApp.m_SkyBoxTextures[i].m_TexturePath).c_str());
 	}
 
@@ -306,10 +301,9 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertySkyBox:
 		{
-			theApp.m_SkyBoxEnable = pProp->GetSubItem(SkyBoxPropertyEnable)->GetValue().boolVal != 0;
 			for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 			{
-				std::string path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextures)->GetSubItem(i)->GetValue().bstrVal);
+				std::string path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextureFront + i)->GetValue().bstrVal);
 				if (path.empty())
 				{
 					theApp.m_SkyBoxTextures[i].ReleaseResource();

@@ -32,7 +32,6 @@ RenderPipeline::RenderPipeline(void)
 	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f, 0.0f)
-	, m_SkyBoxEnable(false)
 	, handle_Time(NULL)
 	, handle_Eye(NULL)
 	, handle_ScreenDim(NULL)
@@ -196,11 +195,10 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
-	ar << BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
 	// ! archive_exception::unregistered_class for polymorphic pointer of MaterialParameterTexture
 	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 	{
-		ar << boost::serialization::make_nvp(str_printf("m_SkyBoxTextures%u", i).c_str(), m_SkyBoxTextures[i].m_TexturePath);
+		ar << boost::serialization::make_nvp("m_SkyBoxTextures", m_SkyBoxTextures[i].m_TexturePath);
 	}
 	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoBias);
@@ -215,10 +213,9 @@ void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyBoxEnable);
 	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 	{
-		ar >> boost::serialization::make_nvp(str_printf("m_SkyBoxTextures%u", i).c_str(), m_SkyBoxTextures[i].m_TexturePath);
+		ar >> boost::serialization::make_nvp("m_SkyBoxTextures", m_SkyBoxTextures[i].m_TexturePath);
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoBias);
@@ -496,7 +493,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetTexture(handle_LightRT, pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(m_BgColor.x, m_BgColor.y, m_BgColor.z, m_BgColor.w);
-	if (m_SkyBoxEnable)
+	if (m_SkyBoxTextures[0].m_Texture)
 	{
 		struct CUSTOMVERTEX
 		{
@@ -515,6 +512,8 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		V(pd3dDevice->SetVertexShader(NULL));
+		V(pd3dDevice->SetPixelShader(NULL));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&pRC->m_Camera->m_View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&pRC->m_Camera->m_Proj));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));

@@ -20,13 +20,12 @@
 		<z>3.000000119e-01</z>
 		<w>0.000000000e+00</w>
 	</m_AmbientColor>
-	<m_SkyBoxEnable>0</m_SkyBoxEnable>
-	<m_SkyBoxTextures0></m_SkyBoxTextures0>
-	<m_SkyBoxTextures1></m_SkyBoxTextures1>
-	<m_SkyBoxTextures2></m_SkyBoxTextures2>
-	<m_SkyBoxTextures3></m_SkyBoxTextures3>
-	<m_SkyBoxTextures4></m_SkyBoxTextures4>
-	<m_SkyBoxTextures5></m_SkyBoxTextures5>
+	<m_SkyBoxTextures></m_SkyBoxTextures>
+	<m_SkyBoxTextures></m_SkyBoxTextures>
+	<m_SkyBoxTextures></m_SkyBoxTextures>
+	<m_SkyBoxTextures></m_SkyBoxTextures>
+	<m_SkyBoxTextures></m_SkyBoxTextures>
+	<m_SkyBoxTextures></m_SkyBoxTextures>
 	<m_DofParams>
 		<x>5.000000000e+00</x>
 		<y>1.500000000e+01</y>
