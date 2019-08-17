@@ -125,7 +125,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	CComPtr<ID3DXBuffer> buff;
 	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
 	{
-		my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache_%zu.fx"), seed).c_str());
+		my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x.fx"), seed).c_str());
 		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize() - 1);
 	}
 #endif
