@@ -92,6 +92,8 @@ public:
 	void UpdatePivotTransform(void);
 	void OnFrameTick(float fElapsedTime);
 	void OnSelChanged();
+	void ClearFileContext();
+	BOOL DoSave(LPCTSTR lpszPathName);
 
 // Implementation
 public:
@@ -115,7 +117,6 @@ protected:
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
-	void ClearFileContext();
 
 public:
 	afx_msg void OnDestroy();
