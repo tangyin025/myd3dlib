@@ -1902,36 +1902,28 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyTerrainHeightScale:
-	{
-		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-		terrain->m_HeightScale = pProp->GetValue().fltVal;
-		//terrain->UpdateHeightMapNormal();
-		//terrain->UpdateChunks();
-		//Actor * actor = terrain->m_Actor;
-		//actor->UpdateAABB();
-		//actor->UpdateOctNode();
-		//pFrame->UpdateSelBox();
-		//pFrame->UpdatePivotTransform();
-		EventArgs arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
 	case PropertyTerrainHeightMap:
 	{
-		std::string path = ts2ms(pProp->GetValue().bstrVal);
-		my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
-		if (res)
+		CMFCPropertyGridProperty * pComponent = pProp->GetParent();
+		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		terrain->m_HeightScale = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
+		std::string path = ts2ms(pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal);
+		if (!path.empty())
 		{
-			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->UpdateHeightMap(res.get());
-			Actor * actor = terrain->m_Actor;
-			actor->UpdateAABB();
-			actor->UpdateOctNode();
-			pFrame->UpdateSelBox();
-			pFrame->UpdatePivotTransform();
-			EventArgs arg;
-			pFrame->m_EventAttributeChanged(&arg);
+			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
+			if (res)
+			{
+				terrain->UpdateHeightMap(res.get(), terrain->m_HeightScale);
+				Actor * actor = terrain->m_Actor;
+				actor->UpdateAABB();
+				actor->UpdateOctNode();
+				pFrame->UpdateSelBox();
+				pFrame->UpdatePivotTransform();
+			}
 		}
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyTerrainSplatMap:

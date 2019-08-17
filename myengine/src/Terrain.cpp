@@ -101,7 +101,7 @@ void TerrainChunk::UpdateAABB(void)
 }
 
 template <typename T>
-void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
+void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale)
 {
 	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
 	_ASSERT(terrain);
@@ -114,12 +114,12 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 			{
 				int pos_i = m_Row * terrain->m_ChunkSize + i;
 				int pos_j = m_Col * terrain->m_ChunkSize + j;
-				const Vector3 Pos = terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j);
+				const Vector3 Pos = terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j, HeightScale);
 				const Vector3 Dirs[4] = {
-					terrain->GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j) - Pos,
-					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1) - Pos,
-					terrain->GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j) - Pos,
-					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j, HeightScale) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1, HeightScale) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j, HeightScale) - Pos,
+					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1, HeightScale) - Pos,
 				};
 				const Vector3 Nors[4] = {
 					Dirs[0].cross(Dirs[1]).normalize(),
@@ -238,7 +238,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 			TerrainChunkPtr chunk(new TerrainChunk(i, j, m_ChunkSize));
 			AddActor(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
-			chunk->UpdateVertices<unsigned char>(desc, lrc);
+			chunk->UpdateVertices<unsigned char>(desc, lrc, 1.0f);
 		}
 	}
 	HeightMap.UnlockRect(0);
@@ -685,7 +685,7 @@ void Terrain::ClearShape(void)
 	m_PxHeightField.reset();
 }
 
-void Terrain::UpdateHeightMap(my::Texture2D * HeightMap)
+void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 {
 	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
 	D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
@@ -697,10 +697,10 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap)
 			{
 			case D3DFMT_A8:
 			case D3DFMT_L8:
-				m_Chunks[i][j]->UpdateVertices<unsigned char>(desc, lrc);
+				m_Chunks[i][j]->UpdateVertices<unsigned char>(desc, lrc, HeightScale);
 				break;
 			case D3DFMT_L16:
-				m_Chunks[i][j]->UpdateVertices<unsigned short>(desc, lrc);
+				m_Chunks[i][j]->UpdateVertices<unsigned short>(desc, lrc, HeightScale);
 				break;
 			}
 			m_Chunks[i][j]->UpdateAABB();

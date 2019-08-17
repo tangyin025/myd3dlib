@@ -44,7 +44,7 @@ public:
 	void UpdateAABB(void);
 
 	template <typename T>
-	void UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
+	void UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale);
 
 	void UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
 };
@@ -111,15 +111,9 @@ public:
 	}
 
 	template <typename T>
-	float GetSampleHeight(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
+	my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j, float HeightScale) const
 	{
-		return m_HeightScale * GetSampleValue<T>(desc, lrc, i, j);
-	}
-
-	template <typename T>
-	my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
-	{
-		return my::Vector3((float)j, GetSampleHeight<T>(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
+		return my::Vector3((float)j, HeightScale * GetSampleValue<T>(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
 	}
 
 	void CreateElements(void);
@@ -166,7 +160,7 @@ public:
 
 	virtual void ClearShape(void);
 
-	void UpdateHeightMap(my::Texture2D * HeightMap);
+	void UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale);
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 };
