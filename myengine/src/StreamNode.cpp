@@ -10,6 +10,7 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/export.hpp>
 #include <fstream>
 #include "Material.h"
 
@@ -46,7 +47,6 @@ public:
 		{
 			ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
 		}
-		//ia->template register_type<MaterialParameterTexture>();
 		*ia >> BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
@@ -56,7 +56,6 @@ public:
 	}
 };
 
-//
 //BOOST_CLASS_EXPORT(StreamNode)
 
 void StreamNode::AddToChild(ChildArray::reference & child, const my::AABB & child_aabb, my::OctActorPtr actor, const my::AABB & aabb)
@@ -135,7 +134,7 @@ void StreamNode::SaveAllActor(const char * RootPath)
 		StreamRoot * Root = dynamic_cast<StreamRoot *>(GetTopNode());
 		_ASSERT(Root);
 		std::string Path = BuildPath(RootPath);
-		std::basic_ofstream<char> ofs(Path);
+		std::ofstream ofs(Path, std::ios::binary, _OPENPROT);
 		std::string Ext(PathFindExtensionA(Path.c_str()));
 		boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 		if (Ext == ".xml")
@@ -150,8 +149,6 @@ void StreamNode::SaveAllActor(const char * RootPath)
 		{
 			oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
 		}
-		// ! solve the strange runtime error, ref: https://www.boost.org/doc/libs/1_63_0/libs/serialization/doc/serialization.html#registration
-		//oa->template register_type<MaterialParameterTexture>();
 		*oa << BOOST_SERIALIZATION_NVP(m_Actors);
 	}
 
@@ -164,7 +161,6 @@ void StreamNode::SaveAllActor(const char * RootPath)
 	}
 }
 
-//
 //BOOST_CLASS_EXPORT(StreamRoot)
 
 StreamRoot::StreamRoot(void)

@@ -837,7 +837,7 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)
 {
-	std::ofstream ostr(GetFullPath(path).c_str());
+	std::ofstream ostr(GetFullPath(path), std::ios::binary, _OPENPROT);
 	std::string Ext(PathFindExtensionA(path));
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (Ext == ".xml")
@@ -880,7 +880,7 @@ my::DialogPtr Game::LoadDialog(const char * path)
 
 void Game::SaveMaterial(MaterialPtr mtl, const char * path)
 {
-	std::ofstream ostr(GetFullPath(path).c_str());
+	std::ofstream ostr(GetFullPath(path), std::ios::binary, _OPENPROT);
 	std::string Ext(PathFindExtensionA(path));
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (Ext == ".xml")
@@ -923,7 +923,7 @@ MaterialPtr Game::LoadMaterial(const char * path)
 
 void Game::SaveComponent(ComponentPtr cmp, const char * path)
 {
-	std::ofstream ostr(GetFullPath(path).c_str());
+	std::ofstream ostr(GetFullPath(path), std::ios::binary, _OPENPROT);
 	std::string Ext(PathFindExtensionA(path));
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (Ext == ".xml")

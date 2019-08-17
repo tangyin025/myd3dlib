@@ -669,7 +669,7 @@ void CMainFrame::OnFileSave()
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 	ASSERT_VALID(pView);
 	CWaitCursor waiter;
-	std::basic_ofstream<char> ofs(m_strPathName);
+	std::ofstream ofs(m_strPathName, std::ios::binary, _OPENPROT);
 	std::basic_string<TCHAR> Ext(PathFindExtension(m_strPathName));
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (Ext == _T(".xml"))
