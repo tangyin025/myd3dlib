@@ -250,14 +250,13 @@ Terrain::~Terrain(void)
 	ClearAllActor();
 }
 
-static int Quad(int v)
+static int _Quad(int v)
 {
-	if (v <= 1)
+	if (v > 1)
 	{
-		return 0;
+		return _Quad(v / 2) + 1;
 	}
-
-	return Quad(v / 2) + 1;
+	return 0;
 }
 
 unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos)
@@ -265,7 +264,8 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 	float DistanceSq = Vector2(
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
-	return Min(Quad(m_ChunkSize), (int)sqrt(DistanceSq / m_Actor->m_LodRatio / m_Actor->m_LodRatio));
+	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
+	return Clamp(Lod, 0, _Quad(m_ChunkSize));
 }
 
 void Terrain::CreateElements(void)

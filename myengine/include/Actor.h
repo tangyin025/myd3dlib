@@ -35,7 +35,9 @@ public:
 
 	Component::LODMask m_Lod;
 
-	float m_LodRatio;
+	float m_LodDist;
+
+	float m_LodFactor;
 
 	boost::shared_ptr<Animator> m_Animator;
 
@@ -62,7 +64,8 @@ protected:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_Lod(Component::LOD0)
-		, m_LodRatio(30.0f)
+		, m_LodDist(30.0f)
+		, m_LodFactor(2.0f)
 		, m_Base(NULL)
 	{
 	}
@@ -76,7 +79,8 @@ public:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_Lod(Component::LOD0)
-		, m_LodRatio(30.0f)
+		, m_LodDist(30.0f)
+		, m_LodFactor(2.0f)
 		, m_Base(NULL)
 	{
 	}

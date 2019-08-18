@@ -220,8 +220,9 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
 	pActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
 	pActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
-	pActor->GetSubItem(4)->SetValue((_variant_t)actor->m_LodRatio);
-	pActor->GetSubItem(5)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	pActor->GetSubItem(4)->SetValue((_variant_t)actor->m_LodDist);
+	pActor->GetSubItem(5)->SetValue((_variant_t)actor->m_LodFactor);
+	pActor->GetSubItem(6)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
 	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
 	{
@@ -607,8 +608,11 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pProp = new CSimpleProp(_T("z"), (_variant_t)actor->m_Scale.z, NULL, PropertyActorScaleZ);
 	pScale->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pLodRatio = new CSimpleProp(_T("LodRatio"), (_variant_t)actor->m_LodRatio, NULL, PropertyActorLodRatio);
-	pActor->AddSubItem(pLodRatio);
+	CMFCPropertyGridProperty * pLodDist = new CSimpleProp(_T("LodDist"), (_variant_t)actor->m_LodDist, NULL, PropertyActorLodDist);
+	pActor->AddSubItem(pLodDist);
+
+	CMFCPropertyGridProperty * pLodFactor = new CSimpleProp(_T("LodFactor"), (_variant_t)actor->m_LodFactor, NULL, PropertyActorLodFactor);
+	pActor->AddSubItem(pLodFactor);
 
 	CMFCPropertyGridProperty * pRigidActor = new CComboProp(_T("RigidActor"), g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT], NULL, PropertyActorRigidActor);
 	for (unsigned int i = 0; i < _countof(g_ActorTypeDesc); i++)
@@ -1039,7 +1043,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 6;
+		return 7;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -1359,10 +1363,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyActorLodRatio:
+	case PropertyActorLodDist:
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
-		actor->m_LodRatio = pProp->GetValue().fltVal;
+		actor->m_LodDist = pProp->GetValue().fltVal;
+		EventArgs arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorLodFactor:
+	{
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		actor->m_LodFactor = pProp->GetValue().fltVal;
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
