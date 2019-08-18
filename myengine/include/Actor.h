@@ -64,7 +64,7 @@ protected:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_Lod(Component::LOD0)
-		, m_LodDist(30.0f)
+		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
 	{
@@ -79,7 +79,7 @@ public:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_Lod(Component::LOD0)
-		, m_LodDist(30.0f)
+		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
 	{
