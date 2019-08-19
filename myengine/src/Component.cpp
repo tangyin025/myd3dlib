@@ -963,18 +963,49 @@ void EmitterComponent::RequestResource(void)
 {
 	Component::RequestResource();
 
-	if (m_Material)
+	if (!m_Decl)
 	{
-		m_Material->RequestResource();
+		IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
+		std::vector<D3DVERTEXELEMENT9> elems = m_VertexElems.BuildVertexElementList(0);
+		elems.insert(elems.end(), RenderPipeline::m_ParticleIEList.begin(), RenderPipeline::m_ParticleIEList.end());
+		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+		elems.push_back(ve_end);
+		HRESULT hr;
+		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
+
+		m_VertexStride = D3DXGetDeclVertexSize(&elems[0], 0);
+
+		_ASSERT(!m_vb.m_ptr);
+		m_vb.CreateVertexBuffer(m_VertexStride * 4, 0, 0, D3DPOOL_MANAGED);
+		unsigned char * pVertices = (unsigned char *)m_vb.Lock(0, m_VertexStride * 4);
+		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0, 0));
+		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(0, 1));
+		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 2, Vector2(1, 1));
+		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(1, 0));
+		m_vb.Unlock();
+
+		_ASSERT(!m_ib.m_ptr);
+		m_ib.CreateIndexBuffer(sizeof(WORD) * 4, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		WORD * pIndices = (WORD *)m_ib.Lock(0, sizeof(WORD) * 4);
+		pIndices[0] = 0;
+		pIndices[1] = 1;
+		pIndices[2] = 2;
+		pIndices[3] = 3;
+		m_ib.Unlock();
 	}
+
+	m_Material->RequestResource();
 }
 
 void EmitterComponent::ReleaseResource(void)
 {
-	if (m_Material)
-	{
-		m_Material->ReleaseResource();
-	}
+	m_Decl.Release();
+
+	m_vb.OnDestroyDevice();
+
+	m_ib.OnDestroyDevice();
+
+	m_Material->ReleaseResource();
 
 	Component::ReleaseResource();
 }
@@ -1041,11 +1072,11 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 
 					if (!m_EmitterToWorld)
 					{
-						pipeline->PushEmitter(PassID, this, shader, this, m_Material.get(), 0);
+						pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLEFAN, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
 					}
 					else
 					{
-						pipeline->PushWorldEmitter(PassID, this, shader, this, m_Material.get(), 0);
+						pipeline->PushWorldEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLEFAN, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
 					}
 				}
 			}

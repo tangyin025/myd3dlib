@@ -21,6 +21,8 @@
 
 using namespace my;
 
+std::vector<D3DVERTEXELEMENT9> RenderPipeline::m_ParticleIEList;
+
 RenderPipeline::RenderPipeline(void)
 	: m_ParticleVertexStride(0)
 	, m_ParticleInstanceStride(0)
@@ -244,8 +246,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_ParticleVertexElems.InsertTexcoordElement(0);
-
 	m_ParticleInstanceElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
 	m_ParticleInstanceElems.InsertNormalElement(offset);
@@ -255,20 +255,9 @@ HRESULT RenderPipeline::OnCreateDevice(
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 2);
 	offset += sizeof(Vector4);
 
-	m_ParticleVEList = m_ParticleVertexElems.BuildVertexElementList(0);
-	std::vector<D3DVERTEXELEMENT9> IEList = m_ParticleInstanceElems.BuildVertexElementList(1);
-	m_ParticleVEList.insert(m_ParticleVEList.end(), IEList.begin(), IEList.end());
-	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-	m_ParticleVEList.push_back(ve_end);
+	m_ParticleIEList = m_ParticleInstanceElems.BuildVertexElementList(1);
 
-	m_ParticleVertexStride = D3DXGetDeclVertexSize(&m_ParticleVEList[0], 0);
-	m_ParticleInstanceStride = D3DXGetDeclVertexSize(&m_ParticleVEList[0], 1);
-
-	HRESULT hr;
-	if(FAILED(hr = pd3dDevice->CreateVertexDeclaration(&m_ParticleVEList[0], &m_ParticleDecl)))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
+	m_ParticleInstanceStride = offset;
 
 	offset = 0;
 	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 1);
@@ -281,6 +270,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(Vector4);
 
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
+
 	m_MeshInstanceStride = offset;
 
 	if (!(m_SimpleSample = my::ResourceMgr::getSingleton().LoadEffect("shader/SimpleSample.fx", "")))
@@ -339,24 +329,6 @@ HRESULT RenderPipeline::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	_ASSERT(!m_ParticleVertexBuffer.m_ptr);
-	m_ParticleVertexBuffer.CreateVertexBuffer(m_ParticleVertexStride * 4, 0, 0, D3DPOOL_DEFAULT);
-	unsigned char * pVertices = (unsigned char *)m_ParticleVertexBuffer.Lock(0, m_ParticleVertexStride * 4);
-	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 0, Vector2(0,0));
-	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 1, Vector2(0,1));
-	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 2, Vector2(1,1));
-	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 3, Vector2(1,0));
-	m_ParticleVertexBuffer.Unlock();
-
-	_ASSERT(!m_ParticleIndexBuffer.m_ptr);
-	m_ParticleIndexBuffer.CreateIndexBuffer(sizeof(WORD) * 4, 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
-	WORD * pIndices = (WORD *)m_ParticleIndexBuffer.Lock(0, sizeof(WORD) * 4);
-	pIndices[0] = 0;
-	pIndices[1] = 1;
-	pIndices[2] = 2;
-	pIndices[3] = 3;
-	m_ParticleIndexBuffer.Unlock();
-
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
 	m_ParticleInstanceData.CreateVertexBuffer(m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
 
@@ -373,8 +345,6 @@ HRESULT RenderPipeline::OnResetDevice(
 
 void RenderPipeline::OnLostDevice(void)
 {
-	m_ParticleVertexBuffer.OnDestroyDevice();
-	m_ParticleIndexBuffer.OnDestroyDevice();
 	m_ParticleInstanceData.OnDestroyDevice();
 	m_MeshInstanceData.OnDestroyDevice();
 	m_ShadowRT->OnDestroyDevice();
@@ -383,14 +353,11 @@ void RenderPipeline::OnLostDevice(void)
 
 void RenderPipeline::OnDestroyDevice(void)
 {
-	_ASSERT(!m_ParticleVertexBuffer.m_ptr);
-	_ASSERT(!m_ParticleIndexBuffer.m_ptr);
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
+
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 
 	m_ShaderCache.clear();
-
-	m_ParticleDecl.Release();
 
 	ClearAllObjects();
 
@@ -702,7 +669,21 @@ void RenderPipeline::RenderAllObjects(
 	{
 		if (!emitter_iter->emitter->m_ParticleList.empty())
 		{
-			DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->shader, emitter_iter->cmp, emitter_iter->mtl, emitter_iter->lparam);
+			DrawEmitter(
+				PassID,
+				pd3dDevice,
+				emitter_iter->pDecl,
+				emitter_iter->pVB,
+				emitter_iter->pIB,
+				emitter_iter->PrimitiveType,
+				emitter_iter->NumVertices,
+				emitter_iter->VertexStride,
+				emitter_iter->PrimitiveCount,
+				emitter_iter->emitter,
+				emitter_iter->shader,
+				emitter_iter->cmp,
+				emitter_iter->mtl,
+				emitter_iter->lparam);
 			m_PassDrawCall[PassID]++;
 		}
 	}
@@ -868,7 +849,21 @@ void RenderPipeline::DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd
 	shader->End();
 }
 
-void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::DrawEmitter(
+	unsigned int PassID,
+	IDirect3DDevice9 * pd3dDevice,
+	IDirect3DVertexDeclaration9* pDecl,
+	IDirect3DVertexBuffer9 * pVB,
+	IDirect3DIndexBuffer9 * pIB,
+	D3DPRIMITIVETYPE PrimitiveType,
+	UINT NumVertices,
+	UINT VertexStride,
+	UINT PrimitiveCount,
+	my::Emitter * emitter,
+	my::Effect * shader,
+	Component * cmp,
+	Material * mtl,
+	LPARAM lparam)
 {
 	const DWORD NumInstances = my::Min(emitter->m_ParticleList.size(), PARTICLE_INSTANCE_MAX);
 	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
@@ -901,15 +896,15 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;
-		V(pd3dDevice->SetStreamSource(0, m_ParticleVertexBuffer.m_ptr, 0, m_ParticleVertexStride));
+		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
 		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
 		V(pd3dDevice->SetStreamSource(1, m_ParticleInstanceData.m_ptr, 0, m_ParticleInstanceStride));
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
-		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
-		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
+		V(pd3dDevice->SetVertexDeclaration(pDecl));
+		V(pd3dDevice->SetIndices(pIB));
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
-		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
+		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, 0, 0, NumVertices, 0, PrimitiveCount));
 		V(pd3dDevice->SetStreamSourceFreq(0,1));
 		V(pd3dDevice->SetStreamSourceFreq(1,1));
 		shader->EndPass();
@@ -954,15 +949,15 @@ void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;
-		V(pd3dDevice->SetStreamSource(0, m_ParticleVertexBuffer.m_ptr, 0, m_ParticleVertexStride));
+		V(pd3dDevice->SetStreamSource(0, atom.pVB, 0, atom.VertexStride));
 		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
 		V(pd3dDevice->SetStreamSource(1, m_ParticleInstanceData.m_ptr, 0, m_ParticleInstanceStride));
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
-		V(pd3dDevice->SetVertexDeclaration(m_ParticleDecl));
-		V(pd3dDevice->SetIndices(m_ParticleIndexBuffer.m_ptr));
+		V(pd3dDevice->SetVertexDeclaration(atom.pDecl));
+		V(pd3dDevice->SetIndices(atom.pIB));
 		mtl->OnSetShader(pd3dDevice, shader, lparam);
 		shader->CommitChanges();
-		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
+		V(pd3dDevice->DrawIndexedPrimitive(atom.PrimitiveType, 0, 0, atom.NumVertices, 0, atom.PrimitiveCount));
 		V(pd3dDevice->SetStreamSourceFreq(0, 1));
 		V(pd3dDevice->SetStreamSourceFreq(1, 1));
 		shader->EndPass();
@@ -1164,9 +1159,29 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 	}
 }
 
-void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::PushEmitter(
+	unsigned int PassID,
+	IDirect3DVertexDeclaration9* pDecl,
+	IDirect3DVertexBuffer9 * pVB,
+	IDirect3DIndexBuffer9 * pIB,
+	D3DPRIMITIVETYPE PrimitiveType,
+	UINT NumVertices,
+	UINT VertexStride,
+	UINT PrimitiveCount,
+	my::Emitter * emitter,
+	my::Effect * shader,
+	Component * cmp,
+	Material * mtl,
+	LPARAM lparam)
 {
 	EmitterAtom atom;
+	atom.pDecl = pDecl;
+	atom.pVB = pVB;
+	atom.pIB = pIB;
+	atom.PrimitiveType = PrimitiveType;
+	atom.NumVertices = NumVertices;
+	atom.VertexStride = VertexStride;
+	atom.PrimitiveCount = PrimitiveCount;
 	atom.emitter = emitter;
 	atom.shader = shader;
 	atom.cmp = cmp;
@@ -1192,10 +1207,39 @@ namespace boost
 	}
 }
 
-void RenderPipeline::PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::PushWorldEmitter(
+	unsigned int PassID,
+	IDirect3DVertexDeclaration9* pDecl,
+	IDirect3DVertexBuffer9 * pVB,
+	IDirect3DIndexBuffer9 * pIB,
+	D3DPRIMITIVETYPE PrimitiveType,
+	UINT NumVertices,
+	UINT VertexStride,
+	UINT PrimitiveCount,
+	my::Emitter * emitter,
+	my::Effect * shader,
+	Component * cmp,
+	Material * mtl,
+	LPARAM lparam)
 {
 	WorldEmitterAtomKey key(shader, mtl, lparam);
-	WorldEmitterAtom & atom = m_Pass[PassID].m_WorldEmitterMap[key];
-	atom.emitters.push_back(std::make_pair(emitter, cmp));
-	atom.TotalParticles += emitter->m_ParticleList.size();
+	WorldEmitterAtomMap::iterator atom_iter = m_Pass[PassID].m_WorldEmitterMap.find(key);
+	if (atom_iter == m_Pass[PassID].m_WorldEmitterMap.end())
+	{
+		WorldEmitterAtom & atom = m_Pass[PassID].m_WorldEmitterMap[key];
+		atom.pDecl = pDecl;
+		atom.pVB = pVB;
+		atom.pIB = pIB;
+		atom.PrimitiveType = PrimitiveType;
+		atom.NumVertices = NumVertices;
+		atom.VertexStride = VertexStride;
+		atom.PrimitiveCount = PrimitiveCount;
+		atom.emitters.push_back(std::make_pair(emitter, cmp));
+		atom.TotalParticles += emitter->m_ParticleList.size();
+	}
+	else
+	{
+		atom_iter->second.emitters.push_back(std::make_pair(emitter, cmp));
+		atom_iter->second.TotalParticles += emitter->m_ParticleList.size();
+	}
 }

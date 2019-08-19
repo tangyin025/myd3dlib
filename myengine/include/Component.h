@@ -322,6 +322,16 @@ class EmitterComponent
 	, public my::Emitter
 {
 public:
+	my::D3DVertexElementSet m_VertexElems;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	DWORD m_VertexStride;
+
+	my::VertexBuffer m_vb;
+
+	my::IndexBuffer m_ib;
+
 	MaterialPtr m_Material;
 
 	bool m_EmitterToWorld;
@@ -352,6 +362,7 @@ public:
 		, handle_World(NULL)
 		, handle_ParticleOffset(NULL)
 	{
+		m_VertexElems.InsertTexcoordElement(0);
 	}
 
 	friend class boost::serialization::access;
@@ -360,6 +371,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+		ar & BOOST_SERIALIZATION_NVP(m_VertexElems);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterToWorld);
 		ar & BOOST_SERIALIZATION_NVP(m_ParticleOffset);

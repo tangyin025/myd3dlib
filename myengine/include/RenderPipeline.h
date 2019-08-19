@@ -51,21 +51,13 @@ public:
 
 	ShaderCacheMap m_ShaderCache;
 
-	my::D3DVertexElementSet m_ParticleVertexElems;
-
 	my::D3DVertexElementSet m_ParticleInstanceElems;
 
-	std::vector<D3DVERTEXELEMENT9> m_ParticleVEList;
+	static std::vector<D3DVERTEXELEMENT9> m_ParticleIEList;
 
 	DWORD m_ParticleVertexStride;
 
 	DWORD m_ParticleInstanceStride;
-
-	CComPtr<IDirect3DVertexDeclaration9> m_ParticleDecl;
-
-	my::VertexBuffer m_ParticleVertexBuffer;
-
-	my::IndexBuffer m_ParticleIndexBuffer;
 
 	my::VertexBuffer m_ParticleInstanceData;
 
@@ -313,6 +305,13 @@ public:
 
 	struct EmitterAtom
 	{
+		IDirect3DVertexDeclaration9* pDecl;
+		IDirect3DVertexBuffer9 * pVB;
+		IDirect3DIndexBuffer9 * pIB;
+		D3DPRIMITIVETYPE PrimitiveType;
+		UINT NumVertices;
+		UINT VertexStride;
+		UINT PrimitiveCount;
 		my::Emitter * emitter;
 		my::Effect * shader;
 		Component * cmp;
@@ -324,6 +323,13 @@ public:
 
 	struct WorldEmitterAtom
 	{
+		IDirect3DVertexDeclaration9* pDecl;
+		IDirect3DVertexBuffer9 * pVB;
+		IDirect3DIndexBuffer9 * pIB;
+		D3DPRIMITIVETYPE PrimitiveType;
+		UINT NumVertices;
+		UINT VertexStride;
+		UINT PrimitiveCount;
 		typedef std::vector<std::pair<my::Emitter *, Component *> > EmitterPairList;
 		EmitterPairList emitters;
 		DWORD TotalParticles;
@@ -463,7 +469,21 @@ public:
 
 	void DrawMeshInstance(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Material * mtl, LPARAM lparam, MeshInstanceAtom & atom);
 
-	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
+	void DrawEmitter(
+		unsigned int PassID,
+		IDirect3DDevice9 * pd3dDevice,
+		IDirect3DVertexDeclaration9* pDecl,
+		IDirect3DVertexBuffer9 * pVB,
+		IDirect3DIndexBuffer9 * pIB,
+		D3DPRIMITIVETYPE PrimitiveType,
+		UINT NumVertices,
+		UINT VertexStride,
+		UINT PrimitiveCount,
+		my::Emitter * emitter,
+		my::Effect * shader,
+		Component * cmp,
+		Material * mtl,
+		LPARAM lparam);
 
 	void DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Effect * shader, Material * mtl, LPARAM lparam, WorldEmitterAtom & atom);
 
@@ -504,7 +524,33 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
+	void PushEmitter(
+		unsigned int PassID,
+		IDirect3DVertexDeclaration9* pDecl,
+		IDirect3DVertexBuffer9 * pVB,
+		IDirect3DIndexBuffer9 * pIB,
+		D3DPRIMITIVETYPE PrimitiveType,
+		UINT NumVertices,
+		UINT VertexStride,
+		UINT PrimitiveCount,
+		my::Emitter * emitter,
+		my::Effect * shader,
+		Component * cmp,
+		Material * mtl,
+		LPARAM lparam);
 
-	void PushWorldEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
+	void PushWorldEmitter(
+		unsigned int PassID,
+		IDirect3DVertexDeclaration9* pDecl,
+		IDirect3DVertexBuffer9 * pVB,
+		IDirect3DIndexBuffer9 * pIB,
+		D3DPRIMITIVETYPE PrimitiveType,
+		UINT NumVertices,
+		UINT VertexStride,
+		UINT PrimitiveCount,
+		my::Emitter * emitter,
+		my::Effect * shader,
+		Component * cmp,
+		Material * mtl,
+		LPARAM lparam);
 };
