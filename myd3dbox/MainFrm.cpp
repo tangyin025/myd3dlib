@@ -670,7 +670,8 @@ void CMainFrame::OnFileOpen()
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 	ASSERT_VALID(pView);
 	CWaitCursor waiter;
-	std::basic_ifstream<char> ifs(m_strPathName);
+	my::IStreamBuff buff(my::FileIStream::Open(m_strPathName));
+	std::istream ifs(&buff);
 	std::basic_string<TCHAR> Ext(PathFindExtension((LPCTSTR)m_strPathName));
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
 	if (Ext == _T(".xml"))
