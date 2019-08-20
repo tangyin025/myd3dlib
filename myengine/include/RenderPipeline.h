@@ -55,8 +55,6 @@ public:
 
 	static std::vector<D3DVERTEXELEMENT9> m_ParticleIEList;
 
-	DWORD m_ParticleVertexStride;
-
 	DWORD m_ParticleInstanceStride;
 
 	my::VertexBuffer m_ParticleInstanceData;

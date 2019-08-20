@@ -24,8 +24,7 @@ using namespace my;
 std::vector<D3DVERTEXELEMENT9> RenderPipeline::m_ParticleIEList;
 
 RenderPipeline::RenderPipeline(void)
-	: m_ParticleVertexStride(0)
-	, m_ParticleInstanceStride(0)
+	: m_ParticleInstanceStride(0)
 	, m_MeshInstanceStride(0)
 	, SHADOW_MAP_SIZE(1024)
 	, SHADOW_EPSILON(0.001f)
