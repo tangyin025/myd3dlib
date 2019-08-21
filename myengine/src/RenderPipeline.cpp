@@ -467,12 +467,37 @@ void RenderPipeline::OnRender(
 			D3DCOLOR color;
 			FLOAT tu, tv;
 		};
-		CUSTOMVERTEX vertices[] =
+		const CUSTOMVERTEX vertices[] =
 		{
-			{-1,  1, -1, bgcolor, 0, 0},
-			{-1, -1, -1, bgcolor, 0, 1},
-			{ 1, -1, -1, bgcolor, 1, 1},
-			{ 1,  1, -1, bgcolor, 1, 0},
+			{-1,  1, -1, bgcolor, 0, 0 },
+			{-1, -1, -1, bgcolor, 0, 1 },
+			{ 1, -1, -1, bgcolor, 1, 1 },
+			{ 1,  1, -1, bgcolor, 1, 0 },
+
+			{ 1,  1,  1, bgcolor, 0, 0 },
+			{ 1, -1,  1, bgcolor, 0, 1 },
+			{-1, -1,  1, bgcolor, 1, 1 },
+			{-1,  1,  1, bgcolor, 1, 0 },
+
+			{-1,  1,  1, bgcolor, 0, 0 },
+			{-1, -1,  1, bgcolor, 0, 1 },
+			{-1, -1, -1, bgcolor, 1, 1 },
+			{-1,  1, -1, bgcolor, 1, 0 },
+
+			{ 1,  1, -1, bgcolor, 0, 0 },
+			{ 1, -1, -1, bgcolor, 0, 1 },
+			{ 1, -1,  1, bgcolor, 1, 1 },
+			{ 1,  1,  1, bgcolor, 1, 0 },
+
+			{-1,  1,  1, bgcolor, 0, 0 },
+			{-1,  1, -1, bgcolor, 0, 1 },
+			{ 1,  1, -1, bgcolor, 1, 1 },
+			{ 1,  1,  1, bgcolor, 1, 0 },
+
+			{-1, -1, -1, bgcolor, 0, 0 },
+			{-1, -1,  1, bgcolor, 0, 1 },
+			{ 1, -1,  1, bgcolor, 1, 1 },
+			{ 1, -1, -1, bgcolor, 1, 0 },
 		};
 		pd3dDevice->SetFVF(D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1);
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
@@ -482,26 +507,19 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetPixelShader(NULL));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&pRC->m_Camera->m_View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&pRC->m_Camera->m_Proj));
+		V(pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP));
+		V(pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-		my::Matrix4 transforms[6] =
-		{
-			my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationY(D3DXToRadian(180)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationY(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationY(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationX(D3DXToRadian( 90)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-			my::Matrix4::RotationX(D3DXToRadian(270)) * my::Matrix4::Translation(pRC->m_Camera->m_Eye),
-		};
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::Translation(pRC->m_Camera->m_Eye)));
 		for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 		{
 			if (m_SkyBoxTextures[i].m_Texture)
 			{
-				V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&transforms[i]));
 				V(pd3dDevice->SetTexture(0, m_SkyBoxTextures[i].m_Texture->m_ptr));
-				V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices, sizeof(vertices[0])));
+				V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices[i * 4], sizeof(vertices[0])));
 			}
 		}
 	}
