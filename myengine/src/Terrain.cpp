@@ -163,7 +163,7 @@ void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 	}
 }
 
-static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)
+static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)
 {
     _ASSERT((hs & (hs - 1)) == 0);
     for (int i = 0; i < N - 1; i += hs * 2)
@@ -186,12 +186,12 @@ static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N, int hs, 
 
     if (hs / 2 > 0)
     {
-        k = FillVertexTable(verts, N, hs / 2, k);
+        k = _FillVertexTable(verts, N, hs / 2, k);
     }
     return k;
 }
 
-static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N)
+static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N)
 {
     _ASSERT(((N - 1) & (N - 2)) == 0);
 	Terrain::IndexTable::element k = 0;
@@ -199,7 +199,11 @@ static unsigned int FillVertexTable(Terrain::IndexTable & verts, int N)
     verts[0][N - 1] = k++;
     verts[N - 1][0] = k++;
     verts[N - 1][N - 1] = k++;
-    return FillVertexTable(verts, N, (N - 1) / 2, k);
+	if (N > 2)
+	{
+		k = _FillVertexTable(verts, N, (N - 1) / 2, k);
+	}
+	return k;
 }
 
 Terrain::Terrain(void)
@@ -225,7 +229,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	, handle_World(NULL)
 {
 	CreateElements();
-	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
+	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	my::Texture2D HeightMap;
 	HeightMap.CreateTexture(1, 1, 1, 0, D3DFMT_L8);
 	D3DSURFACE_DESC desc = HeightMap.GetLevelDesc(0);
@@ -284,7 +288,7 @@ void Terrain::CreateElements(void)
 }
 
 template <class T>
-unsigned int EdgeNv1(T & setter, int N, int r0, int rs, int c0, int cs)
+unsigned int _EdgeNv1(T & setter, int N, int r0, int rs, int c0, int cs)
 {
     _ASSERT((N & (N - 1)) == 0);
     unsigned int k = 0;
@@ -315,13 +319,13 @@ unsigned int EdgeNv1(T & setter, int N, int r0, int rs, int c0, int cs)
 };
 
 template <class T>
-unsigned int EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
+unsigned int _EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
 {
     _ASSERT((N & (N - 1)) == 0);
     _ASSERT((M & (M - 1)) == 0);
 	if (M == 1)
 	{
-		return EdgeNv1(setter, N, r0, rs, c0, cs);
+		return _EdgeNv1(setter, N, r0, rs, c0, cs);
 	}
     unsigned int k = 0;
     for (int i = 0; i < N; i++)
@@ -357,7 +361,7 @@ unsigned int EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
 }
 
 template <class T>
-unsigned int FillNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
+unsigned int _FillNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
 {
     unsigned int k = 0;
     for (int i = 0; i < N; i++)
@@ -439,11 +443,11 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		IndexTable::element k = 0;
 		const int step = 1 << center;
-		k += FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
-		k += EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
-		k += EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[2], M[2], 0, step, 0, step);
-		k += EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
-		k += EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
+		k += _FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
+		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
+		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[2], M[2], 0, step, 0, step);
+		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
+		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
 		_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
@@ -455,7 +459,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		const int step = 1 << center;
-		IndexTable::element k = FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices), N, N, 0, step, 0, step);
+		IndexTable::element k = _FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices), N, N, 0, step, 0, step);
 		frag.ib.Unlock();
 	}
 	return frag;
@@ -482,7 +486,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
-	FillVertexTable(m_IndexTable, m_ChunkSize + 1);
+	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
