@@ -403,15 +403,22 @@ typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
 class StaticEmitterComponent
 	: public EmitterComponent
 {
-public:
+protected:
 	StaticEmitterComponent(void)
-		: EmitterComponent(ComponentTypeStaticEmitter, 1)
+	{
+	}
+
+public:
+	StaticEmitterComponent(unsigned int capacity)
+		: EmitterComponent(ComponentTypeStaticEmitter, capacity)
 	{
 	}
 
 	virtual ~StaticEmitterComponent(void)
 	{
 	}
+
+	friend class boost::serialization::access;
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
@@ -463,9 +470,21 @@ public:
 
 	float m_SpawnLoopTime;
 
-public:
+protected:
 	SphericalEmitterComponent(void)
 		: EmitterComponent(ComponentTypeSphericalEmitter, 1)
+		, m_ParticleLifeTime(FLT_MAX)
+		, m_RemainingSpawnTime(0)
+		, m_SpawnInterval(FLT_MAX)
+		, m_HalfSpawnArea(0, 0, 0)
+		, m_SpawnSpeed(0)
+		, m_SpawnLoopTime(5)
+	{
+	}
+
+public:
+	SphericalEmitterComponent(unsigned int capacity)
+		: EmitterComponent(ComponentTypeSphericalEmitter, capacity)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
@@ -479,24 +498,18 @@ public:
 	{
 	}
 
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnInterval);
-		ar & BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnInclination);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorR);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorG);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorB);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorA);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnAngle);
-		ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	void CopyFrom(const SphericalEmitterComponent & rhs);

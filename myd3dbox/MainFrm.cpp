@@ -867,7 +867,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent());
+	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(1));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->m_PassMask = theApp.default_pass_mask;
@@ -902,7 +902,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent());
+	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(1024));
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;

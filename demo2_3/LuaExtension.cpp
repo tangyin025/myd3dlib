@@ -978,10 +978,10 @@ static void ExportComponent(lua_State * L)
 			.def("Spawn", &EmitterComponent::Spawn)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
-			.def(constructor<>())
+			.def(constructor<unsigned int>())
 
 		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
-			.def(constructor<>())
+			.def(constructor<unsigned int>())
 			.def_readwrite("ParticleLifeTime", &SphericalEmitterComponent::m_ParticleLifeTime)
 			.def_readwrite("SpawnInterval", &SphericalEmitterComponent::m_SpawnInterval)
 			.def_readwrite("HalfSpawnArea", &SphericalEmitterComponent::m_HalfSpawnArea)
