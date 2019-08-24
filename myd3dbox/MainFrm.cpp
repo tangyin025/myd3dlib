@@ -487,9 +487,8 @@ void CMainFrame::OnSelChanged()
 
 void CMainFrame::ClearFileContext()
 {
-	ClearAllNode();
+	StreamRoot::ClearAllNode();
 	m_selactors.clear();
-	m_ViewedActors.clear();
 	theApp.RemoveAllIORequest();
 	PhysXSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();

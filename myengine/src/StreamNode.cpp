@@ -178,9 +178,18 @@ StreamRoot::~StreamRoot()
 {
 }
 
-bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In, const my::AABB & Out)
+void StreamRoot::ClearAllNode(void)
 {
-	StreamNodeSet::iterator node_iter = m_ViewedNodes.begin();
+	StreamNode::ClearAllNode();
+
+	m_ViewedNodes.clear();
+
+	m_ViewedActors.clear();
+}
+
+bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In, const my::AABB & Out, bool IsEditor)
+{
+	StreamNodeSet::iterator node_iter = !IsEditor ? m_ViewedNodes.begin() : m_ViewedNodes.end();
 	for (; node_iter != m_ViewedNodes.end(); )
 	{
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB((*node_iter)->m_aabb, Out);
@@ -241,16 +250,11 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 			_ASSERT(node);
 			if (!node->m_Ready && !node->IsRequested())
 			{
+				IsNodeLoaded = false;
 				node->RequestResource();
 				_ASSERT(m_ViewedNodes.find(node) == m_ViewedNodes.end());
-				m_ViewedNodes.insert(node);
-				IsNodeLoaded = false;
-				return;
 			}
-			else
-			{
-				m_ViewedNodes.insert(node);
-			}
+			m_ViewedNodes.insert(node);
 
 			OctActorMap::const_iterator actor_iter = node->m_Actors.begin();
 			for (; actor_iter != node->m_Actors.end(); actor_iter++)
@@ -267,12 +271,8 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 						actor->RequestResource();
 						actor->OnEnterPxScene(m_Scene);
 						_ASSERT(m_ViewedActors.find(actor) == m_ViewedActors.end());
-						m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
 					}
-					else
-					{
-						_ASSERT(m_ViewedActors.find(actor) != m_ViewedActors.end());
-					}
+					m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
 					break;
 				}
 				}

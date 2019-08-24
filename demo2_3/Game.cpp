@@ -588,7 +588,7 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	ClearAllNode();
+	StreamRoot::ClearAllNode();
 
 	m_Console.reset();
 
@@ -639,7 +639,7 @@ void Game::OnFrameTick(
 
 	CheckViewedActor(this,
 		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f),
-		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
+		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f), false);
 
 	m_d3dDeviceSec.Enter();
 
@@ -966,7 +966,7 @@ ComponentPtr Game::LoadComponent(const char * path)
 
 void Game::LoadScene(const char * path)
 {
-	ClearAllNode();
+	StreamRoot::ClearAllNode();
 	PhysXSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 

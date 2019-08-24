@@ -436,7 +436,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	BOOL bContinue = FALSE;
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
 	if (!pFrame->CheckViewedActor(pFrame,
-		my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f)))
+		my::AABB(model_view_camera->m_LookAt, 10.0f), my::AABB(model_view_camera->m_LookAt, 10.0f), true))
 	{
 		bContinue = TRUE;
 		m_bNeedDraw = TRUE;

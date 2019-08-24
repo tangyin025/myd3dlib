@@ -78,5 +78,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StreamNode);
 	}
 
-	bool CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In, const my::AABB & Out);
+	void ClearAllNode(void);
+
+	bool CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In, const my::AABB & Out, bool IsEditor);
 };
