@@ -487,7 +487,7 @@ void CMainFrame::OnSelChanged()
 
 void CMainFrame::ClearFileContext()
 {
-	ClearAllActor();
+	ClearAllNode();
 	m_selactors.clear();
 	m_ViewedActors.clear();
 	theApp.RemoveAllIORequest();
@@ -727,8 +727,6 @@ void CMainFrame::OnCreateActor()
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddActor(actor, actor->m_aabb.transform(actor->m_World));
-	actor->RequestResource();
-	actor->OnEnterPxScene(this);
 
 	m_selactors.clear();
 	m_selactors.insert(actor.get());
@@ -994,7 +992,6 @@ void CMainFrame::OnEditDelete()
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->OnLeavePxScene(this);
-		//m_WorldL.m_ViewedActors.erase(*actor_iter);
 		(*actor_iter)->m_Node->GetTopNode()->RemoveActor((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();

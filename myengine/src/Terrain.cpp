@@ -251,7 +251,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 Terrain::~Terrain(void)
 {
 	m_Decl.Release();
-	ClearAllActor();
+	ClearAllNode();
 }
 
 static int _Quad(int v)

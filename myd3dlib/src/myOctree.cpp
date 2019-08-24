@@ -341,7 +341,7 @@ bool OctNode::RemoveActor(OctActorPtr actor)
 	return false;
 }
 
-void OctNode::ClearAllActor(void)
+void OctNode::ClearAllActorInCurrentNode(void)
 {
 	OctActorMap::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -350,12 +350,17 @@ void OctNode::ClearAllActor(void)
 		actor_iter->first->m_Node = NULL;
 	}
 	m_Actors.clear();
+}
+
+void OctNode::ClearAllNode(void)
+{
+	ClearAllActorInCurrentNode();
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
 		if (m_Childs[i])
 		{
-			m_Childs[i]->ClearAllActor();
+			m_Childs[i]->ClearAllNode();
 			m_Childs[i].reset();
 		}
 	}

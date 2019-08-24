@@ -406,7 +406,7 @@ static void ExportMath(lua_State * L)
 		, class_<my::OctNode, boost::shared_ptr<my::OctNode> >("OctNode")
 			.def("AddActor", &my::OctNode::AddActor)
 			.def("RemoveActor", &my::OctNode::RemoveActor)
-			.def("ClearAllActor", &my::OctNode::ClearAllActor)
+			.def("ClearAllNode", &my::OctNode::ClearAllNode)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)

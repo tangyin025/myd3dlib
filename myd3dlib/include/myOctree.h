@@ -127,7 +127,9 @@ namespace my
 
 		bool RemoveActor(OctActorPtr actor);
 
-		void ClearAllActor(void);
+		void ClearAllActorInCurrentNode(void);
+
+		void ClearAllNode(void);
 
 		void Flush(void);
 	};

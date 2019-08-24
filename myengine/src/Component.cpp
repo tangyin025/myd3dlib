@@ -1054,7 +1054,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 
 void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	if (m_Material && (m_Material->m_PassMask & PassMask))
+	if (m_Decl && m_Material && (m_Material->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{

@@ -588,7 +588,7 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	ClearAllActor();
+	ClearAllNode();
 
 	m_Console.reset();
 
@@ -966,7 +966,7 @@ ComponentPtr Game::LoadComponent(const char * path)
 
 void Game::LoadScene(const char * path)
 {
-	ClearAllActor();
+	ClearAllNode();
 	PhysXSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 
