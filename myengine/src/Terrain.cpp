@@ -490,14 +490,17 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
-	struct Callback : public my::OctNode::QueryActorCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		Terrain * terrain;
 		Callback(Terrain * _terrain)
 			: terrain(_terrain)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+		{
+		}
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Col] = chunk;
@@ -566,7 +569,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 {
 	_ASSERT(m_Actor);
 
-	struct Callback : public my::OctNode::QueryActorCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
@@ -579,7 +582,10 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, terrain(_terrain)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+		{
+		}
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			const unsigned int lod[5] =

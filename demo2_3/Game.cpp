@@ -798,7 +798,7 @@ bool Game::ExecuteCode(const char * code) throw()
 
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct Callback : public my::OctNode::QueryActorCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -813,7 +813,10 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 			, TargetPos(_TargetPos)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+		{
+		}
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);

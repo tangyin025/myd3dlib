@@ -223,7 +223,7 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 		weak_actor_iter++;
 	}
 
-	struct Callback : public OctNode::QueryNodeCallback
+	struct Callback : public OctNode::QueryCallback
 	{
 		StreamNodeSet & m_ViewedNodes;
 
@@ -244,9 +244,9 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 		{
 		}
 
-		void operator() (OctNode * oct_node, IntersectionTests::IntersectionType intersect_type)
+		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
 		{
-			StreamNode * node = dynamic_cast<StreamNode *>(oct_node);
+			StreamNode * node = dynamic_cast<StreamNode *>(const_cast<my::OctNode *>(oct_node));
 			_ASSERT(node);
 			if (!node->m_Ready && !node->IsRequested())
 			{
@@ -255,33 +255,23 @@ bool StreamRoot::CheckViewedActor(PhysXSceneContext * Scene, const my::AABB & In
 				_ASSERT(m_ViewedNodes.find(node) == m_ViewedNodes.end());
 			}
 			m_ViewedNodes.insert(node);
+		}
 
-			OctActorMap::const_iterator actor_iter = node->m_Actors.begin();
-			for (; actor_iter != node->m_Actors.end(); actor_iter++)
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor * actor = dynamic_cast<Actor *>(oct_actor);
+			if (!actor->IsRequested())
 			{
-				IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor_iter->second, m_aabb);
-				switch (intersect_type)
-				{
-				case IntersectionTests::IntersectionTypeInside:
-				case IntersectionTests::IntersectionTypeIntersect:
-				{
-					Actor * actor = static_cast<Actor *>(actor_iter->first.get());
-					if (!actor->IsRequested())
-					{
-						actor->RequestResource();
-						actor->OnEnterPxScene(m_Scene);
-						_ASSERT(m_ViewedActors.find(actor) == m_ViewedActors.end());
-					}
-					m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
-					break;
-				}
-				}
+				actor->RequestResource();
+				actor->OnEnterPxScene(m_Scene);
+				_ASSERT(m_ViewedActors.find(actor) == m_ViewedActors.end());
 			}
+			m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
 		}
 	};
 
 	Callback cb(m_ViewedNodes, m_ViewedActors, Scene, In);
-	QueryNode(In, &cb);
+	QueryActor(In, &cb);
 
 	return cb.IsNodeLoaded;
 }

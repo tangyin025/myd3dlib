@@ -40,16 +40,12 @@ namespace my
 	class OctNode
 	{
 	public:
-		struct QueryActorCallback
+		struct QueryCallback
 		{
 		public:
-			virtual void operator() (OctActor * oct_actor, const AABB & aabb, IntersectionTests::IntersectionType) = 0;
-		};
+			virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType) = 0;
 
-		struct QueryNodeCallback
-		{
-		public:
-			virtual void operator() (OctNode * oct_node, IntersectionTests::IntersectionType) = 0;
+			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
 		};
 
 		static const float THRESHOLD;
@@ -113,17 +109,13 @@ namespace my
 
 		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb);
 
-		void QueryActor(const Ray & ray, QueryActorCallback * callback) const;
+		void QueryActor(const Ray & ray, QueryCallback * callback) const;
 
-		void QueryActor(const AABB & aabb, QueryActorCallback * callback) const;
+		void QueryActor(const AABB & aabb, QueryCallback * callback) const;
 
-		void QueryActor(const Frustum & frustum, QueryActorCallback * callback) const;
+		void QueryActor(const Frustum & frustum, QueryCallback * callback) const;
 
-		void QueryActorAll(QueryActorCallback * callback) const;
-
-		void QueryNode(const AABB & aabb, QueryNodeCallback * callback);
-
-		void QueryNodeAll(QueryNodeCallback * callback);
+		void QueryActorAll(QueryCallback * callback) const;
 
 		bool RemoveActor(OctActorPtr actor);
 

@@ -172,7 +172,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
-	struct Callback : public my::OctNode::QueryActorCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -189,7 +189,10 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pFrame(_pFrame)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+		{
+		}
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
@@ -630,7 +633,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 
 	case Component::ComponentTypeTerrain:
 		{
-			struct Callback : public my::OctNode::QueryActorCallback
+			struct Callback : public my::OctNode::QueryCallback
 			{
 				const my::Ray & ray;
 				const my::Vector3 & ViewPos;
@@ -645,7 +648,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					, ret(false, FLT_MAX)
 				{
 				}
-				void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+				{
+				}
+				virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 					const Terrain::Fragment & frag = terrain->GetFragment(
@@ -1029,7 +1035,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			(float)pFrame->m_Tracker.m_rect.right,
 			(float)pFrame->m_Tracker.m_rect.bottom);
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		struct Callback : public my::OctNode::QueryActorCallback
+		struct Callback : public my::OctNode::QueryCallback
 		{
 			CMainFrame::ActorSet & selacts;
 			const my::Frustum & ftm;
@@ -1040,7 +1046,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+			{
+			}
+			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_actor);
 				ASSERT(actor);
@@ -1054,7 +1063,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		struct Callback : public my::OctNode::QueryActorCallback
+		struct Callback : public my::OctNode::QueryCallback
 		{
 			const my::Ray & ray;
 			CChildView * pView;
@@ -1069,7 +1078,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, selchunkid(0, 0)
 			{
 			}
-			void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+			{
+			}
+			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_actor);
 				ASSERT(actor);

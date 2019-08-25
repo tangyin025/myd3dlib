@@ -1126,12 +1126,15 @@ void CMainFrame::OnToolsBuildnavigation()
 	//if (!rcRasterizeTriangles(this, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb))
 	//}
 
-	struct Callback : public my::OctNode::QueryActorCallback
+	struct Callback : public my::OctNode::QueryCallback
 	{
 		Callback(void)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
+		{
+		}
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
