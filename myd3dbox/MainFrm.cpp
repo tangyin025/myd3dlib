@@ -726,6 +726,8 @@ void CMainFrame::OnCreateActor()
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
 
 	m_selactors.clear();
 	m_selactors.insert(actor.get());
