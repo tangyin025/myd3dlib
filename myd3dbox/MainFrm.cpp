@@ -182,7 +182,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	if (!m_wndEnvironment.Create(_T("Environment"), this, CRect(0, 0, 200, 200), TRUE, 3003,
-		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create Environment window\n");
 		return FALSE; // failed to create
@@ -202,7 +202,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_wndEnvironment);
 	CDockablePane* pTabbedBar = NULL;
 	//m_wndProperties.AttachToTabWnd(&m_wndOutliner, DM_SHOW, FALSE, &pTabbedBar);
-	m_wndEnvironment.AttachToTabWnd(&m_wndProperties, DM_SHOW, FALSE, &pTabbedBar);
+	//m_wndEnvironment.AttachToTabWnd(&m_wndProperties, DM_SHOW, FALSE, &pTabbedBar);
 
 
 	// enable Visual Studio 2005 style docking window behavior
