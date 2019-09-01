@@ -9,6 +9,8 @@ sampler DiffuseTextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler NormalTextureSampler = sampler_state
@@ -17,6 +19,8 @@ sampler NormalTextureSampler = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler SpecularTextureSampler = sampler_state
@@ -25,6 +29,8 @@ sampler SpecularTextureSampler = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 struct SHADOW_VS_OUTPUT

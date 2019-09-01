@@ -1,5 +1,7 @@
 
+float g_AlphaMask:MaterialParameter = 0.5;
 texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
+texture g_NormalTexture:MaterialParameter<string Initialize="texture/Normal.dds";>;
 texture g_SpecularTexture:MaterialParameter<string Initialize="texture/White.dds";>;
 
 sampler DiffuseTextureSampler = sampler_state
@@ -8,6 +10,18 @@ sampler DiffuseTextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+};
+
+sampler NormalTextureSampler = sampler_state
+{
+	Texture = <g_NormalTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler SpecularTextureSampler = sampler_state
@@ -16,12 +30,15 @@ sampler SpecularTextureSampler = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 struct SHADOW_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
+	float2 Tex1				: TEXCOORD1;
 };
 
 SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
@@ -29,11 +46,14 @@ SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
     SHADOW_VS_OUTPUT Output;
 	Output.Pos = TransformPosShadow(In);
 	Output.Tex0 = Output.Pos.zw;
+	Output.Tex1 = TransformUV(In);
     return Output;    
 }
 
 float4 ShadowPS( SHADOW_VS_OUTPUT In ) : COLOR0
 { 
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	clip(Diffuse.a - g_AlphaMask);
     return In.Tex0.x / In.Tex0.y;
 }
 
@@ -42,6 +62,8 @@ struct NORMAL_VS_OUTPUT
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: TEXCOORD1;
+	float3 Tangent			: TEXCOORD2;
+	float3 Binormal			: TEXCOORD3;
 	float3 ViewPos			: TEXCOORD4;
 };
 
@@ -51,16 +73,9 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
-	float3 Normal = TransformNormal(In);
-	float3 ViewDir = g_Eye - PosWS.xyz;
-	if (dot(ViewDir, Normal) < 0)
-	{
-		Output.Normal = mul(-Normal, (float3x3)g_View);
-	}
-	else
-	{
-		Output.Normal = mul(Normal, (float3x3)g_View);
-	}
+	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
+	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
+	Output.Binormal = cross(Output.Normal, Output.Tangent);
 	Output.ViewPos = mul(PosWS, g_View);
 	return Output;
 }
@@ -69,7 +84,11 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oNormal : COLOR0,
 				out float4 oPos : COLOR1 )
 {
-	oNormal = float4(In.Normal, 1.0);
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	clip(Diffuse.a - g_AlphaMask);
+	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
+	float3 NormalTS = tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1;
+	oNormal = float4(mul(NormalTS, m), 1.0);
 	oPos = float4(In.ViewPos, 1.0);
 }
 
@@ -96,6 +115,8 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	clip(Diffuse.a - g_AlphaMask);
 	float3 SkyLightDir = normalize(float3(g_SkyLightViewProj[0][2],g_SkyLightViewProj[1][2],g_SkyLightViewProj[2][2]));
 	float3 ViewSkyLightDir = mul(SkyLightDir, g_View);
 	float2 ScreenTex = In.PosScreen.xy / In.PosScreen.w * 0.5 + 0.5;
@@ -106,7 +127,6 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float3 SkyDiffuse = saturate(-dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(Normal.xyz, In.ViewDir);
 	float SkySpecular = pow(saturate(dot(Ref, -ViewSkyLightDir) * LightAmount), 5) * g_SkyLightColor.w;
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
 	Diffuse *= tex2D(LightRTSampler, ScreenTex) + float4(SkyDiffuse, SkySpecular);
 	float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * Diffuse.w;
 	Diffuse.xyz += Specular;
@@ -135,7 +155,5 @@ technique RenderScene
     }
     pass PassTypeTransparent
     {          
-        VertexShader = compile vs_3_0 OpaqueVS();
-        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
 }
