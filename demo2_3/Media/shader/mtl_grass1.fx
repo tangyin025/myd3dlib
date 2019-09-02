@@ -52,7 +52,7 @@ SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
 
 float4 ShadowPS( SHADOW_VS_OUTPUT In ) : COLOR0
 { 
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex1);
 	clip(Diffuse.a - g_AlphaMask);
     return In.Tex0.x / In.Tex0.y;
 }

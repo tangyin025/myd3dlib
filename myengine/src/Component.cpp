@@ -100,26 +100,6 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 {
 }
 
-void Component::BuildLodMacro(DWORD Lod, D3DXMACRO & macro)
-{
-	macro.Name = "LOD";
-	switch (Lod)
-	{
-	case Component::LOD0:
-		macro.Definition = "0";
-		break;
-	case Component::LOD1:
-		macro.Definition = "1";
-		break;
-	case Component::LOD2:
-		macro.Definition = "2";
-		break;
-	default:
-		macro.Definition = "3";
-		break;
-	}
-}
-
 void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
@@ -369,9 +349,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						D3DXMACRO macro[4] = { {0} };
-						BuildLodMacro(m_Actor->m_Lod, macro[0]);
-						int j = 1;
+						D3DXMACRO macro[3] = { {0} };
+						int j = 0;
 						if (m_bInstance)
 						{
 							macro[j++].Name = "INSTANCE";
@@ -861,8 +840,6 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						D3DXMACRO macro[2] = { {0} };
-						BuildLodMacro(m_Actor->m_Lod, macro[0]);
 						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
@@ -1083,8 +1060,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 		{
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
-				D3DXMACRO macro[3] = { {0} };
-				BuildLodMacro(m_Actor->m_Lod, macro[0]);
+				D3DXMACRO macro[2] = { {0} };
 				macro[1].Name = "FACETOCAMERA";
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
