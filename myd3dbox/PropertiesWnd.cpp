@@ -1545,13 +1545,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
-		// ! update whole actor shader cache
-		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
-		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+		// ! reset shader handles
+		mesh_cmp->handle_World = NULL;
+		MaterialPtrList::iterator mat_iter = mesh_cmp->m_MaterialList.begin();
+		for (; mat_iter != mesh_cmp->m_MaterialList.end(); mat_iter++)
 		{
-			(*sel_iter)->ReleaseResource();
-			(*sel_iter)->OnShaderChanged();
-			(*sel_iter)->RequestResource();
+			Material::MaterialParameterPtrList::iterator param_iter = (*mat_iter)->m_ParameterList.begin();
+			for (; param_iter != (*mat_iter)->m_ParameterList.end(); param_iter++)
+			{
+				(*param_iter)->m_Handle = NULL;
+			}
 		}
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1561,13 +1564,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 		mesh_cmp->m_bUseAnimation = pProp->GetValue().boolVal != 0;
-		// ! update whole actor shader cache
-		CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
-		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+		// ! reset shader handles
+		mesh_cmp->handle_World = NULL;
+		MaterialPtrList::iterator mat_iter = mesh_cmp->m_MaterialList.begin();
+		for (; mat_iter != mesh_cmp->m_MaterialList.end(); mat_iter++)
 		{
-			(*sel_iter)->ReleaseResource();
-			(*sel_iter)->OnShaderChanged();
-			(*sel_iter)->RequestResource();
+			Material::MaterialParameterPtrList::iterator param_iter = (*mat_iter)->m_ParameterList.begin();
+			for (; param_iter != (*mat_iter)->m_ParameterList.end(); param_iter++)
+			{
+				(*param_iter)->m_Handle = NULL;
+			}
 		}
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
