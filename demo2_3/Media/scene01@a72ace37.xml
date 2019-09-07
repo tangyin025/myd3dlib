@@ -2,7 +2,7 @@
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="17">
 <m_Actors class_id="0" tracking_level="0" version="0">
-	<count>2</count>
+	<count>1</count>
 	<item_version>0</item_version>
 	<item class_id="1" tracking_level="0" version="0">
 		<first class_id="2" tracking_level="0" version="1">
@@ -1099,17 +1099,17 @@ AIA/
 				<ActorType>0</ActorType>
 				<PxActorSize>628</PxActorSize>
 				<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADgw28CAAAA
-gAAAAAAgxG8CAAAAgAEAAADwxG8CAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOnQP
-CAACAAAAAABUO3QPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzgw28CAAAAAM3Nzc3N
-zc3N9NZ0DwcAAgAAAAAAtNd0DwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACwJRQMAAAA
+gAAAAABwU5QHAAAAgAIAAAAQihQMAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOiAC
+CAADAAAAAABUOyACAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMywJRQMAAAAAM3Nzc3N
+zc3N9NYgAgcAAwAAAAAAtNcgAgMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAM3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAdA8GAAIAAO6WDQAAAAAA
-AAAAIMRvAgEAAQECAAAAAQABAQAAAADNzc3Nzc3NzZDFiQ0AAACFAAAAAM3Nzc3/////TFGKDQEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAIAIGAAMAWDCJBwAAAAAA
+AAAAEIoUDAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzcADhwcAAACFAAAAAM3Nzc3/////PF+HBwEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 				</m_PxActor>
 			</px>
@@ -1124,190 +1124,6 @@ AA==
 				<x>1.600000000e+01</x>
 				<y>1.000000000e+00</y>
 				<z>1.600000000e+01</z>
-			</m_max>
-		</second>
-	</item>
-	<item>
-		<first>
-			<px class_id_reference="4" object_id="_14">
-				<OctActor object_id="_15"></OctActor>
-				<m_aabb>
-					<m_min>
-						<x>-1.000000000e+01</x>
-						<y>-1.000000000e+01</y>
-						<z>-1.000000000e+01</z>
-					</m_min>
-					<m_max>
-						<x>1.000000000e+01</x>
-						<y>5.000000000e+01</y>
-						<z>1.000000000e+01</z>
-					</m_max>
-				</m_aabb>
-				<m_Position>
-					<x>0.000000000e+00</x>
-					<y>0.000000000e+00</y>
-					<z>0.000000000e+00</z>
-				</m_Position>
-				<m_Rotation>
-					<x>0.000000000e+00</x>
-					<y>0.000000000e+00</y>
-					<z>0.000000000e+00</z>
-					<w>1.000000000e+00</w>
-				</m_Rotation>
-				<m_Scale>
-					<x>1.000000015e-01</x>
-					<y>1.000000015e-01</y>
-					<z>1.000000015e-01</z>
-				</m_Scale>
-				<m_World>
-					<_11>1.000000015e-01</_11>
-					<_12>0.000000000e+00</_12>
-					<_13>0.000000000e+00</_13>
-					<_14>0.000000000e+00</_14>
-					<_21>0.000000000e+00</_21>
-					<_22>1.000000015e-01</_22>
-					<_23>0.000000000e+00</_23>
-					<_24>0.000000000e+00</_24>
-					<_31>0.000000000e+00</_31>
-					<_32>0.000000000e+00</_32>
-					<_33>1.000000015e-01</_33>
-					<_34>0.000000000e+00</_34>
-					<_41>0.000000000e+00</_41>
-					<_42>0.000000000e+00</_42>
-					<_43>0.000000000e+00</_43>
-					<_44>1.000000000e+00</_44>
-				</m_World>
-				<m_LodDist>3.300000000e+01</m_LodDist>
-				<m_LodFactor>2.000000000e+00</m_LodFactor>
-				<m_Animator>
-					<px class_id="-1"></px>
-				</m_Animator>
-				<m_Controller>
-					<px class_id="-1"></px>
-				</m_Controller>
-				<m_Cmps>
-					<count>1</count>
-					<item_version>1</item_version>
-					<item>
-						<px class_id="27" class_name="MeshComponent" tracking_level="1" version="0" object_id="_16">
-							<Component object_id="_17">
-								<m_Type>3</m_Type>
-								<m_LodMask>7</m_LodMask>
-							</Component>
-							<m_MeshPath>D:\Works\myd3dlib\demo2_3\Media\mesh\Broadleaf_Desktop_Field.mesh.xml</m_MeshPath>
-							<m_bInstance>0</m_bInstance>
-							<m_bUseAnimation>0</m_bUseAnimation>
-							<m_MaterialList class_id="28" tracking_level="0" version="0">
-								<count>2</count>
-								<item_version>1</item_version>
-								<item>
-									<px class_id_reference="22" object_id="_18">
-										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
-										<m_PassMask>11</m_PassMask>
-										<m_CullMode>2</m_CullMode>
-										<m_ZEnable>1</m_ZEnable>
-										<m_ZWriteEnable>1</m_ZWriteEnable>
-										<m_BlendMode>0</m_BlendMode>
-										<m_ParameterList>
-											<count>3</count>
-											<item_version>1</item_version>
-											<item>
-												<px class_id_reference="26" object_id="_19">
-													<MaterialParameter object_id="_20">
-														<m_Type>5</m_Type>
-														<m_Name>g_DiffuseTexture</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>D:\Works\New_Project\scenes\Main_Bark_Color.png</m_TexturePath>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="26" object_id="_21">
-													<MaterialParameter object_id="_22">
-														<m_Type>5</m_Type>
-														<m_Name>g_NormalTexture</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>D:\Works\New_Project\scenes\Main_Bark_Normal.png</m_TexturePath>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="26" object_id="_23">
-													<MaterialParameter object_id="_24">
-														<m_Type>5</m_Type>
-														<m_Name>g_SpecularTexture</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>texture/White.dds</m_TexturePath>
-												</px>
-											</item>
-										</m_ParameterList>
-									</px>
-								</item>
-								<item>
-									<px class_id_reference="22" object_id="_25">
-										<m_Shader>shader/mtl_grass1.fx</m_Shader>
-										<m_PassMask>11</m_PassMask>
-										<m_CullMode>1</m_CullMode>
-										<m_ZEnable>1</m_ZEnable>
-										<m_ZWriteEnable>1</m_ZWriteEnable>
-										<m_BlendMode>0</m_BlendMode>
-										<m_ParameterList>
-											<count>4</count>
-											<item_version>1</item_version>
-											<item>
-												<px class_id="29" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_26">
-													<MaterialParameter object_id="_27">
-														<m_Type>1</m_Type>
-														<m_Name>g_AlphaMask</m_Name>
-													</MaterialParameter>
-													<m_Value>1.000000015e-01</m_Value>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="26" object_id="_28">
-													<MaterialParameter object_id="_29">
-														<m_Type>5</m_Type>
-														<m_Name>g_DiffuseTexture</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>D:\Works\New_Project\scenes\Broadleaf_Desktop_Field_Color.png</m_TexturePath>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="26" object_id="_30">
-													<MaterialParameter object_id="_31">
-														<m_Type>5</m_Type>
-														<m_Name>g_NormalTexture</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>D:\Works\New_Project\scenes\Broadleaf_Desktop_Field_Normal.png</m_TexturePath>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="26" object_id="_32">
-													<MaterialParameter object_id="_33">
-														<m_Type>5</m_Type>
-														<m_Name>g_SpecularTexture</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>D:\Works\New_Project\scenes\Broadleaf_Desktop_Field_SS.png</m_TexturePath>
-												</px>
-											</item>
-										</m_ParameterList>
-									</px>
-								</item>
-							</m_MaterialList>
-						</px>
-					</item>
-				</m_Cmps>
-				<ActorType>6</ActorType>
-			</px>
-		</first>
-		<second>
-			<m_min>
-				<x>-1.000000000e+00</x>
-				<y>-1.000000000e+00</y>
-				<z>-1.000000000e+00</z>
-			</m_min>
-			<m_max>
-				<x>1.000000000e+00</x>
-				<y>5.000000000e+00</y>
-				<z>1.000000000e+00</z>
 			</m_max>
 		</second>
 	</item>

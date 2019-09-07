@@ -1061,7 +1061,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
 				D3DXMACRO macro[2] = { {0} };
-				macro[1].Name = "FACETOCAMERA";
+				macro[0].Name = "FACETOCAMERA";
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{

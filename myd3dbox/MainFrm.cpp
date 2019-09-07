@@ -567,6 +567,18 @@ void CMainFrame::OnFileNew()
 	ClearFileContext();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
+	theApp.m_BgColor = my::Vector4(0.7f, 0.7f, 0.7f, 1.0f);
+	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.0f);
+	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
+	{
+		theApp.m_SkyBoxTextures[i].m_TexturePath.clear();
+	}
+	OnSelChanged();
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	ASSERT_VALID(pView);
+	CEnvironmentWnd::CameraPropEventArgs arg(pView);
+	m_EventCameraPropChanged(&arg);
 
 	//TerrainPtr terrain(new Terrain(1, 1, 32, 0.1f));
 	//for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)

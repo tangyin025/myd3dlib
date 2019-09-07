@@ -75,6 +75,8 @@ Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
 
 const Vector2 Vector2::zero(0, 0);
 
+const Vector2 Vector2::one(1, 1);
+
 const Vector2 Vector2::unitX(1, 0);
 
 const Vector2 Vector2::unitY(0, 1);
@@ -151,6 +153,8 @@ Vector4 Vector4::transformTranspose(const Matrix4 & m) const
 }
 
 const Vector4 Vector4::zero(0, 0, 0, 0);
+
+const Vector4 Vector4::one(1, 1, 1, 1);
 
 const Vector4 Vector4::unitX(1, 0, 0, 0);
 

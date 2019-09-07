@@ -322,6 +322,8 @@ namespace my
 	public:
 		static const Vector2 zero;
 
+		static const Vector2 one;
+
 		static const Vector2 unitX;
 
 		static const Vector2 unitY;
@@ -929,6 +931,8 @@ namespace my
 
 	public:
 		static const Vector4 zero;
+
+		static const Vector4 one;
 
 		static const Vector4 unitX;
 
