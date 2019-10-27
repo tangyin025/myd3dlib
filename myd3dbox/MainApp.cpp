@@ -206,6 +206,12 @@ BOOL CMainApp::InitInstance()
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
 		("default_shader", boost::program_options::value(&default_shader)->default_value("shader/mtl_lambert1.fx"), "Default shader")
+		("default_sky_front_texture", boost::program_options::value(&default_sky_texture[CEnvironmentWnd::SkyBoxPropertyTextureFront])->default_value("texture/cloudy_noon_FR.jpg"), "Default sky front texture")
+		("default_sky_back_texture", boost::program_options::value(&default_sky_texture[CEnvironmentWnd::SkyBoxPropertyTextureBack])->default_value("texture/cloudy_noon_BK.jpg"), "Default sky back texture")
+		("default_sky_left_texture", boost::program_options::value(&default_sky_texture[CEnvironmentWnd::SkyBoxPropertyTextureLeft])->default_value("texture/cloudy_noon_LF.jpg"), "Default sky left texture")
+		("default_sky_right_texture", boost::program_options::value(&default_sky_texture[CEnvironmentWnd::SkyBoxPropertyTextureRight])->default_value("texture/cloudy_noon_RT.jpg"), "Default sky right texture")
+		("default_sky_up_texture", boost::program_options::value(&default_sky_texture[CEnvironmentWnd::SkyBoxPropertyTextureUp])->default_value("texture/cloudy_noon_UP.jpg"), "Default sky up texture")
+		("default_sky_down_texture", boost::program_options::value(&default_sky_texture[CEnvironmentWnd::SkyBoxPropertyTextureDown])->default_value("texture/cloudy_noon_DN.jpg"), "Default sky down texture")
 		("default_pass_mask", boost::program_options::value(&default_pass_mask)->default_value(RenderPipeline::PassMaskShadowNormalOpaque), "Default pass mask")
 		;
 	boost::program_options::variables_map vm;
@@ -451,6 +457,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	if (CWinAppEx::OnIdle(lCount))
 	{
 		bContinue = TRUE;
+		m_bNeedDraw = TRUE;
 	}
 
 	m_d3dDeviceSec.Enter();
@@ -464,6 +471,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		pFrame->m_EventSelectionPlaying(&arg);
 
 		bContinue = TRUE;
+		m_bNeedDraw = FALSE;
 	}
 	else if (!bContinue && m_bNeedDraw)
 	{

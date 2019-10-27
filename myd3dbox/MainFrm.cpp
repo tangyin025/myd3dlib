@@ -572,8 +572,9 @@ void CMainFrame::OnFileNew()
 	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.0f);
 	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 	{
-		theApp.m_SkyBoxTextures[i].m_TexturePath.clear();
+		theApp.m_SkyBoxTextures[i].m_TexturePath = theApp.default_sky_texture[i];
 	}
+	theApp.RequestResource();
 	OnSelChanged();
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 	ASSERT_VALID(pView);

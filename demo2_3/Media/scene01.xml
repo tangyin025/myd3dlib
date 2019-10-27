@@ -3,9 +3,9 @@
 <boost_serialization signature="serialization::archive" version="17">
 <RenderPipeline class_id="0" tracking_level="0" version="0">
 	<m_BgColor class_id="1" tracking_level="0" version="0">
-		<x>1.000000000e+00</x>
-		<y>1.000000000e+00</y>
-		<z>1.000000000e+00</z>
+		<x>6.999999881e-01</x>
+		<y>6.999999881e-01</y>
+		<z>6.999999881e-01</z>
 		<w>1.000000000e+00</w>
 	</m_BgColor>
 	<m_SkyLightColor>
@@ -20,12 +20,12 @@
 		<z>3.000000119e-01</z>
 		<w>0.000000000e+00</w>
 	</m_AmbientColor>
-	<m_SkyBoxTextures>texture\cloudy_noon_FR.jpg</m_SkyBoxTextures>
-	<m_SkyBoxTextures>texture\cloudy_noon_BK.jpg</m_SkyBoxTextures>
-	<m_SkyBoxTextures>texture\cloudy_noon_LF.jpg</m_SkyBoxTextures>
-	<m_SkyBoxTextures>texture\cloudy_noon_RT.jpg</m_SkyBoxTextures>
-	<m_SkyBoxTextures>texture\cloudy_noon_UP.jpg</m_SkyBoxTextures>
-	<m_SkyBoxTextures>texture\cloudy_noon_DN.jpg</m_SkyBoxTextures>
+	<m_SkyBoxTextures>texture/cloudy_noon_FR.jpg</m_SkyBoxTextures>
+	<m_SkyBoxTextures>texture/cloudy_noon_BK.jpg</m_SkyBoxTextures>
+	<m_SkyBoxTextures>texture/cloudy_noon_LF.jpg</m_SkyBoxTextures>
+	<m_SkyBoxTextures>texture/cloudy_noon_RT.jpg</m_SkyBoxTextures>
+	<m_SkyBoxTextures>texture/cloudy_noon_UP.jpg</m_SkyBoxTextures>
+	<m_SkyBoxTextures>texture/cloudy_noon_DN.jpg</m_SkyBoxTextures>
 	<m_DofParams>
 		<x>5.000000000e+00</x>
 		<y>1.500000000e+01</y>
@@ -36,6 +36,7 @@
 	<m_SsaoIntensity>5.000000000e+00</m_SsaoIntensity>
 	<m_SsaoRadius>1.000000000e+02</m_SsaoRadius>
 	<m_SsaoScale>1.000000000e+01</m_SsaoScale>
+	<m_HeightFogStartDistance>2.000000000e+01</m_HeightFogStartDistance>
 </RenderPipeline>
 <PhysXSceneContext class_id="2" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>
