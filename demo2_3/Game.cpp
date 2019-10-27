@@ -471,6 +471,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("DofParams", &Game::m_DofParams)
 			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
+			.def_readwrite("HeightFogEnable", &Game::m_HeightFogEnable)
 			.property("VisualizationParameter", &Game::GetVisualizationParameter, &Game::SetVisualizationParameter)
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)

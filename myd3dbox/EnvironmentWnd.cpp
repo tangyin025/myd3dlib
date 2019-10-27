@@ -156,6 +156,9 @@ void CEnvironmentWnd::InitPropList()
 	pHeightFog->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("StartDistance"), (_variant_t)0.0f, NULL, HeightFogPropertyStartDistance);
 	pHeightFog->AddSubItem(pProp);
+	pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, HeightFogPropertyColor);
+	pBgColor->EnableOtherButton(_T("Other..."));
+	pHeightFog->AddSubItem(pBgColor);
 
 	m_wndPropList.AdjustLayout();
 }
@@ -211,6 +214,9 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	CMFCPropertyGridProperty * pHeightFog = m_wndPropList.GetProperty(PropertyHeightFog);
 	pHeightFog->GetSubItem(HeightFogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_HeightFogEnable);
 	pHeightFog->GetSubItem(HeightFogPropertyStartDistance)->SetValue((_variant_t)theApp.m_HeightFogStartDistance);
+
+	color = RGB(theApp.m_HeightFogColor.x * 255, theApp.m_HeightFogColor.y * 255, theApp.m_HeightFogColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pHeightFog->GetSubItem(HeightFogPropertyColor)))->SetColor((_variant_t)color);
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -356,6 +362,8 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			pView->m_HeightFogEnable = pProp->GetSubItem(HeightFogPropertyEnable)->GetValue().boolVal != 0;
 			theApp.m_HeightFogStartDistance = pProp->GetSubItem(HeightFogPropertyStartDistance)->GetValue().fltVal;
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(HeightFogPropertyColor)))->GetColor();
+			theApp.m_HeightFogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 		}
 		break;
 	}

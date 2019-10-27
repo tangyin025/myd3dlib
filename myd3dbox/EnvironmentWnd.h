@@ -57,6 +57,7 @@ class CEnvironmentWnd : public CDockablePane
 	{
 		HeightFogPropertyEnable,
 		HeightFogPropertyStartDistance,
+		HeightFogPropertyColor,
 	};
 
 	enum Vector3Property

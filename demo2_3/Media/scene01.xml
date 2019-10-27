@@ -37,6 +37,12 @@
 	<m_SsaoRadius>1.000000000e+02</m_SsaoRadius>
 	<m_SsaoScale>1.000000000e+01</m_SsaoScale>
 	<m_HeightFogStartDistance>2.000000000e+01</m_HeightFogStartDistance>
+	<m_HeightFogColor>
+		<x>1.000000000e+00</x>
+		<y>1.000000000e+00</y>
+		<z>1.000000000e+00</z>
+		<w>1.000000000e+00</w>
+	</m_HeightFogColor>
 </RenderPipeline>
 <PhysXSceneContext class_id="2" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>
