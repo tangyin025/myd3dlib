@@ -64,6 +64,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
 	, m_SsaoScale(10.0f)
+	, m_HeightFogStartDistance(20)
 {
 }
 
@@ -206,6 +207,7 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoRadius);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoScale);
+	ar << BOOST_SERIALIZATION_NVP(m_HeightFogStartDistance);
 }
 
 template<>
@@ -223,6 +225,7 @@ void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoRadius);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_HeightFogStartDistance);
 }
 
 void RenderPipeline::RequestResource(void)
@@ -321,6 +324,13 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_intensity = m_SsaoEffect->GetParameterByName(NULL, "g_intensity"));
 	BOOST_VERIFY(handle_sample_rad = m_SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 	BOOST_VERIFY(handle_scale = m_SsaoEffect->GetParameterByName(NULL, "g_scale"));
+
+	if (!(m_HeightFogEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/HeightFog.fx", "")))
+	{
+		THROW_CUSEXCEPTION("create m_HeightFogEffect failed");
+	}
+
+	BOOST_VERIFY(handle_HeightFogStartDistance = m_HeightFogEffect->GetParameterByName(NULL, "g_StartDistance"));
 	return S_OK;
 }
 
@@ -531,24 +541,23 @@ void RenderPipeline::OnRender(
 
 	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
 
-	pRC->m_OpaqueRT.Flip();
-
-	if (pRC->m_FxaaEnable)
+	if (pRC->m_HeightFogEnable)
 	{
-		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		m_FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
-		Vector4 RCPFrame(1.0f / pBackBufferSurfaceDesc->Width, 1.0f / pBackBufferSurfaceDesc->Height, 0.0f, 0.0f);
-		m_FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
-		m_FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_FxaaEffect->BeginPass(0);
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+		m_HeightFogEffect->SetFloat(handle_HeightFogStartDistance, m_HeightFogStartDistance);
+		m_HeightFogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+		m_HeightFogEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_FxaaEffect->EndPass();
-		m_FxaaEffect->End();
-		pRC->m_OpaqueRT.Flip();
+		m_HeightFogEffect->EndPass();
+		m_HeightFogEffect->End();
 	}
+
+	pRC->m_OpaqueRT.Flip();
 
 	if (pRC->m_DofEnable)
 	{
@@ -582,6 +591,23 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		m_DofEffect->EndPass();
 		m_DofEffect->End();
+		pRC->m_OpaqueRT.Flip();
+	}
+
+	if (pRC->m_FxaaEnable)
+	{
+		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		m_FxaaEffect->SetTexture(handle_InputTexture, pRC->m_OpaqueRT.GetNextSource().get());
+		Vector4 RCPFrame(1.0f / pBackBufferSurfaceDesc->Width, 1.0f / pBackBufferSurfaceDesc->Height, 0.0f, 0.0f);
+		m_FxaaEffect->SetFloatArray(handle_RCPFrame, &RCPFrame.x, sizeof(RCPFrame) / sizeof(float));
+		m_FxaaEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+		m_FxaaEffect->BeginPass(0);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		m_FxaaEffect->EndPass();
+		m_FxaaEffect->End();
 		pRC->m_OpaqueRT.Flip();
 	}
 

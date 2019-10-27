@@ -150,6 +150,13 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSliderProp(_T("Scale"), (_variant_t)0l, NULL, SSAOPropertyScale);
 	pSSAO->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty * pHeightFog = new CSimpleProp(_T("HeightFog"), PropertyHeightFog, FALSE);
+	m_wndPropList.AddProperty(pHeightFog, FALSE, FALSE);
+	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, HeightFogPropertyEnable);
+	pHeightFog->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("StartDistance"), (_variant_t)0.0f, NULL, HeightFogPropertyStartDistance);
+	pHeightFog->AddSubItem(pProp);
+
 	m_wndPropList.AdjustLayout();
 }
 
@@ -200,6 +207,10 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(theApp.m_SsaoIntensity / SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
 	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(theApp.m_SsaoRadius / SSAO_RADIUS_RANGE*CSliderProp::RANGE));
 	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(theApp.m_SsaoScale / SSAO_SCALE_RANGE*CSliderProp::RANGE));
+
+	CMFCPropertyGridProperty * pHeightFog = m_wndPropList.GetProperty(PropertyHeightFog);
+	pHeightFog->GetSubItem(HeightFogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_HeightFogEnable);
+	pHeightFog->GetSubItem(HeightFogPropertyStartDistance)->SetValue((_variant_t)theApp.m_HeightFogStartDistance);
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -339,6 +350,12 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			theApp.m_SsaoIntensity = pProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
 			theApp.m_SsaoRadius = pProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
 			theApp.m_SsaoScale = pProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
+		}
+		break;
+	case PropertyHeightFog:
+		{
+			pView->m_HeightFogEnable = pProp->GetSubItem(HeightFogPropertyEnable)->GetValue().boolVal != 0;
+			theApp.m_HeightFogStartDistance = pProp->GetSubItem(HeightFogPropertyStartDistance)->GetValue().fltVal;
 		}
 		break;
 	}

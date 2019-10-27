@@ -153,6 +153,12 @@ public:
 
 	float m_SsaoScale;
 
+	my::EffectPtr m_HeightFogEffect;
+
+	D3DXHANDLE handle_HeightFogStartDistance;
+
+	float m_HeightFogStartDistance;
+
 	struct RTChain
 	{
 		typedef boost::array<my::Texture2DPtr, 2> RTArray;
@@ -207,6 +213,8 @@ public:
 
 		bool m_SsaoEnable;
 
+		bool m_HeightFogEnable;
+
 		my::Texture2DPtr m_NormalRT;
 
 		my::Texture2DPtr m_PositionRT;
@@ -222,6 +230,7 @@ public:
 			, m_DofEnable(false)
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)
+			, m_HeightFogEnable(false)
 		{
 		}
 
