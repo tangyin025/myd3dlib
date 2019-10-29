@@ -155,11 +155,7 @@ public:
 
 	my::EffectPtr m_HeightFogEffect;
 
-	D3DXHANDLE handle_HeightFogStartDistance;
-
 	D3DXHANDLE handle_HeightFogColor;
-
-	float m_HeightFogStartDistance;
 
 	my::Vector4 m_HeightFogColor;
 

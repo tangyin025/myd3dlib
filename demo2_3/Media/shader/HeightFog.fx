@@ -1,8 +1,9 @@
 
 #include "CommonHeader.fx"
 
-float g_StartDistance;
 float4 g_FogColor;
+float g_StartDistance = 10;
+float g_FogHeight = 10;
 
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
@@ -15,10 +16,12 @@ struct VS_OUTPUT
 
 float4 HeightFogPS( VS_OUTPUT In ) : COLOR0
 {
-	float depth = -(tex2D( PositionRTSampler, In.TextureUV ).z + g_StartDistance);
-	clip(depth);
-	float alpha = saturate(depth/10);
-    return float4( g_FogColor.xyz,alpha );
+	float4 ViewPos = tex2D(PositionRTSampler, In.TextureUV);
+	float Depth = -ViewPos.z;
+	clip(Depth - g_StartDistance);
+	float Height = ViewPos.x * g_View._21 + ViewPos.y * g_View._22 + ViewPos.z * g_View._23 + g_Eye.y;
+	clip(g_FogHeight - Height);
+    return float4( g_FogColor.xyz,1 );
 }
 
 //--------------------------------------------------------------------------------------

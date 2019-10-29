@@ -64,7 +64,6 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
 	, m_SsaoScale(10.0f)
-	, m_HeightFogStartDistance(20)
 	, m_HeightFogColor(1.0f, 1.0f, 1.0f, 1.0f)
 {
 }
@@ -208,7 +207,6 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoRadius);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoScale);
-	ar << BOOST_SERIALIZATION_NVP(m_HeightFogStartDistance);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightFogColor);
 }
 
@@ -227,7 +225,6 @@ void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoRadius);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_HeightFogStartDistance);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightFogColor);
 }
 
@@ -333,7 +330,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 		THROW_CUSEXCEPTION("create m_HeightFogEffect failed");
 	}
 
-	BOOST_VERIFY(handle_HeightFogStartDistance = m_HeightFogEffect->GetParameterByName(NULL, "g_StartDistance"));
 	BOOST_VERIFY(handle_HeightFogColor = m_HeightFogEffect->GetParameterByName(NULL, "g_FogColor"));
 	return S_OK;
 }
@@ -553,7 +549,6 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-		m_HeightFogEffect->SetFloat(handle_HeightFogStartDistance, m_HeightFogStartDistance);
 		m_HeightFogEffect->SetVector(handle_HeightFogColor, m_HeightFogColor);
 		m_HeightFogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 		m_HeightFogEffect->BeginPass(0);
