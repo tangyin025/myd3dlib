@@ -36,13 +36,15 @@
 	<m_SsaoIntensity>5.000000000e+00</m_SsaoIntensity>
 	<m_SsaoRadius>1.000000000e+02</m_SsaoRadius>
 	<m_SsaoScale>1.000000000e+01</m_SsaoScale>
-	<m_HeightFogStartDistance>2.000000000e+01</m_HeightFogStartDistance>
-	<m_HeightFogColor>
-		<x>1.000000000e+00</x>
+	<m_FogColor>
+		<x>0.000000000e+00</x>
 		<y>1.000000000e+00</y>
 		<z>1.000000000e+00</z>
 		<w>1.000000000e+00</w>
-	</m_HeightFogColor>
+	</m_FogColor>
+	<m_FogStartDistance>1.000000000e+01</m_FogStartDistance>
+	<m_FogHeight>5.000000000e+01</m_FogHeight>
+	<m_FogFalloff>9.999999776e-03</m_FogFalloff>
 </RenderPipeline>
 <PhysXSceneContext class_id="2" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>

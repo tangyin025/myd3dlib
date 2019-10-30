@@ -64,7 +64,10 @@ RenderPipeline::RenderPipeline(void)
 	, m_SsaoIntensity(5.0f)
 	, m_SsaoRadius(100.0f)
 	, m_SsaoScale(10.0f)
-	, m_HeightFogColor(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_FogColor(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_FogStartDistance(10)
+	, m_FogHeight(50)
+	, m_FogFalloff(0.01)
 {
 }
 
@@ -207,7 +210,10 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoRadius);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoScale);
-	ar << BOOST_SERIALIZATION_NVP(m_HeightFogColor);
+	ar << BOOST_SERIALIZATION_NVP(m_FogColor);
+	ar << BOOST_SERIALIZATION_NVP(m_FogStartDistance);
+	ar << BOOST_SERIALIZATION_NVP(m_FogHeight);
+	ar << BOOST_SERIALIZATION_NVP(m_FogFalloff);
 }
 
 template<>
@@ -225,7 +231,10 @@ void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoRadius);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_HeightFogColor);
+	ar >> BOOST_SERIALIZATION_NVP(m_FogColor);
+	ar >> BOOST_SERIALIZATION_NVP(m_FogStartDistance);
+	ar >> BOOST_SERIALIZATION_NVP(m_FogHeight);
+	ar >> BOOST_SERIALIZATION_NVP(m_FogFalloff);
 }
 
 void RenderPipeline::RequestResource(void)
@@ -325,12 +334,15 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_sample_rad = m_SsaoEffect->GetParameterByName(NULL, "g_sample_rad"));
 	BOOST_VERIFY(handle_scale = m_SsaoEffect->GetParameterByName(NULL, "g_scale"));
 
-	if (!(m_HeightFogEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/HeightFog.fx", "")))
+	if (!(m_FogEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/HeightFog.fx", "")))
 	{
-		THROW_CUSEXCEPTION("create m_HeightFogEffect failed");
+		THROW_CUSEXCEPTION("create m_FogEffect failed");
 	}
 
-	BOOST_VERIFY(handle_HeightFogColor = m_HeightFogEffect->GetParameterByName(NULL, "g_FogColor"));
+	BOOST_VERIFY(handle_FogColor = m_FogEffect->GetParameterByName(NULL, "g_FogColor"));
+	BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
+	BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
+	BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
 	return S_OK;
 }
 
@@ -541,7 +553,7 @@ void RenderPipeline::OnRender(
 
 	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
 
-	if (pRC->m_HeightFogEnable)
+	if (pRC->m_FogEnable)
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -549,12 +561,15 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-		m_HeightFogEffect->SetVector(handle_HeightFogColor, m_HeightFogColor);
-		m_HeightFogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		m_HeightFogEffect->BeginPass(0);
+		m_FogEffect->SetVector(handle_FogColor, m_FogColor);
+		m_FogEffect->SetFloat(handle_FogStartDistance, m_FogStartDistance);
+		m_FogEffect->SetFloat(handle_FogHeight, m_FogHeight);
+		m_FogEffect->SetFloat(handle_FogFalloff, m_FogFalloff);
+		m_FogEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+		m_FogEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-		m_HeightFogEffect->EndPass();
-		m_HeightFogEffect->End();
+		m_FogEffect->EndPass();
+		m_FogEffect->End();
 	}
 
 	pRC->m_OpaqueRT.Flip();

@@ -17,7 +17,7 @@ class CEnvironmentWnd : public CDockablePane
 		PropertySkyBox,
 		PropertySkyLight,
 		PropertySSAO,
-		PropertyHeightFog,
+		PropertyFog,
 	};
 
 	enum CameraProperty
@@ -53,10 +53,13 @@ class CEnvironmentWnd : public CDockablePane
 		SSAOPropertyScale,
 	};
 
-	enum HeightFogProperty
+	enum FogProperty
 	{
-		HeightFogPropertyEnable,
-		HeightFogPropertyColor,
+		FogPropertyEnable,
+		FogPropertyColor,
+		FogPropertyStartDistance,
+		FogPropertyHeight,
+		FogPropertyFalloff,
 	};
 
 	enum Vector3Property

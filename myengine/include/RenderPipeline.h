@@ -153,11 +153,23 @@ public:
 
 	float m_SsaoScale;
 
-	my::EffectPtr m_HeightFogEffect;
+	my::EffectPtr m_FogEffect;
 
-	D3DXHANDLE handle_HeightFogColor;
+	D3DXHANDLE handle_FogColor;
 
-	my::Vector4 m_HeightFogColor;
+	D3DXHANDLE handle_FogStartDistance;
+
+	D3DXHANDLE handle_FogHeight;
+
+	D3DXHANDLE handle_FogFalloff;
+
+	my::Vector4 m_FogColor;
+
+	float m_FogStartDistance;
+
+	float m_FogHeight;
+
+	float m_FogFalloff;
 
 	struct RTChain
 	{
@@ -213,7 +225,7 @@ public:
 
 		bool m_SsaoEnable;
 
-		bool m_HeightFogEnable;
+		bool m_FogEnable;
 
 		my::Texture2DPtr m_NormalRT;
 
@@ -230,7 +242,7 @@ public:
 			, m_DofEnable(false)
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)
-			, m_HeightFogEnable(false)
+			, m_FogEnable(false)
 		{
 		}
 

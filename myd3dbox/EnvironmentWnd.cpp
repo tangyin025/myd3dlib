@@ -150,13 +150,19 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSliderProp(_T("Scale"), (_variant_t)0l, NULL, SSAOPropertyScale);
 	pSSAO->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pHeightFog = new CSimpleProp(_T("HeightFog"), PropertyHeightFog, FALSE);
-	m_wndPropList.AddProperty(pHeightFog, FALSE, FALSE);
-	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, HeightFogPropertyEnable);
-	pHeightFog->AddSubItem(pProp);
-	pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, HeightFogPropertyColor);
+	CMFCPropertyGridProperty * pFog = new CSimpleProp(_T("HeightFog"), PropertyFog, FALSE);
+	m_wndPropList.AddProperty(pFog, FALSE, FALSE);
+	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, FogPropertyEnable);
+	pFog->AddSubItem(pProp);
+	pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, FogPropertyColor);
 	pBgColor->EnableOtherButton(_T("Other..."));
-	pHeightFog->AddSubItem(pBgColor);
+	pFog->AddSubItem(pBgColor);
+	pProp = new CSimpleProp(_T("StartDistance"), (_variant_t)0.0f, NULL, FogPropertyStartDistance);
+	pFog->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)0.0f, NULL, FogPropertyHeight);
+	pFog->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Falloff"), (_variant_t)0.0f, NULL, FogPropertyFalloff);
+	pFog->AddSubItem(pProp);
 
 	m_wndPropList.AdjustLayout();
 }
@@ -209,11 +215,13 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(theApp.m_SsaoRadius / SSAO_RADIUS_RANGE*CSliderProp::RANGE));
 	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(theApp.m_SsaoScale / SSAO_SCALE_RANGE*CSliderProp::RANGE));
 
-	CMFCPropertyGridProperty * pHeightFog = m_wndPropList.GetProperty(PropertyHeightFog);
-	pHeightFog->GetSubItem(HeightFogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_HeightFogEnable);
-
-	color = RGB(theApp.m_HeightFogColor.x * 255, theApp.m_HeightFogColor.y * 255, theApp.m_HeightFogColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pHeightFog->GetSubItem(HeightFogPropertyColor)))->SetColor((_variant_t)color);
+	CMFCPropertyGridProperty * pFog = m_wndPropList.GetProperty(PropertyFog);
+	pFog->GetSubItem(FogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_FogEnable);
+	color = RGB(theApp.m_FogColor.x * 255, theApp.m_FogColor.y * 255, theApp.m_FogColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pFog->GetSubItem(FogPropertyColor)))->SetColor((_variant_t)color);
+	pFog->GetSubItem(FogPropertyStartDistance)->SetValue((_variant_t)theApp.m_FogStartDistance);
+	pFog->GetSubItem(FogPropertyHeight)->SetValue((_variant_t)theApp.m_FogHeight);
+	pFog->GetSubItem(FogPropertyFalloff)->SetValue((_variant_t)theApp.m_FogFalloff);
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -355,11 +363,14 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			theApp.m_SsaoScale = pProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
 		}
 		break;
-	case PropertyHeightFog:
+	case PropertyFog:
 		{
-			pView->m_HeightFogEnable = pProp->GetSubItem(HeightFogPropertyEnable)->GetValue().boolVal != 0;
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(HeightFogPropertyColor)))->GetColor();
-			theApp.m_HeightFogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			pView->m_FogEnable = pProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(FogPropertyColor)))->GetColor();
+			theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			theApp.m_FogStartDistance = pProp->GetSubItem(FogPropertyStartDistance)->GetValue().fltVal;
+			theApp.m_FogHeight = pProp->GetSubItem(FogPropertyHeight)->GetValue().fltVal;
+			theApp.m_FogFalloff = pProp->GetSubItem(FogPropertyFalloff)->GetValue().fltVal;
 		}
 		break;
 	}
