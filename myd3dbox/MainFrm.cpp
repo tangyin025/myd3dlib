@@ -705,6 +705,9 @@ void CMainFrame::OnFileOpen()
 	StreamRoot::m_Ready = false;
 
 	theApp.RequestResource();
+	OnSelChanged();
+	CEnvironmentWnd::CameraPropEventArgs arg(pView);
+	m_EventCameraPropChanged(&arg);
 }
 
 void CMainFrame::OnFileSave()
