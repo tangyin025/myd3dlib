@@ -3,6 +3,7 @@ struct VS_INPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
+	float4 Color			: COLOR;
 	float3 Normal			: NORMAL;
 	float3 Tangent			: TANGENT;
 #ifdef SKELETON
@@ -121,5 +122,5 @@ float4 TransformLightWS(VS_INPUT In)
 
 float4 TransformColor(VS_INPUT In)
 {
-	return float4(1,1,1,1);
+	return In.Color;
 }

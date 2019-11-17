@@ -4,6 +4,8 @@
 #include "myDxutApp.h"
 #include "libc.h"
 #include <fstream>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace my;
 
@@ -921,6 +923,12 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		offset += sizeof(Vector3);
 	}
 
+	if (colours_diffuse)
+	{
+		m_VertexElems.InsertColorElement(offset);
+		offset += sizeof(D3DCOLOR);
+	}
+
 	if(texture_coords > MAXBYTE)
 	{
 		THROW_CUSEXCEPTION("texture coords overflow ( > 255 )");
@@ -990,6 +998,21 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.x, attr_tmp, node_normal, x);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.y, attr_tmp, node_normal, y);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.z, attr_tmp, node_normal, z);
+		}
+
+		if (colours_diffuse)
+		{
+			DEFINE_XML_NODE_SIMPLE(colour_diffuse, vertex);
+			DEFINE_XML_ATTRIBUTE_SIMPLE(value, colour_diffuse);
+			const char * color_value = attr_value->value();
+			std::vector<std::string> color_set;
+			boost::algorithm::split(color_set, color_value, boost::is_any_of(" "), boost::algorithm::token_compress_off);
+			D3DXCOLOR Color = D3DCOLOR_ARGB(
+				(int)(boost::lexical_cast<float>(color_set[3]) * 255),
+				(int)(boost::lexical_cast<float>(color_set[0]) * 255),
+				(int)(boost::lexical_cast<float>(color_set[1]) * 255),
+				(int)(boost::lexical_cast<float>(color_set[2]) * 255));
+			m_VertexElems.SetColor(pVertex, Color);
 		}
 
 		rapidxml::xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");

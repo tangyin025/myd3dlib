@@ -2,8 +2,8 @@
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
-	float4 Color			: COLOR;
 	float2 Tex0				: TEXCOORD0;
+	float4 Color			: COLOR;
 	float3 Normal			: NORMAL;
 	float3 Tangent			: TANGENT;
 };

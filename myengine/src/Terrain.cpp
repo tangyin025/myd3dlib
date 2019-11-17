@@ -276,14 +276,14 @@ void Terrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
+	m_VertexElems.InsertTexcoordElement(offset);
+	offset += sizeof(Vector2);
 	m_VertexElems.InsertColorElement(offset);
 	offset += sizeof(D3DCOLOR);
 	m_VertexElems.InsertNormalElement(offset);
 	offset += sizeof(Vector3);
 	m_VertexElems.InsertTangentElement(offset);
 	offset += sizeof(Vector3);
-	m_VertexElems.InsertTexcoordElement(offset);
-	offset += sizeof(Vector2);
 	_ASSERT(m_VertexStride == offset);
 }
 
