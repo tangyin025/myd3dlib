@@ -689,25 +689,18 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 			THROW_D3DEXCEPTION(hr);
 		}
 
+		if (m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type != D3DDECLTYPE_D3DCOLOR)
+		{
+			THROW_CUSEXCEPTION("mesh must have vertex color for cloth weight");
+		}
+
 		m_particles.resize(mesh->GetNumVertices());
 		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
 		for(unsigned int i = 0; i < m_particles.size(); i++) {
 			unsigned char * pVertex = pVertices + i * m_VertexStride;
 			m_particles[i].pos = (physx::PxVec3 &)m_VertexElems.GetPosition(pVertex);
-			if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-			{
-				BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
-				_ASSERT(m_VertexElems.elems[D3DDECLUSAGE_BLENDWEIGHT][0].Type == D3DDECLTYPE_FLOAT4);
-				unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
-				my::Vector4 & Weights = m_VertexElems.GetBlendWeight(pVertex);
-				m_particles[i].invWeight = 0;
-				for (unsigned int j = 0; j < D3DVertexElementSet::MAX_BONE_INDICES; j++)
-				{
-					m_particles[i].invWeight += (pIndices[j] == bone_id ? Weights[j] : 0);
-				}
-			}
-			else
-				m_particles[i].invWeight = 1.0f;
+			D3DXCOLOR Weight(m_VertexElems.GetColor(pVertex));
+			m_particles[i].invWeight = Weight.r;
 		}
 
 		physx::PxClothMeshDesc desc;
@@ -884,9 +877,7 @@ void ClothComponent::UpdateCloth(void)
 			unsigned char * pVertices = &m_VertexData[0];
 			const DWORD NbParticles = m_Cloth->getNbParticles();
 			m_NewParticles.resize(NbParticles);
-			if (m_bUseAnimation
-				&& m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty()
-				&& m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+			if (m_bUseAnimation && m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty())
 			{
 				for (unsigned int i = 0; i < NbParticles; i++)
 				{
