@@ -1150,13 +1150,19 @@ void OgreMesh::SaveOgreMesh(const char * path)
 	std::ofstream ofs(path);
 	ofs << "<mesh>\n";
 	ofs << "\t<sharedgeometry vertexcount=\"" << GetNumVertices() << "\">\n";
-	bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
 	ofs << "\t\t<vertexbuffer positions=\"true\" normals=";
+	bool normals = m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Type == D3DDECLTYPE_FLOAT3;
 	if (normals)
 		ofs << "\"true\"";
 	else
 		ofs << "\"false\"";
-	ofs << " colours_diffuse=\"false\" colours_specular=\"false\" texture_coords=\"";
+	ofs << " colours_diffuse=";
+	bool colours_diffuse = m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Type == D3DDECLTYPE_D3DCOLOR;
+	if (colours_diffuse)
+		ofs << "\"true\"";
+	else
+		ofs << "\"false\"";
+	ofs << " colours_specular=\"false\" texture_coords=\"";
 	unsigned int texture_coords = m_VertexElems.CalcTextureCoords();
 	if (texture_coords)
 		ofs << texture_coords << "\">\n";
@@ -1177,6 +1183,12 @@ void OgreMesh::SaveOgreMesh(const char * path)
 		{
 			const Vector3 normal = m_VertexElems.GetNormal(pVertex);
 			ofs << "\t\t\t\t<normal x=\"" << normal.x << "\" y=\"" << normal.y << "\" " << "z=\"" << normal.z << "\"/>\n";
+		}
+		//write vertex color
+		if (colours_diffuse)
+		{
+			const D3DXCOLOR color(m_VertexElems.GetColor(pVertex));
+			ofs << "\t\t\t\t<colour_diffuse value=\"" << color.r << " " << color.g << " " << color.b << " " << color.a << "\"/>\n";
 		}
 		//write vertex texture coordinates
 		if (texture_coords)

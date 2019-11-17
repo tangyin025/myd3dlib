@@ -379,9 +379,9 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 	m_IORequestListMutex.Wait(INFINITE);
 
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-	for(; req_iter != m_IORequestList.end(); req_iter++)
+	for (; req_iter != m_IORequestList.end(); req_iter++)
 	{
-		if(req_iter->first == key)
+		if (req_iter->first == key)
 		{
 			req_iter->second->m_callbacks.insert(request->m_callbacks.begin(), request->m_callbacks.end());
 			m_IORequestListMutex.Release();
@@ -392,11 +392,12 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 	if (front)
 	{
 		m_IORequestList.push_front(std::make_pair(key, request));
+		m_IORequestListMutex.Release();
+		m_IORequestListCondition.Wake(1);
+		return m_IORequestList.begin();
 	}
-	else
-	{
-		m_IORequestList.push_back(std::make_pair(key, request));
-	}
+
+	m_IORequestList.push_back(std::make_pair(key, request));
 	m_IORequestListMutex.Release();
 	m_IORequestListCondition.Wake(1);
 	return --m_IORequestList.end();
