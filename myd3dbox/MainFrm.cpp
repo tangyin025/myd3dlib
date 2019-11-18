@@ -845,7 +845,7 @@ void CMainFrame::OnComponentCloth()
 	}
 
 	ClothComponentPtr cloth_cmp(new ClothComponent());
-	cloth_cmp->CreateClothFromMesh(mesh, 1);
+	cloth_cmp->CreateClothFromMesh(mesh);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr mtl(new Material());

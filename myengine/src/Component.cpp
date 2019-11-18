@@ -647,7 +647,7 @@ ComponentPtr ClothComponent::Clone(void) const
 	return ret;
 }
 
-void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone_id)
+void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 {
 	if (m_VertexData.empty())
 	{
@@ -700,7 +700,14 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 			unsigned char * pVertex = pVertices + i * m_VertexStride;
 			m_particles[i].pos = (physx::PxVec3 &)m_VertexElems.GetPosition(pVertex);
 			D3DXCOLOR Weight(m_VertexElems.GetColor(pVertex));
-			m_particles[i].invWeight = Weight.r;
+			if (Weight.r > EPSILON_E6)
+			{
+				m_particles[i].invWeight = 1 / Weight.r;
+			}
+			else
+			{
+				m_particles[i].invWeight = 0;
+			}
 		}
 
 		physx::PxClothMeshDesc desc;
@@ -876,19 +883,24 @@ void ClothComponent::UpdateCloth(void)
 		{
 			unsigned char * pVertices = &m_VertexData[0];
 			const DWORD NbParticles = m_Cloth->getNbParticles();
-			m_NewParticles.resize(NbParticles);
 			if (m_bUseAnimation && m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty())
 			{
 				for (unsigned int i = 0; i < NbParticles; i++)
 				{
 					void * pVertex = pVertices + i * m_VertexStride;
-					m_NewParticles[i].invWeight = readData->particles[i].invWeight;
-					my::Vector3 pos = m_Actor->m_Animator->m_DualQuats.TransformVertexWithDualQuaternionList(
-						(my::Vector3 &)m_particles[i].pos,
-						m_VertexElems.GetBlendIndices(pVertex),
-						m_VertexElems.GetBlendWeight(pVertex));
-					m_NewParticles[i].pos = (physx::PxVec3 &)pos.lerp((Vector3 &)readData->particles[i].pos, m_NewParticles[i].invWeight);
-					m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
+					if (readData->particles[i].invWeight == 0)
+					{
+						my::Vector3 pos = m_Actor->m_Animator->m_DualQuats.TransformVertexWithDualQuaternionList(
+							(my::Vector3 &)m_particles[i].pos,
+							m_VertexElems.GetBlendIndices(pVertex),
+							m_VertexElems.GetBlendWeight(pVertex));
+						readData->particles[i].pos = (physx::PxVec3 &)pos;
+						m_VertexElems.SetPosition(pVertex, pos);
+					}
+					else
+					{
+						m_VertexElems.SetPosition(pVertex, (my::Vector3 &)readData->particles[i].pos);
+					}
 				}
 			}
 			else
@@ -896,13 +908,10 @@ void ClothComponent::UpdateCloth(void)
 				for (unsigned int i = 0; i < NbParticles; i++)
 				{
 					void * pVertex = pVertices + i * m_VertexStride;
-					m_NewParticles[i].invWeight = readData->particles[i].invWeight;
-					m_NewParticles[i].pos = readData->particles[i].pos;
-					m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
+					m_VertexElems.SetPosition(pVertex, (my::Vector3 &)readData->particles[i].pos);
 				}
 			}
 			readData->unlock();
-			m_Cloth->setParticles(&m_NewParticles[0], NULL);
 
 			my::OgreMesh::ComputeNormalFrame(
 				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);

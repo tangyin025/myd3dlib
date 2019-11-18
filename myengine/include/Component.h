@@ -238,8 +238,6 @@ public:
 
 	std::vector<physx::PxClothParticle> m_particles;
 
-	std::vector<physx::PxClothParticle> m_NewParticles;
-
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	boost::shared_ptr<physx::PxClothFabric> m_Fabric;
@@ -284,7 +282,7 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
-	void CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone_id);
+	void CreateClothFromMesh(my::OgreMeshPtr mesh);
 
 	virtual void RequestResource(void);
 
