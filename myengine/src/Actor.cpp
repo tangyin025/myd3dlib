@@ -328,6 +328,11 @@ void Actor::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 
+	OnWorldUpdated();
+}
+
+void Actor::OnWorldUpdated(void)
+{
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{

@@ -132,6 +132,8 @@ public:
 
 	void UpdateWorld(void);
 
+	void OnWorldUpdated(void);
+
 	void UpdateOctNode(void);
 
 	//void UpdatePxTransform(void);

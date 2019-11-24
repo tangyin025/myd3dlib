@@ -1180,6 +1180,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
 					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
 				actor_world_iter->first->m_World.Decompose(actor_world_iter->first->m_Scale, actor_world_iter->first->m_Rotation, actor_world_iter->first->m_Position);
+				actor_world_iter->first->OnWorldUpdated();
 				break;
 			}
 
