@@ -2614,6 +2614,8 @@ namespace my
 	public:
 		Matrix4 BuildSkinnedDualQuaternion(DWORD indices, const Vector4 & weights) const;
 
+		static Vector3 TransformVertexWithDualQuaternion(const Vector3 & position, const Matrix4 & dual);
+
 		Vector3 TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const;
 	};
 

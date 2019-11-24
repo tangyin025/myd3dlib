@@ -244,6 +244,10 @@ public:
 
 	boost::shared_ptr<physx::PxCloth> m_Cloth;
 
+	std::vector<std::pair<physx::PxClothCollisionSphere, int> > m_ClothSpheres;
+
+	std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_dualquat;
@@ -311,6 +315,8 @@ public:
 	void UpdateCloth(void);
 
 	virtual void OnWorldUpdated(void);
+
+	void OnPxThreadSubstep(float dtime);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;

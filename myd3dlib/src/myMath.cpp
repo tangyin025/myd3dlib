@@ -228,14 +228,18 @@ Matrix4 TransformList::BuildSkinnedDualQuaternion(DWORD indices, const Vector4 &
 	return dual;
 }
 
-
-Vector3 TransformList::TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const
+Vector3 TransformList::TransformVertexWithDualQuaternion(const Vector3 & position, const Matrix4 & dual)
 {
-	Matrix4 dual = BuildSkinnedDualQuaternion(indices, weights);
 	Vector3 outPosition = position + dual[0].xyz.cross(dual[0].xyz.cross(position) + position * dual[0].w) * 2;
 	Vector3 translation = (dual[1].xyz * dual[0].w - dual[0].xyz * dual[1].w + dual[0].xyz.cross(dual[1].xyz)) * 2;
 	outPosition += translation;
 	return outPosition;
+}
+
+Vector3 TransformList::TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const
+{
+	Matrix4 dual = BuildSkinnedDualQuaternion(indices, weights);
+	return TransformVertexWithDualQuaternion(position, dual);
 }
 
 Plane Plane::NormalDistance(const Vector3 & normal, float distance)

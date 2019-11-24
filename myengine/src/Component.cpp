@@ -754,6 +754,8 @@ void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
 	if (m_Cloth)
 	{
 		scene->m_PxScene->addActor(*m_Cloth);
+
+		scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 	}
 }
 
@@ -762,6 +764,8 @@ void ClothComponent::OnLeavePxScene(PhysXSceneContext * scene)
 	if (m_Cloth)
 	{
 		scene->m_PxScene->removeActor(*m_Cloth);
+
+		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 	}
 
 	Component::OnLeavePxScene(scene);
@@ -929,6 +933,43 @@ void ClothComponent::OnWorldUpdated(void)
 	if (m_Cloth)
 	{
 		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
+	}
+}
+
+void ClothComponent::OnPxThreadSubstep(float dtime)
+{
+	_ASSERT(m_Actor);
+
+	if (!m_ClothSpheres.empty())
+	{
+		m_ClothSpheresTmp.resize(m_ClothSpheres.size());
+
+		if (m_bUseAnimation && m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty())
+		{
+			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
+			{
+				m_ClothSpheresTmp[i].radius = m_ClothSpheres[i].first.radius;
+				if (m_ClothSpheres[i].second >= 0)
+				{
+					Matrix4 & dual = m_Actor->m_Animator->m_DualQuats[m_ClothSpheres[i].second];
+					m_ClothSpheresTmp[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
+						(Vector3 &)m_ClothSpheres[i].first.pos, dual);
+				}
+				else
+				{
+					m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
+				}
+			}
+		}
+		else
+		{
+			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
+			{
+				m_ClothSpheresTmp[i].pos = m_ClothSpheres[i].first.pos;
+			}
+		}
+
+		m_Cloth->setCollisionSpheres(&m_ClothSpheresTmp[0], m_ClothSpheresTmp.size());
 	}
 }
 
