@@ -553,6 +553,16 @@ namespace boost {
 			ar & BOOST_SERIALIZATION_NVP(t.pos.z);
 			ar & BOOST_SERIALIZATION_NVP(t.invWeight);
 		}
+
+		template<class Archive>
+		inline void serialize(Archive & ar, ClothComponent::ClothCollisionSpherePair & t, const unsigned int file_version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(t.first.pos.x);
+			ar & BOOST_SERIALIZATION_NVP(t.first.pos.y);
+			ar & BOOST_SERIALIZATION_NVP(t.first.pos.z);
+			ar & BOOST_SERIALIZATION_NVP(t.first.radius);
+			ar & BOOST_SERIALIZATION_NVP(t.second);
+		}
 	}
 }
 
@@ -581,7 +591,8 @@ void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	unsigned int ClothSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(ClothSize);
 	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	ar << BOOST_SERIALIZATION_NVP(m_particles);
+
+	ar << BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
 template<>
@@ -608,7 +619,6 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
 	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get()), PhysXDeleter<physx::PxCollection>());
-	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 	const unsigned int numObjs = collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
@@ -623,6 +633,8 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 			break;
 		}
 	}
+
+	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 
 	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();

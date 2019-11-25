@@ -244,7 +244,11 @@ public:
 
 	boost::shared_ptr<physx::PxCloth> m_Cloth;
 
-	std::vector<std::pair<physx::PxClothCollisionSphere, int> > m_ClothSpheres;
+	typedef std::pair<physx::PxClothCollisionSphere, int> ClothCollisionSpherePair;
+
+	typedef std::vector<ClothCollisionSpherePair> ClothCollisionSpherePairList;
+	
+	ClothCollisionSpherePairList m_ClothSpheres;
 
 	std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
 
