@@ -3,8 +3,8 @@ struct VS_INPUT
 {
 	float2 Tex0  			: TEXCOORD0; // uv
 //#ifdef INSTANCE
-	float4 Pos				: POSITION;
-	float3 Velocity			: NORMAL;
+	float4 Pos				: POSITION1;
+	float3 Velocity			: NORMAL1;
 	float4 Color			: TEXCOORD1;
 	float4 Tex2				: TEXCOORD2; // size_x, size_y, angle, time
 //#endif

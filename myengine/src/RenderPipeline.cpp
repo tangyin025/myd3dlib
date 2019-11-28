@@ -67,7 +67,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_FogColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_FogStartDistance(10)
 	, m_FogHeight(50)
-	, m_FogFalloff(0.01)
+	, m_FogFalloff(0.01f)
 {
 }
 
@@ -257,9 +257,10 @@ HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_ParticleInstanceElems.InsertPositionElement(0);
-	WORD offset = sizeof(Vector3);
-	m_ParticleInstanceElems.InsertNormalElement(offset);
+	WORD offset = 0;
+	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, 1);
+	offset += sizeof(Vector3);
+	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, 1);
 	offset += sizeof(Vector3);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 1);
 	offset += sizeof(Vector4);
