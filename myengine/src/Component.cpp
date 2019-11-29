@@ -1031,19 +1031,25 @@ void EmitterComponent::RequestResource(void)
 		_ASSERT(!m_vb.m_ptr);
 		m_vb.CreateVertexBuffer(m_VertexStride * 4, 0, 0, D3DPOOL_MANAGED);
 		unsigned char * pVertices = (unsigned char *)m_vb.Lock(0, m_VertexStride * 4);
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 0, Vector3(-1, 1, 0));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0, 0));
-		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(0, 1));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 1, Vector3(1, 1, 0));
+		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(1, 0));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 2, Vector3(1, -1, 0));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 2, Vector2(1, 1));
-		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(1, 0));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 3, Vector3(-1, -1, 0));
+		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0, 1));
 		m_vb.Unlock();
 
 		_ASSERT(!m_ib.m_ptr);
-		m_ib.CreateIndexBuffer(sizeof(WORD) * 4, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-		WORD * pIndices = (WORD *)m_ib.Lock(0, sizeof(WORD) * 4);
+		m_ib.CreateIndexBuffer(sizeof(WORD) * 3 * 2, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		WORD * pIndices = (WORD *)m_ib.Lock(0, sizeof(WORD) * 3 * 2);
 		pIndices[0] = 0;
-		pIndices[1] = 1;
-		pIndices[2] = 2;
-		pIndices[3] = 3;
+		pIndices[1] = 3;
+		pIndices[2] = 1;
+		pIndices[3] = 1;
+		pIndices[4] = 3;
+		pIndices[5] = 2;
 		m_ib.Unlock();
 	}
 
@@ -1126,11 +1132,11 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 
 					if (!m_EmitterToWorld)
 					{
-						pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLEFAN, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
+						pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
 					}
 					else
 					{
-						pipeline->PushWorldEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLEFAN, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
+						pipeline->PushWorldEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
 					}
 				}
 			}

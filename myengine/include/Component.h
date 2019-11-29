@@ -370,7 +370,11 @@ public:
 		, handle_World(NULL)
 		, handle_ParticleOffset(NULL)
 	{
-		m_VertexElems.InsertTexcoordElement(0);
+		WORD offset = 0;
+		m_VertexElems.InsertPositionElement(offset);
+		offset += sizeof(my::Vector3);
+		m_VertexElems.InsertTexcoordElement(offset, 0);
+		offset += sizeof(my::Vector2);
 	}
 
 	friend class boost::serialization::access;
