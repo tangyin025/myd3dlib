@@ -1031,13 +1031,13 @@ void EmitterComponent::RequestResource(void)
 		_ASSERT(!m_vb.m_ptr);
 		m_vb.CreateVertexBuffer(m_VertexStride * 4, 0, 0, D3DPOOL_MANAGED);
 		unsigned char * pVertices = (unsigned char *)m_vb.Lock(0, m_VertexStride * 4);
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 0, Vector3(-1, 1, 0));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 0, Vector3(0, 0.5f, 0.5f));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0, 0));
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 1, Vector3(1, 1, 0));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 1, Vector3(0, 0.5f, -0.5f));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(1, 0));
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 2, Vector3(1, -1, 0));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 2, Vector3(0, -0.5f, -0.5f));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 2, Vector2(1, 1));
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 3, Vector3(-1, -1, 0));
+		m_VertexElems.SetPosition(pVertices + m_VertexStride * 3, Vector3(0, -0.5f, 0.5f));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0, 1));
 		m_vb.Unlock();
 

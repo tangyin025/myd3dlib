@@ -346,11 +346,11 @@ public:
 
 	enum FaceType
 	{
-		FaceTypeX = 0,
-		FaceTypeY,
-		FaceTypeZ,
-		FaceTypeCamera,
-		FaceTypeAngle,
+		FaceTypeX		= 0,
+		FaceTypeY		= 1,
+		FaceTypeZ		= 2,
+		FaceTypeCamera	= 3,
+		FaceTypeAngle	= 4,
 	};
 
 	FaceType m_EmitterFaceType;
@@ -362,7 +362,7 @@ protected:
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterToWorld(false)
-		, m_EmitterFaceType(FaceTypeZ)
+		, m_EmitterFaceType(FaceTypeX)
 		, handle_World(NULL)
 	{
 	}
@@ -372,7 +372,7 @@ public:
 		: Component(type)
 		, Emitter(capacity)
 		, m_EmitterToWorld(false)
-		, m_EmitterFaceType(FaceTypeZ)
+		, m_EmitterFaceType(FaceTypeX)
 		, handle_World(NULL)
 	{
 		WORD offset = 0;
