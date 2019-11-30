@@ -1085,14 +1085,11 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	{
 		shader->SetMatrix(handle_World, Matrix4::identity);
 	}
-
-	shader->SetVector(handle_ParticleOffset, m_ParticleOffset);
 }
 
 void EmitterComponent::OnShaderChanged(void)
 {
 	handle_World = NULL;
-	handle_ParticleOffset = NULL;
 	m_Material->ParseShaderParameters();
 }
 
@@ -1120,14 +1117,31 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
 				D3DXMACRO macro[2] = { {0} };
-				macro[0].Name = "FACETOCAMERA";
+				macro[0].Name = "EMITTER_FACE_TYPE";
+				switch (m_EmitterFaceType)
+				{
+				case FaceTypeX:
+					macro[0].Definition = "0";
+					break;
+				case FaceTypeY:
+					macro[0].Definition = "1";
+					break;
+				case FaceTypeZ:
+					macro[0].Definition = "2";
+					break;
+				case FaceTypeCamera:
+					macro[0].Definition = "3";
+					break;
+				case FaceTypeAngle:
+					macro[0].Definition = "4";
+					break;
+				}
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
 					if (!handle_World)
 					{
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-						BOOST_VERIFY(handle_ParticleOffset = shader->GetParameterByName(NULL, "g_ParticleOffset"));
 					}
 
 					if (!m_EmitterToWorld)

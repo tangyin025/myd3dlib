@@ -11,7 +11,7 @@ struct VS_INPUT
 //#endif
 };
 
-float3 g_ParticleOffset;
+// float3 g_ParticleOffset;
 
 float4 TransformPosWS(VS_INPUT In)
 {

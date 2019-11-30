@@ -357,8 +357,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			{
 				const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
 				const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
-				const my::Vector3 Offset = emitter->m_ParticleOffset.transformNormal(m_Camera->m_View);
-				const my::Vector3 Center = part_iter->m_Position + Offset;
+				const my::Vector3 & Center = part_iter->m_Position;
 				const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
 				my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
 				if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
@@ -562,8 +561,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			{
 				const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
 				const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
-				const my::Vector3 Offset = emitter->m_ParticleOffset.transformNormal(m_Camera->m_View);
-				const my::Vector3 Center = part_iter->m_Position + Offset;
+				const my::Vector3 & Center = part_iter->m_Position;
 				const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
 				my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
 				if (ret.first)

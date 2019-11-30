@@ -344,20 +344,26 @@ public:
 
 	bool m_EmitterToWorld;
 
-	my::Vector3 m_ParticleOffset;
+	enum FaceType
+	{
+		FaceTypeX = 0,
+		FaceTypeY,
+		FaceTypeZ,
+		FaceTypeCamera,
+		FaceTypeAngle,
+	};
+
+	FaceType m_EmitterFaceType;
 
 	D3DXHANDLE handle_World;
-
-	D3DXHANDLE handle_ParticleOffset;
 
 protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterToWorld(false)
-		, m_ParticleOffset(0,0,0)
+		, m_EmitterFaceType(FaceTypeZ)
 		, handle_World(NULL)
-		, handle_ParticleOffset(NULL)
 	{
 	}
 
@@ -366,9 +372,8 @@ public:
 		: Component(type)
 		, Emitter(capacity)
 		, m_EmitterToWorld(false)
-		, m_ParticleOffset(0,0,0)
+		, m_EmitterFaceType(FaceTypeZ)
 		, handle_World(NULL)
-		, handle_ParticleOffset(NULL)
 	{
 		WORD offset = 0;
 		m_VertexElems.InsertPositionElement(offset);
@@ -386,7 +391,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_VertexElems);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterToWorld);
-		ar & BOOST_SERIALIZATION_NVP(m_ParticleOffset);
+		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
