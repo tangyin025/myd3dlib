@@ -1120,7 +1120,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				macro[0].Name = "EMITTER_FACE_TYPE";
 				switch (m_EmitterFaceType)
 				{
-				case FaceTypeX:
+				default:
 					macro[0].Definition = "0";
 					break;
 				case FaceTypeY:
@@ -1134,6 +1134,9 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					break;
 				case FaceTypeAngle:
 					macro[0].Definition = "4";
+					break;
+				case FaceTypeAngleCamera:
+					macro[0].Definition = "5";
 					break;
 				}
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);

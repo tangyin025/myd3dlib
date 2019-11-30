@@ -351,6 +351,7 @@ public:
 		FaceTypeZ		= 2,
 		FaceTypeCamera	= 3,
 		FaceTypeAngle	= 4,
+		FaceTypeAngleCamera = 5,
 	};
 
 	FaceType m_EmitterFaceType;

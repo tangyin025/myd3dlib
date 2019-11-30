@@ -15,22 +15,6 @@ struct VS_INPUT
 
 float4 TransformPosWS(VS_INPUT In)
 {
-// #ifdef FACETOCAMERA
-	// float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
-	// float3 Up = float3(g_View[0][1],g_View[1][1],g_View[2][1]);
-	// float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	// float4 Offset = float4(RotateAngleAxis(
-		// Up * lerp(In.SizeAngleTime.y * 0.5, -In.SizeAngleTime.y * 0.5, In.Tex0.y + g_ParticleOffset.y) + Right * lerp(-In.SizeAngleTime.x * 0.5, In.SizeAngleTime.x * 0.5, In.Tex0.x + g_ParticleOffset.x) + Dir * g_ParticleOffset.z, In.SizeAngleTime.z, Dir), 0);
-// #else
-	// float s, c;
-	// sincos(In.SizeAngleTime.z, s, c);
-	// float3 Right = float3(c, 0, s);
-	// float3 Up = float3(0, 1, 0);
-	// float3 Dir = float3(-s, 0, c);
-	// float4 Offset = float4(
-		// Up * lerp(In.SizeAngleTime.y * 0.5, -In.SizeAngleTime.y * 0.5, In.Tex0.y + g_ParticleOffset.y) + Right * lerp(-In.SizeAngleTime.x * 0.5, In.SizeAngleTime.x * 0.5, In.Tex0.x + g_ParticleOffset.x) + Dir * g_ParticleOffset.z, 0);
-// #endif
-
 #if EMITTER_FACE_TYPE == 1
 	float4 Pos = float4(-In.Pos0.z * In.SizeAngleTime.x, In.Pos0.x * In.SizeAngleTime.y, -In.Pos0.y * In.SizeAngleTime.x, In.Pos0.w);
 #elif EMITTER_FACE_TYPE == 2
@@ -49,11 +33,17 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 Dir = float3(-s, 0, c);
 	float4 Pos = float4(
 		Up * In.Pos0.y * In.SizeAngleTime.y + Right * -In.Pos0.z * In.SizeAngleTime.x + Dir * In.Pos0.x * In.SizeAngleTime.x, 0);
+#elif EMITTER_FACE_TYPE == 5
+	float3 Up = float3(0, 1, 0);
+	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
+	float3 Right = normalize(cross(Up, Dir));
+	Dir = cross(Right, Up);
+	float4 Pos = float4(
+		Up * In.Pos0.y * In.SizeAngleTime.y + Right * -In.Pos0.z * In.SizeAngleTime.x + Dir * In.Pos0.x * In.SizeAngleTime.x, 0);
 #else
 	float4 Pos = float4(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.z * In.SizeAngleTime.x, In.Pos0.w);
 #endif
 	float4 Center = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
-	// return Center + Offset;
 	return Center + Pos;
 }
 
@@ -74,15 +64,6 @@ float2 TransformUV(VS_INPUT In)
 
 float3 TransformNormal(VS_INPUT In)
 {
-// #ifdef FACETOCAMERA
-	// float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	// return Dir;
-// #else
-	// float s, c;
-	// sincos(In.SizeAngleTime.z, s, c);
-	// float3 Dir = float3(-s, 0, c);
-	// return Dir;
-// #endif
 #if EMITTER_FACE_TYPE == 1
 	return float3(0,1,0);
 #elif EMITTER_FACE_TYPE == 2
@@ -95,6 +76,12 @@ float3 TransformNormal(VS_INPUT In)
 	sincos(In.SizeAngleTime.z, s, c);
 	float3 Dir = float3(-s, 0, c);
 	return Dir;
+#elif EMITTER_FACE_TYPE == 5
+	float3 Up = float3(0, 1, 0);
+	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
+	float3 Right = normalize(cross(Up, Dir));
+	Dir = cross(Right, Up);
+	return Dir;
 #else
 	return float3(1,0,0);
 #endif
@@ -102,15 +89,6 @@ float3 TransformNormal(VS_INPUT In)
 
 float3 TransformTangent(VS_INPUT In)
 {
-// #ifdef FACETOCAMERA
-	// float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
-	// return Right;
-// #else
-	// float s, c;
-	// sincos(In.SizeAngleTime.z, s, c);
-	// float3 Right = float3(c, 0, s);
-	// return Right;
-// #endif
 #if EMITTER_FACE_TYPE == 1
 	return float3(1,0,0);
 #elif EMITTER_FACE_TYPE == 2
@@ -122,6 +100,11 @@ float3 TransformTangent(VS_INPUT In)
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
 	float3 Right = float3(c, 0, s);
+	return Right;
+#elif EMITTER_FACE_TYPE == 5
+	float3 Up = float3(0, 1, 0);
+	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
+	float3 Right = normalize(cross(Up, Dir));
 	return Right;
 #else
 	return float3(0,0,-1);
