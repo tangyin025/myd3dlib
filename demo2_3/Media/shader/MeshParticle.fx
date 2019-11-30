@@ -16,9 +16,9 @@ struct VS_INPUT
 float4 TransformPosWS(VS_INPUT In)
 {
 #if EMITTER_FACE_TYPE == 1
-	float4 Pos = float4(-In.Pos0.z * In.SizeAngleTime.x, In.Pos0.x * In.SizeAngleTime.y, -In.Pos0.y * In.SizeAngleTime.x, In.Pos0.w);
+	float4 Pos = float4(-In.Pos0.z * In.SizeAngleTime.x, In.Pos0.x * In.SizeAngleTime.y, -In.Pos0.y * In.SizeAngleTime.x, 0);
 #elif EMITTER_FACE_TYPE == 2
-	float4 Pos = float4(-In.Pos0.z * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.x * In.SizeAngleTime.x, In.Pos0.w);
+	float4 Pos = float4(-In.Pos0.z * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.x * In.SizeAngleTime.x, 0);
 #elif EMITTER_FACE_TYPE == 3
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(g_View[0][1],g_View[1][1],g_View[2][1]);
@@ -41,10 +41,9 @@ float4 TransformPosWS(VS_INPUT In)
 	float4 Pos = float4(
 		Up * In.Pos0.y * In.SizeAngleTime.y + Right * -In.Pos0.z * In.SizeAngleTime.x + Dir * In.Pos0.x * In.SizeAngleTime.x, 0);
 #else
-	float4 Pos = float4(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.z * In.SizeAngleTime.x, In.Pos0.w);
+	float4 Pos = float4(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.z * In.SizeAngleTime.x, 0);
 #endif
-	float4 Center = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
-	return Center + Pos;
+	return mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.SizeAngleTime.w), In.Pos.w) + Pos, g_World);
 }
 
 float4 TransformPos(VS_INPUT In)
