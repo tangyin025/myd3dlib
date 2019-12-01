@@ -1073,11 +1073,14 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	_ASSERT(m_Actor);
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
+
+	shader->SetVector(handle_EmitterScale, m_Actor->m_Scale);
 }
 
 void EmitterComponent::OnShaderChanged(void)
 {
 	handle_World = NULL;
+	handle_EmitterScale = NULL;
 	m_Material->ParseShaderParameters();
 }
 
@@ -1133,6 +1136,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					if (!handle_World)
 					{
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+						BOOST_VERIFY(handle_EmitterScale = shader->GetParameterByName(NULL, "g_EmitterScale"));
 					}
 
 					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, m_NumVertices, m_VertexStride, m_PrimitiveCount, this, shader, this, m_Material.get(), 0);

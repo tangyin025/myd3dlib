@@ -360,12 +360,15 @@ public:
 
 	D3DXHANDLE handle_World;
 
+	D3DXHANDLE handle_EmitterScale;
+
 protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
 		, handle_World(NULL)
+		, handle_EmitterScale(NULL)
 	{
 	}
 
@@ -375,6 +378,7 @@ public:
 		, Emitter(capacity)
 		, m_EmitterFaceType(FaceTypeX)
 		, handle_World(NULL)
+		, handle_EmitterScale(NULL)
 	{
 		WORD offset = 0;
 		m_VertexElems.InsertPositionElement(offset);

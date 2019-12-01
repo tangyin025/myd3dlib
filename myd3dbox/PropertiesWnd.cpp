@@ -1716,6 +1716,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterFaceType));
 		emit_cmp->m_EmitterFaceType = (EmitterComponent::FaceType)i;
+		// ! reset shader handles
+		emit_cmp->handle_World = NULL;
 		break;
 	}
 	case PropertyEmitterParticleCount:
