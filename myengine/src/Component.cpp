@@ -1019,11 +1019,13 @@ void EmitterComponent::RequestResource(void)
 		HRESULT hr;
 		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 
+		m_NumVertices = 4;
 		m_VertexStride = D3DXGetDeclVertexSize(&elems[0], 0);
+		m_PrimitiveCount = 2;
 
 		_ASSERT(!m_vb.m_ptr);
-		m_vb.CreateVertexBuffer(m_VertexStride * 4, 0, 0, D3DPOOL_MANAGED);
-		unsigned char * pVertices = (unsigned char *)m_vb.Lock(0, m_VertexStride * 4);
+		m_vb.CreateVertexBuffer(m_VertexStride * m_NumVertices, 0, 0, D3DPOOL_MANAGED);
+		unsigned char * pVertices = (unsigned char *)m_vb.Lock(0, m_VertexStride * m_NumVertices);
 		m_VertexElems.SetPosition(pVertices + m_VertexStride * 0, Vector3(0, 0.5f, 0.5f));
 		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0, 0));
 		m_VertexElems.SetPosition(pVertices + m_VertexStride * 1, Vector3(0, 0.5f, -0.5f));
@@ -1035,8 +1037,8 @@ void EmitterComponent::RequestResource(void)
 		m_vb.Unlock();
 
 		_ASSERT(!m_ib.m_ptr);
-		m_ib.CreateIndexBuffer(sizeof(WORD) * 3 * 2, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-		WORD * pIndices = (WORD *)m_ib.Lock(0, sizeof(WORD) * 3 * 2);
+		m_ib.CreateIndexBuffer(sizeof(WORD) * m_PrimitiveCount * 3, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		WORD * pIndices = (WORD *)m_ib.Lock(0, sizeof(WORD) * m_PrimitiveCount * 3);
 		pIndices[0] = 0;
 		pIndices[1] = 3;
 		pIndices[2] = 1;
@@ -1133,7 +1135,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 					}
 
-					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
+					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, m_NumVertices, m_VertexStride, m_PrimitiveCount, this, shader, this, m_Material.get(), 0);
 				}
 			}
 		}

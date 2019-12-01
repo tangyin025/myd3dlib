@@ -226,7 +226,7 @@ public:
 
 	std::vector<unsigned char> m_VertexData;
 
-	DWORD m_VertexStride;
+	UINT m_VertexStride;
 
 	std::vector<unsigned short> m_IndexData;
 
@@ -334,7 +334,11 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
-	DWORD m_VertexStride;
+	UINT m_NumVertices;
+
+	UINT m_VertexStride;
+
+	UINT m_PrimitiveCount;
 
 	my::VertexBuffer m_vb;
 
@@ -360,7 +364,7 @@ protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
-		, m_EmitterFaceType(FaceTypeZ)
+		, m_EmitterFaceType(FaceTypeX)
 		, handle_World(NULL)
 	{
 	}
@@ -369,7 +373,7 @@ public:
 	EmitterComponent(ComponentType type, unsigned int capacity)
 		: Component(type)
 		, Emitter(capacity)
-		, m_EmitterFaceType(FaceTypeZ)
+		, m_EmitterFaceType(FaceTypeX)
 		, handle_World(NULL)
 	{
 		WORD offset = 0;

@@ -355,17 +355,30 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
-				const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
-				const my::Vector3 & Center = part_iter->m_Position;
-				const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-				my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
-				if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
-				{
-					return true;
-				}
-				result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
-				if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+				//const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
+				//const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
+				//const my::Vector3 & Center = part_iter->m_Position;
+				//const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+				//my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
+				//if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+				//{
+				//	return true;
+				//}
+				//result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
+				//if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+				//{
+				//	return true;
+				//}
+				bool ret = OverlapTestFrustumAndMesh(frustum,
+					emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY),
+					emitter->m_NumVertices,
+					emitter->m_VertexStride,
+					emitter->m_ib.Lock(0, sizeof(WORD) * emitter->m_PrimitiveCount, D3DLOCK_READONLY),
+					true, emitter->m_PrimitiveCount,
+					emitter->m_VertexElems);
+				emitter->m_vb.Unlock();
+				emitter->m_ib.Unlock();
+				if (ret)
 				{
 					return true;
 				}
@@ -559,16 +572,29 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
-				const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
-				const my::Vector3 & Center = part_iter->m_Position;
-				const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-				my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
-				if (ret.first)
-				{
-					return ret;
-				}
-				ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
+				//const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
+				//const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
+				//const my::Vector3 & Center = part_iter->m_Position;
+				//const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+				//my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
+				//if (ret.first)
+				//{
+				//	return ret;
+				//}
+				//ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
+				//if (ret.first)
+				//{
+				//	return ret;
+				//}
+				my::RayResult ret = OverlapTestRayAndMesh(ray,
+					emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY),
+					emitter->m_NumVertices,
+					emitter->m_VertexStride,
+					emitter->m_ib.Lock(0, sizeof(WORD) * emitter->m_PrimitiveCount, D3DLOCK_READONLY),
+					true, emitter->m_PrimitiveCount,
+					emitter->m_VertexElems);
+				emitter->m_vb.Unlock();
+				emitter->m_ib.Unlock();
 				if (ret.first)
 				{
 					return ret;
