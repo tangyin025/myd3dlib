@@ -342,8 +342,6 @@ public:
 
 	MaterialPtr m_Material;
 
-	bool m_EmitterToWorld;
-
 	enum FaceType
 	{
 		FaceTypeX		= 0,
@@ -362,8 +360,7 @@ protected:
 	EmitterComponent(void)
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
-		, m_EmitterToWorld(false)
-		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterFaceType(FaceTypeZ)
 		, handle_World(NULL)
 	{
 	}
@@ -372,8 +369,7 @@ public:
 	EmitterComponent(ComponentType type, unsigned int capacity)
 		: Component(type)
 		, Emitter(capacity)
-		, m_EmitterToWorld(false)
-		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterFaceType(FaceTypeZ)
 		, handle_World(NULL)
 	{
 		WORD offset = 0;
@@ -391,7 +387,6 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_VertexElems);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
-		ar & BOOST_SERIALIZATION_NVP(m_EmitterToWorld);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 	}
 

@@ -340,36 +340,6 @@ public:
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
 
-	struct WorldEmitterAtom
-	{
-		IDirect3DVertexDeclaration9* pDecl;
-		IDirect3DVertexBuffer9 * pVB;
-		IDirect3DIndexBuffer9 * pIB;
-		D3DPRIMITIVETYPE PrimitiveType;
-		UINT NumVertices;
-		UINT VertexStride;
-		UINT PrimitiveCount;
-		typedef std::vector<std::pair<my::Emitter *, Component *> > EmitterPairList;
-		EmitterPairList emitters;
-		DWORD TotalParticles;
-		WorldEmitterAtom()
-			: TotalParticles(0)
-		{}
-	};
-
-	class WorldEmitterAtomKey : public boost::tuple<my::Effect *, Material *, LPARAM>
-	{
-	public:
-		WorldEmitterAtomKey(my::Effect * shader, Material * mtl, LPARAM lparam)
-			: tuple(shader, mtl, lparam)
-		{
-		}
-
-		bool operator == (const WorldEmitterAtomKey & rhs) const;
-	};
-
-	typedef boost::unordered_map<WorldEmitterAtomKey, WorldEmitterAtom> WorldEmitterAtomMap;
-
 	struct Pass
 	{
 		IndexedPrimitiveAtomList m_IndexedPrimitiveList;
@@ -377,7 +347,6 @@ public:
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
 		EmitterAtomList m_EmitterList;
-		WorldEmitterAtomMap m_WorldEmitterMap;
 	};
 
 	boost::array<Pass, PassTypeNum> m_Pass;
@@ -504,8 +473,6 @@ public:
 		Material * mtl,
 		LPARAM lparam);
 
-	void DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Effect * shader, Material * mtl, LPARAM lparam, WorldEmitterAtom & atom);
-
 	void PushIndexedPrimitive(
 		unsigned int PassID,
 		IDirect3DVertexDeclaration9* pDecl,
@@ -544,21 +511,6 @@ public:
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
 	void PushEmitter(
-		unsigned int PassID,
-		IDirect3DVertexDeclaration9* pDecl,
-		IDirect3DVertexBuffer9 * pVB,
-		IDirect3DIndexBuffer9 * pIB,
-		D3DPRIMITIVETYPE PrimitiveType,
-		UINT NumVertices,
-		UINT VertexStride,
-		UINT PrimitiveCount,
-		my::Emitter * emitter,
-		my::Effect * shader,
-		Component * cmp,
-		Material * mtl,
-		LPARAM lparam);
-
-	void PushWorldEmitter(
 		unsigned int PassID,
 		IDirect3DVertexDeclaration9* pDecl,
 		IDirect3DVertexBuffer9 * pVB,

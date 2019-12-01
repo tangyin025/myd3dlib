@@ -995,14 +995,7 @@ void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & V
 {
 	_ASSERT(m_Actor);
 
-	if (!m_EmitterToWorld)
-	{
-		Emitter::Spawn(Position, Velocity, Color, Size, Angle);
-	}
-	else
-	{
-		Emitter::Spawn(Position.transformCoord(m_Actor->m_World), Velocity.transformNormal(m_Actor->m_World), Color, Size * m_Actor->m_Scale.xy, Angle);
-	}
+	Emitter::Spawn(Position, Velocity, Color, Size, Angle);
 }
 
 ComponentPtr EmitterComponent::Clone(void) const
@@ -1077,14 +1070,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 {
 	_ASSERT(m_Actor);
 
-	if (!m_EmitterToWorld)
-	{
-		shader->SetMatrix(handle_World, m_Actor->m_World);
-	}
-	else
-	{
-		shader->SetMatrix(handle_World, Matrix4::identity);
-	}
+	shader->SetMatrix(handle_World, m_Actor->m_World);
 }
 
 void EmitterComponent::OnShaderChanged(void)
@@ -1147,14 +1133,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 					}
 
-					if (!m_EmitterToWorld)
-					{
-						pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
-					}
-					else
-					{
-						pipeline->PushWorldEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
-					}
+					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, 4, m_VertexStride, 2, this, shader, this, m_Material.get(), 0);
 				}
 			}
 		}

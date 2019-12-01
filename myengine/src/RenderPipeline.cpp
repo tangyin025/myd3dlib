@@ -746,22 +746,6 @@ void RenderPipeline::RenderAllObjects(
 			m_PassDrawCall[PassID]++;
 		}
 	}
-
-	WorldEmitterAtomMap::iterator world_emitter_iter = m_Pass[PassID].m_WorldEmitterMap.begin();
-	for (; world_emitter_iter != m_Pass[PassID].m_WorldEmitterMap.end(); world_emitter_iter++)
-	{
-		if (!world_emitter_iter->second.emitters.empty() && world_emitter_iter->second.TotalParticles > 0)
-		{
-			DrawWorldEmitter(
-				PassID,
-				pd3dDevice,
-				world_emitter_iter->first.get<0>(),
-				world_emitter_iter->first.get<1>(),
-				world_emitter_iter->first.get<2>(),
-				world_emitter_iter->second);
-			m_PassDrawCall[PassID]++;
-		}
-	}
 }
 
 void RenderPipeline::ClearAllObjects(void)
@@ -779,7 +763,6 @@ void RenderPipeline::ClearAllObjects(void)
 		//}
 		m_Pass[PassID].m_MeshInstanceMap.clear();
 		m_Pass[PassID].m_EmitterList.clear();
-		m_Pass[PassID].m_WorldEmitterMap.clear();
 	}
 }
 
@@ -966,59 +949,6 @@ void RenderPipeline::DrawEmitter(
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, 0, 0, NumVertices, 0, PrimitiveCount));
 		V(pd3dDevice->SetStreamSourceFreq(0,1));
 		V(pd3dDevice->SetStreamSourceFreq(1,1));
-		shader->EndPass();
-	}
-	shader->End();
-}
-
-void RenderPipeline::DrawWorldEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Effect * shader, Material * mtl, LPARAM lparam, WorldEmitterAtom & atom)
-{
-	const DWORD NumInstances = my::Min(atom.TotalParticles, (DWORD)PARTICLE_INSTANCE_MAX);
-	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
-	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, D3DLOCK_DISCARD);
-	_ASSERT(pVertices);
-	int NumRemaining = NumInstances;
-	WorldEmitterAtom::EmitterPairList::const_iterator emitter_pair_iter = atom.emitters.begin();
-	for (; NumRemaining > 0 && emitter_pair_iter != atom.emitters.end(); emitter_pair_iter++)
-	{
-		Emitter::ParticleList::const_array_range array_one = emitter_pair_iter->first->m_ParticleList.array_one();
-		int count_one = my::Min(NumRemaining, (int)array_one.second);
-		if (count_one > 0)
-		{
-			size_t length = count_one * sizeof(Emitter::ParticleList::value_type);
-			memcpy(pVertices, array_one.first, length);
-			pVertices += length;
-			NumRemaining -= count_one;
-		}
-		Emitter::ParticleList::const_array_range array_two = emitter_pair_iter->first->m_ParticleList.array_two();
-		int count_two = my::Min(NumRemaining, (int)array_two.second);
-		if (count_two > 0)
-		{
-			size_t length = count_two * sizeof(Emitter::ParticleList::value_type);
-			memcpy(pVertices, array_two.first, length);
-			pVertices += length;
-			NumRemaining -= count_two;
-		}
-	}
-	m_ParticleInstanceData.Unlock();
-
-	atom.emitters[0].second->OnSetShader(pd3dDevice, shader, lparam);
-	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-	_ASSERT(PassID < passes);
-	{
-		shader->BeginPass(PassID);
-		HRESULT hr;
-		V(pd3dDevice->SetStreamSource(0, atom.pVB, 0, atom.VertexStride));
-		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
-		V(pd3dDevice->SetStreamSource(1, m_ParticleInstanceData.m_ptr, 0, m_ParticleInstanceStride));
-		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
-		V(pd3dDevice->SetVertexDeclaration(atom.pDecl));
-		V(pd3dDevice->SetIndices(atom.pIB));
-		mtl->OnSetShader(pd3dDevice, shader, lparam);
-		shader->CommitChanges();
-		V(pd3dDevice->DrawIndexedPrimitive(atom.PrimitiveType, 0, 0, atom.NumVertices, 0, atom.PrimitiveCount));
-		V(pd3dDevice->SetStreamSourceFreq(0, 1));
-		V(pd3dDevice->SetStreamSourceFreq(1, 1));
 		shader->EndPass();
 	}
 	shader->End();
@@ -1247,58 +1177,4 @@ void RenderPipeline::PushEmitter(
 	atom.mtl = mtl;
 	atom.lparam = lparam;
 	m_Pass[PassID].m_EmitterList.push_back(atom);
-}
-
-bool RenderPipeline::WorldEmitterAtomKey::operator == (const WorldEmitterAtomKey & rhs) const
-{
-	return get<0>() == rhs.get<0>()
-		&& *get<1>() == *rhs.get<1>();
-}
-
-namespace boost
-{
-	size_t hash_value(const RenderPipeline::WorldEmitterAtomKey & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.get<0>());
-		boost::hash_combine(seed, *key.get<1>());
-		return seed;
-	}
-}
-
-void RenderPipeline::PushWorldEmitter(
-	unsigned int PassID,
-	IDirect3DVertexDeclaration9* pDecl,
-	IDirect3DVertexBuffer9 * pVB,
-	IDirect3DIndexBuffer9 * pIB,
-	D3DPRIMITIVETYPE PrimitiveType,
-	UINT NumVertices,
-	UINT VertexStride,
-	UINT PrimitiveCount,
-	my::Emitter * emitter,
-	my::Effect * shader,
-	Component * cmp,
-	Material * mtl,
-	LPARAM lparam)
-{
-	WorldEmitterAtomKey key(shader, mtl, lparam);
-	WorldEmitterAtomMap::iterator atom_iter = m_Pass[PassID].m_WorldEmitterMap.find(key);
-	if (atom_iter == m_Pass[PassID].m_WorldEmitterMap.end())
-	{
-		WorldEmitterAtom & atom = m_Pass[PassID].m_WorldEmitterMap[key];
-		atom.pDecl = pDecl;
-		atom.pVB = pVB;
-		atom.pIB = pIB;
-		atom.PrimitiveType = PrimitiveType;
-		atom.NumVertices = NumVertices;
-		atom.VertexStride = VertexStride;
-		atom.PrimitiveCount = PrimitiveCount;
-		atom.emitters.push_back(std::make_pair(emitter, cmp));
-		atom.TotalParticles += emitter->m_ParticleList.size();
-	}
-	else
-	{
-		atom_iter->second.emitters.push_back(std::make_pair(emitter, cmp));
-		atom_iter->second.TotalParticles += emitter->m_ParticleList.size();
-	}
 }

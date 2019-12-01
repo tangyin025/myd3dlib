@@ -134,7 +134,6 @@ public:
 		PropertyCloth,
 		PropertyClothSceneCollision,
 		PropertyStaticEmitter,
-		PropertyEmitterToWorld,
 		PropertyEmitterFaceType,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
