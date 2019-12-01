@@ -73,7 +73,7 @@ protected:
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
 	bool OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor);
-	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp);
+	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, const my::Frustum & local_ftm, Component * cmp);
 	bool OverlapTestFrustumAndMesh(
 		const my::Frustum & frustum,
 		void * pVertices,
@@ -84,7 +84,7 @@ protected:
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
 	my::RayResult OverlapTestRayAndActor(const my::Ray & ray, Actor * actor);
-	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp);
+	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp);
 	my::RayResult OverlapTestRayAndMesh(
 		const my::Ray & ray,
 		void * pVertices,
