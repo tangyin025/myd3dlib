@@ -30,9 +30,9 @@ float4 TransformPosWS(VS_INPUT In)
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Right = float3(s, 0, -c);
+	float3 Right = float3(-s, 0, -c);
 	float3 Up = float3(0, 1, 0);
-	float3 Dir = float3(c, 0, s);
+	float3 Dir = float3(c, 0, -s);
 	float4 Pos = float4(
 		Right * -In.Pos0.z * In.SizeAngleTime.x * g_EmitterScale.x + Up * In.Pos0.y * In.SizeAngleTime.y * g_EmitterScale.y + Dir * In.Pos0.x * In.SizeAngleTime.x * g_EmitterScale.z, 0);
 #elif EMITTER_FACE_TYPE == 5
@@ -76,7 +76,7 @@ float3 TransformNormal(VS_INPUT In)
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Dir = float3(c, 0, s);
+	float3 Dir = float3(c, 0, -s);
 	return Dir;
 #elif EMITTER_FACE_TYPE == 5
 	float3 Up = float3(0, 1, 0);
@@ -101,7 +101,7 @@ float3 TransformTangent(VS_INPUT In)
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Right = float3(s, 0, -c);
+	float3 Right = float3(-s, 0, -c);
 	return Right;
 #elif EMITTER_FACE_TYPE == 5
 	float3 Up = float3(0, 1, 0);

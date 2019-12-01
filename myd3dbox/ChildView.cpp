@@ -355,20 +355,52 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				//const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
-				//const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
-				//const my::Vector3 & Center = part_iter->m_Position;
-				//const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-				//my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], local_ftm);
-				//if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
-				//{
-				//	return true;
-				//}
-				//result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], local_ftm);
-				//if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
-				//{
-				//	return true;
-				//}
+				my::Matrix4 p2w;
+				const my::Vector3 & Dir = m_Camera->m_View.column<2>().xyz;
+				float r = Dir.magnitude();
+				float SpherialAngleZ = D3DXToRadian(90) - acos(Dir.y / r);
+				float SpherialAngleY = -atan2(Dir.z, Dir.x);
+				switch (emitter->m_EmitterFaceType)
+				{
+				case EmitterComponent::FaceTypeX:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeY:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeZ:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeCamera:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, SpherialAngleZ) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeAngle:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeAngleCamera:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+					break;
+				}
+				my::Frustum local_ftm = frustum.transform(p2w.transpose());
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
 					emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY),
 					emitter->m_NumVertices,
@@ -572,20 +604,52 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				//const my::Vector3 Right = m_Camera->m_View.column<0>().xyz * 0.5f * part_iter->m_Size.x;
-				//const my::Vector3 Up = m_Camera->m_View.column<1>().xyz * 0.5f * part_iter->m_Size.y;
-				//const my::Vector3 & Center = part_iter->m_Position;
-				//const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-				//my::RayResult ret = my::IntersectionTests::rayAndTriangle(local_ray.p, local_ray.d, v[0], v[1], v[2]);
-				//if (ret.first)
-				//{
-				//	return ret;
-				//}
-				//ret = my::IntersectionTests::rayAndTriangle(local_ray.p, local_ray.d, v[2], v[1], v[3]);
-				//if (ret.first)
-				//{
-				//	return ret;
-				//}
+				my::Matrix4 p2w;
+				const my::Vector3 & Dir = m_Camera->m_View.column<2>().xyz;
+				float r = Dir.magnitude();
+				float SpherialAngleZ = D3DXToRadian(90) - acos(Dir.y / r);
+				float SpherialAngleY = -atan2(Dir.z, Dir.x);
+				switch (emitter->m_EmitterFaceType)
+				{
+				case EmitterComponent::FaceTypeX:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeY:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeZ:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeCamera:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, SpherialAngleZ) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeAngle:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+				case EmitterComponent::FaceTypeAngleCamera:
+					p2w = my::Matrix4::Compose(
+						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
+					break;
+					break;
+				}
+				my::Ray local_ray = ray.transform(p2w.inverse());
 				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
 					emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY),
 					emitter->m_NumVertices,
