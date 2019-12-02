@@ -22,6 +22,8 @@ sampler NormalTextureSampler = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler ReflectTextureSampler = sampler_state
@@ -30,6 +32,8 @@ sampler ReflectTextureSampler = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 struct TRANSPARENT_VS_OUTPUT
