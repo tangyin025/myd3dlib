@@ -398,7 +398,6 @@ static void ExportMath(lua_State * L)
 
 		, class_<my::Emitter>("Emitter")
 			.def(constructor<unsigned int>())
-			.def("Spawn", &my::Emitter::Spawn)
 			.def("RemoveAllParticle", &my::Emitter::RemoveAllParticle)
 
 		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")

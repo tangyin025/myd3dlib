@@ -397,7 +397,6 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
 					break;
-					break;
 				}
 				my::Frustum local_ftm = frustum.transform(p2w.transpose());
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
@@ -641,7 +640,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
-					break;
 					break;
 				}
 				my::Ray local_ray = ray.transform(p2w.inverse());

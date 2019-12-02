@@ -993,9 +993,7 @@ void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 
 void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
 {
-	_ASSERT(m_Actor);
-
-	Emitter::Spawn(Position, Velocity, Color, Size, Angle);
+	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, D3DContext::getSingleton().m_fTotalTime));
 }
 
 ComponentPtr EmitterComponent::Clone(void) const

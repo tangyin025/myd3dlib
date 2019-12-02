@@ -37,11 +37,6 @@ void Emitter::ParticleList::load<boost::archive::polymorphic_iarchive>(boost::ar
 	boost::serialization::stl::collection_load_impl<boost::archive::polymorphic_iarchive, ParticleList>(ar, *this, count, item_version);
 }
 
-void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle)
-{
-	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, D3DContext::getSingleton().m_fTotalTime));
-}
-
 void Emitter::RemoveAllParticle(void)
 {
 	m_ParticleList.clear();
