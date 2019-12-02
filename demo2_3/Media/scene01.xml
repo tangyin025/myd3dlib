@@ -37,7 +37,7 @@
 	<m_SsaoRadius>1.000000000e+02</m_SsaoRadius>
 	<m_SsaoScale>1.000000000e+01</m_SsaoScale>
 	<m_FogColor>
-		<x>0.000000000e+00</x>
+		<x>1.000000000e+00</x>
 		<y>1.000000000e+00</y>
 		<z>1.000000000e+00</z>
 		<w>1.000000000e+00</w>
