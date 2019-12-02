@@ -1,4 +1,6 @@
 
+shared float3 g_EmitterScale;
+
 struct VS_INPUT
 {
 	float4 Pos0				: POSITION0;
@@ -10,8 +12,6 @@ struct VS_INPUT
 	float4 SizeAngleTime	: POSITION3; // size_x, size_y, angle, time
 //#endif
 };
-
-float3 g_EmitterScale;
 
 float4 TransformPosWS(VS_INPUT In)
 {

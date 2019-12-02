@@ -1,4 +1,8 @@
 
+#ifdef SKELETON
+shared row_major float2x4 g_dualquat[96];
+#endif
+
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
@@ -17,10 +21,6 @@ struct VS_INPUT
 	float4 Pos4				: POSITION4;
 #endif
 };
-
-#ifdef SKELETON
-row_major float2x4 g_dualquat[96];
-#endif
 
 #ifdef SKELETON
 void GetSkinnedDual( VS_INPUT In, out float2x4 dual)
