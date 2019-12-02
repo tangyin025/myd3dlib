@@ -611,7 +611,7 @@ namespace my
 		{
 			float rho = magnitude();
 
-			return Vector3(rho, acos(y / rho), atan2(z, x));
+			return Vector3(rho, asin(y / rho), atan2(z, x));
 		}
 
 		static float Angle(const Vector3 & v0, const Vector3 & v1)

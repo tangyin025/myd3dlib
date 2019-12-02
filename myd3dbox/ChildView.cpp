@@ -352,14 +352,13 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return true;
 			}
+			my::Matrix4 p2w;
+			my::Vector3 sph = m_Camera->m_View.column<2>().xyz.cartesianToSpherical();
+			void * pvb = emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY);
+			void * pib = emitter->m_ib.Lock(0, sizeof(WORD) * emitter->m_PrimitiveCount, D3DLOCK_READONLY);
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				my::Matrix4 p2w;
-				const my::Vector3 & Dir = m_Camera->m_View.column<2>().xyz;
-				float r = Dir.magnitude();
-				float SpherialAngleZ = D3DXToRadian(90) - acos(Dir.y / r);
-				float SpherialAngleY = -atan2(Dir.z, Dir.x);
 				switch (emitter->m_EmitterFaceType)
 				{
 				case EmitterComponent::FaceTypeX:
@@ -383,7 +382,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				case EmitterComponent::FaceTypeCamera:
 					p2w = my::Matrix4::Compose(
 						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, SpherialAngleZ) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
 					break;
 				case EmitterComponent::FaceTypeAngle:
@@ -395,26 +394,23 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				case EmitterComponent::FaceTypeAngleCamera:
 					p2w = my::Matrix4::Compose(
 						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
 					break;
 					break;
 				}
 				my::Frustum local_ftm = frustum.transform(p2w.transpose());
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
-					emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY),
-					emitter->m_NumVertices,
-					emitter->m_VertexStride,
-					emitter->m_ib.Lock(0, sizeof(WORD) * emitter->m_PrimitiveCount, D3DLOCK_READONLY),
-					true, emitter->m_PrimitiveCount,
-					emitter->m_VertexElems);
-				emitter->m_vb.Unlock();
-				emitter->m_ib.Unlock();
+					pvb, emitter->m_NumVertices, emitter->m_VertexStride, pib, true, emitter->m_PrimitiveCount, emitter->m_VertexElems);
 				if (ret)
 				{
+					emitter->m_vb.Unlock();
+					emitter->m_ib.Unlock();
 					return true;
 				}
 			}
+			emitter->m_vb.Unlock();
+			emitter->m_ib.Unlock();
 		}
 		break;
 
@@ -601,14 +597,13 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			{
 				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.column<2>().xyz));
 			}
+			my::Matrix4 p2w;
+			my::Vector3 sph = m_Camera->m_View.column<2>().xyz.cartesianToSpherical();
+			void * pvb = emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY);
+			void * pib = emitter->m_ib.Lock(0, sizeof(WORD) * emitter->m_PrimitiveCount, D3DLOCK_READONLY);
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
-				my::Matrix4 p2w;
-				const my::Vector3 & Dir = m_Camera->m_View.column<2>().xyz;
-				float r = Dir.magnitude();
-				float SpherialAngleZ = D3DXToRadian(90) - acos(Dir.y / r);
-				float SpherialAngleY = -atan2(Dir.z, Dir.x);
 				switch (emitter->m_EmitterFaceType)
 				{
 				case EmitterComponent::FaceTypeX:
@@ -632,7 +627,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				case EmitterComponent::FaceTypeCamera:
 					p2w = my::Matrix4::Compose(
 						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, SpherialAngleZ) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
 					break;
 				case EmitterComponent::FaceTypeAngle:
@@ -644,26 +639,23 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				case EmitterComponent::FaceTypeAngleCamera:
 					p2w = my::Matrix4::Compose(
 						my::Vector3(emitter->m_Actor->m_Scale.x * part_iter->m_Size.x, emitter->m_Actor->m_Scale.y * part_iter->m_Size.y, emitter->m_Actor->m_Scale.z * part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, SpherialAngleY),
+						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position.transformCoord(emitter->m_Actor->m_World));
 					break;
 					break;
 				}
 				my::Ray local_ray = ray.transform(p2w.inverse());
 				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
-					emitter->m_vb.Lock(0, emitter->m_VertexStride * emitter->m_NumVertices, D3DLOCK_READONLY),
-					emitter->m_NumVertices,
-					emitter->m_VertexStride,
-					emitter->m_ib.Lock(0, sizeof(WORD) * emitter->m_PrimitiveCount, D3DLOCK_READONLY),
-					true, emitter->m_PrimitiveCount,
-					emitter->m_VertexElems);
-				emitter->m_vb.Unlock();
-				emitter->m_ib.Unlock();
+					pvb, emitter->m_NumVertices, emitter->m_VertexStride, pib, true, emitter->m_PrimitiveCount, emitter->m_VertexElems);
 				if (ret.first)
 				{
+					emitter->m_vb.Unlock();
+					emitter->m_ib.Unlock();
 					return ret;
 				}
 			}
+			emitter->m_vb.Unlock();
+			emitter->m_ib.Unlock();
 		}
 		break;
 
