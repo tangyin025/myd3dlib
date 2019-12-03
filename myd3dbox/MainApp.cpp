@@ -445,19 +445,21 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f), true))
 	{
 		bContinue = TRUE;
-		m_bNeedDraw = TRUE;
 	}
 
-	if (my::ResourceMgr::CheckIORequests(0))
+	if (!m_IORequestList.empty())
 	{
-		bContinue = TRUE;
 		m_bNeedDraw = TRUE;
+
+		if (my::ResourceMgr::CheckIORequests(0))
+		{
+			bContinue = TRUE;
+		}
 	}
 
 	if (CWinAppEx::OnIdle(lCount))
 	{
 		bContinue = TRUE;
-		m_bNeedDraw = TRUE;
 	}
 
 	m_d3dDeviceSec.Enter();
@@ -471,7 +473,6 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		pFrame->m_EventSelectionPlaying(&arg);
 
 		bContinue = TRUE;
-		m_bNeedDraw = FALSE;
 	}
 	else if (!bContinue && m_bNeedDraw)
 	{
