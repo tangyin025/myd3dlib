@@ -7,6 +7,7 @@
 #include "MainFrm.h"
 #include "MainApp.h"
 #include "ChildView.h"
+#include <boost/regex.hpp>
 
 #define SSAO_BIAS_RANGE 1.0f
 #define SSAO_INTENSITY_RANGE 10.0f
@@ -301,76 +302,90 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	ASSERT_VALID(pFrame);
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	ASSERT_VALID(pView);
-	pProp = GetTopProp(pProp);
-	DWORD PropertyId = pProp->GetData();
+	CMFCPropertyGridProperty * pTopProp = GetTopProp(pProp);
+	DWORD PropertyId = pTopProp->GetData();
 	switch (PropertyId)
 	{
 	case PropertyCamera:
 		{
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
 			model_view_camera->m_LookAt = my::Vector3(
-				pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
-				pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
-				pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal);
+				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
+				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
+				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal);
 			pView->m_Camera->m_Eular = my::Vector3(
-				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
-				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
-				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
+				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
+				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
+				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
 			theApp.m_BgColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 			pView->m_Camera->UpdateViewProj();
 		}
 		break;
 	case PropertySkyBox:
 		{
-			for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
+			std::wstring path = pProp->GetValue().bstrVal;
+			boost::basic_regex<TCHAR> reg(_T("_(FR|BK|LF|RT|UP|DN)"));
+			boost::match_results<std::basic_string<TCHAR>::const_iterator> what;
+			if (boost::regex_search(path, what, reg, boost::match_default) && what[1].matched)
 			{
-				std::string path = ts2ms(pProp->GetSubItem(SkyBoxPropertyTextureFront + i)->GetValue().bstrVal);
-				if (path.empty())
+				const TCHAR * tex_name[6] = { _T("FR"), _T("BK"), _T("LF"), _T("RT"), _T("UP"), _T("DN") };
+				for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 				{
+					std::basic_string<TCHAR> new_path;
+					new_path.insert(new_path.end(), path.begin(), what[1].first);
+					new_path.append(tex_name[i]);
+					new_path.insert(new_path.end(), what[1].second, path.end());
 					theApp.m_SkyBoxTextures[i].ReleaseResource();
-					theApp.m_SkyBoxTextures[i].m_TexturePath.clear();
-				}
-				else if (path != theApp.m_SkyBoxTextures[i].m_TexturePath)
-				{
-					theApp.m_SkyBoxTextures[i].ReleaseResource();
-					theApp.m_SkyBoxTextures[i].m_TexturePath = path;
+					theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(new_path);
 					theApp.m_SkyBoxTextures[i].RequestResource();
 				}
+				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+				ASSERT_VALID(pFrame);
+				CEnvironmentWnd::CameraPropEventArgs arg(pView);
+				pFrame->m_EventCameraPropChanged(&arg);
+			}
+			else
+			{
+				int i = pProp->GetData() - SkyBoxPropertyTextureFront;
+				_ASSERT(i >= 0 && i < _countof(theApp.m_SkyBoxTextures));
+				theApp.m_SkyBoxTextures[i].ReleaseResource();
+				theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(path);
+				theApp.m_SkyBoxTextures[i].RequestResource();
 			}
 		}
 		break;
 	case PropertySkyLight:
 		{
 			pView->m_SkyLightCam->m_Eular = my::Vector3(
-				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
-				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
-				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
+				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
+				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(SkyLightPropertyColor)))->GetColor();
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyColor)))->GetColor();
 			theApp.m_SkyLightColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 
-			color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
+			color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
 			theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 		}
 		break;
 	case PropertySSAO:
 		{
-			pView->m_SsaoEnable = pProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
-			theApp.m_SsaoBias = pProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;
-			theApp.m_SsaoIntensity = pProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
-			theApp.m_SsaoRadius = pProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
-			theApp.m_SsaoScale = pProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
+			pView->m_SsaoEnable = pTopProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
+			theApp.m_SsaoBias = pTopProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;
+			theApp.m_SsaoIntensity = pTopProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
+			theApp.m_SsaoRadius = pTopProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
+			theApp.m_SsaoScale = pTopProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
 		}
 		break;
 	case PropertyFog:
 		{
-			pView->m_FogEnable = pProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(FogPropertyColor)))->GetColor();
+			pView->m_FogEnable = pTopProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(FogPropertyColor)))->GetColor();
 			theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
-			theApp.m_FogStartDistance = pProp->GetSubItem(FogPropertyStartDistance)->GetValue().fltVal;
-			theApp.m_FogHeight = pProp->GetSubItem(FogPropertyHeight)->GetValue().fltVal;
-			theApp.m_FogFalloff = pProp->GetSubItem(FogPropertyFalloff)->GetValue().fltVal;
+			theApp.m_FogStartDistance = pTopProp->GetSubItem(FogPropertyStartDistance)->GetValue().fltVal;
+			theApp.m_FogHeight = pTopProp->GetSubItem(FogPropertyHeight)->GetValue().fltVal;
+			theApp.m_FogFalloff = pTopProp->GetSubItem(FogPropertyFalloff)->GetValue().fltVal;
 		}
 		break;
 	}

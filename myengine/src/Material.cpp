@@ -276,12 +276,12 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	boost::regex reg_type("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
+	boost::regex reg("(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
 	m_ParameterList.clear();
-	while (boost::regex_search(start, end, what, reg_type, boost::match_default))
+	while (boost::regex_search(start, end, what, reg, boost::match_default))
 	{
 		std::string Type = what[1];
 		std::string Name = what[2];

@@ -567,7 +567,7 @@ void CMainFrame::OnFileNew()
 	ClearFileContext();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
-	theApp.m_BgColor = my::Vector4(0.7f, 0.7f, 0.7f, 1.0f);
+	theApp.m_BgColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.0f);
 	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
