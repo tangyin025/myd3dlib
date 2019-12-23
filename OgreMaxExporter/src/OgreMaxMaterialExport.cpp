@@ -4,6 +4,7 @@
 #include "stdmat.h"
 #include "impexp.h"
 #include "IGame/IGame.h"
+#include "libc.h"
 
 namespace OgreMax {
 
@@ -111,9 +112,9 @@ namespace OgreMax {
 					of << "\n\t\t\ttexture_unit " << std::endl;
 					of << "\t\t\t{" << std::endl;
 
-					std::string bmap(tmap->GetBitmapFileName());
-					bmap = bmap.substr(bmap.find_last_of('\\') + 1);
-					of << "\t\t\t\ttexture " << bmap << std::endl;
+					std::basic_string<TCHAR> bmap(tmap->GetBitmapFileName());
+					bmap = bmap.substr(bmap.find_last_of(_T('\\')) + 1);
+					of << "\t\t\t\ttexture " << ts2ms(bmap) << std::endl;
 					of << "\t\t\t}" << std::endl;
 				}
 			}
@@ -124,11 +125,11 @@ namespace OgreMax {
 		return true;
 	}
 	
-	bool MaterialExporter::buildMaterial(IGameMaterial *material, const std::string& matName, std::string &script) {
+	bool MaterialExporter::buildMaterial(IGameMaterial *material, const std::basic_string<TCHAR>& matName, std::string &script) {
 
 		std::stringstream of;
 
-		of << "material " << matName << std::endl;
+		of << "material " << ts2ms(matName) << std::endl;
 		of << std::showpoint;
 		of << "{" << std::endl;
 

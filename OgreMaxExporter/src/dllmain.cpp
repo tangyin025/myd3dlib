@@ -40,9 +40,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,ULONG fdwReason,LPVOID lpvReserved) {
 	hInstance = hinstDLL;
 	if ( !controlsInit ) {
 		controlsInit = TRUE;
-		
-		// jaguar controls
-		InitCustomControls(hInstance);
+		//
+		//// jaguar controls
+		//InitCustomControls(hInstance);
 
 		// initialize Chicago controls
 		InitCommonControls();

@@ -35,8 +35,8 @@ namespace OgreMax
 	{
 	}
 
-	Ogre::MeshPtr MeshExporter::buildMesh(NodeList nodeList)
-	{
-		return m_pMesh;
-	}
+	//Ogre::MeshPtr MeshExporter::buildMesh(NodeList nodeList)
+	//{
+	//	return m_pMesh;
+	//}
 }

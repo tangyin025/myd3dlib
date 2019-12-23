@@ -19,37 +19,37 @@ void OgreMaxExport_SkeletalAnimation::onInitDialog(HWND hDlg) {
 	ZeroMemory(&lvc, sizeof(LVCOLUMN));
 	lvc.mask = LVCF_TEXT | LVCF_WIDTH;
 	lvc.cx = r.w() * 0.6;
-	lvc.pszText = "Animation";
+	lvc.pszText = _T("Animation");
 	ListView_InsertColumn(anims, 0, &lvc);
 	lvc.cx = r.w() * 0.2;
-	lvc.pszText = "Begin";
+	lvc.pszText = _T("Begin");
 	ListView_InsertColumn(anims, 1, &lvc);
-	lvc.pszText = "End";
+	lvc.pszText = _T("End");
 	ListView_InsertColumn(anims, 2, &lvc);
 
 	// add a spanning entry to the animation list as a default
 	LVITEM lvi;
-	char buf[32];
+	TCHAR buf[32];
 	ZeroMemory(&lvi, sizeof(LVITEM));
 
 	lvi.mask = LVIF_TEXT;
-	lvi.pszText = "Animation";
+	lvi.pszText = _T("Animation");
 	lvi.iItem = 10000;
 	int idx = ListView_InsertItem(anims, &lvi);
 
-	sprintf(buf, "%d", frameStart / GetTicksPerFrame());
+	_stprintf(buf, _T("%d"), frameStart / GetTicksPerFrame());
 	lvi.iItem = idx;
 	lvi.iSubItem = 1;
 	lvi.pszText = buf;
 	ListView_SetItem(anims, &lvi);
 
-	sprintf(buf, "%d", frameEnd / GetTicksPerFrame());
+	_stprintf(buf, _T("%d"), frameEnd / GetTicksPerFrame());
 	lvi.iSubItem = 2;
 	lvi.pszText = buf;
 	ListView_SetItem(anims, &lvi);
 
 	// populate the frame range info box
-	sprintf(buf, "%d to %d", frameStart / GetTicksPerFrame(), frameEnd / GetTicksPerFrame());
+	_stprintf(buf, _T("%d to %d"), frameStart / GetTicksPerFrame(), frameEnd / GetTicksPerFrame());
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FRAME_RANGE), WM_SETTEXT, 0, (LPARAM)buf);
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FPS), WM_SETTEXT, 0, (LPARAM)_T("1.0"));
 }
@@ -72,15 +72,15 @@ void OgreMaxExport_SkeletalAnimation::onDeleteAnimation() {
 }
 
 void OgreMaxExport_SkeletalAnimation::addAnimation() {
-	char buf[256];
+	TCHAR buf[256];
 	int start, end;
 	HWND anims = GetDlgItem(m_hDlg, IDC_LIST_ANIMATIONS);
 
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FPS), WM_GETTEXT, 256, (LPARAM)buf);
-	float fps = atof(buf);
+	float fps = _tstof(buf);
 
 	if (fps <= 0.0) {
-		MessageBox(NULL, "FPS must be >= 0.0", "Invalid Entry", MB_ICONEXCLAMATION);
+		MessageBox(NULL, _T("FPS must be >= 0.0"), _T("Invalid Entry"), MB_ICONEXCLAMATION);
 		return;
 	}
 
@@ -89,29 +89,29 @@ void OgreMaxExport_SkeletalAnimation::addAnimation() {
 
 	// get animation start and end times
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_ANIM_START), WM_GETTEXT, 256, (LPARAM)buf);
-	start = atoi(buf);
+	start = _tstoi(buf);
 
 	if (start < minAnimTime) {
-		sprintf(buf, "Start time must be >= %d", start);
-		MessageBox(NULL, buf, "Invalid Entry", MB_ICONEXCLAMATION);
+		_stprintf(buf, _T("Start time must be >= %d"), start);
+		MessageBox(NULL, buf, _T("Invalid Entry"), MB_ICONEXCLAMATION);
 		return;
 	}
 
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_ANIM_END), WM_GETTEXT, 256, (LPARAM)buf);
-	end = atoi(buf);
+	end = _tstoi(buf);
 
 	if (end > maxAnimTime) {
-		sprintf(buf, "End time must be <= %d", end);
-		MessageBox(NULL, buf, "Invalid Entry", MB_ICONEXCLAMATION);
+		_stprintf(buf, _T("End time must be <= %d"), end);
+		MessageBox(NULL, buf, _T("Invalid Entry"), MB_ICONEXCLAMATION);
 		return;
 	}
 
 	// get animation name
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_ANIMATION_NAME), WM_GETTEXT, 256, (LPARAM)buf);
-	std::string name(buf);
+	std::basic_string<TCHAR> name(buf);
 
 	if (name.length() == 0) {
-		MessageBox(NULL, "Animation name must not be empty", "Invalid Entry", MB_ICONEXCLAMATION);
+		MessageBox(NULL, _T("Animation name must not be empty"), _T("Invalid Entry"), MB_ICONEXCLAMATION);
 		return;
 	}
 
@@ -126,18 +126,18 @@ void OgreMaxExport_SkeletalAnimation::addAnimation() {
 
 	lvi.iItem = idx;
 	lvi.iSubItem = 1;
-	sprintf(buf, "%d", start);
+	_stprintf(buf, _T("%d"), start);
 	lvi.pszText = buf;
 	ListView_SetItem(anims, &lvi);
 	lvi.iSubItem = 2;
-	sprintf(buf, "%d", end);
+	_stprintf(buf, _T("%d"), end);
 	lvi.pszText = buf;
 	ListView_SetItem(anims, &lvi);
 
 	// Finally, clear out the entry controls
-	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_ANIMATION_NAME), "");
-	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_ANIM_START), "");
-	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_ANIM_END), "");
+	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_ANIMATION_NAME), _T(""));
+	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_ANIM_START), _T(""));
+	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_ANIM_END), _T(""));
 }
 
 void OgreMaxExport_SkeletalAnimation::deleteAnimation() {

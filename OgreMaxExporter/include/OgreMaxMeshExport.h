@@ -22,9 +22,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
-#include "OgrePrerequisites.h"
-#include "OgreMesh.h"
+//
+//#include "OgrePrerequisites.h"
+//#include "OgreMesh.h"
 
 #include "OgreMaxConfig.h"
 #include "OgreMaxExport.h"
@@ -32,8 +32,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "max.h"
 #include "INode.h"
 #include <list>
-
-typedef std::list<INode*> NodeList;
+//
+//typedef std::list<INode*> NodeList;
 
 namespace OgreMax {
 
@@ -44,13 +44,13 @@ namespace OgreMax {
 		MeshExporter(const Config& config);
 		virtual ~MeshExporter();
 
-		// take in a list of INode* for assembly into Ogre::Mesh form; returns
-		// a MeshPtr pointing to the newly minted Ogre Mesh object.
-		Ogre::MeshPtr buildMesh(NodeList nodeList);
+		//// take in a list of INode* for assembly into Ogre::Mesh form; returns
+		//// a MeshPtr pointing to the newly minted Ogre Mesh object.
+		//Ogre::MeshPtr buildMesh(NodeList nodeList);
 
 	private:
 
-		// Pointer to Mesh object for export
-		Ogre::MeshPtr	m_pMesh;
+		//// Pointer to Mesh object for export
+		//Ogre::MeshPtr	m_pMesh;
 	};
 }

@@ -11,7 +11,7 @@ namespace OgreMax {
 		m_rebuildNormals = false;			// rebuild the normals before exporting mesh data
 
 		m_exportMaterial = true;			// default is to export material scripts
-		m_defaultMaterialName = "DefaultMaterial";
+		m_defaultMaterialName = _T("DefaultMaterial");
 		m_2DTexCoord = UV;					// default is UV interpretation of 2D tex coords
 
 		m_invertNormals = false;			// flip normals; will also reorder triangle vertex indices
@@ -67,15 +67,15 @@ namespace OgreMax {
 		// write "this" to file named <basename>.cfg; note that we do not need to do the same massaging of 
 		// file sizes that we do for reads since this will always output the latest version
 		std::ofstream of;
-		std::string fname = m_exportBasename + ".cfg";
+		std::basic_string<TCHAR> fname = m_exportBasename + _T(".cfg");
 
 		// copy strings to buffers
-		strcpy(m_bufDefaultMaterialName, m_defaultMaterialName.c_str());
-		strcpy(m_bufExportPath, m_exportPath.c_str());
-		strcpy(m_bufExportBasename, m_exportBasename.c_str());
-		strcpy(m_bufExportFilename, m_exportFilename.c_str());
-		strcpy(m_bufMaterialFilename, m_materialFilename.c_str());
-		strcpy(m_bufSkeletonFilename, m_skeletonFilename.c_str());
+		_tcscpy(m_bufDefaultMaterialName, m_defaultMaterialName.c_str());
+		_tcscpy(m_bufExportPath, m_exportPath.c_str());
+		_tcscpy(m_bufExportBasename, m_exportBasename.c_str());
+		_tcscpy(m_bufExportFilename, m_exportFilename.c_str());
+		_tcscpy(m_bufMaterialFilename, m_materialFilename.c_str());
+		_tcscpy(m_bufSkeletonFilename, m_skeletonFilename.c_str());
 
 		// set version number for sure
 		m_version = CURRENTVERSION;
@@ -90,7 +90,7 @@ namespace OgreMax {
 	void Config::load() {
 		// read "this" from file named <basename>.cfg
 		std::ifstream f;
-		std::string fname = m_exportBasename + ".cfg";
+		std::basic_string<TCHAR> fname = m_exportBasename + _T(".cfg");
 
 		f.open(fname.c_str(), std::ios::binary | std::ios::in);
 		if (f.is_open()) {
@@ -128,35 +128,35 @@ namespace OgreMax {
 		// if we could not open the config file for any reason, skip it -- more than likely a new export
 	}
 
-	void Config::setExportPath(const std::string& path) {
+	void Config::setExportPath(const std::basic_string<TCHAR>& path) {
 		m_exportPath = path;
 	}
 
-	void Config::setMaterialFilename(const std::string& name) {
+	void Config::setMaterialFilename(const std::basic_string<TCHAR>& name) {
 		m_materialFilename = name;
 	}
 
-	void Config::setExportFilename(const std::string& name) {
+	void Config::setExportFilename(const std::basic_string<TCHAR>& name) {
 		// extract the filename and the export path
-		std::string filename = name;
-		size_t offset = filename.find_last_of('\\');
+		std::basic_string<TCHAR> filename = name;
+		size_t offset = filename.find_last_of(_T('\\'));
 		m_exportPath = filename.substr(0, offset);
 		m_exportFilename = filename.substr(offset+1);
 
 		// strip extension, if any
-		offset = m_exportFilename.find_last_of('.');
-		if (m_exportFilename.substr(offset) == ".xml")
-			offset = m_exportFilename.substr(0, offset).find_last_of('.');
+		offset = m_exportFilename.find_last_of(_T('.'));
+		if (m_exportFilename.substr(offset) == _T(".xml"))
+			offset = m_exportFilename.substr(0, offset).find_last_of(_T('.'));
 
 		// set base filename
 		m_exportBasename = m_exportFilename.substr(0, offset);
 	}
 
-	void Config::setSkeletonFilename(const std::string& name) {
+	void Config::setSkeletonFilename(const std::basic_string<TCHAR>& name) {
 		m_skeletonFilename = name;
 	}
 
-	void Config::setDefaultMaterialName(const std::string& name) {
+	void Config::setDefaultMaterialName(const std::basic_string<TCHAR>& name) {
 		m_defaultMaterialName = name;
 	}
 
@@ -182,14 +182,14 @@ namespace OgreMax {
 		m_invertNormals = invert;
 	}
 
-	void Config::setExportBinaryMesh(bool export)
+	void Config::setExportBinaryMesh(bool _export)
 	{
-		m_exportBinaryMesh = export;
+		m_exportBinaryMesh = _export;
 	}
 
-	void Config::setExportXMLMesh(bool export)
+	void Config::setExportXMLMesh(bool _export)
 	{
-		m_exportXMLMesh = export;
+		m_exportXMLMesh = _export;
 	}
 
 	void Config::setRebuildNormals(bool rebuild)

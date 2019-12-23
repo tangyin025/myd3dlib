@@ -63,11 +63,11 @@ namespace OgreMax {
 		bool getExportMaterial() const { return m_exportMaterial; }
 
 		// enable mesh binary file export
-		void setExportBinaryMesh(bool export);
+		void setExportBinaryMesh(bool _export);
 		bool getExportBinaryMesh() const { return m_exportBinaryMesh; }
 
 		// enable mesh XML file export
-		void setExportXMLMesh(bool export);
+		void setExportXMLMesh(bool _export);
 		bool getExportXMLMesh() const { return m_exportXMLMesh; }
 
 		// enable vertex color export
@@ -87,8 +87,8 @@ namespace OgreMax {
 		bool getInvertYZ() const { return m_flipYZ; }
 
 		// default material name to use when none is provided for a mesh
-		void setDefaultMaterialName(const std::string& materialName);
-		const std::string& getDefaultMaterialName() const { return m_defaultMaterialName; }
+		void setDefaultMaterialName(const std::basic_string<TCHAR>& materialName);
+		const std::basic_string<TCHAR>& getDefaultMaterialName() const { return m_defaultMaterialName; }
 
 		// set scale to use when exporting
 		void setScale(float scale);
@@ -103,23 +103,23 @@ namespace OgreMax {
 		Tex2D getTexCoord2D() const { return m_2DTexCoord; }
 
 		// export directory
-		void setExportPath(const std::string& path);
-		const std::string& getExportPath() const { return m_exportPath; }
+		void setExportPath(const std::basic_string<TCHAR>& path);
+		const std::basic_string<TCHAR>& getExportPath() const { return m_exportPath; }
 
 		// export filename
-		void setExportFilename(const std::string& name);
-		const std::string& getExportFilename() const { return m_exportFilename; }
+		void setExportFilename(const std::basic_string<TCHAR>& name);
+		const std::basic_string<TCHAR>& getExportFilename() const { return m_exportFilename; }
 
 		// export basename -- this is read-only, based on the filename the user set coming in
-		const std::string& getExportBasename() const { return m_exportBasename; }
+		const std::basic_string<TCHAR>& getExportBasename() const { return m_exportBasename; }
 
 		// material filename
-		void setMaterialFilename(const std::string& filename);
-		const std::string& getMaterialFilename() const { return m_materialFilename; }
+		void setMaterialFilename(const std::basic_string<TCHAR>& filename);
+		const std::basic_string<TCHAR>& getMaterialFilename() const { return m_materialFilename; }
 
 		// skeleton filename
-		void setSkeletonFilename(const std::string& filename);
-		const std::string& getSkeletonFilename() const { return m_skeletonFilename; }
+		void setSkeletonFilename(const std::basic_string<TCHAR>& filename);
+		const std::basic_string<TCHAR>& getSkeletonFilename() const { return m_skeletonFilename; }
 
 		//
 		// Binary mesh export settings
@@ -228,12 +228,12 @@ namespace OgreMax {
 		// since we are doing a new-in-place type of config save/load (because I'm lazy) we can't write these to disk, and
 		// instead have to "fix" them up on config load and write them out to the buffers above on save. These are used, however, 
 		// for the convenience of the setter/getters in the class.
-		std::string m_defaultMaterialName;		// default material name to use when none is provided for a mesh
-		std::string m_exportPath;				// path to contain exported files
-		std::string m_exportFilename;			// exported base filename
-		std::string m_exportBasename;			// exported base filename, sans extension 
-		std::string m_materialFilename;			// exported material filename
-		std::string m_skeletonFilename;			// exported skeleton filename (for shared skeleton export)
+		std::basic_string<TCHAR> m_defaultMaterialName;		// default material name to use when none is provided for a mesh
+		std::basic_string<TCHAR> m_exportPath;				// path to contain exported files
+		std::basic_string<TCHAR> m_exportFilename;			// exported base filename
+		std::basic_string<TCHAR> m_exportBasename;			// exported base filename, sans extension 
+		std::basic_string<TCHAR> m_materialFilename;			// exported material filename
+		std::basic_string<TCHAR> m_skeletonFilename;			// exported skeleton filename (for shared skeleton export)
 
 		// we can also track temporary info that we do not want to save in the config file, but want to pass around in 
 		// the config object

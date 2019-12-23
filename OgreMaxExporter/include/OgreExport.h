@@ -79,7 +79,7 @@ public:
 
 	// event handlers
 	void onInitDialog(HWND hDlg);
-	void onExportDirectoryChanged(const std::string& newDirectory);
+	void onExportDirectoryChanged(const std::basic_string<TCHAR>& newDirectory);
 	void onInvertYZ(bool checked);
 	void onSetScale(float newScale);
 
@@ -239,7 +239,7 @@ protected:
 
 	// utility methods
 	BOOL setupExportProperties();
-	bool export();
+	bool _export();
 
 	// properties page message handlers
 	void onTabSelectChange(HWND hTabControl, INT iTabId);

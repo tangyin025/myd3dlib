@@ -75,11 +75,11 @@ int	OgreMaxExport::DoExport(const TCHAR *name,ExpInterface *ei,Interface *i, BOO
 	m_config.load(); // can only do this after the export fname has been set and parsed out into its parts
 
 	// if material and skeleton filenames are not set, do so now
-	if (m_config.getMaterialFilename() == "")
-		m_config.setMaterialFilename(m_config.getExportBasename() + ".material");
+	if (m_config.getMaterialFilename() == _T(""))
+		m_config.setMaterialFilename(m_config.getExportBasename() + _T(".material"));
 
-	if (m_config.getSkeletonFilename() == "")
-		m_config.setSkeletonFilename(m_config.getExportBasename() + ".skeleton");
+	if (m_config.getSkeletonFilename() == _T(""))
+		m_config.setSkeletonFilename(m_config.getExportBasename() + _T(".skeleton"));
 
 	m_meshExporter.setMaxInterface(ei, i);
 	m_meshXMLExporter.setMaxInterface(ei, i);
@@ -107,7 +107,7 @@ int	OgreMaxExport::DoExport(const TCHAR *name,ExpInterface *ei,Interface *i, BOO
 			return IMPEXP_CANCEL;
 			break;
 		case 1:
-			MessageBox(GetActiveWindow(), "Export Succeeded", "Sucessful Export", MB_ICONINFORMATION);
+			MessageBox(GetActiveWindow(), _T("Export Succeeded"), _T("Sucessful Export"), MB_ICONINFORMATION);
 			return IMPEXP_SUCCESS;
 			break;
 		default:
@@ -123,7 +123,7 @@ INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wPar
 			_exp = (OgreMaxExport*) lParam;
 
 			if (_exp == 0) {
-				MessageBox(NULL, "Error: Cannot initialize exporter options dialog, aborting", "Error", MB_ICONEXCLAMATION);
+				MessageBox(NULL, _T("Error: Cannot initialize exporter options dialog, aborting"), _T("Error"), MB_ICONEXCLAMATION);
 				EndDialog(hDlg, 0);
 				return TRUE;
 			}
@@ -136,7 +136,7 @@ INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wPar
 			switch(LOWORD(wParam)) {
 				case IDOK:
 				case IDC_EXPORT:
-					if (_exp->export())
+					if (_exp->_export())
 						EndDialog(hDlg, 1);
 					else
 						EndDialog(hDlg, 2);
@@ -162,7 +162,7 @@ INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wPar
 
 }
 
-bool OgreMaxExport::export() {
+bool OgreMaxExport::_export() {
 
 	// do mesh export -- either/both of XML and binary
 	if (m_config.getExportXMLMesh()) {
@@ -277,15 +277,15 @@ BOOL OgreMaxExport::setupExportProperties() {
 	HWND tabCtrl = GetDlgItem(m_hWndDlgExport, IDC_TABCONTROL);
 
 	tci.mask = TCIF_TEXT;
-	tci.pszText = "General";
+	tci.pszText = _T("General");
 	TabCtrl_InsertItem(tabCtrl, 0, &tci);
-	tci.pszText = "Mesh";
+	tci.pszText = _T("Mesh");
 	TabCtrl_InsertItem(tabCtrl, 1, &tci);
-	tci.pszText = "Skeletal Animation";
+	tci.pszText = _T("Skeletal Animation");
 	TabCtrl_InsertItem(tabCtrl, 2, &tci);
-	tci.pszText = "Vertex Animation";
+	tci.pszText = _T("Vertex Animation");
 	TabCtrl_InsertItem(tabCtrl, 3, &tci);
-	tci.pszText = "Material";
+	tci.pszText = _T("Material");
 	TabCtrl_InsertItem(tabCtrl, 4, &tci);
 
 	// simulate tab select
@@ -352,7 +352,7 @@ unsigned int OgreMaxExport::Version() {
 }
 
 void OgreMaxExport::ShowAbout(HWND hWnd) {
-	MessageBox(hWnd, "OGRE 3D Mesh, Material and Animation Exporter", "About", 0);
+	MessageBox(hWnd, _T("OGRE 3D Mesh, Material and Animation Exporter"), _T("About"), 0);
 }
 
 BOOL OgreMaxExport::SupportsOptions(int ext, DWORD options) {

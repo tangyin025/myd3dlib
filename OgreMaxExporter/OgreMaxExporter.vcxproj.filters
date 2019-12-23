@@ -51,6 +51,9 @@
     <ClCompile Include="src\OgreMaxVertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\myd3dlib\src\libc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\OgreExport.h">
@@ -82,13 +85,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\PlatformManagers\Win32\misc\ogre.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="include\ogre.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\..\..\PlatformManagers\Win32\misc\ogrelogo.bmp">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="include\ogrelogo.bmp">

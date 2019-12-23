@@ -36,19 +36,19 @@ void OgreMaxExport_Mesh::onInitDialog(HWND hDlg) {
 
 	CheckDlgButton(hDlg, IDC_CHK_GENERATE_LOD, m_config.getGenerateLod() ? BST_CHECKED : BST_UNCHECKED);
 
-	std::stringstream ss;
+	std::basic_stringstream<TCHAR> ss;
 	ss << m_config.getNumLodLevels();
 	SetWindowText(GetDlgItem(hDlg, IDC_LOD_NUM_LEVELS), ss.str().c_str());
 
-	ss.str("");
+	ss.str(_T(""));
 	ss << m_config.getLodDistance();
 	SetWindowText(GetDlgItem(hDlg, IDC_LOD_DISTANCE), ss.str().c_str());
 
-	ss.str("");
+	ss.str(_T(""));
 	ss << m_config.getLodPercentReduction();
 	SetWindowText(GetDlgItem(hDlg, IDC_LOD_PERCENT), ss.str().c_str());
 
-	ss.str("");
+	ss.str(_T(""));
 	ss << m_config.getLodVertexReduction();
 	SetWindowText(GetDlgItem(hDlg, IDC_LOD_VERTEX_COUNT), ss.str().c_str());
 
@@ -82,15 +82,15 @@ void OgreMaxExport_Mesh::update() {
 
 	m_config.setGenerateLod(BST_CHECKED == IsDlgButtonChecked(m_hDlg, IDC_CHK_GENERATE_LOD));
 
-	char buf[16];
+	TCHAR buf[16];
 	GetWindowText(GetDlgItem(m_hDlg, IDC_LOD_NUM_LEVELS), buf, 16);
-	m_config.setNumLodLevels(atoi(buf));
+	m_config.setNumLodLevels(_tstoi(buf));
 	GetWindowText(GetDlgItem(m_hDlg, IDC_LOD_DISTANCE), buf, 16);
-	m_config.setLodDistance(atof(buf));
+	m_config.setLodDistance(_tstof(buf));
 	GetWindowText(GetDlgItem(m_hDlg, IDC_LOD_PERCENT), buf, 16);
-	m_config.setLodPercentReduction(atof(buf));
+	m_config.setLodPercentReduction(_tstof(buf));
 	GetWindowText(GetDlgItem(m_hDlg, IDC_LOD_VERTEX_COUNT), buf, 16);
-	m_config.setLodVertexReduction(atoi(buf));
+	m_config.setLodVertexReduction(_tstoi(buf));
 }
 
 void OgreMaxExport_Mesh::onClickBinaryMesh() {

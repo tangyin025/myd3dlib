@@ -25,13 +25,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #if !defined(__OGREMAX_VERTEX_H__)
 #define __OGREMAX_VERTEX_H__
-
-#include "OgreColourValue.h"
-#include "OgreVector3.h"
+//
+//#include "OgreColourValue.h"
+//#include "OgreVector3.h"
+#include "../../myd3dlib/include/myMath.h"
+#include <list>
 
 namespace OgreMax {
 
-	typedef std::map<int, Ogre::Vector3> TexCoordMap;
+	typedef std::map<int, my::Vector3> TexCoordMap;
 
 	class Vertex {
 	public:
@@ -44,16 +46,16 @@ namespace OgreMax {
 
 		bool operator==(Vertex& other);
 
-		const Ogre::Vector3& getPosition() const { return m_position; }
-		const Ogre::Vector3& getNormal() const { return m_normal; }
-		const Ogre::ColourValue& getColour() const { return m_colour; }
-		const Ogre::Vector3& getUVW(int mapIndex) const { return m_uvwMap.find(mapIndex)->second; }
+		const my::Vector3& getPosition() const { return m_position; }
+		const my::Vector3& getNormal() const { return m_normal; }
+		const my::Vector4& getColour() const { return m_colour; }
+		const my::Vector3& getUVW(int mapIndex) const { return m_uvwMap.find(mapIndex)->second; }
 	
 	private:
-		bool hasSameTexCoords(std::map<int, Ogre::Vector3>& uvwMap) ;
-		Ogre::Vector3					m_position;
-		Ogre::Vector3					m_normal;
-		Ogre::ColourValue				m_colour;
+		bool hasSameTexCoords(std::map<int, my::Vector3>& uvwMap) ;
+		my::Vector3					m_position;
+		my::Vector3					m_normal;
+		my::Vector4				m_colour;
 		TexCoordMap						m_uvwMap;
 	};
 

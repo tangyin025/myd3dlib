@@ -15,14 +15,14 @@ namespace OgreMax {
 	}
 
 	void Vertex::setColour(float r, float g, float b, float a) {
-		m_colour.r = r;
-		m_colour.g = g;
-		m_colour.b = b;
-		m_colour.a = a;
+		m_colour.x = r;
+		m_colour.y = g;
+		m_colour.z = b;
+		m_colour.w = a;
 	}
 
 	void Vertex::addTexCoord(int mapIndex, float u, float v, float w) {
-		Ogre::Vector3 uvw;
+		my::Vector3 uvw;
 
 		uvw.x = u;
 		uvw.y = v;
@@ -31,8 +31,8 @@ namespace OgreMax {
 		m_uvwMap[mapIndex] = uvw;
 	}
 
-	bool Vertex::hasSameTexCoords(std::map<int, Ogre::Vector3>& uvwMap)  {
-		std::map<int, Ogre::Vector3>::const_iterator it = uvwMap.begin();
+	bool Vertex::hasSameTexCoords(std::map<int, my::Vector3>& uvwMap)  {
+		std::map<int, my::Vector3>::const_iterator it = uvwMap.begin();
 
 		while (it != uvwMap.end()) {
 			try {
@@ -62,7 +62,8 @@ namespace OgreMax {
 	unsigned int VertexList::add(Vertex& v) {
 
 		int idx = 0;
-		for (std::list<Vertex>::iterator it = m_vertexList.begin(); it != m_vertexList.end(); ++it, ++idx) {
+		std::list<Vertex>::iterator it = m_vertexList.begin();
+		for (; it != m_vertexList.end(); ++it, ++idx) {
 			if (*it == v)
 				break;
 		}

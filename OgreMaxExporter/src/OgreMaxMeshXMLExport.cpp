@@ -38,7 +38,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "iskin.h"
 
 #include "IGame/IGame.h"
-
+#include <fstream>
+#include "libc.h"
 namespace OgreMax
 {
 	MeshXMLExporter::MeshXMLExporter(const Config& config, MaterialMap& map) : m_materialMap(map), OgreMaxExporter(config)
@@ -55,7 +56,7 @@ namespace OgreMax
 
 	bool MeshXMLExporter::buildMeshXML(OutputMap& output)
 	{
-		return export(output);
+		return _export(output);
 	}
 
 
@@ -85,7 +86,7 @@ namespace OgreMax
 
 				if (node->GetParentNode() != NULL) {
 					// stick this in the bone-index map for later use
-					m_boneIndexMap.insert(std::map< std::string, int >::value_type(std::string(node->GetName()), m_currentBoneIndex++));
+					m_boneIndexMap.insert(std::map< std::basic_string<TCHAR>, int >::value_type(std::basic_string<TCHAR>(node->GetName()), m_currentBoneIndex++));
 				}
 
 				return TREE_CONTINUE;
@@ -120,7 +121,7 @@ namespace OgreMax
 	// as they are added to the vertex list.
 	////////////////////////////////////////////////////////////////////////////////
 
-	bool MeshXMLExporter::export(OutputMap& output) {
+	bool MeshXMLExporter::_export(OutputMap& output) {
 
 		try {
 
@@ -145,32 +146,32 @@ namespace OgreMax
 			int nodeCount = m_pGame->GetTopLevelNodeCount();
 
 			if (nodeCount == 0) {
-				MessageBox(GetActiveWindow(), "No nodes available to export, aborting...", "Nothing To Export", MB_ICONINFORMATION);
+				MessageBox(GetActiveWindow(), _T("No nodes available to export, aborting..."), _T("Nothing To Export"), MB_ICONINFORMATION);
 				m_pGame->ReleaseIGame();
 				return false;
 			}
 
 			// if we are writing everything to one file, use the name provided when the user first started the export;
 			// otherwise, create filenames on the basis of the node (submesh) names
-			std::string fileName;
+			std::basic_string<TCHAR> fileName;
 			IGameNode* node = m_pGame->GetTopLevelNode(0);
 			if (!m_config.getExportMultipleFiles())
 				fileName = m_config.getExportFilename();
 			else {
-				fileName = m_config.getExportPath() + "\\";
+				fileName = m_config.getExportPath() + _T("\\");
 				fileName += node->GetName();
-				fileName += ".mesh.xml";
+				fileName += _T(".mesh.xml");
 			}
 
 			// write start of XML data
 			streamFileHeader(of);
 
 			int nodeIdx = 0;
-			std::map<std::string, std::string> materialScripts;
+			std::map<std::basic_string<TCHAR>, std::string> materialScripts;
 
 			while (nodeIdx < nodeCount) {
 
-				std::string mtlName;
+				std::basic_string<TCHAR> mtlName;
 				IGameNode* node = m_pGame->GetTopLevelNode(nodeIdx);
 				IGameObject* obj = node->GetIGameObject();
 
@@ -185,7 +186,7 @@ namespace OgreMax
 
 				// clean out any spaces the user left in their material name
 				std::string::size_type pos;
-				while ((pos = mtlName.find_first_of(' ')) != std::string::npos)
+				while ((pos = mtlName.find_first_of(_T(' '))) != std::string::npos)
 					mtlName.replace(pos, 1, _T("_"));
 
 				if (materialScripts.find(mtlName) == materialScripts.end()) {
@@ -200,7 +201,7 @@ namespace OgreMax
 
 				//if (streamSubmesh(of, node, mtlName))
 				if (streamSubmesh(of, obj, mtlName))
-					m_submeshNames.push(std::string(node->GetName()));
+					m_submeshNames.push(std::basic_string<TCHAR>(node->GetName()));
 
 				node->ReleaseIGameObject();
 				nodeIdx++;
@@ -215,10 +216,10 @@ namespace OgreMax
 					of.str("");
 
 					if (nodeIdx != nodeCount) {
-						fileName = m_config.getExportPath() + "\\";
+						fileName = m_config.getExportPath() + _T("\\");
 						node = m_pGame->GetTopLevelNode(nodeIdx);
 						fileName += node->GetName();
-						fileName += ".mesh.xml";
+						fileName += _T(".mesh.xml");
 
 						// start over again with new data
 						streamFileHeader(of);
@@ -232,10 +233,10 @@ namespace OgreMax
 			if (m_config.getExportMaterial()) {
 
 				std::ofstream materialFile;
-				materialFile.open((m_config.getExportPath() + "\\" + m_config.getMaterialFilename()).c_str(), std::ios::out);
+				materialFile.open((m_config.getExportPath() + _T("\\") + m_config.getMaterialFilename()).c_str(), std::ios::out);
 
 				if (materialFile.is_open()) {
-					for (std::map<std::string, std::string>::iterator it = materialScripts.begin();
+					for (std::map<std::basic_string<TCHAR>, std::string>::iterator it = materialScripts.begin();
 						it != materialScripts.end(); ++it)
 					{
 						materialFile << it->second;
@@ -248,7 +249,7 @@ namespace OgreMax
 			return true;
 		}
 		catch (...) {
-			MessageBox(GetActiveWindow(), "An unexpected error has occurred while trying to export, aborting", "Error", MB_ICONEXCLAMATION);
+			MessageBox(GetActiveWindow(), _T("An unexpected error has occurred while trying to export, aborting"), _T("Error"), MB_ICONEXCLAMATION);
 
 			if (m_pGame)
 				m_pGame->ReleaseIGame();
@@ -291,7 +292,7 @@ namespace OgreMax
 
 		int idx = 0;
 		while (!m_submeshNames.empty()) {
-			of << "\t\t<submeshname name=\"" << m_submeshNames.front() << "\" index=\"" << idx << "\" />" << std::endl;
+			of << "\t\t<submeshname name=\"" << ts2ms(m_submeshNames.front()) << "\" index=\"" << idx << "\" />" << std::endl;
 			idx++;
 			m_submeshNames.pop();
 		}
@@ -305,7 +306,7 @@ namespace OgreMax
 	}
 
 	//bool MeshXMLExporter::streamSubmesh(std::ostream &of, IGameNode *node, std::string &mtlName) {
-	bool MeshXMLExporter::streamSubmesh(std::ostream &of, IGameObject *obj, std::string &mtlName) {
+	bool MeshXMLExporter::streamSubmesh(std::ostream &of, IGameObject *obj, std::basic_string<TCHAR> &mtlName) {
 		
 		//IGameObject* obj = node->GetIGameObject();
 		if (obj->GetIGameType() != IGameMesh::IGAME_MESH)
@@ -324,7 +325,7 @@ namespace OgreMax
 		of << "\t\t<submesh ";
 		
 		if (mtlName.length() > 0)
-			of << "material=\"" << mtlName << "\" ";
+			of << "material=\"" << ts2ms(mtlName) << "\" ";
 
 		of << "usesharedvertices=\"false\" use32bitindexes=\"";
 		of << (vertCount > 65535);
@@ -337,8 +338,8 @@ namespace OgreMax
 
 		// iterate the face list, putting vertices in the list for this submesh
 		VertexList vertexList;
-
-		for (int i=0; i<faceCount; i++) {
+		int i = 0;
+		for (; i<faceCount; i++) {
 
 			of << "\t\t\t\t<face";
 			FaceEx* face = mesh->GetFace(i);
@@ -407,7 +408,7 @@ namespace OgreMax
 			of << "\t\t\t\t\t<vertex>" << std::endl;
 			of << std::showpoint;
 
-			const Ogre::Vector3& p = v.getPosition();
+			const my::Vector3& p = v.getPosition();
 			float x = p.x;
 			float y = p.y;
 			float z = p.z;
@@ -416,16 +417,16 @@ namespace OgreMax
 
 			if (m_config.getExportVertexColours()) {
 
-				float r = v.getColour().r;
-				float g = v.getColour().g;
-				float b = v.getColour().b;
+				float r = v.getColour().x;
+				float g = v.getColour().y;
+				float b = v.getColour().z;
 
 				of << "\t\t\t\t\t\t<colour_diffuse value=\"\t" << r << "\t" << g << "\t" << b << "\" />" << std::endl;
 			}
 
 			if (exportNormals) {
 
-				const Ogre::Vector3& n = v.getNormal();
+				const my::Vector3& n = v.getNormal();
 				float x = n.x;
 				float y = n.y;
 				float z = n.z;
@@ -437,7 +438,7 @@ namespace OgreMax
 			for (int ti=0; ti<texMaps.Count(); ti++) {
 				int texMap = texMaps[ti];
 
-				const Ogre::Vector3& uvw = v.getUVW(texMap); 
+				const my::Vector3& uvw = v.getUVW(texMap); 
 
 				switch (m_config.getTexCoord2D()) {
 					case OgreMax::UV:
@@ -533,11 +534,11 @@ namespace OgreMax
 		return true;
 	}
 
-	int MeshXMLExporter::getBoneIndex(char *boneName) {
+	int MeshXMLExporter::getBoneIndex(TCHAR *boneName) {
 
-		std::map< std::string, int >::const_iterator it = m_boneIndexMap.find(std::string(boneName));
+		std::map< std::basic_string<TCHAR>, int >::const_iterator it = m_boneIndexMap.find(std::basic_string<TCHAR>(boneName));
 		if (it == m_boneIndexMap.end()) {
-			m_boneIndexMap.insert(std::map< std::string, int >::value_type(std::string(boneName), m_currentBoneIndex));
+			m_boneIndexMap.insert(std::map< std::basic_string<TCHAR>, int >::value_type(std::basic_string<TCHAR>(boneName), m_currentBoneIndex));
 			return m_currentBoneIndex++;
 		}
 		else

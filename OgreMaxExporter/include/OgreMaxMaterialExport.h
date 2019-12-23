@@ -54,7 +54,7 @@ namespace OgreMax {
 		// take in a list of INode* for assembly into Ogre::Mesh form; returns
 		// a map of filename --> XML stringstream.
 		bool buildMaterial(std::string& output);
-		bool buildMaterial(IGameMaterial *mtl, const std::string& matName, std::string &of);
+		bool buildMaterial(IGameMaterial *mtl, const std::basic_string<TCHAR>& matName, std::string &of);
 
 	protected:
 		// material file stream functions

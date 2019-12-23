@@ -7,7 +7,7 @@ void OgreMaxExport_General::onInitDialog(HWND hDlg) {
 	OgreMaxExport_TabPaneHandler::onInitDialog(hDlg);
 
 	// set the initial dialog state
-	std::stringstream ss;
+	std::basic_stringstream<TCHAR> ss;
 	SetWindowText(GetDlgItem(m_hDlg, IDC_TXT_EXPORT_DIR), m_config.getExportPath().c_str());
 	SendMessage(GetDlgItem(m_hDlg, IDC_CHK_FLIP_YZ), BM_SETCHECK, (m_config.getInvertYZ() ? BST_CHECKED : BST_UNCHECKED), 0);
 
@@ -22,7 +22,7 @@ void OgreMaxExport_General::onInvertYZ(bool checked) {
 void OgreMaxExport_General::onSetScale(float newScale) {
 }
 
-void OgreMaxExport_General::onExportDirectoryChanged(const std::string& newDirectory) {
+void OgreMaxExport_General::onExportDirectoryChanged(const std::basic_string<TCHAR>& newDirectory) {
 	m_config.setExportPath(newDirectory);
 }
 
@@ -33,7 +33,7 @@ void OgreMaxExport_General::onDestroy() {
 // read the contents from the dialog controls
 void OgreMaxExport_General::update() {
 
-	char buf[64];
+	TCHAR buf[64];
 
 	// export path is not settable in the dialog at this time, skip it
 
@@ -42,7 +42,7 @@ void OgreMaxExport_General::update() {
 
 	// we really can only do this here unless we want to process every keystroke in the scale edit box
 	GetWindowText(GetDlgItem(m_hDlg, IDC_TXT_SCALE), buf, 64);
-	float scale = atof(buf);
+	float scale = _tstof(buf);
 
 	if (scale == 0.0f) //sets to 0.0 if the text cannot be converted; change to 1.0 in that case
 		scale = 1.0f; 
