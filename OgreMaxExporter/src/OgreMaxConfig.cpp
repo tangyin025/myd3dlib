@@ -19,7 +19,7 @@ namespace OgreMax {
 		m_exportVertexColors = false;		// useful for vertex painting
 		m_scale = 1.0f;						// export at normal size (scale) -- all vertices get multiplied by this
 
-		m_exportSkeleton = false;			// initially we don't assume any skeletal data
+		m_exportSkeleton = true;			// initially we don't assume any skeletal data
 
 		m_fps = 25.0;						// used for controller types (such as Biped) that do not support keyframes directly -- this is the sampling rate
 

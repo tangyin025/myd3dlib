@@ -208,6 +208,16 @@ bool OgreMaxExport::_export() {
 		}
 	}
 
+	// if skeleton data is present, stream skeleton file
+	if (m_config.getExportSkeleton()) {
+		// open the skeleton.xml output file
+		std::ofstream of;
+		of.open((m_config.getExportPath() + _T("\\") + m_config.getSkeletonFilename()).c_str(), std::ios::out);
+
+		// stream the skeleton file
+		m_meshXMLExporter.streamSkeleton(of);
+		of.close();
+	}
 	return true;
 }
 

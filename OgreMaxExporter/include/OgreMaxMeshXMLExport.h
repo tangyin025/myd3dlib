@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <queue>
 #include <map>
 #include "tab.h"
+#include "CS/BipedApi.h"
 
 class MaterialMap;
 class IGameScene;
@@ -45,7 +46,7 @@ namespace OgreMax {
 	class MeshXMLExporter  : public OgreMaxExporter, public ITreeEnumProc
 	{
 		typedef struct {
-			std::string name;
+			std::basic_string<TCHAR> name;
 			int start;
 			int end;
 		} NamedAnimation;
@@ -68,7 +69,13 @@ namespace OgreMax {
 		bool streamBoneAssignments(std::ostream &of, Modifier *mod, IGameNode *node);
 
 		int getBoneIndex(TCHAR *name);
-		std::string removeSpaces(const std::string &s);
+		std::basic_string<TCHAR> removeSpaces(const std::basic_string<TCHAR> &s);
+	public:
+		bool streamSkeleton(std::ostream &of);
+	protected:
+		bool streamAnimTracks(std::ostream &of, int startFrame, int endFrame);
+		bool streamKeyframes(std::ostream &of, INode *thisNode, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM);
+		bool streamBipedKeyframes(std::ostream &of, IBipMaster *bip, INode *thisNode, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM);
 
 		int callback(INode *node);
 
@@ -83,6 +90,7 @@ namespace OgreMax {
 		std::queue< std::basic_string<TCHAR> > m_submeshNames;
 		MaterialMap& m_materialMap;
 		std::map< std::basic_string<TCHAR>, int > m_boneIndexMap;
+		std::list<NamedAnimation> m_animations;
 		int m_currentBoneIndex;
 
 		IGameScene*	m_pGame;
