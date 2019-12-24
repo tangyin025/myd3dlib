@@ -129,8 +129,7 @@
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy $(OutDir)OgreExporter_d.dle "D:\Games\Autodesk\3ds Max 2014\stdplugs"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

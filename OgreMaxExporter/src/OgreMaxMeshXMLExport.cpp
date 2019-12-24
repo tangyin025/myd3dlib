@@ -189,7 +189,7 @@ namespace OgreMax
 				while ((pos = mtlName.find_first_of(_T(' '))) != std::string::npos)
 					mtlName.replace(pos, 1, _T("_"));
 
-				if (materialScripts.find(mtlName) == materialScripts.end()) {
+				if (mtl != NULL && materialScripts.find(mtlName) == materialScripts.end()) {
 
 					// export new material script
 					MaterialExporter mexp(m_config, m_materialMap);
@@ -420,8 +420,9 @@ namespace OgreMax
 				float r = v.getColour().x;
 				float g = v.getColour().y;
 				float b = v.getColour().z;
+				float a = v.getColour().w;
 
-				of << "\t\t\t\t\t\t<colour_diffuse value=\"\t" << r << "\t" << g << "\t" << b << "\" />" << std::endl;
+				of << "\t\t\t\t\t\t<colour_diffuse value=\"" << r << " " << g << " " << b << " " << a << "\" />" << std::endl;
 			}
 
 			if (exportNormals) {
@@ -830,7 +831,7 @@ namespace OgreMax
 			of << "\t\t\t\t\t\t<position x=\"" << x << "\" y=\"" << y << "\" z=\"" << z << "\" />" << std::endl;
 
 			if (m_config.getExportVertexColours())
-				of << "\t\t\t\t\t\t<colour_diffuse value=\"\t" << vc.x << "\t" << vc.y << "\t" << vc.z << "\" />" << std::endl;
+				of << "\t\t\t\t\t\t<colour_diffuse value=\"" << vc.x << " " << vc.y << " " << vc.z << "1.000000\" />" << std::endl;
 			
 			if (exportNormals) {
 	//			Point3 n = mesh.getNormal(i);
