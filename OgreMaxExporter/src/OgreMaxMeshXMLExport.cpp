@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "iskin.h"
 
 #include "IGame/IGame.h"
+#include "IGame/IGameModifier.h"
 #include <fstream>
 #include "libc.h"
 namespace OgreMax
@@ -315,6 +316,7 @@ namespace OgreMax
 		// InitializeData() is important -- it performs all of the WSM/time eval for us; no face data without it
 //		obj->InitializeData();
 		IGameMesh* mesh = (IGameMesh*) obj;
+		IGameSkin* skin = obj->GetIGameSkin();
 		int vertCount = mesh->GetNumberOfVerts();
 		int faceCount = mesh->GetNumberOfFaces();
 
@@ -376,6 +378,16 @@ namespace OgreMax
 
 				int actualVertexIndex = vertexList.add(v);
 
+				if (skin && actualVertexIndex >= vertexList.size() - 1) {
+					Vertex & v = vertexList.m_vertexList.back();
+					int numBones = skin->GetNumberOfBones(face->vert[vi]);
+					for (int bi = 0; bi < numBones; bi++) {
+						INode * bone = skin->GetBone(face->vert[vi], bi);
+						int boneIndex = getBoneIndex(bone->GetName());
+						v.addBoneWeight(boneIndex, skin->GetWeight(face->vert[vi], bi));
+					}
+				}
+
 				of << " v" << vi + 1 << "=\"" << actualVertexIndex << "\"";
 			}
  
@@ -403,7 +415,7 @@ namespace OgreMax
 		int numVerts = vertexList.size();
 		for (i=0; i < numVerts; i++) {
 
-			const Vertex& v = vertexList.front();
+			const Vertex& v = vertexList.m_vertexList[i];
 
 			of << "\t\t\t\t\t<vertex>" << std::endl;
 			of << std::showpoint;
@@ -456,7 +468,6 @@ namespace OgreMax
 			
 			of << std::noshowpoint;
 			of << "\t\t\t\t\t</vertex>" << std::endl;
-			vertexList.pop();
 		}
 
 		of << "\t\t\t\t</vertexbuffer>" << std::endl;
@@ -464,8 +475,6 @@ namespace OgreMax
 
 		of << "\t\t\t</geometry>" << std::endl;
 		// *************** End Export Geometry ***********
-
-		of << "\t\t</submesh>" << std::endl;
 
 		// this skin extraction code based on an article found here:
 		// http://www.cfxweb.net/modules.php?name=News&file=article&sid=1029
@@ -485,11 +494,26 @@ namespace OgreMax
 			}
 		}
 
-		of << "\t\t</submesh>" << std::endl;
-
 		if (obj != tri)
 			delete tri;
 */
+
+		if (skin) {
+			of << "\t\t\t<boneassignments>" << std::endl;
+
+			int numVerts = vertexList.size();
+			for (i = 0; i < numVerts; i++) {
+				const Vertex& v = vertexList.m_vertexList[i];
+				BoneWeightMap::const_iterator bone_iter = v.m_boneMap.begin();
+				for (; bone_iter != v.m_boneMap.end(); bone_iter++) {
+					of << "\t\t\t\t<vertexboneassignment vertexindex=\"" << i << "\" boneindex=\"" << bone_iter->first << "\" weight=\"" << bone_iter->second << "\" />" << std::endl;
+				}
+			}
+
+			of << "\t\t\t</boneassignments>" << std::endl;
+		}
+
+		of << "\t\t</submesh>" << std::endl;
 //		node->ReleaseIGameObject();
 		return true;
 	}
@@ -535,7 +559,7 @@ namespace OgreMax
 		return true;
 	}
 
-	int MeshXMLExporter::getBoneIndex(TCHAR *boneName) {
+	int MeshXMLExporter::getBoneIndex(const TCHAR *boneName) {
 
 		std::map< std::basic_string<TCHAR>, int >::const_iterator it = m_boneIndexMap.find(std::basic_string<TCHAR>(boneName));
 		if (it == m_boneIndexMap.end()) {

@@ -31,6 +31,10 @@ namespace OgreMax {
 		m_uvwMap[mapIndex] = uvw;
 	}
 
+	void Vertex::addBoneWeight(int boneIndex, float weight) {
+		m_boneMap[boneIndex] = weight;
+	}
+
 	bool Vertex::hasSameTexCoords(std::map<int, my::Vector3>& uvwMap)  {
 		std::map<int, my::Vector3>::const_iterator it = uvwMap.begin();
 
@@ -62,7 +66,7 @@ namespace OgreMax {
 	unsigned int VertexList::add(Vertex& v) {
 
 		int idx = 0;
-		std::list<Vertex>::iterator it = m_vertexList.begin();
+		std::vector<Vertex>::iterator it = m_vertexList.begin();
 		for (; it != m_vertexList.end(); ++it, ++idx) {
 			if (*it == v)
 				break;

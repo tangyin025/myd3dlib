@@ -35,6 +35,8 @@ namespace OgreMax {
 
 	typedef std::map<int, my::Vector3> TexCoordMap;
 
+	typedef std::map<int, float> BoneWeightMap;
+
 	class Vertex {
 	public:
 
@@ -43,6 +45,7 @@ namespace OgreMax {
 		void setNormal(float x, float y, float z);
 		void setColour(float r, float g, float b, float a = 1.0);
 		void addTexCoord(int mapIndex, float u, float v, float w = 0.0);
+		void addBoneWeight(int boneIndex, float weight);
 
 		bool operator==(Vertex& other);
 
@@ -50,13 +53,15 @@ namespace OgreMax {
 		const my::Vector3& getNormal() const { return m_normal; }
 		const my::Vector4& getColour() const { return m_colour; }
 		const my::Vector3& getUVW(int mapIndex) const { return m_uvwMap.find(mapIndex)->second; }
+		const float getBoneWeight(int boneIndex) const { return m_boneMap.find(boneIndex)->second; }
 	
-	private:
+	//private:
 		bool hasSameTexCoords(std::map<int, my::Vector3>& uvwMap) ;
 		my::Vector3					m_position;
 		my::Vector3					m_normal;
-		my::Vector4				m_colour;
-		TexCoordMap						m_uvwMap;
+		my::Vector4					m_colour;
+		TexCoordMap					m_uvwMap;
+		BoneWeightMap				m_boneMap;
 	};
 
 	class VertexList {
@@ -64,11 +69,11 @@ namespace OgreMax {
 		// returns the index into the list for the inserted element
 		unsigned int add(Vertex& v);
 		size_t size() { return m_vertexList.size(); }
-		const Vertex& front() { return m_vertexList.front(); }
-		void pop() { m_vertexList.pop_front(); }
+		//const Vertex& front() { return m_vertexList.front(); }
+		//void pop() { m_vertexList.pop_front(); }
 
-	private:
-		std::list<Vertex> m_vertexList;
+	//private:
+		std::vector<Vertex> m_vertexList;
 
 	};
 

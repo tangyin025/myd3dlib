@@ -68,7 +68,7 @@ namespace OgreMax {
 		bool streamSubmesh(std::ostream &of, IGameObject *obj, std::basic_string<TCHAR> &mtlName);
 		bool streamBoneAssignments(std::ostream &of, Modifier *mod, IGameNode *node);
 
-		int getBoneIndex(TCHAR *name);
+		int getBoneIndex(const TCHAR *name);
 		std::basic_string<TCHAR> removeSpaces(const std::basic_string<TCHAR> &s);
 	public:
 		bool streamSkeleton(std::ostream &of);
