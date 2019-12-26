@@ -45,6 +45,7 @@ namespace OgreMax {
 
 	class MeshXMLExporter  : public OgreMaxExporter, public ITreeEnumProc
 	{
+	public:
 		typedef struct {
 			std::basic_string<TCHAR> name;
 			int start;
@@ -90,6 +91,7 @@ namespace OgreMax {
 		std::queue< std::basic_string<TCHAR> > m_submeshNames;
 		MaterialMap& m_materialMap;
 		std::map< std::basic_string<TCHAR>, int > m_boneIndexMap;
+	public:
 		std::list<NamedAnimation> m_animations;
 		int m_currentBoneIndex;
 

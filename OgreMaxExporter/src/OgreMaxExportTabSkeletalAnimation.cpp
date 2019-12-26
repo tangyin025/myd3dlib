@@ -60,7 +60,33 @@ void OgreMaxExport_SkeletalAnimation::onDestroy() {
 
 // read the contents from the dialog controls
 void OgreMaxExport_SkeletalAnimation::update() {
+	HWND anims = GetDlgItem(m_hDlg, IDC_LIST_ANIMATIONS);
+	LVITEM lvi;
+	TCHAR buf[256];
+	ZeroMemory(&lvi, sizeof(LVITEM));
+	m_exp->m_meshXMLExporter.m_animations.clear();
+	int count = ListView_GetItemCount(anims);
+	for (int i = 0; i < count; i++) {
+		lvi.mask = LVIF_TEXT;
+		lvi.iItem = i;
+		lvi.iSubItem = 0;
+		lvi.pszText = buf;
+		lvi.cchTextMax = _countof(buf);
+		ListView_GetItem(anims, &lvi);
 
+		OgreMax::MeshXMLExporter::NamedAnimation anim;
+		anim.name = std::basic_string<TCHAR>(lvi.pszText);
+
+		lvi.iSubItem = 1;
+		ListView_GetItem(anims, &lvi);
+		anim.start = _tstoi(lvi.pszText);
+
+		lvi.iSubItem = 2;
+		ListView_GetItem(anims, &lvi);
+		anim.end = _tstoi(lvi.pszText);
+
+		m_exp->m_meshXMLExporter.m_animations.push_back(anim);
+	}
 }
 
 void OgreMaxExport_SkeletalAnimation::onAddAnimation() {
