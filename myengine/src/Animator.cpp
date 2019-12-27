@@ -415,7 +415,7 @@ float AnimationNodeSequence::GetLength(void) const
 		const OgreAnimation * anim = m_Owner->m_Skeleton->GetAnimation(m_Name);
 		if (anim)
 		{
-			return anim->GetTime();
+			return anim->GetLength();
 		}
 	}
 	return 0;
@@ -483,7 +483,7 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 				continue;
 			}
 
-			float Length = anim ? anim->GetTime() : 0;
+			float Length = anim ? anim->GetLength() : 0;
 
 			seq_iter->m_Time += fElapsedTime * seq_iter->m_Rate;
 
