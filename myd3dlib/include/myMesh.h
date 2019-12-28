@@ -374,17 +374,20 @@ namespace my
 
 		void CreateMeshFromOgreXmlInFile(
 			LPCTSTR pFilename,
+			const std::string & sub_mesh,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXmlInMemory(
 			LPSTR pSrcData,
 			UINT srcDataLen,
+			const std::string & sub_mesh,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXml(
 			const rapidxml::xml_node<char> * node_root,
+			const std::string & sub_mesh,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 

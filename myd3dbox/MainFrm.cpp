@@ -28,6 +28,7 @@
 #include "SimplifyMeshDlg.h"
 #include "TerrainGrassBrashDlg.h"
 #include "Animator.h"
+#include "Win32InputBox.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -785,15 +786,23 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
-	CString strPathName = dlg.GetPathName();
-	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName).c_str());
+	TCHAR buff[256] = _T("");
+	if (IDOK != CWin32InputBox::InputBox(NULL, _T("sub mesh name"), buff, _countof(buff), false, m_hWnd))
+	{
+		return;
+	}
+
+	std::string path = ts2ms((LPCTSTR)dlg.GetPathName());
+	std::string sub_mesh = ts2ms(buff);
+	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh.c_str());
 	if (!mesh)
 	{
 		return;
 	}
 
 	MeshComponentPtr mesh_cmp(new MeshComponent());
-	mesh_cmp->m_MeshPath = ts2ms((LPCTSTR)strPathName);
+	mesh_cmp->m_MeshPath = path;
+	mesh_cmp->m_MeshPathSubName = sub_mesh;
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr mtl(new Material());
@@ -837,8 +846,15 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-	CString strPathName = dlg.GetPathName();
-	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName).c_str());
+	TCHAR buff[256] = _T("");
+	if (IDOK != CWin32InputBox::InputBox(NULL, _T("sub mesh name"), buff, _countof(buff), false, m_hWnd))
+	{
+		return;
+	}
+
+	std::string path = ts2ms((LPCTSTR)dlg.GetPathName());
+	std::string sub_mesh = ts2ms(buff);
+	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh.c_str());
 	if (!mesh)
 	{
 		return;

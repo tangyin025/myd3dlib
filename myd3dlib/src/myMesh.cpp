@@ -837,18 +837,20 @@ void Mesh::ComputeTangentFrame(
 
 void OgreMesh::CreateMeshFromOgreXmlInFile(
 	LPCTSTR pFilename,
+	const std::string & sub_mesh,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 
-	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), sub_mesh, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPSTR pSrcData,
 	UINT srcDataLen,
+	const std::string & sub_mesh,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
@@ -864,21 +866,42 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXml(&doc, sub_mesh, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
 	const rapidxml::xml_node<char> * node_root,
+	const std::string & sub_mesh,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
-	DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
-	rapidxml::xml_node<char> * node_submesh = node_submeshes->first_node("submesh");
-	rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
+	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
+	if (sub_mesh.empty())
+	{
+		DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
+		DEFINE_XML_NODE_SIMPLE(boneassignments, mesh);
+		CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
+		return;
+	}
 
-	CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
+	DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
+	DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
+	for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+	{
+		DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
+		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
+		if (sub_mesh == attr_name->value())
+		{
+			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+			DEFINE_XML_NODE_SIMPLE(boneassignments, submesh);
+			CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false, bComputeTangentFrame, dwMeshOptions);
+			return;
+		}
+	}
+
+	THROW_CUSEXCEPTION(str_printf("cannot find sub mesh: %s", sub_mesh.c_str()));
 }
 
 void OgreMesh::CreateMeshFromOgreXmlNodes(
@@ -894,7 +917,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(positions, vertexbuffer);
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(normals, vertexbuffer);
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_diffuse, vertexbuffer);
-	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_specular, vertexbuffer);
+	//DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_specular, vertexbuffer);
 	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(texture_coords, vertexbuffer);
 
 	if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
@@ -1082,10 +1105,15 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh_iter);
 		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh_iter);
 		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh_iter);
-		DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh_iter);
-		if(usesharedvertices != bUseSharedGeometry || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
+		if(usesharedvertices != bUseSharedGeometry)
 		{
-			THROW_CUSEXCEPTION("!usesharedvertices || !triangle_list");
+			THROW_CUSEXCEPTION("invalid usesharedvertices");
+		}
+
+		rapidxml::xml_attribute<char> * attr_operationtype = node_submesh_iter->first_attribute("operationtype");
+		if (attr_operationtype && 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
+		{
+			THROW_CUSEXCEPTION("!triangle_list");
 		}
 
 		DEFINE_XML_NODE_SIMPLE(faces, submesh_iter);

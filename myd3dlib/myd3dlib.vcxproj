@@ -101,6 +101,7 @@
     <ClCompile Include="src\myUi.cpp" />
     <ClCompile Include="src\myUtility.cpp" />
     <ClCompile Include="src\PrintCallStack.cpp" />
+    <ClCompile Include="src\Win32InputBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DXUTenum.h" />
@@ -132,6 +133,7 @@
     <ClInclude Include="include\PrintCallStack.h" />
     <ClInclude Include="include\rapidxml.hpp" />
     <ClInclude Include="include\rapidxml_print.hpp" />
+    <ClInclude Include="include\Win32InputBox.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

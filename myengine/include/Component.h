@@ -141,6 +141,8 @@ class MeshComponent
 public:
 	std::string m_MeshPath;
 
+	std::string m_MeshPathSubName;
+
 	my::OgreMeshPtr m_Mesh;
 
 	my::ControlEvent m_MeshEventReady;
