@@ -120,7 +120,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>core.lib;comctl32.lib;maxutil.lib;mesh.lib;geom.lib;IGame.lib;gup.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>core.lib;comctl32.lib;maxutil.lib;mesh.lib;geom.lib;IGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)OgreExporter_d.dle</OutputFile>
       <AdditionalLibraryDirectories>C:\Program Files\Autodesk\3ds Max 2014 SDK\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -129,7 +129,8 @@
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)OgreExporter_d.dle "D:\Games\Autodesk\3ds Max 2014\stdplugs"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -164,7 +165,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>core.lib;comctl32.lib;maxutil.lib;mesh.lib;geom.lib;IGame.lib;gup.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>core.lib;comctl32.lib;maxutil.lib;mesh.lib;geom.lib;IGame.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)OgreExporter.dle</OutputFile>
       <AdditionalLibraryDirectories>C:\Program Files\Autodesk\3ds Max 2014 SDK\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -174,28 +175,6 @@
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <COMReference Include="MSXML2.3.0.dll">
-      <Guid>f5078f18-c551-11d3-89b9-0000f81fe221</Guid>
-      <VersionMajor>3</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </COMReference>
-    <COMReference Include="stdole.dll">
-      <Guid>00020430-0000-0000-c000-000000000046</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <WrapperTool>primary</WrapperTool>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </COMReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\myd3dlib\src\libc.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
