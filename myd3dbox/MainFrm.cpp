@@ -582,85 +582,38 @@ void CMainFrame::OnFileNew()
 	CEnvironmentWnd::CameraPropEventArgs arg(pView);
 	m_EventCameraPropChanged(&arg);
 
-	//TerrainPtr terrain(new Terrain(1, 1, 32, 0.1f));
-	//for (unsigned int i = 0; i < terrain->m_Chunks.shape()[0]; i++)
-	//{
-	//	for (unsigned int j = 0; j < terrain->m_Chunks.shape()[1]; j++)
-	//	{
-	//		MaterialPtr mtl(new Material());
-	//		mtl->m_Shader = theApp.default_shader;
-	//		mtl->m_PassMask = theApp.default_pass_mask;
-	//		mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	//		mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	//		mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	// TODO:
+	MaterialPtr mtl(new Material());
+	mtl->m_Shader = theApp.default_shader;
+	mtl->m_PassMask = theApp.default_pass_mask;
+	mtl->AddParameterTexture("g_DiffuseTexture", "character/N0100101-SJ001.dds");
+	mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
 
-	//		TerrainChunk * chunk = terrain->m_Chunks[i][j];
-	//		chunk->m_Material = mtl;
-	//	}
-	//}
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
+	MeshComponentPtr mesh_cmp(new MeshComponent());
+	mesh_cmp->m_MeshPath = "character/aaa.xml";
+	mesh_cmp->m_MeshPathSubMesh = "N0100101_SJ001";
+	mesh_cmp->m_bUseAnimation = true;
+	mesh_cmp->m_MaterialList.push_back(mtl);
+	actor->AddComponent(mesh_cmp);
 
-	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-512, 512)));
-	//MeshComponentPtr mesh_cmp(new MeshComponent());
-	//MaterialPtr mtl(new Material());
-	//mtl->m_Shader = theApp.default_shader;
-	//mtl->m_PassMask = theApp.default_pass_mask;
-	//mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	//mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	//mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
-	//mesh_cmp->AddMaterial(mtl);
-	//mesh_cmp->m_MeshPath = "mesh/plane.mesh.xml";
-	//actor->AddComponent(mesh_cmp);
-	//actor->CreateRigidActor(physx::PxActorType::eRIGID_STATIC);
-	//mesh_cmp->CreatePlaneShape(my::Vector3(0, 0, 0), my::Quaternion::RotationYawPitchRoll(0, 0, D3DXToRadian(90)));
-	//actor->UpdateWorld();
-	//actor->RequestResource();
-	//actor->OnEnterPxScene(this);
-	//AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	AnimatorPtr anim(new Animator(actor.get()));
+	anim->m_SkeletonPath = "character/aaa.skeleton";
+	AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
+	seq->m_Root = "Bip01";
+	seq->m_Name = "Animation";
+	anim->m_Node = seq;
+	actor->m_Animator = anim;
 
-	//mesh_cmp.reset(new MeshComponent());
-	////mesh_cmp->m_MeshPath = "mesh/Cylinder.mesh.xml";
-	//mesh_cmp->m_MeshPath = "character/aaa.mesh.xml";
-	//mesh_cmp->m_MaterialList.push_back(mtl);
-	//mesh_cmp->m_bUseAnimation = true;
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
+	AddActor(actor, actor->m_aabb.transform(actor->m_World));
 
-	//actor.reset(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	//actor->AddComponent(mesh_cmp);
-	//actor->UpdateAABB();
-	//actor->UpdateWorld();
-
-	//class Aaa
-	//{
-	//public:
-	//	Animator * anim;
-	//	void foo(my::ControlEventArgs *)
-	//	{
-	//		//anim->AddJiggleBone("joint2", 1.0f, 0.01f, -100.0f);
-	//		anim->AddIK("joint1", 2.0f);
-	//	}
-	//};
-
-	//static Aaa a;
-
-	//AnimatorPtr anim(new Animator(actor.get()));
-	//a.anim = anim.get();
-	////anim->m_SkeletonPath = "mesh/Cylinder.skeleton.xml";
-	//anim->m_SkeletonPath = "character/aaa.skeleton.xml";
-	//anim->m_SkeletonEventReady = boost::bind(&Aaa::foo, &a, _1);
-	////anim->m_Node.reset(new AnimationNode(anim.get(), 0));
-	//AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
-	//seq->m_Root = "joint1";
-	//seq->m_Name = "clip1";
-	//anim->m_Node = seq;
-	//actor->m_Animator = anim;
-
-	//actor->RequestResource();
-	//actor->OnEnterPxScene(this);
-	//AddActor(actor, actor->m_aabb.transform(actor->m_World));
-
-	//m_selactors.clear();
-	//m_selactors.insert(actor.get());
-	//m_selchunkid.SetPoint(0, 0);
-	//OnSelChanged();
+	m_selactors.clear();
+	m_selactors.insert(actor.get());
+	m_selchunkid.SetPoint(0, 0);
+	OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
@@ -802,7 +755,7 @@ void CMainFrame::OnComponentMesh()
 
 	MeshComponentPtr mesh_cmp(new MeshComponent());
 	mesh_cmp->m_MeshPath = path;
-	mesh_cmp->m_MeshPathSubName = sub_mesh;
+	mesh_cmp->m_MeshPathSubMesh = sub_mesh;
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr mtl(new Material());

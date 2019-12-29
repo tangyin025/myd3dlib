@@ -141,7 +141,7 @@ class MeshComponent
 public:
 	std::string m_MeshPath;
 
-	std::string m_MeshPathSubName;
+	std::string m_MeshPathSubMesh;
 
 	my::OgreMeshPtr m_Mesh;
 

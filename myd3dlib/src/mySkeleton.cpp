@@ -507,21 +507,14 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	DEFINE_XML_NODE_SIMPLE(bones, skeleton);
 	DEFINE_XML_NODE_SIMPLE(bone, bones);
 
-	size_t bone_i = 0;
-	for(; node_bone != NULL; node_bone = node_bone->next_sibling(), bone_i++)
+	for(; node_bone != NULL; node_bone = node_bone->next_sibling())
 	{
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(id, bone);
-		if(id != bone_i)
-		{
-			THROW_CUSEXCEPTION(str_printf("invalid bone id: %d", id));
-		}
-
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, bone);
 		if(m_boneNameMap.end() != m_boneNameMap.find(attr_name->value()))
 		{
 			THROW_CUSEXCEPTION(str_printf("bone name \"%s\"have already existed", attr_name->value()));
 		}
-
 		m_boneNameMap.insert(std::make_pair(attr_name->value(), id));
 
 		DEFINE_XML_NODE_SIMPLE(position, bone);
@@ -538,10 +531,11 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
-		m_boneBindPose.push_back(
-			Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(x, y, z)));
-
-		_ASSERT(id == m_boneBindPose.size() - 1);
+		if (id >= m_boneBindPose.size())
+		{
+			m_boneBindPose.resize(id + 1, Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+		}
+		m_boneBindPose[id] = Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(x, y, z));
 	}
 
 	DEFINE_XML_NODE_SIMPLE(bonehierarchy, skeleton);
@@ -559,7 +553,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_SIMPLE(parent, boneparent);
 		if(m_boneNameMap.end() == m_boneNameMap.find(attr_parent->value()))
 		{
-			THROW_CUSEXCEPTION(str_printf("invalid bone parent name: %s", attr_parent->value()));
+			continue;
 		}
 
 		m_boneHierarchy.InsertChild(
@@ -571,24 +565,24 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	// calculate root set
 	m_boneRootSet.clear();
 	std::vector<int> boneRootRef(m_boneHierarchy.size(), 0);
-	for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
+	for (unsigned int i = 0; i < m_boneHierarchy.size(); i++)
 	{
-		int child_i = m_boneHierarchy[bone_i].m_child;
+		int child_i = m_boneHierarchy[i].m_child;
 		if (-1 != child_i)
 		{
 			boneRootRef[child_i]++;
 		}
-		int sibling_i = m_boneHierarchy[bone_i].m_sibling;
+		int sibling_i = m_boneHierarchy[i].m_sibling;
 		if (-1 != sibling_i)
 		{
 			boneRootRef[sibling_i]++;
 		}
 	}
-	for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
+	for (unsigned int i = 0; i < m_boneHierarchy.size(); i++)
 	{
-		if (0 == boneRootRef[bone_i])
+		if (0 == boneRootRef[i])
 		{
-			m_boneRootSet.insert(bone_i);
+			m_boneRootSet.insert(i);
 		}
 	}
 }

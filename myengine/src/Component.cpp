@@ -215,7 +215,7 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
-	ar << BOOST_SERIALIZATION_NVP(m_MeshPathSubName);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshPathSubMesh);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
@@ -226,7 +226,7 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
-	ar >> BOOST_SERIALIZATION_NVP(m_MeshPathSubName);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshPathSubMesh);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
@@ -270,7 +270,7 @@ void MeshComponent::RequestResource(void)
 	{
 		_ASSERT(!m_Mesh);
 
-		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshPathSubName.c_str(), this);
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshPathSubMesh.c_str(), this);
 	}
 
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
@@ -284,7 +284,7 @@ void MeshComponent::ReleaseResource(void)
 {
 	if (!m_MeshPath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshPathSubName.c_str()), this);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshPathSubMesh.c_str()), this);
 
 		m_Mesh.reset();
 	}
@@ -332,7 +332,7 @@ my::AABB MeshComponent::CalculateAABB(void) const
 {
 	if (m_Mesh)
 	{
-		m_Mesh->m_aabb;
+		return m_Mesh->m_aabb;
 	}
 	return Component::CalculateAABB();
 }

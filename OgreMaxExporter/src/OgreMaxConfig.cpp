@@ -6,7 +6,7 @@ namespace OgreMax {
 	Config::Config() {
 		// set defaults
 		m_exportSelectedObjects = false;	// default to exporting everything in the scene
-		m_exportMultipleFiles = true;		// default is to export a file per mesh object in the scene
+		m_exportMultipleFiles = false;		// default is to export a file per mesh object in the scene
 		m_useSingleSkeleton = true;			// default for multiple meshes is to reference a single .skeleton file where applicable
 		m_rebuildNormals = false;			// rebuild the normals before exporting mesh data
 
