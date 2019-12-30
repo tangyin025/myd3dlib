@@ -582,38 +582,38 @@ void CMainFrame::OnFileNew()
 	CEnvironmentWnd::CameraPropEventArgs arg(pView);
 	m_EventCameraPropChanged(&arg);
 
-	// TODO:
-	MaterialPtr mtl(new Material());
-	mtl->m_Shader = theApp.default_shader;
-	mtl->m_PassMask = theApp.default_pass_mask;
-	mtl->AddParameterTexture("g_DiffuseTexture", "character/N0100101-SJ001.dds");
-	mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	//// TODO:
+	//MaterialPtr mtl(new Material());
+	//mtl->m_Shader = theApp.default_shader;
+	//mtl->m_PassMask = theApp.default_pass_mask;
+	//mtl->AddParameterTexture("g_DiffuseTexture", "character/N0100101-SJ001.dds");
+	//mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
+	//mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
 
-	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
-	MeshComponentPtr mesh_cmp(new MeshComponent());
-	mesh_cmp->m_MeshPath = "character/aaa.xml";
-	mesh_cmp->m_MeshPathSubMesh = "N0100101_SJ001";
-	mesh_cmp->m_bUseAnimation = true;
-	mesh_cmp->m_MaterialList.push_back(mtl);
-	actor->AddComponent(mesh_cmp);
+	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
+	//MeshComponentPtr mesh_cmp(new MeshComponent());
+	//mesh_cmp->m_MeshPath = "character/aaa.xml";
+	//mesh_cmp->m_MeshPathSubMesh = "N0100101_SJ001";
+	//mesh_cmp->m_bUseAnimation = true;
+	//mesh_cmp->m_MaterialList.push_back(mtl);
+	//actor->AddComponent(mesh_cmp);
 
-	AnimatorPtr anim(new Animator(actor.get()));
-	anim->m_SkeletonPath = "character/aaa.skeleton";
-	AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
-	seq->m_Root = "Bip01";
-	seq->m_Name = "Animation";
-	anim->m_Node = seq;
-	actor->m_Animator = anim;
+	//AnimatorPtr anim(new Animator(actor.get()));
+	//anim->m_SkeletonPath = "character/aaa.skeleton";
+	//AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
+	//seq->m_Root = "Bip01";
+	//seq->m_Name = "Animation";
+	//anim->m_Node = seq;
+	//actor->m_Animator = anim;
 
-	actor->RequestResource();
-	actor->OnEnterPxScene(this);
-	AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	//actor->RequestResource();
+	//actor->OnEnterPxScene(this);
+	//AddActor(actor, actor->m_aabb.transform(actor->m_World));
 
-	m_selactors.clear();
-	m_selactors.insert(actor.get());
-	m_selchunkid.SetPoint(0, 0);
-	OnSelChanged();
+	//m_selactors.clear();
+	//m_selactors.insert(actor.get());
+	//m_selchunkid.SetPoint(0, 0);
+	//OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()

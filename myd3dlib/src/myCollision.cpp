@@ -460,7 +460,7 @@ namespace my
 
 	bool IntersectionTests::isValidTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
 	{
-		return abs(calculateTriangleDirection(v0, v1, v2).magnitude()) > EPSILON_E6;
+		return calculateTriangleDirection(v0, v1, v2).magnitudeSq() != 0;
 	}
 
 	Vector3 IntersectionTests::calculateTriangleNormal(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)

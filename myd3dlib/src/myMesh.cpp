@@ -881,7 +881,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	if (sub_mesh.empty())
 	{
 		DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
-		DEFINE_XML_NODE_SIMPLE(boneassignments, mesh);
+		rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
 		CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
 		return;
 	}
@@ -895,7 +895,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		if (sub_mesh == attr_name->value())
 		{
 			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
-			DEFINE_XML_NODE_SIMPLE(boneassignments, submesh);
+			rapidxml::xml_node<char> * node_boneassignments = node_submesh->first_node("boneassignments");
 			CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false, bComputeTangentFrame, dwMeshOptions);
 			return;
 		}
