@@ -15,7 +15,7 @@ namespace OgreMax {
 		m_2DTexCoord = UV;					// default is UV interpretation of 2D tex coords
 
 		m_invertNormals = false;			// flip normals; will also reorder triangle vertex indices
-		m_flipYZ = false;					// swap X and Z axes, so that Y becomes the One True Up Vector
+		m_flipYZ = true;					// swap X and Z axes, so that Y becomes the One True Up Vector
 		m_exportVertexColors = false;		// useful for vertex painting
 		m_scale = 1.0f;						// export at normal size (scale) -- all vertices get multiplied by this
 

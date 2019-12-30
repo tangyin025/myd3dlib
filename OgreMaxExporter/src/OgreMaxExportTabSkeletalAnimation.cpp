@@ -51,7 +51,8 @@ void OgreMaxExport_SkeletalAnimation::onInitDialog(HWND hDlg) {
 	// populate the frame range info box
 	_stprintf(buf, _T("%d to %d"), frameStart / GetTicksPerFrame(), frameEnd / GetTicksPerFrame());
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FRAME_RANGE), WM_SETTEXT, 0, (LPARAM)buf);
-	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FPS), WM_SETTEXT, 0, (LPARAM)_T("1.0"));
+	_stprintf(buf, _T("%.1f"), m_config.getFPS());
+	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FPS), WM_SETTEXT, 0, (LPARAM)buf);
 }
 
 void OgreMaxExport_SkeletalAnimation::onDestroy() {
@@ -87,6 +88,15 @@ void OgreMaxExport_SkeletalAnimation::update() {
 
 		m_exp->m_meshXMLExporter.m_animations.push_back(anim);
 	}
+
+	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FPS), WM_GETTEXT, 256, (LPARAM)buf);
+	float fps = _tstof(buf);
+
+	if (fps <= 0.0) {
+		MessageBox(NULL, _T("FPS must be >= 0.0"), _T("Invalid Entry"), MB_ICONEXCLAMATION);
+		return;
+	}
+	m_config.setFPS(fps);
 }
 
 void OgreMaxExport_SkeletalAnimation::onAddAnimation() {

@@ -182,25 +182,18 @@ namespace my
 		//	const Matrix4 & inverseRootTransform = Matrix4::identity);
 	};
 
-	typedef std::map<float, Bone> BoneTrack;
-
 	class OgreAnimation
-		: protected std::vector<BoneTrack>
+		: public std::map<float, BoneList>
 	{
-	protected:
-		friend class OgreSkeletonAnimation;
-
-		float m_length;
-
 	public:
 		OgreAnimation(void)
-			: m_length(0)
 		{
 		}
 
 		float GetLength(void) const
 		{
-			return m_length;
+			_ASSERT(!empty());
+			return rbegin()->first;
 		}
 
 		BoneList & GetPose(

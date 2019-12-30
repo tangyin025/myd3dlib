@@ -382,33 +382,23 @@ BoneList & OgreAnimation::GetPose(
 	int root_i,
 	float time) const
 {
-	_ASSERT(boneList.size() == size());
-	_ASSERT(boneList.size() == boneHierarchy.size());
+	_ASSERT(!empty());
 
-	const_reference track = operator[](root_i);
-	BoneTrack::const_iterator key_iter = track.lower_bound(time);
-	if (key_iter != track.begin())
+	const_iterator iter = lower_bound(time);
+	if (iter != begin())
 	{
-		if (key_iter != track.end())
+		if (iter != end())
 		{
-			BoneTrack::const_reverse_iterator prev_key_iter(key_iter);
-			boneList[root_i] = prev_key_iter->second.Lerp(key_iter->second, (time - prev_key_iter->first) / (key_iter->first - prev_key_iter->first));
+			const_reverse_iterator prev_iter(iter);
+			prev_iter->second.Lerp(boneList, iter->second, boneHierarchy, root_i, (time - prev_iter->first) / (iter->first - prev_iter->first));
+			return boneList;
 		}
-		else
-		{
-			boneList[root_i] = track.rbegin()->second;
-		}
-	}
-	else
-	{
-		boneList[root_i] = key_iter->second;
+
+		rbegin()->second.CopyTo(boneList, boneHierarchy, root_i);
+		return boneList;
 	}
 
-	int node_i = boneHierarchy[root_i].m_child;
-	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
-	{
-		GetPose(boneList, boneHierarchy, node_i, time);
-	}
+	iter->second.CopyTo(boneList, boneHierarchy, root_i);
 	return boneList;
 }
 
@@ -531,7 +521,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
-		if (id >= m_boneBindPose.size())
+		if (id >= (int)m_boneBindPose.size())
 		{
 			m_boneBindPose.resize(id + 1, Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 		}
@@ -638,10 +628,8 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 
 		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
 		OgreAnimation & anim = m_animationMap[attr_name->value()];
-		anim.resize(m_boneHierarchy.size());
 
-		rapidxml::xml_attribute<char> * attr_length;
-		DEFINE_XML_ATTRIBUTE_FLOAT(anim.m_length, attr_length, node_animation, length);
+		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
 
 		DEFINE_XML_NODE_SIMPLE(tracks, animation);
 		DEFINE_XML_NODE_SIMPLE(track, tracks);
@@ -653,13 +641,14 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 			}
 
-			BoneTrack & track = anim[m_boneNameMap.find(attr_bone->value())->second];
-
 			DEFINE_XML_NODE_SIMPLE(keyframes, track);
 			DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
 			for (; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
 			{
 				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
+				BoneList & pose = anim[time];
+				pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+				Bone & bone = pose[m_boneNameMap[attr_bone->value()]];
 
 				rapidxml::xml_attribute<char> * attr_translate_x, *attr_translate_y, *attr_translate_z;
 				float translate_x, translate_y, translate_z;
@@ -678,11 +667,8 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
 				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
-				Bone bone(
-					Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle),
-					Vector3(translate_x, translate_y, translate_z));
-
-				track.insert(std::make_pair(time, bone));
+				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
+				bone.m_position = Vector3(translate_x, translate_y, translate_z);
 			}
 		}
 	}
@@ -751,18 +737,19 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 	{
 		ofs << "\t\t<animation name=\"" << anim_iter->first << "\" length=\"" << anim_iter->second.GetLength() << "\">\n";
 		ofs << "\t\t\t<tracks>\n";
-		for (unsigned int i = 0; i < anim_iter->second.size(); i++)
+		BoneNameMap::const_iterator name_iter = m_boneNameMap.begin();
+		for (; name_iter != m_boneNameMap.end(); name_iter++)
 		{
-			const BoneTrack & track = anim_iter->second[i];
-			ofs << "\t\t\t\t<track bone=\"" << FindBoneName(i) << "\">\n";
+			ofs << "\t\t\t\t<track bone=\"" << name_iter->first << "\">\n";
 			ofs << "\t\t\t\t\t<keyframes>\n";
-			BoneTrack::const_iterator key_iter = track.begin();
-			for (; key_iter != track.end(); key_iter++)
+			OgreAnimation::const_iterator frame_iter = anim_iter->second.begin();
+			for (; frame_iter != anim_iter->second.end(); frame_iter++)
 			{
-				ofs << "\t\t\t\t\t\t<keyframe time=\"" << key_iter->first << "\">\n";
-				ofs << "\t\t\t\t\t\t\t<translate x=\"" << key_iter->second.m_position.x << "\" y=\"" << key_iter->second.m_position.y << "\" z=\"" << key_iter->second.m_position.x << "\"/>\n";
+				ofs << "\t\t\t\t\t\t<keyframe time=\"" << frame_iter->first << "\">\n";
+				const Bone & bone = frame_iter->second[name_iter->second];
+				ofs << "\t\t\t\t\t\t\t<translate x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.x << "\"/>\n";
 				Vector3 axis; float angle;
-				key_iter->second.m_rotation.ToAxisAngle(axis, angle);
+				bone.m_rotation.ToAxisAngle(axis, angle);
 				ofs << "\t\t\t\t\t\t\t<rotate angle=\"" << angle << "\">\n";
 				ofs << "\t\t\t\t\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
 				ofs << "\t\t\t\t\t\t\t</rotate>\n";
@@ -801,21 +788,21 @@ void OgreSkeletonAnimation::Transform(const my::Matrix4 & trans)
 	OgreAnimationMap::iterator anim_iter = m_animationMap.begin();
 	for (; anim_iter != m_animationMap.end(); anim_iter++)
 	{
-		for (unsigned int i = 0; i < anim_iter->second.size(); i++)
+		OgreAnimation::iterator pose_iter = anim_iter->second.begin();
+		for (; pose_iter != anim_iter->second.end(); pose_iter++)
 		{
-			BoneTrack::iterator key_iter = anim_iter->second[i].begin();
-			for (; key_iter != anim_iter->second[i].end(); key_iter++)
+			for (unsigned int i = 0; i < pose_iter->second.size(); i++)
 			{
 				BoneIndexSet::const_iterator root_iter = m_boneRootSet.find(i);
 				if (root_iter != m_boneRootSet.end())
 				{
-					key_iter->second.m_position = key_iter->second.m_position.transformCoord(trans);
+					pose_iter->second[i].m_position = pose_iter->second[i].m_position.transformCoord(trans);
 				}
 				else
 				{
-					key_iter->second.m_position = key_iter->second.m_position.transformCoord(scale_rot);
+					pose_iter->second[i].m_position = pose_iter->second[i].m_position.transformCoord(scale_rot);
 				}
-				key_iter->second.m_rotation *= rot;
+				pose_iter->second[i].m_rotation *= rot;
 			}
 		}
 	}

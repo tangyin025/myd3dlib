@@ -1205,45 +1205,52 @@ namespace OgreMax
 
 			initTM = thisNode->GetNodeTM(0);
 
-			// must have at least a frame at the start...
-			keyTimes.Append(1, &start);
+			//// must have at least a frame at the start...
+			//keyTimes.Append(1, &start);
 
-			const TCHAR *tch = thisNode->GetName();
+			//const TCHAR *tch = thisNode->GetName();
 
-			// SKELOBJ_CLASS_ID = 0x9125 = 37157
-			// BIPED_CLASS_ID = 0x9155 = 37205
-			// BIPSLAVE_CONTROL_CLASS_ID = 0x9154 = 37204
-			// BIPBODY_CONTROL_CLASS_ID = 0x9156 = 37206
-			// FOOTPRINT_CLASS_ID = 0x3011 = 12305
-			// DUMMY_CLASS_ID = 0x876234 = 8872500
+			//// SKELOBJ_CLASS_ID = 0x9125 = 37157
+			//// BIPED_CLASS_ID = 0x9155 = 37205
+			//// BIPSLAVE_CONTROL_CLASS_ID = 0x9154 = 37204
+			//// BIPBODY_CONTROL_CLASS_ID = 0x9156 = 37206
+			//// FOOTPRINT_CLASS_ID = 0x3011 = 12305
+			//// DUMMY_CLASS_ID = 0x876234 = 8872500
 
-			// three-part controller for Biped root -- taking this cue from the old MaxScript exporter code
-			if (cid == BIPBODY_CONTROL_CLASS_ID) {
+			//// three-part controller for Biped root -- taking this cue from the old MaxScript exporter code
+			//if (cid == BIPBODY_CONTROL_CLASS_ID) {
 
-				// we deal with the initial transform as-is, except that it might need to
-				// be rotated (since the root transform is in world coords)
-				if (m_config.getInvertYZ())
-					initTM = initTM * Inverse(RotateXMatrix(PI / 2.0f));
+			//	// we deal with the initial transform as-is, except that it might need to
+			//	// be rotated (since the root transform is in world coords)
+			//	if (m_config.getInvertYZ())
+			//		initTM = initTM * Inverse(RotateXMatrix(PI / 2.0f));
 
-				if (cid == BIPBODY_CONTROL_CLASS_ID) {
-					// get the keys from the horiz, vert and turn controllers
-					bip = GetBipMasterInterface(c);
-					Control *biph = bip->GetHorizontalControl();
-					Control *bipv = bip->GetVerticalControl();
-					Control *bipr = bip->GetTurnControl();
+			//	if (cid == BIPBODY_CONTROL_CLASS_ID) {
+			//		// get the keys from the horiz, vert and turn controllers
+			//		bip = GetBipMasterInterface(c);
+			//		Control *biph = bip->GetHorizontalControl();
+			//		Control *bipv = bip->GetVerticalControl();
+			//		Control *bipr = bip->GetTurnControl();
 
-					biph->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
-					bipv->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
-					bipr->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
-				}
-			}
-			else if (cid == BIPSLAVE_CONTROL_CLASS_ID) {
-				// slaves just have keys, apparently
-				c->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
+			//		biph->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
+			//		bipv->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
+			//		bipr->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
+			//	}
+			//}
+			//else if (cid == BIPSLAVE_CONTROL_CLASS_ID) {
+			//	// slaves just have keys, apparently
+			//	c->GetKeyTimes(keyTimes, interval, KEYAT_POSITION | KEYAT_ROTATION);
 
-				// put initial transform into local coordinates -- since this is relative to the
-				// parent, we don't need to sweat that possible rotations here
-				initTM = initTM * Inverse(thisNode->GetParentTM(0));
+			//	// put initial transform into local coordinates -- since this is relative to the
+			//	// parent, we don't need to sweat that possible rotations here
+			//	initTM = initTM * Inverse(thisNode->GetParentTM(0));
+			//}
+
+			float total_time = (endFrame - startFrame) / (float)GetFrameRate();
+			int total_sample = (int)ceilf(total_time * m_config.getFPS());
+			for (int i = 0; i < total_sample; i++) {
+				int t = start + i * (end - start) / total_sample;
+				keyTimes.Append(1, &t);
 			}
 
 			// ...and stick a frame at the end as well...it will get sorted out if it is redundant
