@@ -593,7 +593,7 @@ void CMainFrame::OnFileNew()
 	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
 	//MeshComponentPtr mesh_cmp(new MeshComponent());
 	//mesh_cmp->m_MeshPath = "character/aaa.xml";
-	//mesh_cmp->m_MeshPathSubMesh = "N0100101_SJ001";
+	//mesh_cmp->m_MeshSubMeshName = "N0100101_SJ001";
 	//mesh_cmp->m_bUseAnimation = true;
 	//mesh_cmp->m_MaterialList.push_back(mtl);
 	//actor->AddComponent(mesh_cmp);
@@ -746,8 +746,8 @@ void CMainFrame::OnComponentMesh()
 	}
 
 	std::string path = ts2ms((LPCTSTR)dlg.GetPathName());
-	std::string sub_mesh = ts2ms(buff);
-	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh.c_str());
+	std::string sub_mesh_name = ts2ms(buff);
+	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh_name.c_str());
 	if (!mesh)
 	{
 		return;
@@ -755,7 +755,7 @@ void CMainFrame::OnComponentMesh()
 
 	MeshComponentPtr mesh_cmp(new MeshComponent());
 	mesh_cmp->m_MeshPath = path;
-	mesh_cmp->m_MeshPathSubMesh = sub_mesh;
+	mesh_cmp->m_MeshSubMeshName = sub_mesh_name;
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr mtl(new Material());
@@ -806,8 +806,8 @@ void CMainFrame::OnComponentCloth()
 	}
 
 	std::string path = ts2ms((LPCTSTR)dlg.GetPathName());
-	std::string sub_mesh = ts2ms(buff);
-	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh.c_str());
+	std::string sub_mesh_name = ts2ms(buff);
+	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh_name.c_str());
 	if (!mesh)
 	{
 		return;

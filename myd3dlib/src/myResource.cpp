@@ -818,19 +818,19 @@ boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 	return boost::dynamic_pointer_cast<BaseTexture>(request->m_res);
 }
 
-void ResourceMgr::LoadMeshAsync(const char * path, const char * sub_mesh, IResourceCallback * callback)
+void ResourceMgr::LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback)
 {
-	std::string key = MeshIORequest::BuildKey(path, sub_mesh);
-	IORequestPtr request(new MeshIORequest(path, sub_mesh));
+	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
+	IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
 	request->m_callbacks.insert(callback);
 	LoadIORequestAsync(key, request, false);
 }
 
-boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh)
+boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
 {
-	std::string key = MeshIORequest::BuildKey(path, sub_mesh);
+	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
-	IORequestPtr request(new MeshIORequest(path, sub_mesh));
+	IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(key, request);
 	return boost::dynamic_pointer_cast<OgreMesh>(request->m_res);
@@ -954,13 +954,13 @@ void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 
 	OgreMeshPtr res(new OgreMesh());
-	res->CreateMeshFromOgreXml(&m_doc, m_sub_mesh);
+	res->CreateMeshFromOgreXml(&m_doc, m_sub_mesh_name);
 	m_res = res;
 }
 
-std::string MeshIORequest::BuildKey(const char * path, const char * sub_mesh)
+std::string MeshIORequest::BuildKey(const char * path, const char * sub_mesh_name)
 {
-	return str_printf("%s %s", path, sub_mesh);
+	return str_printf("%s %s", path, sub_mesh_name);
 }
 
 void SkeletonIORequest::LoadResource(void)

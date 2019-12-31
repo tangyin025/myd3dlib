@@ -837,20 +837,20 @@ void Mesh::ComputeTangentFrame(
 
 void OgreMesh::CreateMeshFromOgreXmlInFile(
 	LPCTSTR pFilename,
-	const std::string & sub_mesh,
+	const std::string & sub_mesh_name,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 
-	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), sub_mesh, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), sub_mesh_name, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPSTR pSrcData,
 	UINT srcDataLen,
-	const std::string & sub_mesh,
+	const std::string & sub_mesh_name,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
@@ -866,19 +866,19 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	CreateMeshFromOgreXml(&doc, sub_mesh, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXml(&doc, sub_mesh_name, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
 	const rapidxml::xml_node<char> * node_root,
-	const std::string & sub_mesh,
+	const std::string & sub_mesh_name,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
-	if (sub_mesh.empty())
+	if (sub_mesh_name.empty())
 	{
 		DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
 		rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
@@ -892,7 +892,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 	{
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-		if (sub_mesh == attr_name->value())
+		if (sub_mesh_name == attr_name->value())
 		{
 			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
 			rapidxml::xml_node<char> * node_boneassignments = node_submesh->first_node("boneassignments");
@@ -901,7 +901,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf("cannot find sub mesh: %s", sub_mesh.c_str()));
+	THROW_CUSEXCEPTION(str_printf("cannot find sub mesh: %s", sub_mesh_name.c_str()));
 }
 
 void OgreMesh::CreateMeshFromOgreXmlNodes(
