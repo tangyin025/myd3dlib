@@ -1130,12 +1130,12 @@ namespace OgreMax
 		// Animations are named by the user during export; Max has no concept of animation subset names, 
 		// so we have to get the user to do that manually. If the user has entered anything for animations,
 		// spit it all out here.
-		std::list<NamedAnimation>::iterator anim = m_animations.begin();
+		std::list<NamedAnimation>::const_iterator anim = m_config.m_animations.begin();
 
-		if (anim != m_animations.end()) {
+		if (anim != m_config.m_animations.end()) {
 			of << "\t<animations>" << std::endl;
 
-			while (anim != m_animations.end()) {
+			while (anim != m_config.m_animations.end()) {
 
 				NamedAnimation a = *anim;
 				anim++;

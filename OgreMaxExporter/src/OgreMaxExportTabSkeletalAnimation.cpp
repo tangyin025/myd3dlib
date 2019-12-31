@@ -30,23 +30,45 @@ void OgreMaxExport_SkeletalAnimation::onInitDialog(HWND hDlg) {
 	// add a spanning entry to the animation list as a default
 	LVITEM lvi;
 	TCHAR buf[32];
-	ZeroMemory(&lvi, sizeof(LVITEM));
+	if (m_config.m_animations.empty()) {
+		ZeroMemory(&lvi, sizeof(LVITEM));
+		lvi.mask = LVIF_TEXT;
+		lvi.pszText = _T("Animation");
+		lvi.iItem = 10000;
+		int idx = ListView_InsertItem(anims, &lvi);
 
-	lvi.mask = LVIF_TEXT;
-	lvi.pszText = _T("Animation");
-	lvi.iItem = 10000;
-	int idx = ListView_InsertItem(anims, &lvi);
+		_stprintf(buf, _T("%d"), frameStart / GetTicksPerFrame());
+		lvi.iItem = idx;
+		lvi.iSubItem = 1;
+		lvi.pszText = buf;
+		ListView_SetItem(anims, &lvi);
 
-	_stprintf(buf, _T("%d"), frameStart / GetTicksPerFrame());
-	lvi.iItem = idx;
-	lvi.iSubItem = 1;
-	lvi.pszText = buf;
-	ListView_SetItem(anims, &lvi);
+		_stprintf(buf, _T("%d"), frameEnd / GetTicksPerFrame());
+		lvi.iSubItem = 2;
+		lvi.pszText = buf;
+		ListView_SetItem(anims, &lvi);
+	}
+	else {
+		std::list<OgreMax::NamedAnimation>::const_iterator anim = m_config.m_animations.begin();
+		for (; anim != m_config.m_animations.end(); anim++) {
+			ZeroMemory(&lvi, sizeof(LVITEM));
+			lvi.mask = LVIF_TEXT;
+			lvi.pszText = const_cast<TCHAR *>(anim->name.c_str());
+			lvi.iItem = 10000;
+			int idx = ListView_InsertItem(anims, &lvi);
 
-	_stprintf(buf, _T("%d"), frameEnd / GetTicksPerFrame());
-	lvi.iSubItem = 2;
-	lvi.pszText = buf;
-	ListView_SetItem(anims, &lvi);
+			_stprintf(buf, _T("%d"), anim->start);
+			lvi.iItem = idx;
+			lvi.iSubItem = 1;
+			lvi.pszText = buf;
+			ListView_SetItem(anims, &lvi);
+
+			_stprintf(buf, _T("%d"), anim->end);
+			lvi.iSubItem = 2;
+			lvi.pszText = buf;
+			ListView_SetItem(anims, &lvi);
+		}
+	}
 
 	// populate the frame range info box
 	_stprintf(buf, _T("%d to %d"), frameStart / GetTicksPerFrame(), frameEnd / GetTicksPerFrame());
@@ -65,7 +87,7 @@ void OgreMaxExport_SkeletalAnimation::update() {
 	LVITEM lvi;
 	TCHAR buf[256];
 	ZeroMemory(&lvi, sizeof(LVITEM));
-	m_exp->m_meshXMLExporter.m_animations.clear();
+	m_config.m_animations.clear();
 	int count = ListView_GetItemCount(anims);
 	for (int i = 0; i < count; i++) {
 		lvi.mask = LVIF_TEXT;
@@ -75,7 +97,7 @@ void OgreMaxExport_SkeletalAnimation::update() {
 		lvi.cchTextMax = _countof(buf);
 		ListView_GetItem(anims, &lvi);
 
-		OgreMax::MeshXMLExporter::NamedAnimation anim;
+		OgreMax::NamedAnimation anim;
 		anim.name = std::basic_string<TCHAR>(lvi.pszText);
 
 		lvi.iSubItem = 1;
@@ -86,7 +108,7 @@ void OgreMaxExport_SkeletalAnimation::update() {
 		ListView_GetItem(anims, &lvi);
 		anim.end = _tstoi(lvi.pszText);
 
-		m_exp->m_meshXMLExporter.m_animations.push_back(anim);
+		m_config.m_animations.push_back(anim);
 	}
 
 	SendMessage(GetDlgItem(m_hDlg, IDC_TXT_FPS), WM_GETTEXT, 256, (LPARAM)buf);

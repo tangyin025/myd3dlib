@@ -2,13 +2,14 @@
 #define __OGRE_MAX_CONFIG_H__
 
 #include <string>
+#include <list>
 #include "tchar.h"
 
 namespace OgreMax {
 
 	const int			NAME_MAX_LEN		= 256;
 	const int			MAX_PATH			= 260; // same as Windows -- no point in including windows.h for that
-	const unsigned int	CURRENTVERSION		= 2;
+	const unsigned int	CURRENTVERSION		= 3;
 
 	typedef enum {
 		DIRECT3D = 0,
@@ -27,6 +28,11 @@ namespace OgreMax {
 		WU
 	} Tex2D;
 
+	typedef struct {
+		std::basic_string<TCHAR> name;
+		int start;
+		int end;
+	} NamedAnimation;
 
 	// class for managing exporter configuration data
 	class Config
@@ -234,6 +240,8 @@ namespace OgreMax {
 		std::basic_string<TCHAR> m_exportBasename;			// exported base filename, sans extension 
 		std::basic_string<TCHAR> m_materialFilename;			// exported material filename
 		std::basic_string<TCHAR> m_skeletonFilename;			// exported skeleton filename (for shared skeleton export)
+	public:
+		std::list<NamedAnimation> m_animations;
 
 		// we can also track temporary info that we do not want to save in the config file, but want to pass around in 
 		// the config object

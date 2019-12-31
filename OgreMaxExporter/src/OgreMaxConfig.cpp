@@ -82,7 +82,18 @@ namespace OgreMax {
 
 		of.open(fname.c_str(), std::ios::binary | std::ios::out);
 		if (of.is_open()) {
-			of.write((char *)this, offsetof(Config, m_defaultMaterialName));
+			size_t sz = offsetof(Config, m_defaultMaterialName) - offsetof(Config, m_version);
+			of.write((char *)this + offsetof(Config, m_version), sz);
+			int count = m_animations.size();
+			of.write((char *)&count, sizeof(count));
+			std::list<NamedAnimation>::const_iterator anim = m_animations.begin();
+			for (; anim != m_animations.end(); anim++) {
+				TCHAR buf[NAME_MAX_LEN];
+				_tcscpy(buf, anim->name.c_str());
+				of.write((char *)buf, sizeof(buf));
+				of.write((char *)&anim->start, sizeof(anim->start));
+				of.write((char *)&anim->end, sizeof(anim->end));
+			}
 			of.close();
 		}
 	}
@@ -96,24 +107,29 @@ namespace OgreMax {
 		if (f.is_open()) {
 
 			// we need to check the version to see how much to read
-			f.read((char*)&m_version, sizeof(unsigned int));
+			f.read((char*)&m_version, sizeof(m_version));
 
-			// default size for latest version
-			size_t sz = offsetof(Config, m_defaultMaterialName);
-
-			if (m_version < CURRENTVERSION) {
-				switch(m_version) {
-					case 1:
-						sz = offsetof(Config, m_bufSkeletonFilename) + sizeof(m_bufSkeletonFilename);
-						break;
-					case 2:
-						sz = offsetof(Config, m_mergeMeshes) + sizeof(m_mergeMeshes);
-						break;
-				}
+			if (m_version != CURRENTVERSION) {
+				return;
 			}
 
+			// default size for latest version
+			size_t sz = offsetof(Config, m_defaultMaterialName) - offsetof(Config, m_version);
+
 			// read the calculated size, minus the unsigned int we already read
-			f.read(((char *)this + sizeof(unsigned int)), sz - sizeof(unsigned int));
+			f.read(((char *)this + offsetof(Config, m_version) + sizeof(m_version)), sz - sizeof(m_version));
+			int count = 0;
+			f.read((char *)&count, sizeof(count));
+			m_animations.clear();
+			for (int i = 0; i < count; i++) {
+				TCHAR buf[NAME_MAX_LEN] = { 0 };
+				f.read((char *)buf, sizeof(buf));
+				NamedAnimation anim;
+				anim.name = std::basic_string<TCHAR>(buf);
+				f.read((char *)&anim.start, sizeof(anim.start));
+				f.read((char *)&anim.end, sizeof(anim.end));
+				m_animations.push_back(anim);
+			}
 			f.close();
 
 			// make strings from buffers
