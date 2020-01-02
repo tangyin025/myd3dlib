@@ -484,15 +484,24 @@ namespace OgreMayaExporter
 			// check if the submesh has at least 1 triangle
 			if (polygonSets[i].size() > 0)
 			{
+				//create a name for the submesh
+				MString submesh_name = meshDag.partialPathName();
+				MFnDependencyNode shader_node(shaders[i]);
+				if (shaders.length()>1)
+				{
+					submesh_name += "_";
+					submesh_name += shader_node.name();
+				}
+
 				//create new submesh
-				Submesh* pSubmesh = new Submesh();
+				Submesh* pSubmesh = new Submesh(submesh_name);
 
 				//load linked shader
 				stat = pSubmesh->loadMaterial(shaders[i],uvsets,params);
 				if (stat != MS::kSuccess)
 				{
 					MFnDependencyNode shadingGroup(shaders[i]);
-					std::cout << "Error loading submesh linked to shader " << shadingGroup.name().asChar() << "\n";
+					std::cout << "Error loading material for submesh: " << submesh_name.asChar() << "\n";
 					return MS::kFailure;
 				}
 
