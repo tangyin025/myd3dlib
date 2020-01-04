@@ -954,7 +954,7 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
-				if (!pFrame->m_selactors.empty())
+				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
@@ -984,7 +984,7 @@ void CChildView::OnPaint()
 				}
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-				if (!pFrame->m_selactors.empty())
+				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
 					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
 					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
