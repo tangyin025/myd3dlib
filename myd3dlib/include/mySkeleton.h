@@ -267,8 +267,15 @@ namespace my
 		void CreateOgreSkeletonAnimationFromFile(
 			LPCTSTR pFilename);
 
+		static void ParseBasePoseAndNameMap(
+			BoneList & base_pose,
+			BoneNameMap & name_map,
+			const rapidxml::xml_node<char> * node_bones);
+
 		void AddOgreSkeletonAnimation(
-			const rapidxml::xml_node<char> * node_root);
+			const rapidxml::xml_node<char> * node_animation,
+			const BoneList & rhs_base_pose,
+			const BoneNameMap & rhs_name_map);
 
 		void AddOgreSkeletonAnimationFromMemory(
 			LPSTR pSrcData,

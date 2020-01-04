@@ -118,7 +118,7 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	case KC_SPACE:
 	{
 		m_Character->m_Velocity.y = 5.0f;
-		if (m_Character->m_Animator->m_Node)
+		if (m_Character->m_Animator && m_Character->m_Animator->m_Node)
 		{
 			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(m_Character->m_Animator->m_Node);
 			if (node_slot)

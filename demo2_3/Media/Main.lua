@@ -50,7 +50,7 @@ game:LoadScene("scene01.xml")
 local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 
 -- 加载皮肤
-local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.47,0))
+local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0))
 local lambert2=Material()
 lambert2.Shader="shader/mtl_lambert1.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
@@ -162,6 +162,6 @@ game:AddActor(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 -- game:AddActor(actor2oct(actor3),actor3.aabb:transform(actor2.World))
 -- player:Attach(actor3, 29)
 
--- 特殊渲染选项
+-- -- 特殊渲染选项
 -- game.SsaoEnable=true
 -- game.VisualizationParameter=1

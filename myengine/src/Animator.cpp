@@ -88,9 +88,6 @@ void Animator::Update(float fElapsedTime)
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
-			anim_pose.IncrementSelf(
-				m_Skeleton->m_boneBindPose, m_Skeleton->m_boneHierarchy, *root_iter);
-
 			anim_pose.BuildHierarchyBoneList(
 				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
 		}

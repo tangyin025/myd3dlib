@@ -606,6 +606,18 @@ void CMainFrame::OnFileNew()
 	//anim->m_Node = seq;
 	//actor->m_Animator = anim;
 
+	//struct helper
+	//{
+	//	AnimatorPtr anim;
+	//	void cb(my::ControlEventArgs * args) {
+	//		ASSERT(anim->m_Skeleton);
+	//		anim->m_Skeleton->AddOgreSkeletonAnimationFromFile("character/bbb.skeleton");
+	//		//anim->m_Skeleton->SaveOgreSkeletonAnimation("D:\\Works\\myd3dlib\\demo2_3\\Media\\character\\ccc.skeleton");
+	//	}
+	//};
+	//static helper h; h.anim = anim;
+	//anim->m_SkeletonEventReady = boost::bind(&helper::cb, &h, _1);
+
 	//actor->RequestResource();
 	//actor->OnEnterPxScene(this);
 	//AddActor(actor, actor->m_aabb.transform(actor->m_World));

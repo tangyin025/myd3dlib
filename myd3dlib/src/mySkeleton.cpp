@@ -254,7 +254,6 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	_ASSERT(hierarchyBoneList.size() == size());
 	_ASSERT(hierarchyBoneList.size() == boneHierarchy.size());
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
 	const_reference bone = operator[](root_i);
 	reference hier_bone = hierarchyBoneList[root_i];
 	hier_bone.m_rotation = bone.m_rotation * rootRotation;
@@ -341,7 +340,6 @@ TransformList & BoneList::BuildDualQuaternionList(
 //	_ASSERT(hierarchyTransformList.size() == size());
 //	_ASSERT(hierarchyTransformList.size() == boneHierarchy.size());
 //
-//	BoneHierarchy::const_reference node = boneHierarchy[root_i];
 //	const_reference bone = operator[](root_i);
 //	hierarchyTransformList[root_i] = Matrix4::RotationQuaternion(bone.m_rotation) * Matrix4::Translation(bone.m_position) * rootTransform;
 //
@@ -363,7 +361,6 @@ TransformList & BoneList::BuildDualQuaternionList(
 //	_ASSERT(inverseHierarchyTransformList.size() == size());
 //	_ASSERT(inverseHierarchyTransformList.size() == boneHierarchy.size());
 //
-//	BoneHierarchy::const_reference node = boneHierarchy[root_i];
 //	const_reference bone = operator[](root_i);
 //	inverseHierarchyTransformList[root_i] = inverseRootTransform * Matrix4::Translation(-bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation.conjugate());
 //
@@ -495,38 +492,8 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 
 	DEFINE_XML_NODE_SIMPLE(skeleton, root);
 	DEFINE_XML_NODE_SIMPLE(bones, skeleton);
-	DEFINE_XML_NODE_SIMPLE(bone, bones);
 
-	for(; node_bone != NULL; node_bone = node_bone->next_sibling())
-	{
-		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(id, bone);
-		DEFINE_XML_ATTRIBUTE_SIMPLE(name, bone);
-		if(m_boneNameMap.end() != m_boneNameMap.find(attr_name->value()))
-		{
-			THROW_CUSEXCEPTION(str_printf("bone name \"%s\"have already existed", attr_name->value()));
-		}
-		m_boneNameMap.insert(std::make_pair(attr_name->value(), id));
-
-		DEFINE_XML_NODE_SIMPLE(position, bone);
-		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
-		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, position);
-		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
-
-		DEFINE_XML_NODE_SIMPLE(rotation, bone);
-		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotation);
-		DEFINE_XML_NODE_SIMPLE(axis, rotation);
-		float axis_x, axis_y, axis_z;
-		rapidxml::xml_attribute<char> * attr_axis_x, * attr_axis_y, * attr_axis_z;
-		DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
-		DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
-		DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
-
-		if (id >= (int)m_boneBindPose.size())
-		{
-			m_boneBindPose.resize(id + 1, Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
-		}
-		m_boneBindPose[id] = Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(x, y, z));
-	}
+	ParseBasePoseAndNameMap(m_boneBindPose, m_boneNameMap, node_bones);
 
 	DEFINE_XML_NODE_SIMPLE(bonehierarchy, skeleton);
 	DEFINE_XML_NODE_SIMPLE(boneparent, bonehierarchy);
@@ -550,7 +517,15 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			m_boneNameMap[attr_parent->value()], m_boneNameMap[attr_bone->value()]);
 	}
 
-	AddOgreSkeletonAnimation(node_root);
+	rapidxml::xml_node<char> * node_animations = node_skeleton->first_node("animations");
+	if (node_animations != NULL)
+	{
+		DEFINE_XML_NODE_SIMPLE(animation, animations);
+		for (; node_animation != NULL; node_animation = node_animation->next_sibling())
+		{
+			AddOgreSkeletonAnimation(node_animation, m_boneBindPose, m_boneNameMap);
+		}
+	}
 
 	// calculate root set
 	m_boneRootSet.clear();
@@ -604,72 +579,110 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 }
 
-void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
-	const rapidxml::xml_node<char> * node_root)
+void OgreSkeletonAnimation::ParseBasePoseAndNameMap(
+	BoneList & base_pose,
+	BoneNameMap & name_map,
+	const rapidxml::xml_node<char> * node_bones)
 {
-	DEFINE_XML_NODE_SIMPLE(skeleton, root);
-
-	rapidxml::xml_node<char> * node_animations = node_skeleton->first_node("animations");
-	if (NULL == node_animations)
+	base_pose.clear();
+	name_map.clear();
+	DEFINE_XML_NODE_SIMPLE(bone, bones);
+	for (; node_bone != NULL; node_bone = node_bone->next_sibling())
 	{
-		return;
+		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(id, bone);
+		DEFINE_XML_ATTRIBUTE_SIMPLE(name, bone);
+		if (name_map.end() != name_map.find(attr_name->value()))
+		{
+			THROW_CUSEXCEPTION(str_printf("bone name \"%s\"have already existed", attr_name->value()));
+		}
+		name_map.insert(std::make_pair(attr_name->value(), id));
+
+		DEFINE_XML_NODE_SIMPLE(position, bone);
+		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
+		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, position);
+		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
+
+		DEFINE_XML_NODE_SIMPLE(rotation, bone);
+		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotation);
+		DEFINE_XML_NODE_SIMPLE(axis, rotation);
+		float axis_x, axis_y, axis_z;
+		rapidxml::xml_attribute<char> * attr_axis_x, *attr_axis_y, *attr_axis_z;
+		DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
+		DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
+		DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
+
+		if (id >= (int)base_pose.size())
+		{
+			base_pose.resize(id + 1, Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+		}
+		base_pose[id] = Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(x, y, z));
+	}
+}
+
+void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
+	const rapidxml::xml_node<char> * node_animation,
+	const BoneList & rhs_base_pose,
+	const BoneNameMap & rhs_name_map)
+{
+	DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
+	OgreAnimationMap::iterator anim_iter = m_animationMap.find(attr_name->value());
+	if (anim_iter != m_animationMap.end())
+	{
+		m_animationMap.erase(anim_iter);
 	}
 
-	DEFINE_XML_NODE_SIMPLE(animation, animations);
+	m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
+	OgreAnimation & anim = m_animationMap[attr_name->value()];
 
-	for (; node_animation != NULL; node_animation = node_animation->next_sibling())
+	DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
+
+	DEFINE_XML_NODE_SIMPLE(tracks, animation);
+	DEFINE_XML_NODE_SIMPLE(track, tracks);
+	for (; node_track != NULL; node_track = node_track->next_sibling())
 	{
-		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
-		OgreAnimationMap::iterator anim_iter = m_animationMap.find(attr_name->value());
-		if (anim_iter != m_animationMap.end())
+		DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
+
+		BoneNameMap::const_iterator name_iter = m_boneNameMap.find(attr_bone->value());
+		if (name_iter == m_boneNameMap.end())
 		{
-			m_animationMap.erase(anim_iter);
+			THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 		}
 
-		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
-		OgreAnimation & anim = m_animationMap[attr_name->value()];
-
-		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
-
-		DEFINE_XML_NODE_SIMPLE(tracks, animation);
-		DEFINE_XML_NODE_SIMPLE(track, tracks);
-		for (; node_track != NULL; node_track = node_track->next_sibling())
+		BoneNameMap::const_iterator rhs_name_iter = rhs_name_map.find(attr_bone->value());
+		if (rhs_name_iter == rhs_name_map.end())
 		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
-			if (m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
-			{
-				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
-			}
+			THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
+		}
 
-			DEFINE_XML_NODE_SIMPLE(keyframes, track);
-			DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
-			for (; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
-			{
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
-				BoneList & pose = anim[time];
-				pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
-				Bone & bone = pose[m_boneNameMap[attr_bone->value()]];
+		DEFINE_XML_NODE_SIMPLE(keyframes, track);
+		DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
+		for (; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
+		{
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
+			BoneList & pose = anim[time];
+			pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+			Bone & bone = pose[name_iter->second];
 
-				rapidxml::xml_attribute<char> * attr_translate_x, *attr_translate_y, *attr_translate_z;
-				float translate_x, translate_y, translate_z;
-				DEFINE_XML_NODE_SIMPLE(translate, keyframe);
-				DEFINE_XML_ATTRIBUTE_FLOAT(translate_x, attr_translate_x, node_translate, x);
-				DEFINE_XML_ATTRIBUTE_FLOAT(translate_y, attr_translate_y, node_translate, y);
-				DEFINE_XML_ATTRIBUTE_FLOAT(translate_z, attr_translate_z, node_translate, z);
+			rapidxml::xml_attribute<char> * attr_translate_x, *attr_translate_y, *attr_translate_z;
+			float translate_x, translate_y, translate_z;
+			DEFINE_XML_NODE_SIMPLE(translate, keyframe);
+			DEFINE_XML_ATTRIBUTE_FLOAT(translate_x, attr_translate_x, node_translate, x);
+			DEFINE_XML_ATTRIBUTE_FLOAT(translate_y, attr_translate_y, node_translate, y);
+			DEFINE_XML_ATTRIBUTE_FLOAT(translate_z, attr_translate_z, node_translate, z);
 
-				DEFINE_XML_NODE_SIMPLE(rotate, keyframe);
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
+			DEFINE_XML_NODE_SIMPLE(rotate, keyframe);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
 
-				rapidxml::xml_attribute<char> * attr_axis_x, *attr_axis_y, *attr_axis_z;
-				float axis_x, axis_y, axis_z;
-				DEFINE_XML_NODE_SIMPLE(axis, rotate);
-				DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
-				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
-				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
+			rapidxml::xml_attribute<char> * attr_axis_x, *attr_axis_y, *attr_axis_z;
+			float axis_x, axis_y, axis_z;
+			DEFINE_XML_NODE_SIMPLE(axis, rotate);
+			DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
+			DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
+			DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
-				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
-				bone.m_position = Vector3(translate_x, translate_y, translate_z);
-			}
+			bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
+			bone.m_position = Vector3(translate_x, translate_y, translate_z);
+			bone.IncrementSelf(rhs_base_pose[rhs_name_iter->second]);
 		}
 	}
 }
@@ -690,7 +703,23 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	AddOgreSkeletonAnimation(&doc);
+	rapidxml::xml_node<char> * node_root = &doc;
+	DEFINE_XML_NODE_SIMPLE(skeleton, root);
+	DEFINE_XML_NODE_SIMPLE(bones, skeleton);
+
+	BoneList base_pose;
+	BoneNameMap name_map;
+	ParseBasePoseAndNameMap(base_pose, name_map, node_bones);
+
+	rapidxml::xml_node<char> * node_animations = node_skeleton->first_node("animations");
+	if (node_animations != NULL)
+	{
+		DEFINE_XML_NODE_SIMPLE(animation, animations);
+		for (; node_animation != NULL; node_animation = node_animation->next_sibling())
+		{
+			AddOgreSkeletonAnimation(node_animation, base_pose, name_map);
+		}
+	}
 }
 
 void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(const char * path)
@@ -747,9 +776,11 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 			{
 				ofs << "\t\t\t\t\t\t<keyframe time=\"" << frame_iter->first << "\">\n";
 				const Bone & bone = frame_iter->second[name_iter->second];
-				ofs << "\t\t\t\t\t\t\t<translate x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.x << "\"/>\n";
+				const Bone & base_bone = m_boneBindPose[name_iter->second];
+				Bone anim_bone(bone.GetRotation() * base_bone.GetRotation().conjugate(), bone.GetPosition() - base_bone.GetPosition());
+				ofs << "\t\t\t\t\t\t\t<translate x=\"" << anim_bone.m_position.x << "\" y=\"" << anim_bone.m_position.y << "\" z=\"" << anim_bone.m_position.x << "\"/>\n";
 				Vector3 axis; float angle;
-				bone.m_rotation.ToAxisAngle(axis, angle);
+				anim_bone.m_rotation.ToAxisAngle(axis, angle);
 				ofs << "\t\t\t\t\t\t\t<rotate angle=\"" << angle << "\">\n";
 				ofs << "\t\t\t\t\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
 				ofs << "\t\t\t\t\t\t\t</rotate>\n";
