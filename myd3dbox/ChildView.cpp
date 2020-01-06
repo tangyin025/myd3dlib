@@ -189,13 +189,15 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pFrame(_pFrame)
 		{
 		}
-		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
-		{
-		}
 		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
+			if (!actor->IsRequested())
+			{
+				actor->RequestResource();
+				actor->OnEnterPxScene(pFrame);
+			}
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
@@ -726,9 +728,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, ret(false, FLT_MAX)
 				{
 				}
-				virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
-				{
-				}
 				virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
@@ -1124,9 +1123,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
-			{
-			}
 			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_actor);
@@ -1154,9 +1150,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, selact(NULL)
 				, seldist(FLT_MAX)
 				, selchunkid(0, 0)
-			{
-			}
-			virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
 			{
 			}
 			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)

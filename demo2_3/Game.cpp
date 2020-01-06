@@ -287,7 +287,7 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: StreamRoot(my::AABB(-4096, 4096))
+	: OctRoot(my::AABB(-4096, 4096))
 	, m_UIRender(new EffectUIRender())
 	, m_TargetActor(NULL)
 {
@@ -589,7 +589,7 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	StreamRoot::ClearAllNode();
+	OctRoot::ClearAllNode();
 
 	m_Console.reset();
 
@@ -638,9 +638,8 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	CheckViewedActor(this,
-		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f),
-		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f), false);
+	CheckViewedActor(
+		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f), AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
 
 	m_d3dDeviceSec.Enter();
 
@@ -806,6 +805,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
 		const my::Vector3 & TargetPos;
+
 		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
@@ -814,9 +814,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 			, TargetPos(_TargetPos)
 		{
 		}
-		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
-		{
-		}
+
 		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
@@ -826,6 +824,62 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	};
 
 	QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
+}
+
+void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
+{
+	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
+	for (; weak_actor_iter != m_ViewedActors.end(); )
+	{
+		ActorPtr actor = weak_actor_iter->second.lock();
+		if (!actor)
+		{
+			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
+			continue;
+		}
+
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
+		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
+		{
+			actor->OnLeavePxScene(this);
+			actor->ReleaseResource();
+			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
+			continue;
+		}
+
+		weak_actor_iter++;
+	}
+
+	struct Callback : public OctNode::QueryCallback
+	{
+		WeakActorMap & m_ViewedActors;
+
+		PhysXSceneContext * m_Scene;
+
+		AABB m_aabb;
+
+		Callback(WeakActorMap & ViewedActors, PhysXSceneContext * Scene, const AABB & aabb)
+			: m_ViewedActors(ViewedActors)
+			, m_Scene(Scene)
+			, m_aabb(aabb)
+		{
+		}
+
+		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor * actor = dynamic_cast<Actor *>(oct_actor);
+			if (!actor->IsRequested())
+			{
+				actor->RequestResource();
+				actor->OnEnterPxScene(m_Scene);
+				_ASSERT(m_ViewedActors.find(actor) == m_ViewedActors.end());
+			}
+			m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
+		}
+	};
+
+	Callback cb(m_ViewedActors, this, In);
+	QueryActor(In, &cb);
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
@@ -970,7 +1024,7 @@ ComponentPtr Game::LoadComponent(const char * path)
 
 void Game::LoadScene(const char * path)
 {
-	StreamRoot::ClearAllNode();
+	OctRoot::ClearAllNode();
 	PhysXSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 
@@ -992,9 +1046,7 @@ void Game::LoadScene(const char * path)
 	}
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	*ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	*ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
-	StreamRoot::m_Path = path;
-	StreamRoot::m_Ready = false;
+	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	RenderPipeline::RequestResource();
 }

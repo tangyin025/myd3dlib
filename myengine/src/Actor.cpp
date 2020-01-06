@@ -499,9 +499,3 @@ void BoneAttacher::Update(float fElapsedTime)
 		m_Suber->Update(fElapsedTime);
 	}
 }
-
-#include "StreamNode.h"
-
-BOOST_CLASS_EXPORT(StreamNode)
-
-BOOST_CLASS_EXPORT(StreamRoot)

@@ -88,7 +88,7 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-	: StreamRoot(my::AABB(-4096, 4096))
+	: OctRoot(my::AABB(-4096, 4096))
 	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
@@ -488,7 +488,7 @@ void CMainFrame::OnSelChanged()
 
 void CMainFrame::ClearFileContext()
 {
-	StreamRoot::ClearAllNode();
+	OctRoot::ClearAllNode();
 	m_selactors.clear();
 	theApp.RemoveAllIORequest();
 	PhysXSceneContext::ClearSerializedObjs();
@@ -533,8 +533,7 @@ BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
 	}
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	*oa << boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
-	StreamRoot::SaveAllActor(ts2ms((LPCTSTR)m_strPathName).c_str());
+	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	return TRUE;
 }
@@ -666,9 +665,7 @@ void CMainFrame::OnFileOpen()
 	}
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
-	*ia >> boost::serialization::make_nvp("StreamRoot", (StreamRoot &)*this);
-	StreamRoot::m_Path = ts2ms((LPCTSTR)m_strPathName);
-	StreamRoot::m_Ready = false;
+	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	theApp.RequestResource();
 	OnSelChanged();
@@ -1128,9 +1125,6 @@ void CMainFrame::OnToolsBuildnavigation()
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		Callback(void)
-		{
-		}
-		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
 		{
 		}
 		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)

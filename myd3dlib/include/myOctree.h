@@ -43,8 +43,6 @@ namespace my
 		struct QueryCallback
 		{
 		public:
-			virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType) = 0;
-
 			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
 		};
 

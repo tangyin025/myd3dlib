@@ -179,8 +179,6 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 
 void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
 {
-	callback->OnQueryNode(this, IntersectionTests::IntersectionTypeRay);
-
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
@@ -205,8 +203,6 @@ void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
 
 void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
 {
-	callback->OnQueryNode(this, IntersectionTests::IntersectionTypeIntersect);
-
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
@@ -241,8 +237,6 @@ void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
 
 void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) const
 {
-	callback->OnQueryNode(this, IntersectionTests::IntersectionTypeIntersect);
-
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
@@ -277,8 +271,6 @@ void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) cons
 
 void OctNode::QueryActorAll(QueryCallback * callback) const
 {
-	callback->OnQueryNode(this, IntersectionTests::IntersectionTypeInside);
-
 	OctActorMap::const_iterator actor_iter = m_Actors.begin();
 	for(; actor_iter != m_Actors.end(); actor_iter++)
 	{
@@ -361,10 +353,6 @@ void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	{
 	public:
 		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
-
-		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
-		{
-		}
 
 		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{

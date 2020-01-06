@@ -440,13 +440,6 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	ASSERT_VALID(pView);
 	BOOL bContinue = FALSE;
-	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
-	if (!pFrame->CheckViewedActor(pFrame,
-		my::AABB(model_view_camera->m_LookAt, 1000.0f), my::AABB(model_view_camera->m_LookAt, 1000.0f), true))
-	{
-		bContinue = TRUE;
-	}
-
 	if (!m_IORequestList.empty())
 	{
 		m_bNeedDraw = TRUE;

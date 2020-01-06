@@ -6,7 +6,6 @@
 #include "Character.h"
 #include "Controller.h"
 #include "PhysXContext.h"
-#include "StreamNode.h"
 #include "FModContext.h"
 
 class Game
@@ -17,12 +16,12 @@ class Game
 	, public my::ResourceMgr
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
+	, public my::OctRoot
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
 	, public PhysXContext
 	, public PhysXSceneContext
-	, public StreamRoot
 	, public FModContext
 {
 public:
@@ -45,6 +44,10 @@ public:
 	std::string m_InitScene;
 
 	std::string m_InitScript;
+
+	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
+
+	WeakActorMap m_ViewedActors;
 
 public:
 	Game(void);
@@ -110,6 +113,8 @@ public:
 	bool ExecuteCode(const char * code) throw();
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	void CheckViewedActor(const my::AABB & In, const my::AABB & Out);
 
 	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
 

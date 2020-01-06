@@ -497,9 +497,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 			: terrain(_terrain)
 		{
 		}
-		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
-		{
-		}
 		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
@@ -580,9 +577,6 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
 			, terrain(_terrain)
-		{
-		}
-		virtual void OnQueryNode(const my::OctNode * oct_node, my::IntersectionTests::IntersectionType)
 		{
 		}
 		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
