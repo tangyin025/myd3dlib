@@ -96,6 +96,9 @@
     <ClCompile Include="src\Win32InputBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\myDxutApp11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DXUTenum.h">
@@ -186,6 +189,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Win32InputBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\myDxutApp11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
