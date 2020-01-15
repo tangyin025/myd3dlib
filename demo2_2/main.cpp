@@ -266,17 +266,19 @@ public:
 		//DialogMgr::InsertDlg(dlg);
 
 		m_Tex.reset(new my::Texture2D());
-		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
+		m_Tex->CreateTextureFromFile(_T("four-holes.png"));
+		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
 		Material mtl;
 		mtl.m_Shader = "shader/mtl_lambert1.fx";
 		mtl.ParseShaderParameters();
 
 		DialogPtr dlg(new Dialog());
-		dlg->m_Size = Vector2(400, 400);
+		dlg->m_Size = Vector2(desc.Width, desc.Height);
 		dlg->m_Skin.reset(new ControlSkin());
 		dlg->m_Skin->m_Image.reset(new ControlImage());
 		dlg->m_Skin->m_Image->m_Texture = m_Tex;
+		dlg->m_Skin->m_Image->m_Rect = my::Rectangle(0, 0, desc.Width, desc.Height);
 		dlg->EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
 		DialogMgr::InsertDlg(dlg);
 
@@ -287,14 +289,15 @@ public:
 	{
 		static CPoint last_pt(0, 0);
 		m_Tex->OnDestroyDevice();
-		m_Tex->CreateTextureFromFile(_T("aaa.bmp"));
+		m_Tex->CreateTextureFromFile(_T("four-holes.png"));
+		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
 		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(args);
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
-		CPoint pt((int)(loc.x / 400.0f * 100), (int)(loc.y / 400.0f * 100));
-		my::AStar2D<DWORD> searcher(100, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
+		CPoint pt((int)loc.x, (int)loc.y);
+		my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
 		bool ret = searcher.find(last_pt, pt);
 		if (ret)
 		{

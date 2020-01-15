@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main11.cpp">
+    <ClCompile Include="myDxutApp11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="myDxutApp11.cpp">
+    <ClCompile Include="main11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
