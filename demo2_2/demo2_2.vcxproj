@@ -99,9 +99,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DebugUtils\DebugUtils.vcxproj">
       <Project>{1b6cc677-1d1e-4bab-9943-d4f0fc8c8e4f}</Project>
     </ProjectReference>
@@ -141,6 +138,13 @@
     <ProjectReference Include="..\zziplib\zziplib.vcxproj">
       <Project>{5d10d16e-e3aa-4430-83db-4a4fbb9a201d}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main11.cpp" />
+    <ClCompile Include="myDxutApp11.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="myDxutApp11.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
