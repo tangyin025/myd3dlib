@@ -420,6 +420,8 @@ public:
 	}
 };
 
+#include "myDxutApp11.h"
+
 LONG WINAPI OnException(_EXCEPTION_POINTERS* ExceptionInfo)
 {
 	WriteMiniDump(ExceptionInfo, _T("aaa.dmp"));
@@ -436,4 +438,6 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 	SetUnhandledExceptionFilter(OnException);
 
 	return Demo().Run();
+
+	//return DxutApp11().Run();
 }

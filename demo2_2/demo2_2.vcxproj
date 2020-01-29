@@ -140,7 +140,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main11.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="myDxutApp11.cpp" />
   </ItemGroup>
   <ItemGroup>
