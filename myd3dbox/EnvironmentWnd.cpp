@@ -9,11 +9,6 @@
 #include "ChildView.h"
 #include <boost/regex.hpp>
 
-#define SSAO_BIAS_RANGE 1.0f
-#define SSAO_INTENSITY_RANGE 10.0f
-#define SSAO_RADIUS_RANGE 200.0f
-#define SSAO_SCALE_RANGE 20.0f
-
 // CEnvironmentWnd
 
 IMPLEMENT_DYNAMIC(CEnvironmentWnd, CDockablePane)
