@@ -3,7 +3,8 @@ texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Checker.b
 texture g_DiffuseTexture1:MaterialParameter<string Initialize="texture/Checker.bmp";>;
 texture g_DiffuseTexture2:MaterialParameter<string Initialize="texture/Checker.bmp";>;
 texture g_DiffuseTexture3:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-float g_TextureScale:MaterialParameter = 1.0;
+float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
+float g_SpecularStrength:MaterialParameter = 0.5;
 
 sampler DiffuseTextureSampler0 = sampler_state
 {
@@ -61,8 +62,8 @@ struct NORMAL_VS_OUTPUT
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: TEXCOORD1;
-	float3 Tangent			: TEXCOORD2;
-	float3 Binormal			: TEXCOORD3;
+	// float3 Tangent			: TEXCOORD2;
+	// float3 Binormal			: TEXCOORD3;
 	float3 ViewPos			: TEXCOORD4;
 };
 
@@ -73,8 +74,8 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In) * g_TextureScale;
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
-	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
-	Output.Binormal = cross(Output.Normal, Output.Tangent);
+	// Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
+	// Output.Binormal = cross(Output.Normal, Output.Tangent);
 	Output.ViewPos = mul(PosWS, g_View);
 	return Output;
 }
@@ -94,6 +95,7 @@ struct COLOR_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
+	float3 Normal			: TEXCOORD1;
 	float4 Color			: COLOR0;
 	float4 PosScreen		: TEXCOORD2;
 	float4 PosShadow		: TEXCOORD5;
@@ -106,6 +108,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In) * g_TextureScale;
+	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Color = TransformColor(In);
 	Output.PosScreen = Output.Pos;
 	Output.PosShadow = mul(PosWS, g_SkyLightViewProj);
@@ -121,9 +124,9 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	ScreenTex.y = 1 - ScreenTex.y;
 	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float LightAmount = GetLigthAmount(In.PosShadow);
-	float3 Normal = tex2D(NormalRTSampler, ScreenTex);
-	float3 SkyDiffuse = saturate(-dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
-	float3 Ref = Reflection(Normal.xyz, In.ViewDir);
+	// float3 Normal = tex2D(NormalRTSampler, ScreenTex);
+	float3 SkyDiffuse = saturate(-dot(In.Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
+	float3 Ref = Reflection(In.Normal.xyz, In.ViewDir);
 	float SkySpecular = pow(saturate(dot(Ref, -ViewSkyLightDir) * LightAmount), 5) * g_SkyLightColor.w;
 	float4 Diffuse = float4(0,0,0,0);
 	Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.a;
@@ -131,8 +134,8 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.g;
 	Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.b;
 	Diffuse *= tex2D(LightRTSampler, ScreenTex) + float4(SkyDiffuse, SkySpecular);
-	// float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * Diffuse.w;
-	// Diffuse.xyz += Specular;
+	float Specular = g_SpecularStrength * Diffuse.w;
+	Diffuse.xyz += Specular;
     return float4(Diffuse.xyz, 1);
 }
 

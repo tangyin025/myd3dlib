@@ -584,10 +584,7 @@ void CMainFrame::OnFileNew()
 	//// TODO:
 	//MaterialPtr mtl(new Material());
 	//mtl->m_Shader = theApp.default_shader;
-	//mtl->m_PassMask = theApp.default_pass_mask;
-	//mtl->AddParameterTexture("g_DiffuseTexture", "character/N0100101-SJ001.dds");
-	//mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	//mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	//mtl->ParseShaderParameters();
 
 	//ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
 	//MeshComponentPtr mesh_cmp(new MeshComponent());
@@ -769,10 +766,7 @@ void CMainFrame::OnComponentMesh()
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
-		mtl->m_PassMask = theApp.default_pass_mask;
-		mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-		mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-		mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+		mtl->ParseShaderParameters();
 		mesh_cmp->m_MaterialList.push_back(mtl);
 	}
 	mesh_cmp->RequestResource();
@@ -828,10 +822,7 @@ void CMainFrame::OnComponentCloth()
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
-		mtl->m_PassMask = theApp.default_pass_mask;
-		mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-		mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-		mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+		mtl->ParseShaderParameters();
 		cloth_cmp->m_MaterialList.push_back(mtl);
 	}
 	cloth_cmp->RequestResource();
@@ -863,10 +854,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(1));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
-	mtl->m_PassMask = theApp.default_pass_mask;
-	mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	mtl->ParseShaderParameters();
 	emit_cmp->m_Material = mtl;
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(this);
@@ -917,10 +905,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->m_SpawnSizeY.AddNode(10,10,0,0);
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
-	mtl->m_PassMask = theApp.default_pass_mask;
-	mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	mtl->ParseShaderParameters();
 	sphe_emit_cmp->m_Material = mtl;
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(this);
@@ -957,10 +942,7 @@ void CMainFrame::OnComponentTerrain()
 	TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
-	mtl->m_PassMask = theApp.default_pass_mask;
-	mtl->AddParameterTexture("g_DiffuseTexture", theApp.default_texture);
-	mtl->AddParameterTexture("g_NormalTexture", theApp.default_normal_texture);
-	mtl->AddParameterTexture("g_SpecularTexture", theApp.default_specular_texture);
+	mtl->ParseShaderParameters();
 	terrain->m_Material = mtl;
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);

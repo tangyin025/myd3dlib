@@ -178,8 +178,10 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), Matrix4::RotationX(D3DXToRadian(-90)));
+		//// 绘制网格
+		//PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), Matrix4::RotationX(D3DXToRadian(-90)));
 
+		// 绘制帧率
 		swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"Fps: %.2f", m_fFps);
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
@@ -194,9 +196,9 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		// 绘制坐标
-		DrawStringAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
-		DrawStringAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
+		//// 绘制坐标
+		//DrawStringAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		//DrawStringAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
 
 		Game::OnUIRender(ui_render, fTime, fElapsedTime);
 	}

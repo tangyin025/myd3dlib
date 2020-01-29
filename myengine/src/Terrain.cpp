@@ -230,11 +230,12 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 {
 	CreateElements();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
-	my::Texture2D HeightMap;
-	HeightMap.CreateTexture(1, 1, 1, 0, D3DFMT_L8);
-	D3DSURFACE_DESC desc = HeightMap.GetLevelDesc(0);
-	D3DLOCKED_RECT lrc = HeightMap.LockRect(NULL, 0, 0);
-	memset(lrc.pBits, 0, lrc.Pitch * 1 * sizeof(unsigned char));
+	unsigned char buff_h[1] = { 0 };
+	D3DSURFACE_DESC desc_h = { D3DFMT_L8, D3DRTYPE_TEXTURE, 0, D3DPOOL_MANAGED, D3DMULTISAMPLE_NONE, 0, 1, 1 };
+	D3DLOCKED_RECT lrc_h = { sizeof(buff_h[0]), buff_h };
+	D3DCOLOR buff_c[1] = { D3DCOLOR_ARGB(255, 0, 0, 0) };
+	D3DSURFACE_DESC desc_c = { D3DFMT_A8R8G8B8, D3DRTYPE_TEXTURE, 0, D3DPOOL_MANAGED, D3DMULTISAMPLE_NONE, 0, 1, 1 };
+	D3DLOCKED_RECT lrc_c = { sizeof(buff_c[0]), buff_c };
 	for (unsigned int i = 0; i < m_Chunks.shape()[0]; i++)
 	{
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
@@ -242,10 +243,10 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 			TerrainChunkPtr chunk(new TerrainChunk(i, j, m_ChunkSize));
 			AddActor(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
-			chunk->UpdateVertices<unsigned char>(desc, lrc, 1.0f);
+			chunk->UpdateVertices<unsigned char>(desc_h, lrc_h, 1.0f);
+			chunk->UpdateColors(desc_c, lrc_c);
 		}
 	}
-	HeightMap.UnlockRect(0);
 }
 
 Terrain::~Terrain(void)
