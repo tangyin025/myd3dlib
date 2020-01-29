@@ -32,7 +32,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_ShadowDS(new Surface())
 	, m_BgColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
-	, m_AmbientColor(0.3f, 0.3f, 0.3f, 0.0f)
+	, m_AmbientColor(0.3f, 0.3f, 0.3f)
 	, handle_Time(NULL)
 	, handle_Eye(NULL)
 	, handle_ScreenDim(NULL)
@@ -475,7 +475,7 @@ void RenderPipeline::OnRender(
 	else
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
-			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, m_AmbientColor.w), 0, 0));
+			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, 0), 0, 0));
 	}
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 

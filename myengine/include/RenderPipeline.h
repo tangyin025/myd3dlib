@@ -79,7 +79,7 @@ public:
 
 	my::Vector4 m_SkyLightColor;
 
-	my::Vector4 m_AmbientColor;
+	my::Vector3 m_AmbientColor;
 
 	MaterialParameterTexture m_SkyBoxTextures[6];
 

@@ -130,9 +130,12 @@ void CEnvironmentWnd::InitPropList()
 	pSkyLightDir->AddSubItem(pProp);
 
 	COLORREF color = RGB(255,255,255);
-	CColorProp * pSkyLightColor = new CColorProp(_T("SkyLightColor"), color, NULL, NULL, SkyLightPropertyColor);
+	CColorProp * pSkyLightColor = new CColorProp(_T("SkyLightDiffuse"), color, NULL, NULL, SkyLightPropertyDiffuse);
 	pSkyLightColor->EnableOtherButton(_T("Other..."));
 	pSkyLight->AddSubItem(pSkyLightColor);
+
+	pProp = new CSimpleProp(_T("SkyLightSpecular"), (_variant_t)1.0f, NULL, SkyLightPropertySpecular);
+	pSkyLight->AddSubItem(pProp);
 
 	CColorProp * pAmbientColor = new CColorProp(_T("AmbientColor"), color, NULL, NULL, SkyLightPropertyAmbientColor);
 	pAmbientColor->EnableOtherButton(_T("Other..."));
@@ -142,13 +145,13 @@ void CEnvironmentWnd::InitPropList()
 	m_wndPropList.AddProperty(pSSAO, FALSE, FALSE);
 	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SSAOPropertyEnable);
 	pSSAO->AddSubItem(pProp);
-	pProp = new CSliderProp(_T("Bias"), (_variant_t)0l, NULL, SSAOPropertyBias);
+	pProp = new CSimpleProp(_T("Bias"), (_variant_t)1.0f, NULL, SSAOPropertyBias);
 	pSSAO->AddSubItem(pProp);
-	pProp = new CSliderProp(_T("Intensity"), (_variant_t)0l, NULL, SSAOPropertyIntensity);
+	pProp = new CSimpleProp(_T("Intensity"), (_variant_t)1.0f, NULL, SSAOPropertyIntensity);
 	pSSAO->AddSubItem(pProp);
-	pProp = new CSliderProp(_T("Radius"), (_variant_t)0l, NULL, SSAOPropertyRadius);
+	pProp = new CSimpleProp(_T("Radius"), (_variant_t)1.0f, NULL, SSAOPropertyRadius);
 	pSSAO->AddSubItem(pProp);
-	pProp = new CSliderProp(_T("Scale"), (_variant_t)0l, NULL, SSAOPropertyScale);
+	pProp = new CSimpleProp(_T("Scale"), (_variant_t)1.0f, NULL, SSAOPropertyScale);
 	pSSAO->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pFog = new CSimpleProp(_T("HeightFog"), PropertyFog, FALSE);
@@ -204,17 +207,19 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pSkyLight->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.z));
 
 	color = RGB(theApp.m_SkyLightColor.x * 255, theApp.m_SkyLightColor.y * 255, theApp.m_SkyLightColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyColor)))->SetColor((_variant_t)color);
+	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyDiffuse)))->SetColor((_variant_t)color);
+
+	pSkyLight->GetSubItem(SkyLightPropertySpecular)->SetValue((_variant_t)theApp.m_SkyLightColor.w);
 
 	color = RGB(theApp.m_AmbientColor.x * 255, theApp.m_AmbientColor.y * 255, theApp.m_AmbientColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbientColor)))->SetColor((_variant_t)color);
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
 	pSSAO->GetSubItem(SSAOPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SsaoEnable);
-	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(theApp.m_SsaoBias / SSAO_BIAS_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(theApp.m_SsaoIntensity / SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(theApp.m_SsaoRadius / SSAO_RADIUS_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(theApp.m_SsaoScale / SSAO_SCALE_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)theApp.m_SsaoBias);
+	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)theApp.m_SsaoIntensity);
+	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)theApp.m_SsaoRadius);
+	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)theApp.m_SsaoScale);
 
 	CMFCPropertyGridProperty * pFog = m_wndPropList.GetProperty(PropertyFog);
 	pFog->GetSubItem(FogPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_FogEnable);
@@ -362,20 +367,22 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyColor)))->GetColor();
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyDiffuse)))->GetColor();
 			theApp.m_SkyLightColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 
+			theApp.m_SkyLightColor.w = pTopProp->GetSubItem(SkyLightPropertySpecular)->GetValue().fltVal;
+
 			color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
-			theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			theApp.m_AmbientColor = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 		}
 		break;
 	case PropertySSAO:
 		{
 			pView->m_SsaoEnable = pTopProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
-			theApp.m_SsaoBias = pTopProp->GetSubItem(SSAOPropertyBias)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_BIAS_RANGE;
-			theApp.m_SsaoIntensity = pTopProp->GetSubItem(SSAOPropertyIntensity)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_INTENSITY_RANGE;
-			theApp.m_SsaoRadius = pTopProp->GetSubItem(SSAOPropertyRadius)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_RADIUS_RANGE;
-			theApp.m_SsaoScale = pTopProp->GetSubItem(SSAOPropertyScale)->GetValue().lVal / (float)CSliderProp::RANGE*SSAO_SCALE_RANGE;
+			theApp.m_SsaoBias = pTopProp->GetSubItem(SSAOPropertyBias)->GetValue().fltVal;
+			theApp.m_SsaoIntensity = pTopProp->GetSubItem(SSAOPropertyIntensity)->GetValue().fltVal;
+			theApp.m_SsaoRadius = pTopProp->GetSubItem(SSAOPropertyRadius)->GetValue().fltVal;
+			theApp.m_SsaoScale = pTopProp->GetSubItem(SSAOPropertyScale)->GetValue().fltVal;
 		}
 		break;
 	case PropertyFog:

@@ -569,7 +569,7 @@ void CMainFrame::OnFileNew()
 	InitialUpdateFrame(NULL, TRUE);
 	theApp.m_BgColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.0f);
+	theApp.m_AmbientColor = my::Vector3(0.3f, 0.3f, 0.3f);
 	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 	{
 		theApp.m_SkyBoxTextures[i].m_TexturePath = theApp.default_sky_texture[i];
