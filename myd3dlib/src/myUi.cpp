@@ -5,15 +5,8 @@
 #include "myUtility.h"
 #include "ImeUi.h"
 #include "libc.h"
-#include <fstream>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/list.hpp>
@@ -2562,49 +2555,6 @@ bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 		return true;
 	}
 	return false;
-}
-
-DialogPtr Dialog::LoadFromFile(const char * path)
-{
-	IStreamBuff buff(ResourceMgr::getSingleton().OpenIStream(path));
-	std::istream istr(&buff);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
-	}
-	else
-	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
-	}
-	DialogPtr ret;
-	*ia >> boost::serialization::make_nvp("Dialog", ret);
-	return ret;
-}
-
-void Dialog::SaveToFile(const char * path)
-{
-	std::ofstream ostr(ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary, _OPENPROT);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
-	}
-	else
-	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
-	}
-	*oa << boost::serialization::make_nvp("Dialog", shared_from_this());
 }
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)

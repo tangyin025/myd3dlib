@@ -118,17 +118,9 @@ public:
 
 	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
 
-	//void SaveDialog(my::DialogPtr dlg, const char * path);
+	void SaveDialog(my::DialogPtr dlg, const char * path);
 
-	//my::DialogPtr LoadDialog(const char * path);
-
-	//void Game::SaveMaterial(MaterialPtr mtl, const char * path);
-
-	//MaterialPtr LoadMaterial(const char * path);
-
-	//void SaveComponent(ComponentPtr cmp, const char * path);
-
-	//ComponentPtr LoadComponent(const char * path);
+	my::DialogPtr LoadDialog(const char * path);
 
 	void LoadScene(const char * path);
 };

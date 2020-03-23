@@ -517,13 +517,13 @@ BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
 	ASSERT_VALID(pView);
 	CWaitCursor waiter;
 	std::ofstream ofs(m_strPathName, std::ios::binary, _OPENPROT);
-	std::basic_string<TCHAR> Ext(PathFindExtension(m_strPathName));
+	LPCTSTR Ext = PathFindExtension(m_strPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (Ext == _T(".xml"))
+	if (_tcsicmp(Ext, _T(".xml")) == 0)
 	{
 		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
 	}
-	else if (Ext == _T(".txt"))
+	else if (_tcsicmp(Ext, _T(".txt")) == 0)
 	{
 		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
 	}
@@ -646,13 +646,13 @@ void CMainFrame::OnFileOpen()
 	CWaitCursor waiter;
 	my::IStreamBuff buff(my::FileIStream::Open(m_strPathName));
 	std::istream ifs(&buff);
-	std::basic_string<TCHAR> Ext(PathFindExtension((LPCTSTR)m_strPathName));
+	LPCTSTR Ext = PathFindExtension((LPCTSTR)m_strPathName);
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (Ext == _T(".xml"))
+	if (_tcsicmp(Ext, _T(".xml")) == 0)
 	{
 		ia.reset(new boost::archive::polymorphic_xml_iarchive(ifs));
 	}
-	else if (Ext == _T(".txt"))
+	else if (_tcsicmp(Ext, _T(".txt")) == 0)
 	{
 		ia.reset(new boost::archive::polymorphic_text_iarchive(ifs));
 	}
