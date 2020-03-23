@@ -2,6 +2,7 @@
 
 #include "myFont.h"
 #include <boost/array.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <vector>
 #include <list>
 #include <map>
@@ -172,7 +173,7 @@ namespace my
 		}
 	};
 
-	class Control
+	class Control : public boost::enable_shared_from_this<Control>
 	{
 	public:
 		std::string m_Name;
@@ -904,6 +905,10 @@ namespace my
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
 
+	class Dialog;
+
+	typedef boost::shared_ptr<Dialog> DialogPtr;
+
 	class Dialog : public Control
 	{
 	public:
@@ -950,9 +955,11 @@ namespace my
 		virtual void Refresh(void);
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
-	};
 
-	typedef boost::shared_ptr<Dialog> DialogPtr;
+		static DialogPtr LoadFromFile(const char * path);
+
+		void SaveToFile(const char * path);
+	};
 
 	class DialogMgr
 	{
