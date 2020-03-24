@@ -904,6 +904,10 @@ namespace my
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
 
+	class Dialog;
+
+	typedef boost::shared_ptr<Dialog> DialogPtr;
+
 	class Dialog : public Control
 	{
 	public:
@@ -950,9 +954,11 @@ namespace my
 		virtual void Refresh(void);
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
-	};
 
-	typedef boost::shared_ptr<Dialog> DialogPtr;
+		static DialogPtr LoadFromFile(const char * path);
+
+		void SaveToFile(const char * path) const;
+	};
 
 	class DialogMgr
 	{

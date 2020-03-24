@@ -581,6 +581,11 @@ static void ExportUI(lua_State * L)
 			.def("Refresh", &my::Dialog::Refresh)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
+			.scope
+			[
+				def("LoadFromFile", &my::Dialog::LoadFromFile)
+			]
+			.def("SaveToFile", &my::Dialog::SaveToFile)
 
 		, class_<my::DialogMgr>("DialogMgr")
 			.property("DlgViewport", &my::DialogMgr::GetDlgViewport, &my::DialogMgr::SetDlgViewport)

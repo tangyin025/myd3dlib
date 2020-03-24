@@ -5,8 +5,15 @@
 #include "myUtility.h"
 #include "ImeUi.h"
 #include "libc.h"
+#include <fstream>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/list.hpp>
@@ -227,8 +234,8 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 	PushWindowSimple(vertex_list, start, rect, color, WindowRect, WindowBorder, TextureSize);
 }
 
-template<>
-void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void ControlImage::save(Archive & ar, const unsigned int version) const
 {
 	std::string TexturePath = my::ResourceMgr::getSingleton().GetResourceKey(m_Texture);
 	ar << BOOST_SERIALIZATION_NVP(TexturePath);
@@ -236,8 +243,8 @@ void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	ar << BOOST_SERIALIZATION_NVP(m_Border);
 }
 
-template<>
-void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void ControlImage::load(Archive & ar, const unsigned int version)
 {
 	std::string TexturePath;
 	ar >> BOOST_SERIALIZATION_NVP(TexturePath);
@@ -253,8 +260,8 @@ ControlSkin::~ControlSkin(void)
 {
 }
 
-template<>
-void ControlSkin::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void ControlSkin::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Image);
 	std::vector<std::string> FontSeq;
@@ -267,8 +274,8 @@ void ControlSkin::save<boost::archive::polymorphic_oarchive>(boost::archive::pol
 	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
 }
 
-template<>
-void ControlSkin::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void ControlSkin::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Image);
 	std::string FontPath;
@@ -331,8 +338,8 @@ Control::~Control(void)
 	ClearAllControl();
 }
 
-template<>
-void Control::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void Control::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Name);
 	ar << BOOST_SERIALIZATION_NVP(m_Childs);
@@ -345,8 +352,8 @@ void Control::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_NVP(m_Skin);
 }
 
-template<>
-void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void Control::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Name);
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
@@ -1991,8 +1998,8 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	return false;
 }
 
-template<>
-void ComboBox::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void ComboBox::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 	ar << BOOST_SERIALIZATION_NVP(m_DropdownSize);
@@ -2002,8 +2009,8 @@ void ComboBox::save<boost::archive::polymorphic_oarchive>(boost::archive::polymo
 	ar << BOOST_SERIALIZATION_NVP(m_ItemHeight);
 }
 
-template<>
-void ComboBox::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void ComboBox::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 	ar >> BOOST_SERIALIZATION_NVP(m_DropdownSize);
@@ -2408,15 +2415,15 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
-template<>
-void Dialog::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void Dialog::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
 }
 
-template<>
-void Dialog::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void Dialog::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
@@ -2555,6 +2562,49 @@ bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 		return true;
 	}
 	return false;
+}
+
+DialogPtr Dialog::LoadFromFile(const char * path)
+{
+	IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(path));
+	std::istream istr(&buff);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (_stricmp(Ext, ".xml") == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (_stricmp(Ext, ".txt") == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	DialogPtr ret;
+	*ia >> boost::serialization::make_nvp("Dialog", ret);
+	return ret;
+}
+
+void Dialog::SaveToFile(const char * path) const
+{
+	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary, _OPENPROT);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (_stricmp(Ext, ".xml") == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
+	}
+	else if (_stricmp(Ext, ".txt") == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
+	}
+	*oa << boost::serialization::make_nvp("Dialog", *this);
 }
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
