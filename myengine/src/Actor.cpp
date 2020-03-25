@@ -539,7 +539,7 @@ void Actor::SaveToFile(const char * path) const
 	{
 		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
 	}
-	*oa << boost::serialization::make_nvp("Actor", shared_from_this());
+	*oa << boost::serialization::make_nvp("Actor", boost::dynamic_pointer_cast<const Actor>(shared_from_this()));
 }
 
 void Actor::Attach(ActorPtr other, int BoneId)

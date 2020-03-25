@@ -2722,7 +2722,7 @@ void Dialog::SaveToFile(const char * path) const
 	{
 		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
 	}
-	*oa << boost::serialization::make_nvp("Dialog", shared_from_this());
+	*oa << boost::serialization::make_nvp("Dialog", boost::dynamic_pointer_cast<const Dialog>(shared_from_this()));
 }
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
