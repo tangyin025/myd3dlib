@@ -4,8 +4,14 @@
 #include "Controller.h"
 #include "PhysXContext.h"
 #include "RenderPipeline.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include "myResource.h"
+#include <fstream>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
@@ -27,8 +33,8 @@ Actor::~Actor(void)
 	}
 }
 
-template<>
-void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void Actor::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
@@ -73,8 +79,8 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	}
 }
 
-template<>
-void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void Actor::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
@@ -147,6 +153,30 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 		}
 	}
 }
+
+template
+void Actor::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void Actor::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void Actor::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void Actor::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void Actor::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void Actor::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void Actor::CopyFrom(const Actor & rhs)
 {
@@ -467,6 +497,49 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 		(*cmp_iter)->m_Actor = NULL;
 	}
 	m_Cmps.clear();
+}
+
+ActorPtr Actor::LoadFromFile(const char * path)
+{
+	IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(path));
+	std::istream istr(&buff);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (_stricmp(Ext, ".xml") == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (_stricmp(Ext, ".txt") == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	ActorPtr ret;
+	*ia >> boost::serialization::make_nvp("Actor", ret);
+	return ret;
+}
+
+void Actor::SaveToFile(const char * path) const
+{
+	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary, _OPENPROT);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (_stricmp(Ext, ".xml") == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
+	}
+	else if (_stricmp(Ext, ".txt") == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
+	}
+	*oa << boost::serialization::make_nvp("Actor", shared_from_this());
 }
 
 void Actor::Attach(ActorPtr other, int BoneId)

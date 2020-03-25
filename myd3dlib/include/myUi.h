@@ -2,6 +2,7 @@
 
 #include "myFont.h"
 #include <boost/array.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <vector>
 #include <list>
 #include <map>
@@ -172,7 +173,7 @@ namespace my
 		}
 	};
 
-	class Control
+	class Control : public boost::enable_shared_from_this<Control>
 	{
 	public:
 		std::string m_Name;

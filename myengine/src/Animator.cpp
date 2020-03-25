@@ -2,8 +2,12 @@
 #include "Character.h"
 #include "myResource.h"
 #include "PhysXContext.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
@@ -16,21 +20,45 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Animator)
 
-template<>
-void Animator::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void Animator::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ar << BOOST_SERIALIZATION_NVP(m_Node);
 }
 
-template<>
-void Animator::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void Animator::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_Node);
 	m_Node->m_Owner = this;
 	m_Node->OnSetOwner();
 }
+
+template
+void Animator::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void Animator::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void Animator::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void Animator::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void Animator::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void Animator::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void Animator::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void Animator::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void Animator::OnReady(my::IORequest * request)
 {

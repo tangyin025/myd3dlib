@@ -476,8 +476,6 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
 			.def("PlaySound", &Game::PlaySound)
-			.def("SaveDialog", &Game::SaveDialog)
-			.def("LoadDialog", &Game::LoadDialog)
 			.def("LoadScene", &Game::LoadScene)
 
 		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
@@ -887,49 +885,6 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 		const Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
 		m_Font->PushString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
 	}
-}
-
-void Game::SaveDialog(my::DialogPtr dlg, const char * path)
-{
-	std::ofstream ostr(GetFullPath(path), std::ios::binary, _OPENPROT);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
-	}
-	else
-	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
-	}
-	*oa << BOOST_SERIALIZATION_NVP(dlg);
-}
-
-my::DialogPtr Game::LoadDialog(const char * path)
-{
-	IStreamBuff buff(OpenIStream(path));
-	std::istream istr(&buff);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
-	}
-	else
-	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
-	}
-	DialogPtr dlg;
-	*ia >> BOOST_SERIALIZATION_NVP(dlg);
-	return dlg;
 }
 
 void Game::LoadScene(const char * path)

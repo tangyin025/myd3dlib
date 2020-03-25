@@ -5,8 +5,12 @@
 #include "RenderPipeline.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
@@ -139,8 +143,8 @@ MaterialParameterPtr MaterialParameterTexture::Clone(void) const
 	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name, m_TexturePath));
 }
 
-template<>
-void Material::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void Material::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Shader);
 	ar << BOOST_SERIALIZATION_NVP(m_PassMask);
@@ -151,8 +155,8 @@ void Material::save<boost::archive::polymorphic_oarchive>(boost::archive::polymo
 	ar << BOOST_SERIALIZATION_NVP(m_ParameterList);
 }
 
-template<>
-void Material::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void Material::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Shader);
 	ar >> BOOST_SERIALIZATION_NVP(m_PassMask);
@@ -162,6 +166,30 @@ void Material::load<boost::archive::polymorphic_iarchive>(boost::archive::polymo
 	ar >> BOOST_SERIALIZATION_NVP(m_BlendMode);
 	ar >> BOOST_SERIALIZATION_NVP(m_ParameterList);
 }
+
+template
+void Material::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void Material::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void Material::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void Material::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void Material::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void Material::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void Material::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void Material::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 bool Material::operator == (const Material & rhs) const
 {

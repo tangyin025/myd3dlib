@@ -1051,6 +1051,11 @@ static void ExportComponent(lua_State * L)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
+			.scope
+			[
+				def("LoadFromFile", &Actor::LoadFromFile)
+			]
+			.def("SaveToFile", &Actor::SaveToFile)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())

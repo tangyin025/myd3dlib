@@ -8,8 +8,12 @@
 #include "PhysXContext.h"
 #include "RenderPipeline.h"
 #include "libc.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
@@ -32,19 +36,43 @@ BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 
-template<>
-void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void Component::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 }
 
-template<>
-void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void Component::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 }
+
+template
+void Component::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void Component::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void Component::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void Component::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void Component::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void Component::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void Component::CopyFrom(const Component & rhs)
 {
@@ -210,8 +238,8 @@ void Component::ClearShape(void)
 	m_PxMaterial.reset();
 }
 
-template<>
-void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void MeshComponent::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
@@ -221,8 +249,8 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
-template<>
-void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void MeshComponent::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
@@ -231,6 +259,30 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
+
+template
+void MeshComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void MeshComponent::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void MeshComponent::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void MeshComponent::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void MeshComponent::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void MeshComponent::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void MeshComponent::CopyFrom(const MeshComponent & rhs)
 {
@@ -569,8 +621,8 @@ namespace boost {
 	}
 }
 
-template<>
-void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void ClothComponent::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_AttribTable);
@@ -598,8 +650,8 @@ void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
-template<>
-void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void ClothComponent::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_AttribTable);
@@ -648,6 +700,30 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 		THROW_D3DEXCEPTION(hr);
 	}
 }
+
+template
+void ClothComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void ClothComponent::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void ClothComponent::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void ClothComponent::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void ClothComponent::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void ClothComponent::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void ClothComponent::CopyFrom(const ClothComponent & rhs)
 {
@@ -1164,8 +1240,8 @@ void StaticEmitterComponent::Update(float fElapsedTime)
 {
 }
 
-template<>
-void SphericalEmitterComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void SphericalEmitterComponent::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	Emitter::ParticleList::capacity_type Capacity;
@@ -1187,8 +1263,8 @@ void SphericalEmitterComponent::save<boost::archive::polymorphic_oarchive>(boost
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
 }
 
-template<>
-void SphericalEmitterComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void SphericalEmitterComponent::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	Emitter::ParticleList::capacity_type Capacity;
@@ -1209,6 +1285,30 @@ void SphericalEmitterComponent::load<boost::archive::polymorphic_iarchive>(boost
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
 }
+
+template
+void SphericalEmitterComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void SphericalEmitterComponent::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void SphericalEmitterComponent::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void SphericalEmitterComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void SphericalEmitterComponent::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void SphericalEmitterComponent::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void SphericalEmitterComponent::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void SphericalEmitterComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void SphericalEmitterComponent::CopyFrom(const SphericalEmitterComponent & rhs)
 {

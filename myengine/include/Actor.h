@@ -154,6 +154,10 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
+	static ActorPtr LoadFromFile(const char * path);
+
+	void SaveToFile(const char * path) const;
+
 	void Attach(ActorPtr other, int BoneId);
 
 	void Dettach(ActorPtr other);
