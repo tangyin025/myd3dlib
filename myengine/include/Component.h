@@ -219,7 +219,6 @@ typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
 
 class ClothComponent
 	: public Component
-	, public my::DeviceResourceBase
 {
 public:
 	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
@@ -301,12 +300,6 @@ public:
 	virtual void OnEnterPxScene(PhysXSceneContext * scene);
 
 	virtual void OnLeavePxScene(PhysXSceneContext * scene);
-
-	virtual void OnResetDevice(void);
-
-	virtual void OnLostDevice(void);
-
-	virtual void OnDestroyDevice(void);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 

@@ -69,13 +69,11 @@ void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
 	m_vb.OnDestroyDevice();
 	m_vb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
 	void * pVertices = m_vb.Lock(0, 0, 0);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	ar >> boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_vb.Unlock();
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 }

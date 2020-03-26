@@ -690,15 +690,6 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	}
 
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
-
-	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
-	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-	velist.push_back(ve_end);
-	HRESULT hr;
-	if (FAILED(hr = D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(&velist[0], &m_Decl)))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
 }
 
 template
@@ -820,6 +811,18 @@ void ClothComponent::RequestResource(void)
 {
 	Component::RequestResource();
 
+	if (!m_Decl)
+	{
+		std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
+		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+		velist.push_back(ve_end);
+		HRESULT hr;
+		if (FAILED(hr = D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(&velist[0], &m_Decl)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+	}
+
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
 	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
@@ -829,6 +832,8 @@ void ClothComponent::RequestResource(void)
 
 void ClothComponent::ReleaseResource(void)
 {
+	m_Decl.Release();
+
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
 	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
@@ -860,19 +865,6 @@ void ClothComponent::OnLeavePxScene(PhysXSceneContext * scene)
 	}
 
 	Component::OnLeavePxScene(scene);
-}
-
-void ClothComponent::OnResetDevice(void)
-{
-}
-
-void ClothComponent::OnLostDevice(void)
-{
-}
-
-void ClothComponent::OnDestroyDevice(void)
-{
-	m_Decl.Release();
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
