@@ -1123,20 +1123,20 @@ AAAA
 								<m_HeightScale>1.000000000e+00</m_HeightScale>
 								<m_Material class_id="22" tracking_level="0" version="1">
 									<px class_id="23" tracking_level="1" version="0" object_id="_8">
-										<m_Shader>shader/mtl_splatmap1.fx</m_Shader>
+										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
 										<m_PassMask>11</m_PassMask>
 										<m_CullMode>2</m_CullMode>
 										<m_ZEnable>1</m_ZEnable>
 										<m_ZWriteEnable>1</m_ZWriteEnable>
 										<m_BlendMode>0</m_BlendMode>
 										<m_ParameterList class_id="24" tracking_level="0" version="0">
-											<count>6</count>
+											<count>3</count>
 											<item_version>1</item_version>
 											<item class_id="25" tracking_level="0" version="1">
 												<px class_id="27" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_9">
 													<MaterialParameter class_id="26" tracking_level="1" version="0" object_id="_10">
 														<m_Type>5</m_Type>
-														<m_Name>g_DiffuseTexture0</m_Name>
+														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
 													<m_TexturePath>texture/Checker.bmp</m_TexturePath>
 												</px>
@@ -1145,48 +1145,18 @@ AAAA
 												<px class_id_reference="27" object_id="_11">
 													<MaterialParameter object_id="_12">
 														<m_Type>5</m_Type>
-														<m_Name>g_DiffuseTexture1</m_Name>
+														<m_Name>g_NormalTexture</m_Name>
 													</MaterialParameter>
-													<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+													<m_TexturePath>texture/Normal.dds</m_TexturePath>
 												</px>
 											</item>
 											<item>
 												<px class_id_reference="27" object_id="_13">
 													<MaterialParameter object_id="_14">
 														<m_Type>5</m_Type>
-														<m_Name>g_DiffuseTexture2</m_Name>
+														<m_Name>g_SpecularTexture</m_Name>
 													</MaterialParameter>
-													<m_TexturePath>texture/Checker.bmp</m_TexturePath>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="27" object_id="_15">
-													<MaterialParameter object_id="_16">
-														<m_Type>5</m_Type>
-														<m_Name>g_DiffuseTexture3</m_Name>
-													</MaterialParameter>
-													<m_TexturePath>texture/Checker.bmp</m_TexturePath>
-												</px>
-											</item>
-											<item>
-												<px class_id="28" class_name="MaterialParameterFloat2" tracking_level="1" version="0" object_id="_17">
-													<MaterialParameter object_id="_18">
-														<m_Type>2</m_Type>
-														<m_Name>g_TextureScale</m_Name>
-													</MaterialParameter>
-													<m_Value class_id="29" tracking_level="0" version="0">
-														<x>8.000000000e+00</x>
-														<y>8.000000000e+00</y>
-													</m_Value>
-												</px>
-											</item>
-											<item>
-												<px class_id="30" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_19">
-													<MaterialParameter object_id="_20">
-														<m_Type>1</m_Type>
-														<m_Name>g_SpecularStrength</m_Name>
-													</MaterialParameter>
-													<m_Value>5.000000000e-01</m_Value>
+													<m_TexturePath>texture/White.dds</m_TexturePath>
 												</px>
 											</item>
 										</m_ParameterList>
@@ -1200,14 +1170,14 @@ AAAA
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACAxTQIAAAA
-gAIAAACwhjgIAAAAgAAAAAAAlzgIAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOowP
-CAADAAAAAABUO4wPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMywhjgIAAAAAM3Nzc3N
-zc3N9NaMDwcAAwAAAAAAtNeMDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABguuwIAAAA
+gAEAAAAgquwIAAAAgAIAAADgD6QGAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOgsQ
+CAADAAAAAABUOwsQAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzgD6QGAAAAAM3Nzc3N
+zc3N9NYLEAcAAwAAAAAAtNcLEAMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAjA8GAAMAOIomCAAAAAAA
-AAAAAJc4CAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzRAjFwYAAACFAAAAAM3Nzc3/////vDApCAEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiACxAGAAMAqKPhCAAAAAAA
+AAAAYLrsCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzfDzsAYAAACFAAAAAM3Nzc3/////fNC1BgEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>

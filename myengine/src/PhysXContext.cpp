@@ -5,8 +5,12 @@
 #include "myDxutApp.h"
 #include "libc.h"
 #include <extensions/PxCollectionExt.h>
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
@@ -154,8 +158,8 @@ void PhysXSceneContext::SetVisualizationParameter(float param)
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, param);
 }
 
-template<>
-void PhysXSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+template<class Archive>
+void PhysXSceneContext::save(Archive & ar, const unsigned int version) const
 {
 	const_cast<PhysXSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
 	const_cast<PhysXSceneContext *>(this)->m_Collection.reset(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
@@ -180,8 +184,8 @@ void PhysXSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archiv
 	}
 }
 
-template<>
-void PhysXSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+template<class Archive>
+void PhysXSceneContext::load(Archive & ar, const unsigned int version)
 {
 	unsigned int StreamBuffSize;
 	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
@@ -199,6 +203,30 @@ void PhysXSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archiv
 		m_CollectionObjs.insert(std::make_pair(key, boost::shared_ptr<physx::PxBase>(m_Collection->find(id), PhysXDeleter<physx::PxBase>())));
 	}
 }
+
+template
+void PhysXSceneContext::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void PhysXSceneContext::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+
+template
+void PhysXSceneContext::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+
+template
+void PhysXSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+
+template
+void PhysXSceneContext::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template
+void PhysXSceneContext::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+
+template
+void PhysXSceneContext::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void PhysXSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void PhysXSceneContext::ClearSerializedObjs(void)
 {
