@@ -36,7 +36,7 @@ Actor::~Actor(void)
 template<class Archive>
 void Actor::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctEntity);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Position);
 	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
@@ -82,7 +82,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Actor::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctEntity);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Position);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
@@ -376,8 +376,8 @@ void Actor::UpdateOctNode(void)
 	{
 		ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(shared_from_this());
 		my::OctNode * Root = m_Node->GetTopNode();
-		Root->RemoveActor(actor_ptr);
-		Root->AddActor(actor_ptr, m_aabb.transform(m_World));
+		Root->RemoveEntity(actor_ptr);
+		Root->AddEntity(actor_ptr, m_aabb.transform(m_World));
 	}
 }
 //

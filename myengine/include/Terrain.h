@@ -8,7 +8,7 @@
 class Terrain;
 
 class TerrainChunk
-	: public my::OctActor
+	: public my::OctEntity
 {
 public:
 	my::AABB m_aabb;

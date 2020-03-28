@@ -809,15 +809,15 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 		}
 
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
+			_ASSERT(dynamic_cast<Actor *>(oct_entity));
+			Actor * actor = static_cast<Actor *>(oct_entity);
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
 
-	QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
+	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
 }
 
 void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
@@ -859,9 +859,9 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		{
 		}
 
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			Actor * actor = dynamic_cast<Actor *>(oct_actor);
+			Actor * actor = dynamic_cast<Actor *>(oct_entity);
 			if (!actor->IsRequested())
 			{
 				actor->RequestResource();
@@ -873,7 +873,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	};
 
 	Callback cb(m_ViewedActors, this, In);
-	QueryActor(In, &cb);
+	QueryEntity(In, &cb);
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)

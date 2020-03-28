@@ -9,7 +9,7 @@
 
 namespace my
 {
-	class OctActor : public boost::enable_shared_from_this<OctActor>
+	class OctEntity : public boost::enable_shared_from_this<OctEntity>
 	{
 	public:
 		friend class OctNode;
@@ -17,12 +17,12 @@ namespace my
 		OctNode * m_Node;
 
 	public:
-		OctActor(void)
+		OctEntity(void)
 			: m_Node(NULL)
 		{
 		}
 
-		virtual ~OctActor(void)
+		virtual ~OctEntity(void)
 		{
 			_ASSERT(!m_Node);
 		}
@@ -35,7 +35,7 @@ namespace my
 		const AABB & GetOctAABB(void) const;
 	};
 
-	typedef boost::shared_ptr<OctActor> OctActorPtr;
+	typedef boost::shared_ptr<OctEntity> OctEntityPtr;
 
 	class OctNode
 	{
@@ -43,7 +43,7 @@ namespace my
 		struct QueryCallback
 		{
 		public:
-			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
+			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
 		};
 
 		static const float THRESHOLD;
@@ -56,9 +56,9 @@ namespace my
 
 		Vector3 m_Half;
 
-		typedef std::map<OctActorPtr, AABB> OctActorMap;
+		typedef std::map<OctEntityPtr, AABB> OctEntityMap;
 
-		OctActorMap m_Actors;
+		OctEntityMap m_Entities;
 
 		typedef std::array<boost::shared_ptr<OctNode>, AABB::QuadrantNum> ChildArray;
 
@@ -103,21 +103,21 @@ namespace my
 
 		OctNode * GetTopNode(void);
 
-		void AddActor(OctActorPtr actor, const AABB & aabb);
+		void AddEntity(OctEntityPtr entity, const AABB & aabb);
 
-		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb);
+		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntityPtr entity, const AABB & aabb);
 
-		void QueryActor(const Ray & ray, QueryCallback * callback) const;
+		void QueryEntity(const Ray & ray, QueryCallback * callback) const;
 
-		void QueryActor(const AABB & aabb, QueryCallback * callback) const;
+		void QueryEntity(const AABB & aabb, QueryCallback * callback) const;
 
-		void QueryActor(const Frustum & frustum, QueryCallback * callback) const;
+		void QueryEntity(const Frustum & frustum, QueryCallback * callback) const;
 
-		void QueryActorAll(QueryCallback * callback) const;
+		void QueryEntityAll(QueryCallback * callback) const;
 
-		bool RemoveActor(OctActorPtr actor);
+		bool RemoveEntity(OctEntityPtr entity);
 
-		void ClearAllActorInCurrentNode(void);
+		void ClearAllEntityInCurrentNode(void);
 
 		void ClearAllNode(void);
 

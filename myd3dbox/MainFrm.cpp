@@ -616,7 +616,7 @@ void CMainFrame::OnFileNew()
 
 	//actor->RequestResource();
 	//actor->OnEnterPxScene(this);
-	//AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	//AddEntity(actor, actor->m_aabb.transform(actor->m_World));
 
 	//m_selactors.clear();
 	//m_selactors.insert(actor.get());
@@ -701,7 +701,7 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
-	AddActor(actor, actor->m_aabb.transform(actor->m_World));
+	AddEntity(actor, actor->m_aabb.transform(actor->m_World));
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 
@@ -721,7 +721,7 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f));
 	character->UpdateWorld();
-	AddActor(character, character->m_aabb.transform(character->m_World));
+	AddEntity(character, character->m_aabb.transform(character->m_World));
 	character->RequestResource();
 	character->OnEnterPxScene(this);
 
@@ -969,7 +969,7 @@ void CMainFrame::OnEditDelete()
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->OnLeavePxScene(this);
-		(*actor_iter)->m_Node->GetTopNode()->RemoveActor((*actor_iter)->shared_from_this());
+		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
 	OnSelChanged();
@@ -1109,11 +1109,11 @@ void CMainFrame::OnToolsBuildnavigation()
 		Callback(void)
 		{
 		}
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
-			Actor * actor = dynamic_cast<Actor *>(oct_actor);
+			Actor * actor = dynamic_cast<Actor *>(oct_entity);
 			ASSERT(actor);
 			if (!actor->m_PxActor || !actor->m_PxActor->isRigidStatic())
 			{
@@ -1228,7 +1228,7 @@ void CMainFrame::OnToolsBuildnavigation()
 			}
 		}
 	};
-	QueryActorAll(&Callback());
+	QueryEntityAll(&Callback());
 
 	//if (!m_keepInterResults)
 	//{

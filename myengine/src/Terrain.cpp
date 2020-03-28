@@ -53,7 +53,7 @@ TerrainChunk::~TerrainChunk(void)
 template<class Archive>
 void TerrainChunk::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctEntity);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
@@ -67,7 +67,7 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void TerrainChunk::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctEntity);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
@@ -267,7 +267,7 @@ Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 		for (unsigned int j = 0; j < m_Chunks.shape()[1]; j++)
 		{
 			TerrainChunkPtr chunk(new TerrainChunk(i, j, m_ChunkSize));
-			AddActor(chunk, chunk->m_aabb);
+			AddEntity(chunk, chunk->m_aabb);
 			m_Chunks[i][j] = chunk.get();
 			chunk->UpdateVertices<unsigned char>(desc_h, lrc_h, 1.0f);
 			chunk->UpdateColors(desc_c, lrc_c);
@@ -524,13 +524,13 @@ void Terrain::load(Archive & ar, const unsigned int version)
 			: terrain(_terrain)
 		{
 		}
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
+			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Col] = chunk;
 		}
 	};
-	QueryActorAll(&Callback(this));
+	QueryEntityAll(&Callback(this));
 }
 
 template
@@ -630,9 +630,9 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, terrain(_terrain)
 		{
 		}
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
+			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 			const unsigned int lod[5] =
 			{
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos),
@@ -670,7 +670,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		QueryActor(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
+		QueryEntity(LocalFrustum, &Callback(pipeline, PassMask, LocalViewPos, this));
 	}
 }
 
@@ -760,8 +760,8 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 			}
 			m_Chunks[i][j]->UpdateAABB();
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
-			RemoveActor(chunk);
-			AddActor(chunk, chunk->m_aabb);
+			RemoveEntity(chunk);
+			AddEntity(chunk, chunk->m_aabb);
 		}
 	}
 	HeightMap->UnlockRect(0);

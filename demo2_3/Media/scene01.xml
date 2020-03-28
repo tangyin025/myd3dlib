@@ -70,13 +70,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 		<y>0.000000000e+00</y>
 		<z>0.000000000e+00</z>
 	</m_Half>
-	<cb.actor_list class_id="6" tracking_level="0" version="0">
+	<cb.entity_list class_id="6" tracking_level="0" version="0">
 		<count>1</count>
 		<item_version>0</item_version>
 		<item class_id="7" tracking_level="0" version="0">
 			<first class_id="8" tracking_level="0" version="1">
 				<px class_id="10" class_name="Actor" tracking_level="1" version="0" object_id="_1">
-					<OctActor class_id="9" tracking_level="1" version="0" object_id="_2"></OctActor>
+					<OctEntity class_id="9" tracking_level="1" version="0" object_id="_2"></OctEntity>
 					<m_aabb>
 						<m_min>
 							<x>0.000000000e+00</x>
@@ -158,13 +158,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 										<y>1.600000000e+01</y>
 										<z>1.600000000e+01</z>
 									</m_Half>
-									<cb.actor_list>
+									<cb.entity_list>
 										<count>1</count>
 										<item_version>0</item_version>
 										<item>
 											<first>
 												<px class_id="21" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_6">
-													<OctActor object_id="_7"></OctActor>
+													<OctEntity object_id="_7"></OctEntity>
 													<m_aabb>
 														<m_min>
 															<x>0.000000000e+00</x>
@@ -1115,7 +1115,7 @@ AAAA
 												</m_max>
 											</second>
 										</item>
-									</cb.actor_list>
+									</cb.entity_list>
 								</OctRoot>
 								<m_RowChunks>1</m_RowChunks>
 								<m_ColChunks>1</m_ColChunks>
@@ -1170,14 +1170,14 @@ AAAA
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABguuwIAAAA
-gAEAAAAgquwIAAAAgAIAAADgD6QGAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOgsQ
-CAADAAAAAABUOwsQAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzgD6QGAAAAAM3Nzc3N
-zc3N9NYLEAcAAwAAAAAAtNcLEAMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABgHvMIAAAA
+gAEAAADQ+PkIAAAAgAIAAAAgDvMIAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOj0Q
+CAADAAAAAABUOz0QAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwgDvMIAAAAAM3Nzc3N
+zc3N9NY9EAcAAwAAAAAAtNc9EAMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiACxAGAAMAqKPhCAAAAAAA
-AAAAYLrsCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzfDzsAYAAACFAAAAAM3Nzc3/////fNC1BgEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAPRAGAAMAcFDpCAAAAAAA
+AAAAYB7zCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzYAP1gYAAACFAAAAAM3Nzc3/////TIzZBgEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>
@@ -1196,7 +1196,7 @@ AA==
 				</m_max>
 			</second>
 		</item>
-	</cb.actor_list>
+	</cb.entity_list>
 </OctRoot>
 </boost_serialization>
 

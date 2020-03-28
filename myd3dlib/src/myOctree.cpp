@@ -19,17 +19,17 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(OctActor)
+BOOST_CLASS_EXPORT(OctEntity)
 
-const AABB & OctActor::GetOctAABB(void) const
+const AABB & OctEntity::GetOctAABB(void) const
 {
 	_ASSERT(m_Node);
 
-	OctNode::OctActorMap::const_iterator actor_iter = m_Node->m_Actors.find(boost::const_pointer_cast<OctActor>(shared_from_this()));
+	OctNode::OctEntityMap::const_iterator entity_iter = m_Node->m_Entities.find(boost::const_pointer_cast<OctEntity>(shared_from_this()));
 
-	_ASSERT(actor_iter != m_Node->m_Actors.end());
+	_ASSERT(entity_iter != m_Node->m_Entities.end());
 
-	return actor_iter->second;
+	return entity_iter->second;
 }
 
 BOOST_CLASS_EXPORT(OctNode)
@@ -43,7 +43,7 @@ void OctNode::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Half);
-	//ar << BOOST_SERIALIZATION_NVP(m_Actors);
+	//ar << BOOST_SERIALIZATION_NVP(m_Entities);
 	ar << BOOST_SERIALIZATION_NVP(m_Childs);
 }
 
@@ -52,11 +52,11 @@ void OctNode::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Half);
-	//ar >> BOOST_SERIALIZATION_NVP(m_Actors);
-	//OctActorMap::iterator actor_iter = m_Actors.begin();
-	//for (; actor_iter != m_Actors.end(); actor_iter++)
+	//ar >> BOOST_SERIALIZATION_NVP(m_Entities);
+	//OctEntityMap::iterator entity_iter = m_Entities.begin();
+	//for (; entity_iter != m_Entities.end(); entity_iter++)
 	//{
-	//	actor_iter->first->m_Node = this;
+	//	entity_iter->first->m_Node = this;
 	//}
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
@@ -128,9 +128,9 @@ OctNode * OctNode::GetTopNode(void)
 	return m_Parent->GetTopNode();
 }
 
-void OctNode::AddActor(OctActorPtr actor, const AABB & aabb)
+void OctNode::AddEntity(OctEntityPtr entity, const AABB & aabb)
 {
-	_ASSERT(!actor->m_Node);
+	_ASSERT(!entity->m_Node);
 	if (m_aabb.m_max.x - m_aabb.m_min.x > MIN_BLOCK + THRESHOLD || m_aabb.m_max.y - m_aabb.m_min.y > MIN_BLOCK + THRESHOLD || m_aabb.m_max.z - m_aabb.m_min.z > MIN_BLOCK + THRESHOLD)
 	{
 		if (aabb.m_min.x > m_Half.x - THRESHOLD && aabb.m_max.x < m_aabb.m_max.x + THRESHOLD)
@@ -139,12 +139,12 @@ void OctNode::AddActor(OctActorPtr actor, const AABB & aabb)
 			{
 				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyPz], m_aabb.Slice<AABB::QuadrantPxPyPz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxPyPz], m_aabb.Slice<AABB::QuadrantPxPyPz>(m_Half), entity, aabb);
 					return;
 				}
 				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyNz], m_aabb.Slice<AABB::QuadrantPxPyNz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxPyNz], m_aabb.Slice<AABB::QuadrantPxPyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
@@ -152,12 +152,12 @@ void OctNode::AddActor(OctActorPtr actor, const AABB & aabb)
 			{
 				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyPz], m_aabb.Slice<AABB::QuadrantPxNyPz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxNyPz], m_aabb.Slice<AABB::QuadrantPxNyPz>(m_Half), entity, aabb);
 					return;
 				}
 				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyNz], m_aabb.Slice<AABB::QuadrantPxNyNz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxNyNz], m_aabb.Slice<AABB::QuadrantPxNyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
@@ -168,12 +168,12 @@ void OctNode::AddActor(OctActorPtr actor, const AABB & aabb)
 			{
 				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyPz], m_aabb.Slice<AABB::QuadrantNxPyPz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxPyPz], m_aabb.Slice<AABB::QuadrantNxPyPz>(m_Half), entity, aabb);
 					return;
 				}
 				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyNz], m_aabb.Slice<AABB::QuadrantNxPyNz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxPyNz], m_aabb.Slice<AABB::QuadrantNxPyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
@@ -181,38 +181,38 @@ void OctNode::AddActor(OctActorPtr actor, const AABB & aabb)
 			{
 				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyPz], m_aabb.Slice<AABB::QuadrantNxNyPz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxNyPz], m_aabb.Slice<AABB::QuadrantNxNyPz>(m_Half), entity, aabb);
 					return;
 				}
 				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyNz], m_aabb.Slice<AABB::QuadrantNxNyNz>(m_Half), actor, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxNyNz], m_aabb.Slice<AABB::QuadrantNxNyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
 		}
 	}
-	m_Actors.insert(std::make_pair(actor, aabb));
-	actor->m_Node = this;
+	m_Entities.insert(std::make_pair(entity, aabb));
+	entity->m_Node = this;
 }
 
-void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctActorPtr actor, const AABB & aabb)
+void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntityPtr entity, const AABB & aabb)
 {
 	if (!child)
 	{
 		child.reset(new OctNode(this, child_aabb));
 	}
-	child->AddActor(actor, aabb);
+	child->AddEntity(entity, aabb);
 }
 
-void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
+void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 {
-	OctActorMap::const_iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
+	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
+	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		if (IntersectionTests::rayAndAABB(ray.p, ray.d, actor_iter->second).first)
+		if (IntersectionTests::rayAndAABB(ray.p, ray.d, entity_iter->second).first)
 		{
-			callback->OnQueryActor(actor_iter->first.get(), actor_iter->second, IntersectionTests::IntersectionTypeRay);
+			callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, IntersectionTests::IntersectionTypeRay);
 		}
 	}
 
@@ -223,23 +223,23 @@ void OctNode::QueryActor(const Ray & ray, QueryCallback * callback) const
 		{
 			if (IntersectionTests::rayAndAABB(ray.p, ray.d, (*node_iter)->m_aabb).first)
 			{
-				(*node_iter)->QueryActor(ray, callback);
+				(*node_iter)->QueryEntity(ray, callback);
 			}
 		}
 	}
 }
 
-void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
+void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 {
-	OctActorMap::const_iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
+	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
+	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor_iter->second, aabb);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(entity_iter->second, aabb);
 		switch (intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			callback->OnQueryActor(actor_iter->first.get(), actor_iter->second, intersect_type);
+			callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, intersect_type);
 			break;
 		}
 	}
@@ -252,28 +252,28 @@ void OctNode::QueryActor(const AABB & aabb, QueryCallback * callback) const
 			switch (IntersectionTests::IntersectAABBAndAABB((*node_iter)->m_aabb, aabb))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				(*node_iter)->QueryActorAll(callback);
+				(*node_iter)->QueryEntityAll(callback);
 				break;
 
 			case IntersectionTests::IntersectionTypeIntersect:
-				(*node_iter)->QueryActor(aabb, callback);
+				(*node_iter)->QueryEntity(aabb, callback);
 				break;
 			}
 		}
 	}
 }
 
-void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) const
+void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) const
 {
-	OctActorMap::const_iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
+	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
+	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(actor_iter->second, frustum);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(entity_iter->second, frustum);
 		switch (intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			callback->OnQueryActor(actor_iter->first.get(), actor_iter->second, intersect_type);
+			callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, intersect_type);
 			break;
 		}
 	}
@@ -286,23 +286,23 @@ void OctNode::QueryActor(const Frustum & frustum, QueryCallback * callback) cons
 			switch (IntersectionTests::IntersectAABBAndFrustum((*node_iter)->m_aabb, frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				(*node_iter)->QueryActorAll(callback);
+				(*node_iter)->QueryEntityAll(callback);
 				break;
 
 			case IntersectionTests::IntersectionTypeIntersect:
-				(*node_iter)->QueryActor(frustum, callback);
+				(*node_iter)->QueryEntity(frustum, callback);
 				break;
 			}
 		}
 	}
 }
 
-void OctNode::QueryActorAll(QueryCallback * callback) const
+void OctNode::QueryEntityAll(QueryCallback * callback) const
 {
-	OctActorMap::const_iterator actor_iter = m_Actors.begin();
-	for(; actor_iter != m_Actors.end(); actor_iter++)
+	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
+	for(; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		callback->OnQueryActor(actor_iter->first.get(), actor_iter->second, IntersectionTests::IntersectionTypeInside);
+		callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, IntersectionTests::IntersectionTypeInside);
 	}
 
 	ChildArray::const_iterator node_iter = m_Childs.begin();
@@ -310,41 +310,41 @@ void OctNode::QueryActorAll(QueryCallback * callback) const
 	{
 		if (*node_iter)
 		{
-			(*node_iter)->QueryActorAll(callback);
+			(*node_iter)->QueryEntityAll(callback);
 		}
 	}
 }
 
-bool OctNode::RemoveActor(OctActorPtr actor)
+bool OctNode::RemoveEntity(OctEntityPtr entity)
 {
-	if (actor->m_Node)
+	if (entity->m_Node)
 	{
-		_ASSERT(HaveNode(actor->m_Node));
-		OctActorMap::iterator actor_iter = actor->m_Node->m_Actors.find(actor);
-		if (actor_iter != actor->m_Node->m_Actors.end())
+		_ASSERT(HaveNode(entity->m_Node));
+		OctEntityMap::iterator entity_iter = entity->m_Node->m_Entities.find(entity);
+		if (entity_iter != entity->m_Node->m_Entities.end())
 		{
-			actor->m_Node->m_Actors.erase(actor_iter);
-			actor->m_Node = NULL;
+			entity->m_Node->m_Entities.erase(entity_iter);
+			entity->m_Node = NULL;
 			return true;
 		}
 	}
 	return false;
 }
 
-void OctNode::ClearAllActorInCurrentNode(void)
+void OctNode::ClearAllEntityInCurrentNode(void)
 {
-	OctActorMap::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
+	OctEntityMap::iterator entity_iter = m_Entities.begin();
+	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		_ASSERT(actor_iter->first->m_Node == this);
-		actor_iter->first->m_Node = NULL;
+		_ASSERT(entity_iter->first->m_Node == this);
+		entity_iter->first->m_Node = NULL;
 	}
-	m_Actors.clear();
+	m_Entities.clear();
 }
 
 void OctNode::ClearAllNode(void)
 {
-	ClearAllActorInCurrentNode();
+	ClearAllEntityInCurrentNode();
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
@@ -363,7 +363,7 @@ void OctNode::Flush(void)
 		if (m_Childs[i])
 		{
 			m_Childs[i]->Flush();
-			if (m_Childs[i]->m_Actors.empty()
+			if (m_Childs[i]->m_Entities.empty()
 				&& boost::algorithm::none_of(m_Childs[i]->m_Childs, boost::lambda::_1))
 			{
 				m_Childs[i].reset();
@@ -380,20 +380,20 @@ void OctRoot::save(Archive & ar, const unsigned int version) const
 	class Callback: public QueryCallback
 	{
 	public:
-		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
+		std::vector<std::pair<OctEntityPtr, AABB> > entity_list;
 
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			_ASSERT(oct_actor);
-			actor_list.push_back(std::make_pair(oct_actor->shared_from_this(), aabb));
+			_ASSERT(oct_entity);
+			entity_list.push_back(std::make_pair(oct_entity->shared_from_this(), aabb));
 		}
 	};
 
 	Callback cb;
-	QueryActorAll(&cb);
+	QueryEntityAll(&cb);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Half);
-	ar << BOOST_SERIALIZATION_NVP(cb.actor_list);
+	ar << BOOST_SERIALIZATION_NVP(cb.entity_list);
 }
 
 template<class Archive>
@@ -402,17 +402,17 @@ void OctRoot::load(Archive & ar, const unsigned int version)
 	class Callback
 	{
 	public:
-		std::vector<std::pair<OctActorPtr, AABB> > actor_list;
+		std::vector<std::pair<OctEntityPtr, AABB> > entity_list;
 	};
 
 	Callback cb;
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Half);
-	ar >> BOOST_SERIALIZATION_NVP(cb.actor_list);
-	std::vector<std::pair<OctActorPtr, AABB> >::iterator actor_iter = cb.actor_list.begin();
-	for (; actor_iter != cb.actor_list.end(); actor_iter++)
+	ar >> BOOST_SERIALIZATION_NVP(cb.entity_list);
+	std::vector<std::pair<OctEntityPtr, AABB> >::iterator entity_iter = cb.entity_list.begin();
+	for (; entity_iter != cb.entity_list.end(); entity_iter++)
 	{
-		AddActor(actor_iter->first, actor_iter->second);
+		AddEntity(entity_iter->first, entity_iter->second);
 	}
 }
 

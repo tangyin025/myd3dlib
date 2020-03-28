@@ -189,10 +189,10 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pFrame(_pFrame)
 		{
 		}
-		virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
-			ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
+			ASSERT(dynamic_cast<Actor *>(oct_entity));
+			Actor * actor = static_cast<Actor *>(oct_entity);
 			if (!actor->IsRequested())
 			{
 				actor->RequestResource();
@@ -202,7 +202,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-	pFrame->QueryActor(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame));
+	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
@@ -728,9 +728,9 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, ret(false, FLT_MAX)
 				{
 				}
-				virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
-					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
+					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 					const Terrain::Fragment & frag = terrain->GetFragment(
 						terrain->CalculateLod(chunk->m_Row, chunk->m_Col, ViewPos),
 						terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, ViewPos),
@@ -759,7 +759,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
 			Callback cb(local_ray, LocalViewPos, this, terrain);
-			terrain->QueryActor(local_ray, &cb);
+			terrain->QueryEntity(local_ray, &cb);
 			if (cb.ret.first)
 			{
 				return cb.ret;
@@ -1123,9 +1123,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
-				Actor * actor = dynamic_cast<Actor *>(oct_actor);
+				Actor * actor = dynamic_cast<Actor *>(oct_entity);
 				ASSERT(actor);
 				if (pView->OverlapTestFrustumAndActor(ftm, actor))
 				{
@@ -1133,7 +1133,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				}
 			}
 		};
-		pFrame->QueryActor(ftm, &Callback(pFrame->m_selactors, ftm, this));
+		pFrame->QueryEntity(ftm, &Callback(pFrame->m_selactors, ftm, this));
 	}
 	else
 	{
@@ -1152,9 +1152,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, selchunkid(0, 0)
 			{
 			}
-			virtual void OnQueryActor(my::OctActor * oct_actor, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
-				Actor * actor = dynamic_cast<Actor *>(oct_actor);
+				Actor * actor = dynamic_cast<Actor *>(oct_entity);
 				ASSERT(actor);
 				my::RayResult ret = pView->OverlapTestRayAndActor(ray, actor);
 				if (ret.first && ret.second < seldist)
@@ -1166,7 +1166,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		Callback cb(ray, this);
-		pFrame->QueryActor(ray, &cb);
+		pFrame->QueryEntity(ray, &cb);
 		if (cb.selact)
 		{
 			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cb.selact);
@@ -1229,7 +1229,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				pFrame->AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
+				pFrame->AddEntity(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				new_acts.insert(new_actor.get());

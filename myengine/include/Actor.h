@@ -16,7 +16,7 @@ class Attacher;
 typedef boost::shared_ptr<Attacher> AttacherPtr;
 
 class Actor
-	: public my::OctActor
+	: public my::OctEntity
 {
 public:
 	boost::shared_ptr<unsigned char> m_SerializeBuff;

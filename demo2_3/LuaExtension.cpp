@@ -148,7 +148,7 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
-my::OctActorPtr actor2oct(ActorPtr actor)
+my::OctEntityPtr actor2oct(ActorPtr actor)
 {
 	return actor;
 }
@@ -400,11 +400,11 @@ static void ExportMath(lua_State * L)
 			.def(constructor<unsigned int>())
 			.def("RemoveAllParticle", &my::Emitter::RemoveAllParticle)
 
-		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")
+		, class_<my::OctEntity, boost::shared_ptr<my::OctEntity> >("OctEntity")
 
 		, class_<my::OctNode, boost::shared_ptr<my::OctNode> >("OctNode")
-			.def("AddActor", &my::OctNode::AddActor)
-			.def("RemoveActor", &my::OctNode::RemoveActor)
+			.def("AddEntity", &my::OctNode::AddEntity)
+			.def("RemoveEntity", &my::OctNode::RemoveEntity)
 			.def("ClearAllNode", &my::OctNode::ClearAllNode)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
@@ -1016,7 +1016,7 @@ static void ExportComponent(lua_State * L)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
 
-		, class_<Actor, my::OctActor, boost::shared_ptr<Actor> >("Actor")
+		, class_<Actor, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
@@ -1107,7 +1107,7 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 
 		, def("actor2oct", actor2oct)
-		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
+		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctEntity, Actor>)
 		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
 }
