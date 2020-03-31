@@ -969,6 +969,7 @@ void CMainFrame::OnEditDelete()
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->OnLeavePxScene(this);
+		(*actor_iter)->ReleaseResource();
 		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
