@@ -223,7 +223,7 @@ namespace my
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
 			, m_nHotkey(0)
-			, m_Location(100, 100)
+			, m_Location(0, 0)
 			, m_Size(100, 100)
 			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
 			, m_Parent(NULL)

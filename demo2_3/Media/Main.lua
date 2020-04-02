@@ -1,6 +1,9 @@
 require "Settings.lua"
 require "Hud.lua"
 
+-- 关闭控制台
+game.Console.Visible=false
+
 -- 设置相机
 local k=math.cos(math.rad(45))
 local d=20

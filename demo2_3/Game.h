@@ -45,6 +45,8 @@ public:
 
 	std::string m_InitScript;
 
+	my::Vector3 m_ViewedCenter;
+
 	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
 
 	WeakActorMap m_ViewedActors;

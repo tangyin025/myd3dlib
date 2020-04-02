@@ -4,12 +4,13 @@
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
+#include "Console.h"
+#include "Material.h"
+#include "RenderPipeline.h"
 #include "Character.h"
 #include "Animator.h"
 #include "Controller.h"
 #include "Terrain.h"
-#include "Material.h"
-#include "RenderPipeline.h"
 
 namespace luabind
 {
@@ -153,11 +154,31 @@ my::OctEntityPtr actor2oct(ActorPtr actor)
 	return actor;
 }
 
-static void ExportMath(lua_State * L)
+static DWORD ARGB(int a, int r, int g, int b)
 {
+	return D3DCOLOR_ARGB(a,r,g,b);
+}
+
+LuaContext::LuaContext(void)
+	: m_State(NULL)
+{
+}
+
+void LuaContext::Init(void)
+{
+	m_State = luaL_newstate();
+	luaL_openlibs(m_State);
+	luabind::open(m_State);
+
+	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
+	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
+
+	//// ! 为什么不起作用
+	//set_pcall_callback(add_file_and_line);
+
 	using namespace luabind;
-	module(L)
-	[
+
+	module(m_State)[
 		class_<my::Vector2>("Vector2")
 			.def(constructor<float, float>())
 			.def_readwrite("x", &my::Vector2::x)
@@ -207,13 +228,13 @@ static void ExportMath(lua_State * L)
 			.def("lerpSelf", &my::Vector3::lerpSelf)
 			.def("normalize", &my::Vector3::normalize)
 			.def("normalizeSelf", &my::Vector3::normalizeSelf)
-			.def("transform", (my::Vector4 (my::Vector3::*)(const my::Matrix4 &) const)&my::Vector3::transform)
+			.def("transform", (my::Vector4(my::Vector3::*)(const my::Matrix4 &) const)&my::Vector3::transform)
 			.def("transformTranspose", &my::Vector3::transformTranspose)
 			.def("transformCoord", &my::Vector3::transformCoord)
 			.def("transformCoordTranspose", &my::Vector3::transformCoordTranspose)
 			.def("transformNormal", &my::Vector3::transformNormal)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
-			.def("transform", (my::Vector3 (my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
+			.def("transform", (my::Vector3(my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
 
 		, class_<my::Vector4>("Vector4")
 			.def(constructor<float, float, float, float>())
@@ -250,20 +271,20 @@ static void ExportMath(lua_State * L)
 			.def("intersectSelf", &my::Rectangle::intersectSelf)
 			.def("Union", &my::Rectangle::Union)
 			.def("unionSelf", &my::Rectangle::unionSelf)
-			.def("offset", (my::Rectangle (my::Rectangle::*)(float, float) const)&my::Rectangle::offset)
+			.def("offset", (my::Rectangle(my::Rectangle::*)(float, float) const)&my::Rectangle::offset)
 			.def("offsetSelf", (my::Rectangle & (my::Rectangle::*)(float, float))&my::Rectangle::offsetSelf)
-			.def("offset", (my::Rectangle (my::Rectangle::*)(const my::Vector2 &) const)&my::Rectangle::offset)
+			.def("offset", (my::Rectangle(my::Rectangle::*)(const my::Vector2 &) const)&my::Rectangle::offset)
 			.def("offsetSelf", (my::Rectangle & (my::Rectangle::*)(const my::Vector2 &))&my::Rectangle::offsetSelf)
-			.def("shrink", (my::Rectangle (my::Rectangle::*)(float, float) const)&my::Rectangle::shrink)
+			.def("shrink", (my::Rectangle(my::Rectangle::*)(float, float) const)&my::Rectangle::shrink)
 			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(float, float))&my::Rectangle::shrinkSelf)
-			.def("shrink", (my::Rectangle (my::Rectangle::*)(const my::Vector2 &) const)&my::Rectangle::shrink)
+			.def("shrink", (my::Rectangle(my::Rectangle::*)(const my::Vector2 &) const)&my::Rectangle::shrink)
 			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(const my::Vector2 &))&my::Rectangle::shrinkSelf)
-			.def("shrink", (my::Rectangle (my::Rectangle::*)(float, float, float, float) const)&my::Rectangle::shrink)
+			.def("shrink", (my::Rectangle(my::Rectangle::*)(float, float, float, float) const)&my::Rectangle::shrink)
 			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(float, float, float, float))&my::Rectangle::shrinkSelf)
-			.def("shrink", (my::Rectangle (my::Rectangle::*)(const my::Vector4 &) const)&my::Rectangle::shrink)
+			.def("shrink", (my::Rectangle(my::Rectangle::*)(const my::Vector4 &) const)&my::Rectangle::shrink)
 			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(const my::Vector4 &))&my::Rectangle::shrinkSelf)
-			.def("LeftTop", (my::Vector2 (my::Rectangle::*)(void) const)&my::Rectangle::LeftTop)
-			.def("RightBottom", (my::Vector2 (my::Rectangle::*)(void) const)&my::Rectangle::RightBottom)
+			.def("LeftTop", (my::Vector2(my::Rectangle::*)(void) const)&my::Rectangle::LeftTop)
+			.def("RightBottom", (my::Vector2(my::Rectangle::*)(void) const)&my::Rectangle::RightBottom)
 			.def("Center", &my::Rectangle::Center)
 			.def("Width", &my::Rectangle::Width)
 			.def("Height", &my::Rectangle::Height)
@@ -271,24 +292,24 @@ static void ExportMath(lua_State * L)
 			.def("PtInRect", &my::Rectangle::PtInRect)
 			.scope
 			[
-				def("LeftTop", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::LeftTop),
-				def("LeftTop", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftTop),
-				def("LeftMiddle", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::LeftMiddle),
-				def("LeftMiddle", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftMiddle),
-				def("LeftBottom", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::LeftBottom),
-				def("LeftBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftBottom),
-				def("CenterTop", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::CenterTop),
-				def("CenterTop", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterTop),
-				def("CenterMiddle", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::CenterMiddle),
-				def("CenterMiddle", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterMiddle),
-				def("CenterBottom", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::CenterBottom),
-				def("CenterBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterBottom),
-				def("RightTop", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::RightTop),
-				def("RightTop", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightTop),
-				def("RightMiddle", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::RightMiddle),
-				def("RightMiddle", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightMiddle),
-				def("RightBottom", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::RightBottom),
-				def("RightBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightBottom)
+				def("LeftTop", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::LeftTop),
+				def("LeftTop", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftTop),
+				def("LeftMiddle", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::LeftMiddle),
+				def("LeftMiddle", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftMiddle),
+				def("LeftBottom", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::LeftBottom),
+				def("LeftBottom", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftBottom),
+				def("CenterTop", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::CenterTop),
+				def("CenterTop", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterTop),
+				def("CenterMiddle", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::CenterMiddle),
+				def("CenterMiddle", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterMiddle),
+				def("CenterBottom", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::CenterBottom),
+				def("CenterBottom", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterBottom),
+				def("RightTop", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::RightTop),
+				def("RightTop", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightTop),
+				def("RightMiddle", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::RightMiddle),
+				def("RightMiddle", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightMiddle),
+				def("RightBottom", (my::Rectangle(*)(float, float, float, float))&my::Rectangle::RightBottom),
+				def("RightBottom", (my::Rectangle(*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightBottom)
 			]
 
 		, class_<my::Quaternion>("Quaternion")
@@ -344,16 +365,16 @@ static void ExportMath(lua_State * L)
 			.def("multiplyTranspose", &my::Matrix4::multiplyTranspose)
 			.def("transpose", &my::Matrix4::transpose)
 			.def("transformTranspose", &my::Matrix4::transformTranspose)
-			.def("scale", (my::Matrix4 (my::Matrix4::*)(float, float, float) const)&my::Matrix4::scale)
-			.def("scale", (my::Matrix4 (my::Matrix4::*)(const my::Vector3 &) const)&my::Matrix4::scale)
+			.def("scale", (my::Matrix4(my::Matrix4::*)(float, float, float) const)&my::Matrix4::scale)
+			.def("scale", (my::Matrix4(my::Matrix4::*)(const my::Vector3 &) const)&my::Matrix4::scale)
 			.def("scaleSelf", (my::Matrix4 & (my::Matrix4::*)(float, float, float))&my::Matrix4::scaleSelf)
 			.def("scaleSelf", (my::Matrix4 & (my::Matrix4::*)(const my::Vector3 &))&my::Matrix4::scaleSelf)
 			.def("rotateX", &my::Matrix4::rotateX)
 			.def("rotateY", &my::Matrix4::rotateY)
 			.def("rotateZ", &my::Matrix4::rotateZ)
 			.def("rotate", &my::Matrix4::rotate)
-			.def("translate", (my::Matrix4 (my::Matrix4::*)(float, float, float) const)&my::Matrix4::translate)
-			.def("translate", (my::Matrix4 (my::Matrix4::*)(const my::Vector3 &) const)&my::Matrix4::translate)
+			.def("translate", (my::Matrix4(my::Matrix4::*)(float, float, float) const)&my::Matrix4::translate)
+			.def("translate", (my::Matrix4(my::Matrix4::*)(const my::Vector3 &) const)&my::Matrix4::translate)
 			.def("translateSelf", (my::Matrix4 & (my::Matrix4::*)(float, float, float))&my::Matrix4::translateSelf)
 			.def("translateSelf", (my::Matrix4 & (my::Matrix4::*)(const my::Vector3 &))&my::Matrix4::translateSelf)
 			.def("lerp", &my::Matrix4::lerp)
@@ -380,12 +401,12 @@ static void ExportMath(lua_State * L)
 				def("RotationY", &my::Matrix4::RotationY),
 				def("RotationZ", &my::Matrix4::RotationZ),
 				def("RotationYawPitchRoll", &my::Matrix4::RotationYawPitchRoll),
-				def("Scaling", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Scaling),
-				def("Scaling", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Scaling),
+				def("Scaling", (my::Matrix4(*)(float, float, float))&my::Matrix4::Scaling),
+				def("Scaling", (my::Matrix4(*)(const my::Vector3 &))&my::Matrix4::Scaling),
 				def("Transformation", &my::Matrix4::Transformation),
 				def("Transformation2D", &my::Matrix4::Transformation2D),
-				def("Translation", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Translation),
-				def("Translation", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Translation)
+				def("Translation", (my::Matrix4(*)(float, float, float))&my::Matrix4::Translation),
+				def("Translation", (my::Matrix4(*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]
 
 		, class_<my::AABB>("AABB")
@@ -395,6 +416,11 @@ static void ExportMath(lua_State * L)
 			.def_readwrite("min", &my::AABB::m_min)
 			.def_readwrite("max", &my::AABB::m_max)
 			.def("transform", &my::AABB::transform)
+
+		, class_<my::Spline>("Spline")
+			.def(constructor<>())
+			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
+			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
 
 		, class_<my::Emitter>("Emitter")
 			.def(constructor<unsigned int>())
@@ -438,18 +464,149 @@ static void ExportMath(lua_State * L)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 	];
-}
 
-static DWORD ARGB(int a, int r, int g, int b)
-{
-	return D3DCOLOR_ARGB(a,r,g,b);
-}
+	module(m_State)[
+		class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
-static void ExportUI(lua_State * L)
-{
-	using namespace luabind;
-	module(L)
-	[
+		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture2D")
+
+		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
+
+		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
+			.def("GetNumFaces", &my::Mesh::GetNumFaces)
+			.def("GetNumVertices", &my::Mesh::GetNumVertices)
+
+		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
+			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
+			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
+			.def("Transform", &my::OgreMesh::Transform)
+			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
+			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
+
+		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
+			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
+			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
+			.def("Transform", &my::OgreSkeletonAnimation::Transform)
+
+			// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
+		, class_<my::BaseEffect, boost::shared_ptr<my::BaseEffect> >("BaseEffect")
+			//.def("GetAnnotation", &my::BaseEffect::GetAnnotation)
+			//.def("GetAnnotationByName", &my::BaseEffect::GetAnnotationByName)
+			//.def("GetBool", &my::BaseEffect::GetBool)
+			//.def("GetBoolArray", &my::BaseEffect::GetBoolArray)
+			//.def("GetDesc", &my::BaseEffect::GetDesc)
+			//.def("GetFloat", &my::BaseEffect::GetFloat)
+			//.def("GetFloatArray", &my::BaseEffect::GetFloatArray)
+			//.def("GetFunction", &my::BaseEffect::GetFunction)
+			//.def("GetFunctionByName", &my::BaseEffect::GetFunctionByName)
+			//.def("GetFunctionDesc", &my::BaseEffect::GetFunctionDesc)
+			//.def("GetInt", &my::BaseEffect::GetInt)
+			//.def("GetIntArray", &my::BaseEffect::GetIntArray)
+			//.def("GetMatrix", &my::BaseEffect::GetMatrix)
+			//.def("GetMatrixArray", &my::BaseEffect::GetMatrixArray)
+			//.def("GetMatrixPointerArray", &my::BaseEffect::GetMatrixPointerArray)
+			//.def("GetMatrixTranspose", &my::BaseEffect::GetMatrixTranspose)
+			//.def("GetMatrixTransposeArray", &my::BaseEffect::GetMatrixTransposeArray)
+			//.def("GetMatrixTransposePointerArray", &my::BaseEffect::GetMatrixTransposePointerArray)
+			//.def("GetParameter", &my::BaseEffect::GetParameter)
+			//.def("GetParameterByName", &my::BaseEffect::GetParameterByName)
+			//.def("GetParameterBySemantic", &my::BaseEffect::GetParameterBySemantic)
+			//.def("GetParameterDesc", &my::BaseEffect::GetParameterDesc)
+			//.def("GetParameterElement", &my::BaseEffect::GetParameterElement)
+			//.def("GetPass", &my::BaseEffect::GetPass)
+			//.def("GetPassByName", &my::BaseEffect::GetPassByName)
+			//.def("GetPassDesc", &my::BaseEffect::GetPassDesc)
+			//.def("GetPixelShader", &my::BaseEffect::GetPixelShader)
+			//.def("GetString", &my::BaseEffect::GetString)
+			//.def("GetTechnique", &my::BaseEffect::GetTechnique)
+			//.def("GetTechniqueByName", &my::BaseEffect::GetTechniqueByName)
+			//.def("GetTechniqueDesc", &my::BaseEffect::GetTechniqueDesc)
+			//.def("GetTexture", &my::BaseEffect::GetTexture)
+			//.def("GetValue", &my::BaseEffect::GetValue)
+			//.def("GetVector", &my::BaseEffect::GetVector)
+			//.def("GetVectorArray", &my::BaseEffect::GetVectorArray)
+			//.def("GetVertexShader", &my::BaseEffect::GetVertexShader)
+			//.def("SetArrayRange", &my::BaseEffect::SetArrayRange)
+			//.def("SetBool", &my::BaseEffect::SetBool)
+			//.def("SetBoolArray", &my::BaseEffect::SetBoolArray)
+			//.def("SetFloat", &my::BaseEffect::SetFloat)
+			//.def("SetFloatArray", &my::BaseEffect::SetFloatArray)
+			//.def("SetInt", &my::BaseEffect::SetInt)
+			//.def("SetIntArray", &my::BaseEffect::SetIntArray)
+			//.def("SetMatrix", &my::BaseEffect::SetMatrix)
+			//.def("SetMatrixArray", &my::BaseEffect::SetMatrixArray)
+			//.def("SetMatrixPointerArray", &my::BaseEffect::SetMatrixPointerArray)
+			//.def("SetMatrixTranspose", &my::BaseEffect::SetMatrixTranspose)
+			//.def("SetMatrixTransposeArray", &my::BaseEffect::SetMatrixTransposeArray)
+			//.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
+			//.def("SetString", &my::BaseEffect::SetString)
+			//// ! luabind cannot convert boost::shared_ptr<Derived Class> to base ptr
+			//.def("SetTexture", &my::BaseEffect::SetTexture)
+			//.def("SetValue", &my::BaseEffect::SetValue)
+			//.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector4 &))&my::BaseEffect::SetVector)
+			//.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector3 &))&my::BaseEffect::SetVector)
+			//.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
+
+		, class_<my::Effect, my::BaseEffect, boost::shared_ptr<my::Effect> >("Effect")
+			//.def("ApplyParameterBlock", &my::Effect::ApplyParameterBlock)
+			//.def("Begin", &my::Effect::Begin)
+			//.def("BeginParameterBlock", &my::Effect::BeginParameterBlock)
+			//.def("BeginPass", &my::Effect::BeginPass)
+			//.def("CloneEffect", &my::Effect::CloneEffect)
+			//.def("CommitChanges", &my::Effect::CommitChanges)
+			//.def("DeleteParameterBlock", &my::Effect::DeleteParameterBlock)
+			//.def("End", &my::Effect::End)
+			//.def("EndParameterBlock", &my::Effect::EndParameterBlock)
+			//.def("EndPass", &my::Effect::EndPass)
+			//.def("FindNextValidTechnique", &my::Effect::FindNextValidTechnique)
+			//.def("GetCurrentTechnique", &my::Effect::GetCurrentTechnique)
+			//.def("GetDevice", &my::Effect::GetDevice)
+			//.def("GetPool", &my::Effect::GetPool)
+			//.def("GetStateManager", &my::Effect::GetStateManager)
+			//.def("IsParameterUsed", &my::Effect::IsParameterUsed)
+			//.def("SetRawValue", &my::Effect::SetRawValue)
+			//.def("SetStateManager", &my::Effect::SetStateManager)
+			//.def("SetTechnique", &my::Effect::SetTechnique)
+			//.def("ValidateTechnique", &my::Effect::ValidateTechnique)
+
+		, class_<my::Font, boost::shared_ptr<my::Font> >("Font")
+			.enum_("Align")
+			[
+				value("AlignLeft", my::Font::AlignLeft),
+				value("AlignCenter", my::Font::AlignCenter),
+				value("AlignRight", my::Font::AlignRight),
+				value("AlignTop", my::Font::AlignTop),
+				value("AlignMiddle", my::Font::AlignMiddle),
+				value("AlignBottom", my::Font::AlignBottom),
+				value("AlignLeftTop", my::Font::AlignLeftTop),
+				value("AlignCenterTop", my::Font::AlignCenterTop),
+				value("AlignRightTop", my::Font::AlignRightTop),
+				value("AlignLeftMiddle", my::Font::AlignLeftMiddle),
+				value("AlignCenterMiddle", my::Font::AlignCenterMiddle),
+				value("AlignRightMiddle", my::Font::AlignRightMiddle),
+				value("AlignLeftBottom", my::Font::AlignLeftBottom),
+				value("AlignCenterBottom", my::Font::AlignCenterBottom),
+				value("AlignRightBottom", my::Font::AlignRightBottom)
+			]
+			.def_readonly("Height", &my::Font::m_Height)
+			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
+			.def_readonly("LineHeight", &my::Font::m_LineHeight)
+
+		, class_<my::ResourceMgr>("ResourceMgr")
+			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
+			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
+			.def("LoadSkeleton", &my::ResourceMgr::LoadSkeleton)
+			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
+			.def("LoadFont", &my::ResourceMgr::LoadFont)
+
+			//, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
+			//, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
+			//, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
+			//, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
+			//, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
+	];
+
+	module(m_State)[
 		def("ARGB", &ARGB)
 
 		, class_<my::ControlEventArgs>("ControlEventArgs")
@@ -592,172 +749,11 @@ static void ExportUI(lua_State * L)
 			.def("InsertDlg", &my::DialogMgr::InsertDlg)
 			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
 			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
+
+		, class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 	];
-}
 
-static void ExportEmitter(lua_State * L)
-{
-	using namespace luabind;
-	module(L)
-	[
-		class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
-			.def(constructor<>())
-			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
-			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
-	];
-}
-
-static void ExportResource(lua_State * L)
-{
-	using namespace luabind;
-	module(L)
-	[
-		class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
-
-		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture2D")
-
-		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
-
-		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
-			.def("GetNumFaces", &my::Mesh::GetNumFaces)
-			.def("GetNumVertices", &my::Mesh::GetNumVertices)
-
-		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
-			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
-			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
-			.def("Transform", &my::OgreMesh::Transform)
-			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
-			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
-
-		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
-			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
-			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
-			.def("Transform", &my::OgreSkeletonAnimation::Transform)
-
-		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
-		, class_<my::BaseEffect, boost::shared_ptr<my::BaseEffect> >("BaseEffect")
-			//.def("GetAnnotation", &my::BaseEffect::GetAnnotation)
-			//.def("GetAnnotationByName", &my::BaseEffect::GetAnnotationByName)
-			//.def("GetBool", &my::BaseEffect::GetBool)
-			//.def("GetBoolArray", &my::BaseEffect::GetBoolArray)
-			//.def("GetDesc", &my::BaseEffect::GetDesc)
-			//.def("GetFloat", &my::BaseEffect::GetFloat)
-			//.def("GetFloatArray", &my::BaseEffect::GetFloatArray)
-			//.def("GetFunction", &my::BaseEffect::GetFunction)
-			//.def("GetFunctionByName", &my::BaseEffect::GetFunctionByName)
-			//.def("GetFunctionDesc", &my::BaseEffect::GetFunctionDesc)
-			//.def("GetInt", &my::BaseEffect::GetInt)
-			//.def("GetIntArray", &my::BaseEffect::GetIntArray)
-			//.def("GetMatrix", &my::BaseEffect::GetMatrix)
-			//.def("GetMatrixArray", &my::BaseEffect::GetMatrixArray)
-			//.def("GetMatrixPointerArray", &my::BaseEffect::GetMatrixPointerArray)
-			//.def("GetMatrixTranspose", &my::BaseEffect::GetMatrixTranspose)
-			//.def("GetMatrixTransposeArray", &my::BaseEffect::GetMatrixTransposeArray)
-			//.def("GetMatrixTransposePointerArray", &my::BaseEffect::GetMatrixTransposePointerArray)
-			//.def("GetParameter", &my::BaseEffect::GetParameter)
-			//.def("GetParameterByName", &my::BaseEffect::GetParameterByName)
-			//.def("GetParameterBySemantic", &my::BaseEffect::GetParameterBySemantic)
-			//.def("GetParameterDesc", &my::BaseEffect::GetParameterDesc)
-			//.def("GetParameterElement", &my::BaseEffect::GetParameterElement)
-			//.def("GetPass", &my::BaseEffect::GetPass)
-			//.def("GetPassByName", &my::BaseEffect::GetPassByName)
-			//.def("GetPassDesc", &my::BaseEffect::GetPassDesc)
-			//.def("GetPixelShader", &my::BaseEffect::GetPixelShader)
-			//.def("GetString", &my::BaseEffect::GetString)
-			//.def("GetTechnique", &my::BaseEffect::GetTechnique)
-			//.def("GetTechniqueByName", &my::BaseEffect::GetTechniqueByName)
-			//.def("GetTechniqueDesc", &my::BaseEffect::GetTechniqueDesc)
-			//.def("GetTexture", &my::BaseEffect::GetTexture)
-			//.def("GetValue", &my::BaseEffect::GetValue)
-			//.def("GetVector", &my::BaseEffect::GetVector)
-			//.def("GetVectorArray", &my::BaseEffect::GetVectorArray)
-			//.def("GetVertexShader", &my::BaseEffect::GetVertexShader)
-			//.def("SetArrayRange", &my::BaseEffect::SetArrayRange)
-			//.def("SetBool", &my::BaseEffect::SetBool)
-			//.def("SetBoolArray", &my::BaseEffect::SetBoolArray)
-			//.def("SetFloat", &my::BaseEffect::SetFloat)
-			//.def("SetFloatArray", &my::BaseEffect::SetFloatArray)
-			//.def("SetInt", &my::BaseEffect::SetInt)
-			//.def("SetIntArray", &my::BaseEffect::SetIntArray)
-			//.def("SetMatrix", &my::BaseEffect::SetMatrix)
-			//.def("SetMatrixArray", &my::BaseEffect::SetMatrixArray)
-			//.def("SetMatrixPointerArray", &my::BaseEffect::SetMatrixPointerArray)
-			//.def("SetMatrixTranspose", &my::BaseEffect::SetMatrixTranspose)
-			//.def("SetMatrixTransposeArray", &my::BaseEffect::SetMatrixTransposeArray)
-			//.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
-			//.def("SetString", &my::BaseEffect::SetString)
-			//// ! luabind cannot convert boost::shared_ptr<Derived Class> to base ptr
-			//.def("SetTexture", &my::BaseEffect::SetTexture)
-			//.def("SetValue", &my::BaseEffect::SetValue)
-			//.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector4 &))&my::BaseEffect::SetVector)
-			//.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector3 &))&my::BaseEffect::SetVector)
-			//.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
-
-		, class_<my::Effect, my::BaseEffect, boost::shared_ptr<my::Effect> >("Effect")
-			//.def("ApplyParameterBlock", &my::Effect::ApplyParameterBlock)
-			//.def("Begin", &my::Effect::Begin)
-			//.def("BeginParameterBlock", &my::Effect::BeginParameterBlock)
-			//.def("BeginPass", &my::Effect::BeginPass)
-			//.def("CloneEffect", &my::Effect::CloneEffect)
-			//.def("CommitChanges", &my::Effect::CommitChanges)
-			//.def("DeleteParameterBlock", &my::Effect::DeleteParameterBlock)
-			//.def("End", &my::Effect::End)
-			//.def("EndParameterBlock", &my::Effect::EndParameterBlock)
-			//.def("EndPass", &my::Effect::EndPass)
-			//.def("FindNextValidTechnique", &my::Effect::FindNextValidTechnique)
-			//.def("GetCurrentTechnique", &my::Effect::GetCurrentTechnique)
-			//.def("GetDevice", &my::Effect::GetDevice)
-			//.def("GetPool", &my::Effect::GetPool)
-			//.def("GetStateManager", &my::Effect::GetStateManager)
-			//.def("IsParameterUsed", &my::Effect::IsParameterUsed)
-			//.def("SetRawValue", &my::Effect::SetRawValue)
-			//.def("SetStateManager", &my::Effect::SetStateManager)
-			//.def("SetTechnique", &my::Effect::SetTechnique)
-			//.def("ValidateTechnique", &my::Effect::ValidateTechnique)
-
-		, class_<my::Font, boost::shared_ptr<my::Font> >("Font")
-			.enum_("Align")
-			[
-				value("AlignLeft", my::Font::AlignLeft),
-				value("AlignCenter", my::Font::AlignCenter),
-				value("AlignRight", my::Font::AlignRight),
-				value("AlignTop", my::Font::AlignTop),
-				value("AlignMiddle", my::Font::AlignMiddle),
-				value("AlignBottom", my::Font::AlignBottom),
-				value("AlignLeftTop", my::Font::AlignLeftTop),
-				value("AlignCenterTop", my::Font::AlignCenterTop),
-				value("AlignRightTop", my::Font::AlignRightTop),
-				value("AlignLeftMiddle", my::Font::AlignLeftMiddle),
-				value("AlignCenterMiddle", my::Font::AlignCenterMiddle),
-				value("AlignRightMiddle", my::Font::AlignRightMiddle),
-				value("AlignLeftBottom", my::Font::AlignLeftBottom),
-				value("AlignCenterBottom", my::Font::AlignCenterBottom),
-				value("AlignRightBottom", my::Font::AlignRightBottom)
-			]
-			.def_readonly("Height", &my::Font::m_Height)
-			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
-			.def_readonly("LineHeight", &my::Font::m_LineHeight)
-
-		, class_<my::ResourceMgr>("ResourceMgr")
-			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
-			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
-			.def("LoadSkeleton", &my::ResourceMgr::LoadSkeleton)
-			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
-			.def("LoadFont", &my::ResourceMgr::LoadFont)
-
-		//, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
-		//, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
-		//, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
-		//, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
-		//, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
-	];
-}
-
-static void ExportDevice(lua_State * L)
-{
-	using namespace luabind;
-	module(L)
-	[
+	module(m_State)[
 		class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
 			.def_readwrite("Type", &D3DSURFACE_DESC::Type)
@@ -892,13 +888,8 @@ static void ExportDevice(lua_State * L)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 	];
-}
 
-static void ExportComponent(lua_State * L)
-{
-	using namespace luabind;
-	module(L)
-	[
+	module(m_State)[
 		class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
 			[
@@ -1110,31 +1101,6 @@ static void ExportComponent(lua_State * L)
 		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctEntity, Actor>)
 		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
-}
-
-LuaContext::LuaContext(void)
-	: m_State(NULL)
-{
-}
-
-void LuaContext::Init(void)
-{
-	m_State = luaL_newstate();
-	luaL_openlibs(m_State);
-	luabind::open(m_State);
-
-	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
-	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
-
-	//// ! 为什么不起作用
-	//set_pcall_callback(add_file_and_line);
-
-	ExportMath(m_State);
-	ExportResource(m_State);
-	ExportUI(m_State);
-	ExportEmitter(m_State);
-	ExportDevice(m_State);
-	ExportComponent(m_State);
 }
 
 void LuaContext::Shutdown(void)

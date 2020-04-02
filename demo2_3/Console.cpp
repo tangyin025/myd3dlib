@@ -207,7 +207,6 @@ Console::Console(void)
 	m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	m_Skin->m_Image->m_Rect = my::Rectangle(154,43,156,45);
 	m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
-	EventAlign = boost::bind(&Console::OnEventAlign, this, _1);
 
 	const Vector4 Border(5,5,5,5);
 
@@ -272,11 +271,6 @@ Console::Console(void)
 Console::~Console(void)
 {
 	Game::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
-}
-
-void Console::OnEventAlign(ControlEventArgs * args)
-{
-	m_Location = Vector2(50,95);
 }
 
 void Console::OnEventEnter(ControlEventArgs * args)

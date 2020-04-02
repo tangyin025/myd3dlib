@@ -91,8 +91,6 @@ public:
 
 	~Console(void);
 
-	void OnEventAlign(my::ControlEventArgs * args);
-
 	void OnEventEnter(my::ControlEventArgs * args);
 
 	void OnEventKeyUp(my::ControlEventArgs * args);

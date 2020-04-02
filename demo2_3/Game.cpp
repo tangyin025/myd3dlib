@@ -290,6 +290,7 @@ Game::Game(void)
 	: OctRoot(my::AABB(-4096, 4096))
 	, m_UIRender(new EffectUIRender())
 	, m_TargetActor(NULL)
+	, m_ViewedCenter(0, 0, 0)
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -430,8 +431,6 @@ HRESULT Game::OnCreateDevice(
 
 	m_Console = ConsolePtr(new Console());
 
-	m_Console->SetVisible(false);
-
 	FModContext::LoadEventFile(m_InitSound.c_str());
 
 	if (!m_InitScene.empty())
@@ -484,11 +483,6 @@ HRESULT Game::OnCreateDevice(
 	luabind::globals(m_State)["game"] = this;
 
 	ExecuteCode(m_InitScript.c_str());
-
-	if (!PlayerController::getSingletonPtr())
-	{
-		THROW_CUSEXCEPTION("Error: PlayerController must be created by script");
-	}
 
 	DialogMgr::InsertDlg(m_Console);
 
@@ -632,8 +626,16 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	CheckViewedActor(
-		AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f), AABB(PlayerController::getSingleton().m_Actor->m_Position, 1000.0f));
+	if (PlayerController::getSingletonPtr())
+	{
+		m_ViewedCenter = PlayerController::getSingleton().m_Actor->m_Position;
+	}
+	else
+	{
+		m_ViewedCenter = m_Camera->m_Eye;
+	}
+
+	CheckViewedActor(AABB(m_ViewedCenter, 1000.0f), AABB(m_ViewedCenter, 1000.0f));
 
 	m_d3dDeviceSec.Enter();
 
@@ -817,7 +819,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		}
 	};
 
-	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, PlayerController::getSingleton().m_Actor->m_Position));
+	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter));
 }
 
 void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
