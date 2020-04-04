@@ -82,8 +82,6 @@ namespace my
 		{
 		}
 
-		TimerPtr AddTimer(float Interval, TimerEvent EventTimer);
-
 		void InsertTimer(TimerPtr timer);
 
 		void RemoveTimer(TimerPtr timer);

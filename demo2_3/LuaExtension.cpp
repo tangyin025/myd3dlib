@@ -453,15 +453,6 @@ void LuaContext::Init(void)
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 
 		, class_<my::OctEntity>("OctEntity")
-			.def_readonly("Node", &my::OctEntity::m_Node)
-			.def("GetOctAABB", &my::OctEntity::GetOctAABB)
-
-		, class_<my::OctNode>("OctNode")
-			.def("AddEntity", &my::OctNode::AddEntity)
-			.def("RemoveEntity", &my::OctNode::RemoveEntity)
-			.def("ClearAllEntity", &my::OctNode::ClearAllEntity)
-
-		, class_<my::OctRoot, my::OctNode>("OctRoot")
 	];
 
 	module(m_State)[
@@ -743,12 +734,6 @@ void LuaContext::Init(void)
 			]
 			.def("SaveToFile", &my::Dialog::SaveToFile)
 
-		, class_<my::DialogMgr>("DialogMgr")
-			.property("DlgViewport", &my::DialogMgr::GetDlgViewport, &my::DialogMgr::SetDlgViewport)
-			.def("InsertDlg", &my::DialogMgr::InsertDlg)
-			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
-			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
-
 		, class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 	];
 
@@ -940,9 +925,11 @@ void LuaContext::Init(void)
 			]
 			.def_readonly("Type", &Component::m_Type)
 			.def_readonly("Actor", &Component::m_Actor)
+			.def("Clone", &Component::Clone)
 			.def("RequestResource", &Component::RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource)
-			.def("Clone", &Component::Clone)
+			.def("EnterPhysxScene", &Component::EnterPhysxScene)
+			.def("LeavePhysxScene", &Component::LeavePhysxScene)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
 			.def("CreateCapsuleShape", &Component::CreateCapsuleShape)
@@ -1018,6 +1005,11 @@ void LuaContext::Init(void)
 			.def_readwrite("Animator", &Actor::m_Animator)
 			.def_readwrite("Controller", &Actor::m_Controller)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
+			.def("Clone", &Actor::Clone)
+			.def("RequestResource", &Actor::RequestResource)
+			.def("ReleaseResource", &Actor::ReleaseResource)
+			.def("EnterPhysxScene", &Actor::EnterPhysxScene)
+			.def("LeavePhysxScene", &Actor::LeavePhysxScene)
 			.def("UpdateAABB", &Actor::UpdateAABB)
 			.def("UpdateWorld", &Actor::UpdateWorld)
 			.def("UpdateOctNode", &Actor::UpdateOctNode)
@@ -1096,7 +1088,7 @@ void LuaContext::Init(void)
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 
-		, def("actor2oct", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
+		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 	];
 }
 

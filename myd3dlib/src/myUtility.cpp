@@ -77,36 +77,22 @@ void Timer::Step(float fElapsedTime, int MaxIter)
 	}
 }
 
-TimerPtr TimerMgr::AddTimer(float Interval, TimerEvent EventTimer)
-{
-	TimerPtr timer(new Timer(Interval, Interval));
-	timer->m_EventTimer = EventTimer;
-	InsertTimer(timer);
-	return timer;
-}
-
 void TimerMgr::InsertTimer(TimerPtr timer)
 {
-	if(timer)
-	{
-		_ASSERT(!timer->m_Managed);
+	_ASSERT(!timer->m_Managed);
 
-		m_timerSet.insert(timer);
+	m_timerSet.insert(timer);
 
-		timer->m_Managed = true;
-	}
+	timer->m_Managed = true;
 }
 
 void TimerMgr::RemoveTimer(TimerPtr timer)
 {
-	if(timer)
-	{
-		_ASSERT(timer->m_Managed);
+	_ASSERT(timer->m_Managed);
 
-		m_timerSet.erase(timer);
+	m_timerSet.erase(timer);
 
-		timer->m_Managed = false;
-	}
+	timer->m_Managed = false;
 }
 
 void TimerMgr::RemoveAllTimer(void)
