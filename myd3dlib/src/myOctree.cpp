@@ -342,7 +342,7 @@ void OctNode::ClearAllEntityInCurrentNode(void)
 	m_Entities.clear();
 }
 
-void OctNode::ClearAllNode(void)
+void OctNode::ClearAllEntity(void)
 {
 	ClearAllEntityInCurrentNode();
 
@@ -350,7 +350,7 @@ void OctNode::ClearAllNode(void)
 	{
 		if (m_Childs[i])
 		{
-			m_Childs[i]->ClearAllNode();
+			m_Childs[i]->ClearAllEntity();
 			m_Childs[i].reset();
 		}
 	}

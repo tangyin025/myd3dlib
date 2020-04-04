@@ -579,7 +579,7 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	OctRoot::ClearAllNode();
+	OctRoot::ClearAllEntity();
 
 	m_Console.reset();
 
@@ -906,7 +906,7 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 
 void Game::LoadScene(const char * path)
 {
-	OctRoot::ClearAllNode();
+	OctRoot::ClearAllEntity();
 	PhysxSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 

@@ -488,7 +488,7 @@ void CMainFrame::OnSelChanged()
 
 void CMainFrame::ClearFileContext()
 {
-	OctRoot::ClearAllNode();
+	OctRoot::ClearAllEntity();
 	m_selactors.clear();
 	theApp.RemoveAllIORequest();
 	PhysxSceneContext::ClearSerializedObjs();

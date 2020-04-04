@@ -119,7 +119,7 @@ namespace my
 
 		void ClearAllEntityInCurrentNode(void);
 
-		void ClearAllNode(void);
+		void ClearAllEntity(void);
 
 		void Flush(void);
 	};
