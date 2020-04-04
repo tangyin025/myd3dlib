@@ -46,7 +46,8 @@ game:LoadScene("scene01.xml")
 -- actor:AddComponent(cmp)
 -- actor:CreateRigidActor(Actor.eRIGID_STATIC)
 -- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
--- game:AddActor(actor)
+-- actor:UpdateWorld()
+-- game:AddEntity(actor2oct(actor),actor.aabb:transform(actor.World))
 
 -- 创建玩家Actor
 local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
@@ -67,7 +68,8 @@ end
 cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
-game:AddActor(player)
+player:UpdateWorld()
+game:AddEntity(actor2oct(player),player.aabb:transform(player.World))
 
 -- 加载动画资源
 local anim=Animator(player)
@@ -132,7 +134,8 @@ cmp2:AddMaterial(lambert3)
 actor4:AddComponent(cmp2)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
-game:AddActor(actor4)
+actor4:UpdateWorld()
+game:AddEntity(actor2oct(actor4),actor4.aabb:transform(actor4.World))
 
 -- -- 在角色手部绑定物体
 -- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -147,7 +150,7 @@ game:AddActor(actor4)
 -- actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 -- actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 -- cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
--- game:AddActor(actor2)
+-- game:AddEntity(actor2oct(actor2),actor2.aabb:transform(actor2.World))
 -- player:Attach(actor2, 10)
 
 -- -- 在角色手部绑定物体
@@ -159,7 +162,7 @@ game:AddActor(actor4)
 -- actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 -- actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 -- cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
--- game:AddActor(actor3)
+-- game:AddEntity(actor2oct(actor3),actor3.aabb:transform(actor2.World))
 -- player:Attach(actor3, 29)
 
 -- -- 特殊渲染选项

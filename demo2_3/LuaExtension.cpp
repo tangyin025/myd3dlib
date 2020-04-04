@@ -451,6 +451,17 @@ void LuaContext::Init(void)
 		, class_<my::FirstPersonCamera, my::Camera, boost::shared_ptr<my::Camera> >("FirstPersonCamera")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
+
+		, class_<my::OctEntity>("OctEntity")
+			.def_readonly("Node", &my::OctEntity::m_Node)
+			.def("GetOctAABB", &my::OctEntity::GetOctAABB)
+
+		, class_<my::OctNode>("OctNode")
+			.def("AddEntity", &my::OctNode::AddEntity)
+			.def("RemoveEntity", &my::OctNode::RemoveEntity)
+			.def("ClearAllEntity", &my::OctNode::ClearAllEntity)
+
+		, class_<my::OctRoot, my::OctNode>("OctRoot")
 	];
 
 	module(m_State)[
@@ -587,11 +598,11 @@ void LuaContext::Init(void)
 			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
 
-			//, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
-			//, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
-			//, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
-			//, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
-			//, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
+		//, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
+		//, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
+		//, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
+		//, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
+		//, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
 	];
 
 	module(m_State)[
@@ -995,7 +1006,7 @@ void LuaContext::Init(void)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
 
-		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
+		, class_<Actor, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
@@ -1084,6 +1095,8 @@ void LuaContext::Init(void)
 		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
+
+		, def("actor2oct", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 	];
 }
 

@@ -116,10 +116,6 @@ public:
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void AddActor(ActorPtr actor);
-
-	void RemoveActor(ActorPtr actor);
-
 	void CheckViewedActor(const my::AABB & In, const my::AABB & Out);
 
 	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
