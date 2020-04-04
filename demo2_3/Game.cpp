@@ -455,7 +455,7 @@ HRESULT Game::OnCreateDevice(
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr, my::OctNode> >("Game")
+		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, my::DialogMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -475,6 +475,8 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
 			.def("PlaySound", &Game::PlaySound)
+			.def("AddActor", &Game::AddActor)
+			.def("RemoveActor", &Game::RemoveActor)
 			.def("LoadScene", &Game::LoadScene)
 
 		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
@@ -820,6 +822,19 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	};
 
 	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter));
+}
+
+void Game::AddActor(ActorPtr actor)
+{
+	actor->UpdateWorld();
+	OctNode::AddEntity(actor, actor->m_aabb.transform(actor->m_World));
+}
+
+void Game::RemoveActor(ActorPtr actor)
+{
+	OctNode::RemoveEntity(actor);
+	actor->ReleaseResource();
+	actor->OnLeavePxScene(this);
 }
 
 void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)

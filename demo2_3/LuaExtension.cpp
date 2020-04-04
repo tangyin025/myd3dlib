@@ -149,11 +149,6 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
-my::OctEntityPtr actor2oct(ActorPtr actor)
-{
-	return actor;
-}
-
 static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
@@ -425,13 +420,6 @@ void LuaContext::Init(void)
 		, class_<my::Emitter>("Emitter")
 			.def(constructor<unsigned int>())
 			.def("RemoveAllParticle", &my::Emitter::RemoveAllParticle)
-
-		, class_<my::OctEntity, boost::shared_ptr<my::OctEntity> >("OctEntity")
-
-		, class_<my::OctNode, boost::shared_ptr<my::OctNode> >("OctNode")
-			.def("AddEntity", &my::OctNode::AddEntity)
-			.def("RemoveEntity", &my::OctNode::RemoveEntity)
-			.def("ClearAllNode", &my::OctNode::ClearAllNode)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)
@@ -1007,7 +995,7 @@ void LuaContext::Init(void)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
 
-		, class_<Actor, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
+		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
@@ -1096,10 +1084,6 @@ void LuaContext::Init(void)
 		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
 			.def(constructor<Animator *>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
-
-		, def("actor2oct", actor2oct)
-		//, def("actor2oct", &boost::dynamic_pointer_cast<my::OctEntity, Actor>)
-		//, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
 }
 
