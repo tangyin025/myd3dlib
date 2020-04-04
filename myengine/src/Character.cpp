@@ -12,7 +12,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 
 using namespace my;
 
@@ -64,11 +64,11 @@ void Character::ReleaseResource(void)
 	Actor::ReleaseResource();
 }
 
-void Character::OnEnterPxScene(PhysXSceneContext * scene)
+void Character::EnterPhysxScene(PhysxSceneContext * scene)
 {
-	Actor::OnEnterPxScene(scene);
+	Actor::EnterPhysxScene(scene);
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = m_Height;
@@ -79,7 +79,7 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
 	desc.userData = this;
-	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysXDeleter<physx::PxController>());
+	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysxDeleter<physx::PxController>());
 
 	physx::PxActor * actor = m_PxController->getActor();
 	actor->userData = this;
@@ -87,7 +87,7 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
-void Character::OnLeavePxScene(PhysXSceneContext * scene)
+void Character::LeavePhysxScene(PhysxSceneContext * scene)
 {
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 
@@ -95,7 +95,7 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 
 	m_PxMaterial.reset();
 
-	Actor::OnLeavePxScene(scene);
+	Actor::LeavePhysxScene(scene);
 }
 
 void Character::OnPxTransformChanged(const physx::PxTransform & trans)
@@ -118,7 +118,7 @@ void Character::OnPxThreadSubstep(float dtime)
 {
 	if (m_PxController)
 	{
-		Vector3 Acceleration = PhysXContext::getSingleton().Gravity;
+		Vector3 Acceleration = PhysxContext::getSingleton().Gravity;
 		Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
 		float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
 		float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);

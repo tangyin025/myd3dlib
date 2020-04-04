@@ -5,7 +5,7 @@
 #include "RenderPipeline.h"
 #include "Character.h"
 #include "Controller.h"
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 #include "FModContext.h"
 
 class Game
@@ -20,8 +20,8 @@ class Game
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
-	, public PhysXContext
-	, public PhysXSceneContext
+	, public PhysxContext
+	, public PhysxSceneContext
 	, public FModContext
 {
 public:

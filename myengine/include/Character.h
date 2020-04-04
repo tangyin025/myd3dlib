@@ -81,9 +81,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(PhysXSceneContext * scene);
+	virtual void EnterPhysxScene(PhysxSceneContext * scene);
 
-	virtual void OnLeavePxScene(PhysXSceneContext * scene);
+	virtual void LeavePhysxScene(PhysxSceneContext * scene);
 
 	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
 

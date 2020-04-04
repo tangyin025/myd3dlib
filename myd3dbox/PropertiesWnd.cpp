@@ -1386,7 +1386,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
 		actor->ClearRigidActor();
 		actor->CreateRigidActor((physx::PxActorType::Enum)i);
-		actor->OnEnterPxScene(pFrame);
+		actor->EnterPhysxScene(pFrame);
 		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

@@ -196,7 +196,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			if (!actor->IsRequested())
 			{
 				actor->RequestResource();
-				actor->OnEnterPxScene(pFrame);
+				actor->EnterPhysxScene(pFrame);
 			}
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
@@ -1231,7 +1231,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
 				pFrame->AddEntity(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
 				new_actor->RequestResource();
-				new_actor->OnEnterPxScene(pFrame);
+				new_actor->EnterPhysxScene(pFrame);
 				new_acts.insert(new_actor.get());
 			}
 		}

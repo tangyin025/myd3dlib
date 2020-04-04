@@ -118,7 +118,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	if (!PhysXSceneContext::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
+	if (!PhysxSceneContext::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
 		return -1;
 
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
@@ -456,7 +456,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		(*actor_iter)->Update(fElapsedTime);
 	}
 
-	PhysXSceneContext::AdvanceSync(fElapsedTime);
+	PhysxSceneContext::AdvanceSync(fElapsedTime);
 
 	bool haveSelActors = false;
 	physx::PxU32 nbActiveTransforms;
@@ -491,7 +491,7 @@ void CMainFrame::ClearFileContext()
 	OctRoot::ClearAllNode();
 	m_selactors.clear();
 	theApp.RemoveAllIORequest();
-	PhysXSceneContext::ClearSerializedObjs();
+	PhysxSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();
 }
 
@@ -532,7 +532,7 @@ BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
 		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
 	}
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
+	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	return TRUE;
@@ -546,7 +546,7 @@ void CMainFrame::OnDestroy()
 	//m_emitter.reset();
 	ClearFileContext();
 	theApp.DestroyD3DDevice();
-	PhysXSceneContext::Shutdown();
+	PhysxSceneContext::Shutdown();
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
@@ -615,7 +615,7 @@ void CMainFrame::OnFileNew()
 	//anim->m_SkeletonEventReady = boost::bind(&helper::cb, &h, _1);
 
 	//actor->RequestResource();
-	//actor->OnEnterPxScene(this);
+	//actor->EnterPhysxScene(this);
 	//AddEntity(actor, actor->m_aabb.transform(actor->m_World));
 
 	//m_selactors.clear();
@@ -661,7 +661,7 @@ void CMainFrame::OnFileOpen()
 		ia.reset(new boost::archive::polymorphic_binary_iarchive(ifs));
 	}
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
+	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	theApp.RequestResource();
@@ -703,7 +703,7 @@ void CMainFrame::OnCreateActor()
 	actor->UpdateWorld();
 	AddEntity(actor, actor->m_aabb.transform(actor->m_World));
 	actor->RequestResource();
-	actor->OnEnterPxScene(this);
+	actor->EnterPhysxScene(this);
 
 	m_selactors.clear();
 	m_selactors.insert(actor.get());
@@ -723,7 +723,7 @@ void CMainFrame::OnCreateCharacter()
 	character->UpdateWorld();
 	AddEntity(character, character->m_aabb.transform(character->m_World));
 	character->RequestResource();
-	character->OnEnterPxScene(this);
+	character->EnterPhysxScene(this);
 
 	m_selactors.clear();
 	m_selactors.insert(character.get());
@@ -770,7 +770,7 @@ void CMainFrame::OnComponentMesh()
 		mesh_cmp->m_MaterialList.push_back(mtl);
 	}
 	mesh_cmp->RequestResource();
-	mesh_cmp->OnEnterPxScene(this);
+	mesh_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -826,7 +826,7 @@ void CMainFrame::OnComponentCloth()
 		cloth_cmp->m_MaterialList.push_back(mtl);
 	}
 	cloth_cmp->RequestResource();
-	cloth_cmp->OnEnterPxScene(this);
+	cloth_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -857,7 +857,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	mtl->ParseShaderParameters();
 	emit_cmp->m_Material = mtl;
 	emit_cmp->RequestResource();
-	emit_cmp->OnEnterPxScene(this);
+	emit_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
 	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f);
 	(*actor_iter)->UpdateAABB();
@@ -908,7 +908,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	mtl->ParseShaderParameters();
 	sphe_emit_cmp->m_Material = mtl;
 	sphe_emit_cmp->RequestResource();
-	sphe_emit_cmp->OnEnterPxScene(this);
+	sphe_emit_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -945,7 +945,7 @@ void CMainFrame::OnComponentTerrain()
 	mtl->ParseShaderParameters();
 	terrain->m_Material = mtl;
 	terrain->RequestResource();
-	terrain->OnEnterPxScene(this);
+	terrain->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -968,7 +968,7 @@ void CMainFrame::OnEditDelete()
 	ActorSet::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		(*actor_iter)->OnLeavePxScene(this);
+		(*actor_iter)->LeavePhysxScene(this);
 		(*actor_iter)->ReleaseResource();
 		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter)->shared_from_this());
 	}

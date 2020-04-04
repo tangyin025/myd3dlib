@@ -7,10 +7,10 @@
 #include "myThread.h"
 #include <boost/signals2.hpp>
 
-class PhysXAllocator : public physx::PxAllocatorCallback
+class PhysxAllocator : public physx::PxAllocatorCallback
 {
 public:
-	PhysXAllocator(void)
+	PhysxAllocator(void)
 	{
 	}
 
@@ -20,7 +20,7 @@ public:
 };
 
 template<class T>
-struct PhysXDeleter
+struct PhysxDeleter
 {
 	typedef void result_type;
 
@@ -32,14 +32,14 @@ struct PhysXDeleter
 	}
 };
 
-class PhysXContext
-	: public my::SingleInstance<PhysXContext>
+class PhysxContext
+	: public my::SingleInstance<PhysxContext>
 	, public physx::PxErrorCallback
 {
 public:
 	static const my::Vector3 Gravity;
 
-	PhysXAllocator m_Allocator;
+	PhysxAllocator m_Allocator;
 
 	boost::shared_ptr<physx::PxFoundation> m_Foundation;
 
@@ -50,7 +50,7 @@ public:
 	boost::shared_ptr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
 public:
-	PhysXContext(void)
+	PhysxContext(void)
 	{
 	}
 
@@ -61,8 +61,8 @@ public:
 	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 };
 
-class PhysXSceneContext
-	: public my::SingleInstance<PhysXSceneContext>
+class PhysxSceneContext
+	: public my::SingleInstance<PhysxSceneContext>
 	, public physx::PxSimulationEventCallback
 {
 public:
@@ -70,9 +70,9 @@ public:
 		: public physx::PxLightCpuTask
 	{
 	public:
-		PhysXSceneContext * m_PxScene;
+		PhysxSceneContext * m_PxScene;
 
-		StepperTask(PhysXSceneContext * Scene)
+		StepperTask(PhysxSceneContext * Scene)
 			: m_PxScene(Scene)
 		{
 		}
@@ -111,7 +111,7 @@ public:
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 public:
-	PhysXSceneContext(void)
+	PhysxSceneContext(void)
 		: m_Completion0(this)
 		, m_Completion1(this)
 		, m_Timer(1/60.0f,0)

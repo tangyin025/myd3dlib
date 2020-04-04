@@ -1,7 +1,7 @@
 #include "Animator.h"
 #include "Character.h"
 #include "myResource.h"
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -296,7 +296,7 @@ void Animator::AddIK(const std::string & bone_name, float hitRadius, unsigned in
 
 void Animator::UpdateIK(IKContext & ik)
 {
-	PhysXSceneContext * scene = dynamic_cast<PhysXSceneContext *>(m_Actor->m_Node->GetTopNode());
+	PhysxSceneContext * scene = dynamic_cast<PhysxSceneContext *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
 
 	Vector3 pos[3] = {

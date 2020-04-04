@@ -2,7 +2,7 @@
 #include "Terrain.h"
 #include "Animator.h"
 #include "Controller.h"
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 #include "RenderPipeline.h"
 #include "myResource.h"
 #include <fstream>
@@ -52,7 +52,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 
 	if (m_PxActor)
 	{
-		boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
+		boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
 		collection->add(*m_PxActor, m_PxActor->getConcreteType() << 24 | 0);
 		for (unsigned int i = 0; i < m_Cmps.size(); i++)
 		{
@@ -70,9 +70,9 @@ void Actor::save(Archive & ar, const unsigned int version) const
 				}
 			}
 		}
-		physx::PxSerialization::complete(*collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
+		physx::PxSerialization::complete(*collection, *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get());
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get());
 		unsigned int PxActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
 		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -115,7 +115,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
-		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get()), PhysXDeleter<physx::PxCollection>());
+		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
@@ -127,24 +127,24 @@ void Actor::load(Archive & ar, const unsigned int version)
 			switch (obj->getConcreteType())
 			{
 			case physx::PxConcreteType::eMATERIAL:
-				m_Cmps[index]->m_PxMaterial.reset(obj->is<physx::PxMaterial>(), PhysXDeleter<physx::PxMaterial>());
+				m_Cmps[index]->m_PxMaterial.reset(obj->is<physx::PxMaterial>(), PhysxDeleter<physx::PxMaterial>());
 				break;
 			case physx::PxConcreteType::eRIGID_STATIC:
 				_ASSERT(!m_PxActor);
-				m_PxActor.reset(obj->is<physx::PxRigidStatic>(), PhysXDeleter<physx::PxRigidActor>());
+				m_PxActor.reset(obj->is<physx::PxRigidStatic>(), PhysxDeleter<physx::PxRigidActor>());
 				m_PxActor->userData = this;
 				break;
 			case physx::PxConcreteType::eRIGID_DYNAMIC:
 				_ASSERT(!m_PxActor);
-				m_PxActor.reset(obj->is<physx::PxRigidDynamic>(), PhysXDeleter<physx::PxRigidActor>());
+				m_PxActor.reset(obj->is<physx::PxRigidDynamic>(), PhysxDeleter<physx::PxRigidActor>());
 				m_PxActor->userData = this;
 				break;
 			case physx::PxConcreteType::eSHAPE:
-				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>(), PhysXDeleter<physx::PxShape>());
+				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>(), PhysxDeleter<physx::PxShape>());
 				break;
 			case physx::PxConcreteType::eHEIGHTFIELD:
 				_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeTerrain);
-				boost::dynamic_pointer_cast<Terrain>(m_Cmps[i])->m_PxHeightField.reset(obj->is<physx::PxHeightField>(), PhysXDeleter<physx::PxHeightField>());
+				boost::dynamic_pointer_cast<Terrain>(m_Cmps[i])->m_PxHeightField.reset(obj->is<physx::PxHeightField>(), PhysxDeleter<physx::PxHeightField>());
 				break;
 			default:
 				_ASSERT(false);
@@ -233,7 +233,7 @@ void Actor::ReleaseResource(void)
 	}
 }
 
-void Actor::OnEnterPxScene(PhysXSceneContext * scene)
+void Actor::EnterPhysxScene(PhysxSceneContext * scene)
 {
 	if (m_PxActor)
 	{
@@ -243,16 +243,16 @@ void Actor::OnEnterPxScene(PhysXSceneContext * scene)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->OnEnterPxScene(scene);
+		(*cmp_iter)->EnterPhysxScene(scene);
 	}
 }
 
-void Actor::OnLeavePxScene(PhysXSceneContext * scene)
+void Actor::LeavePhysxScene(PhysxSceneContext * scene)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->OnLeavePxScene(scene);
+		(*cmp_iter)->LeavePhysxScene(scene);
 	}
 
 	if (m_PxActor)
@@ -449,12 +449,12 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	switch (ActorType)
 	{
 	case physx::PxActorType::eRIGID_STATIC:
-		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(
-			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysXDeleter<physx::PxRigidActor>());
+		m_PxActor.reset(PhysxContext::getSingleton().m_sdk->createRigidStatic(
+			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
 		break;
 	case physx::PxActorType::eRIGID_DYNAMIC:
-		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(
-			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysXDeleter<physx::PxRigidActor>());
+		m_PxActor.reset(PhysxContext::getSingleton().m_sdk->createRigidDynamic(
+			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
 		break;
 	}
 	m_PxActor->userData = this;

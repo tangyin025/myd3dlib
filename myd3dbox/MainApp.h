@@ -9,7 +9,7 @@
 
 #include "resource.h"       // main symbols
 #include "RenderPipeline.h"
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 
 
 // CMainApp:
@@ -20,7 +20,7 @@ class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::ResourceMgr
 	, public RenderPipeline
-	, public PhysXContext
+	, public PhysxContext
 {
 public:
 	CMainApp();

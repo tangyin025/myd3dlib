@@ -390,14 +390,14 @@ HRESULT Game::OnCreateDevice(
 
 	InputMgr::Create(m_hinst, m_wnd->m_hWnd);
 
-	if (!PhysXContext::Init())
+	if (!PhysxContext::Init())
 	{
-		THROW_CUSEXCEPTION("PhysXContext::Init failed");
+		THROW_CUSEXCEPTION("PhysxContext::Init failed");
 	}
 
-	if (!PhysXSceneContext::Init(m_sdk.get(), m_CpuDispatcher.get()))
+	if (!PhysxSceneContext::Init(m_sdk.get(), m_CpuDispatcher.get()))
 	{
-		THROW_CUSEXCEPTION("PhysXSceneContext::Init failed");
+		THROW_CUSEXCEPTION("PhysxSceneContext::Init failed");
 	}
 
 	ResourceMgr::StartIORequestProc(4);
@@ -603,9 +603,9 @@ void Game::OnDestroyDevice(void)
 
 	FModContext::Shutdown();
 
-	PhysXSceneContext::Shutdown();
+	PhysxSceneContext::Shutdown();
 
-	PhysXContext::Shutdown();
+	PhysxContext::Shutdown();
 
 	RenderPipeline::OnDestroyDevice();
 
@@ -624,7 +624,7 @@ void Game::OnFrameTick(
 
 	CheckIORequests(0);
 
-	PhysXSceneContext::PushRenderBuffer(this);
+	PhysxSceneContext::PushRenderBuffer(this);
 
 	FModContext::Update();
 
@@ -668,7 +668,7 @@ void Game::OnFrameTick(
 
 	ParallelTaskManager::DoAllParallelTasks();
 
-	PhysXSceneContext::TickPreRender(fElapsedTime);
+	PhysxSceneContext::TickPreRender(fElapsedTime);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
@@ -697,7 +697,7 @@ void Game::OnFrameTick(
 
 	m_d3dDeviceSec.Leave();
 
-	PhysXSceneContext::TickPostRender(fElapsedTime);
+	PhysxSceneContext::TickPostRender(fElapsedTime);
 
 	physx::PxU32 nbActiveTransforms;
 	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(nbActiveTransforms);
@@ -834,7 +834,7 @@ void Game::RemoveActor(ActorPtr actor)
 {
 	OctNode::RemoveEntity(actor);
 	actor->ReleaseResource();
-	actor->OnLeavePxScene(this);
+	actor->LeavePhysxScene(this);
 }
 
 void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
@@ -852,7 +852,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
 		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
 		{
-			actor->OnLeavePxScene(this);
+			actor->LeavePhysxScene(this);
 			actor->ReleaseResource();
 			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			continue;
@@ -865,11 +865,11 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	{
 		WeakActorMap & m_ViewedActors;
 
-		PhysXSceneContext * m_Scene;
+		PhysxSceneContext * m_Scene;
 
 		AABB m_aabb;
 
-		Callback(WeakActorMap & ViewedActors, PhysXSceneContext * Scene, const AABB & aabb)
+		Callback(WeakActorMap & ViewedActors, PhysxSceneContext * Scene, const AABB & aabb)
 			: m_ViewedActors(ViewedActors)
 			, m_Scene(Scene)
 			, m_aabb(aabb)
@@ -882,7 +882,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 			if (!actor->IsRequested())
 			{
 				actor->RequestResource();
-				actor->OnEnterPxScene(m_Scene);
+				actor->EnterPhysxScene(m_Scene);
 				_ASSERT(m_ViewedActors.find(actor) == m_ViewedActors.end());
 			}
 			m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
@@ -907,7 +907,7 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 void Game::LoadScene(const char * path)
 {
 	OctRoot::ClearAllNode();
-	PhysXSceneContext::ClearSerializedObjs();
+	PhysxSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 
 	IStreamBuff buff(OpenIStream(path));
@@ -927,7 +927,7 @@ void Game::LoadScene(const char * path)
 		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
 	}
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	*ia >> boost::serialization::make_nvp("PhysXSceneContext", (PhysXSceneContext &)*this);
+	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	RenderPipeline::RequestResource();

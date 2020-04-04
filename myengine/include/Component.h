@@ -20,7 +20,7 @@ typedef std::vector<MaterialPtr> MaterialPtrList;
 
 class Actor;
 
-class PhysXSceneContext;
+class PhysxSceneContext;
 
 class RenderPipeline;
 
@@ -107,9 +107,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(PhysXSceneContext * scene);
+	virtual void EnterPhysxScene(PhysxSceneContext * scene);
 
-	virtual void OnLeavePxScene(PhysXSceneContext * scene);
+	virtual void LeavePhysxScene(PhysxSceneContext * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
@@ -297,9 +297,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(PhysXSceneContext * scene);
+	virtual void EnterPhysxScene(PhysxSceneContext * scene);
 
-	virtual void OnLeavePxScene(PhysXSceneContext * scene);
+	virtual void LeavePhysxScene(PhysxSceneContext * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 

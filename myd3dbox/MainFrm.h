@@ -8,7 +8,7 @@
 #include "PropertiesWnd.h"
 #include "EnvironmentWnd.h"
 #include "Actor.h"
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 #include "Terrain.h"
 #include "Pivot.h"
 #include "EventDefine.h"
@@ -17,7 +17,7 @@
 #include "DetourNavMeshQuery.h"
 
 class CMainFrame : public CFrameWndEx
-	, public PhysXSceneContext
+	, public PhysxSceneContext
 	, public my::OctRoot
 	, public rcContext
 {

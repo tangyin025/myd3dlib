@@ -5,7 +5,7 @@
 #include "myResource.h"
 #include "Animator.h"
 #include "Material.h"
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 #include "RenderPipeline.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -95,11 +95,11 @@ void Component::ReleaseResource(void)
 {
 }
 
-void Component::OnEnterPxScene(PhysXSceneContext * scene)
+void Component::EnterPhysxScene(PhysxSceneContext * scene)
 {
 }
 
-void Component::OnLeavePxScene(PhysXSceneContext * scene)
+void Component::LeavePhysxScene(PhysxSceneContext * scene)
 {
 }
 
@@ -138,10 +138,10 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 		return;
 	}
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
+		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -160,10 +160,10 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 		return;
 	}
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
+		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -188,10 +188,10 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 		return;
 	}
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
+		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -210,10 +210,10 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 		return;
 	}
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
-		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
+		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -470,8 +470,8 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 
 	key += "triangle";
 	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
-	PhysXSceneContext::PxObjectMap::iterator collection_obj_iter = PhysXSceneContext::getSingleton().m_CollectionObjs.find(key);
-	if (collection_obj_iter != PhysXSceneContext::getSingleton().m_CollectionObjs.end())
+	PhysxSceneContext::PxObjectMap::iterator collection_obj_iter = PhysxSceneContext::getSingleton().m_CollectionObjs.find(key);
+	if (collection_obj_iter != PhysxSceneContext::getSingleton().m_CollectionObjs.end())
 	{
 		triangle_mesh.reset(collection_obj_iter->second, collection_obj_iter->second->is<physx::PxTriangleMesh>());
 	}
@@ -493,7 +493,7 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		}
 		desc.triangles.data = m_Mesh->LockIndexBuffer();
 		physx::PxDefaultMemoryOutputStream writeBuffer;
-		bool status = PhysXContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
+		bool status = PhysxContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
 		m_Mesh->UnlockIndexBuffer();
 		m_Mesh->UnlockVertexBuffer();
 		if (!status)
@@ -501,15 +501,15 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 			return;
 		}
 		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		triangle_mesh.reset(PhysXContext::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysXDeleter<physx::PxTriangleMesh>());
-		PhysXSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, triangle_mesh));
+		triangle_mesh.reset(PhysxContext::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
+		PhysxSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, triangle_mesh));
 	}
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
-		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
+		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
 
@@ -548,8 +548,8 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		key += "inflate";
 	}
 	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
-	PhysXSceneContext::PxObjectMap::iterator collection_obj_iter = PhysXSceneContext::getSingleton().m_CollectionObjs.find(key);
-	if (collection_obj_iter != PhysXSceneContext::getSingleton().m_CollectionObjs.end())
+	PhysxSceneContext::PxObjectMap::iterator collection_obj_iter = PhysxSceneContext::getSingleton().m_CollectionObjs.find(key);
+	if (collection_obj_iter != PhysxSceneContext::getSingleton().m_CollectionObjs.end())
 	{
 		convex_mesh.reset(collection_obj_iter->second, collection_obj_iter->second->is<physx::PxConvexMesh>());
 	}
@@ -566,22 +566,22 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		}
 		desc.vertexLimit = 256;
 		physx::PxDefaultMemoryOutputStream writeBuffer;
-		bool status = PhysXContext::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
+		bool status = PhysxContext::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
 		m_Mesh->UnlockVertexBuffer();
 		if (!status)
 		{
 			return;
 		}
 		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		convex_mesh.reset(PhysXContext::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysXDeleter<physx::PxConvexMesh>());
-		PhysXSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, convex_mesh));
+		convex_mesh.reset(PhysxContext::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
+		PhysxSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, convex_mesh));
 	}
 
-	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysXDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
-	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
-		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysXDeleter<physx::PxShape>());
+	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
+		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setQueryFilterData(physx::PxFilterData(filterWord0, 0, 0, 0));
 
@@ -638,11 +638,11 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 
-	boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
+	boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
 	collection->add(*m_Cloth);
-	physx::PxSerialization::complete(*collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
+	physx::PxSerialization::complete(*collection, *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get());
 	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get());
+	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get());
 	unsigned int ClothSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(ClothSize);
 	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -673,7 +673,7 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXSceneContext::getSingleton().m_Registry, PhysXSceneContext::getSingleton().m_Collection.get()), PhysXDeleter<physx::PxCollection>());
+	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
 	const unsigned int numObjs = collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
@@ -681,10 +681,10 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 		switch (obj->getConcreteType())
 		{
 		case physx::PxConcreteType::eCLOTH_FABRIC:
-			m_Fabric.reset(obj->is<physx::PxClothFabric>(), PhysXDeleter<physx::PxClothFabric>());
+			m_Fabric.reset(obj->is<physx::PxClothFabric>(), PhysxDeleter<physx::PxClothFabric>());
 			break;
 		case physx::PxConcreteType::eCLOTH:
-			m_Cloth.reset(obj->is<physx::PxCloth>(), PhysXDeleter<physx::PxCloth>());
+			m_Cloth.reset(obj->is<physx::PxCloth>(), PhysxDeleter<physx::PxCloth>());
 			break;
 		}
 	}
@@ -801,9 +801,9 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 		desc.triangles.stride = 3 * sizeof(unsigned short);
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 		boost::shared_ptr<physx::PxClothFabric> fabric(PxClothFabricCreate(
-			*PhysXContext::getSingleton().m_sdk, desc, (physx::PxVec3&)my::Vector3::Gravity, true), PhysXDeleter<physx::PxClothFabric>());
-		m_Cloth.reset(PhysXContext::getSingleton().m_sdk->createCloth(
-			physx::PxTransform::createIdentity(), *fabric, &m_particles[0], physx::PxClothFlags()), PhysXDeleter<physx::PxCloth>());
+			*PhysxContext::getSingleton().m_sdk, desc, (physx::PxVec3&)my::Vector3::Gravity, true), PhysxDeleter<physx::PxClothFabric>());
+		m_Cloth.reset(PhysxContext::getSingleton().m_sdk->createCloth(
+			physx::PxTransform::createIdentity(), *fabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
 	}
 }
 
@@ -843,9 +843,9 @@ void ClothComponent::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
+void ClothComponent::EnterPhysxScene(PhysxSceneContext * scene)
 {
-	Component::OnEnterPxScene(scene);
+	Component::EnterPhysxScene(scene);
 
 	if (m_Cloth)
 	{
@@ -855,7 +855,7 @@ void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
 	}
 }
 
-void ClothComponent::OnLeavePxScene(PhysXSceneContext * scene)
+void ClothComponent::LeavePhysxScene(PhysxSceneContext * scene)
 {
 	if (m_Cloth)
 	{
@@ -864,7 +864,7 @@ void ClothComponent::OnLeavePxScene(PhysXSceneContext * scene)
 		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 	}
 
-	Component::OnLeavePxScene(scene);
+	Component::LeavePhysxScene(scene);
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)

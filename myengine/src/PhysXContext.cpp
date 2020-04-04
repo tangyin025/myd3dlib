@@ -1,4 +1,4 @@
-#include "PhysXContext.h"
+#include "PhysxContext.h"
 #include "FModContext.h"
 #include "Component.h"
 #include "Terrain.h"
@@ -19,9 +19,9 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 
-const my::Vector3 PhysXContext::Gravity(0.0f, -9.81f, 0.0f);
+const my::Vector3 PhysxContext::Gravity(0.0f, -9.81f, 0.0f);
 
-void * PhysXAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
+void * PhysxAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
 #ifdef _DEBUG
 	return _aligned_malloc_dbg(size, 16, filename, line);
@@ -30,7 +30,7 @@ void * PhysXAllocator::allocate(size_t size, const char * typeName, const char *
 #endif
 }
 
-void PhysXAllocator::deallocate(void * ptr)
+void PhysxAllocator::deallocate(void * ptr)
 {
 #ifdef _DEBUG
 	_aligned_free_dbg(ptr);
@@ -39,9 +39,9 @@ void PhysXAllocator::deallocate(void * ptr)
 #endif
 }
 
-bool PhysXContext::Init(void)
+bool PhysxContext::Init(void)
 {
-	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, *this), PhysXDeleter<physx::PxFoundation>()), m_Foundation))
+	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, *this), PhysxDeleter<physx::PxFoundation>()), m_Foundation))
 	{
 		THROW_CUSEXCEPTION("PxCreateFoundation failed");
 	}
@@ -53,12 +53,12 @@ bool PhysXContext::Init(void)
 #else
 		false,
 #endif
-		NULL), PhysXDeleter<physx::PxPhysics>()), m_sdk))
+		NULL), PhysxDeleter<physx::PxPhysics>()), m_sdk))
 	{
 		THROW_CUSEXCEPTION("PxCreatePhysics failed");
 	}
 
-	if(!(m_Cooking.reset(PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, physx::PxCookingParams(scale)), PhysXDeleter<physx::PxCooking>()), m_Cooking))
+	if(!(m_Cooking.reset(PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, physx::PxCookingParams(scale)), PhysxDeleter<physx::PxCooking>()), m_Cooking))
 	{
 		THROW_CUSEXCEPTION("PxCreateCooking failed");
 	}
@@ -68,14 +68,14 @@ bool PhysXContext::Init(void)
 		THROW_CUSEXCEPTION("PxInitExtensions failed");
 	}
 
-	if(!(m_CpuDispatcher.reset(physx::PxDefaultCpuDispatcherCreate(1, NULL), PhysXDeleter<physx::PxDefaultCpuDispatcher>()), m_CpuDispatcher))
+	if(!(m_CpuDispatcher.reset(physx::PxDefaultCpuDispatcherCreate(1, NULL), PhysxDeleter<physx::PxDefaultCpuDispatcher>()), m_CpuDispatcher))
 	{
 		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
 	}
 	return true;
 }
 
-void PhysXContext::Shutdown(void)
+void PhysxContext::Shutdown(void)
 {
 	if(m_sdk)
 	{
@@ -91,7 +91,7 @@ void PhysXContext::Shutdown(void)
 	m_Foundation.reset();
 }
 
-void PhysXContext::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
+void PhysxContext::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
 	switch (code)
 	{
@@ -110,33 +110,33 @@ void PhysXContext::reportError(physx::PxErrorCode::Enum code, const char* messag
 	}
 }
 
-void PhysXSceneContext::StepperTask::run(void)
+void PhysxSceneContext::StepperTask::run(void)
 {
 	m_PxScene->SubstepDone(this);
 	release();
 }
 
-const char * PhysXSceneContext::StepperTask::getName(void) const
+const char * PhysxSceneContext::StepperTask::getName(void) const
 {
 	return "Stepper Task";
 }
 
-bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher)
+bool PhysxSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher)
 {
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = (physx::PxVec3&)PhysXContext::Gravity;
+	sceneDesc.gravity = (physx::PxVec3&)PhysxContext::Gravity;
 	sceneDesc.simulationEventCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 	sceneDesc.filterShader = filter;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
-	m_PxScene.reset(sdk->createScene(sceneDesc), PhysXDeleter<physx::PxScene>());
+	m_PxScene.reset(sdk->createScene(sceneDesc), PhysxDeleter<physx::PxScene>());
 	if (!m_PxScene)
 	{
 		THROW_CUSEXCEPTION("sdk->createScene failed");
 	}
 
-	m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene), PhysXDeleter<physx::PxControllerManager>());
+	m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene), PhysxDeleter<physx::PxControllerManager>());
 	if (!m_ControllerMgr)
 	{
 		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
@@ -145,12 +145,12 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 	return true;
 }
 
-float PhysXSceneContext::GetVisualizationParameter(void) const
+float PhysxSceneContext::GetVisualizationParameter(void) const
 {
 	return m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES);
 }
 
-void PhysXSceneContext::SetVisualizationParameter(float param)
+void PhysxSceneContext::SetVisualizationParameter(float param)
 {
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, param);
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, param);
@@ -159,10 +159,10 @@ void PhysXSceneContext::SetVisualizationParameter(float param)
 }
 
 template<class Archive>
-void PhysXSceneContext::save(Archive & ar, const unsigned int version) const
+void PhysxSceneContext::save(Archive & ar, const unsigned int version) const
 {
-	const_cast<PhysXSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
-	const_cast<PhysXSceneContext *>(this)->m_Collection.reset(PxCreateCollection(), PhysXDeleter<physx::PxCollection>());
+	const_cast<PhysxSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxContext::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
+	const_cast<PhysxSceneContext *>(this)->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
 	PxObjectMap::const_iterator collection_obj_iter = m_CollectionObjs.begin();
 	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
 	{
@@ -185,14 +185,14 @@ void PhysXSceneContext::save(Archive & ar, const unsigned int version) const
 }
 
 template<class Archive>
-void PhysXSceneContext::load(Archive & ar, const unsigned int version)
+void PhysxSceneContext::load(Archive & ar, const unsigned int version)
 {
 	unsigned int StreamBuffSize;
 	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
-	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk), PhysXDeleter<physx::PxSerializationRegistry>());
-	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysXDeleter<physx::PxCollection>());
+	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxContext::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
+	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
 	const unsigned int numObjs = m_Collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
@@ -200,35 +200,35 @@ void PhysXSceneContext::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(key);
 		physx::PxSerialObjectId id;
 		ar >> BOOST_SERIALIZATION_NVP(id);
-		m_CollectionObjs.insert(std::make_pair(key, boost::shared_ptr<physx::PxBase>(m_Collection->find(id), PhysXDeleter<physx::PxBase>())));
+		m_CollectionObjs.insert(std::make_pair(key, boost::shared_ptr<physx::PxBase>(m_Collection->find(id), PhysxDeleter<physx::PxBase>())));
 	}
 }
 
 template
-void PhysXSceneContext::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+void PhysxSceneContext::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysXSceneContext::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+void PhysxSceneContext::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysXSceneContext::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+void PhysxSceneContext::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysXSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+void PhysxSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysXSceneContext::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+void PhysxSceneContext::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
 
 template
-void PhysXSceneContext::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+void PhysxSceneContext::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
 
 template
-void PhysXSceneContext::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+void PhysxSceneContext::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
 
 template
-void PhysXSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
+void PhysxSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
-void PhysXSceneContext::ClearSerializedObjs(void)
+void PhysxSceneContext::ClearSerializedObjs(void)
 {
 	m_CollectionObjs.clear();
 
@@ -239,7 +239,7 @@ void PhysXSceneContext::ClearSerializedObjs(void)
 	m_SerializeBuff.reset();
 }
 
-void PhysXSceneContext::Shutdown(void)
+void PhysxSceneContext::Shutdown(void)
 {
 	m_EventPxThreadSubstep.disconnect_all_slots();
 	ClearSerializedObjs();
@@ -248,14 +248,14 @@ void PhysXSceneContext::Shutdown(void)
 	m_PxScene.reset();
 }
 
-void PhysXSceneContext::TickPreRender(float dtime)
+void PhysxSceneContext::TickPreRender(float dtime)
 {
 	m_Sync.ResetEvent();
 
 	m_WaitForResults = Advance(dtime);
 }
 
-void PhysXSceneContext::TickPostRender(float dtime)
+void PhysxSceneContext::TickPostRender(float dtime)
 {
 	if(m_WaitForResults)
 	{
@@ -263,7 +263,7 @@ void PhysXSceneContext::TickPostRender(float dtime)
 	}
 }
 
-bool PhysXSceneContext::Advance(float dtime)
+bool PhysxSceneContext::Advance(float dtime)
 {
 	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
 
@@ -283,7 +283,7 @@ bool PhysXSceneContext::Advance(float dtime)
 	return true;
 }
 
-bool PhysXSceneContext::AdvanceSync(float dtime)
+bool PhysxSceneContext::AdvanceSync(float dtime)
 {
 	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
 
@@ -305,12 +305,12 @@ bool PhysXSceneContext::AdvanceSync(float dtime)
 	return true;
 }
 
-void PhysXSceneContext::Substep(StepperTask & completionTask)
+void PhysxSceneContext::Substep(StepperTask & completionTask)
 {
 	m_PxScene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
 }
 
-void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
+void PhysxSceneContext::SubstepDone(StepperTask * ownerTask)
 {
 	m_PxScene->fetchResults(true, &m_ErrorState);
 
@@ -336,7 +336,7 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 	task.removeReference();
 }
 
-void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
+void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 {
 	const physx::PxRenderBuffer & debugRenderable = m_PxScene->getRenderBuffer();
 
@@ -372,12 +372,12 @@ void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//}
 }
 
-void PhysXSceneContext::Flush(void)
+void PhysxSceneContext::Flush(void)
 {
 	m_PxScene->flush(false);
 }
 
-physx::PxFilterFlags PhysXSceneContext::filter(
+physx::PxFilterFlags PhysxSceneContext::filter(
 	physx::PxFilterObjectAttributes attributes0,
 	physx::PxFilterData filterData0,
 	physx::PxFilterObjectAttributes attributes1,
@@ -392,19 +392,19 @@ physx::PxFilterFlags PhysXSceneContext::filter(
 	return physx::PxFilterFlags();
 }
 
-void PhysXSceneContext::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
+void PhysxSceneContext::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
 {
 }
 
-void PhysXSceneContext::onWake(physx::PxActor** actors, physx::PxU32 count)
+void PhysxSceneContext::onWake(physx::PxActor** actors, physx::PxU32 count)
 {
 }
 
-void PhysXSceneContext::onSleep(physx::PxActor** actors, physx::PxU32 count)
+void PhysxSceneContext::onSleep(physx::PxActor** actors, physx::PxU32 count)
 {
 }
 
-void PhysXSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
+void PhysxSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
 {
 	std::vector<physx::PxContactPairPoint> contactPoints;
 	for (physx::PxU32 i = 0; i < nbPairs; i++)
@@ -427,6 +427,6 @@ void PhysXSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, 
 	}
 }
 
-void PhysXSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
+void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 {
 }
