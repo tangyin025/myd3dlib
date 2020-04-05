@@ -13,8 +13,6 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/bind.hpp>
 
 using namespace my;
 

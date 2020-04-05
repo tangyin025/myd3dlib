@@ -26,10 +26,17 @@ BOOST_CLASS_EXPORT(Actor)
 
 Actor::~Actor(void)
 {
+	AttachPairList::iterator att_iter = m_Attaches.begin();
+	for (; att_iter != m_Attaches.end(); att_iter++)
+	{
+		_ASSERT(att_iter->first->m_Base == this);
+		att_iter->first->m_Base = NULL;
+	}
+	m_Attaches.clear();
+	
 	if (m_Base)
 	{
-		_ASSERT(m_Base->m_Suber == this);
-		m_Base->m_Suber = NULL;
+		m_Base->Dettach(this);
 	}
 }
 
@@ -299,10 +306,21 @@ void Actor::Update(float fElapsedTime)
 		}
 	}
 
-	AttacherPtrList::iterator att_iter = m_Attaches.begin();
+	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
-		(*att_iter)->Update(fElapsedTime);
+		if (m_Animator && att_iter->second >= 0 && att_iter->second < (int)m_Animator->anim_pose_hier.size())
+		{
+			const Bone & bone = m_Animator->anim_pose_hier[att_iter->second];
+			att_iter->first->UpdatePose(
+				bone.m_position.transformCoord(m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_World)));
+		}
+		else
+		{
+			att_iter->first->UpdatePose(m_Position, m_Rotation);
+		}
+
+		att_iter->first->Update(fElapsedTime);
 	}
 }
 
@@ -542,33 +560,27 @@ void Actor::SaveToFile(const char * path) const
 	*oa << boost::serialization::make_nvp("Actor", boost::dynamic_pointer_cast<const Actor>(shared_from_this()));
 }
 
-void Actor::Attach(ActorPtr other, int BoneId)
+void Actor::Attach(Actor * other, int BoneId)
 {
 	_ASSERT(other->m_Base == NULL);
-	m_Attaches.insert(AttacherPtr(new BoneAttacher(this, other.get(), BoneId)));
+
+	m_Attaches.push_back(std::make_pair(other, BoneId));
+
+	other->m_Base = this;
 }
 
-void Actor::Dettach(ActorPtr other)
+void Actor::Dettach(Actor * other)
 {
 	_ASSERT(other->m_Base != NULL);
-	AttacherPtrList::iterator att_iter = m_Attaches.find(other->m_Base->shared_from_this());
-	_ASSERT(att_iter != m_Attaches.end());
-	m_Attaches.erase(att_iter);
-}
 
-void BoneAttacher::Update(float fElapsedTime)
-{
-	_ASSERT(m_Owner);
-
-	if (m_Suber)
+	AttachPairList::iterator att_iter = m_Attaches.begin();
+	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
-		if (m_Owner->m_Animator && !m_Owner->m_Animator->anim_pose_hier.empty())
+		if (att_iter->first == other)
 		{
-			const Bone & bone = m_Owner->m_Animator->anim_pose_hier[m_BoneId];
-			m_Suber->UpdatePose(
-				bone.m_position.transformCoord(m_Owner->m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_Owner->m_World)));
+			m_Attaches.erase(att_iter);
+			other->m_Base = NULL;
+			return;
 		}
-
-		m_Suber->Update(fElapsedTime);
 	}
 }

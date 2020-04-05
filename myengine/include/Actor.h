@@ -11,10 +11,6 @@ class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
 
-class Attacher;
-
-typedef boost::shared_ptr<Attacher> AttacherPtr;
-
 class Actor
 	: public my::OctEntity
 {
@@ -49,11 +45,13 @@ public:
 
 	boost::shared_ptr<physx::PxRigidActor> m_PxActor;
 
-	Attacher * m_Base;
+	Actor * m_Base;
 
-	typedef std::set<AttacherPtr> AttacherPtrList;
+	typedef std::pair<Actor *, int> AttachPair;
 
-	AttacherPtrList m_Attaches;
+	typedef std::vector<AttachPair> AttachPairList;
+
+	AttachPairList m_Attaches;
 
 protected:
 	Actor(void)
@@ -158,60 +156,7 @@ public:
 
 	void SaveToFile(const char * path) const;
 
-	void Attach(ActorPtr other, int BoneId);
+	void Attach(Actor * other, int BoneId);
 
-	void Dettach(ActorPtr other);
-};
-
-class Attacher : public boost::enable_shared_from_this<Attacher>
-{
-public:
-	Actor * m_Owner;
-
-	Actor * m_Suber;
-
-protected:
-	Attacher(Actor * Owner, Actor * Suber)
-		: m_Owner(Owner)
-		, m_Suber(Suber)
-	{
-		if (m_Suber)
-		{
-			_ASSERT(m_Suber->m_Base == NULL);
-			m_Suber->m_Base = this;
-		}
-	}
-
-public:
-	virtual ~Attacher(void)
-	{
-		if (m_Suber)
-		{
-			_ASSERT(m_Suber->m_Base == this);
-			m_Suber->m_Base = NULL;
-		}
-	}
-
-	virtual void Update(float fElapsedTime)
-	{
-		if (m_Suber)
-		{
-			m_Suber->Update(fElapsedTime);
-		}
-	}
-};
-
-class BoneAttacher : public Attacher
-{
-protected:
-	int m_BoneId;
-
-public:
-	BoneAttacher(Actor * Owner, Actor * Suber, int BoneId)
-		: Attacher(Owner, Suber)
-		, m_BoneId(BoneId)
-	{
-	}
-
-	virtual void Update(float fElapsedTime);
+	void Dettach(Actor * other);
 };
