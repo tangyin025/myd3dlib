@@ -2,6 +2,7 @@
 
 #include "mySkeleton.h"
 #include "myPhysics.h"
+#include <boost/circular_buffer.hpp>
 
 class AnimationNode;
 
@@ -265,35 +266,27 @@ public:
 
 		std::string m_Root;
 
-		int m_Priority;
-
-		bool m_Loop;
-
 		float m_BlendTime;
+
+		float m_BlendOutTime;
 
 		float m_TargetWeight;
 	};
 
-	typedef std::vector<Sequence> SequenceList;
+	typedef boost::circular_buffer<Sequence> SequenceList;
 
 	SequenceList m_SequenceSlot;
 
-	float m_BlendInTime;
-
-	float m_BlendOutTime;
-
 protected:
 	AnimationNodeSlot(void)
-		: m_BlendInTime(0.3f)
-		, m_BlendOutTime(0.3f)
+		: m_SequenceSlot(2)
 	{
 	}
 
 public:
 	AnimationNodeSlot(Animator * Owner)
 		: AnimationNode(Owner, 1)
-		, m_BlendInTime(0.3f)
-		, m_BlendOutTime(0.3f)
+		, m_SequenceSlot(2)
 	{
 	}
 
@@ -303,17 +296,13 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_BlendInTime);
-		ar & BOOST_SERIALIZATION_NVP(m_BlendOutTime);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual void Advance(float fElapsedTime);
 
-	void Play(const std::string & Name, const std::string & Root, int Priority, bool Loop = false, bool StopBehind = true, float Rate = 1.0f, float Weight = 1.0f);
-
-	void StopFrom(SequenceList::iterator seq_iter);
+	void Play(const std::string & Name, const std::string & Root, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
 
 	void Stop(void);
 

@@ -1070,8 +1070,6 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<Animator *>())
-			.def_readwrite("BlendInTime", &AnimationNodeSlot::m_BlendInTime)
-			.def_readwrite("BlendOutTime", &AnimationNodeSlot::m_BlendOutTime)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)
 

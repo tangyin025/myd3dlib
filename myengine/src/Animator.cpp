@@ -512,22 +512,15 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 
 			if (seq_iter->m_Time > Length)
 			{
-				if (seq_iter->m_Loop)
-				{
-					seq_iter->m_Time -= Length;
-				}
-				else if (seq_iter->m_TargetWeight > 0)
-				{
-					seq_iter->m_TargetWeight = 0;
-					seq_iter->m_BlendTime = m_BlendOutTime;
-				}
+				seq_iter->m_TargetWeight = 0;
+				seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
 			}
 			seq_iter++;
 		}
 	}
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, int Priority, bool Loop /*= false*/, bool StopBehind /*= true*/, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
+void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root, float BlendTime, float BlendOutTime, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
 {
 	Sequence seq;
 	seq.m_Time = 0;
@@ -535,37 +528,20 @@ void AnimationNodeSlot::Play(const std::string & Name, const std::string & Root,
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
 	seq.m_Root = Root;
-	seq.m_Priority = Priority;
-	seq.m_Loop = Loop;
-	seq.m_BlendTime = m_BlendInTime;
+	seq.m_BlendTime = BlendTime;
+	seq.m_BlendOutTime = BlendOutTime;
 	seq.m_TargetWeight = Weight;
-	SequenceList::iterator seq_iter = std::lower_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), seq,
-		boost::bind(std::greater<int>(), boost::bind(&Sequence::m_Priority, _1), seq.m_Priority));
-	seq_iter = m_SequenceSlot.insert(seq_iter, seq);
-
-	if (StopBehind)
-	{
-		StopFrom(seq_iter + 1);
-	}
-}
-
-void AnimationNodeSlot::StopFrom(SequenceList::iterator seq_iter)
-{
-	while (seq_iter != m_SequenceSlot.end())
-	{
-		if (seq_iter->m_Loop || seq_iter->m_TargetWeight > 0)
-		{
-			seq_iter->m_Loop = false;
-			seq_iter->m_TargetWeight = 0;
-			seq_iter->m_BlendTime = m_BlendOutTime;
-		}
-		seq_iter++;
-	}
+	m_SequenceSlot.push_front(seq);
 }
 
 void AnimationNodeSlot::Stop(void)
 {
-	StopFrom(m_SequenceSlot.begin());
+	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
+	{
+		seq_iter->m_TargetWeight = 0;
+		seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
+	}
 }
 
 my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
