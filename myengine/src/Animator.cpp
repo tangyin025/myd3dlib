@@ -147,12 +147,12 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::UpdateGroup(float fElapsedTime)
 {
-	SequenceGroupMap::iterator seq_iter = m_SequenceGroups.begin();
-	while (seq_iter != m_SequenceGroups.end())
+	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
+	while (seq_iter != m_SequenceGroup.end())
 	{
 		SequenceGroupMap::iterator master_seq_iter = seq_iter;
 		SequenceGroupMap::iterator next_seq_iter = seq_iter;
-		for (next_seq_iter++; next_seq_iter != m_SequenceGroups.end() && next_seq_iter->first == seq_iter->first; next_seq_iter++)
+		for (next_seq_iter++; next_seq_iter != m_SequenceGroup.end() && next_seq_iter->first == seq_iter->first; next_seq_iter++)
 		{
 			if (next_seq_iter->second->m_Weight > master_seq_iter->second->m_Weight)
 			{
@@ -160,7 +160,7 @@ void Animator::UpdateGroup(float fElapsedTime)
 			}
 		}
 
-		_ASSERT(master_seq_iter != m_SequenceGroups.end());
+		_ASSERT(master_seq_iter != m_SequenceGroup.end());
 		if (master_seq_iter->second->m_Weight > EPSILON_E3)
 		{
 			master_seq_iter->second->Advance(fElapsedTime);
@@ -181,18 +181,18 @@ void Animator::UpdateGroup(float fElapsedTime)
 
 void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMap::_Pairii range = m_SequenceGroups.equal_range(name);
+	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter == range.second);
-	m_SequenceGroups.insert(std::make_pair(name, sequence));
+	m_SequenceGroup.insert(std::make_pair(name, sequence));
 }
 
 void Animator::RemoveFromSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMap::_Pairii range = m_SequenceGroups.equal_range(name);
+	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter != range.second);
-	m_SequenceGroups.erase(seq_iter);
+	m_SequenceGroup.erase(seq_iter);
 }
 
 void Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)

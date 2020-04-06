@@ -37,7 +37,7 @@ public:
 
 	typedef std::multimap<std::string, AnimationNodeSequence *> SequenceGroupMap;
 
-	SequenceGroupMap m_SequenceGroups;
+	SequenceGroupMap m_SequenceGroup;
 
 	typedef std::vector<my::Particle> ParticleList;
 
