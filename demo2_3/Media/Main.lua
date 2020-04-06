@@ -71,8 +71,37 @@ player:AddComponent(cmp)
 player:UpdateWorld()
 game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 
+-- 构建动画树
+local seq_idle=AnimationNodeSequence()
+seq_idle.Name="idle1"
+local seq_walk=AnimationNodeSequence()
+seq_walk.Name="walk"
+seq_walk.Group="move"
+local rate_walk=AnimationNodeRateBySpeed()
+rate_walk.Speed0=1.2
+rate_walk.Child0=seq_walk
+local node_walk=AnimationNodeBlendBySpeed()
+node_walk.Speed0=1.0
+node_walk.Child0=seq_idle
+node_walk.Child1=rate_walk
+local seq_run=AnimationNodeSequence()
+seq_run.Name="run"
+seq_run.Group="move"
+local rate_run=AnimationNodeRateBySpeed()
+rate_run.Speed0=7
+rate_run.Child0=seq_run
+local node_run=AnimationNodeBlendBySpeed()
+node_run.Speed0=5.0
+node_run.Child0=node_walk
+node_run.Child1=rate_run
+local node_slot=AnimationNodeSlot()
+node_slot.Root="Bip01_Spine1"
+node_slot.Child0=node_run
+
 -- 加载动画资源
 local anim=Animator(player)
+anim.Child0=node_slot
+anim:ResetSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonEventReady=function(args)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
@@ -84,35 +113,6 @@ anim.SkeletonEventReady=function(args)
 	anim:AddIK("Bip01_L_Thigh", 0.1, 1)
 	anim:AddIK("Bip01_R_Thigh", 0.1, 1)
 end
-
--- 构建动画树
-local seq_idle=AnimationNodeSequence(anim)
-seq_idle.Name="idle1"
-local seq_walk=AnimationNodeSequence(anim)
-seq_walk.Name="walk"
-seq_walk.Group="move"
-local rate_walk=AnimationNodeRateBySpeed(anim)
-rate_walk.Speed0=1.2
-rate_walk.Child0=seq_walk
-local node_walk=AnimationNodeBlendBySpeed(anim)
-node_walk.Speed0=1.0
-node_walk.Child0=seq_idle
-node_walk.Child1=rate_walk
-local seq_run=AnimationNodeSequence(anim)
-seq_run.Name="run"
-seq_run.Group="move"
-local rate_run=AnimationNodeRateBySpeed(anim)
-rate_run.Speed0=7
-rate_run.Child0=seq_run
-local node_run=AnimationNodeBlendBySpeed(anim)
-node_run.Speed0=5.0
-node_run.Child0=node_walk
-node_run.Child1=rate_run
-local node_slot=AnimationNodeSlot(anim)
--- node_slot.Root="Bip01_Spine1"
-node_slot.Child0=node_run
-anim.Node=node_slot
-anim.Node:OnSetOwner()
 player.Animator=anim
 
 -- 创建控制器
