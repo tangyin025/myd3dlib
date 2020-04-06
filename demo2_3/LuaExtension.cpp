@@ -1065,11 +1065,11 @@ void LuaContext::Init(void)
 			.def(constructor<Animator *>())
 			.def_readwrite("Rate", &AnimationNodeSequence::m_Rate)
 			.def_readwrite("Name", &AnimationNodeSequence::m_Name)
-			.def_readwrite("Root", &AnimationNodeSequence::m_Root)
 			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<Animator *>())
+			.def_readwrite("Root", &AnimationNodeSlot::m_Root)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)
 

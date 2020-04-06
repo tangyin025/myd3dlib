@@ -199,8 +199,6 @@ public:
 
 	std::string m_Name;
 
-	std::string m_Root;
-
 	std::string m_Group;
 
 protected:
@@ -231,7 +229,6 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
-		ar & BOOST_SERIALIZATION_NVP(m_Root);
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
 
@@ -264,14 +261,14 @@ public:
 
 		std::string m_Name;
 
-		std::string m_Root;
-
 		float m_BlendTime;
 
 		float m_BlendOutTime;
 
 		float m_TargetWeight;
 	};
+
+	std::string m_Root;
 
 	typedef boost::circular_buffer<Sequence> SequenceList;
 
@@ -302,7 +299,7 @@ public:
 
 	virtual void Advance(float fElapsedTime);
 
-	void Play(const std::string & Name, const std::string & Root, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
+	void Play(const std::string & Name, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
 
 	void Stop(void);
 

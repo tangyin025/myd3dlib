@@ -88,10 +88,8 @@ end
 -- 构建动画树
 local seq_idle=AnimationNodeSequence(anim)
 seq_idle.Name="idle1"
-seq_idle.Root="Bip01"
 local seq_walk=AnimationNodeSequence(anim)
 seq_walk.Name="walk"
-seq_walk.Root="Bip01"
 seq_walk.Group="move"
 local rate_walk=AnimationNodeRateBySpeed(anim)
 rate_walk.Speed0=1.2
@@ -102,7 +100,6 @@ node_walk.Child0=seq_idle
 node_walk.Child1=rate_walk
 local seq_run=AnimationNodeSequence(anim)
 seq_run.Name="run"
-seq_run.Root="Bip01"
 seq_run.Group="move"
 local rate_run=AnimationNodeRateBySpeed(anim)
 rate_run.Speed0=7
@@ -112,6 +109,7 @@ node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=rate_run
 local node_slot=AnimationNodeSlot(anim)
+-- node_slot.Root="Bip01_Spine1"
 node_slot.Child0=node_run
 anim.Node=node_slot
 anim.Node:OnSetOwner()
