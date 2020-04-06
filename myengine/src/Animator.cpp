@@ -111,6 +111,7 @@ void Animator::Update(float fElapsedTime)
 		UpdateGroup(fElapsedTime);
 
 		m_Node->GetPose(anim_pose);
+
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
@@ -631,11 +632,13 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 	{
 		m_Childs[0]->GetPose(pose);
 	}
+
 	my::BoneList OtherPose(pose.size());
 	if (m_Childs[1])
 	{
 		m_Childs[1]->GetPose(OtherPose);
 	}
+
 	for (unsigned int i = 0; i < pose.size(); i++)
 	{
 		pose[i].LerpSelf(OtherPose[i], m_Weight);
@@ -692,6 +695,10 @@ my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
 	if (m_Childs[0])
 	{
 		return m_Childs[0]->GetPose(pose);
+	}
+	else
+	{
+		AnimationNode::GetPose(pose);
 	}
 	return pose;
 }
