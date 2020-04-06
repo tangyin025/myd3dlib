@@ -112,20 +112,20 @@ bool OctNode::HaveNode(const OctNode * node) const
 
 const OctNode * OctNode::GetTopNode(void) const
 {
-	if (!m_Parent)
+	if (m_Parent)
 	{
-		return this;
+		return m_Parent->GetTopNode();
 	}
-	return m_Parent->GetTopNode();
+	return this;
 }
 
 OctNode * OctNode::GetTopNode(void)
 {
-	if (!m_Parent)
+	if (m_Parent)
 	{
-		return this;
+		return m_Parent->GetTopNode();
 	}
-	return m_Parent->GetTopNode();
+	return this;
 }
 
 void OctNode::AddEntity(OctEntityPtr entity, const AABB & aabb)
