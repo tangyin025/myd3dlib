@@ -8,7 +8,7 @@
 #include "Material.h"
 #include "RenderPipeline.h"
 #include "Character.h"
-#include "Animator.h"
+#include "Animation.h"
 #include "Controller.h"
 #include "Terrain.h"
 
@@ -1002,7 +1002,7 @@ void LuaContext::Init(void)
 			.def_readwrite("World", &Actor::m_World)
 			.def_readwrite("LodDist", &Actor::m_LodDist)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
-			.def_readwrite("Animator", &Actor::m_Animator)
+			.def_readwrite("Animation", &Actor::m_Animation)
 			.def_readwrite("Controller", &Actor::m_Controller)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
 			.def("Clone", &Actor::Clone)
@@ -1076,14 +1076,14 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 
-		, class_<Animator, AnimationNode, boost::shared_ptr<Animator> >("Animator")
+		, class_<AnimationRoot, AnimationNode, boost::shared_ptr<AnimationRoot> >("AnimationRoot")
 			.def(constructor<Actor *>())
-			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
-			.def_readonly("Skeleton", &Animator::m_Skeleton)
-			.def_readwrite("SkeletonEventReady", &Animator::m_SkeletonEventReady)
-			.def("ResetSequenceGroup", &Animator::ResetSequenceGroup)
-			.def("AddJiggleBone", (void (Animator::*)(const std::string &, float, float, float))&Animator::AddJiggleBone)
-			.def("AddIK", &Animator::AddIK)
+			.def_readwrite("SkeletonPath", &AnimationRoot::m_SkeletonPath)
+			.def_readonly("Skeleton", &AnimationRoot::m_Skeleton)
+			.def_readwrite("SkeletonEventReady", &AnimationRoot::m_SkeletonEventReady)
+			.def("ReloadSequenceGroup", &AnimationRoot::ReloadSequenceGroup)
+			.def("AddJiggleBone", (void (AnimationRoot::*)(const std::string &, float, float, float))&AnimationRoot::AddJiggleBone)
+			.def("AddIK", &AnimationRoot::AddIK)
 
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 	];

@@ -1,6 +1,6 @@
 #include "Actor.h"
 #include "Terrain.h"
-#include "Animator.h"
+#include "Animation.h"
 #include "Controller.h"
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
@@ -51,7 +51,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_World);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
-	ar << BOOST_SERIALIZATION_NVP(m_Animator);
+	ar << BOOST_SERIALIZATION_NVP(m_Animation);
 	ar << BOOST_SERIALIZATION_NVP(m_Controller);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
@@ -97,10 +97,10 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
-	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
-	if (m_Animator)
+	ar >> BOOST_SERIALIZATION_NVP(m_Animation);
+	if (m_Animation)
 	{
-		m_Animator->m_Actor = this;
+		m_Animation->m_Actor = this;
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Controller);
 	if (m_Controller)
@@ -212,9 +212,9 @@ void Actor::RequestResource(void)
 {
 	m_Requested = true;
 
-	if (m_Animator)
+	if (m_Animation)
 	{
-		m_Animator->RequestResource();
+		m_Animation->RequestResource();
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
@@ -228,9 +228,9 @@ void Actor::ReleaseResource(void)
 {
 	m_Requested = false;
 
-	if (m_Animator)
+	if (m_Animation)
 	{
-		m_Animator->ReleaseResource();
+		m_Animation->ReleaseResource();
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
@@ -287,9 +287,9 @@ void Actor::OnShaderChanged(void)
 
 void Actor::Update(float fElapsedTime)
 {
-	if (m_Animator)
+	if (m_Animation)
 	{
-		m_Animator->Update(fElapsedTime);
+		m_Animation->Update(fElapsedTime);
 	}
 
 	if (m_Controller)
@@ -309,9 +309,9 @@ void Actor::Update(float fElapsedTime)
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
-		if (m_Animator && att_iter->second >= 0 && att_iter->second < (int)m_Animator->anim_pose_hier.size())
+		if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
 		{
-			const Bone & bone = m_Animator->anim_pose_hier[att_iter->second];
+			const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
 			att_iter->first->UpdatePose(
 				bone.m_position.transformCoord(m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_World)));
 		}

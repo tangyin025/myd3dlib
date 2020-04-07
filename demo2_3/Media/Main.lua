@@ -99,9 +99,9 @@ node_slot.Root="Bip01_Spine1"
 node_slot.Child0=node_run
 
 -- 加载动画资源
-local anim=Animator(player)
+local anim=AnimationRoot(player)
 anim.Child0=node_slot
-anim:ResetSequenceGroup()
+anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonEventReady=function(args)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
@@ -113,7 +113,7 @@ anim.SkeletonEventReady=function(args)
 	anim:AddIK("Bip01_L_Thigh", 0.1, 1)
 	anim:AddIK("Bip01_R_Thigh", 0.1, 1)
 end
-player.Animator=anim
+player.Animation=anim
 
 -- 创建控制器
 player.Controller=PlayerController(player)

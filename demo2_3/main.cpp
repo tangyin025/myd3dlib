@@ -54,7 +54,7 @@ public:
 		//mesh_cmp->m_MaterialList.push_back(mtl);
 		//SimpleAnimatorPtr anim(new SimpleAnimator());
 		//anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
-		//mesh_cmp->m_Animator = anim;
+		//mesh_cmp->m_Animation = anim;
 		//mesh_cmp->RequestResource();
 		//m_Root.AddEntity(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 		//m_cmps.push_back(mesh_cmp);
@@ -136,14 +136,14 @@ public:
 		//mtl->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
 		//mtl->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
 		//mesh_cmp->m_MaterialList.push_back(mtl);
-		//AnimatorPtr anim(new Animator());
+		//AnimationRootPtr anim(new AnimationRoot());
 		//anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
 		//AnimationNodeSequencePtr node(new AnimationNodeSequence());
 		//node->m_Name = "walk";
 		//node->m_Root = "Bip01";
 		//anim->m_Node = node;
 		//node->m_Owner = anim.get();
-		//mesh_cmp->m_Animator = anim;
+		//mesh_cmp->m_Animation = anim;
 		//m_Logic->m_cmps.push_back(mesh_cmp);
 		//m_Root.AddEntity(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 

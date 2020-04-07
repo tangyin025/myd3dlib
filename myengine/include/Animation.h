@@ -286,7 +286,7 @@ typedef boost::shared_ptr<AnimationNodeRateBySpeed> AnimationNodeRateBySpeedPtr;
 
 class Actor;
 
-class Animator : public AnimationNode, public my::IResourceCallback
+class AnimationRoot : public AnimationNode, public my::IResourceCallback
 {
 public:
 	Actor * m_Actor;
@@ -342,19 +342,19 @@ public:
 	IKContextMap m_Iks;
 
 protected:
-	Animator(void)
+	AnimationRoot(void)
 		: m_Actor(NULL)
 	{
 	}
 
 public:
-	Animator(Actor * actor)
+	AnimationRoot(Actor * actor)
 		: AnimationNode(1)
 		, m_Actor(actor)
 	{
 	}
 
-	virtual ~Animator(void)
+	virtual ~AnimationRoot(void)
 	{
 	}
 
@@ -380,11 +380,9 @@ public:
 
 	void Update(float fElapsedTime);
 
-	void ResetSequenceGroup(void);
+	void ReloadSequenceGroup(void);
 
-	void ResetSequenceGroupWalker(AnimationNode * node);
-
-	void AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+	void ReloadSequenceGroupWalker(AnimationNode * node);
 
 	void UpdateSequenceGroup(float fElapsedTime);
 
@@ -406,4 +404,4 @@ public:
 		const my::Vector3 & Position);
 };
 
-typedef boost::shared_ptr<Animator> AnimatorPtr;
+typedef boost::shared_ptr<AnimationRoot> AnimationRootPtr;

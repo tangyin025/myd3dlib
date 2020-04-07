@@ -7,7 +7,7 @@
 
 #include "ChildView.h"
 #include "MainFrm.h"
-#include "Animator.h"
+#include "Animation.h"
 #include "DetourDebugDraw.h"
 
 #ifdef _DEBUG
@@ -296,8 +296,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			}
 			if (mesh_cmp->m_bUseAnimation
 				&& mesh_cmp->m_Actor
-				&& mesh_cmp->m_Actor->m_Animator
-				&& !mesh_cmp->m_Actor->m_Animator->m_DualQuats.empty())
+				&& mesh_cmp->m_Actor->m_Animation
+				&& !mesh_cmp->m_Actor->m_Animation->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
@@ -310,7 +310,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
-					mesh_cmp->m_Actor->m_Animator->m_DualQuats);
+					mesh_cmp->m_Actor->m_Animation->m_DualQuats);
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -424,8 +424,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			}
 			if (cloth_cmp->m_bUseAnimation
 				&& cloth_cmp->m_Actor
-				&& cloth_cmp->m_Actor->m_Animator
-				&& !cloth_cmp->m_Actor->m_Animator->m_DualQuats.empty())
+				&& cloth_cmp->m_Actor->m_Animation
+				&& !cloth_cmp->m_Actor->m_Animation->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
 				my::D3DVertexElementSet elems;
@@ -438,7 +438,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
-					cloth_cmp->m_Actor->m_Animator->m_DualQuats);
+					cloth_cmp->m_Actor->m_Animation->m_DualQuats);
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -544,8 +544,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			my::RayResult ret;
 			if (mesh_cmp->m_bUseAnimation
 				&& mesh_cmp->m_Actor
-				&& mesh_cmp->m_Actor->m_Animator
-				&& !mesh_cmp->m_Actor->m_Animator->m_DualQuats.empty())
+				&& mesh_cmp->m_Actor->m_Animation
+				&& !mesh_cmp->m_Actor->m_Animation->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
@@ -558,7 +558,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
-					mesh_cmp->m_Actor->m_Animator->m_DualQuats);
+					mesh_cmp->m_Actor->m_Animation->m_DualQuats);
 				ret = OverlapTestRayAndMesh(local_ray,
 					&vertices[0],
 					vertices.size(),
@@ -669,8 +669,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			my::RayResult ret;
 			if (cloth_cmp->m_bUseAnimation
 				&& cloth_cmp->m_Actor
-				&& cloth_cmp->m_Actor->m_Animator
-				&& !cloth_cmp->m_Actor->m_Animator->m_DualQuats.empty())
+				&& cloth_cmp->m_Actor->m_Animation
+				&& !cloth_cmp->m_Actor->m_Animation->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
 				my::D3DVertexElementSet elems;
@@ -683,7 +683,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
-					cloth_cmp->m_Actor->m_Animator->m_DualQuats);
+					cloth_cmp->m_Actor->m_Animation->m_DualQuats);
 				ret = OverlapTestRayAndMesh(local_ray,
 					&vertices[0],
 					vertices.size(),

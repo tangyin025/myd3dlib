@@ -27,7 +27,7 @@
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
 #include "TerrainGrassBrashDlg.h"
-#include "Animator.h"
+#include "Animation.h"
 #include "Win32InputBox.h"
 
 #ifdef _DEBUG
@@ -594,17 +594,17 @@ void CMainFrame::OnFileNew()
 	//mesh_cmp->m_MaterialList.push_back(mtl);
 	//actor->AddComponent(mesh_cmp);
 
-	//AnimatorPtr anim(new Animator(actor.get()));
+	//AnimationRootPtr anim(new AnimationRoot(actor.get()));
 	//anim->m_SkeletonPath = "character/aaa.skeleton";
 	//AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
 	//seq->m_Root = "Bip01";
 	//seq->m_Name = "Animation";
 	//anim->m_Node = seq;
-	//actor->m_Animator = anim;
+	//actor->m_Animation = anim;
 
 	//struct helper
 	//{
-	//	AnimatorPtr anim;
+	//	AnimationRootPtr anim;
 	//	void cb(my::ControlEventArgs * args) {
 	//		ASSERT(anim->m_Skeleton);
 	//		anim->m_Skeleton->AddOgreSkeletonAnimationFromFile("character/bbb.skeleton");

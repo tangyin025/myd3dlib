@@ -3,7 +3,7 @@
 #include "myDxutApp.h"
 #include "myEffect.h"
 #include "myResource.h"
-#include "Animator.h"
+#include "Animation.h"
 #include "Material.h"
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
@@ -357,11 +357,11 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
-	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
+	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 	{
-		if (!m_Actor->m_Animator->m_DualQuats.empty())
+		if (!m_Actor->m_Animation->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
+			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animation->m_DualQuats[0], m_Actor->m_Animation->m_DualQuats.size());
 		}
 	}
 }
@@ -420,7 +420,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							if (!handle_World)
 							{
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-								if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
+								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
 									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 								}
@@ -875,11 +875,11 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
-	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
+	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 	{
-		if (!m_Actor->m_Animator->m_DualQuats.empty())
+		if (!m_Actor->m_Animation->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
+			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animation->m_DualQuats[0], m_Actor->m_Animation->m_DualQuats.size());
 		}
 	}
 }
@@ -933,7 +933,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 							if (!handle_World)
 							{
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-								if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
+								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
 									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 								}
@@ -970,14 +970,14 @@ void ClothComponent::UpdateCloth(void)
 		{
 			unsigned char * pVertices = &m_VertexData[0];
 			const DWORD NbParticles = m_Cloth->getNbParticles();
-			if (m_bUseAnimation && m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty())
+			if (m_bUseAnimation && m_Actor && m_Actor->m_Animation && !m_Actor->m_Animation->m_DualQuats.empty())
 			{
 				for (unsigned int i = 0; i < NbParticles; i++)
 				{
 					void * pVertex = pVertices + i * m_VertexStride;
 					if (readData->particles[i].invWeight == 0)
 					{
-						my::Vector3 pos = m_Actor->m_Animator->m_DualQuats.TransformVertexWithDualQuaternionList(
+						my::Vector3 pos = m_Actor->m_Animation->m_DualQuats.TransformVertexWithDualQuaternionList(
 							(my::Vector3 &)m_particles[i].pos,
 							m_VertexElems.GetBlendIndices(pVertex),
 							m_VertexElems.GetBlendWeight(pVertex));
@@ -1027,14 +1027,14 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 	{
 		m_ClothSpheresTmp.resize(m_ClothSpheres.size());
 
-		if (m_bUseAnimation && m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty())
+		if (m_bUseAnimation && m_Actor && m_Actor->m_Animation && !m_Actor->m_Animation->m_DualQuats.empty())
 		{
 			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
 			{
 				m_ClothSpheresTmp[i].radius = m_ClothSpheres[i].first.radius;
 				if (m_ClothSpheres[i].second >= 0)
 				{
-					Matrix4 & dual = m_Actor->m_Animator->m_DualQuats[m_ClothSpheres[i].second];
+					Matrix4 & dual = m_Actor->m_Animation->m_DualQuats[m_ClothSpheres[i].second];
 					m_ClothSpheresTmp[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
 						(Vector3 &)m_ClothSpheres[i].first.pos, dual);
 				}

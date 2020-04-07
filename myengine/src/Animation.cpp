@@ -1,4 +1,4 @@
-#include "Animator.h"
+#include "Animation.h"
 #include "Character.h"
 #include "myResource.h"
 #include "PhysxContext.h"
@@ -28,7 +28,7 @@ BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
 
 BOOST_CLASS_EXPORT(AnimationNodeRateBySpeed)
 
-BOOST_CLASS_EXPORT(Animator)
+BOOST_CLASS_EXPORT(AnimationRoot)
 
 template<class Archive>
 void AnimationNode::save(Archive & ar, const unsigned int version) const
@@ -141,7 +141,7 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 
 float AnimationNodeSequence::GetLength(void) const
 {
-	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
+	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
@@ -155,7 +155,7 @@ float AnimationNodeSequence::GetLength(void) const
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 {
-	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
+	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
@@ -199,7 +199,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 void AnimationNodeSlot::Advance(float fElapsedTime)
 {
-	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
+	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		SequenceList::iterator seq_iter = m_SequenceSlot.begin();
@@ -257,7 +257,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		m_Childs[0]->GetPose(pose);
 	}
 
-	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
+	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
@@ -364,7 +364,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 
 void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 {
-	Animator * Root = dynamic_cast<Animator *>(GetTopNode());
+	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
 	Character * character = dynamic_cast<Character *>(Root->m_Actor);
 	if (character)
 	{
@@ -390,7 +390,7 @@ void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 
 void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 {
-	Animator * Root = dynamic_cast<Animator *>(GetTopNode());
+	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
 	Character * character = dynamic_cast<Character *>(Root->m_Actor);
 	if (character)
 	{
@@ -418,45 +418,45 @@ my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
 }
 
 template<class Archive>
-void Animator::save(Archive & ar, const unsigned int version) const
+void AnimationRoot::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 }
 
 template<class Archive>
-void Animator::load(Archive & ar, const unsigned int version)
+void AnimationRoot::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
-	ResetSequenceGroup();
+	ReloadSequenceGroup();
 }
 
 template
-void Animator::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+void AnimationRoot::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
 
 template
-void Animator::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+void AnimationRoot::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
 
 template
-void Animator::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+void AnimationRoot::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
 
 template
-void Animator::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+void AnimationRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
 
 template
-void Animator::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+void AnimationRoot::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
 
 template
-void Animator::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+void AnimationRoot::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
 
 template
-void Animator::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+void AnimationRoot::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
 
 template
-void Animator::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
+void AnimationRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
-void Animator::OnReady(my::IORequest * request)
+void AnimationRoot::OnReady(my::IORequest * request)
 {
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(request->m_res);
 
@@ -480,7 +480,7 @@ void Animator::OnReady(my::IORequest * request)
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 }
 
-void Animator::RequestResource(void)
+void AnimationRoot::RequestResource(void)
 {
 	if (!m_SkeletonPath.empty())
 	{
@@ -490,7 +490,7 @@ void Animator::RequestResource(void)
 	}
 }
 
-void Animator::ReleaseResource(void)
+void AnimationRoot::ReleaseResource(void)
 {
 	if (!m_SkeletonPath.empty())
 	{
@@ -500,7 +500,7 @@ void Animator::ReleaseResource(void)
 	}
 }
 
-void Animator::Update(float fElapsedTime)
+void AnimationRoot::Update(float fElapsedTime)
 {
 	if (m_Skeleton && m_Childs[0])
 	{
@@ -544,15 +544,7 @@ void Animator::Update(float fElapsedTime)
 	}
 }
 
-void Animator::AddToSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
-{
-	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
-	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
-	_ASSERT(seq_iter == range.second);
-	m_SequenceGroup.insert(std::make_pair(name, sequence));
-}
-
-void Animator::ResetSequenceGroup(void)
+void AnimationRoot::ReloadSequenceGroup(void)
 {
 	m_SequenceGroup.clear();
 
@@ -561,17 +553,17 @@ void Animator::ResetSequenceGroup(void)
 	{
 		if (*node_iter)
 		{
-			ResetSequenceGroupWalker(node_iter->get());
+			ReloadSequenceGroupWalker(node_iter->get());
 		}
 	}
 }
 
-void Animator::ResetSequenceGroupWalker(AnimationNode * node)
+void AnimationRoot::ReloadSequenceGroupWalker(AnimationNode * node)
 {
 	AnimationNodeSequence * sequence = dynamic_cast<AnimationNodeSequence *>(node);
 	if (sequence && !sequence->m_Group.empty())
 	{
-		AddToSequenceGroup(sequence->m_Group, sequence);
+		m_SequenceGroup.insert(std::make_pair(sequence->m_Group, sequence));
 	}
 
 	AnimationNodePtrList::iterator node_iter = node->m_Childs.begin();
@@ -579,12 +571,12 @@ void Animator::ResetSequenceGroupWalker(AnimationNode * node)
 	{
 		if (*node_iter)
 		{
-			ResetSequenceGroupWalker(node_iter->get());
+			ReloadSequenceGroupWalker(node_iter->get());
 		}
 	}
 }
 
-void Animator::UpdateSequenceGroup(float fElapsedTime)
+void AnimationRoot::UpdateSequenceGroup(float fElapsedTime)
 {
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
@@ -618,7 +610,7 @@ void Animator::UpdateSequenceGroup(float fElapsedTime)
 	}
 }
 
-void Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)
+void AnimationRoot::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)
 {
 	_ASSERT(mass > 0);
 
@@ -644,7 +636,7 @@ void Animator::AddJiggleBone(const std::string & bone_name, float mass, float da
 	AddJiggleBone(context, bone_name_iter->second, mass, damping);
 }
 
-void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
+void AnimationRoot::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
 {
 	context.m_ParticleList.push_back(Particle(
 		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
@@ -655,7 +647,7 @@ void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass
 	}
 }
 
-void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime)
+void AnimationRoot::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime)
 {
 	Bone target(
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
@@ -686,7 +678,7 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & pa
 	}
 }
 
-void Animator::AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0)
+void AnimationRoot::AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0)
 {
 	_ASSERT(m_Actor);
 
@@ -715,7 +707,7 @@ void Animator::AddIK(const std::string & bone_name, float hitRadius, unsigned in
 	ik.filterWord0 = filterWord0;
 }
 
-void Animator::UpdateIK(IKContext & ik)
+void AnimationRoot::UpdateIK(IKContext & ik)
 {
 	PhysxSceneContext * scene = dynamic_cast<PhysxSceneContext *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
@@ -759,7 +751,7 @@ void Animator::UpdateIK(IKContext & ik)
 	}
 }
 
-void Animator::TransformHierarchyBoneList(
+void AnimationRoot::TransformHierarchyBoneList(
 	my::BoneList & boneList,
 	const my::BoneHierarchy & boneHierarchy,
 	int root_i,

@@ -3,7 +3,7 @@
 #include "myOctree.h"
 #include "Component.h"
 
-class Animator;
+class AnimationRoot;
 
 class Controller;
 
@@ -35,7 +35,7 @@ public:
 
 	float m_LodFactor;
 
-	boost::shared_ptr<Animator> m_Animator;
+	boost::shared_ptr<AnimationRoot> m_Animation;
 
 	boost::shared_ptr<Controller> m_Controller;
 

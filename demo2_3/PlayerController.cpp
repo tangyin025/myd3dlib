@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PlayerController.h"
 #include "Game.h"
-#include "Animator.h"
+#include "Animation.h"
 
 using namespace my;
 
@@ -118,9 +118,9 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	case KC_SPACE:
 	{
 		m_Character->m_Velocity.y = 5.0f;
-		if (m_Character->m_Animator && m_Character->m_Animator->m_Childs[0])
+		if (m_Character->m_Animation && m_Character->m_Animation->m_Childs[0])
 		{
-			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(m_Character->m_Animator->m_Childs[0]);
+			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(m_Character->m_Animation->m_Childs[0]);
 			if (node_slot)
 			{
 				node_slot->Play("jumpforward", 0.3f, 0.3f, 2.0f, 1.0f);
