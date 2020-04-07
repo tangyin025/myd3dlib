@@ -103,20 +103,6 @@ void AnimationNode::UpdateRate(float fRate)
 	}
 }
 
-void AnimationNode::Tick(float fElapsedTime, float fTotalWeight)
-{
-}
-
-my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
-{
-	for (unsigned int i = 0; i < pose.size(); i++)
-	{
-		pose[i].SetPosition(Vector3(0, 0, 0));
-		pose[i].SetRotation(Quaternion::Identity());
-	}
-	return pose;
-}
-
 void AnimationNodeSequence::UpdateRate(float fRate)
 {
 	AnimationNode::UpdateRate(fRate);
@@ -410,10 +396,6 @@ my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
 	{
 		return m_Childs[0]->GetPose(pose);
 	}
-	else
-	{
-		AnimationNode::GetPose(pose);
-	}
 	return pose;
 }
 
@@ -480,6 +462,23 @@ void AnimationRoot::OnReady(my::IORequest * request)
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 }
 
+void AnimationRoot::Tick(float fElapsedTime, float fTotalWeight)
+{
+	if (m_Childs[0])
+	{
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
+	}
+}
+
+my::BoneList & AnimationRoot::GetPose(my::BoneList & pose) const
+{
+	if (m_Childs[0])
+	{
+		m_Childs[0]->GetPose(pose);
+	}
+	return pose;
+}
+
 void AnimationRoot::RequestResource(void)
 {
 	if (!m_SkeletonPath.empty())
@@ -504,11 +503,11 @@ void AnimationRoot::Update(float fElapsedTime)
 {
 	if (m_Skeleton && m_Childs[0])
 	{
-		m_Childs[0]->Tick(fElapsedTime, 1.0f);
+		Tick(fElapsedTime, 1.0f);
 
 		UpdateSequenceGroup(fElapsedTime);
 
-		m_Childs[0]->GetPose(anim_pose);
+		GetPose(anim_pose);
 
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)

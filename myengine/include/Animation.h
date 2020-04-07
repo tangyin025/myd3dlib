@@ -67,9 +67,9 @@ public:
 
 	virtual void UpdateRate(float fRate);
 
-	virtual void Tick(float fElapsedTime, float fTotalWeight);
+	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+	virtual my::BoneList & GetPose(my::BoneList & pose) const = 0;
 };
 
 class AnimationNodeSequence : public AnimationNode
@@ -112,7 +112,7 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	virtual void Advance(float fElapsedTime);
+	void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
@@ -165,7 +165,7 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	virtual void Advance(float fElapsedTime);
+	void Advance(float fElapsedTime);
 
 	void Play(const std::string & Name, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
 
@@ -373,6 +373,10 @@ public:
 	}
 
 	virtual void OnReady(my::IORequest * request);
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
 	void RequestResource(void);
 

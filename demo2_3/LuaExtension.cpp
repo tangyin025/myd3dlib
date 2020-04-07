@@ -1047,7 +1047,6 @@ void LuaContext::Init(void)
 		, class_<CharacterController, Controller, boost::shared_ptr<Controller> >("CharacterController")
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
-			.def(constructor<unsigned int>())
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
 			.property("Child1", &AnimationNode::GetChild<1>, &AnimationNode::SetChild<1>)
 
