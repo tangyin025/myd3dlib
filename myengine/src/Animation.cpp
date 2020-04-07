@@ -13,6 +13,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace my;
 
@@ -213,13 +214,18 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 	}
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, float BlendTime, float BlendOutTime, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
 {
 	Sequence seq;
 	seq.m_Time = 0;
 	seq.m_Rate = Rate;
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
+	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
+	if (!RootList.empty())
+	{
+		boost::algorithm::split(seq.m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
+	}
 	seq.m_BlendTime = BlendTime;
 	seq.m_BlendOutTime = BlendOutTime;
 	seq.m_TargetWeight = Weight;
@@ -253,7 +259,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 			if (anim)
 			{
 				my::BoneList OtherPose(pose.size());
-				if (m_Root.empty())
+				if (seq_iter->m_RootList.empty())
 				{
 					BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
 					for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
@@ -264,11 +270,15 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 				}
 				else
 				{
-					boost::unordered_map<std::string, int>::const_iterator root_iter = Root->m_Skeleton->m_boneNameMap.find(m_Root);
-					if (root_iter != Root->m_Skeleton->m_boneNameMap.end())
+					std::vector<std::string>::const_iterator root_name_iter = seq_iter->m_RootList.begin();
+					for (; root_name_iter != seq_iter->m_RootList.end(); root_name_iter++)
 					{
-						anim->GetPose(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Time);
-						pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Weight);
+						OgreSkeleton::BoneNameMap::const_iterator root_iter = Root->m_Skeleton->m_boneNameMap.find(*root_name_iter);
+						if (root_iter != Root->m_Skeleton->m_boneNameMap.end())
+						{
+							anim->GetPose(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Time);
+							pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Weight);
+						}
 					}
 				}
 			}

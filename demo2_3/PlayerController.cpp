@@ -123,7 +123,7 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 			AnimationNodeSlotPtr node_slot = boost::dynamic_pointer_cast<AnimationNodeSlot>(m_Character->m_Animation->m_Childs[0]);
 			if (node_slot)
 			{
-				node_slot->Play("jumpforward", 0.3f, 0.3f, 2.0f, 1.0f);
+				node_slot->Play("jumpforward", /*"Bip01_Spine1"*/"", 0.3f, 0.3f, 2.0f, 1.0f);
 			}
 		}
 		break;

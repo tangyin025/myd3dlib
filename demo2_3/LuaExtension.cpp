@@ -1058,7 +1058,6 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
 			.def(constructor<>())
-			.def_readwrite("Root", &AnimationNodeSlot::m_Root)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)
 

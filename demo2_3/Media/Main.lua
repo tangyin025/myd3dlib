@@ -95,7 +95,6 @@ node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=rate_run
 local node_slot=AnimationNodeSlot()
-node_slot.Root="Bip01_Spine1"
 node_slot.Child0=node_run
 
 -- 加载动画资源

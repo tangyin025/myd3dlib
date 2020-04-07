@@ -995,7 +995,11 @@ void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 EffectIORequest::EffectIORequest(const char * path, std::string macros)
 	: m_path(path)
 {
-	boost::algorithm::split(m_macros, macros, boost::algorithm::is_any_of(" \t"), boost::algorithm::token_compress_on);
+	boost::trim_if(macros, boost::algorithm::is_any_of(" \t,"));
+	if (!macros.empty())
+	{
+		boost::algorithm::split(m_macros, macros, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
+	}
 
 	std::vector<std::string>::const_iterator macro_iter = m_macros.begin();
 	for(; macro_iter != m_macros.end(); macro_iter++)

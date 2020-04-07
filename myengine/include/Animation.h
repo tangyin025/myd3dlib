@@ -135,14 +135,14 @@ public:
 
 		std::string m_Name;
 
+		std::vector<std::string> m_RootList;
+
 		float m_BlendTime;
 
 		float m_BlendOutTime;
 
 		float m_TargetWeight;
 	};
-
-	std::string m_Root;
 
 	typedef boost::circular_buffer<Sequence> SequenceList;
 
@@ -167,7 +167,7 @@ public:
 
 	void Advance(float fElapsedTime);
 
-	void Play(const std::string & Name, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
+	void Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
 
 	void Stop(void);
 
