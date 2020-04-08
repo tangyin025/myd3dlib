@@ -1074,7 +1074,7 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
 
-		, class_<AnimationRoot, AnimationNode, boost::shared_ptr<AnimationRoot> >("AnimationRoot")
+		, class_<AnimationRoot, AnimationNodeSlot, boost::shared_ptr<AnimationRoot> >("AnimationRoot")
 			.def(constructor<Actor *>())
 			.def_readwrite("SkeletonPath", &AnimationRoot::m_SkeletonPath)
 			.def_readonly("Skeleton", &AnimationRoot::m_Skeleton)

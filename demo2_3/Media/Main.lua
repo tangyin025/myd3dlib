@@ -94,12 +94,10 @@ local node_run=AnimationNodeBlendBySpeed()
 node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=rate_run
-local node_slot=AnimationNodeSlot()
-node_slot.Child0=node_run
 
 -- 加载动画资源
 local anim=AnimationRoot(player)
-anim.Child0=node_slot
+anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonEventReady=function(args)

@@ -214,34 +214,6 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 	}
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
-{
-	Sequence seq;
-	seq.m_Time = 0;
-	seq.m_Rate = Rate;
-	seq.m_Weight = 0;
-	seq.m_Name = Name;
-	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
-	if (!RootList.empty())
-	{
-		boost::algorithm::split(seq.m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
-	}
-	seq.m_BlendTime = BlendTime;
-	seq.m_BlendOutTime = BlendOutTime;
-	seq.m_TargetWeight = Weight;
-	m_SequenceSlot.push_front(seq);
-}
-
-void AnimationNodeSlot::Stop(void)
-{
-	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
-	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
-	{
-		seq_iter->m_TargetWeight = 0;
-		seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
-	}
-}
-
 my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 {
 	if (m_Childs[0])
@@ -285,6 +257,34 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		}
 	}
 	return pose;
+}
+
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
+{
+	Sequence seq;
+	seq.m_Time = 0;
+	seq.m_Rate = Rate;
+	seq.m_Weight = 0;
+	seq.m_Name = Name;
+	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
+	if (!RootList.empty())
+	{
+		boost::algorithm::split(seq.m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
+	}
+	seq.m_BlendTime = BlendTime;
+	seq.m_BlendOutTime = BlendOutTime;
+	seq.m_TargetWeight = Weight;
+	m_SequenceSlot.push_front(seq);
+}
+
+void AnimationNodeSlot::Stop(void)
+{
+	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
+	{
+		seq_iter->m_TargetWeight = 0;
+		seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
+	}
 }
 
 void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTime)
@@ -412,14 +412,14 @@ my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
 template<class Archive>
 void AnimationRoot::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 }
 
 template<class Archive>
 void AnimationRoot::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ReloadSequenceGroup();
 }
@@ -470,23 +470,6 @@ void AnimationRoot::OnReady(my::IORequest * request)
 	}
 	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
-}
-
-void AnimationRoot::Tick(float fElapsedTime, float fTotalWeight)
-{
-	if (m_Childs[0])
-	{
-		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
-	}
-}
-
-my::BoneList & AnimationRoot::GetPose(my::BoneList & pose) const
-{
-	if (m_Childs[0])
-	{
-		m_Childs[0]->GetPose(pose);
-	}
-	return pose;
 }
 
 void AnimationRoot::RequestResource(void)

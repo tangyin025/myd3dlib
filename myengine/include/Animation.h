@@ -167,11 +167,11 @@ public:
 
 	void Advance(float fElapsedTime);
 
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+
 	void Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
 
 	void Stop(void);
-
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;
@@ -286,7 +286,7 @@ typedef boost::shared_ptr<AnimationNodeRateBySpeed> AnimationNodeRateBySpeedPtr;
 
 class Actor;
 
-class AnimationRoot : public AnimationNode, public my::IResourceCallback
+class AnimationRoot : public AnimationNodeSlot, public my::IResourceCallback
 {
 public:
 	Actor * m_Actor;
@@ -349,8 +349,7 @@ protected:
 
 public:
 	AnimationRoot(Actor * actor)
-		: AnimationNode(1)
-		, m_Actor(actor)
+		: m_Actor(actor)
 	{
 	}
 
@@ -373,10 +372,6 @@ public:
 	}
 
 	virtual void OnReady(my::IORequest * request);
-
-	virtual void Tick(float fElapsedTime, float fTotalWeight);
-
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
 	void RequestResource(void);
 
