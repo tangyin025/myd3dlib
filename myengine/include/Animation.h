@@ -65,8 +65,6 @@ public:
 
 	AnimationNode * GetTopNode(void);
 
-	virtual void UpdateRate(float fRate);
-
 	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const = 0;
@@ -77,9 +75,9 @@ class AnimationNodeSequence : public AnimationNode
 public:
 	float m_Time;
 
-	float m_Rate;
-
 	float m_Weight;
+
+	float m_LastElapsedTime;
 
 	std::string m_Name;
 
@@ -89,8 +87,8 @@ public:
 	AnimationNodeSequence(void)
 		: AnimationNode(0)
 		, m_Time(0)
-		, m_Rate(1)
 		, m_Weight(0)
+		, m_LastElapsedTime(0)
 	{
 	}
 
@@ -107,8 +105,6 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
-
-	virtual void UpdateRate(float fRate);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
@@ -128,8 +124,6 @@ public:
 	{
 	public:
 		float m_Time;
-
-		float m_Rate;
 
 		float m_Weight;
 
@@ -169,7 +163,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate = 1.0f, float Weight = 1.0f);
+	void Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Weight = 1.0f);
 
 	void Stop(void);
 };
@@ -255,12 +249,12 @@ typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPt
 class AnimationNodeRateBySpeed : public AnimationNode
 {
 public:
-	float m_BaseSpeed;
+	float m_Speed0;
 
 public:
 	AnimationNodeRateBySpeed(void)
 		: AnimationNode(1)
-		, m_BaseSpeed(1.0f)
+		, m_Speed0(1.0f)
 	{
 	}
 
@@ -274,7 +268,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_BaseSpeed);
+		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
@@ -383,7 +377,7 @@ public:
 
 	void ReloadSequenceGroupWalker(AnimationNode * node);
 
-	void UpdateSequenceGroup(float fElapsedTime);
+	void UpdateSequenceGroup(void);
 
 	void AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
 

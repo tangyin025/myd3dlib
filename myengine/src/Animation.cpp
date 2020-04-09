@@ -92,30 +92,15 @@ AnimationNode * AnimationNode::GetTopNode(void)
 	return this;
 }
 
-void AnimationNode::UpdateRate(float fRate)
-{
-	AnimationNodePtrList::iterator node_iter = m_Childs.begin();
-	for (; node_iter != m_Childs.end(); node_iter++)
-	{
-		if (*node_iter)
-		{
-			(*node_iter)->UpdateRate(fRate);
-		}
-	}
-}
-
-void AnimationNodeSequence::UpdateRate(float fRate)
-{
-	AnimationNode::UpdateRate(fRate);
-
-	m_Rate = fRate;
-}
-
 void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 {
 	m_Weight = fTotalWeight;
 
-	if (m_Group.empty())
+	if (!m_Group.empty())
+	{
+		m_LastElapsedTime = fElapsedTime;
+	}
+	else
 	{
 		Advance(fElapsedTime);
 	}
@@ -123,7 +108,7 @@ void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
-	m_Time = fmod(m_Time + fElapsedTime * m_Rate, GetLength());
+	m_Time = fmod(m_Time + fElapsedTime, GetLength());
 }
 
 float AnimationNodeSequence::GetLength(void) const
@@ -202,7 +187,7 @@ void AnimationNodeSlot::Advance(float fElapsedTime)
 
 			float Length = anim ? anim->GetLength() : 0;
 
-			seq_iter->m_Time += fElapsedTime * seq_iter->m_Rate;
+			seq_iter->m_Time += fElapsedTime;
 
 			if (seq_iter->m_Time > Length)
 			{
@@ -259,11 +244,10 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Rate /*= 1.0f*/, float Weight /*= 1.0f*/)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Weight /*= 1.0f*/)
 {
 	Sequence seq;
 	seq.m_Time = 0;
-	seq.m_Rate = Rate;
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
 	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
@@ -388,15 +372,16 @@ void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
 {
 	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
 	Character * character = dynamic_cast<Character *>(Root->m_Actor);
+	float fRate = 1.0f;
 	if (character)
 	{
 		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
-		UpdateRate(sqrtf(speed_sq) / m_BaseSpeed);
+		fRate = sqrtf(speed_sq) / m_Speed0;
 	}
 
 	if (m_Childs[0])
 	{
-		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
+		m_Childs[0]->Tick(fElapsedTime * fRate, fTotalWeight);
 	}
 }
 
@@ -498,7 +483,7 @@ void AnimationRoot::Update(float fElapsedTime)
 	{
 		Tick(fElapsedTime, 1.0f);
 
-		UpdateSequenceGroup(fElapsedTime);
+		UpdateSequenceGroup();
 
 		GetPose(anim_pose);
 
@@ -568,7 +553,7 @@ void AnimationRoot::ReloadSequenceGroupWalker(AnimationNode * node)
 	}
 }
 
-void AnimationRoot::UpdateSequenceGroup(float fElapsedTime)
+void AnimationRoot::UpdateSequenceGroup(void)
 {
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
@@ -586,15 +571,15 @@ void AnimationRoot::UpdateSequenceGroup(float fElapsedTime)
 		_ASSERT(master_seq_iter != m_SequenceGroup.end());
 		if (master_seq_iter->second->m_Weight > EPSILON_E3)
 		{
-			master_seq_iter->second->Advance(fElapsedTime);
+			master_seq_iter->second->Advance(master_seq_iter->second->m_LastElapsedTime);
 			float time_pct = master_seq_iter->second->m_Time / master_seq_iter->second->GetLength();
 
-			SequenceGroupMap::iterator adjust_seq_iter = seq_iter;
-			for (; adjust_seq_iter != next_seq_iter; adjust_seq_iter++)
+			SequenceGroupMap::iterator slave_seq_iter = seq_iter;
+			for (; slave_seq_iter != next_seq_iter; slave_seq_iter++)
 			{
-				if (adjust_seq_iter != master_seq_iter)
+				if (slave_seq_iter != master_seq_iter)
 				{
-					adjust_seq_iter->second->m_Time = Lerp(0.0f, adjust_seq_iter->second->GetLength(), time_pct);
+					slave_seq_iter->second->m_Time = Lerp(0.0f, slave_seq_iter->second->GetLength(), time_pct);
 				}
 			}
 		}

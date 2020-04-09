@@ -120,7 +120,7 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 		m_Character->m_Velocity.y = 5.0f;
 		if (m_Character->m_Animation)
 		{
-			m_Character->m_Animation->Play("jumpforward", "Bip01_Spine1", 0.3f, 0.3f, 2.0f, 1.0f);
+			m_Character->m_Animation->Play("jumpforward", "Bip01_Spine1", 0.3f, 0.3f, 1.0f);
 		}
 		break;
 	}

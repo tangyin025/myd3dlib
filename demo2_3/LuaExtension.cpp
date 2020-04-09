@@ -1052,7 +1052,6 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<>())
-			.def_readwrite("Rate", &AnimationNodeSequence::m_Rate)
 			.def_readwrite("Name", &AnimationNodeSequence::m_Name)
 			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 
@@ -1072,7 +1071,7 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
 			.def(constructor<>())
-			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_BaseSpeed)
+			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_Speed0)
 
 		, class_<AnimationRoot, AnimationNodeSlot, boost::shared_ptr<AnimationRoot> >("AnimationRoot")
 			.def(constructor<Actor *>())
