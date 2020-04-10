@@ -4,7 +4,6 @@
 #include "LuaExtension.h"
 #include "RenderPipeline.h"
 #include "Character.h"
-#include "Controller.h"
 #include "PhysxContext.h"
 #include "FModContext.h"
 
@@ -30,8 +29,6 @@ public:
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
-
-	Actor * m_TargetActor;
 
 	std::string m_InitFont;
 

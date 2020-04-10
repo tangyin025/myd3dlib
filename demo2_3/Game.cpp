@@ -17,7 +17,7 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-#include "PlayerController.h"
+#include "Player.h"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -289,7 +289,6 @@ static int os_exit(lua_State * L)
 Game::Game(void)
 	: OctRoot(my::AABB(-4096, 4096))
 	, m_UIRender(new EffectUIRender())
-	, m_TargetActor(NULL)
 	, m_ViewedCenter(0, 0, 0)
 {
 	boost::program_options::options_description desc("Options");
@@ -485,8 +484,8 @@ HRESULT Game::OnCreateDevice(
 			.def("PlaySound", &Game::PlaySound)
 			.def("LoadScene", &Game::LoadScene)
 
-		, luabind::class_<PlayerController, Controller, boost::shared_ptr<Controller> >("PlayerController")
-			.def(luabind::constructor<Character *>())
+		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
+			.def(luabind::constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -637,9 +636,9 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	if (PlayerController::getSingletonPtr())
+	if (Player::getSingletonPtr())
 	{
-		m_ViewedCenter = PlayerController::getSingleton().m_Actor->m_Position;
+		m_ViewedCenter = Player::getSingleton().m_Position;
 	}
 	else
 	{

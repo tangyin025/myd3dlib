@@ -128,15 +128,12 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 					<m_Animation class_id="13" tracking_level="0" version="1">
 						<px class_id="-1"></px>
 					</m_Animation>
-					<m_Controller class_id="15" tracking_level="0" version="1">
-						<px class_id="-1"></px>
-					</m_Controller>
-					<m_Cmps class_id="17" tracking_level="0" version="0">
+					<m_Cmps class_id="15" tracking_level="0" version="0">
 						<count>1</count>
 						<item_version>1</item_version>
-						<item class_id="18" tracking_level="0" version="1">
-							<px class_id="20" class_name="Terrain" tracking_level="1" version="0" object_id="_3">
-								<Component class_id="19" tracking_level="1" version="0" object_id="_4">
+						<item class_id="16" tracking_level="0" version="1">
+							<px class_id="18" class_name="Terrain" tracking_level="1" version="0" object_id="_3">
+								<Component class_id="17" tracking_level="1" version="0" object_id="_4">
 									<m_Type>8</m_Type>
 									<m_LodMask>7</m_LodMask>
 								</Component>
@@ -163,7 +160,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 										<item_version>0</item_version>
 										<item>
 											<first>
-												<px class_id="21" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_6">
+												<px class_id="19" class_name="TerrainChunk" tracking_level="1" version="0" object_id="_6">
 													<OctEntity object_id="_7"></OctEntity>
 													<m_aabb>
 														<m_min>
@@ -1121,20 +1118,20 @@ AAAA
 								<m_ColChunks>1</m_ColChunks>
 								<m_ChunkSize>32</m_ChunkSize>
 								<m_HeightScale>1.000000000e+00</m_HeightScale>
-								<m_Material class_id="22" tracking_level="0" version="1">
-									<px class_id="23" tracking_level="1" version="0" object_id="_8">
+								<m_Material class_id="20" tracking_level="0" version="1">
+									<px class_id="21" tracking_level="1" version="0" object_id="_8">
 										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
 										<m_PassMask>11</m_PassMask>
 										<m_CullMode>2</m_CullMode>
 										<m_ZEnable>1</m_ZEnable>
 										<m_ZWriteEnable>1</m_ZWriteEnable>
 										<m_BlendMode>0</m_BlendMode>
-										<m_ParameterList class_id="24" tracking_level="0" version="0">
+										<m_ParameterList class_id="22" tracking_level="0" version="0">
 											<count>3</count>
 											<item_version>1</item_version>
-											<item class_id="25" tracking_level="0" version="1">
-												<px class_id="27" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_9">
-													<MaterialParameter class_id="26" tracking_level="1" version="0" object_id="_10">
+											<item class_id="23" tracking_level="0" version="1">
+												<px class_id="25" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_9">
+													<MaterialParameter class_id="24" tracking_level="1" version="0" object_id="_10">
 														<m_Type>5</m_Type>
 														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
@@ -1142,7 +1139,7 @@ AAAA
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="27" object_id="_11">
+												<px class_id_reference="25" object_id="_11">
 													<MaterialParameter object_id="_12">
 														<m_Type>5</m_Type>
 														<m_Name>g_NormalTexture</m_Name>
@@ -1151,7 +1148,7 @@ AAAA
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="27" object_id="_13">
+												<px class_id_reference="25" object_id="_13">
 													<MaterialParameter object_id="_14">
 														<m_Type>5</m_Type>
 														<m_Name>g_SpecularTexture</m_Name>
@@ -1170,14 +1167,14 @@ AAAA
 					<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABgkDsQAAAA
-gAAAAACgoDsQAAAAgAEAAAAQYDsQAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOpcF
-CAADAAAAAABUO5cFAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxgkDsQAAAAAM3Nzc3N
-zc3N9NaXBQcAAwAAAAAAtNeXBQMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADAOMEHAAAA
+gAIAAABguq0GAAAAgAAAAACAnsIHAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOgQQ
+CAADAAAAAABUOwQQAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxguq0GAAAAAM3Nzc3N
+zc3N9NYEEAcAAwAAAAAAtNcEEAMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAlwUGAAMACAEpEAAAAAAA
-AAAAoKA7EAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzYCBHBAAAACFAAAAAM3Nzc3/////vAYdEAEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiABBAGAAMAOO+uBgAAAAAA
+AAAAgJ7CBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzUC5wgYAAACFAAAAAM3Nzc3/////HDS1BwEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 					</m_PxActor>

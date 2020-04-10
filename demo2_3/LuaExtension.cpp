@@ -9,7 +9,6 @@
 #include "RenderPipeline.h"
 #include "Character.h"
 #include "Animation.h"
-#include "Controller.h"
 #include "Terrain.h"
 
 namespace luabind
@@ -1003,7 +1002,6 @@ void LuaContext::Init(void)
 			.def_readwrite("LodDist", &Actor::m_LodDist)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
 			.def_readwrite("Animation", &Actor::m_Animation)
-			.def_readwrite("Controller", &Actor::m_Controller)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)
@@ -1041,10 +1039,6 @@ void LuaContext::Init(void)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
-
-		, class_<Controller, boost::shared_ptr<Controller> >("Controller")
-
-		, class_<CharacterController, Controller, boost::shared_ptr<Controller> >("CharacterController")
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)

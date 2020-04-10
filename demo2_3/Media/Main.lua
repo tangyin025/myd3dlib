@@ -50,7 +50,7 @@ game:LoadScene("scene01.xml")
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- 创建玩家Actor
-local player=Character(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
+local player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 
 -- 加载皮肤
 local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0))
@@ -111,9 +111,6 @@ anim.SkeletonEventReady=function(args)
 	anim:AddIK("Bip01_R_Thigh", 0.1, 1)
 end
 player.Animation=anim
-
--- 创建控制器
-player.Controller=PlayerController(player)
 
 -- 创建一个物理球
 local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))

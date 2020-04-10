@@ -1,7 +1,6 @@
 #include "Actor.h"
 #include "Terrain.h"
 #include "Animation.h"
-#include "Controller.h"
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
 #include "myResource.h"
@@ -52,7 +51,6 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
 	ar << BOOST_SERIALIZATION_NVP(m_Animation);
-	ar << BOOST_SERIALIZATION_NVP(m_Controller);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
@@ -101,11 +99,6 @@ void Actor::load(Archive & ar, const unsigned int version)
 	if (m_Animation)
 	{
 		m_Animation->m_Actor = this;
-	}
-	ar >> BOOST_SERIALIZATION_NVP(m_Controller);
-	if (m_Controller)
-	{
-		m_Controller->m_Actor = this;
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
@@ -290,11 +283,6 @@ void Actor::Update(float fElapsedTime)
 	if (m_Animation)
 	{
 		m_Animation->Update(fElapsedTime);
-	}
-
-	if (m_Controller)
-	{
-		m_Controller->Update(fElapsedTime);
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

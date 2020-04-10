@@ -77,7 +77,6 @@
     <ClInclude Include="include\Animation.h" />
     <ClInclude Include="include\Character.h" />
     <ClInclude Include="include\Component.h" />
-    <ClInclude Include="include\Controller.h" />
     <ClInclude Include="include\FModContext.h" />
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\PhysXContext.h" />
@@ -89,7 +88,6 @@
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="src\Character.cpp" />
     <ClCompile Include="src\Component.cpp" />
-    <ClCompile Include="src\Controller.cpp" />
     <ClCompile Include="src\FModContext.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\PhysXContext.cpp" />

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Controller.h"
+#include "Character.h"
 
-class PlayerController
-	: public CharacterController
-	, public my::SingleInstance<PlayerController>
+class Player
+	: public Character
+	, public my::SingleInstance<Player>
 {
 public:
 	my::Vector3 m_LookAngle;
@@ -14,17 +14,17 @@ public:
 	CPoint m_MoveAxis;
 
 protected:
-	PlayerController(void);
+	Player(void);
 
 public:
-	PlayerController(Character * character);
+	Player(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset);
 
-	~PlayerController(void);
+	~Player(void);
 
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(CharacterController);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Character);
 	}
 
 	void Init(void);

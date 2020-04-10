@@ -5,8 +5,6 @@
 
 class AnimationRoot;
 
-class Controller;
-
 class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
@@ -36,8 +34,6 @@ public:
 	float m_LodFactor;
 
 	boost::shared_ptr<AnimationRoot> m_Animation;
-
-	boost::shared_ptr<Controller> m_Controller;
 
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
