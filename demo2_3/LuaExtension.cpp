@@ -57,19 +57,7 @@ namespace luabind
 
 		my::ControlEvent from(lua_State * L, int index)
 		{
-			struct InternalExceptionHandler
-			{
-				luabind::object obj;
-				InternalExceptionHandler(const luabind::object & _obj)
-					: obj(_obj)
-				{
-				}
-				void operator()(my::ControlEventArg * arg)
-				{
-					obj(arg);
-				}
-			};
-			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+			return luabind::object(luabind::from_stack(L, index));
 		}
 
 		void to(lua_State * L, my::ControlEvent const & e)
@@ -95,19 +83,7 @@ namespace luabind
 
 		my::TimerEvent from(lua_State * L, int index)
 		{
-			struct InternalExceptionHandler
-			{
-				luabind::object obj;
-				InternalExceptionHandler(const luabind::object & _obj)
-					: obj(_obj)
-				{
-				}
-				void operator()(float interval)
-				{
-					obj(interval);
-				}
-			};
-			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+			return luabind::object(luabind::from_stack(L, index));
 		}
 
 		void to(lua_State * L, my::TimerEvent const & e)
@@ -601,8 +577,10 @@ void LuaContext::Init(void)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlEventArg>("ControlEventArg")
+			.def_readonly("sender", &my::ControlEventArg::sender)
 
 		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")
+			.def_readonly("pt", &my::MouseEventArg::pt)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
@@ -874,18 +852,33 @@ void LuaContext::Init(void)
 		, class_<my::InputEvent>("InputEvent")
 
 		, class_<my::InputEventArg>("InputEventArg")
+			.def_readwrite("handled", &my::InputEventArg::handled)
 
 		, class_<my::KeyboardEventArg, my::InputEventArg>("KeyboardEventArg")
+			.def_readonly("kc", &my::KeyboardEventArg::kc)
 
 		, class_<my::MouseMoveEventArg, my::InputEventArg>("MouseMoveEventArg")
+			.def_readonly("x", &my::MouseMoveEventArg::x)
+			.def_readonly("y", &my::MouseMoveEventArg::y)
+			.def_readonly("z", &my::MouseMoveEventArg::z)
 
 		, class_<my::MouseBtnEventArg, my::InputEventArg>("MouseBtnEventArg")
+			.def_readonly("index", &my::MouseBtnEventArg::index)
 
 		, class_<my::JoystickAxisEventArg, my::InputEventArg>("JoystickAxisEventArg")
+			.def_readonly("axis", &my::JoystickAxisEventArg::axis)
+			.def_readonly("value", &my::JoystickAxisEventArg::value)
 
 		, class_<my::JoystickPovEventArg, my::InputEventArg>("JoystickPovEventArg")
+			.def_readonly("index", &my::JoystickPovEventArg::index)
+			.def_readonly("dir", &my::JoystickPovEventArg::dir)
 
 		, class_<my::JoystickBtnEventArg, my::InputEventArg>("JoystickBtnEventArg")
+			.def_readonly("index", &my::JoystickBtnEventArg::index)
+
+		, class_<CPoint>("CPoint")
+			.def_readwrite("x", &CPoint::x)
+			.def_readwrite("y", &CPoint::y)
 	];
 
 	module(m_State)[

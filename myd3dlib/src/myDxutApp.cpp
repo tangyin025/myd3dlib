@@ -211,7 +211,7 @@ int DxutApp::Run(void)
 
 	MSG msg = {0};
 
-	//try
+	try
 	{
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
@@ -245,14 +245,14 @@ int DxutApp::Run(void)
 
 		Cleanup3DEnvironment();
 	}
-	//catch(const my::Exception & e)
-	//{
-	//	MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
-	//}
-	//catch(const std::exception & e)
-	//{
-	//	MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
-	//}
+	catch(const my::Exception & e)
+	{
+		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+	}
+	catch(const std::exception & e)
+	{
+		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+	}
 
 	return (int)msg.wParam;
 }

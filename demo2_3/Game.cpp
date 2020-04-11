@@ -7,7 +7,6 @@
 #include <fstream>
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
-#include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -390,19 +389,7 @@ namespace luabind
 
 		my::InputEvent from(lua_State * L, int index)
 		{
-			struct InternalExceptionHandler
-			{
-				luabind::object obj;
-				InternalExceptionHandler(const luabind::object & _obj)
-					: obj(_obj)
-				{
-				}
-				void operator()(my::InputEventArg * arg)
-				{
-					obj(arg);
-				}
-			};
-			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+			return luabind::object(luabind::from_stack(L, index));
 		}
 
 		void to(lua_State * L, my::InputEvent const & e)
@@ -528,6 +515,8 @@ HRESULT Game::OnCreateDevice(
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
 			.def(luabind::constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
 			.def_readwrite("LookAngle", &Player::m_LookAngle)
+			.def_readwrite("LookDist", &Player::m_LookDist)
+			.def_readwrite("MoveAxis", &Player::m_MoveAxis)
 			.def_readwrite("MouseMoveEvent", &Player::m_MouseMoveEvent)
 	];
 	luabind::globals(m_State)["game"] = this;
