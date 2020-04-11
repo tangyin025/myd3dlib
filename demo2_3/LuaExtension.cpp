@@ -598,11 +598,11 @@ void LuaContext::Init(void)
 	module(m_State)[
 		def("ARGB", &ARGB)
 
+		, class_<my::ControlEvent>("ControlEvent")
+
 		, class_<my::ControlEventArg>("ControlEventArg")
 
 		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")
-
-		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
@@ -870,6 +870,22 @@ void LuaContext::Init(void)
 			.def_readonly("Interval", &my::Timer::m_Interval)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
+
+		, class_<my::InputEvent>("InputEvent")
+
+		, class_<my::InputEventArg>("InputEventArg")
+
+		, class_<my::KeyboardEventArg, my::InputEventArg>("KeyboardEventArg")
+
+		, class_<my::MouseMoveEventArg, my::InputEventArg>("MouseMoveEventArg")
+
+		, class_<my::MouseBtnEventArg, my::InputEventArg>("MouseBtnEventArg")
+
+		, class_<my::JoystickAxisEventArg, my::InputEventArg>("JoystickAxisEventArg")
+
+		, class_<my::JoystickPovEventArg, my::InputEventArg>("JoystickPovEventArg")
+
+		, class_<my::JoystickBtnEventArg, my::InputEventArg>("JoystickBtnEventArg")
 	];
 
 	module(m_State)[

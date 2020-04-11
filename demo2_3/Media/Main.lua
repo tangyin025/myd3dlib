@@ -51,6 +51,17 @@ game:LoadScene("scene01.xml")
 
 -- 创建玩家Actor
 local player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
+player.MouseMoveEvent=function(args)
+	-- if args.x ~= 0 then
+		-- player.LookAngle.y=player.LookAngle.y-math.rad(args.x);
+	-- end
+	-- if args.y ~= 0 then
+		-- player.LookAngle.x=player.LookAngle.x-math.rad(args.y);
+	-- end
+	-- if args.z ~= 0 then
+		-- player.LookDist=player.LookDist-args.z/480;
+	-- end
+end
 
 -- 加载皮肤
 local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0))

@@ -76,6 +76,8 @@ namespace my
 		}
 	};
 
+	typedef boost::function<void(InputEventArg *)> InputEvent;
+
 	class InputDevice
 	{
 	public:

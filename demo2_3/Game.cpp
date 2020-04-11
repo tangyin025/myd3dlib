@@ -377,6 +377,47 @@ bool Game::ModifyDeviceSettings(
 	return true;
 }
 
+namespace luabind
+{
+	template <>
+	struct default_converter<my::InputEvent>
+		: native_converter_base<my::InputEvent>
+	{
+		static int compute_score(lua_State * L, int index)
+		{
+			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+		}
+
+		my::InputEvent from(lua_State * L, int index)
+		{
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(my::InputEventArg * arg)
+				{
+					obj(arg);
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+		}
+
+		void to(lua_State * L, my::InputEvent const & e)
+		{
+			_ASSERT(false);
+		}
+	};
+
+	template <>
+	struct default_converter<my::InputEvent const &>
+		: default_converter<my::InputEvent>
+	{
+	};
+}
+
 HRESULT Game::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -486,6 +527,8 @@ HRESULT Game::OnCreateDevice(
 
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
 			.def(luabind::constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
+			.def_readwrite("LookAngle", &Player::m_LookAngle)
+			.def_readwrite("MouseMoveEvent", &Player::m_MouseMoveEvent)
 	];
 	luabind::globals(m_State)["game"] = this;
 

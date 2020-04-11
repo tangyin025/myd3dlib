@@ -84,18 +84,22 @@ void Player::Update(float fElapsedTime)
 
 void Player::OnMouseMove(my::InputEventArg * arg)
 {
-	MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);
-	if (mmarg.x != 0)
+	//MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);
+	//if (mmarg.x != 0)
+	//{
+	//	m_LookAngle.y += -D3DXToRadian(mmarg.x);
+	//}
+	//if (mmarg.y != 0)
+	//{
+	//	m_LookAngle.x += -D3DXToRadian(mmarg.y);
+	//}
+	//if (mmarg.z != 0)
+	//{
+	//	m_LookDist -= (float)mmarg.z / 480;
+	//}
+	if (m_MouseMoveEvent)
 	{
-		m_LookAngle.y += -D3DXToRadian(mmarg.x);
-	}
-	if (mmarg.y != 0)
-	{
-		m_LookAngle.x += -D3DXToRadian(mmarg.y);
-	}
-	if (mmarg.z != 0)
-	{
-		m_LookDist -= (float)mmarg.z / 480;
+		m_MouseMoveEvent(arg);
 	}
 }
 
