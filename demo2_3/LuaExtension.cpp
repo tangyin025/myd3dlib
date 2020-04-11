@@ -64,9 +64,9 @@ namespace luabind
 					: obj(_obj)
 				{
 				}
-				void operator()(my::ControlEventArgs * args)
+				void operator()(my::ControlEventArg * arg)
 				{
-					obj(args);
+					obj(arg);
 				}
 			};
 			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
@@ -598,9 +598,9 @@ void LuaContext::Init(void)
 	module(m_State)[
 		def("ARGB", &ARGB)
 
-		, class_<my::ControlEventArgs>("ControlEventArgs")
+		, class_<my::ControlEventArg>("ControlEventArg")
 
-		, class_<my::MouseEventArgs, my::ControlEventArgs>("MouseEventArgs")
+		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")
 
 		, class_<my::ControlEvent>("ControlEvent")
 

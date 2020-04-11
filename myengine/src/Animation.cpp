@@ -439,7 +439,7 @@ void AnimationRoot::OnReady(my::IORequest * request)
 
 	if (m_SkeletonEventReady)
 	{
-		m_SkeletonEventReady(&my::ControlEventArgs(NULL));
+		m_SkeletonEventReady(&my::ControlEventArg(NULL));
 	}
 
 	bind_pose_hier.resize(m_Skeleton->m_boneBindPose.size());

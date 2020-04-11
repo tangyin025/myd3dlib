@@ -311,7 +311,7 @@ void MeshComponent::OnReady(my::IORequest * request)
 
 	if (m_MeshEventReady)
 	{
-		m_MeshEventReady(&my::ControlEventArgs(NULL));
+		m_MeshEventReady(&my::ControlEventArg(NULL));
 	}
 }
 

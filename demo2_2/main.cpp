@@ -285,14 +285,14 @@ public:
 		return S_OK;
 	}
 
-	void OnMouseClick(ControlEventArgs* args)
+	void OnMouseClick(ControlEventArg* arg)
 	{
 		static CPoint last_pt(0, 0);
 		m_Tex->OnDestroyDevice();
 		m_Tex->CreateTextureFromFile(_T("four-holes.png"));
 		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
-		MouseEventArgs * mouse_arg = dynamic_cast<MouseEventArgs *>(args);
+		MouseEventArg * mouse_arg = dynamic_cast<MouseEventArg *>(arg);
 		_ASSERT(mouse_arg);
 		Vector2 loc = mouse_arg->sender->WorldToLocal(mouse_arg->pt);
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);

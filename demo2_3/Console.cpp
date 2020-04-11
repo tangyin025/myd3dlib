@@ -169,24 +169,24 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 			case VK_UP:
 				if(EventKeyUp)
-					EventKeyUp(&ControlEventArgs(this));
+					EventKeyUp(&ControlEventArg(this));
 				ResetCaretBlink();
 				return true;
 
 			case VK_DOWN:
 				if(EventKeyDown)
-					EventKeyDown(&ControlEventArgs(this));
+					EventKeyDown(&ControlEventArg(this));
 				ResetCaretBlink();
 				return true;
 
 			case VK_PRIOR:
 				if (EventPageUp)
-					EventPageUp(&ControlEventArgs(this));
+					EventPageUp(&ControlEventArg(this));
 				return true;
 
 			case VK_NEXT:
 				if (EventPageDown)
-					EventPageDown(&ControlEventArgs(this));
+					EventPageDown(&ControlEventArg(this));
 				return true;
 			}
 			break;
@@ -273,7 +273,7 @@ Console::~Console(void)
 	Game::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
 }
 
-void Console::OnEventEnter(ControlEventArgs * args)
+void Console::OnEventEnter(ControlEventArg * arg)
 {
 	std::wstring code = m_Edit->m_Text;
 	if(!code.empty())
@@ -288,7 +288,7 @@ void Console::OnEventEnter(ControlEventArgs * args)
 	}
 }
 
-void Console::OnEventKeyUp(ControlEventArgs * args)
+void Console::OnEventKeyUp(ControlEventArg * arg)
 {
 	if(m_strIter != m_strList.begin())
 	{
@@ -296,7 +296,7 @@ void Console::OnEventKeyUp(ControlEventArgs * args)
 	}
 }
 
-void Console::OnEventKeyDown(ControlEventArgs * args)
+void Console::OnEventKeyDown(ControlEventArg * arg)
 {
 	if(m_strIter != m_strList.end() && ++std::list<std::wstring>::iterator(m_strIter) != m_strList.end())
 	{
@@ -304,12 +304,12 @@ void Console::OnEventKeyDown(ControlEventArgs * args)
 	}
 }
 
-void Console::OnEventPageUp(my::ControlEventArgs * args)
+void Console::OnEventPageUp(my::ControlEventArg * arg)
 {
 	m_Panel->m_scrollbar->Scroll(-m_Panel->m_scrollbar->m_nPageSize);
 }
 
-void Console::OnEventPageDown(my::ControlEventArgs * args)
+void Console::OnEventPageDown(my::ControlEventArg * arg)
 {
 	m_Panel->m_scrollbar->Scroll( m_Panel->m_scrollbar->m_nPageSize);
 }

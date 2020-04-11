@@ -137,20 +137,20 @@ namespace my
 
 	class Control;
 
-	class ControlEventArgs
+	class ControlEventArg
 	{
 	public:
 		Control * sender;
 
-		ControlEventArgs(Control * _sender)
+		ControlEventArg(Control * _sender)
 			: sender(_sender)
 		{
 		}
 
-		virtual ~ControlEventArgs(void)
+		virtual ~ControlEventArg(void)
 		{
 		}
 	};
 
-	typedef boost::function<void(ControlEventArgs *)> ControlEvent;
+	typedef boost::function<void(ControlEventArg *)> ControlEvent;
 }

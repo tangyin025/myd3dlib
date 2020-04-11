@@ -551,7 +551,7 @@ HRESULT Game::OnResetDevice(
 
 	if(m_Camera->EventAlign)
 	{
-		m_Camera->EventAlign(&ControlEventArgs(NULL));
+		m_Camera->EventAlign(&ControlEventArg(NULL));
 	}
 
 	return S_OK;

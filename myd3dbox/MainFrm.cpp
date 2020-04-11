@@ -605,7 +605,7 @@ void CMainFrame::OnFileNew()
 	//struct helper
 	//{
 	//	AnimationRootPtr anim;
-	//	void cb(my::ControlEventArgs * args) {
+	//	void cb(my::ControlEventArg * arg) {
 	//		ASSERT(anim->m_Skeleton);
 	//		anim->m_Skeleton->AddOgreSkeletonAnimationFromFile("character/bbb.skeleton");
 	//		//anim->m_Skeleton->SaveOgreSkeletonAnimation("D:\\Works\\myd3dlib\\demo2_3\\Media\\character\\ccc.skeleton");

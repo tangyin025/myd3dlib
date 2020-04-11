@@ -161,13 +161,13 @@ namespace my
 
 	typedef boost::shared_ptr<Control> ControlPtr;
 
-	class MouseEventArgs : public ControlEventArgs
+	class MouseEventArg : public ControlEventArg
 	{
 	public:
 		Vector2 pt;
 
-		MouseEventArgs(Control * _sender, const Vector2 & _pt)
-			: ControlEventArgs(_sender)
+		MouseEventArg(Control * _sender, const Vector2 & _pt)
+			: ControlEventArg(_sender)
 			, pt(_pt)
 		{
 		}

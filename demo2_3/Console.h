@@ -91,15 +91,15 @@ public:
 
 	~Console(void);
 
-	void OnEventEnter(my::ControlEventArgs * args);
+	void OnEventEnter(my::ControlEventArg * arg);
 
-	void OnEventKeyUp(my::ControlEventArgs * args);
+	void OnEventKeyUp(my::ControlEventArg * arg);
 
-	void OnEventKeyDown(my::ControlEventArgs * args);
+	void OnEventKeyDown(my::ControlEventArg * arg);
 
-	void OnEventPageUp(my::ControlEventArgs * args);
+	void OnEventPageUp(my::ControlEventArg * arg);
 
-	void OnEventPageDown(my::ControlEventArgs * args);
+	void OnEventPageDown(my::ControlEventArg * arg);
 
 	void OnEventLog(const char * str);
 };
