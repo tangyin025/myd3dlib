@@ -276,10 +276,10 @@ dlg:InsertControl(cbx_display_adapter)
 
 game:InsertDlg(dlg)
 dlg.Visible=false
-dlg.EventAlign=function(args)
+dlg.EventAlign=function(arg)
 	dlg.Location=(game.DlgViewport-dlg.Size)*0.5
 end
-dlg.EventRefresh=function(args)
+dlg.EventRefresh=function(arg)
 	RefreshDisplayAdapter()
 	game:PlaySound("demo2_3/untitled/15")
 end
@@ -287,7 +287,7 @@ end
 local local_device_settings=nil
 
 local btn_ok=dlg:FindControl("btn_ok")
-btn_ok.EventMouseClick=function(args)
+btn_ok.EventMouseClick=function(arg)
 	-- print("Settings.btn_ok.EventMouseClick")
 	assert(local_device_settings)
 	game:ChangeDevice(local_device_settings)
@@ -295,75 +295,75 @@ btn_ok.EventMouseClick=function(args)
 end
 
 local btn_cancel=dlg:FindControl("btn_cancel")
-btn_cancel.EventMouseClick=function(args)
+btn_cancel.EventMouseClick=function(arg)
 	-- print("Settings.OnCancelBtnClicked")
 	assert(local_device_settings)
 	dlg.Visible=false
 end
 
 local cbx_vertical_sync=dlg:FindControl("cbx_vertical_sync")
-cbx_vertical_sync.EventSelectionChanged=function(args)
+cbx_vertical_sync.EventSelectionChanged=function(arg)
 	OnPresentIntervalChanged()
 end
 
 local cbx_vertex_processing=dlg:FindControl("cbx_vertex_processing")
-cbx_vertex_processing.EventSelectionChanged=function(args)
+cbx_vertex_processing.EventSelectionChanged=function(arg)
 	OnVertexProcessingChanged()
 end
 
 local cbx_multisample_quality=dlg:FindControl("cbx_multisample_quality")
-cbx_multisample_quality.EventSelectionChanged=function(args)
+cbx_multisample_quality.EventSelectionChanged=function(arg)
 	OnMultisampleQualityChanged()
 end
 
 local cbx_multisample_type=dlg:FindControl("cbx_multisample_type")
-cbx_multisample_type.EventSelectionChanged=function(args)
+cbx_multisample_type.EventSelectionChanged=function(arg)
 	OnMultisampleTypeChanged()
 end
 
 local cbx_depth_stencil_format=dlg:FindControl("cbx_depth_stencil_format")
-cbx_depth_stencil_format.EventSelectionChanged=function(args)
+cbx_depth_stencil_format.EventSelectionChanged=function(arg)
 	OnDepthStencilBufferFormatChanged()
 end
 
 local cbx_back_buffer_format=dlg:FindControl("cbx_back_buffer_format")
-cbx_back_buffer_format.EventSelectionChanged=function(args)
+cbx_back_buffer_format.EventSelectionChanged=function(arg)
 	OnBackBufferFormatChanged()
 end
 
 local cbx_refresh_rate=dlg:FindControl("cbx_refresh_rate")
-cbx_refresh_rate.EventSelectionChanged=function(args)
+cbx_refresh_rate.EventSelectionChanged=function(arg)
 	OnRefreshRateChanged()
 end
 
 local cbx_resolution=dlg:FindControl("cbx_resolution")
-cbx_resolution.EventSelectionChanged=function(args)
+cbx_resolution.EventSelectionChanged=function(arg)
 	OnResolutionChanged()
 end
 
 local cbx_adapter_format=dlg:FindControl("cbx_adapter_format")
-cbx_adapter_format.EventSelectionChanged=function(args)
+cbx_adapter_format.EventSelectionChanged=function(arg)
 	OnAdapterFormatChanged()
 end
 
 local chx_windowed=dlg:FindControl("chx_windowed")
 local chx_full_screen=dlg:FindControl("chx_full_screen")
-chx_windowed.EventMouseClick=function(args)
+chx_windowed.EventMouseClick=function(arg)
 	chx_full_screen.Checked=not chx_windowed.Checked
 	OnWindowedFullScreenChanged()
 end
-chx_full_screen.EventMouseClick=function(args)
+chx_full_screen.EventMouseClick=function(arg)
 	chx_windowed.Checked=not chx_full_screen.Checked
 	OnWindowedFullScreenChanged()
 end
 
 local cbx_render_device=dlg:FindControl("cbx_render_device")
-cbx_render_device.EventSelectionChanged=function(args)
+cbx_render_device.EventSelectionChanged=function(arg)
 	OnDeviceTypeChanged()
 end
 
 local cbx_display_adapter=dlg:FindControl("cbx_display_adapter")
-cbx_display_adapter.EventSelectionChanged=function(args)
+cbx_display_adapter.EventSelectionChanged=function(arg)
 	OnAdapterChanged()
 end
 

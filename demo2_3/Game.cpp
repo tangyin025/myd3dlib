@@ -518,6 +518,14 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("LookDist", &Player::m_LookDist)
 			.def_readwrite("MoveAxis", &Player::m_MoveAxis)
 			.def_readwrite("EventMouseMove", &Player::m_EventMouseMove)
+			.def_readwrite("EventMouseBtnDown", &Player::m_EventMouseBtnDown)
+			.def_readwrite("EventMouseBtnUp", &Player::m_EventMouseBtnUp)
+			.def_readwrite("EventKeyDown", &Player::m_EventKeyDown)
+			.def_readwrite("EventKeyUp", &Player::m_EventKeyUp)
+			.def_readwrite("EventJoystickAxisMove", &Player::m_EventJoystickAxisMove)
+			.def_readwrite("EventJoystickPovMove", &Player::m_EventJoystickPovMove)
+			.def_readwrite("EventJoystickBtnDown", &Player::m_EventJoystickBtnDown)
+			.def_readwrite("EventJoystickBtnUp", &Player::m_EventJoystickBtnUp)
 	];
 	luabind::globals(m_State)["game"] = this;
 

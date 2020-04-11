@@ -35,22 +35,22 @@ dlg:InsertControl(btn_change_device)
 -- dlg=game:LoadDialog("ui/Hud.ui.xml")
 
 game:InsertDlg(dlg)
-dlg.EventAlign=function(args)
+dlg.EventAlign=function(arg)
 	dlg.Location=Vector2(game.DlgViewport.x-170,0)
 end
 
 local btn_toggle_fs=dlg:FindControl("btn_toggle_fs")
-btn_toggle_fs.EventMouseClick=function(args)
+btn_toggle_fs.EventMouseClick=function(arg)
 	game:ToggleFullScreen()
 end
 
 local btn_toggle_ref=dlg:FindControl("btn_toggle_ref")
-btn_toggle_ref.EventMouseClick=function(args)
+btn_toggle_ref.EventMouseClick=function(arg)
 	-- ! do not destroy device within lua context
 	game.wnd:PostMessage(40002,0,0)
 end
 
 local btn_change_device=dlg:FindControl("btn_change_device")
-btn_change_device.EventMouseClick=function(args)
+btn_change_device.EventMouseClick=function(arg)
 	Settings.dlg.Visible=not Settings.dlg.Visible
 end

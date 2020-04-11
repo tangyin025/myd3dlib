@@ -15,6 +15,22 @@ public:
 
 	my::InputEvent m_EventMouseMove;
 
+	my::InputEvent m_EventMouseBtnDown;
+
+	my::InputEvent m_EventMouseBtnUp;
+
+	my::InputEvent m_EventKeyDown;
+
+	my::InputEvent m_EventKeyUp;
+
+	my::InputEvent m_EventJoystickAxisMove;
+
+	my::InputEvent m_EventJoystickPovMove;
+
+	my::InputEvent m_EventJoystickBtnDown;
+
+	my::InputEvent m_EventJoystickBtnUp;
+
 protected:
 	Player(void);
 

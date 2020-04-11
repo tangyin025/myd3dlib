@@ -84,19 +84,6 @@ void Player::Update(float fElapsedTime)
 
 void Player::OnMouseMove(my::InputEventArg * arg)
 {
-	//MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);
-	//if (mmarg.x != 0)
-	//{
-	//	m_LookAngle.y += -D3DXToRadian(mmarg.x);
-	//}
-	//if (mmarg.y != 0)
-	//{
-	//	m_LookAngle.x += -D3DXToRadian(mmarg.y);
-	//}
-	//if (mmarg.z != 0)
-	//{
-	//	m_LookDist -= (float)mmarg.z / 480;
-	//}
 	if (m_EventMouseMove)
 	{
 		m_EventMouseMove(arg);
@@ -105,89 +92,66 @@ void Player::OnMouseMove(my::InputEventArg * arg)
 
 void Player::OnMouseBtnDown(my::InputEventArg * arg)
 {
-	MouseBtnEventArg & mbarg = *dynamic_cast<MouseBtnEventArg *>(arg);
+	if (m_EventMouseBtnDown)
+	{
+		m_EventMouseBtnDown(arg);
+	}
 }
 
 void Player::OnMouseBtnUp(my::InputEventArg * arg)
 {
-	MouseBtnEventArg & mbarg = *dynamic_cast<MouseBtnEventArg *>(arg);
+	if (m_EventMouseBtnUp)
+	{
+		m_EventMouseBtnUp(arg);
+	}
 }
 
 void Player::OnKeyDown(my::InputEventArg * arg)
 {
-	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-	switch (karg.kc)
+	if (m_EventKeyDown)
 	{
-	case KC_SPACE:
-	{
-		m_Velocity.y = 5.0f;
-		if (m_Animation)
-		{
-			m_Animation->Play("jumpforward", "Bip01_Spine1", 0.3f, 0.3f, 1.0f);
-		}
-		break;
-	}
-	case KC_W:
-		m_MoveAxis.y += 1;
-		break;
-	case KC_A:
-		m_MoveAxis.x += 1;
-		break;
-	case KC_S:
-		m_MoveAxis.y -= 1;
-		break;
-	case KC_D:
-		m_MoveAxis.x -= 1;
-		break;
-	case KC_LCONTROL:
-		Game::getSingleton().m_mouse->Unacquire();
-		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-		break;
+		m_EventKeyDown(arg);
 	}
 }
 
 void Player::OnKeyUp(my::InputEventArg * arg)
 {
-	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-	switch (karg.kc)
+	if (m_EventKeyUp)
 	{
-	case KC_W:
-		m_MoveAxis.y -= 1;
-		break;
-	case KC_A:
-		m_MoveAxis.x -= 1;
-		break;
-	case KC_S:
-		m_MoveAxis.y += 1;
-		break;
-	case KC_D:
-		m_MoveAxis.x += 1;
-		break;
-	case KC_LCONTROL:
-		Game::getSingleton().m_mouse->Unacquire();
-		Game::getSingleton().m_mouse->SetCooperativeLevel(Game::getSingleton().m_wnd->m_hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
-		break;
+		m_EventKeyUp(arg);
 	}
 }
 
 void Player::OnJoystickAxisMove(my::InputEventArg * arg)
 {
-	JoystickAxisEventArg & jaarg = *dynamic_cast<JoystickAxisEventArg *>(arg);
+	if (m_EventJoystickAxisMove)
+	{
+		m_EventJoystickAxisMove(arg);
+	}
 }
 
 void Player::OnJoystickPovMove(my::InputEventArg * arg)
 {
-	JoystickPovEventArg & jparg = *dynamic_cast<JoystickPovEventArg *>(arg);
+	if (m_EventJoystickPovMove)
+	{
+		m_EventJoystickPovMove(arg);
+	}
 }
 
 void Player::OnJoystickBtnDown(my::InputEventArg * arg)
 {
-	JoystickBtnEventArg & jbarg = *dynamic_cast<JoystickBtnEventArg *>(arg);
+	if (m_EventJoystickBtnDown)
+	{
+		m_EventJoystickBtnDown(arg);
+	}
 }
 
 void Player::OnJoystickBtnUp(my::InputEventArg * arg)
 {
-	JoystickBtnEventArg & jbarg = *dynamic_cast<JoystickBtnEventArg *>(arg);
+	if (m_EventJoystickBtnUp)
+	{
+		m_EventJoystickBtnUp(arg);
+	}
 }
 
 void Player::OnWindowActivate(bool bActivated)

@@ -1048,6 +1048,7 @@ void LuaContext::Init(void)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
+			.def_readwrite("Velocity", &Character::m_Velocity)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)

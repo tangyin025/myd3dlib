@@ -9,7 +9,7 @@ local k=math.cos(math.rad(45))
 local d=20
 game.Camera.Eye=Vector3(d*k*k,d*k+1,d*k*k)
 game.Camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
-game.Camera.EventAlign=function(args)
+game.Camera.EventAlign=function(arg)
 	local desc=game.BackBufferSurfaceDesc
 	game.Camera.Aspect=desc.Width/desc.Height
 end
@@ -40,7 +40,7 @@ game:LoadScene("scene01.xml")
 -- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 -- cmp:AddMaterial(lambert1)
 -- cmp.MeshPath="mesh/plane.mesh.xml"
--- cmp.MeshEventReady=function(args)
+-- cmp.MeshEventReady=function(arg)
 	-- cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
 -- end
 -- actor:AddComponent(cmp)
@@ -51,15 +51,47 @@ game:LoadScene("scene01.xml")
 
 -- 创建玩家Actor
 local player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
-player.EventMouseMove=function(args)
-	if args.x ~= 0 then
-		player.LookAngle.y=player.LookAngle.y-math.rad(args.x);
+player.EventMouseMove=function(arg)
+	if arg.x ~= 0 then
+		player.LookAngle.y=player.LookAngle.y-math.rad(arg.x)
 	end
-	if args.y ~= 0 then
-		player.LookAngle.x=player.LookAngle.x-math.rad(args.y);
+	if arg.y ~= 0 then
+		player.LookAngle.x=player.LookAngle.x-math.rad(arg.y)
 	end
-	if args.z ~= 0 then
-		player.LookDist=player.LookDist-args.z/480;
+	if arg.z ~= 0 then
+		player.LookDist=player.LookDist-arg.z/480.0
+	end
+end
+player.EventKeyDown=function(arg)
+	if arg.kc == 57 then
+		player.Velocity.y=5.0
+		player.Animation:Play("jumpforward","",0.3,0.3,1.0)
+	end
+	if arg.kc == 17 then
+		player.MoveAxis.y=player.MoveAxis.y+1
+	end
+	if arg.kc == 30 then
+		player.MoveAxis.x=player.MoveAxis.x+1
+	end
+	if arg.kc == 31 then
+		player.MoveAxis.y=player.MoveAxis.y-1
+	end
+	if arg.kc == 32 then
+		player.MoveAxis.x=player.MoveAxis.x-1
+	end
+end
+player.EventKeyUp=function(arg)
+	if arg.kc == 17 then
+		player.MoveAxis.y=player.MoveAxis.y-1
+	end
+	if arg.kc == 30 then
+		player.MoveAxis.x=player.MoveAxis.x-1
+	end
+	if arg.kc == 31 then
+		player.MoveAxis.y=player.MoveAxis.y+1
+	end
+	if arg.kc == 32 then
+		player.MoveAxis.x=player.MoveAxis.x+1
 	end
 end
 
@@ -73,7 +105,7 @@ lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.
 lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
 local cmp=MeshComponent()
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
-cmp.MeshEventReady=function(args)
+cmp.MeshEventReady=function(arg)
 	cmp.Mesh:Transform(local_trans)
 end
 cmp:AddMaterial(lambert2)
@@ -111,7 +143,7 @@ local anim=AnimationRoot(player)
 anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-anim.SkeletonEventReady=function(args)
+anim.SkeletonEventReady=function(arg)
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
 	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
@@ -144,7 +176,7 @@ game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 -- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 -- local cmp3=MeshComponent()
 -- cmp3.MeshPath="mesh/Cylinder.mesh.xml"
--- cmp3.MeshEventReady=function(args)
+-- cmp3.MeshEventReady=function(arg)
 	-- cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
 		-- Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 -- end
