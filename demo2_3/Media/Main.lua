@@ -51,7 +51,7 @@ game:LoadScene("scene01.xml")
 
 -- 创建玩家Actor
 local player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
-player.MouseMoveEvent=function(args)
+player.EventMouseMove=function(args)
 	if args.x ~= 0 then
 		player.LookAngle.y=player.LookAngle.y-math.rad(args.x);
 	end

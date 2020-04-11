@@ -97,9 +97,9 @@ void Player::OnMouseMove(my::InputEventArg * arg)
 	//{
 	//	m_LookDist -= (float)mmarg.z / 480;
 	//}
-	if (m_MouseMoveEvent)
+	if (EventMouseMove)
 	{
-		m_MouseMoveEvent(arg);
+		EventMouseMove(arg);
 	}
 }
 

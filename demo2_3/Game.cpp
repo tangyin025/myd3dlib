@@ -517,7 +517,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("LookAngle", &Player::m_LookAngle)
 			.def_readwrite("LookDist", &Player::m_LookDist)
 			.def_readwrite("MoveAxis", &Player::m_MoveAxis)
-			.def_readwrite("MouseMoveEvent", &Player::m_MouseMoveEvent)
+			.def_readwrite("EventMouseMove", &Player::EventMouseMove)
 	];
 	luabind::globals(m_State)["game"] = this;
 
