@@ -55,13 +55,13 @@ class ConsoleEditBox
 	: public my::ImeEditBox
 {
 public:
-	my::ControlEvent EventKeyUp;
+	my::ControlEvent m_EventKeyUp;
 
-	my::ControlEvent EventKeyDown;
+	my::ControlEvent m_EventKeyDown;
 
-	my::ControlEvent EventPageUp;
+	my::ControlEvent m_EventPageUp;
 
-	my::ControlEvent EventPageDown;
+	my::ControlEvent m_EventPageDown;
 
 	ConsoleEditBox(void);
 

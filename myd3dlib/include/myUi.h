@@ -210,11 +210,11 @@ namespace my
 
 		bool m_bPressed;
 
-		ControlEvent EventMouseEnter;
+		ControlEvent m_EventMouseEnter;
 
-		ControlEvent EventMouseLeave;
+		ControlEvent m_EventMouseLeave;
 
-		ControlEvent EventMouseClick;
+		ControlEvent m_EventMouseClick;
 
 	public:
 		Control(void)
@@ -502,9 +502,9 @@ namespace my
 
 		bool m_bInsertMode;
 
-		ControlEvent EventChange;
+		ControlEvent m_EventChange;
 
-		ControlEvent EventEnter;
+		ControlEvent m_EventEnter;
 
 	public:
 		EditBox(void)
@@ -828,7 +828,7 @@ namespace my
 
 		int m_iSelected;
 
-		ControlEvent EventSelectionChanged;
+		ControlEvent m_EventSelectionChanged;
 
 	public:
 		ComboBox(void)
@@ -918,9 +918,9 @@ namespace my
 
 		Vector2 m_MouseOffset;
 
-		ControlEvent EventAlign;
+		ControlEvent m_EventAlign;
 
-		ControlEvent EventRefresh;
+		ControlEvent m_EventRefresh;
 
 	public:
 		Dialog(void)

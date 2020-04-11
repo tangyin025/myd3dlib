@@ -168,25 +168,25 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			switch(wParam)
 			{
 			case VK_UP:
-				if(EventKeyUp)
-					EventKeyUp(&ControlEventArg(this));
+				if(m_EventKeyUp)
+					m_EventKeyUp(&ControlEventArg(this));
 				ResetCaretBlink();
 				return true;
 
 			case VK_DOWN:
-				if(EventKeyDown)
-					EventKeyDown(&ControlEventArg(this));
+				if(m_EventKeyDown)
+					m_EventKeyDown(&ControlEventArg(this));
 				ResetCaretBlink();
 				return true;
 
 			case VK_PRIOR:
-				if (EventPageUp)
-					EventPageUp(&ControlEventArg(this));
+				if (m_EventPageUp)
+					m_EventPageUp(&ControlEventArg(this));
 				return true;
 
 			case VK_NEXT:
-				if (EventPageDown)
-					EventPageDown(&ControlEventArg(this));
+				if (m_EventPageDown)
+					m_EventPageDown(&ControlEventArg(this));
 				return true;
 			}
 			break;
@@ -228,11 +228,11 @@ Console::Console(void)
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_CaretImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_CaretImage->m_Rect = my::Rectangle(154,43,156,45);
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_CaretImage->m_Border = Vector4(0,0,0,0);
-	m_Edit->EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
-	m_Edit->EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
-	m_Edit->EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
-	m_Edit->EventPageUp = boost::bind(&Console::OnEventPageUp, this, _1);
-	m_Edit->EventPageDown = boost::bind(&Console::OnEventPageDown, this, _1);
+	m_Edit->m_EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
+	m_Edit->m_EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
+	m_Edit->m_EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
+	m_Edit->m_EventPageUp = boost::bind(&Console::OnEventPageUp, this, _1);
+	m_Edit->m_EventPageDown = boost::bind(&Console::OnEventPageDown, this, _1);
 	InsertControl(m_Edit);
 
 	m_Panel.reset(new MessagePanel());

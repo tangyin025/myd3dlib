@@ -517,7 +517,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("LookAngle", &Player::m_LookAngle)
 			.def_readwrite("LookDist", &Player::m_LookDist)
 			.def_readwrite("MoveAxis", &Player::m_MoveAxis)
-			.def_readwrite("EventMouseMove", &Player::EventMouseMove)
+			.def_readwrite("EventMouseMove", &Player::m_EventMouseMove)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -581,9 +581,9 @@ HRESULT Game::OnResetDevice(
 			pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
-	if(m_Camera->EventAlign)
+	if(m_Camera->m_EventAlign)
 	{
-		m_Camera->EventAlign(&ControlEventArg(NULL));
+		m_Camera->m_EventAlign(&ControlEventArg(NULL));
 	}
 
 	return S_OK;
@@ -625,7 +625,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
-	m_Camera->EventAlign.clear(); // ! clear boost function before shutdown lua context
+	m_Camera->m_EventAlign.clear(); // ! clear boost function before shutdown lua context
 
 	LuaContext::Shutdown();
 

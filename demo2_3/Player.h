@@ -13,7 +13,7 @@ public:
 
 	CPoint m_MoveAxis;
 
-	my::InputEvent EventMouseMove;
+	my::InputEvent m_EventMouseMove;
 
 protected:
 	Player(void);

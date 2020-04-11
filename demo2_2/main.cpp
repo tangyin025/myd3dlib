@@ -279,7 +279,7 @@ public:
 		dlg->m_Skin->m_Image.reset(new ControlImage());
 		dlg->m_Skin->m_Image->m_Texture = m_Tex;
 		dlg->m_Skin->m_Image->m_Rect = my::Rectangle(0, 0, desc.Width, desc.Height);
-		dlg->EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
+		dlg->m_EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
 		DialogMgr::InsertDlg(dlg);
 
 		return S_OK;
