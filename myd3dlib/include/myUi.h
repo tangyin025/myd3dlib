@@ -161,6 +161,21 @@ namespace my
 
 	typedef boost::shared_ptr<Control> ControlPtr;
 
+	class ControlEventArg : public EventArg
+	{
+	public:
+		Control * sender;
+
+		ControlEventArg(Control * _sender)
+			: sender(_sender)
+		{
+		}
+
+		virtual ~ControlEventArg(void)
+		{
+		}
+	};
+
 	class MouseEventArg : public ControlEventArg
 	{
 	public:
@@ -210,11 +225,11 @@ namespace my
 
 		bool m_bPressed;
 
-		ControlEvent m_EventMouseEnter;
+		EventFunction m_EventMouseEnter;
 
-		ControlEvent m_EventMouseLeave;
+		EventFunction m_EventMouseLeave;
 
-		ControlEvent m_EventMouseClick;
+		EventFunction m_EventMouseClick;
 
 	public:
 		Control(void)
@@ -502,9 +517,9 @@ namespace my
 
 		bool m_bInsertMode;
 
-		ControlEvent m_EventChange;
+		EventFunction m_EventChange;
 
-		ControlEvent m_EventEnter;
+		EventFunction m_EventEnter;
 
 	public:
 		EditBox(void)
@@ -828,7 +843,7 @@ namespace my
 
 		int m_iSelected;
 
-		ControlEvent m_EventSelectionChanged;
+		EventFunction m_EventSelectionChanged;
 
 	public:
 		ComboBox(void)
@@ -918,9 +933,9 @@ namespace my
 
 		Vector2 m_MouseOffset;
 
-		ControlEvent m_EventAlign;
+		EventFunction m_EventAlign;
 
-		ControlEvent m_EventRefresh;
+		EventFunction m_EventRefresh;
 
 	public:
 		Dialog(void)

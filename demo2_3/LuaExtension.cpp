@@ -47,28 +47,28 @@ namespace luabind
 	};
 
 	template <>
-	struct default_converter<my::ControlEvent>
-		: native_converter_base<my::ControlEvent>
+	struct default_converter<my::EventFunction>
+		: native_converter_base<my::EventFunction>
 	{
 		static int compute_score(lua_State * L, int index)
 		{
 			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
 		}
 
-		my::ControlEvent from(lua_State * L, int index)
+		my::EventFunction from(lua_State * L, int index)
 		{
 			return luabind::object(luabind::from_stack(L, index));
 		}
 
-		void to(lua_State * L, my::ControlEvent const & e)
+		void to(lua_State * L, my::EventFunction const & e)
 		{
 			_ASSERT(false);
 		}
 	};
 
 	template <>
-	struct default_converter<my::ControlEvent const &>
-		: default_converter<my::ControlEvent>
+	struct default_converter<my::EventFunction const &>
+		: default_converter<my::EventFunction>
 	{
 	};
 
@@ -574,9 +574,11 @@ void LuaContext::Init(void)
 	module(m_State)[
 		def("ARGB", &ARGB)
 
-		, class_<my::ControlEvent>("ControlEvent")
+		, class_<my::EventArg>("EventArg")
 
-		, class_<my::ControlEventArg>("ControlEventArg")
+		, class_<my::EventFunction>("EventFunction")
+
+		, class_<my::ControlEventArg, my::EventArg>("ControlEventArg")
 			.def_readonly("sender", &my::ControlEventArg::sender)
 
 		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")

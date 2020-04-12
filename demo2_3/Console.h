@@ -55,13 +55,13 @@ class ConsoleEditBox
 	: public my::ImeEditBox
 {
 public:
-	my::ControlEvent m_EventKeyUp;
+	my::EventFunction m_EventKeyUp;
 
-	my::ControlEvent m_EventKeyDown;
+	my::EventFunction m_EventKeyDown;
 
-	my::ControlEvent m_EventPageUp;
+	my::EventFunction m_EventPageUp;
 
-	my::ControlEvent m_EventPageDown;
+	my::EventFunction m_EventPageDown;
 
 	ConsoleEditBox(void);
 
@@ -91,15 +91,15 @@ public:
 
 	~Console(void);
 
-	void OnEventEnter(my::ControlEventArg * arg);
+	void OnEventEnter(my::EventArg * arg);
 
-	void OnEventKeyUp(my::ControlEventArg * arg);
+	void OnEventKeyUp(my::EventArg * arg);
 
-	void OnEventKeyDown(my::ControlEventArg * arg);
+	void OnEventKeyDown(my::EventArg * arg);
 
-	void OnEventPageUp(my::ControlEventArg * arg);
+	void OnEventPageUp(my::EventArg * arg);
 
-	void OnEventPageDown(my::ControlEventArg * arg);
+	void OnEventPageDown(my::EventArg * arg);
 
 	void OnEventLog(const char * str);
 };

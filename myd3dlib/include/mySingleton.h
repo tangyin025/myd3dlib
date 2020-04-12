@@ -136,25 +136,6 @@ namespace my
 		virtual void OnReady(IORequest * request) = 0;
 	};
 
-	class Control;
-
-	class ControlEventArg
-	{
-	public:
-		Control * sender;
-
-		ControlEventArg(Control * _sender)
-			: sender(_sender)
-		{
-		}
-
-		virtual ~ControlEventArg(void)
-		{
-		}
-	};
-
-	typedef boost::function<void(ControlEventArg *)> ControlEvent;
-
 	struct EventArg
 	{
 	public:
@@ -166,6 +147,8 @@ namespace my
 		{
 		}
 	};
+
+	typedef boost::function<void(EventArg *)> EventFunction;
 
 	typedef boost::signals2::signal<void(EventArg *)> EventSignal;
 }

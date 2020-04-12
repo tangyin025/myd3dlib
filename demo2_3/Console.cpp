@@ -273,7 +273,7 @@ Console::~Console(void)
 	Game::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
 }
 
-void Console::OnEventEnter(ControlEventArg * arg)
+void Console::OnEventEnter(EventArg * arg)
 {
 	std::wstring code = m_Edit->m_Text;
 	if(!code.empty())
@@ -288,7 +288,7 @@ void Console::OnEventEnter(ControlEventArg * arg)
 	}
 }
 
-void Console::OnEventKeyUp(ControlEventArg * arg)
+void Console::OnEventKeyUp(EventArg * arg)
 {
 	if(m_strIter != m_strList.begin())
 	{
@@ -296,7 +296,7 @@ void Console::OnEventKeyUp(ControlEventArg * arg)
 	}
 }
 
-void Console::OnEventKeyDown(ControlEventArg * arg)
+void Console::OnEventKeyDown(EventArg * arg)
 {
 	if(m_strIter != m_strList.end() && ++std::list<std::wstring>::iterator(m_strIter) != m_strList.end())
 	{
@@ -304,12 +304,12 @@ void Console::OnEventKeyDown(ControlEventArg * arg)
 	}
 }
 
-void Console::OnEventPageUp(my::ControlEventArg * arg)
+void Console::OnEventPageUp(my::EventArg * arg)
 {
 	m_Panel->m_scrollbar->Scroll(-m_Panel->m_scrollbar->m_nPageSize);
 }
 
-void Console::OnEventPageDown(my::ControlEventArg * arg)
+void Console::OnEventPageDown(my::EventArg * arg)
 {
 	m_Panel->m_scrollbar->Scroll( m_Panel->m_scrollbar->m_nPageSize);
 }

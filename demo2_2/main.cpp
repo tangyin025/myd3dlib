@@ -285,7 +285,7 @@ public:
 		return S_OK;
 	}
 
-	void OnMouseClick(ControlEventArg* arg)
+	void OnMouseClick(EventArg* arg)
 	{
 		static CPoint last_pt(0, 0);
 		m_Tex->OnDestroyDevice();

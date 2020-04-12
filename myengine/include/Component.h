@@ -145,7 +145,7 @@ public:
 
 	my::OgreMeshPtr m_Mesh;
 
-	my::ControlEvent m_MeshEventReady;
+	my::EventFunction m_MeshEventReady;
 
 	bool m_bInstance;
 

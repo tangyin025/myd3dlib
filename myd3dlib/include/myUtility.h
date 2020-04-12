@@ -142,7 +142,7 @@ namespace my
 
 		float m_Fz;
 
-		ControlEvent m_EventAlign;
+		EventFunction m_EventAlign;
 
 	public:
 		Camera(float Aspect, float Nz, float Fz)

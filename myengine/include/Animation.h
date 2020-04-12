@@ -289,7 +289,7 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skeleton;
 
-	my::ControlEvent m_SkeletonEventReady;
+	my::EventFunction m_SkeletonEventReady;
 
 	my::BoneList anim_pose;
 
