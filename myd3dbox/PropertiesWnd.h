@@ -187,8 +187,8 @@ public:
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
 
-	void OnSelectionChanged(EventArgs * arg);
-	void OnCmpAttriChanged(EventArgs * arg);
+	void OnSelectionChanged(EventArg * arg);
+	void OnCmpAttriChanged(EventArg * arg);
 	static void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
 	void UpdatePropertiesActor(Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);

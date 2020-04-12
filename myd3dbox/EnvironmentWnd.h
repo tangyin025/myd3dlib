@@ -70,7 +70,7 @@ class CEnvironmentWnd : public CDockablePane
 		Vector3PropertyZ,
 	};
 
-	struct CameraPropEventArgs : public EventArgs
+	struct CameraPropEventArgs : public EventArg
 	{
 	public:
 		CChildView * pView;
@@ -92,7 +92,7 @@ protected:
 	void AdjustLayout(void);
 	void SetPropListFont(void);
 	void InitPropList(void);
-	void OnCameraPropChanged(EventArgs * arg);
+	void OnCameraPropChanged(EventArg * arg);
 	static CMFCPropertyGridProperty * GetTopProp(CMFCPropertyGridProperty * pProp);
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

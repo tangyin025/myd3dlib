@@ -462,14 +462,14 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	{
 		pFrame->OnFrameTick(fElapsedTime);
 
-		EventArgs arg;
+		EventArg arg;
 		pFrame->m_EventSelectionPlaying(&arg);
 
 		bContinue = TRUE;
 	}
 	else if (!bContinue && m_bNeedDraw)
 	{
-		EventArgs arg;
+		EventArg arg;
 		pFrame->m_EventSelectionPlaying(&arg);
 
 		m_bNeedDraw = FALSE;

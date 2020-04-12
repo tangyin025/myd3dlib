@@ -94,11 +94,11 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
-	void OnSelectionChanged(EventArgs * arg);
-	void OnSelectionPlaying(EventArgs * arg);
-	void OnPivotModeChanged(EventArgs * arg);
-	void OnCmpAttriChanged(EventArgs * arg);
-	void OnCameraPropChanged(EventArgs * arg);
+	void OnSelectionChanged(EventArg * arg);
+	void OnSelectionPlaying(EventArg * arg);
+	void OnPivotModeChanged(EventArg * arg);
+	void OnCmpAttriChanged(EventArg * arg);
+	void OnCameraPropChanged(EventArg * arg);
 
 	virtual void depthMask(bool state);
 	virtual void texture(bool state);

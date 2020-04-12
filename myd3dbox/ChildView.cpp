@@ -800,27 +800,27 @@ my::RayResult CChildView::OverlapTestRayAndMesh(
 	return ret;
 }
 
-void CChildView::OnSelectionChanged(EventArgs * arg)
+void CChildView::OnSelectionChanged(EventArg * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnSelectionPlaying(EventArgs * arg)
+void CChildView::OnSelectionPlaying(EventArg * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnPivotModeChanged(EventArgs * arg)
+void CChildView::OnPivotModeChanged(EventArg * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnCmpAttriChanged(EventArgs * arg)
+void CChildView::OnCmpAttriChanged(EventArg * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnCameraPropChanged(EventArgs * arg)
+void CChildView::OnCameraPropChanged(EventArg * arg)
 {
 	Invalidate();
 }
@@ -1209,7 +1209,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
 
-		EventArgs arg;
+		EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 	}
 }

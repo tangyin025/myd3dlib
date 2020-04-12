@@ -42,11 +42,11 @@ public:
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
-	Event m_EventSelectionChanged;
-	Event m_EventSelectionPlaying;
-	Event m_EventPivotModeChanged;
-	Event m_EventAttributeChanged;
-	Event m_EventCameraPropChanged;
+	EventSignal m_EventSelectionChanged;
+	EventSignal m_EventSelectionPlaying;
+	EventSignal m_EventPivotModeChanged;
+	EventSignal m_EventAttributeChanged;
+	EventSignal m_EventCameraPropChanged;
 
 	/// These are just sample areas to use consistent values across the samples.
 	/// The use should specify these base on his needs.
