@@ -267,7 +267,7 @@ namespace my
 
 		virtual void OnHotkey(void);
 
-		virtual bool ContainsPoint(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt);
 
 		virtual void SetEnabled(bool bEnabled);
 
@@ -440,7 +440,7 @@ namespace my
 
 		virtual void OnHotkey(void);
 
-		virtual bool ContainsPoint(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt);
 
 		virtual void Refresh(void);
 	};
@@ -539,7 +539,7 @@ namespace my
 
 		virtual void OnFocusIn(void);
 
-		virtual bool ContainsPoint(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt);
 
 		virtual void SetText(const std::wstring & Text);
 

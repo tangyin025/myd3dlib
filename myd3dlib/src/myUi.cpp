@@ -528,7 +528,7 @@ void Control::OnHotkey(void)
 {
 }
 
-bool Control::ContainsPoint(const Vector2 & pt)
+bool Control::HitTest(const Vector2 & pt)
 {
 	return Rectangle::LeftTop(Vector2(0,0), m_Size).PtInRect(WorldToLocal(pt));
 }
@@ -650,7 +650,7 @@ Control * Control::GetChildAtPoint(const Vector2 & pt) const
 	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
-		if ((*ctrl_iter)->ContainsPoint(pt))
+		if ((*ctrl_iter)->HitTest(pt))
 		{
 			Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
 			if (ctrl)
@@ -881,7 +881,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		{
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if (ContainsPoint(pt))
+			if (HitTest(pt))
 			{
 				m_bPressed = true;
 				SetFocus();
@@ -896,7 +896,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				ReleaseCapture();
 				m_bPressed = false;
 
-				if (ContainsPoint(pt))
+				if (HitTest(pt))
 				{
 					if (m_EventMouseClick)
 					{
@@ -927,9 +927,9 @@ void Button::OnHotkey(void)
 	}
 }
 
-bool Button::ContainsPoint(const Vector2 & pt)
+bool Button::HitTest(const Vector2 & pt)
 {
-	return Control::ContainsPoint(pt);
+	return Control::HitTest(pt);
 }
 
 void Button::Refresh(void)
@@ -1268,7 +1268,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 		{
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(ContainsPoint(pt))
+			if(HitTest(pt))
 			{
 				m_bMouseDrag = true;
 				SetFocus();
@@ -1360,9 +1360,9 @@ void EditBox::OnFocusIn(void)
 	ResetCaretBlink();
 }
 
-bool EditBox::ContainsPoint(const Vector2 & pt)
+bool EditBox::HitTest(const Vector2 & pt)
 {
-	return Control::ContainsPoint(pt);
+	return Control::HitTest(pt);
 }
 
 void EditBox::SetText(const std::wstring & Text)
@@ -2036,7 +2036,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		{
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(ContainsPoint(pt))
+			if(HitTest(pt))
 			{
 				m_bPressed = true;
 				SetFocus();
@@ -2051,7 +2051,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				m_bPressed = false;
 				ReleaseCapture();
 
-				if(ContainsPoint(pt))
+				if(HitTest(pt))
 				{
 					m_Checked = true;
 
@@ -2267,7 +2267,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(ContainsPoint(pt))
+			if(HitTest(pt))
 			{
 				m_bPressed = true;
 				m_bOpened = !m_bOpened;
@@ -2307,7 +2307,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			break;
 
 		case WM_LBUTTONUP:
-			if(m_bPressed && ContainsPoint(pt))
+			if(m_bPressed && HitTest(pt))
 			{
 				m_bPressed = false;
 				ReleaseCapture();
@@ -2582,7 +2582,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		{
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if (ContainsPoint(pt))
+			if (HitTest(pt))
 			{
 				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
@@ -2855,7 +2855,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					Vector2 pt;
 					if ((*dlg_iter)->RayToWorld(ray, pt))
 					{
-						if ((*dlg_iter)->ContainsPoint(pt))
+						if ((*dlg_iter)->HitTest(pt))
 						{
 							Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
 							if (ControlPtd)
