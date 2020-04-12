@@ -60,30 +60,4 @@ namespace luabind
 		: default_converter<my::EventFunction>
 	{
 	};
-
-	template <>
-	struct default_converter<my::TimerEvent>
-		: native_converter_base<my::TimerEvent>
-	{
-		static int compute_score(lua_State * L, int index)
-		{
-			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
-		}
-
-		my::TimerEvent from(lua_State * L, int index)
-		{
-			return luabind::object(luabind::from_stack(L, index));
-		}
-
-		void to(lua_State * L, my::TimerEvent const & e)
-		{
-			_ASSERT(false);
-		}
-	};
-
-	template <>
-	struct default_converter<my::TimerEvent const &>
-		: default_converter<my::TimerEvent>
-	{
-	};
 }

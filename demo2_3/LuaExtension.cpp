@@ -758,6 +758,9 @@ void LuaContext::Init(void)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
+		, class_<my::TimerEventArg, my::EventArg>("TimerEventArg")
+			.def_readonly("Interval", &my::TimerEventArg::m_Interval)
+
 		, class_<my::Timer, boost::shared_ptr<my::Timer> >("Timer")
 			.def(constructor<float, float>())
 			.def_readonly("Interval", &my::Timer::m_Interval)

@@ -70,8 +70,11 @@ void Timer::Step(float fElapsedTime, int MaxIter)
 	m_RemainingTime = Min(4 * m_Interval, m_RemainingTime + fElapsedTime);
 	for(int i = 0; m_RemainingTime >= m_Interval && m_Managed; i++)
 	{
-		if(m_EventTimer)
-			m_EventTimer(m_Interval);
+		if (m_EventTimer)
+		{
+			TimerEventArg arg(m_Interval);
+			m_EventTimer(&arg);
+		}
 
 		m_RemainingTime -= m_Interval;
 	}

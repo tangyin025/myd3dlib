@@ -41,7 +41,17 @@ namespace my
 		void PushGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0), const Matrix4 & Transform = Matrix4::identity);
 	};
 
-	typedef boost::function<void (float)> TimerEvent;
+	class TimerEventArg : public EventArg
+	{
+	public:
+		float m_Interval;
+
+	public:
+		TimerEventArg(float Interval)
+			: m_Interval(Interval)
+		{
+		}
+	};
 
 	class Timer
 	{
@@ -50,7 +60,7 @@ namespace my
 
 		float m_RemainingTime;
 
-		TimerEvent m_EventTimer;
+		EventFunction m_EventTimer;
 
 		bool m_Managed;
 
