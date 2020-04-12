@@ -5,7 +5,6 @@
 #include "myMath.h"
 #include "myUtility.h"
 #include "myThread.h"
-#include <boost/signals2.hpp>
 
 class PhysxAllocator : public physx::PxAllocatorCallback
 {

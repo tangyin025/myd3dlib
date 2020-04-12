@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include "EventDefine.h"
-
 class Actor;
 
 class Component;
@@ -187,8 +185,8 @@ public:
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
 
-	void OnSelectionChanged(EventArg * arg);
-	void OnCmpAttriChanged(EventArg * arg);
+	void OnSelectionChanged(my::EventArg * arg);
+	void OnCmpAttriChanged(my::EventArg * arg);
 	static void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
 	void UpdatePropertiesActor(Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);

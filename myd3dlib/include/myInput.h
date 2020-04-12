@@ -4,7 +4,6 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <atlbase.h>
-#include <boost/signals2.hpp>
 #include "mySingleton.h"
 
 namespace my

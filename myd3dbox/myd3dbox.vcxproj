@@ -128,7 +128,6 @@
     <ClCompile Include="CtrlProps.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
     <ClCompile Include="EnvironmentWnd.cpp" />
-    <ClCompile Include="EventDefine.cpp" />
     <ClCompile Include="MainApp.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="NavigationDlg.cpp" />
@@ -149,7 +148,6 @@
     <ClInclude Include="CtrlProps.h" />
     <ClInclude Include="DragableTreeCtrl.h" />
     <ClInclude Include="EnvironmentWnd.h" />
-    <ClInclude Include="EventDefine.h" />
     <ClInclude Include="MainApp.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="NavigationDlg.h" />

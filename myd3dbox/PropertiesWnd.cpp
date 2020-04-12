@@ -158,7 +158,7 @@ void CPropertiesWnd::AdjustLayout()
 	m_wndPropList.SetWindowPos(NULL, rectClient.left, rectClient.top + cyCmb + cyTlb, rectClient.Width(), rectClient.Height() -(cyCmb+cyTlb), SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
+void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -174,7 +174,7 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 	}
 }
 
-void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
+void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -1308,7 +1308,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1359,7 +1359,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_PxActor->setGlobalPose(physx::PxTransform(
 				(physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
 		}
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1367,7 +1367,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
 		actor->m_LodDist = pProp->GetValue().fltVal;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1375,7 +1375,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
 		actor->m_LodFactor = pProp->GetValue().fltVal;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1387,7 +1387,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->ClearRigidActor();
 		actor->CreateRigidActor((physx::PxActorType::Enum)i);
 		actor->EnterPhysxScene(pFrame);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1397,7 +1397,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_LodMaskDesc));
 		cmp->m_LodMask = (Component::LODMask)g_LodMaskDesc[i].mask;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1418,14 +1418,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case physx::PxGeometryType::eHEIGHTFIELD:
 			if (dlg.DoModal() == IDOK)
 			{
-				EventArg arg;
+				my::EventArg arg;
 				pFrame->m_EventAttributeChanged(&arg);
 			}
 			break;
 		default:
 		{
 			cmp->ClearShape();
-			EventArg arg;
+			my::EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 			break;
 		}
@@ -1470,7 +1470,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setLocalPose(physx::PxTransform(localPos, localRot));
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1483,7 +1483,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		filterData.word0 = pProp->GetValue().uintVal;
 		cmp->m_PxShape->setQueryFilterData(filterData);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1494,7 +1494,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1505,7 +1505,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1516,7 +1516,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1527,7 +1527,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cmp->m_Actor->m_PxActor->detachShape(*cmp->m_PxShape, false);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, pProp->GetValue().boolVal != 0);
 		cmp->m_Actor->m_PxActor->attachShape(*cmp->m_PxShape);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1557,7 +1557,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				(*param_iter)->m_Handle = NULL;
 			}
 		}
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1576,7 +1576,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				(*param_iter)->m_Handle = NULL;
 			}
 		}
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1587,7 +1587,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		material->ReleaseResource();
 		material->ParseShaderParameters();
 		material->RequestResource();
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1597,7 +1597,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_PassMaskDesc));
 		material->m_PassMask = g_PassMaskDesc[i].mask;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1607,7 +1607,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_CullModeDesc));
 		material->m_CullMode = i + 1;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1615,7 +1615,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 		material->m_ZEnable = pProp->GetValue().boolVal != 0;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1623,7 +1623,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 		material->m_ZWriteEnable = pProp->GetValue().boolVal != 0;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1633,7 +1633,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_BlendModeDesc));
 		material->m_BlendMode = i;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1643,7 +1643,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
 		boost::dynamic_pointer_cast<MaterialParameterFloat>(mtl->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1691,7 +1691,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal, pParameter->GetSubItem(3)->GetValue().fltVal);
 			break;
 		}
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1703,7 +1703,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		mtl->m_ParameterList[i]->ReleaseResource();
 		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = ts2ms(pProp->GetValue().bstrVal);
 		mtl->m_ParameterList[i]->RequestResource();
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1711,7 +1711,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
 		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal != 0);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1738,7 +1738,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			emit_cmp->m_ParticleList.resize(new_size, my::Emitter::Particle(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
 		}
 		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1796,7 +1796,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		particle.m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1806,7 +1806,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		unsigned int new_size = pProp->GetValue().uintVal;
 		emit_cmp->m_ParticleList.set_capacity(new_size);
 		UpdatePropertiesSphericalEmitter(pProp->GetParent(), dynamic_cast<SphericalEmitterComponent *>(emit_cmp));
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1840,7 +1840,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 6)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 16)->GetValue().fltVal;
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1887,7 +1887,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 		}
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1912,7 +1912,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pFrame->UpdatePivotTransform();
 			}
 		}
-		EventArg arg;
+		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1924,7 +1924,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 			terrain->UpdateSplatmap(res.get());
-			EventArg arg;
+			my::EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;

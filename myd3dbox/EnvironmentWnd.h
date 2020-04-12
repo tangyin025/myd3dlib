@@ -1,7 +1,6 @@
 #pragma once
 #include "afxpropertygridctrl.h"
 #include "afxwin.h"
-#include "EventDefine.h"
 
 class CChildView;
 
@@ -70,7 +69,7 @@ class CEnvironmentWnd : public CDockablePane
 		Vector3PropertyZ,
 	};
 
-	struct CameraPropEventArgs : public EventArg
+	struct CameraPropEventArgs : public my::EventArg
 	{
 	public:
 		CChildView * pView;
@@ -92,7 +91,7 @@ protected:
 	void AdjustLayout(void);
 	void SetPropListFont(void);
 	void InitPropList(void);
-	void OnCameraPropChanged(EventArg * arg);
+	void OnCameraPropChanged(my::EventArg * arg);
 	static CMFCPropertyGridProperty * GetTopProp(CMFCPropertyGridProperty * pProp);
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

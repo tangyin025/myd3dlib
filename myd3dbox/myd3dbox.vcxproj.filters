@@ -24,9 +24,6 @@
     <ClCompile Include="DragableTreeCtrl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EventDefine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MainApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -72,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DragableTreeCtrl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EventDefine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MainApp.h">

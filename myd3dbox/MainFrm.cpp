@@ -482,7 +482,7 @@ void CMainFrame::OnSelChanged()
 {
 	UpdateSelBox();
 	UpdatePivotTransform();
-	EventArg arg;
+	my::EventArg arg;
 	m_EventSelectionChanged(&arg);
 }
 
@@ -776,7 +776,7 @@ void CMainFrame::OnComponentMesh()
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
-	EventArg arg;
+	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -832,7 +832,7 @@ void CMainFrame::OnComponentCloth()
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
-	EventArg arg;
+	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -864,7 +864,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
-	EventArg arg;
+	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -914,7 +914,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 
-	EventArg arg;
+	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -952,7 +952,7 @@ void CMainFrame::OnComponentTerrain()
 	UpdateSelBox();
 	m_selchunkid.SetPoint(0, 0);
 
-	EventArg arg;
+	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -986,7 +986,7 @@ void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
 	m_Pivot.m_Mode = Pivot::PivotModeMove;
-	EventArg arg;
+	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
 }
 
@@ -1000,7 +1000,7 @@ void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
 	m_Pivot.m_Mode = Pivot::PivotModeRot;
-	EventArg arg;
+	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
 }
 
@@ -1014,7 +1014,7 @@ void CMainFrame::OnViewClearshader()
 {
 	// TODO: Add your command handler code here
 	theApp.m_ShaderCache.clear();
-	EventArg arg;
+	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
 

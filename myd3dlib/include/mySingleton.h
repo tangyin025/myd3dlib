@@ -3,6 +3,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include <boost/signals2.hpp>
 #include <Windows.h>
 #include "myException.h"
 
@@ -153,4 +154,18 @@ namespace my
 	};
 
 	typedef boost::function<void(ControlEventArg *)> ControlEvent;
+
+	struct EventArg
+	{
+	public:
+		EventArg(void)
+		{
+		}
+
+		virtual ~EventArg(void)
+		{
+		}
+	};
+
+	typedef boost::signals2::signal<void(EventArg *)> EventSignal;
 }

@@ -5,7 +5,6 @@
 #include "myThread.h"
 #include <atlbase.h>
 #include "DXUTenum.h"
-#include <boost/signals2.hpp>
 
 namespace my
 {

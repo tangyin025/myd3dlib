@@ -8,7 +8,6 @@
 #include "RenderPipeline.h"
 #include "Actor.h"
 #include "Terrain.h"
-#include "EventDefine.h"
 #include "DebugDraw.h"
 
 class CMainDoc;
@@ -94,11 +93,11 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
-	void OnSelectionChanged(EventArg * arg);
-	void OnSelectionPlaying(EventArg * arg);
-	void OnPivotModeChanged(EventArg * arg);
-	void OnCmpAttriChanged(EventArg * arg);
-	void OnCameraPropChanged(EventArg * arg);
+	void OnSelectionChanged(my::EventArg * arg);
+	void OnSelectionPlaying(my::EventArg * arg);
+	void OnPivotModeChanged(my::EventArg * arg);
+	void OnCmpAttriChanged(my::EventArg * arg);
+	void OnCameraPropChanged(my::EventArg * arg);
 
 	virtual void depthMask(bool state);
 	virtual void texture(bool state);

@@ -166,7 +166,7 @@ void CEnvironmentWnd::InitPropList()
 	m_wndPropList.AdjustLayout();
 }
 
-void CEnvironmentWnd::OnCameraPropChanged(EventArg * arg)
+void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 {
 	CameraPropEventArgs * camera_prop_arg = dynamic_cast<CameraPropEventArgs *>(arg);
 	ASSERT(camera_prop_arg);

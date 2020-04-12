@@ -11,7 +11,6 @@
 #include "PhysxContext.h"
 #include "Terrain.h"
 #include "Pivot.h"
-#include "EventDefine.h"
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
@@ -42,11 +41,11 @@ public:
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
-	EventSignal m_EventSelectionChanged;
-	EventSignal m_EventSelectionPlaying;
-	EventSignal m_EventPivotModeChanged;
-	EventSignal m_EventAttributeChanged;
-	EventSignal m_EventCameraPropChanged;
+	my::EventSignal m_EventSelectionChanged;
+	my::EventSignal m_EventSelectionPlaying;
+	my::EventSignal m_EventPivotModeChanged;
+	my::EventSignal m_EventAttributeChanged;
+	my::EventSignal m_EventCameraPropChanged;
 
 	/// These are just sample areas to use consistent values across the samples.
 	/// The use should specify these base on his needs.
