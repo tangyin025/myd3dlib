@@ -4,100 +4,13 @@
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
+#include "LuaExtension.inl"
 #include "Console.h"
 #include "Material.h"
 #include "RenderPipeline.h"
 #include "Character.h"
 #include "Animation.h"
 #include "Terrain.h"
-
-namespace luabind
-{
-	template <>
-	struct default_converter<std::wstring>
-		: native_converter_base<std::wstring>
-	{
-		static int compute_score(lua_State* L, int index)
-		{
-			return lua_type(L, index) == LUA_TSTRING ? 0 : -1;
-		}
-
-		std::wstring from(lua_State* L, int index)
-		{
-			return u8tows(lua_tostring(L, index));
-		}
-
-		void to(lua_State* L, std::wstring const& value)
-		{
-			std::string str = wstou8(value);
-			lua_pushlstring(L, str.data(), str.size());
-		}
-	};
-
-	template <>
-	struct default_converter<std::wstring const>
-		: default_converter<std::wstring>
-	{
-	};
-
-	template <>
-	struct default_converter<std::wstring const&>
-		: default_converter<std::wstring>
-	{
-	};
-
-	template <>
-	struct default_converter<my::EventFunction>
-		: native_converter_base<my::EventFunction>
-	{
-		static int compute_score(lua_State * L, int index)
-		{
-			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
-		}
-
-		my::EventFunction from(lua_State * L, int index)
-		{
-			return luabind::object(luabind::from_stack(L, index));
-		}
-
-		void to(lua_State * L, my::EventFunction const & e)
-		{
-			_ASSERT(false);
-		}
-	};
-
-	template <>
-	struct default_converter<my::EventFunction const &>
-		: default_converter<my::EventFunction>
-	{
-	};
-
-	template <>
-	struct default_converter<my::TimerEvent>
-		: native_converter_base<my::TimerEvent>
-	{
-		static int compute_score(lua_State * L, int index)
-		{
-			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
-		}
-
-		my::TimerEvent from(lua_State * L, int index)
-		{
-			return luabind::object(luabind::from_stack(L, index));
-		}
-
-		void to(lua_State * L, my::TimerEvent const & e)
-		{
-			_ASSERT(false);
-		}
-	};
-
-	template <>
-	struct default_converter<my::TimerEvent const &>
-		: default_converter<my::TimerEvent>
-	{
-	};
-}
 
 static int add_file_and_line(lua_State * L)
 {
@@ -851,9 +764,7 @@ void LuaContext::Init(void)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 
-		, class_<my::InputEvent>("InputEvent")
-
-		, class_<my::InputEventArg>("InputEventArg")
+		, class_<my::InputEventArg, my::EventArg>("InputEventArg")
 			.def_readwrite("handled", &my::InputEventArg::handled)
 
 		, class_<my::KeyboardEventArg, my::InputEventArg>("KeyboardEventArg")

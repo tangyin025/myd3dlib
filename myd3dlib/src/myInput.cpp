@@ -596,11 +596,13 @@ bool Keyboard::Capture(void)
 		m_State[kc] = static_cast<BYTE>(diBuff[i].dwData);
 		if (diBuff[i].dwData & 0x80)
 		{
-			m_PressedEvent(&KeyboardEventArg(kc));
+			KeyboardEventArg arg(kc);
+			m_PressedEvent(&arg);
 		}
 		else
 		{
-			m_ReleasedEvent(&KeyboardEventArg(kc));
+			KeyboardEventArg arg(kc);
+			m_ReleasedEvent(&arg);
 		}
 	}
 	return true;
@@ -650,21 +652,24 @@ bool Mouse::Capture(void)
 		{
 			if (!(OldState.rgbButtons[i] & 0x80))
 			{
-				m_PressedEvent(&MouseBtnEventArg(i));
+				MouseBtnEventArg arg(i);
+				m_PressedEvent(&arg);
 			}
 		}
 		else
 		{
 			if (OldState.rgbButtons[i] & 0x80)
 			{
-				m_ReleasedEvent(&MouseBtnEventArg(i));
+				MouseBtnEventArg arg(i);
+				m_ReleasedEvent(&arg);
 			}
 		}
 	}
 
 	if (m_State.lX || m_State.lY || m_State.lZ)
 	{
-		m_MovedEvent(&MouseMoveEventArg(m_State.lX, m_State.lY, m_State.lZ));
+		MouseMoveEventArg arg(m_State.lX, m_State.lY, m_State.lZ);
+		m_MovedEvent(&arg);
 	}
 	return true;
 }
@@ -780,7 +785,8 @@ void Joystick::CheckAxis(LONG value, JoystickAxis axis)
 {
 	if (value)
 	{
-		m_AxisMovedEvent(&JoystickAxisEventArg(axis, value));
+		JoystickAxisEventArg arg(axis, value);
+		m_AxisMovedEvent(&arg);
 	}
 }
 
@@ -812,7 +818,8 @@ bool Joystick::Capture(void)
 	{
 		if (LOWORD(m_State.rgdwPOV[i]) != 0xFFFF)
 		{
-			m_PovMovedEvent(&JoystickPovEventArg(i, (JoystickPov)m_State.rgdwPOV[i]));
+			JoystickPovEventArg arg(i, (JoystickPov)m_State.rgdwPOV[i]);
+			m_PovMovedEvent(&arg);
 		}
 	}
 
@@ -822,14 +829,16 @@ bool Joystick::Capture(void)
 		{
 			if (!(OldState.rgbButtons[i] & 0x80))
 			{
-				m_BtnPressedEvent(&JoystickBtnEventArg(i));
+				JoystickBtnEventArg arg(i);
+				m_BtnPressedEvent(&arg);
 			}
 		}
 		else
 		{
 			if (OldState.rgbButtons[i] & 0x80)
 			{
-				m_BtnReleasedEvent(&JoystickBtnEventArg(i));
+				JoystickBtnEventArg arg(i);
+				m_BtnReleasedEvent(&arg);
 			}
 		}
 	}

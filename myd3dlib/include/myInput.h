@@ -59,7 +59,7 @@ namespace my
 
 	typedef boost::shared_ptr<Input> InputPtr;
 
-	struct InputEventArg
+	struct InputEventArg : public EventArg
 	{
 	public:
 		bool handled;
@@ -75,8 +75,6 @@ namespace my
 		}
 	};
 
-	typedef boost::function<void(InputEventArg *)> InputEvent;
-
 	class InputDevice
 	{
 	public:
@@ -85,8 +83,6 @@ namespace my
 		friend Input;
 
 		IDirectInputDevice8 * m_ptr;
-
-		typedef boost::signals2::signal<void (InputEventArg * arg)> InputEvent;
 
 	public:
 		InputDevice(void);
@@ -280,9 +276,9 @@ namespace my
 	public:
 		BYTE m_State[256];
 
-		InputEvent m_PressedEvent;
+		EventSignal m_PressedEvent;
 
-		InputEvent m_ReleasedEvent;
+		EventSignal m_ReleasedEvent;
 
 	public:
 		Keyboard(void);
@@ -335,11 +331,11 @@ namespace my
 	public:
 		DIMOUSESTATE m_State;
 
-		InputEvent m_MovedEvent;
+		EventSignal m_MovedEvent;
 
-		InputEvent m_PressedEvent;
+		EventSignal m_PressedEvent;
 
-		InputEvent m_ReleasedEvent;
+		EventSignal m_ReleasedEvent;
 
 	public:
 		Mouse(void);
@@ -422,13 +418,13 @@ namespace my
 	public:
 		DIJOYSTATE m_State;
 
-		InputEvent m_AxisMovedEvent;
+		EventSignal m_AxisMovedEvent;
 
-		InputEvent m_PovMovedEvent;
+		EventSignal m_PovMovedEvent;
 
-		InputEvent m_BtnPressedEvent;
+		EventSignal m_BtnPressedEvent;
 
-		InputEvent m_BtnReleasedEvent;
+		EventSignal m_BtnReleasedEvent;
 
 	public:
 		Joystick(void)

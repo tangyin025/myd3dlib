@@ -13,23 +13,23 @@ public:
 
 	CPoint m_MoveAxis;
 
-	my::InputEvent m_EventMouseMove;
+	my::EventFunction m_EventMouseMove;
 
-	my::InputEvent m_EventMouseBtnDown;
+	my::EventFunction m_EventMouseBtnDown;
 
-	my::InputEvent m_EventMouseBtnUp;
+	my::EventFunction m_EventMouseBtnUp;
 
-	my::InputEvent m_EventKeyDown;
+	my::EventFunction m_EventKeyDown;
 
-	my::InputEvent m_EventKeyUp;
+	my::EventFunction m_EventKeyUp;
 
-	my::InputEvent m_EventJoystickAxisMove;
+	my::EventFunction m_EventJoystickAxisMove;
 
-	my::InputEvent m_EventJoystickPovMove;
+	my::EventFunction m_EventJoystickPovMove;
 
-	my::InputEvent m_EventJoystickBtnDown;
+	my::EventFunction m_EventJoystickBtnDown;
 
-	my::InputEvent m_EventJoystickBtnUp;
+	my::EventFunction m_EventJoystickBtnUp;
 
 protected:
 	Player(void);
@@ -51,23 +51,23 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void OnMouseMove(my::InputEventArg * arg);
+	void OnMouseMove(my::EventArg * arg);
 
-	void OnMouseBtnDown(my::InputEventArg * arg);
+	void OnMouseBtnDown(my::EventArg * arg);
 
-	void OnMouseBtnUp(my::InputEventArg * arg);
+	void OnMouseBtnUp(my::EventArg * arg);
 
-	void OnKeyDown(my::InputEventArg * arg);
+	void OnKeyDown(my::EventArg * arg);
 
-	void OnKeyUp(my::InputEventArg * arg);
+	void OnKeyUp(my::EventArg * arg);
 
-	void OnJoystickAxisMove(my::InputEventArg * arg);
+	void OnJoystickAxisMove(my::EventArg * arg);
 
-	void OnJoystickPovMove(my::InputEventArg * arg);
+	void OnJoystickPovMove(my::EventArg * arg);
 
-	void OnJoystickBtnDown(my::InputEventArg * arg);
+	void OnJoystickBtnDown(my::EventArg * arg);
 
-	void OnJoystickBtnUp(my::InputEventArg * arg);
+	void OnJoystickBtnUp(my::EventArg * arg);
 
 	void OnWindowActivate(bool bActivated);
 };

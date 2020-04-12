@@ -8,6 +8,7 @@
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
+#include "LuaExtension.inl"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -374,35 +375,6 @@ bool Game::ModifyDeviceSettings(
 	pDeviceSettings->BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
 	return true;
-}
-
-namespace luabind
-{
-	template <>
-	struct default_converter<my::InputEvent>
-		: native_converter_base<my::InputEvent>
-	{
-		static int compute_score(lua_State * L, int index)
-		{
-			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
-		}
-
-		my::InputEvent from(lua_State * L, int index)
-		{
-			return luabind::object(luabind::from_stack(L, index));
-		}
-
-		void to(lua_State * L, my::InputEvent const & e)
-		{
-			_ASSERT(false);
-		}
-	};
-
-	template <>
-	struct default_converter<my::InputEvent const &>
-		: default_converter<my::InputEvent>
-	{
-	};
 }
 
 HRESULT Game::OnCreateDevice(

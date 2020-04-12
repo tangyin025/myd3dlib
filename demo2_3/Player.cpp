@@ -82,7 +82,7 @@ void Player::Update(float fElapsedTime)
 	Game::getSingleton().m_SkyLightCam->m_Eye = m_Position;
 }
 
-void Player::OnMouseMove(my::InputEventArg * arg)
+void Player::OnMouseMove(my::EventArg * arg)
 {
 	if (m_EventMouseMove)
 	{
@@ -90,7 +90,7 @@ void Player::OnMouseMove(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnMouseBtnDown(my::InputEventArg * arg)
+void Player::OnMouseBtnDown(my::EventArg * arg)
 {
 	if (m_EventMouseBtnDown)
 	{
@@ -98,7 +98,7 @@ void Player::OnMouseBtnDown(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnMouseBtnUp(my::InputEventArg * arg)
+void Player::OnMouseBtnUp(my::EventArg * arg)
 {
 	if (m_EventMouseBtnUp)
 	{
@@ -106,7 +106,7 @@ void Player::OnMouseBtnUp(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnKeyDown(my::InputEventArg * arg)
+void Player::OnKeyDown(my::EventArg * arg)
 {
 	if (m_EventKeyDown)
 	{
@@ -114,7 +114,7 @@ void Player::OnKeyDown(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnKeyUp(my::InputEventArg * arg)
+void Player::OnKeyUp(my::EventArg * arg)
 {
 	if (m_EventKeyUp)
 	{
@@ -122,7 +122,7 @@ void Player::OnKeyUp(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnJoystickAxisMove(my::InputEventArg * arg)
+void Player::OnJoystickAxisMove(my::EventArg * arg)
 {
 	if (m_EventJoystickAxisMove)
 	{
@@ -130,7 +130,7 @@ void Player::OnJoystickAxisMove(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnJoystickPovMove(my::InputEventArg * arg)
+void Player::OnJoystickPovMove(my::EventArg * arg)
 {
 	if (m_EventJoystickPovMove)
 	{
@@ -138,7 +138,7 @@ void Player::OnJoystickPovMove(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnJoystickBtnDown(my::InputEventArg * arg)
+void Player::OnJoystickBtnDown(my::EventArg * arg)
 {
 	if (m_EventJoystickBtnDown)
 	{
@@ -146,7 +146,7 @@ void Player::OnJoystickBtnDown(my::InputEventArg * arg)
 	}
 }
 
-void Player::OnJoystickBtnUp(my::InputEventArg * arg)
+void Player::OnJoystickBtnUp(my::EventArg * arg)
 {
 	if (m_EventJoystickBtnUp)
 	{
