@@ -631,8 +631,7 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 		m_animationMap.erase(anim_iter);
 	}
 
-	m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
-	OgreAnimation & anim = m_animationMap[attr_name->value()];
+	anim_iter = m_animationMap.insert(m_animationMap.begin(), std::make_pair(attr_name->value(), OgreAnimation()));
 
 	DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
 
@@ -659,7 +658,7 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 		for (; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
-			BoneList & pose = anim[time];
+			BoneList & pose = anim_iter->second[time];
 			pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 			Bone & bone = pose[name_iter->second];
 
