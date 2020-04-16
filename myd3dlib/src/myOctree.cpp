@@ -334,12 +334,12 @@ bool OctNode::RemoveEntity(OctEntityPtr entity)
 void OctNode::ClearAllEntityInCurrentNode(void)
 {
 	OctEntityMap::iterator entity_iter = m_Entities.begin();
-	for (; entity_iter != m_Entities.end(); entity_iter++)
+	for (; entity_iter != m_Entities.end(); entity_iter = m_Entities.begin())
 	{
 		_ASSERT(entity_iter->first->m_Node == this);
-		entity_iter->first->m_Node = NULL;
+		RemoveEntity(entity_iter->first);
 	}
-	m_Entities.clear();
+	_ASSERT(m_Entities.empty());
 }
 
 void OctNode::ClearAllEntity(void)
