@@ -146,7 +146,7 @@ public:
 
 	void RemoveComponent(ComponentPtr cmp);
 
-	void ClearAllComponent(ComponentPtr cmp);
+	void ClearAllComponent(void);
 
 	static ActorPtr LoadFromFile(const char * path);
 
@@ -155,4 +155,6 @@ public:
 	void Attach(Actor * other, int BoneId);
 
 	void Dettach(Actor * other);
+
+	void ClearAllAttacher(void);
 };

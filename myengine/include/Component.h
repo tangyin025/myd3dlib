@@ -28,7 +28,7 @@ class Component;
 
 typedef boost::shared_ptr<Component> ComponentPtr;
 
-class Component
+class Component : public boost::enable_shared_from_this<Component>
 {
 public:
 	enum ComponentType
@@ -81,9 +81,7 @@ protected:
 	}
 
 public:
-	virtual ~Component(void)
-	{
-	}
+	virtual ~Component(void);
 
 	friend class boost::serialization::access;
 

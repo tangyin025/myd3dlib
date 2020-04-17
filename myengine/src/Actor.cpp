@@ -25,13 +25,9 @@ BOOST_CLASS_EXPORT(Actor)
 
 Actor::~Actor(void)
 {
-	AttachPairList::iterator att_iter = m_Attaches.begin();
-	for (; att_iter != m_Attaches.end(); att_iter++)
-	{
-		_ASSERT(att_iter->first->m_Base == this);
-		att_iter->first->m_Base = NULL;
-	}
-	m_Attaches.clear();
+	ClearAllComponent();
+
+	ClearAllAttacher();
 	
 	if (m_Base)
 	{
@@ -490,19 +486,23 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 	if (cmp_iter != m_Cmps.end())
 	{
 		_ASSERT((*cmp_iter)->m_Actor == this);
-		m_Cmps.erase(cmp_iter);
 		(*cmp_iter)->m_Actor = NULL;
+		m_Cmps.erase(cmp_iter);
+	}
+	else
+	{
+		_ASSERT(false);
 	}
 }
 
-void Actor::ClearAllComponent(ComponentPtr cmp)
+void Actor::ClearAllComponent(void)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	for (; cmp_iter != m_Cmps.end(); cmp_iter = m_Cmps.begin())
 	{
-		(*cmp_iter)->m_Actor = NULL;
+		RemoveComponent(*cmp_iter);
 	}
-	m_Cmps.clear();
+	_ASSERT(m_Cmps.empty());
 }
 
 ActorPtr Actor::LoadFromFile(const char * path)
@@ -559,16 +559,26 @@ void Actor::Attach(Actor * other, int BoneId)
 
 void Actor::Dettach(Actor * other)
 {
-	_ASSERT(other->m_Base != NULL);
-
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
 		if (att_iter->first == other)
 		{
+			_ASSERT(att_iter->first->m_Base == this);
+			att_iter->first->m_Base = NULL;
 			m_Attaches.erase(att_iter);
-			other->m_Base = NULL;
 			return;
 		}
 	}
+	_ASSERT(false);
+}
+
+void Actor::ClearAllAttacher(void)
+{
+	AttachPairList::iterator att_iter = m_Attaches.begin();
+	for (; att_iter != m_Attaches.end(); att_iter = m_Attaches.begin())
+	{
+		Dettach(att_iter->first);
+	}
+	_ASSERT(m_Attaches.empty());
 }

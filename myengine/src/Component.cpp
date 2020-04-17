@@ -36,6 +36,14 @@ BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 
+Component::~Component(void)
+{
+	if (m_Actor)
+	{
+		m_Actor->RemoveComponent(shared_from_this());
+	}
+}
+
 template<class Archive>
 void Component::save(Archive & ar, const unsigned int version) const
 {
