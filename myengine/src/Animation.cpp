@@ -110,11 +110,11 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 {
 	if (m_Loop)
 	{
-		m_Time = fmod(m_Time + fElapsedTime, GetLength());
+		m_Time = fmod(m_Time + fElapsedTime * m_Rate, GetLength());
 	}
 	else
 	{
-		m_Time = my::Min(m_Time + fElapsedTime, GetLength());
+		m_Time = my::Min(m_Time + fElapsedTime * m_Rate, GetLength());
 	}
 }
 
@@ -244,13 +244,14 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, bool Loop, float BlendTime, float BlendOutTime, float Weight /*= 1.0f*/)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, bool Loop, float BlendTime, float BlendOutTime, float Weight /*= 1.0f*/)
 {
 	Sequence seq;
 	seq.m_Time = 0;
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
 	seq.SetRootList(RootList);
+	seq.m_Rate = Rate;
 	seq.m_Loop = Loop;
 	seq.m_BlendTime = BlendTime;
 	seq.m_BlendOutTime = BlendOutTime;

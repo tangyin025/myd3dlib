@@ -83,6 +83,8 @@ public:
 
 	std::vector<std::string> m_RootList;
 
+	float m_Rate;
+
 	bool m_Loop;
 
 	std::string m_Group;
@@ -93,6 +95,7 @@ public:
 		, m_Time(0)
 		, m_Weight(1.0f)
 		, m_LastElapsedTime(0)
+		, m_Rate(1.0f)
 		, m_Loop(true)
 	{
 	}
@@ -109,6 +112,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
 		ar & BOOST_SERIALIZATION_NVP(m_RootList);
+		ar & BOOST_SERIALIZATION_NVP(m_Rate);
 		ar & BOOST_SERIALIZATION_NVP(m_Loop);
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
@@ -171,7 +175,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, bool Loop, float BlendTime, float BlendOutTime, float Weight = 1.0f);
+	void Play(const std::string & Name, std::string RootList, float Rate, bool Loop, float BlendTime, float BlendOutTime, float Weight = 1.0f);
 
 	void Stop(void);
 };
