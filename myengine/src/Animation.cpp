@@ -186,56 +186,40 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
-	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
+	for (; seq_iter != m_SequenceSlot.end();)
 	{
+		float Weight = 0;
 		if (seq_iter->m_BlendTime < fElapsedTime)
 		{
-			seq_iter->m_Weight = seq_iter->m_TargetWeight;
+			if (seq_iter->m_TargetWeight <= 0)
+			{
+				seq_iter = m_SequenceSlot.erase(seq_iter);
+				continue;
+			}
+			Weight = seq_iter->m_TargetWeight;
 			seq_iter->m_BlendTime = 0;
 		}
 		else
 		{
-			const float delta = seq_iter->m_TargetWeight - seq_iter->m_Weight;
-			seq_iter->m_Weight += delta * fElapsedTime / seq_iter->m_BlendTime;
+			float WeightDelta = seq_iter->m_TargetWeight - seq_iter->m_Weight;
+			Weight = seq_iter->m_Weight + WeightDelta * fElapsedTime / seq_iter->m_BlendTime;
 			seq_iter->m_BlendTime -= fElapsedTime;
 		}
+
+		seq_iter->Tick(fElapsedTime, Weight);
+
+		if (seq_iter->m_TargetWeight > 0 && !seq_iter->m_Loop && seq_iter->m_Time >= seq_iter->GetLength())
+		{
+			seq_iter->m_TargetWeight = 0;
+			seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
+		}
+
+		seq_iter++;
 	}
 
 	if (m_Childs[0])
 	{
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
-	}
-
-	Advance(fElapsedTime);
-}
-
-void AnimationNodeSlot::Advance(float fElapsedTime)
-{
-	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
-	if (Root->m_Skeleton)
-	{
-		SequenceList::iterator seq_iter = m_SequenceSlot.begin();
-		while (seq_iter != m_SequenceSlot.end())
-		{
-			const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(seq_iter->m_Name);
-
-			if (seq_iter->m_TargetWeight <= 0 && seq_iter->m_BlendTime < fElapsedTime)
-			{
-				seq_iter = m_SequenceSlot.erase(seq_iter);
-				continue;
-			}
-
-			float Length = anim ? anim->GetLength() : 0;
-
-			seq_iter->m_Time += fElapsedTime;
-
-			if (seq_iter->m_Time > Length)
-			{
-				seq_iter->m_TargetWeight = 0;
-				seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
-			}
-			seq_iter++;
-		}
 	}
 }
 
@@ -260,13 +244,14 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Weight /*= 1.0f*/)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, bool Loop, float BlendTime, float BlendOutTime, float Weight /*= 1.0f*/)
 {
 	Sequence seq;
 	seq.m_Time = 0;
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
 	seq.SetRootList(RootList);
+	seq.m_Loop = Loop;
 	seq.m_BlendTime = BlendTime;
 	seq.m_BlendOutTime = BlendOutTime;
 	seq.m_TargetWeight = Weight;

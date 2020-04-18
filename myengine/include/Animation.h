@@ -169,11 +169,9 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	void Advance(float fElapsedTime);
-
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, float BlendTime, float BlendOutTime, float Weight = 1.0f);
+	void Play(const std::string & Name, std::string RootList, bool Loop, float BlendTime, float BlendOutTime, float Weight = 1.0f);
 
 	void Stop(void);
 };

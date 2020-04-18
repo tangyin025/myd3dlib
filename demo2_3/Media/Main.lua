@@ -65,7 +65,7 @@ end
 player.EventKeyDown=function(arg)
 	if arg.kc == 57 then
 		player.Velocity.y=5.0
-		player.Animation:Play("jumpforward","",0.3,0.3,1.0)
+		player.Animation:Play("jumpforward","",false,0.3,0.3,1.0)
 	end
 	if arg.kc == 17 then
 		player.MoveAxis.y=player.MoveAxis.y+1
