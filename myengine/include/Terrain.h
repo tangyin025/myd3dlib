@@ -5,8 +5,6 @@
 #include <boost/multi_array.hpp>
 #include <boost/unordered_map.hpp>
 
-class Terrain;
-
 class TerrainChunk
 	: public my::OctEntity
 {
@@ -85,7 +83,7 @@ public:
 
 	FragmentMap m_Fragment;
 
-	typedef boost::multi_array<TerrainChunk *, 2> ChunkArray2D;
+	typedef boost::multi_array<TerrainChunkPtr, 2> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
 
@@ -99,7 +97,7 @@ public:
 
 	TerrainChunk * GetChunk(int i, int j)
 	{
-		TerrainChunk * ret = m_Chunks[i][j]; _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
+		TerrainChunk * ret = m_Chunks[i][j].get(); _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
 	}
 
 	template <typename T>

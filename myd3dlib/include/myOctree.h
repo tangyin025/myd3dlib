@@ -2,14 +2,13 @@
 
 #include "myCollision.h"
 #include <boost/shared_ptr.hpp>
-#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
 #include <vector>
 #include <array>
 
 namespace my
 {
-	class OctEntity : public boost::enable_shared_from_this<OctEntity>
+	class OctEntity
 	{
 	public:
 		friend class OctNode;
@@ -22,15 +21,7 @@ namespace my
 		{
 		}
 
-		virtual ~OctEntity(void)
-		{
-			_ASSERT(!m_Node);
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-		}
+		virtual ~OctEntity(void);
 
 		const AABB & GetOctAABB(void) const;
 	};
@@ -56,7 +47,7 @@ namespace my
 
 		Vector3 m_Half;
 
-		typedef std::map<OctEntityPtr, AABB> OctEntityMap;
+		typedef std::map<OctEntity *, AABB> OctEntityMap;
 
 		OctEntityMap m_Entities;
 
@@ -83,29 +74,15 @@ namespace my
 		{
 		}
 
-		friend class boost::serialization::access;
-
-		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			boost::serialization::split_member(ar, *this, version);
-		}
-
 		bool HaveNode(const OctNode * node) const;
 
 		const OctNode * GetTopNode(void) const;
 
 		OctNode * GetTopNode(void);
 
-		void AddEntity(OctEntityPtr entity, const AABB & aabb);
+		void AddEntity(OctEntity * entity, const AABB & aabb);
 
-		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntityPtr entity, const AABB & aabb);
+		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb);
 
 		void QueryEntity(const Ray & ray, QueryCallback * callback) const;
 
@@ -115,7 +92,7 @@ namespace my
 
 		void QueryEntityAll(QueryCallback * callback) const;
 
-		bool RemoveEntity(OctEntityPtr entity);
+		bool RemoveEntity(OctEntity * entity);
 
 		void ClearAllEntityInCurrentNode(void);
 
@@ -129,11 +106,17 @@ namespace my
 	class OctRoot : public OctNode
 	{
 	public:
+		typedef std::vector<std::pair<OctEntityPtr, AABB> > OctEntityPtrList;
+
+		OctEntityPtrList m_EntityList;
+
+	protected:
 		OctRoot(void)
 			: OctNode(NULL, AABB::Invalid())
 		{
 		}
 
+	public:
 		OctRoot(const AABB & aabb)
 			: OctNode(NULL, aabb)
 		{
@@ -142,15 +125,10 @@ namespace my
 		friend class boost::serialization::access;
 
 		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
-
-		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			boost::serialization::split_member(ar, *this, version);
+			ar & BOOST_SERIALIZATION_NVP(m_aabb);
+			ar & BOOST_SERIALIZATION_NVP(m_Half);
 		}
 	};
 }

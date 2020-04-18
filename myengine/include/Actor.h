@@ -11,6 +11,7 @@ typedef boost::shared_ptr<Actor> ActorPtr;
 
 class Actor
 	: public my::OctEntity
+	, public boost::enable_shared_from_this<Actor>
 {
 public:
 	boost::shared_ptr<unsigned char> m_SerializeBuff;

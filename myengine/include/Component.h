@@ -5,7 +5,7 @@
 #include "myEmitter.h"
 #include "myMesh.h"
 #include <atlbase.h>
-#include <boost/serialization/nvp.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 namespace my
 {

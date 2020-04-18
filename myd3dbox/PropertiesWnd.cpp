@@ -178,7 +178,7 @@ void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMainFrame::ActorSet::iterator actor_iter = pFrame->m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = pFrame->m_selactors.begin();
 	if (actor_iter != pFrame->m_selactors.end())
 	{
 		UpdatePropertiesActor(*actor_iter);
@@ -1089,9 +1089,9 @@ TerrainChunk * CPropertiesWnd::GetTerrainChunkSafe(Terrain * terrain, const CPoi
 	if (chunkid.x >= 0 && chunkid.x < (int)terrain->m_Chunks.shape()[0]
 		&& chunkid.y >= 0 && chunkid.y < (int)terrain->m_Chunks.shape()[1])
 	{
-		return terrain->m_Chunks[chunkid.x][chunkid.y];
+		return terrain->GetChunk(chunkid.x, chunkid.y);
 	}
-	return terrain->m_Chunks[0][0];
+	return terrain->GetChunk(0, 0);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(DWORD type)

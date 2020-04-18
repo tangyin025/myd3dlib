@@ -36,8 +36,9 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	typedef std::set<Actor *> ActorSet;
-	ActorSet m_selactors;
+	std::set<Actor *> m_selactors;
+	typedef std::set<ActorPtr> ActorPtrSet;
+	ActorPtrSet m_ActorList;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;

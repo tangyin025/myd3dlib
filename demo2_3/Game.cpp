@@ -16,6 +16,7 @@
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/set.hpp>
 #include <boost/program_options.hpp>
 #include "Player.h"
 
@@ -601,6 +602,8 @@ void Game::OnDestroyDevice(void)
 
 	OctRoot::ClearAllEntity();
 
+	m_ActorList.clear();
+
 	m_Console.reset();
 
 	RemoveAllDlg();
@@ -916,6 +919,7 @@ void Game::LoadScene(const char * path)
 	OctRoot::ClearAllEntity();
 	PhysxSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
+	m_ActorList.clear();
 
 	IStreamBuff buff(OpenIStream(path));
 	std::istream istr(&buff);
@@ -936,6 +940,13 @@ void Game::LoadScene(const char * path)
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*ia >> BOOST_SERIALIZATION_NVP(m_ActorList);
+
+	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+	}
 
 	RenderPipeline::RequestResource();
 }

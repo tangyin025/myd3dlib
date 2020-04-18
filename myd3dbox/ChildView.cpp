@@ -958,7 +958,7 @@ void CChildView::OnPaint()
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
 					PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-					CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
+					std::set<Actor *>::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 					{
 						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter);
@@ -1076,7 +1076,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		StartPerformanceCount();
 		_ASSERT(m_selactorwlds.empty());
-		CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.begin();
+		std::set<Actor *>::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			m_selactorwlds[*sel_iter][0].xyz = (*sel_iter)->m_Position;
@@ -1114,10 +1114,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{
-			CMainFrame::ActorSet & selacts;
+			std::set<Actor *> & selacts;
 			const my::Frustum & ftm;
 			CChildView * pView;
-			Callback(CMainFrame::ActorSet & _selacts, const my::Frustum & _ftm, CChildView * _pView)
+			Callback(std::set<Actor *> & _selacts, const my::Frustum & _ftm, CChildView * _pView)
 				: selacts(_selacts)
 				, ftm(_ftm)
 				, pView(_pView)
@@ -1169,7 +1169,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		pFrame->QueryEntity(ray, &cb);
 		if (cb.selact)
 		{
-			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cb.selact);
+			std::set<Actor *>::iterator sel_iter = pFrame->m_selactors.find(cb.selact);
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
@@ -1224,15 +1224,14 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		if (m_bCopyActors)
 		{
 			m_bCopyActors = FALSE;
-			CMainFrame::ActorSet new_acts;
-			CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
+			std::set<Actor *>::const_iterator sel_iter = pFrame->m_selactors.begin();
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
-				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				pFrame->AddEntity(new_actor, new_actor->m_aabb.transform(new_actor->m_World));
+				ActorPtr new_actor = (*sel_iter)->Clone();
+				pFrame->AddEntity(new_actor.get(), new_actor->m_aabb.transform(new_actor->m_World));
+				pFrame->m_ActorList.insert(new_actor);
 				new_actor->RequestResource();
 				new_actor->EnterPhysxScene(pFrame);
-				new_acts.insert(new_actor.get());
 			}
 		}
 		StartPerformanceCount();

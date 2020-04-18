@@ -1,96 +1,36 @@
 #include "myOctree.h"
-#pragma warning(disable:4308)
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/cxx11/none_of.hpp>
 #include <boost/lambda/lambda.hpp>
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(OctEntity)
+BOOST_CLASS_EXPORT(OctRoot)
+
+OctEntity::~OctEntity(void)
+{
+	if (m_Node)
+	{
+		_ASSERT(false);
+
+		m_Node->RemoveEntity(this);
+	}
+}
 
 const AABB & OctEntity::GetOctAABB(void) const
 {
 	_ASSERT(m_Node);
 
-	OctNode::OctEntityMap::const_iterator entity_iter = m_Node->m_Entities.find(boost::const_pointer_cast<OctEntity>(shared_from_this()));
+	OctNode::OctEntityMap::const_iterator entity_iter = m_Node->m_Entities.find(const_cast<OctEntity *>(this));
 
 	_ASSERT(entity_iter != m_Node->m_Entities.end());
 
 	return entity_iter->second;
 }
 
-BOOST_CLASS_EXPORT(OctNode)
-
 const float OctNode::THRESHOLD = 0.1f;
 
 const float OctNode::MIN_BLOCK = 1.0f;
-
-template<class Archive>
-void OctNode::save(Archive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
-	ar << BOOST_SERIALIZATION_NVP(m_Half);
-	//ar << BOOST_SERIALIZATION_NVP(m_Entities);
-	ar << BOOST_SERIALIZATION_NVP(m_Childs);
-}
-
-template<class Archive>
-void OctNode::load(Archive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
-	ar >> BOOST_SERIALIZATION_NVP(m_Half);
-	//ar >> BOOST_SERIALIZATION_NVP(m_Entities);
-	//OctEntityMap::iterator entity_iter = m_Entities.begin();
-	//for (; entity_iter != m_Entities.end(); entity_iter++)
-	//{
-	//	entity_iter->first->m_Node = this;
-	//}
-	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
-	for (unsigned int i = 0; i < m_Childs.size(); i++)
-	{
-		if (m_Childs[i])
-		{
-			m_Childs[i]->m_Parent = this;
-		}
-	}
-}
-
-template
-void OctNode::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void OctNode::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void OctNode::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void OctNode::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void OctNode::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void OctNode::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void OctNode::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void OctNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 bool OctNode::HaveNode(const OctNode * node) const
 {
@@ -128,7 +68,7 @@ OctNode * OctNode::GetTopNode(void)
 	return this;
 }
 
-void OctNode::AddEntity(OctEntityPtr entity, const AABB & aabb)
+void OctNode::AddEntity(OctEntity * entity, const AABB & aabb)
 {
 	_ASSERT(!entity->m_Node);
 	if (m_aabb.m_max.x - m_aabb.m_min.x > MIN_BLOCK + THRESHOLD || m_aabb.m_max.y - m_aabb.m_min.y > MIN_BLOCK + THRESHOLD || m_aabb.m_max.z - m_aabb.m_min.z > MIN_BLOCK + THRESHOLD)
@@ -196,7 +136,7 @@ void OctNode::AddEntity(OctEntityPtr entity, const AABB & aabb)
 	entity->m_Node = this;
 }
 
-void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntityPtr entity, const AABB & aabb)
+void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb)
 {
 	if (!child)
 	{
@@ -212,7 +152,7 @@ void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 	{
 		if (IntersectionTests::rayAndAABB(ray.p, ray.d, entity_iter->second).first)
 		{
-			callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, IntersectionTests::IntersectionTypeRay);
+			callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeRay);
 		}
 	}
 
@@ -239,7 +179,7 @@ void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, intersect_type);
+			callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type);
 			break;
 		}
 	}
@@ -273,7 +213,7 @@ void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, intersect_type);
+			callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type);
 			break;
 		}
 	}
@@ -302,7 +242,7 @@ void OctNode::QueryEntityAll(QueryCallback * callback) const
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for(; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		callback->OnQueryEntity(entity_iter->first.get(), entity_iter->second, IntersectionTests::IntersectionTypeInside);
+		callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeInside);
 	}
 
 	ChildArray::const_iterator node_iter = m_Childs.begin();
@@ -315,7 +255,7 @@ void OctNode::QueryEntityAll(QueryCallback * callback) const
 	}
 }
 
-bool OctNode::RemoveEntity(OctEntityPtr entity)
+bool OctNode::RemoveEntity(OctEntity * entity)
 {
 	if (entity->m_Node)
 	{
@@ -371,71 +311,3 @@ void OctNode::Flush(void)
 		}
 	}
 }
-
-BOOST_CLASS_EXPORT(OctRoot)
-
-template<class Archive>
-void OctRoot::save(Archive & ar, const unsigned int version) const
-{
-	class Callback: public QueryCallback
-	{
-	public:
-		std::vector<std::pair<OctEntityPtr, AABB> > entity_list;
-
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
-		{
-			_ASSERT(oct_entity);
-			entity_list.push_back(std::make_pair(oct_entity->shared_from_this(), aabb));
-		}
-	};
-
-	Callback cb;
-	QueryEntityAll(&cb);
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
-	ar << BOOST_SERIALIZATION_NVP(m_Half);
-	ar << BOOST_SERIALIZATION_NVP(cb.entity_list);
-}
-
-template<class Archive>
-void OctRoot::load(Archive & ar, const unsigned int version)
-{
-	class Callback
-	{
-	public:
-		std::vector<std::pair<OctEntityPtr, AABB> > entity_list;
-	};
-
-	Callback cb;
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
-	ar >> BOOST_SERIALIZATION_NVP(m_Half);
-	ar >> BOOST_SERIALIZATION_NVP(cb.entity_list);
-	std::vector<std::pair<OctEntityPtr, AABB> >::iterator entity_iter = cb.entity_list.begin();
-	for (; entity_iter != cb.entity_list.end(); entity_iter++)
-	{
-		AddEntity(entity_iter->first, entity_iter->second);
-	}
-}
-
-template
-void OctRoot::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void OctRoot::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void OctRoot::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void OctRoot::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void OctRoot::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void OctRoot::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void OctRoot::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void OctRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);

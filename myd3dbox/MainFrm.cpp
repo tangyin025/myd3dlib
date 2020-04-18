@@ -19,7 +19,7 @@
 #include <boost/archive/polymorphic_binary_iarchive.hpp>
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/set.hpp>
 #include <fstream>
 #include "RecastDump.h"
 #include "DetourNavMesh.h"
@@ -426,7 +426,7 @@ void CMainFrame::UpdateSelBox(void)
 	if (!m_selactors.empty())
 	{
 		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-		ActorSet::const_iterator sel_iter = m_selactors.begin();
+		std::set<Actor *>::const_iterator sel_iter = m_selactors.begin();
 		for (; sel_iter != m_selactors.end(); sel_iter++)
 		{
 			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
@@ -450,7 +450,7 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::OnFrameTick(float fElapsedTime)
 {
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
@@ -489,10 +489,10 @@ void CMainFrame::OnSelChanged()
 void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
-	m_selactors.clear();
-	theApp.RemoveAllIORequest();
 	PhysxSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();
+	m_ActorList.clear();
+	m_selactors.clear();
 }
 
 BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
@@ -534,6 +534,7 @@ BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*oa << BOOST_SERIALIZATION_NVP(m_ActorList);
 
 	return TRUE;
 }
@@ -616,7 +617,8 @@ void CMainFrame::OnFileNew()
 
 	//actor->RequestResource();
 	//actor->EnterPhysxScene(this);
-	//AddEntity(actor, actor->m_aabb.transform(actor->m_World));
+	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
+	//m_ActorList.insert(actor);
 
 	//m_selactors.clear();
 	//m_selactors.insert(actor.get());
@@ -663,6 +665,13 @@ void CMainFrame::OnFileOpen()
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*ia >> BOOST_SERIALIZATION_NVP(m_ActorList);
+
+	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+	}
 
 	theApp.RequestResource();
 	OnSelChanged();
@@ -701,7 +710,8 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
-	AddEntity(actor, actor->m_aabb.transform(actor->m_World));
+	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
+	m_ActorList.insert(actor);
 	actor->RequestResource();
 	actor->EnterPhysxScene(this);
 
@@ -721,7 +731,8 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f));
 	character->UpdateWorld();
-	AddEntity(character, character->m_aabb.transform(character->m_World));
+	AddEntity(character.get(), character->m_aabb.transform(character->m_World));
+	m_ActorList.insert(character);
 	character->RequestResource();
 	character->EnterPhysxScene(this);
 
@@ -733,7 +744,7 @@ void CMainFrame::OnCreateCharacter()
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -789,7 +800,7 @@ void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentCloth()
 {
 	// TODO: Add your command handler code here
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -845,7 +856,7 @@ void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentStaticEmitter()
 {
 	// TODO: Add your command handler code here
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -877,7 +888,7 @@ void CMainFrame::OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentSphericalemitter()
 {
 	//// TODO: Add your command handler code here
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -927,7 +938,7 @@ void CMainFrame::OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentTerrain()
 {
 	// TODO: Add your command handler code here
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -965,12 +976,13 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	ActorSet::iterator actor_iter = m_selactors.begin();
+	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->LeavePhysxScene(this);
 		(*actor_iter)->ReleaseResource();
-		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter)->shared_from_this());
+		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter));
+		m_ActorList.erase((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
 	OnSelChanged();
@@ -1201,7 +1213,7 @@ void CMainFrame::OnToolsBuildnavigation()
 					{
 						for (int j = 0; j < terrain->m_ColChunks; j++)
 						{
-							TerrainChunk * chunk = terrain->m_Chunks[i][j];
+							TerrainChunk * chunk = terrain->GetChunk(i, j);
 							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
 							const void * pVertices = chunk->m_vb.Lock(0, 0, D3DLOCK_READONLY);
 							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
@@ -1547,7 +1559,7 @@ void CMainFrame::OnToolsTerraingrassbrush()
 	//	return;
 	//}
 
-	//ActorSet::iterator actor_iter = m_selactors.begin();
+	//std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	//if (actor_iter == m_selactors.end())
 	//{
 	//	return;

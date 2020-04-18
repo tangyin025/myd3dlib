@@ -48,6 +48,10 @@ public:
 
 	WeakActorMap m_ViewedActors;
 
+	typedef std::set<ActorPtr> ActorPtrSet;
+
+	ActorPtrSet m_ActorList;
+
 public:
 	Game(void);
 
