@@ -168,6 +168,22 @@ BoneList & BoneList::CopyTo(
 
 BoneList & BoneList::Increment(
 	BoneList & boneList,
+	const BoneList & rhs) const
+{
+	_ASSERT(boneList.size() == size());
+	_ASSERT(boneList.size() == rhs.size());
+
+	unsigned int node_i = 0;
+	for (; node_i < size(); node_i++)
+	{
+		boneList[node_i] = operator[](node_i).Increment(rhs[node_i]);
+	}
+
+	return boneList;
+}
+
+BoneList & BoneList::Increment(
+	BoneList & boneList,
 	const BoneList & rhs,
 	const BoneHierarchy & boneHierarchy,
 	int root_i) const
@@ -184,6 +200,20 @@ BoneList & BoneList::Increment(
 	}
 
 	return boneList;
+}
+
+BoneList & BoneList::IncrementSelf(
+	const BoneList & rhs)
+{
+	_ASSERT(size() == rhs.size());
+
+	unsigned int node_i = 0;
+	for (; node_i < size(); node_i++)
+	{
+		operator[](node_i).IncrementSelf(rhs[node_i]);
+	}
+
+	return *this;
 }
 
 BoneList & BoneList::IncrementSelf(
@@ -207,6 +237,23 @@ BoneList & BoneList::IncrementSelf(
 BoneList & BoneList::Lerp(
 	BoneList & boneList,
 	const BoneList & rhs,
+	float t) const
+{
+	_ASSERT(boneList.size() == size());
+	_ASSERT(boneList.size() == rhs.size());
+
+	unsigned int node_i = 0;
+	for (; node_i < size(); node_i++)
+	{
+		boneList[node_i] = operator[](node_i).Lerp(rhs[node_i], t);
+	}
+
+	return boneList;
+}
+
+BoneList & BoneList::Lerp(
+	BoneList & boneList,
+	const BoneList & rhs,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
 	float t) const
@@ -223,6 +270,21 @@ BoneList & BoneList::Lerp(
 	}
 
 	return boneList;
+}
+
+BoneList & BoneList::LerpSelf(
+	const BoneList & rhs,
+	float t)
+{
+	_ASSERT(size() == rhs.size());
+
+	unsigned int node_i = 0;
+	for (; node_i < size(); node_i++)
+	{
+		operator[](node_i).LerpSelf(rhs[node_i], t);
+	}
+
+	return *this;
 }
 
 BoneList & BoneList::LerpSelf(

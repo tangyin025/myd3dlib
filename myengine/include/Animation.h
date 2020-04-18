@@ -81,14 +81,19 @@ public:
 
 	std::string m_Name;
 
+	std::vector<std::string> m_RootList;
+
+	bool m_Loop;
+
 	std::string m_Group;
 
 public:
 	AnimationNodeSequence(void)
 		: AnimationNode(0)
 		, m_Time(0)
-		, m_Weight(0)
+		, m_Weight(1.0f)
 		, m_LastElapsedTime(0)
+		, m_Loop(true)
 	{
 	}
 
@@ -103,6 +108,8 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
+		ar & BOOST_SERIALIZATION_NVP(m_RootList);
+		ar & BOOST_SERIALIZATION_NVP(m_Loop);
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
 
@@ -113,6 +120,10 @@ public:
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
 	float GetLength(void) const;
+
+	void SetRootList(std::string RootList);
+
+	std::string GetRootList(void) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
@@ -120,22 +131,21 @@ typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
 class AnimationNodeSlot : public AnimationNode
 {
 public:
-	struct Sequence
+	class Sequence : public AnimationNodeSequence
 	{
 	public:
-		float m_Time;
-
-		float m_Weight;
-
-		std::string m_Name;
-
-		std::vector<std::string> m_RootList;
-
 		float m_BlendTime;
 
 		float m_BlendOutTime;
 
 		float m_TargetWeight;
+
+		Sequence(void)
+			: m_BlendTime(0)
+			, m_BlendOutTime(0)
+			, m_TargetWeight(1.0f)
+		{
+		}
 	};
 
 	typedef boost::circular_buffer<Sequence> SequenceList;

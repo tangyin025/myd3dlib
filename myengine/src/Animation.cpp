@@ -108,7 +108,14 @@ void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 
 void AnimationNodeSequence::Advance(float fElapsedTime)
 {
-	m_Time = fmod(m_Time + fElapsedTime, GetLength());
+	if (m_Loop)
+	{
+		m_Time = fmod(m_Time + fElapsedTime, GetLength());
+	}
+	else
+	{
+		m_Time = my::Min(m_Time + fElapsedTime, GetLength());
+	}
 }
 
 float AnimationNodeSequence::GetLength(void) const
@@ -125,6 +132,24 @@ float AnimationNodeSequence::GetLength(void) const
 	return 0;
 }
 
+void AnimationNodeSequence::SetRootList(std::string RootList)
+{
+	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
+	if (!RootList.empty())
+	{
+		boost::algorithm::split(m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
+	}
+	else
+	{
+		m_RootList.clear();
+	}
+}
+
+std::string AnimationNodeSequence::GetRootList(void) const
+{
+	return std::string();
+}
+
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 {
 	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
@@ -133,10 +158,25 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
 		if (anim)
 		{
-			BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
-			for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
+			if (m_RootList.empty())
 			{
-				anim->GetPose(pose, Root->m_Skeleton->m_boneHierarchy, *root_iter, m_Time);
+				BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
+				for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
+				{
+					anim->GetPose(pose, Root->m_Skeleton->m_boneHierarchy, *root_iter, m_Time);
+				}
+			}
+			else
+			{
+				std::vector<std::string>::const_iterator root_name_iter = m_RootList.begin();
+				for (; root_name_iter != m_RootList.end(); root_name_iter++)
+				{
+					OgreSkeleton::BoneNameMap::const_iterator root_iter = Root->m_Skeleton->m_boneNameMap.find(*root_name_iter);
+					if (root_iter != Root->m_Skeleton->m_boneNameMap.end())
+					{
+						anim->GetPose(pose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, m_Time);
+					}
+				}
 			}
 		}
 	}
@@ -212,33 +252,9 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
 		for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
 		{
-			const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(seq_iter->m_Name);
-			if (anim)
-			{
-				my::BoneList OtherPose(pose.size());
-				if (seq_iter->m_RootList.empty())
-				{
-					BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
-					for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
-					{
-						anim->GetPose(OtherPose, Root->m_Skeleton->m_boneHierarchy, *root_iter, seq_iter->m_Time);
-						pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, *root_iter, seq_iter->m_Weight);
-					}
-				}
-				else
-				{
-					std::vector<std::string>::const_iterator root_name_iter = seq_iter->m_RootList.begin();
-					for (; root_name_iter != seq_iter->m_RootList.end(); root_name_iter++)
-					{
-						OgreSkeleton::BoneNameMap::const_iterator root_iter = Root->m_Skeleton->m_boneNameMap.find(*root_name_iter);
-						if (root_iter != Root->m_Skeleton->m_boneNameMap.end())
-						{
-							anim->GetPose(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Time);
-							pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, seq_iter->m_Weight);
-						}
-					}
-				}
-			}
+			my::BoneList OtherPose(pose.size());
+			seq_iter->GetPose(OtherPose);
+			pose.LerpSelf(OtherPose, seq_iter->m_Weight);
 		}
 	}
 	return pose;
@@ -250,14 +266,11 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 	seq.m_Time = 0;
 	seq.m_Weight = 0;
 	seq.m_Name = Name;
-	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
-	if (!RootList.empty())
-	{
-		boost::algorithm::split(seq.m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
-	}
+	seq.SetRootList(RootList);
 	seq.m_BlendTime = BlendTime;
 	seq.m_BlendOutTime = BlendOutTime;
 	seq.m_TargetWeight = Weight;
+	seq.m_Parent = this;
 	m_SequenceSlot.push_front(seq);
 }
 

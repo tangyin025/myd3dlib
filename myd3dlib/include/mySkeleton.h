@@ -128,9 +128,16 @@ namespace my
 
 		BoneList & Increment(
 			BoneList & boneList,
+			const BoneList & rhs) const;
+
+		BoneList & Increment(
+			BoneList & boneList,
 			const BoneList & rhs,
 			const BoneHierarchy & boneHierarchy,
 			int root_i) const;
+
+		BoneList & IncrementSelf(
+			const BoneList & rhs);
 
 		BoneList & IncrementSelf(
 			const BoneList & rhs,
@@ -140,9 +147,18 @@ namespace my
 		BoneList & Lerp(
 			BoneList & boneList,
 			const BoneList & rhs,
+			float t) const;
+
+		BoneList & Lerp(
+			BoneList & boneList,
+			const BoneList & rhs,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			float t) const;
+
+		BoneList & LerpSelf(
+			const BoneList & rhs,
+			float t);
 
 		BoneList & LerpSelf(
 			const BoneList & rhs,
