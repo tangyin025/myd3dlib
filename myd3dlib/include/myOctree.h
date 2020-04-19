@@ -101,15 +101,8 @@ namespace my
 		void Flush(void);
 	};
 
-	typedef boost::shared_ptr<OctNode> OctNodePtr;
-
 	class OctRoot : public OctNode
 	{
-	public:
-		typedef std::vector<std::pair<OctEntityPtr, AABB> > OctEntityPtrList;
-
-		OctEntityPtrList m_EntityList;
-
 	protected:
 		OctRoot(void)
 			: OctNode(NULL, AABB::Invalid())
