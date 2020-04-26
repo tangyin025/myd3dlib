@@ -156,12 +156,17 @@ public:
 
 	SequenceList m_SequenceSlot;
 
+	int m_Priority;
+
 public:
 	AnimationNodeSlot(void)
 		: AnimationNode(1)
 		, m_SequenceSlot(2)
+		, m_Priority(INT_MIN)
 	{
 	}
+
+	~AnimationNodeSlot(void);
 
 	friend class boost::serialization::access;
 
@@ -175,7 +180,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, float Rate, bool Loop, float BlendTime, float BlendOutTime, float Weight = 1.0f);
+	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, const std::string & Group);
 
 	void Stop(void);
 };
@@ -384,6 +389,10 @@ public:
 	void ReleaseResource(void);
 
 	void Update(float fElapsedTime);
+
+	void AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
+
+	void RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
 	void ReloadSequenceGroup(void);
 
