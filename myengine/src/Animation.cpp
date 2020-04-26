@@ -92,6 +92,42 @@ AnimationNode * AnimationNode::GetTopNode(void)
 	return this;
 }
 
+AnimationNodeSequence::~AnimationNodeSequence(void)
+{
+	if (m_GroupOwner)
+	{
+		m_GroupOwner->RemoveSequenceGroup(m_Group, this);
+	}
+}
+
+AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSequence & rhs)
+{
+	if (m_GroupOwner)
+	{
+		m_GroupOwner->RemoveSequenceGroup(m_Group, this);
+	}
+
+	m_Time = rhs.m_Time;
+	m_Weight = rhs.m_Weight;
+	m_LastElapsedTime = rhs.m_LastElapsedTime;
+	m_Name = rhs.m_Name;
+	m_RootList = rhs.m_RootList;
+	m_Rate = rhs.m_Rate;
+	m_Loop = rhs.m_Loop;
+	m_Group = rhs.m_Group;
+
+	if (rhs.m_GroupOwner)
+	{
+		AnimationRoot * TmpGroupOwner = rhs.m_GroupOwner;
+
+		rhs.m_GroupOwner->RemoveSequenceGroup(rhs.m_Group, const_cast<AnimationNodeSequence *>(&rhs));
+
+		TmpGroupOwner->AddSequenceGroup(m_Group, this);
+	}
+
+	return *this;
+}
+
 void AnimationNodeSequence::Tick(float fElapsedTime, float fTotalWeight)
 {
 	m_Weight = fTotalWeight;
@@ -129,7 +165,7 @@ float AnimationNodeSequence::GetLength(void) const
 			return anim->GetLength();
 		}
 	}
-	return 0;
+	return 1.0f;
 }
 
 void AnimationNodeSequence::SetRootList(std::string RootList)
@@ -183,20 +219,6 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-AnimationNodeSlot::~AnimationNodeSlot(void)
-{
-	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
-	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
-	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
-	{
-		if (!seq_iter->m_Group.empty())
-		{
-			Root->RemoveSequenceGroup(seq_iter->m_Group, &(*seq_iter));
-		}
-	}
-	m_SequenceSlot.clear();
-}
-
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
 	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
@@ -208,16 +230,13 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 		{
 			if (seq_iter->m_TargetWeight <= 0)
 			{
-				if (!seq_iter->m_Group.empty())
-				{
-					Root->RemoveSequenceGroup(seq_iter->m_Group, &(*seq_iter));
-				}
 				seq_iter = m_SequenceSlot.erase(seq_iter);
 
 				if (m_SequenceSlot.empty())
 				{
 					m_Priority = INT_MIN;
 				}
+
 				continue;
 			}
 			Weight = seq_iter->m_TargetWeight;
@@ -231,6 +250,8 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 		}
 
 		seq_iter->Tick(fElapsedTime, Weight);
+
+		fTotalWeight = Max(0.0f, fTotalWeight - Weight);
 
 		if (seq_iter->m_TargetWeight > 0 && !seq_iter->m_Loop && seq_iter->m_Time >= seq_iter->GetLength())
 		{
@@ -291,6 +312,7 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 		{
 			AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
 			Root->AddSequenceGroup(Group, &m_SequenceSlot.front());
+			Root->SyncSequenceGroupTime(Group, seq.m_Time / seq.GetLength());
 		}
 	}
 }
@@ -467,6 +489,15 @@ void AnimationRoot::load<boost::archive::binary_iarchive>(boost::archive::binary
 template
 void AnimationRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
+AnimationRoot::~AnimationRoot(void)
+{
+	SequenceGroupMap::iterator group_iter = m_SequenceGroup.begin();
+	for (; group_iter != m_SequenceGroup.end(); group_iter = m_SequenceGroup.begin())
+	{
+		RemoveSequenceGroup(group_iter->first, group_iter->second);
+	}
+}
+
 void AnimationRoot::OnReady(my::IORequest * request)
 {
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(request->m_res);
@@ -561,7 +592,9 @@ void AnimationRoot::AddSequenceGroup(const std::string & name, AnimationNodeSequ
 	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter == range.second);
+	_ASSERT(sequence->m_GroupOwner == NULL);
 	m_SequenceGroup.insert(std::make_pair(name, sequence));
+	sequence->m_GroupOwner = this;
 }
 
 void AnimationRoot::RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
@@ -569,7 +602,9 @@ void AnimationRoot::RemoveSequenceGroup(const std::string & name, AnimationNodeS
 	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter != range.second);
+	_ASSERT(sequence->m_GroupOwner == this);
 	m_SequenceGroup.erase(seq_iter);
+	sequence->m_GroupOwner = NULL;
 }
 
 void AnimationRoot::ReloadSequenceGroup(void)
@@ -623,18 +658,31 @@ void AnimationRoot::UpdateSequenceGroup(void)
 		if (master_seq_iter->second->m_Weight > EPSILON_E3)
 		{
 			master_seq_iter->second->Advance(master_seq_iter->second->m_LastElapsedTime);
-			float time_pct = master_seq_iter->second->m_Time / master_seq_iter->second->GetLength();
 
-			SequenceGroupMap::iterator slave_seq_iter = seq_iter;
-			for (; slave_seq_iter != next_seq_iter; slave_seq_iter++)
-			{
-				if (slave_seq_iter != master_seq_iter)
-				{
-					slave_seq_iter->second->m_Time = Lerp(0.0f, slave_seq_iter->second->GetLength(), time_pct);
-				}
-			}
+			float Time = master_seq_iter->second->m_Time;
+
+			float Percent = Time / master_seq_iter->second->GetLength();
+
+			SyncSequenceGroupTime(seq_iter, next_seq_iter, Percent);
+
+			master_seq_iter->second->m_Time = Time;
 		}
 		seq_iter = next_seq_iter;
+	}
+}
+
+void AnimationRoot::SyncSequenceGroupTime(const std::string & Group, float Percent)
+{
+	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(Group);
+	SyncSequenceGroupTime(range.first, range.second, Percent);
+}
+
+void AnimationRoot::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent)
+{
+	SequenceGroupMap::iterator seq_iter = begin;
+	for (; seq_iter != end; seq_iter++)
+	{
+		seq_iter->second->m_Time = Lerp(0.0f, seq_iter->second->GetLength(), Percent);
 	}
 }
 

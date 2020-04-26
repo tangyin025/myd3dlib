@@ -50,7 +50,7 @@ game:LoadScene("scene01.xml")
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- 创建玩家Actor
-local player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
+--[[local--]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 player.EventMouseMove=function(arg)
 	if arg.x ~= 0 then
 		player.LookAngle.y=player.LookAngle.y-math.rad(arg.x)
@@ -156,7 +156,7 @@ end
 player.Animation=anim
 
 -- 创建一个物理球
-local actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+--[[local--]] actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert3=Material()
 lambert3.Shader="shader/mtl_lambert1.fx"
 lambert3.PassMask=Material.PassMaskShadowNormalOpaque

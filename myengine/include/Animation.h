@@ -89,6 +89,11 @@ public:
 
 	std::string m_Group;
 
+protected:
+	friend class AnimationRoot;
+
+	AnimationRoot * m_GroupOwner;
+
 public:
 	AnimationNodeSequence(void)
 		: AnimationNode(0)
@@ -97,12 +102,11 @@ public:
 		, m_LastElapsedTime(0)
 		, m_Rate(1.0f)
 		, m_Loop(true)
+		, m_GroupOwner(NULL)
 	{
 	}
 
-	~AnimationNodeSequence(void)
-	{
-	}
+	~AnimationNodeSequence(void);
 
 	friend class boost::serialization::access;
 
@@ -116,6 +120,8 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Loop);
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
 	}
+
+	AnimationNodeSequence & operator = (const AnimationNodeSequence & rhs);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
@@ -165,8 +171,6 @@ public:
 		, m_Priority(INT_MIN)
 	{
 	}
-
-	~AnimationNodeSlot(void);
 
 	friend class boost::serialization::access;
 
@@ -364,9 +368,7 @@ public:
 	{
 	}
 
-	virtual ~AnimationRoot(void)
-	{
-	}
+	~AnimationRoot(void);
 
 	friend class boost::serialization::access;
 
@@ -399,6 +401,10 @@ public:
 	void ReloadSequenceGroupWalker(AnimationNode * node);
 
 	void UpdateSequenceGroup(void);
+
+	void SyncSequenceGroupTime(const std::string & Group, float Percent);
+
+	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
 
 	void AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
 
