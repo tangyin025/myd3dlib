@@ -184,7 +184,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, const std::string & Group);
+	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group);
 
 	void Stop(void);
 };

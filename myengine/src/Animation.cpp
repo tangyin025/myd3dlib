@@ -289,13 +289,13 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, const std::string & Group)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group)
 {
 	if (Prority >= m_Priority)
 	{
 		m_Priority = Prority;
 		Sequence seq;
-		seq.m_Time = 0;
+		seq.m_Time = StartTime;
 		seq.m_Weight = 0;
 		seq.m_Name = Name;
 		seq.SetRootList(RootList);
