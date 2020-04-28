@@ -73,6 +73,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\ActionTrack.h" />
     <ClInclude Include="include\Actor.h" />
     <ClInclude Include="include\Animation.h" />
     <ClInclude Include="include\Character.h" />
@@ -84,6 +85,7 @@
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ActionTrack.cpp" />
     <ClCompile Include="src\Actor.cpp" />
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="src\Character.cpp" />
