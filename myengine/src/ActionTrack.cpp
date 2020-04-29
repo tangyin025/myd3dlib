@@ -35,15 +35,14 @@ void ActionTrackAnimation::AddKeyFrame(float time, const char * Name, const char
 	key.Group = Group;
 }
 
-void ActionTrackAnimationInst::Update(float fElapsedTime)
+void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 {
 	_ASSERT(m_Template);
 
 	_ASSERT(m_Actor);
 
-	ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(m_Time);
-	ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_Time + fElapsedTime);
-	m_Time += fElapsedTime;
+	ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
+	ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
 	for (; key_iter != key_end; key_iter++)
 	{
 		if (m_Actor->m_Animation)

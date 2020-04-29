@@ -58,7 +58,7 @@ public:
 	{
 	}
 
-	virtual void Update(float fElapsedTime) = 0;
+	virtual void UpdateTime(float Time, float fElapsedTime) = 0;
 };
 
 class Actor;
@@ -100,15 +100,12 @@ protected:
 
 	Actor * m_Actor;
 
-	float m_Time;
-
 public:
 	ActionTrackAnimationInst(const ActionTrackAnimation * Template, Actor * Actor)
 		: m_Template(Template)
 		, m_Actor(Actor)
-		, m_Time(0)
 	{
 	}
 
-	virtual void Update(float fElapsedTime);
+	virtual void UpdateTime(float Time, float fElapsedTime);
 };
