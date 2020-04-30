@@ -26,6 +26,8 @@ BOOST_CLASS_EXPORT(Actor)
 
 Actor::~Actor(void)
 {
+	m_Actions.clear();
+
 	ClearAllComponent();
 
 	ClearAllAttacher();

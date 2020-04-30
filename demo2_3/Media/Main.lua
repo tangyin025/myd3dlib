@@ -49,6 +49,12 @@ game:LoadScene("scene01.xml")
 -- actor:UpdateWorld()
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
+-- ActionTrack
+act_jump=Action()
+local track=ActionTrackAnimation()
+track:AddKeyFrame(0,"jumpforward","",2.0,0.3,0.3,false,1,0,"")
+act_jump:AddTrack(track)
+
 -- 创建玩家Actor
 --[[local--]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 player.EventMouseMove=function(arg)
@@ -65,7 +71,8 @@ end
 player.EventKeyDown=function(arg)
 	if arg.kc == 57 then
 		player.Velocity.y=5.0
-		player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,0,"")
+		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,0,"")
+		player:PlayAction(act_jump)
 	end
 	if arg.kc == 17 then
 		player.MoveAxis.y=player.MoveAxis.y+1

@@ -11,6 +11,7 @@
 #include "Character.h"
 #include "Animation.h"
 #include "Terrain.h"
+#include "ActionTrack.h"
 
 static int add_file_and_line(lua_State * L)
 {
@@ -937,8 +938,6 @@ void LuaContext::Init(void)
 			.def("UpdateWorld", &Actor::UpdateWorld)
 			.def("UpdateOctNode", &Actor::UpdateOctNode)
 			.def("ClearRigidActor", &Actor::ClearRigidActor)
-			.def("Attach", &Actor::Attach)
-			.def("Dettach", &Actor::Dettach)
 			.enum_("ActorType")
 			[
 				value("eRIGID_STATIC", physx::PxActorType::eRIGID_STATIC),
@@ -961,6 +960,11 @@ void LuaContext::Init(void)
 				def("LoadFromFile", &Actor::LoadFromFile)
 			]
 			.def("SaveToFile", &Actor::SaveToFile)
+			.def("Attach", &Actor::Attach)
+			.def("Dettach", &Actor::Dettach)
+			.def("PlayAction", &Actor::PlayAction)
+
+		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
@@ -1004,7 +1008,17 @@ void LuaContext::Init(void)
 			.def("AddJiggleBone", (void (AnimationRoot::*)(const std::string &, float, float, float))&AnimationRoot::AddJiggleBone)
 			.def("AddIK", &AnimationRoot::AddIK)
 
-		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
+		, class_<Action, boost::shared_ptr<Action> >("Action")
+			.def(constructor<>())
+			.def_readwrite("Length", &Action::m_Length)
+			.def("AddTrack", &Action::AddTrack)
+			.def("RemoveTrack", &Action::RemoveTrack)
+
+		, class_<ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrack")
+
+		, class_<ActionTrackAnimation, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackAnimation")
+			.def(constructor<>())
+			.def("AddKeyFrame", &ActionTrackAnimation::AddKeyFrame)
 	];
 }
 
