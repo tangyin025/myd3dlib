@@ -1,6 +1,8 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <vector>
 #include <map>
 
@@ -38,7 +40,7 @@ typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
 
 class Actor;
 
-class ActionTrack
+class ActionTrack : public boost::intrusive_ref_counter<ActionTrack, boost::sp_adl_block::thread_unsafe_counter>
 {
 public:
 	ActionTrack(void)
@@ -47,6 +49,7 @@ public:
 
 	virtual ~ActionTrack(void)
 	{
+		_ASSERT(0 == use_count());
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * actor) const = 0;
@@ -99,7 +102,7 @@ public:
 class ActionTrackAnimationInst : public ActionTrackInst
 {
 protected:
-	const ActionTrackAnimation * m_Template;
+	boost::intrusive_ptr<const ActionTrackAnimation> m_Template;
 
 	Actor * m_Actor;
 
