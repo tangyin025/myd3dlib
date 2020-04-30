@@ -58,7 +58,11 @@ public:
 class ActionTrackInst
 {
 public:
-	ActionTrackInst(void)
+	Actor * m_Actor;
+
+public:
+	ActionTrackInst(Actor * _Actor)
+		: m_Actor(_Actor)
 	{
 	}
 
@@ -94,9 +98,9 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * actor) const;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float time, const char * Name, const char * RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group);
+	void AddKeyFrame(float Time, const char * Name, const char * RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group);
 };
 
 class ActionTrackAnimationInst : public ActionTrackInst
@@ -104,12 +108,10 @@ class ActionTrackAnimationInst : public ActionTrackInst
 protected:
 	boost::intrusive_ptr<const ActionTrackAnimation> m_Template;
 
-	Actor * m_Actor;
-
 public:
-	ActionTrackAnimationInst(const ActionTrackAnimation * Template, Actor * Actor)
-		: m_Template(Template)
-		, m_Actor(Actor)
+	ActionTrackAnimationInst(Actor * _Actor, const ActionTrackAnimation * Template)
+		: ActionTrackInst(_Actor)
+		, m_Template(Template)
 	{
 	}
 

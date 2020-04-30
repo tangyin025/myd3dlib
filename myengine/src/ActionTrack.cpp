@@ -16,14 +16,14 @@ void Action::RemoveTrack(ActionTrackPtr track)
 	}
 }
 
-ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * actor) const
+ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackAnimationInst(this, actor));
+	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, this));
 }
 
-void ActionTrackAnimation::AddKeyFrame(float time, const char * Name, const char * RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group)
+void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, const char * RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group)
 {
-	KeyFrame & key = m_Keys[time];
+	KeyFrame & key = m_Keys[Time];
 	key.Name = Name;
 	key.RootList = RootList;
 	key.Rate = Rate;
