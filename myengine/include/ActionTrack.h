@@ -11,12 +11,15 @@ typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;
 class Action
 {
 public:
+	float m_Length;
+
 	typedef std::vector<ActionTrackPtr> ActionTrackPtrList;
 
 	ActionTrackPtrList m_TrackList;
 
 public:
 	Action(void)
+		: m_Length(1.0f)
 	{
 	}
 
@@ -33,6 +36,8 @@ class ActionTrackInst;
 
 typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
 
+class Actor;
+
 class ActionTrack
 {
 public:
@@ -44,7 +49,7 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(void) const = 0;
+	virtual ActionTrackInstPtr CreateInstance(Actor * actor) const = 0;
 };
 
 class ActionTrackInst
@@ -60,8 +65,6 @@ public:
 
 	virtual void UpdateTime(float Time, float fElapsedTime) = 0;
 };
-
-class Actor;
 
 class ActionTrackAnimation : public ActionTrack
 {

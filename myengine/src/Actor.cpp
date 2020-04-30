@@ -4,6 +4,7 @@
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
 #include "myResource.h"
+#include "ActionTrack.h"
 #include <fstream>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -285,6 +286,26 @@ void Actor::Update(float fElapsedTime)
 		if ((*cmp_iter)->m_LodMask & m_Lod)
 		{
 			(*cmp_iter)->Update(fElapsedTime);
+		}
+	}
+
+	ActionInstList::iterator action_iter = m_Actions.begin();
+	for (; action_iter != m_Actions.end(); )
+	{
+		ActionTrackInstList::iterator track_iter = action_iter->get<2>().begin();
+		for (; track_iter != action_iter->get<2>().end(); track_iter++)
+		{
+			(*track_iter)->UpdateTime(action_iter->get<0>(), fElapsedTime);
+		}
+
+		action_iter->get<0>() += fElapsedTime;
+		if (action_iter->get<0>() < action_iter->get<1>())
+		{
+			action_iter++;
+		}
+		else
+		{
+			action_iter = m_Actions.erase(action_iter);
 		}
 	}
 
@@ -578,4 +599,14 @@ void Actor::ClearAllAttacher(void)
 		Dettach(att_iter->first);
 	}
 	_ASSERT(m_Attaches.empty());
+}
+
+void Actor::PlayAction(Action * action)
+{
+	m_Actions.push_back(ActionInst(0.0f, action->m_Length));
+	Action::ActionTrackPtrList::const_iterator track_iter = action->m_TrackList.begin();
+	for (; track_iter != action->m_TrackList.end(); track_iter++)
+	{
+		m_Actions.back().get<2>().push_back((*track_iter)->CreateInstance(this));
+	}
 }
