@@ -9,6 +9,8 @@ class Player
 public:
 	my::Vector3 m_LookAngle;
 
+	my::Matrix4 m_LookMatrix;
+
 	float m_LookDist;
 
 	CPoint m_MoveAxis;

@@ -649,11 +649,10 @@ void Game::OnFrameTick(
 
 	PhysxSceneContext::PushRenderBuffer(this);
 
-	FModContext::Update();
-
-	if (Player::getSingletonPtr())
+	Player * player = Player::getSingletonPtr();
+	if (player)
 	{
-		m_ViewedCenter = Player::getSingleton().m_Position;
+		m_ViewedCenter = player->m_Position;
 	}
 	else
 	{
@@ -688,6 +687,25 @@ void Game::OnFrameTick(
 	m_SkyLightCam->UpdateViewProj();
 
 	m_Camera->UpdateViewProj();
+
+	if (player)
+	{
+		m_EventSystem->set3DListenerAttributes(0,
+			(FMOD_VECTOR *)&player->m_Position,
+			(FMOD_VECTOR *)&player->m_Velocity,
+			(FMOD_VECTOR *)&player->m_LookMatrix[2].xyz,
+			(FMOD_VECTOR *)&player->m_LookMatrix[1].xyz);
+	}
+	else
+	{
+		m_EventSystem->set3DListenerAttributes(0,
+			(FMOD_VECTOR *)&m_Camera->m_Eye,
+			NULL,
+			(FMOD_VECTOR *)&m_Camera->m_View[2].xyz,
+			(FMOD_VECTOR *)&m_Camera->m_View[1].xyz);
+	}
+
+	FModContext::Update();
 
 	ParallelTaskManager::DoAllParallelTasks();
 

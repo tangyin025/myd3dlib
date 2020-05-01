@@ -75,10 +75,11 @@ void Player::Update(float fElapsedTime)
 
 	Character::Update(fElapsedTime);
 
+	m_LookMatrix = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
+
 	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(Game::getSingleton().m_Camera.get());
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
 	camera->m_Eular = m_LookAngle;
-	camera->m_Eye = m_Position + Vector3(0, 0.75f, 0) + Rotation[2].xyz * m_LookDist;
+	camera->m_Eye = m_Position + Vector3(0, 0.75f, 0) + m_LookMatrix[2].xyz * m_LookDist;
 	Game::getSingleton().m_SkyLightCam->m_Eye = m_Position;
 }
 

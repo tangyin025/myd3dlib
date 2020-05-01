@@ -180,6 +180,13 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 actor4:UpdateWorld()
 game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 
+-- 球体发声
+act_env=Action()
+track=ActionTrackSound()
+track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
+act_env:AddTrack(track)
+actor4:PlayAction(act_env)
+
 -- -- 在角色手部绑定物体
 -- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 -- local cmp3=MeshComponent()

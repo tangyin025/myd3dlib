@@ -1,6 +1,12 @@
 #include "ActionTrack.h"
 #include "Actor.h"
 #include "Animation.h"
+#include "FModContext.h"
+#include <fmod_errors.h>
+#include "libc.h"
+
+#define ERRCHECK(result) if ((result) != FMOD_OK) { \
+	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
 
 void Action::AddTrack(ActionTrackPtr track)
 {
@@ -57,6 +63,39 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 				key_iter->second.Prority,
 				key_iter->second.StartTime,
 				key_iter->second.Group);
+		}
+	}
+}
+
+ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
+{
+	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, this));
+}
+
+void ActionTrackSound::AddKeyFrame(float Time, const char * Name)
+{
+	KeyFrame & key = m_Keys[Time];
+	key.Name = Name;
+}
+
+void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
+{
+	_ASSERT(m_Template);
+
+	_ASSERT(m_Actor);
+
+	ActionTrackSound::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
+	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+	for (; key_iter != key_end; key_iter++)
+	{
+		FMOD_RESULT result;
+		FMOD::Event       *event;
+		ERRCHECK(FModContext::getSingleton().m_EventSystem->getEvent(key_iter->second.Name.c_str(), FMOD_EVENT_INFOONLY, &event));
+		ERRCHECK(event->set3DAttributes((FMOD_VECTOR *)&m_Actor->m_Position, NULL, NULL));
+		result = FModContext::getSingleton().m_EventSystem->getEvent(key_iter->second.Name.c_str(), FMOD_EVENT_DEFAULT, &event);
+		if (FMOD_OK == result)
+		{
+			ERRCHECK(event->start());
 		}
 	}
 }

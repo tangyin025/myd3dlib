@@ -134,3 +134,40 @@ public:
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 };
+
+class ActionTrackSound : public ActionTrack
+{
+public:
+	struct KeyFrame
+	{
+		std::string Name;
+	};
+
+	typedef std::map<float, KeyFrame> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
+
+public:
+	ActionTrackSound(void)
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+
+	void AddKeyFrame(float Time, const char * Name);
+};
+
+class ActionTrackSoundInst : public ActionTrackInst
+{
+protected:
+	boost::intrusive_ptr<const ActionTrackSound> m_Template;
+
+public:
+	ActionTrackSoundInst(Actor * _Actor, const ActionTrackSound * Template)
+		: ActionTrackInst(_Actor)
+		, m_Template(Template)
+	{
+	}
+
+	virtual void UpdateTime(float Time, float fElapsedTime);
+};

@@ -1019,6 +1019,10 @@ void LuaContext::Init(void)
 		, class_<ActionTrackAnimation, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackAnimation::AddKeyFrame)
+
+		, class_<ActionTrackSound, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackSound")
+			.def(constructor<>())
+			.def("AddKeyFrame", &ActionTrackSound::AddKeyFrame)
 	];
 }
 
