@@ -162,7 +162,11 @@ void Character::OnPxThreadSubstep(float dtime)
 
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
-
+	float theta = Vector3(0, -1, 0).dot((Vector3 &)hit.dir);
+	if (theta > m_PxController->getSlopeLimit())
+	{
+		m_Velocity.y = 0;
+	}
 }
 
 void Character::onControllerHit(const physx::PxControllersHit& hit)
