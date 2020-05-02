@@ -55,6 +55,12 @@ local track=ActionTrackAnimation()
 track:AddKeyFrame(0,"jumpforward","",2.0,0.3,0.3,false,1,0,"")
 act_jump:AddTrack(track)
 
+act_env=Action()
+act_env.Length=5.0
+track=ActionTrackSound()
+track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
+act_env:AddTrack(track)
+
 -- 创建玩家Actor
 --[[local--]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 player.EventMouseMove=function(arg)
@@ -181,10 +187,6 @@ actor4:UpdateWorld()
 game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 
 -- 球体发声
-act_env=Action()
-track=ActionTrackSound()
-track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
-act_env:AddTrack(track)
 actor4:PlayAction(act_env)
 
 -- -- 在角色手部绑定物体

@@ -67,6 +67,11 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 	}
 }
 
+void ActionTrackAnimationInst::OnStop(void)
+{
+
+}
+
 ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, this));
@@ -76,6 +81,43 @@ void ActionTrackSound::AddKeyFrame(float Time, const char * Name)
 {
 	KeyFrame & key = m_Keys[Time];
 	key.Name = Name;
+}
+
+class ActionTrackSoundInstCallback
+{
+public:
+	static FMOD_RESULT F_CALLBACK _FmodEventCallback(
+		FMOD_EVENT * _event,
+		FMOD_EVENT_CALLBACKTYPE type,
+		void * param1,
+		void * param2,
+		void * userdata)
+	{
+		ActionTrackSoundInst * inst = (ActionTrackSoundInst *)userdata;
+		FMOD::Event * _event_obj = (FMOD::Event *)_event;
+		switch (type)
+		{
+		case FMOD_EVENT_CALLBACKTYPE_STOLEN:
+		{
+			ActionTrackSoundInst::FmodEventSet::iterator evt_iter = inst->m_evts.find(_event_obj);
+			if (evt_iter != inst->m_evts.end())
+			{
+				inst->m_evts.erase(evt_iter);
+			}
+			else
+			{
+				_ASSERT(false);
+			}
+			break;
+		}
+		}
+		return FMOD_OK;
+	}
+};
+
+ActionTrackSoundInst::~ActionTrackSoundInst(void)
+{
+	StopAllEvent(true);
 }
 
 void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
@@ -89,13 +131,36 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 	for (; key_iter != key_end; key_iter++)
 	{
 		FMOD_RESULT result;
-		FMOD::Event       *event;
-		ERRCHECK(FModContext::getSingleton().m_EventSystem->getEvent(key_iter->second.Name.c_str(), FMOD_EVENT_INFOONLY, &event));
-		ERRCHECK(event->set3DAttributes((FMOD_VECTOR *)&m_Actor->m_Position, NULL, NULL));
-		result = FModContext::getSingleton().m_EventSystem->getEvent(key_iter->second.Name.c_str(), FMOD_EVENT_DEFAULT, &event);
+		FMOD::Event *_event;
+		ERRCHECK(FModContext::getSingleton().m_EventSystem->getEvent(key_iter->second.Name.c_str(), FMOD_EVENT_INFOONLY, &_event));
+		ERRCHECK(_event->set3DAttributes((FMOD_VECTOR *)&m_Actor->m_Position, NULL, NULL));
+		result = FModContext::getSingleton().m_EventSystem->getEvent(key_iter->second.Name.c_str(), FMOD_EVENT_DEFAULT, &_event);
 		if (FMOD_OK == result)
 		{
-			ERRCHECK(event->start());
+			m_evts.insert(_event);
+			ERRCHECK(_event->setCallback(&ActionTrackSoundInstCallback::_FmodEventCallback, this));
+			ERRCHECK(_event->start());
 		}
+	}
+}
+
+void ActionTrackSoundInst::OnStop(void)
+{
+	StopAllEvent(false);
+}
+
+void ActionTrackSoundInst::StopAllEvent(bool immediate)
+{
+	FmodEventSet::iterator evt_iter = m_evts.begin();
+	for (; evt_iter != m_evts.end(); evt_iter = m_evts.begin())
+	{
+		FMOD_EVENT_STATE state;
+		ERRCHECK((*evt_iter)->getState(&state));
+		if (state & FMOD_EVENT_STATE_PLAYING)
+		{
+			ERRCHECK((*evt_iter)->stop(immediate));
+		}
+		ERRCHECK((*evt_iter)->setCallback(NULL, NULL));
+		m_evts.erase(evt_iter);
 	}
 }

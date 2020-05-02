@@ -4,6 +4,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <vector>
 #include <map>
+#include <set>
 
 class ActionTrack;
 
@@ -56,6 +57,7 @@ public:
 
 	virtual ~ActionTrack(void)
 	{
+		// ! make sure Track obj should be define before Actor obj in script
 		_ASSERT(0 == m_ref_counter);
 	}
 
@@ -88,6 +90,8 @@ public:
 	}
 
 	virtual void UpdateTime(float Time, float fElapsedTime) = 0;
+
+	virtual void OnStop(void) = 0;
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -133,6 +137,8 @@ public:
 	}
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
+
+	virtual void OnStop(void);
 };
 
 class ActionTrackSound : public ActionTrack
@@ -157,10 +163,21 @@ public:
 	void AddKeyFrame(float Time, const char * Name);
 };
 
+namespace FMOD
+{
+	class Event;
+};
+
 class ActionTrackSoundInst : public ActionTrackInst
 {
 protected:
 	boost::intrusive_ptr<const ActionTrackSound> m_Template;
+
+	typedef std::set<FMOD::Event *> FmodEventSet;
+
+	FmodEventSet m_evts;
+
+	friend class ActionTrackSoundInstCallback;
 
 public:
 	ActionTrackSoundInst(Actor * _Actor, const ActionTrackSound * Template)
@@ -169,5 +186,11 @@ public:
 	{
 	}
 
+	~ActionTrackSoundInst(void);
+
 	virtual void UpdateTime(float Time, float fElapsedTime);
+
+	virtual void OnStop(void);
+
+	void StopAllEvent(bool immediate);
 };

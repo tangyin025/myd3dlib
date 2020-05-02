@@ -307,6 +307,11 @@ void Actor::Update(float fElapsedTime)
 		}
 		else
 		{
+			track_iter = action_iter->get<2>().begin();
+			for (; track_iter != action_iter->get<2>().end(); track_iter++)
+			{
+				(*track_iter)->OnStop();
+			}
 			action_iter = m_Actions.erase(action_iter);
 		}
 	}
