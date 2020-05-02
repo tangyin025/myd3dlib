@@ -688,25 +688,6 @@ void Game::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	if (player)
-	{
-		m_EventSystem->set3DListenerAttributes(0,
-			(FMOD_VECTOR *)&player->m_Position,
-			(FMOD_VECTOR *)&player->m_Velocity,
-			(FMOD_VECTOR *)&player->m_LookMatrix[2].xyz,
-			(FMOD_VECTOR *)&player->m_LookMatrix[1].xyz);
-	}
-	else
-	{
-		m_EventSystem->set3DListenerAttributes(0,
-			(FMOD_VECTOR *)&m_Camera->m_Eye,
-			NULL,
-			(FMOD_VECTOR *)&m_Camera->m_View[2].xyz,
-			(FMOD_VECTOR *)&m_Camera->m_View[1].xyz);
-	}
-
-	FModContext::Update();
-
 	ParallelTaskManager::DoAllParallelTasks();
 
 	PhysxSceneContext::TickPreRender(fElapsedTime);
@@ -747,6 +728,25 @@ void Game::OnFrameTick(
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
 	}
+
+	if (player)
+	{
+		m_EventSystem->set3DListenerAttributes(0,
+			(FMOD_VECTOR *)&player->m_Position,
+			(FMOD_VECTOR *)&player->m_Velocity,
+			(FMOD_VECTOR *)&player->m_LookMatrix[2].xyz,
+			(FMOD_VECTOR *)&player->m_LookMatrix[1].xyz);
+	}
+	else
+	{
+		m_EventSystem->set3DListenerAttributes(0,
+			(FMOD_VECTOR *)&m_Camera->m_Eye,
+			NULL,
+			(FMOD_VECTOR *)&m_Camera->m_View[2].xyz,
+			(FMOD_VECTOR *)&m_Camera->m_View[1].xyz);
+	}
+
+	FModContext::Update();
 
 	m_d3dDeviceSec.Enter();
 }
