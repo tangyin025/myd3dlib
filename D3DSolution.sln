@@ -75,6 +75,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myengine", "myengine\myengi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreMaxExporter", "OgreMaxExporter\OgreMaxExporter.vcxproj", "{FA3803CF-6433-4959-9517-8EC505C5D919}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libid3tag", "libid3tag\libid3tag.vcxproj", "{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmad", "libmad\libmad.vcxproj", "{2CD5200A-891A-4538-9603-BAD942529B38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -203,6 +207,18 @@ Global
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Release|Win32.ActiveCfg = Release|x64
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Release|Win32.Build.0 = Release|x64
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Release|x64.ActiveCfg = Release|Win32
+		{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}.Debug|Win32.Build.0 = Debug|Win32
+		{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}.Debug|x64.ActiveCfg = Debug|Win32
+		{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}.Release|Win32.ActiveCfg = Release|Win32
+		{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}.Release|Win32.Build.0 = Release|Win32
+		{5767E8F8-0B18-4FDA-BBF3-BCE697826BF8}.Release|x64.ActiveCfg = Release|Win32
+		{2CD5200A-891A-4538-9603-BAD942529B38}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2CD5200A-891A-4538-9603-BAD942529B38}.Debug|Win32.Build.0 = Debug|Win32
+		{2CD5200A-891A-4538-9603-BAD942529B38}.Debug|x64.ActiveCfg = Debug|Win32
+		{2CD5200A-891A-4538-9603-BAD942529B38}.Release|Win32.ActiveCfg = Release|Win32
+		{2CD5200A-891A-4538-9603-BAD942529B38}.Release|Win32.Build.0 = Release|Win32
+		{2CD5200A-891A-4538-9603-BAD942529B38}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
