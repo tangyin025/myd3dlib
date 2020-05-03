@@ -150,10 +150,13 @@ public:
 
 		float m_TargetWeight;
 
+		DWORD_PTR m_UserData;
+
 		Sequence(void)
 			: m_BlendTime(0)
 			, m_BlendOutTime(0)
 			, m_TargetWeight(1.0f)
+			, m_UserData(0)
 		{
 		}
 	};
@@ -184,9 +187,13 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group);
+	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group, DWORD_PTR UserData);
 
-	void Stop(void);
+	void StopIndex(int i);
+
+	void Stop(DWORD_PTR UserData);
+
+	void StopAll(void);
 };
 
 typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;

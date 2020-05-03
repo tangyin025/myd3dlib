@@ -289,7 +289,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group, DWORD_PTR UserData)
 {
 	if (Prority >= m_Priority)
 	{
@@ -305,6 +305,7 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 		seq.m_BlendTime = BlendTime;
 		seq.m_BlendOutTime = BlendOutTime;
 		seq.m_TargetWeight = 1.0f;
+		seq.m_UserData = UserData;
 		seq.m_Parent = this;
 		m_SequenceSlot.push_front(seq);
 
@@ -317,13 +318,35 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 	}
 }
 
-void AnimationNodeSlot::Stop(void)
+void AnimationNodeSlot::StopIndex(int i)
+{
+	_ASSERT(i >= 0 && i < (int)m_SequenceSlot.size());
+
+	m_SequenceSlot[i].m_TargetWeight = 0;
+	m_SequenceSlot[i].m_BlendTime = m_SequenceSlot[i].m_BlendOutTime;
+}
+
+void AnimationNodeSlot::Stop(DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
-		seq_iter->m_TargetWeight = 0;
-		seq_iter->m_BlendTime = seq_iter->m_BlendOutTime;
+		if (seq_iter->m_UserData == UserData && seq_iter->m_TargetWeight != 0)
+		{
+			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
+		}
+	}
+}
+
+void AnimationNodeSlot::StopAll(void)
+{
+	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
+	{
+		if (seq_iter->m_TargetWeight != 0)
+		{
+			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
+		}
 	}
 }
 

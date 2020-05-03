@@ -62,14 +62,18 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 				key_iter->second.Loop,
 				key_iter->second.Prority,
 				key_iter->second.StartTime,
-				key_iter->second.Group);
+				key_iter->second.Group,
+				(DWORD_PTR)this);
 		}
 	}
 }
 
 void ActionTrackAnimationInst::OnStop(void)
 {
-
+	if (m_Actor->m_Animation)
+	{
+		m_Actor->m_Animation->Stop((DWORD_PTR)this);
+	}
 }
 
 ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
