@@ -151,6 +151,8 @@ public:
 
 	MaterialPtrList m_MaterialList;
 
+	D3DXHANDLE handle_Time;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_dualquat;
@@ -160,6 +162,7 @@ public:
 		: Component(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
+		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_dualquat(NULL)
 	{
@@ -251,6 +254,8 @@ public:
 
 	std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
 
+	D3DXHANDLE handle_Time;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_dualquat;
@@ -259,6 +264,7 @@ public:
 	ClothComponent(void)
 		: Component(ComponentTypeCloth)
 		, m_bUseAnimation(false)
+		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_dualquat(NULL)
 	{
@@ -353,6 +359,8 @@ public:
 
 	float m_EmitterTime;
 
+	D3DXHANDLE handle_Time;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_EmitterScale;
@@ -363,6 +371,7 @@ protected:
 		, Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
 		, m_EmitterTime(0)
+		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{
@@ -374,6 +383,7 @@ public:
 		, Emitter(capacity)
 		, m_EmitterFaceType(FaceTypeX)
 		, m_EmitterTime(0)
+		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{

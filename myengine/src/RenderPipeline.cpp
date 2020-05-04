@@ -38,11 +38,11 @@ RenderPipeline::RenderPipeline(void)
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f)
 	, handle_Time(NULL)
-	, handle_Eye(NULL)
 	, handle_ScreenDim(NULL)
 	, handle_ShadowMapSize(NULL)
 	, handle_ShadowEpsilon(NULL)
 	, handle_World(NULL)
+	, handle_Eye(NULL)
 	, handle_View(NULL)
 	, handle_ViewProj(NULL)
 	, handle_InvViewProj(NULL)
@@ -453,6 +453,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
 	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
 	m_SimpleSample->SetFloat(handle_ShadowEpsilon, SHADOW_EPSILON);
+	m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);

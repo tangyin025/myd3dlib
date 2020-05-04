@@ -364,6 +364,8 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(m_Actor);
 
+	shader->SetFloat(handle_Time, D3DContext::getSingleton().m_fTotalTime);
+
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
@@ -377,6 +379,7 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 void MeshComponent::OnShaderChanged(void)
 {
+	handle_Time = NULL;
 	handle_World = NULL;
 	handle_dualquat = NULL;
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
@@ -428,6 +431,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (!handle_World)
 							{
+								BOOST_VERIFY(handle_Time = shader->GetParameterByName(NULL, "g_Time"));
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
@@ -882,6 +886,8 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	_ASSERT(m_Actor);
 
+	shader->SetFloat(handle_Time, D3DContext::getSingleton().m_fTotalTime);
+
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
@@ -895,6 +901,7 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 void ClothComponent::OnShaderChanged(void)
 {
+	handle_Time = NULL;
 	handle_World = NULL;
 	handle_dualquat = NULL;
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
@@ -941,6 +948,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 						{
 							if (!handle_World)
 							{
+								BOOST_VERIFY(handle_Time = shader->GetParameterByName(NULL, "g_Time"));
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
@@ -1146,6 +1154,8 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 {
 	_ASSERT(m_Actor);
 
+	shader->SetFloat(handle_Time, m_EmitterTime);
+
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	shader->SetVector(handle_EmitterScale, m_Actor->m_Scale);
@@ -1153,6 +1163,7 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 void EmitterComponent::OnShaderChanged(void)
 {
+	handle_Time = NULL;
 	handle_World = NULL;
 	handle_EmitterScale = NULL;
 	m_Material->ParseShaderParameters();
@@ -1209,6 +1220,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				{
 					if (!handle_World)
 					{
+						BOOST_VERIFY(handle_Time = shader->GetParameterByName(NULL, "g_Time"));
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 						BOOST_VERIFY(handle_EmitterScale = shader->GetParameterByName(NULL, "g_EmitterScale"));
 					}
