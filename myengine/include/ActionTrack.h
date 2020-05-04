@@ -206,6 +206,8 @@ public:
 
 	unsigned int m_ParticleCapacity;
 
+	DWORD m_ParticleFaceType;
+
 	float m_ParticleLifeTime;
 
 	float m_SpawnInterval;
@@ -245,6 +247,7 @@ public:
 public:
 	ActionTrackSphericalEmitter(void)
 		: m_ParticleCapacity(1024)
+		, m_ParticleFaceType(0)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_SpawnLength(0)

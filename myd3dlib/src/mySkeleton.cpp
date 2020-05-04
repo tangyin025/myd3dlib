@@ -461,18 +461,6 @@ BoneList & OgreAnimation::GetPose(
 	return boneList;
 }
 
-void OgreSkeleton::OnResetDevice(void)
-{
-}
-
-void OgreSkeleton::OnLostDevice(void)
-{
-}
-
-void OgreSkeleton::OnDestroyDevice(void)
-{
-}
-
 void OgreSkeleton::Clear(void)
 {
 	m_boneNameMap.clear();

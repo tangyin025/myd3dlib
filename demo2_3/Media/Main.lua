@@ -63,6 +63,7 @@ lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 track.ParticleMaterial=lambert1
+track.ParticleFaceType=EmitterComponent.FaceTypeCamera
 track:AddKeyFrame(0)
 act_jump:AddTrack(track)
 

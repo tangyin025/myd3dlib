@@ -189,6 +189,7 @@ ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor,
 {
 	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter, m_Template->m_ParticleCapacity));
 	m_WorldEmitterInst->m_Material = m_Template->m_ParticleMaterial->Clone();
+	m_WorldEmitterInst->m_EmitterFaceType = (EmitterComponent::FaceType)m_Template->m_ParticleFaceType;
 
 	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
 	m_WorldEmitterActor.reset(new Actor(Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), Root->m_aabb));

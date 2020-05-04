@@ -72,11 +72,17 @@ namespace my
 
 		virtual ~DeviceResourceBase(void);
 
-		virtual void OnResetDevice(void) = 0;
+		virtual void OnResetDevice(void)
+		{
+		}
 
-		virtual void OnLostDevice(void) = 0;
+		virtual void OnLostDevice(void)
+		{
+		}
 
-		virtual void OnDestroyDevice(void) = 0;
+		virtual void OnDestroyDevice(void)
+		{
+		}
 	};
 
 	typedef boost::shared_ptr<DeviceResourceBase> DeviceResourceBasePtr;

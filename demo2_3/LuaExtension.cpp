@@ -882,6 +882,16 @@ void LuaContext::Init(void)
 
 		, class_<EmitterComponent, Component, boost::shared_ptr<Component> >("EmitterComponent")
 			.def_readwrite("Material", &EmitterComponent::m_Material)
+			.enum_("FaceType")
+			[
+				value("FaceTypeX", EmitterComponent::FaceTypeX),
+				value("FaceTypeY", EmitterComponent::FaceTypeY),
+				value("FaceTypeZ", EmitterComponent::FaceTypeZ),
+				value("FaceTypeCamera", EmitterComponent::FaceTypeCamera),
+				value("FaceTypeAngle", EmitterComponent::FaceTypeAngle),
+				value("FaceTypeAngleCamera", EmitterComponent::FaceTypeAngleCamera)
+			]
+			.def_readwrite("EmitterFaceType", &EmitterComponent::m_EmitterFaceType)
 			.def("Spawn", &EmitterComponent::Spawn)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
@@ -1029,6 +1039,7 @@ void LuaContext::Init(void)
 			.def("AddKeyFrame", &ActionTrackSphericalEmitter::AddKeyFrame)
 			.def_readwrite("ParticleMaterial", &ActionTrackSphericalEmitter::m_ParticleMaterial)
 			.def_readwrite("ParticleCapacity", &ActionTrackSphericalEmitter::m_ParticleCapacity)
+			.def_readwrite("ParticleFaceType", &ActionTrackSphericalEmitter::m_ParticleFaceType)
 			.def_readwrite("ParticleLifeTime", &ActionTrackSphericalEmitter::m_ParticleLifeTime)
 			.def_readwrite("SpawnInterval", &ActionTrackSphericalEmitter::m_SpawnInterval)
 			.def_readwrite("SpawnLength", &ActionTrackSphericalEmitter::m_SpawnLength)
