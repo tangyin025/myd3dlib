@@ -1247,6 +1247,7 @@ ComponentPtr StaticEmitterComponent::Clone(void) const
 
 void StaticEmitterComponent::Update(float fElapsedTime)
 {
+	EmitterComponent::Update(fElapsedTime);
 }
 
 template<class Archive>

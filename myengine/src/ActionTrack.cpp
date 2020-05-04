@@ -198,22 +198,27 @@ ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor,
 
 ActionTrackSphericalEmitterInst::~ActionTrackSphericalEmitterInst(void)
 {
-	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
-	Root->RemoveEntity(m_WorldEmitterActor.get());
+	if (m_WorldEmitterActor->m_Node)
+	{
+		my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
+		Root->RemoveEntity(m_WorldEmitterActor.get());
+	}
 }
 
 void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 {
-	m_WorldEmitterInst->RemoveParticleBefore(Time + fElapsedTime - m_Template->m_ParticleLifeTime);
+	const float StartSpawnTime = m_WorldEmitterInst->m_EmitterTime > m_Template->m_SpawnInterval ?
+		(m_WorldEmitterInst->m_EmitterTime + fmod(m_WorldEmitterInst->m_EmitterTime, m_Template->m_SpawnInterval)) :
+		(m_WorldEmitterInst->m_EmitterTime <= 0 ? m_WorldEmitterInst->m_EmitterTime : m_Template->m_SpawnInterval);
+
+	m_WorldEmitterInst->RemoveParticleBefore(m_WorldEmitterInst->m_EmitterTime + fElapsedTime - m_Template->m_ParticleLifeTime);
 
 	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time - m_Template->m_SpawnLength);
 	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
 	for (; key_iter != key_end; key_iter++)
 	{
-		float SpawnTime = m_WorldEmitterInst->m_EmitterTime > m_Template->m_SpawnInterval ?
-			(m_WorldEmitterInst->m_EmitterTime + fmod(m_WorldEmitterInst->m_EmitterTime, m_Template->m_SpawnInterval)) :
-			(m_WorldEmitterInst->m_EmitterTime <= 0 ? m_WorldEmitterInst->m_EmitterTime : m_Template->m_SpawnInterval);
-		for (; SpawnTime < Time + fElapsedTime; SpawnTime += m_Template->m_SpawnInterval)
+		float SpawnTime = StartSpawnTime;
+		for (; SpawnTime < m_WorldEmitterInst->m_EmitterTime + fElapsedTime; SpawnTime += m_Template->m_SpawnInterval)
 		{
 			m_WorldEmitterInst->Spawn(
 				m_Actor->m_Position + Vector3(

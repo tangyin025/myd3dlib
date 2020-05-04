@@ -55,6 +55,16 @@ act_jump.Length=5.0
 local track=ActionTrackAnimation()
 track:AddKeyFrame(0,"jumpforward","",2.0,0.3,0.3,false,1,0,"")
 act_jump:AddTrack(track)
+track=ActionTrackSphericalEmitter()
+local lambert1=Material()
+lambert1.Shader="shader/mtl_lambert1.fx"
+lambert1.PassMask=Material.PassMaskShadowNormalOpaque
+lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+track.ParticleMaterial=lambert1
+track:AddKeyFrame(0)
+act_jump:AddTrack(track)
 
 act_env=Action()
 act_env.Length=5.0

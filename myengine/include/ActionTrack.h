@@ -245,10 +245,11 @@ public:
 public:
 	ActionTrackSphericalEmitter(void)
 		: m_ParticleCapacity(1024)
-		, m_ParticleLifeTime(1)
-		, m_SpawnInterval(1)
+		, m_ParticleLifeTime(FLT_MAX)
+		, m_SpawnInterval(FLT_MAX)
 		, m_SpawnLength(0)
 		, m_SpawnSpeed(0)
+		, m_HalfSpawnArea(0, 0, 0)
 	{
 	}
 
