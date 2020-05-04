@@ -351,6 +351,8 @@ public:
 
 	FaceType m_EmitterFaceType;
 
+	float m_EmitterTime;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_EmitterScale;
@@ -360,6 +362,7 @@ protected:
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterTime(0)
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{
@@ -370,6 +373,7 @@ public:
 		: Component(type)
 		, Emitter(capacity)
 		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterTime(0)
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{
@@ -392,8 +396,6 @@ public:
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
-
-	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle);
 
 	virtual ComponentPtr Clone(void) const;
 

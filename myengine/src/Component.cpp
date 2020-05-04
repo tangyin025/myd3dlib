@@ -1071,11 +1071,6 @@ void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 	// TODO:
 }
 
-void EmitterComponent::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle)
-{
-	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, D3DContext::getSingleton().m_fTotalTime));
-}
-
 ComponentPtr EmitterComponent::Clone(void) const
 {
 	EmitterComponentPtr ret(new EmitterComponent());
@@ -1144,6 +1139,7 @@ void EmitterComponent::ReleaseResource(void)
 
 void EmitterComponent::Update(float fElapsedTime)
 {
+	m_EmitterTime += fElapsedTime;
 }
 
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -1326,7 +1322,9 @@ ComponentPtr SphericalEmitterComponent::Clone(void) const
 
 void SphericalEmitterComponent::Update(float fElapsedTime)
 {
-	RemoveDeadParticle(m_ParticleLifeTime);
+	EmitterComponent::Update(fElapsedTime);
+
+	RemoveParticleBefore(m_EmitterTime - m_ParticleLifeTime);
 
 	m_RemainingSpawnTime += fElapsedTime;
 
@@ -1352,7 +1350,7 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 				m_SpawnColorA.Interpolate(SpawnTime, 1)),
 			Vector2(
 				m_SpawnSizeX.Interpolate(SpawnTime, 1)),
-			m_SpawnAngle.Interpolate(SpawnTime, 0));
+			m_SpawnAngle.Interpolate(SpawnTime, 0), m_EmitterTime);
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}

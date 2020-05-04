@@ -94,8 +94,10 @@ namespace my
 		{
 		}
 
+		void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
+
 		void RemoveAllParticle(void);
 
-		void RemoveDeadParticle(float fParticleLifeTime);
+		void RemoveParticleBefore(float fTimeBefore);
 	};
 }

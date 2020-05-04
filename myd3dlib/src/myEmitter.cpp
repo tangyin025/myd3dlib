@@ -65,17 +65,22 @@ void Emitter::ParticleList::load<boost::archive::binary_iarchive>(boost::archive
 template
 void Emitter::ParticleList::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
+void Emitter::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+{
+	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, Time));
+}
+
 void Emitter::RemoveAllParticle(void)
 {
 	m_ParticleList.clear();
 }
 
-void Emitter::RemoveDeadParticle(float fParticleLifeTime)
+void Emitter::RemoveParticleBefore(float fTimeBefore)
 {
 	ParticleList::iterator part_iter = m_ParticleList.begin();
 	for(; part_iter != m_ParticleList.end(); part_iter++)
 	{
-		if ((D3DContext::getSingleton().m_fTotalTime - part_iter->m_Time) < fParticleLifeTime)
+		if (part_iter->m_Time > fTimeBefore)
 		{
 			break;
 		}
