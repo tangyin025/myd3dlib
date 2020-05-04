@@ -277,20 +277,6 @@ void Actor::OnShaderChanged(void)
 
 void Actor::Update(float fElapsedTime)
 {
-	if (m_Animation)
-	{
-		m_Animation->Update(fElapsedTime);
-	}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->m_LodMask & m_Lod)
-		{
-			(*cmp_iter)->Update(fElapsedTime);
-		}
-	}
-
 	ActionInstList::iterator action_iter = m_Actions.begin();
 	for (; action_iter != m_Actions.end(); )
 	{
@@ -313,6 +299,20 @@ void Actor::Update(float fElapsedTime)
 				(*track_iter)->OnStop();
 			}
 			action_iter = m_Actions.erase(action_iter);
+		}
+	}
+
+	if (m_Animation)
+	{
+		m_Animation->Update(fElapsedTime);
+	}
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->m_LodMask & m_Lod)
+		{
+			(*cmp_iter)->Update(fElapsedTime);
 		}
 	}
 

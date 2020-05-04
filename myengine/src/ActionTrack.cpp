@@ -4,6 +4,10 @@
 #include "FModContext.h"
 #include <fmod_errors.h>
 #include "libc.h"
+#include "myOctree.h"
+#include "Material.h"
+
+using namespace my;
 
 #define ERRCHECK(result) if ((result) != FMOD_OK) { \
 	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
@@ -167,4 +171,72 @@ void ActionTrackSoundInst::StopAllEvent(bool immediate)
 		ERRCHECK((*evt_iter)->setCallback(NULL, NULL));
 		m_evts.erase(evt_iter);
 	}
+}
+
+ActionTrackInstPtr ActionTrackSphericalEmitter::CreateInstance(Actor * _Actor) const
+{
+	return ActionTrackInstPtr(new ActionTrackSphericalEmitterInst(_Actor, this));
+}
+
+void ActionTrackSphericalEmitter::AddKeyFrame(float Time)
+{
+	KeyFrame & key = m_Keys[Time];
+}
+
+ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackSphericalEmitter * Template)
+	: ActionTrackInst(_Actor)
+	, m_Template(Template)
+{
+	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter, m_Template->m_ParticleCapacity));
+	m_WorldEmitterInst->m_Material = m_Template->m_ParticleMaterial->Clone();
+
+	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
+	m_WorldEmitterActor.reset(new Actor(Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), Root->m_aabb));
+	m_WorldEmitterActor->AddComponent(m_WorldEmitterInst);
+	Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb);
+}
+
+ActionTrackSphericalEmitterInst::~ActionTrackSphericalEmitterInst(void)
+{
+	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
+	Root->RemoveEntity(m_WorldEmitterActor.get());
+}
+
+void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
+{
+	m_WorldEmitterInst->RemoveParticleBefore(Time + fElapsedTime - m_Template->m_ParticleLifeTime);
+
+	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time - m_Template->m_SpawnLength);
+	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+	for (; key_iter != key_end; key_iter++)
+	{
+		float SpawnTime = m_WorldEmitterInst->m_EmitterTime > m_Template->m_SpawnInterval ?
+			(m_WorldEmitterInst->m_EmitterTime + fmod(m_WorldEmitterInst->m_EmitterTime, m_Template->m_SpawnInterval)) :
+			(m_WorldEmitterInst->m_EmitterTime <= 0 ? m_WorldEmitterInst->m_EmitterTime : m_Template->m_SpawnInterval);
+		for (; SpawnTime < Time + fElapsedTime; SpawnTime += m_Template->m_SpawnInterval)
+		{
+			m_WorldEmitterInst->Spawn(
+				m_Actor->m_Position + Vector3(
+					Random(m_Template->m_HalfSpawnArea.x, m_Template->m_HalfSpawnArea.x),
+					Random(m_Template->m_HalfSpawnArea.y, m_Template->m_HalfSpawnArea.y),
+					Random(m_Template->m_HalfSpawnArea.z, m_Template->m_HalfSpawnArea.z)),
+				Vector3::SphericalToCartesian(
+					m_Template->m_SpawnSpeed,
+					m_Template->m_SpawnInclination.Interpolate(Time + fElapsedTime, 0),
+					m_Template->m_SpawnAzimuth.Interpolate(Time + fElapsedTime, 0)),
+				Vector4(
+					m_Template->m_SpawnColorR.Interpolate(Time + fElapsedTime, 1),
+					m_Template->m_SpawnColorG.Interpolate(Time + fElapsedTime, 1),
+					m_Template->m_SpawnColorB.Interpolate(Time + fElapsedTime, 1),
+					m_Template->m_SpawnColorA.Interpolate(Time + fElapsedTime, 1)),
+				Vector2(m_Template->m_SpawnSizeX.Interpolate(Time + fElapsedTime, 1)),
+				m_Template->m_SpawnAngle.Interpolate(Time + fElapsedTime, 0),
+				SpawnTime);
+		}
+	}
+}
+
+void ActionTrackSphericalEmitterInst::OnStop(void)
+{
+	m_WorldEmitterInst->RemoveAllParticle();
 }

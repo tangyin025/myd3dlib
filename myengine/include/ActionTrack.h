@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include "myMath.h"
+#include "mySpline.h"
 
 class ActionTrack;
 
@@ -193,4 +195,85 @@ public:
 	virtual void OnStop(void);
 
 	void StopAllEvent(bool immediate);
+};
+
+class Material;
+
+class ActionTrackSphericalEmitter : public ActionTrack
+{
+public:
+	boost::shared_ptr<Material> m_ParticleMaterial;
+
+	unsigned int m_ParticleCapacity;
+
+	float m_ParticleLifeTime;
+
+	float m_SpawnInterval;
+
+	float m_SpawnLength;
+
+	my::Vector3 m_HalfSpawnArea;
+
+	float m_SpawnSpeed;
+
+	my::Spline m_SpawnInclination;
+
+	my::Spline m_SpawnAzimuth;
+
+	my::Spline m_SpawnColorR;
+
+	my::Spline m_SpawnColorG;
+
+	my::Spline m_SpawnColorB;
+
+	my::Spline m_SpawnColorA;
+
+	my::Spline m_SpawnSizeX;
+
+	my::Spline m_SpawnSizeY;
+
+	my::Spline m_SpawnAngle;
+
+	struct KeyFrame
+	{
+	};
+
+	typedef std::map<float, KeyFrame> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
+
+public:
+	ActionTrackSphericalEmitter(void)
+		: m_ParticleCapacity(1024)
+		, m_ParticleLifeTime(1)
+		, m_SpawnInterval(1)
+		, m_SpawnLength(0)
+		, m_SpawnSpeed(0)
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+
+	void AddKeyFrame(float Time);
+};
+
+class EmitterComponent;
+
+class ActionTrackSphericalEmitterInst : public ActionTrackInst
+{
+protected:
+	boost::intrusive_ptr<const ActionTrackSphericalEmitter> m_Template;
+
+	boost::shared_ptr<Actor> m_WorldEmitterActor;
+
+	boost::shared_ptr<EmitterComponent> m_WorldEmitterInst;
+
+public:
+	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackSphericalEmitter * Template);
+
+	virtual ~ActionTrackSphericalEmitterInst(void);
+
+	virtual void UpdateTime(float Time, float fElapsedTime);
+
+	virtual void OnStop(void);
 };
