@@ -468,8 +468,6 @@ class SphericalEmitterComponent
 public:
 	float m_ParticleLifeTime;
 
-	float m_RemainingSpawnTime;
-
 	float m_SpawnInterval;
 
 	my::Vector3 m_HalfSpawnArea;
@@ -500,7 +498,6 @@ protected:
 	SphericalEmitterComponent(void)
 		: EmitterComponent(ComponentTypeSphericalEmitter, 1)
 		, m_ParticleLifeTime(FLT_MAX)
-		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnSpeed(0)
@@ -512,7 +509,6 @@ public:
 	SphericalEmitterComponent(unsigned int capacity)
 		: EmitterComponent(ComponentTypeSphericalEmitter, capacity)
 		, m_ParticleLifeTime(FLT_MAX)
-		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)
 		, m_SpawnSpeed(0)

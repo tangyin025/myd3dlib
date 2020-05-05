@@ -1335,18 +1335,18 @@ ComponentPtr SphericalEmitterComponent::Clone(void) const
 
 void SphericalEmitterComponent::Update(float fElapsedTime)
 {
+	_ASSERT(m_SpawnInterval > 0);
+
+	float SpawnTime = m_EmitterTime + Round<float>(m_EmitterTime, 0, m_SpawnInterval);
+
 	EmitterComponent::Update(fElapsedTime);
 
 	RemoveParticleBefore(m_EmitterTime - m_ParticleLifeTime);
 
-	m_RemainingSpawnTime += fElapsedTime;
-
-	_ASSERT(m_SpawnInterval > 0);
-
-	float SpawnTime = fmod(D3DContext::getSingleton().m_fTotalTime, m_SpawnCycle);
-
-	while(m_RemainingSpawnTime >= 0)
+	for (; SpawnTime < m_EmitterTime; SpawnTime += m_SpawnInterval)
 	{
+		const float SpawnTimeCycle = Round<float>(SpawnTime, 0, m_SpawnCycle);
+
 		Spawn(
 			Vector3(
 				Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
@@ -1354,17 +1354,15 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
 			Vector3::SphericalToCartesian(
 				m_SpawnSpeed,
-				m_SpawnInclination.Interpolate(SpawnTime, 0),
-				m_SpawnAzimuth.Interpolate(SpawnTime, 0)),
+				m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
+				m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)),
 			Vector4(
-				m_SpawnColorR.Interpolate(SpawnTime, 1),
-				m_SpawnColorG.Interpolate(SpawnTime, 1),
-				m_SpawnColorB.Interpolate(SpawnTime, 1),
-				m_SpawnColorA.Interpolate(SpawnTime, 1)),
+				m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
 			Vector2(
-				m_SpawnSizeX.Interpolate(SpawnTime, 1)),
-			m_SpawnAngle.Interpolate(SpawnTime, 0), m_EmitterTime);
-
-		m_RemainingSpawnTime -= m_SpawnInterval;
+				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1)),
+			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), SpawnTime);
 	}
 }

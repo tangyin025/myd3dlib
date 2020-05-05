@@ -168,7 +168,7 @@ public:
 		PropertySphericalEmitterSpawnSizeX,
 		PropertySphericalEmitterSpawnSizeY,
 		PropertySphericalEmitterSpawnAngle,
-		PropertySphericalEmitterSpawnLoopTime,
+		PropertySphericalEmitterSpawnCycle,
 		PropertySplineNodeCount,
 		PropertySplineNodeX,
 		PropertySplineNodeY,
