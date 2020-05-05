@@ -223,9 +223,9 @@ void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		{
 			m_WorldEmitterInst->Spawn(
 				m_Actor->m_Position + Vector3(
-					Random(m_Template->m_HalfSpawnArea.x, m_Template->m_HalfSpawnArea.x),
-					Random(m_Template->m_HalfSpawnArea.y, m_Template->m_HalfSpawnArea.y),
-					Random(m_Template->m_HalfSpawnArea.z, m_Template->m_HalfSpawnArea.z)),
+					Random(-m_Template->m_HalfSpawnArea.x, m_Template->m_HalfSpawnArea.x),
+					Random(-m_Template->m_HalfSpawnArea.y, m_Template->m_HalfSpawnArea.y),
+					Random(-m_Template->m_HalfSpawnArea.z, m_Template->m_HalfSpawnArea.z)),
 				Vector3::SphericalToCartesian(
 					m_Template->m_SpawnSpeed,
 					m_Template->m_SpawnInclination.Interpolate(Time + fElapsedTime, 0),

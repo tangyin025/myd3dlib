@@ -1349,9 +1349,9 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 	{
 		Spawn(
 			Vector3(
-				Random(m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-				Random(m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-				Random(m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
+				Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+				Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
 			Vector3::SphericalToCartesian(
 				m_SpawnSpeed,
 				m_SpawnInclination.Interpolate(SpawnTime, 0),
