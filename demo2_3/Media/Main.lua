@@ -84,7 +84,7 @@ track.ParticleColorA:AddNode(0,1,0,0)
 track.ParticleColorA:AddNode(3,0,0,0)
 track.SpawnInterval=0.1
 track.SpawnLength=99999
-track:AddKeyFrame(0)
+track:AddKeyFrame(0,99999,0.1)
 act_tuowei:AddTrack(track)
 
 -- 创建玩家Actor

@@ -192,10 +192,6 @@ public:
 
 	float m_ParticleLifeTime;
 
-	float m_SpawnInterval;
-
-	float m_SpawnLength;
-
 	my::Spline m_ParticlePosX;
 
 	my::Spline m_ParticlePosY;
@@ -218,6 +214,9 @@ public:
 
 	struct KeyFrame
 	{
+		int SpawnCount;
+
+		float SpawnInterval;
 	};
 
 	typedef std::map<float, KeyFrame> KeyFrameMap;
@@ -229,14 +228,12 @@ public:
 		: m_ParticleCapacity(1024)
 		, m_ParticleFaceType(0)
 		, m_ParticleLifeTime(FLT_MAX)
-		, m_SpawnInterval(FLT_MAX)
-		, m_SpawnLength(0)
 	{
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time);
+	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
 };
 
 class EmitterComponent;
@@ -251,6 +248,26 @@ protected:
 	boost::shared_ptr<EmitterComponent> m_WorldEmitterInst;
 
 	float m_ActionTime;
+
+	struct KeyFrameInst
+	{
+		float m_Time;
+
+		int m_SpawnCount;
+
+		float m_SpawnInterval;
+
+		KeyFrameInst(float Time, int SpawnCount, float SpawnInterval)
+			: m_Time(Time)
+			, m_SpawnCount(SpawnCount)
+			, m_SpawnInterval(SpawnInterval)
+		{
+		}
+	};
+
+	typedef std::vector<KeyFrameInst> KeyFrameInstList;
+
+	KeyFrameInstList m_KeyInsts;
 
 public:
 	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);

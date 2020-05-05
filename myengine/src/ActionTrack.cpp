@@ -178,9 +178,11 @@ ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackSphericalEmitterInst(_Actor, this));
 }
 
-void ActionTrackEmitter::AddKeyFrame(float Time)
+void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInterval)
 {
 	KeyFrame & key = m_Keys[Time];
+	key.SpawnCount = SpawnCount;
+	key.SpawnInterval = SpawnInterval;
 }
 
 ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
@@ -214,33 +216,31 @@ void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 
 	m_WorldEmitterInst->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
 
-	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time - m_Template->m_SpawnLength);
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
 	for (; key_iter != key_end; key_iter++)
 	{
-		const float KeyTime = Time - key_iter->first;
+		m_KeyInsts.push_back(KeyFrameInst(
+			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
+	}
 
-		float SpawnTime = KeyTime > m_Template->m_SpawnInterval ?
-			(KeyTime + fmod(KeyTime, m_Template->m_SpawnInterval)) : (KeyTime <= 0 ? KeyTime : m_Template->m_SpawnInterval);
-
-		for (; SpawnTime < m_ActionTime; SpawnTime += m_Template->m_SpawnInterval)
+	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
+	for (; key_inst_iter != m_KeyInsts.end(); )
+	{
+		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
+			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
 			m_WorldEmitterInst->Spawn(
-				m_Actor->m_Position + Vector3(
-					m_Template->m_ParticlePosX.Interpolate(0, 0),
-					m_Template->m_ParticlePosY.Interpolate(0, 0),
-					m_Template->m_ParticlePosZ.Interpolate(0, 0)),
-				m_Actor->m_Position,
-				Vector4(
-					m_Template->m_ParticleColorR.Interpolate(0, 1),
-					m_Template->m_ParticleColorG.Interpolate(0, 1),
-					m_Template->m_ParticleColorB.Interpolate(0, 1),
-					m_Template->m_ParticleColorA.Interpolate(0, 1)),
-				Vector2(
-					m_Template->m_ParticleSizeX.Interpolate(0, 1),
-					m_Template->m_ParticleSizeY.Interpolate(0, 1)),
-				m_Template->m_ParticleAngle.Interpolate(0, 0),
-				SpawnTime);
+				Vector3(0, 0, 0), m_Actor->m_Position, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
+		}
+
+		if (key_inst_iter->m_SpawnCount <= 0)
+		{
+			key_inst_iter = m_KeyInsts.erase(key_inst_iter);
+		}
+		else
+		{
+			key_inst_iter++;
 		}
 	}
 
