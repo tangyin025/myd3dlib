@@ -2,6 +2,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <vector>
 #include <map>
 #include <set>
@@ -10,7 +11,7 @@
 
 class ActionTrack;
 
-typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;
+typedef boost::intrusive_ptr<ActionTrack> ActionTrackPtr;
 
 class Action
 {
@@ -42,39 +43,19 @@ typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
 
 class Actor;
 
-class ActionTrack
+class ActionTrack : public boost::intrusive_ref_counter<ActionTrack>
 {
-protected:
-	mutable int m_ref_counter;
-
-	friend void intrusive_ptr_add_ref(const ActionTrack * p) BOOST_SP_NOEXCEPT;
-
-	friend void intrusive_ptr_release(const ActionTrack * p) BOOST_SP_NOEXCEPT;
-
 public:
 	ActionTrack(void)
-		: m_ref_counter(0)
 	{
 	}
 
 	virtual ~ActionTrack(void)
 	{
-		// ! make sure Track obj should be define before Actor obj in script
-		_ASSERT(0 == m_ref_counter);
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * actor) const = 0;
 };
-
-inline void intrusive_ptr_add_ref(const ActionTrack * p) BOOST_SP_NOEXCEPT
-{
-	p->m_ref_counter++;
-}
-
-inline void intrusive_ptr_release(const ActionTrack * p) BOOST_SP_NOEXCEPT
-{
-	p->m_ref_counter--;
-}
 
 class ActionTrackInst
 {

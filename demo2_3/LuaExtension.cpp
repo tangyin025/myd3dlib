@@ -1024,17 +1024,17 @@ void LuaContext::Init(void)
 			.def("AddTrack", &Action::AddTrack)
 			.def("RemoveTrack", &Action::RemoveTrack)
 
-		, class_<ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrack")
+		, class_<ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrack")
 
-		, class_<ActionTrackAnimation, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackAnimation")
+		, class_<ActionTrackAnimation, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackAnimation::AddKeyFrame)
 
-		, class_<ActionTrackSound, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackSound")
+		, class_<ActionTrackSound, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackSound")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackSound::AddKeyFrame)
 
-		, class_<ActionTrackSphericalEmitter, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackSphericalEmitter")
+		, class_<ActionTrackSphericalEmitter, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackSphericalEmitter")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackSphericalEmitter::AddKeyFrame)
 			.def_readwrite("ParticleMaterial", &ActionTrackSphericalEmitter::m_ParticleMaterial)
