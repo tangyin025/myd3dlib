@@ -600,6 +600,8 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
+	ParallelTaskManager::StopParallelThread();
+
 	OctRoot::ClearAllEntity();
 
 	m_ActorList.clear();
@@ -617,8 +619,6 @@ void Game::OnDestroyDevice(void)
 	m_UIRender->OnDestroyDevice();
 
 	RemoveAllTimer();
-
-	ParallelTaskManager::StopParallelThread();
 
 	ResourceMgr::OnDestroyDevice();
 

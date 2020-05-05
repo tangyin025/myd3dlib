@@ -186,6 +186,7 @@ void ActionTrackSphericalEmitter::AddKeyFrame(float Time)
 ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackSphericalEmitter * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
+	, m_ActionTime(0)
 {
 	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter, m_Template->m_ParticleCapacity));
 	m_WorldEmitterInst->m_Material = m_Template->m_ParticleMaterial->Clone();
@@ -208,41 +209,64 @@ ActionTrackSphericalEmitterInst::~ActionTrackSphericalEmitterInst(void)
 
 void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 {
-	const float StartSpawnTime = m_WorldEmitterInst->m_EmitterTime > m_Template->m_SpawnInterval ?
-		(m_WorldEmitterInst->m_EmitterTime + fmod(m_WorldEmitterInst->m_EmitterTime, m_Template->m_SpawnInterval)) :
-		(m_WorldEmitterInst->m_EmitterTime <= 0 ? m_WorldEmitterInst->m_EmitterTime : m_Template->m_SpawnInterval);
+	m_ActionTime = Time + fElapsedTime;
 
-	m_WorldEmitterInst->RemoveParticleBefore(m_WorldEmitterInst->m_EmitterTime + fElapsedTime - m_Template->m_ParticleLifeTime);
+	m_WorldEmitterInst->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
 
 	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time - m_Template->m_SpawnLength);
-	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
 	for (; key_iter != key_end; key_iter++)
 	{
-		float SpawnTime = StartSpawnTime;
-		for (; SpawnTime < m_WorldEmitterInst->m_EmitterTime + fElapsedTime; SpawnTime += m_Template->m_SpawnInterval)
+		const float KeyTime = Time - key_iter->first;
+
+		float SpawnTime = KeyTime > m_Template->m_SpawnInterval ?
+			(KeyTime + fmod(KeyTime, m_Template->m_SpawnInterval)) : (KeyTime <= 0 ? KeyTime : m_Template->m_SpawnInterval);
+
+		for (; SpawnTime < m_ActionTime; SpawnTime += m_Template->m_SpawnInterval)
 		{
 			m_WorldEmitterInst->Spawn(
 				m_Actor->m_Position + Vector3(
-					Random(-m_Template->m_HalfSpawnArea.x, m_Template->m_HalfSpawnArea.x),
-					Random(-m_Template->m_HalfSpawnArea.y, m_Template->m_HalfSpawnArea.y),
-					Random(-m_Template->m_HalfSpawnArea.z, m_Template->m_HalfSpawnArea.z)),
-				Vector3::SphericalToCartesian(
-					m_Template->m_SpawnSpeed,
-					m_Template->m_SpawnInclination.Interpolate(Time + fElapsedTime, 0),
-					m_Template->m_SpawnAzimuth.Interpolate(Time + fElapsedTime, 0)),
+					m_Template->m_ParticlePosX.Interpolate(0, 0),
+					m_Template->m_ParticlePosY.Interpolate(0, 0),
+					m_Template->m_ParticlePosZ.Interpolate(0, 0)),
+				Vector3(0, 0, 0),
 				Vector4(
-					m_Template->m_SpawnColorR.Interpolate(Time + fElapsedTime, 1),
-					m_Template->m_SpawnColorG.Interpolate(Time + fElapsedTime, 1),
-					m_Template->m_SpawnColorB.Interpolate(Time + fElapsedTime, 1),
-					m_Template->m_SpawnColorA.Interpolate(Time + fElapsedTime, 1)),
-				Vector2(m_Template->m_SpawnSizeX.Interpolate(Time + fElapsedTime, 1)),
-				m_Template->m_SpawnAngle.Interpolate(Time + fElapsedTime, 0),
+					m_Template->m_ParticleColorR.Interpolate(0, 1),
+					m_Template->m_ParticleColorG.Interpolate(0, 1),
+					m_Template->m_ParticleColorB.Interpolate(0, 1),
+					m_Template->m_ParticleColorA.Interpolate(0, 1)),
+				Vector2(
+					m_Template->m_ParticleSizeX.Interpolate(0, 1),
+					m_Template->m_ParticleSizeY.Interpolate(0, 1)),
+				m_Template->m_ParticleAngle.Interpolate(0, 0),
 				SpawnTime);
 		}
 	}
+
+	ParallelTaskManager::getSingleton().PushTask(this);
 }
 
 void ActionTrackSphericalEmitterInst::OnStop(void)
 {
 	m_WorldEmitterInst->RemoveAllParticle();
+}
+
+void ActionTrackSphericalEmitterInst::DoTask(void)
+{
+	// ! take care of thread safe
+	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterInst->m_ParticleList.begin();
+	for (; particle_iter != m_WorldEmitterInst->m_ParticleList.end(); particle_iter++)
+	{
+		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
+		//particle_iter->m_Position.x = m_Template->m_ParticlePosX.Interpolate(ParticleTime, 0);
+		//particle_iter->m_Position.y = m_Template->m_ParticlePosY.Interpolate(ParticleTime, 0);
+		//particle_iter->m_Position.z = m_Template->m_ParticlePosZ.Interpolate(ParticleTime, 0);
+		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
+		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
+		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
+		particle_iter->m_Color.w = m_Template->m_ParticleColorA.Interpolate(ParticleTime, 1);
+		particle_iter->m_Size.x = m_Template->m_ParticleSizeX.Interpolate(ParticleTime, 1);
+		particle_iter->m_Size.y = m_Template->m_ParticleSizeY.Interpolate(ParticleTime, 1);
+		particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0);
+	}
 }

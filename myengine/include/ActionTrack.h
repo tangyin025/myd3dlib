@@ -8,6 +8,7 @@
 #include <set>
 #include "myMath.h"
 #include "mySpline.h"
+#include "myTask.h"
 
 class ActionTrack;
 
@@ -193,29 +194,27 @@ public:
 
 	float m_SpawnInterval;
 
-	my::Vector3 m_HalfSpawnArea;
-
-	float m_SpawnSpeed;
-
-	my::Spline m_SpawnInclination;
-
-	my::Spline m_SpawnAzimuth;
-
-	my::Spline m_SpawnColorR;
-
-	my::Spline m_SpawnColorG;
-
-	my::Spline m_SpawnColorB;
-
-	my::Spline m_SpawnColorA;
-
-	my::Spline m_SpawnSizeX;
-
-	my::Spline m_SpawnSizeY;
-
-	my::Spline m_SpawnAngle;
-
 	float m_SpawnLength;
+
+	my::Spline m_ParticlePosX;
+
+	my::Spline m_ParticlePosY;
+
+	my::Spline m_ParticlePosZ;
+
+	my::Spline m_ParticleColorR;
+
+	my::Spline m_ParticleColorG;
+
+	my::Spline m_ParticleColorB;
+
+	my::Spline m_ParticleColorA;
+
+	my::Spline m_ParticleSizeX;
+
+	my::Spline m_ParticleSizeY;
+
+	my::Spline m_ParticleAngle;
 
 	struct KeyFrame
 	{
@@ -231,8 +230,6 @@ public:
 		, m_ParticleFaceType(0)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
-		, m_SpawnSpeed(0)
-		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnLength(0)
 	{
 	}
@@ -244,7 +241,7 @@ public:
 
 class EmitterComponent;
 
-class ActionTrackSphericalEmitterInst : public ActionTrackInst
+class ActionTrackSphericalEmitterInst : public ActionTrackInst, public my::ParallelTask
 {
 protected:
 	boost::intrusive_ptr<const ActionTrackSphericalEmitter> m_Template;
@@ -252,6 +249,8 @@ protected:
 	boost::shared_ptr<Actor> m_WorldEmitterActor;
 
 	boost::shared_ptr<EmitterComponent> m_WorldEmitterInst;
+
+	float m_ActionTime;
 
 public:
 	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackSphericalEmitter * Template);
@@ -261,4 +260,6 @@ public:
 	virtual void UpdateTime(float Time, float fElapsedTime);
 
 	virtual void OnStop(void);
+
+	virtual void DoTask(void);
 };

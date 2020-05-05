@@ -1362,7 +1362,8 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 				m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
 				m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
 			Vector2(
-				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1)),
+				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
+				m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
 			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), SpawnTime);
 	}
 }

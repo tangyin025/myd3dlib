@@ -280,20 +280,19 @@ void Actor::Update(float fElapsedTime)
 	ActionInstList::iterator action_iter = m_Actions.begin();
 	for (; action_iter != m_Actions.end(); )
 	{
-		ActionTrackInstList::iterator track_iter = action_iter->get<2>().begin();
-		for (; track_iter != action_iter->get<2>().end(); track_iter++)
+		if (action_iter->get<0>() + fElapsedTime < action_iter->get<1>())
 		{
-			(*track_iter)->UpdateTime(action_iter->get<0>(), fElapsedTime);
-		}
-
-		action_iter->get<0>() += fElapsedTime;
-		if (action_iter->get<0>() < action_iter->get<1>())
-		{
+			ActionTrackInstList::iterator track_iter = action_iter->get<2>().begin();
+			for (; track_iter != action_iter->get<2>().end(); track_iter++)
+			{
+				(*track_iter)->UpdateTime(action_iter->get<0>(), fElapsedTime);
+			}
+			action_iter->get<0>() += fElapsedTime;
 			action_iter++;
 		}
 		else
 		{
-			track_iter = action_iter->get<2>().begin();
+			ActionTrackInstList::iterator track_iter = action_iter->get<2>().begin();
 			for (; track_iter != action_iter->get<2>().end(); track_iter++)
 			{
 				(*track_iter)->OnStop();
