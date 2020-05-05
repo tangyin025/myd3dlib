@@ -1192,7 +1192,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 		{
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
-				D3DXMACRO macro[2] = { {0} };
+				D3DXMACRO macro[3] = { {0} };
 				macro[0].Name = "EMITTER_FACE_TYPE";
 				switch (m_EmitterFaceType)
 				{
@@ -1213,6 +1213,16 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					break;
 				case FaceTypeAngleCamera:
 					macro[0].Definition = "5";
+					break;
+				}
+				macro[1].Name = "EMITTER_VEL_TYPE";
+				switch (m_EmitterVelType)
+				{
+				default:
+					macro[1].Definition = "0";
+					break;
+				case VelocityTypeVel:
+					macro[1].Definition = "1";
 					break;
 				}
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);

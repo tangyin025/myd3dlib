@@ -347,15 +347,23 @@ public:
 
 	enum FaceType
 	{
-		FaceTypeX		= 0,
-		FaceTypeY		= 1,
-		FaceTypeZ		= 2,
-		FaceTypeCamera	= 3,
-		FaceTypeAngle	= 4,
+		FaceTypeX			= 0,
+		FaceTypeY			= 1,
+		FaceTypeZ			= 2,
+		FaceTypeCamera		= 3,
+		FaceTypeAngle		= 4,
 		FaceTypeAngleCamera = 5,
 	};
 
 	FaceType m_EmitterFaceType;
+
+	enum VelocityType
+	{
+		VelocityTypeNone	= 0,
+		VelocityTypeVel		= 1,
+	};
+
+	VelocityType m_EmitterVelType;
 
 	float m_EmitterTime;
 
@@ -370,6 +378,7 @@ protected:
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterVelType(VelocityTypeVel)
 		, m_EmitterTime(0)
 		, handle_Time(NULL)
 		, handle_World(NULL)
@@ -382,6 +391,7 @@ public:
 		: Component(type)
 		, Emitter(capacity)
 		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterVelType(VelocityTypeVel)
 		, m_EmitterTime(0)
 		, handle_Time(NULL)
 		, handle_World(NULL)
@@ -403,6 +413,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_VertexElems);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
+		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);

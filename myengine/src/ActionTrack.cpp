@@ -191,6 +191,7 @@ ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor,
 	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter, m_Template->m_ParticleCapacity));
 	m_WorldEmitterInst->m_Material = m_Template->m_ParticleMaterial->Clone();
 	m_WorldEmitterInst->m_EmitterFaceType = (EmitterComponent::FaceType)m_Template->m_ParticleFaceType;
+	m_WorldEmitterInst->m_EmitterVelType = EmitterComponent::VelocityTypeNone;
 
 	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
 	m_WorldEmitterActor.reset(new Actor(Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), Root->m_aabb));
@@ -229,7 +230,7 @@ void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 					m_Template->m_ParticlePosX.Interpolate(0, 0),
 					m_Template->m_ParticlePosY.Interpolate(0, 0),
 					m_Template->m_ParticlePosZ.Interpolate(0, 0)),
-				Vector3(0, 0, 0),
+				m_Actor->m_Position,
 				Vector4(
 					m_Template->m_ParticleColorR.Interpolate(0, 1),
 					m_Template->m_ParticleColorG.Interpolate(0, 1),
@@ -258,9 +259,9 @@ void ActionTrackSphericalEmitterInst::DoTask(void)
 	for (; particle_iter != m_WorldEmitterInst->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
-		//particle_iter->m_Position.x = m_Template->m_ParticlePosX.Interpolate(ParticleTime, 0);
-		//particle_iter->m_Position.y = m_Template->m_ParticlePosY.Interpolate(ParticleTime, 0);
-		//particle_iter->m_Position.z = m_Template->m_ParticlePosZ.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.x = particle_iter->m_Velocity.x + m_Template->m_ParticlePosX.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.y = particle_iter->m_Velocity.y + m_Template->m_ParticlePosY.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.z = particle_iter->m_Velocity.z + m_Template->m_ParticlePosZ.Interpolate(ParticleTime, 0);
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
