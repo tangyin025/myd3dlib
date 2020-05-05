@@ -505,6 +505,8 @@ public:
 
 	float m_SpawnCycle;
 
+	float m_SpawnTime;
+
 protected:
 	SphericalEmitterComponent(void)
 		: EmitterComponent(ComponentTypeSphericalEmitter, 1)
@@ -513,6 +515,7 @@ protected:
 		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnSpeed(0)
 		, m_SpawnCycle(5)
+		, m_SpawnTime(0)
 	{
 	}
 
@@ -524,6 +527,7 @@ public:
 		, m_HalfSpawnArea(0,0,0)
 		, m_SpawnSpeed(0)
 		, m_SpawnCycle(5)
+		, m_SpawnTime(0)
 	{
 	}
 

@@ -1347,15 +1347,13 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 {
 	_ASSERT(m_SpawnInterval > 0);
 
-	float SpawnTime = m_EmitterTime + Round<float>(m_EmitterTime, 0, m_SpawnInterval);
-
 	EmitterComponent::Update(fElapsedTime);
 
 	RemoveParticleBefore(m_EmitterTime - m_ParticleLifeTime);
 
-	for (; SpawnTime < m_EmitterTime; SpawnTime += m_SpawnInterval)
+	for (; m_SpawnTime < m_EmitterTime; m_SpawnTime += m_SpawnInterval)
 	{
-		const float SpawnTimeCycle = Round<float>(SpawnTime, 0, m_SpawnCycle);
+		const float SpawnTimeCycle = Round<float>(m_SpawnTime, 0, m_SpawnCycle);
 
 		Spawn(
 			Vector3(
@@ -1374,6 +1372,6 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 			Vector2(
 				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
 				m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
-			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), SpawnTime);
+			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), m_SpawnTime);
 	}
 }
