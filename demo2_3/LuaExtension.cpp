@@ -912,7 +912,7 @@ void LuaContext::Init(void)
 			.def_readwrite("SpawnSizeX", &SphericalEmitterComponent::m_SpawnSizeX)
 			.def_readwrite("SpawnSizeY", &SphericalEmitterComponent::m_SpawnSizeY)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
-			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
+			.def_readwrite("SpawnCycle", &SphericalEmitterComponent::m_SpawnCycle)
 
 		, class_<TerrainChunk, my::Emitter>("TerrainChunk")
 			.def_readonly("aabb", &TerrainChunk::m_aabb)

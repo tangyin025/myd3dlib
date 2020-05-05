@@ -1270,7 +1270,7 @@ void SphericalEmitterComponent::save(Archive & ar, const unsigned int version) c
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnAngle);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
+	ar << BOOST_SERIALIZATION_NVP(m_SpawnCycle);
 }
 
 template<class Archive>
@@ -1293,7 +1293,7 @@ void SphericalEmitterComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAngle);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
+	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCycle);
 }
 
 template
@@ -1343,7 +1343,7 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 
 	_ASSERT(m_SpawnInterval > 0);
 
-	float SpawnTime = fmod(D3DContext::getSingleton().m_fTotalTime, m_SpawnLoopTime);
+	float SpawnTime = fmod(D3DContext::getSingleton().m_fTotalTime, m_SpawnCycle);
 
 	while(m_RemainingSpawnTime >= 0)
 	{

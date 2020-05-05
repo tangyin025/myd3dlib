@@ -512,7 +512,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnSizeX);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnSizeY);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnAngle);
-	pComponent->GetSubItem(PropId + 15)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLoopTime);
+	pComponent->GetSubItem(PropId + 15)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnCycle);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 16), sphe_emit_cmp->m_Material.get());
 }
 
@@ -961,7 +961,7 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	CreatePropertiesSpline(pComponent, _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX, &sphe_emit_cmp->m_SpawnSizeX);
 	CreatePropertiesSpline(pComponent, _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY, &sphe_emit_cmp->m_SpawnSizeY);
 	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
-	pProp = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)sphe_emit_cmp->m_SpawnLoopTime, NULL, PropertySphericalEmitterSpawnLoopTime);
+	pProp = new CSimpleProp(_T("SpawnCycle"), (_variant_t)sphe_emit_cmp->m_SpawnCycle, NULL, PropertySphericalEmitterSpawnLoopTime);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_Material.get());
 }
@@ -1839,7 +1839,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal;
 		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 6)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 16)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnCycle = pComponent->GetSubItem(PropId + 16)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

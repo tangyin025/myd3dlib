@@ -494,7 +494,7 @@ public:
 
 	my::Spline m_SpawnAngle;
 
-	float m_SpawnLoopTime;
+	float m_SpawnCycle;
 
 protected:
 	SphericalEmitterComponent(void)
@@ -504,7 +504,7 @@ protected:
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnSpeed(0)
-		, m_SpawnLoopTime(5)
+		, m_SpawnCycle(5)
 	{
 	}
 
@@ -516,7 +516,7 @@ public:
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)
 		, m_SpawnSpeed(0)
-		, m_SpawnLoopTime(5)
+		, m_SpawnCycle(5)
 	{
 	}
 

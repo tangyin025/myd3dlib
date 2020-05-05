@@ -212,8 +212,6 @@ public:
 
 	float m_SpawnInterval;
 
-	float m_SpawnLength;
-
 	my::Vector3 m_HalfSpawnArea;
 
 	float m_SpawnSpeed;
@@ -236,6 +234,8 @@ public:
 
 	my::Spline m_SpawnAngle;
 
+	float m_SpawnLength;
+
 	struct KeyFrame
 	{
 	};
@@ -250,9 +250,9 @@ public:
 		, m_ParticleFaceType(0)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
-		, m_SpawnLength(0)
 		, m_SpawnSpeed(0)
 		, m_HalfSpawnArea(0, 0, 0)
+		, m_SpawnLength(0)
 	{
 	}
 
