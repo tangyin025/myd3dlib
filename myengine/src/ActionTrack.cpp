@@ -173,17 +173,17 @@ void ActionTrackSoundInst::StopAllEvent(bool immediate)
 	}
 }
 
-ActionTrackInstPtr ActionTrackSphericalEmitter::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackSphericalEmitterInst(_Actor, this));
 }
 
-void ActionTrackSphericalEmitter::AddKeyFrame(float Time)
+void ActionTrackEmitter::AddKeyFrame(float Time)
 {
 	KeyFrame & key = m_Keys[Time];
 }
 
-ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackSphericalEmitter * Template)
+ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_ActionTime(0)
@@ -214,8 +214,8 @@ void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 
 	m_WorldEmitterInst->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
 
-	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time - m_Template->m_SpawnLength);
-	ActionTrackSphericalEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time - m_Template->m_SpawnLength);
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
 	for (; key_iter != key_end; key_iter++)
 	{
 		const float KeyTime = Time - key_iter->first;

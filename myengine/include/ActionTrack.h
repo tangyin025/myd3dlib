@@ -181,7 +181,7 @@ public:
 
 class Material;
 
-class ActionTrackSphericalEmitter : public ActionTrack
+class ActionTrackEmitter : public ActionTrack
 {
 public:
 	boost::shared_ptr<Material> m_ParticleMaterial;
@@ -225,7 +225,7 @@ public:
 	KeyFrameMap m_Keys;
 
 public:
-	ActionTrackSphericalEmitter(void)
+	ActionTrackEmitter(void)
 		: m_ParticleCapacity(1024)
 		, m_ParticleFaceType(0)
 		, m_ParticleLifeTime(FLT_MAX)
@@ -244,7 +244,7 @@ class EmitterComponent;
 class ActionTrackSphericalEmitterInst : public ActionTrackInst, public my::ParallelTask
 {
 protected:
-	boost::intrusive_ptr<const ActionTrackSphericalEmitter> m_Template;
+	boost::intrusive_ptr<const ActionTrackEmitter> m_Template;
 
 	boost::shared_ptr<Actor> m_WorldEmitterActor;
 
@@ -253,7 +253,7 @@ protected:
 	float m_ActionTime;
 
 public:
-	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackSphericalEmitter * Template);
+	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);
 
 	virtual ~ActionTrackSphericalEmitterInst(void);
 

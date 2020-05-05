@@ -55,25 +55,37 @@ act_jump.Length=5.0
 local track=ActionTrackAnimation()
 track:AddKeyFrame(0,"jumpforward","",2.0,0.3,0.3,false,1,0,"")
 act_jump:AddTrack(track)
-track=ActionTrackSphericalEmitter()
-particle1=Material()
-particle1.Shader="shader/mtl_particle1.fx"
-particle1.PassMask=Material.PassMaskTransparent
-particle1.ZWriteEnable=0
-particle1.BlendMode=Material.BlendModeAlpha
-particle1:AddParameterTexture("g_Texture", "texture/Checker.bmp")
-track.ParticleMaterial=particle1
-track.ParticleFaceType=EmitterComponent.FaceTypeCamera
-track.ParticleColorA:AddNode(0,1,0,0)
-track.ParticleColorA:AddNode(5,0,0,0)
-track:AddKeyFrame(0)
-act_jump:AddTrack(track)
 
 act_env=Action()
 act_env.Length=5.0
 track=ActionTrackSound()
 track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
 act_env:AddTrack(track)
+
+act_tuowei=Action()
+act_tuowei.Length=99999
+local particle1=Material()
+particle1.Shader="shader/mtl_particle1.fx"
+particle1.PassMask=Material.PassMaskTransparent
+particle1.ZWriteEnable=0
+particle1.BlendMode=Material.BlendModeAdditive
+particle1:AddParameterTexture("g_Texture", "texture/flare.dds")
+local track=ActionTrackEmitter()
+track.ParticleMaterial=particle1
+track.ParticleFaceType=EmitterComponent.FaceTypeCamera
+track.ParticleLifeTime=5
+track.ParticleColorR:AddNode(0,1,0,0)
+track.ParticleColorR:AddNode(3,0,0,0)
+track.ParticleColorG:AddNode(0,1,0,0)
+track.ParticleColorG:AddNode(3,0,0,0)
+track.ParticleColorB:AddNode(0,1,0,0)
+track.ParticleColorB:AddNode(3,0,0,0)
+track.ParticleColorA:AddNode(0,1,0,0)
+track.ParticleColorA:AddNode(3,0,0,0)
+track.SpawnInterval=0.1
+track.SpawnLength=99999
+track:AddKeyFrame(0)
+act_tuowei:AddTrack(track)
 
 -- 创建玩家Actor
 --[[local--]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
@@ -202,6 +214,8 @@ game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 
 -- 球体发声
 actor4:PlayAction(act_env)
+
+player:PlayAction(act_tuowei)
 
 -- -- 在角色手部绑定物体
 -- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
