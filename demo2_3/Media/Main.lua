@@ -71,8 +71,7 @@ particle1.ZWriteEnable=0
 particle1.BlendMode=Material.BlendModeAdditive
 particle1:AddParameterTexture("g_Texture", "texture/flare.dds")
 local track=ActionTrackEmitter()
-track.ParticleMaterial=particle1
-track.ParticleFaceType=EmitterComponent.FaceTypeCamera
+track.EmitterMaterial=particle1
 track.ParticleLifeTime=5
 track.ParticleColorR:AddNode(0,1,0,0)
 track.ParticleColorR:AddNode(3,0,0,0)

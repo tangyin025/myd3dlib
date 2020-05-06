@@ -84,8 +84,8 @@ namespace my
 		ParticleList m_ParticleList;
 
 	public:
-		Emitter(unsigned int capacity)
-			: m_ParticleList(capacity)
+		Emitter(unsigned int Capacity)
+			: m_ParticleList(Capacity)
 		{
 		}
 

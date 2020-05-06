@@ -378,7 +378,7 @@ protected:
 		: Component(ComponentTypeEmitter)
 		, Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
-		, m_EmitterVelType(VelocityTypeVel)
+		, m_EmitterVelType(VelocityTypeNone)
 		, m_EmitterTime(0)
 		, handle_Time(NULL)
 		, handle_World(NULL)
@@ -387,11 +387,11 @@ protected:
 	}
 
 public:
-	EmitterComponent(ComponentType type, unsigned int capacity)
-		: Component(type)
-		, Emitter(capacity)
-		, m_EmitterFaceType(FaceTypeX)
-		, m_EmitterVelType(VelocityTypeVel)
+	EmitterComponent(ComponentType Type, unsigned int Capacity, FaceType _FaceType, VelocityType _VelocityType)
+		: Component(Type)
+		, Emitter(Capacity)
+		, m_EmitterFaceType(_FaceType)
+		, m_EmitterVelType(_VelocityType)
 		, m_EmitterTime(0)
 		, handle_Time(NULL)
 		, handle_World(NULL)
@@ -446,8 +446,8 @@ protected:
 	}
 
 public:
-	StaticEmitterComponent(unsigned int capacity)
-		: EmitterComponent(ComponentTypeStaticEmitter, capacity)
+	StaticEmitterComponent(unsigned int Capacity)
+		: EmitterComponent(ComponentTypeStaticEmitter, Capacity, FaceTypeCamera, VelocityTypeNone)
 	{
 	}
 
@@ -509,7 +509,7 @@ public:
 
 protected:
 	SphericalEmitterComponent(void)
-		: EmitterComponent(ComponentTypeSphericalEmitter, 1)
+		: EmitterComponent(ComponentTypeSphericalEmitter, 1, FaceTypeCamera, VelocityTypeVel)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0, 0, 0)
@@ -520,8 +520,8 @@ protected:
 	}
 
 public:
-	SphericalEmitterComponent(unsigned int capacity)
-		: EmitterComponent(ComponentTypeSphericalEmitter, capacity)
+	SphericalEmitterComponent(unsigned int Capacity)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Capacity, FaceTypeCamera, VelocityTypeVel)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)

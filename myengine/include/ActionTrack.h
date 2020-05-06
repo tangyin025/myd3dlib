@@ -184,11 +184,11 @@ class Material;
 class ActionTrackEmitter : public ActionTrack
 {
 public:
-	boost::shared_ptr<Material> m_ParticleMaterial;
+	boost::shared_ptr<Material> m_EmitterMaterial;
 
-	unsigned int m_ParticleCapacity;
+	unsigned int m_EmitterCapacity;
 
-	DWORD m_ParticleFaceType;
+	DWORD m_EmitterFaceType;
 
 	float m_ParticleLifeTime;
 
@@ -225,8 +225,8 @@ public:
 
 public:
 	ActionTrackEmitter(void)
-		: m_ParticleCapacity(1024)
-		, m_ParticleFaceType(0)
+		: m_EmitterCapacity(1024)
+		, m_EmitterFaceType(3) // FaceTypeCamera = 3
 		, m_ParticleLifeTime(FLT_MAX)
 	{
 	}
