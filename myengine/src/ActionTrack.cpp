@@ -26,6 +26,41 @@ void Action::RemoveTrack(ActionTrackPtr track)
 	}
 }
 
+ActionInstPtr Action::CreateInstance(Actor * _Actor)
+{
+	return ActionInstPtr(new ActionInst(_Actor, this));
+}
+
+ActionInst::ActionInst(Actor * _Actor, const Action * Template)
+	: m_Template(Template)
+	, m_Time(0)
+{
+	Action::ActionTrackPtrList::const_iterator track_iter = m_Template->m_TrackList.begin();
+	for (; track_iter != m_Template->m_TrackList.end(); track_iter++)
+	{
+		m_TrackInstList.push_back((*track_iter)->CreateInstance(_Actor));
+	}
+}
+
+void ActionInst::Update(float fElapsedTime)
+{
+	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
+	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
+	{
+		(*track_inst_iter)->UpdateTime(m_Time, fElapsedTime);
+	}
+	m_Time += fElapsedTime;
+}
+
+void ActionInst::OnStop(void)
+{
+	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
+	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
+	{
+		(*track_inst_iter)->OnStop();
+	}
+}
+
 ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, this));

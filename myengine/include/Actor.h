@@ -2,7 +2,6 @@
 
 #include "myOctree.h"
 #include "Component.h"
-#include <boost/tuple/tuple.hpp>
 
 class AnimationRoot;
 
@@ -10,9 +9,9 @@ class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
 
-class ActionTrackInst;
-
 class Action;
+
+class ActionInst;
 
 class Actor
 	: public my::OctEntity
@@ -55,15 +54,9 @@ public:
 
 	AttachPairList m_Attaches;
 
-	typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
+	typedef std::vector<boost::shared_ptr<ActionInst> > ActionInstPtrList;
 
-	typedef std::vector<ActionTrackInstPtr> ActionTrackInstList;
-
-	typedef boost::tuple<float, float, ActionTrackInstList> ActionInst;
-
-	typedef std::vector<ActionInst> ActionInstList;
-
-	ActionInstList m_Actions;
+	ActionInstPtrList m_ActionInstList;
 
 protected:
 	Actor(void)

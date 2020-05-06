@@ -14,7 +14,13 @@ class ActionTrack;
 
 typedef boost::intrusive_ptr<ActionTrack> ActionTrackPtr;
 
-class Action
+class ActionInst;
+
+typedef boost::shared_ptr<ActionInst> ActionInstPtr;
+
+class Actor;
+
+class Action : public boost::intrusive_ref_counter<Action>
 {
 public:
 	float m_Length;
@@ -36,13 +42,36 @@ public:
 	void AddTrack(ActionTrackPtr track);
 
 	void RemoveTrack(ActionTrackPtr track);
+
+	ActionInstPtr CreateInstance(Actor * _Actor);
 };
+
+typedef boost::intrusive_ptr<Action> ActionPtr;
 
 class ActionTrackInst;
 
 typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
 
-class Actor;
+class ActionInst
+{
+protected:
+	friend Actor;
+
+	boost::intrusive_ptr<const Action> m_Template;
+
+	float m_Time;
+
+	typedef std::vector<ActionTrackInstPtr> ActionTrackInstPtrList;
+
+	ActionTrackInstPtrList m_TrackInstList;
+
+public:
+	ActionInst(Actor * _Actor, const Action * Template);
+
+	void Update(float fElapsedTime);
+
+	void OnStop(void);
+};
 
 class ActionTrack : public boost::intrusive_ref_counter<ActionTrack>
 {
@@ -57,6 +86,8 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * actor) const = 0;
 };
+
+typedef boost::intrusive_ptr<ActionTrack> ActionTrackPtr;
 
 class ActionTrackInst
 {

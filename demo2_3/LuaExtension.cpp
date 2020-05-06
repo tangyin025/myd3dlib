@@ -1018,7 +1018,7 @@ void LuaContext::Init(void)
 			.def("AddJiggleBone", (void (AnimationRoot::*)(const std::string &, float, float, float))&AnimationRoot::AddJiggleBone)
 			.def("AddIK", &AnimationRoot::AddIK)
 
-		, class_<Action, boost::shared_ptr<Action> >("Action")
+		, class_<Action, boost::intrusive_ptr<Action> >("Action")
 			.def(constructor<>())
 			.def_readwrite("Length", &Action::m_Length)
 			.def("AddTrack", &Action::AddTrack)

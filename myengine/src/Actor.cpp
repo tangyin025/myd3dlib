@@ -26,7 +26,7 @@ BOOST_CLASS_EXPORT(Actor)
 
 Actor::~Actor(void)
 {
-	m_Actions.clear();
+	m_ActionInstList.clear();
 
 	ClearAllComponent();
 
@@ -277,27 +277,20 @@ void Actor::OnShaderChanged(void)
 
 void Actor::Update(float fElapsedTime)
 {
-	ActionInstList::iterator action_iter = m_Actions.begin();
-	for (; action_iter != m_Actions.end(); )
+	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
+	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		if (action_iter->get<0>() + fElapsedTime < action_iter->get<1>())
+		(*action_inst_iter)->Update(fElapsedTime);
+
+		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
 		{
-			ActionTrackInstList::iterator track_iter = action_iter->get<2>().begin();
-			for (; track_iter != action_iter->get<2>().end(); track_iter++)
-			{
-				(*track_iter)->UpdateTime(action_iter->get<0>(), fElapsedTime);
-			}
-			action_iter->get<0>() += fElapsedTime;
-			action_iter++;
+			action_inst_iter++;
 		}
 		else
 		{
-			ActionTrackInstList::iterator track_iter = action_iter->get<2>().begin();
-			for (; track_iter != action_iter->get<2>().end(); track_iter++)
-			{
-				(*track_iter)->OnStop();
-			}
-			action_iter = m_Actions.erase(action_iter);
+			(*action_inst_iter)->OnStop();
+
+			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
 		}
 	}
 
@@ -609,10 +602,5 @@ void Actor::ClearAllAttacher(void)
 
 void Actor::PlayAction(Action * action)
 {
-	m_Actions.push_back(ActionInst(0.0f, action->m_Length));
-	Action::ActionTrackPtrList::const_iterator track_iter = action->m_TrackList.begin();
-	for (; track_iter != action->m_TrackList.end(); track_iter++)
-	{
-		m_Actions.back().get<2>().push_back((*track_iter)->CreateInstance(this));
-	}
+	m_ActionInstList.push_back(action->CreateInstance(this));
 }
