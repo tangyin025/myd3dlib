@@ -269,7 +269,7 @@ public:
 
 class EmitterComponent;
 
-class ActionTrackSphericalEmitterInst : public ActionTrackInst, public my::ParallelTask
+class ActionTrackEmitterInst : public ActionTrackInst, public my::ParallelTask
 {
 protected:
 	boost::intrusive_ptr<const ActionTrackEmitter> m_Template;
@@ -303,9 +303,9 @@ protected:
 	my::Event m_TaskEvent;
 
 public:
-	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);
+	ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);
 
-	virtual ~ActionTrackSphericalEmitterInst(void);
+	virtual ~ActionTrackEmitterInst(void);
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 

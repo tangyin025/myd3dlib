@@ -210,7 +210,7 @@ void ActionTrackSoundInst::StopAllEvent(bool immediate)
 
 ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackSphericalEmitterInst(_Actor, this));
+	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, this));
 }
 
 void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInterval)
@@ -220,7 +220,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 	key.SpawnInterval = SpawnInterval;
 }
 
-ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
+ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_ActionTime(0)
@@ -236,9 +236,9 @@ ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor,
 	Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb);
 }
 
-ActionTrackSphericalEmitterInst::~ActionTrackSphericalEmitterInst(void)
+ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 {
-	_ASSERT(!ParallelTaskManager::getSingleton().FindTask(this));
+	_ASSERT(m_TaskEvent.Wait(0));
 
 	if (m_WorldEmitterActor->m_Node)
 	{
@@ -247,7 +247,7 @@ ActionTrackSphericalEmitterInst::~ActionTrackSphericalEmitterInst(void)
 	}
 }
 
-void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
+void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 {
 	m_ActionTime = Time + fElapsedTime;
 
@@ -286,14 +286,14 @@ void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 	ParallelTaskManager::getSingleton().PushTask(this);
 }
 
-void ActionTrackSphericalEmitterInst::Stop(void)
+void ActionTrackEmitterInst::Stop(void)
 {
 	m_TaskEvent.Wait(INFINITE);
 
 	m_WorldEmitterInst->RemoveAllParticle();
 }
 
-void ActionTrackSphericalEmitterInst::DoTask(void)
+void ActionTrackEmitterInst::DoTask(void)
 {
 	// ! take care of thread safe
 	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterInst->m_ParticleList.begin();
