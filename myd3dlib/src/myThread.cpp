@@ -62,12 +62,12 @@ Event::Event(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bI
 
 void Event::ResetEvent(void)
 {
-	bres = ::ResetEvent(m_handle); _ASSERT(bres);
+	BOOST_VERIFY(::ResetEvent(m_handle));
 }
 
 void Event::SetEvent(void)
 {
-	bres = ::SetEvent(m_handle); _ASSERT(bres);
+	BOOST_VERIFY(::SetEvent(m_handle));
 }
 
 Mutex::Mutex(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCTSTR lpName)

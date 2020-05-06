@@ -70,7 +70,7 @@ public:
 
 	void Update(float fElapsedTime);
 
-	void OnStop(void);
+	void Stop(void);
 };
 
 class ActionTrack : public boost::intrusive_ref_counter<ActionTrack>
@@ -106,7 +106,7 @@ public:
 
 	virtual void UpdateTime(float Time, float fElapsedTime) = 0;
 
-	virtual void OnStop(void) = 0;
+	virtual void Stop(void) = 0;
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -153,7 +153,7 @@ public:
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 
-	virtual void OnStop(void);
+	virtual void Stop(void);
 };
 
 class ActionTrackSound : public ActionTrack
@@ -205,7 +205,7 @@ public:
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 
-	virtual void OnStop(void);
+	virtual void Stop(void);
 
 	void StopAllEvent(bool immediate);
 };
@@ -300,6 +300,8 @@ protected:
 
 	KeyFrameInstList m_KeyInsts;
 
+	my::Event m_TaskEvent;
+
 public:
 	ActionTrackSphericalEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);
 
@@ -307,7 +309,7 @@ public:
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 
-	virtual void OnStop(void);
+	virtual void Stop(void);
 
 	virtual void DoTask(void);
 };

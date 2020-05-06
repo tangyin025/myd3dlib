@@ -56,9 +56,6 @@ namespace my
 	class Event : public SynchronizationObj
 	{
 	public:
-		BOOL bres;
-
-	public:
 		Event(LPSECURITY_ATTRIBUTES lpEventAttributes = NULL, BOOL bManualReset = FALSE, BOOL bInitialState = FALSE, LPCTSTR lpName = NULL);
 
 		void ResetEvent(void);

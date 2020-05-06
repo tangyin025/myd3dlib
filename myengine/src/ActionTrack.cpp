@@ -52,12 +52,12 @@ void ActionInst::Update(float fElapsedTime)
 	m_Time += fElapsedTime;
 }
 
-void ActionInst::OnStop(void)
+void ActionInst::Stop(void)
 {
 	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{
-		(*track_inst_iter)->OnStop();
+		(*track_inst_iter)->Stop();
 	}
 }
 
@@ -107,7 +107,7 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 	}
 }
 
-void ActionTrackAnimationInst::OnStop(void)
+void ActionTrackAnimationInst::Stop(void)
 {
 	if (m_Actor->m_Animation)
 	{
@@ -187,7 +187,7 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 	}
 }
 
-void ActionTrackSoundInst::OnStop(void)
+void ActionTrackSoundInst::Stop(void)
 {
 	StopAllEvent(false);
 }
@@ -224,6 +224,7 @@ ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor,
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_ActionTime(0)
+	, m_TaskEvent(NULL, FALSE, TRUE, NULL)
 {
 	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter,
 		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::VelocityTypeNone));
@@ -280,11 +281,15 @@ void ActionTrackSphericalEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		}
 	}
 
+	m_TaskEvent.ResetEvent();
+
 	ParallelTaskManager::getSingleton().PushTask(this);
 }
 
-void ActionTrackSphericalEmitterInst::OnStop(void)
+void ActionTrackSphericalEmitterInst::Stop(void)
 {
+	m_TaskEvent.Wait(INFINITE);
+
 	m_WorldEmitterInst->RemoveAllParticle();
 }
 
@@ -306,4 +311,6 @@ void ActionTrackSphericalEmitterInst::DoTask(void)
 		particle_iter->m_Size.y = m_Template->m_ParticleSizeY.Interpolate(ParticleTime, 1);
 		particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0);
 	}
+
+	m_TaskEvent.SetEvent();
 }

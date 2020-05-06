@@ -288,7 +288,7 @@ void Actor::Update(float fElapsedTime)
 		}
 		else
 		{
-			(*action_inst_iter)->OnStop();
+			(*action_inst_iter)->Stop();
 
 			// ! make sure action inst was not in parallel task list
 			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
