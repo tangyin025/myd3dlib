@@ -237,6 +237,8 @@ ActionTrackSphericalEmitterInst::ActionTrackSphericalEmitterInst(Actor * _Actor,
 
 ActionTrackSphericalEmitterInst::~ActionTrackSphericalEmitterInst(void)
 {
+	_ASSERT(!ParallelTaskManager::getSingleton().FindTask(this));
+
 	if (m_WorldEmitterActor->m_Node)
 	{
 		my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();

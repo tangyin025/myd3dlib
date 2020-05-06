@@ -88,6 +88,19 @@ void ParallelTaskManager::PushTask(ParallelTask * task)
 	m_TasksCondition.Wake(1);
 }
 
+bool ParallelTaskManager::FindTask(ParallelTask * task)
+{
+	bool HaveTask = false;
+	m_TasksMutex.Wait(INFINITE);
+	TaskList::const_iterator task_iter = std::find(m_Tasks.begin(), m_Tasks.end(), task);
+	if (task_iter != m_Tasks.end())
+	{
+		HaveTask = true;
+	}
+	m_TasksMutex.Release();
+	return HaveTask;
+}
+
 void ParallelTaskManager::DoAllParallelTasks(void)
 {
 	m_TasksMutex.Wait();

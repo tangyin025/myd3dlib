@@ -49,6 +49,8 @@ namespace my
 
 		void PushTask(ParallelTask * task);
 
+		bool FindTask(ParallelTask * task);
+
 		void DoAllParallelTasks(void);
 	};
 }

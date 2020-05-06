@@ -280,16 +280,17 @@ void Actor::Update(float fElapsedTime)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		(*action_inst_iter)->Update(fElapsedTime);
-
 		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
 		{
+			(*action_inst_iter)->Update(fElapsedTime);
+
 			action_inst_iter++;
 		}
 		else
 		{
 			(*action_inst_iter)->OnStop();
 
+			// ! make sure action inst was not in parallel task list
 			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
 		}
 	}
