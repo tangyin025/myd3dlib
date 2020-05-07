@@ -834,6 +834,11 @@ void LuaContext::Init(void)
 			.def("AddParameterFloat4", &Material::AddParameterFloat4)
 			.def("AddParameterTexture", &Material::AddParameterTexture)
 			.def("SetParameterTexture", &Material::SetParameterTexture)
+			.scope
+			[
+				def("LoadFromFile", &Material::LoadFromFile)
+			]
+			.def("SaveToFile", &Material::SaveToFile)
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.enum_("ComponentType")

@@ -3,6 +3,7 @@
 #include "myDxutApp.h"
 #include "myResource.h"
 #include "RenderPipeline.h"
+#include <fstream>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
@@ -464,4 +465,47 @@ void Material::SetParameterTexture(const std::string & Name, const std::string &
 			boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_TexturePath = Path;
 		}
 	}
+}
+
+MaterialPtr Material::LoadFromFile(const char * path)
+{
+	IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(path));
+	std::istream istr(&buff);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (_stricmp(Ext, ".xml") == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+	}
+	else if (_stricmp(Ext, ".txt") == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+	}
+	MaterialPtr ret;
+	*ia >> boost::serialization::make_nvp("Material", ret);
+	return ret;
+}
+
+void Material::SaveToFile(const char * path) const
+{
+	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary, _OPENPROT);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (_stricmp(Ext, ".xml") == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
+	}
+	else if (_stricmp(Ext, ".txt") == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
+	}
+	*oa << boost::serialization::make_nvp("Material", shared_from_this());
 }

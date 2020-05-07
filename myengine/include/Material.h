@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include "myMath.h"
 #include "mySingleton.h"
 #include "myTexture.h"
@@ -257,7 +258,7 @@ class Material;
 
 typedef boost::shared_ptr<Material> MaterialPtr;
 
-class Material
+class Material : public boost::enable_shared_from_this<Material>
 {
 public:
 	enum BlendMode
@@ -336,4 +337,8 @@ public:
 	void AddParameterTexture(const std::string & Name, const std::string & Path);
 
 	void SetParameterTexture(const std::string & Name, const std::string & Path);
+
+	static MaterialPtr LoadFromFile(const char * path);
+
+	void SaveToFile(const char * path) const;
 };
