@@ -385,7 +385,7 @@ Control::~Control(void)
 
 	if (m_Parent)
 	{
-		m_Parent->RemoveControl(shared_from_this());
+		_ASSERT(false); //m_Parent->RemoveControl(shared_from_this());
 	}
 }
 

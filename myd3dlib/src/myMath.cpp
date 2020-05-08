@@ -1,5 +1,4 @@
 #include "myMath.h"
-#include <crtdbg.h>
 
 using namespace my;
 

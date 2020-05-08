@@ -40,7 +40,7 @@ Component::~Component(void)
 {
 	if (m_Actor)
 	{
-		m_Actor->RemoveComponent(shared_from_this());
+		_ASSERT(false); //m_Actor->RemoveComponent(shared_from_this());
 	}
 }
 
