@@ -382,6 +382,11 @@ Control::~Control(void)
 
 	// ! must detach parent relationship
 	ClearAllControl();
+
+	if (m_Parent)
+	{
+		m_Parent->RemoveControl(shared_from_this());
+	}
 }
 
 template<class Archive>
@@ -586,18 +591,19 @@ void Control::RemoveControl(ControlPtr control)
 
 		m_Childs.erase(ctrl_iter);
 	}
+	else
+	{
+		_ASSERT(false);
+	}
 }
 
 void Control::ClearAllControl(void)
 {
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter = m_Childs.begin())
 	{
-		_ASSERT((*ctrl_iter)->m_Parent == this);
-
-		(*ctrl_iter)->m_Parent = NULL;
+		RemoveControl(*ctrl_iter);
 	}
-	m_Childs.clear();
 }
 
 bool Control::ContainsControl(Control * control)
@@ -2509,6 +2515,15 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
+Dialog::~Dialog(void)
+{
+	if (m_Parent)
+	{
+		m_Parent->RemoveDlg(this);
+	}
+}
+
+
 template<class Archive>
 void Dialog::save(Archive & ar, const unsigned int version) const
 {
@@ -2737,12 +2752,12 @@ void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 
 	m_InverseViewProj = m_ViewProj.inverse();
 
-	DialogPtrList::iterator dlg_iter = m_DlgList.begin();
+	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
 		if((*dlg_iter)->m_EventAlign)
 		{
-			(*dlg_iter)->m_EventAlign(&ControlEventArg(dlg_iter->get()));
+			(*dlg_iter)->m_EventAlign(&ControlEventArg(*dlg_iter));
 		}
 	}
 }
@@ -2761,7 +2776,7 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 {
 	ui_render->SetViewProj(m_ViewProj);
 
-	DialogPtrList::iterator dlg_iter = m_DlgList.begin();
+	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
 		ui_render->SetWorld((*dlg_iter)->m_World);
@@ -2795,7 +2810,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (uMsg == WM_KEYDOWN)
 			{
-				DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+				DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
 				for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 				{
 					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
@@ -2846,7 +2861,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				//break;
 			}
 
-			DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+			DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
 			for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 			{
 				// ! 只处理看得见的 Dialog
@@ -2893,26 +2908,42 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return false;
 }
 
-void DialogMgr::InsertDlg(DialogPtr dlg)
+void DialogMgr::InsertDlg(Dialog * dlg)
 {
+	_ASSERT(!dlg->m_Parent);
+
 	m_DlgList.push_back(dlg);
+
+	dlg->m_Parent = this;
 
 	if(dlg->m_EventAlign)
 	{
-		dlg->m_EventAlign(&ControlEventArg(dlg.get()));
+		dlg->m_EventAlign(&ControlEventArg(dlg));
 	}
 }
 
-void DialogMgr::RemoveDlg(DialogPtr dlg)
+void DialogMgr::RemoveDlg(Dialog * dlg)
 {
-	DialogPtrList::iterator dlg_iter = std::find(m_DlgList.begin(), m_DlgList.end(), dlg);
+	DialogList::iterator dlg_iter = std::find(m_DlgList.begin(), m_DlgList.end(), dlg);
 	if(dlg_iter != m_DlgList.end())
 	{
+		_ASSERT((*dlg_iter)->m_Parent == this);
+
+		(*dlg_iter)->m_Parent = NULL;
+
 		m_DlgList.erase(dlg_iter);
+	}
+	else
+	{
+		_ASSERT(false);
 	}
 }
 
 void DialogMgr::RemoveAllDlg()
 {
-	m_DlgList.clear();
+	DialogList::iterator dlg_iter = m_DlgList.begin();
+	for (; dlg_iter != m_DlgList.end(); dlg_iter = m_DlgList.begin())
+	{
+		RemoveDlg(*dlg_iter);
+	}
 }

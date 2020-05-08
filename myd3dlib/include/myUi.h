@@ -924,9 +924,13 @@ namespace my
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;
 
+	class DialogMgr;
+
 	class Dialog : public Control
 	{
 	public:
+		DialogMgr * m_Parent;
+
 		Matrix4 m_World;
 
 		bool m_bMouseDrag;
@@ -939,11 +943,14 @@ namespace my
 
 	public:
 		Dialog(void)
-			: m_World(Matrix4::identity)
+			: m_Parent(NULL)
+			, m_World(Matrix4::identity)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
 		}
+
+		virtual ~Dialog(void);
 
 		template<class Archive>
 		void save(Archive & ar, const unsigned int version) const;
@@ -979,9 +986,9 @@ namespace my
 	class DialogMgr
 	{
 	public:
-		typedef std::list<DialogPtr> DialogPtrList;
+		typedef std::list<Dialog *> DialogList;
 
-		DialogPtrList m_DlgList;
+		DialogList m_DlgList;
 
 		Vector3 m_ViewPosition;
 
@@ -1009,9 +1016,9 @@ namespace my
 
 		bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		void InsertDlg(DialogPtr dlg);
+		void InsertDlg(Dialog * dlg);
 
-		void RemoveDlg(DialogPtr dlg);
+		void RemoveDlg(Dialog * dlg);
 
 		void RemoveAllDlg();
 	};

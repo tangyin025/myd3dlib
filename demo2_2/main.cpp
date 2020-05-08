@@ -150,6 +150,8 @@ protected:
 
 	my::Texture2DPtr m_Tex;
 
+	my::DialogPtr m_Dlg;
+
 public:
 	Demo(void)
 		: m_UIRender(new EffectUIRender())
@@ -273,14 +275,14 @@ public:
 		mtl.m_Shader = "shader/mtl_lambert1.fx";
 		mtl.ParseShaderParameters();
 
-		DialogPtr dlg(new Dialog());
-		dlg->m_Size = Vector2(desc.Width, desc.Height);
-		dlg->m_Skin.reset(new ControlSkin());
-		dlg->m_Skin->m_Image.reset(new ControlImage());
-		dlg->m_Skin->m_Image->m_Texture = m_Tex;
-		dlg->m_Skin->m_Image->m_Rect = my::Rectangle(0, 0, desc.Width, desc.Height);
-		dlg->m_EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
-		DialogMgr::InsertDlg(dlg);
+		m_Dlg.reset(new Dialog());
+		m_Dlg->m_Size = Vector2(desc.Width, desc.Height);
+		m_Dlg->m_Skin.reset(new ControlSkin());
+		m_Dlg->m_Skin->m_Image.reset(new ControlImage());
+		m_Dlg->m_Skin->m_Image->m_Texture = m_Tex;
+		m_Dlg->m_Skin->m_Image->m_Rect = my::Rectangle(0, 0, desc.Width, desc.Height);
+		m_Dlg->m_EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
+		DialogMgr::InsertDlg(m_Dlg.get());
 
 		return S_OK;
 	}

@@ -507,7 +507,7 @@ HRESULT Game::OnCreateDevice(
 		m_Console->SetVisible(true);
 	}
 
-	DialogMgr::InsertDlg(m_Console);
+	DialogMgr::InsertDlg(m_Console.get());
 
 	m_EventLog("Game::OnCreateDevice");
 

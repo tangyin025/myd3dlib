@@ -9,7 +9,8 @@ MessagePanel::MessagePanel(void)
 	, m_lend(0)
 {
 	m_scrollbar.reset(new ScrollBar());
-	m_scrollbar->m_Parent = this;
+
+	InsertControl(m_scrollbar);
 }
 
 MessagePanel::~MessagePanel(void)
@@ -32,32 +33,6 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 
 				my::Rectangle(Rect.l, y, Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color);
 		}
 	}
-
-	m_scrollbar->Draw(ui_render, fElapsedTime, m_Location + Offset);
-}
-
-bool MessagePanel::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	if(m_scrollbar->MsgProc(hWnd, uMsg, wParam, lParam))
-		return true;
-
-	return Control::MsgProc(hWnd, uMsg, wParam, lParam);
-}
-
-bool MessagePanel::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	if(m_scrollbar->HandleKeyboard(uMsg, wParam, lParam))
-		return true;
-
-	return Control::HandleKeyboard(uMsg, wParam, lParam);
-}
-
-bool MessagePanel::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
-{
-	if(m_scrollbar->HandleMouse(uMsg, pt, wParam, lParam))
-		return true;
-
-	return Control::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
 bool MessagePanel::CanHaveFocus(void)
