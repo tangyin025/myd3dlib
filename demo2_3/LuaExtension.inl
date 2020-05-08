@@ -46,7 +46,27 @@ namespace luabind
 
 		my::EventFunction from(lua_State * L, int index)
 		{
-			return luabind::object(luabind::from_stack(L, index));
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(lua_State * L, int index)
+					: obj(luabind::from_stack(L, index))
+				{
+				}
+				void operator()(my::EventArg * arg)
+				{
+					try
+					{
+						obj(arg);
+					}
+					catch (const luabind::error & e)
+					{
+						const char * p = lua_tostring(e.state(), -1);
+						my::D3DContext::getSingleton().m_EventLog(p);
+					}
+				}
+			};
+			return InternalExceptionHandler(L, index);
 		}
 
 		void to(lua_State * L, my::EventFunction const & e)

@@ -1106,7 +1106,7 @@ namespace adl
           other.value_wrapper = 0;
       }
 
-      ~call_proxy()
+      ~call_proxy() noexcept(false) // ! https://stackoverflow.com/questions/23574323/why-cant-i-catch-a-luabinderror-exception-when-my-lua-code-throws-an-error
       {
           if (value_wrapper)
               call((detail::null_type*)0);
