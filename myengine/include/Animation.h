@@ -30,9 +30,7 @@ public:
 	{
 	}
 
-	virtual ~AnimationNode(void)
-	{
-	}
+	virtual ~AnimationNode(void);
 
 	friend class boost::serialization::access;
 
@@ -57,9 +55,16 @@ public:
 	template <unsigned int i>
 	void SetChild(AnimationNodePtr node)
 	{
+		_ASSERT(!node->m_Parent);
+		if (m_Childs[i])
+		{
+			RemoveChild(i);
+		}
 		m_Childs[i] = node;
 		node->m_Parent = this;
 	}
+
+	void RemoveChild(unsigned int i);
 
 	const AnimationNode * GetTopNode(void) const;
 

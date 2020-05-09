@@ -31,6 +31,16 @@ BOOST_CLASS_EXPORT(AnimationNodeRateBySpeed)
 
 BOOST_CLASS_EXPORT(AnimationRoot)
 
+AnimationNode::~AnimationNode(void)
+{
+	_ASSERT(!m_Parent);
+
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		RemoveChild(i);
+	}
+}
+
 template<class Archive>
 void AnimationNode::save(Archive & ar, const unsigned int version) const
 {
@@ -73,6 +83,16 @@ void AnimationNode::load<boost::archive::binary_iarchive>(boost::archive::binary
 
 template
 void AnimationNode::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
+
+void AnimationNode::RemoveChild(unsigned int i)
+{
+	if (m_Childs[i])
+	{
+		_ASSERT(m_Childs[i]->m_Parent == this);
+		m_Childs[i]->m_Parent = NULL;
+		m_Childs[i].reset();
+	}
+}
 
 const AnimationNode * AnimationNode::GetTopNode(void) const
 {
