@@ -569,6 +569,7 @@ void CMainFrame::OnFileNew()
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 	theApp.m_BgColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	theApp.m_SkyLightCam.m_Eular = my::Vector3(D3DXToRadian(-45), 0, 0);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_AmbientColor = my::Vector3(0.3f, 0.3f, 0.3f);
 	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)

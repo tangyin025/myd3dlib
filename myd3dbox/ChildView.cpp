@@ -67,9 +67,6 @@ CChildView::CChildView()
 	model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
 	model_view_camera->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
 
-	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
-	m_SkyLightCam->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(0), 0);
-
 	m_SwapChainBuffer.reset(new my::Surface());
 	ZeroMemory(&m_SwapChainBufferDesc, sizeof(m_SwapChainBufferDesc));
 	m_SwapChainBufferDesc.Width = 100;
@@ -940,8 +937,8 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
 				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-				m_SkyLightCam->m_Eye = model_view_camera->m_LookAt;
-				m_SkyLightCam->UpdateViewProj();
+				theApp.m_SkyLightCam.m_Eye = model_view_camera->m_LookAt;
+				theApp.m_SkyLightCam.UpdateViewProj();
 				theApp.OnRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());

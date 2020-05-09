@@ -174,6 +174,7 @@ Console::Console(void)
 {
 	m_Color = D3DCOLOR_ARGB(197,0,0,0);
 	m_Size = Vector2(700,410);
+	m_Location = Vector2(50, 95);
 	m_Skin.reset(new ControlSkin());
 	m_Skin->m_Font = Game::getSingleton().m_Font;
 	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);

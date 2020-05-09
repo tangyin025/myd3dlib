@@ -321,7 +321,11 @@ Game::Game(void)
 	}
 
 	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
-	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100));
+	const float k = cos(D3DXToRadian(45));
+	const float d = 20.0f;
+	m_Camera->m_Eye = my::Vector3(d * k * k, d * k + 1, d * k * k);
+	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
+
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
@@ -506,6 +510,10 @@ HRESULT Game::OnCreateDevice(
 	{
 		m_Console->SetVisible(true);
 	}
+	else
+	{
+		m_Console->SetVisible(false);
+	}
 
 	DialogMgr::InsertDlg(m_Console.get());
 
@@ -520,7 +528,9 @@ HRESULT Game::OnResetDevice(
 {
 	m_EventLog("Game::OnResetDevice");
 
-	DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
+	m_Camera->m_Aspect = (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height;
+
+	DialogMgr::SetDlgViewport(Vector2(600 * m_Camera->m_Aspect, 600), D3DXToRadian(75.0f));
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Height / 600.0f));
 
@@ -560,11 +570,6 @@ HRESULT Game::OnResetDevice(
 
 		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
 			pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-	}
-
-	if(m_Camera->m_EventAlign)
-	{
-		m_Camera->m_EventAlign(&ControlEventArg(NULL));
 	}
 
 	return S_OK;
@@ -610,7 +615,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
-	m_Camera->m_EventAlign.clear(); // ! clear boost function before shutdown lua context
+	//m_Camera->m_EventAlign.clear(); // ! clear boost function before shutdown lua context
 
 	LuaContext::Shutdown();
 
@@ -684,7 +689,7 @@ void Game::OnFrameTick(
 		}
 	}
 
-	m_SkyLightCam->UpdateViewProj();
+	m_SkyLightCam.UpdateViewProj();
 
 	m_Camera->UpdateViewProj();
 

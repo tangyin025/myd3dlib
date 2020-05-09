@@ -80,7 +80,7 @@ void Player::Update(float fElapsedTime)
 	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(Game::getSingleton().m_Camera.get());
 	camera->m_Eular = m_LookAngle;
 	camera->m_Eye = m_Position + Vector3(0, 0.75f, 0) + m_LookMatrix[2].xyz * m_LookDist;
-	Game::getSingleton().m_SkyLightCam->m_Eye = m_Position;
+	Game::getSingleton().m_SkyLightCam.m_Eye = m_Position;
 }
 
 void Player::OnMouseMove(my::EventArg * arg)

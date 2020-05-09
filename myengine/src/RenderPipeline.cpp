@@ -34,7 +34,8 @@ RenderPipeline::RenderPipeline(void)
 	, SHADOW_EPSILON(0.001f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
-	, m_BgColor(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
+	, m_SkyLightCam(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100)
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f)
 	, handle_Time(NULL)
@@ -202,6 +203,7 @@ template<class Archive>
 void RenderPipeline::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Eular);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	// ! archive_exception::unregistered_class for polymorphic pointer of MaterialParameterTexture
@@ -224,6 +226,7 @@ template<class Archive>
 void RenderPipeline::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Eular);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
@@ -446,7 +449,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam.m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
@@ -458,8 +461,8 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
 	m_SimpleSample->SetMatrix(handle_InvViewProj, pRC->m_Camera->m_InverseViewProj);
-	m_SimpleSample->SetMatrix(handle_SkyLightView, pRC->m_SkyLightCam->m_View); // ! RH -z
-	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, pRC->m_SkyLightCam->m_ViewProj);
+	m_SimpleSample->SetMatrix(handle_SkyLightView, m_SkyLightCam.m_View); // ! RH -z
+	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, m_SkyLightCam.m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));

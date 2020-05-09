@@ -1,31 +1,15 @@
 require "Settings.lua"
 require "Hud.lua"
 
--- 关闭控制台
-game.Console.Visible=false
-
--- 设置相机
-local k=math.cos(math.rad(45))
-local d=20
-game.Camera.Eye=Vector3(d*k*k,d*k+1,d*k*k)
-game.Camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
-game.Camera.EventAlign=function(arg)
-	local desc=game.BackBufferSurfaceDesc
-	game.Camera.Aspect=desc.Width/desc.Height
-end
-
--- 设置环境光
-game.SkyLightCam.Eye=Vector3(0,0,0)
-game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
-game.SkyLightCam.Width=50
-game.SkyLightCam.Height=50
-game.SkyLightCam.Nz=-50
-game.SkyLightCam.Fz=50
-game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
-game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
-
--- 加载场景资源
-game:LoadScene("scene01.xml")
+-- -- 设置环境光
+-- game.SkyLightCam.Eye=Vector3(0,0,0)
+-- game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
+-- game.SkyLightCam.Width=50
+-- game.SkyLightCam.Height=50
+-- game.SkyLightCam.Nz=-50
+-- game.SkyLightCam.Fz=50
+-- game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
+-- game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
 -- -- 创建地面
 -- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
@@ -48,6 +32,9 @@ game:LoadScene("scene01.xml")
 -- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
 -- actor:UpdateWorld()
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
+
+-- 加载场景资源
+game:LoadScene("scene01.xml")
 
 -- ActionTrack
 act_jump=Action()

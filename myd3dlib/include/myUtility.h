@@ -152,8 +152,6 @@ namespace my
 
 		float m_Fz;
 
-		EventFunction m_EventAlign;
-
 	public:
 		Camera(float Aspect, float Nz, float Fz)
 			: m_Aspect(Aspect)

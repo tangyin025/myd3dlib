@@ -77,6 +77,8 @@ public:
 
 	my::Vector4 m_BgColor;
 
+	my::OrthoCamera m_SkyLightCam;
+
 	my::Vector4 m_SkyLightColor;
 
 	my::Vector3 m_AmbientColor;
@@ -214,8 +216,6 @@ public:
 	{
 	public:
 		my::CameraPtr m_Camera;
-
-		my::CameraPtr m_SkyLightCam;
 
 		bool m_WireFrame;
 

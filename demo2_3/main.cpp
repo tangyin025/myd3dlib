@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "Terrain.h"
+#include "Player.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -178,8 +178,11 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		//// 绘制网格
-		//PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), Matrix4::RotationX(D3DXToRadian(-90)));
+		// 绘制网格
+		if (!Player::getSingletonPtr())
+		{
+			PushGrid(12, 5, 5, D3DCOLOR_ARGB(255, 127, 127, 127), D3DCOLOR_ARGB(255, 0, 0, 0), Matrix4::RotationX(D3DXToRadian(-90)));
+		}
 
 		// 绘制帧率
 		swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"Fps: %.2f", m_fFps);
