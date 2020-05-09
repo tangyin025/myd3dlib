@@ -164,6 +164,12 @@ public:
 			, m_UserData(0)
 		{
 		}
+
+		~Sequence(void)
+		{
+			_ASSERT(dynamic_cast<AnimationNodeSlot *>(m_Parent));
+			m_Parent = NULL;
+		}
 	};
 
 	typedef boost::circular_buffer<Sequence> SequenceList;

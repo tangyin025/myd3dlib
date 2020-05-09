@@ -798,16 +798,26 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+	*pbNoFurtherProcessing = ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam);
+	if (*pbNoFurtherProcessing)
 	{
 		return 0;
 	}
 
-	//LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
-	//if(lr || *pbNoFurtherProcessing)
-	//{
-	//	return lr;
-	//}
+	*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam);
+	if(*pbNoFurtherProcessing)
+	{
+		return 0;
+	}
+
+	if (!Player::getSingletonPtr())
+	{
+		LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+		if (lr || *pbNoFurtherProcessing)
+		{
+			return lr;
+		}
+	}
 	return 0;
 }
 

@@ -414,7 +414,14 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing)
 	{
-		if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+		*pbNoFurtherProcessing = ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam);
+		if (*pbNoFurtherProcessing)
+		{
+			return 0;
+		}
+
+		*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam);
+		if(*pbNoFurtherProcessing)
 		{
 			return 0;
 		}
