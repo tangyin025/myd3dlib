@@ -58,8 +58,7 @@ void ParallelTaskManager::StartParallelThread(LONG lMaximumCount)
 
 	for(size_t i = 0; i < m_Threads.size(); i++)
 	{
-		m_Threads[i]->CreateThread();
-		m_Threads[i]->ResumeThread();
+		m_Threads[i]->CreateThread(0);
 	}
 }
 

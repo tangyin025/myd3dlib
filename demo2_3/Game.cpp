@@ -289,6 +289,7 @@ static int os_exit(lua_State * L)
 
 Game::Game(void)
 	: OctRoot(my::AABB(-4096, 4096))
+	, Thread(boost::bind(&Game::LoadSceneProc, this))
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 {
@@ -488,6 +489,7 @@ HRESULT Game::OnCreateDevice(
 			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("PlaySound", &Game::PlaySound)
 			.def("LoadScene", &Game::LoadScene)
+			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
 
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
 			.def(luabind::constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
@@ -605,6 +607,10 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
+	m_EventLoadScene.clear(); // ! clear boost function before shutdown lua context
+
+	LoadSceneCheck(INFINITE);
+
 	ParallelTaskManager::StopParallelThread();
 
 	OctRoot::ClearAllEntity();
@@ -614,8 +620,6 @@ void Game::OnDestroyDevice(void)
 	m_Console.reset();
 
 	RemoveAllDlg();
-
-	//m_Camera->m_EventAlign.clear(); // ! clear boost function before shutdown lua context
 
 	LuaContext::Shutdown();
 
@@ -647,6 +651,8 @@ void Game::OnFrameTick(
 	float fElapsedTime)
 {
 	m_d3dDeviceSec.Leave();
+
+	LoadSceneCheck(0);
 
 	DrawHelper::BeginLine();
 
@@ -954,32 +960,56 @@ void Game::LoadScene(const char * path)
 	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();
 
-	IStreamBuff buff(OpenIStream(path));
-	std::istream istr(&buff);
+	m_LoadSceneBuff.reset(new IStreamBuff(OpenIStream(path)));
+	m_LoadSceneStream.reset(new std::istream(m_LoadSceneBuff.get()));
 	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
 	if (_stricmp(Ext, ".xml") == 0)
 	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
+		m_LoadSceneArchive.reset(new boost::archive::polymorphic_xml_iarchive(*m_LoadSceneStream));
 	}
 	else if (_stricmp(Ext, ".txt") == 0)
 	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
+		m_LoadSceneArchive.reset(new boost::archive::polymorphic_text_iarchive(*m_LoadSceneStream));
 	}
 	else
 	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
+		m_LoadSceneArchive.reset(new boost::archive::polymorphic_binary_iarchive(*m_LoadSceneStream));
 	}
-	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
-	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-	*ia >> BOOST_SERIALIZATION_NVP(m_ActorList);
-
-	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
-	{
-		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
-	}
+	*m_LoadSceneArchive >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
+	*m_LoadSceneArchive >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*m_LoadSceneArchive >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	RenderPipeline::RequestResource();
+
+	Thread::CreateThread(0);
+}
+
+DWORD Game::LoadSceneProc(void)
+{
+	*m_LoadSceneArchive >> BOOST_SERIALIZATION_NVP(m_ActorList);
+	return 0;
+}
+
+void Game::LoadSceneCheck(DWORD dwMilliseconds)
+{
+	if (m_LoadSceneArchive && Thread::Wait(dwMilliseconds))
+	{
+		m_LoadSceneArchive.reset();
+
+		m_LoadSceneStream.reset();
+
+		m_LoadSceneBuff.reset();
+
+		ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+		for (; actor_iter != m_ActorList.end(); actor_iter++)
+		{
+			AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+		}
+
+		if (m_EventLoadScene)
+		{
+			EventArg arg;
+			m_EventLoadScene(&arg);
+		}
+	}
 }

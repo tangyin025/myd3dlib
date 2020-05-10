@@ -33,9 +33,6 @@ require "Hud.lua"
 -- actor:UpdateWorld()
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
--- 加载场景资源
-game:LoadScene("scene01.xml")
-
 -- ActionTrack
 act_jump=Action()
 act_jump.Length=5.0
@@ -137,8 +134,8 @@ end
 cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
-player:UpdateWorld()
-game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
+-- player:UpdateWorld()
+-- game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 
 -- 构建动画树
 local seq_idle=AnimationNodeSequence()
@@ -195,13 +192,12 @@ cmp2:AddMaterial(lambert3)
 actor4:AddComponent(cmp2)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
-actor4:UpdateWorld()
-game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+-- actor4:UpdateWorld()
+-- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 
--- 球体发声
-actor4:PlayAction(act_env)
-
-player:PlayAction(act_tuowei)
+-- -- 播放action
+-- player:PlayAction(act_tuowei)
+-- actor4:PlayAction(act_env)
 
 -- -- 在角色手部绑定物体
 -- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -231,6 +227,19 @@ player:PlayAction(act_tuowei)
 -- game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor2.World))
 -- player:Attach(actor3, 29)
 
--- -- 特殊渲染选项
--- game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.EventLoadScene=function(arg)
+	player:UpdateWorld()
+	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
+	player:PlayAction(act_tuowei)
+
+	actor4:UpdateWorld()
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	actor4:PlayAction(act_env)
+end
+
+-- 加载场景资源
+game:LoadScene("scene01.xml")
+
+-- -- -- 特殊渲染选项
+-- -- game.SsaoEnable=true
+-- -- game.VisualizationParameter=1

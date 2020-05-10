@@ -7,6 +7,14 @@
 #include "PhysxContext.h"
 #include "FModContext.h"
 
+namespace boost
+{
+	namespace archive
+	{
+		class polymorphic_iarchive;
+	};
+};
+
 class Game
 	: public my::DxutApp
 	, public my::TimerMgr
@@ -22,6 +30,7 @@ class Game
 	, public PhysxContext
 	, public PhysxSceneContext
 	, public FModContext
+	, public my::Thread
 {
 public:
 	my::UIRenderPtr m_UIRender;
@@ -51,6 +60,14 @@ public:
 	typedef std::set<ActorPtr> ActorPtrSet;
 
 	ActorPtrSet m_ActorList;
+
+	boost::shared_ptr<my::IStreamBuff> m_LoadSceneBuff;
+
+	boost::shared_ptr<std::istream> m_LoadSceneStream;
+
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> m_LoadSceneArchive;
+
+	my::EventFunction m_EventLoadScene;
 
 public:
 	Game(void);
@@ -122,4 +139,8 @@ public:
 	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
 
 	void LoadScene(const char * path);
+
+	DWORD LoadSceneProc(void);
+
+	void LoadSceneCheck(DWORD dwMilliseconds);
 };

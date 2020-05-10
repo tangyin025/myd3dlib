@@ -230,6 +230,11 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::VelocityTypeNone));
 	m_WorldEmitterInst->m_Material = m_Template->m_EmitterMaterial->Clone();
 
+	if (!m_Actor->m_Node)
+	{
+		THROW_CUSEXCEPTION("ActionTrackEmitterInst: !m_Actor->m_Node"); // ! Actor::PlayAction should be call after being AddEntity
+	}
+
 	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
 	m_WorldEmitterActor.reset(new Actor(Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), Root->m_aabb));
 	m_WorldEmitterActor->AddComponent(m_WorldEmitterInst);

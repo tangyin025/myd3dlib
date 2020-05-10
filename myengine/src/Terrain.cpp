@@ -59,11 +59,9 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_vb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
 	void * pVertices = const_cast<my::VertexBuffer&>(m_vb).Lock(0, 0, D3DLOCK_READONLY);
 	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
 	const_cast<my::VertexBuffer&>(m_vb).Unlock();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 }
 
 template<class Archive>
@@ -78,7 +76,9 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 	m_vb.OnDestroyDevice();
 	m_vb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
 	void * pVertices = m_vb.Lock(0, 0, 0);
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	ar >> boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_vb.Unlock();
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 }

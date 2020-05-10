@@ -476,11 +476,10 @@ void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
-	for (unsigned int i = 0; i < lMaximumCount; i++)
+	for (int i = 0; i < lMaximumCount; i++)
 	{
 		ThreadPtr thread(new Thread(boost::bind(&AsynchronousIOMgr::IORequestProc, this)));
-		thread->CreateThread();
-		thread->ResumeThread();
+		thread->CreateThread(0);
 		m_Threads.push_back(thread);
 	}
 }
@@ -502,15 +501,6 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 		m_Threads[i]->CloseThread();
 	}
 	m_Threads.clear();
-}
-
-IStreamBuff::IStreamBuff(IStreamPtr fptr, size_t buff_sz, size_t put_back)
-	: fptr_(fptr)
-	, put_back_(max(put_back, size_t(1)))
-	, buffer_(max(buff_sz, put_back_) + put_back_)
-{
-	char *end = &buffer_.front() + buffer_.size();
-	setg(end, end, end);
 }
 
 std::streambuf::int_type IStreamBuff::underflow(void)
