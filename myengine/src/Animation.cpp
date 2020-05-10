@@ -589,6 +589,10 @@ void AnimationRoot::ReleaseResource(void)
 
 		m_Skeleton.reset();
 	}
+
+	m_JiggleBones.clear();
+
+	m_Iks.clear();
 }
 
 void AnimationRoot::Update(float fElapsedTime)

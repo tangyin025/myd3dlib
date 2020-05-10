@@ -271,7 +271,7 @@ bool OctNode::RemoveEntity(OctEntity * entity)
 	return false;
 }
 
-void OctNode::ClearAllEntityInCurrentNode(void)
+void OctNode::ClearAllEntity(void)
 {
 	OctEntityMap::iterator entity_iter = m_Entities.begin();
 	for (; entity_iter != m_Entities.end(); entity_iter = m_Entities.begin())
@@ -279,12 +279,6 @@ void OctNode::ClearAllEntityInCurrentNode(void)
 		_ASSERT(entity_iter->first->m_Node == this);
 		RemoveEntity(entity_iter->first);
 	}
-	_ASSERT(m_Entities.empty());
-}
-
-void OctNode::ClearAllEntity(void)
-{
-	ClearAllEntityInCurrentNode();
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{

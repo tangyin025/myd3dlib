@@ -617,7 +617,7 @@ void Game::OnDestroyDevice(void)
 
 	ParallelTaskManager::StopParallelThread();
 
-	OctRoot::ClearAllEntity();
+	ClearAllEntity();
 
 	m_ActorList.clear();
 
@@ -905,9 +905,9 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
 		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
 		{
+			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			actor->LeavePhysxScene(this);
 			actor->ReleaseResource();
-			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			continue;
 		}
 
@@ -946,6 +946,50 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	QueryEntity(In, &cb);
 }
 
+void Game::_RemoveEntityInNode(Game * root, my::OctNode * node, my::OctEntity * entity)
+{
+	Actor * actor = dynamic_cast<Actor *>(entity);
+	_ASSERT(actor);
+	node->RemoveEntity(actor);
+
+	WeakActorMap::iterator weak_actor_iter = root->m_ViewedActors.find(actor);
+	if (weak_actor_iter != root->m_ViewedActors.end())
+	{
+		weak_actor_iter = root->m_ViewedActors.erase(weak_actor_iter);
+		actor->LeavePhysxScene(root);
+		actor->ReleaseResource();
+	}
+}
+
+void Game::RemoveEntity(my::OctEntity * entity)
+{
+	_RemoveEntityInNode(this, this, entity);
+}
+
+void Game::_ClearAllEntityInNode(Game * root, my::OctNode * node)
+{
+	OctEntityMap::iterator entity_iter = node->m_Entities.begin();
+	for (; entity_iter != node->m_Entities.end(); entity_iter = node->m_Entities.begin())
+	{
+		_ASSERT(entity_iter->first->m_Node == node);
+		_RemoveEntityInNode(root, node, entity_iter->first);
+	}
+
+	for (unsigned int i = 0; i < node->m_Childs.size(); i++)
+	{
+		if (node->m_Childs[i])
+		{
+			_ClearAllEntityInNode(root, node->m_Childs[i].get());
+			node->m_Childs[i].reset();
+		}
+	}
+}
+
+void Game::ClearAllEntity(void)
+{
+	_ClearAllEntityInNode(this, this);
+}
+
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
 {
 	const Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
@@ -959,7 +1003,7 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 
 void Game::LoadScene(const char * path)
 {
-	OctRoot::ClearAllEntity();
+	ClearAllEntity();
 	PhysxSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();

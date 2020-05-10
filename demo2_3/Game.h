@@ -136,6 +136,14 @@ public:
 
 	void CheckViewedActor(const my::AABB & In, const my::AABB & Out);
 
+	static void _RemoveEntityInNode(Game * root, my::OctNode * node, my::OctEntity * entity);
+
+	void RemoveEntity(my::OctEntity * entity);
+
+	static void _ClearAllEntityInNode(Game * root, my::OctNode * node);
+
+	void ClearAllEntity(void);
+
 	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
 
 	void LoadScene(const char * path);

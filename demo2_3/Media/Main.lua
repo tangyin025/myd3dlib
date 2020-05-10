@@ -1,6 +1,19 @@
 require "Settings.lua"
 require "Hud.lua"
 
+-- 修正不规范资源
+local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0))
+mesh=game:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
+mesh:Transform(local_trans)
+-- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
+skel=game:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
+skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
+skel:Transform(local_trans)
+-- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly.skeleton.xml")
+
 -- -- 设置环境光
 -- game.SkyLightCam.Eye=Vector3(0,0,0)
 -- game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
@@ -119,7 +132,6 @@ player.EventKeyUp=function(arg)
 end
 
 -- 加载皮肤
-local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0))
 local lambert2=Material()
 lambert2.Shader="shader/mtl_lambert1.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
@@ -128,9 +140,6 @@ lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.
 lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
 local cmp=MeshComponent()
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
-cmp.MeshEventReady=function(arg)
-	cmp.Mesh:Transform(local_trans)
-end
 cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
@@ -167,11 +176,6 @@ anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonEventReady=function(arg)
-	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
-	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
-	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
-	anim.Skeleton:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
-	anim.Skeleton:Transform(local_trans)
 	-- anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
 	anim:AddIK("Bip01_L_Thigh", 0.1, 1)
 	anim:AddIK("Bip01_R_Thigh", 0.1, 1)

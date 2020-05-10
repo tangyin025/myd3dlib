@@ -82,7 +82,7 @@ namespace my
 
 		void AddEntity(OctEntity * entity, const AABB & aabb);
 
-		virtual void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb);
+		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb);
 
 		void QueryEntity(const Ray & ray, QueryCallback * callback) const;
 
@@ -93,8 +93,6 @@ namespace my
 		void QueryEntityAll(QueryCallback * callback) const;
 
 		bool RemoveEntity(OctEntity * entity);
-
-		void ClearAllEntityInCurrentNode(void);
 
 		void ClearAllEntity(void);
 
