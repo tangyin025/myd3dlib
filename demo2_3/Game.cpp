@@ -994,6 +994,8 @@ void Game::LoadSceneCheck(DWORD dwMilliseconds)
 {
 	if (m_LoadSceneArchive && Thread::Wait(dwMilliseconds))
 	{
+		Thread::CloseThread();
+
 		m_LoadSceneArchive.reset();
 
 		m_LoadSceneStream.reset();
