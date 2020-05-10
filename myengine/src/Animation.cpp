@@ -534,6 +534,11 @@ void AnimationRoot::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 
 AnimationRoot::~AnimationRoot(void)
 {
+	if (!m_SkeletonPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, this);
+	}
+
 	SequenceGroupMap::iterator group_iter = m_SequenceGroup.begin();
 	for (; group_iter != m_SequenceGroup.end(); group_iter = m_SequenceGroup.begin())
 	{

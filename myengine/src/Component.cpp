@@ -246,6 +246,14 @@ void Component::ClearShape(void)
 	m_PxMaterial.reset();
 }
 
+MeshComponent::~MeshComponent(void)
+{
+	if (!m_MeshPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), this);
+	}
+}
+
 template<class Archive>
 void MeshComponent::save(Archive & ar, const unsigned int version) const
 {

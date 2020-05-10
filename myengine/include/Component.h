@@ -168,9 +168,7 @@ public:
 	{
 	}
 
-	virtual ~MeshComponent(void)
-	{
-	}
+	virtual ~MeshComponent(void);
 
 	friend class boost::serialization::access;
 

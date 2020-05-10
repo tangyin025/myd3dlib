@@ -609,7 +609,11 @@ void Game::OnDestroyDevice(void)
 
 	m_EventLoadScene.clear(); // ! clear boost function before shutdown lua context
 
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
 	LoadSceneCheck(INFINITE);
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
 	ParallelTaskManager::StopParallelThread();
 
@@ -650,7 +654,7 @@ void Game::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
-	m_d3dDeviceSec.Leave();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	LoadSceneCheck(0);
 
@@ -672,7 +676,7 @@ void Game::OnFrameTick(
 
 	CheckViewedActor(AABB(m_ViewedCenter, 1000.0f), AABB(m_ViewedCenter, 1000.0f));
 
-	m_d3dDeviceSec.Enter();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
 	if (!InputMgr::Capture(fTime, fElapsedTime))
 	{
@@ -728,7 +732,7 @@ void Game::OnFrameTick(
 
 	Present(NULL, NULL, NULL, NULL);
 
-	m_d3dDeviceSec.Leave();
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	PhysxSceneContext::TickPostRender(fElapsedTime);
 
@@ -759,7 +763,7 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	m_d3dDeviceSec.Enter();
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 }
 
 void Game::OnRender(
@@ -992,7 +996,7 @@ DWORD Game::LoadSceneProc(void)
 
 void Game::LoadSceneCheck(DWORD dwMilliseconds)
 {
-	if (m_LoadSceneArchive && Thread::Wait(dwMilliseconds))
+	if (m_LoadSceneArchive && Thread::WaitForThreadStopped(dwMilliseconds))
 	{
 		Thread::CloseThread();
 

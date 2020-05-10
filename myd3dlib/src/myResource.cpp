@@ -429,30 +429,30 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 
 	m_IORequestListMutex.Release();
 }
-
-void AsynchronousIOMgr::RemoveAllIORequest(void)
-{
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
-	m_IORequestListMutex.Wait(INFINITE);
-
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-
-	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-	for (; req_iter != m_IORequestList.end(); req_iter++)
-	{
-		if (req_iter->second->m_PreLoadEvent.Wait(0))
-		{
-			req_iter->second->m_PostLoadEvent.Wait(INFINITE);
-		}
-	}
-
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-
-	m_IORequestList.clear();
-
-	m_IORequestListMutex.Release();
-}
+//
+//void AsynchronousIOMgr::RemoveAllIORequest(void)
+//{
+//	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+//
+//	m_IORequestListMutex.Wait(INFINITE);
+//
+//	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+//
+//	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+//	for (; req_iter != m_IORequestList.end(); req_iter++)
+//	{
+//		if (req_iter->second->m_PreLoadEvent.Wait(0))
+//		{
+//			req_iter->second->m_PostLoadEvent.Wait(INFINITE);
+//		}
+//	}
+//
+//	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+//
+//	m_IORequestList.clear();
+//
+//	m_IORequestListMutex.Release();
+//}
 
 bool AsynchronousIOMgr::FindIORequestCallback(const IResourceCallback * callback)
 {
@@ -750,12 +750,16 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		{
 			_ASSERT(D3DContext::getSingleton().m_DeviceObjectsCreated);
 
+			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+
 			request->CreateResource(D3DContext::getSingleton().m_d3dDevice);
 
 			if (request->m_res && D3DContext::getSingleton().m_DeviceObjectsReset)
 			{
 				request->m_res->OnResetDevice();
 			}
+
+			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 			AddResource(key, request->m_res);
 		}

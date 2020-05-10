@@ -234,6 +234,8 @@ public:
 	{
 	}
 
+	~MaterialParameterTexture(void);
+
 	friend class boost::serialization::access;
 
 	template <class Archive>

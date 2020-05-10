@@ -108,6 +108,14 @@ MaterialParameterPtr MaterialParameterFloat4::Clone(void) const
 	return boost::shared_ptr<MaterialParameterFloat4>(new MaterialParameterFloat4(m_Name, m_Value));
 }
 
+MaterialParameterTexture::~MaterialParameterTexture(void)
+{
+	if (!m_TexturePath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, this);
+	}
+}
+
 void MaterialParameterTexture::OnReady(my::IORequest * request)
 {
 	m_Texture = boost::dynamic_pointer_cast<my::BaseTexture>(request->m_res);

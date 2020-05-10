@@ -261,7 +261,7 @@ namespace my
 
 		void RemoveIORequestCallback(const std::string & key, IResourceCallback * callback);
 
-		void RemoveAllIORequest(void);
+		//void RemoveAllIORequest(void);
 
 		bool FindIORequestCallback(const IResourceCallback * callback);
 
