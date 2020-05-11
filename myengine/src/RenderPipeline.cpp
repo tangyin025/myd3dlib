@@ -6,6 +6,7 @@
 #include "Component.h"
 #include "Actor.h"
 #include "libc.h"
+#include <boost/regex.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/algorithm/string.hpp>
@@ -155,18 +156,21 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		return NULL;
 	}
 
-	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x.fx"), seed).c_str());
+	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x"), seed).c_str());
 	ostr->write(buff->GetBufferPointer(), buff->GetBufferSize());
 	ostr.reset();
 
 	LPD3DXEFFECT pEffect = NULL;
+	my::D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
 		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
 	{
+		my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
 		return NULL;
 	}
+	my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	my::EffectPtr shader(new my::Effect());
 	shader->Create(pEffect);
@@ -394,6 +398,34 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
 	BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
 	BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
+
+	TCHAR szDir[MAX_PATH];
+	GetCurrentDirectory(_countof(szDir), szDir);
+	PathAppend(szDir, _T("*"));
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = FindFirstFile(szDir, &ffd);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				boost::basic_regex<TCHAR> reg(_T("ShaderCache@([0-9a-fA-F]{8})"));
+				boost::match_results<const TCHAR *> what;
+				if (boost::regex_search(ffd.cFileName, what, reg, boost::match_default) && what[1].matched)
+				{
+					std::basic_string<TCHAR> str(what[1].first, what[1].second);
+					size_t seed = _tcstoul(str.c_str(), 0, 16);
+					my::EffectPtr shader(new my::Effect());
+					TCHAR szPath[MAX_PATH];
+					GetCurrentDirectory(_countof(szPath), szPath);
+					PathAppend(szPath, ffd.cFileName);
+					shader->CreateEffectFromFile(szPath, NULL, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool);
+					m_ShaderCache.insert(std::make_pair(seed, shader));
+				}
+			}
+		} while (FindNextFile(hFind, &ffd) != 0);
+	}
 	return S_OK;
 }
 
