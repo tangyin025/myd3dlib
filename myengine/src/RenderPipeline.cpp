@@ -98,6 +98,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 			}
 		}
 	}
+
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -131,26 +132,44 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	my::ResourceMgr::getSingleton().m_EffectInclude = my::ZipIStreamDir::ReplaceSlash(path);
 	PathRemoveFileSpecA(&my::ResourceMgr::getSingleton().m_EffectInclude[0]);
 
-#ifdef _DEBUG
-	CComPtr<ID3DXBuffer> buff;
-	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), &buff, NULL)))
+	CComPtr<ID3DXBuffer> err;
+	CComPtr<ID3DXEffectCompiler> compiler;
+	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR, &compiler, &err)))
 	{
-		my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x.fx"), seed).c_str());
-		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize() - 1);
+		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
+		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
+		return NULL;
 	}
-#endif
+
+	if (err)
+	{
+		my::D3DContext::getSingleton().m_EventLog((char *)err->GetBufferPointer());
+		err.Release();
+	}
+
+	CComPtr<ID3DXBuffer> buff;
+	if (FAILED(compiler->CompileEffect(D3DXSHADER_OPTIMIZATION_LEVEL3, &buff, &err)))
+	{
+		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
+		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
+		return NULL;
+	}
+
+	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x.fx"), seed).c_str());
+	ostr->write(buff->GetBufferPointer(), buff->GetBufferSize());
+	ostr.reset();
+
+	LPD3DXEFFECT pEffect = NULL;
+	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
+		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
+	{
+		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
+		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
+		return NULL;
+	}
 
 	my::EffectPtr shader(new my::Effect());
-	try
-	{
-		shader->CreateEffect(source.c_str(), source.size(), pDefines, my::ResourceMgr::getSingletonPtr(), 0, my::ResourceMgr::getSingleton().m_EffectPool);
-	}
-	catch (const my::Exception & e)
-	{
-		shader.reset();
-		const std::string & what = e.what();
-		my::D3DContext::getSingleton().m_EventLog(what.c_str());
-	}
+	shader->Create(pEffect);
 	m_ShaderCache.insert(std::make_pair(seed, shader));
 	return shader.get();
 }
