@@ -224,7 +224,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_ActionTime(0)
-	, m_TaskEvent(NULL, FALSE, TRUE, NULL)
+	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
 	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter,
 		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::VelocityTypeNone));
@@ -249,6 +249,7 @@ ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 	{
 		my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
 		Root->RemoveEntity(m_WorldEmitterActor.get());
+		// todo: ReleaseResource, LeavePhysxScene
 	}
 }
 
