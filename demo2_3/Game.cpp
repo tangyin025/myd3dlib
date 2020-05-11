@@ -484,9 +484,9 @@ HRESULT Game::OnCreateDevice(
 			.def("InsertDlg", &Game::InsertDlg)
 			.def("RemoveDlg", &Game::RemoveDlg)
 			.def("RemoveAllDlg", &Game::RemoveAllDlg)
-			.def("AddEntity", &Game::AddEntity)
-			.def("RemoveEntity", &Game::RemoveEntity)
-			.def("ClearAllEntity", &Game::ClearAllEntity)
+			.def("AddActor", &Game::AddActor)
+			.def("RemoveActor", &Game::RemoveActor)
+			.def("ClearAllActor", &Game::ClearAllActor)
 			.def("PlaySound", &Game::PlaySound)
 			.def("LoadScene", &Game::LoadScene)
 			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
@@ -617,7 +617,7 @@ void Game::OnDestroyDevice(void)
 
 	ParallelTaskManager::StopParallelThread();
 
-	ClearAllEntity();
+	ClearAllActor();
 
 	m_ActorList.clear();
 
@@ -946,10 +946,19 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	QueryEntity(In, &cb);
 }
 
-void Game::_RemoveEntityInNode(Game * root, my::OctNode * node, my::OctEntity * entity)
+void Game::AddActor(Actor * actor)
 {
-	Actor * actor = dynamic_cast<Actor *>(entity);
-	_ASSERT(actor);
+	AddEntity(actor, actor->m_aabb.transform(actor->m_World));
+
+	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
+	for (; att_iter != actor->m_Attaches.end(); att_iter++)
+	{
+		AddEntity(att_iter->first, att_iter->first->m_aabb.transform(att_iter->first->m_World));
+	}
+}
+
+void Game::_RemoveActorInNode(Game * root, my::OctNode * node, Actor * actor)
+{
 	node->RemoveEntity(actor);
 
 	WeakActorMap::iterator weak_actor_iter = root->m_ViewedActors.find(actor);
@@ -961,33 +970,39 @@ void Game::_RemoveEntityInNode(Game * root, my::OctNode * node, my::OctEntity * 
 	}
 }
 
-void Game::RemoveEntity(my::OctEntity * entity)
+void Game::RemoveActor(Actor * actor)
 {
-	_RemoveEntityInNode(this, this, entity);
+	_RemoveActorInNode(this, this, actor);
+
+	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
+	for (; att_iter != actor->m_Attaches.end(); att_iter++)
+	{
+		_RemoveActorInNode(this, this, att_iter->first);
+	}
 }
 
-void Game::_ClearAllEntityInNode(Game * root, my::OctNode * node)
+void Game::_ClearAllActorInNode(Game * root, my::OctNode * node)
 {
 	OctEntityMap::iterator entity_iter = node->m_Entities.begin();
 	for (; entity_iter != node->m_Entities.end(); entity_iter = node->m_Entities.begin())
 	{
 		_ASSERT(entity_iter->first->m_Node == node);
-		_RemoveEntityInNode(root, node, entity_iter->first);
+		_RemoveActorInNode(root, node, dynamic_cast<Actor *>(entity_iter->first));
 	}
 
 	for (unsigned int i = 0; i < node->m_Childs.size(); i++)
 	{
 		if (node->m_Childs[i])
 		{
-			_ClearAllEntityInNode(root, node->m_Childs[i].get());
+			_ClearAllActorInNode(root, node->m_Childs[i].get());
 			node->m_Childs[i].reset();
 		}
 	}
 }
 
-void Game::ClearAllEntity(void)
+void Game::ClearAllActor(void)
 {
-	_ClearAllEntityInNode(this, this);
+	_ClearAllActorInNode(this, this);
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
@@ -1003,7 +1018,7 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 
 void Game::LoadScene(const char * path)
 {
-	ClearAllEntity();
+	ClearAllActor();
 	PhysxSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();
@@ -1053,7 +1068,7 @@ void Game::LoadSceneCheck(DWORD dwMilliseconds)
 		ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 		for (; actor_iter != m_ActorList.end(); actor_iter++)
 		{
-			AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+			AddActor(actor_iter->get());
 		}
 
 		if (m_EventLoadScene)

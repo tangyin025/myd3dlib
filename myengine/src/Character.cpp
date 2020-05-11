@@ -114,7 +114,7 @@ void Character::Update(float fElapsedTime)
 	Actor::Update(fElapsedTime);
 }
 
-void Character::SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
+void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxController)
 	{
@@ -126,7 +126,7 @@ void Character::SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	{
 		m_Position = Pos;
 
-		m_Rotation = Rot;
+		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
 
 		UpdateWorld();
 

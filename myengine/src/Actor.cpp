@@ -309,19 +309,19 @@ void Actor::Update(float fElapsedTime)
 		if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
 		{
 			const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
-			att_iter->first->SetPxPose(
+			att_iter->first->SetPose(
 				bone.m_position.transformCoord(m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_World)));
 		}
 		else
 		{
-			att_iter->first->SetPxPose(m_Position, m_Rotation);
+			att_iter->first->SetPose(m_Position, m_Rotation);
 		}
 
 		att_iter->first->Update(fElapsedTime);
 	}
 }
 
-void Actor::SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
+void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxActor)
 	{
@@ -569,7 +569,6 @@ void Actor::ClearAllAttacher(void)
 	{
 		Dettach(att_iter->first);
 	}
-	_ASSERT(m_Attaches.empty());
 }
 
 void Actor::PlayAction(Action * action)
