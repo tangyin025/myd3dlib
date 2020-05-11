@@ -146,8 +146,6 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	virtual void OnShaderChanged(void);
-
 	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;

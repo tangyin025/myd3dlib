@@ -111,8 +111,6 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	virtual void OnShaderChanged(void);
-
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnWorldUpdated(void);
@@ -200,8 +198,6 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
-
-	virtual void OnShaderChanged(void);
 
 	virtual void Update(float fElapsedTime);
 
@@ -304,8 +300,6 @@ public:
 	virtual void LeavePhysxScene(PhysxSceneContext * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
-
-	virtual void OnShaderChanged(void);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -425,8 +419,6 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
-
-	virtual void OnShaderChanged(void);
 
 	virtual my::AABB CalculateAABB(void) const;
 

@@ -266,15 +266,6 @@ void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 	UpdateOctNode();
 }
 
-void Actor::OnShaderChanged(void)
-{
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->OnShaderChanged();
-	}
-}
-
 void Actor::Update(float fElapsedTime)
 {
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();

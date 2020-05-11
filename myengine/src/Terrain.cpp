@@ -591,12 +591,6 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 }
 
-void Terrain::OnShaderChanged(void)
-{
-	handle_World = NULL;
-	m_Material->ParseShaderParameters();
-}
-
 void Terrain::Update(float fElapsedTime)
 {
 

@@ -115,10 +115,6 @@ void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, 
 {
 }
 
-void Component::OnShaderChanged(void)
-{
-}
-
 void Component::Update(float fElapsedTime)
 {
 }
@@ -382,18 +378,6 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 		{
 			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animation->m_DualQuats[0], m_Actor->m_Animation->m_DualQuats.size());
 		}
-	}
-}
-
-void MeshComponent::OnShaderChanged(void)
-{
-	handle_Time = NULL;
-	handle_World = NULL;
-	handle_dualquat = NULL;
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->ParseShaderParameters();
 	}
 }
 
@@ -907,18 +891,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 	}
 }
 
-void ClothComponent::OnShaderChanged(void)
-{
-	handle_Time = NULL;
-	handle_World = NULL;
-	handle_dualquat = NULL;
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->ParseShaderParameters();
-	}
-}
-
 my::AABB ClothComponent::CalculateAABB(void) const
 {
 	if (!m_VertexData.empty())
@@ -1167,14 +1139,6 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	shader->SetVector(handle_EmitterScale, m_Actor->m_Scale);
-}
-
-void EmitterComponent::OnShaderChanged(void)
-{
-	handle_Time = NULL;
-	handle_World = NULL;
-	handle_EmitterScale = NULL;
-	m_Material->ParseShaderParameters();
 }
 
 my::AABB EmitterComponent::CalculateAABB(void) const
