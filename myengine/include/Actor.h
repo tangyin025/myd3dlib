@@ -125,7 +125,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot);
+	void SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -133,11 +133,7 @@ public:
 
 	void UpdateWorld(void);
 
-	void OnWorldUpdated(void);
-
 	void UpdateOctNode(void);
-
-	//void UpdatePxTransform(void);
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 

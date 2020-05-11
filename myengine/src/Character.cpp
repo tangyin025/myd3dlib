@@ -114,6 +114,26 @@ void Character::Update(float fElapsedTime)
 	Actor::Update(fElapsedTime);
 }
 
+void Character::SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
+{
+	if (m_PxController)
+	{
+		m_PxController->setPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+
+		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+	}
+	else
+	{
+		m_Position = Pos;
+
+		m_Rotation = Rot;
+
+		UpdateWorld();
+
+		UpdateOctNode();
+	}
+}
+
 void Character::OnPxThreadSubstep(float dtime)
 {
 	if (m_PxController)

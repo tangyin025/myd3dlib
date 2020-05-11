@@ -113,8 +113,6 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void OnWorldUpdated(void);
-
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
@@ -308,8 +306,6 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	void UpdateCloth(void);
-
-	virtual void OnWorldUpdated(void);
 
 	void OnPxThreadSubstep(float dtime);
 };

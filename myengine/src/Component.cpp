@@ -119,10 +119,6 @@ void Component::Update(float fElapsedTime)
 {
 }
 
-void Component::OnWorldUpdated(void)
-{
-}
-
 my::AABB Component::CalculateAABB(void) const
 {
 	return AABB(-1, 1);
@@ -961,6 +957,8 @@ void ClothComponent::UpdateCloth(void)
 {
 	if (m_Cloth)
 	{
+		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
+
 		_ASSERT(m_particles.size() == m_VertexData.size() / m_VertexStride);
 		physx::PxClothParticleData * readData = m_Cloth->lockParticleData(physx::PxDataAccessFlag::eWRITABLE);
 		if (readData)
@@ -1003,16 +1001,6 @@ void ClothComponent::UpdateCloth(void)
 			my::OgreMesh::ComputeTangentFrame(
 				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 		}
-	}
-}
-
-void ClothComponent::OnWorldUpdated(void)
-{
-	_ASSERT(m_Actor);
-
-	if (m_Cloth)
-	{
-		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
 	}
 }
 

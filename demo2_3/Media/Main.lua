@@ -203,20 +203,19 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 -- player:PlayAction(act_tuowei)
 -- actor4:PlayAction(act_env)
 
--- -- 在角色手部绑定物体
--- local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
--- local cmp3=MeshComponent()
--- cmp3.MeshPath="mesh/Cylinder.mesh.xml"
--- cmp3.MeshEventReady=function(arg)
-	-- cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
-		-- Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
--- end
--- cmp3:AddMaterial(lambert3)
--- actor2:AddComponent(cmp3)
--- actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
--- actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
--- cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
--- game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
+-- 在角色手部绑定物体
+local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local cmp3=MeshComponent()
+cmp3.MeshPath="mesh/Cylinder.mesh.xml"
+cmp3.MeshEventReady=function(arg)
+	cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
+		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
+end
+cmp3:AddMaterial(lambert3)
+actor2:AddComponent(cmp3)
+actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 -- player:Attach(actor2, 10)
 
 -- -- 在角色手部绑定物体
@@ -232,9 +231,10 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 -- player:Attach(actor3, 29)
 
 game.EventLoadScene=function(arg)
-	player:UpdateWorld()
+	player:SetPxPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 	player:PlayAction(act_tuowei)
+	-- game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
 
 	actor4:UpdateWorld()
 	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
@@ -244,6 +244,6 @@ end
 -- 加载场景资源
 game:LoadScene("scene01.xml")
 
--- -- -- 特殊渲染选项
--- -- game.SsaoEnable=true
--- -- game.VisualizationParameter=1
+-- 特殊渲染选项
+-- game.SsaoEnable=true
+game.VisualizationParameter=1

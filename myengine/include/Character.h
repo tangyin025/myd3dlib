@@ -89,6 +89,8 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	void SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
+
 	void OnPxThreadSubstep(float dtime);
 
 	virtual void onShapeHit(const physx::PxControllerShapeHit& hit);

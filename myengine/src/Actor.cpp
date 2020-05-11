@@ -261,8 +261,11 @@ void Actor::LeavePhysxScene(PhysxSceneContext * scene)
 void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 {
 	m_Position = (my::Vector3 &)trans.p;
+
 	m_Rotation = (my::Quaternion &)trans.q;
+
 	UpdateWorld();
+
 	UpdateOctNode();
 }
 
@@ -306,19 +309,19 @@ void Actor::Update(float fElapsedTime)
 		if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
 		{
 			const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
-			att_iter->first->UpdatePose(
+			att_iter->first->SetPxPose(
 				bone.m_position.transformCoord(m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_World)));
 		}
 		else
 		{
-			att_iter->first->UpdatePose(m_Position, m_Rotation);
+			att_iter->first->SetPxPose(m_Position, m_Rotation);
 		}
 
 		att_iter->first->Update(fElapsedTime);
 	}
 }
 
-void Actor::UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot)
+void Actor::SetPxPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxActor)
 	{
@@ -335,8 +338,11 @@ void Actor::UpdatePose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	else
 	{
 		m_Position = Pos;
+
 		m_Rotation = Rot;
+
 		UpdateWorld();
+
 		UpdateOctNode();
 	}
 }
@@ -369,17 +375,6 @@ void Actor::UpdateAABB(void)
 void Actor::UpdateWorld(void)
 {
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
-
-	OnWorldUpdated();
-}
-
-void Actor::OnWorldUpdated(void)
-{
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->OnWorldUpdated();
-	}
 }
 
 void Actor::UpdateOctNode(void)
@@ -391,21 +386,6 @@ void Actor::UpdateOctNode(void)
 		Root->AddEntity(this, m_aabb.transform(m_World));
 	}
 }
-//
-//void Actor::UpdatePxTransform(void)
-//{
-//	// ! conflict with OnPxTransformChanged
-//	if (m_PxActor)
-//	{
-//		m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
-//
-//		physx::PxRigidBody * body = m_PxActor->isRigidBody();
-//		if (body)
-//		{
-//			body->setLinearVelocity((physx::PxVec3 &)Vector3(0, 0, 0), true);
-//		}
-//	}
-//}
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
