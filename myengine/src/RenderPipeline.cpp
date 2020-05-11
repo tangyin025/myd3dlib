@@ -163,7 +163,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	LPD3DXEFFECT pEffect = NULL;
 	my::D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
-		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
+		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
 	{
 		my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
@@ -420,7 +420,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 					TCHAR szPath[MAX_PATH];
 					GetCurrentDirectory(_countof(szPath), szPath);
 					PathAppend(szPath, ffd.cFileName);
-					shader->CreateEffectFromFile(szPath, NULL, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool);
+					shader->CreateEffectFromFile(szPath, NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool);
 					m_ShaderCache.insert(std::make_pair(seed, shader));
 				}
 			}
