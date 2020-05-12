@@ -969,6 +969,8 @@ void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
 bool Game::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
+	actor->StopAllAction();
+
 	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
 	for (; att_iter != actor->m_Attaches.end(); att_iter++)
 	{
@@ -977,29 +979,39 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (OctNode::RemoveEntity(entity))
 	{
-		actor->LeavePhysxScene(this);
-		actor->ReleaseResource();
+		WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
+		if (weak_actor_iter != m_ViewedActors.end())
+		{
+			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
+			actor->LeavePhysxScene(this);
+			actor->ReleaseResource();
+		}
 		return true;
 	}
 	return false;
 }
 
-void Game::ClearAllEntity(void)
+void Game::ClearAllEntityInNode(my::OctNode * node)
 {
-	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
-	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
+	OctEntityMap::iterator entity_iter = node->m_Entities.begin();
+	for (; entity_iter != node->m_Entities.end(); entity_iter = node->m_Entities.begin())
 	{
-		// ! Actor::Update will change other actors scope, event if octree node
-		ActorPtr actor = weak_actor_iter->second.lock();
-		if (actor && actor->m_Node)
+		RemoveEntity(entity_iter->first);
+	}
+
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		if (m_Childs[i])
 		{
-			actor->LeavePhysxScene(this);
-			actor->ReleaseResource();
+			ClearAllEntityInNode(m_Childs[i].get());
+			m_Childs[i].reset();
 		}
 	}
-	m_ViewedActors.clear();
+}
 
-	OctNode::ClearAllEntity();
+void Game::ClearAllEntity(void)
+{
+	ClearAllEntityInNode(this);
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)

@@ -27,7 +27,7 @@ BOOST_CLASS_EXPORT(Actor)
 
 Actor::~Actor(void)
 {
-	m_ActionInstList.clear();
+	StopAllAction();
 
 	ClearAllComponent();
 
@@ -580,4 +580,14 @@ void Actor::ClearAllAttacher(void)
 void Actor::PlayAction(Action * action)
 {
 	m_ActionInstList.push_back(action->CreateInstance(this));
+}
+
+void Actor::StopAllAction(void)
+{
+	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
+	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
+	{
+		(*action_inst_iter)->Stop();
+	}
+	m_ActionInstList.clear();
 }

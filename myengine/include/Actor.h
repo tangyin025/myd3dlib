@@ -162,4 +162,6 @@ public:
 	void ClearAllAttacher(void);
 
 	void PlayAction(Action * action);
+
+	void StopAllAction(void);
 };
