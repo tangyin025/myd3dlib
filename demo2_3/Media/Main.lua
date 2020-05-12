@@ -44,7 +44,7 @@ skel:Transform(local_trans)
 -- actor:CreateRigidActor(Actor.eRIGID_STATIC)
 -- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
 -- actor:UpdateWorld()
--- game:AddActor(actor)
+-- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- ActionTrack
 act_jump=Action()
@@ -144,7 +144,7 @@ cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 -- player:UpdateWorld()
--- game:AddActor(player)
+-- game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 
 -- 构建动画树
 local seq_idle=AnimationNodeSequence()
@@ -197,7 +197,7 @@ actor4:AddComponent(cmp2)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 -- actor4:UpdateWorld()
--- game:AddActor(actor4)
+-- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 
 -- -- 播放action
 -- player:PlayAction(act_tuowei)
@@ -231,11 +231,11 @@ player:Attach(actor3, 29)
 
 game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-	game:AddActor(player)
+	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 	player:PlayAction(act_tuowei)
 
 	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddActor(actor4)
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 	actor4:PlayAction(act_env)
 end
 
@@ -244,4 +244,4 @@ game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.VisualizationParameter=1

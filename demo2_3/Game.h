@@ -136,15 +136,11 @@ public:
 
 	void CheckViewedActor(const my::AABB & In, const my::AABB & Out);
 
-	void AddActor(Actor * actor);
+	void AddEntity(my::OctEntity * entity, const my::AABB & aabb);
 
-	static void _RemoveActorInNode(Game * root, my::OctNode * node, Actor * actor);
+	bool RemoveEntity(my::OctEntity * entity);
 
-	void RemoveActor(Actor * actor);
-
-	static void _ClearAllActorInNode(Game * root, my::OctNode * node);
-
-	void ClearAllActor(void);
+	void ClearAllEntity(void);
 
 	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
 

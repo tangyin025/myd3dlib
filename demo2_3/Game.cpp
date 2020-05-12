@@ -484,9 +484,9 @@ HRESULT Game::OnCreateDevice(
 			.def("InsertDlg", &Game::InsertDlg)
 			.def("RemoveDlg", &Game::RemoveDlg)
 			.def("RemoveAllDlg", &Game::RemoveAllDlg)
-			.def("AddActor", &Game::AddActor)
-			.def("RemoveActor", &Game::RemoveActor)
-			.def("ClearAllActor", &Game::ClearAllActor)
+			.def("AddEntity", &Game::AddEntity)
+			.def("RemoveEntity", &Game::RemoveEntity)
+			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("PlaySound", &Game::PlaySound)
 			.def("LoadScene", &Game::LoadScene)
 			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
@@ -617,7 +617,7 @@ void Game::OnDestroyDevice(void)
 
 	ParallelTaskManager::StopParallelThread();
 
-	ClearAllActor();
+	ClearAllEntity();
 
 	m_ActorList.clear();
 
@@ -946,10 +946,11 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	QueryEntity(In, &cb);
 }
 
-void Game::AddActor(Actor * actor)
+void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
 {
-	AddEntity(actor, actor->m_aabb.transform(actor->m_World));
+	OctNode::AddEntity(entity, aabb);
 
+	Actor * actor = dynamic_cast<Actor *>(entity);
 	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
 	for (; att_iter != actor->m_Attaches.end(); att_iter++)
 	{
@@ -957,52 +958,45 @@ void Game::AddActor(Actor * actor)
 	}
 }
 
-void Game::_RemoveActorInNode(Game * root, my::OctNode * node, Actor * actor)
+bool Game::RemoveEntity(my::OctEntity * entity)
 {
-	node->RemoveEntity(actor);
-
-	WeakActorMap::iterator weak_actor_iter = root->m_ViewedActors.find(actor);
-	if (weak_actor_iter != root->m_ViewedActors.end())
-	{
-		weak_actor_iter = root->m_ViewedActors.erase(weak_actor_iter);
-		actor->LeavePhysxScene(root);
-		actor->ReleaseResource();
-	}
-}
-
-void Game::RemoveActor(Actor * actor)
-{
-	_RemoveActorInNode(this, this, actor);
-
+	Actor * actor = dynamic_cast<Actor *>(entity);
 	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
 	for (; att_iter != actor->m_Attaches.end(); att_iter++)
 	{
-		_RemoveActorInNode(this, this, att_iter->first);
+		RemoveEntity(att_iter->first);
 	}
+
+	if (OctNode::RemoveEntity(entity))
+	{
+		WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
+		if (weak_actor_iter != m_ViewedActors.end())
+		{
+			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
+			actor->LeavePhysxScene(this);
+			actor->ReleaseResource();
+		}
+		return true;
+	}
+	return false;
 }
 
-void Game::_ClearAllActorInNode(Game * root, my::OctNode * node)
+void Game::ClearAllEntity(void)
 {
-	OctEntityMap::iterator entity_iter = node->m_Entities.begin();
-	for (; entity_iter != node->m_Entities.end(); entity_iter = node->m_Entities.begin())
+	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
+	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
 	{
-		_ASSERT(entity_iter->first->m_Node == node);
-		_RemoveActorInNode(root, node, dynamic_cast<Actor *>(entity_iter->first));
-	}
-
-	for (unsigned int i = 0; i < node->m_Childs.size(); i++)
-	{
-		if (node->m_Childs[i])
+		// ! Actor::Update will change other actors scope, event if octree node
+		ActorPtr actor = weak_actor_iter->second.lock();
+		if (actor)
 		{
-			_ClearAllActorInNode(root, node->m_Childs[i].get());
-			node->m_Childs[i].reset();
+			actor->LeavePhysxScene(this);
+			actor->ReleaseResource();
 		}
 	}
-}
+	m_ViewedActors.clear();
 
-void Game::ClearAllActor(void)
-{
-	_ClearAllActorInNode(this, this);
+	OctNode::ClearAllEntity();
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
@@ -1018,7 +1012,7 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 
 void Game::LoadScene(const char * path)
 {
-	ClearAllActor();
+	ClearAllEntity();
 	PhysxSceneContext::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();
@@ -1068,7 +1062,7 @@ void Game::LoadSceneCheck(DWORD dwMilliseconds)
 		ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 		for (; actor_iter != m_ActorList.end(); actor_iter++)
 		{
-			AddActor(actor_iter->get());
+			OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
 		}
 
 		if (m_EventLoadScene)
