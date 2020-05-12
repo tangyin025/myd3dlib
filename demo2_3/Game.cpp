@@ -692,6 +692,8 @@ void Game::OnFrameTick(
 		ActorPtr actor = weak_actor_iter->second.lock();
 		if (actor)
 		{
+			_ASSERT(OctNode::HaveNode(actor->m_Node));
+
 			if (!actor->m_Base)
 			{
 				actor->Update(fElapsedTime);
@@ -909,7 +911,6 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			continue;
 		}
-		_ASSERT(OctNode::HaveNode(actor->m_Node));
 
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
 		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
