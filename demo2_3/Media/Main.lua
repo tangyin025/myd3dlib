@@ -24,27 +24,27 @@ skel:Transform(local_trans)
 -- game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
 -- game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
--- -- 创建地面
--- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
--- local cmp=MeshComponent()
--- local lambert1=Material()
--- lambert1.Shader="shader/mtl_lambert1.fx"
--- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
--- -- lambert1.RepeatUV.x=64
--- -- lambert1.RepeatUV.y=64
--- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
--- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
--- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
--- cmp:AddMaterial(lambert1)
--- cmp.MeshPath="mesh/plane.mesh.xml"
--- cmp.MeshEventReady=function(arg)
-	-- cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
--- end
--- actor:AddComponent(cmp)
--- actor:CreateRigidActor(Actor.eRIGID_STATIC)
--- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
--- actor:UpdateWorld()
--- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
+-- 创建地面
+local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
+local cmp=MeshComponent()
+local lambert1=Material()
+lambert1.Shader="shader/mtl_lambert1.fx"
+lambert1.PassMask=Material.PassMaskShadowNormalOpaque
+-- lambert1.RepeatUV.x=64
+-- lambert1.RepeatUV.y=64
+lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+cmp:AddMaterial(lambert1)
+cmp.MeshPath="mesh/plane.mesh.xml"
+cmp.MeshEventReady=function(arg)
+	cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
+end
+actor:AddComponent(cmp)
+actor:CreateRigidActor(Actor.eRIGID_STATIC)
+cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
+actor:UpdateWorld()
+game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- ActionTrack
 act_jump=Action()
@@ -205,13 +205,19 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 
 -- 在角色手部绑定物体
 local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local lambert4=Material()
+lambert4.Shader="shader/mtl_lambert1.fx"
+lambert4.PassMask=Material.PassMaskShadowNormalOpaque
+lambert4:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+lambert4:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert4:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp3=MeshComponent()
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3.MeshEventReady=function(arg)
 	cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
 		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 end
-cmp3:AddMaterial(lambert3)
+cmp3:AddMaterial(lambert4)
 actor2:AddComponent(cmp3)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -220,28 +226,34 @@ player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
 local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local lambert5=Material()
+lambert5.Shader="shader/mtl_lambert1.fx"
+lambert5.PassMask=Material.PassMaskShadowNormalOpaque
+lambert5:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+lambert5:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert5:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp4=MeshComponent()
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
-cmp4:AddMaterial(lambert3)
+cmp4:AddMaterial(lambert5)
 actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 player:Attach(actor3, 29)
 
-game.EventLoadScene=function(arg)
+-- game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 	player:PlayAction(act_tuowei)
 
-	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-	actor4:PlayAction(act_env)
-end
+	-- actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
+	-- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	-- actor4:PlayAction(act_env)
+-- end
 
 -- 加载场景资源
-game:LoadScene("scene01.xml")
+-- game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.VisualizationParameter=1

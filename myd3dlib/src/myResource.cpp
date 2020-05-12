@@ -383,7 +383,12 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 	{
 		if (req_iter->first == key)
 		{
-			req_iter->second->m_callbacks.insert(request->m_callbacks.begin(), request->m_callbacks.end());
+			IORequest::IResourceCallbackSet::const_iterator callback_iter = request->m_callbacks.begin();
+			for (; callback_iter != request->m_callbacks.end(); callback_iter++)
+			{
+				_ASSERT(req_iter->second->m_callbacks.find(*callback_iter) == req_iter->second->m_callbacks.end());
+				req_iter->second->m_callbacks.insert(*callback_iter);
+			}
 			m_IORequestListMutex.Release();
 			return req_iter;
 		}

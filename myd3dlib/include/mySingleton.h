@@ -137,8 +137,6 @@ namespace my
 
 		virtual ~IResourceCallback(void);
 
-		bool IsRequested(void) const;
-
 		virtual void OnReady(IORequest * request) = 0;
 	};
 

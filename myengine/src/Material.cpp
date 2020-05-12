@@ -468,9 +468,10 @@ void Material::SetParameterTexture(const std::string & Name, const std::string &
 		if ((*param_iter)->m_Name == Name && (*param_iter)->m_Type == MaterialParameter::ParameterTypeTexture)
 		{
 			// ! SetParameterTexture must be call outside resource request
-			_ASSERT(!boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->IsRequested());
-			_ASSERT(!boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_Texture);
-			boost::dynamic_pointer_cast<MaterialParameterTexture>(*param_iter)->m_TexturePath = Path;
+			MaterialParameterTexture * param_texture = dynamic_cast<MaterialParameterTexture *>(param_iter->get());
+			_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(param_texture));
+			_ASSERT(!param_texture->m_Texture);
+			param_texture->m_TexturePath = Path;
 		}
 	}
 }
