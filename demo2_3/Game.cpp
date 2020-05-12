@@ -904,6 +904,12 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 			continue;
 		}
 
+		if (!actor->m_Node)
+		{
+			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
+			continue;
+		}
+
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
 		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
 		{
@@ -971,13 +977,8 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (OctNode::RemoveEntity(entity))
 	{
-		WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
-		if (weak_actor_iter != m_ViewedActors.end())
-		{
-			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
-			actor->LeavePhysxScene(this);
-			actor->ReleaseResource();
-		}
+		actor->LeavePhysxScene(this);
+		actor->ReleaseResource();
 		return true;
 	}
 	return false;
@@ -990,7 +991,7 @@ void Game::ClearAllEntity(void)
 	{
 		// ! Actor::Update will change other actors scope, event if octree node
 		ActorPtr actor = weak_actor_iter->second.lock();
-		if (actor)
+		if (actor && actor->m_Node)
 		{
 			actor->LeavePhysxScene(this);
 			actor->ReleaseResource();

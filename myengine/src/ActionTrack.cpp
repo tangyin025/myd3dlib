@@ -249,7 +249,10 @@ ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 	{
 		my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
 		Root->RemoveEntity(m_WorldEmitterActor.get());
-		// todo: ReleaseResource, LeavePhysxScene
+		if (m_WorldEmitterActor->IsRequested())
+		{
+			m_WorldEmitterActor->ReleaseResource();
+		}
 	}
 }
 
