@@ -909,6 +909,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			continue;
 		}
+		_ASSERT(OctNode::HaveNode(actor->m_Node));
 
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
 		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
@@ -999,12 +1000,12 @@ void Game::ClearAllEntityInNode(my::OctNode * node)
 		RemoveEntity(entity_iter->first);
 	}
 
-	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	for (unsigned int i = 0; i < node->m_Childs.size(); i++)
 	{
-		if (m_Childs[i])
+		if (node->m_Childs[i])
 		{
-			ClearAllEntityInNode(m_Childs[i].get());
-			m_Childs[i].reset();
+			ClearAllEntityInNode(node->m_Childs[i].get());
+			node->m_Childs[i].reset();
 		}
 	}
 }

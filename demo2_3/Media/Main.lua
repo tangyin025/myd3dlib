@@ -210,37 +210,25 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 
 -- 在角色手部绑定物体
 --[[local]] actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local lambert4=Material()
-lambert4.Shader="shader/mtl_lambert1.fx"
-lambert4.PassMask=Material.PassMaskShadowNormalOpaque
-lambert4:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-lambert4:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-lambert4:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp3=MeshComponent()
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
-cmp3:AddMaterial(lambert4)
+cmp3:AddMaterial(lambert3:Clone())
 actor2:AddComponent(cmp3)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
-player:Attach(actor2, 10)
+-- player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
 --[[local]] actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local lambert5=Material()
-lambert5.Shader="shader/mtl_lambert1.fx"
-lambert5.PassMask=Material.PassMaskShadowNormalOpaque
-lambert5:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-lambert5:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-lambert5:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp4=MeshComponent()
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
-cmp4:AddMaterial(lambert5)
+cmp4:AddMaterial(lambert3:Clone())
 actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
-player:Attach(actor3, 29)
+-- player:Attach(actor3, 29)
 
 game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
@@ -257,4 +245,4 @@ game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.VisualizationParameter=1
