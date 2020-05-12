@@ -2,17 +2,22 @@ require "Settings.lua"
 require "Hud.lua"
 
 -- 修正不规范资源
-local local_trans=Matrix4.Compose(Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0))
 mesh=game:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
-mesh:Transform(local_trans)
+mesh:Transform(Matrix4.Compose(
+	Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0)))
 -- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
 skel=game:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
-skel:Transform(local_trans)
+skel:Transform(Matrix4.Compose(
+	Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0)))
 -- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly.skeleton.xml")
+mesh2=game:LoadMesh("mesh/Cylinder.mesh.xml","")
+mesh2:Transform(Matrix4.Compose(
+	Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
+-- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
 -- -- 设置环境光
 -- game.SkyLightCam.Eye=Vector3(0,0,0)
@@ -84,7 +89,7 @@ track:AddKeyFrame(0,99999,0.1)
 act_tuowei:AddTrack(track)
 
 -- 创建玩家Actor
---[[local--]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
+--[[local]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 player.EventMouseMove=function(arg)
 	if arg.x ~= 0 then
 		player.LookAngle.y=player.LookAngle.y-math.rad(arg.x)
@@ -183,7 +188,7 @@ end
 player.Animation=anim
 
 -- 创建一个物理球
---[[local--]] actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+--[[local]] actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert3=Material()
 lambert3.Shader="shader/mtl_lambert1.fx"
 lambert3.PassMask=Material.PassMaskShadowNormalOpaque
@@ -204,7 +209,7 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 -- actor4:PlayAction(act_env)
 
 -- 在角色手部绑定物体
-local actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+--[[local]] actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert4=Material()
 lambert4.Shader="shader/mtl_lambert1.fx"
 lambert4.PassMask=Material.PassMaskShadowNormalOpaque
@@ -213,10 +218,6 @@ lambert4:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert4:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp3=MeshComponent()
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
-cmp3.MeshEventReady=function(arg)
-	cmp3.Mesh:Transform(Matrix4.Compose(Vector3(0.1,0.25,0.1),
-		Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
-end
 cmp3:AddMaterial(lambert4)
 actor2:AddComponent(cmp3)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
@@ -225,7 +226,7 @@ cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
-actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+--[[local]] actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert5=Material()
 lambert5.Shader="shader/mtl_lambert1.fx"
 lambert5.PassMask=Material.PassMaskShadowNormalOpaque
@@ -239,16 +240,16 @@ actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
--- player:Attach(actor3, 29)
+player:Attach(actor3, 29)
 
 game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 	player:PlayAction(act_tuowei)
 
-	-- actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	-- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-	-- actor4:PlayAction(act_env)
+	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	actor4:PlayAction(act_env)
 end
 
 -- 加载场景资源
@@ -256,4 +257,4 @@ game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.VisualizationParameter=1
