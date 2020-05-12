@@ -109,6 +109,12 @@ public:
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
+	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;
+
+	std::vector<physx::PxActor *> mDeletedActors;
+
+	physx::PxU32 mActiveTransformCount;
+
 public:
 	PhysxSceneContext(void)
 		: m_Completion0(this)
@@ -176,4 +182,6 @@ public:
 	virtual void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs);
 
 	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count);
+
+	void removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor);
 };

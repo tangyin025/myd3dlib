@@ -261,6 +261,13 @@ void PhysxSceneContext::TickPostRender(float dtime)
 	{
 		m_Sync.Wait(INFINITE);
 	}
+
+	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(mActiveTransformCount, 0);
+	mBufferedActiveTransforms.resize(mActiveTransformCount);
+	if (!mBufferedActiveTransforms.empty())
+	{
+		physx::PxMemCopy(&mBufferedActiveTransforms[0], activeTransforms, sizeof(physx::PxActiveTransform) * mActiveTransformCount);
+	}
 }
 
 bool PhysxSceneContext::Advance(float dtime)
@@ -429,4 +436,22 @@ void PhysxSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, 
 
 void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 {
+}
+
+void PhysxSceneContext::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor)
+{
+	// check if the actor is in the active transform list and remove
+	if (actor->getType() == physx::PxActorType::eRIGID_DYNAMIC)
+	{
+		for (physx::PxU32 i = 0; i < mActiveTransformCount; i++)
+		{
+			if (mBufferedActiveTransforms[i].actor == actor)
+			{
+				mBufferedActiveTransforms[i] = mBufferedActiveTransforms[mActiveTransformCount - 1];
+				mActiveTransformCount--;
+				break;
+			}
+		}
+		mDeletedActors.push_back(const_cast<physx::PxRigidActor*>(actor));
+	}
 }

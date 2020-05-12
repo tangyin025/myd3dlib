@@ -736,13 +736,15 @@ void Game::OnFrameTick(
 
 	PhysxSceneContext::TickPostRender(fElapsedTime);
 
-	physx::PxU32 nbActiveTransforms;
-	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(nbActiveTransforms);
-	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
+	for (physx::PxU32 i = 0; i < mBufferedActiveTransforms.size(); ++i)
 	{
-		Actor * actor = (Actor *)activeTransforms[i].userData;
-		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
+		if (std::find(mDeletedActors.begin(), mDeletedActors.end(), mBufferedActiveTransforms[i].actor) == mDeletedActors.end())
+		{
+			Actor * actor = (Actor *)mBufferedActiveTransforms[i].userData;
+			actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
+		}
 	}
+	mDeletedActors.clear();
 
 	if (player)
 	{

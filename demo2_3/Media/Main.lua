@@ -225,7 +225,7 @@ cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
-local actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert5=Material()
 lambert5.Shader="shader/mtl_lambert1.fx"
 lambert5.PassMask=Material.PassMaskShadowNormalOpaque
@@ -239,16 +239,16 @@ actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
-player:Attach(actor3, 29)
+-- player:Attach(actor3, 29)
 
 game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 	player:PlayAction(act_tuowei)
 
-	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-	actor4:PlayAction(act_env)
+	-- actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
+	-- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	-- actor4:PlayAction(act_env)
 end
 
 -- 加载场景资源

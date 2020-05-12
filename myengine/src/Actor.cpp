@@ -5,6 +5,7 @@
 #include "RenderPipeline.h"
 #include "myResource.h"
 #include "ActionTrack.h"
+#include <PxPhysicsAPI.h>
 #include <fstream>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -35,6 +36,11 @@ Actor::~Actor(void)
 	if (m_Base)
 	{
 		m_Base->Dettach(this);
+	}
+
+	if (m_PxActor)
+	{
+		PhysxSceneContext::getSingleton().removeRenderActorsFromPhysicsActor(m_PxActor.get());
 	}
 }
 
