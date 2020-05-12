@@ -348,17 +348,17 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			// ! req_iter will be invalid after release mutex
-			boost::weak_ptr<IORequest> request = req_iter->second;
+			IORequestPtr request = req_iter->second;
 
-			request.lock()->m_PreLoadEvent.SetEvent();
+			request->m_PreLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Release();
 
 			// ! HAVENT HANDLED EXCEPTION YET
-			request.lock()->LoadResource();
+			request->LoadResource();
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe
-			request.lock()->m_PostLoadEvent.SetEvent();
+			request->m_PostLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
