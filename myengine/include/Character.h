@@ -59,9 +59,7 @@ public:
 	{
 	}
 
-	virtual ~Character(void)
-	{
-	}
+	virtual ~Character(void);
 
 	friend class boost::serialization::access;
 

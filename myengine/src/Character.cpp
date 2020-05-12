@@ -18,6 +18,14 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Character)
 
+Character::~Character(void)
+{
+	if (m_PxController)
+	{
+		PhysxSceneContext::getSingleton().removeRenderActorsFromPhysicsActor(m_PxController->getActor());
+	}
+}
+
 template<class Archive>
 void Character::save(Archive & ar, const unsigned int version) const
 {
