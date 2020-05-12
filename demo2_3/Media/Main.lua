@@ -24,27 +24,27 @@ skel:Transform(local_trans)
 -- game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
 -- game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
--- 创建地面
-local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
-local cmp=MeshComponent()
-local lambert1=Material()
-lambert1.Shader="shader/mtl_lambert1.fx"
-lambert1.PassMask=Material.PassMaskShadowNormalOpaque
--- lambert1.RepeatUV.x=64
--- lambert1.RepeatUV.y=64
-lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
-cmp:AddMaterial(lambert1)
-cmp.MeshPath="mesh/plane.mesh.xml"
-cmp.MeshEventReady=function(arg)
-	cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
-end
-actor:AddComponent(cmp)
-actor:CreateRigidActor(Actor.eRIGID_STATIC)
-cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
-actor:UpdateWorld()
-game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
+-- -- 创建地面
+-- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
+-- local cmp=MeshComponent()
+-- local lambert1=Material()
+-- lambert1.Shader="shader/mtl_lambert1.fx"
+-- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
+-- -- lambert1.RepeatUV.x=64
+-- -- lambert1.RepeatUV.y=64
+-- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+-- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- cmp:AddMaterial(lambert1)
+-- cmp.MeshPath="mesh/plane.mesh.xml"
+-- cmp.MeshEventReady=function(arg)
+	-- cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
+-- end
+-- actor:AddComponent(cmp)
+-- actor:CreateRigidActor(Actor.eRIGID_STATIC)
+-- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
+-- actor:UpdateWorld()
+-- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- ActionTrack
 act_jump=Action()
@@ -241,18 +241,18 @@ actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 player:Attach(actor3, 29)
 
--- game.EventLoadScene=function(arg)
+game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 	player:PlayAction(act_tuowei)
 
-	-- actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	-- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-	-- actor4:PlayAction(act_env)
--- end
+	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	actor4:PlayAction(act_env)
+end
 
 -- 加载场景资源
--- game:LoadScene("scene01.xml")
+game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true

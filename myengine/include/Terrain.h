@@ -87,8 +87,6 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	MaterialPtr m_Material;
-
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE handle_World;

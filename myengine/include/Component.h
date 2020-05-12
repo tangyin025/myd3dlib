@@ -61,6 +61,8 @@ public:
 
 	Actor * m_Actor;
 
+	MaterialPtrList m_MaterialList;
+
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 	boost::shared_ptr<physx::PxShape> m_PxShape;
@@ -117,6 +119,11 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
+	void AddMaterial(MaterialPtr material)
+	{
+		m_MaterialList.push_back(material);
+	}
+
 	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
 
 	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0);
@@ -144,8 +151,6 @@ public:
 	bool m_bInstance;
 
 	bool m_bUseAnimation;
-
-	MaterialPtrList m_MaterialList;
 
 	D3DXHANDLE handle_Time;
 
@@ -178,11 +183,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
-	}
-
-	void AddMaterial(MaterialPtr material)
-	{
-		m_MaterialList.push_back(material);
 	}
 
 	void CopyFrom(const MeshComponent & rhs);
@@ -225,8 +225,6 @@ public:
 	std::vector<unsigned short> m_IndexData;
 
 	bool m_bUseAnimation;
-
-	MaterialPtrList m_MaterialList;
 
 	my::D3DVertexElementSet m_VertexElems;
 
@@ -278,11 +276,6 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void AddMaterial(MaterialPtr material)
-	{
-		m_MaterialList.push_back(material);
-	}
-
 	void CopyFrom(const ClothComponent & rhs);
 
 	virtual ComponentPtr Clone(void) const;
@@ -330,8 +323,6 @@ public:
 	my::VertexBuffer m_vb;
 
 	my::IndexBuffer m_ib;
-
-	MaterialPtr m_Material;
 
 	enum FaceType
 	{
@@ -399,7 +390,6 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_VertexElems);
-		ar & BOOST_SERIALIZATION_NVP(m_Material);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
 	}

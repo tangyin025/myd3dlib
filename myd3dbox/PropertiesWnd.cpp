@@ -463,7 +463,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		UpdatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
 	RemovePropertiesFrom(pParticleList, 1 + emit_cmp->m_ParticleList.size());
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 2), emit_cmp->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 2), emit_cmp->m_MaterialList[0].get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)
@@ -513,7 +513,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnSizeY);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnAngle);
 	pComponent->GetSubItem(PropId + 15)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnCycle);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 16), sphe_emit_cmp->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 16), sphe_emit_cmp->m_MaterialList[0].get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -559,7 +559,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
 	pComponent->GetSubItem(PropId + 5);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_MaterialList[0].get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -879,7 +879,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	{
 		CreatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
-	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_MaterialList[0].get());
 }
 
 void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)
@@ -963,7 +963,7 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
 	pProp = new CSimpleProp(_T("SpawnCycle"), (_variant_t)sphe_emit_cmp->m_SpawnCycle, NULL, PropertySphericalEmitterSpawnCycle);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_MaterialList[0].get());
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline)
@@ -1013,7 +1013,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("SplatMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainSplatMap);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), terrain->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), terrain->m_MaterialList[0].get());
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)

@@ -49,6 +49,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
+	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
 template<class Archive>
@@ -56,6 +57,7 @@ void Component::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
+	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
 template
@@ -86,6 +88,11 @@ void Component::CopyFrom(const Component & rhs)
 {
 	m_Type = rhs.m_Type;
 	m_LodMask = rhs.m_LodMask;
+	m_MaterialList.resize(rhs.m_MaterialList.size());
+	for (unsigned int i = 0; i < rhs.m_MaterialList.size(); i++)
+	{
+		m_MaterialList[i] = rhs.m_MaterialList[i]->Clone();
+	}
 }
 
 ComponentPtr Component::Clone(void) const
@@ -97,10 +104,20 @@ ComponentPtr Component::Clone(void) const
 
 void Component::RequestResource(void)
 {
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	{
+		(*mtl_iter)->RequestResource();
+	}
 }
 
 void Component::ReleaseResource(void)
 {
+	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
+	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	{
+		(*mtl_iter)->ReleaseResource();
+	}
 }
 
 void Component::EnterPhysxScene(PhysxSceneContext * scene)
@@ -254,7 +271,6 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
 template<class Archive>
@@ -265,7 +281,6 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 }
 
 template
@@ -299,11 +314,6 @@ void MeshComponent::CopyFrom(const MeshComponent & rhs)
 	m_MeshSubMeshName = rhs.m_MeshSubMeshName;
 	m_bInstance = rhs.m_bInstance;
 	m_bUseAnimation = rhs.m_bUseAnimation;
-	m_MaterialList.resize(rhs.m_MaterialList.size());
-	for (unsigned int i = 0; i < rhs.m_MaterialList.size(); i++)
-	{
-		m_MaterialList[i] = rhs.m_MaterialList[i]->Clone();
-	}
 }
 
 ComponentPtr MeshComponent::Clone(void) const
@@ -334,12 +344,6 @@ void MeshComponent::RequestResource(void)
 
 		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshSubMeshName.c_str(), this);
 	}
-
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->RequestResource();
-	}
 }
 
 void MeshComponent::ReleaseResource(void)
@@ -349,12 +353,6 @@ void MeshComponent::ReleaseResource(void)
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), this);
 
 		m_Mesh.reset();
-	}
-
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->ReleaseResource();
 	}
 
 	Component::ReleaseResource();
@@ -635,7 +633,6 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(IndexSize);
 	ar << boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 
@@ -666,7 +663,6 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	m_IndexData.resize(IndexSize / sizeof(unsigned short));
 	ar >> boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 
@@ -823,23 +819,11 @@ void ClothComponent::RequestResource(void)
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->RequestResource();
-	}
 }
 
 void ClothComponent::ReleaseResource(void)
 {
 	m_Decl.Release();
-
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
-	{
-		(*mtl_iter)->ReleaseResource();
-	}
 
 	Component::ReleaseResource();
 }
@@ -1096,8 +1080,6 @@ void EmitterComponent::RequestResource(void)
 		pIndices[5] = 2;
 		m_ib.Unlock();
 	}
-
-	m_Material->RequestResource();
 }
 
 void EmitterComponent::ReleaseResource(void)
@@ -1107,8 +1089,6 @@ void EmitterComponent::ReleaseResource(void)
 	m_vb.OnDestroyDevice();
 
 	m_ib.OnDestroyDevice();
-
-	m_Material->ReleaseResource();
 
 	Component::ReleaseResource();
 }
@@ -1146,11 +1126,11 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 
 void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	if (m_Decl && m_Material && (m_Material->m_PassMask & PassMask))
+	if (m_Decl && m_MaterialList.size() >= 1 && (m_MaterialList[0]->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
-			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
+			if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[0]->m_PassMask & PassMask))
 			{
 				D3DXMACRO macro[3] = { {0} };
 				macro[0].Name = "EMITTER_FACE_TYPE";
@@ -1185,7 +1165,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					macro[1].Definition = "1";
 					break;
 				}
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_MaterialList[0]->m_Shader.c_str(), PassID);
 				if (shader)
 				{
 					if (!handle_World)
@@ -1195,7 +1175,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_EmitterScale = shader->GetParameterByName(NULL, "g_EmitterScale"));
 					}
 
-					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, m_NumVertices, m_VertexStride, m_PrimitiveCount, this, shader, this, m_Material.get(), 0);
+					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, m_NumVertices, m_VertexStride, m_PrimitiveCount, this, shader, this, m_MaterialList[0].get(), 0);
 				}
 			}
 		}

@@ -867,7 +867,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
-	emit_cmp->m_Material = mtl;
+	emit_cmp->AddMaterial(mtl);
 	emit_cmp->RequestResource();
 	emit_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
@@ -918,7 +918,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
-	sphe_emit_cmp->m_Material = mtl;
+	sphe_emit_cmp->AddMaterial(mtl);
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
@@ -955,7 +955,7 @@ void CMainFrame::OnComponentTerrain()
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
-	terrain->m_Material = mtl;
+	terrain->AddMaterial(mtl);
 	terrain->RequestResource();
 	terrain->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(terrain);
