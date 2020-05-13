@@ -980,9 +980,27 @@ void CMainFrame::OnEditDelete()
 	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		(*actor_iter)->LeavePhysxScene(this);
-		(*actor_iter)->ReleaseResource();
+		(*actor_iter)->StopAllAction();
+
+		(*actor_iter)->ClearAllAttacher();
+
+		if ((*actor_iter)->m_Base)
+		{
+			(*actor_iter)->m_Base->Dettach((*actor_iter));
+		}
+
+		if ((*actor_iter)->m_PxActor && (*actor_iter)->m_PxActor->getScene())
+		{
+			(*actor_iter)->LeavePhysxScene(this);
+		}
+
+		if ((*actor_iter)->IsRequested())
+		{
+			(*actor_iter)->ReleaseResource();
+		}
+
 		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter));
+
 		m_ActorList.erase((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();

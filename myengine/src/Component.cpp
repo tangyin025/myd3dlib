@@ -587,6 +587,21 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
+ClothComponent::ClothComponent(void)
+	: Component(ComponentTypeCloth)
+	, m_bUseAnimation(false)
+	, handle_Time(NULL)
+	, handle_World(NULL)
+	, handle_dualquat(NULL)
+{
+	PhysxSceneContext::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
+}
+
+ClothComponent::~ClothComponent(void)
+{
+	PhysxSceneContext::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
+}
+
 namespace boost { 
 	namespace serialization {
 		template<class Archive>
@@ -835,8 +850,6 @@ void ClothComponent::EnterPhysxScene(PhysxSceneContext * scene)
 	if (m_Cloth)
 	{
 		scene->m_PxScene->addActor(*m_Cloth);
-
-		scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 	}
 }
 
@@ -845,8 +858,6 @@ void ClothComponent::LeavePhysxScene(PhysxSceneContext * scene)
 	if (m_Cloth)
 	{
 		scene->m_PxScene->removeActor(*m_Cloth);
-
-		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 	}
 
 	Component::LeavePhysxScene(scene);

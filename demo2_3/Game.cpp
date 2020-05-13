@@ -970,18 +970,20 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 		actor->m_Base->Dettach(actor);
 	}
 
+	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
+	if (weak_actor_iter != m_ViewedActors.end())
+	{
+		m_ViewedActors.erase(weak_actor_iter);
+		actor->LeavePhysxScene(this);
+	}
+
+	if (actor->IsRequested())
+	{
+		actor->ReleaseResource();
+	}
+
 	if (OctNode::RemoveEntity(entity))
 	{
-		WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
-		if (weak_actor_iter != m_ViewedActors.end())
-		{
-			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
-			actor->LeavePhysxScene(this);
-		}
-		if (actor->IsRequested())
-		{
-			actor->ReleaseResource();
-		}
 		return true;
 	}
 	return false;

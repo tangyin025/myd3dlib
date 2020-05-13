@@ -251,18 +251,9 @@ public:
 	D3DXHANDLE handle_dualquat;
 
 public:
-	ClothComponent(void)
-		: Component(ComponentTypeCloth)
-		, m_bUseAnimation(false)
-		, handle_Time(NULL)
-		, handle_World(NULL)
-		, handle_dualquat(NULL)
-	{
-	}
+	ClothComponent(void);
 
-	virtual ~ClothComponent(void)
-	{
-	}
+	virtual ~ClothComponent(void);
 
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;
