@@ -148,8 +148,6 @@ cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
 cmp:AddMaterial(lambert2)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
--- player:UpdateWorld()
--- game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
 
 -- 构建动画树
 local seq_idle=AnimationNodeSequence()
@@ -201,12 +199,6 @@ cmp2:AddMaterial(lambert3)
 actor4:AddComponent(cmp2)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
--- actor4:UpdateWorld()
--- game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-
--- -- 播放action
--- player:PlayAction(act_tuowei)
--- actor4:PlayAction(act_env)
 
 -- 在角色手部绑定物体
 --[[local]] actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -217,7 +209,6 @@ actor2:AddComponent(cmp3)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
--- player:Attach(actor2, 10)
 
 -- 在角色手部绑定物体
 --[[local]] actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -228,11 +219,14 @@ actor3:AddComponent(cmp4)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
--- player:Attach(actor3, 29)
 
 game.EventLoadScene=function(arg)
 	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
+	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
+	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World))
+	player:Attach(actor2, 10)
+	player:Attach(actor3, 29)
 	player:PlayAction(act_tuowei)
 
 	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())

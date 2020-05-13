@@ -547,6 +547,8 @@ void Actor::Attach(Actor * other, int BoneId)
 {
 	_ASSERT(other->m_Base == NULL);
 
+	_ASSERT(m_Node && m_Node->GetTopNode()->HaveNode(other->m_Node));
+
 	m_Attaches.push_back(std::make_pair(other, BoneId));
 
 	other->m_Base = this;

@@ -900,13 +900,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	for (; weak_actor_iter != m_ViewedActors.end(); )
 	{
 		ActorPtr actor = weak_actor_iter->second.lock();
-		if (!actor)
-		{
-			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
-			continue;
-		}
-
-		if (!actor->m_Node)
+		if (!actor || !actor->m_Node)
 		{
 			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			continue;
@@ -945,10 +939,12 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 			if (!actor->IsRequested())
 			{
 				actor->RequestResource();
-				actor->EnterPhysxScene(m_Scene);
-				_ASSERT(m_ViewedActors.find(actor) == m_ViewedActors.end());
 			}
-			m_ViewedActors.insert(std::make_pair(actor, boost::dynamic_pointer_cast<Actor>(actor->shared_from_this())));
+			if (m_ViewedActors.find(actor) == m_ViewedActors.end())
+			{
+				actor->EnterPhysxScene(m_Scene);
+				m_ViewedActors.insert(std::make_pair(actor, actor->shared_from_this()));
+			}
 		}
 	};
 
@@ -959,24 +955,19 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
 {
 	OctNode::AddEntity(entity, aabb);
-
-	Actor * actor = dynamic_cast<Actor *>(entity);
-	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
-	for (; att_iter != actor->m_Attaches.end(); att_iter++)
-	{
-		AddEntity(att_iter->first, att_iter->first->m_aabb.transform(att_iter->first->m_World));
-	}
 }
 
 bool Game::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
+
 	actor->StopAllAction();
 
-	Actor::AttachPairList::iterator att_iter = actor->m_Attaches.begin();
-	for (; att_iter != actor->m_Attaches.end(); att_iter++)
+	actor->ClearAllAttacher();
+
+	if (actor->m_Base)
 	{
-		RemoveEntity(att_iter->first);
+		actor->m_Base->Dettach(actor);
 	}
 
 	if (OctNode::RemoveEntity(entity))
@@ -986,6 +977,9 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 		{
 			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			actor->LeavePhysxScene(this);
+		}
+		if (actor->IsRequested())
+		{
 			actor->ReleaseResource();
 		}
 		return true;
@@ -1014,6 +1008,19 @@ void Game::ClearAllEntityInNode(my::OctNode * node)
 void Game::ClearAllEntity(void)
 {
 	ClearAllEntityInNode(this);
+
+#ifdef _DEBUG
+	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
+	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
+	{
+		ActorPtr actor = weak_actor_iter->second.lock();
+		if (actor && actor->m_Node)
+		{
+			// ! take care of manual OctNode::RemoveEntity
+			_ASSERT(false); break;
+		}
+	}
+#endif
 }
 
 void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
