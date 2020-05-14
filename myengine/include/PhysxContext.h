@@ -123,6 +123,7 @@ public:
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
 		, m_ErrorState(0)
+		, mActiveTransformCount(0)
 	{
 	}
 
