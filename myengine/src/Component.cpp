@@ -845,8 +845,6 @@ void ClothComponent::ReleaseResource(void)
 
 void ClothComponent::EnterPhysxScene(PhysxSceneContext * scene)
 {
-	Component::EnterPhysxScene(scene);
-
 	if (m_Cloth)
 	{
 		scene->m_PxScene->addActor(*m_Cloth);
@@ -859,8 +857,6 @@ void ClothComponent::LeavePhysxScene(PhysxSceneContext * scene)
 	{
 		scene->m_PxScene->removeActor(*m_Cloth);
 	}
-
-	Component::LeavePhysxScene(scene);
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
