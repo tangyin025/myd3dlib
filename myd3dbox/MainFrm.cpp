@@ -989,7 +989,7 @@ void CMainFrame::OnEditDelete()
 			(*actor_iter)->m_Base->Dettach((*actor_iter));
 		}
 
-		if ((*actor_iter)->IsEnterPhysxed())
+		if ((*actor_iter)->IsEnteredPhysx())
 		{
 			(*actor_iter)->LeavePhysxScene(this);
 		}

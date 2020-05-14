@@ -61,6 +61,10 @@ public:
 
 	Actor * m_Actor;
 
+	bool m_Requested;
+
+	bool m_EnteredPhysx;
+
 	MaterialPtrList m_MaterialList;
 
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
@@ -72,6 +76,8 @@ protected:
 		: m_Type(ComponentTypeComponent)
 		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
+		, m_Requested(false)
+		, m_EnteredPhysx(false)
 	{
 	}
 
@@ -79,6 +85,8 @@ protected:
 		: m_Type(Type)
 		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
+		, m_Requested(false)
+		, m_EnteredPhysx(false)
 	{
 	}
 
@@ -97,6 +105,16 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
+	bool IsEnteredPhysx(void) const
+	{
+		return m_EnteredPhysx;
 	}
 
 	void CopyFrom(const Component & rhs);

@@ -32,7 +32,7 @@ public:
 
 	bool m_Requested;
 
-	bool m_EnterPhysxed;
+	bool m_EnteredPhysx;
 
 	Component::LODMask m_Lod;
 
@@ -68,7 +68,7 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_EnterPhysxed(false)
+		, m_EnteredPhysx(false)
 		, m_Lod(Component::LOD0)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
@@ -84,7 +84,7 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_EnterPhysxed(false)
+		, m_EnteredPhysx(false)
 		, m_Lod(Component::LOD0)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
@@ -113,9 +113,9 @@ public:
 		return m_Requested;
 	}
 
-	bool IsEnterPhysxed(void) const
+	bool IsEnteredPhysx(void) const
 	{
-		return m_EnterPhysxed;
+		return m_EnteredPhysx;
 	}
 
 	void CopyFrom(const Actor & rhs);

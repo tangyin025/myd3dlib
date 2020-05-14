@@ -238,7 +238,7 @@ void Actor::ReleaseResource(void)
 
 void Actor::EnterPhysxScene(PhysxSceneContext * scene)
 {
-	m_EnterPhysxed = true;
+	m_EnteredPhysx = true;
 
 	if (m_PxActor)
 	{
@@ -254,7 +254,7 @@ void Actor::EnterPhysxScene(PhysxSceneContext * scene)
 
 void Actor::LeavePhysxScene(PhysxSceneContext * scene)
 {
-	m_EnterPhysxed = false;
+	m_EnteredPhysx = false;
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

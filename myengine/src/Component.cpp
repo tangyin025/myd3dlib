@@ -104,6 +104,8 @@ ComponentPtr Component::Clone(void) const
 
 void Component::RequestResource(void)
 {
+	m_Requested = true;
+
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
 	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
@@ -113,6 +115,8 @@ void Component::RequestResource(void)
 
 void Component::ReleaseResource(void)
 {
+	m_Requested = false;
+
 	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
 	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
 	{
@@ -122,10 +126,12 @@ void Component::ReleaseResource(void)
 
 void Component::EnterPhysxScene(PhysxSceneContext * scene)
 {
+	m_EnteredPhysx = true;
 }
 
 void Component::LeavePhysxScene(PhysxSceneContext * scene)
 {
+	m_EnteredPhysx = false;
 }
 
 void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -845,6 +851,8 @@ void ClothComponent::ReleaseResource(void)
 
 void ClothComponent::EnterPhysxScene(PhysxSceneContext * scene)
 {
+	Component::EnterPhysxScene(scene);
+
 	if (m_Cloth)
 	{
 		scene->m_PxScene->addActor(*m_Cloth);
@@ -857,6 +865,8 @@ void ClothComponent::LeavePhysxScene(PhysxSceneContext * scene)
 	{
 		scene->m_PxScene->removeActor(*m_Cloth);
 	}
+
+	Component::LeavePhysxScene(scene);
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
