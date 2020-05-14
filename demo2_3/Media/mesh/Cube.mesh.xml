@@ -144,5 +144,6 @@
 	<boneassignments>
 	</boneassignments>
 	<submeshnames>
+		<submeshname name="pCubeShape1" index="0"/>
 	</submeshnames>
 </mesh>
