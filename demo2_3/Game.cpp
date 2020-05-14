@@ -900,22 +900,19 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	for (; weak_actor_iter != m_ViewedActors.end(); )
 	{
 		ActorPtr actor = weak_actor_iter->second.lock();
-		if (!actor || !actor->m_Node)
+		if (actor && actor->m_Node)
 		{
-			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
-			continue;
-		}
+			IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
+			if (intersect_type != IntersectionTests::IntersectionTypeOutside)
+			{
+				weak_actor_iter++;
+				continue;
+			}
 
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
-		if (IntersectionTests::IntersectionTypeOutside == intersect_type)
-		{
-			weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 			actor->LeavePhysxScene(this);
 			actor->ReleaseResource();
-			continue;
 		}
-
-		weak_actor_iter++;
+		weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 	}
 
 	struct Callback : public OctNode::QueryCallback
@@ -936,12 +933,9 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor * actor = dynamic_cast<Actor *>(oct_entity);
-			if (!actor->IsRequested())
-			{
-				actor->RequestResource();
-			}
 			if (m_ViewedActors.find(actor) == m_ViewedActors.end())
 			{
+				actor->RequestResource();
 				actor->EnterPhysxScene(m_Scene);
 				m_ViewedActors.insert(std::make_pair(actor, actor->shared_from_this()));
 			}
@@ -975,10 +969,6 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 	{
 		m_ViewedActors.erase(weak_actor_iter);
 		actor->LeavePhysxScene(this);
-	}
-
-	if (actor->IsRequested())
-	{
 		actor->ReleaseResource();
 	}
 
@@ -1075,26 +1065,28 @@ DWORD Game::LoadSceneProc(void)
 
 void Game::LoadSceneCheck(DWORD dwMilliseconds)
 {
-	if (m_LoadSceneArchive && Thread::WaitForThreadStopped(dwMilliseconds))
+	if (!m_LoadSceneArchive || !Thread::WaitForThreadStopped(dwMilliseconds))
 	{
-		Thread::CloseThread();
+		return;
+	}
 
-		m_LoadSceneArchive.reset();
+	Thread::CloseThread();
 
-		m_LoadSceneStream.reset();
+	m_LoadSceneArchive.reset();
 
-		m_LoadSceneBuff.reset();
+	m_LoadSceneStream.reset();
 
-		ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-		for (; actor_iter != m_ActorList.end(); actor_iter++)
-		{
-			OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
-		}
+	m_LoadSceneBuff.reset();
 
-		if (m_EventLoadScene)
-		{
-			EventArg arg;
-			m_EventLoadScene(&arg);
-		}
+	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+	}
+
+	if (m_EventLoadScene)
+	{
+		EventArg arg;
+		m_EventLoadScene(&arg);
 	}
 }
