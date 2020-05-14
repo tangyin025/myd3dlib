@@ -665,7 +665,7 @@ void Game::OnFrameTick(
 	PhysxSceneContext::PushRenderBuffer(this);
 
 	Player * player = Player::getSingletonPtr();
-	if (player)
+	if (player && player->m_Node)
 	{
 		m_ViewedCenter = player->m_Position;
 	}
@@ -748,7 +748,7 @@ void Game::OnFrameTick(
 	}
 	mDeletedActors.clear();
 
-	if (player)
+	if (player && player->m_Node)
 	{
 		m_EventSystem->set3DListenerAttributes(0,
 			(FMOD_VECTOR *)&player->m_Position,
@@ -829,7 +829,8 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if (!Player::getSingletonPtr())
+	Player * player = Player::getSingletonPtr();
+	if (!player || !player->m_Node)
 	{
 		LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
 		if (lr || *pbNoFurtherProcessing)

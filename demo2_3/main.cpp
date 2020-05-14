@@ -179,7 +179,8 @@ public:
 		float fElapsedTime)
 	{
 		// »æÖÆÍø¸ñ
-		if (!Player::getSingletonPtr())
+		Player * player = Player::getSingletonPtr();
+		if (!player || !player->m_Node)
 		{
 			PushGrid(12, 5, 5, D3DCOLOR_ARGB(255, 127, 127, 127), D3DCOLOR_ARGB(255, 0, 0, 0), Matrix4::RotationX(D3DXToRadian(-90)));
 		}
