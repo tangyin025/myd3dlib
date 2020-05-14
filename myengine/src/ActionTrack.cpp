@@ -9,9 +9,6 @@
 
 using namespace my;
 
-#define ERRCHECK(result) if ((result) != FMOD_OK) { \
-	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
-
 void Action::AddTrack(ActionTrackPtr track)
 {
 	m_TrackList.push_back(track);

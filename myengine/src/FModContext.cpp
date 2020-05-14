@@ -3,9 +3,6 @@
 #include "myResource.h"
 #include "libc.h"
 
-#define ERRCHECK(result) if ((result) != FMOD_OK) { \
-	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
-
 static FMOD_RESULT F_CALLBACK myopen(const char *name, int unicode, unsigned int *filesize, void **handle, void **userdata)
 {
 	if (name)
@@ -91,11 +88,4 @@ void FModContext::SetMediaPath(const char * path)
 void FModContext::LoadEventFile(const char * file)
 {
 	ERRCHECK(result = m_EventSystem->load(file, 0, 0));
-}
-
-void FModContext::PlaySound(const char * name)
-{
-	FMOD::Event       *event;
-    ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
-	ERRCHECK(result = event->start());
 }

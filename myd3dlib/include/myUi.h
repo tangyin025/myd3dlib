@@ -127,6 +127,12 @@ namespace my
 
 		Font::Align m_TextAlign;
 
+		std::string m_MouseEnterSound;
+
+		std::string m_MouseLeaveSound;
+
+		std::string m_MouseClickSound;
+
 	public:
 		ControlSkin(void)
 			: m_TextColor(D3DCOLOR_ARGB(255,255,255,0))

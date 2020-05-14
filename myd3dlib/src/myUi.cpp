@@ -294,6 +294,9 @@ void ControlSkin::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(FontHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
+	ar << BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
+	ar << BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
+	ar << BOOST_SERIALIZATION_NVP(m_MouseClickSound);
 }
 
 template<class Archive>
@@ -310,6 +313,9 @@ void ControlSkin::load(Archive & ar, const unsigned int version)
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);
+	ar >> BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
+	ar >> BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
+	ar >> BOOST_SERIALIZATION_NVP(m_MouseClickSound);
 }
 
 template
@@ -509,6 +515,11 @@ void Control::OnMouseEnter(const Vector2 & pt)
 	{
 		m_bMouseOver = true;
 
+		if (m_Skin && !m_Skin->m_MouseEnterSound.empty())
+		{
+			D3DContext::getSingleton().PlaySound(m_Skin->m_MouseEnterSound.c_str());
+		}
+
 		if (m_EventMouseEnter)
 		{
 			m_EventMouseEnter(&MouseEventArg(this, pt));
@@ -525,6 +536,11 @@ void Control::OnMouseLeave(const Vector2 & pt)
 		if (m_EventMouseLeave)
 		{
 			m_EventMouseLeave(&MouseEventArg(this, pt));
+		}
+
+		if (m_Skin && !m_Skin->m_MouseLeaveSound.empty())
+		{
+			D3DContext::getSingleton().PlaySound(m_Skin->m_MouseLeaveSound.c_str());
 		}
 	}
 }
@@ -866,6 +882,11 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					m_bPressed = false;
 
+					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					{
+						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+					}
+
 					if (m_EventMouseClick)
 					{
 						m_EventMouseClick(&MouseEventArg(this, Vector2(0, 0)));
@@ -904,6 +925,11 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 				if (HitTest(pt))
 				{
+					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					{
+						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+					}
+
 					if (m_EventMouseClick)
 					{
 						m_EventMouseClick(&MouseEventArg(this, pt));
@@ -926,6 +952,11 @@ void Button::OnHotkey(void)
 {
 	if(m_bEnabled && m_bVisible)
 	{
+		if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+		{
+			D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+		}
+
 		if(m_EventMouseClick)
 		{
 			m_EventMouseClick(&MouseEventArg(this, Vector2(0, 0)));
@@ -2061,6 +2092,11 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				{
 					m_Checked = true;
 
+					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					{
+						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+					}
+
 					if(m_EventMouseClick)
 					{
 						m_EventMouseClick(&MouseEventArg(this, pt));
@@ -2617,9 +2653,17 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				{
 					m_bMouseDrag = false;
 				}
-				else if (m_EventMouseClick)
+				else
 				{
-					m_EventMouseClick(&MouseEventArg(this, pt));
+					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					{
+						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+					}
+
+					if (m_EventMouseClick)
+					{
+						m_EventMouseClick(&MouseEventArg(this, pt));
+					}
 				}
 				return true;
 			}

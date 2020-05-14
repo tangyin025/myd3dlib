@@ -1027,6 +1027,13 @@ void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR
 	}
 }
 
+void Game::PlaySound(const char * name)
+{
+	FMOD::Event       *event;
+	ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
+	ERRCHECK(result = event->start());
+}
+
 void Game::LoadScene(const char * path)
 {
 	ClearAllEntity();

@@ -99,6 +99,10 @@ namespace my
 			, m_DeviceObjectsReset(false)
 		{
 		}
+
+		virtual void PlaySound(const char * name)
+		{
+		}
 	};
 
 	class DxutApp

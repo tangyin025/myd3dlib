@@ -26,6 +26,7 @@ public:
 	void SetMediaPath(const char * path);
 
 	void LoadEventFile(const char * file);
-
-	void PlaySound(const char * name);
 };
+
+#define ERRCHECK(result) if ((result) != FMOD_OK) { \
+	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
