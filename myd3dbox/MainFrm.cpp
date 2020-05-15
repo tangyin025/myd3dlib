@@ -781,8 +781,6 @@ void CMainFrame::OnComponentMesh()
 		mtl->ParseShaderParameters();
 		mesh_cmp->m_MaterialList.push_back(mtl);
 	}
-	mesh_cmp->RequestResource();
-	mesh_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -837,8 +835,6 @@ void CMainFrame::OnComponentCloth()
 		mtl->ParseShaderParameters();
 		cloth_cmp->m_MaterialList.push_back(mtl);
 	}
-	cloth_cmp->RequestResource();
-	cloth_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -868,8 +864,6 @@ void CMainFrame::OnComponentStaticEmitter()
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
 	emit_cmp->AddMaterial(mtl);
-	emit_cmp->RequestResource();
-	emit_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
 	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 	(*actor_iter)->UpdateAABB();
@@ -919,8 +913,6 @@ void CMainFrame::OnComponentSphericalemitter()
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
 	sphe_emit_cmp->AddMaterial(mtl);
-	sphe_emit_cmp->RequestResource();
-	sphe_emit_cmp->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -956,8 +948,6 @@ void CMainFrame::OnComponentTerrain()
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
 	terrain->AddMaterial(mtl);
-	terrain->RequestResource();
-	terrain->EnterPhysxScene(this);
 	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();

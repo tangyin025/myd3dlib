@@ -477,6 +477,16 @@ void Actor::AddComponent(ComponentPtr cmp)
 	_ASSERT(!cmp->m_Actor);
 	m_Cmps.push_back(cmp);
 	cmp->m_Actor = this;
+
+	if (IsRequested())
+	{
+		cmp->RequestResource();
+	}
+
+	if (IsEnteredPhysx())
+	{
+		cmp->EnterPhysxScene(PhysxSceneContext::getSingletonPtr());
+	}
 }
 
 void Actor::RemoveComponent(ComponentPtr cmp)
@@ -487,6 +497,16 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		_ASSERT((*cmp_iter)->m_Actor == this);
 		(*cmp_iter)->m_Actor = NULL;
 		m_Cmps.erase(cmp_iter);
+
+		if (IsRequested())
+		{
+			cmp->ReleaseResource();
+		}
+
+		if (IsEnteredPhysx())
+		{
+			cmp->LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
+		}
 	}
 	else
 	{
