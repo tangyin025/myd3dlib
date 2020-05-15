@@ -1,7 +1,7 @@
 
-float g_FresExp:MaterialParameter = 3.0;
-float g_ReflStrength:MaterialParameter = 3.4;
-float g_SpecularPower:MaterialParameter = 5;
+// float g_FresExp:MaterialParameter = 5;
+// float g_ReflStrength:MaterialParameter = 1;
+float g_SpecularExp:MaterialParameter = 25;
 texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string Initialize="texture/Normal.dds";>;
 texture g_SpecularTexture:MaterialParameter<string Initialize="texture/White.dds";>;
@@ -112,20 +112,20 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
 	float3 SkyLightDir = normalize(float3(g_SkyLightViewProj[0][2],g_SkyLightViewProj[1][2],g_SkyLightViewProj[2][2]));
-	float3 ViewSkyLightDir = mul(SkyLightDir, g_View);
+	float3 ViewLightDir = mul(-SkyLightDir, g_View);
 	float2 ScreenTex = In.PosScreen.xy / In.PosScreen.w * 0.5 + 0.5;
 	ScreenTex.y = 1 - ScreenTex.y;
 	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float3 Normal = tex2D(NormalRTSampler, ScreenTex);
-	float4 Ambient=tex2D(LightRTSampler, ScreenTex);
-	float Fres=Fresnel(Normal,In.ViewDir,g_FresExp,g_ReflStrength) * Ambient.w;
+	float4 Ambient = tex2D(LightRTSampler, ScreenTex);
+	// float Fres = Fresnel(Normal, In.ViewDir, g_FresExp, g_ReflStrength) * Ambient.w;
 	float4 TexDiffuse = tex2D(DiffuseTextureSampler, In.Tex0);
-	float3 Diffuse = saturate(dot(Normal, -ViewSkyLightDir)) * g_SkyLightColor.xyz;
+	float3 Diffuse = saturate(dot(Normal, ViewLightDir)) * g_SkyLightColor.xyz;
 	float LightAmount = GetLigthAmount(In.PosShadow);
 	float3 Ref = Reflection(Normal, In.ViewDir);
 	float4 TexSpecular = tex2D(SpecularTextureSampler, In.Tex0);
-	float Specular = pow(saturate(dot(Ref, -ViewSkyLightDir)), g_SpecularPower) * g_SkyLightColor.w;
-	float3 Final = TexDiffuse.xyz * Diffuse * LightAmount + TexSpecular.xyz * Specular * LightAmount + TexDiffuse.xyz * Ambient.xyz + TexSpecular.xyz * Fres;
+	float Specular = pow(saturate(dot(Ref, ViewLightDir)), g_SpecularExp) * g_SkyLightColor.w;
+	float3 Final = TexDiffuse.xyz * Diffuse * LightAmount + TexSpecular.xyz * Specular * LightAmount + TexDiffuse.xyz * Ambient.xyz;// + TexSpecular.xyz * Fres;
 	return float4(Final, 1);
 }
 

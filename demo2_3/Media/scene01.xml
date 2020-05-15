@@ -135,38 +135,20 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 										<m_ZWriteEnable>1</m_ZWriteEnable>
 										<m_BlendMode>0</m_BlendMode>
 										<m_ParameterList class_id="19" tracking_level="0" version="0">
-											<count>6</count>
+											<count>4</count>
 											<item_version>1</item_version>
 											<item class_id="20" tracking_level="0" version="1">
 												<px class_id="22" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_4">
 													<MaterialParameter class_id="21" tracking_level="1" version="0" object_id="_5">
 														<m_Type>1</m_Type>
-														<m_Name>g_FresExp</m_Name>
+														<m_Name>g_SpecularExp</m_Name>
 													</MaterialParameter>
-													<m_Value>3.000000000e+00</m_Value>
+													<m_Value>2.500000000e+01</m_Value>
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="22" object_id="_6">
+												<px class_id="23" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
 													<MaterialParameter object_id="_7">
-														<m_Type>1</m_Type>
-														<m_Name>g_ReflStrength</m_Name>
-													</MaterialParameter>
-													<m_Value>3.400000095e+00</m_Value>
-												</px>
-											</item>
-											<item>
-												<px class_id_reference="22" object_id="_8">
-													<MaterialParameter object_id="_9">
-														<m_Type>1</m_Type>
-														<m_Name>g_SpecularPower</m_Name>
-													</MaterialParameter>
-													<m_Value>5.000000000e+00</m_Value>
-												</px>
-											</item>
-											<item>
-												<px class_id="23" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_10">
-													<MaterialParameter object_id="_11">
 														<m_Type>5</m_Type>
 														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
@@ -174,8 +156,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_12">
-													<MaterialParameter object_id="_13">
+												<px class_id_reference="23" object_id="_8">
+													<MaterialParameter object_id="_9">
 														<m_Type>5</m_Type>
 														<m_Name>g_NormalTexture</m_Name>
 													</MaterialParameter>
@@ -183,8 +165,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_14">
-													<MaterialParameter object_id="_15">
+												<px class_id_reference="23" object_id="_10">
+													<MaterialParameter object_id="_11">
 														<m_Type>5</m_Type>
 														<m_Name>g_SpecularTexture</m_Name>
 													</MaterialParameter>
@@ -220,7 +202,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<m_ChunkSize>32</m_ChunkSize>
 						<m_HeightScale>1.000000000e+00</m_HeightScale>
 						<m_Chunk_0_0 class_id="24" tracking_level="0" version="1">
-							<px class_id="25" tracking_level="1" version="0" object_id="_16">
+							<px class_id="25" tracking_level="1" version="0" object_id="_12">
 								<m_aabb>
 									<m_min>
 										<x>0.000000000e+00</x>
@@ -1166,14 +1148,14 @@ AAAA
 			<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACg690NAAAA
-gAEAAAAQu90NAAAAgAIAAABg290NAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOrYP
-CAADAAAAAABUO7YPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxg290NAAAAAM3Nzc3N
-zc3N9Na2DwcAAwAAAAAAtNe2DwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABwXJIHAAAA
+gAIAAAAAnZIHAAAAgAEAAACwjJIHAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOk5f
+CAADAAAAAABUO05fAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMywjJIHAAAAAM3Nzc3N
+zc3N9NZOXwcAAwAAAAAAtNdOXwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAtg8GAAMAeBHNDQAAAAAA
-AAAAoOvdDQEAAQECAAAAAQABAQAAAADNzc3Nzc3NzXCNvw0AAACFAAAAAM3Nzc3/////rBLADQEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiATl8GAAMAgHqOBwAAAAAA
+AAAAAJ2SBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzSAuigYAAACFAAAAAM3Nzc3/////DM2KBgEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 			</m_PxActor>
