@@ -10,7 +10,7 @@ shared float4x4 g_InvViewProj;
 shared float4x4 g_SkyLightView;
 shared float4x4 g_SkyLightViewProj;
 shared float4 g_SkyLightColor;
-shared float3 g_AmbientColor;
+shared float4 g_AmbientColor;
 shared texture g_ShadowRT;
 shared texture g_NormalRT;
 shared texture g_PositionRT;

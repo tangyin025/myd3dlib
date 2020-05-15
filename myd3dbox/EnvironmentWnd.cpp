@@ -136,6 +136,9 @@ void CEnvironmentWnd::InitPropList()
 	pAmbientColor->EnableOtherButton(_T("Other..."));
 	pSkyLight->AddSubItem(pAmbientColor);
 
+	pProp = new CSimpleProp(_T("AmbientSpecular"), (_variant_t)1.0f, NULL, SkyLightPropertyAmbientSpecular);
+	pSkyLight->AddSubItem(pProp);
+
 	CMFCPropertyGridProperty * pSSAO = new CSimpleProp(_T("SSAO"), PropertySSAO, FALSE);
 	m_wndPropList.AddProperty(pSSAO, FALSE, FALSE);
 	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SSAOPropertyEnable);
@@ -208,6 +211,8 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 
 	color = RGB(theApp.m_AmbientColor.x * 255, theApp.m_AmbientColor.y * 255, theApp.m_AmbientColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbientColor)))->SetColor((_variant_t)color);
+
+	pSkyLight->GetSubItem(SkyLightPropertyAmbientSpecular)->SetValue((_variant_t)theApp.m_AmbientColor.w);
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
 	pSSAO->GetSubItem(SSAOPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SsaoEnable);
@@ -368,7 +373,9 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			theApp.m_SkyLightColor.w = pTopProp->GetSubItem(SkyLightPropertySpecular)->GetValue().fltVal;
 
 			color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
-			theApp.m_AmbientColor = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+			theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+
+			theApp.m_AmbientColor.w = pTopProp->GetSubItem(SkyLightPropertyAmbientSpecular)->GetValue().fltVal;
 		}
 		break;
 	case PropertySSAO:

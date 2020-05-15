@@ -38,7 +38,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
 	, m_SkyLightCam(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100)
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
-	, m_AmbientColor(0.3f, 0.3f, 0.3f)
+	, m_AmbientColor(0.3f, 0.3f, 0.3f, 3.0f)
 	, handle_Time(NULL)
 	, handle_ScreenDim(NULL)
 	, handle_ShadowMapSize(NULL)
@@ -154,6 +154,12 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
 		return NULL;
+	}
+
+	if (err)
+	{
+		my::D3DContext::getSingleton().m_EventLog((char *)err->GetBufferPointer());
+		err.Release();
 	}
 
 	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x"), seed).c_str());
@@ -559,7 +565,7 @@ void RenderPipeline::OnRender(
 	else
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
-			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, 0), 0, 0));
+			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, m_AmbientColor.w), 0, 0));
 	}
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 

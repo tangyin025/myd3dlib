@@ -1,4 +1,7 @@
 
+float g_FresExp:MaterialParameter = 3.0;
+float g_ReflStrength:MaterialParameter = 3.4;
+float g_SpecularPower:MaterialParameter = 5;
 texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string Initialize="texture/Normal.dds";>;
 texture g_SpecularTexture:MaterialParameter<string Initialize="texture/White.dds";>;
@@ -102,7 +105,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.Tex0 = TransformUV(In);
 	Output.PosScreen = Output.Pos;
 	Output.PosShadow = mul(PosWS, g_SkyLightViewProj);
-	Output.ViewDir = mul(g_Eye - PosWS, (float3x3)g_View);
+	Output.ViewDir = normalize(mul(g_Eye - PosWS, (float3x3)g_View));
     return Output;    
 }
 
@@ -113,16 +116,17 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float2 ScreenTex = In.PosScreen.xy / In.PosScreen.w * 0.5 + 0.5;
 	ScreenTex.y = 1 - ScreenTex.y;
 	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim.x;
-	float LightAmount = GetLigthAmount(In.PosShadow);
 	float3 Normal = tex2D(NormalRTSampler, ScreenTex);
-	float3 SkyDiffuse = saturate(-dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
-	float3 Ref = Reflection(Normal.xyz, In.ViewDir);
-	float SkySpecular = pow(saturate(dot(Ref, -ViewSkyLightDir) * LightAmount), 5) * g_SkyLightColor.w;
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
-	Diffuse *= tex2D(LightRTSampler, ScreenTex) + float4(SkyDiffuse, SkySpecular);
-	float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * Diffuse.w;
-	Diffuse.xyz += Specular;
-    return float4(Diffuse.xyz, 1);
+	float4 Ambient=tex2D(LightRTSampler, ScreenTex);
+	float fres=Fresnel(Normal,In.ViewDir,g_FresExp,g_ReflStrength);
+	float4 TexDiffuse = tex2D(DiffuseTextureSampler, In.Tex0);
+	float3 Diffuse = saturate(dot(Normal, -ViewSkyLightDir)) * g_SkyLightColor.xyz;
+	float LightAmount = GetLigthAmount(In.PosShadow);
+	float3 Ref = Reflection(Normal, In.ViewDir);
+	float4 TexSpecular = tex2D(SpecularTextureSampler, In.Tex0);
+	float Specular = pow(saturate(dot(Ref, -ViewSkyLightDir)), g_SpecularPower) * g_SkyLightColor.w;
+	float3 Final = TexDiffuse.xyz * LightAmount * (Diffuse + Specular) + TexDiffuse.xyz * (Ambient.xyz + Ambient.w * fres);
+	return float4(Final, 1);
 }
 
 technique RenderScene

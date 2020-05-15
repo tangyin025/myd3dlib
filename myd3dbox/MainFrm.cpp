@@ -571,7 +571,7 @@ void CMainFrame::OnFileNew()
 	theApp.m_BgColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_SkyLightCam.m_Eular = my::Vector3(D3DXToRadian(-45), 0, 0);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	theApp.m_AmbientColor = my::Vector3(0.3f, 0.3f, 0.3f);
+	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.3f);
 	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 	{
 		theApp.m_SkyBoxTextures[i].m_TexturePath = theApp.default_sky_texture[i];
@@ -626,16 +626,14 @@ void CMainFrame::OnFileNew()
 	//m_selchunkid.SetPoint(0, 0);
 	//OnSelChanged();
 
-	my::OgreMeshPtr mesh = theApp.LoadMesh("mesh/Teapot.mesh.xml", "Teapot001");
-
 	MaterialPtr mtl(new Material());
-	mtl->m_Shader = theApp.default_shader;
+	mtl->m_Shader = "shader/mtl_lambert1.fx";
 	mtl->ParseShaderParameters();
 	MeshComponentPtr mesh_cmp(new MeshComponent());
 	mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
 	mesh_cmp->m_MeshSubMeshName = "Teapot001";
 	mesh_cmp->AddMaterial(mtl);
-	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), mesh->m_aabb));
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(5, 5, 5), my::AABB(-1, 1)));
 	actor->AddComponent(mesh_cmp);
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
