@@ -137,10 +137,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void AddMaterial(MaterialPtr material)
-	{
-		m_MaterialList.push_back(material);
-	}
+	void AddMaterial(MaterialPtr material);
 
 	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
 

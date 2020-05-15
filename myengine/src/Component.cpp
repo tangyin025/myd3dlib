@@ -151,6 +151,16 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 {
 }
 
+void Component::AddMaterial(MaterialPtr material)
+{
+	m_MaterialList.push_back(material);
+
+	if (IsRequested())
+	{
+		material->RequestResource();
+	}
+}
+
 void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
