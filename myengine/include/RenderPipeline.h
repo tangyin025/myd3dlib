@@ -366,6 +366,8 @@ public:
 
 	my::Effect * QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID);
 
+	void LoadShaderCache(LPCTSTR szDir);
+
 	static unsigned int PassTypeToMask(unsigned int pass_type)
 	{
 		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;

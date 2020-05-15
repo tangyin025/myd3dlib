@@ -178,6 +178,35 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	return shader.get();
 }
 
+void RenderPipeline::LoadShaderCache(LPCTSTR szDir)
+{
+	std::basic_string<TCHAR> dir(szDir);
+	dir.append(_T("\\*"));
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = FindFirstFile(dir.c_str(), &ffd);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				boost::basic_regex<TCHAR> reg(_T("ShaderCache@([0-9a-fA-F]{8})"));
+				boost::match_results<const TCHAR *> what;
+				if (boost::regex_search(ffd.cFileName, what, reg, boost::match_default) && what[1].matched)
+				{
+					std::basic_string<TCHAR> seed_str(what[1].first, what[1].second);
+					size_t seed = _tcstoul(seed_str.c_str(), 0, 16);
+					std::basic_string<TCHAR> path(szDir);
+					path.append(_T("\\")).append(ffd.cFileName);
+					my::EffectPtr shader(new my::Effect());
+					shader->CreateEffectFromFile(path.c_str(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool);
+					m_ShaderCache.insert(std::make_pair(seed, shader));
+				}
+			}
+		} while (FindNextFile(hFind, &ffd) != 0);
+	}
+}
+
 const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
 {
 	switch (pass_type)
@@ -398,34 +427,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_FogStartDistance = m_FogEffect->GetParameterByName(NULL, "g_StartDistance"));
 	BOOST_VERIFY(handle_FogHeight = m_FogEffect->GetParameterByName(NULL, "g_FogHeight"));
 	BOOST_VERIFY(handle_FogFalloff = m_FogEffect->GetParameterByName(NULL, "g_Falloff"));
-
-	TCHAR szDir[MAX_PATH];
-	GetCurrentDirectory(_countof(szDir), szDir);
-	PathAppend(szDir, _T("*"));
-	WIN32_FIND_DATA ffd;
-	HANDLE hFind = FindFirstFile(szDir, &ffd);
-	if (hFind != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			{
-				boost::basic_regex<TCHAR> reg(_T("ShaderCache@([0-9a-fA-F]{8})"));
-				boost::match_results<const TCHAR *> what;
-				if (boost::regex_search(ffd.cFileName, what, reg, boost::match_default) && what[1].matched)
-				{
-					std::basic_string<TCHAR> str(what[1].first, what[1].second);
-					size_t seed = _tcstoul(str.c_str(), 0, 16);
-					my::EffectPtr shader(new my::Effect());
-					TCHAR szPath[MAX_PATH];
-					GetCurrentDirectory(_countof(szPath), szPath);
-					PathAppend(szPath, ffd.cFileName);
-					shader->CreateEffectFromFile(szPath, NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool);
-					m_ShaderCache.insert(std::make_pair(seed, shader));
-				}
-			}
-		} while (FindNextFile(hFind, &ffd) != 0);
-	}
 	return S_OK;
 }
 

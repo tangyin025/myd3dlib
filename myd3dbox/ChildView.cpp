@@ -496,10 +496,13 @@ bool CChildView::OverlapTestFrustumAndMesh(
 		const my::Vector3 & v1 = VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
 		const my::Vector3 & v2 = VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
 
-		my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v0, v1, v2, frustum);
-		if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+		if (my::IntersectionTests::isValidTriangle(v0, v1, v2))
 		{
-			return true;
+			my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v0, v1, v2, frustum);
+			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -791,10 +794,13 @@ my::RayResult CChildView::OverlapTestRayAndMesh(
 		const my::Vector3 & v1 = VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
 		const my::Vector3 & v2 = VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
 
-		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
-		if (result.first && result.second < ret.second)
+		if (my::IntersectionTests::isValidTriangle(v0, v1, v2))
 		{
-			ret = result;
+			my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
+			if (result.first && result.second < ret.second)
+			{
+				ret = result;
+			}
 		}
 	}
 	return ret;

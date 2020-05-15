@@ -625,6 +625,21 @@ void CMainFrame::OnFileNew()
 	//m_selactors.insert(actor.get());
 	//m_selchunkid.SetPoint(0, 0);
 	//OnSelChanged();
+
+	my::OgreMeshPtr mesh = theApp.LoadMesh("mesh/Teapot.mesh.xml", "Teapot001");
+
+	MaterialPtr mtl(new Material());
+	mtl->m_Shader = theApp.default_shader;
+	mtl->ParseShaderParameters();
+	MeshComponentPtr mesh_cmp(new MeshComponent());
+	mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
+	mesh_cmp->m_MeshSubMeshName = "Teapot001";
+	mesh_cmp->AddMaterial(mtl);
+	ActorPtr actor(new Actor(my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), mesh->m_aabb));
+	actor->AddComponent(mesh_cmp);
+	actor->UpdateWorld();
+	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
+	m_ActorList.insert(actor);
 }
 
 void CMainFrame::OnFileOpen()

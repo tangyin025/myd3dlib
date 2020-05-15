@@ -419,6 +419,10 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
+	TCHAR szDir[MAX_PATH];
+	GetCurrentDirectory(_countof(szDir), szDir);
+	RenderPipeline::LoadShaderCache(szDir);
+
 	if (!FModContext::Init())
 	{
 		THROW_CUSEXCEPTION("FModContext::Init failed");
