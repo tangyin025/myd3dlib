@@ -118,14 +118,14 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float3 Normal = tex2D(NormalRTSampler, ScreenTex);
 	float4 Ambient=tex2D(LightRTSampler, ScreenTex);
-	float fres=Fresnel(Normal,In.ViewDir,g_FresExp,g_ReflStrength);
+	float Fres=Fresnel(Normal,In.ViewDir,g_FresExp,g_ReflStrength) * Ambient.w;
 	float4 TexDiffuse = tex2D(DiffuseTextureSampler, In.Tex0);
 	float3 Diffuse = saturate(dot(Normal, -ViewSkyLightDir)) * g_SkyLightColor.xyz;
 	float LightAmount = GetLigthAmount(In.PosShadow);
 	float3 Ref = Reflection(Normal, In.ViewDir);
 	float4 TexSpecular = tex2D(SpecularTextureSampler, In.Tex0);
 	float Specular = pow(saturate(dot(Ref, -ViewSkyLightDir)), g_SpecularPower) * g_SkyLightColor.w;
-	float3 Final = TexDiffuse.xyz * LightAmount * (Diffuse + Specular) + TexDiffuse.xyz * (Ambient.xyz + Ambient.w * fres);
+	float3 Final = TexDiffuse.xyz * Diffuse * LightAmount + TexSpecular.xyz * Specular * LightAmount + TexDiffuse.xyz * Ambient.xyz + TexSpecular.xyz * Fres;
 	return float4(Final, 1);
 }
 
