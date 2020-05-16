@@ -3,14 +3,12 @@ module("Settings",package.seeall)
 
 dlg=Dialog()
 dlg.Name="Settings"
-dlg.Color=ARGB(150,0,0,0)
 dlg.Size=Vector2(640,480)
 dlg.Skin=CommonUI.com_dlg_skin
 
 local lbl_title=Control()
 lbl_title.Location=Vector2(17,13)
 lbl_title.Size=Vector2(256,42)
-lbl_title.Color=ARGB(255,255,255,255)
 lbl_title.Skin=ControlSkin()
 lbl_title.Skin.Image=ControlImage()
 lbl_title.Skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")

@@ -5,7 +5,6 @@
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <vector>
 #include <list>
-#include <map>
 
 namespace my
 {
@@ -29,7 +28,7 @@ namespace my
 
 		typedef std::vector<CUSTOMVERTEX> VertexList;
 
-		typedef boost::unordered_map<BaseTexture *, VertexList> UILayer;
+		typedef std::pair<BaseTexture *, VertexList> UILayer;
 
 		enum UILayerType
 		{
@@ -70,8 +69,6 @@ namespace my
 		virtual void Flush(void);
 
 		void PushVertexSimple(VertexList & vertex_list, unsigned int start, float x, float y, float z, float u, float v, D3DCOLOR color);
-
-		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
 		void PushRectangleSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
 
@@ -119,6 +116,8 @@ namespace my
 	class ControlSkin
 	{
 	public:
+		D3DCOLOR m_Color;
+
 		ControlImagePtr m_Image;
 
 		FontPtr m_Font;
@@ -139,7 +138,8 @@ namespace my
 
 	public:
 		ControlSkin(void)
-			: m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
+			: m_Color(D3DCOLOR_ARGB(255, 255, 255, 255))
+			, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
 			, m_TextAlign(Font::AlignLeftTop)
 		{
 		}
@@ -241,8 +241,6 @@ namespace my
 
 		Vector2 m_Size;
 
-		D3DCOLOR m_Color;
-
 		ControlSkinPtr m_Skin;
 
 		bool m_bPressed;
@@ -264,7 +262,6 @@ namespace my
 			, m_nHotkey(0)
 			, m_Location(0, 0)
 			, m_Size(100, 100)
-			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
 			, m_Parent(NULL)
 			, m_bPressed(false)
 		{

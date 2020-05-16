@@ -3,8 +3,8 @@ module("Hud", package.seeall)
 
 dlg=Dialog()
 dlg.Name="Hud"
-dlg.Color=ARGB(0,0,0,0)
 dlg.Size=Vector2(170,170)
+-- dlg.Skin=CommonUI.com_dlg_skin
 
 local btn_toggle_fs=Button()
 btn_toggle_fs.Name="btn_toggle_fs"

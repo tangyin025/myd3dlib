@@ -59,6 +59,11 @@ BOOST_CLASS_EXPORT(Dialog)
 UIRender::UIRender(void)
 	: m_WhiteTex(new my::Texture2D())
 {
+	UILayerList::iterator layer_iter = m_Layer.begin();
+	for (; layer_iter != m_Layer.end(); layer_iter++)
+	{
+		layer_iter->first = NULL;
+	}
 }
 
 UIRender::~UIRender(void)
@@ -140,21 +145,15 @@ void UIRender::SetViewProj(const Matrix4 & ViewProj)
 
 void UIRender::Flush(void)
 {
-	unsigned int i = UILayerTexture;
-	for (; i < UILayerNum; i++)
+	UILayerList::iterator layer_iter = m_Layer.begin();
+	for (; layer_iter != m_Layer.end(); layer_iter++)
 	{
-		UILayer::iterator layer_iter = m_Layer[i].begin();
-		for (; layer_iter != m_Layer[i].end(); layer_iter++)
+		if (layer_iter->first && layer_iter->first->m_ptr && !layer_iter->second.empty())
 		{
-			// ! Device reset will lead more useless texture key
-			_ASSERT(layer_iter->first);
-			if (layer_iter->first->m_ptr && !layer_iter->second.empty())
-			{
-				V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
-				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
-				layer_iter->second.clear();
-			}
+			V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
+			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
+			layer_iter->second.clear();
 		}
 	}
 }
@@ -170,15 +169,6 @@ void UIRender::PushVertexSimple(VertexList & vertex_list, unsigned int start, fl
 	vtx.color = color;
 }
 
-void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type)
-{
-	_ASSERT(texture);
-	VertexList & vertex_list = m_Layer[type][texture];
-	unsigned int start = vertex_list.size();
-	vertex_list.resize(start + 1);
-	PushVertexSimple(vertex_list, start, x, y, z, u, v, color);
-}
-
 void UIRender::PushRectangleSimple(VertexList & vertex_list, unsigned int start, const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
 {
 	PushVertexSimple(vertex_list, start++, rect.l, rect.t, 0, UvRect.l, UvRect.t, color);
@@ -192,7 +182,12 @@ void UIRender::PushRectangleSimple(VertexList & vertex_list, unsigned int start,
 void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
 {
 	_ASSERT(texture);
-	VertexList & vertex_list = m_Layer[type][texture];
+	if (m_Layer[type].first != texture)
+	{
+		Flush();
+		m_Layer[type].first = texture;
+	}
+	VertexList & vertex_list = m_Layer[type].second;
 	unsigned int start = vertex_list.size();
 	vertex_list.resize(start + 6);
 	PushRectangleSimple(vertex_list, start, rect, UvRect, color);
@@ -226,7 +221,12 @@ void UIRender::PushWindowSimple(VertexList & vertex_list, unsigned int start, co
 void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
 {
 	_ASSERT(texture);
-	VertexList & vertex_list = m_Layer[type][texture];
+	if (m_Layer[type].first != texture)
+	{
+		Flush();
+		m_Layer[type].first = texture;
+	}
+	VertexList & vertex_list = m_Layer[type].second;
 	unsigned int start = vertex_list.size();
 	vertex_list.resize(start + 6 * 9);
 	PushWindowSimple(vertex_list, start, rect, color, WindowRect, WindowBorder, TextureSize);
@@ -285,6 +285,7 @@ ControlSkin::~ControlSkin(void)
 template<class Archive>
 void ControlSkin::save(Archive & ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_NVP(m_Color);
 	ar << BOOST_SERIALIZATION_NVP(m_Image);
 	std::vector<std::string> FontSeq;
 	boost::algorithm::split(FontSeq, my::ResourceMgr::getSingleton().GetResourceKey(m_Font), boost::is_any_of(" "), boost::algorithm::token_compress_off);
@@ -304,6 +305,7 @@ void ControlSkin::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void ControlSkin::load(Archive & ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_NVP(m_Color);
 	ar >> BOOST_SERIALIZATION_NVP(m_Image);
 	std::string FontPath;
 	ar >> BOOST_SERIALIZATION_NVP(FontPath);
@@ -409,7 +411,6 @@ void Control::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_nHotkey);
 	ar << BOOST_SERIALIZATION_NVP(m_Location);
 	ar << BOOST_SERIALIZATION_NVP(m_Size);
-	ar << BOOST_SERIALIZATION_NVP(m_Color);
 	ar << BOOST_SERIALIZATION_NVP(m_Skin);
 }
 
@@ -423,7 +424,6 @@ void Control::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_nHotkey);
 	ar >> BOOST_SERIALIZATION_NVP(m_Location);
 	ar >> BOOST_SERIALIZATION_NVP(m_Size);
-	ar >> BOOST_SERIALIZATION_NVP(m_Color);
 	ar >> BOOST_SERIALIZATION_NVP(m_Skin);
 
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -463,16 +463,9 @@ void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 	{
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-		if (m_Color & D3DCOLOR_ARGB(255, 0, 0, 0))
+		if (m_Skin)
 		{
-			if (m_Skin)
-			{
-				m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Color);
-			}
-			else
-			{
-				ui_render->PushRectangle(Rect, Rectangle(0, 0, 1, 1), m_Color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
-			}
+			m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Skin->m_Color);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -823,18 +816,18 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 {
 	if(m_bVisible)
 	{
-		if (m_Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
+		if (m_Skin)
 		{
 			ProgressBarSkinPtr Skin = boost::dynamic_pointer_cast<ProgressBarSkin>(m_Skin);
 			_ASSERT(Skin);
 
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
+			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 
 			m_BlendProgress = Lerp(m_BlendProgress, m_Progress, 1.0f - powf(0.8f, 30 * fElapsedTime));
 			Rect.r = Lerp(Rect.l, Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress)));
-			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, Rect, m_Color);
+			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, Rect, m_Skin->m_Color);
 		}
 	}
 }
@@ -852,27 +845,25 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Skin->m_Color);
 			}
 			else
 			{
 				if(m_bPressed)
 				{
 					Rect = Rect.offset(Skin->m_PressedOffset);
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Skin->m_Color);
 				}
 				else
 				{
-					D3DXCOLOR DstColor(m_Color);
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						Rect = Rect.offset(-Skin->m_PressedOffset);
-						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Skin->m_Color);
 					}
 					else
 					{
-						DstColor.a = 0;
-						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 					}
 				}
 			}
@@ -1012,15 +1003,15 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Skin->m_Color);
 			}
 			else if(m_bHasFocus)
 			{
-				Skin->DrawImage(ui_render, Skin->m_FocusedImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_FocusedImage, Rect, m_Skin->m_Color);
 			}
 			else
 			{
-				Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 			}
 
 			if(Skin->m_Font)
@@ -1882,7 +1873,7 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
+			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 
 			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
 
@@ -1890,9 +1881,9 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 			if(m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
-				Skin->DrawImage(ui_render, Skin->m_UpBtnNormalImage, UpButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_UpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
 
-				Skin->DrawImage(ui_render, Skin->m_DownBtnNormalImage, DownButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
 
 				float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
 				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
@@ -1900,13 +1891,13 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 				float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
 				Rectangle ThumbButtonRect(Rect.l, fThumbTop, Rect.r, fThumbTop + fThumbHeight);
 
-				Skin->DrawImage(ui_render, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 			}
 			else
 			{
-				Skin->DrawImage(ui_render, Skin->m_UpBtnDisabledImage, UpButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_UpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
 
-				Skin->DrawImage(ui_render, Skin->m_DownBtnDisabledImage, DownButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
 		}
 	}
@@ -2046,23 +2037,22 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Skin->m_Color);
 			}
 			else
 			{
 				if(m_Checked)
 				{
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 				}
 				else
 				{
-					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
 				}
 
-				D3DXCOLOR DstColor(m_Color);
 				if(m_bMouseOver /*|| m_bHasFocus*/)
 				{
-					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Skin->m_Color);
 				}
 			}
 
@@ -2183,7 +2173,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Skin->m_Color);
 			}
 			else
 			{
@@ -2193,14 +2183,14 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 					Rect = Rect.offset(Skin->m_PressedOffset);
 
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Skin->m_Color);
 
-					Skin->DrawImage(ui_render, Skin->m_DropdownImage, DropdownRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_DropdownImage, DropdownRect, m_Skin->m_Color);
 
 					// ! ScrollBar source copy
 					Rectangle ScrollBarRect(Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y));
 
-					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, ScrollBarRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, ScrollBarRect, m_Skin->m_Color);
 
 					Rectangle UpButtonRect(Rectangle::LeftTop(ScrollBarRect.l, ScrollBarRect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight));
 
@@ -2208,9 +2198,9 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 					if(m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
 					{
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
 
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
 
 						float fTrackHeight = m_DropdownSize.y - m_ScrollbarUpDownBtnHeight * 2;
 						float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
@@ -2218,13 +2208,13 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
 						Rectangle ThumbButtonRect(ScrollBarRect.l, fThumbTop, ScrollBarRect.r, fThumbTop + fThumbHeight);
 
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 					}
 					else
 					{
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
 
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 					}
 
 					int i = m_ScrollBar.m_nPosition;
@@ -2235,7 +2225,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 						if(i == m_iFocused)
 						{
-							Skin->DrawImage(ui_render, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Color);
+							Skin->DrawImage(ui_render, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Skin->m_Color);
 						}
 
 						ComboBoxItem * item = m_Items[i].get();
@@ -2245,15 +2235,14 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 				else
 				{
-					D3DXCOLOR DstColor(m_Color);
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						Rect = Rect.offset(-Skin->m_PressedOffset);
-						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Skin->m_Color);
 					}
 					else
 					{
-						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 					}
 				}
 			}

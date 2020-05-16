@@ -116,6 +116,7 @@ com_cbx_skin.ScrollBarImage.Rect=Rectangle(1,43,16,58)
 com_cbx_skin.ScrollBarImage.Border=Vector4(7,7,7,7)
 
 com_dlg_skin=DialogSkin()
+com_dlg_skin.Color=ARGB(150,0,0,0)
 com_dlg_skin.VisibleShowSound="demo2_3/untitled/15"
 com_dlg_skin.Image=ControlImage()
 com_dlg_skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")

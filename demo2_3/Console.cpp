@@ -172,10 +172,10 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 Console::Console(void)
 {
-	m_Color = D3DCOLOR_ARGB(197,0,0,0);
 	m_Size = Vector2(700,410);
 	m_Location = Vector2(50, 95);
 	m_Skin.reset(new ControlSkin());
+	m_Skin->m_Color = D3DCOLOR_ARGB(197,0,0,0);
 	m_Skin->m_Font = Game::getSingleton().m_Font;
 	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
 	m_Skin->m_TextAlign = Font::AlignLeftTop;
@@ -187,11 +187,11 @@ Console::Console(void)
 	const Vector4 Border(5,5,5,5);
 
 	m_Edit.reset(new ConsoleEditBox());
-	m_Edit->m_Color = D3DCOLOR_ARGB(15,255,255,255);
 	m_Edit->m_Size = Vector2(m_Size.x - Border.x - Border.z, 20);
 	m_Edit->m_Location = Vector2(Border.x, m_Size.y - Border.w - m_Edit->m_Size.y);
 	m_Edit->m_Border = Vector4(0,0,0,0);
 	m_Edit->m_Skin.reset(new EditBoxSkin());
+	m_Edit->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
 	m_Edit->m_Skin->m_Font = Game::getSingleton().m_Font;
 	m_Edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
 	m_Edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
@@ -212,16 +212,16 @@ Console::Console(void)
 	InsertControl(m_Edit);
 
 	m_Panel.reset(new MessagePanel());
-	m_Panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);
 	m_Panel->m_Location = Vector2(Border.x, Border.y);
 	m_Panel->m_Size = Vector2(m_Size.x - Border.x - Border.z, m_Size.y - Border.y - Border.w - m_Edit->m_Size.y);
 	m_Panel->m_Skin.reset(new ControlSkin());
+	m_Panel->m_Skin->m_Color = D3DCOLOR_ARGB(0,0,0,0);
 	m_Panel->m_Skin->m_Font = Game::getSingleton().m_Font;
-	m_Panel->m_scrollbar->m_Color = D3DCOLOR_ARGB(15,255,255,255);
 	m_Panel->m_scrollbar->m_Size = Vector2(20, m_Panel->m_Size.y);
 	m_Panel->m_scrollbar->m_Location = Vector2(m_Panel->m_Size.x - m_Panel->m_scrollbar->m_Size.x, 0);
 	m_Panel->m_scrollbar->m_nPageSize = 3;
 	m_Panel->m_scrollbar->m_Skin.reset(new ScrollBarSkin());
+	m_Panel->m_scrollbar->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
 	m_Panel->m_scrollbar->m_Skin->m_Image.reset(new ControlImage());
 	m_Panel->m_scrollbar->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	m_Panel->m_scrollbar->m_Skin->m_Image->m_Rect = my::Rectangle(154,43,156,45);
