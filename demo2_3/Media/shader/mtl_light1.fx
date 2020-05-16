@@ -3,9 +3,10 @@ struct LIGHT_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float4 Color			: COLOR0;
-	float4 PosScreen		: TEXCOORD0;
-	float4 Light			: TEXCOORD1;
-	float3 Eye				: TEXCOORD2;
+	float4 ScreenPos		: TEXCOORD0;
+	float2 ScreenTex		: TEXCOORD1;
+	float4 Light			: TEXCOORD2;
+	float3 Eye				: TEXCOORD3;
 };
 
 LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
@@ -14,7 +15,9 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
-	Output.PosScreen = Output.Pos;
+	Output.ScreenPos = Output.Pos;
+	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
+	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.Light = TransformLightWS(In);
 	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View);
 	Output.Eye = mul(float4(g_Eye, 1.0), g_View);
@@ -23,19 +26,16 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 
 float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
-	float2 ScreenTex = In.PosScreen.xy / In.PosScreen.w * 0.5 + 0.5;
-	ScreenTex.y = 1 - ScreenTex.y;
-	ScreenTex = ScreenTex + float2(0.5, 0.5) / g_ScreenDim;
-	float3 Normal = tex2D(NormalRTSampler, ScreenTex).xyz;
-	float3 ViewPos = tex2D(PositionRTSampler, ScreenTex).xyz;
-	float3 LightVec = In.Light.xyz - ViewPos;
+	float4 Normal = tex2D(NormalRTSampler, In.ScreenTex / In.ScreenPos.w);
+	float4 ViewPos = tex2D(PositionRTSampler, In.ScreenTex / In.ScreenPos.w);
+	float3 LightVec = In.Light.xyz - ViewPos.xyz;
 	float LightDist = length(LightVec);
 	LightVec = LightVec / LightDist;
-	float diffuse = saturate(dot(Normal, LightVec));
-	float3 View = In.Eye - ViewPos;
-	float3 Ref = Reflection(Normal, View);
-	float specular = pow(saturate(dot(Ref, LightVec)), 5);
-	return float4(In.Color.xyz * diffuse, In.Color.w * specular) * saturate(1 - LightDist / In.Light.w);
+	float diffuse = saturate(dot(Normal.xyz, LightVec));
+	float3 View = In.Eye - ViewPos.xyz;
+	float3 Ref = Reflection(Normal.xyz, View);
+	float Specular = pow(saturate(dot(Ref, LightVec)), Normal.w);
+	return float4(In.Color.xyz * diffuse, In.Color.w * Specular) * saturate(1 - LightDist / In.Light.w);
 }
 
 technique RenderScene

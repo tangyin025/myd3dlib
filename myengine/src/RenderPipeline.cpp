@@ -565,7 +565,7 @@ void RenderPipeline::OnRender(
 	else
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
-			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, m_AmbientColor.w), 0, 0));
+			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, 0), 0, 0));
 	}
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 

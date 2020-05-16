@@ -621,11 +621,6 @@ void CMainFrame::OnFileNew()
 	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
 	//m_ActorList.insert(actor);
 
-	//m_selactors.clear();
-	//m_selactors.insert(actor.get());
-	//m_selchunkid.SetPoint(0, 0);
-	//OnSelChanged();
-
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = "shader/mtl_lambert1.fx";
 	mtl->ParseShaderParameters();
@@ -638,6 +633,11 @@ void CMainFrame::OnFileNew()
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
 	m_ActorList.insert(actor);
+
+	//m_selactors.clear();
+	//m_selactors.insert(actor.get());
+	//m_selchunkid.SetPoint(0, 0);
+	//OnSelChanged();
 }
 
 void CMainFrame::OnFileOpen()
