@@ -1,11 +1,5 @@
 module("CommonUI", package.seeall)
 
-com_dlg_skin=ControlSkin()
-com_dlg_skin.Image=ControlImage()
-com_dlg_skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")
-com_dlg_skin.Image.Rect=Rectangle(154,43,156,45)
-com_dlg_skin.Image.Border=Vector4(0,0,0,0)
-
 com_lbl_skin=ControlSkin()
 com_lbl_skin.Font=game.Font
 com_lbl_skin.TextColor=ARGB(255,255,255,255)
@@ -120,3 +114,10 @@ com_cbx_skin.ScrollBarImage=ControlImage()
 com_cbx_skin.ScrollBarImage.Texture=game:LoadTexture("texture/CommonUI.png")
 com_cbx_skin.ScrollBarImage.Rect=Rectangle(1,43,16,58)
 com_cbx_skin.ScrollBarImage.Border=Vector4(7,7,7,7)
+
+com_dlg_skin=DialogSkin()
+com_dlg_skin.VisibleShowSound="demo2_3/untitled/15"
+com_dlg_skin.Image=ControlImage()
+com_dlg_skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")
+com_dlg_skin.Image.Rect=Rectangle(154,43,156,45)
+com_dlg_skin.Image.Border=Vector4(0,0,0,0)

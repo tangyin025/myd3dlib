@@ -282,7 +282,6 @@ end
 dlg.EventVisibleChanged=function(arg)
 	if arg.Visible then
 		RefreshDisplayAdapter()
-		game:PlaySound("demo2_3/untitled/15")
 	end
 end
 

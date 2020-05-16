@@ -127,6 +127,10 @@ namespace my
 
 		Font::Align m_TextAlign;
 
+		std::string m_VisibleShowSound;
+
+		std::string m_VisibleHideSound;
+
 		std::string m_MouseEnterSound;
 
 		std::string m_MouseLeaveSound;
@@ -931,6 +935,20 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
+
+	class DialogSkin : public ControlSkin
+	{
+	public:
+		DialogSkin(void)
+		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+		}
+	};
 
 	class Dialog;
 

@@ -294,6 +294,8 @@ void ControlSkin::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(FontHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
+	ar << BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
+	ar << BOOST_SERIALIZATION_NVP(m_VisibleHideSound);
 	ar << BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
 	ar << BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
 	ar << BOOST_SERIALIZATION_NVP(m_MouseClickSound);
@@ -313,6 +315,8 @@ void ControlSkin::load(Archive & ar, const unsigned int version)
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);
+	ar >> BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
+	ar >> BOOST_SERIALIZATION_NVP(m_VisibleHideSound);
 	ar >> BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
 	ar >> BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
 	ar >> BOOST_SERIALIZATION_NVP(m_MouseClickSound);
@@ -569,6 +573,21 @@ void Control::SetVisible(bool bVisible)
 	if (m_bVisible != bVisible)
 	{
 		m_bVisible = bVisible;
+
+		if (m_bVisible)
+		{
+			if (m_Skin && !m_Skin->m_VisibleShowSound.empty())
+			{
+				D3DContext::getSingleton().PlaySound(m_Skin->m_VisibleShowSound.c_str());
+			}
+		}
+		else
+		{
+			if (m_Skin && !m_Skin->m_VisibleHideSound.empty())
+			{
+				D3DContext::getSingleton().PlaySound(m_Skin->m_VisibleHideSound.c_str());
+			}
+		}
 
 		if (m_EventVisibleChanged)
 		{
@@ -2680,7 +2699,7 @@ void Dialog::SetVisible(bool bVisible)
 {
 	if (m_bVisible != bVisible)
 	{
-		m_bVisible = bVisible;
+		Control::SetVisible(bVisible);
 
 		if (m_bVisible)
 		{
@@ -2700,12 +2719,6 @@ void Dialog::SetVisible(bool bVisible)
 			{
 				Control::s_FocusControl->ReleaseFocus();
 			}
-		}
-
-		if (m_EventVisibleChanged)
-		{
-			VisibleEventArg arg(this, bVisible);
-			m_EventVisibleChanged(&arg);
 		}
 	}
 }
