@@ -19,8 +19,8 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
 	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.Light = TransformLightWS(In);
-	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View);
-	Output.Eye = mul(float4(g_Eye, 1.0), g_View);
+	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View).xyz;
+	Output.Eye = mul(float4(g_Eye, 1.0), g_View).xyz;
 	return Output;
 }
 

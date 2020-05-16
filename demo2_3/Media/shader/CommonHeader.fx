@@ -109,7 +109,7 @@ float GetLigthAmount(float4 PosShadow)
 	float x, y;
 	for(x = -0.0; x <= 1.0; x += 1.0)
 		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / g_ShadowMapSize) + g_ShadowEpsilon < PosShadow.z / PosShadow.w ? 0.0 : 1.0;
+			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / g_ShadowMapSize).x + g_ShadowEpsilon < PosShadow.z / PosShadow.w ? 0.0 : 1.0;
 			
 	return LightAmount / 4;
 }

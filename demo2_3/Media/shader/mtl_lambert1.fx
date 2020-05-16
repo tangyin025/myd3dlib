@@ -74,7 +74,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.ViewPos = mul(PosWS, g_View);
+	Output.ViewPos = mul(PosWS, g_View).xyz;
 	return Output;
 }
 
@@ -108,21 +108,21 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
 	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.ShadowPos = mul(PosWS, g_SkyLightViewProj);
-	Output.ViewDir = normalize(mul(g_Eye - PosWS, (float3x3)g_View));
+	Output.ViewDir = normalize(mul(g_Eye - PosWS.xyz, (float3x3)g_View));
     return Output;    
 }
 
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
-	float3 SkyLightDir = normalize(float3(g_SkyLightViewProj[0][2],g_SkyLightViewProj[1][2],g_SkyLightViewProj[2][2]));
-	float3 ViewSkyLightDir = mul(SkyLightDir, g_View);
+	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
+	float3 ViewSkyLightDir = mul(SkyLightDir, (float3x3)g_View);
 	float LightAmount = GetLigthAmount(In.ShadowPos);
-	float3 Normal = tex2D(NormalRTSampler, In.ScreenTex / In.ScreenPos.w);
-	float3 SkyDiffuse = saturate(dot(Normal, -ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
+	float3 Normal = tex2D(NormalRTSampler, In.ScreenTex / In.ScreenPos.w).xyz;
+	float3 SkyDiffuse = saturate(dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(Normal, In.ViewDir);
-	float SkySpecular = pow(saturate(dot(Ref, -ViewSkyLightDir) * LightAmount), g_SpecularExp) * g_SkyLightColor.w;
-	float3 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
-	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0);
+	float SkySpecular = pow(saturate(dot(Ref, ViewSkyLightDir) * LightAmount), g_SpecularExp) * g_SkyLightColor.w;
+	float3 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0).xyz;
+	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
 	// float Fres = Fresnel(Normal, In.ViewDir, g_FresExp, g_ReflStrength) * g_Ambient.w;
 	float4 ScreenLight = tex2D(LightRTSampler, In.ScreenTex / In.ScreenPos.w);
 	float3 Final = Diffuse * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
