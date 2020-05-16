@@ -494,6 +494,9 @@ void LuaContext::Init(void)
 		, class_<my::ControlEventArg, my::EventArg>("ControlEventArg")
 			.def_readonly("sender", &my::ControlEventArg::sender)
 
+		, class_<my::VisibleEventArg, my::ControlEventArg>("VisibleEventArg")
+			.def_readonly("Visible", &my::VisibleEventArg::Visible)
+
 		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")
 			.def_readonly("pt", &my::MouseEventArg::pt)
 
@@ -527,6 +530,7 @@ void LuaContext::Init(void)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("FindControl", &my::Control::FindControl)
 			.def("FindControlRecurse", &my::Control::FindControlRecurse)
+			.def_readwrite("EventVisibleChanged", &my::Control::m_EventVisibleChanged)
 			.def_readwrite("EventMouseEnter", &my::Control::m_EventMouseEnter)
 			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
 			.def_readwrite("EventMouseClick", &my::Control::m_EventMouseClick)
@@ -620,9 +624,7 @@ void LuaContext::Init(void)
 		, class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(constructor<>())
 			.def_readwrite("World", &my::Dialog::m_World)
-			.def("Refresh", &my::Dialog::Refresh)
 			.def_readwrite("EventAlign", &my::Dialog::m_EventAlign)
-			.def_readwrite("EventRefresh", &my::Dialog::m_EventRefresh)
 			.scope
 			[
 				def("LoadFromFile", &my::Dialog::LoadFromFile)

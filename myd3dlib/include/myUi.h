@@ -182,6 +182,18 @@ namespace my
 		}
 	};
 
+	class VisibleEventArg : public ControlEventArg
+	{
+	public:
+		bool Visible;
+
+		VisibleEventArg(Control * _sender, bool _Visible)
+			: ControlEventArg(_sender)
+			, Visible(_Visible)
+		{
+		}
+	};
+
 	class MouseEventArg : public ControlEventArg
 	{
 	public:
@@ -230,6 +242,8 @@ namespace my
 		ControlSkinPtr m_Skin;
 
 		bool m_bPressed;
+
+		EventFunction m_EventVisibleChanged;
 
 		EventFunction m_EventMouseEnter;
 
@@ -297,8 +311,6 @@ namespace my
 		virtual void SetVisible(bool bVisible);
 
 		virtual bool GetVisible(void);
-
-		virtual void Refresh(void);
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
 
@@ -437,11 +449,7 @@ namespace my
 	class Button : public Static
 	{
 	public:
-		D3DXCOLOR m_BlendColor;
-
-	public:
 		Button(void)
-			: m_BlendColor(D3DCOLOR_ARGB(255,255,255,255))
 		{
 		}
 
@@ -462,8 +470,6 @@ namespace my
 		virtual void OnHotkey(void);
 
 		virtual bool HitTest(const Vector2 & pt);
-
-		virtual void Refresh(void);
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
@@ -945,8 +951,6 @@ namespace my
 
 		EventFunction m_EventAlign;
 
-		EventFunction m_EventRefresh;
-
 	public:
 		Dialog(void)
 			: m_Parent(NULL)
@@ -979,8 +983,6 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual void SetVisible(bool bVisible);
-
-		virtual void Refresh(void);
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
 

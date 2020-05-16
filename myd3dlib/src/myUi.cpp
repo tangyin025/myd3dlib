@@ -566,16 +566,21 @@ bool Control::GetEnabled(void)
 
 void Control::SetVisible(bool bVisible)
 {
-	m_bVisible = bVisible;
+	if (m_bVisible != bVisible)
+	{
+		m_bVisible = bVisible;
+
+		if (m_EventVisibleChanged)
+		{
+			VisibleEventArg arg(this, bVisible);
+			m_EventVisibleChanged(&arg);
+		}
+	}
 }
 
 bool Control::GetVisible(void)
 {
 	return m_bVisible;
-}
-
-void Control::Refresh(void)
-{
 }
 
 bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld)
@@ -843,14 +848,13 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						Rect = Rect.offset(-Skin->m_PressedOffset);
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Color);
 					}
 					else
 					{
 						DstColor.a = 0;
+						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 					}
-					Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
-					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_BlendColor);
 				}
 			}
 
@@ -967,11 +971,6 @@ void Button::OnHotkey(void)
 bool Button::HitTest(const Vector2 & pt)
 {
 	return Control::HitTest(pt);
-}
-
-void Button::Refresh(void)
-{
-	m_BlendColor = m_Color;
 }
 
 void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
@@ -2044,13 +2043,8 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				D3DXCOLOR DstColor(m_Color);
 				if(m_bMouseOver /*|| m_bHasFocus*/)
 				{
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Color);
 				}
-				else
-				{
-					DstColor.a = 0;
-				}
-				D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-				Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_BlendColor);
 			}
 
 			Rectangle TextRect(Rectangle::LeftTop(BtnRect.r, Offset.y + m_Location.y, m_Size.x - m_CheckBtnSize.x, m_Size.y));
@@ -2236,14 +2230,12 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						Rect = Rect.offset(-Skin->m_PressedOffset);
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Color);
 					}
 					else
 					{
-						DstColor.a = 0;
+						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 					}
-					Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
-					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_BlendColor);
 				}
 			}
 
@@ -2689,6 +2681,7 @@ void Dialog::SetVisible(bool bVisible)
 	if (m_bVisible != bVisible)
 	{
 		m_bVisible = bVisible;
+
 		if (m_bVisible)
 		{
 			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -2700,8 +2693,6 @@ void Dialog::SetVisible(bool bVisible)
 					break;
 				}
 			}
-
-			Refresh();
 		}
 		else
 		{
@@ -2710,20 +2701,12 @@ void Dialog::SetVisible(bool bVisible)
 				Control::s_FocusControl->ReleaseFocus();
 			}
 		}
-	}
-}
 
-void Dialog::Refresh(void)
-{
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
-	{
-		(*ctrl_iter)->Refresh();
-	}
-
-	if(m_EventRefresh)
-	{
-		m_EventRefresh(&ControlEventArg(this));
+		if (m_EventVisibleChanged)
+		{
+			VisibleEventArg arg(this, bVisible);
+			m_EventVisibleChanged(&arg);
+		}
 	}
 }
 

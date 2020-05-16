@@ -279,9 +279,11 @@ dlg.Visible=false
 dlg.EventAlign=function(arg)
 	dlg.Location=(game.DlgViewport-dlg.Size)*0.5
 end
-dlg.EventRefresh=function(arg)
-	RefreshDisplayAdapter()
-	game:PlaySound("demo2_3/untitled/15")
+dlg.EventVisibleChanged=function(arg)
+	if arg.Visible then
+		RefreshDisplayAdapter()
+		game:PlaySound("demo2_3/untitled/15")
+	end
 end
 
 local local_device_settings=nil
