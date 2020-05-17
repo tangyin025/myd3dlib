@@ -8,8 +8,6 @@
 
 #include "CommonHeader.fx"
 
-float4 g_WireColor = float4(0,1,0,1);
-
 static const int g_cKernelSize = 13;
 
 float4 g_DofParams = float4( 5.0f, 15.0f, 25.0f, 1.0f );
