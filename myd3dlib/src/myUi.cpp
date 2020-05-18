@@ -2565,6 +2565,7 @@ void Dialog::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
+	ar << BOOST_SERIALIZATION_NVP(m_EnableDrag);
 }
 
 template<class Archive>
@@ -2572,6 +2573,7 @@ void Dialog::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
+	ar >> BOOST_SERIALIZATION_NVP(m_EnableDrag);
 }
 
 template
@@ -2672,11 +2674,15 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_MOUSEMOVE:
 			if (m_bPressed)
 			{
-				if (!m_bMouseDrag)
+				if (m_EnableDrag && !m_bMouseDrag)
 				{
 					m_bMouseDrag = true;
 				}
-				m_Location = pt - m_MouseOffset;
+
+				if (m_bMouseDrag)
+				{
+					m_Location = pt - m_MouseOffset;
+				}
 			}
 			break;
 		}

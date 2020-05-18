@@ -960,6 +960,8 @@ namespace my
 
 		Matrix4 m_World;
 
+		bool m_EnableDrag;
+
 		bool m_bMouseDrag;
 
 		Vector2 m_MouseOffset;
@@ -970,6 +972,7 @@ namespace my
 		Dialog(void)
 			: m_Parent(NULL)
 			, m_World(Matrix4::identity)
+			, m_EnableDrag(false)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{

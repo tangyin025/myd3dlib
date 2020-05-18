@@ -629,6 +629,7 @@ void LuaContext::Init(void)
 		, class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(constructor<>())
 			.def_readwrite("World", &my::Dialog::m_World)
+			.def_readwrite("EnableDrag", &my::Dialog::m_EnableDrag)
 			.def_readwrite("EventAlign", &my::Dialog::m_EventAlign)
 			.scope
 			[
