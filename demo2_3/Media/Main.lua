@@ -1,42 +1,24 @@
 require "Settings.lua"
 require "Hud.lua"
+require "Player.lua"
+require "Action.lua"
 
--- 修正不规范资源
-mesh=game:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
-mesh:Transform(Matrix4.Compose(
-	Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0)))
--- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
-skel=game:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
-skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
-skel:Transform(Matrix4.Compose(
-	Vector3(0.01,0.01,0.01),Quaternion.Identity(),Vector3(0,-0.95,0)))
--- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly.skeleton.xml")
-mesh2=game:LoadMesh("mesh/Cylinder.mesh.xml","")
-mesh2:Transform(Matrix4.Compose(
-	Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
--- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
-
--- -- 设置环境光
--- game.SkyLightCam.Eye=Vector3(0,0,0)
--- game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
--- game.SkyLightCam.Width=50
--- game.SkyLightCam.Height=50
--- game.SkyLightCam.Nz=-50
--- game.SkyLightCam.Fz=50
--- game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
--- game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
+-- 设置环境光
+game.SkyLightCam.Eye=Vector3(0,0,0)
+game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
+game.SkyLightCam.Width=50
+game.SkyLightCam.Height=50
+game.SkyLightCam.Nz=-50
+game.SkyLightCam.Fz=50
+game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
+game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
 -- -- 创建地面
--- local actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
+-- actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
 -- local cmp=MeshComponent()
 -- local lambert1=Material()
 -- lambert1.Shader="shader/mtl_lambert1.fx"
 -- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
--- -- lambert1.RepeatUV.x=64
--- -- lambert1.RepeatUV.y=64
 -- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 -- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 -- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
@@ -51,142 +33,8 @@ mesh2:Transform(Matrix4.Compose(
 -- actor:UpdateWorld()
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
--- ActionTrack
-act_jump=Action()
-act_jump.Length=5.0
-local track=ActionTrackAnimation()
-track:AddKeyFrame(0,"jumpforward","",2.0,0.3,0.3,false,1,0,"")
-act_jump:AddTrack(track)
-
-act_env=Action()
-act_env.Length=5.0
-track=ActionTrackSound()
-track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
-act_env:AddTrack(track)
-
-act_tuowei=Action()
-act_tuowei.Length=99999
-local particle1=Material()
-particle1.Shader="shader/mtl_particle1.fx"
-particle1.PassMask=Material.PassMaskTransparent
-particle1.ZWriteEnable=0
-particle1.BlendMode=Material.BlendModeAdditive
-particle1:AddParameterTexture("g_Texture", "texture/flare.dds")
-local track=ActionTrackEmitter()
-track.EmitterMaterial=particle1
-track.ParticleLifeTime=5
-track.ParticleColorR:AddNode(0,1,0,0)
-track.ParticleColorR:AddNode(3,0,0,0)
-track.ParticleColorG:AddNode(0,1,0,0)
-track.ParticleColorG:AddNode(3,0,0,0)
-track.ParticleColorB:AddNode(0,1,0,0)
-track.ParticleColorB:AddNode(3,0,0,0)
-track.ParticleColorA:AddNode(0,1,0,0)
-track.ParticleColorA:AddNode(3,0,0,0)
-track.SpawnInterval=0.1
-track.SpawnLength=99999
-track:AddKeyFrame(0,99999,0.1)
-act_tuowei:AddTrack(track)
-
--- 创建玩家Actor
---[[local]] player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
-player.EventMouseMove=function(arg)
-	if arg.x ~= 0 then
-		player.LookAngle.y=player.LookAngle.y-math.rad(arg.x)
-	end
-	if arg.y ~= 0 then
-		player.LookAngle.x=player.LookAngle.x-math.rad(arg.y)
-	end
-	if arg.z ~= 0 then
-		player.LookDist=player.LookDist-arg.z/480.0
-	end
-end
-player.EventKeyDown=function(arg)
-	if arg.kc == 57 then
-		player.Velocity.y=5.0
-		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,0,"")
-		player:PlayAction(act_jump)
-	end
-	if arg.kc == 17 then
-		player.MoveAxis.y=player.MoveAxis.y+1
-	end
-	if arg.kc == 30 then
-		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,1,"move")
-		player.MoveAxis.x=player.MoveAxis.x+1
-	end
-	if arg.kc == 31 then
-		player.MoveAxis.y=player.MoveAxis.y-1
-	end
-	if arg.kc == 32 then
-		player.MoveAxis.x=player.MoveAxis.x-1
-	end
-end
-player.EventKeyUp=function(arg)
-	if arg.kc == 17 then
-		player.MoveAxis.y=player.MoveAxis.y-1
-	end
-	if arg.kc == 30 then
-		player.MoveAxis.x=player.MoveAxis.x-1
-	end
-	if arg.kc == 31 then
-		player.MoveAxis.y=player.MoveAxis.y+1
-	end
-	if arg.kc == 32 then
-		player.MoveAxis.x=player.MoveAxis.x+1
-	end
-end
-
--- 加载皮肤
-local lambert2=Material()
-lambert2.Shader="shader/mtl_lambert1.fx"
-lambert2.PassMask=Material.PassMaskShadowNormalOpaque
-lambert2:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
-lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
-lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
-local cmp=MeshComponent()
-cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
-cmp:AddMaterial(lambert2)
-cmp.bUseAnimation=true
-player:AddComponent(cmp)
-
--- 构建动画树
-local seq_idle=AnimationNodeSequence()
-seq_idle.Name="idle1"
-local seq_walk=AnimationNodeSequence()
-seq_walk.Name="walk"
-seq_walk.Group="move"
-local rate_walk=AnimationNodeRateBySpeed()
-rate_walk.Speed0=1.2
-rate_walk.Child0=seq_walk
-local node_walk=AnimationNodeBlendBySpeed()
-node_walk.Speed0=1.0
-node_walk.Child0=seq_idle
-node_walk.Child1=rate_walk
-local seq_run=AnimationNodeSequence()
-seq_run.Name="run"
-seq_run.Group="move"
-local rate_run=AnimationNodeRateBySpeed()
-rate_run.Speed0=7
-rate_run.Child0=seq_run
-local node_run=AnimationNodeBlendBySpeed()
-node_run.Speed0=5.0
-node_run.Child0=node_walk
-node_run.Child1=rate_run
-
--- 加载动画资源
-local anim=AnimationRoot(player)
-anim.Child0=node_run
-anim:ReloadSequenceGroup()
-anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-anim.SkeletonEventReady=function(arg)
-	-- anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	anim:AddIK("Bip01_L_Thigh", 0.1, 1)
-	anim:AddIK("Bip01_R_Thigh", 0.1, 1)
-end
-player.Animation=anim
-
 -- 创建一个物理球
---[[local]] actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert3=Material()
 lambert3.Shader="shader/mtl_lambert1.fx"
 lambert3.PassMask=Material.PassMaskShadowNormalOpaque
@@ -201,7 +49,7 @@ actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 
 -- 在角色手部绑定物体
---[[local]] actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp3=MeshComponent()
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3:AddMaterial(lambert3:Clone())
@@ -211,7 +59,7 @@ actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 在角色手部绑定物体
---[[local]] actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp4=MeshComponent()
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
 cmp4:AddMaterial(lambert3:Clone())
@@ -221,17 +69,17 @@ actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 game.EventLoadScene=function(arg)
-	player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-	game:AddEntity(actor2ent(player),player.aabb:transform(player.World))
+	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
+	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World))
 	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
 	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World))
-	player:Attach(actor2, 10)
-	player:Attach(actor3, 29)
-	player:PlayAction(act_tuowei)
+	SPlayer.player:Attach(actor2, 10)
+	SPlayer.player:Attach(actor3, 29)
+	SPlayer.player:PlayAction(SAction.act_tuowei)
 
 	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-	actor4:PlayAction(act_env)
+	actor4:PlayAction(SAction.act_sound)
 end
 
 -- 加载场景资源
