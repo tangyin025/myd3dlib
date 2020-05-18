@@ -3,15 +3,15 @@ require "Hud.lua"
 require "Player.lua"
 require "Action.lua"
 
--- 设置环境光
-game.SkyLightCam.Eye=Vector3(0,0,0)
-game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
-game.SkyLightCam.Width=50
-game.SkyLightCam.Height=50
-game.SkyLightCam.Nz=-50
-game.SkyLightCam.Fz=50
-game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
-game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
+-- -- 设置环境光
+-- game.SkyLightCam.Eye=Vector3(0,0,0)
+-- game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
+-- game.SkyLightCam.Width=50
+-- game.SkyLightCam.Height=50
+-- game.SkyLightCam.Nz=-50
+-- game.SkyLightCam.Fz=50
+-- game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
+-- game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 
 -- -- 创建地面
 -- actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
@@ -34,52 +34,52 @@ game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- 创建一个物理球
-actor4=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local lambert3=Material()
-lambert3.Shader="shader/mtl_lambert1.fx"
-lambert3.PassMask=Material.PassMaskShadowNormalOpaque
-lambert3:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-lambert3:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-lambert3:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+actor2=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local lambert2=Material()
+lambert2.Shader="shader/mtl_lambert1.fx"
+lambert2.PassMask=Material.PassMaskShadowNormalOpaque
+lambert2:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+lambert2:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+lambert2:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent()
 cmp2.MeshPath="mesh/Sphere.mesh.xml"
-cmp2:AddMaterial(lambert3)
-actor4:AddComponent(cmp2)
-actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+cmp2:AddMaterial(lambert2)
+actor2:AddComponent(cmp2)
+actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 
 -- 在角色手部绑定物体
-actor2=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp3=MeshComponent()
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
-cmp3:AddMaterial(lambert3:Clone())
-actor2:AddComponent(cmp3)
-actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-actor2:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+cmp3:AddMaterial(lambert2:Clone())
+actor3:AddComponent(cmp3)
+actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 在角色手部绑定物体
-actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor4=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp4=MeshComponent()
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
-cmp4:AddMaterial(lambert3:Clone())
-actor3:AddComponent(cmp4)
-actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+cmp4:AddMaterial(lambert2:Clone())
+actor4:AddComponent(cmp4)
+actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
+actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 game.EventLoadScene=function(arg)
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World))
-	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
 	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World))
-	SPlayer.player:Attach(actor2, 10)
-	SPlayer.player:Attach(actor3, 29)
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	SPlayer.player:Attach(actor3, 10)
+	SPlayer.player:Attach(actor4, 29)
 	SPlayer.player:PlayAction(SAction.act_tuowei)
 
-	actor4:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
-	actor4:PlayAction(SAction.act_sound)
+	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
+	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
+	actor2:PlayAction(SAction.act_sound)
 end
 
 -- 加载场景资源

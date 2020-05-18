@@ -23,18 +23,18 @@ mesh2:Transform(Matrix4.Compose(
 player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1)
 
 -- 模型材质
-local lambert2=Material()
-lambert2.Shader="shader/mtl_lambert1.fx"
-lambert2.PassMask=Material.PassMaskShadowNormalOpaque
-lambert2:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
-lambert2:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
-lambert2:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
+local lambert1=Material()
+lambert1.Shader="shader/mtl_lambert1.fx"
+lambert1.PassMask=Material.PassMaskShadowNormalOpaque
+lambert1:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
+lambert1:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")
+lambert1:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.png")
 
 -- 模型
 local cmp=MeshComponent()
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshSubMeshName=""
-cmp:AddMaterial(lambert2)
+cmp:AddMaterial(lambert1)
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 
