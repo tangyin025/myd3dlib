@@ -108,7 +108,7 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
 	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.ShadowPos = mul(PosWS, g_SkyLightViewProj);
-	Output.ViewDir = normalize(mul(g_Eye - PosWS.xyz, (float3x3)g_View));
+	Output.ViewDir = mul(g_Eye - PosWS.xyz, (float3x3)g_View);
     return Output;    
 }
 
