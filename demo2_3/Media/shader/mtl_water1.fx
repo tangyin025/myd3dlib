@@ -89,7 +89,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	Out.BinormalWS = BinormalWS;
 	Out.TangentWS = TangentWS;
 	Out.NormalWS = NormalWS;
-	Out.ViewWS = normalize(g_Eye - PosWS.xyz);
+	Out.ViewWS = normalize(g_Eye - PosWS.xyz); // ! dont normalize here
 	return Out;
 }
 
