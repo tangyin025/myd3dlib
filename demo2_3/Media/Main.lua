@@ -56,7 +56,7 @@ cmp3:AddMaterial(lambert2:Clone())
 actor3:AddComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
+cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,2)
 
 -- 在角色手部绑定物体
 actor4=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -66,7 +66,7 @@ cmp4:AddMaterial(lambert2:Clone())
 actor4:AddComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
+cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,2)
 
 game.EventLoadScene=function(arg)
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
@@ -75,11 +75,11 @@ game.EventLoadScene=function(arg)
 	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 	SPlayer.player:Attach(actor3, 10)
 	SPlayer.player:Attach(actor4, 29)
-	SPlayer.player:PlayAction(SAction.act_tuowei)
+	-- SPlayer.player:PlayAction(SAction.act_tuowei)
 
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
-	actor2:PlayAction(SAction.act_sound)
+	-- actor2:PlayAction(SAction.act_sound)
 end
 
 -- 加载场景资源
@@ -87,4 +87,4 @@ game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
--- game.VisualizationParameter=1
+game.VisualizationParameter=1

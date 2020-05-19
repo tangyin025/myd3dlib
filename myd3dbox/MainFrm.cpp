@@ -743,7 +743,7 @@ void CMainFrame::OnCreateCharacter()
 	{
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
-	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f));
+	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
 	character->UpdateWorld();
 	AddEntity(character.get(), character->m_aabb.transform(character->m_World));
 	m_ActorList.insert(character);

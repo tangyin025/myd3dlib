@@ -393,10 +393,22 @@ physx::PxFilterFlags PhysxSceneContext::filter(
 	const void* constantBlock,
 	physx::PxU32 constantBlockSize)
 {
-	pairFlags |= physx::PxPairFlag::eCONTACT_DEFAULT;
-	pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
-	pairFlags |= physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
-	return physx::PxFilterFlags();
+	// let triggers through
+	if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
+	{
+		pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT;
+		return physx::PxFilterFlag::eDEFAULT;
+	}
+
+	if (filterData0.word0 && filterData1.word0 && !(filterData0.word0 & filterData1.word0))
+	{
+		return physx::PxFilterFlag::eSUPPRESS;
+	}
+
+	// generate contacts for all that were not filtered above
+	pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+
+	return physx::PxFilterFlag::eDEFAULT;
 }
 
 void PhysxSceneContext::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
@@ -436,6 +448,17 @@ void PhysxSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, 
 
 void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 {
+	for (physx::PxU32 i = 0; i < count; i++)
+	{
+		// ignore pairs when shapes have been deleted
+		if (pairs[i].flags & (physx::PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | physx::PxTriggerPairFlag::eREMOVED_SHAPE_OTHER))
+		{
+			continue;
+		}
+
+		Actor * triggerActor = (Actor *)pairs[i].triggerActor->userData;
+		Actor * otherActor = (Actor *)pairs[i].otherActor->userData;
+	}
 }
 
 void PhysxSceneContext::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor)

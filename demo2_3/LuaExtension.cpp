@@ -995,7 +995,7 @@ void LuaContext::Init(void)
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float>())
+			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
 			.def("SetPose", &Character::SetPose)

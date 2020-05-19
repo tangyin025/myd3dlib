@@ -138,17 +138,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 											<count>4</count>
 											<item_version>1</item_version>
 											<item class_id="20" tracking_level="0" version="1">
-												<px class_id="22" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_4">
+												<px class_id="22" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_4">
 													<MaterialParameter class_id="21" tracking_level="1" version="0" object_id="_5">
-														<m_Type>1</m_Type>
-														<m_Name>g_SpecularExp</m_Name>
-													</MaterialParameter>
-													<m_Value>2.500000000e+01</m_Value>
-												</px>
-											</item>
-											<item>
-												<px class_id="23" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
-													<MaterialParameter object_id="_7">
 														<m_Type>5</m_Type>
 														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
@@ -156,8 +147,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_8">
-													<MaterialParameter object_id="_9">
+												<px class_id_reference="22" object_id="_6">
+													<MaterialParameter object_id="_7">
 														<m_Type>5</m_Type>
 														<m_Name>g_NormalTexture</m_Name>
 													</MaterialParameter>
@@ -165,12 +156,21 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_10">
-													<MaterialParameter object_id="_11">
+												<px class_id_reference="22" object_id="_8">
+													<MaterialParameter object_id="_9">
 														<m_Type>5</m_Type>
 														<m_Name>g_SpecularTexture</m_Name>
 													</MaterialParameter>
 													<m_TexturePath>texture/White.dds</m_TexturePath>
+												</px>
+											</item>
+											<item>
+												<px class_id="23" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_10">
+													<MaterialParameter object_id="_11">
+														<m_Type>1</m_Type>
+														<m_Name>g_SpecularExp</m_Name>
+													</MaterialParameter>
+													<m_Value>2.500000000e+01</m_Value>
 												</px>
 											</item>
 										</m_ParameterList>
@@ -1148,14 +1148,14 @@ AAAA
 			<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABwXJIHAAAA
-gAIAAAAAnZIHAAAAgAEAAACwjJIHAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOk5f
-CAADAAAAAABUO05fAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMywjJIHAAAAAM3Nzc3N
-zc3N9NZOXwcAAwAAAAAAtNdOXwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADA3moOAAAA
+gAAAAABQwR0HAAAAgAEAAAAAlIYOAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOoUP
+CAADAAAAAABUO4UPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzA3moOAAAAAM3Nzc3N
+zc3N9NaFDwcAAwAAAAAAtNeFDwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAQAAAAAA
+AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiATl8GAAMAgHqOBwAAAAAA
-AAAAAJ2SBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzSAuigYAAACFAAAAAM3Nzc3/////DM2KBgEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzZiAhQ8GAAMAeERrDgAAAAAA
+AAAAUMEdBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzSB+XQ4AAACFAAAAAM3Nzc3/////XBNeDgEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 			</m_PxActor>
