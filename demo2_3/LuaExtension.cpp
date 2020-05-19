@@ -490,6 +490,7 @@ void LuaContext::Init(void)
 		, class_<my::EventArg>("EventArg")
 
 		, class_<my::EventFunction>("EventFunction")
+			.def("clear", &my::EventFunction::clear)
 
 		, class_<my::ControlEventArg, my::EventArg>("ControlEventArg")
 			.def_readonly("sender", &my::ControlEventArg::sender)
