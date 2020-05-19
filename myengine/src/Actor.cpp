@@ -270,6 +270,15 @@ void Actor::LeavePhysxScene(PhysxSceneContext * scene)
 
 void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 {
+	if (m_PxActor)
+	{
+		physx::PxRigidDynamic * rigidDynamic = m_PxActor->isRigidDynamic();
+		if (rigidDynamic && rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
+		{
+			return;
+		}
+	}
+
 	m_Position = (my::Vector3 &)trans.p;
 
 	m_Rotation = (my::Quaternion &)trans.q;
@@ -343,18 +352,17 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 		else
 		{
 			m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+			return;
 		}
 	}
-	else
-	{
-		m_Position = Pos;
 
-		m_Rotation = Rot;
+	m_Position = Pos;
 
-		UpdateWorld();
+	m_Rotation = Rot;
 
-		UpdateOctNode();
-	}
+	UpdateWorld();
+
+	UpdateOctNode();
 }
 
 my::AABB Actor::CalculateAABB(void) const

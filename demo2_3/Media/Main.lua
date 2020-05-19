@@ -75,11 +75,11 @@ game.EventLoadScene=function(arg)
 	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
 	SPlayer.player:Attach(actor3, 10)
 	SPlayer.player:Attach(actor4, 29)
-	-- SPlayer.player:PlayAction(SAction.act_tuowei)
+	SPlayer.player:PlayAction(SAction.act_tuowei)
 
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
-	-- actor2:PlayAction(SAction.act_sound)
+	actor2:PlayAction(SAction.act_sound)
 end
 
 -- 加载场景资源
@@ -87,4 +87,4 @@ game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game.VisualizationParameter=1
