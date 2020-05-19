@@ -519,7 +519,8 @@ void Control::OnMouseEnter(const Vector2 & pt)
 
 		if (m_EventMouseEnter)
 		{
-			m_EventMouseEnter(&MouseEventArg(this, pt));
+			MouseEventArg arg(this, pt);
+			m_EventMouseEnter(&arg);
 		}
 	}
 }
@@ -532,7 +533,8 @@ void Control::OnMouseLeave(const Vector2 & pt)
 
 		if (m_EventMouseLeave)
 		{
-			m_EventMouseLeave(&MouseEventArg(this, pt));
+			MouseEventArg arg(this, pt);
+			m_EventMouseLeave(&arg);
 		}
 
 		if (m_Skin && !m_Skin->m_MouseLeaveSound.empty())
@@ -903,7 +905,8 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					if (m_EventMouseClick)
 					{
-						m_EventMouseClick(&MouseEventArg(this, Vector2(0, 0)));
+						MouseEventArg arg(this, Vector2(0, 0));
+						m_EventMouseClick(&arg);
 					}
 				}
 				return true;
@@ -946,7 +949,8 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 					if (m_EventMouseClick)
 					{
-						m_EventMouseClick(&MouseEventArg(this, pt));
+						MouseEventArg arg(this, pt);
+						m_EventMouseClick(&arg);
 					}
 				}
 				return true;
@@ -973,7 +977,8 @@ void Button::OnHotkey(void)
 
 		if(m_EventMouseClick)
 		{
-			m_EventMouseClick(&MouseEventArg(this, Vector2(0, 0)));
+			MouseEventArg arg(this, Vector2(0, 0));
+			m_EventMouseClick(&arg);
 		}
 	}
 }
@@ -1084,7 +1089,8 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						DeleteSelectionText();
 						if(m_EventChange)
 						{
-							m_EventChange(&ControlEventArg(this));
+							ControlEventArg arg(this);
+							m_EventChange(&arg);
 						}
 					}
 					else if(m_nCaret > 0)
@@ -1094,7 +1100,8 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						m_Text.erase(m_nCaret, 1);
 						if(m_EventChange)
 						{
-							m_EventChange(&ControlEventArg(this));
+							ControlEventArg arg(this);
+							m_EventChange(&arg);
 						}
 					}
 					ResetCaretBlink();
@@ -1108,7 +1115,8 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						DeleteSelectionText();
 						if(m_EventChange)
 						{
-							m_EventChange(&ControlEventArg(this));
+							ControlEventArg arg(this);
+							m_EventChange(&arg);
 						}
 					}
 					break;
@@ -1117,7 +1125,8 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					PasteFromClipboard();
 					if(m_EventChange)
 					{
-						m_EventChange(&ControlEventArg(this));
+						ControlEventArg arg(this);
+						m_EventChange(&arg);
 					}
 					break;
 
@@ -1132,7 +1141,8 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case VK_RETURN:
 					if(m_EventEnter)
 					{
-						m_EventEnter(&ControlEventArg(this));
+						ControlEventArg arg(this);
+						m_EventEnter(&arg);
 					}
 					break;
 
@@ -1181,7 +1191,8 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					ResetCaretBlink();
 					if(m_EventChange)
 					{
-						m_EventChange(&ControlEventArg(this));
+						ControlEventArg arg(this);
+						m_EventChange(&arg);
 					}
 				}
 			}
@@ -1243,7 +1254,8 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					DeleteSelectionText();
 					if(m_EventChange)
 					{
-						m_EventChange(&ControlEventArg(this));
+						ControlEventArg arg(this);
+						m_EventChange(&arg);
 					}
 				}
 				else
@@ -1251,7 +1263,8 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_Text.erase(m_nCaret, 1);
 					if(m_EventChange)
 					{
-						m_EventChange(&ControlEventArg(this));
+						ControlEventArg arg(this);
+						m_EventChange(&arg);
 					}
 				}
 				ResetCaretBlink();
@@ -2102,7 +2115,8 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 					if(m_EventMouseClick)
 					{
-						m_EventMouseClick(&MouseEventArg(this, pt));
+						MouseEventArg arg(this, pt);
+						m_EventMouseClick(&arg);
 					}
 				}
 				return true;
@@ -2336,7 +2350,8 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								if(m_EventSelectionChanged)
 								{
-									m_EventSelectionChanged(&ControlEventArg(this));
+									ControlEventArg arg(this);
+									m_EventSelectionChanged(&arg);
 								}
 							}
 							m_bOpened = false;
@@ -2381,7 +2396,8 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								if(m_EventSelectionChanged)
 								{
-									m_EventSelectionChanged(&ControlEventArg(this));
+									ControlEventArg arg(this);
+									m_EventSelectionChanged(&arg);
 								}
 							}
 						}
@@ -2398,7 +2414,8 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 								if(m_EventSelectionChanged)
 								{
-									m_EventSelectionChanged(&ControlEventArg(this));
+									ControlEventArg arg(this);
+									m_EventSelectionChanged(&arg);
 								}
 							}
 						}
@@ -2664,7 +2681,8 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 					if (m_EventMouseClick)
 					{
-						m_EventMouseClick(&MouseEventArg(this, pt));
+						MouseEventArg arg(this, pt);
+						m_EventMouseClick(&arg);
 					}
 				}
 				return true;
@@ -2792,7 +2810,8 @@ void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 	{
 		if((*dlg_iter)->m_EventAlign)
 		{
-			(*dlg_iter)->m_EventAlign(&ControlEventArg(*dlg_iter));
+			ControlEventArg arg(*dlg_iter);
+			(*dlg_iter)->m_EventAlign(&arg);
 		}
 	}
 }
@@ -2953,7 +2972,8 @@ void DialogMgr::InsertDlg(Dialog * dlg)
 
 	if(dlg->m_EventAlign)
 	{
-		dlg->m_EventAlign(&ControlEventArg(dlg));
+		ControlEventArg arg(dlg);
+		dlg->m_EventAlign(&arg);
 	}
 }
 
