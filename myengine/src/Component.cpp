@@ -174,15 +174,15 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
-		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
 }
 
 void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0)
@@ -198,15 +198,15 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
-		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
 }
 
 void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, unsigned int filterWord0)
@@ -228,15 +228,15 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
-		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxPlaneGeometry(), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
 }
 
 void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, unsigned int filterWord0)
@@ -252,15 +252,53 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
-		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxSphereGeometry(radius), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
-
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
+}
+
+void Component::SetSimulationFilterWord0(unsigned int filterWord0)
+{
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+		m_PxShape->setSimulationFilterData(filter_data);
+	}
+}
+
+unsigned int Component::GetSimulationFilterWord0(void) const
+{
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
+		return filter_data.word0;
+	}
+	return 0;
+}
+
+void Component::SetQueryFilterWord0(unsigned int filterWord0)
+{
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+		m_PxShape->setQueryFilterData(filter_data);
+	}
+}
+
+unsigned int Component::GetQueryFilterWord0(void) const
+{
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
+		return filter_data.word0;
+	}
+	return 0;
 }
 
 void Component::ClearShape(void)
@@ -532,13 +570,13 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
-		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
+		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
 }
 
 void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filterWord0)
@@ -606,13 +644,13 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
-		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
+		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
 }
 
 ClothComponent::ClothComponent(void)

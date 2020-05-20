@@ -166,7 +166,7 @@ public:
 
 	void Attach(Actor * other, int BoneId);
 
-	void Dettach(Actor * other);
+	void Detach(Actor * other);
 
 	void ClearAllAttacher(void);
 

@@ -35,7 +35,7 @@ Actor::~Actor(void)
 	
 	if (m_Base)
 	{
-		m_Base->Dettach(this);
+		m_Base->Detach(this);
 	}
 
 	if (m_PxActor)
@@ -586,7 +586,7 @@ void Actor::Attach(Actor * other, int BoneId)
 	other->m_Base = this;
 }
 
-void Actor::Dettach(Actor * other)
+void Actor::Detach(Actor * other)
 {
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
@@ -607,7 +607,7 @@ void Actor::ClearAllAttacher(void)
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter = m_Attaches.begin())
 	{
-		Dettach(att_iter->first);
+		Detach(att_iter->first);
 	}
 }
 

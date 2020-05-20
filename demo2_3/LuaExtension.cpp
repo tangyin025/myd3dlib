@@ -881,6 +881,8 @@ void LuaContext::Init(void)
 			.def("CreateCapsuleShape", &Component::CreateCapsuleShape)
 			.def("CreatePlaneShape", &Component::CreatePlaneShape)
 			.def("CreateSphereShape", &Component::CreateSphereShape)
+			.property("SimulationFilterWord0", &Component::GetSimulationFilterWord0, &Component::SetSimulationFilterWord0)
+			.property("QueryFilterWord0", &Component::GetQueryFilterWord0, &Component::SetQueryFilterWord0)
 			.def("ClearShape", &Component::ClearShape)
 
 		, class_<MeshComponent, Component, boost::shared_ptr<Component> >("MeshComponent")
@@ -989,7 +991,7 @@ void LuaContext::Init(void)
 			]
 			.def("SaveToFile", &Actor::SaveToFile)
 			.def("Attach", &Actor::Attach)
-			.def("Dettach", &Actor::Dettach)
+			.def("Detach", &Actor::Detach)
 			.def("PlayAction", &Actor::PlayAction)
 
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)

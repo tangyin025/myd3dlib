@@ -80,6 +80,8 @@ game.EventLoadScene=function(arg)
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
 	actor2:PlayAction(SAction.act_sound)
+	
+	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 end
 
 -- 加载场景资源

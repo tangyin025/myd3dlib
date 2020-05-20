@@ -717,13 +717,13 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
-		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-	m_PxShape->setQueryFilterData(filter_data);
-	m_PxShape->setSimulationFilterData(filter_data);
+		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
+
+	SetSimulationFilterWord0(filterWord0);
+
+	SetQueryFilterWord0(filterWord0);
 }
 
 void Terrain::ClearShape(void)

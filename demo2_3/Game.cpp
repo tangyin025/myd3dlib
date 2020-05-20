@@ -966,7 +966,7 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->m_Base)
 	{
-		actor->m_Base->Dettach(actor);
+		actor->m_Base->Detach(actor);
 	}
 
 	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
