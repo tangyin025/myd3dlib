@@ -8,6 +8,7 @@
 #include "Console.h"
 #include "Material.h"
 #include "RenderPipeline.h"
+#include "PhysxContext.h"
 #include "Character.h"
 #include "Animation.h"
 #include "Terrain.h"

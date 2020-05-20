@@ -13,23 +13,6 @@ class Action;
 
 class ActionInst;
 
-struct TriggerEventArg : public my::EventArg
-{
-public:
-	physx::PxPairFlag::Enum status;
-
-	Actor * self;
-
-	Actor * other;
-
-	TriggerEventArg(physx::PxPairFlag::Enum _status, Actor * _self, Actor * _other)
-		: status(_status)
-		, self(_self)
-		, other(_other)
-	{
-	}
-};
-
 class Actor
 	: public my::OctEntity
 	, public boost::enable_shared_from_this<Actor>

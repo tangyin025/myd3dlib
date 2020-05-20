@@ -754,6 +754,15 @@ void Game::OnFrameTick(
 	}
 	mDeletedActors.clear();
 
+	TriggerEventArgList::iterator trigger_iter = mTriggerEventArgs.begin();
+	for (; trigger_iter != mTriggerEventArgs.end(); trigger_iter++)
+	{
+		if (trigger_iter->self->m_EventOnTrigger)
+		{
+			trigger_iter->self->m_EventOnTrigger(&(*trigger_iter));
+		}
+	}
+
 	if (player && player->m_Node)
 	{
 		m_EventSystem->set3DListenerAttributes(0,

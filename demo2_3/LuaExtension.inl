@@ -55,6 +55,7 @@ namespace luabind
 				}
 				void operator()(my::EventArg * arg)
 				{
+					_ASSERT(GetCurrentThreadId() == my::D3DContext::getSingleton().m_d3dThreadId);
 					try
 					{
 						obj(arg);

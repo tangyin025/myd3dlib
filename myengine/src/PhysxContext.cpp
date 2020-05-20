@@ -253,6 +253,8 @@ void PhysxSceneContext::TickPreRender(float dtime)
 {
 	m_Sync.ResetEvent();
 
+	mTriggerEventArgs.clear();
+
 	m_WaitForResults = Advance(dtime);
 }
 
@@ -457,11 +459,9 @@ void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 			continue;
 		}
 
-		TriggerEventArg arg(pairs->status, (Actor *)pairs[i].triggerActor->userData, (Actor *)pairs[i].otherActor->userData);
-		if (arg.self->m_EventOnTrigger)
-		{
-			arg.self->m_EventOnTrigger(&arg);
-		}
+		// fetchResults true will block other px thread
+		mTriggerEventArgs.push_back(TriggerEventArg(
+			pairs->status, (Actor *)pairs[i].triggerActor->userData, (Actor *)pairs[i].otherActor->userData));
 	}
 }
 

@@ -287,10 +287,14 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Co
 {
 	pShape->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
 	physx::PxTransform localPose;
+	physx::PxFilterData simulFilterData;
+	physx::PxFilterData queryFilterData;
 	physx::PxShapeFlags shapeFlags;
 	if (cmp->m_PxShape)
 	{
 		localPose = cmp->m_PxShape->getLocalPose();
+		simulFilterData = cmp->m_PxShape->getSimulationFilterData();
+		queryFilterData = cmp->m_PxShape->getQueryFilterData();
 		shapeFlags = cmp->m_PxShape->getFlags();
 	}
 	pShape->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)localPose.p.x);
@@ -300,8 +304,8 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Co
 	pShape->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
 	pShape->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
 	pShape->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-	pShape->GetSubItem(3)->SetValue((_variant_t)cmp->GetSimulationFilterWord0());
-	pShape->GetSubItem(4)->SetValue((_variant_t)cmp->GetQueryFilterWord0());
+	pShape->GetSubItem(3)->SetValue((_variant_t)simulFilterData.word0);
+	pShape->GetSubItem(4)->SetValue((_variant_t)queryFilterData.word0);
 	pShape->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE));
 	pShape->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eSCENE_QUERY_SHAPE));
 	pShape->GetSubItem(7)->SetValue((_variant_t)(VARIANT_BOOL)shapeFlags.isSet(physx::PxShapeFlag::eTRIGGER_SHAPE));
@@ -684,10 +688,14 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	pShape->AddSubItem(pType);
 
 	physx::PxTransform localPose;
+	physx::PxFilterData simulFilterData;
+	physx::PxFilterData queryFilterData;
 	physx::PxShapeFlags shapeFlags;
 	if (cmp->m_PxShape)
 	{
 		localPose = cmp->m_PxShape->getLocalPose();
+		simulFilterData = cmp->m_PxShape->getSimulationFilterData();
+		queryFilterData = cmp->m_PxShape->getQueryFilterData();
 		shapeFlags = cmp->m_PxShape->getFlags();
 	}
 
@@ -710,9 +718,9 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyShapeLocalRotZ);
 	pLocalRot->AddSubItem(pProp);
 
-	pProp = new CSimpleProp(_T("SimulationFilterData"), (_variant_t)cmp->GetSimulationFilterWord0(), NULL, PropertyShapeSimulationFilterData);
+	pProp = new CSimpleProp(_T("SimulationFilterData"), (_variant_t)simulFilterData.word0, NULL, PropertyShapeSimulationFilterData);
 	pShape->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("QueryFilterData"), (_variant_t)cmp->GetQueryFilterWord0(), NULL, PropertyShapeQueryFilterData);
+	pProp = new CSimpleProp(_T("QueryFilterData"), (_variant_t)queryFilterData.word0, NULL, PropertyShapeQueryFilterData);
 	pShape->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("Simulation"), shapeFlags.isSet(physx::PxShapeFlag::eSIMULATION_SHAPE), NULL, PropertyShapeSimulation);
 	pShape->AddSubItem(pProp);
