@@ -66,6 +66,24 @@ actor4:AddComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
+-- 搞一个trigger
+actor5=Actor(Vector3(5,2,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local cmp5=StaticEmitterComponent(1)
+actor5:AddComponent(cmp5)
+actor5:CreateRigidActor(Actor.eRIGID_STATIC)
+cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,1)
+cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
+cmp5:SetShapeFlag(Component.eTRIGGER_SHAPE,true)
+actor5.EventOnTrigger=function(arg)
+	if arg.other:Compare(SPlayer.player) then
+		if arg.status == Actor.eNOTIFY_TOUCH_FOUND then
+			print("player enter")
+		elseif arg.status == Actor.eNOTIFY_TOUCH_LOST then
+			print("player leave")
+		end
+	end
+end
+
 game.EventLoadScene=function(arg)
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World))
@@ -90,6 +108,9 @@ game.EventLoadScene=function(arg)
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
 	actor2:PlayAction(SAction.act_sound)
+	
+	actor5:UpdateWorld()
+	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World))
 	
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 end

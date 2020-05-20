@@ -883,6 +883,16 @@ void LuaContext::Init(void)
 			.def("CreateSphereShape", &Component::CreateSphereShape)
 			.property("SimulationFilterWord0", &Component::GetSimulationFilterWord0, &Component::SetSimulationFilterWord0)
 			.property("QueryFilterWord0", &Component::GetQueryFilterWord0, &Component::SetQueryFilterWord0)
+			.enum_("ShapeFlag")
+			[
+				value("eSIMULATION_SHAPE", physx::PxShapeFlag::eSIMULATION_SHAPE),
+				value("eSCENE_QUERY_SHAPE", physx::PxShapeFlag::eSCENE_QUERY_SHAPE),
+				value("eTRIGGER_SHAPE", physx::PxShapeFlag::eTRIGGER_SHAPE),
+				value("eVISUALIZATION", physx::PxShapeFlag::eVISUALIZATION),
+				value("ePARTICLE_DRAIN", physx::PxShapeFlag::ePARTICLE_DRAIN)
+			]
+			.def("SetShapeFlag", &Component::SetShapeFlag)
+			.def("GetShapeFlag", &Component::GetShapeFlag)
 			.def("ClearShape", &Component::ClearShape)
 
 		, class_<MeshComponent, Component, boost::shared_ptr<Component> >("MeshComponent")
@@ -945,6 +955,11 @@ void LuaContext::Init(void)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
 
+		, class_<TriggerEventArg, my::EventArg>("TriggerEventArg")
+			.def_readonly("status", &TriggerEventArg::status)
+			.def_readonly("self", &TriggerEventArg::self)
+			.def_readonly("other", &TriggerEventArg::other)
+
 		, class_<Actor, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
@@ -956,8 +971,32 @@ void LuaContext::Init(void)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
 			.def_readwrite("Animation", &Actor::m_Animation)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
+			.enum_("PairFlag")
+			[
+				value("eSOLVE_CONTACT", physx::PxPairFlag::eSOLVE_CONTACT),
+				value("eMODIFY_CONTACTS", physx::PxPairFlag::eMODIFY_CONTACTS),
+				value("eNOTIFY_TOUCH_FOUND", physx::PxPairFlag::eNOTIFY_TOUCH_FOUND),
+				value("eNOTIFY_TOUCH_PERSISTS", physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS),
+				value("eNOTIFY_TOUCH_LOST", physx::PxPairFlag::eNOTIFY_TOUCH_LOST),
+				value("eNOTIFY_TOUCH_CCD", physx::PxPairFlag::eNOTIFY_TOUCH_CCD),
+				value("eNOTIFY_THRESHOLD_FORCE_FOUND", physx::PxPairFlag::eNOTIFY_THRESHOLD_FORCE_FOUND),
+				value("eNOTIFY_THRESHOLD_FORCE_PERSISTS", physx::PxPairFlag::eNOTIFY_THRESHOLD_FORCE_PERSISTS),
+				value("eNOTIFY_THRESHOLD_FORCE_LOST", physx::PxPairFlag::eNOTIFY_THRESHOLD_FORCE_LOST),
+				value("eNOTIFY_CONTACT_POINTS", physx::PxPairFlag::eNOTIFY_CONTACT_POINTS),
+				value("eDETECT_DISCRETE_CONTACT", physx::PxPairFlag::eDETECT_DISCRETE_CONTACT),
+				value("eDETECT_CCD_CONTACT", physx::PxPairFlag::eDETECT_CCD_CONTACT),
+				value("ePRE_SOLVER_VELOCITY", physx::PxPairFlag::ePRE_SOLVER_VELOCITY),
+				value("ePOST_SOLVER_VELOCITY", physx::PxPairFlag::ePOST_SOLVER_VELOCITY),
+				value("eCONTACT_EVENT_POSE", physx::PxPairFlag::eCONTACT_EVENT_POSE),
+				value("eRESOLVE_CONTACTS", physx::PxPairFlag::eRESOLVE_CONTACTS),
+				value("eCCD_LINEAR", physx::PxPairFlag::eCCD_LINEAR),
+				value("eCONTACT_DEFAULT", physx::PxPairFlag::eCONTACT_DEFAULT),
+				value("eTRIGGER_DEFAULT", physx::PxPairFlag::eTRIGGER_DEFAULT)
+			]
+			.def_readwrite("EventOnTrigger", &Actor::m_EventOnTrigger)
 			.def("IsRequested", &Actor::IsRequested)
 			.def("IsEnteredPhysx", &Actor::IsEnteredPhysx)
+			.def("Compare", &Actor::Compare)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)
 			.def("ReleaseResource", &Actor::ReleaseResource)
@@ -982,6 +1021,7 @@ void LuaContext::Init(void)
 				value("eENABLE_CCD_FRICTION", physx::PxRigidBodyFlag::eENABLE_CCD_FRICTION)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
+			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)

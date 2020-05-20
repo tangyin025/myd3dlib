@@ -13,6 +13,23 @@ class Action;
 
 class ActionInst;
 
+struct TriggerEventArg : public my::EventArg
+{
+public:
+	physx::PxPairFlag::Enum status;
+
+	Actor * self;
+
+	Actor * other;
+
+	TriggerEventArg(physx::PxPairFlag::Enum _status, Actor * _self, Actor * _other)
+		: status(_status)
+		, self(_self)
+		, other(_other)
+	{
+	}
+};
+
 class Actor
 	: public my::OctEntity
 	, public boost::enable_shared_from_this<Actor>
@@ -59,6 +76,8 @@ public:
 	typedef std::vector<boost::shared_ptr<ActionInst> > ActionInstPtrList;
 
 	ActionInstPtrList m_ActionInstList;
+
+	my::EventFunction m_EventOnTrigger;
 
 protected:
 	Actor(void)
@@ -118,6 +137,11 @@ public:
 		return m_EnteredPhysx;
 	}
 
+	bool Compare(const Actor * other)
+	{
+		return this == other;
+	}
+
 	void CopyFrom(const Actor & rhs);
 
 	virtual ActorPtr Clone(void) const;
@@ -153,6 +177,8 @@ public:
 	void CreateRigidActor(physx::PxActorType::Enum ActorType);
 
 	void SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value);
+
+	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;
 
 	void AddComponent(ComponentPtr cmp);
 

@@ -2,6 +2,7 @@
 #include "FModContext.h"
 #include "Component.h"
 #include "Terrain.h"
+#include "Actor.h"
 #include "myDxutApp.h"
 #include "libc.h"
 #include <extensions/PxCollectionExt.h>
@@ -456,8 +457,11 @@ void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 			continue;
 		}
 
-		Actor * triggerActor = (Actor *)pairs[i].triggerActor->userData;
-		Actor * otherActor = (Actor *)pairs[i].otherActor->userData;
+		TriggerEventArg arg(pairs->status, (Actor *)pairs[i].triggerActor->userData, (Actor *)pairs[i].otherActor->userData);
+		if (arg.self->m_EventOnTrigger)
+		{
+			arg.self->m_EventOnTrigger(&arg);
+		}
 	}
 }
 

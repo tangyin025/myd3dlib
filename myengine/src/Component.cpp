@@ -266,40 +266,42 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 
 void Component::SetSimulationFilterWord0(unsigned int filterWord0)
 {
-	if (m_PxShape)
-	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setSimulationFilterData(filter_data);
-	}
+	_ASSERT(m_PxShape);
+	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+	m_PxShape->setSimulationFilterData(filter_data);
 }
 
 unsigned int Component::GetSimulationFilterWord0(void) const
 {
-	if (m_PxShape)
-	{
-		physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
-		return filter_data.word0;
-	}
-	return 0;
+	_ASSERT(m_PxShape);
+	physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
+	return filter_data.word0;
 }
 
 void Component::SetQueryFilterWord0(unsigned int filterWord0)
 {
-	if (m_PxShape)
-	{
-		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
-		m_PxShape->setQueryFilterData(filter_data);
-	}
+	_ASSERT(m_PxShape);
+	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+	m_PxShape->setQueryFilterData(filter_data);
+}
+
+void Component::SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value)
+{
+	_ASSERT(m_PxShape);
+	m_PxShape->setFlag(Flag, Value);
+}
+
+bool Component::GetShapeFlag(physx::PxShapeFlag::Enum Flag) const
+{
+	_ASSERT(m_PxShape);
+	return m_PxShape->getFlags() & Flag;
 }
 
 unsigned int Component::GetQueryFilterWord0(void) const
 {
-	if (m_PxShape)
-	{
-		physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
-		return filter_data.word0;
-	}
-	return 0;
+	_ASSERT(m_PxShape);
+	physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
+	return filter_data.word0;
 }
 
 void Component::ClearShape(void)

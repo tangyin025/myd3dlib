@@ -487,6 +487,18 @@ void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)
 	}
 }
 
+bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
+{
+	_ASSERT(m_PxActor);
+
+	physx::PxRigidBody * body = m_PxActor->isRigidBody();
+	if (body)
+	{
+		return body->getRigidBodyFlags() & Flag;
+	}
+	return false;
+}
+
 void Actor::AddComponent(ComponentPtr cmp)
 {
 	_ASSERT(!cmp->m_Actor);
