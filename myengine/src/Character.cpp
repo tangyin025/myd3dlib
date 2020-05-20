@@ -20,9 +20,9 @@ BOOST_CLASS_EXPORT(Character)
 
 Character::~Character(void)
 {
-	if (m_PxController)
+	if (IsEnteredPhysx())
 	{
-		PhysxSceneContext::getSingleton().removeRenderActorsFromPhysicsActor(m_PxController->getActor());
+		_ASSERT(false); LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
 	}
 }
 
@@ -98,6 +98,8 @@ void Character::EnterPhysxScene(PhysxSceneContext * scene)
 void Character::LeavePhysxScene(PhysxSceneContext * scene)
 {
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+
+	scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
 
 	m_PxController.reset();
 

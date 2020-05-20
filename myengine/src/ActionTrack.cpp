@@ -6,6 +6,7 @@
 #include "libc.h"
 #include "myOctree.h"
 #include "Material.h"
+#include "PhysxContext.h"
 
 using namespace my;
 
@@ -246,9 +247,15 @@ ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 	{
 		my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
 		Root->RemoveEntity(m_WorldEmitterActor.get());
+
 		if (m_WorldEmitterActor->IsRequested())
 		{
 			m_WorldEmitterActor->ReleaseResource();
+		}
+
+		if (m_WorldEmitterActor->IsEnteredPhysx())
+		{
+			m_WorldEmitterActor->LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
 		}
 	}
 }

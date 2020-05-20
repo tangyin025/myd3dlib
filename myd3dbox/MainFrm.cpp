@@ -491,6 +491,28 @@ void CMainFrame::ClearFileContext()
 	OctRoot::ClearAllEntity();
 	PhysxSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();
+	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		(*actor_iter)->StopAllAction();
+
+		(*actor_iter)->ClearAllAttacher();
+
+		if ((*actor_iter)->m_Base)
+		{
+			(*actor_iter)->m_Base->Detach(actor_iter->get());
+		}
+
+		if ((*actor_iter)->IsRequested())
+		{
+			(*actor_iter)->ReleaseResource();
+		}
+
+		if ((*actor_iter)->IsEnteredPhysx())
+		{
+			(*actor_iter)->LeavePhysxScene(this);
+		}
+	}
 	m_ActorList.clear();
 	m_selactors.clear();
 }
@@ -992,14 +1014,14 @@ void CMainFrame::OnEditDelete()
 			(*actor_iter)->m_Base->Detach((*actor_iter));
 		}
 
-		if ((*actor_iter)->IsEnteredPhysx())
-		{
-			(*actor_iter)->LeavePhysxScene(this);
-		}
-
 		if ((*actor_iter)->IsRequested())
 		{
 			(*actor_iter)->ReleaseResource();
+		}
+
+		if ((*actor_iter)->IsEnteredPhysx())
+		{
+			(*actor_iter)->LeavePhysxScene(this);
 		}
 
 		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter));

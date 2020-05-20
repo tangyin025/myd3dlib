@@ -112,7 +112,7 @@ MaterialParameterTexture::~MaterialParameterTexture(void)
 {
 	if (!m_TexturePath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, this);
+		_ASSERT(!m_Texture); ReleaseResource();
 	}
 }
 

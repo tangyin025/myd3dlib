@@ -38,10 +38,11 @@ BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 
 Component::~Component(void)
 {
-	if (m_Actor)
-	{
-		_ASSERT(false); //m_Actor->RemoveComponent(shared_from_this());
-	}
+	_ASSERT(!m_Actor);
+
+	_ASSERT(!IsRequested());
+
+	_ASSERT(!IsEnteredPhysx());
 }
 
 template<class Archive>
@@ -319,9 +320,9 @@ void Component::ClearShape(void)
 
 MeshComponent::~MeshComponent(void)
 {
-	if (!m_MeshPath.empty())
+	if (IsRequested())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), this);
+		_ASSERT(false); ReleaseResource();
 	}
 }
 
@@ -660,12 +661,14 @@ ClothComponent::ClothComponent(void)
 	, handle_World(NULL)
 	, handle_dualquat(NULL)
 {
-	PhysxSceneContext::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 }
 
 ClothComponent::~ClothComponent(void)
 {
-	PhysxSceneContext::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
+	if (IsEnteredPhysx())
+	{
+		_ASSERT(false); LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
+	}
 }
 
 namespace boost { 
@@ -917,10 +920,14 @@ void ClothComponent::EnterPhysxScene(PhysxSceneContext * scene)
 	{
 		scene->m_PxScene->addActor(*m_Cloth);
 	}
+
+	PhysxSceneContext::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
 }
 
 void ClothComponent::LeavePhysxScene(PhysxSceneContext * scene)
 {
+	PhysxSceneContext::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, _1));
+
 	if (m_Cloth)
 	{
 		scene->m_PxScene->removeActor(*m_Cloth);

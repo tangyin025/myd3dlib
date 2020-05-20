@@ -38,9 +38,14 @@ Actor::~Actor(void)
 		m_Base->Detach(this);
 	}
 
-	if (m_PxActor)
+	if (IsRequested())
 	{
-		PhysxSceneContext::getSingleton().removeRenderActorsFromPhysicsActor(m_PxActor.get());
+		_ASSERT(false); ReleaseResource();
+	}
+
+	if (IsEnteredPhysx())
+	{
+		_ASSERT(false); LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
 	}
 }
 
@@ -265,6 +270,8 @@ void Actor::LeavePhysxScene(PhysxSceneContext * scene)
 	if (m_PxActor)
 	{
 		scene->m_PxScene->removeActor(*m_PxActor, false);
+
+		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
 	}
 }
 

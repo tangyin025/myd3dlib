@@ -619,6 +619,8 @@ void Game::OnDestroyDevice(void)
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
+	RenderPipeline::ReleaseResource();
+
 	ParallelTaskManager::StopParallelThread();
 
 	ClearAllEntity();
