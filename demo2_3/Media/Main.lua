@@ -74,15 +74,6 @@ actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,1)
 cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
 cmp5:SetShapeFlag(Component.eTRIGGER_SHAPE,true)
-actor5.EventOnTrigger=function(arg)
-	if arg.other:Compare(SPlayer.player) then
-		if arg.status == Actor.eNOTIFY_TOUCH_FOUND then
-			print("player enter")
-		elseif arg.status == Actor.eNOTIFY_TOUCH_LOST then
-			print("player leave")
-		end
-	end
-end
 
 game.EventLoadScene=function(arg)
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
@@ -113,6 +104,16 @@ game.EventLoadScene=function(arg)
 	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World))
 	
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
+end
+
+game.EventOnTrigger=function(arg)
+	if arg.other:Compare(SPlayer.player) then
+		if arg.status == Actor.eNOTIFY_TOUCH_FOUND then
+			print("player enter")
+		elseif arg.status == Actor.eNOTIFY_TOUCH_LOST then
+			print("player leave")
+		end
+	end
 end
 
 -- 加载场景资源

@@ -994,7 +994,6 @@ void LuaContext::Init(void)
 				value("eCONTACT_DEFAULT", physx::PxPairFlag::eCONTACT_DEFAULT),
 				value("eTRIGGER_DEFAULT", physx::PxPairFlag::eTRIGGER_DEFAULT)
 			]
-			.def_readwrite("EventOnTrigger", &Actor::m_EventOnTrigger)
 			.def("IsRequested", &Actor::IsRequested)
 			.def("IsEnteredPhysx", &Actor::IsEnteredPhysx)
 			.def("Compare", &Actor::Compare)

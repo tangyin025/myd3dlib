@@ -69,6 +69,8 @@ public:
 
 	my::EventFunction m_EventLoadScene;
 
+	my::EventFunction m_EventOnTrigger;
+
 public:
 	Game(void);
 

@@ -60,8 +60,6 @@ public:
 
 	ActionInstPtrList m_ActionInstList;
 
-	my::EventFunction m_EventOnTrigger;
-
 protected:
 	Actor(void)
 		: m_aabb(my::AABB::Invalid())

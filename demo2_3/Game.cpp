@@ -494,6 +494,7 @@ HRESULT Game::OnCreateDevice(
 			.def("PlaySound", &Game::PlaySound)
 			.def("LoadScene", &Game::LoadScene)
 			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
+			.def_readwrite("EventOnTrigger", &Game::m_EventOnTrigger)
 
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
 			.def(luabind::constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
@@ -612,6 +613,8 @@ void Game::OnDestroyDevice(void)
 	m_EventLog("Game::OnDestroyDevice");
 
 	m_EventLoadScene.clear(); // ! clear boost function before shutdown lua context
+
+	m_EventOnTrigger.clear();
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
@@ -754,12 +757,12 @@ void Game::OnFrameTick(
 	}
 	mDeletedActors.clear();
 
-	TriggerEventArgList::iterator trigger_iter = mTriggerEventArgs.begin();
-	for (; trigger_iter != mTriggerEventArgs.end(); trigger_iter++)
+	if (m_EventOnTrigger)
 	{
-		if (trigger_iter->self->m_EventOnTrigger)
+		TriggerEventArgList::iterator trigger_iter = mTriggerEventArgs.begin();
+		for (; trigger_iter != mTriggerEventArgs.end(); trigger_iter++)
 		{
-			trigger_iter->self->m_EventOnTrigger(&(*trigger_iter));
+			m_EventOnTrigger(&(*trigger_iter));
 		}
 	}
 
