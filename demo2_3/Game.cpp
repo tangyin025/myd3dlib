@@ -634,13 +634,15 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
+	RemoveAllTimer();
+
 	LuaContext::Shutdown();
+
+	_ASSERT(m_NamedObjs.empty());
 
 	m_SimpleSample.reset();
 
 	m_UIRender->OnDestroyDevice();
-
-	RemoveAllTimer();
 
 	ResourceMgr::OnDestroyDevice();
 

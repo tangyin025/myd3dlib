@@ -68,6 +68,7 @@ public:
 	{
 		PropertyUnknown = 0,
 		PropertyActor,
+		PropertyActorName,
 		PropertyActorAABB,
 		PropertyActorMinX,
 		PropertyActorMinY,

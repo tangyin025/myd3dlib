@@ -74,15 +74,12 @@ void NamedObject::SetName(const char * Name)
 	if (m_Name)
 	{
 		D3DContext::getSingleton().UnregisterNamedObject(m_Name, this);
+		m_Name = NULL;
 	}
 
 	if (Name)
 	{
 		m_Name = D3DContext::getSingleton().RegisterNamedObject(Name, this);
-	}
-	else
-	{
-		m_Name = NULL;
 	}
 }
 

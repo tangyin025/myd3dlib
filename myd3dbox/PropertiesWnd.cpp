@@ -214,25 +214,26 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pActor->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
-	pActor->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
-	pActor->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
-	pActor->GetSubItem(0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
-	pActor->GetSubItem(0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
-	pActor->GetSubItem(0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
-	pActor->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
-	pActor->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
-	pActor->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
+	pActor->GetSubItem(0)->SetValue((_variant_t)ms2ts(actor->GetName()).c_str());
+	pActor->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
+	pActor->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
+	pActor->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
+	pActor->GetSubItem(1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
+	pActor->GetSubItem(1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
+	pActor->GetSubItem(1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pActor->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
+	pActor->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
+	pActor->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
 	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
-	pActor->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
-	pActor->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
-	pActor->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
-	pActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
-	pActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
-	pActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
-	pActor->GetSubItem(4)->SetValue((_variant_t)actor->m_LodDist);
-	pActor->GetSubItem(5)->SetValue((_variant_t)actor->m_LodFactor);
-	pActor->GetSubItem(6)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	pActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
+	pActor->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)actor->m_Scale.x);
+	pActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
+	pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
+	pActor->GetSubItem(5)->SetValue((_variant_t)actor->m_LodDist);
+	pActor->GetSubItem(6)->SetValue((_variant_t)actor->m_LodFactor);
+	pActor->GetSubItem(7)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
 	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
 	{
@@ -573,6 +574,8 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	CMFCPropertyGridProperty * pName = new CSimpleProp(_T("Name"), (_variant_t)ms2ts(actor->GetName()).c_str(), NULL, PropertyActorName);
+	pActor->AddSubItem(pName);
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
 	pActor->AddSubItem(pAABB);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
@@ -1050,7 +1053,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 7;
+		return 8;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -1282,6 +1285,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
+	case PropertyActorName:
+	{
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		std::string Name = ts2ms(pProp->GetValue().bstrVal);
+		if (theApp.GetNamedObject(Name.c_str()))
+		{
+			MessageBox(str_printf(_T("%s already existed"), pProp->GetValue().bstrVal).c_str());
+			pProp->SetValue((_variant_t)ms2ts(actor->GetName()).c_str());
+			return 0;
+		}
+		actor->SetName(Name.c_str());
+		break;
+	}
 	case PropertyActorAABB:
 	case PropertyActorMinX:
 	case PropertyActorMinY:
