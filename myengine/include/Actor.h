@@ -108,6 +108,11 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	bool operator ==(const Actor & rhs) const
+	{
+		return this == &rhs;
+	}
+
 	bool IsRequested(void) const
 	{
 		return m_Requested;
@@ -116,11 +121,6 @@ public:
 	bool IsEnteredPhysx(void) const
 	{
 		return m_EnteredPhysx;
-	}
-
-	bool Compare(const Actor * other)
-	{
-		return this == other;
 	}
 
 	void CopyFrom(const Actor & rhs);

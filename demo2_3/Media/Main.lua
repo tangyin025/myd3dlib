@@ -107,10 +107,10 @@ game.EventLoadScene=function(arg)
 end
 
 game.EventOnTrigger=function(arg)
-	if arg.other:Compare(SPlayer.player) then
-		if arg.status == Actor.eNOTIFY_TOUCH_FOUND then
+	if arg.self == actor5 and arg.other == SPlayer.player then
+		if arg.status == TriggerEventArg.eNOTIFY_TOUCH_FOUND then
 			print("player enter")
-		elseif arg.status == Actor.eNOTIFY_TOUCH_LOST then
+		elseif arg.status == TriggerEventArg.eNOTIFY_TOUCH_LOST then
 			print("player leave")
 		end
 	end
