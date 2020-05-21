@@ -20,7 +20,7 @@ mesh2:Transform(Matrix4.Compose(
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
 -- 创建Player主体
-player=Player(Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1, 1)
+player=Player("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1, 1)
 
 -- 模型材质
 local lambert1=Material()

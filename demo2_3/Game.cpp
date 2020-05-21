@@ -497,7 +497,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("EventOnTrigger", &Game::m_EventOnTrigger)
 
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
-			.def(luabind::constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
+			.def(luabind::constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
 			.def_readwrite("LookAngle", &Player::m_LookAngle)
 			.def_readwrite("LookDist", &Player::m_LookDist)
 			.def_readwrite("MoveAxis", &Player::m_MoveAxis)

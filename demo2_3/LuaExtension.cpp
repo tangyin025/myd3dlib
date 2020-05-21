@@ -753,6 +753,13 @@ void LuaContext::Init(void)
 		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
 			.def("PostMessage", &my::DxutWindow::PostMessage)
 
+		, class_<my::NamedObject>("NamedObject")
+			.scope
+			[
+				def("MakeUniqueName", &my::NamedObject::MakeUniqueName)
+			]
+			.property("Name", &my::NamedObject::GetName, &my::NamedObject::SetName)
+
 		, class_<my::DxutApp, CD3D9Enumeration>("DxutApp")
 			.scope
 			[
@@ -770,6 +777,7 @@ void LuaContext::Init(void)
 			.property("PureHardwareVP", &my::DxutApp::GetPureHardwareVP, &my::DxutApp::SetPureHardwareVP)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
+			.def("GetNamedObject", &my::DxutApp::GetNamedObject)
 
 		, class_<my::TimerEventArg, my::EventArg>("TimerEventArg")
 			.def_readonly("Interval", &my::TimerEventArg::m_Interval)
@@ -983,8 +991,8 @@ void LuaContext::Init(void)
 			.def_readonly("self", &TriggerEventArg::self)
 			.def_readonly("other", &TriggerEventArg::other)
 
-		, class_<Actor, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
+		, class_<Actor, my::NamedObject, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
+			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
 			.def_readwrite("Rotation", &Actor::m_Rotation)
@@ -1037,7 +1045,7 @@ void LuaContext::Init(void)
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
-			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
+			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
 			.def("SetPose", &Character::SetPose)

@@ -13,8 +13,8 @@ Player::Player(void)
 	Init();
 }
 
-Player::Player(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
-	: Character(Position, Rotation, Scale, aabb, Height, Radius, ContactOffset, filterWord0)
+Player::Player(const char * Name, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
+	: Character(Name, Position, Rotation, Scale, aabb, Height, Radius, ContactOffset, filterWord0)
 	, m_LookAngle(0, 0, 0)
 	, m_LookDist(3)
 	, m_MoveAxis(0, 0)

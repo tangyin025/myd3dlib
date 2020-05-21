@@ -34,7 +34,7 @@ require "Action.lua"
 -- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
 
 -- 创建一个物理球
-actor2=Actor(Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor2=Actor(NamedObject.MakeUniqueName("Main/Actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert2=Material()
 lambert2.Shader="shader/mtl_lambert1.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
@@ -49,7 +49,7 @@ actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 
 -- 在角色手部绑定物体
-actor3=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor3=Actor(NamedObject.MakeUniqueName("Main/Actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp3=MeshComponent()
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3:AddMaterial(lambert2:Clone())
@@ -58,7 +58,7 @@ actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 在角色手部绑定物体
-actor4=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor4=Actor(NamedObject.MakeUniqueName("Main/Actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp4=MeshComponent()
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
 cmp4:AddMaterial(lambert2:Clone())
@@ -67,7 +67,7 @@ actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 搞一个trigger
-actor5=Actor(Vector3(5,2,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor5=Actor(NamedObject.MakeUniqueName("Main/Actor"),Vector3(5,2,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp5=StaticEmitterComponent(1)
 actor5:AddComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)

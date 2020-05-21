@@ -14,7 +14,8 @@ class Action;
 class ActionInst;
 
 class Actor
-	: public my::OctEntity
+	: public my::NamedObject
+	, public my::OctEntity
 	, public boost::enable_shared_from_this<Actor>
 {
 public:
@@ -77,8 +78,9 @@ protected:
 	}
 
 public:
-	Actor(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
+	Actor(const char * Name, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: m_aabb(aabb)
+		, NamedObject(Name)
 		, m_Position(Position)
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)

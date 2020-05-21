@@ -234,7 +234,8 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	}
 
 	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
-	m_WorldEmitterActor.reset(new Actor(Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), Root->m_aabb));
+	m_WorldEmitterActor.reset(new Actor(
+		NamedObject::MakeUniqueName("ActionTrackEmitterInst/WorldEmitterActor").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), Root->m_aabb));
 	m_WorldEmitterActor->AddComponent(m_WorldEmitterInst);
 	Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb);
 }

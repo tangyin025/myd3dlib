@@ -48,8 +48,8 @@ protected:
 	}
 
 public:
-	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
-		: Actor(Position, Rotation, Scale, aabb)
+	Character(const char * Name, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
+		: Actor(Name, Position, Rotation, Scale, aabb)
 		, m_Height(Height)
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)

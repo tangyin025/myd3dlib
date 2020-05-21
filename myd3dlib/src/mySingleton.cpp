@@ -55,23 +55,6 @@ NamedObject::~NamedObject(void)
 	SetName(NULL);
 }
 
-void NamedObject::SetName(const char * Name)
-{
-	if (!m_Name)
-	{
-		D3DContext::getSingleton().UnregisterNamedObject(m_Name, this);
-	}
-
-	if (Name)
-	{
-		m_Name = D3DContext::getSingleton().RegisterNamedObject(Name, this);
-	}
-	else
-	{
-		m_Name = NULL;
-	}
-}
-
 std::string NamedObject::MakeUniqueName(const char * Prefix)
 {
 	static unsigned int index = 0;
@@ -84,6 +67,23 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 		}
 	}
 	THROW_CUSEXCEPTION("MakeUniqueName failed");
+}
+
+void NamedObject::SetName(const char * Name)
+{
+	if (m_Name)
+	{
+		D3DContext::getSingleton().UnregisterNamedObject(m_Name, this);
+	}
+
+	if (Name)
+	{
+		m_Name = D3DContext::getSingleton().RegisterNamedObject(Name, this);
+	}
+	else
+	{
+		m_Name = NULL;
+	}
 }
 
 template<class Archive>

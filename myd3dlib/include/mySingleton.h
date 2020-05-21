@@ -156,14 +156,14 @@ namespace my
 
 		virtual ~NamedObject(void);
 
+		static std::string MakeUniqueName(const char * Prefix);
+
 		void SetName(const char * Name);
 
 		const char * GetName(void) const
 		{
 			return m_Name;
 		}
-
-		static std::string MakeUniqueName(const char * Prefix);
 
 		friend class boost::serialization::access;
 
