@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+#include <boost/serialization/nvp.hpp>
 #include <Windows.h>
 #include "myException.h"
 
@@ -138,6 +139,45 @@ namespace my
 		virtual ~IResourceCallback(void);
 
 		virtual void OnReady(IORequest * request) = 0;
+	};
+
+	class NamedObject
+	{
+	protected:
+		const char * m_Name;
+
+		NamedObject(void)
+			: m_Name(NULL)
+		{
+		}
+
+	public:
+		NamedObject(const char * Name);
+
+		virtual ~NamedObject(void);
+
+		void SetName(const char * Name);
+
+		const char * GetName(void) const
+		{
+			return m_Name;
+		}
+
+		static std::string MakeUniqueName(const char * Prefix);
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
+		}
 	};
 
 	struct EventArg

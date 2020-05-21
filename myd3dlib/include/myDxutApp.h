@@ -82,6 +82,10 @@ namespace my
 
 		DeviceEvent m_EventDeviceDestroy;
 
+		typedef boost::unordered_map<std::string, NamedObject *> NamedObjectMap;
+
+		NamedObjectMap m_NamedObjs;
+
 		typedef boost::signals2::signal<void(const char *)> LogEvent;
 
 		LogEvent m_EventLog;
@@ -99,6 +103,12 @@ namespace my
 			, m_DeviceObjectsReset(false)
 		{
 		}
+
+		const char * RegisterNamedObject(const char * Name, NamedObject * Object);
+
+		void UnregisterNamedObject(const char * Name, NamedObject * Object);
+
+		NamedObject * GetNamedObject(const char * Name);
 
 		virtual void PlaySound(const char * name)
 		{

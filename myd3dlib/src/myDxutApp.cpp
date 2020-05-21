@@ -140,6 +140,39 @@ void Clock::UpdateClock(void)
 	m_llLastElapsedTime = qwTime.QuadPart;
 }
 
+const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
+{
+	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
+	if (obj_iter != m_NamedObjs.end())
+	{
+		THROW_CUSEXCEPTION(str_printf("%s already existed", Name));
+	}
+
+	m_NamedObjs[Name] = Object;
+
+	return m_NamedObjs.find(Name)->first.c_str();
+}
+
+void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
+{
+	NamedObjectMap::iterator obj_iter = m_NamedObjs.find(Name);
+	if (obj_iter != m_NamedObjs.end())
+	{
+		_ASSERT(Object == obj_iter->second);
+		m_NamedObjs.erase(obj_iter);
+	}
+}
+
+NamedObject * D3DContext::GetNamedObject(const char * Name)
+{
+	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
+	if (obj_iter != m_NamedObjs.end())
+	{
+		return obj_iter->second;
+	}
+	return NULL;
+}
+
 bool DxutApp::IsDeviceAcceptable(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,
