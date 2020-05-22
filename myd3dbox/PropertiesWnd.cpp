@@ -1361,16 +1361,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		Actor * actor = (Actor *)pActor->GetValue().ulVal;
-		actor->m_Position.x = pActor->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
-		actor->m_Position.y = pActor->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
-		actor->m_Position.z = pActor->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
+		actor->m_Position.x = pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
+		actor->m_Position.y = pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
+		actor->m_Position.z = pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal;
 		actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
-			D3DXToRadian(pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
-			D3DXToRadian(pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
-			D3DXToRadian(pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
-		actor->m_Scale.x = pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
-		actor->m_Scale.y = pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
-		actor->m_Scale.z = pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal;
+			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal),
+			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal),
+			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal)));
+		actor->m_Scale.x = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+		actor->m_Scale.y = pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
+		actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 		actor->UpdateAABB();
 		actor->UpdateWorld();
 		actor->UpdateOctNode();

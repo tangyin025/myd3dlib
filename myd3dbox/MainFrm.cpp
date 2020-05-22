@@ -610,7 +610,7 @@ void CMainFrame::OnFileNew()
 	//mtl->m_Shader = theApp.default_shader;
 	//mtl->ParseShaderParameters();
 
-	//ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("CMainFrame/Actor").c_str(), my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
+	//ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
 	//MeshComponentPtr mesh_cmp(new MeshComponent());
 	//mesh_cmp->m_MeshPath = "character/aaa.xml";
 	//mesh_cmp->m_MeshSubMeshName = "N0100101_SJ001";
@@ -650,7 +650,7 @@ void CMainFrame::OnFileNew()
 	mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
 	mesh_cmp->m_MeshSubMeshName = "Teapot001";
 	mesh_cmp->AddMaterial(mtl);
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("CMainFrame/Actor").c_str(), my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(5, 5, 5), my::AABB(-1, 1)));
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(5, 5, 5), my::AABB(-1, 1)));
 	actor->AddComponent(mesh_cmp);
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
@@ -744,7 +744,7 @@ void CMainFrame::OnCreateActor()
 	{
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("CMainFrame/Actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
 	m_ActorList.insert(actor);
@@ -765,7 +765,7 @@ void CMainFrame::OnCreateCharacter()
 	{
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
-	CharacterPtr character(new Character(my::NamedObject::MakeUniqueName("CMainFrame/Character").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
+	CharacterPtr character(new Character(my::NamedObject::MakeUniqueName("scene_character").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
 	character->UpdateWorld();
 	AddEntity(character.get(), character->m_aabb.transform(character->m_World));
 	m_ActorList.insert(character);
