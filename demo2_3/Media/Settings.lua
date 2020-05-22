@@ -12,7 +12,7 @@ lbl_title.Size=Vector2(256,42)
 lbl_title.Skin=ControlSkin()
 lbl_title.Skin.Image=ControlImage()
 lbl_title.Skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")
-lbl_title.Skin.Image.Rect=Rectangle(0,0,256,42)
+lbl_title.Skin.Image.Rect=Rectangle.LeftTop(0,0,256,42)
 lbl_title.Skin.Image.Border=Vector4(0,0,0,0)
 dlg:InsertControl(lbl_title)
 
