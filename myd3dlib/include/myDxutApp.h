@@ -86,6 +86,8 @@ namespace my
 
 		NamedObjectMap m_NamedObjs;
 
+		CriticalSection m_NamedObjsSec;
+
 		typedef boost::signals2::signal<void(const char *)> LogEvent;
 
 		LogEvent m_EventLog;

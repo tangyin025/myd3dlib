@@ -235,7 +235,7 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 template<class Archive>
 void ControlImage::save(Archive & ar, const unsigned int version) const
 {
-	std::string TexturePath = my::ResourceMgr::getSingleton().GetResourceKey(m_Texture);
+	std::string TexturePath(m_Texture->m_Key);
 	ar << BOOST_SERIALIZATION_NVP(TexturePath);
 	ar << BOOST_SERIALIZATION_NVP(m_Rect);
 	ar << BOOST_SERIALIZATION_NVP(m_Border);
@@ -288,7 +288,7 @@ void ControlSkin::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Color);
 	ar << BOOST_SERIALIZATION_NVP(m_Image);
 	std::vector<std::string> FontSeq;
-	boost::algorithm::split(FontSeq, my::ResourceMgr::getSingleton().GetResourceKey(m_Font), boost::is_any_of(" "), boost::algorithm::token_compress_off);
+	boost::algorithm::split(FontSeq, m_Font->m_Key, boost::is_any_of(" "), boost::algorithm::token_compress_off);
 	std::string FontPath = FontSeq.size() > 1 ? FontSeq[0] : std::string();
 	int FontHeight = FontSeq.size() > 1 ? boost::lexical_cast<int>(FontSeq[1]) : 13;
 	ar << BOOST_SERIALIZATION_NVP(FontPath);

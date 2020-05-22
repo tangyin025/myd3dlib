@@ -653,22 +653,11 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 
 	_ASSERT(!GetResource(key));
 
-	m_ResourceWeakSet[key] = res;
-}
+	std::pair<DeviceResourceBaseWeakPtrSet::iterator, bool> result = m_ResourceWeakSet.insert(DeviceResourceBaseWeakPtrSet::value_type(key, res));
 
-std::string ResourceMgr::GetResourceKey(DeviceResourceBasePtr res) const
-{
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(result.second);
 
-	DeviceResourceBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
-	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
-	{
-		if(res == res_iter->second.lock())
-		{
-			return res_iter->first;
-		}
-	}
-	return std::string();
+	res->m_Key = result.first->first.c_str();
 }
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front)

@@ -69,6 +69,8 @@ namespace my
 	class DeviceResourceBase
 	{
 	public:
+		const char * m_Key;
+
 		DeviceResourceBase(void);
 
 		virtual ~DeviceResourceBase(void);

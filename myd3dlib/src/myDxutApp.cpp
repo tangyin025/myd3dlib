@@ -142,19 +142,25 @@ void Clock::UpdateClock(void)
 
 const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 {
+	CriticalSectionLock lock(m_NamedObjsSec);
+
 	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
 	if (obj_iter != m_NamedObjs.end())
 	{
 		THROW_CUSEXCEPTION(str_printf("%s already existed", Name));
 	}
 
-	m_NamedObjs[Name] = Object;
+	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjs.insert(NamedObjectMap::value_type(Name, Object));
 
-	return m_NamedObjs.find(Name)->first.c_str();
+	_ASSERT(result.second);
+
+	return result.first->first.c_str();
 }
 
 void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 {
+	CriticalSectionLock lock(m_NamedObjsSec);
+
 	NamedObjectMap::iterator obj_iter = m_NamedObjs.find(Name);
 	if (obj_iter != m_NamedObjs.end())
 	{
@@ -165,6 +171,8 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 
 NamedObject * D3DContext::GetNamedObject(const char * Name)
 {
+	CriticalSectionLock lock(m_NamedObjsSec);
+
 	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
 	if (obj_iter != m_NamedObjs.end())
 	{

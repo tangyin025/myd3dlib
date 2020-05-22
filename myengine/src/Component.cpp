@@ -526,7 +526,7 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		return;
 	}
 
-	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_Mesh);
+	std::string key(m_Mesh->m_Key);
 	if (key.empty())
 	{
 		return;
@@ -602,7 +602,7 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		return;
 	}
 
-	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_Mesh);
+	std::string key(m_Mesh->m_Key);
 	if (key.empty())
 	{
 		return;

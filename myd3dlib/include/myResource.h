@@ -366,8 +366,6 @@ namespace my
 
 		void AddResource(const std::string & key, DeviceResourceBasePtr res);
 
-		std::string GetResourceKey(DeviceResourceBasePtr res) const;
-
 		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front);
 
 		void LoadIORequestAndWait(const std::string & key, IORequestPtr request);

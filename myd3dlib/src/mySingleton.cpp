@@ -21,6 +21,7 @@ using namespace my;
 BOOST_CLASS_EXPORT(NamedObject)
 
 DeviceResourceBase::DeviceResourceBase(void)
+	: m_Key(NULL)
 {
 	// ! boost signals is thread-safety, ref: https://www.boost.org/doc/libs/1_63_0/doc/html/signals2/thread-safety.html
 	D3DContext::getSingleton().m_EventDeviceReset.connect(boost::bind(&DeviceResourceBase::OnResetDevice, this));
