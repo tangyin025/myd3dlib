@@ -127,6 +127,7 @@ static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CAr
 	ar >> pReg->m_Size;
 	DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
 	ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
+	ar >> pReg->m_Rect.left >> pReg->m_Rect.top >> pReg->m_Rect.right >> pReg->m_Rect.bottom;
 	ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
 	CString strFamily; float fSize; ar >> strFamily;
 	ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
@@ -149,6 +150,7 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion * pReg, CArchive &
 	ar << pReg->m_Size;
 	DWORD argb = pReg->m_Color.GetValue(); ar << argb;
 	ar << pReg->m_ImageStr;
+	ar << pReg->m_Rect.left << pReg->m_Rect.top << pReg->m_Rect.right << pReg->m_Rect.bottom;
 	ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
 	Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
 	ar << pReg->m_Font->GetSize();
