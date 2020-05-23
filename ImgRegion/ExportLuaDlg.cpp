@@ -69,20 +69,18 @@ void CExportLuaDlg::OnBnClickedButton2()
 		GetDlgItem(IDC_EDIT2)->SetWindowText(dlgFile.GetPathName());
 }
 
-void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, int indent)
+void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 {
 	if(hItem)
 	{
 		CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 
-		ofs << std::string(indent, '\t') << std::endl;
-		ofs << std::string(indent, '\t') << "Gui.Control \"" << ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem)) << "\"" << std::endl;
-		ofs << std::string(indent, '\t') << "{" << std::endl;
-		pReg->ExportToLua(ofs, indent + 1, m_strProjectDir);
-		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetChildItem(hItem), indent + 1);
-		ofs << std::string(indent, '\t') << "}," << std::endl;
-		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), indent);
+		HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);
+		for (; hChildItem; hChildItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hChildItem))
+		{
+			ExportTreeNodeToLua(ofs, hChildItem);
+		}
 	}
 }
 
@@ -106,11 +104,11 @@ void CExportLuaDlg::OnOK()
 
 	ofs << "module(\"" << ts2ms(strName.c_str()) << "\", package.seeall)" << std::endl;
 	ofs << std::endl;
-	ofs << "ui = Gui.Create()" << std::endl;
-	ofs << "{";
-	ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetRootItem());
-	ofs << "}" << std::endl;
-
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.GetRootItem();
+	for (; hItem; hItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem))
+	{
+		ExportTreeNodeToLua(ofs, hItem);
+	}
 	ofs.close();
 
 	MessageBox(_T("成功导出lua脚本文件"));

@@ -86,8 +86,6 @@ public:
 	virtual void Draw(Gdiplus::Graphics & grap);
 
 	virtual void Serialize(CArchive& archive, int version);
-
-	virtual void ExportToLua(std::ofstream & ofs, int indent, LPCTSTR szProjectDir);
 };
 
 typedef boost::shared_ptr<CImgRegion> CImgRegionPtr;
