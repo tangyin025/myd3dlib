@@ -209,7 +209,7 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
 	{
 		pSkyBox->GetSubItem(SkyBoxPropertyTextureFront + i)->SetValue(
-			(_variant_t)ms2ts(theApp.m_SkyBoxTextures[i].m_TexturePath).c_str());
+			(_variant_t)ms2ts(theApp.m_SkyBoxTextures[i].m_TexturePath.c_str()).c_str());
 	}
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
@@ -362,7 +362,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					new_path.append(tex_name[i]);
 					new_path.insert(new_path.end(), what[1].second, path.end());
 					theApp.m_SkyBoxTextures[i].ReleaseResource();
-					theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(new_path);
+					theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(new_path.c_str());
 					theApp.m_SkyBoxTextures[i].RequestResource();
 				}
 				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -375,7 +375,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				int i = pProp->GetData() - SkyBoxPropertyTextureFront;
 				_ASSERT(i >= 0 && i < _countof(theApp.m_SkyBoxTextures));
 				theApp.m_SkyBoxTextures[i].ReleaseResource();
-				theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(path);
+				theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(path.c_str());
 				theApp.m_SkyBoxTextures[i].RequestResource();
 			}
 		}

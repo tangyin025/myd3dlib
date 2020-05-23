@@ -118,7 +118,7 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 		PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
 		boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
 		boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
-		ofs << var_name << ".Skin.Image.Texture=game:LoadTexture(\"" << ts2ms(strRelatedPath) << "\")" << std::endl;
+		ofs << var_name << ".Skin.Image.Texture=game:LoadTexture(\"" << ts2ms(strRelatedPath.c_str()) << "\")" << std::endl;
 		ofs << var_name << ".Skin.Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
 		ofs << var_name << ".Skin.Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
 		ofs << var_name << ".Skin.Font=game.Font" << std::endl;
