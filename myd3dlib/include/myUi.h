@@ -323,9 +323,7 @@ namespace my
 
 		bool ContainsControl(Control * control);
 
-		Control * FindControl(const char * name);
-
-		Control * FindControlRecurse(const char * name);
+		Control * FindControl(const std::string & name);
 
 		Control * GetChildAtPoint(const Vector2 & pt) const;
 

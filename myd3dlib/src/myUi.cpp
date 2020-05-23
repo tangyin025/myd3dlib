@@ -654,30 +654,17 @@ bool Control::ContainsControl(Control * control)
 	return false;
 }
 
-Control * Control::FindControl(const char * name)
+Control * Control::FindControl(const std::string & name)
 {
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	if (m_Name == name)
 	{
-		if ((*ctrl_iter)->m_Name == name)
-		{
-			return ctrl_iter->get();
-		}
+		return this;
 	}
-	return NULL;
-}
 
-Control * Control::FindControlRecurse(const char * name)
-{
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
-		if ((*ctrl_iter)->m_Name == name)
-		{
-			return ctrl_iter->get();
-		}
-
-		Control * ret = (*ctrl_iter)->FindControlRecurse(name);
+		Control * ret = (*ctrl_iter)->FindControl(name);
 		if (ret)
 		{
 			return ret;
