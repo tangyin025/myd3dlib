@@ -63,14 +63,14 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemImage] = pFileProp);
 
 	pLocal = new CSimpleProp(_T("Rect"), CPropertiesWnd::PropertyItemRect, TRUE);
-	pProp = new CSimpleProp(_T("l"), (_variant_t)m_Rect.left, _T("left"), CPropertiesWnd::PropertyItemRectL);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)m_Rect.left, _T("left"), CPropertiesWnd::PropertyItemRectL);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectL] = pProp);
-	pProp = new CSimpleProp(_T("t"), (_variant_t)m_Rect.top, _T("top"), CPropertiesWnd::PropertyItemRectT);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)m_Rect.top, _T("top"), CPropertiesWnd::PropertyItemRectT);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectT] = pProp);
-	pProp = new CSimpleProp(_T("r"), (_variant_t)m_Rect.right, _T("right"), CPropertiesWnd::PropertyItemRectR);
-	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectR] = pProp);
-	pProp = new CSimpleProp(_T("b"), (_variant_t)m_Rect.bottom, _T("bottom"), CPropertiesWnd::PropertyItemRectB);
-	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectB] = pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)m_Rect.Width(), _T("Width"), CPropertiesWnd::PropertyItemRectW);
+	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectW] = pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)m_Rect.Height(), _T("Height"), CPropertiesWnd::PropertyItemRectH);
+	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectH] = pProp);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRect] = pLocal);
 
 	pLocal = new CSimpleProp(_T("Border"), CPropertiesWnd::PropertyItemBorder, TRUE);
@@ -166,8 +166,8 @@ void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd)
 	((CFileProp *)pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemImage])->SetValue((_variant_t)m_ImageStr);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectL]->SetValue((_variant_t)m_Rect.left);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectT]->SetValue((_variant_t)m_Rect.top);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectR]->SetValue((_variant_t)m_Rect.right);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectB]->SetValue((_variant_t)m_Rect.bottom);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectW]->SetValue((_variant_t)m_Rect.Width());
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectH]->SetValue((_variant_t)m_Rect.Height());
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderX]->SetValue((_variant_t)m_Border.x);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderY]->SetValue((_variant_t)m_Border.y);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderZ]->SetValue((_variant_t)m_Border.z);

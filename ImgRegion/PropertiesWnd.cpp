@@ -225,12 +225,12 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemRect:
 				case PropertyItemRectL:
 				case PropertyItemRectT:
-				case PropertyItemRectR:
-				case PropertyItemRectB:
+				case PropertyItemRectW:
+				case PropertyItemRectH:
 					pReg->m_Rect.left = m_pProp[PropertyItemRectL]->GetValue().lVal;
 					pReg->m_Rect.top = m_pProp[PropertyItemRectT]->GetValue().lVal;
-					pReg->m_Rect.right = m_pProp[PropertyItemRectR]->GetValue().lVal;
-					pReg->m_Rect.bottom = m_pProp[PropertyItemRectB]->GetValue().lVal;
+					pReg->m_Rect.right = pReg->m_Rect.left + m_pProp[PropertyItemRectW]->GetValue().lVal;
+					pReg->m_Rect.bottom = pReg->m_Rect.top + m_pProp[PropertyItemRectH]->GetValue().lVal;
 					break;
 
 				case PropertyItemBorder:
