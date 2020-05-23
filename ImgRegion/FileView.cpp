@@ -18,11 +18,12 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_MESSAGE(WM_IDLEUPDATECMDUI, &CFileView::OnIdleUpdateCmdUI)
 	ON_NOTIFY_RANGE(TVN_SELCHANGED, 4, 1000, &CFileView::OnTvnSelchangedTree)
 	ON_NOTIFY_RANGE(CDragableTreeCtrl::TVN_DRAGCHANGED, 4, 1000, &CFileView::OnTvnDragchangedTree)
+	ON_NOTIFY_RANGE(TVN_BEGINLABELEDIT, 4, 1000, &CFileView::OnTvnBeginlabeledit)
+	ON_NOTIFY_RANGE(TVN_ENDLABELEDIT, 4, 1000, &CFileView::OnTvnEndlabeledit)
 END_MESSAGE_MAP()
 
 CFileView::CFileView()
-	: m_pDoc(NULL)
-	, m_bIsLayoutInvalid(FALSE)
+	: m_bIsLayoutInvalid(FALSE)
 {
 }
 
@@ -158,6 +159,70 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 				MessageBox(_T("无法移动节点"));
 		}
 	}
+}
+
+afx_msg void CFileView::OnTvnBeginlabeledit(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: Add your control notification handler code here
+
+	CDragableTreeCtrl * pTreeCtrl = DYNAMIC_DOWNCAST(CDragableTreeCtrl, GetDlgItem(id));
+	ASSERT(pTreeCtrl);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+
+	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+	if (!pChildFrame)
+	{
+		*pResult = 1;
+		return;
+	}
+
+	CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+	if (!pDoc || &pDoc->m_TreeCtrl != pTreeCtrl)
+	{
+		*pResult = 1;
+		return;
+	}
+
+	CImgRegionPtr pReg = pDoc->GetItemNode(pTVDispInfo->item.hItem);
+	ASSERT(pReg);
+	if (pReg->m_Locked)
+	{
+		*pResult = 1;
+		return;
+	}
+	*pResult = 0;
+}
+
+afx_msg void CFileView::OnTvnEndlabeledit(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: Add your control notification handler code here
+
+	CDragableTreeCtrl * pTreeCtrl = DYNAMIC_DOWNCAST(CDragableTreeCtrl, GetDlgItem(id));
+	ASSERT(pTreeCtrl);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+
+	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+	if (!pChildFrame)
+	{
+		*pResult = 1;
+		return;
+	}
+
+	CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+	if (!pDoc || &pDoc->m_TreeCtrl != pTreeCtrl)
+	{
+		*pResult = 1;
+		return;
+	}
+
+	pTreeCtrl->SetItemText(pTVDispInfo->item.hItem, pTVDispInfo->item.pszText);
+	*pResult = 0;
 }
 
 BOOL CFileView::PreTranslateMessage(MSG* pMsg)

@@ -6,8 +6,6 @@ class CImgRegionDoc;
 class CFileView : public CDockablePane
 {
 public:
-	CImgRegionDoc * m_pDoc;
-
 	BOOL m_bIsLayoutInvalid;
 
 public:
@@ -33,6 +31,10 @@ public:
 	afx_msg void OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnBeginlabeledit(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnEndlabeledit(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 
 	void InvalidLayout(void)
 	{

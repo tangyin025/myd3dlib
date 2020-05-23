@@ -571,7 +571,7 @@ BOOL CImgRegionDoc::CreateTreeCtrl(void)
 
 	static DWORD dwCtrlID = 4;
 
-	if (!m_TreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(), &pFrame->m_wndFileView, dwCtrlID++))
+	if (!m_TreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_EDITLABELS, CRect(), &pFrame->m_wndFileView, dwCtrlID++))
 	{
 		TRACE0("CImgRegionDoc::CreateTreeCtrl failed \n");
 		return FALSE;
