@@ -30,7 +30,10 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 {
 	CMFCPropertyGridProperty * pGroup = new CSimpleProp(_T("外观"));
 
-	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), m_Locked, _T("锁住移动属性"), CPropertiesWnd::PropertyItemLocked);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Class"), (_variant_t)m_Class, _T("类型"), CPropertiesWnd::PropertyItemClass);
+	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemClass] = pProp);
+
+	pProp = new CCheckBoxProp(_T("锁住"), m_Locked, _T("锁住移动属性"), CPropertiesWnd::PropertyItemLocked);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked] = pProp);
 
 	CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), CPropertiesWnd::PropertyItemLocation, TRUE);
@@ -155,6 +158,7 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 
 void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd)
 {
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemClass]->SetValue((_variant_t)m_Class);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked]->SetValue((_variant_t)(VARIANT_BOOL)m_Locked);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX]->SetValue((_variant_t)m_Location.x);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationY]->SetValue((_variant_t)m_Location.y);
@@ -388,6 +392,8 @@ void HistoryAddRegion::Do(void)
 	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
 
 	pReg->m_Locked = FALSE;
+
+	pReg->m_Location.SetPoint(10, 10);
 
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 
@@ -837,21 +843,13 @@ void CImgRegionDoc::AddNewHistory(HistoryPtr hist)
 
 void CImgRegionDoc::OnAddRegion()
 {
-	HTREEITEM hParent = NULL;
+	HTREEITEM hParent = m_TreeCtrl.GetSelectedItem();
 	CPoint ptOrg(10,10);
-	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
-	if(hSelected)
-	{
-		hParent = m_TreeCtrl.GetParentItem(hSelected);
-		CImgRegionPtr pReg = GetItemNode(hSelected);
-		ptOrg += pReg->m_Location;
-	}
-
 	m_NextRegId++;
 	CString szName;
 	szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
-		this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, hSelected ? GetItemId(hSelected) : 0));
+		this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
 	CImgRegion reg;
 	reg.m_Location = ptOrg;
@@ -1027,18 +1025,12 @@ void CImgRegionDoc::OnEditPaste()
 {
 	if(theApp.m_ClipboardFile.GetLength() > 0)
 	{
-		HTREEITEM hParent = NULL;
-		HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
-		if(hSelected)
-		{
-			hParent = m_TreeCtrl.GetParentItem(hSelected);
-		}
-
+		HTREEITEM hParent = m_TreeCtrl.GetSelectedItem();
 		m_NextRegId++;
 		CString szName;
 		szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
-			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, hSelected ? GetItemId(hSelected) : 0));
+			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
 		void * pBuffer;
 		void * pBufferMax;

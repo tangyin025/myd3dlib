@@ -178,6 +178,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				COLORREF color;
 				switch(PropertyIdx)
 				{
+				case PropertyItemClass:
+					pReg->m_Class = m_pProp[PropertyItemClass]->GetValue().bstrVal;
+					break;
+
 				case PropertyItemLocked:
 					if(pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().lVal)
 						pDoc->m_TreeCtrl.SetItemImage(hSelected, 1, 1);

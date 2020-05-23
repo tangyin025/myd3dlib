@@ -37,6 +37,8 @@ extern const TCHAR * TextAlignDesc[TextAlignCount];
 class CImgRegion
 {
 public:
+	CString m_Class;
+
 	BOOL m_Locked;
 
 	CPoint m_Location;
@@ -66,7 +68,8 @@ public:
 	CPoint m_TextOff;
 
 	CImgRegion(void)
-		: m_Locked(FALSE)
+		: m_Class("Static")
+		, m_Locked(FALSE)
 		, m_Location(100,100)
 		, m_Size(100,100)
 		, m_Color(255,255,255,255)

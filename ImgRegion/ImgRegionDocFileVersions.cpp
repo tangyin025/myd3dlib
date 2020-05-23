@@ -122,6 +122,7 @@ static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CAr
 		AfxThrowUserException();
 	}
 
+	ar >> pReg->m_Class;
 	ar >> pReg->m_Locked;
 	ar >> pReg->m_Location;
 	ar >> pReg->m_Size;
@@ -145,6 +146,7 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion * pReg, CArchive &
 		CImgRegionDocFileVersions_LoadingImgRegion355(pReg, ar, version); return;
 	}
 
+	ar << pReg->m_Class;
 	ar << pReg->m_Locked;
 	ar << pReg->m_Location;
 	ar << pReg->m_Size;

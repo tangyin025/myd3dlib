@@ -77,12 +77,18 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 		ASSERT(pReg);
 
 		std::string var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
-		ofs << "local " << var_name << "=Static()" << std::endl;
+		std::string var_class = (m_pDoc->m_TreeCtrl.GetParentItem(hItem) ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
+		ofs << "local " << var_name << "=" << var_class << "()" << std::endl;
 		ofs << var_name << ".Name=\"" << var_name << "\"" << std::endl;
 		ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
 		ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
 		ofs << var_name << ".Text=\"" << ts2ms((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
-		ofs << var_name << ".Skin=ControlSkin()" << std::endl;
+		ofs << var_name << ".Skin=";
+		if (var_class == "Dialog")
+		{
+			ofs << "Dialog";
+		}
+		ofs << "Skin()" << std::endl;
 		ofs << var_name << ".Skin.Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
 		ofs << var_name << ".Skin.Image=ControlImage()" << std::endl;
 		CString strRelatedPath;
