@@ -116,6 +116,9 @@
     <ClInclude Include="Tga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\myd3dlib\include\myMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Arrow.cur">

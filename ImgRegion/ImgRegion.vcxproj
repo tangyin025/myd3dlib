@@ -125,6 +125,7 @@
     <ClCompile Include="TGALoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\myd3dlib\include\myMath.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="..\myd3dbox\CtrlProps.h" />
     <ClInclude Include="..\myd3dbox\DragableTreeCtrl.h" />

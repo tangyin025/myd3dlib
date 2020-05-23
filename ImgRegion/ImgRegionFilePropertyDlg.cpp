@@ -7,7 +7,7 @@ IMPLEMENT_DYNAMIC(CImgRegionFilePropertyDlg, CDialog)
 
 CImgRegionFilePropertyDlg::CImgRegionFilePropertyDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CImgRegionFilePropertyDlg::IDD, pParent)
-	, m_Size(500,500)
+	, m_Size(800,600)
 	, m_Color(RGB(255,255,255))
 	, m_ImageStr(_T(""))
 {

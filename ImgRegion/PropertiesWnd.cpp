@@ -255,7 +255,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemTextWrap:
-					pReg->m_TextWrap = m_pProp[PropertyItemTextWrap]->GetValue().lVal;
+					pReg->m_TextWrap = m_pProp[PropertyItemTextWrap]->GetValue().boolVal;
 					break;
 
 				case PropertyItemTextOff:

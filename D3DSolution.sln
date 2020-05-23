@@ -75,6 +75,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myengine", "myengine\myengi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreMaxExporter", "OgreMaxExporter\OgreMaxExporter.vcxproj", "{FA3803CF-6433-4959-9517-8EC505C5D919}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcxproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -198,11 +200,16 @@ Global
 		{ECBE9CA0-C8A4-4594-AC78-D99D7264E54B}.Release|Win32.Build.0 = Release|Win32
 		{ECBE9CA0-C8A4-4594-AC78-D99D7264E54B}.Release|x64.ActiveCfg = Release|Win32
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Debug|Win32.ActiveCfg = Debug|x64
-		{FA3803CF-6433-4959-9517-8EC505C5D919}.Debug|Win32.Build.0 = Debug|x64
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Debug|x64.ActiveCfg = Debug|Win32
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Release|Win32.ActiveCfg = Release|x64
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Release|Win32.Build.0 = Release|x64
 		{FA3803CF-6433-4959-9517-8EC505C5D919}.Release|x64.ActiveCfg = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.Build.0 = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|x64.ActiveCfg = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.ActiveCfg = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.Build.0 = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
