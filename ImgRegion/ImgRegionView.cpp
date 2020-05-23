@@ -149,7 +149,8 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, Gdiplus::Matrix & w
 
 	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
 	{
-		DrawRegionDocImage(grap, pDoc->m_Image.get(), CRect(CPoint(0,0), pDoc->m_Size), Vector4i(0,0,0,0), pDoc->m_Color);
+		DrawRegionDocImage(grap, pDoc->m_Image.get(), CRect(CPoint(0, 0), pDoc->m_Size),
+			CRect(0, 0, pDoc->m_Image->GetWidth(), pDoc->m_Image->GetHeight()), Vector4i(0, 0, 0, 0), pDoc->m_Color);
 	}
 	else
 	{
@@ -180,7 +181,7 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix
 	}
 }
 
-void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color)
+void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const CRect & srcRect, const Vector4i & border, const Gdiplus::Color & color)
 {
 	Gdiplus::ColorMatrix colorMatrix = {
 		color.GetR() / 255.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -198,25 +199,25 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 	grap.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top, border.x, border.y),
-		0, 0, border.x, border.y, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.left, srcRect.top, border.x, border.y, Gdiplus::UnitPixel, &imageAtt);
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top, dstRect.Width() - border.x - border.z, border.y),
-		border.x, 0, img->GetWidth() - border.x - border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.left + border.x, srcRect.top, srcRect.Width() - border.x - border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top, border.x, border.y),
-		img->GetWidth() - border.z, 0, border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.right - border.z, srcRect.top, border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
 
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
-		0, border.y, border.x, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.left, srcRect.top + border.y, border.x, srcRect.Height() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top + border.y, dstRect.Width() - border.x - border.z, dstRect.Height() - border.y - border.w),
-		border.x, border.y, img->GetWidth() - border.x - border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.left + border.x, srcRect.top + border.y, srcRect.Width() - border.x - border.z, srcRect.Height() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
-		img->GetWidth() - border.z, border.y, border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.right - border.z, srcRect.top + border.y, border.z, srcRect.Height() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.bottom - border.w, border.x, border.w),
-		0, img->GetHeight() - border.w, border.x, border.w, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.left, srcRect.bottom - border.w, border.x, border.w, Gdiplus::UnitPixel, &imageAtt);
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.bottom - border.w, dstRect.Width() - border.x - border.z, border.w),
-		border.x, img->GetHeight() - border.w, img->GetWidth() - border.x - border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.left + border.x, srcRect.bottom - border.w, srcRect.Width() - border.x - border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.bottom - border.w, border.x, border.w),
-		img->GetWidth() - border.z, img->GetHeight() - border.w, border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
+		srcRect.right - border.z, srcRect.bottom - border.w, border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
 
 	grap.SetInterpolationMode(oldInterpolationMode);
 	grap.SetPixelOffsetMode(oldPixelOffsetMode);

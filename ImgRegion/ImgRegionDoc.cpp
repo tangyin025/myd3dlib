@@ -199,7 +199,7 @@ void CImgRegion::Draw(Gdiplus::Graphics & grap)
 {
 	if(m_Image && Gdiplus::ImageTypeUnknown != m_Image->GetType())
 	{
-		CImgRegionView::DrawRegionDocImage(grap, m_Image.get(), CRect(m_Location, m_Size), m_Border, m_Color);
+		CImgRegionView::DrawRegionDocImage(grap, m_Image.get(), CRect(m_Location, m_Size), m_Rect, m_Border, m_Color);
 	}
 	else
 	{
