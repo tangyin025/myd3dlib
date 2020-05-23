@@ -76,6 +76,27 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 		CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 
+		std::string var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
+		ofs << "local " << var_name << "=Static()" << std::endl;
+		ofs << var_name << ".Name=\"" << var_name << "\"" << std::endl;
+		ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
+		ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
+		ofs << var_name << ".Text=\"" << ts2ms((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
+		ofs << var_name << ".Skin=ControlSkin()" << std::endl;
+		ofs << var_name << ".Skin.Color=ARGB(" << pReg->m_Color.GetAlpha() << "," << pReg->m_Color.GetRed() << "," << pReg->m_Color.GetGreen() << "," << pReg->m_Color.GetBlue() << ")" << std::endl;
+		ofs << var_name << ".Skin.Image=ControlImage()" << std::endl;
+		CString strRelatedPath;
+		PathRelativePathTo(strRelatedPath.GetBufferSetLength(MAX_PATH), m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
+		strRelatedPath.ReleaseBuffer();
+		strRelatedPath.Replace(_T('\\'), _T('/'));
+		ofs << var_name << ".Skin.Image.Texture=game:LoadTexture(\"" << ts2ms((LPCTSTR)strRelatedPath) << "\")" << std::endl;
+		ofs << var_name << ".Skin.Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
+		ofs << var_name << ".Skin.Image.Border=Rectangle(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
+		ofs << var_name << ".Skin.Font=game.Font" << std::endl;
+		ofs << var_name << ".Skin.TextColor=ARGB(" << pReg->m_FontColor.GetAlpha() << "," << pReg->m_FontColor.GetRed() << "," << pReg->m_FontColor.GetGreen() << "," << pReg->m_FontColor.GetBlue() << ")" << std::endl;
+		ofs << var_name << ".Skin.TextAlign=Font.AlignCenterMiddle" << std::endl;
+		ofs << std::endl;
+
 		HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);
 		for (; hChildItem; hChildItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hChildItem))
 		{
