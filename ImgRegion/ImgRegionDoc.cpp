@@ -5,7 +5,7 @@
 #include "resource.h"
 #include "ImgRegionFilePropertyDlg.h"
 #include "ImgRegionView.h"
-#include "LuaExporterDlg.h"
+#include "ExportLuaDlg.h"
 #include "ImgRegionDocFileVersions.h"
 
 //#pragma comment(lib, "UxTheme.lib")
@@ -1137,7 +1137,7 @@ void CImgRegionDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 
 void CImgRegionDoc::OnExportLua()
 {
-	CLuaExporterDlg dlg(this);
+	CExportLuaDlg dlg(this);
 	dlg.m_strProjectDir = m_strProjectDir;
 	dlg.m_strLuaPath = m_strLuaPath;
 	dlg.DoModal();

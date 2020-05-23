@@ -100,6 +100,7 @@
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="..\myd3dbox\CtrlProps.cpp" />
     <ClCompile Include="..\myd3dbox\DragableTreeCtrl.cpp" />
+    <ClCompile Include="ExportLuaDlg.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="ImgRegionDoc.cpp" />
@@ -110,7 +111,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="LuaExporterDlg.cpp" />
     <ClCompile Include="MainApp.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="..\myd3dlib\src\myMath.cpp">
@@ -129,13 +129,13 @@
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="..\myd3dbox\CtrlProps.h" />
     <ClInclude Include="..\myd3dbox\DragableTreeCtrl.h" />
+    <ClInclude Include="ExportLuaDlg.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="ImgRegionDoc.h" />
     <ClInclude Include="ImgRegionDocFileVersions.h" />
     <ClInclude Include="ImgRegionFilePropertyDlg.h" />
     <ClInclude Include="ImgRegionView.h" />
-    <ClInclude Include="LuaExporterDlg.h" />
     <ClInclude Include="MainApp.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PropertiesWnd.h" />

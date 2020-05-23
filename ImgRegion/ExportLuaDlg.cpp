@@ -1,17 +1,17 @@
-// LuaExporterDlg.cpp : implementation file
+// ExportLuaDlg.cpp : implementation file
 //
 
 #include "stdafx.h"
-#include "LuaExporterDlg.h"
+#include "ExportLuaDlg.h"
 #include "MainFrm.h"
 
 
-// CLuaExporterDlg dialog
+// CExportLuaDlg dialog
 
-IMPLEMENT_DYNAMIC(CLuaExporterDlg, CDialog)
+IMPLEMENT_DYNAMIC(CExportLuaDlg, CDialog)
 
-CLuaExporterDlg::CLuaExporterDlg(CImgRegionDoc * pDoc, CWnd* pParent /*=NULL*/)
-	: CDialog(CLuaExporterDlg::IDD, pParent)
+CExportLuaDlg::CExportLuaDlg(CImgRegionDoc * pDoc, CWnd* pParent /*=NULL*/)
+	: CDialog(CExportLuaDlg::IDD, pParent)
 	, m_pDoc(pDoc)
 	, m_strProjectDir(_T(""))
 	, m_strLuaPath(_T(""))
@@ -19,11 +19,11 @@ CLuaExporterDlg::CLuaExporterDlg(CImgRegionDoc * pDoc, CWnd* pParent /*=NULL*/)
 {
 }
 
-CLuaExporterDlg::~CLuaExporterDlg()
+CExportLuaDlg::~CExportLuaDlg()
 {
 }
 
-void CLuaExporterDlg::DoDataExchange(CDataExchange* pDX)
+void CExportLuaDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_strProjectDir);
@@ -31,12 +31,12 @@ void CLuaExporterDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CLuaExporterDlg, CDialog)
-	ON_BN_CLICKED(IDC_BUTTON1, &CLuaExporterDlg::OnBnClickedButton1)
-	ON_BN_CLICKED(IDC_BUTTON2, &CLuaExporterDlg::OnBnClickedButton2)
+BEGIN_MESSAGE_MAP(CExportLuaDlg, CDialog)
+	ON_BN_CLICKED(IDC_BUTTON1, &CExportLuaDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CExportLuaDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
-void CLuaExporterDlg::OnBnClickedButton1()
+void CExportLuaDlg::OnBnClickedButton1()
 {
 	TCHAR szDir[MAX_PATH];
 	GetDlgItem(IDC_EDIT1)->GetWindowText(szDir, MAX_PATH);
@@ -59,7 +59,7 @@ void CLuaExporterDlg::OnBnClickedButton1()
 	GetDlgItem(IDC_EDIT1)->SetWindowText(szDir);
 }
 
-void CLuaExporterDlg::OnBnClickedButton2()
+void CExportLuaDlg::OnBnClickedButton2()
 {
 	TCHAR szFile[MAX_PATH];
 	GetDlgItem(IDC_EDIT2)->GetWindowText(szFile, MAX_PATH);
@@ -69,7 +69,7 @@ void CLuaExporterDlg::OnBnClickedButton2()
 		GetDlgItem(IDC_EDIT2)->SetWindowText(dlgFile.GetPathName());
 }
 
-void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, int indent)
+void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, int indent)
 {
 	if(hItem)
 	{
@@ -86,7 +86,7 @@ void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, 
 	}
 }
 
-void CLuaExporterDlg::OnOK()
+void CExportLuaDlg::OnOK()
 {
 	ASSERT(m_pDoc);
 

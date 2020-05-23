@@ -4,16 +4,16 @@
 
 #include "ImgRegionDoc.h"
 
-// CLuaExporterDlg dialog
+// CExportLuaDlg dialog
 
-class CLuaExporterDlg : public CDialog
+class CExportLuaDlg : public CDialog
 {
-	DECLARE_DYNAMIC(CLuaExporterDlg)
+	DECLARE_DYNAMIC(CExportLuaDlg)
 
 public:
-	CLuaExporterDlg(CImgRegionDoc * pDoc, CWnd* pParent = NULL);   // standard constructor
+	CExportLuaDlg(CImgRegionDoc * pDoc, CWnd* pParent = NULL);   // standard constructor
 
-	virtual ~CLuaExporterDlg();
+	virtual ~CExportLuaDlg();
 
 	enum { IDD = IDD_LUA_EXPORTER };
 
