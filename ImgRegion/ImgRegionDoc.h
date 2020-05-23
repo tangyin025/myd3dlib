@@ -49,6 +49,8 @@ public:
 
 	ImagePtr m_Image;
 
+	CRect m_Rect;
+
 	Vector4i m_Border;
 
 	FontPtr2 m_Font;

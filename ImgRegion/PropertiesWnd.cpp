@@ -219,6 +219,18 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemImage:
 					pReg->m_ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
 					pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
+					pReg->m_Rect.SetRect(0, 0, pReg->m_Image->GetWidth(), pReg->m_Image->GetHeight());
+					break;
+
+				case PropertyItemRect:
+				case PropertyItemRectL:
+				case PropertyItemRectT:
+				case PropertyItemRectR:
+				case PropertyItemRectB:
+					pReg->m_Rect.left = m_pProp[PropertyItemRectL]->GetValue().lVal;
+					pReg->m_Rect.top = m_pProp[PropertyItemRectT]->GetValue().lVal;
+					pReg->m_Rect.right = m_pProp[PropertyItemRectR]->GetValue().lVal;
+					pReg->m_Rect.bottom = m_pProp[PropertyItemRectB]->GetValue().lVal;
 					break;
 
 				case PropertyItemBorder:
