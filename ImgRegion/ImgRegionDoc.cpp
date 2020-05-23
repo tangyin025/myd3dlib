@@ -645,7 +645,7 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Location))
 			return hRet;
 
-		if(CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
+		if(!pReg->m_Locked && CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
 			return hItem;
 	}
 	return NULL;
