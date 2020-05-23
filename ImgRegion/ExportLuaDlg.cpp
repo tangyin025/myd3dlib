@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "ExportLuaDlg.h"
 #include "MainFrm.h"
+#include <boost/algorithm/string.hpp>
 
 
 // CExportLuaDlg dialog
@@ -76,9 +77,11 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 		CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 
+		HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
+		std::string var_scope = (hParentItem ? "local " : "");
 		std::string var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
-		std::string var_class = (m_pDoc->m_TreeCtrl.GetParentItem(hItem) ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
-		ofs << "local " << var_name << "=" << var_class << "()" << std::endl;
+		std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
+		ofs << var_scope << var_name << "=" << var_class << "()" << std::endl;
 		ofs << var_name << ".Name=\"" << var_name << "\"" << std::endl;
 		ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
 		ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
@@ -86,18 +89,38 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 		ofs << var_name << ".Skin=";
 		if (var_class == "Dialog")
 		{
-			ofs << "Dialog";
+			ofs << "DialogSkin";
 		}
-		ofs << "Skin()" << std::endl;
+		else if (var_class == "ProgressBar")
+		{
+			ofs << "ProgressBarSkin";
+		}
+		else if (var_class == "Button")
+		{
+			ofs << "ButtonSkin";
+		}
+		else if (var_class == "EditBox")
+		{
+			ofs << "EditBoxSkin";
+		}
+		else if (var_class == "ScrollBar")
+		{
+			ofs << "ScrollBarSkin";
+		}
+		else
+		{
+			ofs << "ControlSkin";
+		}
+		ofs << "()" << std::endl;
 		ofs << var_name << ".Skin.Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
 		ofs << var_name << ".Skin.Image=ControlImage()" << std::endl;
-		CString strRelatedPath;
-		PathRelativePathTo(strRelatedPath.GetBufferSetLength(MAX_PATH), m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
-		strRelatedPath.ReleaseBuffer();
-		strRelatedPath.Replace(_T('\\'), _T('/'));
-		ofs << var_name << ".Skin.Image.Texture=game:LoadTexture(\"" << ts2ms((LPCTSTR)strRelatedPath) << "\")" << std::endl;
+		std::basic_string<TCHAR> strRelatedPath(MAX_PATH, _T('\0'));
+		PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
+		boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
+		boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
+		ofs << var_name << ".Skin.Image.Texture=game:LoadTexture(\"" << ts2ms(strRelatedPath) << "\")" << std::endl;
 		ofs << var_name << ".Skin.Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
-		ofs << var_name << ".Skin.Image.Border=Rectangle(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
+		ofs << var_name << ".Skin.Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
 		ofs << var_name << ".Skin.Font=game.Font" << std::endl;
 		ofs << var_name << ".Skin.TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
 		ofs << var_name << ".Skin.TextAlign=Font.";
@@ -132,6 +155,11 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 			break;
 		}
 		ofs << std::endl;
+		if (hParentItem)
+		{
+			std::string parent_var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hParentItem));
+			ofs << parent_var_name << ":InsertControl(" << var_name << ")" << std::endl;
+		}
 		ofs << std::endl;
 
 		HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);

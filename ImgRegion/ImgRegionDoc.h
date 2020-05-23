@@ -68,7 +68,7 @@ public:
 	CPoint m_TextOff;
 
 	CImgRegion(void)
-		: m_Class("Static")
+		: m_Class("Control")
 		, m_Locked(FALSE)
 		, m_Location(100,100)
 		, m_Size(100,100)
