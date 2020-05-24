@@ -4,8 +4,8 @@
 #include "stdafx.h"
 #include "ExportLuaDlg.h"
 #include "MainFrm.h"
-#include <boost/algorithm/string.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/algorithm/string.hpp>
 
 // CExportLuaDlg dialog
 
@@ -106,7 +106,6 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 	ASSERT(hItem);
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
-	static unsigned int NextSkinId = 0;
 	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
 	RegKey key(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
@@ -142,7 +141,7 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 		{
 			skin_class = "ControlSkin";
 		}
-		std::string skin_var_name = str_printf("%s_%d", boost::algorithm::to_lower_copy(skin_class).c_str(), NextSkinId++);
+		std::string skin_var_name = str_printf("skin_%u", boost::hash_value(key));
 		g_SkinMap.insert(RegSkinMap::value_type(key, skin_var_name));
 		ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
 		ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
