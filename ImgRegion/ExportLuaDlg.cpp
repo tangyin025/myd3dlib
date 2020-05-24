@@ -95,7 +95,7 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
-	std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
+	std::string var_class = (hParentItem ? tstou8((LPCTSTR)pReg->m_Class) : "Dialog");
 	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
 	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
 	if (skin_iter == m_SkinMap.end())
@@ -138,7 +138,7 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 		PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
 		boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
 		boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
-		ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << ts2ms(strRelatedPath.c_str()) << "\")" << std::endl;
+		ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << tstou8(strRelatedPath.c_str()) << "\")" << std::endl;
 		ofs << skin_var_name << ".Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
 		ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
 		ofs << skin_var_name << ".Font=game.Font" << std::endl;
@@ -192,13 +192,13 @@ void CExportLuaDlg::ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem)
 	ASSERT(pReg);
 	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	std::string var_scope = (hParentItem ? "local " : "");
-	std::string var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
-	std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
+	std::string var_name = tstou8((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
+	std::string var_class = (hParentItem ? tstou8((LPCTSTR)pReg->m_Class) : "Dialog");
 	ofs << var_scope << var_name << "=" << var_class << "()" << std::endl;
 	ofs << var_name << ".Name=\"" << var_name << "\"" << std::endl;
 	ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
 	ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
-	ofs << var_name << ".Text=\"" << ts2ms((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
+	ofs << var_name << ".Text=\"" << tstou8((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
 
 	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
 	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
@@ -209,7 +209,7 @@ void CExportLuaDlg::ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem)
 
 	if (hParentItem)
 	{
-		std::string parent_var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hParentItem));
+		std::string parent_var_name = tstou8((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hParentItem));
 		ofs << parent_var_name << ":InsertControl(" << var_name << ")" << std::endl;
 	}
 	ofs << std::endl;
@@ -239,7 +239,7 @@ void CExportLuaDlg::OnOK()
 	szExtent = PathFindExtension(szBuff);
 	std::basic_string<TCHAR> strName(szName, szExtent - szName);
 
-	ofs << "module(\"" << ts2ms(strName.c_str()) << "\", package.seeall)" << std::endl;
+	ofs << "module(\"" << tstou8(strName.c_str()) << "\", package.seeall)" << std::endl;
 	ofs << std::endl;
 	HTREEITEM hItem = m_pDoc->m_TreeCtrl.GetRootItem();
 	for (; hItem; hItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem))
@@ -252,8 +252,6 @@ void CExportLuaDlg::OnOK()
 		ExportTreeNode(ofs, hItem);
 	}
 	ofs.close();
-
-	m_SkinMap.clear();
 
 	MessageBox(_T("成功导出lua脚本文件"));
 
