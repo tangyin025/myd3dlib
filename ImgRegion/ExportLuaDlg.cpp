@@ -69,37 +69,25 @@ void CExportLuaDlg::OnBnClickedButton2()
 		GetDlgItem(IDC_EDIT2)->SetWindowText(dlgFile.GetPathName());
 }
 
-class RegKey : public boost::tuple<std::string, Gdiplus::Color, std::basic_string<TCHAR>, CRect, Vector4i, FontPtr2, Gdiplus::Color, DWORD>
+static size_t _hash_value(const std::string & Class, Gdiplus::Color Color, const CString & ImageStr, const CRect & Rect, const Vector4i & Border, FontPtr2 Font, Gdiplus::Color FontColor, DWORD TextAlign)
 {
-public:
-	RegKey(const std::string & Class, Gdiplus::Color Color, const CString & ImageStr, const CRect & Rect, const Vector4i & Border, FontPtr2 Font, Gdiplus::Color FontColor, DWORD TextAlign)
-		: tuple(Class, Color, (LPCTSTR)ImageStr, Rect, Border, Font, FontColor, TextAlign)
-	{
-	}
-
-	bool operator ==(const RegKey & rhs) const
-	{
-		return get<0>() == rhs.get<0>()
-			&& get<1>().GetValue() == rhs.get<1>().GetValue()
-			&& get<2>() == rhs.get<2>();
-	}
-};
-
-namespace boost
-{
-	static size_t hash_value(const RegKey & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.get<0>());
-		boost::hash_combine(seed, key.get<1>().GetValue());
-		boost::hash_combine(seed, key.get<2>());
-		return seed;
-	}
+	// ! maybe hash conflict
+	size_t seed = 0;
+	boost::hash_combine(seed, Class);
+	boost::hash_combine(seed, Color.GetValue());
+	boost::hash_combine(seed, std::basic_string<TCHAR>((LPCTSTR)ImageStr));
+	boost::hash_combine(seed, Rect.left);
+	boost::hash_combine(seed, Rect.top);
+	boost::hash_combine(seed, Rect.right);
+	boost::hash_combine(seed, Rect.bottom);
+	boost::hash_combine(seed, Border.x);
+	boost::hash_combine(seed, Border.y);
+	boost::hash_combine(seed, Border.z);
+	boost::hash_combine(seed, Border.w);
+	boost::hash_combine(seed, FontColor.GetValue());
+	boost::hash_combine(seed, TextAlign);
+	return seed;
 }
-
-typedef boost::unordered_map<RegKey, std::string> RegSkinMap;
-
-static RegSkinMap g_SkinMap;
 
 void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 {
@@ -108,9 +96,9 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 	ASSERT(pReg);
 	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
-	RegKey key(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
-	RegSkinMap::const_iterator skin_iter = g_SkinMap.find(key);
-	if (skin_iter == g_SkinMap.end())
+	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
+	if (skin_iter == m_SkinMap.end())
 	{
 		std::string skin_class;
 		if (var_class == "Dialog")
@@ -141,8 +129,8 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 		{
 			skin_class = "ControlSkin";
 		}
-		std::string skin_var_name = str_printf("skin_%u", boost::hash_value(key));
-		g_SkinMap.insert(RegSkinMap::value_type(key, skin_var_name));
+		std::string skin_var_name = str_printf("skin_%u", seed);
+		m_SkinMap.insert(std::make_pair(seed, skin_var_name));
 		ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
 		ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
 		ofs << skin_var_name << ".Image=ControlImage()" << std::endl;
@@ -212,9 +200,9 @@ void CExportLuaDlg::ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem)
 	ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
 	ofs << var_name << ".Text=\"" << ts2ms((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
 
-	RegKey key(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
-	RegSkinMap::const_iterator skin_iter = g_SkinMap.find(key);
-	if (skin_iter != g_SkinMap.end())
+	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
+	if (skin_iter != m_SkinMap.end())
 	{
 		ofs << var_name << ".Skin=" << skin_iter->second << std::endl;
 	}
@@ -265,7 +253,7 @@ void CExportLuaDlg::OnOK()
 	}
 	ofs.close();
 
-	g_SkinMap.clear();
+	m_SkinMap.clear();
 
 	MessageBox(_T("成功导出lua脚本文件"));
 

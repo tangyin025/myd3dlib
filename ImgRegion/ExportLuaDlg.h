@@ -27,6 +27,10 @@ public:
 
 	CString m_strLuaPath;
 
+	typedef boost::unordered_map<size_t, std::string> RegSkinMap;
+
+	RegSkinMap m_SkinMap;
+
 	afx_msg void OnBnClickedButton1();
 
 	afx_msg void OnBnClickedButton2();

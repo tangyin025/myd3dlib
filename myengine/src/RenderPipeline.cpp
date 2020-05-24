@@ -7,6 +7,7 @@
 #include "Actor.h"
 #include "libc.h"
 #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -79,9 +80,9 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
-my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
+static size_t _hash_value(RenderPipeline::MeshType mesh_type, const D3DXMACRO* pDefines, const char * name)
 {
-	const char * name = PathFindFileNameA(path);
+	// ! maybe hash conflict
 	size_t seed = 0;
 	boost::hash_combine(seed, mesh_type);
 	boost::hash_combine(seed, std::string(name));
@@ -97,7 +98,13 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 			}
 		}
 	}
+	return seed;
+}
 
+my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pDefines, const char * path, unsigned int PassID)
+{
+	const char * name = PathFindFileNameA(path);
+	size_t seed = _hash_value(mesh_type, pDefines, name);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(seed);
 	if (shader_iter != m_ShaderCache.end())
 	{
@@ -160,7 +167,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		err.Release();
 	}
 
-	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache@%08x"), seed).c_str());
+	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache_%u"), seed).c_str());
 	ostr->write(buff->GetBufferPointer(), buff->GetBufferSize());
 	ostr.reset();
 
@@ -194,12 +201,12 @@ void RenderPipeline::LoadShaderCache(LPCTSTR szDir)
 		{
 			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				boost::basic_regex<TCHAR> reg(_T("ShaderCache@([0-9a-fA-F]{8})"));
+				boost::basic_regex<TCHAR> reg(_T("ShaderCache_(\\d+)"));
 				boost::match_results<const TCHAR *> what;
 				if (boost::regex_search(ffd.cFileName, what, reg, boost::match_default) && what[1].matched)
 				{
 					std::basic_string<TCHAR> seed_str(what[1].first, what[1].second);
-					size_t seed = _tcstoul(seed_str.c_str(), 0, 16);
+					size_t seed = boost::lexical_cast<size_t>(seed_str);
 					std::basic_string<TCHAR> path(szDir);
 					path.append(_T("\\")).append(ffd.cFileName);
 					my::EffectPtr shader(new my::Effect());
