@@ -141,7 +141,7 @@ void Character::Update(float fElapsedTime)
 			Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y,
 			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + Acceleration * fElapsedTime;
 		physx::PxControllerCollisionFlags flags = m_PxController->move(
-			(physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+			(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 		if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 		{
 			m_Velocity.y = 0;
