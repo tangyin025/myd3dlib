@@ -114,7 +114,7 @@ namespace OgreMax {
 
 					std::basic_string<TCHAR> bmap(tmap->GetBitmapFileName());
 					bmap = bmap.substr(bmap.find_last_of(_T('\\')) + 1);
-					of << "\t\t\t\ttexture " << ts2ms(bmap) << std::endl;
+					of << "\t\t\t\ttexture " << ts2ms(bmap.c_str()) << std::endl;
 					of << "\t\t\t}" << std::endl;
 				}
 			}
@@ -129,7 +129,7 @@ namespace OgreMax {
 
 		std::stringstream of;
 
-		of << "material " << ts2ms(matName) << std::endl;
+		of << "material " << ts2ms(matName.c_str()) << std::endl;
 		of << std::showpoint;
 		of << "{" << std::endl;
 

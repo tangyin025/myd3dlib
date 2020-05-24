@@ -293,7 +293,7 @@ namespace OgreMax
 
 		int idx = 0;
 		while (!m_submeshNames.empty()) {
-			of << "\t\t<submeshname name=\"" << ts2ms(m_submeshNames.front()) << "\" index=\"" << idx << "\" />" << std::endl;
+			of << "\t\t<submeshname name=\"" << ts2ms(m_submeshNames.front().c_str()) << "\" index=\"" << idx << "\" />" << std::endl;
 			idx++;
 			m_submeshNames.pop();
 		}
@@ -327,7 +327,7 @@ namespace OgreMax
 		of << "\t\t<submesh ";
 		
 		if (mtlName.length() > 0)
-			of << "material=\"" << ts2ms(mtlName) << "\" ";
+			of << "material=\"" << ts2ms(mtlName.c_str()) << "\" ";
 
 		of << "usesharedvertices=\"false\" use32bitindexes=\"";
 		of << (vertCount > 65535);
@@ -1062,7 +1062,7 @@ namespace OgreMax
 
 			INode *thisNode = m_i->GetINodeByName(it->first.c_str());
 
-			of << "\t\t<bone id=\"" << it->second << "\" name=\"" << ts2ms(removeSpaces(it->first)) << "\" >" << std::endl;
+			of << "\t\t<bone id=\"" << it->second << "\" name=\"" << ts2ms(removeSpaces(it->first).c_str()) << "\" >" << std::endl;
 
 			// assume rest pose is at time zero
 			TimeValue start = m_i->GetAnimRange().Start();
@@ -1119,7 +1119,7 @@ namespace OgreMax
 				INode *parentNode = thisNode->GetParentNode();
 
 				if (parentNode != 0 && parentNode != m_i->GetRootNode())
-					of << "\t\t<boneparent bone=\"" << ts2ms(removeSpaces(it->first)) << "\" parent=\"" << ts2ms(removeSpaces(std::basic_string<TCHAR>(parentNode->GetName()))) << "\"/>" << std::endl;
+					of << "\t\t<boneparent bone=\"" << ts2ms(removeSpaces(it->first).c_str()) << "\" parent=\"" << ts2ms(removeSpaces(std::basic_string<TCHAR>(parentNode->GetName())).c_str()) << "\"/>" << std::endl;
 			}
 
 			it++;
@@ -1143,7 +1143,7 @@ namespace OgreMax
 				float fps = (float)GetFrameRate();
 				float length = (a.end - a.start) / fps;
 
-				of << "\t\t<animation name=\"" << ts2ms(removeSpaces(a.name)) << "\" length=\"" << length << "\">" << std::endl;
+				of << "\t\t<animation name=\"" << ts2ms(removeSpaces(a.name).c_str()) << "\" length=\"" << length << "\">" << std::endl;
 
 				streamAnimTracks(of, a.start, a.end);
 
@@ -1284,7 +1284,7 @@ namespace OgreMax
 
 	bool MeshXMLExporter::streamKeyframes(std::ostream &of, INode *thisNode, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM) {
 
-		of << "\t\t\t\t<track bone=\"" << ts2ms(removeSpaces(std::basic_string<TCHAR>(thisNode->GetName()))) << "\">" << std::endl;
+		of << "\t\t\t\t<track bone=\"" << ts2ms(removeSpaces(std::basic_string<TCHAR>(thisNode->GetName())).c_str()) << "\">" << std::endl;
 		of << "\t\t\t\t\t<keyframes>" << std::endl;
 
 		int i;
@@ -1473,7 +1473,7 @@ namespace OgreMax
 
 	bool MeshXMLExporter::streamBipedKeyframes(std::ostream &of, IBipMaster *bip, INode *thisNode, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM) {
 
-		of << "\t\t\t\t<track bone=\"" << ts2ms(removeSpaces(std::basic_string<TCHAR>(thisNode->GetName()))) << "\">" << std::endl;
+		of << "\t\t\t\t<track bone=\"" << ts2ms(removeSpaces(std::basic_string<TCHAR>(thisNode->GetName())).c_str()) << "\">" << std::endl;
 		of << "\t\t\t\t\t<keyframes>" << std::endl;
 
 		int i;
