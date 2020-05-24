@@ -5,7 +5,7 @@
 #include "ExportLuaDlg.h"
 #include "MainFrm.h"
 #include <boost/algorithm/string.hpp>
-
+#include <boost/unordered_map.hpp>
 
 // CExportLuaDlg dialog
 
@@ -16,7 +16,6 @@ CExportLuaDlg::CExportLuaDlg(CImgRegionDoc * pDoc, CWnd* pParent /*=NULL*/)
 	, m_pDoc(pDoc)
 	, m_strProjectDir(_T(""))
 	, m_strLuaPath(_T(""))
-	, m_dirtyFlag(FALSE)
 {
 }
 
@@ -70,60 +69,94 @@ void CExportLuaDlg::OnBnClickedButton2()
 		GetDlgItem(IDC_EDIT2)->SetWindowText(dlgFile.GetPathName());
 }
 
-void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
+class RegKey : public boost::tuple<std::string, Gdiplus::Color, std::basic_string<TCHAR>, CRect, Vector4i, FontPtr2, Gdiplus::Color, DWORD>
 {
-	if(hItem)
+public:
+	RegKey(const std::string & Class, Gdiplus::Color Color, const CString & ImageStr, const CRect & Rect, const Vector4i & Border, FontPtr2 Font, Gdiplus::Color FontColor, DWORD TextAlign)
+		: tuple(Class, Color, (LPCTSTR)ImageStr, Rect, Border, Font, FontColor, TextAlign)
 	{
-		CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
-		ASSERT(pReg);
+	}
 
-		HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
-		std::string var_scope = (hParentItem ? "local " : "");
-		std::string var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
-		std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
-		ofs << var_scope << var_name << "=" << var_class << "()" << std::endl;
-		ofs << var_name << ".Name=\"" << var_name << "\"" << std::endl;
-		ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
-		ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
-		ofs << var_name << ".Text=\"" << ts2ms((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
-		ofs << var_name << ".Skin=";
+	bool operator ==(const RegKey & rhs) const
+	{
+		return get<0>() == rhs.get<0>()
+			&& get<1>().GetValue() == rhs.get<1>().GetValue()
+			&& get<2>() == rhs.get<2>();
+	}
+};
+
+namespace boost
+{
+	static size_t hash_value(const RegKey & key)
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, key.get<0>());
+		boost::hash_combine(seed, key.get<1>().GetValue());
+		boost::hash_combine(seed, key.get<2>());
+		return seed;
+	}
+}
+
+typedef boost::unordered_map<RegKey, std::string> RegSkinMap;
+
+static RegSkinMap g_SkinMap;
+
+void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
+{
+	ASSERT(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
+	ASSERT(pReg);
+	static unsigned int NextSkinId = 0;
+	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
+	std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
+	RegKey key(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+	RegSkinMap::const_iterator skin_iter = g_SkinMap.find(key);
+	if (skin_iter == g_SkinMap.end())
+	{
+		std::string skin_class;
 		if (var_class == "Dialog")
 		{
-			ofs << "DialogSkin";
+			skin_class = "DialogSkin";
 		}
 		else if (var_class == "ProgressBar")
 		{
-			ofs << "ProgressBarSkin";
+			skin_class = "ProgressBarSkin";
 		}
-		else if (var_class == "Button")
+		else if (var_class == "Button" || var_class == "CheckBox")
 		{
-			ofs << "ButtonSkin";
+			skin_class = "ButtonSkin";
 		}
-		else if (var_class == "EditBox")
+		else if (var_class == "EditBox" || var_class == "ImeEditBox")
 		{
-			ofs << "EditBoxSkin";
+			skin_class = "EditBoxSkin";
 		}
 		else if (var_class == "ScrollBar")
 		{
-			ofs << "ScrollBarSkin";
+			skin_class = "ScrollBarSkin";
+		}
+		else if (var_class == "ComboBox")
+		{
+			skin_class = "ComboBoxSkin";
 		}
 		else
 		{
-			ofs << "ControlSkin";
+			skin_class = "ControlSkin";
 		}
-		ofs << "()" << std::endl;
-		ofs << var_name << ".Skin.Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
-		ofs << var_name << ".Skin.Image=ControlImage()" << std::endl;
+		std::string skin_var_name = str_printf("%s_%d", boost::algorithm::to_lower_copy(skin_class).c_str(), NextSkinId++);
+		g_SkinMap.insert(RegSkinMap::value_type(key, skin_var_name));
+		ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
+		ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
+		ofs << skin_var_name << ".Image=ControlImage()" << std::endl;
 		std::basic_string<TCHAR> strRelatedPath(MAX_PATH, _T('\0'));
 		PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
 		boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
 		boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
-		ofs << var_name << ".Skin.Image.Texture=game:LoadTexture(\"" << ts2ms(strRelatedPath.c_str()) << "\")" << std::endl;
-		ofs << var_name << ".Skin.Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
-		ofs << var_name << ".Skin.Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
-		ofs << var_name << ".Skin.Font=game.Font" << std::endl;
-		ofs << var_name << ".Skin.TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
-		ofs << var_name << ".Skin.TextAlign=Font.";
+		ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << ts2ms(strRelatedPath.c_str()) << "\")" << std::endl;
+		ofs << skin_var_name << ".Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
+		ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
+		ofs << skin_var_name << ".Font=game.Font" << std::endl;
+		ofs << skin_var_name << ".TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
+		ofs << skin_var_name << ".TextAlign=Font.";
 		switch (pReg->m_TextAlign)
 		{
 		default:
@@ -155,18 +188,49 @@ void CExportLuaDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem)
 			break;
 		}
 		ofs << std::endl;
-		if (hParentItem)
-		{
-			std::string parent_var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hParentItem));
-			ofs << parent_var_name << ":InsertControl(" << var_name << ")" << std::endl;
-		}
 		ofs << std::endl;
+	}
 
-		HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);
-		for (; hChildItem; hChildItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hChildItem))
-		{
-			ExportTreeNodeToLua(ofs, hChildItem);
-		}
+	HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);
+	for (; hChildItem; hChildItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hChildItem))
+	{
+		ExportTreeNodeSkin(ofs, hChildItem);
+	}
+}
+
+void CExportLuaDlg::ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem)
+{
+	ASSERT(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
+	ASSERT(pReg);
+	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
+	std::string var_scope = (hParentItem ? "local " : "");
+	std::string var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
+	std::string var_class = (hParentItem ? ts2ms((LPCTSTR)pReg->m_Class) : "Dialog");
+	ofs << var_scope << var_name << "=" << var_class << "()" << std::endl;
+	ofs << var_name << ".Name=\"" << var_name << "\"" << std::endl;
+	ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
+	ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
+	ofs << var_name << ".Text=\"" << ts2ms((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
+
+	RegKey key(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+	RegSkinMap::const_iterator skin_iter = g_SkinMap.find(key);
+	if (skin_iter != g_SkinMap.end())
+	{
+		ofs << var_name << ".Skin=" << skin_iter->second << std::endl;
+	}
+
+	if (hParentItem)
+	{
+		std::string parent_var_name = ts2ms((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hParentItem));
+		ofs << parent_var_name << ":InsertControl(" << var_name << ")" << std::endl;
+	}
+	ofs << std::endl;
+
+	HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);
+	for (; hChildItem; hChildItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hChildItem))
+	{
+		ExportTreeNode(ofs, hChildItem);
 	}
 }
 
@@ -193,11 +257,18 @@ void CExportLuaDlg::OnOK()
 	HTREEITEM hItem = m_pDoc->m_TreeCtrl.GetRootItem();
 	for (; hItem; hItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem))
 	{
-		ExportTreeNodeToLua(ofs, hItem);
+		ExportTreeNodeSkin(ofs, hItem);
+	}
+	hItem = m_pDoc->m_TreeCtrl.GetRootItem();
+	for (; hItem; hItem = m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem))
+	{
+		ExportTreeNode(ofs, hItem);
 	}
 	ofs.close();
 
+	g_SkinMap.clear();
+
 	MessageBox(_T("成功导出lua脚本文件"));
 
-	m_dirtyFlag = TRUE;
+	EndDialog(IDOK);
 }

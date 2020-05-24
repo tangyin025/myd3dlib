@@ -1114,8 +1114,7 @@ void CImgRegionDoc::OnExportLua()
 	CExportLuaDlg dlg(this);
 	dlg.m_strProjectDir = m_strProjectDir;
 	dlg.m_strLuaPath = m_strLuaPath;
-	dlg.DoModal();
-	if(dlg.m_dirtyFlag && (m_strProjectDir != dlg.m_strProjectDir || m_strLuaPath != dlg.m_strLuaPath))
+	if((IDOK == dlg.DoModal()) && (m_strProjectDir != dlg.m_strProjectDir || m_strLuaPath != dlg.m_strLuaPath))
 	{
 		m_strProjectDir = dlg.m_strProjectDir;
 		m_strLuaPath = dlg.m_strLuaPath;

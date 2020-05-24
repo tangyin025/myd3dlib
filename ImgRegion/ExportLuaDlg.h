@@ -27,13 +27,13 @@ public:
 
 	CString m_strLuaPath;
 
-	BOOL m_dirtyFlag;
-
 	afx_msg void OnBnClickedButton1();
 
 	afx_msg void OnBnClickedButton2();
 
-	void ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem);
+	void ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem);
+
+	void ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem);
 
 	virtual void OnOK();
 };

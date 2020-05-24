@@ -6,6 +6,7 @@
 #include "Material.h"
 #include <boost/unordered_map.hpp>
 #include <boost/array.hpp>
+#include <boost/tuple/tuple.hpp>
 
 namespace my
 {

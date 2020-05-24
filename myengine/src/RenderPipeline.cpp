@@ -7,8 +7,6 @@
 #include "Actor.h"
 #include "libc.h"
 #include <boost/regex.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
