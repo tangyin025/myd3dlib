@@ -678,20 +678,21 @@ Control * Control::FindControl(const std::string & name)
 	return NULL;
 }
 
-Control * Control::GetChildAtPoint(const Vector2 & pt) const
+Control * Control::GetChildAtPoint(const Vector2 & pt)
 {
 	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
-		if ((*ctrl_iter)->HitTest(pt))
+		Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
+		if (ctrl)
 		{
-			Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
-			if (ctrl)
-			{
-				return ctrl;
-			}
-			return ctrl_iter->get();
+			return ctrl;
 		}
+	}
+
+	if (HitTest(pt))
+	{
+		return this;
 	}
 	return NULL;
 }
@@ -2939,15 +2940,6 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 								{
 									return true;
 								}
-							}
-							else
-							{
-								(*dlg_iter)->SetMouseOver(pt);
-							}
-
-							if((*dlg_iter)->HandleMouse(uMsg, pt, wParam, lParam))
-							{
-								return true;
 							}
 							break;
 						}

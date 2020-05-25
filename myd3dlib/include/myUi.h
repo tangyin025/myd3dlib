@@ -330,7 +330,7 @@ namespace my
 
 		Control * FindControl(const std::string & name);
 
-		Control * GetChildAtPoint(const Vector2 & pt) const;
+		Control * GetChildAtPoint(const Vector2 & pt);
 
 		Vector2 LocalToScreen(const Vector2 & pt) const;
 
