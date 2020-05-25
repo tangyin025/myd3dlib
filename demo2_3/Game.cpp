@@ -1036,17 +1036,6 @@ void Game::ClearAllEntity(void)
 #endif
 }
 
-void Game::DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
-{
-	const Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
-	if (ptProj.z > 0.0f && ptProj.z < 1.0f)
-	{
-		const Vector2 vp = DialogMgr::GetDlgViewport();
-		const Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
-		m_Font->PushString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
-	}
-}
-
 void Game::PlaySound(const char * name)
 {
 	FMOD::Event       *event;

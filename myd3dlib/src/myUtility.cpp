@@ -120,6 +120,13 @@ Vector3 BaseCamera::ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float
 	return Vector3(Lerp(-1.0f, 1.0f, pt.x / dim.x), Lerp(1.0f, -1.0f, pt.y / dim.y), z).transformCoord(m_InverseViewProj);
 }
 
+Vector3 BaseCamera::WorldToScreen(const Vector3 & pos, const Vector2 & dim)
+{
+	const Vector3 ptProj = pos.transformCoord(m_ViewProj);
+
+	return Vector3(Lerp(0.0f, dim.x, (ptProj.x + 1) / 2), Lerp(0.0f, dim.y, (1 - ptProj.y) / 2), ptProj.z);
+}
+
 Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 & dim)
 {
 	Vector3 nlt = ScreenToWorld(rc.LeftTop(), dim, 0.0f);

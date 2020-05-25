@@ -970,7 +970,7 @@ namespace my
 		Dialog(void)
 			: m_Parent(NULL)
 			, m_World(Matrix4::identity)
-			, m_EnableDrag(false)
+			, m_EnableDrag(true)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{

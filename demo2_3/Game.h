@@ -146,8 +146,6 @@ public:
 
 	void ClearAllEntity(void);
 
-	void DrawStringAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
-
 	virtual void PlaySound(const char * name);
 
 	void LoadScene(const char * path);

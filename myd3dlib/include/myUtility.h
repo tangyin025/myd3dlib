@@ -129,6 +129,8 @@ namespace my
 
 		Vector3 ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z);
 
+		Vector3 WorldToScreen(const Vector3 & pos, const Vector2 & dim);
+
 		Frustum RectangleToFrustum(const Rectangle & rc, const Vector2 & dim);
 	};
 

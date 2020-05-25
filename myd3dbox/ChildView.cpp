@@ -932,6 +932,18 @@ void CChildView::OnPaint()
 			if (m_bShowGrid)
 			{
 				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+
+				my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+				if (pt.z > 0.0f && pt.z < 1.0f)
+				{
+					theApp.m_Font->PushString(theApp.m_UIRender.get(), L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+				}
+
+				pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+				if (pt.z > 0.0f && pt.z < 1.0f)
+				{
+					theApp.m_Font->PushString(theApp.m_UIRender.get(), L"y", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+				}
 			}
 
 			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
