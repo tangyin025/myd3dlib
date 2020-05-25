@@ -146,7 +146,9 @@ public:
 
 	void ClearAllEntity(void);
 
-	virtual void PlaySound(const char * name);
+	virtual void OnControlSound(const char * name);
+
+	virtual void OnControlFocus(bool bFocus);
 
 	void LoadScene(const char * path);
 

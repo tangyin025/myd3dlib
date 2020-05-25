@@ -112,7 +112,11 @@ namespace my
 
 		NamedObject * GetNamedObject(const char * Name);
 
-		virtual void PlaySound(const char * name)
+		virtual void OnControlSound(const char * name)
+		{
+		}
+
+		virtual void OnControlFocus(bool bFocus)
 		{
 		}
 	};

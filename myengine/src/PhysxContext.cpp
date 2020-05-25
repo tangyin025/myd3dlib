@@ -443,7 +443,7 @@ void PhysxSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, 
 				physx::PxU32 internalFaceIndex0 = contactPoints[j].internalFaceIndex0;
 				physx::PxU32 internalFaceIndex1 = contactPoints[j].internalFaceIndex1;
 
-				//FModContext::getSingleton().PlaySound("demo2_3/untitled/15");
+				//FModContext::getSingleton().OnControlSound("demo2_3/untitled/15");
 			}
 		}
 	}

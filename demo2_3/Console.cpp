@@ -37,7 +37,7 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 
 
 bool MessagePanel::CanHaveFocus(void)
 {
-	return m_bVisible && m_bEnabled;
+	return false;
 }
 
 int MessagePanel::MoveLineIndex(int index, int step)

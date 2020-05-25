@@ -288,6 +288,12 @@ namespace my
 			return s_FocusControl;
 		}
 
+		static void SetFocusControl(Control * control);
+
+		static void SetCaptureControl(Control * control);
+
+		static void SetMouseOverControl(Control * control, const Vector2 & pt);
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -335,18 +341,6 @@ namespace my
 		Vector2 LocalToScreen(const Vector2 & pt) const;
 
 		Vector2 ScreenToLocal(const Vector2 & pt) const;
-
-		void SetFocus(void);
-
-		void ReleaseFocus(void);
-
-		void SetCapture(void);
-
-		void ReleaseCapture(void);
-
-		void SetMouseOver(const Vector2 & pt);
-
-		void ReleaseMouseOver(void);
 
 		void SetHotkey(UINT nHotkey);
 

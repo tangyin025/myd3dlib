@@ -491,7 +491,7 @@ HRESULT Game::OnCreateDevice(
 			.def("AddEntity", &Game::AddEntity)
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
-			.def("PlaySound", &Game::PlaySound)
+			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadScene", &Game::LoadScene)
 			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
 			.def_readwrite("EventOnTrigger", &Game::m_EventOnTrigger)
@@ -1036,11 +1036,25 @@ void Game::ClearAllEntity(void)
 #endif
 }
 
-void Game::PlaySound(const char * name)
+void Game::OnControlSound(const char * name)
 {
 	FMOD::Event       *event;
 	ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
 	ERRCHECK(result = event->start());
+}
+
+void Game::OnControlFocus(bool bFocus)
+{
+	if (bFocus)
+	{
+		m_mouse->Unacquire();
+		m_mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+	}
+	else if (m_wnd->m_hWnd)
+	{
+		m_mouse->Unacquire();
+		m_mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+	}
 }
 
 void Game::LoadScene(const char * path)

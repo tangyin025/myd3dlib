@@ -386,11 +386,20 @@ Control * Control::s_MouseOverControl = NULL;
 Control::~Control(void)
 {
 	// ! must clear global reference
-	ReleaseFocus();
+	if (this == s_FocusControl)
+	{
+		SetFocusControl(NULL);
+	}
 
-	ReleaseCapture();
+	if (this == s_CaptureControl)
+	{
+		SetCaptureControl(NULL);
+	}
 
-	ReleaseMouseOver();
+	if (this == s_MouseOverControl)
+	{
+		SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
+	}
 
 	// ! must detach parent relationship
 	ClearAllControl();
@@ -457,6 +466,62 @@ void Control::load<boost::archive::binary_iarchive>(boost::archive::binary_iarch
 template
 void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
+void Control::SetFocusControl(Control * control)
+{
+	if (s_FocusControl != control)
+	{
+		if (s_FocusControl)
+		{
+			s_FocusControl->OnFocusOut();
+
+			if (!control)
+			{
+				D3DContext::getSingleton().OnControlFocus(false);
+			}
+		}
+		else
+		{
+			if (control)
+			{
+				D3DContext::getSingleton().OnControlFocus(true);
+			}
+		}
+
+		s_FocusControl = control;
+
+		if (control)
+		{
+			control->OnFocusIn();
+		}
+	}
+}
+
+void Control::SetCaptureControl(Control * control)
+{
+	if (s_CaptureControl != control)
+	{
+		s_CaptureControl = control;
+	}
+}
+
+void Control::SetMouseOverControl(Control * control, const Vector2 & pt)
+{
+	if (s_MouseOverControl != control)
+	{
+		if (s_MouseOverControl)
+		{
+			s_MouseOverControl->OnMouseLeave(pt);
+		}
+
+		s_MouseOverControl = control;
+
+		if (control)
+		{
+			control->OnMouseEnter(pt);
+		}
+	}
+}
+
 void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
@@ -514,7 +579,7 @@ void Control::OnMouseEnter(const Vector2 & pt)
 
 		if (m_Skin && !m_Skin->m_MouseEnterSound.empty())
 		{
-			D3DContext::getSingleton().PlaySound(m_Skin->m_MouseEnterSound.c_str());
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseEnterSound.c_str());
 		}
 
 		if (m_EventMouseEnter)
@@ -539,7 +604,7 @@ void Control::OnMouseLeave(const Vector2 & pt)
 
 		if (m_Skin && !m_Skin->m_MouseLeaveSound.empty())
 		{
-			D3DContext::getSingleton().PlaySound(m_Skin->m_MouseLeaveSound.c_str());
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseLeaveSound.c_str());
 		}
 	}
 }
@@ -573,14 +638,14 @@ void Control::SetVisible(bool bVisible)
 		{
 			if (m_Skin && !m_Skin->m_VisibleShowSound.empty())
 			{
-				D3DContext::getSingleton().PlaySound(m_Skin->m_VisibleShowSound.c_str());
+				D3DContext::getSingleton().OnControlSound(m_Skin->m_VisibleShowSound.c_str());
 			}
 		}
 		else
 		{
 			if (m_Skin && !m_Skin->m_VisibleHideSound.empty())
 			{
-				D3DContext::getSingleton().PlaySound(m_Skin->m_VisibleHideSound.c_str());
+				D3DContext::getSingleton().OnControlSound(m_Skin->m_VisibleHideSound.c_str());
 			}
 		}
 
@@ -715,69 +780,6 @@ Vector2 Control::ScreenToLocal(const Vector2 & pt) const
 	return pt - m_Location;
 }
 
-void Control::SetFocus(void)
-{
-	if (s_FocusControl != this)
-	{
-		if (s_FocusControl)
-		{
-			s_FocusControl->OnFocusOut();
-		}
-
-		s_FocusControl = this;
-
-		OnFocusIn();
-	}
-}
-
-void Control::ReleaseFocus(void)
-{
-	if (s_FocusControl == this)
-	{
-		OnFocusOut();
-
-		s_FocusControl = NULL;
-	}
-}
-
-void Control::SetCapture(void)
-{
-	s_CaptureControl = this;
-}
-
-void Control::ReleaseCapture(void)
-{
-	if (s_CaptureControl == this)
-	{
-		s_CaptureControl = NULL;
-	}
-}
-
-void Control::SetMouseOver(const Vector2 & pt)
-{
-	if (s_MouseOverControl != this)
-	{
-		if (s_MouseOverControl)
-		{
-			s_MouseOverControl->OnMouseLeave(pt);
-		}
-
-		s_MouseOverControl = this;
-
-		OnMouseEnter(pt);
-	}
-}
-
-void Control::ReleaseMouseOver(void)
-{
-	if (s_MouseOverControl == this)
-	{
-		OnMouseLeave(Vector2(FLT_MAX, FLT_MAX));
-
-		s_MouseOverControl = NULL;
-	}
-}
-
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
@@ -893,7 +895,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
 					{
-						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
 					}
 
 					if (m_EventMouseClick)
@@ -921,8 +923,8 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			if (HitTest(pt))
 			{
 				m_bPressed = true;
-				SetFocus();
-				SetCapture();
+				SetFocusControl(this);
+				SetCaptureControl(this);
 				return true;
 			}
 			break;
@@ -930,14 +932,14 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if (m_bPressed)
 			{
-				ReleaseCapture();
+				SetCaptureControl(NULL);
 				m_bPressed = false;
 
 				if (HitTest(pt))
 				{
 					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
 					{
-						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
 					}
 
 					if (m_EventMouseClick)
@@ -965,7 +967,7 @@ void Button::OnHotkey(void)
 	{
 		if (m_Skin && !m_Skin->m_MouseClickSound.empty())
 		{
-			D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
 		}
 
 		if(m_EventMouseClick)
@@ -1323,8 +1325,8 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			if(HitTest(pt))
 			{
 				m_bMouseDrag = true;
-				SetFocus();
-				SetCapture();
+				SetFocusControl(this);
+				SetCaptureControl(this);
 
 				if(m_Skin && m_Skin->m_Font)
 				{
@@ -1367,7 +1369,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 		case WM_LBUTTONUP:
 			if(m_bMouseDrag)
 			{
-				ReleaseCapture();
+				SetCaptureControl(NULL);
 				m_bMouseDrag = false;
 			}
 			break;
@@ -1939,7 +1941,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
 				m_dwArrowTS = timeGetTime();
-				SetCapture();
+				SetCaptureControl(this);
 				return true;
 			}
 
@@ -1950,7 +1952,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
 				m_dwArrowTS = timeGetTime();
-				SetCapture();
+				SetCaptureControl(this);
 				return true;
 			}
 
@@ -1964,7 +1966,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			{
 				m_bDrag = true;
 				m_fThumbOffsetY = ptLocal.y - fThumbTop;
-				SetCapture();
+				SetCaptureControl(this);
 				return true;
 			}
 
@@ -1973,13 +1975,13 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(ptLocal.y >= UpButtonRect.b && ptLocal.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
-					SetCapture();
+					SetCaptureControl(this);
 					return true;
 				}
 				else if(ptLocal.y >= ThumbButtonRect.b && ptLocal.y < DownButtonRect.t)
 				{
 					Scroll( m_nPageSize);
-					SetCapture();
+					SetCaptureControl(this);
 					return true;
 				}
 			}
@@ -1988,7 +1990,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 	case WM_LBUTTONUP:
 		{
-			ReleaseCapture();
+			SetCaptureControl(NULL);
 			m_bDrag = false;
 			m_Arrow = CLEAR;
 			break;
@@ -2085,8 +2087,8 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(HitTest(pt))
 			{
 				m_bPressed = true;
-				SetFocus();
-				SetCapture();
+				SetFocusControl(this);
+				SetCaptureControl(this);
 				return true;
 			}
 			break;
@@ -2095,7 +2097,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed)
 			{
 				m_bPressed = false;
-				ReleaseCapture();
+				SetCaptureControl(NULL);
 
 				if(HitTest(pt))
 				{
@@ -2103,7 +2105,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
 					{
-						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
 					}
 
 					if(m_EventMouseClick)
@@ -2281,8 +2283,8 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_ScrollBar.HandleMouse(uMsg, Vector2(ptLocal.x, ptLocal.y - m_Size.y), wParam, lParam))
 			{
 				// ! overload scrollbars capture
-				SetFocus();
-				SetCapture();
+				SetFocusControl(this);
+				SetCaptureControl(this);
 				return true;
 			}
 		}
@@ -2320,7 +2322,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				m_bPressed = true;
 				m_bOpened = !m_bOpened;
-				SetFocus();
+				SetFocusControl(this);
 				return true;
 			}
 
@@ -2360,7 +2362,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed && HitTest(pt))
 			{
 				m_bPressed = false;
-				ReleaseCapture();
+				SetCaptureControl(NULL);
 				return true;
 			}
 			break;
@@ -2649,8 +2651,8 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
-				SetFocus();
-				SetCapture();
+				//SetFocusControl(this);
+				SetCaptureControl(this);
 				return true;
 			}
 			break;
@@ -2658,7 +2660,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if (m_bPressed)
 			{
-				ReleaseCapture();
+				SetCaptureControl(NULL);
 				m_bPressed = false;
 
 				if (m_bMouseDrag)
@@ -2669,7 +2671,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				{
 					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
 					{
-						D3DContext::getSingleton().PlaySound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
 					}
 
 					if (m_EventMouseClick)
@@ -2703,7 +2705,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 bool Dialog::CanHaveFocus(void)
 {
-	return m_bVisible && m_bEnabled;
+	return false;
 }
 
 void Dialog::SetVisible(bool bVisible)
@@ -2719,21 +2721,16 @@ void Dialog::SetVisible(bool bVisible)
 			{
 				if ((*ctrl_iter)->CanHaveFocus())
 				{
-					(*ctrl_iter)->SetFocus();
+					SetFocusControl(ctrl_iter->get());
 					break;
 				}
-			}
-
-			if (ctrl_iter == m_Childs.end())
-			{
-				SetFocus();
 			}
 		}
 		else
 		{
 			if (Control::s_FocusControl && ContainsControl(Control::s_FocusControl))
 			{
-				Control::s_FocusControl->ReleaseFocus();
+				SetFocusControl(NULL);
 			}
 		}
 	}
@@ -2909,7 +2906,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 
-			if (Control::s_FocusControl) {
+			if (Control::s_FocusControl && dynamic_cast<ComboBox *>(Control::s_FocusControl)) {
 				Vector2 pt;
 				if (Control::s_FocusControl->RayToWorld(ray, pt))
 				{
@@ -2934,9 +2931,17 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 							Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
 							if (ControlPtd)
 							{
-								ControlPtd->SetMouseOver(pt);
+								Control::SetMouseOverControl(ControlPtd, pt);
 
 								if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
+								{
+									return true;
+								}
+							}
+
+							if (ControlPtd != *dlg_iter)
+							{
+								if ((*dlg_iter)->HandleMouse(uMsg, pt, wParam, lParam))
 								{
 									return true;
 								}
@@ -2949,12 +2954,12 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (dlg_iter == m_DlgList.rend() && Control::s_MouseOverControl)
 			{
-				Control::s_MouseOverControl->ReleaseMouseOver();
+				Control::SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
 			}
 
 			if (uMsg == WM_LBUTTONDOWN && dlg_iter == m_DlgList.rend() && Control::s_FocusControl)
 			{
-				Control::s_FocusControl->ReleaseFocus();
+				Control::SetFocusControl(NULL);
 			}
 		}
 		break;
@@ -2987,7 +2992,7 @@ void DialogMgr::RemoveDlg(Dialog * dlg)
 
 		if (Control::s_FocusControl && (*dlg_iter)->ContainsControl(Control::s_FocusControl))
 		{
-			Control::s_FocusControl->ReleaseFocus();
+			Control::SetFocusControl(NULL);
 		}
 
 		(*dlg_iter)->m_Parent = NULL;
