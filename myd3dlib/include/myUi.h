@@ -1003,6 +1003,8 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
+		virtual bool CanHaveFocus(void);
+
 		virtual void SetVisible(bool bVisible);
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);

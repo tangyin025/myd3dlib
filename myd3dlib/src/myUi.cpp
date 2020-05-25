@@ -2648,7 +2648,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
-				//SetFocus();
+				SetFocus();
 				SetCapture();
 				return true;
 			}
@@ -2700,6 +2700,11 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 	return false;
 }
 
+bool Dialog::CanHaveFocus(void)
+{
+	return m_bVisible && m_bEnabled;
+}
+
 void Dialog::SetVisible(bool bVisible)
 {
 	if (m_bVisible != bVisible)
@@ -2716,6 +2721,11 @@ void Dialog::SetVisible(bool bVisible)
 					(*ctrl_iter)->SetFocus();
 					break;
 				}
+			}
+
+			if (ctrl_iter == m_Childs.end())
+			{
+				SetFocus();
 			}
 		}
 		else
@@ -2948,6 +2958,11 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (dlg_iter == m_DlgList.rend() && Control::s_MouseOverControl)
 			{
 				Control::s_MouseOverControl->ReleaseMouseOver();
+			}
+
+			if (uMsg == WM_LBUTTONDOWN && dlg_iter == m_DlgList.rend() && Control::s_FocusControl)
+			{
+				Control::s_FocusControl->ReleaseFocus();
 			}
 		}
 		break;
