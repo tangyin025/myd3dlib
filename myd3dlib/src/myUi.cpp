@@ -643,10 +643,15 @@ void Control::ClearAllControl(void)
 
 bool Control::ContainsControl(Control * control)
 {
+	if (this == control)
+	{
+		return true;
+	}
+
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
-		if (ctrl_iter->get() == control || (*ctrl_iter)->ContainsControl(control))
+		if ((*ctrl_iter)->ContainsControl(control))
 		{
 			return true;
 		}
@@ -2972,6 +2977,11 @@ void DialogMgr::RemoveDlg(Dialog * dlg)
 	if(dlg_iter != m_DlgList.end())
 	{
 		_ASSERT((*dlg_iter)->m_Parent == this);
+
+		if (Control::s_FocusControl && (*dlg_iter)->ContainsControl(Control::s_FocusControl))
+		{
+			Control::s_FocusControl->ReleaseFocus();
+		}
 
 		(*dlg_iter)->m_Parent = NULL;
 

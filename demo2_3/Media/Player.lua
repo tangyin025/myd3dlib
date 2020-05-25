@@ -76,6 +76,9 @@ player.Animation=anim
 
 -- 鼠标移动事件
 player.EventMouseMove=function(arg)
+	if Control.GetFocusControl() then
+		return
+	end
 	if arg.x ~= 0 then
 		player.LookAngle.y=player.LookAngle.y-math.rad(arg.x)
 	end
@@ -89,6 +92,9 @@ end
 
 -- 键盘按下事件
 player.EventKeyDown=function(arg)
+	if Control.GetFocusControl() then
+		return
+	end
 	if arg.kc == 57 then
 		player.Velocity.y=5.0
 		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,0,"")
@@ -111,6 +117,9 @@ end
 
 -- 键盘抬起事件
 player.EventKeyUp=function(arg)
+	if Control.GetFocusControl() then
+		return
+	end
 	if arg.kc == 17 then
 		player.MoveAxis.y=player.MoveAxis.y-1
 	end

@@ -524,6 +524,10 @@ void LuaContext::Init(void)
 		, class_<my::Control, boost::shared_ptr<my::Control> >("Control")
 			.def(constructor<>())
 			.def_readwrite("Name", &my::Control::m_Name)
+			.scope
+			[
+				def("GetFocusControl", &my::Control::GetFocusControl)
+			]
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
 			.def_readwrite("Location", &my::Control::m_Location)

@@ -283,6 +283,11 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
+		static Control * GetFocusControl(void)
+		{
+			return s_FocusControl;
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
