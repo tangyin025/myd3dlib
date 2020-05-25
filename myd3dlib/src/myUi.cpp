@@ -550,7 +550,7 @@ void Control::OnHotkey(void)
 
 bool Control::HitTest(const Vector2 & pt)
 {
-	return Rectangle::LeftTop(Vector2(0,0), m_Size).PtInRect(WorldToLocal(pt));
+	return Rectangle::LeftTop(Vector2(0,0), m_Size).PtInRect(ScreenToLocal(pt));
 }
 
 void Control::SetEnabled(bool bEnabled)
@@ -691,20 +691,20 @@ Control * Control::GetChildAtPoint(const Vector2 & pt) const
 	return NULL;
 }
 
-Vector2 Control::LocalToWorld(const Vector2 & pt) const
+Vector2 Control::LocalToScreen(const Vector2 & pt) const
 {
 	if (m_Parent)
 	{
-		return m_Parent->LocalToWorld(m_Location + pt);
+		return m_Parent->LocalToScreen(m_Location + pt);
 	}
 	return m_Location + pt;
 }
 
-Vector2 Control::WorldToLocal(const Vector2 & pt) const
+Vector2 Control::ScreenToLocal(const Vector2 & pt) const
 {
 	if (m_Parent)
 	{
-		return m_Parent->WorldToLocal(pt) - m_Location;
+		return m_Parent->ScreenToLocal(pt) - m_Location;
 	}
 	return pt - m_Location;
 }
@@ -1322,7 +1322,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 
 				if(m_Skin && m_Skin->m_Font)
 				{
-					Vector2 ptLocal = WorldToLocal(pt);
+					Vector2 ptLocal = ScreenToLocal(pt);
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 					float x = ptLocal.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
@@ -1371,7 +1371,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			{
 				if(m_Skin && m_Skin->m_Font)
 				{
-					Vector2 ptLocal = WorldToLocal(pt);
+					Vector2 ptLocal = ScreenToLocal(pt);
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 					float x = ptLocal.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
@@ -1925,7 +1925,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
 		{
-			Vector2 ptLocal = WorldToLocal(pt);
+			Vector2 ptLocal = ScreenToLocal(pt);
 			Rectangle UpButtonRect(Rectangle::LeftTop(Vector2(0,0), Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(UpButtonRect.PtInRect(ptLocal))
 			{
@@ -1992,7 +1992,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			Vector2 ptLocal = WorldToLocal(pt);
+			Vector2 ptLocal = ScreenToLocal(pt);
 			Rectangle TrackRect(0, m_UpDownButtonHeight, m_Size.x, m_Size.y - m_UpDownButtonHeight);
 			float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
 			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
@@ -2271,7 +2271,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	{
 		if(m_bHasFocus && m_bOpened)
 		{
-			Vector2 ptLocal = WorldToLocal(pt);
+			Vector2 ptLocal = ScreenToLocal(pt);
 			if(m_ScrollBar.HandleMouse(uMsg, Vector2(ptLocal.x, ptLocal.y - m_Size.y), wParam, lParam))
 			{
 				// ! overload scrollbars capture
@@ -2288,7 +2288,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		case WM_MOUSEMOVE:
 			if(m_bHasFocus && m_bOpened)
 			{
-				Vector2 ptLocal = WorldToLocal(pt);
+				Vector2 ptLocal = ScreenToLocal(pt);
 				if(DropdownRect.PtInRect(ptLocal))
 				{
 					int i = m_ScrollBar.m_nPosition;
@@ -2320,7 +2320,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 			if(m_bHasFocus && m_bOpened)
 			{
-				Vector2 ptLocal = WorldToLocal(pt);
+				Vector2 ptLocal = ScreenToLocal(pt);
 				if(DropdownRect.PtInRect(ptLocal))
 				{
 					int i = m_ScrollBar.m_nPosition;
@@ -2782,9 +2782,9 @@ void Dialog::SaveToFile(const char * path) const
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 {
-	m_ViewPosition = Vector3(Viewport.x * 0.5f, Viewport.y * 0.5f, -Viewport.y * 0.5f * cot(fov / 2));
+	m_Eye = Vector3(Viewport.x * 0.5f, Viewport.y * 0.5f, -Viewport.y * 0.5f * cot(fov / 2));
 
-	m_View = Matrix4::LookAtRH(m_ViewPosition, Vector3(m_ViewPosition.x, m_ViewPosition.y, 0), Vector3(0, -1, 0));
+	m_View = Matrix4::LookAtRH(m_Eye, Vector3(m_Eye.x, m_Eye.y, 0), Vector3(0, -1, 0));
 
 	m_Proj = Matrix4::PerspectiveFovRH(fov, Viewport.x / Viewport.y, 0.1f, 3000.0f);
 
@@ -2805,7 +2805,9 @@ void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 
 Ray DialogMgr::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return BaseCamera::PerspectiveRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
+	Vector3 At = Vector3(Lerp(-1.0f, 1.0f, pt.x / dim.cx), Lerp(1.0f, -1.0f, pt.y / dim.cy), 0.0f).transformCoord(m_InverseViewProj);
+
+	return Ray(m_Eye, (At - m_Eye).normalize());
 }
 
 Vector2 DialogMgr::GetDlgViewport(void) const

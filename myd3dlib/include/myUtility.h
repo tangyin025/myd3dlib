@@ -127,13 +127,9 @@ namespace my
 		{
 		}
 
-		static Vector3 ScreenToWorld(const Matrix4 & InverseViewProj, const Vector2 & pt, const Vector2 & dim, float z);
+		Vector3 ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z);
 
-		static Ray PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
-
-		static Ray OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, const Vector2 & pt, const Vector2 & dim);
-
-		static Frustum RectangleToFrustum(const Matrix4 & InverseViewProj, const Rectangle & rc, const Vector2 & dim);
+		Frustum RectangleToFrustum(const Rectangle & rc, const Vector2 & dim);
 	};
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;

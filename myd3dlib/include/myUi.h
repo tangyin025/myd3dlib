@@ -327,9 +327,9 @@ namespace my
 
 		Control * GetChildAtPoint(const Vector2 & pt) const;
 
-		Vector2 LocalToWorld(const Vector2 & pt) const;
+		Vector2 LocalToScreen(const Vector2 & pt) const;
 
-		Vector2 WorldToLocal(const Vector2 & pt) const;
+		Vector2 ScreenToLocal(const Vector2 & pt) const;
 
 		void SetFocus(void);
 
@@ -1014,7 +1014,7 @@ namespace my
 
 		DialogList m_DlgList;
 
-		Vector3 m_ViewPosition;
+		Vector3 m_Eye;
 
 		Matrix4 m_View;
 
