@@ -780,6 +780,25 @@ Vector2 Control::ScreenToLocal(const Vector2 & pt) const
 	return pt - m_Location;
 }
 
+bool Control::SetFocusRecursive(void)
+{
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		if ((*ctrl_iter)->CanHaveFocus() && (*ctrl_iter)->SetFocusRecursive())
+		{
+			return true;
+		}
+	}
+
+	if (CanHaveFocus())
+	{
+		SetFocusControl(this);
+		return true;
+	}
+	return false;
+}
+
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
@@ -2651,7 +2670,10 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
-				//SetFocusControl(this);
+				if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
+				{
+					SetFocusRecursive();
+				}
 				SetCaptureControl(this);
 				return true;
 			}
@@ -2705,7 +2727,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 bool Dialog::CanHaveFocus(void)
 {
-	return false;
+	return m_bVisible && m_bEnabled;
 }
 
 void Dialog::SetVisible(bool bVisible)
@@ -2716,14 +2738,9 @@ void Dialog::SetVisible(bool bVisible)
 
 		if (m_bVisible)
 		{
-			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-			for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
+			if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
 			{
-				if ((*ctrl_iter)->CanHaveFocus())
-				{
-					SetFocusControl(ctrl_iter->get());
-					break;
-				}
+				SetFocusRecursive();
 			}
 		}
 		else

@@ -342,6 +342,8 @@ namespace my
 
 		Vector2 ScreenToLocal(const Vector2 & pt) const;
 
+		bool SetFocusRecursive(void);
+
 		void SetHotkey(UINT nHotkey);
 
 		UINT GetHotkey(void);
