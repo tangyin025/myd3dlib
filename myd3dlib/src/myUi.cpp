@@ -898,7 +898,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYDOWN:
 			switch(wParam)
 			{
-			case VK_SPACE:
+			case VK_RETURN:
 				m_bPressed = true;
 				return true;
 			}
@@ -907,7 +907,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYUP:
 			switch(wParam)
 			{
-			case VK_SPACE:
+			case VK_RETURN:
 				if(m_bPressed)
 				{
 					m_bPressed = false;
@@ -2645,13 +2645,82 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		if (uMsg == WM_KEYDOWN)
 		{
-			if((*ctrl_iter)->GetHotkey() == wParam)
+			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+			for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 			{
-				(*ctrl_iter)->OnHotkey();
-				return true;
+				if ((*ctrl_iter)->GetHotkey() == wParam)
+				{
+					(*ctrl_iter)->OnHotkey();
+					return true;
+				}
+			}
+		}
+
+		switch (uMsg)
+		{
+		case WM_KEYDOWN:
+			switch (wParam)
+			{
+			case VK_UP:
+			case VK_DOWN:
+			case VK_LEFT:
+			case VK_RIGHT:
+				if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
+				{
+					if (SetFocusRecursive())
+					{
+						if (Control::s_FocusControl != Control::s_MouseOverControl)
+						{
+							SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->m_Location);
+						}
+						return true;
+					}
+				}
+				else
+				{
+					Control * next_focus_ctrl = NULL;
+					float next_focus_ctrl_diff = FLT_MAX;
+					ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+					for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+					{
+						if ((*ctrl_iter)->CanHaveFocus())
+						{
+							float diff = 0;
+							switch (wParam)
+							{
+							case VK_UP:
+								diff = Control::s_FocusControl->m_Location.y - (*ctrl_iter)->m_Location.y;
+								break;
+							case VK_DOWN:
+								diff = (*ctrl_iter)->m_Location.y - Control::s_FocusControl->m_Location.y;
+								break;
+							case VK_LEFT:
+								diff = Control::s_FocusControl->m_Location.x - (*ctrl_iter)->m_Location.x;
+								break;
+							case VK_RIGHT:
+								diff = (*ctrl_iter)->m_Location.x - Control::s_FocusControl->m_Location.x;
+								break;
+							}
+							if (diff > 0 && diff < next_focus_ctrl_diff)
+							{
+								next_focus_ctrl = ctrl_iter->get();
+								next_focus_ctrl_diff = diff;
+							}
+						}
+					}
+					if (next_focus_ctrl)
+					{
+						SetFocusControl(next_focus_ctrl);
+					}
+					if (Control::s_FocusControl != Control::s_MouseOverControl)
+					{
+						SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->m_Location);
+					}
+					return true;
+				}
+				break;
 			}
 		}
 	}
@@ -2741,6 +2810,10 @@ void Dialog::SetVisible(bool bVisible)
 			if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
 			{
 				SetFocusRecursive();
+			}
+			if (Control::s_FocusControl != Control::s_MouseOverControl)
+			{
+				SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->m_Location);
 			}
 		}
 		else
@@ -2881,14 +2954,11 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			if (uMsg == WM_KEYDOWN)
+			DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+			for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 			{
-				DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
-				for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
-				{
-					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
-						return true;
-				}
+				if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
+					return true;
 			}
 		}
 		break;

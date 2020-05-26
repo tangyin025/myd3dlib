@@ -1,5 +1,5 @@
-require "Settings.lua"
 require "Hud.lua"
+require "Settings.lua"
 require "Player.lua"
 require "Action.lua"
 
