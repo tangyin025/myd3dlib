@@ -2248,6 +2248,8 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 			{
 				if(m_bOpened)
 				{
+					ui_render->Flush();
+
 					Rectangle DropdownRect(Rectangle::LeftTop(Rect.l, Rect.b, m_DropdownSize.x, m_DropdownSize.y));
 
 					Rect = Rect.offset(Skin->m_PressedOffset);
@@ -2299,7 +2301,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 						ComboBoxItem * item = m_Items[i].get();
 						Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
-						Skin->DrawString(ui_render, item->strText.c_str(), ItemTextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+						Skin->DrawString(ui_render, item->strText.c_str(), ItemTextRect, Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign);
 					}
 				}
 				else
@@ -2505,45 +2507,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
 					m_ScrollBar.Scroll(-zDelta * uLines);
 				}
-				//else
-				//{
-				//	if(zDelta > 0)
-				//	{
-				//		if(m_iFocused > 0)
-				//		{
-				//			m_iFocused--;
-
-				//			if(m_iSelected != m_iFocused)
-				//			{
-				//				m_iSelected = m_iFocused;
-
-				//				if(m_EventSelectionChanged)
-				//				{
-				//					ControlEventArg arg(this);
-				//					m_EventSelectionChanged(&arg);
-				//				}
-				//			}
-				//		}
-				//	}
-				//	else
-				//	{
-				//		if(m_iFocused + 1 < (int)m_Items.size())
-				//		{
-				//			m_iFocused++;
-
-				//			if(m_iSelected != m_iFocused)
-				//			{
-				//				m_iSelected = m_iFocused;
-
-				//				if(m_EventSelectionChanged)
-				//				{
-				//					ControlEventArg arg(this);
-				//					m_EventSelectionChanged(&arg);
-				//				}
-				//			}
-				//		}
-				//	}
-				//}
 			}
 			break;
 		}

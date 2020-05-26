@@ -780,6 +780,10 @@ namespace my
 	public:
 		ControlImagePtr m_DropdownImage;
 
+		D3DCOLOR m_DropdownItemTextColor;
+
+		Font::Align m_DropdownItemTextAlign;
+
 		ControlImagePtr m_DropdownItemMouseOverImage;
 
 		ControlImagePtr m_ScrollBarUpBtnNormalImage;
@@ -796,6 +800,8 @@ namespace my
 
 	public:
 		ComboBoxSkin(void)
+			: m_DropdownItemTextColor(D3DCOLOR_ARGB(255,255,255,255))
+			, m_DropdownItemTextAlign(Font::AlignLeftTop)
 		{
 		}
 
