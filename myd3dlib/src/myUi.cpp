@@ -654,6 +654,14 @@ void Control::SetVisible(bool bVisible)
 			VisibleEventArg arg(this, bVisible);
 			m_EventVisibleChanged(&arg);
 		}
+
+		if (!m_bVisible)
+		{
+			if (s_FocusControl && ContainsControl(s_FocusControl))
+			{
+				SetFocusControl(NULL);
+			}
+		}
 	}
 }
 
@@ -2873,23 +2881,13 @@ bool Dialog::CanHaveFocus(void)
 
 void Dialog::SetVisible(bool bVisible)
 {
-	if (m_bVisible != bVisible)
-	{
-		Control::SetVisible(bVisible);
+	Control::SetVisible(bVisible);
 
-		if (m_bVisible)
+	if (m_bVisible)
+	{
+		if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
 		{
-			if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
-			{
-				SetFocusRecursive();
-			}
-		}
-		else
-		{
-			if (Control::s_FocusControl && ContainsControl(Control::s_FocusControl))
-			{
-				SetFocusControl(NULL);
-			}
+			SetFocusRecursive();
 		}
 	}
 }

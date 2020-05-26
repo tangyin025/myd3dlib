@@ -52,5 +52,5 @@ end
 
 local btn_change_device=dlg:FindControl("btn_change_device")
 btn_change_device.EventMouseClick=function(arg)
-	Settings.dlg.Visible=not Settings.dlg.Visible
+	Settings.dlg.Visible=not (Settings.dlg:ContainsControl(Control.GetFocusControl()))
 end

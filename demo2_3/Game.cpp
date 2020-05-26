@@ -829,7 +829,7 @@ LRESULT Game::MsgProc(
 	if (m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
-		m_Console->SetVisible(!m_Console->GetVisible());
+		m_Console->SetVisible(!(Control::s_FocusControl && m_Console->ContainsControl(Control::s_FocusControl)));
 		*pbNoFurtherProcessing = true;
 		return 0;
 	}
