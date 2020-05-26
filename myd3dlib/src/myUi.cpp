@@ -2107,6 +2107,30 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_KEYDOWN:
+			if (wParam == VK_RETURN)
+			{
+				m_Checked = true;
+
+				if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+				{
+					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+				}
+
+				if (m_EventMouseClick)
+				{
+					MouseEventArg arg(this, LocalToScreen(m_Location));
+					m_EventMouseClick(&arg);
+				}
+				return true;
+			}
+			break;
+		}
+	}
 	return false;
 }
 
@@ -2313,18 +2337,13 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (!m_bOpened)
 				{
-					m_bPressed = true;
 					m_bOpened = true;
 					m_iFocused = m_iSelected;
 					m_ScrollBar.ScrollTo(m_iFocused);
-					SetCaptureControl(this);
 					return true;
 				}
-
-				if (m_bHasFocus && m_bOpened)
+				else
 				{
-					m_bPressed = true;
-					SetCaptureControl(this);
 					if (m_iSelected != m_iFocused)
 					{
 						m_iSelected = m_iFocused;
@@ -2343,8 +2362,6 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (m_bOpened)
 				{
-					m_bPressed = true;
-					SetCaptureControl(this);
 					if (m_iFocused > 0)
 					{
 						m_ScrollBar.ScrollTo(--m_iFocused);
@@ -2356,8 +2373,6 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (m_bOpened)
 				{
-					m_bPressed = true;
-					SetCaptureControl(this);
 					if (m_iFocused + 1 < (int)m_Items.size())
 					{
 						m_ScrollBar.ScrollTo(++m_iFocused);
@@ -2369,20 +2384,9 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (m_bOpened)
 				{
-					m_bPressed = true;
-					SetCaptureControl(this);
 					m_bOpened = false;
 					return true;
 				}
-			}
-			break;
-
-		case WM_KEYUP:
-			if (m_bPressed)
-			{
-				m_bPressed = false;
-				SetCaptureControl(NULL);
-				return true;
 			}
 			break;
 		}
@@ -2776,7 +2780,7 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						if (Control::s_FocusControl != Control::s_MouseOverControl)
 						{
-							SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->m_Location);
+							SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->LocalToScreen(Control::s_FocusControl->m_Location));
 						}
 						return true;
 					}
@@ -2819,7 +2823,7 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 					if (Control::s_FocusControl != Control::s_MouseOverControl)
 					{
-						SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->m_Location);
+						SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->LocalToScreen(Control::s_FocusControl->m_Location));
 					}
 					return true;
 				}
