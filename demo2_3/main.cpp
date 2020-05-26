@@ -183,18 +183,6 @@ public:
 		if (!player || !player->m_Node)
 		{
 			PushGrid(12, 5, 5, D3DCOLOR_ARGB(255, 127, 127, 127), D3DCOLOR_ARGB(255, 0, 0, 0), Matrix4::RotationX(D3DXToRadian(-90)));
-
-			Vector3 pt = m_Camera->WorldToScreen(Vector3(12, 0, 0), GetDlgViewport());
-			if (pt.z > 0.0f && pt.z < 1.0f)
-			{
-				m_Font->PushString(m_UIRender.get(), L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
-			}
-
-			pt = m_Camera->WorldToScreen(Vector3(0, 0, 12), GetDlgViewport());
-			if (pt.z > 0.0f && pt.z < 1.0f)
-			{
-				m_Font->PushString(m_UIRender.get(), L"y", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
-			}
 		}
 
 		// 绘制帧率
@@ -212,6 +200,23 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
+		// 绘制坐标
+		Player * player = Player::getSingletonPtr();
+		if (!player || !player->m_Node)
+		{
+			Vector3 pt = m_Camera->WorldToScreen(Vector3(12, 0, 0), GetDlgViewport());
+			if (pt.z > 0.0f && pt.z < 1.0f)
+			{
+				m_Font->PushString(ui_render, L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+			}
+
+			pt = m_Camera->WorldToScreen(Vector3(0, 0, 12), GetDlgViewport());
+			if (pt.z > 0.0f && pt.z < 1.0f)
+			{
+				m_Font->PushString(ui_render, L"y", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+			}
+		}
+
 		Game::OnUIRender(ui_render, fTime, fElapsedTime);
 	}
 

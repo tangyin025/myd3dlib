@@ -95,47 +95,44 @@ public:
 
 	void Begin(void)
 	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-		}
+		_ASSERT(m_UIEffect->m_ptr);
+
+		m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	}
 
 	void End(void)
 	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->End();
-			m_Passes = 0;
-		}
+		_ASSERT(m_UIEffect->m_ptr);
+
+		m_UIEffect->End();
+		m_Passes = 0;
 	}
 
 	void SetWorld(const Matrix4 & World)
 	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->SetMatrix(handle_World, World);
-		}
+		_ASSERT(m_UIEffect->m_ptr);
+
+		m_UIEffect->SetMatrix(handle_World, World);
 	}
 
 	void SetViewProj(const Matrix4 & ViewProj)
 	{
-		if(m_UIEffect->m_ptr)
-		{
-			m_UIEffect->SetMatrix(handle_ViewProj, ViewProj);
-		}
+		_ASSERT(m_UIEffect->m_ptr);
+
+		m_UIEffect->SetMatrix(handle_ViewProj, ViewProj);
 	}
 
 	void Flush(void)
 	{
-		if(m_UIEffect->m_ptr)
+		_ASSERT(m_UIEffect->m_ptr);
+
+		_ASSERT(m_Passes > 0); // must between Begin and End
+
+		for (UINT p = 0; p < m_Passes; p++)
 		{
-			for(UINT p = 0; p < m_Passes; p++)
-			{
-				m_UIEffect->BeginPass(p);
-				UIRender::Flush();
-				m_UIEffect->EndPass();
-			}
+			m_UIEffect->BeginPass(p);
+			UIRender::Flush();
+			m_UIEffect->EndPass();
 		}
 	}
 };
