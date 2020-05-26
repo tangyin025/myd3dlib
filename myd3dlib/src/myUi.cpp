@@ -2050,6 +2050,21 @@ void ScrollBar::Scroll(int nDelta)
 	m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, m_nPosition + nDelta));
 }
 
+void ScrollBar::ScrollTo(int nPosition)
+{
+	if (nPosition >= m_nStart)
+	{
+		if (nPosition < m_nPosition)
+		{
+			m_nPosition = nPosition;
+		}
+		else if (nPosition >= m_nPosition + m_nPageSize)
+		{
+			m_nPosition = Min(m_nEnd - m_nPageSize, nPosition + 1 - m_nPageSize);
+		}
+	}
+}
+
 void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
@@ -2289,6 +2304,89 @@ bool ComboBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_KEYDOWN:
+			if (wParam == VK_RETURN)
+			{
+				if (!m_bOpened)
+				{
+					m_bPressed = true;
+					m_bOpened = true;
+					m_iFocused = m_iSelected;
+					m_ScrollBar.ScrollTo(m_iFocused);
+					SetCaptureControl(this);
+					return true;
+				}
+
+				if (m_bHasFocus && m_bOpened)
+				{
+					m_bPressed = true;
+					SetCaptureControl(this);
+					if (m_iSelected != m_iFocused)
+					{
+						m_iSelected = m_iFocused;
+
+						if (m_EventSelectionChanged)
+						{
+							ControlEventArg arg(this);
+							m_EventSelectionChanged(&arg);
+						}
+					}
+					m_bOpened = false;
+					return true;
+				}
+			}
+			else if (wParam == VK_UP)
+			{
+				if (m_bOpened)
+				{
+					m_bPressed = true;
+					SetCaptureControl(this);
+					if (m_iFocused > 0)
+					{
+						m_ScrollBar.ScrollTo(--m_iFocused);
+					}
+					return true;
+				}
+			}
+			else if (wParam == VK_DOWN)
+			{
+				if (m_bOpened)
+				{
+					m_bPressed = true;
+					SetCaptureControl(this);
+					if (m_iFocused + 1 < (int)m_Items.size())
+					{
+						m_ScrollBar.ScrollTo(++m_iFocused);
+					}
+					return true;
+				}
+			}
+			else if (wParam == VK_ESCAPE)
+			{
+				if (m_bOpened)
+				{
+					m_bPressed = true;
+					SetCaptureControl(this);
+					m_bOpened = false;
+					return true;
+				}
+			}
+			break;
+
+		case WM_KEYUP:
+			if (m_bPressed)
+			{
+				m_bPressed = false;
+				SetCaptureControl(NULL);
+				return true;
+			}
+			break;
+		}
+	}
 	return false;
 }
 
@@ -2341,7 +2439,10 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				m_bPressed = true;
 				m_bOpened = !m_bOpened;
+				m_iFocused = m_iSelected;
+				m_ScrollBar.ScrollTo(m_iFocused);
 				SetFocusControl(this);
+				SetCaptureControl(this);
 				return true;
 			}
 
@@ -2372,13 +2473,15 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 							break;
 						}
 					}
+					m_bPressed = true;
+					SetCaptureControl(this);
 					return true;
 				}
 			}
 			break;
 
 		case WM_LBUTTONUP:
-			if(m_bPressed && HitTest(pt))
+			if(m_bPressed)
 			{
 				m_bPressed = false;
 				SetCaptureControl(NULL);
@@ -2396,45 +2499,45 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
 					m_ScrollBar.Scroll(-zDelta * uLines);
 				}
-				else
-				{
-					if(zDelta > 0)
-					{
-						if(m_iFocused > 0)
-						{
-							m_iFocused--;
+				//else
+				//{
+				//	if(zDelta > 0)
+				//	{
+				//		if(m_iFocused > 0)
+				//		{
+				//			m_iFocused--;
 
-							if(m_iSelected != m_iFocused)
-							{
-								m_iSelected = m_iFocused;
+				//			if(m_iSelected != m_iFocused)
+				//			{
+				//				m_iSelected = m_iFocused;
 
-								if(m_EventSelectionChanged)
-								{
-									ControlEventArg arg(this);
-									m_EventSelectionChanged(&arg);
-								}
-							}
-						}
-					}
-					else
-					{
-						if(m_iFocused + 1 < (int)m_Items.size())
-						{
-							m_iFocused++;
+				//				if(m_EventSelectionChanged)
+				//				{
+				//					ControlEventArg arg(this);
+				//					m_EventSelectionChanged(&arg);
+				//				}
+				//			}
+				//		}
+				//	}
+				//	else
+				//	{
+				//		if(m_iFocused + 1 < (int)m_Items.size())
+				//		{
+				//			m_iFocused++;
 
-							if(m_iSelected != m_iFocused)
-							{
-								m_iSelected = m_iFocused;
+				//			if(m_iSelected != m_iFocused)
+				//			{
+				//				m_iSelected = m_iFocused;
 
-								if(m_EventSelectionChanged)
-								{
-									ControlEventArg arg(this);
-									m_EventSelectionChanged(&arg);
-								}
-							}
-						}
-					}
-				}
+				//				if(m_EventSelectionChanged)
+				//				{
+				//					ControlEventArg arg(this);
+				//					m_EventSelectionChanged(&arg);
+				//				}
+				//			}
+				//		}
+				//	}
+				//}
 			}
 			break;
 		}

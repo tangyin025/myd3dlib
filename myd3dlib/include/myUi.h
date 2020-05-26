@@ -738,6 +738,8 @@ namespace my
 		virtual bool CanHaveFocus(void);
 
 		void Scroll(int nDelta);
+
+		void ScrollTo(int nPosition);
 	};
 
 	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
