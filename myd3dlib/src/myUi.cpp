@@ -2811,10 +2811,6 @@ void Dialog::SetVisible(bool bVisible)
 			{
 				SetFocusRecursive();
 			}
-			if (Control::s_FocusControl != Control::s_MouseOverControl)
-			{
-				SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->m_Location);
-			}
 		}
 		else
 		{
