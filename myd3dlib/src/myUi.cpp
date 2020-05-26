@@ -900,6 +900,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 			case VK_RETURN:
 				m_bPressed = true;
+				SetCaptureControl(this);
 				return true;
 			}
 			break;
@@ -911,6 +912,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if(m_bPressed)
 				{
 					m_bPressed = false;
+					SetCaptureControl(NULL);
 
 					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
 					{
