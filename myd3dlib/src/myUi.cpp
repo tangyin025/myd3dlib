@@ -2241,12 +2241,12 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 {
 	if(m_bVisible)
 	{
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if(m_Skin)
 		{
 			ComboBoxSkinPtr Skin = boost::dynamic_pointer_cast<ComboBoxSkin>(m_Skin);
 			_ASSERT(Skin);
-
-			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			if(!m_bEnabled)
 			{
@@ -2329,6 +2329,12 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 			Rectangle TextRect = Rect.shrink(m_Border);
 			if(m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
 				Skin->DrawString(ui_render, m_Items[m_iSelected]->strText.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
 }
