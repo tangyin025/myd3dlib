@@ -999,7 +999,7 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
+		virtual void Draw(UIRender * ui_render, float fElapsedTime);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

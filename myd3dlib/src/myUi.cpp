@@ -840,18 +840,24 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 {
 	if(m_bVisible)
 	{
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if (m_Skin)
 		{
 			ProgressBarSkinPtr Skin = boost::dynamic_pointer_cast<ProgressBarSkin>(m_Skin);
 			_ASSERT(Skin);
-
-			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 
 			m_BlendProgress = Lerp(m_BlendProgress, m_Progress, 1.0f - powf(0.8f, 30 * fElapsedTime));
 			Rect.r = Lerp(Rect.l, Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress)));
 			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, Rect, m_Skin->m_Color);
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
 }
@@ -860,12 +866,12 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 {
 	if(m_bVisible)
 	{
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if(m_Skin)
 		{
 			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
 			_ASSERT(Skin);
-
-			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			if(!m_bEnabled)
 			{
@@ -893,6 +899,12 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 			}
 
 			Skin->DrawString(ui_render, m_Text.c_str(), Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
 }
@@ -1023,12 +1035,12 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			m_dwLastBlink = dwAbsoluteTime;
 		}
 
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if(m_Skin)
 		{
 			EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 			_ASSERT(Skin);
-
-			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			if(!m_bEnabled)
 			{
@@ -1093,6 +1105,12 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Skin->DrawImage(ui_render, Skin->m_CaretImage, CaretRect, Skin->m_CaretColor);
 				}
 			}
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
 }
@@ -1903,12 +1921,12 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 	if(m_bVisible)
 	{
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if(m_Skin)
 		{
 			ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin>(m_Skin);
 			_ASSERT(Skin);
-
-			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
 
@@ -1936,6 +1954,12 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 				Skin->DrawImage(ui_render, Skin->m_DownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
 }
@@ -2111,6 +2135,12 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 			Rectangle TextRect(Rectangle::LeftTop(BtnRect.r, Offset.y + m_Location.y, m_Size.x - m_CheckBtnSize.x, m_Size.y));
 
 			Skin->DrawString(ui_render, m_Text.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Offset + m_Location);
 		}
 	}
 }
@@ -2717,7 +2747,7 @@ void Dialog::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchi
 template
 void Dialog::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
-void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void Dialog::Draw(UIRender * ui_render, float fElapsedTime)
 {
 	Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 }

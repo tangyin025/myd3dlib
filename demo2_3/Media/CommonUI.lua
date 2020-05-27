@@ -122,5 +122,5 @@ com_dlg_skin.Color=ARGB(150,0,0,0)
 com_dlg_skin.VisibleShowSound="demo2_3/untitled/15"
 com_dlg_skin.Image=ControlImage()
 com_dlg_skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")
-com_dlg_skin.Image.Rect=Rectangle.LeftTop(154,43,3,3)
+com_dlg_skin.Image.Rect=Rectangle.LeftTop(154,43,2,2)
 com_dlg_skin.Image.Border=Vector4(0,0,0,0)
