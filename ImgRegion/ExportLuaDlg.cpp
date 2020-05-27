@@ -85,6 +85,16 @@ static size_t _hash_value(const std::string & Class, Gdiplus::Color Color, const
 	boost::hash_combine(seed, Border.z);
 	boost::hash_combine(seed, Border.w);
 	boost::hash_combine(seed, FontColor.GetValue());
+	if (Font)
+	{
+		CString strFamily;
+		Gdiplus::FontFamily family;
+		Font->GetFamily(&family);
+		family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+		strFamily.ReleaseBuffer();
+		boost::hash_combine(seed, std::basic_string<TCHAR>((LPCTSTR)strFamily));
+		boost::hash_combine(seed, Font->GetSize());
+	}
 	boost::hash_combine(seed, TextAlign);
 	return seed;
 }
@@ -144,7 +154,28 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 			ofs << skin_var_name << ".Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
 			ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
 		}
-		ofs << skin_var_name << ".Font=game.Font" << std::endl;
+		if (pReg->m_Font)
+		{
+			CString strFamily;
+			Gdiplus::FontFamily family;
+			pReg->m_Font->GetFamily(&family);
+			family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+			strFamily.ReleaseBuffer();
+			ofs << skin_var_name << ".Font=game:LoadFont(\"";
+			if (strFamily == _T("Î¢ÈíÑÅºÚ"))
+			{
+				ofs << "font/wqy-microhei.ttc";
+			}
+			else
+			{
+				ofs << "font/wqy-microhei.ttc";
+			}
+			ofs << "\", " << pReg->m_Font->GetSize() << ")" << std::endl;
+		}
+		else
+		{
+			ofs << skin_var_name << ".Font=game.Font" << std::endl;
+		}
 		ofs << skin_var_name << ".TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
 		ofs << skin_var_name << ".TextAlign=Font.";
 		switch (pReg->m_TextAlign)
