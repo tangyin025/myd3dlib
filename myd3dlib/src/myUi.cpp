@@ -2747,13 +2747,13 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case VK_DOWN:
 			case VK_LEFT:
 			case VK_RIGHT:
-				if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
+				if (!s_FocusControl || !ContainsControl(s_FocusControl))
 				{
 					if (SetFocusRecursive())
 					{
-						if (Control::s_FocusControl != Control::s_MouseOverControl)
+						if (s_FocusControl != s_MouseOverControl)
 						{
-							SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->LocalToScreen(Control::s_FocusControl->m_Location));
+							SetMouseOverControl(s_FocusControl, s_FocusControl->LocalToScreen(s_FocusControl->m_Location));
 						}
 						return true;
 					}
@@ -2771,16 +2771,32 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							switch (wParam)
 							{
 							case VK_UP:
-								diff = Control::s_FocusControl->m_Location.y - (*ctrl_iter)->m_Location.y;
+								if ((*ctrl_iter)->m_Location.x < s_FocusControl->m_Location.x + s_FocusControl->m_Size.x
+									&& (*ctrl_iter)->m_Location.x + (*ctrl_iter)->m_Size.x > s_FocusControl->m_Location.x)
+								{
+									diff = s_FocusControl->m_Location.y - (*ctrl_iter)->m_Location.y;
+								}
 								break;
 							case VK_DOWN:
-								diff = (*ctrl_iter)->m_Location.y - Control::s_FocusControl->m_Location.y;
+								if ((*ctrl_iter)->m_Location.x < s_FocusControl->m_Location.x + s_FocusControl->m_Size.x
+									&& (*ctrl_iter)->m_Location.x + (*ctrl_iter)->m_Size.x > s_FocusControl->m_Location.x)
+								{
+									diff = (*ctrl_iter)->m_Location.y - s_FocusControl->m_Location.y;
+								}
 								break;
 							case VK_LEFT:
-								diff = Control::s_FocusControl->m_Location.x - (*ctrl_iter)->m_Location.x;
+								if ((*ctrl_iter)->m_Location.y < s_FocusControl->m_Location.y + s_FocusControl->m_Size.y
+									&& (*ctrl_iter)->m_Location.y + (*ctrl_iter)->m_Size.y > s_FocusControl->m_Location.y)
+								{
+									diff = s_FocusControl->m_Location.x - (*ctrl_iter)->m_Location.x;
+								}
 								break;
 							case VK_RIGHT:
-								diff = (*ctrl_iter)->m_Location.x - Control::s_FocusControl->m_Location.x;
+								if ((*ctrl_iter)->m_Location.y < s_FocusControl->m_Location.y + s_FocusControl->m_Size.y
+									&& (*ctrl_iter)->m_Location.y + (*ctrl_iter)->m_Size.y > s_FocusControl->m_Location.y)
+								{
+									diff = (*ctrl_iter)->m_Location.x - s_FocusControl->m_Location.x;
+								}
 								break;
 							}
 							if (diff > 0 && diff < next_focus_ctrl_diff)
@@ -2794,9 +2810,9 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						SetFocusControl(next_focus_ctrl);
 					}
-					if (Control::s_FocusControl != Control::s_MouseOverControl)
+					if (s_FocusControl != s_MouseOverControl)
 					{
-						SetMouseOverControl(Control::s_FocusControl, Control::s_FocusControl->LocalToScreen(Control::s_FocusControl->m_Location));
+						SetMouseOverControl(s_FocusControl, s_FocusControl->LocalToScreen(s_FocusControl->m_Location));
 					}
 					return true;
 				}
@@ -2819,7 +2835,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 				m_MouseOffset = pt - m_Location;
-				if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
+				if (!s_FocusControl || !ContainsControl(s_FocusControl))
 				{
 					SetFocusRecursive();
 				}
@@ -2885,7 +2901,7 @@ void Dialog::SetVisible(bool bVisible)
 
 	if (m_bVisible)
 	{
-		if (!Control::s_FocusControl || !ContainsControl(Control::s_FocusControl))
+		if (!s_FocusControl || !ContainsControl(s_FocusControl))
 		{
 			SetFocusRecursive();
 		}
