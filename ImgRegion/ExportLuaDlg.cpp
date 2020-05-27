@@ -133,14 +133,17 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 		m_SkinMap.insert(std::make_pair(seed, skin_var_name));
 		ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
 		ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
-		ofs << skin_var_name << ".Image=ControlImage()" << std::endl;
-		std::basic_string<TCHAR> strRelatedPath(MAX_PATH, _T('\0'));
-		PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
-		boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
-		boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
-		ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << tstou8(strRelatedPath.c_str()) << "\")" << std::endl;
-		ofs << skin_var_name << ".Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
-		ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
+		if (!pReg->m_ImageStr.IsEmpty())
+		{
+			ofs << skin_var_name << ".Image=ControlImage()" << std::endl;
+			std::basic_string<TCHAR> strRelatedPath(MAX_PATH, _T('\0'));
+			PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
+			boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
+			boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
+			ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << tstou8(strRelatedPath.c_str()) << "\")" << std::endl;
+			ofs << skin_var_name << ".Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
+			ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
+		}
 		ofs << skin_var_name << ".Font=game.Font" << std::endl;
 		ofs << skin_var_name << ".TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
 		ofs << skin_var_name << ".TextAlign=Font.";
