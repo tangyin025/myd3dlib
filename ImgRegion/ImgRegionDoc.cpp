@@ -287,6 +287,24 @@ void CImgRegion::Serialize(CArchive& ar, int version)
 	CImgRegionDocFileVersions::SerializeImgRegion(this, ar, version);
 }
 
+void HistoryChangeItemName::Do(void)
+{
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
+
+	m_pDoc->m_TreeCtrl.SetItemText(hItem, m_newValue);
+}
+
+void HistoryChangeItemName::Undo(void)
+{
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
+
+	m_pDoc->m_TreeCtrl.SetItemText(hItem, m_oldValue);
+}
+
 void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
