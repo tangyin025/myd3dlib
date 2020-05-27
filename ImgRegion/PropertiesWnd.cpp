@@ -125,7 +125,7 @@ void CPropertiesWnd::UpdateProperties(void)
 				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
-				pReg->UpdateProperties(this);
+				pReg->UpdateProperties(this, pDoc->m_TreeCtrl.GetItemText(hSelected));
 
 				m_wndPropList.Invalidate();
 
@@ -140,7 +140,7 @@ void CPropertiesWnd::UpdateProperties(void)
 				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
-				pReg->CreateProperties(this);
+				pReg->CreateProperties(this, pDoc->m_TreeCtrl.GetItemText(hSelected));
 
 				return;
 			}
@@ -166,10 +166,9 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		CImgRegionDoc * pDoc = (CImgRegionDoc *)pChild->GetActiveDocument();
 		if(pDoc)
 		{
-			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
-			if(hSelected)
+			if(m_hSelectedNode)
 			{
-				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
+				CImgRegionPtr pReg = pDoc->GetItemNode(m_hSelectedNode);
 				ASSERT(pReg);
 
 				CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
@@ -178,15 +177,19 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				COLORREF color;
 				switch(PropertyIdx)
 				{
+				case PropertyItemName:
+					pDoc->m_TreeCtrl.SetItemText(m_hSelectedNode, m_pProp[PropertyItemName]->GetValue().bstrVal);
+					break;
+
 				case PropertyItemClass:
 					pReg->m_Class = m_pProp[PropertyItemClass]->GetValue().bstrVal;
 					break;
 
 				case PropertyItemLocked:
 					if(pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().boolVal)
-						pDoc->m_TreeCtrl.SetItemImage(hSelected, 1, 1);
+						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 1, 1);
 					else
-						pDoc->m_TreeCtrl.SetItemImage(hSelected, 0, 0);
+						pDoc->m_TreeCtrl.SetItemImage(m_hSelectedNode, 0, 0);
 					break;
 
 				case PropertyItemLocation:
@@ -195,7 +198,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(
-							pDoc, pDoc->GetItemId(hSelected), pReg->m_Location, CPoint(m_pProp[PropertyItemLocationX]->GetValue().lVal, m_pProp[PropertyItemLocationY]->GetValue().lVal))));
+							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_Location, CPoint(m_pProp[PropertyItemLocationX]->GetValue().lVal, m_pProp[PropertyItemLocationY]->GetValue().lVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}
@@ -207,7 +210,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(
-							pDoc, pDoc->GetItemId(hSelected), pReg->m_Size, CPoint(m_pProp[PropertyItemSizeW]->GetValue().lVal, m_pProp[PropertyItemSizeH]->GetValue().lVal))));
+							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_Size, CPoint(m_pProp[PropertyItemSizeW]->GetValue().lVal, m_pProp[PropertyItemSizeH]->GetValue().lVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}
@@ -280,7 +283,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 						hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(
-							pDoc, pDoc->GetItemId(hSelected), pReg->m_TextOff, CPoint(m_pProp[PropertyItemTextOffX]->GetValue().lVal, m_pProp[PropertyItemTextOffY]->GetValue().lVal))));
+							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_TextOff, CPoint(m_pProp[PropertyItemTextOffX]->GetValue().lVal, m_pProp[PropertyItemTextOffY]->GetValue().lVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}

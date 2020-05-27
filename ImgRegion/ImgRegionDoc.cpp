@@ -26,11 +26,14 @@ const TCHAR * TextAlignDesc[TextAlignCount] = {
 	_T("RightBottom"),
 };
 
-void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
+void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName)
 {
 	CMFCPropertyGridProperty * pGroup = new CSimpleProp(_T("外观"));
 
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Class"), (_variant_t)m_Class, _T("类型"), CPropertiesWnd::PropertyItemClass);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Name"), (_variant_t)szName, _T("命名"), CPropertiesWnd::PropertyItemName);
+	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemName] = pProp);
+
+	pProp = new CSimpleProp(_T("Class"), (_variant_t)m_Class, _T("类型"), CPropertiesWnd::PropertyItemClass);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemClass] = pProp);
 
 	pProp = new CCheckBoxProp(_T("锁住"), m_Locked, _T("锁住移动属性"), CPropertiesWnd::PropertyItemLocked);
@@ -156,8 +159,9 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 	pPropertiesWnd->m_wndPropList.AddProperty(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyGroupText] = pGroup);
 }
 
-void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd)
+void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName)
 {
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemName]->SetValue((_variant_t)szName);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemClass]->SetValue((_variant_t)m_Class);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked]->SetValue((_variant_t)(VARIANT_BOOL)m_Locked);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX]->SetValue((_variant_t)m_Location.x);
@@ -633,7 +637,7 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Location))
 			return hRet;
 
-		if(!pReg->m_Locked && CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
+		if(CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
 			return hItem;
 	}
 	return NULL;

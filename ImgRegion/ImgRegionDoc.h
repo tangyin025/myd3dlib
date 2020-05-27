@@ -82,9 +82,9 @@ public:
 	{
 	}
 
-	virtual void CreateProperties(CPropertiesWnd * pPropertiesWnd);
+	virtual void CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
 
-	virtual void UpdateProperties(CPropertiesWnd * pPropertiesWnd);
+	virtual void UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szName);
 
 	virtual void Draw(Gdiplus::Graphics & grap);
 

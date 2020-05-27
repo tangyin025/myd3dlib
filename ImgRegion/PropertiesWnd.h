@@ -24,6 +24,7 @@ public:
 		PropertyGroupImage,
 		PropertyGroupFont,
 		PropertyGroupText,
+		PropertyItemName,
 		PropertyItemClass,
 		PropertyItemLocked,
 		PropertyItemLocation,
