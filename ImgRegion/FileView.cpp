@@ -165,34 +165,6 @@ afx_msg void CFileView::OnTvnBeginlabeledit(UINT id, NMHDR *pNMHDR, LRESULT *pRe
 {
 	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
 	// TODO: Add your control notification handler code here
-
-	CDragableTreeCtrl * pTreeCtrl = DYNAMIC_DOWNCAST(CDragableTreeCtrl, GetDlgItem(id));
-	ASSERT(pTreeCtrl);
-
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT(pFrame);
-
-	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
-	if (!pChildFrame)
-	{
-		*pResult = 1;
-		return;
-	}
-
-	CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
-	if (!pDoc || &pDoc->m_TreeCtrl != pTreeCtrl)
-	{
-		*pResult = 1;
-		return;
-	}
-
-	CImgRegionPtr pReg = pDoc->GetItemNode(pTVDispInfo->item.hItem);
-	ASSERT(pReg);
-	if (pReg->m_Locked)
-	{
-		*pResult = 1;
-		return;
-	}
 	*pResult = 0;
 }
 
@@ -204,24 +176,15 @@ afx_msg void CFileView::OnTvnEndlabeledit(UINT id, NMHDR *pNMHDR, LRESULT *pResu
 	CDragableTreeCtrl * pTreeCtrl = DYNAMIC_DOWNCAST(CDragableTreeCtrl, GetDlgItem(id));
 	ASSERT(pTreeCtrl);
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT(pFrame);
-
-	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
-	if (!pChildFrame)
+	if (pTVDispInfo->item.pszText)
 	{
-		*pResult = 1;
-		return;
-	}
+		pTreeCtrl->SetItemText(pTVDispInfo->item.hItem, pTVDispInfo->item.pszText);
 
-	CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
-	if (!pDoc || &pDoc->m_TreeCtrl != pTreeCtrl)
-	{
-		*pResult = 1;
-		return;
-	}
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
 
-	pTreeCtrl->SetItemText(pTVDispInfo->item.hItem, pTVDispInfo->item.pszText);
+		pFrame->m_wndProperties.InvalidProperties();
+	}
 	*pResult = 0;
 }
 
