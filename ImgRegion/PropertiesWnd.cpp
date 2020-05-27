@@ -178,13 +178,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				switch(PropertyIdx)
 				{
 				case PropertyItemName:
-					{
-						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemName(
-							pDoc, pDoc->GetItemId(m_hSelectedNode), m_pProp[PropertyItemName]->GetOriginalValue().bstrVal, m_pProp[PropertyItemName]->GetValue().bstrVal)));
-						pDoc->AddNewHistory(hist);
-						hist->Do();
-					}
+					pDoc->m_TreeCtrl.SetItemText(m_hSelectedNode, m_pProp[PropertyItemName]->GetValue().bstrVal);
 					break;
 
 				case PropertyItemClass:

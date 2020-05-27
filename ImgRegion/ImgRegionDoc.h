@@ -134,20 +134,6 @@ public:
 	}
 };
 
-class HistoryChangeItemName
-	: public HistoryChangeItemValue<CString>
-{
-public:
-	HistoryChangeItemName(CImgRegionDoc * pDoc, UINT itemID, LPCTSTR oldValue, LPCTSTR newValue)
-		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
-	{
-	}
-
-	virtual void Do(void);
-
-	virtual void Undo(void);
-};
-
 class HistoryChangeItemLocation
 	: public HistoryChangeItemValue<CPoint>
 {
