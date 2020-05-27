@@ -183,7 +183,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemLocked:
-					if(pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().lVal)
+					if(pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().boolVal)
 						pDoc->m_TreeCtrl.SetItemImage(hSelected, 1, 1);
 					else
 						pDoc->m_TreeCtrl.SetItemImage(hSelected, 0, 0);
