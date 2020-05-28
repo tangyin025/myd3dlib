@@ -20,15 +20,6 @@ public:
 
 	boost::shared_ptr<physx::PxController> m_PxController;
 
-	enum CharacterState
-	{
-		CharacterStateNone,
-		CharacterStateHang,
-		CharacterStateClimb,
-		CharacterStateGround,
-
-	} m_State;
-
 	my::Vector3 m_Velocity;
 
 	float m_Orientation;
@@ -47,7 +38,6 @@ protected:
 		, m_Radius(1.0f)
 		, m_ContactOffset(0.1f)
 		, m_filterWord0(0)
-		, m_State(CharacterStateGround)
 		, m_Velocity(0, 0, 0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
@@ -64,7 +54,6 @@ public:
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
 		, m_filterWord0(filterWord0)
-		, m_State(CharacterStateGround)
 		, m_Velocity(0,0,0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)

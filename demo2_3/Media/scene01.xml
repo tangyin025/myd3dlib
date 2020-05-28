@@ -78,29 +78,29 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 	</m_Half>
 </OctRoot>
 <m_ActorList class_id="6" tracking_level="0" version="0">
-	<count>1</count>
+	<count>2</count>
 	<item_version>1</item_version>
 	<item class_id="7" tracking_level="0" version="1">
 		<px class_id="8" tracking_level="1" version="0" object_id="_0">
 			<NamedObject class_id="9" tracking_level="1" version="0" object_id="_1">
-				<Name>scene_actor_0</Name>
+				<Name>scene_actor_1</Name>
 			</NamedObject>
 			<m_aabb>
 				<m_min>
-					<x>0.000000000e+00</x>
-					<y>-1.000000000e+00</y>
-					<z>0.000000000e+00</z>
+					<x>-5.000000000e-01</x>
+					<y>-5.000000000e-01</y>
+					<z>-5.000000000e-01</z>
 				</m_min>
 				<m_max>
-					<x>3.200000000e+01</x>
-					<y>1.000000000e+00</y>
-					<z>3.200000000e+01</z>
+					<x>5.000000000e-01</x>
+					<y>5.000000000e-01</y>
+					<z>5.000000000e-01</z>
 				</m_max>
 			</m_aabb>
 			<m_Position>
-				<x>-1.600000000e+01</x>
-				<y>0.000000000e+00</y>
-				<z>-1.600000000e+01</z>
+				<x>-3.000000000e+00</x>
+				<y>1.000000000e+00</y>
+				<z>0.000000000e+00</z>
 			</m_Position>
 			<m_Rotation class_id="10" tracking_level="0" version="0">
 				<x>0.000000000e+00</x>
@@ -109,9 +109,9 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 				<w>1.000000000e+00</w>
 			</m_Rotation>
 			<m_Scale>
-				<x>1.000000000e+00</x>
-				<y>1.000000000e+00</y>
-				<z>1.000000000e+00</z>
+				<x>2.000000000e+00</x>
+				<y>2.000000000e+00</y>
+				<z>2.000000000e+00</z>
 			</m_Scale>
 			<m_LodDist>3.300000000e+01</m_LodDist>
 			<m_LodFactor>2.000000000e+00</m_LodFactor>
@@ -122,9 +122,9 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 				<count>1</count>
 				<item_version>1</item_version>
 				<item class_id="14" tracking_level="0" version="1">
-					<px class_id="16" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
+					<px class_id="16" class_name="MeshComponent" tracking_level="1" version="0" object_id="_2">
 						<Component class_id="15" tracking_level="1" version="0" object_id="_3">
-							<m_Type>8</m_Type>
+							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_MaterialList class_id="17" tracking_level="0" version="0">
 								<count>1</count>
@@ -181,6 +181,132 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 								</item>
 							</m_MaterialList>
 						</Component>
+						<m_MeshPath>D:\Works\myd3dlib\demo2_3\Media\mesh\Cube.mesh.xml</m_MeshPath>
+						<m_MeshSubMeshName></m_MeshSubMeshName>
+						<m_bInstance>0</m_bInstance>
+						<m_bUseAnimation>0</m_bUseAnimation>
+					</px>
+				</item>
+			</m_Cmps>
+			<ActorType>0</ActorType>
+			<PxActorSize>628</PxActorSize>
+			<m_PxActor>
+U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACgJcARAAAA
+gAAAAACQIfARAAAAgAIAAADg1LwHAAAAgAEAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAADwOoAP
+CAADAAAAAABUO4APAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMygJcARAQAAAM3Nzc3N
+zc3N9NaADwcAAwAAAAAAtNeADwMAAACQIfARzc3Nzc3Nzc1AcQgOAAAAgQAAAADNzc3NAQAAAAAA
+AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAACtej
+PAvNAQADAAAAAACAPwAAgD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAAHNzc3Nzc3Nzc3NzZiAgA8GAAMAIGDgEQAAAAAA
+AAAA4NS8BwEAAQEGAAAAAQABAQEAAADNzc3Nzc3NzUBxCA4AAACFAAAAAM3Nzc3/////yBYJDgEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAQMAAAIA/AAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+AA==
+			</m_PxActor>
+		</px>
+	</item>
+	<item>
+		<px class_id_reference="8" object_id="_13">
+			<NamedObject object_id="_14">
+				<Name>scene_actor_0</Name>
+			</NamedObject>
+			<m_aabb>
+				<m_min>
+					<x>0.000000000e+00</x>
+					<y>-1.000000000e+00</y>
+					<z>0.000000000e+00</z>
+				</m_min>
+				<m_max>
+					<x>3.200000000e+01</x>
+					<y>1.000000000e+00</y>
+					<z>3.200000000e+01</z>
+				</m_max>
+			</m_aabb>
+			<m_Position>
+				<x>-1.600000000e+01</x>
+				<y>0.000000000e+00</y>
+				<z>-1.600000000e+01</z>
+			</m_Position>
+			<m_Rotation>
+				<x>0.000000000e+00</x>
+				<y>0.000000000e+00</y>
+				<z>0.000000000e+00</z>
+				<w>1.000000000e+00</w>
+			</m_Rotation>
+			<m_Scale>
+				<x>1.000000000e+00</x>
+				<y>1.000000000e+00</y>
+				<z>1.000000000e+00</z>
+			</m_Scale>
+			<m_LodDist>3.300000000e+01</m_LodDist>
+			<m_LodFactor>2.000000000e+00</m_LodFactor>
+			<m_Animation>
+				<px class_id="-1"></px>
+			</m_Animation>
+			<m_Cmps>
+				<count>1</count>
+				<item_version>1</item_version>
+				<item>
+					<px class_id="25" class_name="Terrain" tracking_level="1" version="0" object_id="_15">
+						<Component object_id="_16">
+							<m_Type>8</m_Type>
+							<m_LodMask>7</m_LodMask>
+							<m_MaterialList>
+								<count>1</count>
+								<item_version>1</item_version>
+								<item>
+									<px class_id_reference="19" object_id="_17">
+										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
+										<m_PassMask>11</m_PassMask>
+										<m_CullMode>2</m_CullMode>
+										<m_ZEnable>1</m_ZEnable>
+										<m_ZWriteEnable>1</m_ZWriteEnable>
+										<m_BlendMode>0</m_BlendMode>
+										<m_ParameterList>
+											<count>4</count>
+											<item_version>1</item_version>
+											<item>
+												<px class_id_reference="23" object_id="_18">
+													<MaterialParameter object_id="_19">
+														<m_Type>5</m_Type>
+														<m_Name>g_DiffuseTexture</m_Name>
+													</MaterialParameter>
+													<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+												</px>
+											</item>
+											<item>
+												<px class_id_reference="23" object_id="_20">
+													<MaterialParameter object_id="_21">
+														<m_Type>5</m_Type>
+														<m_Name>g_NormalTexture</m_Name>
+													</MaterialParameter>
+													<m_TexturePath>texture/Normal.dds</m_TexturePath>
+												</px>
+											</item>
+											<item>
+												<px class_id_reference="23" object_id="_22">
+													<MaterialParameter object_id="_23">
+														<m_Type>5</m_Type>
+														<m_Name>g_SpecularTexture</m_Name>
+													</MaterialParameter>
+													<m_TexturePath>texture/White.dds</m_TexturePath>
+												</px>
+											</item>
+											<item>
+												<px class_id_reference="24" object_id="_24">
+													<MaterialParameter object_id="_25">
+														<m_Type>1</m_Type>
+														<m_Name>g_SpecularExp</m_Name>
+													</MaterialParameter>
+													<m_Value>2.500000000e+01</m_Value>
+												</px>
+											</item>
+										</m_ParameterList>
+									</px>
+								</item>
+							</m_MaterialList>
+						</Component>
 						<OctRoot>
 							<m_aabb>
 								<m_min>
@@ -204,8 +330,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 						<m_ColChunks>1</m_ColChunks>
 						<m_ChunkSize>32</m_ChunkSize>
 						<m_HeightScale>1.000000000e+00</m_HeightScale>
-						<m_Chunk_0_0 class_id="25" tracking_level="0" version="1">
-							<px class_id="26" tracking_level="1" version="0" object_id="_13">
+						<m_Chunk_0_0 class_id="26" tracking_level="0" version="1">
+							<px class_id="27" tracking_level="1" version="0" object_id="_26">
 								<m_aabb>
 									<m_min>
 										<x>0.000000000e+00</x>
@@ -1149,17 +1275,17 @@ AAAA
 			<ActorType>0</ActorType>
 			<PxActorSize>628</PxActorSize>
 			<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAAAgmQsIAAAA
-gAAAAAAwzQ0IAAAAgAIAAADwRXQOAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOuMP
-CAADAAAAAABUO+MPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwgmQsIAAAAAM3Nzc3N
-zc3N9NbjDwcAAwAAAAAAtNfjDwMAAAAwzQ0Izc3Nzc3Nzc3gWFUOAAAAgQAAAADNzc3NAQAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABgRSoOAAAA
+gAAAAABwRioOAAAAgAIAAACgRSoOAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOoAP
+CAACAAAAAABUO4APAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxgRSoOAAAAAM3Nzc3N
+zc3N9NaADwcAAgAAAAAAtNeADwMAAABwRioOzc3Nzc3Nzc1AcQgOAAAAgQAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAAHNzc3Nzc3Nzc3NzZiA4w8GAAMAwHxeDgAAAAAA
-AAAA8EV0DgEAAQECAAAAAQABAQAAAADNzc3Nzc3NzeBYVQ4AAACFAAAAAM3Nzc3/////zJ+ICQEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+zc3Nzc3Nzc0AAAAAAM3Nzc3Nzc3Nzc3NAAAAAAHNzc3Nzc3Nzc3NzZiAgA8GAAIAKCXgEQAAAAAA
+AAAAoEUqDgEAAQECAAAAAQABAQAAAADNzc3Nzc3NzUBxCA4AAACFAAAAAM3Nzc3/////jBYJDgEA
+AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 			</m_PxActor>
 		</px>
