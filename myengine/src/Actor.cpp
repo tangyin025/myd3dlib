@@ -354,14 +354,21 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	if (m_PxActor)
 	{
 		physx::PxRigidDynamic * rigidDynamic = m_PxActor->isRigidDynamic();
-		if (rigidDynamic && rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
+		if (rigidDynamic)
 		{
-			rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+			if (rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
+			{
+				rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+			}
+			else
+			{
+				m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+				return;
+			}
 		}
 		else
 		{
 			m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
-			return;
 		}
 	}
 
