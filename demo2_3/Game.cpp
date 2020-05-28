@@ -332,6 +332,8 @@ Game::Game(void)
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
+
+	::ShowCursor(FALSE);
 }
 
 Game::~Game(void)
@@ -834,6 +836,29 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
+	if (uMsg == WM_ACTIVATEAPP)
+	{
+		if (wParam != 0)
+		{
+			CURSORINFO pci;
+			pci.cbSize = sizeof(CURSORINFO);
+			::GetCursorInfo(&pci);
+			if (Control::s_FocusControl)
+			{
+				::ClipCursor(NULL);
+			}
+			else
+			{
+				CRect rc(pci.ptScreenPos, CSize(1, 1));
+				::ClipCursor(&rc);
+			}
+		}
+
+		m_ActivateEvent(wParam != 0);
+		*pbNoFurtherProcessing = true;
+		return 0;
+	}
+
 	*pbNoFurtherProcessing = ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam);
 	if (*pbNoFurtherProcessing)
 	{
@@ -1042,15 +1067,19 @@ void Game::OnControlSound(const char * name)
 
 void Game::OnControlFocus(bool bFocus)
 {
-	if (bFocus)
+	CURSORINFO pci;
+	pci.cbSize = sizeof(CURSORINFO);
+	::GetCursorInfo(&pci);
+	if (Control::s_FocusControl)
 	{
-		m_mouse->Unacquire();
-		m_mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+		::ClipCursor(NULL);
+		::ShowCursor(TRUE);
 	}
-	else if (m_wnd->m_hWnd)
+	else
 	{
-		m_mouse->Unacquire();
-		m_mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+		CRect rc(pci.ptScreenPos, CSize(1, 1));
+		::ClipCursor(&rc);
+		::ShowCursor(FALSE);
 	}
 }
 

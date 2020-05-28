@@ -41,7 +41,7 @@ void Player::Init(void)
 		Game::getSingleton().m_joystick->m_BtnPressedEvent.connect(boost::bind(&Player::OnJoystickBtnDown, this, _1));
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent.connect(boost::bind(&Player::OnJoystickBtnUp, this, _1));
 	}
-	Game::getSingleton().m_wnd->m_ActivateEvent.connect(boost::bind(&Player::OnWindowActivate, this, _1));
+	Game::getSingleton().m_ActivateEvent.connect(boost::bind(&Player::OnWindowActivate, this, _1));
 }
 
 void Player::Destroy(void)
@@ -58,7 +58,7 @@ void Player::Destroy(void)
 		Game::getSingleton().m_joystick->m_BtnPressedEvent.disconnect(boost::bind(&Player::OnJoystickBtnDown, this, _1));
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent.disconnect(boost::bind(&Player::OnJoystickBtnUp, this, _1));
 	}
-	Game::getSingleton().m_wnd->m_ActivateEvent.disconnect(boost::bind(&Player::OnWindowActivate, this, _1));
+	Game::getSingleton().m_ActivateEvent.disconnect(boost::bind(&Player::OnWindowActivate, this, _1));
 }
 
 void Player::Update(float fElapsedTime)

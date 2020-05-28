@@ -473,25 +473,27 @@ void Control::SetFocusControl(Control * control)
 		if (s_FocusControl)
 		{
 			s_FocusControl->OnFocusOut();
-
-			if (!control)
-			{
-				D3DContext::getSingleton().OnControlFocus(false);
-			}
 		}
-		else
+
+		Control * old_control = s_FocusControl;
+
+		s_FocusControl = control;
+
+		if (s_FocusControl)
 		{
-			if (control)
+			control->OnFocusIn();
+
+			if (!old_control)
 			{
 				D3DContext::getSingleton().OnControlFocus(true);
 			}
 		}
-
-		s_FocusControl = control;
-
-		if (control)
+		else
 		{
-			control->OnFocusIn();
+			if (old_control)
+			{
+				D3DContext::getSingleton().OnControlFocus(false);
+			}
 		}
 	}
 }

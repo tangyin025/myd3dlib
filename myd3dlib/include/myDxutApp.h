@@ -18,10 +18,6 @@ namespace my
 
 		bool m_InSizeMove;
 
-		typedef boost::signals2::signal<void(bool)> ActivateEvent;
-
-		ActivateEvent m_ActivateEvent;
-
 	public:
 		DxutWindow(void)
 			: m_Minimized(false)

@@ -57,10 +57,6 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			m_InSizeMove = false;
 			break;
 
-		case WM_ACTIVATEAPP:
-			m_ActivateEvent(wParam != 0);
-			break;
-
 		case WM_MENUCHAR:
 			lResult = MAKELRESULT(0, MNC_CLOSE);
 			return TRUE;
