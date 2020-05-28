@@ -97,6 +97,7 @@ player.EventKeyDown=function(arg)
 	end
 	if arg.kc == 57 then
 		player.Velocity.y=5.0
+		player.State=Character.CharacterState.StateHang
 		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,0,"")
 		player:PlayAction(SAction.act_jump)
 	end

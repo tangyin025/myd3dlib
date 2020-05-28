@@ -117,49 +117,71 @@ void Character::Update(float fElapsedTime)
 {
 	if (m_PxController)
 	{
-		Vector3 Acceleration = PhysxContext::getSingleton().Gravity;
-		Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
-		float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
-		float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
-		if (ForwardSpeed > m_TargetSpeed)
+		if (m_State == CharacterStateGround)
 		{
-			ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * fElapsedTime, m_TargetSpeed);
-		}
-		else
-		{
-			ForwardSpeed = my::Min(ForwardSpeed + m_PotentialEnergy * fElapsedTime, m_TargetSpeed);
-		}
-		if (LeftwardSpeed > 0)
-		{
-			LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * fElapsedTime, 0.0f);
-		}
-		else
-		{
-			LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
-		}
-		m_Velocity = Vector3(
-			Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y,
-			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + Acceleration * fElapsedTime;
-		physx::PxControllerCollisionFlags flags = m_PxController->move(
-			(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
-		if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
-		{
-			m_Velocity.y = 0;
-		}
-
-		if (ForwardSpeed > EPSILON_E6)
-		{
-			const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
-			const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
-			const float Rotation = D3DX_PI * 3 * fElapsedTime;
-			if (Delta > 0)
+			Vector3 Acceleration = PhysxContext::getSingleton().Gravity;
+			Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
+			float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
+			float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
+			if (ForwardSpeed > m_TargetSpeed)
 			{
-				m_Orientation += Min(Delta, Rotation);
+				ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * fElapsedTime, m_TargetSpeed);
 			}
 			else
 			{
-				m_Orientation += Max(Delta, -Rotation);
+				ForwardSpeed = my::Min(ForwardSpeed + m_Inertia * fElapsedTime, m_TargetSpeed);
 			}
+			if (LeftwardSpeed > 0)
+			{
+				LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * fElapsedTime, 0.0f);
+			}
+			else
+			{
+				LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
+			}
+			m_Velocity = Vector3(
+				Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y,
+				Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + Acceleration * fElapsedTime;
+			physx::PxControllerCollisionFlags flags = m_PxController->move(
+				(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+			if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+			{
+				m_Velocity.y = 0;
+			}
+			else
+			{
+				m_State = CharacterStateHang;
+			}
+
+			if (ForwardSpeed > EPSILON_E6)
+			{
+				const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
+				const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
+				const float Rotation = D3DX_PI * 3 * fElapsedTime;
+				if (Delta > EPSILON_E6)
+				{
+					m_Orientation += Min(Delta, Rotation);
+				}
+				else if (Delta < EPSILON_E6)
+				{
+					m_Orientation += Max(Delta, -Rotation);
+				}
+			}
+		}
+		else if (m_State == CharacterStateHang)
+		{
+			Vector3 Acceleration = PhysxContext::getSingleton().Gravity;
+			m_Velocity += Acceleration * fElapsedTime;
+			physx::PxControllerCollisionFlags flags = m_PxController->move(
+				(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+			if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+			{
+				m_Velocity.y = 0;
+				m_State = CharacterStateGround;
+			}
+		}
+		else if (m_State == CharacterStateClimb)
+		{
 		}
 
 		m_Position = (my::Vector3 &)physx::toVec3(m_PxController->getPosition());

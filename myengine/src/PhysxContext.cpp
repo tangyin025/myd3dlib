@@ -350,17 +350,17 @@ void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 {
 	const physx::PxRenderBuffer & debugRenderable = m_PxScene->getRenderBuffer();
 
-	const physx::PxU32 numPoints = debugRenderable.getNbPoints();
-	if(numPoints)
-	{
-		const physx::PxDebugPoint* PX_RESTRICT points = debugRenderable.getPoints();
-		for(physx::PxU32 i=0; i<numPoints; i++)
-		{
-			const physx::PxDebugPoint& point = points[i];
-		}
-	}
+	//const physx::PxU32 numPoints = debugRenderable.getNbPoints();
+	//if(numPoints)
+	//{
+	//	const physx::PxDebugPoint* PX_RESTRICT points = debugRenderable.getPoints();
+	//	for(physx::PxU32 i=0; i<numPoints; i++)
+	//	{
+	//		const physx::PxDebugPoint& point = points[i];
+	//	}
+	//}
 
-	const physx::PxU32 numLines = debugRenderable.getNbLines();
+	physx::PxU32 numLines = debugRenderable.getNbLines();
 	if(numLines)
 	{
 		const physx::PxDebugLine* PX_RESTRICT lines = debugRenderable.getLines();
@@ -380,6 +380,21 @@ void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//		const PxDebugTriangle& triangle = triangles[i];
 	//	}
 	//}
+
+	//m_ControllerMgr->setDebugRenderingFlags(physx::PxControllerDebugRenderFlag::eALL);
+	//physx::PxRenderBuffer& renderBuffer = m_ControllerMgr->getRenderBuffer();
+
+	//numLines = renderBuffer.getNbLines();
+	//if (numLines)
+	//{
+	//	const physx::PxDebugLine* PX_RESTRICT lines = renderBuffer.getLines();
+	//	for (physx::PxU32 i = 0; i < numLines; i++)
+	//	{
+	//		const physx::PxDebugLine& line = lines[i];
+	//		drawHelper->PushLine((my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
+	//	}
+	//}
+	//renderBuffer.clear();
 }
 
 void PhysxSceneContext::Flush(void)

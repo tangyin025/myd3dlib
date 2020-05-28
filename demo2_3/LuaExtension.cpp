@@ -1052,6 +1052,14 @@ void LuaContext::Init(void)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
+			.enum_("CharacterState")
+			[
+				value("CharacterStateNone", Character::CharacterStateNone),
+				value("CharacterStateHang", Character::CharacterStateHang),
+				value("CharacterStateClimb", Character::CharacterStateClimb),
+				value("CharacterStateGround", Character::CharacterStateGround)
+			]
+			.def_readwrite("State", &Character::m_State)
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
 			.def("SetPose", &Character::SetPose)
