@@ -1,6 +1,47 @@
 #pragma once
 
 #include "Actor.h"
+#include "mySpline.h"
+#include <boost/intrusive_ptr.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+
+class PoseTrack : public boost::intrusive_ref_counter<PoseTrack>
+{
+public:
+	float m_Length;
+
+	my::Spline m_InterpolateX;
+
+	my::Spline m_InterpolateY;
+
+	my::Spline m_InterpolateZ;
+
+	PoseTrack(float Length)
+		: m_Length(Length)
+	{
+	}
+};
+
+class PoseTrackInst
+{
+public:
+	boost::intrusive_ptr<PoseTrack> m_Template;
+
+	my::Vector3 m_StartPos;
+
+	float m_Time;
+
+	PoseTrackInst(PoseTrack * Template, const my::Vector3 & StartPos)
+		: m_Template(Template)
+		, m_StartPos(StartPos)
+		, m_Time(0)
+	{
+	}
+
+	my::Vector3 GetPos(void) const;
+};
+
+typedef boost::shared_ptr<PoseTrackInst> PoseTrackInstPtr;
 
 class Character
 	: public Actor
@@ -33,6 +74,10 @@ public:
 	float m_SteeringAngular;
 
 	float m_Resistance;
+
+	typedef std::vector<PoseTrackInstPtr> PoseTrackInstPtrList;
+
+	PoseTrackInstPtrList m_PoseTracks;
 
 protected:
 	Character(void)
@@ -96,6 +141,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
+
+	void AddPoseTrack(PoseTrack * track);
 
 	void OnPxThreadSubstep(float dtime);
 

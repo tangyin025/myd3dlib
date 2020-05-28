@@ -18,6 +18,14 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Character)
 
+my::Vector3 PoseTrackInst::GetPos(void) const
+{
+	return my::Vector3(
+		m_StartPos.x + m_Template->m_InterpolateX.Interpolate(m_Time, 0),
+		m_StartPos.y + m_Template->m_InterpolateY.Interpolate(m_Time, 0),
+		m_StartPos.z + m_Template->m_InterpolateZ.Interpolate(m_Time, 0));
+}
+
 Character::~Character(void)
 {
 	if (IsEnteredPhysx())
@@ -69,7 +77,7 @@ void Character::RequestResource(void)
 
 void Character::ReleaseResource(void)
 {
-	Actor::ReleaseResource();
+Actor::ReleaseResource();
 }
 
 void Character::EnterPhysxScene(PhysxSceneContext * scene)
@@ -117,50 +125,67 @@ void Character::Update(float fElapsedTime)
 {
 	if (m_PxController)
 	{
-		Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
-		float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
-		float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
-		if (ForwardSpeed > m_TargetSpeed)
+		PoseTrackInstPtrList::iterator track_iter = m_PoseTracks.begin();
+		if (track_iter != m_PoseTracks.end())
 		{
-			ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * fElapsedTime, m_TargetSpeed);
-		}
-		else
-		{
-			ForwardSpeed = my::Min(ForwardSpeed + m_SteeringLinear * fElapsedTime, m_TargetSpeed);
-		}
-		if (LeftwardSpeed > 0)
-		{
-			LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * fElapsedTime, 0.0f);
-		}
-		else
-		{
-			LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
-		}
-		m_Velocity = Vector3(
-			Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y,
-			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + PhysxContext::getSingleton().Gravity * fElapsedTime;
-		physx::PxControllerCollisionFlags flags = m_PxController->move(
-			(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
-		if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
-		{
-			m_Velocity.y = 0;
-		}
-
-		if (ForwardSpeed > EPSILON_E6)
-		{
-			const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
-			const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
-			if (Delta > EPSILON_E6)
+			if (((*track_iter)->m_Time += fElapsedTime) <= (*track_iter)->m_Template->m_Length)
 			{
-				m_Orientation += Min(Delta, m_SteeringAngular * fElapsedTime);
+				m_Position = (*track_iter)->GetPos();
+				m_PxController->setPosition(physx::PxExtendedVec3(m_Position.x, m_Position.y, m_Position.z));
 			}
-			else if (Delta < EPSILON_E6)
+			else
 			{
-				m_Orientation += Max(Delta, -m_SteeringAngular * fElapsedTime);
+				track_iter = m_PoseTracks.erase(track_iter);
 			}
 		}
 
-		m_Position = (my::Vector3 &)physx::toVec3(m_PxController->getPosition());
+		if (track_iter == m_PoseTracks.end())
+		{
+			Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
+			float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
+			float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
+			if (ForwardSpeed > m_TargetSpeed)
+			{
+				ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * fElapsedTime, m_TargetSpeed);
+			}
+			else
+			{
+				ForwardSpeed = my::Min(ForwardSpeed + m_SteeringLinear * fElapsedTime, m_TargetSpeed);
+			}
+			if (LeftwardSpeed > 0)
+			{
+				LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * fElapsedTime, 0.0f);
+			}
+			else
+			{
+				LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
+			}
+			m_Velocity = Vector3(
+				Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y + PhysxContext::getSingleton().Gravity.y * fElapsedTime,
+				Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed);
+			physx::PxControllerCollisionFlags flags = m_PxController->move(
+				(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+			if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+			{
+				m_Velocity.y = 0;
+			}
+
+			if (ForwardSpeed > EPSILON_E6)
+			{
+				const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
+				const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
+				if (Delta > EPSILON_E6)
+				{
+					m_Orientation += Min(Delta, m_SteeringAngular * fElapsedTime);
+				}
+				else if (Delta < EPSILON_E6)
+				{
+					m_Orientation += Max(Delta, -m_SteeringAngular * fElapsedTime);
+				}
+			}
+
+			m_Position = (my::Vector3 &)physx::toVec3(m_PxController->getPosition());
+		}
 
 		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
 
@@ -186,6 +211,11 @@ void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateWorld();
 
 	UpdateOctNode();
+}
+
+void Character::AddPoseTrack(PoseTrack * track)
+{
+	m_PoseTracks.insert(m_PoseTracks.begin(), PoseTrackInstPtr(new PoseTrackInst(track, m_Position)));
 }
 
 void Character::OnPxThreadSubstep(float dtime)
