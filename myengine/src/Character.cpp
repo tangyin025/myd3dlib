@@ -18,14 +18,6 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Character)
 
-my::Vector3 PoseTrackInst::GetPos(void) const
-{
-	return my::Vector3(
-		m_StartPos.x + m_Template->m_InterpolateX.Interpolate(m_Time, 0),
-		m_StartPos.y + m_Template->m_InterpolateY.Interpolate(m_Time, 0),
-		m_StartPos.z + m_Template->m_InterpolateZ.Interpolate(m_Time, 0));
-}
-
 Character::~Character(void)
 {
 	if (IsEnteredPhysx())
@@ -125,21 +117,7 @@ void Character::Update(float fElapsedTime)
 {
 	if (m_PxController)
 	{
-		PoseTrackInstPtrList::iterator track_iter = m_PoseTracks.begin();
-		if (track_iter != m_PoseTracks.end())
-		{
-			if (((*track_iter)->m_Time += fElapsedTime) <= (*track_iter)->m_Template->m_Length)
-			{
-				m_Position = (*track_iter)->GetPos();
-				m_PxController->setPosition(physx::PxExtendedVec3(m_Position.x, m_Position.y, m_Position.z));
-			}
-			else
-			{
-				track_iter = m_PoseTracks.erase(track_iter);
-			}
-		}
-
-		if (track_iter == m_PoseTracks.end())
+		if (m_ActionTrackPoseInstRef == 0)
 		{
 			Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
 			float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
@@ -185,13 +163,13 @@ void Character::Update(float fElapsedTime)
 			}
 
 			m_Position = (my::Vector3 &)physx::toVec3(m_PxController->getPosition());
+
+			m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+
+			UpdateWorld();
+
+			UpdateOctNode();
 		}
-
-		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
-
-		UpdateWorld();
-
-		UpdateOctNode();
 	}
 
 	Actor::Update(fElapsedTime);
@@ -211,11 +189,6 @@ void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateWorld();
 
 	UpdateOctNode();
-}
-
-void Character::AddPoseTrack(PoseTrack * track)
-{
-	m_PoseTracks.insert(m_PoseTracks.begin(), PoseTrackInstPtr(new PoseTrackInst(track, m_Position)));
 }
 
 void Character::OnPxThreadSubstep(float dtime)

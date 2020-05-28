@@ -35,3 +35,13 @@ track.SpawnInterval=0.1
 track.SpawnLength=99999
 track:AddKeyFrame(0,99999,0.1)
 act_tuowei:AddTrack(track)
+
+act_pose=Action()
+act_pose.Length=9999
+local track=ActionTrackPose(3)
+track.InterpolateX:AddNode(0,0,0,0)
+track.InterpolateX:AddNode(3,-5,0,0)
+track.InterpolateY:AddNode(0,0,0,0)
+track.InterpolateY:AddNode(3,1,0,0)
+track:AddKeyFrame(1)
+act_pose:AddTrack(track)

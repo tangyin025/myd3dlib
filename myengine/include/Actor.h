@@ -61,6 +61,8 @@ public:
 
 	ActionInstPtrList m_ActionInstList;
 
+	int m_ActionTrackPoseInstRef;
+
 protected:
 	Actor(void)
 		: m_aabb(my::AABB::Invalid())
@@ -74,6 +76,7 @@ protected:
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
+		, m_ActionTrackPoseInstRef(0)
 	{
 	}
 
@@ -91,6 +94,7 @@ public:
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
+		, m_ActionTrackPoseInstRef(0)
 	{
 	}
 
@@ -141,7 +145,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
+	virtual void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
 	virtual my::AABB CalculateAABB(void) const;
 

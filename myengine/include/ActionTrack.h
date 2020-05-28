@@ -313,3 +313,65 @@ public:
 
 	virtual void DoTask(void);
 };
+
+class ActionTrackPose : public ActionTrack
+{
+public:
+	float m_Length;
+
+	my::Spline m_InterpolateX;
+
+	my::Spline m_InterpolateY;
+
+	my::Spline m_InterpolateZ;
+
+	struct KeyFrame
+	{
+	};
+
+	typedef std::map<float, KeyFrame> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
+
+public:
+	ActionTrackPose(float Length)
+		: m_Length(Length)
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+
+	void AddKeyFrame(float Time);
+};
+
+class ActionTrackPoseInst : public ActionTrackInst
+{
+protected:
+	boost::intrusive_ptr<const ActionTrackPose> m_Template;
+
+	struct KeyFrameInst
+	{
+		float m_Time;
+
+		my::Vector3 m_StartPos;
+
+		KeyFrameInst(float Time, const my::Vector3 & StartPos)
+			: m_Time(Time)
+			, m_StartPos(StartPos)
+		{
+		}
+	};
+
+	typedef std::vector<KeyFrameInst> KeyFrameInstList;
+
+	KeyFrameInstList m_KeyInsts;
+
+public:
+	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template);
+
+	virtual ~ActionTrackPoseInst(void);
+
+	virtual void UpdateTime(float Time, float fElapsedTime);
+
+	virtual void Stop(void);
+};

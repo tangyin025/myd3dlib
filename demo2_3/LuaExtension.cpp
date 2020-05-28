@@ -1055,14 +1055,6 @@ void LuaContext::Init(void)
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
 			.def("SetPose", &Character::SetPose)
-			.def("AddPoseTrack", &Character::AddPoseTrack)
-
-		, class_<PoseTrack, boost::intrusive_ptr<PoseTrack> >("PoseTrack")
-			.def(constructor<float>())
-			.def_readwrite("Length", &PoseTrack::m_Length)
-			.def_readwrite("InterpolateX", &PoseTrack::m_InterpolateX)
-			.def_readwrite("InterpolateY", &PoseTrack::m_InterpolateY)
-			.def_readwrite("InterpolateZ", &PoseTrack::m_InterpolateZ)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
@@ -1135,6 +1127,14 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticleSizeX", &ActionTrackEmitter::m_ParticleSizeX)
 			.def_readwrite("ParticleSizeY", &ActionTrackEmitter::m_ParticleSizeY)
 			.def_readwrite("ParticleAngle", &ActionTrackEmitter::m_ParticleAngle)
+
+		, class_<ActionTrackPose, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackPose")
+			.def(constructor<float>())
+			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
+			.def_readwrite("Length", &ActionTrackPose::m_Length)
+			.def_readwrite("InterpolateX", &ActionTrackPose::m_InterpolateX)
+			.def_readwrite("InterpolateY", &ActionTrackPose::m_InterpolateY)
+			.def_readwrite("InterpolateZ", &ActionTrackPose::m_InterpolateZ)
 	];
 }
 
