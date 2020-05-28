@@ -28,7 +28,9 @@ public:
 
 	float m_TargetOrientation;
 
-	float m_Inertia;
+	float m_SteeringLinear;
+
+	float m_SteeringAngular;
 
 	float m_Resistance;
 
@@ -42,7 +44,8 @@ protected:
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
 		, m_TargetOrientation(0)
-		, m_Inertia(100)
+		, m_SteeringLinear(100)
+		, m_SteeringAngular(D3DX_PI * 3)
 		, m_Resistance(50)
 	{
 	}
@@ -58,7 +61,8 @@ public:
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
 		, m_TargetOrientation(0)
-		, m_Inertia(100)
+		, m_SteeringLinear(100)
+		, m_SteeringAngular(D3DX_PI * 3)
 		, m_Resistance(50)
 	{
 	}

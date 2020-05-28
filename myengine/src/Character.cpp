@@ -117,7 +117,6 @@ void Character::Update(float fElapsedTime)
 {
 	if (m_PxController)
 	{
-		Vector3 Acceleration = PhysxContext::getSingleton().Gravity;
 		Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
 		float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
 		float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
@@ -127,7 +126,7 @@ void Character::Update(float fElapsedTime)
 		}
 		else
 		{
-			ForwardSpeed = my::Min(ForwardSpeed + m_Inertia * fElapsedTime, m_TargetSpeed);
+			ForwardSpeed = my::Min(ForwardSpeed + m_SteeringLinear * fElapsedTime, m_TargetSpeed);
 		}
 		if (LeftwardSpeed > 0)
 		{
@@ -139,7 +138,7 @@ void Character::Update(float fElapsedTime)
 		}
 		m_Velocity = Vector3(
 			Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y,
-			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + Acceleration * fElapsedTime;
+			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed) + PhysxContext::getSingleton().Gravity * fElapsedTime;
 		physx::PxControllerCollisionFlags flags = m_PxController->move(
 			(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 		if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
@@ -151,14 +150,13 @@ void Character::Update(float fElapsedTime)
 		{
 			const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
 			const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
-			const float Rotation = D3DX_PI * 3 * fElapsedTime;
 			if (Delta > EPSILON_E6)
 			{
-				m_Orientation += Min(Delta, Rotation);
+				m_Orientation += Min(Delta, m_SteeringAngular * fElapsedTime);
 			}
 			else if (Delta < EPSILON_E6)
 			{
-				m_Orientation += Max(Delta, -Rotation);
+				m_Orientation += Max(Delta, -m_SteeringAngular * fElapsedTime);
 			}
 		}
 
