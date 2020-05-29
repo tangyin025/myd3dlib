@@ -45,6 +45,10 @@ END_MESSAGE_MAP()
 
 // CNavigationDlg message handlers
 
+void CNavigationDlg::doLog(const rcLogCategory category, const char* msg, const int len)
+{
+	MessageBox(ms2ts(msg).c_str(), NULL, MB_OK);
+}
 
 void CNavigationDlg::OnOK()
 {
