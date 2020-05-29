@@ -641,7 +641,8 @@ void Actor::ClearAllAttacher(void)
 
 void Actor::PlayAction(Action * action)
 {
-	m_ActionInstList.push_back(action->CreateInstance(this));
+	ActionInstPtr act_inst(action->CreateInstance(this));
+	m_ActionInstList.push_back(act_inst);
 }
 
 void Actor::StopAllAction(void)

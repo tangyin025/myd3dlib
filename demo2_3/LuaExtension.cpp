@@ -1135,6 +1135,8 @@ void LuaContext::Init(void)
 			.def_readwrite("InterpolateX", &ActionTrackPose::m_InterpolateX)
 			.def_readwrite("InterpolateY", &ActionTrackPose::m_InterpolateY)
 			.def_readwrite("InterpolateZ", &ActionTrackPose::m_InterpolateZ)
+			.def_readwrite("ParamStartPos", &ActionTrackPose::m_ParamStartPos)
+			.def_readwrite("ParamEndPos", &ActionTrackPose::m_ParamEndPos)
 	];
 }
 

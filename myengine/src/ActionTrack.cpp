@@ -331,7 +331,7 @@ void ActionTrackEmitterInst::DoTask(void)
 
 ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, this));
+	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, this, m_ParamStartPos, m_ParamEndPos));
 }
 
 void ActionTrackPose::AddKeyFrame(float Time)
@@ -339,15 +339,9 @@ void ActionTrackPose::AddKeyFrame(float Time)
 	m_Keys.insert(std::make_pair(Time, KeyFrame()));
 }
 
-ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template)
-	: ActionTrackInst(_Actor)
-	, m_Template(Template)
-{
-}
-
 ActionTrackPoseInst::~ActionTrackPoseInst(void)
 {
-	_ASSERT(m_Actor->m_ActionTrackPoseInstRef == 0);
+	//_ASSERT(m_Actor->m_ActionTrackPoseInstRef == 0);
 }
 
 void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
@@ -359,9 +353,9 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 		if (key_inst_iter->m_Time <= m_Template->m_Length)
 		{
 			my::Vector3 Pos(
-				key_inst_iter->m_StartPos.x + m_Template->m_InterpolateX.Interpolate(key_inst_iter->m_Time, 0),
-				key_inst_iter->m_StartPos.y + m_Template->m_InterpolateY.Interpolate(key_inst_iter->m_Time, 0),
-				key_inst_iter->m_StartPos.z + m_Template->m_InterpolateZ.Interpolate(key_inst_iter->m_Time, 0));
+				my::Lerp(m_StartPos.x, m_EndPos.x, m_Template->m_InterpolateX.Interpolate(key_inst_iter->m_Time, 0)),
+				my::Lerp(m_StartPos.y, m_EndPos.y, m_Template->m_InterpolateY.Interpolate(key_inst_iter->m_Time, 0)),
+				my::Lerp(m_StartPos.z, m_EndPos.z, m_Template->m_InterpolateZ.Interpolate(key_inst_iter->m_Time, 0)));
 			m_Actor->SetPose(Pos, m_Actor->m_Rotation);
 		}
 		else
@@ -376,7 +370,7 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 		ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
 		if (key_iter != key_end)
 		{
-			m_KeyInsts.push_back(KeyFrameInst(0, m_Actor->m_Position));
+			m_KeyInsts.push_back(KeyFrameInst());
 			m_Actor->m_ActionTrackPoseInstRef++;
 		}
 	}

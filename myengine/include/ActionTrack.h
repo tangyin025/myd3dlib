@@ -325,6 +325,10 @@ public:
 
 	my::Spline m_InterpolateZ;
 
+	my::Vector3 m_ParamStartPos;
+
+	my::Vector3 m_ParamEndPos;
+
 	struct KeyFrame
 	{
 	};
@@ -336,6 +340,8 @@ public:
 public:
 	ActionTrackPose(float Length)
 		: m_Length(Length)
+		, m_ParamStartPos(0,0,0)
+		, m_ParamEndPos(0,0,0)
 	{
 	}
 
@@ -349,15 +355,16 @@ class ActionTrackPoseInst : public ActionTrackInst
 protected:
 	boost::intrusive_ptr<const ActionTrackPose> m_Template;
 
+	my::Vector3 m_StartPos;
+
+	my::Vector3 m_EndPos;
+
 	struct KeyFrameInst
 	{
 		float m_Time;
 
-		my::Vector3 m_StartPos;
-
-		KeyFrameInst(float Time, const my::Vector3 & StartPos)
-			: m_Time(Time)
-			, m_StartPos(StartPos)
+		KeyFrameInst(void)
+			: m_Time(0)
 		{
 		}
 	};
@@ -367,7 +374,13 @@ protected:
 	KeyFrameInstList m_KeyInsts;
 
 public:
-	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template);
+	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template, const my::Vector3 & StartPos, const my::Vector3 & EndPos)
+		: ActionTrackInst(_Actor)
+		, m_Template(Template)
+		, m_StartPos(StartPos)
+		, m_EndPos(EndPos)
+	{
+	}
 
 	virtual ~ActionTrackPoseInst(void);
 
