@@ -1223,7 +1223,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			pFrame->m_selactors[i]->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
-			if (pFrame->m_selactors[i]->m_PxActor && (body = pFrame->m_selactors[i]->m_PxActor->isRigidBody()))
+			if (pFrame->m_selactors[i]->m_PxActor && (body = pFrame->m_selactors[i]->m_PxActor->isRigidBody()) && !body->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, false);
 				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));

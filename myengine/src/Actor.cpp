@@ -478,13 +478,14 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	case physx::PxActorType::eRIGID_STATIC:
 		m_PxActor.reset(PhysxContext::getSingleton().m_sdk->createRigidStatic(
 			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
+		m_PxActor->userData = this;
 		break;
 	case physx::PxActorType::eRIGID_DYNAMIC:
 		m_PxActor.reset(PhysxContext::getSingleton().m_sdk->createRigidDynamic(
 			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
+		m_PxActor->userData = this;
 		break;
 	}
-	m_PxActor->userData = this;
 }
 
 void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)

@@ -91,6 +91,8 @@ public:
 		PropertyActorLodDist,
 		PropertyActorLodFactor,
 		PropertyActorRigidActor,
+		PropertyActorRigidActorType,
+		PropertyActorRigidActorKinematic,
 		PropertyComponentLODMask,
 		PropertyShape,
 		PropertyShapeType,
@@ -191,6 +193,7 @@ public:
 	void OnCmpAttriChanged(my::EventArg * arg);
 	static void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, int i);
 	void UpdatePropertiesActor(Actor * actor);
+	void UpdatePropertiesRigidActor(CMFCPropertyGridProperty * pRigidActor, Actor * actor);
 	void UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp);
 	void UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Component * cmp);
 	void UpdatePropertiesShapeShow(CMFCPropertyGridProperty * pShape, BOOL bShow);
@@ -206,6 +209,7 @@ public:
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 
 	void CreatePropertiesActor(Actor * actor);
+	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp);
 	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, Component * cmp);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);

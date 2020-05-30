@@ -47,3 +47,13 @@ act_pose_track.InterpolateZ:AddNode(0,0,0,0)
 act_pose_track.InterpolateZ:AddNode(3,1,0,0)
 act_pose_track:AddKeyFrame(0)
 act_pose:AddTrack(act_pose_track)
+
+act_moving=Action()
+act_moving.Length=9999
+act_moving_track=ActionTrackPose(9999)
+for i=0,3600,3 do
+	act_moving_track.InterpolateZ:AddNode(i*3,0,0,0)
+	act_moving_track.InterpolateZ:AddNode((i+1)*3,1,0,0)
+end
+act_moving_track:AddKeyFrame(0)
+act_moving:AddTrack(act_moving_track)

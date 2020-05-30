@@ -67,7 +67,7 @@ actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 搞一个trigger
-actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(5,2,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp5=StaticEmitterComponent(1)
 actor5:AddComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
@@ -102,6 +102,10 @@ game.EventLoadScene=function(arg)
 	
 	actor5:UpdateWorld()
 	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World))
+	
+	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
+	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
+	game:GetNamedObject("scene_actor_1"):PlayAction(SAction.act_moving)
 	
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 	-- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
