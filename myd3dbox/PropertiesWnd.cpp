@@ -178,7 +178,7 @@ void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	std::set<Actor *>::iterator actor_iter = pFrame->m_selactors.begin();
+	CMainFrame::SelActorList::iterator actor_iter = pFrame->m_selactors.begin();
 	if (actor_iter != pFrame->m_selactors.end())
 	{
 		UpdatePropertiesActor(*actor_iter);

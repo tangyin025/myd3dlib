@@ -414,7 +414,7 @@ void CMainFrame::UpdateSelBox(void)
 	if (!m_selactors.empty())
 	{
 		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-		std::set<Actor *>::const_iterator sel_iter = m_selactors.begin();
+		SelActorList::const_iterator sel_iter = m_selactors.begin();
 		for (; sel_iter != m_selactors.end(); sel_iter++)
 		{
 			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
@@ -438,7 +438,7 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::OnFrameTick(float fElapsedTime)
 {
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
@@ -453,7 +453,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
-		if (!haveSelActors && m_selactors.end() != m_selactors.find(actor))
+		if (!haveSelActors && m_selactors.end() != std::find(m_selactors.begin(), m_selactors.end(), actor))
 		{
 			haveSelActors = true;
 		}
@@ -740,7 +740,7 @@ void CMainFrame::OnCreateActor()
 	actor->EnterPhysxScene(this);
 
 	m_selactors.clear();
-	m_selactors.insert(actor.get());
+	m_selactors.push_back(actor.get());
 	OnSelChanged();
 }
 
@@ -761,14 +761,14 @@ void CMainFrame::OnCreateCharacter()
 	character->EnterPhysxScene(this);
 
 	m_selactors.clear();
-	m_selactors.insert(character.get());
+	m_selactors.push_back(character.get());
 	OnSelChanged();
 }
 
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -822,7 +822,7 @@ void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentCloth()
 {
 	// TODO: Add your command handler code here
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -876,7 +876,7 @@ void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentStaticEmitter()
 {
 	// TODO: Add your command handler code here
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -906,7 +906,7 @@ void CMainFrame::OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentSphericalemitter()
 {
 	//// TODO: Add your command handler code here
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -954,7 +954,7 @@ void CMainFrame::OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentTerrain()
 {
 	// TODO: Add your command handler code here
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -990,7 +990,7 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	SelActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->StopAllAction();
@@ -1091,7 +1091,7 @@ void CMainFrame::OnToolsTerraingrassbrush()
 	//	return;
 	//}
 
-	//std::set<Actor *>::iterator actor_iter = m_selactors.begin();
+	//SelActorList::iterator actor_iter = m_selactors.begin();
 	//if (actor_iter == m_selactors.end())
 	//{
 	//	return;

@@ -138,7 +138,7 @@ void Character::Update(float fElapsedTime)
 
 	if (m_PxController)
 	{
-		if (m_ActionTrackPoseInstRef == 0)
+		if (!m_Base && m_ActionTrackPoseInstRef == 0)
 		{
 			Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
 			float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);

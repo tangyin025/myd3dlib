@@ -32,7 +32,8 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	std::set<Actor *> m_selactors;
+	typedef std::vector<Actor *> SelActorList;
+	SelActorList m_selactors;
 	typedef std::set<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
 	CPoint m_selchunkid;

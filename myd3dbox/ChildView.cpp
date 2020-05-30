@@ -964,7 +964,7 @@ void CChildView::OnPaint()
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
 					PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-					std::set<Actor *>::const_iterator sel_iter = pFrame->m_selactors.begin();
+					CMainFrame::SelActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 					{
 						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter);
@@ -1096,7 +1096,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		StartPerformanceCount();
 		_ASSERT(m_selactorwlds.empty());
-		std::set<Actor *>::iterator sel_iter = pFrame->m_selactors.begin();
+		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			m_selactorwlds[*sel_iter][0].xyz = (*sel_iter)->m_Position;
@@ -1134,10 +1134,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{
-			std::set<Actor *> & selacts;
+			CMainFrame::SelActorList & selacts;
 			const my::Frustum & ftm;
 			CChildView * pView;
-			Callback(std::set<Actor *> & _selacts, const my::Frustum & _ftm, CChildView * _pView)
+			Callback(CMainFrame::SelActorList & _selacts, const my::Frustum & _ftm, CChildView * _pView)
 				: selacts(_selacts)
 				, ftm(_ftm)
 				, pView(_pView)
@@ -1149,7 +1149,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				ASSERT(actor);
 				if (pView->OverlapTestFrustumAndActor(ftm, actor))
 				{
-					selacts.insert(actor);
+					selacts.push_back(actor);
 				}
 			}
 		};
@@ -1189,14 +1189,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		pFrame->QueryEntity(ray, &cb);
 		if (cb.selact)
 		{
-			std::set<Actor *>::iterator sel_iter = pFrame->m_selactors.find(cb.selact);
+			CMainFrame::SelActorList::iterator sel_iter = std::find(pFrame->m_selactors.begin(), pFrame->m_selactors.end(), cb.selact);
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
 			}
 			else
 			{
-				pFrame->m_selactors.insert(cb.selact);
+				pFrame->m_selactors.push_back(cb.selact);
 				pFrame->m_selchunkid = cb.selchunkid;
 			}
 		}
@@ -1244,7 +1244,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		if (m_bCopyActors)
 		{
 			m_bCopyActors = FALSE;
-			std::set<Actor *>::const_iterator sel_iter = pFrame->m_selactors.begin();
+			CMainFrame::SelActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = (*sel_iter)->Clone();
