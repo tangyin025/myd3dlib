@@ -54,9 +54,7 @@ typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
 
 class ActionInst
 {
-protected:
-	friend Actor;
-
+public:
 	boost::intrusive_ptr<const Action> m_Template;
 
 	float m_Time;

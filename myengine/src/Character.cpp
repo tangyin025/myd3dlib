@@ -13,6 +13,9 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include "PhysxContext.h"
+#include "ActionTrack.h"
+#include "Animation.h"
+#include "myDxutApp.h"
 
 using namespace my;
 
@@ -110,11 +113,38 @@ void Character::LeavePhysxScene(PhysxSceneContext * scene)
 
 void Character::OnPxTransformChanged(const physx::PxTransform & trans)
 {
+	if (m_PxController)
+	{
+		m_Position = (my::Vector3 &)trans.p;
 
+		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+
+		UpdateWorld();
+
+		UpdateOctNode();
+	}
 }
 
 void Character::Update(float fElapsedTime)
 {
+	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
+	for (; action_inst_iter != m_ActionInstList.end(); )
+	{
+		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
+		{
+			(*action_inst_iter)->Update(fElapsedTime);
+
+			action_inst_iter++;
+		}
+		else
+		{
+			(*action_inst_iter)->Stop();
+
+			// ! make sure action inst was not in parallel task list
+			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
+		}
+	}
+
 	if (m_PxController)
 	{
 		if (m_ActionTrackPoseInstRef == 0)
@@ -138,15 +168,10 @@ void Character::Update(float fElapsedTime)
 			{
 				LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
 			}
+
 			m_Velocity = Vector3(
 				Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y + PhysxContext::getSingleton().Gravity.y * fElapsedTime,
 				Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed);
-			physx::PxControllerCollisionFlags flags = m_PxController->move(
-				(physx::PxVec3&)m_Velocity * fElapsedTime, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
-			if (flags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
-			{
-				m_Velocity.y = 0;
-			}
 
 			if (ForwardSpeed > EPSILON_E6)
 			{
@@ -162,33 +187,93 @@ void Character::Update(float fElapsedTime)
 				}
 			}
 
-			m_Position = (my::Vector3 &)physx::toVec3(m_PxController->getPosition());
+			SetPose(m_Position + m_Velocity * fElapsedTime, Quaternion::Identity());
+		}
 
-			m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
-
-			UpdateWorld();
-
-			UpdateOctNode();
+		if (m_MoveFlags.isSet(physx::PxControllerCollisionFlag::eCOLLISION_DOWN))
+		{
+			m_Velocity.y = 0;
 		}
 	}
 
-	Actor::Update(fElapsedTime);
+	if (m_Animation)
+	{
+		m_Animation->Update(fElapsedTime);
+	}
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->m_LodMask & m_Lod)
+		{
+			(*cmp_iter)->Update(fElapsedTime);
+		}
+	}
+
+	if (m_PxController)
+	{
+		Vector3 TmpPos = (Vector3 &)physx::toVec3(m_PxController->getPosition());
+
+		Quaternion TmpRot = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+
+		Matrix4 TmpWorld = Matrix4::Compose(m_Scale, TmpRot, TmpPos);
+
+		AttachPairList::iterator att_iter = m_Attaches.begin();
+		for (; att_iter != m_Attaches.end(); att_iter++)
+		{
+			if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
+			{
+				const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
+				att_iter->first->SetPose(bone.m_position.transformCoord(TmpWorld), bone.m_rotation * TmpRot);
+			}
+			else
+			{
+				att_iter->first->SetPose(TmpPos, TmpRot);
+			}
+
+			att_iter->first->Update(fElapsedTime);
+		}
+	}
+	else
+	{
+		AttachPairList::iterator att_iter = m_Attaches.begin();
+		for (; att_iter != m_Attaches.end(); att_iter++)
+		{
+			if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
+			{
+				const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
+				att_iter->first->SetPose(bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
+			}
+			else
+			{
+				att_iter->first->SetPose(m_Position, m_Rotation);
+			}
+
+			att_iter->first->Update(fElapsedTime);
+		}
+	}
 }
 
 void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxController)
 	{
-		m_PxController->setPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+		Vector3 Disp = Pos - m_Position;
+		float fElapsedTime = D3DContext::getSingleton().m_fElapsedTime;
+		m_MoveFlags = m_PxController->move((physx::PxVec3 &)Disp, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+
+		// ! delay update pose at OnPxTransformChanged
 	}
+	else
+	{
+		m_Position = Pos;
 
-	m_Position = Pos;
+		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
 
-	m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+		UpdateWorld();
 
-	UpdateWorld();
-
-	UpdateOctNode();
+		UpdateOctNode();
+	}
 }
 
 void Character::OnPxThreadSubstep(float dtime)

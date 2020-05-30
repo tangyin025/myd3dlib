@@ -23,6 +23,8 @@ public:
 
 	boost::shared_ptr<physx::PxController> m_PxController;
 
+	physx::PxControllerCollisionFlags m_MoveFlags;
+
 	my::Vector3 m_Velocity;
 
 	float m_Orientation;
@@ -44,6 +46,7 @@ protected:
 		, m_ContactOffset(0.1f)
 		, m_filterWord0(0)
 		, m_Velocity(0, 0, 0)
+		, m_MoveFlags(0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
 		, m_TargetOrientation(0)
@@ -61,6 +64,7 @@ public:
 		, m_ContactOffset(ContactOffset)
 		, m_filterWord0(filterWord0)
 		, m_Velocity(0,0,0)
+		, m_MoveFlags(0)
 		, m_Orientation(0)
 		, m_TargetSpeed(0)
 		, m_TargetOrientation(0)
