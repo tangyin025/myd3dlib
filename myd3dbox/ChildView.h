@@ -50,8 +50,8 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoMap;
 	ScrInfoMap m_ScrInfo;
 	LARGE_INTEGER m_qwTime[2];
-	typedef std::map<Actor *, my::Matrix4> ActorWorldMap;
-	ActorWorldMap m_selactorwlds;
+	typedef std::vector<my::Matrix4> SelActorWorldList;
+	SelActorWorldList m_selactorwlds;
 	CPoint m_raychunkid;
 
 	struct Vertex

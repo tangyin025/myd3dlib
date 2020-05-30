@@ -1000,13 +1000,13 @@ void CChildView::OnPaint()
 				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f, 0.5f, 0)));
 				if (m_bShowGrid)
 				{
-					my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+					my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
 						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 					}
 
-					pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+					pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
 						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"y", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
@@ -1096,12 +1096,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		StartPerformanceCount();
 		_ASSERT(m_selactorwlds.empty());
+		m_selactorwlds.resize(pFrame->m_selactors.size(), my::Matrix4::Identity());
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			m_selactorwlds[*sel_iter][0].xyz = (*sel_iter)->m_Position;
-			m_selactorwlds[*sel_iter][1] = (my::Vector4 &)(*sel_iter)->m_Rotation;
-			m_selactorwlds[*sel_iter][2].xyz = (*sel_iter)->m_Scale;
+			size_t i = std::distance(pFrame->m_selactors.begin(), sel_iter);
+			m_selactorwlds[i][0].xyz = (*sel_iter)->m_Position;
+			m_selactorwlds[i][1] = (my::Vector4 &)(*sel_iter)->m_Rotation;
+			m_selactorwlds[i][2].xyz = (*sel_iter)->m_Scale;
 
 			physx::PxRigidBody * body = NULL;
 			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->isRigidBody()))
@@ -1213,13 +1215,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
-		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
+		ASSERT(m_selactorwlds.size() == pFrame->m_selactors.size());
+		SelActorWorldList::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
 		{
-			actor_world_iter->first->UpdateOctNode();
+			size_t i = std::distance(m_selactorwlds.begin(), actor_world_iter);
+			pFrame->m_selactors[i]->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
-			if (actor_world_iter->first->m_PxActor && (body = actor_world_iter->first->m_PxActor->isRigidBody()))
+			if (pFrame->m_selactors[i]->m_PxActor && (body = pFrame->m_selactors[i]->m_PxActor->isRigidBody()))
 			{
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, false);
 				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));
@@ -1244,39 +1248,45 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		if (m_bCopyActors)
 		{
 			m_bCopyActors = FALSE;
+			CMainFrame::SelActorList new_selactors;
 			CMainFrame::SelActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = (*sel_iter)->Clone();
+				new_actor->SetName(my::NamedObject::MakeUniqueName("scene_actor").c_str());
 				pFrame->AddEntity(new_actor.get(), new_actor->m_aabb.transform(new_actor->m_World));
 				pFrame->m_ActorList.insert(new_actor);
 				new_actor->RequestResource();
 				new_actor->EnterPhysxScene(pFrame);
+				new_selactors.push_back(new_actor.get());
 			}
+			pFrame->m_selactors.swap(new_selactors);
 		}
 		StartPerformanceCount();
-		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
+		ASSERT(m_selactorwlds.size() == pFrame->m_selactors.size());
+		SelActorWorldList::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
 		{
+			size_t i = std::distance(m_selactorwlds.begin(), actor_world_iter);
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
-				actor_world_iter->first->UpdateWorld();
+				pFrame->m_selactors[i]->m_Position = (*actor_world_iter)[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
+				pFrame->m_selactors[i]->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
-				actor_world_iter->first->m_World = my::Matrix4::Compose(actor_world_iter->second[2].xyz, (my::Quaternion &)actor_world_iter->second[1], actor_world_iter->second[0].xyz)
+				pFrame->m_selactors[i]->m_World = my::Matrix4::Compose((*actor_world_iter)[2].xyz, (my::Quaternion &)(*actor_world_iter)[1], (*actor_world_iter)[0].xyz)
 					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
 					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
 					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
-				actor_world_iter->first->m_World.Decompose(actor_world_iter->first->m_Scale, actor_world_iter->first->m_Rotation, actor_world_iter->first->m_Position);
+				pFrame->m_selactors[i]->m_World.Decompose(pFrame->m_selactors[i]->m_Scale, pFrame->m_selactors[i]->m_Rotation, pFrame->m_selactors[i]->m_Position);
 				break;
 			}
 
-			if (actor_world_iter->first->m_PxActor)
+			if (pFrame->m_selactors[i]->m_PxActor)
 			{
-				actor_world_iter->first->m_PxActor->setGlobalPose(physx::PxTransform(
-					(physx::PxVec3&)actor_world_iter->first->m_Position, (physx::PxQuat&)actor_world_iter->first->m_Rotation), true);
+				pFrame->m_selactors[i]->m_PxActor->setGlobalPose(physx::PxTransform(
+					(physx::PxVec3&)pFrame->m_selactors[i]->m_Position, (physx::PxQuat&)pFrame->m_selactors[i]->m_Rotation), true);
 			}
 		}
 		Invalidate();
