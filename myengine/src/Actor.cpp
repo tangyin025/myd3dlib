@@ -279,7 +279,7 @@ void Actor::LeavePhysxScene(PhysxSceneContext * scene)
 
 void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 {
-	if (m_PxActor)
+	if (m_PxActor && !m_Base)
 	{
 		m_Position = (my::Vector3 &)trans.p;
 
@@ -353,14 +353,20 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 			if (rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
 			{
 				rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+				if (m_Base)
+				{
+					// ! attached Actor update render pose immediately
+				}
+				else
+				{
+					return;
+				}
 			}
 			else
 			{
 				m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+				return;
 			}
-
-			// ! delay update pose at OnPxTransformChanged
-			return;
 		}
 		else
 		{

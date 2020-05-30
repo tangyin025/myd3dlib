@@ -72,7 +72,7 @@ void Character::RequestResource(void)
 
 void Character::ReleaseResource(void)
 {
-Actor::ReleaseResource();
+	Actor::ReleaseResource();
 }
 
 void Character::EnterPhysxScene(PhysxSceneContext * scene)
@@ -113,16 +113,7 @@ void Character::LeavePhysxScene(PhysxSceneContext * scene)
 
 void Character::OnPxTransformChanged(const physx::PxTransform & trans)
 {
-	if (m_PxController)
-	{
-		m_Position = (my::Vector3 &)trans.p;
 
-		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
-
-		UpdateWorld();
-
-		UpdateOctNode();
-	}
 }
 
 void Character::Update(float fElapsedTime)
@@ -187,12 +178,21 @@ void Character::Update(float fElapsedTime)
 				}
 			}
 
-			SetPose(m_Position + m_Velocity * fElapsedTime, Quaternion::Identity());
-		}
+			m_MoveFlags = m_PxController->move((physx::PxVec3 &)m_Velocity * fElapsedTime,
+				0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
-		if (m_MoveFlags.isSet(physx::PxControllerCollisionFlag::eCOLLISION_DOWN))
-		{
-			m_Velocity.y = 0;
+			if (m_MoveFlags.isSet(physx::PxControllerCollisionFlag::eCOLLISION_DOWN))
+			{
+				m_Velocity.y = 0;
+			}
+
+			m_Position = (Vector3 &)physx::toVec3(m_PxController->getPosition());
+
+			m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+
+			UpdateWorld();
+
+			UpdateOctNode();
 		}
 	}
 
@@ -210,47 +210,20 @@ void Character::Update(float fElapsedTime)
 		}
 	}
 
-	if (m_PxController)
+	AttachPairList::iterator att_iter = m_Attaches.begin();
+	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
-		Vector3 TmpPos = (Vector3 &)physx::toVec3(m_PxController->getPosition());
-
-		Quaternion TmpRot = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
-
-		Matrix4 TmpWorld = Matrix4::Compose(m_Scale, TmpRot, TmpPos);
-
-		AttachPairList::iterator att_iter = m_Attaches.begin();
-		for (; att_iter != m_Attaches.end(); att_iter++)
+		if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
 		{
-			if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
-			{
-				const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
-				att_iter->first->SetPose(bone.m_position.transformCoord(TmpWorld), bone.m_rotation * TmpRot);
-			}
-			else
-			{
-				att_iter->first->SetPose(TmpPos, TmpRot);
-			}
-
-			att_iter->first->Update(fElapsedTime);
+			const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
+			att_iter->first->SetPose(bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
 		}
-	}
-	else
-	{
-		AttachPairList::iterator att_iter = m_Attaches.begin();
-		for (; att_iter != m_Attaches.end(); att_iter++)
+		else
 		{
-			if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
-			{
-				const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
-				att_iter->first->SetPose(bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
-			}
-			else
-			{
-				att_iter->first->SetPose(m_Position, m_Rotation);
-			}
-
-			att_iter->first->Update(fElapsedTime);
+			att_iter->first->SetPose(m_Position, m_Rotation);
 		}
+
+		att_iter->first->Update(fElapsedTime);
 	}
 }
 
@@ -258,22 +231,16 @@ void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxController)
 	{
-		Vector3 Disp = Pos - m_Position;
-		float fElapsedTime = D3DContext::getSingleton().m_fElapsedTime;
-		m_MoveFlags = m_PxController->move((physx::PxVec3 &)Disp, 0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
-
-		// ! delay update pose at OnPxTransformChanged
+		m_PxController->setPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
 	}
-	else
-	{
-		m_Position = Pos;
 
-		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+	m_Position = Pos;
 
-		UpdateWorld();
+	m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
 
-		UpdateOctNode();
-	}
+	UpdateWorld();
+
+	UpdateOctNode();
 }
 
 void Character::OnPxThreadSubstep(float dtime)
@@ -298,15 +265,15 @@ void Character::onObstacleHit(const physx::PxControllerObstacleHit& hit)
 
 physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
 
 physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxController& controller)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
 
 physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxObstacle& obstacle)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
