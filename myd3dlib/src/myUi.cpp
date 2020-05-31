@@ -2763,19 +2763,6 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if (uMsg == WM_KEYDOWN)
-		{
-			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-			for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
-			{
-				if ((*ctrl_iter)->GetHotkey() == wParam)
-				{
-					(*ctrl_iter)->OnHotkey();
-					return true;
-				}
-			}
-		}
-
 		switch (uMsg)
 		{
 		case WM_KEYDOWN:
@@ -3068,17 +3055,29 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		{
-			if (Control::s_FocusControl) {
-				if (Control::s_FocusControl->HandleKeyboard(uMsg, wParam, lParam)) {
+			Control * ControlPtd = Control::s_FocusControl;
+			for (; ControlPtd; ControlPtd = ControlPtd->m_Parent)
+			{
+				if (ControlPtd->HandleKeyboard(uMsg, wParam, lParam)) {
 					return true;
 				}
 			}
-
-			DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
-			for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
+	
+			if (uMsg == WM_KEYDOWN)
 			{
-				if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
-					return true;
+				DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+				for (; dlg_iter != m_DlgList.rend(); dlg_iter++)
+				{
+					Control::ControlPtrList::iterator ctrl_iter = (*dlg_iter)->m_Childs.begin();
+					for (; ctrl_iter != (*dlg_iter)->m_Childs.end(); ctrl_iter++)
+					{
+						if ((*ctrl_iter)->GetHotkey() == wParam)
+						{
+							(*ctrl_iter)->OnHotkey();
+							return true;
+						}
+					}
+				}
 			}
 		}
 		break;
