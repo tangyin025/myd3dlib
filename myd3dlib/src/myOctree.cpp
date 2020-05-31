@@ -12,8 +12,8 @@ OctEntity::~OctEntity(void)
 	if (m_Node)
 	{
 		_ASSERT(false);
-
-		m_Node->RemoveEntity(this);
+		
+		m_Node->OctNode::RemoveEntity(this);
 	}
 }
 
@@ -142,7 +142,7 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 	{
 		child.reset(new OctNode(this, child_aabb));
 	}
-	child->AddEntity(entity, aabb);
+	child->OctNode::AddEntity(entity, aabb);
 }
 
 void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
@@ -273,11 +273,12 @@ bool OctNode::RemoveEntity(OctEntity * entity)
 
 void OctNode::ClearAllEntity(void)
 {
+	OctNode * Root = GetTopNode();
 	OctEntityMap::iterator entity_iter = m_Entities.begin();
 	for (; entity_iter != m_Entities.end(); entity_iter = m_Entities.begin())
 	{
 		_ASSERT(entity_iter->first->m_Node == this);
-		RemoveEntity(entity_iter->first);
+		Root->RemoveEntity(entity_iter->first);
 	}
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)

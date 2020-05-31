@@ -146,10 +146,6 @@ public:
 
 	bool RemoveEntity(my::OctEntity * entity);
 
-	void ClearAllEntityInNode(my::OctNode * node);
-
-	void ClearAllEntity(void);
-
 	virtual void OnControlSound(const char * name);
 
 	virtual void OnControlFocus(bool bFocus);

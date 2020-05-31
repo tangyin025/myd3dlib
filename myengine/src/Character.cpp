@@ -243,6 +243,11 @@ void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateOctNode();
 }
 
+void Character::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+{
+	Actor::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+}
+
 void Character::OnPxThreadSubstep(float dtime)
 {
 

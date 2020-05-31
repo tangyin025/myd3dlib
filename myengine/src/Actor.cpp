@@ -27,26 +27,22 @@ BOOST_CLASS_EXPORT(Actor)
 
 Actor::~Actor(void)
 {
-	StopAllAction();
+	if (m_Node)
+	{
+		m_Node->GetTopNode()->RemoveEntity(this);
+	}
+
+	_ASSERT(m_ActionInstList.empty());
 
 	ClearAllComponent();
 
-	ClearAllAttacher();
-	
-	if (m_Base)
-	{
-		m_Base->Detach(this);
-	}
+	_ASSERT(m_Attaches.empty());
 
-	if (IsRequested())
-	{
-		_ASSERT(false); ReleaseResource();
-	}
+	_ASSERT(!m_Base);
 
-	if (IsEnteredPhysx())
-	{
-		_ASSERT(false); LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
-	}
+	_ASSERT(!IsRequested());
+
+	_ASSERT(!IsEnteredPhysx());
 }
 
 template<class Archive>
@@ -418,8 +414,8 @@ void Actor::UpdateOctNode(void)
 	if (m_Node)
 	{
 		my::OctNode * Root = m_Node->GetTopNode();
-		Root->RemoveEntity(this);
-		Root->AddEntity(this, m_aabb.transform(m_World));
+		Root->OctNode::RemoveEntity(this);
+		Root->OctNode::AddEntity(this, m_aabb.transform(m_World));
 	}
 }
 

@@ -104,7 +104,9 @@ public:
 
 	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
-	void OnPxThreadSubstep(float dtime);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
+	virtual void OnPxThreadSubstep(float dtime);
 
 	virtual void onShapeHit(const physx::PxControllerShapeHit& hit);
 

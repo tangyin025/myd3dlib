@@ -952,8 +952,15 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				continue;
 			}
 
-			actor->LeavePhysxScene(this);
-			actor->ReleaseResource();
+			if (actor->IsEnteredPhysx())
+			{
+				actor->LeavePhysxScene(this);
+			}
+
+			if (actor->IsRequested())
+			{
+				actor->ReleaseResource();
+			}
 		}
 		weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
 	}
@@ -962,13 +969,13 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	{
 		WeakActorMap & m_ViewedActors;
 
-		PhysxSceneContext * m_Scene;
+		Game * m_game;
 
 		AABB m_aabb;
 
-		Callback(WeakActorMap & ViewedActors, PhysxSceneContext * Scene, const AABB & aabb)
+		Callback(WeakActorMap & ViewedActors, Game * game, const AABB & aabb)
 			: m_ViewedActors(ViewedActors)
-			, m_Scene(Scene)
+			, m_game(game)
 			, m_aabb(aabb)
 		{
 		}
@@ -978,9 +985,17 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 			Actor * actor = dynamic_cast<Actor *>(oct_entity);
 			if (m_ViewedActors.find(actor) == m_ViewedActors.end())
 			{
-				actor->RequestResource();
-				actor->EnterPhysxScene(m_Scene);
 				m_ViewedActors.insert(std::make_pair(actor, actor->shared_from_this()));
+
+				if (!actor->IsRequested())
+				{
+					actor->RequestResource();
+				}
+
+				if (!actor->IsEnteredPhysx())
+				{
+					actor->EnterPhysxScene(m_game);
+				}
 			}
 		}
 	};
@@ -1007,55 +1022,17 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 		actor->m_Base->Detach(actor);
 	}
 
-	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.find(actor);
-	if (weak_actor_iter != m_ViewedActors.end())
+	if (actor->IsRequested())
 	{
-		m_ViewedActors.erase(weak_actor_iter);
-		actor->LeavePhysxScene(this);
 		actor->ReleaseResource();
 	}
 
-	if (OctNode::RemoveEntity(entity))
+	if (actor->IsEnteredPhysx())
 	{
-		return true;
-	}
-	return false;
-}
-
-void Game::ClearAllEntityInNode(my::OctNode * node)
-{
-	OctEntityMap::iterator entity_iter = node->m_Entities.begin();
-	for (; entity_iter != node->m_Entities.end(); entity_iter = node->m_Entities.begin())
-	{
-		RemoveEntity(entity_iter->first);
+		actor->LeavePhysxScene(this);
 	}
 
-	for (unsigned int i = 0; i < node->m_Childs.size(); i++)
-	{
-		if (node->m_Childs[i])
-		{
-			ClearAllEntityInNode(node->m_Childs[i].get());
-			node->m_Childs[i].reset();
-		}
-	}
-}
-
-void Game::ClearAllEntity(void)
-{
-	ClearAllEntityInNode(this);
-
-#ifdef _DEBUG
-	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
-	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
-	{
-		ActorPtr actor = weak_actor_iter->second.lock();
-		if (actor && actor->m_Node)
-		{
-			// ! take care of manual OctNode::RemoveEntity
-			_ASSERT(false); break;
-		}
-	}
-#endif
+	return OctNode::RemoveEntity(entity);
 }
 
 void Game::OnControlSound(const char * name)
