@@ -6,6 +6,8 @@
 #define new DEBUG_NEW
 #endif
 
+IMPLEMENT_DYNAMIC(CDragableTreeCtrl, CTreeCtrl)
+
 BEGIN_MESSAGE_MAP(CDragableTreeCtrl, CTreeCtrl)
 	ON_NOTIFY_REFLECT(TVN_BEGINDRAG, &CDragableTreeCtrl::OnTvnBegindrag)
 	ON_WM_MOUSEMOVE()

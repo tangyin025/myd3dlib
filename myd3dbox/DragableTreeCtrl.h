@@ -3,6 +3,8 @@
 
 class CDragableTreeCtrl : public CTreeCtrl
 {
+	DECLARE_DYNAMIC(CDragableTreeCtrl)
+
 	DECLARE_MESSAGE_MAP()
 public:
 	static const int TVN_DRAGCHANGED = (TVN_LAST + 1);
