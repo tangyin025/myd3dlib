@@ -69,8 +69,6 @@ public:
 
 	my::EventFunction m_EventLoadScene;
 
-	my::EventFunction m_EventOnTrigger;
-
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;
 
 	ActivateEvent m_ActivateEvent;

@@ -493,7 +493,6 @@ HRESULT Game::OnCreateDevice(
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadScene", &Game::LoadScene)
 			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
-			.def_readwrite("EventOnTrigger", &Game::m_EventOnTrigger)
 
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
 			.def(luabind::constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
@@ -612,8 +611,6 @@ void Game::OnDestroyDevice(void)
 	m_EventLog("Game::OnDestroyDevice");
 
 	m_EventLoadScene.clear(); // ! clear boost function before shutdown lua context
-
-	m_EventOnTrigger.clear();
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
@@ -758,12 +755,37 @@ void Game::OnFrameTick(
 	}
 	mDeletedActors.clear();
 
-	if (m_EventOnTrigger)
+	TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
+	for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
 	{
-		TriggerEventArgList::iterator trigger_iter = mTriggerEventArgs.begin();
-		for (; trigger_iter != mTriggerEventArgs.end(); trigger_iter++)
+		switch (trigger_iter->status)
 		{
-			m_EventOnTrigger(&(*trigger_iter));
+		case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
+		{
+			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
+			_ASSERT(self);
+			if (self->m_EventEnterTrigger)
+			{
+				Actor * other = (Actor *)trigger_iter->otherActor->userData;
+				_ASSERT(other);
+				TriggerEventArg arg(self, other);
+				self->m_EventEnterTrigger(&arg);
+			}
+			break;
+		}
+		case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
+		{
+			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
+			_ASSERT(self);
+			if (self->m_EventLeaveTrigger)
+			{
+				Actor * other = (Actor *)trigger_iter->otherActor->userData;
+				_ASSERT(other);
+				TriggerEventArg arg(self, other);
+				self->m_EventLeaveTrigger(&arg);
+			}
+			break;
+		}
 		}
 	}
 
@@ -952,6 +974,11 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				continue;
 			}
 
+			if (actor->IsViewNotified())
+			{
+				actor->NotifyLeaveView();
+			}
+
 			if (actor->IsEnteredPhysx())
 			{
 				actor->LeavePhysxScene(this);
@@ -996,6 +1023,11 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				{
 					actor->EnterPhysxScene(m_game);
 				}
+
+				if (!actor->IsViewNotified())
+				{
+					actor->NotifyEnterView();
+				}
 			}
 		}
 	};
@@ -1012,6 +1044,11 @@ void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
 bool Game::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
+
+	if (actor->IsViewNotified())
+	{
+		actor->NotifyLeaveView();
+	}
 
 	actor->StopAllAction();
 

@@ -74,11 +74,19 @@ actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,1)
 cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
 cmp5:SetShapeFlag(Component.eTRIGGER_SHAPE,true)
+actor5.EventEnterTrigger=function(arg)
+	print("enter trigger: "..arg.other.Name)
+end
+actor5.EventLeaveTrigger=function(arg)
+	print("leave trigger: "..arg.other.Name)
+end
 
 game.EventLoadScene=function(arg)
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World))
-	SPlayer.player:PlayAction(SAction.act_tuowei)
+	SPlayer.player.EventEnterView=function(arg)
+		arg.self:PlayAction(SAction.act_tuowei)
+	end
 	
 	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor3.Cmps do
@@ -98,27 +106,22 @@ game.EventLoadScene=function(arg)
 	
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
-	actor2:PlayAction(SAction.act_sound)
+	actor2.EventEnterView=function(arg)
+		arg.self:PlayAction(SAction.act_sound)
+	end
 	
 	actor5:UpdateWorld()
 	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World))
 	
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
-	game:GetNamedObject("scene_actor_1"):PlayAction(SAction.act_moving)
+	local actor6 = game:GetNamedObject("scene_actor_1")
+	actor6.EventEnterView=function(arg)
+		arg.self:PlayAction(SAction.act_moving)
+	end
 	
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 	-- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
-end
-
-game.EventOnTrigger=function(arg)
-	if arg.self == actor5 and arg.other == SPlayer.player then
-		if arg.status == TriggerEventArg.eNOTIFY_TOUCH_FOUND then
-			print("player enter")
-		elseif arg.status == TriggerEventArg.eNOTIFY_TOUCH_LOST then
-			print("player leave")
-		end
-	end
 end
 
 -- 加载场景资源

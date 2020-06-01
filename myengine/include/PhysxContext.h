@@ -31,25 +31,6 @@ struct PhysxDeleter
 	}
 };
 
-class Actor;
-
-struct TriggerEventArg : public my::EventArg
-{
-public:
-	physx::PxPairFlag::Enum status;
-
-	Actor * self;
-
-	Actor * other;
-
-	TriggerEventArg(physx::PxPairFlag::Enum _status, Actor * _self, Actor * _other)
-		: status(_status)
-		, self(_self)
-		, other(_other)
-	{
-	}
-};
-
 class PhysxContext
 	: public my::SingleInstance<PhysxContext>
 	, public physx::PxErrorCallback
@@ -134,9 +115,9 @@ public:
 
 	physx::PxU32 mActiveTransformCount;
 
-	typedef std::vector<TriggerEventArg> TriggerEventArgList;
+	typedef std::vector<physx::PxTriggerPair> TriggerPairList;
 	
-	TriggerEventArgList mTriggerEventArgs;
+	TriggerPairList mTriggerPairs;
 
 public:
 	PhysxSceneContext(void)
