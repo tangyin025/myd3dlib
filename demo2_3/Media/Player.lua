@@ -133,3 +133,8 @@ player.EventKeyUp=function(arg)
 		player.MoveAxis.x=player.MoveAxis.x+1
 	end
 end
+
+-- 处理碰撞事件
+player.EventShapeHit=function(arg)
+	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
+end

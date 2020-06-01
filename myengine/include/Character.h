@@ -5,6 +5,43 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
+class Character;
+
+struct CharacterEventArg : public my::EventArg
+{
+public:
+	Character * self;
+
+	CharacterEventArg(Character * _self)
+		: self(_self)
+	{
+	}
+};
+
+struct ShapeHitEventArg : public CharacterEventArg
+{
+public:
+	my::Vector3 worldPos;		//!< Contact position in world space
+	my::Vector3 worldNormal;	//!< Contact normal in world space
+	my::Vector3 dir;			//!< Motion direction
+	float length;				//!< Motion length
+	Component * cmp;			//!< Touched shape
+	Actor * other;				//!< Touched actor
+	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
+
+	ShapeHitEventArg(Character * _self)
+		: CharacterEventArg(_self)
+		, worldPos(0, 0, 0)
+		, worldNormal(1, 0, 0)
+		, dir(1, 0, 0)
+		, length(0)
+		, cmp(NULL)
+		, other(NULL)
+		, triangleIndex(0)
+	{
+	}
+};
+
 class Character
 	: public Actor
 	, public physx::PxUserControllerHitReport
@@ -38,6 +75,8 @@ public:
 	float m_SteeringAngular;
 
 	float m_Resistance;
+
+	my::EventFunction m_EventShapeHit;
 
 protected:
 	Character(void)

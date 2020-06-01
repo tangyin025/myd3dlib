@@ -971,7 +971,7 @@ void LuaContext::Init(void)
 			.def("GetChunk", &Terrain::GetChunk)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
-		.def_readonly("self", &ActorEventArg::self)
+			.def_readonly("self", &ActorEventArg::self)
 
 		, class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
 			.def_readonly("other", &TriggerEventArg::other)
@@ -1034,10 +1034,23 @@ void LuaContext::Init(void)
 
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 
+		, class_<CharacterEventArg, my::EventArg>("CharacterEventArg")
+			.def_readonly("self", &CharacterEventArg::self)
+
+		, class_<ShapeHitEventArg, CharacterEventArg>("ShapeHitEventArg")
+			.def_readonly("worldPos", &ShapeHitEventArg::worldPos)
+			.def_readonly("worldNormal", &ShapeHitEventArg::worldNormal)
+			.def_readonly("dir", &ShapeHitEventArg::dir)
+			.def_readonly("length", &ShapeHitEventArg::length)
+			.def_readonly("cmp", &ShapeHitEventArg::cmp)
+			.def_readonly("other", &ShapeHitEventArg::other)
+			.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
+
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
+			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
 			.def("SetPose", &Character::SetPose)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")

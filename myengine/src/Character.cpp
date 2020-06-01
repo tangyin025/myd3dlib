@@ -255,7 +255,20 @@ void Character::OnPxThreadSubstep(float dtime)
 
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
-
+	if (m_EventShapeHit)
+	{
+		ShapeHitEventArg arg(this);
+		arg.worldPos = (Vector3 &)hit.worldPos;
+		arg.worldNormal = (Vector3 &)hit.worldNormal;
+		arg.dir = (Vector3 &)hit.dir;
+		arg.length = hit.length;
+		arg.cmp = (Component *)hit.shape->userData;
+		_ASSERT(arg.cmp);
+		arg.other = (Actor *)hit.actor->userData;
+		_ASSERT(arg.other);
+		arg.triangleIndex = hit.triangleIndex;
+		m_EventShapeHit(&arg);
+	}
 }
 
 void Character::onControllerHit(const physx::PxControllersHit& hit)
