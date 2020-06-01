@@ -145,6 +145,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 				break;
 			case physx::PxConcreteType::eSHAPE:
 				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>(), PhysxDeleter<physx::PxShape>());
+				m_Cmps[index]->m_PxShape->userData = m_Cmps[index].get();
 				break;
 			case physx::PxConcreteType::eHEIGHTFIELD:
 				_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeTerrain);

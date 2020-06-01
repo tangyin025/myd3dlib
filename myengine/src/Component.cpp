@@ -184,6 +184,8 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0)
@@ -208,6 +210,8 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, unsigned int filterWord0)
@@ -238,6 +242,8 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, unsigned int filterWord0)
@@ -262,6 +268,8 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 void Component::SetSimulationFilterWord0(unsigned int filterWord0)
@@ -580,6 +588,8 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filterWord0)
@@ -654,6 +664,8 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 ClothComponent::ClothComponent(void)

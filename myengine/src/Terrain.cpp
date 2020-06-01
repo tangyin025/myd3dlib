@@ -724,6 +724,8 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	SetSimulationFilterWord0(filterWord0);
 
 	SetQueryFilterWord0(filterWord0);
+
+	m_PxShape->userData = this;
 }
 
 void Terrain::ClearShape(void)
