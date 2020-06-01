@@ -854,8 +854,7 @@ void AnimationRoot::UpdateIK(IKContext & ik)
 
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(ik.hitRadius);
-	physx::PxQueryFilterData filterData = physx::PxQueryFilterData();
-	filterData.data.word0 = ik.filterWord0;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(ik.filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
 	bool status = scene->m_PxScene->sweep(sphere,
 		physx::PxTransform((physx::PxVec3&)(pos[0].transform(m_Actor->m_Rotation) + m_Actor->m_Position)),
 		(physx::PxVec3&)normal[2].transform(m_Actor->m_Rotation), length[2], hit, physx::PxHitFlag::eDEFAULT, filterData);

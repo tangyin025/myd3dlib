@@ -71,7 +71,7 @@ actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Ident
 local cmp5=StaticEmitterComponent(1)
 actor5:AddComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
-cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,1)
+cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,2)
 cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
 cmp5:SetShapeFlag(Component.eTRIGGER_SHAPE,true)
 actor5.EventEnterTrigger=function(arg)
