@@ -21,6 +21,18 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Character)
 
+ShapeHitEventArg::ShapeHitEventArg(Character * _self)
+	: ActorEventArg(_self)
+	, worldPos(0, 0, 0)
+	, worldNormal(1, 0, 0)
+	, dir(1, 0, 0)
+	, length(0)
+	, cmp(NULL)
+	, other(NULL)
+	, triangleIndex(0)
+{
+}
+
 Character::~Character(void)
 {
 	if (IsEnteredPhysx())

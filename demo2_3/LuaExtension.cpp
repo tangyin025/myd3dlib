@@ -1034,10 +1034,7 @@ void LuaContext::Init(void)
 
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 
-		, class_<CharacterEventArg, my::EventArg>("CharacterEventArg")
-			.def_readonly("self", &CharacterEventArg::self)
-
-		, class_<ShapeHitEventArg, CharacterEventArg>("ShapeHitEventArg")
+		, class_<ShapeHitEventArg, ActorEventArg>("ShapeHitEventArg")
 			.def_readonly("worldPos", &ShapeHitEventArg::worldPos)
 			.def_readonly("worldNormal", &ShapeHitEventArg::worldNormal)
 			.def_readonly("dir", &ShapeHitEventArg::dir)

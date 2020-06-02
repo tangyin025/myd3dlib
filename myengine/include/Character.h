@@ -7,18 +7,7 @@
 
 class Character;
 
-struct CharacterEventArg : public my::EventArg
-{
-public:
-	Character * self;
-
-	CharacterEventArg(Character * _self)
-		: self(_self)
-	{
-	}
-};
-
-struct ShapeHitEventArg : public CharacterEventArg
+struct ShapeHitEventArg : public ActorEventArg
 {
 public:
 	my::Vector3 worldPos;		//!< Contact position in world space
@@ -29,17 +18,7 @@ public:
 	Actor * other;				//!< Touched actor
 	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
 
-	ShapeHitEventArg(Character * _self)
-		: CharacterEventArg(_self)
-		, worldPos(0, 0, 0)
-		, worldNormal(1, 0, 0)
-		, dir(1, 0, 0)
-		, length(0)
-		, cmp(NULL)
-		, other(NULL)
-		, triangleIndex(0)
-	{
-	}
+	ShapeHitEventArg(Character * _self);
 };
 
 class Character
