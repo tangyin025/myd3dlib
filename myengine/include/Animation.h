@@ -319,6 +319,19 @@ typedef boost::shared_ptr<AnimationNodeRateBySpeed> AnimationNodeRateBySpeedPtr;
 
 class Actor;
 
+class AnimationRoot;
+
+struct AnimationEventArg : public my::EventArg
+{
+public:
+	AnimationRoot * self;
+
+	AnimationEventArg(AnimationRoot * _self)
+		: self(_self)
+	{
+	}
+};
+
 class AnimationRoot : public AnimationNodeSlot, public my::IResourceCallback
 {
 public:

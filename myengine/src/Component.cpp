@@ -402,7 +402,7 @@ void MeshComponent::OnReady(my::IORequest * request)
 
 	if (m_MeshEventReady)
 	{
-		my::EventArg arg;
+		ComponentEventArg arg(this);
 		m_MeshEventReady(&arg);
 	}
 }

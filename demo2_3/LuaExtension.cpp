@@ -867,6 +867,9 @@ void LuaContext::Init(void)
 			]
 			.def("SaveToFile", &Material::SaveToFile)
 
+		, class_<ComponentEventArg, my::EventArg>("ComponentEventArg")
+			.def_readonly("self", &ComponentEventArg::self)
+
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.enum_("ComponentType")
 			[
@@ -1080,6 +1083,9 @@ void LuaContext::Init(void)
 		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
 			.def(constructor<>())
 			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_Speed0)
+
+		, class_<AnimationEventArg, my::EventArg>("AnimationEventArg")
+			.def_readonly("self", &AnimationEventArg::self)
 
 		, class_<AnimationRoot, AnimationNodeSlot, boost::shared_ptr<AnimationRoot> >("AnimationRoot")
 			.def(constructor<Actor *>())

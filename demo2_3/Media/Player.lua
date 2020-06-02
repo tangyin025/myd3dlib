@@ -68,9 +68,9 @@ anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 anim.SkeletonEventReady=function(arg)
-	-- anim:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	anim:AddIK("Bip01_L_Thigh", 0.1, player.filterWord0)
-	anim:AddIK("Bip01_R_Thigh", 0.1, player.filterWord0)
+	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
+	arg.self:AddIK("Bip01_L_Thigh", 0.1, player.filterWord0)
+	arg.self:AddIK("Bip01_R_Thigh", 0.1, player.filterWord0)
 end
 player.Animation=anim
 

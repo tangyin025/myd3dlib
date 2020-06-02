@@ -552,7 +552,7 @@ void AnimationRoot::OnReady(my::IORequest * request)
 
 	if (m_SkeletonEventReady)
 	{
-		my::EventArg arg;
+		AnimationEventArg arg(this);
 		m_SkeletonEventReady(&arg);
 	}
 
