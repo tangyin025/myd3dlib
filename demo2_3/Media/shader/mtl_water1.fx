@@ -13,7 +13,7 @@ float3 g_WaveDir[3] = { {1.0, 0, 1.0}, {1.0, 0, -1.0}, {1.0, 0, 1.0} };
 float g_FresExp:MaterialParameter = 3.0;
 float g_ReflStrength:MaterialParameter = 3.4;
 float3 g_WaterColor:MaterialParameter = { 0.00784, 0.03921, 0.12156 };
-texture g_NormalTexture:MaterialParameter<string Initialize="texture/WaterNormal2.png";>;
+texture g_NormalTexture:MaterialParameter<string Initialize="texture/water_bump.dds";>;
 texture g_ReflectTexture:MaterialParameter<string Initialize="texture/galileo_cross.dds";>;
 
 sampler NormalTextureSampler = sampler_state
@@ -82,29 +82,44 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 		// NormalWS.z -= g_WaveDir[i].z * WA * C;
 	// }
 
-	Out.pos = mul(PosWS, g_ViewProj);
-	Out.texCoord0 = Tex0 + g_Time * 0.02;
+	Out.texCoord0 = Tex0;// + g_Time * 0.02;
 	Out.texCoord1 = Tex0 * 2.0 + g_Time * -0.02;
 	Out.texCoord2 = Tex0 / 2.0 + g_Time * 0.01;
 	Out.BinormalWS = BinormalWS;
 	Out.TangentWS = TangentWS;
 	Out.NormalWS = NormalWS;
 	Out.ViewWS = normalize(g_Eye - PosWS.xyz); // ! dont normalize here
+	
+	float4 n0 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord0, 0, 0));
+	n0.xyz = n0.xyz * 2 - 1;
+	float3x3 m = float3x3(TangentWS,-BinormalWS,NormalWS);
+	float3 n = mul(n0.xyz,m);
+	PosWS.y+= n0.w*3;
+	PosWS.xz-=n0.xz*0.5;
+	Out.pos = mul(PosWS, g_ViewProj);
+	
 	return Out;
 }
 
 float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 {
-	float3x3 mT2W = float3x3(In.TangentWS, In.BinormalWS, In.NormalWS);
-	float3 texNormal0 = tex2D(NormalTextureSampler, In.texCoord0).xyz;
-	float3 texNormal1 = tex2D(NormalTextureSampler, In.texCoord1).xyz;
-	float3 texNormal2 = tex2D(NormalTextureSampler, In.texCoord2).xyz;
-	float3 NormalTS = normalize(2.0 * (texNormal0 + texNormal1 + texNormal2) - 3.0);
-	float3 NormalWS = mul(NormalTS, mT2W);
-	float3 ReflectionWS = Reflection(NormalWS, In.ViewWS);
-	float4 reflection = texCUBE(ReflectTextureSampler, ReflectionWS);
-	float fres = Fresnel(NormalWS, In.ViewWS, g_FresExp, g_ReflStrength);
-	return float4(reflection.xyz * fres + g_WaterColor * (1 - fres), 1);
+	// float3x3 mT2W = float3x3(In.TangentWS, In.BinormalWS, In.NormalWS);
+	// float3 texNormal0 = tex2D(NormalTextureSampler, In.texCoord0).xyz;
+	// float3 texNormal1 = tex2D(NormalTextureSampler, In.texCoord1).xyz;
+	// float3 texNormal2 = tex2D(NormalTextureSampler, In.texCoord2).xyz;
+	// float3 NormalTS = normalize(2.0 * (texNormal0 + texNormal1 + texNormal2) - 3.0);
+	// float3 NormalWS = mul(NormalTS, mT2W);
+	// float3 ReflectionWS = Reflection(NormalWS, In.ViewWS);
+	// float4 reflection = texCUBE(ReflectTextureSampler, ReflectionWS);
+	// float fres = Fresnel(NormalWS, In.ViewWS, g_FresExp, g_ReflStrength);
+	// return float4(reflection.xyz * fres + g_WaterColor * (1 - fres), 1);
+	
+	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
+	float3x3 m = float3x3(In.TangentWS, -In.BinormalWS, In.NormalWS);
+	float3 n0 = tex2D(NormalTextureSampler, In.texCoord0).xyz * 2 - 1;
+	float3 Normal = mul(n0, m);
+	float c = dot(Normal, SkyLightDir);
+	return float4(c,c,c, 1);
 }
 
 technique RenderScene
@@ -120,8 +135,6 @@ technique RenderScene
     }
     pass PassTypeOpaque
     {          
-		VertexShader = compile vs_3_0 TransparentVS();
-		PixelShader  = compile ps_3_0 TransparentPS();
     }
     pass PassTypeTransparent
     {          

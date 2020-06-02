@@ -593,53 +593,22 @@ void CMainFrame::OnFileNew()
 	CEnvironmentWnd::CameraPropEventArgs arg(pView);
 	m_EventCameraPropChanged(&arg);
 
-	//// TODO:
-	//MaterialPtr mtl(new Material());
-	//mtl->m_Shader = theApp.default_shader;
-	//mtl->ParseShaderParameters();
-
-	//ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-100,0,-100,100,200,100)));
-	//MeshComponentPtr mesh_cmp(new MeshComponent());
-	//mesh_cmp->m_MeshPath = "character/aaa.xml";
-	//mesh_cmp->m_MeshSubMeshName = "N0100101_SJ001";
-	//mesh_cmp->m_bUseAnimation = true;
-	//mesh_cmp->m_MaterialList.push_back(mtl);
-	//actor->AddComponent(mesh_cmp);
-
-	//AnimationRootPtr anim(new AnimationRoot(actor.get()));
-	//anim->m_SkeletonPath = "character/aaa.skeleton";
-	//AnimationNodeSequencePtr seq(new AnimationNodeSequence(anim.get()));
-	//seq->m_Root = "Bip01";
-	//seq->m_Name = "Animation";
-	//anim->m_Node = seq;
-	//actor->m_Animation = anim;
-
-	//struct helper
-	//{
-	//	AnimationRootPtr anim;
-	//	void cb(my::ControlEventArg * arg) {
-	//		ASSERT(anim->m_Skeleton);
-	//		anim->m_Skeleton->AddOgreSkeletonAnimationFromFile("character/bbb.skeleton");
-	//		//anim->m_Skeleton->SaveOgreSkeletonAnimation("D:\\Works\\myd3dlib\\demo2_3\\Media\\character\\ccc.skeleton");
-	//	}
-	//};
-	//static helper h; h.anim = anim;
-	//anim->m_SkeletonEventReady = boost::bind(&helper::cb, &h, _1);
-
-	//actor->RequestResource();
-	//actor->EnterPhysxScene(this);
-	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
-	//m_ActorList.insert(actor);
-
+	// TODO:
 	MaterialPtr mtl(new Material());
-	mtl->m_Shader = "shader/mtl_lambert1.fx";
+	mtl->m_Shader = "shader/mtl_water1.fx";
 	mtl->ParseShaderParameters();
-	MeshComponentPtr mesh_cmp(new MeshComponent());
-	mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
-	mesh_cmp->m_MeshSubMeshName = "Teapot001";
-	mesh_cmp->AddMaterial(mtl);
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(0, 0, 0), my::Quaternion::Identity(), my::Vector3(5, 5, 5), my::AABB(-1, 1)));
-	actor->AddComponent(mesh_cmp);
+
+	//MeshComponentPtr mesh_cmp(new MeshComponent());
+	//mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
+	//mesh_cmp->m_MeshSubMeshName = "Teapot001";
+	//mesh_cmp->AddMaterial(mtl);
+
+	TerrainPtr terrain(new Terrain(1, 1, 64, 1.0f));
+	terrain->AddMaterial(mtl);
+
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	actor->AddComponent(terrain);
+	actor->UpdateAABB();
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
 	m_ActorList.insert(actor);

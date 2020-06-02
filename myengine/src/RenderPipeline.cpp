@@ -510,7 +510,7 @@ void RenderPipeline::OnRender(
 
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
+	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam.m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
@@ -645,6 +645,9 @@ void RenderPipeline::OnRender(
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, bgcolor, 1.0f, 0)); // ! d3dmultisample will not work
 	}
+
+	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID: D3DFILL_WIREFRAME));
+
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
 	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
