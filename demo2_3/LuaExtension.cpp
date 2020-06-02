@@ -1048,6 +1048,8 @@ void LuaContext::Init(void)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
+			.def_readwrite("filterWord0", &Character::m_filterWord0)
+			.def_readonly("MoveFlags", &Character::m_MoveFlags)
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
 			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
