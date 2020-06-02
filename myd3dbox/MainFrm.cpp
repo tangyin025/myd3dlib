@@ -603,7 +603,7 @@ void CMainFrame::OnFileNew()
 	//mesh_cmp->m_MeshSubMeshName = "Teapot001";
 	//mesh_cmp->AddMaterial(mtl);
 
-	TerrainPtr terrain(new Terrain(1, 1, 64, 1.0f));
+	TerrainPtr terrain(new Terrain(2, 2, 32, 1.0f));
 	terrain->AddMaterial(mtl);
 
 	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));

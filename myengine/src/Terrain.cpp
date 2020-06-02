@@ -160,7 +160,7 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, 
 				terrain->m_VertexElems.SetPosition(pVertex, Pos);
 				terrain->m_VertexElems.SetNormal(pVertex, Normal);
 				terrain->m_VertexElems.SetTangent(pVertex, Normal.cross(Vector3(0, 0, 1)));
-				terrain->m_VertexElems.SetTexcoord(pVertex, Vector2((float)j / terrain->m_ChunkSize, (float)i / terrain->m_ChunkSize));
+				terrain->m_VertexElems.SetTexcoord(pVertex, Vector2((float)pos_j / terrain->m_ChunkSize, (float)pos_i / terrain->m_ChunkSize));
 			}
 		}
 		m_vb.Unlock();

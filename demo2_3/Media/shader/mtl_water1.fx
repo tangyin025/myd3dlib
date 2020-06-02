@@ -155,7 +155,6 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 		// fading scattered light out at distance and if viewing direction is vertical to avoid unnatural look
 		max(0,1-pixel_to_eye_vector.y)*(300.0/(300+pixel_to_eye_length));
 
-	// return float4(color+specular+float3(0.3,0.7,0.6)*scatter_factor, 1);
 	return float4(color+specular+float3(0.3,0.7,0.6)*scatter_factor,1);
 }
 
