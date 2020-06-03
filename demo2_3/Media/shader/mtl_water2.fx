@@ -5,7 +5,7 @@ texture g_NormalTexture:MaterialParameter<string Initialize="texture/water_bump.
 float3 g_refraction_color:MaterialParameter = {0.00784,0.03921,0.12156};
 float3 g_reflection_color:MaterialParameter = {0.8,0.88,0.89};
 float3 g_WaterScatterColor:MaterialParameter = {0.3,0.7,0.6};
-float g_SpecularExp:MaterialParameter = 1000;
+float g_SpecularExp:MaterialParameter = 100;
 
 sampler NormalTextureSampler = sampler_state
 {
@@ -76,7 +76,7 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 
 	float3 color=lerp(g_refraction_color,g_reflection_color,fresnel_factor);
 	float3 Ref = Reflection(Normal, pixel_to_eye_vector);
-	float specular = pow(saturate(dot(Ref, SkyLightDir)), g_SpecularExp) * g_SkyLightColor.w * fresnel_factor;
+	float specular = pow(saturate(dot(Ref, SkyLightDir)), g_SpecularExp) * g_SkyLightColor.w;
 
 	// only the crests of water waves generate double refracted light
 	float scatter_factor=2.5*max(0,In.PosWS.y*0.25+0.25);
