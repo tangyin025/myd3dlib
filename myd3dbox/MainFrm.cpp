@@ -595,7 +595,7 @@ void CMainFrame::OnFileNew()
 
 	// TODO:
 	MaterialPtr mtl(new Material());
-	mtl->m_Shader = "shader/mtl_water1.fx";
+	mtl->m_Shader = "shader/mtl_water2.fx";
 	mtl->ParseShaderParameters();
 
 	//MeshComponentPtr mesh_cmp(new MeshComponent());
