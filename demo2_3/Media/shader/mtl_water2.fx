@@ -5,7 +5,7 @@ texture g_NormalTexture:MaterialParameter<string Initialize="texture/water_bump.
 float3 g_refraction_color:MaterialParameter = {0.00784,0.03921,0.12156};
 float3 g_reflection_color:MaterialParameter = {0.8,0.88,0.89};
 float3 g_WaterScatterColor:MaterialParameter = {0.3,0.7,0.6};
-float g_SpecularExp:MaterialParameter = 25;
+float g_SpecularExp:MaterialParameter = 1000;
 
 sampler NormalTextureSampler = sampler_state
 {
@@ -35,9 +35,9 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	TRANSPARENT_VS_OUTPUT Out;
 	Out.PosWS = TransformPosWS(In);
 	float2 Tex0 = TransformUV(In);
-	Out.texCoord0 = Tex0 + g_Time * 0.02;
-	Out.texCoord1 = Tex0 * 2.0 + g_Time * -0.02;
-	Out.texCoord2 = Tex0 / 2.0 + g_Time * 0.01;
+	Out.texCoord0 = Tex0 /2.0 + g_Time * 0.02;
+	Out.texCoord1 = Tex0 /2.0 + g_Time * -0.02;
+	Out.texCoord2 = Tex0 /4.0 + g_Time * 0.01;
 	Out.Normal = TransformNormal(In);
 	Out.Tangent = TransformTangent(In);
 	Out.Binormal = cross(Out.Normal, Out.Tangent);
@@ -76,18 +76,20 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 
 	float3 color=lerp(g_refraction_color,g_reflection_color,fresnel_factor);
 	float3 Ref = Reflection(Normal, pixel_to_eye_vector);
-	float specular = pow(saturate(dot(Ref, SkyLightDir)), g_SpecularExp) * g_SkyLightColor.w;
+	float specular = pow(saturate(dot(Ref, SkyLightDir)), g_SpecularExp) * g_SkyLightColor.w * fresnel_factor;
 
-	// float scatter_factor=2.5*max(0,In.PosWS.y*0.25+0.25);
+	// only the crests of water waves generate double refracted light
+	float scatter_factor=2.5*max(0,In.PosWS.y*0.25+0.25);
 
-	// // the waves that lie between camera and light projection on water plane generate maximal amount of double refracted light 
-	// scatter_factor*=pow(max(0.0,dot(normalize(float3(-SkyLightDir.x,0.0,-SkyLightDir.z)),-pixel_to_eye_vector)),2.0);
+	// the waves that lie between camera and light projection on water plane generate maximal amount of double refracted light 
+	scatter_factor*=pow(max(0.0,dot(normalize(float3(SkyLightDir.x,0.0,SkyLightDir.z)),-pixel_to_eye_vector)),2.0);
 	
-	// // the slopes of waves that are oriented back to light generate maximal amount of double refracted light 
-	// scatter_factor*=pow(max(0.0,1.0-dot(-SkyLightDir,Normal)),8.0);
+	// the slopes of waves that are oriented back to light generate maximal amount of double refracted light 
+	// scatter_factor*=pow(max(0.0,1-dot(SkyLightDir,Normal)),8.0);
+	scatter_factor*=pow(1-dot(SkyLightDir,Normal),8);
 	
 	// water crests gather more light than lobes, so more light is scattered under the crests
-	float scatter_factor=1.5*0.2*max(0,In.PosWS.y+1)*
+	scatter_factor+=1.5*0.2*max(0,In.PosWS.y+1)*
 		// the scattered light is best seen if observing direction is normal to slope surface
 		max(0,dot(pixel_to_eye_vector,Normal))*
 		// fading scattered light out at distance and if viewing direction is vertical to avoid unnatural look
