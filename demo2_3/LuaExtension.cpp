@@ -1139,6 +1139,59 @@ void LuaContext::Init(void)
 			.def_readwrite("InterpolateZ", &ActionTrackPose::m_InterpolateZ)
 			.def_readwrite("ParamStartPos", &ActionTrackPose::m_ParamStartPos)
 			.def_readwrite("ParamEndPos", &ActionTrackPose::m_ParamEndPos)
+
+		, class_<PhysxSceneContext>("PhysxSceneContext")
+			.enum_("PxVisualizationParameter")
+			[
+				value("eSCALE", physx::PxVisualizationParameter::eSCALE),
+				value("eWORLD_AXES", physx::PxVisualizationParameter::eWORLD_AXES),
+				value("eBODY_AXES", physx::PxVisualizationParameter::eBODY_AXES),
+				value("eBODY_MASS_AXES", physx::PxVisualizationParameter::eBODY_MASS_AXES),
+				value("eBODY_LIN_VELOCITY", physx::PxVisualizationParameter::eBODY_LIN_VELOCITY),
+				value("eBODY_ANG_VELOCITY", physx::PxVisualizationParameter::eBODY_ANG_VELOCITY),
+				value("eBODY_JOINT_GROUPS", physx::PxVisualizationParameter::eBODY_JOINT_GROUPS),
+				value("eCONTACT_POINT", physx::PxVisualizationParameter::eCONTACT_POINT),
+				value("eCONTACT_NORMAL", physx::PxVisualizationParameter::eCONTACT_NORMAL),
+				value("eCONTACT_ERROR", physx::PxVisualizationParameter::eCONTACT_ERROR),
+				value("eACTOR_AXES", physx::PxVisualizationParameter::eACTOR_AXES),
+				value("eCOLLISION_AABBS", physx::PxVisualizationParameter::eCOLLISION_AABBS),
+				value("eCOLLISION_SHAPES", physx::PxVisualizationParameter::eCOLLISION_SHAPES),
+				value("eCOLLISION_AXES", physx::PxVisualizationParameter::eCOLLISION_AXES),
+				value("eCOLLISION_COMPOUNDS", physx::PxVisualizationParameter::eCOLLISION_COMPOUNDS),
+				value("eCOLLISION_FNORMALS", physx::PxVisualizationParameter::eCOLLISION_FNORMALS),
+				value("eCOLLISION_EDGES", physx::PxVisualizationParameter::eCOLLISION_EDGES),
+				value("eCOLLISION_STATIC", physx::PxVisualizationParameter::eCOLLISION_STATIC),
+				value("eCOLLISION_DYNAMIC", physx::PxVisualizationParameter::eCOLLISION_DYNAMIC),
+				value("eCOLLISION_PAIRS", physx::PxVisualizationParameter::eCOLLISION_PAIRS),
+				value("eJOINT_LOCAL_FRAMES", physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES),
+				value("eJOINT_LIMITS", physx::PxVisualizationParameter::eJOINT_LIMITS),
+				value("ePARTICLE_SYSTEM_POSITION", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_POSITION),
+				value("ePARTICLE_SYSTEM_VELOCITY", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_VELOCITY),
+				value("ePARTICLE_SYSTEM_COLLISION_NORMAL", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_COLLISION_NORMAL),
+				value("ePARTICLE_SYSTEM_BOUNDS", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_BOUNDS),
+				value("ePARTICLE_SYSTEM_GRID", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_GRID),
+				value("ePARTICLE_SYSTEM_BROADPHASE_BOUNDS", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_BROADPHASE_BOUNDS),
+				value("ePARTICLE_SYSTEM_MAX_MOTION_DISTANCE", physx::PxVisualizationParameter::ePARTICLE_SYSTEM_MAX_MOTION_DISTANCE),
+				value("eCULL_BOX", physx::PxVisualizationParameter::eCULL_BOX),
+				value("eCLOTH_VERTICAL", physx::PxVisualizationParameter::eCLOTH_VERTICAL),
+				value("eCLOTH_HORIZONTAL", physx::PxVisualizationParameter::eCLOTH_HORIZONTAL),
+				value("eCLOTH_BENDING", physx::PxVisualizationParameter::eCLOTH_BENDING),
+				value("eCLOTH_SHEARING", physx::PxVisualizationParameter::eCLOTH_SHEARING),
+				value("eCLOTH_VIRTUAL_PARTICLES", physx::PxVisualizationParameter::eCLOTH_VIRTUAL_PARTICLES),
+				value("eMBP_REGIONS", physx::PxVisualizationParameter::eMBP_REGIONS),
+				value("eNUM_VALUES", physx::PxVisualizationParameter::eNUM_VALUES)
+			]
+			.def("GetVisualizationParameter", &PhysxSceneContext::GetVisualizationParameter)
+			.def("SetVisualizationParameter", &PhysxSceneContext::SetVisualizationParameter)
+			.enum_("PxControllerDebugRenderFlag")
+			[
+				value("eTEMPORAL_BV", physx::PxControllerDebugRenderFlag::eTEMPORAL_BV),
+				value("eCACHED_BV", physx::PxControllerDebugRenderFlag::eCACHED_BV),
+				value("eOBSTACLES", physx::PxControllerDebugRenderFlag::eOBSTACLES),
+				value("eNONE", physx::PxControllerDebugRenderFlag::eNONE),
+				value("eALL", physx::PxControllerDebugRenderFlag::eALL)
+			]
+			.def("SetControllerDebugRenderingFlags", &PhysxSceneContext::SetControllerDebugRenderingFlags)
 	];
 }
 

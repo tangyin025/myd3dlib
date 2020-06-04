@@ -463,9 +463,7 @@ HRESULT Game::OnCreateDevice(
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-		luabind::class_<PhysxSceneContext> ("PhysxSceneContext")
-
-		, luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxSceneContext> >("Game")
+		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxSceneContext> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)
@@ -479,7 +477,6 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("FogEnable", &Game::m_FogEnable)
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
-			.property("VisualizationParameter", &Game::GetVisualizationParameter, &Game::SetVisualizationParameter)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)

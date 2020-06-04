@@ -133,9 +133,11 @@ public:
 
 	bool Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher);
 
-	float GetVisualizationParameter(void) const;
+	float GetVisualizationParameter(physx::PxVisualizationParameter::Enum paramEnum) const;
 
-	void SetVisualizationParameter(float param);
+	void SetVisualizationParameter(physx::PxVisualizationParameter::Enum param, float value);
+
+	void SetControllerDebugRenderingFlags(physx::PxU32 flags);
 
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;

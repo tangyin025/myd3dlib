@@ -19,6 +19,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include "CctCharacterControllerManager.h"
 
 const my::Vector3 PhysxContext::Gravity(0.0f, -9.81f, 0.0f);
 
@@ -143,20 +144,24 @@ bool PhysxSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
 	}
 
+	m_ControllerMgr->setTessellation(false, FLT_MAX);
+
 	return true;
 }
 
-float PhysxSceneContext::GetVisualizationParameter(void) const
+float PhysxSceneContext::GetVisualizationParameter(physx::PxVisualizationParameter::Enum paramEnum) const
 {
-	return m_PxScene->getVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES);
+	return m_PxScene->getVisualizationParameter(paramEnum);
 }
 
-void PhysxSceneContext::SetVisualizationParameter(float param)
+void PhysxSceneContext::SetVisualizationParameter(physx::PxVisualizationParameter::Enum param, float value)
 {
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, param);
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, param);
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, param);
-	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, param);
+	m_PxScene->setVisualizationParameter(param, value);
+}
+
+void PhysxSceneContext::SetControllerDebugRenderingFlags(physx::PxU32 flags)
+{
+	m_ControllerMgr->setDebugRenderingFlags(physx::PxControllerDebugRenderFlags(flags));
 }
 
 template<class Archive>
@@ -381,20 +386,22 @@ void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//	}
 	//}
 
-	//m_ControllerMgr->setDebugRenderingFlags(physx::PxControllerDebugRenderFlag::eALL);
-	//physx::PxRenderBuffer& renderBuffer = m_ControllerMgr->getRenderBuffer();
+	if (((physx::Cct::CharacterControllerManager *)m_ControllerMgr.get())->mDebugRenderingFlags)
+	{
+		physx::PxRenderBuffer& controllerDebugRenderable = m_ControllerMgr->getRenderBuffer();
 
-	//numLines = renderBuffer.getNbLines();
-	//if (numLines)
-	//{
-	//	const physx::PxDebugLine* PX_RESTRICT lines = renderBuffer.getLines();
-	//	for (physx::PxU32 i = 0; i < numLines; i++)
-	//	{
-	//		const physx::PxDebugLine& line = lines[i];
-	//		drawHelper->PushLine((my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
-	//	}
-	//}
-	//renderBuffer.clear();
+		numLines = controllerDebugRenderable.getNbLines();
+		if (numLines)
+		{
+			const physx::PxDebugLine* PX_RESTRICT lines = controllerDebugRenderable.getLines();
+			for (physx::PxU32 i = 0; i < numLines; i++)
+			{
+				const physx::PxDebugLine& line = lines[i];
+				drawHelper->PushLine((my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
+			}
+		}
+		controllerDebugRenderable.clear();
+	}
 }
 
 void PhysxSceneContext::Flush(void)

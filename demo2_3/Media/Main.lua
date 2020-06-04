@@ -129,4 +129,8 @@ game:LoadScene("scene01.xml")
 
 -- 特殊渲染选项
 -- game.SsaoEnable=true
-game.VisualizationParameter=1
+-- game:SetVisualizationParameter(PhysxSceneContext.eSCALE,1)
+-- game:SetVisualizationParameter(PhysxSceneContext.eCOLLISION_SHAPES,1)
+-- game:SetVisualizationParameter(PhysxSceneContext.eCOLLISION_FNORMALS,1)
+-- game:SetVisualizationParameter(PhysxSceneContext.eCOLLISION_AABBS,1)
+-- game:SetControllerDebugRenderingFlags(PhysxSceneContext.eALL)

@@ -92,7 +92,10 @@
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\FModContext.cpp" />
     <ClCompile Include="src\Material.cpp" />
-    <ClCompile Include="src\PhysxContext.cpp" />
+    <ClCompile Include="src\PhysxContext.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PHYSX_DIR)Source\PhysXCharacterKinematic\src;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Source\foundation\include;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\characterkinematic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(PHYSX_DIR)Source\PhysXCharacterKinematic\src;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Source\foundation\include;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\characterkinematic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>
