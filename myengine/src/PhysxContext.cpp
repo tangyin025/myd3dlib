@@ -144,7 +144,8 @@ bool PhysxSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
 	}
 
-	m_ControllerMgr->setTessellation(false, FLT_MAX);
+	// ! only enable it if experiencing collision problems
+	m_ControllerMgr->setTessellation(false, 1.0f);
 
 	return true;
 }
