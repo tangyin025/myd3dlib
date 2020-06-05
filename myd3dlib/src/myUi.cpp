@@ -2917,18 +2917,36 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 bool Dialog::CanHaveFocus(void)
 {
-	return m_bVisible && m_bEnabled;
+	return m_bVisible && m_bEnabled && m_Skin;
 }
 
 void Dialog::SetVisible(bool bVisible)
 {
-	Control::SetVisible(bVisible);
-
-	if (m_bVisible)
+	if (m_bVisible != bVisible)
 	{
-		if (!s_FocusControl || !ContainsControl(s_FocusControl))
+		Control::SetVisible(bVisible);
+
+		if (m_bVisible)
 		{
-			SetFocusRecursive();
+			if (!s_FocusControl || !ContainsControl(s_FocusControl))
+			{
+				SetFocusRecursive();
+			}
+		}
+		else
+		{
+			if (m_Parent && !s_FocusControl)
+			{
+				DialogMgr::DialogList::reverse_iterator dlg_iter = m_Parent->m_DlgList.rbegin();
+				for (; dlg_iter != m_Parent->m_DlgList.rend(); dlg_iter++)
+				{
+					if ((*dlg_iter)->CanHaveFocus())
+					{
+						(*dlg_iter)->SetFocusRecursive();
+						break;
+					}
+				}
+			}
 		}
 	}
 }
