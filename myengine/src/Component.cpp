@@ -38,11 +38,14 @@ BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 
 Component::~Component(void)
 {
-	_ASSERT(!m_Actor);
-
 	_ASSERT(!IsRequested());
 
 	_ASSERT(!IsEnteredPhysx());
+
+	if (m_Actor)
+	{
+		_ASSERT(false); //m_Actor->RemoveComponent(shared_from_this());
+	}
 }
 
 template<class Archive>
