@@ -413,7 +413,7 @@ Control::~Control(void)
 template<class Archive>
 void Control::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(m_Name);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_Childs);
 	ar << BOOST_SERIALIZATION_NVP(m_bEnabled);
 	ar << BOOST_SERIALIZATION_NVP(m_bVisible);
@@ -426,7 +426,7 @@ void Control::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Control::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(m_Name);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
 	ar >> BOOST_SERIALIZATION_NVP(m_bEnabled);
 	ar >> BOOST_SERIALIZATION_NVP(m_bVisible);
@@ -732,25 +732,6 @@ bool Control::ContainsControl(Control * control)
 		}
 	}
 	return false;
-}
-
-Control * Control::FindControl(const std::string & name)
-{
-	if (m_Name == name)
-	{
-		return this;
-	}
-
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
-	{
-		Control * ret = (*ctrl_iter)->FindControl(name);
-		if (ret)
-		{
-			return ret;
-		}
-	}
-	return NULL;
 }
 
 Control * Control::GetChildAtPoint(const Vector2 & pt)

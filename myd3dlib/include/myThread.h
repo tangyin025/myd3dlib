@@ -119,6 +119,8 @@ namespace my
 
 		void CreateThread(DWORD dwCreationFlags = CREATE_SUSPENDED);
 
+		DWORD GetThreadId(void) const;
+
 		void ResumeThread(void);
 
 		void SuspendThread(void);

@@ -275,7 +275,7 @@ public:
 		mtl.m_Shader = "shader/mtl_lambert1.fx";
 		mtl.ParseShaderParameters();
 
-		m_Dlg.reset(new Dialog());
+		m_Dlg.reset(new Dialog(NamedObject::MakeUniqueName("dialog").c_str()));
 		m_Dlg->m_Size = Vector2(desc.Width, desc.Height);
 		m_Dlg->m_Skin.reset(new ControlSkin());
 		m_Dlg->m_Skin->m_Image.reset(new ControlImage());

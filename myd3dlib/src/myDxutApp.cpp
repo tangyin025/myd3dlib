@@ -138,6 +138,8 @@ void Clock::UpdateClock(void)
 
 const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 {
+	_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
+
 	CriticalSectionLock lock(m_NamedObjsSec);
 
 	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
@@ -155,6 +157,8 @@ const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Ob
 
 void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 {
+	_ASSERT(GetCurrentThreadId() == m_d3dThreadId);
+
 	CriticalSectionLock lock(m_NamedObjsSec);
 
 	NamedObjectMap::iterator obj_iter = m_NamedObjs.find(Name);
@@ -167,6 +171,8 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 
 NamedObject * D3DContext::GetNamedObject(const char * Name)
 {
+	_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
+
 	CriticalSectionLock lock(m_NamedObjsSec);
 
 	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);

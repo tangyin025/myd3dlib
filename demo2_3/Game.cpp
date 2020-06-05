@@ -651,6 +651,8 @@ void Game::OnDestroyDevice(void)
 
 	InputMgr::Destroy();
 
+	::ClipCursor(NULL);
+
 	DxutApp::OnDestroyDevice();
 }
 
@@ -1122,7 +1124,11 @@ void Game::LoadScene(const char * path)
 
 	RenderPipeline::RequestResource();
 
-	Thread::CreateThread(0);
+	Thread::CreateThread(CREATE_SUSPENDED);
+
+	D3DContext::m_serializeThreadId = Thread::GetThreadId();
+
+	Thread::ResumeThread();
 }
 
 DWORD Game::LoadSceneProc(void)

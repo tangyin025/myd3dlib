@@ -488,6 +488,13 @@ void LuaContext::Init(void)
 	module(m_State)[
 		def("ARGB", &ARGB)
 
+		, class_<my::NamedObject>("NamedObject")
+			.scope
+			[
+				def("MakeUniqueName", &my::NamedObject::MakeUniqueName)
+			]
+			.property("Name", &my::NamedObject::GetName, &my::NamedObject::SetName)
+
 		, class_<my::EventArg>("EventArg")
 
 		, class_<my::EventFunction>("EventFunction")
@@ -521,9 +528,8 @@ void LuaContext::Init(void)
 			.def_readwrite("MouseLeaveSound", &my::ControlSkin::m_MouseLeaveSound)
 			.def_readwrite("MouseClickSound", &my::ControlSkin::m_MouseClickSound)
 
-		, class_<my::Control, boost::shared_ptr<my::Control> >("Control")
-			.def(constructor<>())
-			.def_readwrite("Name", &my::Control::m_Name)
+		, class_<my::Control, my::NamedObject, boost::shared_ptr<my::Control> >("Control")
+			.def(constructor<const char *>())
 			.scope
 			[
 				def("GetFocusControl", &my::Control::GetFocusControl)
@@ -537,14 +543,13 @@ void LuaContext::Init(void)
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
-			.def("FindControl", &my::Control::FindControl)
 			.def_readwrite("EventVisibleChanged", &my::Control::m_EventVisibleChanged)
 			.def_readwrite("EventMouseEnter", &my::Control::m_EventMouseEnter)
 			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
 			.def_readwrite("EventMouseClick", &my::Control::m_EventMouseClick)
 
 		, class_<my::Static, my::Control, boost::shared_ptr<my::Control> >("Static")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.def_readwrite("Text", &my::Static::m_Text)
 
 		, class_<my::ProgressBarSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ProgressBarSkin")
@@ -552,7 +557,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ForegroundImage", &my::ProgressBarSkin::m_ForegroundImage)
 
 		, class_<my::ProgressBar, my::Static, boost::shared_ptr<my::Control> >("ProgressBar")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.def_readwrite("Progress", &my::ProgressBar::m_Progress)
 
 		, class_<my::ButtonSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ButtonSkin")
@@ -563,7 +568,7 @@ void LuaContext::Init(void)
 			.def_readwrite("PressedOffset", &my::ButtonSkin::m_PressedOffset)
 
 		, class_<my::Button, my::Static, boost::shared_ptr<my::Control> >("Button")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.def("SetHotkey", &my::Button::SetHotkey)
 
 		, class_<my::EditBoxSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("EditBoxSkin")
@@ -574,14 +579,14 @@ void LuaContext::Init(void)
 			.def_readwrite("CaretColor", &my::EditBoxSkin::m_CaretColor)
 
 		, class_<my::EditBox, my::Static, boost::shared_ptr<my::Control> >("EditBox")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.property("Text", &my::EditBox::GetText, &my::EditBox::SetText)
 			.def_readwrite("Border", &my::EditBox::m_Border)
 			.def_readwrite("EventChange", &my::EditBox::m_EventChange)
 			.def_readwrite("EventEnter", &my::EditBox::m_EventEnter)
 
 		, class_<my::ImeEditBox, my::EditBox, boost::shared_ptr<my::Control> >("ImeEditBox")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 
 		, class_<my::ScrollBarSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ScrollBarSkin")
 			.def(constructor<>())
@@ -592,14 +597,14 @@ void LuaContext::Init(void)
 			.def_readwrite("ThumbBtnNormalImage", &my::ScrollBarSkin::m_ThumbBtnNormalImage)
 
 		, class_<my::ScrollBar, my::Control, boost::shared_ptr<my::Control> >("ScrollBar")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.def_readwrite("nPosition", &my::ScrollBar::m_nPosition) // ! should use property
 			.def_readwrite("nPageSize", &my::ScrollBar::m_nPageSize) // ! should use property
 			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should use property
 			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should use property
 
 		, class_<my::CheckBox, my::Button, boost::shared_ptr<my::Control> >("CheckBox")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.def_readwrite("Checked", &my::CheckBox::m_Checked)
 
 		, class_<my::ComboBoxSkin, my::ButtonSkin, boost::shared_ptr<my::ControlSkin> >("ComboBoxSkin")
@@ -616,7 +621,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ScrollBarImage", &my::ComboBoxSkin::m_ScrollBarImage)
 
 		, class_<my::ComboBox, my::Button, boost::shared_ptr<my::Control> >("ComboBox")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.property("DropdownSize", &my::ComboBox::GetDropdownSize, &my::ComboBox::SetDropdownSize)
 			.property("Border", &my::ComboBox::GetBorder, &my::ComboBox::SetBorder)
 			.property("ItemHeight", &my::ComboBox::GetItemHeight, &my::ComboBox::SetItemHeight)
@@ -635,7 +640,7 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 
 		, class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
-			.def(constructor<>())
+			.def(constructor<const char *>())
 			.def_readwrite("World", &my::Dialog::m_World)
 			.def_readwrite("EnableDrag", &my::Dialog::m_EnableDrag)
 			.def_readwrite("EventAlign", &my::Dialog::m_EventAlign)
@@ -758,13 +763,6 @@ void LuaContext::Init(void)
 
 		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
 			.def("PostMessage", &my::DxutWindow::PostMessage)
-
-		, class_<my::NamedObject>("NamedObject")
-			.scope
-			[
-				def("MakeUniqueName", &my::NamedObject::MakeUniqueName)
-			]
-			.property("Name", &my::NamedObject::GetName, &my::NamedObject::SetName)
 
 		, class_<my::DxutApp, CD3D9Enumeration>("DxutApp")
 			.scope

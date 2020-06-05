@@ -8,7 +8,7 @@ MessagePanel::MessagePanel(void)
 	: m_lbegin(0)
 	, m_lend(0)
 {
-	m_scrollbar.reset(new ScrollBar());
+	m_scrollbar.reset(new ScrollBar(NULL));
 
 	InsertControl(m_scrollbar);
 }

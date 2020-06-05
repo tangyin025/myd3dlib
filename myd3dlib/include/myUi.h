@@ -210,11 +210,11 @@ namespace my
 		}
 	};
 
-	class Control : public boost::enable_shared_from_this<Control>
+	class Control
+		: public my::NamedObject
+		, public boost::enable_shared_from_this<Control>
 	{
 	public:
-		std::string m_Name;
-
 		typedef std::list<ControlPtr> ControlPtrList;
 
 		ControlPtrList m_Childs;
@@ -253,9 +253,24 @@ namespace my
 
 		EventFunction m_EventMouseClick;
 
-	public:
+	protected:
 		Control(void)
 			: m_bEnabled(true)
+			, m_bVisible(true)
+			, m_bMouseOver(false)
+			, m_bHasFocus(false)
+			, m_nHotkey(0)
+			, m_Location(0, 0)
+			, m_Size(100, 100)
+			, m_Parent(NULL)
+			, m_bPressed(false)
+		{
+		}
+
+	public:
+		Control(const char * Name)
+			: NamedObject(Name)
+			, m_bEnabled(true)
 			, m_bVisible(true)
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
@@ -334,8 +349,6 @@ namespace my
 
 		bool ContainsControl(Control * control);
 
-		Control * FindControl(const std::string & name);
-
 		Control * GetChildAtPoint(const Vector2 & pt);
 
 		Vector2 LocalToScreen(const Vector2 & pt) const;
@@ -354,11 +367,18 @@ namespace my
 	public:
 		std::wstring m_Text;
 
-	public:
+	protected:
 		Static(void)
-			: m_Text(L"")
 		{
 		}
+
+	public:
+		Static(const char * Name)
+			: Control(Name)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -399,12 +419,22 @@ namespace my
 
 		float m_BlendProgress;
 
-	public:
+	protected:
 		ProgressBar(void)
 			: m_Progress(0)
 			, m_BlendProgress(0)
 		{
 		}
+
+	public:
+		ProgressBar(const char * Name)
+			: Static(Name)
+			, m_Progress(0)
+			, m_BlendProgress(0)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -448,10 +478,18 @@ namespace my
 
 	class Button : public Static
 	{
-	public:
+	protected:
 		Button(void)
 		{
 		}
+
+	public:
+		Button(const char * Name)
+			: Static(Name)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -533,7 +571,7 @@ namespace my
 
 		EventFunction m_EventEnter;
 
-	public:
+	protected:
 		EditBox(void)
 			: m_nCaret(0)
 			, m_bCaretOn(true)
@@ -546,6 +584,23 @@ namespace my
 			, m_bInsertMode(true)
 		{
 		}
+
+	public:
+		EditBox(const char * Name)
+			: Static(Name)
+			, m_nCaret(0)
+			, m_bCaretOn(true)
+			, m_dwBlink(GetCaretBlinkTime())
+			, m_dwLastBlink(0)
+			, m_nFirstVisible(0)
+			, m_Border(0, 0, 0, 0)
+			, m_bMouseDrag(false)
+			, m_nSelStart(0)
+			, m_bInsertMode(true)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -600,12 +655,22 @@ namespace my
 
 		D3DCOLOR m_CandidateWinColor;
 
-	public:
+	protected:
 		ImeEditBox(void)
 			: m_CompWinColor(D3DCOLOR_ARGB(197,0,0,0))
 			, m_CandidateWinColor(D3DCOLOR_ARGB(197,0,0,0))
 		{
 		}
+
+	public:
+		ImeEditBox(const char * Name)
+			: EditBox(Name)
+			, m_CompWinColor(D3DCOLOR_ARGB(197, 0, 0, 0))
+			, m_CandidateWinColor(D3DCOLOR_ARGB(197, 0, 0, 0))
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -706,7 +771,7 @@ namespace my
 
 		float m_fThumbOffsetY;
 
-	public:
+	protected:
 		ScrollBar(void)
 			: m_bDrag(false)
 			, m_UpDownButtonHeight(20)
@@ -719,6 +784,25 @@ namespace my
 			, m_fThumbOffsetY(0)
 		{
 		}
+
+	public:
+		ScrollBar(const char * Name)
+			: Control(Name)
+			, m_bDrag(false)
+			, m_UpDownButtonHeight(20)
+			, m_nPosition(0)
+			, m_nPageSize(1)
+			, m_nStart(0)
+			, m_nEnd(10)
+			, m_Arrow(CLEAR)
+			, m_dwArrowTS(0)
+			, m_fThumbOffsetY(0)
+		{
+		}
+
+		friend class ComboBox;
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -751,12 +835,22 @@ namespace my
 
 		bool m_Checked;
 
-	public:
+	protected:
 		CheckBox(void)
 			: m_CheckBtnSize(20,20)
 			, m_Checked(false)
 		{
 		}
+
+	public:
+		CheckBox(const char * Name)
+			: Button(Name)
+			, m_CheckBtnSize(20,20)
+			, m_Checked(false)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -865,7 +959,7 @@ namespace my
 
 		EventFunction m_EventSelectionChanged;
 
-	public:
+	protected:
 		ComboBox(void)
 			: m_DropdownSize(100,100)
 			, m_ScrollbarWidth(20)
@@ -878,6 +972,24 @@ namespace my
 		{
 			OnLayout();
 		}
+
+	public:
+		ComboBox(const char * Name)
+			: Button(Name)
+			, m_DropdownSize(100, 100)
+			, m_ScrollBar(NULL)
+			, m_ScrollbarWidth(20)
+			, m_ScrollbarUpDownBtnHeight(20)
+			, m_Border(0, 0, 0, 0)
+			, m_bOpened(false)
+			, m_ItemHeight(15)
+			, m_iFocused(0)
+			, m_iSelected(-1)
+		{
+			OnLayout();
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void save(Archive & ar, const unsigned int version) const;
@@ -975,7 +1087,7 @@ namespace my
 
 		EventFunction m_EventAlign;
 
-	public:
+	protected:
 		Dialog(void)
 			: m_Parent(NULL)
 			, m_World(Matrix4::identity)
@@ -985,7 +1097,20 @@ namespace my
 		{
 		}
 
+	public:
+		Dialog(const char * Name)
+			: Control(Name)
+			, m_Parent(NULL)
+			, m_World(Matrix4::identity)
+			, m_EnableDrag(true)
+			, m_bMouseDrag(false)
+			, m_MouseOffset(0, 0)
+		{
+		}
+
 		virtual ~Dialog(void);
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void save(Archive & ar, const unsigned int version) const;

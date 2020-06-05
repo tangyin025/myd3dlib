@@ -56,6 +56,8 @@ namespace my
 	public:
 		DWORD m_d3dThreadId;
 
+		DWORD m_serializeThreadId;
+
 		CComPtr<IDirect3D9> m_d3d9;
 
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
@@ -97,6 +99,7 @@ namespace my
 	public:
 		D3DContext(void)
 			: m_d3dThreadId(::GetCurrentThreadId())
+			, m_serializeThreadId(0)
 			, m_DeviceObjectsCreated(false)
 			, m_DeviceObjectsReset(false)
 		{

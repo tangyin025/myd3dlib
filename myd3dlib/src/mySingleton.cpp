@@ -78,7 +78,7 @@ void NamedObject::SetName(const char * Name)
 		m_Name = NULL;
 	}
 
-	if (Name)
+	if (Name && Name[0] != '\0')
 	{
 		m_Name = D3DContext::getSingleton().RegisterNamedObject(Name, this);
 	}
@@ -96,7 +96,10 @@ void NamedObject::load(Archive & ar, const unsigned int version)
 {
 	std::string Name;
 	ar >> BOOST_SERIALIZATION_NVP(Name);
-	SetName(Name.c_str());
+	if (!Name.empty())
+	{
+		SetName(Name.c_str());
+	}
 }
 
 template

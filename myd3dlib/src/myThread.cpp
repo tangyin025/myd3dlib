@@ -147,6 +147,13 @@ void Thread::CreateThread(DWORD dwCreationFlags)
 	}
 }
 
+DWORD Thread::GetThreadId(void) const
+{
+	_ASSERT(NULL != m_handle);
+
+	return ::GetThreadId(m_handle);
+}
+
 void Thread::ResumeThread(void)
 {
 	_ASSERT(NULL != m_handle);
