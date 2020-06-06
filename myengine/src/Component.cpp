@@ -671,15 +671,6 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	m_PxShape->userData = this;
 }
 
-ClothComponent::ClothComponent(void)
-	: Component(ComponentTypeCloth)
-	, m_bUseAnimation(false)
-	, handle_Time(NULL)
-	, handle_World(NULL)
-	, handle_dualquat(NULL)
-{
-}
-
 ClothComponent::~ClothComponent(void)
 {
 	if (IsEnteredPhysx())

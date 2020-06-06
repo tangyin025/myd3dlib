@@ -603,7 +603,7 @@ void CMainFrame::OnFileNew()
 	//mesh_cmp->m_MeshSubMeshName = "Teapot001";
 	//mesh_cmp->AddMaterial(mtl);
 
-	TerrainPtr terrain(new Terrain(2, 2, 32, 1.0f));
+	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), 2, 2, 32, 1.0f));
 	terrain->AddMaterial(mtl);
 
 	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
@@ -763,7 +763,7 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
-	MeshComponentPtr mesh_cmp(new MeshComponent());
+	MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
 	mesh_cmp->m_MeshPath = path;
 	mesh_cmp->m_MeshSubMeshName = sub_mesh_name;
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
@@ -818,7 +818,7 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-	ClothComponentPtr cloth_cmp(new ClothComponent());
+	ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
 	cloth_cmp->CreateClothFromMesh(mesh);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
@@ -851,7 +851,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(1));
+	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), 1));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
@@ -881,7 +881,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(1024));
+	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::NamedObject::MakeUniqueName("editor_sphe_emit_cmp").c_str(), 1024));
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;
@@ -935,7 +935,7 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	TerrainPtr terrain(new Terrain(dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
+	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();

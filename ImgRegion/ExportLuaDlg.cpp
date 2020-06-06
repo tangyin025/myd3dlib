@@ -139,7 +139,7 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 		{
 			skin_class = "ControlSkin";
 		}
-		std::string skin_var_name = str_printf("skin_%u", seed);
+		std::string skin_var_name = str_printf("editor_skin_%u", seed);
 		m_SkinMap.insert(std::make_pair(seed, skin_var_name));
 		ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
 		ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;

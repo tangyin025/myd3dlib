@@ -234,8 +234,7 @@ static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N)
 }
 
 Terrain::Terrain(void)
-	: Component(ComponentTypeTerrain)
-	, m_RowChunks(1)
+	: m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
 	, m_HeightScale(1)
@@ -244,8 +243,8 @@ Terrain::Terrain(void)
 	CreateElements();
 }
 
-Terrain::Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
-	: Component(ComponentTypeTerrain)
+Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
+	: Component(ComponentTypeTerrain, Name)
 	, OctRoot(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)

@@ -39,7 +39,9 @@ public:
 	}
 };
 
-class Component : public boost::enable_shared_from_this<Component>
+class Component
+	: public my::NamedObject
+	, public boost::enable_shared_from_this<Component>
 {
 public:
 	enum ComponentType
@@ -92,8 +94,9 @@ protected:
 	{
 	}
 
-	Component(ComponentType Type)
-		: m_Type(Type)
+	Component(ComponentType Type, const char * Name)
+		: NamedObject(Name)
+		, m_Type(Type)
 		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
@@ -196,9 +199,19 @@ public:
 
 	D3DXHANDLE handle_dualquat;
 
-public:
+protected:
 	MeshComponent(void)
-		: Component(ComponentTypeMesh)
+		: m_bInstance(false)
+		, m_bUseAnimation(false)
+		, handle_Time(NULL)
+		, handle_World(NULL)
+		, handle_dualquat(NULL)
+	{
+	}
+
+public:
+	MeshComponent(const char * Name)
+		: Component(ComponentTypeMesh, Name)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, handle_Time(NULL)
@@ -288,10 +301,28 @@ public:
 
 	D3DXHANDLE handle_dualquat;
 
+protected:
+	ClothComponent(void)
+		: m_bUseAnimation(false)
+		, handle_Time(NULL)
+		, handle_World(NULL)
+		, handle_dualquat(NULL)
+	{
+	}
+
 public:
-	ClothComponent(void);
+	ClothComponent(const char * Name)
+		: Component(ComponentTypeCloth, Name)
+		, m_bUseAnimation(false)
+		, handle_Time(NULL)
+		, handle_World(NULL)
+		, handle_dualquat(NULL)
+	{
+	}
 
 	virtual ~ClothComponent(void);
+
+	friend class boost::serialization::access;
 
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;
@@ -383,8 +414,7 @@ public:
 
 protected:
 	EmitterComponent(void)
-		: Component(ComponentTypeEmitter)
-		, Emitter(1)
+		: Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
 		, m_EmitterVelType(VelocityTypeNone)
 		, m_EmitterTime(0)
@@ -395,8 +425,8 @@ protected:
 	}
 
 public:
-	EmitterComponent(ComponentType Type, unsigned int Capacity, FaceType _FaceType, VelocityType _VelocityType)
-		: Component(Type)
+	EmitterComponent(ComponentType Type, const char * Name, unsigned int Capacity, FaceType _FaceType, VelocityType _VelocityType)
+		: Component(Type, Name)
 		, Emitter(Capacity)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterVelType(_VelocityType)
@@ -451,8 +481,8 @@ protected:
 	}
 
 public:
-	StaticEmitterComponent(unsigned int Capacity)
-		: EmitterComponent(ComponentTypeStaticEmitter, Capacity, FaceTypeCamera, VelocityTypeNone)
+	StaticEmitterComponent(const char * Name, unsigned int Capacity)
+		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, FaceTypeCamera, VelocityTypeNone)
 	{
 	}
 
@@ -514,8 +544,7 @@ public:
 
 protected:
 	SphericalEmitterComponent(void)
-		: EmitterComponent(ComponentTypeSphericalEmitter, 1, FaceTypeCamera, VelocityTypeVel)
-		, m_ParticleLifeTime(FLT_MAX)
+		: m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnSpeed(0)
@@ -525,8 +554,8 @@ protected:
 	}
 
 public:
-	SphericalEmitterComponent(unsigned int Capacity)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Capacity, FaceTypeCamera, VelocityTypeVel)
+	SphericalEmitterComponent(const char * Name, unsigned int Capacity)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, FaceTypeCamera, VelocityTypeVel)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)

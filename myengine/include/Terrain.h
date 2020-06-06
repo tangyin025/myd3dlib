@@ -120,7 +120,7 @@ protected:
 	Terrain(void);
 
 public:
-	Terrain(int RowChunks, int ColChunks, int ChunkSize, float HeightScale);
+	Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, float HeightScale);
 
 	virtual ~Terrain(void);
 

@@ -15,7 +15,7 @@ require "Action.lua"
 
 -- -- 创建地面
 -- actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
--- local cmp=MeshComponent()
+-- local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 -- local lambert1=Material()
 -- lambert1.Shader="shader/mtl_lambert1.fx"
 -- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
@@ -41,7 +41,7 @@ lambert2.PassMask=Material.PassMaskShadowNormalOpaque
 lambert2:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert2:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert2:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
-local cmp2=MeshComponent()
+local cmp2=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp2.MeshPath="mesh/Sphere.mesh.xml"
 cmp2:AddMaterial(lambert2)
 actor2:AddComponent(cmp2)
@@ -50,7 +50,7 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 
 -- 在角色手部绑定物体
 actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp3=MeshComponent()
+local cmp3=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3:AddMaterial(lambert2:Clone())
 actor3:AddComponent(cmp3)
@@ -59,7 +59,7 @@ cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 在角色手部绑定物体
 actor4=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp4=MeshComponent()
+local cmp4=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
 cmp4:AddMaterial(lambert2:Clone())
 actor4:AddComponent(cmp4)
@@ -68,7 +68,7 @@ cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 搞一个trigger
 actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp5=StaticEmitterComponent(1)
+local cmp5=StaticEmitterComponent(NamedObject.MakeUniqueName("mesh_cmp"),1)
 actor5:AddComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,2)
