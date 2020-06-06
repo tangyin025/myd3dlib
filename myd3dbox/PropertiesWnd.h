@@ -93,6 +93,7 @@ public:
 		PropertyActorRigidActor,
 		PropertyActorRigidActorType,
 		PropertyActorRigidActorKinematic,
+		PropertyComponentName,
 		PropertyComponentLODMask,
 		PropertyShape,
 		PropertyShapeType,

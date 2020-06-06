@@ -280,9 +280,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 {
 	//pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
-	pComponent->GetSubItem(0)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
-
-	UpdatePropertiesShape(pComponent->GetSubItem(1), cmp);
+	pComponent->GetSubItem(0)->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
+	pComponent->GetSubItem(1)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
+	UpdatePropertiesShape(pComponent->GetSubItem(2), cmp);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -689,6 +689,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), GetComponentProp(cmp->m_Type), FALSE);
 	pParentCtrl->AddSubItem(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
+
+	CMFCPropertyGridProperty * pName = new CSimpleProp(_T("Name"), (_variant_t)ms2ts(cmp->GetName()).c_str(), NULL, PropertyComponentName);
+	pComponent->AddSubItem(pName);
 
 	CMFCPropertyGridProperty * pLodMask = new CComboProp(_T("LodMask"), (_variant_t)GetLodMaskDesc(cmp->m_LodMask), NULL, PropertyComponentLODMask);
 	for (unsigned int i = 0; i < _countof(g_LodMaskDesc); i++)
@@ -1111,7 +1114,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
-	return 2;
+	return 3;
 }
 
 LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
@@ -1469,6 +1472,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
+	}
+	case PropertyComponentName:
+	{
+		Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+		std::string Name = ts2ms(pProp->GetValue().bstrVal);
+		if (theApp.GetNamedObject(Name.c_str()))
+		{
+			MessageBox(str_printf(_T("%s already existed"), pProp->GetValue().bstrVal).c_str());
+			pProp->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
+			return 0;
+		}
+		cmp->SetName(Name.c_str());
 	}
 	case PropertyComponentLODMask:
 	{
