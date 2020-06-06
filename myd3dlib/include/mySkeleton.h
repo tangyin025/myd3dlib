@@ -5,7 +5,6 @@
 #include <set>
 #include "myMath.h"
 #include <boost/unordered_map.hpp>
-#include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 #include "rapidxml.hpp"
 
@@ -302,5 +301,5 @@ namespace my
 		const OgreAnimation * GetAnimation(const std::string & anim_name) const;
 	};
 
-	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
+	typedef boost::intrusive_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
 }

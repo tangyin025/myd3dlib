@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 #include <d3d9.h>
 #include <d3dx9tex.h>
@@ -45,7 +44,7 @@ namespace my
 		void UnlockRect(void);
 	};
 
-	typedef boost::shared_ptr<Surface> SurfacePtr;
+	typedef boost::intrusive_ptr<Surface> SurfacePtr;
 
 	class BaseTexture : public D3DDeviceResource<IDirect3DBaseTexture9>
 	{
@@ -71,7 +70,7 @@ namespace my
 		virtual D3DSURFACE_DESC GetLevelDesc(UINT Level = 0) = 0;
 	};
 
-	typedef boost::shared_ptr<BaseTexture> BaseTexturePtr;
+	typedef boost::intrusive_ptr<BaseTexture> BaseTexturePtr;
 
 	class Texture2D : public BaseTexture
 	{
@@ -136,7 +135,7 @@ namespace my
 		void UnlockRect(UINT Level = 0);
 	};
 
-	typedef boost::shared_ptr<Texture2D> Texture2DPtr;
+	typedef boost::intrusive_ptr<Texture2D> Texture2DPtr;
 
 	class CubeTexture : public BaseTexture
 	{
@@ -208,5 +207,5 @@ namespace my
 			UINT Level = 0);
 	};
 
-	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;
+	typedef boost::intrusive_ptr<CubeTexture> CubeTexturePtr;
 }

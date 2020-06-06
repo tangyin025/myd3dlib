@@ -45,7 +45,7 @@ namespace my
 		void SetWorldViewRH(const Matrix4 & World, const Matrix4 & View);
 	};
 
-	typedef boost::shared_ptr<Sprite> SpritePtr;
+	typedef boost::intrusive_ptr<Sprite> SpritePtr;
 
 	class RectAssignmentNode;
 
@@ -220,5 +220,5 @@ namespace my
 		int XtoCP(LPCWSTR pString, float x);
 	};
 
-	typedef boost::shared_ptr<Font> FontPtr;
+	typedef boost::intrusive_ptr<Font> FontPtr;
 }

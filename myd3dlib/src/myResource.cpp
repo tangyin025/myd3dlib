@@ -563,7 +563,7 @@ void ResourceMgr::OnDestroyDevice(void)
 {
 	StopIORequestProc();
 
-	m_ResourceWeakSet.clear();
+	m_ResourceSet.clear();
 
 	m_EffectPool.Release();
 
@@ -633,16 +633,10 @@ DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-	DeviceResourceBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
-	if(res_iter != m_ResourceWeakSet.end())
+	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.find(key);
+	if(res_iter != m_ResourceSet.end())
 	{
-		DeviceResourceBasePtr res = res_iter->second.lock();
-		if(res)
-		{
-			return res;
-		}
-		else
-			m_ResourceWeakSet.erase(res_iter);
+		return res_iter->second;
 	}
 	return DeviceResourceBasePtr();
 }
@@ -653,7 +647,7 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 
 	_ASSERT(!GetResource(key));
 
-	std::pair<DeviceResourceBaseWeakPtrSet::iterator, bool> result = m_ResourceWeakSet.insert(DeviceResourceBaseWeakPtrSet::value_type(key, res));
+	std::pair<DeviceResourceBasePtrSet::iterator, bool> result = m_ResourceSet.insert(DeviceResourceBasePtrSet::value_type(key, res));
 
 	_ASSERT(result.second);
 
@@ -713,6 +707,19 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		else
 		{
 			req_iter++;
+		}
+	}
+
+	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.begin();
+	for (; res_iter != m_ResourceSet.end(); )
+	{
+		if (res_iter->second->use_count() > 1)
+		{
+			res_iter++;
+		}
+		else
+		{
+			res_iter = m_ResourceSet.erase(res_iter);
 		}
 	}
 
@@ -797,7 +804,7 @@ public:
 	}
 };
 
-boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
+boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new TextureIORequest(path));
@@ -814,7 +821,7 @@ void ResourceMgr::LoadMeshAsync(const char * path, const char * sub_mesh_name, I
 	LoadIORequestAsync(key, request, false);
 }
 
-boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
+boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
 {
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
@@ -831,7 +838,7 @@ void ResourceMgr::LoadSkeletonAsync(const char * path, IResourceCallback * callb
 	LoadIORequestAsync(path, request, false);
 }
 
-boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
+boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new SkeletonIORequest(path));
@@ -848,7 +855,7 @@ void ResourceMgr::LoadEffectAsync(const char * path, const char * macros, IResou
 	LoadIORequestAsync(key, request, false);
 }
 
-boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
+boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	SimpleResourceCallback cb;
@@ -866,7 +873,7 @@ void ResourceMgr::LoadFontAsync(const char * path, int height, IResourceCallback
 	LoadIORequestAsync(key, request, false);
 }
 
-boost::shared_ptr<Font> ResourceMgr::LoadFont(const char * path, int height)
+boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 	SimpleResourceCallback cb;

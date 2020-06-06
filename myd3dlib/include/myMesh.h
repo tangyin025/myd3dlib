@@ -3,7 +3,6 @@
 #include "myMath.h"
 #include <vector>
 #include <atlbase.h>
-#include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 #include "rapidxml.hpp"
 
@@ -154,7 +153,7 @@ namespace my
 		void Unlock(void);
 	};
 
-	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
+	typedef boost::intrusive_ptr<VertexBuffer> VertexBufferPtr;
 
 	class IndexBuffer : public D3DDeviceResource<IDirect3DIndexBuffer9>
 	{
@@ -178,7 +177,7 @@ namespace my
 		void Unlock(void);
 	};
 
-	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
+	typedef boost::intrusive_ptr<IndexBuffer> IndexBufferPtr;
 
 	class Mesh : public D3DDeviceResource<ID3DXMesh>
 	{
@@ -352,7 +351,7 @@ namespace my
 			const D3DVertexElementSet & VertexElems);
 	};
 
-	typedef boost::shared_ptr<Mesh> MeshPtr;
+	typedef boost::intrusive_ptr<Mesh> MeshPtr;
 
 	class OgreMesh : public Mesh
 	{
@@ -410,5 +409,5 @@ namespace my
 		const std::string & GetMaterialName(DWORD AttribId) const;
 	};
 
-	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
+	typedef boost::intrusive_ptr<OgreMesh> OgreMeshPtr;
 }

@@ -313,11 +313,9 @@ namespace my
 	public:
 		friend class EffectIORequest;
 
-		typedef boost::weak_ptr<DeviceResourceBase> DeviceResourceBaseWeakPtr;
+		typedef std::map<std::string, DeviceResourceBasePtr> DeviceResourceBasePtrSet;
 
-		typedef std::map<std::string, DeviceResourceBaseWeakPtr> DeviceResourceBaseWeakPtrSet;
-
-		DeviceResourceBaseWeakPtrSet m_ResourceWeakSet;
+		DeviceResourceBasePtrSet m_ResourceSet;
 
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
@@ -378,23 +376,23 @@ namespace my
 
 		void LoadTextureAsync(const char * path, IResourceCallback * callback);
 
-		boost::shared_ptr<BaseTexture> LoadTexture(const char * path);
+		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
 
 		void LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback);
 
-		boost::shared_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
+		boost::intrusive_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
 
 		void LoadSkeletonAsync(const char * path, IResourceCallback * callback);
 
-		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
+		boost::intrusive_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
 
 		void LoadEffectAsync(const char * path, const char * macros, IResourceCallback * callback);
 
-		boost::shared_ptr<Effect> LoadEffect(const char * path, const char * macros);
+		boost::intrusive_ptr<Effect> LoadEffect(const char * path, const char * macros);
 
 		void LoadFontAsync(const char * path, int height, IResourceCallback * callback);
 
-		boost::shared_ptr<Font> LoadFont(const char * path, int height);
+		boost::intrusive_ptr<Font> LoadFont(const char * path, int height);
 	};
 
 	class TextureIORequest : public IORequest

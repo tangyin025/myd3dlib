@@ -5,7 +5,6 @@
 #include <atlbase.h>
 #include "myMath.h"
 #include "mySingleton.h"
-#include <boost/shared_ptr.hpp>
 #include <myTexture.h>
 
 namespace my
@@ -113,7 +112,7 @@ namespace my
 		void GetFunction(void * pData, UINT * pSizeOfData);
 	};
 
-	typedef boost::shared_ptr<VertexShader> VertexShaderPtr;
+	typedef boost::intrusive_ptr<VertexShader> VertexShaderPtr;
 
 	class PixelShader
 		: public ConstantTable
@@ -153,7 +152,7 @@ namespace my
 		void GetFunction(void * pData, UINT * pSizeOfData);
 	};
 
-	typedef boost::shared_ptr<PixelShader> PixelShaderPtr;
+	typedef boost::intrusive_ptr<PixelShader> PixelShaderPtr;
 
 	class BaseEffect : public D3DDeviceResource<ID3DXBaseEffect>
 	{
@@ -344,5 +343,5 @@ namespace my
 		bool ValidateTechnique(D3DXHANDLE hTechnique);
 	};
 
-	typedef boost::shared_ptr<Effect> EffectPtr;
+	typedef boost::intrusive_ptr<Effect> EffectPtr;
 }

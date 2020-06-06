@@ -439,15 +439,15 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	ASSERT_VALID(pFrame);
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	ASSERT_VALID(pView);
-	BOOL bContinue = FALSE;
 	if (!m_IORequestList.empty())
 	{
 		m_bNeedDraw = TRUE;
+	}
 
-		if (my::ResourceMgr::CheckIORequests(0))
-		{
-			bContinue = TRUE;
-		}
+	BOOL bContinue = FALSE;
+	if (my::ResourceMgr::CheckIORequests(0))
+	{
+		bContinue = TRUE;
 	}
 
 	if (CWinAppEx::OnIdle(lCount))
