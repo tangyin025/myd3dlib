@@ -606,7 +606,7 @@ void CMainFrame::OnFileNew()
 	TerrainPtr terrain(new Terrain(2, 2, 32, 1.0f));
 	terrain->AddMaterial(mtl);
 
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	actor->AddComponent(terrain);
 	actor->UpdateAABB();
 	actor->UpdateWorld();
@@ -701,7 +701,7 @@ void CMainFrame::OnCreateActor()
 	{
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("scene_actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
 	m_ActorList.insert(actor);
@@ -722,7 +722,7 @@ void CMainFrame::OnCreateCharacter()
 	{
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
-	CharacterPtr character(new Character(my::NamedObject::MakeUniqueName("scene_character").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
+	CharacterPtr character(new Character(my::NamedObject::MakeUniqueName("editor_character").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
 	character->UpdateWorld();
 	AddEntity(character.get(), character->m_aabb.transform(character->m_World));
 	m_ActorList.insert(character);

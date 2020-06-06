@@ -1253,7 +1253,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = (*sel_iter)->Clone();
-				new_actor->SetName(my::NamedObject::MakeUniqueName("scene_actor").c_str());
+				new_actor->SetName(my::NamedObject::MakeUniqueName("editor_actor").c_str());
 				pFrame->AddEntity(new_actor.get(), new_actor->m_aabb.transform(new_actor->m_World));
 				pFrame->m_ActorList.insert(new_actor);
 				new_actor->RequestResource();

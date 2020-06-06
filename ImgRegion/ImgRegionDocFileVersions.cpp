@@ -4,7 +4,7 @@
 
 const int CImgRegionDocFileVersions::FILE_VERSION = 498;
 
-const CString CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME(_T("ui_control_%d"));
+const CString CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME(_T("editor_control_%d"));
 
 static void CImgRegionDocFileVersions_Loading355(CImgRegionDoc * pDoc, CArchive & ar, int version)
 {
