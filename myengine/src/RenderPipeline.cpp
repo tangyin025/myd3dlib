@@ -587,38 +587,38 @@ void RenderPipeline::OnRender(
 		};
 		const CUSTOMVERTEX vertices[] =
 		{
-			{-1,  1, -1, bgcolor, 0, 0 },
-			{-1, -1, -1, bgcolor, 0, 1 },
-			{ 1, -1, -1, bgcolor, 1, 1 },
-			{ 1,  1, -1, bgcolor, 1, 0 },
+			{  1,  1,  1, bgcolor, 0, 0 },
+			{  1, -1,  1, bgcolor, 0, 1 },
+			{  1, -1, -1, bgcolor, 1, 1 },
+			{  1,  1, -1, bgcolor, 1, 0 },
 
-			{ 1,  1,  1, bgcolor, 0, 0 },
-			{ 1, -1,  1, bgcolor, 0, 1 },
-			{-1, -1,  1, bgcolor, 1, 1 },
-			{-1,  1,  1, bgcolor, 1, 0 },
+			{ -1,  1, -1, bgcolor, 0, 0 },
+			{ -1, -1, -1, bgcolor, 0, 1 },
+			{ -1, -1,  1, bgcolor, 1, 1 },
+			{ -1,  1,  1, bgcolor, 1, 0 },
 
-			{-1,  1,  1, bgcolor, 0, 0 },
-			{-1, -1,  1, bgcolor, 0, 1 },
-			{-1, -1, -1, bgcolor, 1, 1 },
-			{-1,  1, -1, bgcolor, 1, 0 },
+			{ -1,  1, -1, bgcolor, 0, 0 },
+			{ -1,  1,  1, bgcolor, 0, 1 },
+			{  1,  1,  1, bgcolor, 1, 1 },
+			{  1,  1, -1, bgcolor, 1, 0 },
 
-			{ 1,  1, -1, bgcolor, 0, 0 },
-			{ 1, -1, -1, bgcolor, 0, 1 },
-			{ 1, -1,  1, bgcolor, 1, 1 },
-			{ 1,  1,  1, bgcolor, 1, 0 },
+			{ -1, -1,  1, bgcolor, 0, 0 },
+			{ -1, -1, -1, bgcolor, 0, 1 },
+			{  1, -1, -1, bgcolor, 1, 1 },
+			{  1, -1,  1, bgcolor, 1, 0 },
 
-			{-1,  1,  1, bgcolor, 0, 0 },
-			{-1,  1, -1, bgcolor, 0, 1 },
-			{ 1,  1, -1, bgcolor, 1, 1 },
-			{ 1,  1,  1, bgcolor, 1, 0 },
+			{ -1,  1,  1, bgcolor, 0, 0 },
+			{ -1, -1,  1, bgcolor, 0, 1 },
+			{  1, -1,  1, bgcolor, 1, 1 },
+			{  1,  1,  1, bgcolor, 1, 0 },
 
-			{-1, -1, -1, bgcolor, 0, 0 },
-			{-1, -1,  1, bgcolor, 0, 1 },
-			{ 1, -1,  1, bgcolor, 1, 1 },
-			{ 1, -1, -1, bgcolor, 1, 0 },
+			{  1,  1, -1, bgcolor, 0, 0 },
+			{  1, -1, -1, bgcolor, 0, 1 },
+			{ -1, -1, -1, bgcolor, 1, 1 },
+			{ -1,  1, -1, bgcolor, 1, 0 },
 		};
 		pd3dDevice->SetFVF(D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1);
-		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		V(pd3dDevice->SetVertexShader(NULL));

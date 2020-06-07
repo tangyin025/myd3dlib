@@ -13,6 +13,19 @@
 
 IMPLEMENT_DYNAMIC(CEnvironmentWnd, CDockablePane)
 
+static const struct
+{
+	const TCHAR * name;
+	DWORD tex_id;
+} sky_prop_info[6] = {
+	{ _T("Front"),	4 },
+	{ _T("Back"),	5 },
+	{ _T("Left"),	1 },
+	{ _T("Right"),	0 },
+	{ _T("Up"),		2 },
+	{ _T("Down"),	3 }
+};
+
 CEnvironmentWnd::CEnvironmentWnd()
 {
 
@@ -106,10 +119,9 @@ void CEnvironmentWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pSkyBox = new CSimpleProp(_T("SkyBox"), PropertySkyBox, FALSE);
 	m_wndPropList.AddProperty(pSkyBox, FALSE, FALSE);
-	const TCHAR * tex_name[6] = {_T("Front"), _T("Back"), _T("Left"), _T("Right"), _T("Up"), _T("Down")};
-	for (unsigned int i = 0; i < _countof(tex_name); i++)
+	for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
 	{
-		CMFCPropertyGridProperty * pProp = new CFileProp(tex_name[i], TRUE, _T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, SkyBoxPropertyTextureFront + i);
+		CMFCPropertyGridProperty * pProp = new CFileProp(sky_prop_info[i].name, TRUE, _T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, SkyBoxPropertyTextureFront + i);
 		pSkyBox->AddSubItem(pProp);
 	}
 
@@ -206,10 +218,10 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 
 	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
 	ASSERT_VALID(pSkyBox);
-	for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
+	for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
 	{
 		pSkyBox->GetSubItem(SkyBoxPropertyTextureFront + i)->SetValue(
-			(_variant_t)ms2ts(theApp.m_SkyBoxTextures[i].m_TexturePath.c_str()).c_str());
+			(_variant_t)ms2ts(theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath.c_str()).c_str());
 	}
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
@@ -355,15 +367,15 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			if (boost::regex_search(path, what, reg, boost::match_default) && what[1].matched)
 			{
 				const TCHAR * tex_name[6] = { _T("FR"), _T("BK"), _T("LF"), _T("RT"), _T("UP"), _T("DN") };
-				for (unsigned int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
+				for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
 				{
 					std::basic_string<TCHAR> new_path;
 					new_path.insert(new_path.end(), path.begin(), what[1].first);
 					new_path.append(tex_name[i]);
 					new_path.insert(new_path.end(), what[1].second, path.end());
-					theApp.m_SkyBoxTextures[i].ReleaseResource();
-					theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(new_path.c_str());
-					theApp.m_SkyBoxTextures[i].RequestResource();
+					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
+					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = ts2ms(new_path.c_str());
+					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();
 				}
 				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 				ASSERT_VALID(pFrame);
@@ -373,10 +385,9 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			else
 			{
 				int i = pProp->GetData() - SkyBoxPropertyTextureFront;
-				_ASSERT(i >= 0 && i < _countof(theApp.m_SkyBoxTextures));
-				theApp.m_SkyBoxTextures[i].ReleaseResource();
-				theApp.m_SkyBoxTextures[i].m_TexturePath = ts2ms(path.c_str());
-				theApp.m_SkyBoxTextures[i].RequestResource();
+				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
+				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = ts2ms(path.c_str());
+				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();
 			}
 		}
 		break;

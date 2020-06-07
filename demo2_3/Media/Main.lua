@@ -115,7 +115,7 @@ game.EventLoadScene=function(arg)
 	
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
-	local actor6 = game:GetNamedObject("scene_actor_1")
+	local actor6 = game:GetNamedObject("editor_actor_1")
 	actor6.EventEnterView=function(arg)
 		arg.self:PlayAction(SAction.act_moving)
 	end
