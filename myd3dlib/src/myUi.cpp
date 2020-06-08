@@ -757,24 +757,6 @@ Control * Control::GetChildAtPoint(const Vector2 & pt)
 	return NULL;
 }
 
-Vector2 Control::LocalToScreen(const Vector2 & pt) const
-{
-	if (m_Parent)
-	{
-		return m_Parent->LocalToScreen(m_Rect.LeftTop() + pt);
-	}
-	return m_Rect.LeftTop() + pt;
-}
-
-Vector2 Control::ScreenToLocal(const Vector2 & pt) const
-{
-	if (m_Parent)
-	{
-		return m_Parent->ScreenToLocal(pt) - m_Rect.LeftTop();
-	}
-	return pt - m_Rect.LeftTop();
-}
-
 bool Control::SetFocusRecursive(void)
 {
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -1368,7 +1350,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 
 				if(m_Skin && m_Skin->m_Font)
 				{
-					Vector2 ptLocal = ScreenToLocal(pt);
+					Vector2 ptLocal = pt - m_Rect.LeftTop();
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 					float x = ptLocal.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
@@ -1417,7 +1399,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			{
 				if(m_Skin && m_Skin->m_Font)
 				{
-					Vector2 ptLocal = ScreenToLocal(pt);
+					Vector2 ptLocal = pt - m_Rect.LeftTop();
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 					float x = ptLocal.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);

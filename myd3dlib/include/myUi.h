@@ -363,10 +363,6 @@ namespace my
 
 		Control * GetChildAtPoint(const Vector2 & pt);
 
-		Vector2 LocalToScreen(const Vector2 & pt) const;
-
-		Vector2 ScreenToLocal(const Vector2 & pt) const;
-
 		bool SetFocusRecursive(void);
 
 		void SetHotkey(UINT nHotkey);
