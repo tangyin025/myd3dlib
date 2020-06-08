@@ -28,7 +28,7 @@ public:
 	void UpdateFonts();
 
 // Attributes
-protected:
+//protected:
 	CMFCTabCtrl	m_wndTabs;
 
 	COutputEdit m_wndOutputDebug;

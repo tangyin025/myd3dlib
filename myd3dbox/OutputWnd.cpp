@@ -98,7 +98,8 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	//// Create output panes:
-	if (!m_wndOutputDebug.Create(LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL, CRect(0,0,100,100), &m_wndTabs, 2))
+	if (!m_wndOutputDebug.Create(LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL | ES_MULTILINE/* | ES_READONLY*/,
+		CRect(0, 0, 100, 100), &m_wndTabs, 2))
 	{
 		TRACE0("Failed to create output windows\n");
 		return -1;
