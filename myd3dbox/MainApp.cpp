@@ -38,12 +38,10 @@ CMainApp::CMainApp()
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 	m_UIRender.reset(new my::UIRender());
-	m_EventLog.connect(boost::bind(&CMainApp::OnEventLog, this, _1));
 }
 
 CMainApp::~CMainApp()
 {
-	m_EventLog.disconnect(boost::bind(&CMainApp::OnEventLog, this, _1));
 }
 
 // The one and only CMainApp object
@@ -486,11 +484,3 @@ int CMainApp::ExitInstance()
 	return CWinAppEx::ExitInstance();
 }
 
-
-void CMainApp::OnEventLog(const char * str)
-{
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-	pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)ms2ts(str).c_str());
-}

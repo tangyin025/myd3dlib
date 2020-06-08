@@ -4,6 +4,7 @@
 #include "OutputWnd.h"
 #include "Resource.h"
 #include "MainFrm.h"
+#include "MainApp.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,12 +17,12 @@ static char THIS_FILE[] = __FILE__;
 
 COutputEdit::COutputEdit()
 {
-
+	theApp.m_EventLog.connect(boost::bind(&COutputEdit::OnEventLog, this, _1));
 }
 
 COutputEdit::~COutputEdit()
 {
-
+	theApp.m_EventLog.connect(boost::bind(&COutputEdit::OnEventLog, this, _1));
 }
 
 BEGIN_MESSAGE_MAP(COutputEdit, CRichEditCtrl)
@@ -33,6 +34,12 @@ BEGIN_MESSAGE_MAP(COutputEdit, CRichEditCtrl)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
+
+void COutputEdit::OnEventLog(const char * str)
+{
+	SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
+	SendMessage(EM_REPLACESEL, 0, (LPARAM)ms2ts(str).c_str());
+}
 
 void COutputEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {

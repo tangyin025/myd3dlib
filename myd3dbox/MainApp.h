@@ -69,7 +69,6 @@ public:
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL OnIdle(LONG lCount);
 	virtual int ExitInstance();
-	void OnEventLog(const char * str);
 };
 
 extern CMainApp theApp;

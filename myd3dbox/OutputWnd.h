@@ -12,6 +12,8 @@ public:
 	virtual ~COutputEdit();
 
 protected:
+	void OnEventLog(const char * str);
+
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditClear();
