@@ -69,17 +69,17 @@ void CExportLuaDlg::OnBnClickedButton2()
 		GetDlgItem(IDC_EDIT2)->SetWindowText(dlgFile.GetPathName());
 }
 
-static size_t _hash_value(const std::string & Class, Gdiplus::Color Color, const CString & ImageStr, const CRect & Rect, const Vector4i & Border, FontPtr2 Font, Gdiplus::Color FontColor, DWORD TextAlign)
+static size_t _hash_value(const std::string & Class, Gdiplus::Color Color, const CString & ImageStr, const Gdiplus::Rect & Rect, const Vector4i & Border, FontPtr2 Font, Gdiplus::Color FontColor, DWORD TextAlign)
 {
 	// ! maybe hash conflict
 	size_t seed = 0;
 	boost::hash_combine(seed, Class);
 	boost::hash_combine(seed, Color.GetValue());
 	boost::hash_combine(seed, std::basic_string<TCHAR>((LPCTSTR)ImageStr));
-	boost::hash_combine(seed, Rect.left);
-	boost::hash_combine(seed, Rect.top);
-	boost::hash_combine(seed, Rect.right);
-	boost::hash_combine(seed, Rect.bottom);
+	boost::hash_combine(seed, Rect.X);
+	boost::hash_combine(seed, Rect.Y);
+	boost::hash_combine(seed, Rect.Width);
+	boost::hash_combine(seed, Rect.Height);
 	boost::hash_combine(seed, Border.x);
 	boost::hash_combine(seed, Border.y);
 	boost::hash_combine(seed, Border.z);
@@ -106,7 +106,7 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 	ASSERT(pReg);
 	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	std::string var_class = (hParentItem ? tstou8((LPCTSTR)pReg->m_Class) : "Dialog");
-	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_ImageRect, pReg->m_ImageBorder, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
 	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
 	if (skin_iter == m_SkinMap.end())
 	{
@@ -151,8 +151,8 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 			boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
 			boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
 			ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << tstou8(strRelatedPath.c_str()) << "\")" << std::endl;
-			ofs << skin_var_name << ".Image.Rect=Rectangle(" << pReg->m_Rect.left << "," << pReg->m_Rect.top << "," << pReg->m_Rect.right << "," << pReg->m_Rect.bottom << ")" << std::endl;
-			ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_Border.x << "," << pReg->m_Border.y << "," << pReg->m_Border.z << "," << pReg->m_Border.w << ")" << std::endl;
+			ofs << skin_var_name << ".Image.Rect=Rectangle.LeftTop(" << pReg->m_ImageRect.X << "," << pReg->m_ImageRect.Y << "," << pReg->m_ImageRect.Width << "," << pReg->m_ImageRect.Height << ")" << std::endl;
+			ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_ImageBorder.x << "," << pReg->m_ImageBorder.y << "," << pReg->m_ImageBorder.z << "," << pReg->m_ImageBorder.w << ")" << std::endl;
 		}
 		if (pReg->m_Font)
 		{
@@ -229,11 +229,13 @@ void CExportLuaDlg::ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem)
 	std::string var_name = tstou8((LPCTSTR)m_pDoc->m_TreeCtrl.GetItemText(hItem));
 	std::string var_class = (hParentItem ? tstou8((LPCTSTR)pReg->m_Class) : "Dialog");
 	ofs << var_scope << var_name << "=" << var_class << "(\"" << var_name << "\")" << std::endl;
-	ofs << var_name << ".Location=Vector2(" << pReg->m_Location.x << "," << pReg->m_Location.y << ")" << std::endl;
-	ofs << var_name << ".Size=Vector2(" << pReg->m_Size.cx << "," << pReg->m_Size.cy << ")" << std::endl;
+	ofs << var_name << ".x = UDim(" << pReg->m_x.scale << "," << pReg->m_x.offset << ")" << std::endl;
+	ofs << var_name << ".y = UDim(" << pReg->m_y.scale << "," << pReg->m_y.offset << ")" << std::endl;
+	ofs << var_name << ".Width = UDim(" << pReg->m_Width.scale << "," << pReg->m_Width.offset << ")" << std::endl;
+	ofs << var_name << ".Height = UDim(" << pReg->m_Height.scale << "," << pReg->m_Height.offset << ")" << std::endl;
 	ofs << var_name << ".Text=\"" << tstou8((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
 
-	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_Rect, pReg->m_Border, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_ImageRect, pReg->m_ImageBorder, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
 	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
 	if (skin_iter != m_SkinMap.end())
 	{

@@ -124,12 +124,18 @@ static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CAr
 
 	ar >> pReg->m_Class;
 	ar >> pReg->m_Locked;
-	ar >> pReg->m_Location;
-	ar >> pReg->m_Size;
+	ar >> pReg->m_x.scale;
+	ar >> pReg->m_x.offset;
+	ar >> pReg->m_y.scale;
+	ar >> pReg->m_y.offset;
+	ar >> pReg->m_Width.scale;
+	ar >> pReg->m_Width.offset;
+	ar >> pReg->m_Height.scale;
+	ar >> pReg->m_Height.offset;
 	DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
 	ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
-	ar >> pReg->m_Rect.left >> pReg->m_Rect.top >> pReg->m_Rect.right >> pReg->m_Rect.bottom;
-	ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
+	ar >> pReg->m_ImageRect.X >> pReg->m_ImageRect.Y >> pReg->m_ImageRect.Width >> pReg->m_ImageRect.Height;
+	ar >> pReg->m_ImageBorder.x >> pReg->m_ImageBorder.y >> pReg->m_ImageBorder.z >> pReg->m_ImageBorder.w;
 	CString strFamily; float fSize; ar >> strFamily;
 	ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
 	ar >> argb; pReg->m_FontColor.SetValue(argb);
@@ -148,12 +154,18 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion * pReg, CArchive &
 
 	ar << pReg->m_Class;
 	ar << pReg->m_Locked;
-	ar << pReg->m_Location;
-	ar << pReg->m_Size;
+	ar << pReg->m_x.scale;
+	ar << pReg->m_x.offset;
+	ar << pReg->m_y.scale;
+	ar << pReg->m_y.offset;
+	ar << pReg->m_Width.scale;
+	ar << pReg->m_Width.offset;
+	ar << pReg->m_Height.scale;
+	ar << pReg->m_Height.offset;
 	DWORD argb = pReg->m_Color.GetValue(); ar << argb;
 	ar << pReg->m_ImageStr;
-	ar << pReg->m_Rect.left << pReg->m_Rect.top << pReg->m_Rect.right << pReg->m_Rect.bottom;
-	ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
+	ar << pReg->m_ImageRect.X << pReg->m_ImageRect.Y << pReg->m_ImageRect.Width << pReg->m_ImageRect.Height;
+	ar << pReg->m_ImageBorder.x << pReg->m_ImageBorder.y << pReg->m_ImageBorder.z << pReg->m_ImageBorder.w;
 	Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
 	ar << pReg->m_Font->GetSize();
 	argb = pReg->m_FontColor.GetValue(); ar << argb;

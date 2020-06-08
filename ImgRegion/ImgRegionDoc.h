@@ -41,9 +41,15 @@ public:
 
 	BOOL m_Locked;
 
-	CPoint m_Location;
+	my::UDim m_x;
 
-	CSize m_Size;
+	my::UDim m_y;
+
+	my::UDim m_Width;
+
+	my::UDim m_Height;
+
+	Gdiplus::Rect m_Rect;
 
 	Gdiplus::Color m_Color;
 
@@ -51,9 +57,9 @@ public:
 
 	ImagePtr m_Image;
 
-	CRect m_Rect;
+	Gdiplus::Rect m_ImageRect;
 
-	Vector4i m_Border;
+	Vector4i m_ImageBorder;
 
 	FontPtr2 m_Font;
 
@@ -70,10 +76,12 @@ public:
 	CImgRegion(void)
 		: m_Class("Control")
 		, m_Locked(FALSE)
-		, m_Location(100,100)
-		, m_Size(100,100)
+		, m_x(0, 10)
+		, m_y(0, 10)
+		, m_Width(0, 100)
+		, m_Height(0, 100)
 		, m_Color(255,255,255,255)
-		, m_Border(0,0,0,0)
+		, m_ImageBorder(0,0,0,0)
 		, m_FontColor(255,255,255,255)
 		, m_Text(_T("x:%d y:%d w:%d h:%d"))
 		, m_TextAlign(TextAlignLeftTop)
@@ -134,11 +142,11 @@ public:
 	}
 };
 
-class HistoryChangeItemLocation
-	: public HistoryChangeItemValue<CPoint>
+class HistoryChangeItemX
+	: public HistoryChangeItemValue<my::UDim>
 {
 public:
-	HistoryChangeItemLocation(CImgRegionDoc * pDoc, UINT itemID, const CPoint & oldValue, const CPoint & newValue)
+	HistoryChangeItemX(CImgRegionDoc * pDoc, UINT itemID, const my::UDim & oldValue, const my::UDim & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
@@ -148,11 +156,11 @@ public:
 	virtual void Undo(void);
 };
 
-class HistoryChangeItemSize
-	: public HistoryChangeItemValue<CSize>
+class HistoryChangeItemWidth
+	: public HistoryChangeItemValue<my::UDim>
 {
 public:
-	HistoryChangeItemSize(CImgRegionDoc * pDoc, UINT itemID, const CSize & oldValue, const CSize & newValue)
+	HistoryChangeItemWidth(CImgRegionDoc * pDoc, UINT itemID, const my::UDim & oldValue, const my::UDim & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
@@ -336,7 +344,7 @@ public:
 
 	void DestroyTreeCtrl(void);
 
-	HTREEITEM GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal);
+	HTREEITEM GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt);
 
 	DECLARE_MESSAGE_MAP()
 

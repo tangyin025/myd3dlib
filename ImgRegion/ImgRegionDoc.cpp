@@ -40,17 +40,25 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szNam
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked] = pProp);
 
 	CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), CPropertiesWnd::PropertyItemLocation, TRUE);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)m_Location.x, _T("x坐标"), CPropertiesWnd::PropertyItemLocationX);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)m_x.offset, _T("x坐标"), CPropertiesWnd::PropertyItemLocationX);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX] = pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)m_Location.y, _T("y坐标"), CPropertiesWnd::PropertyItemLocationY);
+	pProp = new CSimpleProp(_T("x scale"), (_variant_t)m_x.scale, _T("x scale"), CPropertiesWnd::PropertyItemLocationXScale);
+	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationXScale] = pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)m_y.offset, _T("y坐标"), CPropertiesWnd::PropertyItemLocationY);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationY] = pProp);
+	pProp = new CSimpleProp(_T("y scale"), (_variant_t)m_y.scale, _T("y scale"), CPropertiesWnd::PropertyItemLocationYScale);
+	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationYScale] = pProp);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocation] = pLocal);
 
 	pLocal = new CSimpleProp(_T("Size"), CPropertiesWnd::PropertyItemSize, TRUE);
-	pProp = new CSimpleProp(_T("w"), (_variant_t)m_Size.cx, _T("宽度"), CPropertiesWnd::PropertyItemSizeW);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)m_Width.offset, _T("宽度"), CPropertiesWnd::PropertyItemSizeW);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeW] = pProp);
-	pProp = new CSimpleProp(_T("h"), (_variant_t)m_Size.cy, _T("高度"), CPropertiesWnd::PropertyItemSizeH);
+	pProp = new CSimpleProp(_T("w scale"), (_variant_t)m_Width.scale, _T("w scale"), CPropertiesWnd::PropertyItemSizeWScale);
+	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeWScale] = pProp);
+	pProp = new CSimpleProp(_T("h"), (_variant_t)m_Height.offset, _T("高度"), CPropertiesWnd::PropertyItemSizeH);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeH] = pProp);
+	pProp = new CSimpleProp(_T("h scale"), (_variant_t)m_Height.scale, _T("h scale"), CPropertiesWnd::PropertyItemSizeHScale);
+	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeHScale] = pProp);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSize] = pLocal);
 
 	pPropertiesWnd->m_wndPropList.AddProperty(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyGroupCoord] = pGroup);
@@ -69,24 +77,24 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szNam
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemImage] = pFileProp);
 
 	pLocal = new CSimpleProp(_T("Rect"), CPropertiesWnd::PropertyItemRect, TRUE);
-	pProp = new CSimpleProp(_T("left"), (_variant_t)m_Rect.left, _T("left"), CPropertiesWnd::PropertyItemRectL);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)(LONG)m_ImageRect.X, _T("left"), CPropertiesWnd::PropertyItemRectL);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectL] = pProp);
-	pProp = new CSimpleProp(_T("top"), (_variant_t)m_Rect.top, _T("top"), CPropertiesWnd::PropertyItemRectT);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)(LONG)m_ImageRect.Y, _T("top"), CPropertiesWnd::PropertyItemRectT);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectT] = pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)(LONG)m_Rect.Width(), _T("Width"), CPropertiesWnd::PropertyItemRectW);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)(LONG)m_ImageRect.Width, _T("Width"), CPropertiesWnd::PropertyItemRectW);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectW] = pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)(LONG)m_Rect.Height(), _T("Height"), CPropertiesWnd::PropertyItemRectH);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)(LONG)m_ImageRect.Height, _T("Height"), CPropertiesWnd::PropertyItemRectH);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectH] = pProp);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRect] = pLocal);
 
 	pLocal = new CSimpleProp(_T("Border"), CPropertiesWnd::PropertyItemBorder, TRUE);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)m_Border.x, _T("左边距"), CPropertiesWnd::PropertyItemBorderX);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)m_ImageBorder.x, _T("左边距"), CPropertiesWnd::PropertyItemBorderX);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderX] = pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)m_Border.y, _T("上边距"), CPropertiesWnd::PropertyItemBorderY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)m_ImageBorder.y, _T("上边距"), CPropertiesWnd::PropertyItemBorderY);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderY] = pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)m_Border.z, _T("右边距"), CPropertiesWnd::PropertyItemBorderZ);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)m_ImageBorder.z, _T("右边距"), CPropertiesWnd::PropertyItemBorderZ);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderZ] = pProp);
-	pProp = new CSimpleProp(_T("w"), (_variant_t)m_Border.w, _T("下边距"), CPropertiesWnd::PropertyItemBorderW);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)m_ImageBorder.w, _T("下边距"), CPropertiesWnd::PropertyItemBorderW);
 	pLocal->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderW] = pProp);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorder] = pLocal);
 
@@ -164,22 +172,26 @@ void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd, LPCTSTR szNam
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemName]->SetValue((_variant_t)szName);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemClass]->SetValue((_variant_t)m_Class);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked]->SetValue((_variant_t)(VARIANT_BOOL)m_Locked);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX]->SetValue((_variant_t)m_Location.x);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationY]->SetValue((_variant_t)m_Location.y);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeW]->SetValue((_variant_t)m_Size.cx);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeH]->SetValue((_variant_t)m_Size.cy);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX]->SetValue((_variant_t)m_x.offset);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationXScale]->SetValue((_variant_t)m_x.scale);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationY]->SetValue((_variant_t)m_y.offset);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationYScale]->SetValue((_variant_t)m_y.scale);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeW]->SetValue((_variant_t)m_Width.offset);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeWScale]->SetValue((_variant_t)m_Width.scale);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeH]->SetValue((_variant_t)m_Height.offset);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeHScale]->SetValue((_variant_t)m_Height.scale);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemAlpha]->SetValue((_variant_t)(long)m_Color.GetAlpha());
 	((CColorProp *)pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRGB])->SetColor(m_Color.ToCOLORREF());
 
 	((CFileProp *)pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemImage])->SetValue((_variant_t)m_ImageStr);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectL]->SetValue((_variant_t)m_Rect.left);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectT]->SetValue((_variant_t)m_Rect.top);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectW]->SetValue((_variant_t)(LONG)m_Rect.Width());
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectH]->SetValue((_variant_t)(LONG)m_Rect.Height());
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderX]->SetValue((_variant_t)m_Border.x);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderY]->SetValue((_variant_t)m_Border.y);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderZ]->SetValue((_variant_t)m_Border.z);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderW]->SetValue((_variant_t)m_Border.w);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectL]->SetValue((_variant_t)(LONG)m_ImageRect.X);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectT]->SetValue((_variant_t)(LONG)m_ImageRect.Y);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectW]->SetValue((_variant_t)(LONG)m_ImageRect.Width);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemRectH]->SetValue((_variant_t)(LONG)m_ImageRect.Height);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderX]->SetValue((_variant_t)m_ImageBorder.x);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderY]->SetValue((_variant_t)m_ImageBorder.y);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderZ]->SetValue((_variant_t)m_ImageBorder.z);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemBorderW]->SetValue((_variant_t)m_ImageBorder.w);
 
 	CString strFamily;
 	if(m_Font)
@@ -207,21 +219,21 @@ void CImgRegion::Draw(Gdiplus::Graphics & grap)
 {
 	if(m_Image && Gdiplus::ImageTypeUnknown != m_Image->GetType())
 	{
-		CImgRegionView::DrawRegionDocImage(grap, m_Image.get(), CRect(m_Location, m_Size), m_Rect, m_Border, m_Color);
+		CImgRegionView::DrawRegionDocImage(grap, m_Image.get(), m_Rect, m_ImageRect, m_ImageBorder, m_Color);
 	}
 	else
 	{
 		Gdiplus::SolidBrush brush(m_Color);
-		grap.FillRectangle(&brush, m_Location.x, m_Location.y, m_Size.cx, m_Size.cy);
+		grap.FillRectangle(&brush, m_Rect);
 	}
 
 	if(m_Font)
 	{
 		CString strInfo;
-		strInfo.Format(m_Text, m_Location.x, m_Location.y, m_Size.cx, m_Size.cy);
+		strInfo.Format(m_Text, m_Rect.X, m_Rect.Y, m_Rect.Width, m_Rect.Height);
 
 		Gdiplus::RectF rectF(
-			(float)m_Location.x + m_TextOff.x, (float)m_Location.y + m_TextOff.y, (float)m_Size.cx, (float)m_Size.cy);
+			(float)m_Rect.X + m_TextOff.x, (float)m_Rect.Y + m_TextOff.y, (float)m_Rect.Width, (float)m_Rect.Height);
 
 		Gdiplus::StringFormat format((m_TextWrap ? 0 : Gdiplus::StringFormatFlagsNoWrap) | Gdiplus::StringFormatFlagsNoClip);
 		format.SetTrimming(Gdiplus::StringTrimmingNone);
@@ -287,7 +299,7 @@ void CImgRegion::Serialize(CArchive& ar, int version)
 	CImgRegionDocFileVersions::SerializeImgRegion(this, ar, version);
 }
 
-void HistoryChangeItemLocation::Do(void)
+void HistoryChangeItemX::Do(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -296,10 +308,10 @@ void HistoryChangeItemLocation::Do(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Location = m_newValue;
+	pReg->m_x = m_newValue;
 }
 
-void HistoryChangeItemLocation::Undo(void)
+void HistoryChangeItemX::Undo(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -308,10 +320,10 @@ void HistoryChangeItemLocation::Undo(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Location = m_oldValue;
+	pReg->m_x = m_oldValue;
 }
 
-void HistoryChangeItemSize::Do(void)
+void HistoryChangeItemWidth::Do(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -320,10 +332,10 @@ void HistoryChangeItemSize::Do(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Size = m_newValue;
+	pReg->m_Width = m_newValue;
 }
 
-void HistoryChangeItemSize::Undo(void)
+void HistoryChangeItemWidth::Undo(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -332,7 +344,7 @@ void HistoryChangeItemSize::Undo(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Size = m_oldValue;
+	pReg->m_Width = m_oldValue;
 }
 
 void HistoryChangeItemTextOff::Do(void)
@@ -397,7 +409,9 @@ void HistoryAddRegion::Do(void)
 
 	pReg->m_Locked = FALSE;
 
-	pReg->m_Location.SetPoint(10, 10);
+	pReg->m_x = my::UDim(0, 10);
+
+	pReg->m_y = my::UDim(0, 10);
 
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 
@@ -470,8 +484,6 @@ void HistoryMovRegion::Do(void)
 	m_oldParentID = hParent ? m_pDoc->GetItemId(hParent) : 0;
 	m_oldBeforeID = hBefore ? m_pDoc->GetItemId(hBefore) : 0;
 
-	CPoint ptOrg = m_pDoc->LocalToRoot(hItem, CPoint(0,0));
-
 	HTREEITEM hNewParent = !m_newParentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_newParentID];
 	HTREEITEM hNewBefore = !m_newBeforeID ? TVI_LAST : m_pDoc->m_ItemMap[m_newBeforeID];
 
@@ -479,19 +491,12 @@ void HistoryMovRegion::Do(void)
 	if(hNewItem != hItem)
 	{
 		m_pDoc->m_TreeCtrl.SelectItem(hNewItem);
-
-		CImgRegionPtr pReg = m_pDoc->GetItemNode(hNewItem);
-		ASSERT(pReg);
-
-		pReg->m_Location = m_pDoc->RootToLocal(hNewParent, ptOrg);
 	}
 }
 
 void HistoryMovRegion::Undo(void)
 {
 	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
-
-	CPoint ptOrg = m_pDoc->LocalToRoot(hItem, CPoint(0,0));
 
 	HTREEITEM hOldParent = !m_oldParentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_oldParentID];
 	HTREEITEM hOldBefore = !m_oldBeforeID ? TVI_FIRST : m_pDoc->m_ItemMap[m_oldBeforeID];
@@ -500,11 +505,6 @@ void HistoryMovRegion::Undo(void)
 	if(hOldItem != hItem)
 	{
 		m_pDoc->m_TreeCtrl.SelectItem(hOldItem);
-
-		CImgRegionPtr pReg = m_pDoc->GetItemNode(hOldItem);
-		ASSERT(pReg);
-
-		pReg->m_Location = m_pDoc->RootToLocal(hOldParent, ptOrg);
 	}
 }
 
@@ -554,24 +554,18 @@ CImgRegionDoc::CImgRegionDoc(void)
 
 CPoint CImgRegionDoc::LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal)
 {
-	if(NULL == hItem)
-		return ptLocal;
-
 	CImgRegionPtr pReg = GetItemNode(hItem);
 	ASSERT(pReg);
 
-	return LocalToRoot(m_TreeCtrl.GetParentItem(hItem), ptLocal + pReg->m_Location);
+	return ptLocal + CPoint(pReg->m_Rect.X, pReg->m_Rect.Y);
 }
 
 CPoint CImgRegionDoc::RootToLocal(HTREEITEM hItem, const CPoint & ptRoot)
 {
-	if(NULL == hItem || TVI_ROOT == hItem)
-		return ptRoot;
-
 	CImgRegionPtr pReg = GetItemNode(hItem);
 	ASSERT(pReg);
 
-	return RootToLocal(m_TreeCtrl.GetParentItem(hItem), ptRoot - pReg->m_Location);
+	return ptRoot - CPoint(pReg->m_Rect.X, pReg->m_Rect.Y);
 }
 
 BOOL CImgRegionDoc::CreateTreeCtrl(void)
@@ -622,23 +616,26 @@ void CImgRegionDoc::DestroyTreeCtrl(void)
 	m_TreeImageList.DeleteImageList();
 }
 
-HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal)
+HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt)
 {
 	// 这里的碰撞检测应当反过来检测，因为优先画在前面的
 	if(hItem)
 	{
 		HTREEITEM hRet;
-		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetNextSiblingItem(hItem), ptLocal))
+		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetNextSiblingItem(hItem), pt))
 			return hRet;
 
 		CImgRegionPtr pReg = GetItemNode(hItem);
 		ASSERT(pReg);
 
-		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Location))
+		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), pt))
 			return hRet;
 
-		if(CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
+		if (pt.x >= pReg->m_Rect.X && pt.x < pReg->m_Rect.X + pReg->m_Rect.Width
+			&& pt.y >= pReg->m_Rect.Y && pt.y < pReg->m_Rect.Y + pReg->m_Rect.Height)
+		{
 			return hItem;
+		}
 	}
 	return NULL;
 }
@@ -848,7 +845,6 @@ void CImgRegionDoc::AddNewHistory(HistoryPtr hist)
 void CImgRegionDoc::OnAddRegion()
 {
 	HTREEITEM hParent = m_TreeCtrl.GetSelectedItem();
-	CPoint ptOrg(10,10);
 	m_NextRegId++;
 	CString szName;
 	szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
@@ -856,8 +852,10 @@ void CImgRegionDoc::OnAddRegion()
 		this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, 0));
 
 	CImgRegion reg;
-	reg.m_Location = ptOrg;
-	reg.m_Size = CSize(100,100);
+	reg.m_x = my::UDim(0, 10);
+	reg.m_y = my::UDim(0, 10);
+	reg.m_Width = my::UDim(0, 100);
+	reg.m_Height = my::UDim(0, 100);
 	reg.m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	reg.m_Font = theApp.GetFont(_T("微软雅黑"), 16);
 	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));

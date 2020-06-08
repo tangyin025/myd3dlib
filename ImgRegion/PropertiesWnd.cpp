@@ -197,8 +197,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemLocationY:
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(
-							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_Location, CPoint(m_pProp[PropertyItemLocationX]->GetValue().lVal, m_pProp[PropertyItemLocationY]->GetValue().lVal))));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemX(
+							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_x, my::UDim(
+								m_pProp[PropertyItemLocationX]->GetValue().fltVal,
+								m_pProp[PropertyItemLocationXScale]->GetValue().fltVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}
@@ -209,8 +211,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemSizeH:
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(
-							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_Size, CPoint(m_pProp[PropertyItemSizeW]->GetValue().lVal, m_pProp[PropertyItemSizeH]->GetValue().lVal))));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemWidth(
+							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_Width, my::UDim(
+								m_pProp[PropertyItemSizeW]->GetValue().fltVal,
+								m_pProp[PropertyItemSizeWScale]->GetValue().fltVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}
@@ -226,7 +230,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemImage:
 					pReg->m_ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
 					pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
-					pReg->m_Rect.SetRect(0, 0, pReg->m_Image->GetWidth(), pReg->m_Image->GetHeight());
+					pReg->m_ImageRect = Gdiplus::Rect(0, 0, pReg->m_Image->GetWidth(), pReg->m_Image->GetHeight());
 					break;
 
 				case PropertyItemRect:
@@ -234,10 +238,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemRectT:
 				case PropertyItemRectW:
 				case PropertyItemRectH:
-					pReg->m_Rect.left = m_pProp[PropertyItemRectL]->GetValue().lVal;
-					pReg->m_Rect.top = m_pProp[PropertyItemRectT]->GetValue().lVal;
-					pReg->m_Rect.right = pReg->m_Rect.left + m_pProp[PropertyItemRectW]->GetValue().lVal;
-					pReg->m_Rect.bottom = pReg->m_Rect.top + m_pProp[PropertyItemRectH]->GetValue().lVal;
+					pReg->m_ImageRect.X = m_pProp[PropertyItemRectL]->GetValue().lVal;
+					pReg->m_ImageRect.Y = m_pProp[PropertyItemRectT]->GetValue().lVal;
+					pReg->m_ImageRect.Width = m_pProp[PropertyItemRectW]->GetValue().lVal;
+					pReg->m_ImageRect.Height = m_pProp[PropertyItemRectH]->GetValue().lVal;
 					break;
 
 				case PropertyItemBorder:
@@ -245,10 +249,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemBorderY:
 				case PropertyItemBorderZ:
 				case PropertyItemBorderW:
-					pReg->m_Border.x = m_pProp[PropertyItemBorderX]->GetValue().lVal;
-					pReg->m_Border.y = m_pProp[PropertyItemBorderY]->GetValue().lVal;
-					pReg->m_Border.z = m_pProp[PropertyItemBorderZ]->GetValue().lVal;
-					pReg->m_Border.w = m_pProp[PropertyItemBorderW]->GetValue().lVal;
+					pReg->m_ImageBorder.x = m_pProp[PropertyItemBorderX]->GetValue().lVal;
+					pReg->m_ImageBorder.y = m_pProp[PropertyItemBorderY]->GetValue().lVal;
+					pReg->m_ImageBorder.z = m_pProp[PropertyItemBorderZ]->GetValue().lVal;
+					pReg->m_ImageBorder.w = m_pProp[PropertyItemBorderW]->GetValue().lVal;
 					break;
 
 				case PropertyItemFont:
