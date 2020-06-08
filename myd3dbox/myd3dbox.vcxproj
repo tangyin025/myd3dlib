@@ -131,7 +131,7 @@
     <ClCompile Include="MainApp.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="NavigationDlg.cpp" />
-    <ClCompile Include="OutlinerWnd.cpp" />
+    <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="Pivot.cpp" />
     <ClCompile Include="PropertiesWnd.cpp" />
     <ClCompile Include="ShapeDlg.cpp" />
@@ -151,7 +151,7 @@
     <ClInclude Include="MainApp.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="NavigationDlg.h" />
-    <ClInclude Include="OutlinerWnd.h" />
+    <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="Pivot.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="Resource.h" />

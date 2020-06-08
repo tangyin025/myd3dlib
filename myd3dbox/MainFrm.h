@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
 #include "EnvironmentWnd.h"
+#include "OutputWnd.h"
 #include "Actor.h"
 #include "PhysxContext.h"
 #include "Terrain.h"
@@ -26,9 +26,9 @@ protected:
 	CSplitterWnd m_wndSplitter;
 public:
 	BOOL m_bEatAltUp;
-	//COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
 	CEnvironmentWnd		m_wndEnvironment;
+	COutputWnd        m_wndOutput;
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
