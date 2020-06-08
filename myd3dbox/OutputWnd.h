@@ -2,23 +2,19 @@
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////
-// COutputList window
+// COutputEdit window
 
-class COutputList : public CListBox
+class COutputEdit : public CRichEditCtrl
 {
-// Construction
 public:
-	COutputList();
+	COutputEdit();
 
-// Implementation
-public:
-	virtual ~COutputList();
+	virtual ~COutputEdit();
 
 protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditClear();
-	//afx_msg void OnViewOutput();
 
 	DECLARE_MESSAGE_MAP()
 };
@@ -35,16 +31,10 @@ public:
 protected:
 	CMFCTabCtrl	m_wndTabs;
 
-	COutputList m_wndOutputBuild;
-	COutputList m_wndOutputDebug;
-	COutputList m_wndOutputFind;
+	COutputEdit m_wndOutputDebug;
 
 protected:
-	void FillBuildWindow();
-	void FillDebugWindow();
-	void FillFindWindow();
-
-	void AdjustHorzScroll(CListBox& wndListBox);
+	//void AdjustHorzScroll(CListBox& wndListBox);
 
 // Implementation
 public:
