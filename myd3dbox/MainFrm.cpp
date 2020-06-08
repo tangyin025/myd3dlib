@@ -170,10 +170,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return FALSE; // failed to create
 	}
 
-	if (!m_wndOutput.Create(_T("Outliner"), this, CRect(0, 0, 200, 200), TRUE, 3001,
+	if (!m_wndOutput.Create(_T("Output"), this, CRect(0, 0, 200, 200), TRUE, 3001,
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
 	{
-		TRACE0("Failed to create outliner\n");
+		TRACE0("Failed to create Output window\n");
 		return -1;
 	}
 
