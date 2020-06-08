@@ -2948,4 +2948,146 @@ namespace my
 
 		AABB & transformSelf(const Matrix4 & m);
 	};
+
+	class UDim // ref: CEGUI::UDim
+	{
+	public:
+		float scale, offset;
+
+	public:
+		inline UDim()
+		{}
+
+		inline UDim(float _scale, float _offset) :
+			scale(_scale),
+			offset(_offset)
+		{}
+
+		inline UDim(const UDim& v) :
+			scale(v.scale),
+			offset(v.offset)
+		{}
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(scale);
+			ar & BOOST_SERIALIZATION_NVP(offset);
+		}
+
+		inline UDim operator+(const UDim& other) const
+		{
+			return UDim(scale + other.scale, offset + other.offset);
+		}
+
+		inline UDim operator-(const UDim& other) const
+		{
+			return UDim(scale - other.scale, offset - other.offset);
+		}
+
+		inline UDim operator*(const float val) const
+		{
+			return UDim(scale * val, offset * val);
+		}
+
+		inline friend UDim operator*(const float val, const UDim& u)
+		{
+			return UDim(val * u.scale, val * u.offset);
+		}
+
+		inline UDim operator*(const UDim& other) const
+		{
+			return UDim(scale * other.scale, offset * other.offset);
+		}
+
+		inline UDim operator/(const UDim& other) const
+		{
+			// division by zero sets component to zero.  Not technically correct
+			// but probably better than exceptions and/or NaN values.
+			return UDim(other.scale == 0.0f ? 0.0f : scale / other.scale,
+				other.offset == 0.0f ? 0.0f : offset / other.offset);
+		}
+
+		inline const UDim& operator+=(const UDim& other)
+		{
+			scale += other.scale;
+			offset += other.offset;
+			return *this;
+		}
+
+		inline const UDim& operator-=(const UDim& other)
+		{
+			scale -= other.scale;
+			offset -= other.offset;
+			return *this;
+		}
+
+		inline const UDim& operator*=(const UDim& other)
+		{
+			scale *= other.scale;
+			offset *= other.offset;
+			return *this;
+		}
+
+		inline const UDim& operator/=(const UDim& other)
+		{
+			// division by zero sets component to zero.  Not technically correct
+			// but probably better than exceptions and/or NaN values.
+			scale = (other.scale == 0.0f ? 0.0f : scale / other.scale);
+			offset = (other.offset == 0.0f ? 0.0f : offset / other.offset);
+			return *this;
+		}
+
+		inline bool operator==(const UDim& other) const
+		{
+			return scale == other.scale && offset == other.offset;
+		}
+
+		inline bool operator!=(const UDim& other) const
+		{
+			return !operator==(other);
+		}
+
+		/*!
+		\brief finger saving convenience method returning UDim(0, 0)
+		*/
+		inline static UDim zero()
+		{
+			return UDim(0.0f, 0.0f);
+		}
+
+		/*!
+		\brief finger saving convenience method returning UDim(1, 0)
+
+		\note
+		Allows quite neat 0.5 * UDim::relative() self documenting syntax
+		*/
+		inline static UDim relative()
+		{
+			return UDim(1.0f, 0.0f);
+		}
+
+		/*!
+		\brief finger saving convenience method returning UDim(0.01, 0)
+
+		\note
+		Allows quite neat 50 * UDim::percent() self documenting syntax
+		*/
+		inline static UDim percent()
+		{
+			return UDim(0.01f, 0.0f);
+		}
+
+		/*!
+		\brief finger saving convenience method returning UDim(0, 1)
+
+		\note
+		Allows quite neat 100 * UDim::px() self documenting syntax,
+		you can combine it with UDim::relative() as well (using operator+)
+		*/
+		inline static UDim px()
+		{
+			return UDim(0.0f, 1.0f);
+		}
+	};
 }

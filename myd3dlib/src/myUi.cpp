@@ -418,8 +418,10 @@ void Control::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_bEnabled);
 	ar << BOOST_SERIALIZATION_NVP(m_bVisible);
 	ar << BOOST_SERIALIZATION_NVP(m_nHotkey);
-	ar << BOOST_SERIALIZATION_NVP(m_Location);
-	ar << BOOST_SERIALIZATION_NVP(m_Size);
+	ar << BOOST_SERIALIZATION_NVP(m_x);
+	ar << BOOST_SERIALIZATION_NVP(m_y);
+	ar << BOOST_SERIALIZATION_NVP(m_Width);
+	ar << BOOST_SERIALIZATION_NVP(m_Height);
 	ar << BOOST_SERIALIZATION_NVP(m_Skin);
 }
 
@@ -431,8 +433,10 @@ void Control::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_bEnabled);
 	ar >> BOOST_SERIALIZATION_NVP(m_bVisible);
 	ar >> BOOST_SERIALIZATION_NVP(m_nHotkey);
-	ar >> BOOST_SERIALIZATION_NVP(m_Location);
-	ar >> BOOST_SERIALIZATION_NVP(m_Size);
+	ar >> BOOST_SERIALIZATION_NVP(m_x);
+	ar >> BOOST_SERIALIZATION_NVP(m_y);
+	ar >> BOOST_SERIALIZATION_NVP(m_Width);
+	ar >> BOOST_SERIALIZATION_NVP(m_Height);
 	ar >> BOOST_SERIALIZATION_NVP(m_Skin);
 
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -524,21 +528,21 @@ void Control::SetMouseOverControl(Control * control, const Vector2 & pt)
 	}
 }
 
-void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if (m_Skin)
 		{
-			m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Skin->m_Color);
+			m_Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
@@ -617,7 +621,7 @@ void Control::OnHotkey(void)
 
 bool Control::HitTest(const Vector2 & pt)
 {
-	return Rectangle::LeftTop(Vector2(0,0), m_Size).PtInRect(ScreenToLocal(pt));
+	return m_Rect.PtInRect(pt);
 }
 
 void Control::SetEnabled(bool bEnabled)
@@ -757,18 +761,18 @@ Vector2 Control::LocalToScreen(const Vector2 & pt) const
 {
 	if (m_Parent)
 	{
-		return m_Parent->LocalToScreen(m_Location + pt);
+		return m_Parent->LocalToScreen(m_Rect.LeftTop() + pt);
 	}
-	return m_Location + pt;
+	return m_Rect.LeftTop() + pt;
 }
 
 Vector2 Control::ScreenToLocal(const Vector2 & pt) const
 {
 	if (m_Parent)
 	{
-		return m_Parent->ScreenToLocal(pt) - m_Location;
+		return m_Parent->ScreenToLocal(pt) - m_Rect.LeftTop();
 	}
-	return pt - m_Location;
+	return pt - m_Rect.LeftTop();
 }
 
 bool Control::SetFocusRecursive(void)
@@ -800,94 +804,98 @@ UINT Control::GetHotkey(void)
 	return m_nHotkey;
 }
 
-void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if(m_Skin)
 		{
-			m_Skin->DrawString(ui_render, m_Text.c_str(), Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
+			m_Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
 
-void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if (m_Skin)
 		{
 			ProgressBarSkinPtr Skin = boost::dynamic_pointer_cast<ProgressBarSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
+			Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 
 			m_BlendProgress = Lerp(m_BlendProgress, m_Progress, 1.0f - powf(0.8f, 30 * fElapsedTime));
-			Rect.r = Lerp(Rect.l, Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress)));
-			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, Rect, m_Skin->m_Color);
+			Rectangle ProgressRect(m_Rect.l, m_Rect.t, Lerp(m_Rect.l, m_Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress))), m_Rect.b);
+			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, ProgressRect, m_Skin->m_Color);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
 
-void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if(m_Skin)
 		{
 			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
 			_ASSERT(Skin);
 
+			Rectangle BtnRect;
+
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Skin->m_Color);
+				BtnRect = m_Rect;
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Skin->m_Color);
 			}
 			else
 			{
 				if(m_bPressed)
 				{
-					Rect = Rect.offset(Skin->m_PressedOffset);
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Skin->m_Color);
+					BtnRect = m_Rect.offset(Skin->m_PressedOffset);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 				}
 				else
 				{
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						Rect = Rect.offset(-Skin->m_PressedOffset);
-						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Skin->m_Color);
+						BtnRect = m_Rect.offset(-Skin->m_PressedOffset);
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Skin->m_Color);
 					}
 					else
 					{
-						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
+						BtnRect = m_Rect;
+						Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 					}
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text.c_str(), Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), BtnRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
@@ -1007,7 +1015,7 @@ bool Button::HitTest(const Vector2 & pt)
 	return Control::HitTest(pt);
 }
 
-void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
@@ -1018,7 +1026,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			m_dwLastBlink = dwAbsoluteTime;
 		}
 
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if(m_Skin)
 		{
@@ -1027,20 +1035,20 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, m_Rect, m_Skin->m_Color);
 			}
 			else if(m_bHasFocus)
 			{
-				Skin->DrawImage(ui_render, Skin->m_FocusedImage, Rect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, Skin->m_FocusedImage, m_Rect, m_Skin->m_Color);
 			}
 			else
 			{
-				Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 			}
 
 			if(Skin->m_Font)
 			{
-				Rectangle TextRect = Rect.shrink(m_Border);
+				Rectangle TextRect = m_Rect.shrink(m_Border);
 
 				float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 				float caret_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
@@ -1093,7 +1101,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
@@ -1486,7 +1494,7 @@ void EditBox::PlaceCaret(int nCP)
 		}
 		else
 		{
-			float xNewLeft = x2 - (m_Size.x - m_Border.x - m_Border.z);
+			float xNewLeft = x2 - (m_Rect.Width() - m_Border.x - m_Border.z);
 			if(xNewLeft > x1st)
 			{
 				int nCPNew1st = m_Skin->m_Font->XtoCP(m_Text.c_str(), xNewLeft);
@@ -1649,22 +1657,22 @@ bool ImeEditBox::s_bHideCaret = false;
 
 std::wstring ImeEditBox::s_CompString;
 
-void ImeEditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
-		EditBox::Draw(ui_render, fElapsedTime, Offset);
+		EditBox::Draw(ui_render, fElapsedTime, Offset, Size);
 
 	    ImeUi_RenderUI();
 
 		if(m_bHasFocus)
 		{
-			RenderIndicator(ui_render, fElapsedTime, Offset);
+			RenderIndicator(ui_render, fElapsedTime);
 
-			RenderComposition(ui_render, fElapsedTime, Offset);
+			RenderComposition(ui_render, fElapsedTime);
 
 			if(ImeUi_IsShowCandListWindow())
-				RenderCandidateWindow(ui_render, fElapsedTime, Offset);
+				RenderCandidateWindow(ui_render, fElapsedTime);
 		}
 	}
 }
@@ -1775,11 +1783,11 @@ void ImeEditBox::EnableImeSystem(bool bEnable)
 	ImeUi_EnableIme(bEnable);
 }
 
-void ImeEditBox::RenderIndicator(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::RenderIndicator(UIRender * ui_render, float fElapsedTime)
 {
 }
 
-void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime)
 {
 	if(m_Skin && m_Skin->m_Font)
 	{
@@ -1788,9 +1796,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 
 		s_CompString = ts2ws(ImeUi_GetCompositionString());
 
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
-
-		Rectangle TextRect = Rect.shrink(m_Border);
+		Rectangle TextRect = m_Rect.shrink(m_Border);
 
 		float x, x1st;
 		x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
@@ -1815,16 +1821,14 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 	}
 }
 
-void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 {
 	if(m_Skin && m_Skin->m_Font)
 	{
 		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 		_ASSERT(Skin);
 
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
-
-		Rectangle TextRect = Rect.shrink(m_Border);
+		Rectangle TextRect = m_Rect.shrink(m_Border);
 
 		float x, x1st, comp_x;
 		x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
@@ -1848,7 +1852,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 		}
 		extent = Skin->m_Font->CalculateStringExtent(horizontalText.c_str());
 
-		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
+		Rectangle CandRect = Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight);
 
 		Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
 
@@ -1856,7 +1860,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 	}
 }
 
-void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
     // Check if the arrow button has been held for a while.
     // If so, update the thumb position to simulate repeated
@@ -1904,18 +1908,18 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 	if(m_bVisible)
 	{
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if(m_Skin)
 		{
 			ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
+			Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
 
-			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
 
-			Rectangle DownButtonRect(Rectangle::RightBottom(Rect.r, Rect.b, m_Size.x, m_UpDownButtonHeight));
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
 
 			if(m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
@@ -1923,11 +1927,11 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 				Skin->DrawImage(ui_render, Skin->m_DownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
 
-				float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
+				float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
 				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 				int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 				float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-				Rectangle ThumbButtonRect(Rect.l, fThumbTop, Rect.r, fThumbTop + fThumbHeight);
+				Rectangle ThumbButtonRect(m_Rect.l, fThumbTop, m_Rect.r, fThumbTop + fThumbHeight);
 
 				Skin->DrawImage(ui_render, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 			}
@@ -1942,7 +1946,7 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
@@ -1969,9 +1973,8 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
 		{
-			Vector2 ptLocal = ScreenToLocal(pt);
-			Rectangle UpButtonRect(Rectangle::LeftTop(Vector2(0,0), Vector2(m_Size.x, m_UpDownButtonHeight)));
-			if(UpButtonRect.PtInRect(ptLocal))
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_Rect.l, m_Rect.t, m_Rect.Width(), m_UpDownButtonHeight);
+			if(UpButtonRect.PtInRect(pt))
 			{
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
@@ -1981,8 +1984,8 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				return true;
 			}
 
-			Rectangle DownButtonRect(Rectangle::RightBottom(m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
-			if(DownButtonRect.PtInRect(ptLocal))
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_Rect.r, m_Rect.b, m_Rect.Width(), m_UpDownButtonHeight);
+			if(DownButtonRect.PtInRect(pt))
 			{
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
@@ -1992,29 +1995,29 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				return true;
 			}
 
-			float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
+			float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
 			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 			float fMaxThumb = fTrackHeight - fThumbHeight;
-			float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * fMaxThumb;
-			Rectangle ThumbButtonRect(0, fThumbTop, m_Size.x, fThumbTop + fThumbHeight);
-			if(ThumbButtonRect.PtInRect(ptLocal))
+			float fThumbTop = (float)(m_nPosition - m_nStart) / nMaxPosition * fMaxThumb;
+			Rectangle ThumbButtonRect(m_Rect.l, UpButtonRect.b + fThumbTop, m_Rect.r, UpButtonRect.b + fThumbTop + fThumbHeight);
+			if(ThumbButtonRect.PtInRect(pt))
 			{
 				m_bDrag = true;
-				m_fThumbOffsetY = ptLocal.y - fThumbTop;
+				m_fThumbOffsetY = pt.y - fThumbTop;
 				SetCaptureControl(this);
 				return true;
 			}
 
-			if(ptLocal.x >= ThumbButtonRect.l && ptLocal.x < ThumbButtonRect.r)
+			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
 			{
-				if(ptLocal.y >= UpButtonRect.b && ptLocal.y < ThumbButtonRect.t)
+				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
 					SetCaptureControl(this);
 					return true;
 				}
-				else if(ptLocal.y >= ThumbButtonRect.b && ptLocal.y < DownButtonRect.t)
+				else if(pt.y >= ThumbButtonRect.b && pt.y < DownButtonRect.t)
 				{
 					Scroll( m_nPageSize);
 					SetCaptureControl(this);
@@ -2036,20 +2039,18 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			Vector2 ptLocal = ScreenToLocal(pt);
-			Rectangle TrackRect(0, m_UpDownButtonHeight, m_Size.x, m_Size.y - m_UpDownButtonHeight);
-			float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
+			float fTrackHeight = m_Rect.Height() - m_UpDownButtonHeight * 2;
 			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 			float fMaxThumb = fTrackHeight - fThumbHeight;
-			float fThumbTop = ptLocal.y - m_fThumbOffsetY;
+			float fThumbTop = pt.y - m_fThumbOffsetY;
 
-			if(fThumbTop < TrackRect.t)
-				fThumbTop = TrackRect.t;
-			else if(fThumbTop + fThumbHeight > TrackRect.b)
-				fThumbTop = TrackRect.b - fThumbHeight;
+			if(fThumbTop < 0)
+				fThumbTop = 0;
+			else if(fThumbTop + fThumbHeight > m_Rect.Height() - m_UpDownButtonHeight * 2)
+				fThumbTop = m_Rect.Height() - m_UpDownButtonHeight * 2 - fThumbHeight;
 
-			m_nPosition = (int)(m_nStart + (fThumbTop - TrackRect.t + fMaxThumb / (nMaxPosition * 2)) * nMaxPosition / fMaxThumb);
+			m_nPosition = (int)(m_nStart + (fThumbTop + fMaxThumb / (nMaxPosition * 2)) * nMaxPosition / fMaxThumb);
 			return true;
 		}
 		break;
@@ -2082,17 +2083,18 @@ void ScrollBar::ScrollTo(int nPosition)
 	}
 }
 
-void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
+
 		if(m_Skin)
 		{
 			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			Rectangle BtnRect(Rectangle::LeftMiddle(
-				Offset.x + m_Location.x, Offset.y + m_Location.y + m_Size.y * 0.5f, m_CheckBtnSize.x, m_CheckBtnSize.y));
+			Rectangle BtnRect = Rectangle::LeftMiddle(m_Rect.l, m_Rect.t + m_Rect.Height() * 0.5f, m_CheckBtnSize.x, m_CheckBtnSize.y);
 
 			if(!m_bEnabled)
 			{
@@ -2115,7 +2117,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 			}
 
-			Rectangle TextRect(Rectangle::LeftTop(BtnRect.r, Offset.y + m_Location.y, m_Size.x - m_CheckBtnSize.x, m_Size.y));
+			Rectangle TextRect(BtnRect.r, m_Rect.t, m_Rect.r, m_Rect.b);
 
 			Skin->DrawString(ui_render, m_Text.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
@@ -2123,7 +2125,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Offset + m_Location);
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
@@ -2146,7 +2148,7 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				if (m_EventMouseClick)
 				{
-					MouseEventArg arg(this, LocalToScreen(m_Location));
+					MouseEventArg arg(this, Vector2(0, 0));
 					m_EventMouseClick(&arg);
 				}
 				return true;
@@ -2250,20 +2252,23 @@ void ComboBox::load<boost::archive::binary_iarchive>(boost::archive::binary_iarc
 template
 void ComboBox::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
-void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
 	{
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		if(m_Skin)
 		{
 			ComboBoxSkinPtr Skin = boost::dynamic_pointer_cast<ComboBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
+			Rectangle BtnRect;
+
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Skin->m_Color);
+				BtnRect = m_Rect;
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Skin->m_Color);
 			}
 			else
 			{
@@ -2271,22 +2276,22 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				{
 					ui_render->Flush();
 
-					Rectangle DropdownRect(Rectangle::LeftTop(Rect.l, Rect.b, m_DropdownSize.x, m_DropdownSize.y));
+					BtnRect = m_Rect.offset(Skin->m_PressedOffset);
 
-					Rect = Rect.offset(Skin->m_PressedOffset);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Skin->m_Color);
+					Rectangle DropdownRect = Rectangle::LeftTop(m_Rect.l, m_Rect.b, m_DropdownSize.x, m_DropdownSize.y);
 
 					Skin->DrawImage(ui_render, Skin->m_DropdownImage, DropdownRect, m_Skin->m_Color);
 
 					// ! ScrollBar source copy
-					Rectangle ScrollBarRect(Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y));
+					m_ScrollBar.m_Rect = Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
 
-					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, ScrollBarRect, m_Skin->m_Color);
+					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar.m_Rect, m_Skin->m_Color);
 
-					Rectangle UpButtonRect(Rectangle::LeftTop(ScrollBarRect.l, ScrollBarRect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight));
+					Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar.m_Rect.l, m_ScrollBar.m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
 
-					Rectangle DownButtonRect(Rectangle::RightBottom(ScrollBarRect.r, ScrollBarRect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight));
+					Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar.m_Rect.r, m_ScrollBar.m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
 
 					if(m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
 					{
@@ -2298,7 +2303,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 						float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
 						int nMaxPosition = m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart - m_ScrollBar.m_nPageSize;
 						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-						Rectangle ThumbButtonRect(ScrollBarRect.l, fThumbTop, ScrollBarRect.r, fThumbTop + fThumbHeight);
+						Rectangle ThumbButtonRect(m_ScrollBar.m_Rect.l, fThumbTop, m_ScrollBar.m_Rect.r, fThumbTop + fThumbHeight);
 
 						Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 					}
@@ -2313,7 +2318,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 					float y = DropdownRect.t + m_Border.y;
 					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
+						Rectangle ItemRect = Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
 
 						if(i == m_iFocused)
 						{
@@ -2329,25 +2334,28 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				{
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						Rect = Rect.offset(-Skin->m_PressedOffset);
-						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_Skin->m_Color);
+						BtnRect = m_Rect.offset(-Skin->m_PressedOffset);
+						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Skin->m_Color);
 					}
 					else
 					{
-						Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Skin->m_Color);
+						BtnRect = m_Rect;
+						Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
 					}
 				}
 			}
 
-			Rectangle TextRect = Rect.shrink(m_Border);
-			if(m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
+			if (m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
+			{
+				Rectangle TextRect = BtnRect.shrink(m_Border);
 				Skin->DrawString(ui_render, m_Items[m_iSelected]->strText.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			}
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
 }
@@ -2431,8 +2439,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	{
 		if(m_bHasFocus && m_bOpened)
 		{
-			Vector2 ptLocal = ScreenToLocal(pt);
-			if(m_ScrollBar.HandleMouse(uMsg, Vector2(ptLocal.x, ptLocal.y - m_Size.y), wParam, lParam))
+			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 			{
 				// ! overload scrollbars capture
 				SetFocusControl(this);
@@ -2441,23 +2448,22 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			}
 		}
 
-		Rectangle DropdownRect(Rectangle::LeftTop(0, m_Size.y, m_DropdownSize.x, m_DropdownSize.y));
+		Rectangle DropdownRect = Rectangle::LeftTop(m_Rect.l, m_Rect.b, m_DropdownSize.x, m_DropdownSize.y);
 
 		switch(uMsg)
 		{
 		case WM_MOUSEMOVE:
 			if(m_bHasFocus && m_bOpened)
 			{
-				Vector2 ptLocal = ScreenToLocal(pt);
-				if(DropdownRect.PtInRect(ptLocal))
+				if(DropdownRect.PtInRect(pt))
 				{
 					int i = m_ScrollBar.m_nPosition;
 					float y = DropdownRect.t;
 					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
+						Rectangle ItemRect = Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
 
-						if(ItemRect.PtInRect(ptLocal))
+						if(ItemRect.PtInRect(pt))
 						{
 							m_iFocused = i;
 							break;
@@ -2483,16 +2489,15 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 			if(m_bHasFocus && m_bOpened)
 			{
-				Vector2 ptLocal = ScreenToLocal(pt);
-				if(DropdownRect.PtInRect(ptLocal))
+				if(DropdownRect.PtInRect(pt))
 				{
 					int i = m_ScrollBar.m_nPosition;
 					float y = DropdownRect.t;
 					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
+						Rectangle ItemRect = Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
 
-						if(ItemRect.PtInRect(ptLocal))
+						if(ItemRect.PtInRect(pt))
 						{
 							if(m_iSelected != i)
 							{
@@ -2550,9 +2555,13 @@ void ComboBox::OnFocusOut(void)
 
 void ComboBox::OnLayout(void)
 {
-	m_ScrollBar.m_Location = Vector2(m_DropdownSize.x, 0);
+	m_ScrollBar.m_x = UDim(0, m_DropdownSize.x);
 
-	m_ScrollBar.m_Size = Vector2(m_ScrollbarWidth, m_DropdownSize.y);
+	m_ScrollBar.m_y = UDim(0, 0);
+
+	m_ScrollBar.m_Width = UDim(0, m_ScrollbarWidth);
+
+	m_ScrollBar.m_Height = UDim(0, m_DropdownSize.y);
 
 	m_ScrollBar.m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
 }
@@ -2732,7 +2741,9 @@ void Dialog::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorp
 
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime)
 {
-	Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
+	_ASSERT(m_Parent);
+
+	Control::Draw(ui_render, fElapsedTime, Vector2(0, 0), m_Parent->GetDlgViewport());
 }
 
 bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -2759,7 +2770,7 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						if (s_FocusControl != s_MouseOverControl)
 						{
-							SetMouseOverControl(s_FocusControl, s_FocusControl->LocalToScreen(s_FocusControl->m_Location));
+							SetMouseOverControl(s_FocusControl, Vector2(0, 0));
 						}
 						return true;
 					}
@@ -2777,31 +2788,31 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							switch (wParam)
 							{
 							case VK_UP:
-								if ((*ctrl_iter)->m_Location.x < s_FocusControl->m_Location.x + s_FocusControl->m_Size.x
-									&& (*ctrl_iter)->m_Location.x + (*ctrl_iter)->m_Size.x > s_FocusControl->m_Location.x)
+								if ((*ctrl_iter)->m_Rect.l < s_FocusControl->m_Rect.r
+									&& (*ctrl_iter)->m_Rect.r > s_FocusControl->m_Rect.l)
 								{
-									diff = s_FocusControl->m_Location.y - (*ctrl_iter)->m_Location.y;
+									diff = s_FocusControl->m_Rect.t - (*ctrl_iter)->m_Rect.t;
 								}
 								break;
 							case VK_DOWN:
-								if ((*ctrl_iter)->m_Location.x < s_FocusControl->m_Location.x + s_FocusControl->m_Size.x
-									&& (*ctrl_iter)->m_Location.x + (*ctrl_iter)->m_Size.x > s_FocusControl->m_Location.x)
+								if ((*ctrl_iter)->m_Rect.l < s_FocusControl->m_Rect.r
+									&& (*ctrl_iter)->m_Rect.r > s_FocusControl->m_Rect.l)
 								{
-									diff = (*ctrl_iter)->m_Location.y - s_FocusControl->m_Location.y;
+									diff = (*ctrl_iter)->m_Rect.t - s_FocusControl->m_Rect.t;
 								}
 								break;
 							case VK_LEFT:
-								if ((*ctrl_iter)->m_Location.y < s_FocusControl->m_Location.y + s_FocusControl->m_Size.y
-									&& (*ctrl_iter)->m_Location.y + (*ctrl_iter)->m_Size.y > s_FocusControl->m_Location.y)
+								if ((*ctrl_iter)->m_Rect.t < s_FocusControl->m_Rect.b
+									&& (*ctrl_iter)->m_Rect.b > s_FocusControl->m_Rect.t)
 								{
-									diff = s_FocusControl->m_Location.x - (*ctrl_iter)->m_Location.x;
+									diff = s_FocusControl->m_Rect.l - (*ctrl_iter)->m_Rect.l;
 								}
 								break;
 							case VK_RIGHT:
-								if ((*ctrl_iter)->m_Location.y < s_FocusControl->m_Location.y + s_FocusControl->m_Size.y
-									&& (*ctrl_iter)->m_Location.y + (*ctrl_iter)->m_Size.y > s_FocusControl->m_Location.y)
+								if ((*ctrl_iter)->m_Rect.t < s_FocusControl->m_Rect.b
+									&& (*ctrl_iter)->m_Rect.b > s_FocusControl->m_Rect.t)
 								{
-									diff = (*ctrl_iter)->m_Location.x - s_FocusControl->m_Location.x;
+									diff = (*ctrl_iter)->m_Rect.l - s_FocusControl->m_Rect.l;
 								}
 								break;
 							}
@@ -2818,7 +2829,7 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 					if (s_FocusControl != s_MouseOverControl)
 					{
-						SetMouseOverControl(s_FocusControl, s_FocusControl->LocalToScreen(s_FocusControl->m_Location));
+						SetMouseOverControl(s_FocusControl, Vector2(0, 0));
 					}
 					return true;
 				}
@@ -2840,7 +2851,8 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			if (HitTest(pt))
 			{
 				m_bPressed = true;
-				m_MouseOffset = pt - m_Location;
+				m_MouseOffset.x = pt.x - m_x.offset;
+				m_MouseOffset.y = pt.y - m_y.offset;
 				if (!s_FocusControl || !ContainsControl(s_FocusControl))
 				{
 					SetFocusRecursive();
@@ -2887,7 +2899,8 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 				if (m_bMouseDrag)
 				{
-					m_Location = pt - m_MouseOffset;
+					m_x.offset = pt.x - m_MouseOffset.x;
+					m_y.offset = pt.y - m_MouseOffset.y;
 				}
 			}
 			break;

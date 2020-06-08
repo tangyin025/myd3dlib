@@ -17,20 +17,18 @@ MessagePanel::~MessagePanel(void)
 {
 }
 
-void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
+void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vector2 & Offset, const my::Vector2 & Size)
 {
-	Control::Draw(ui_render, fElapsedTime, Offset);
+	Control::Draw(ui_render, fElapsedTime, Offset, Size);
 
 	if(m_Skin && m_Skin->m_Font)
 	{
-		my::Rectangle Rect(Rectangle::LeftTop(m_Location + Offset, m_Size));
-
 		int i = MoveLineIndex(m_lbegin, m_scrollbar->m_nPosition);
-		float y = Rect.t;
-		for(; i != m_lend && y <= Rect.b - m_Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Skin->m_Font->m_LineHeight)
+		float y = m_Rect.t;
+		for(; i != m_lend && y <= m_Rect.b - m_Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Skin->m_Font->m_LineHeight)
 		{
 			m_Skin->m_Font->PushString(ui_render, m_lines[i].m_Text.c_str(),
-				my::Rectangle(Rect.l, y, Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color);
+				my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color);
 		}
 	}
 }
@@ -58,7 +56,7 @@ void MessagePanel::_update_scrollbar(void)
 	_ASSERT(m_Skin && m_Skin->m_Font);
 	m_scrollbar->m_nStart = 0;
 	m_scrollbar->m_nEnd = LineIndexDistance(m_lbegin, m_lend);
-	m_scrollbar->m_nPageSize = (int)(m_Size.y / m_Skin->m_Font->m_LineHeight);
+	m_scrollbar->m_nPageSize = (int)(m_Height.offset / m_Skin->m_Font->m_LineHeight);
 	m_scrollbar->m_nPosition = m_scrollbar->m_nEnd - m_scrollbar->m_nPageSize;
 }
 
@@ -83,7 +81,7 @@ void MessagePanel::_push_line(const std::wstring & str, D3DCOLOR Color)
 		int last_line_idx = MoveLineIndex(m_lend, -1);
 		std::wstring & last_line_str = m_lines[last_line_idx].m_Text;
 		float lend_x = m_Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
-		float remain_x = m_Size.x - m_scrollbar->m_Size.x - lend_x;
+		float remain_x = m_Width.offset - m_scrollbar->m_Width.offset - lend_x;
 		int nCP = m_Skin->m_Font->XtoCP(str.c_str(), remain_x);
 		last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
 
@@ -172,8 +170,10 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 Console::Console(void)
 {
-	m_Size = Vector2(700,410);
-	m_Location = Vector2(50, 95);
+	m_x = UDim(0, 50);
+	m_y = UDim(0, 95);
+	m_Width = UDim(0, 700);
+	m_Height = UDim(0, 410);
 	m_Skin.reset(new ControlSkin());
 	m_Skin->m_Color = D3DCOLOR_ARGB(197,0,0,0);
 	m_Skin->m_Font = Game::getSingleton().m_Font;
@@ -187,8 +187,10 @@ Console::Console(void)
 	const Vector4 Border(5,5,5,5);
 
 	m_Edit.reset(new ConsoleEditBox());
-	m_Edit->m_Size = Vector2(m_Size.x - Border.x - Border.z, 20);
-	m_Edit->m_Location = Vector2(Border.x, m_Size.y - Border.w - m_Edit->m_Size.y);
+	m_Edit->m_Width = UDim(0, m_Width.offset - Border.x - Border.z);
+	m_Edit->m_Height = UDim(0, 20);
+	m_Edit->m_x = UDim(0, Border.x);
+	m_Edit->m_y = UDim(0, m_Height.offset - Border.w - m_Edit->m_Height.offset);
 	m_Edit->m_Border = Vector4(0,0,0,0);
 	m_Edit->m_Skin.reset(new EditBoxSkin());
 	m_Edit->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
@@ -212,13 +214,17 @@ Console::Console(void)
 	InsertControl(m_Edit);
 
 	m_Panel.reset(new MessagePanel());
-	m_Panel->m_Location = Vector2(Border.x, Border.y);
-	m_Panel->m_Size = Vector2(m_Size.x - Border.x - Border.z, m_Size.y - Border.y - Border.w - m_Edit->m_Size.y);
+	m_Panel->m_Width = UDim(0, m_Width.offset - Border.x - Border.z);
+	m_Panel->m_Height = UDim(0, m_Height.offset - Border.y - Border.w - m_Edit->m_Height.offset);
+	m_Panel->m_x = UDim(0, Border.x);
+	m_Panel->m_y = UDim(0, Border.y);
 	m_Panel->m_Skin.reset(new ControlSkin());
 	m_Panel->m_Skin->m_Color = D3DCOLOR_ARGB(0,0,0,0);
 	m_Panel->m_Skin->m_Font = Game::getSingleton().m_Font;
-	m_Panel->m_scrollbar->m_Size = Vector2(20, m_Panel->m_Size.y);
-	m_Panel->m_scrollbar->m_Location = Vector2(m_Panel->m_Size.x - m_Panel->m_scrollbar->m_Size.x, 0);
+	m_Panel->m_scrollbar->m_Width = UDim(0, 20);
+	m_Panel->m_scrollbar->m_Height = UDim(0, m_Panel->m_Height.offset);
+	m_Panel->m_scrollbar->m_x = UDim(0, m_Panel->m_Width.offset - m_Panel->m_scrollbar->m_Width.offset);
+	m_Panel->m_scrollbar->m_y = UDim(0, 0);
 	m_Panel->m_scrollbar->m_nPageSize = 3;
 	m_Panel->m_scrollbar->m_Skin.reset(new ScrollBarSkin());
 	m_Panel->m_scrollbar->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);

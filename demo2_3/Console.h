@@ -24,7 +24,7 @@ public:
 
 	~MessagePanel(void);
 
-	virtual void Draw(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Offset);
+	virtual void Draw(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Offset, const my::Vector2 & Size);
 
 	virtual bool CanHaveFocus(void);
 

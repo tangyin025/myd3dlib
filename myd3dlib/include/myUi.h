@@ -237,9 +237,15 @@ namespace my
 
 		UINT m_nHotkey;
 
-		Vector2 m_Location;
+		UDim m_x;
 
-		Vector2 m_Size;
+		UDim m_y;
+
+		UDim m_Width;
+
+		UDim m_Height;
+
+		Rectangle m_Rect;
 
 		ControlSkinPtr m_Skin;
 
@@ -260,8 +266,11 @@ namespace my
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
 			, m_nHotkey(0)
-			, m_Location(0, 0)
-			, m_Size(100, 100)
+			, m_x(0, 0)
+			, m_y(0, 0)
+			, m_Width(0, 100)
+			, m_Height(0, 100)
+			, m_Rect(0, 0, 100, 100)
 			, m_Parent(NULL)
 			, m_bPressed(false)
 		{
@@ -275,8 +284,11 @@ namespace my
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
 			, m_nHotkey(0)
-			, m_Location(0, 0)
-			, m_Size(100, 100)
+			, m_x(0, 0)
+			, m_y(0, 0)
+			, m_Width(0, 100)
+			, m_Height(0, 100)
+			, m_Rect(0, 0, 100, 100)
 			, m_Parent(NULL)
 			, m_bPressed(false)
 		{
@@ -309,7 +321,7 @@ namespace my
 
 		static void SetMouseOverControl(Control * control, const Vector2 & pt);
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -387,7 +399,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Text);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 	};
 
 	typedef boost::shared_ptr<Static> StaticPtr;
@@ -443,7 +455,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Progress);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 	};
 
 	class ButtonSkin : public ControlSkin
@@ -497,7 +509,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -609,7 +621,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Border);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -680,7 +692,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_CandidateWinColor);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -700,11 +712,11 @@ namespace my
 
 		static void EnableImeSystem(bool bEnable);
 
-		void RenderIndicator(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		void RenderIndicator(UIRender * ui_render, float fElapsedTime);
 
-		void RenderComposition(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		void RenderComposition(UIRender * ui_render, float fElapsedTime);
 
-		void RenderCandidateWindow(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		void RenderCandidateWindow(UIRender * ui_render, float fElapsedTime);
 	};
 
 	typedef boost::shared_ptr<ImeEditBox> ImeEditBoxPtr;
@@ -811,7 +823,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_nPageSize);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -860,7 +872,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Checked);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -1003,7 +1015,7 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

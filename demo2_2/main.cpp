@@ -276,7 +276,8 @@ public:
 		mtl.ParseShaderParameters();
 
 		m_Dlg.reset(new Dialog(NamedObject::MakeUniqueName("dialog").c_str()));
-		m_Dlg->m_Size = Vector2(desc.Width, desc.Height);
+		m_Dlg->m_Width = UDim(0, desc.Width);
+		m_Dlg->m_Height = UDim(0, desc.Height);
 		m_Dlg->m_Skin.reset(new ControlSkin());
 		m_Dlg->m_Skin->m_Image.reset(new ControlImage());
 		m_Dlg->m_Skin->m_Image->m_Texture = m_Tex;
