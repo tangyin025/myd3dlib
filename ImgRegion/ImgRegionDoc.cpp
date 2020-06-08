@@ -299,7 +299,7 @@ void CImgRegion::Serialize(CArchive& ar, int version)
 	CImgRegionDocFileVersions::SerializeImgRegion(this, ar, version);
 }
 
-void HistoryChangeItemX::Do(void)
+void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -308,10 +308,12 @@ void HistoryChangeItemX::Do(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_x = m_newValue;
+	pReg->m_x = m_newValue.first;
+
+	pReg->m_y = m_newValue.second;
 }
 
-void HistoryChangeItemX::Undo(void)
+void HistoryChangeItemLocation::Undo(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -320,10 +322,12 @@ void HistoryChangeItemX::Undo(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_x = m_oldValue;
+	pReg->m_x = m_oldValue.first;
+
+	pReg->m_y = m_oldValue.second;
 }
 
-void HistoryChangeItemWidth::Do(void)
+void HistoryChangeItemSize::Do(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -332,10 +336,12 @@ void HistoryChangeItemWidth::Do(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Width = m_newValue;
+	pReg->m_Width = m_newValue.first;
+
+	pReg->m_Height = m_newValue.second;
 }
 
-void HistoryChangeItemWidth::Undo(void)
+void HistoryChangeItemSize::Undo(void)
 {
 	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
@@ -344,7 +350,9 @@ void HistoryChangeItemWidth::Undo(void)
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Width = m_oldValue;
+	pReg->m_Width = m_oldValue.first;
+
+	pReg->m_Height = m_oldValue.second;
 }
 
 void HistoryChangeItemTextOff::Do(void)

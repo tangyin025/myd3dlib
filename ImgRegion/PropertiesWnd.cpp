@@ -199,10 +199,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemLocationYScale:
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemX(
-							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_x, my::UDim(
-								m_pProp[PropertyItemLocationXScale]->GetValue().fltVal,
-								m_pProp[PropertyItemLocationX]->GetValue().fltVal))));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(
+							pDoc, pDoc->GetItemId(m_hSelectedNode), std::make_pair(pReg->m_x, pReg->m_y), std::make_pair(
+								my::UDim(m_pProp[PropertyItemLocationXScale]->GetValue().fltVal, m_pProp[PropertyItemLocationX]->GetValue().fltVal),
+								my::UDim(m_pProp[PropertyItemLocationYScale]->GetValue().fltVal, m_pProp[PropertyItemLocationY]->GetValue().fltVal)))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}
@@ -215,10 +215,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemSizeHScale:
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemWidth(
-							pDoc, pDoc->GetItemId(m_hSelectedNode), pReg->m_Width, my::UDim(
-								m_pProp[PropertyItemSizeWScale]->GetValue().fltVal,
-								m_pProp[PropertyItemSizeW]->GetValue().fltVal))));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(
+							pDoc, pDoc->GetItemId(m_hSelectedNode), std::make_pair(pReg->m_Width, pReg->m_Height), std::make_pair(
+								my::UDim(m_pProp[PropertyItemSizeWScale]->GetValue().fltVal, m_pProp[PropertyItemSizeW]->GetValue().fltVal),
+								my::UDim(m_pProp[PropertyItemSizeHScale]->GetValue().fltVal, m_pProp[PropertyItemSizeH]->GetValue().fltVal)))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}

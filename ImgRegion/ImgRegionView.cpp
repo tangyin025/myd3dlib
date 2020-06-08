@@ -475,11 +475,13 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 					if(pReg->m_x.offset != m_DragRegLocal.x || pReg->m_y.offset != m_DragRegLocal.y)
 					{
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemX(pDoc, itemId, my::UDim(pReg->m_x.scale, m_DragRegLocal.x), pReg->m_x)));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, itemId,
+							std::make_pair(my::UDim(pReg->m_x.scale, m_DragRegLocal.x), my::UDim(pReg->m_y.scale, m_DragRegLocal.y)), std::make_pair(pReg->m_x, pReg->m_y))));
 					}
 					if(pReg->m_Width.offset != m_DragRegSize.cx || pReg->m_Height.offset != m_DragRegSize.cy)
 					{
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemWidth(pDoc, itemId, my::UDim(pReg->m_y.scale, m_DragRegSize.cy), pReg->m_Width)));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, itemId,
+							std::make_pair(my::UDim(pReg->m_Width.scale, m_DragRegSize.cx), my::UDim(pReg->m_Height.scale, m_DragRegSize.cy)), std::make_pair(pReg->m_Width, pReg->m_Height))));
 					}
 					if(pReg->m_TextOff != m_DragRegTextOff)
 					{
@@ -680,11 +682,13 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 				HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 				if(pReg->m_x.offset != m_DragRegLocal.x || pReg->m_y.offset != m_DragRegLocal.y)
 				{
-					hist->push_back(HistoryChangePtr(new HistoryChangeItemX(pDoc, itemId, my::UDim(pReg->m_x.scale, m_DragRegLocal.x), pReg->m_x)));
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, itemId,
+						std::make_pair(my::UDim(pReg->m_x.scale, m_DragRegLocal.x), my::UDim(pReg->m_y.scale, m_DragRegLocal.y)), std::make_pair(pReg->m_x, pReg->m_y))));
 				}
 				if(pReg->m_Width.offset != m_DragRegSize.cx || pReg->m_Height.offset != m_DragRegSize.cy)
 				{
-					hist->push_back(HistoryChangePtr(new HistoryChangeItemWidth(pDoc, itemId, my::UDim(pReg->m_Width.scale, m_DragRegSize.cx), pReg->m_Width)));
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, itemId,
+						std::make_pair(my::UDim(pReg->m_Width.scale, m_DragRegSize.cx), my::UDim(pReg->m_Height.scale, m_DragRegSize.cy)), std::make_pair(pReg->m_Width, pReg->m_Height))));
 				}
 				if(pReg->m_TextOff != m_DragRegTextOff)
 				{

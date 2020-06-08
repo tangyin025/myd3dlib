@@ -120,11 +120,13 @@ public:
 
 typedef boost::shared_ptr<HistoryChange> HistoryChangePtr;
 
-template <typename ValueType>
+template <typename T>
 class HistoryChangeItemValue
 	: public HistoryChange
 {
 public:
+	typedef T ValueType;
+
 	UINT m_itemID;
 
 	ValueType m_oldValue;
@@ -142,11 +144,11 @@ public:
 	}
 };
 
-class HistoryChangeItemX
-	: public HistoryChangeItemValue<my::UDim>
+class HistoryChangeItemLocation
+	: public HistoryChangeItemValue<std::pair<my::UDim, my::UDim> >
 {
 public:
-	HistoryChangeItemX(CImgRegionDoc * pDoc, UINT itemID, const my::UDim & oldValue, const my::UDim & newValue)
+	HistoryChangeItemLocation(CImgRegionDoc * pDoc, UINT itemID, const ValueType & oldValue, const ValueType & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
@@ -156,11 +158,11 @@ public:
 	virtual void Undo(void);
 };
 
-class HistoryChangeItemWidth
-	: public HistoryChangeItemValue<my::UDim>
+class HistoryChangeItemSize
+	: public HistoryChangeItemValue<std::pair<my::UDim, my::UDim> >
 {
 public:
-	HistoryChangeItemWidth(CImgRegionDoc * pDoc, UINT itemID, const my::UDim & oldValue, const my::UDim & newValue)
+	HistoryChangeItemSize(CImgRegionDoc * pDoc, UINT itemID, const ValueType & oldValue, const ValueType & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
