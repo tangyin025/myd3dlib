@@ -57,7 +57,6 @@ public:
 	void OnFrameTick(float fElapsedTime);
 	void OnSelChanged();
 	void ClearFileContext();
-	BOOL DoSave(LPCTSTR lpszPathName);
 
 // Implementation
 public:
@@ -87,8 +86,10 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileNew();
 	afx_msg void OnFileOpen();
+	BOOL DoOpen(LPCTSTR lpszFileName);
 	afx_msg void OnFileSave();
 	afx_msg void OnFileSaveAs();
+	BOOL DoSave(LPCTSTR lpszPathName);
 	afx_msg void OnCreateActor();
 	afx_msg void OnCreateCharacter();
 	afx_msg void OnComponentMesh();

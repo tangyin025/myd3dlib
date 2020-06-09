@@ -69,6 +69,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL OnIdle(LONG lCount);
 	virtual int ExitInstance();
+	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 };
 
 extern CMainApp theApp;

@@ -484,3 +484,16 @@ int CMainApp::ExitInstance()
 	return CWinAppEx::ExitInstance();
 }
 
+extern BOOL g_bRemoveFromMRU;
+
+CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->DoOpen(lpszFileName))
+	{
+		g_bRemoveFromMRU = FALSE;
+	}
+	return NULL;
+}

@@ -505,50 +505,6 @@ void CMainFrame::ClearFileContext()
 	m_selactors.clear();
 }
 
-BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
-{
-	if (!lpszPathName)
-	{
-		CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-		dlg.m_ofn.lpstrFile = m_strPathName.GetBuffer(_MAX_PATH);
-		INT_PTR nResult = dlg.DoModal();
-		m_strPathName.ReleaseBuffer();
-		if (nResult != IDOK)
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		m_strPathName = lpszPathName;
-	}
-
-	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
-	ASSERT_VALID(pView);
-	CWaitCursor waiter;
-	std::ofstream ofs(m_strPathName, std::ios::binary, _OPENPROT);
-	LPCTSTR Ext = PathFindExtension(m_strPathName);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_tcsicmp(Ext, _T(".xml")) == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
-	}
-	else if (_tcsicmp(Ext, _T(".txt")) == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
-	}
-	else
-	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
-	}
-	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
-	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-	*oa << BOOST_SERIALIZATION_NVP(m_ActorList);
-
-	return TRUE;
-}
-
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
@@ -632,12 +588,15 @@ void CMainFrame::OnFileOpen()
 		return;
 	}
 
+	DoOpen(strPathName);
+}
+
+BOOL CMainFrame::DoOpen(LPCTSTR lpszFileName)
+{
 	ClearFileContext();
 
-	m_strPathName = strPathName;
+	m_strPathName = lpszFileName;
 
-	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
-	ASSERT_VALID(pView);
 	CWaitCursor waiter;
 	my::IStreamBuff buff(my::FileIStream::Open(m_strPathName));
 	std::istream ifs(&buff);
@@ -666,10 +625,17 @@ void CMainFrame::OnFileOpen()
 		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
 	}
 
+	theApp.AddToRecentFileList(m_strPathName);
+
 	theApp.RequestResource();
+
 	OnSelChanged();
+
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	ASSERT_VALID(pView);
 	CEnvironmentWnd::CameraPropEventArgs arg(pView);
 	m_EventCameraPropChanged(&arg);
+	return TRUE;
 }
 
 void CMainFrame::OnFileSave()
@@ -690,6 +656,52 @@ void CMainFrame::OnFileSaveAs()
 {
 	// TODO: Add your command handler code here
 	DoSave(NULL);
+}
+
+BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
+{
+	if (!lpszPathName)
+	{
+		CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+		dlg.m_ofn.lpstrFile = m_strPathName.GetBuffer(_MAX_PATH);
+		INT_PTR nResult = dlg.DoModal();
+		m_strPathName.ReleaseBuffer();
+		if (nResult != IDOK)
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		m_strPathName = lpszPathName;
+	}
+
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	ASSERT_VALID(pView);
+	CWaitCursor waiter;
+	std::ofstream ofs(m_strPathName, std::ios::binary, _OPENPROT);
+	LPCTSTR Ext = PathFindExtension(m_strPathName);
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (_tcsicmp(Ext, _T(".xml")) == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
+	}
+	else if (_tcsicmp(Ext, _T(".txt")) == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
+	}
+	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*oa << BOOST_SERIALIZATION_NVP(m_ActorList);
+
+	theApp.AddToRecentFileList(m_strPathName);
+
+	return TRUE;
 }
 
 void CMainFrame::OnCreateActor()
