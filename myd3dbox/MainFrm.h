@@ -30,7 +30,6 @@ public:
 	CEnvironmentWnd		m_wndEnvironment;
 	COutputWnd        m_wndOutput;
 	CString m_strPathName;
-	CRectTracker m_Tracker;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
 	SelActorList m_selactors;

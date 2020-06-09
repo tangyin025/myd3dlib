@@ -1116,8 +1116,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
-	pFrame->m_Tracker.m_rect.NormalizeRect();
+	CRectTracker tracker;
+	tracker.TrackRubberBand(this, point, TRUE);
+	tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
 	if (!(nFlags & MK_SHIFT) && !pFrame->m_selactors.empty())
@@ -1125,13 +1126,13 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		pFrame->m_selactors.clear();
 	}
 
-	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
+	if (!tracker.m_rect.IsRectEmpty())
 	{
 		my::Rectangle rc(
-			(float)pFrame->m_Tracker.m_rect.left,
-			(float)pFrame->m_Tracker.m_rect.top,
-			(float)pFrame->m_Tracker.m_rect.right,
-			(float)pFrame->m_Tracker.m_rect.bottom);
+			(float)tracker.m_rect.left,
+			(float)tracker.m_rect.top,
+			(float)tracker.m_rect.right,
+			(float)tracker.m_rect.bottom);
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{

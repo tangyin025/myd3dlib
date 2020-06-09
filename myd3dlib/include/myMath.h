@@ -946,7 +946,31 @@ namespace my
 	class Rectangle
 	{
 	public:
-		float l, t, r, b;
+		union
+		{
+			struct
+			{
+				float l, t;
+
+				union
+				{
+					struct
+					{
+						float r, b;
+					};
+
+					struct
+					{
+						Vector2 rb;
+					};
+				};
+			};
+
+			struct
+			{
+				Vector2 lt;
+			};
+		};
 
 	public:
 		Rectangle(void)
