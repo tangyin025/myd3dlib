@@ -60,12 +60,11 @@ CChildView::CChildView()
 	, m_raychunkid(0, 0)
 {
 	// TODO: add construction code here
-	float fov = D3DXToRadian(75.0f);
-	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(fov, 1.333333f, 0.1f, 3000.0f);
+	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f);
 	m_Camera.reset(model_view_camera);
 	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
-	model_view_camera->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+	model_view_camera->m_Distance = cot(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
 
 	m_SwapChainBuffer.reset(new my::Surface());
 	ZeroMemory(&m_SwapChainBufferDesc, sizeof(m_SwapChainBufferDesc));
@@ -1357,17 +1356,17 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		return;
 	case 'F':
 		{
-			float fov = D3DXToRadian(75.0f);
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			if (!pFrame->m_selactors.empty())
 			{
+				float radius = pFrame->m_selbox.Extent().magnitude() * 0.5f;
 				model_view_camera->m_LookAt = pFrame->m_selbox.Center();
-				model_view_camera->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+				model_view_camera->m_Distance = radius / asin(model_view_camera->m_Fov * 0.5f);
 			}
 			else
 			{
-				model_view_camera->m_LookAt = my::Vector3(0,0,0);
-				model_view_camera->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+				model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
+				model_view_camera->m_Distance = cot(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
 			}
 			m_Camera->UpdateViewProj();
 			StartPerformanceCount();
