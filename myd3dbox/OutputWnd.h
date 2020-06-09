@@ -12,8 +12,6 @@ public:
 	virtual ~COutputEdit();
 
 protected:
-	void OnEventLog(const char * str);
-
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditClear();
@@ -38,6 +36,8 @@ public:
 protected:
 	//void AdjustHorzScroll(CListBox& wndListBox);
 
+	void OnEventLog(const char * str);
+
 // Implementation
 public:
 	virtual ~COutputWnd();
@@ -47,5 +47,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnDestroy();
 };
 

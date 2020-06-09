@@ -652,6 +652,10 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 	_ASSERT(result.second);
 
 	res->m_Key = result.first->first.c_str();
+
+	std::string logs("Loaded: ");
+	logs.append(res->m_Key);
+	D3DContext::getSingleton().m_EventLog(logs.c_str());
 }
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front)
@@ -719,6 +723,10 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 		else
 		{
+			std::string logs("Release: ");
+			logs.append(res_iter->second->m_Key);
+			D3DContext::getSingleton().m_EventLog(logs.c_str());
+
 			res_iter = m_ResourceSet.erase(res_iter);
 		}
 	}

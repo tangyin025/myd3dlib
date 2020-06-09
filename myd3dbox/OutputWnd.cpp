@@ -18,12 +18,10 @@ static char THIS_FILE[] = __FILE__;
 
 COutputEdit::COutputEdit()
 {
-	theApp.m_EventLog.connect(boost::bind(&COutputEdit::OnEventLog, this, _1));
 }
 
 COutputEdit::~COutputEdit()
 {
-	theApp.m_EventLog.connect(boost::bind(&COutputEdit::OnEventLog, this, _1));
 }
 
 BEGIN_MESSAGE_MAP(COutputEdit, CRichEditCtrl)
@@ -35,15 +33,6 @@ BEGIN_MESSAGE_MAP(COutputEdit, CRichEditCtrl)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
-
-void COutputEdit::OnEventLog(const char * str)
-{
-	std::basic_string<TCHAR> logs = ms2ts(str);
-	boost::trim_if(logs, boost::algorithm::is_any_of(_T("\n\r")));
-	logs.append(_T("\n"));
-	SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-	SendMessage(EM_REPLACESEL, 0, (LPARAM)logs.c_str());
-}
 
 void COutputEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {
@@ -91,6 +80,7 @@ COutputWnd::~COutputWnd()
 BEGIN_MESSAGE_MAP(COutputWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -124,6 +114,8 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//// Attach list windows to tab:
 	m_wndTabs.AddTab(&m_wndOutputDebug, _T("Debug"), (UINT)0);
 
+	theApp.m_EventLog.connect(boost::bind(&COutputWnd::OnEventLog, this, _1));
+
 	return 0;
 }
 
@@ -154,7 +146,24 @@ void COutputWnd::OnSize(UINT nType, int cx, int cy)
 //	dc.SelectObject(pOldFont);
 //}
 
+void COutputWnd::OnEventLog(const char * str)
+{
+	std::basic_string<TCHAR> logs = ms2ts(str);
+	boost::trim_if(logs, boost::algorithm::is_any_of(_T("\n\r")));
+	logs.append(_T("\n"));
+	m_wndOutputDebug.SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
+	m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)logs.c_str());
+}
+
 void COutputWnd::UpdateFonts()
 {
 	m_wndOutputDebug.SetFont(&afxGlobalData.fontRegular);
+}
+
+void COutputWnd::OnDestroy()
+{
+	theApp.m_EventLog.connect(boost::bind(&COutputWnd::OnEventLog, this, _1));
+
+	CDockablePane::OnDestroy();
+	// TODO: Add your message handler code here
 }
