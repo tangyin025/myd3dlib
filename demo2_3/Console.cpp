@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Console.h"
 #include "Game.h"
+#include <boost/algorithm/string.hpp>
 
 using namespace my;
 
@@ -298,5 +299,7 @@ void Console::OnEventPageDown(my::EventArg * arg)
 
 void Console::OnEventLog(const char * str)
 {
-	m_Panel->AddLine(ms2ts(str));
+	std::wstring logs = ms2ws(str);
+	boost::trim_if(logs, boost::algorithm::is_any_of(L"\n\r"));
+	m_Panel->AddLine(logs);
 }

@@ -140,7 +140,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 			}
 		}
 	}
-	logoss << "_" << path << std::endl;
+	logoss << "_" << path;
 	my::D3DContext::getSingleton().m_EventLog(logoss.str().c_str());
 
 	std::ostringstream oss;

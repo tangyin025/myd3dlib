@@ -5,6 +5,7 @@
 #include "Resource.h"
 #include "MainFrm.h"
 #include "MainApp.h"
+#include <boost/algorithm/string.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,8 +38,11 @@ END_MESSAGE_MAP()
 
 void COutputEdit::OnEventLog(const char * str)
 {
+	std::basic_string<TCHAR> logs = ms2ts(str);
+	boost::trim_if(logs, boost::algorithm::is_any_of(_T("\n\r")));
+	logs.append(_T("\n"));
 	SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-	SendMessage(EM_REPLACESEL, 0, (LPARAM)ms2ts(str).c_str());
+	SendMessage(EM_REPLACESEL, 0, (LPARAM)logs.c_str());
 }
 
 void COutputEdit::OnContextMenu(CWnd* pWnd, CPoint point)
