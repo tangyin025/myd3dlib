@@ -93,12 +93,12 @@ namespace my
 
 		enum Align
 		{
-			AlignLeft			= 0x000001,
-			AlignCenter			= 0x000010,
-			AlignRight			= 0x000100,
-			AlignTop			= 0x001000,
-			AlignMiddle			= 0x010000,
-			AlignBottom			= 0x100000,
+			AlignLeft			= 1,
+			AlignCenter			= 2,
+			AlignRight			= 4,
+			AlignTop			= 8,
+			AlignMiddle			= 16,
+			AlignBottom			= 32,
 			AlignLeftTop		= AlignLeft | AlignTop,
 			AlignCenterTop		= AlignCenter | AlignTop,
 			AlignRightTop		= AlignRight | AlignTop,
