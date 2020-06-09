@@ -111,6 +111,38 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		return shader_iter->second.get();
 	}
 
+	std::ostringstream logoss;
+	logoss << "Build Shader: ";
+	switch (mesh_type)
+	{
+	case RenderPipeline::MeshTypeMesh:
+		logoss << "MeshMesh";
+		break;
+	case RenderPipeline::MeshTypeParticle:
+		logoss << "MeshParticle";
+		break;
+	case RenderPipeline::MeshTypeTerrain:
+		logoss << "MeshTerrain";
+		break;
+	default:
+		logoss << "MeshUnknown";
+		break;
+	}
+	if (pDefines)
+	{
+		const D3DXMACRO* macro_iter = pDefines;
+		for (; macro_iter->Name; macro_iter++)
+		{
+			logoss << "_" << macro_iter->Name;
+			if (macro_iter->Definition)
+			{
+				logoss << "_" << macro_iter->Definition;
+			}
+		}
+	}
+	logoss << "_" << path << std::endl;
+	my::D3DContext::getSingleton().m_EventLog(logoss.str().c_str());
+
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
