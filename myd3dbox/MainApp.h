@@ -31,6 +31,9 @@ public:
 	my::FontPtr m_Font;
 
 	// cfg
+	std::string default_font;
+	int default_font_height;
+	int default_font_face_index;
 	std::string default_texture;
 	std::string default_normal_texture;
 	std::string default_specular_texture;

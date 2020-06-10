@@ -28,7 +28,8 @@ END_MESSAGE_MAP()
 
 CMainApp::CMainApp()
 {
-
+	default_font_height = 13;
+	default_font_face_index = 0;
 	default_pass_mask = 0;
 	technique_RenderSceneColor = NULL;
 	handle_MeshColor = NULL;
@@ -200,6 +201,9 @@ BOOL CMainApp::InitInstance()
 	std::vector<std::string> path_list;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list), "Path")
+		("default_font", boost::program_options::value(&default_font)->default_value("font/wqy-microhei.ttc"), "Default font")
+		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
+		("default_font_face_index", boost::program_options::value(&default_font_face_index)->default_value(0), "Default font face index")
 		("default_texture", boost::program_options::value(&default_texture)->default_value("texture/Checker.bmp"), "Default texture")
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
@@ -305,7 +309,7 @@ HRESULT CMainApp::OnCreateDevice(
 		return hr;
 	}
 
-	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13, 0)))
+	if (!(m_Font = LoadFont(default_font.c_str(), default_font_height, default_font_face_index)))
 	{
 		TRACE("LoadFont failed");
 		return S_FALSE;
