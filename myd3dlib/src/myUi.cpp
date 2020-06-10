@@ -2614,6 +2614,8 @@ void ComboBox::RemoveAllItems(void)
 	m_Items.clear();
 
 	m_ScrollBar.m_nEnd = m_Items.size();
+
+	m_iSelected = -1;
 }
 
 bool ComboBox::ContainsItem(const std::wstring & strText, UINT iStart) const

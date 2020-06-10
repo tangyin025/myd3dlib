@@ -411,7 +411,6 @@ function RefreshDisplayAdapter()
 	local_device_settings=game.DeviceSettings
 	local adapter_info_list=game:GetAdapterInfoList()
 	cbx_display_adapter:RemoveAllItems()
-	-- cbx_display_adapter.Selected=0
 	for i=0,adapter_info_list:GetSize()-1 do
 		local adapter_info=adapter_info_list:GetAt(i)
 		cbx_display_adapter:AddItem(adapter_info.szUniqueDescription)
@@ -437,7 +436,6 @@ function RefreshDisplayAdapter()
 	end
 	
 	cbx_vertex_processing:RemoveAllItems()
-	-- cbx_vertex_processing.Selected=0
 	for i, vertex_processing_type in ipairs(vpt_table) do
 		local item_idx=i-1
 		cbx_vertex_processing:AddItem(DxutApp.DXUTVertexProcessingTypeToString(vertex_processing_type))
@@ -449,7 +447,6 @@ function RefreshDisplayAdapter()
 	OnVertexProcessingChanged()
 	
 	cbx_vertical_sync:RemoveAllItems()
-	-- cbx_vertical_sync.Selected=0
 	cbx_vertical_sync:AddItem("On")
 	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT)
 	if bit.tobit(local_device_settings.pp.PresentationInterval) == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT then
@@ -480,7 +477,6 @@ function OnAdapterChanged()
 		
 		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_render_device:RemoveAllItems()
-		-- cbx_render_device.Selected=0
 		for i=0,adapter_info.deviceInfoList:GetSize()-1 do
 			local device_info=adapter_info.deviceInfoList:GetAt(i)
 			cbx_render_device:AddItem(DxutApp.DXUTD3DDeviceTypeToString(device_info.DeviceType))
@@ -540,7 +536,6 @@ function OnWindowedFullScreenChanged()
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
 		cbx_adapter_format:RemoveAllItems()
-		-- cbx_adapter_format.Selected=0
 		for i=0,device_info.deviceSettingsComboList:GetSize()-1 do
 			local device_settings_combo=device_info.deviceSettingsComboList:GetAt(i)
 			assert(device_settings_combo.AdapterOrdinal == adapter_original)
@@ -581,7 +576,6 @@ function OnAdapterFormatChanged()
 		
 		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_resolution:RemoveAllItems()
-		-- cbx_resolution.Selected=0
 		for i=0,adapter_info.displayModeList:GetSize()-1 do
 			local display_mode=adapter_info.displayModeList:GetAt(i)
 			if display_mode.Format == GetComboBoxSelectedData(cbx_adapter_format) then
@@ -603,7 +597,6 @@ function OnAdapterFormatChanged()
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
 		cbx_back_buffer_format:RemoveAllItems()
-		-- cbx_back_buffer_format.Selected=0
 		for i=0,device_info.deviceSettingsComboList:GetSize()-1 do
 			local device_settings_combo=device_info.deviceSettingsComboList:GetAt(i)
 			assert(device_settings_combo.AdapterOrdinal == adapter_original)
@@ -630,11 +623,9 @@ function OnResolutionChanged()
 		local_device_settings.pp.BackBufferHeight=HIWORD(GetComboBoxSelectedData(cbx_resolution))
 		
 		cbx_refresh_rate:RemoveAllItems()
-		-- cbx_refresh_rate.Selected=0
 		-- Only full screen mode, the refresh_rate is valid
 		if chx_windowed.Checked then
-			cbx_refresh_rate:AddItem("Default Rate")
-			cbx_refresh_rate:SetItemData(0,0)
+			cbx_refresh_rate.Text="Default Rate"
 			cbx_refresh_rate.Enabled=false
 		else
 			local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
@@ -656,6 +647,9 @@ function OnResolutionChanged()
 						cbx_refresh_rate.Selected=item_idx
 					end
 				end
+			end
+			if cbx_refresh_rate.Selected<0 then
+				cbx_refresh_rate.Selected=0
 			end
 			cbx_refresh_rate.Enabled=true
 		end
@@ -684,7 +678,6 @@ function OnBackBufferFormatChanged()
 			GetComboBoxSelectedData(cbx_back_buffer_format),
 			chx_windowed.Checked and 1 or 0)
 		cbx_depth_stencil_format:RemoveAllItems()
-		-- cbx_depth_stencil_format.Selected=0
 		-- Only EnableAutoDepthStencil can select Depth/Stencil format
 		if local_device_settings.pp.EnableAutoDepthStencil ~= 0 then
 			for i=0,device_settings_combo.depthStencilFormatList:GetSize()-1 do
@@ -719,7 +712,6 @@ function OnDepthStencilBufferFormatChanged()
 			chx_windowed.Checked and 1 or 0)
 		local depth_stencil_format=GetComboBoxSelectedData(cbx_depth_stencil_format)
 		cbx_multisample_type:RemoveAllItems()
-		-- cbx_multisample_type.Selected=0
 		for i=0,device_settings_combo.multiSampleTypeList:GetSize()-1 do
 			local multi_sample_type=device_settings_combo.multiSampleTypeList:GetAt(i)
 			if not device_settings_combo:IsDepthStencilMultiSampleConflict(depth_stencil_format,multi_sample_type) then
@@ -749,7 +741,6 @@ function OnMultisampleTypeChanged()
 			chx_windowed.Checked and 1 or 0)
 		local multi_sample_type=GetComboBoxSelectedData(cbx_multisample_type)
 		cbx_multisample_quality:RemoveAllItems()
-		-- cbx_multisample_quality.Selected=0
 		for i=0,device_settings_combo.multiSampleTypeList:GetSize()-1 do
 			if multi_sample_type == device_settings_combo.multiSampleTypeList:GetAt(i) then
 				local max_quality = device_settings_combo.multiSampleQualityList:GetAt(i)
