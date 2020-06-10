@@ -509,16 +509,14 @@ HRESULT Game::OnCreateDevice(
 	];
 	luabind::globals(m_State)["game"] = this;
 
-	if (!ExecuteCode(m_InitScript.c_str()))
-	{
-		m_Console->SetVisible(true);
-	}
-	else
-	{
-		m_Console->SetVisible(false);
-	}
+	m_Console->SetVisible(!ExecuteCode(m_InitScript.c_str()));
 
 	DialogMgr::InsertDlg(m_Console.get());
+
+	if (m_Console->GetVisible())
+	{
+		m_Console->SetFocusRecursive();
+	}
 
 	m_EventLog("Game::OnCreateDevice");
 
