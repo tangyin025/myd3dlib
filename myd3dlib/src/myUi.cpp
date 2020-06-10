@@ -780,6 +780,58 @@ bool Control::SetFocusRecursive(void)
 	return false;
 }
 
+void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist)
+{
+	Control * local_nearest_ctrl = NULL;
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->GetNearestControl(rect, dir, &local_nearest_ctrl, nearest_ctrl_dist);
+	}
+
+	if (local_nearest_ctrl)
+	{
+		*nearest_ctrl = local_nearest_ctrl;
+		return;
+	}
+	else if (CanHaveFocus())
+	{
+		float dist = FLT_MAX;
+		switch (dir)
+		{
+		case VK_UP:
+			if (m_Rect.l < rect.r && m_Rect.r > rect.l)
+			{
+				dist = rect.t - m_Rect.t;
+			}
+			break;
+		case VK_DOWN:
+			if (m_Rect.l < rect.r && m_Rect.r > rect.l)
+			{
+				dist = m_Rect.t - rect.t;
+			}
+			break;
+		case VK_LEFT:
+			if (m_Rect.t < rect.b && m_Rect.b > rect.t)
+			{
+				dist = rect.l - m_Rect.l;
+			}
+			break;
+		case VK_RIGHT:
+			if (m_Rect.t < rect.b && m_Rect.b > rect.t)
+			{
+				dist = m_Rect.l - rect.l;
+			}
+			break;
+		}
+		if (dist > 0 && dist < nearest_ctrl_dist)
+		{
+			*nearest_ctrl = this;
+			nearest_ctrl_dist = dist;
+		}
+	}
+}
+
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
@@ -2764,55 +2816,12 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				else
 				{
-					Control * next_focus_ctrl = NULL;
-					float next_focus_ctrl_diff = FLT_MAX;
-					ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-					for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+					Control * nearest_ctrl = NULL;
+					float nearest_ctrl_dist = FLT_MAX;
+					GetNearestControl(s_FocusControl->m_Rect, wParam, &nearest_ctrl, nearest_ctrl_dist);
+					if (nearest_ctrl)
 					{
-						if ((*ctrl_iter)->CanHaveFocus())
-						{
-							float diff = 0;
-							switch (wParam)
-							{
-							case VK_UP:
-								if ((*ctrl_iter)->m_Rect.l < s_FocusControl->m_Rect.r
-									&& (*ctrl_iter)->m_Rect.r > s_FocusControl->m_Rect.l)
-								{
-									diff = s_FocusControl->m_Rect.t - (*ctrl_iter)->m_Rect.t;
-								}
-								break;
-							case VK_DOWN:
-								if ((*ctrl_iter)->m_Rect.l < s_FocusControl->m_Rect.r
-									&& (*ctrl_iter)->m_Rect.r > s_FocusControl->m_Rect.l)
-								{
-									diff = (*ctrl_iter)->m_Rect.t - s_FocusControl->m_Rect.t;
-								}
-								break;
-							case VK_LEFT:
-								if ((*ctrl_iter)->m_Rect.t < s_FocusControl->m_Rect.b
-									&& (*ctrl_iter)->m_Rect.b > s_FocusControl->m_Rect.t)
-								{
-									diff = s_FocusControl->m_Rect.l - (*ctrl_iter)->m_Rect.l;
-								}
-								break;
-							case VK_RIGHT:
-								if ((*ctrl_iter)->m_Rect.t < s_FocusControl->m_Rect.b
-									&& (*ctrl_iter)->m_Rect.b > s_FocusControl->m_Rect.t)
-								{
-									diff = (*ctrl_iter)->m_Rect.l - s_FocusControl->m_Rect.l;
-								}
-								break;
-							}
-							if (diff > 0 && diff < next_focus_ctrl_diff)
-							{
-								next_focus_ctrl = ctrl_iter->get();
-								next_focus_ctrl_diff = diff;
-							}
-						}
-					}
-					if (next_focus_ctrl)
-					{
-						SetFocusControl(next_focus_ctrl);
+						SetFocusControl(nearest_ctrl);
 					}
 					if (s_FocusControl != s_MouseOverControl)
 					{

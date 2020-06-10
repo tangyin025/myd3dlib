@@ -365,6 +365,8 @@ namespace my
 
 		bool SetFocusRecursive(void);
 
+		void GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist);
+
 		void SetHotkey(UINT nHotkey);
 
 		UINT GetHotkey(void);
