@@ -289,6 +289,7 @@ Game::Game(void)
 	, Thread(boost::bind(&Game::LoadSceneProc, this))
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
+	, m_Activated(false)
 {
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
@@ -856,10 +857,13 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if (uMsg == WM_ACTIVATEAPP)
+	if (uMsg == WM_ACTIVATE)
 	{
-		if (wParam != 0)
+		if (LOWORD(wParam) == WA_ACTIVE
+			|| LOWORD(wParam) == WA_CLICKACTIVE)
 		{
+			m_Activated = true;
+
 			CURSORINFO pci;
 			pci.cbSize = sizeof(CURSORINFO);
 			::GetCursorInfo(&pci);
@@ -873,8 +877,12 @@ LRESULT Game::MsgProc(
 				::ClipCursor(&rc);
 			}
 		}
+		else
+		{
+			m_Activated = false;
+		}
 
-		m_ActivateEvent(wParam != 0);
+		m_ActivateEvent(m_Activated);
 		*pbNoFurtherProcessing = true;
 		return 0;
 	}

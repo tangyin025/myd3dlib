@@ -71,6 +71,8 @@ public:
 
 	my::EventFunction m_EventLoadScene;
 
+	bool m_Activated;
+
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;
 
 	ActivateEvent m_ActivateEvent;

@@ -20,20 +20,6 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			lResult = 0;
 			return TRUE;
 
-		case WM_ACTIVATE:
-			switch (LOWORD(wParam))
-			{
-			case WA_ACTIVE:
-			case WA_CLICKACTIVE:
-				m_Activated = true;
-				break;
-			case WA_INACTIVE:
-				m_Activated = false;
-				break;
-			}
-			lResult = 0;
-			return TRUE;
-
 		case WM_SIZE:
 			switch(wParam)
 			{

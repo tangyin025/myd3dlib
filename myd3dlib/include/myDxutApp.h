@@ -18,14 +18,11 @@ namespace my
 
 		bool m_InSizeMove;
 
-		bool m_Activated;
-
 	public:
 		DxutWindow(void)
 			: m_Minimized(false)
 			, m_Maximized(false)
 			, m_InSizeMove(false)
-			, m_Activated(false)
 		{
 		}
 
