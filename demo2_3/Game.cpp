@@ -298,6 +298,7 @@ Game::Game(void)
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(13), "Font Height")
+		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("scene", boost::program_options::value(&m_InitScene)/*->default_value("scene01.xml")*/, "Scene")
@@ -427,7 +428,7 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("FModContext::Init failed");
 	}
 
-	if (!(m_Font = LoadFont(m_InitFont.c_str(), m_InitFontHeight)))
+	if (!(m_Font = LoadFont(m_InitFont.c_str(), m_InitFontHeight, m_InitFontFaceIndex)))
 	{
 		THROW_CUSEXCEPTION("create m_Font failed");
 	}

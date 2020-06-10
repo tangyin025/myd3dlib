@@ -164,13 +164,13 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 			ofs << skin_var_name << ".Font=game:LoadFont(\"";
 			if (strFamily == _T("Î¢ÈíÑÅºÚ"))
 			{
-				ofs << "font/wqy-microhei.ttc";
+				ofs << "font/wqy-microhei.ttc\", " << pReg->m_Font->GetSize() << ", 0)";
 			}
 			else
 			{
-				ofs << "font/wqy-microhei.ttc";
+				ofs << "font/wqy-microhei.ttc\", " << pReg->m_Font->GetSize() << ", 0)";
 			}
-			ofs << "\", " << pReg->m_Font->GetSize() << ")" << std::endl;
+			ofs << std::endl;
 		}
 		else
 		{

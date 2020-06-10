@@ -305,7 +305,7 @@ HRESULT CMainApp::OnCreateDevice(
 		return hr;
 	}
 
-	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
+	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13, 0)))
 	{
 		TRACE("LoadFont failed");
 		return S_FALSE;

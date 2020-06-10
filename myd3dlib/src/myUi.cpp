@@ -289,10 +289,12 @@ void ControlSkin::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Image);
 	std::vector<std::string> FontSeq;
 	boost::algorithm::split(FontSeq, m_Font->m_Key, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-	std::string FontPath = FontSeq.size() > 1 ? FontSeq[0] : std::string();
+	std::string FontPath = FontSeq.size() > 0 ? FontSeq[0] : std::string();
 	int FontHeight = FontSeq.size() > 1 ? boost::lexical_cast<int>(FontSeq[1]) : 13;
+	int FontFaceIndex = FontSeq.size() > 2 ? boost::lexical_cast<int>(FontSeq[2]) : 0;
 	ar << BOOST_SERIALIZATION_NVP(FontPath);
 	ar << BOOST_SERIALIZATION_NVP(FontHeight);
+	ar << BOOST_SERIALIZATION_NVP(FontFaceIndex);
 	ar << BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
 	ar << BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
@@ -311,9 +313,11 @@ void ControlSkin::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(FontPath);
 	int FontHeight;
 	ar >> BOOST_SERIALIZATION_NVP(FontHeight);
+	int FontFaceIndex;
+	ar >> BOOST_SERIALIZATION_NVP(FontFaceIndex);
 	if (!FontPath.empty())
 	{
-		m_Font = my::ResourceMgr::getSingleton().LoadFont(FontPath.c_str(), FontHeight);
+		m_Font = my::ResourceMgr::getSingleton().LoadFont(FontPath.c_str(), FontHeight, FontFaceIndex);
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);

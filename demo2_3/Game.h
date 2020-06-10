@@ -43,6 +43,8 @@ public:
 
 	int m_InitFontHeight;
 
+	int m_InitFontFaceIndex;
+
 	std::string m_InitUIEffect;
 
 	std::string m_InitSound;

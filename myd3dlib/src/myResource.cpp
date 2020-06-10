@@ -873,19 +873,19 @@ boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const ch
 	return boost::dynamic_pointer_cast<Effect>(request->m_res);
 }
 
-void ResourceMgr::LoadFontAsync(const char * path, int height, IResourceCallback * callback)
+void ResourceMgr::LoadFontAsync(const char * path, int height, int face_index, IResourceCallback * callback)
 {
-	std::string key = FontIORequest::BuildKey(path, height);
-	IORequestPtr request(new FontIORequest(path, height));
+	std::string key = FontIORequest::BuildKey(path, height, face_index);
+	IORequestPtr request(new FontIORequest(path, height, face_index));
 	request->m_callbacks.insert(callback);
 	LoadIORequestAsync(key, request, false);
 }
 
-boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height)
+boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, int face_index)
 {
-	std::string key = FontIORequest::BuildKey(path, height);
+	std::string key = FontIORequest::BuildKey(path, height, face_index);
 	SimpleResourceCallback cb;
-	IORequestPtr request(new FontIORequest(path, height));
+	IORequestPtr request(new FontIORequest(path, height, face_index));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(key, request);
 	return boost::dynamic_pointer_cast<Font>(request->m_res);
@@ -1059,11 +1059,11 @@ void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 
 	FontPtr res(new Font());
-	res->CreateFontFromFileInCache(m_cache, m_height);
+	res->CreateFontFromFileInCache(m_cache, m_height, m_face_index);
 	m_res = res;
 }
 
-std::string FontIORequest::BuildKey(const char * path, int height)
+std::string FontIORequest::BuildKey(const char * path, int height, int face_index)
 {
-	return str_printf("%s %d", path, height);
+	return str_printf("%s %d %d", path, height, face_index);
 }

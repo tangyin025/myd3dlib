@@ -390,9 +390,9 @@ namespace my
 
 		boost::intrusive_ptr<Effect> LoadEffect(const char * path, const char * macros);
 
-		void LoadFontAsync(const char * path, int height, IResourceCallback * callback);
+		void LoadFontAsync(const char * path, int height, int face_index, IResourceCallback * callback);
 
-		boost::intrusive_ptr<Font> LoadFont(const char * path, int height);
+		boost::intrusive_ptr<Font> LoadFont(const char * path, int height, int face_index);
 	};
 
 	class TextureIORequest : public IORequest
@@ -486,12 +486,15 @@ namespace my
 
 		int m_height;
 
+		int m_face_index;
+
 		CachePtr m_cache;
 
 	public:
-		FontIORequest(const char * path, int height)
+		FontIORequest(const char * path, int height, int face_index)
 			: m_path(path)
 			, m_height(height)
+			, m_face_index(face_index)
 		{
 		}
 
@@ -499,6 +502,6 @@ namespace my
 
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
-		static std::string BuildKey(const char * path, int height);
+		static std::string BuildKey(const char * path, int height, int face_index);
 	};
 }
