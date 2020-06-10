@@ -233,7 +233,9 @@ void CExportLuaDlg::ExportTreeNode(std::ofstream & ofs, HTREEITEM hItem)
 	ofs << var_name << ".y = UDim(" << pReg->m_y.scale << "," << pReg->m_y.offset << ")" << std::endl;
 	ofs << var_name << ".Width = UDim(" << pReg->m_Width.scale << "," << pReg->m_Width.offset << ")" << std::endl;
 	ofs << var_name << ".Height = UDim(" << pReg->m_Height.scale << "," << pReg->m_Height.offset << ")" << std::endl;
-	ofs << var_name << ".Text=\"" << tstou8((LPCTSTR)pReg->m_Text) << "\"" << std::endl;
+	CString strInfo;
+	strInfo.Format(pReg->m_Text, pReg->m_Rect.X, pReg->m_Rect.Y, pReg->m_Rect.Width, pReg->m_Rect.Height);
+	ofs << var_name << ".Text=\"" << tstou8((LPCTSTR)strInfo) << "\"" << std::endl;
 
 	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_ImageRect, pReg->m_ImageBorder, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
 	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
