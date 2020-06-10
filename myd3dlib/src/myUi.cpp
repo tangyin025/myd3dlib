@@ -2327,11 +2327,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 			}
 
-			if (m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
-			{
-				Rectangle TextRect = BtnRect.shrink(m_Border);
-				Skin->DrawString(ui_render, m_Items[m_iSelected]->strText.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
-			}
+			Skin->DrawString(ui_render, m_Text.c_str(), BtnRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -2367,7 +2363,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (m_iSelected != m_iFocused)
 					{
-						m_iSelected = m_iFocused;
+						SetSelected(m_iFocused);
 
 						if (m_EventSelectionChanged)
 						{
@@ -2483,7 +2479,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 						{
 							if(m_iSelected != i)
 							{
-								m_iSelected = i;
+								SetSelected(i);
 
 								if(m_EventSelectionChanged)
 								{
@@ -2586,11 +2582,14 @@ float ComboBox::GetItemHeight(void) const
 
 void ComboBox::SetSelected(int iSelected)
 {
-	m_iSelected = m_iFocused = iSelected;
-
-	if(m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
+	if (m_iSelected != iSelected)
 	{
-		m_ScrollBar.m_nPosition = Min(m_iSelected, Max(0, m_ScrollBar.m_nEnd - m_ScrollBar.m_nPageSize));
+		m_iSelected = iSelected;
+
+		if (m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
+		{
+			m_Text = m_Items[m_iSelected]->strText;
+		}
 	}
 }
 
