@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (P.R.C.) resources
+// Chinese (Simplified, PRC) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-#ifdef _WIN32
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 #pragma code_page(936)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -56,7 +54,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU 
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "文件(&F)"
     BEGIN
@@ -97,7 +95,7 @@ BEGIN
     END
 END
 
-IDR_ImgRegionTYPE MENU 
+IDR_ImgRegionTYPE MENU
 BEGIN
     POPUP "文件(&F)"
     BEGIN
@@ -106,13 +104,10 @@ BEGIN
         MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
         MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
         MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
-        MENUITEM SEPARATOR
         MENUITEM "属性(&O)...",                   ID_FILE_PROPERTY
-        POPUP "导出(&E)"
-        BEGIN
-            MENUITEM "图片(&I)...",                   ID_EXPORT_IMG
-            MENUITEM "Lua(&L)...",                  ID_EXPORT_LUA
-        END
+        MENUITEM SEPARATOR
+        MENUITEM "导出图片(&I)...",                 ID_EXPORT_IMG
+        MENUITEM "导出Lua(&L)...",                ID_EXPORT_LUA
         MENUITEM SEPARATOR
         MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
@@ -170,7 +165,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS 
+IDR_MAINFRAME ACCELERATORS
 BEGIN
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
@@ -193,7 +188,7 @@ END
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR  16, 16
+IDR_MAINFRAME TOOLBAR 16, 16
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
@@ -224,8 +219,11 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "Toolbar256.bmp"
+
 IDB_BITMAP1             BITMAP                  "jyiczlza.bmp"
+
 IDB_BITMAP2             BITMAP                  "fileview_hc.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -233,7 +231,9 @@ IDB_BITMAP2             BITMAP                  "fileview_hc.bmp"
 //
 
 IDC_CURSOR1             CURSOR                  "Arrow.cur"
+
 IDC_CURSOR2             CURSOR                  "Ubuntu move.cur"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -243,7 +243,9 @@ IDC_CURSOR2             CURSOR                  "Ubuntu move.cur"
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "ImgRegion.ico"
+
 IDR_ImgRegionTYPE       ICON                    "ImgRegionDoc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -277,7 +279,7 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,134,42,66,23
     LTEXT           "ImgRegion，作者：Tang Yin",IDC_STATIC,79,12,94,8
     LTEXT           "Copyright (C) 2013",IDC_STATIC,79,27,62,8
-    CONTROL         111,IDC_STATIC,"Static",SS_BITMAP,15,12,50,46
+    CONTROL         IDB_BITMAP1,IDC_STATIC,"Static",SS_BITMAP,15,12,50,46
 END
 
 IDD_LUA_EXPORTER DIALOGEX 0, 0, 316, 79
@@ -302,7 +304,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_FILE_PROPERTY, DIALOG
     BEGIN
@@ -336,13 +338,13 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "ImgRegion"
     IDR_ImgRegionTYPE       "\naaa\naaa\n\n\naaa.Document\naaa.Document"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -352,24 +354,24 @@ BEGIN
     ID_INDICATOR_REC        "REC"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_IDLEMESSAGE     "就绪"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_NEW             "创建新文档\n新建"
     ID_FILE_OPEN            "打开现有文档\n打开"
     ID_FILE_SAVE            "保存活动文档\n保存"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_APP_ABOUT            "显示程序信息、版本号和版权\n关于"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_EDIT_COPY            "复制选定内容并将其放到剪贴板上\n复制"
     ID_EDIT_CUT             "剪切选定内容并将其放到剪贴板上\n剪切"
@@ -378,7 +380,7 @@ BEGIN
     ID_EDIT_REDO            "恢复上次撤消的操作\n重做"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_ZOOM_OUT             "缩小当前视图\n缩小"
     ID_ZOOM_IN              "放大当前视图\n放大"
@@ -388,7 +390,7 @@ BEGIN
     ID_EXPORT_IMG           "将当前视图内容导出为图片格式\n导出图片"
 END
 
-#endif    // Chinese (P.R.C.) resources
+#endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
