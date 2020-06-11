@@ -744,19 +744,22 @@ bool Control::ContainsControl(Control * control)
 
 Control * Control::GetChildAtPoint(const Vector2 & pt)
 {
-	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	if (m_bEnabled && m_bVisible)
 	{
-		Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
-		if (ctrl)
+		ControlPtrList::const_reverse_iterator ctrl_iter = m_Childs.rbegin();
+		for (; ctrl_iter != m_Childs.rend(); ctrl_iter++)
 		{
-			return ctrl;
+			Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
+			if (ctrl)
+			{
+				return ctrl;
+			}
 		}
-	}
 
-	if (HitTest(pt))
-	{
-		return this;
+		if (HitTest(pt))
+		{
+			return this;
+		}
 	}
 	return NULL;
 }
@@ -2318,12 +2321,12 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 
-					Rectangle DropdownRect = Rectangle::LeftTop(m_Rect.l, m_Rect.b, m_DropdownSize.x, m_DropdownSize.y);
+					m_DropdownRect = Rectangle::LeftTop(m_Rect.l, m_Rect.b, m_DropdownSize.x, m_DropdownSize.y);
 
-					Skin->DrawImage(ui_render, Skin->m_DropdownImage, DropdownRect, m_Skin->m_Color);
+					Skin->DrawImage(ui_render, Skin->m_DropdownImage, m_DropdownRect, m_Skin->m_Color);
 
 					// ! ScrollBar source copy
-					m_ScrollBar.m_Rect = Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
+					m_ScrollBar.m_Rect = Rectangle::LeftTop(m_DropdownRect.r, m_DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
 
 					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar.m_Rect, m_Skin->m_Color);
 
@@ -2353,10 +2356,10 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 					}
 
 					int i = m_ScrollBar.m_nPosition;
-					float y = DropdownRect.t + m_Border.y;
-					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
+					float y = m_DropdownRect.t + m_Border.y;
+					for(; i < (int)m_Items.size() && y <= m_DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect = Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
+						Rectangle ItemRect = Rectangle::LeftTop(m_DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
 
 						if(i == m_iFocused)
 						{
@@ -2482,20 +2485,18 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			}
 		}
 
-		Rectangle DropdownRect = Rectangle::LeftTop(m_Rect.l, m_Rect.b, m_DropdownSize.x, m_DropdownSize.y);
-
 		switch(uMsg)
 		{
 		case WM_MOUSEMOVE:
 			if(m_bHasFocus && m_bOpened)
 			{
-				if(DropdownRect.PtInRect(pt))
+				if(m_DropdownRect.PtInRect(pt))
 				{
 					int i = m_ScrollBar.m_nPosition;
-					float y = DropdownRect.t;
-					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
+					float y = m_DropdownRect.t;
+					for(; i < (int)m_Items.size() && y <= m_DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect = Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
+						Rectangle ItemRect = Rectangle::LeftTop(m_DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
 
 						if(ItemRect.PtInRect(pt))
 						{
@@ -2510,7 +2511,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(HitTest(pt))
+			if(m_Rect.PtInRect(pt))
 			{
 				m_bPressed = true;
 				m_bOpened = !m_bOpened;
@@ -2523,13 +2524,13 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 			if(m_bHasFocus && m_bOpened)
 			{
-				if(DropdownRect.PtInRect(pt))
+				if(m_DropdownRect.PtInRect(pt))
 				{
 					int i = m_ScrollBar.m_nPosition;
-					float y = DropdownRect.t;
-					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
+					float y = m_DropdownRect.t;
+					for(; i < (int)m_Items.size() && y <= m_DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect = Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
+						Rectangle ItemRect = Rectangle::LeftTop(m_DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight);
 
 						if(ItemRect.PtInRect(pt))
 						{
@@ -2585,6 +2586,16 @@ void ComboBox::OnFocusOut(void)
 	m_bOpened = false;
 
 	Control::OnFocusOut();
+}
+
+bool ComboBox::HitTest(const Vector2 & pt)
+{
+	if (m_bHasFocus && m_bOpened)
+	{
+		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar.m_Rect.PtInRect(pt);
+	}
+
+	return Button::HitTest(pt);
 }
 
 void ComboBox::OnLayout(void)
@@ -3107,7 +3118,12 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			Ray ray = CalculateRay(Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
+			CPoint point((short)LOWORD(lParam), (short)HIWORD(lParam));
+			if (uMsg == WM_MOUSEWHEEL)
+			{
+				ScreenToClient(hWnd, &point);
+			}
+			Ray ray = CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), ClientRect.Size());
 
 			if (Control::s_CaptureControl) {
 				Vector2 pt;
@@ -3118,17 +3134,6 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 				}
 				break;
-			}
-
-			if (Control::s_FocusControl && dynamic_cast<ComboBox *>(Control::s_FocusControl)) {
-				Vector2 pt;
-				if (Control::s_FocusControl->RayToWorld(ray, pt))
-				{
-					if (Control::s_FocusControl->HandleMouse(uMsg, pt, wParam, lParam)) {
-						return true;
-					}
-				}
-				//break;
 			}
 
 			DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
@@ -3148,14 +3153,6 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 								Control::SetMouseOverControl(ControlPtd, pt);
 
 								if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
-								{
-									return true;
-								}
-							}
-
-							if (ControlPtd != *dlg_iter)
-							{
-								if ((*dlg_iter)->HandleMouse(uMsg, pt, wParam, lParam))
 								{
 									return true;
 								}

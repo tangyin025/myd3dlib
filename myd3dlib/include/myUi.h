@@ -947,6 +947,8 @@ namespace my
 	public:
 		Vector2 m_DropdownSize;
 
+		Rectangle m_DropdownRect;
+
 		ScrollBar m_ScrollBar;
 
 		float m_ScrollbarWidth;
@@ -971,10 +973,11 @@ namespace my
 
 	protected:
 		ComboBox(void)
-			: m_DropdownSize(100,100)
+			: m_DropdownSize(100, 100)
+			, m_DropdownRect(0, 0, 100, 100)
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
-			, m_Border(0,0,0,0)
+			, m_Border(0, 0, 0, 0)
 			, m_bOpened(false)
 			, m_ItemHeight(15)
 			, m_iFocused(0)
@@ -987,6 +990,7 @@ namespace my
 		ComboBox(const char * Name)
 			: Button(Name)
 			, m_DropdownSize(100, 100)
+			, m_DropdownRect(0, 0, 100, 100)
 			, m_ScrollBar(NULL)
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
@@ -1022,6 +1026,8 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual void OnFocusOut(void);
+
+		virtual bool HitTest(const Vector2 & pt);
 
 		virtual void OnLayout(void);
 
