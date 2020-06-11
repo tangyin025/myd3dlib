@@ -354,9 +354,13 @@ std::string StreamDirMgr::GetRelativePath(const char * path)
 		::GetCurrentDirectoryA(_countof(currentDir), currentDir);
 		::PathAppendA(currentDir, m_DirList.front()->m_dir.c_str());
 		char relativePath[MAX_PATH];
-		if (::PathRelativePathToA(relativePath, path, 0, currentDir, FILE_ATTRIBUTE_DIRECTORY) && CheckPath(relativePath))
+		if (::PathRelativePathToA(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
 		{
-			return std::string(relativePath);
+			char canonicalizedPath[MAX_PATH];
+			if (::PathCanonicalizeA(canonicalizedPath, relativePath) && CheckPath(canonicalizedPath))
+			{
+				return std::string(canonicalizedPath);
+			}
 		}
 	}
 
