@@ -1625,7 +1625,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 		//mesh_cmp->m_MeshRes.ReleaseResource();
-		//mesh_cmp->m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
+		//mesh_cmp->m_MeshRes.m_Path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		//mesh_cmp->m_MeshRes.RequestResource();
 		//EventArgs arg;
 		//pFrame->m_EventAttributeChanged(&arg);
@@ -1672,7 +1672,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialShader:
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
+		material->m_Shader = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		material->ReleaseResource();
 		material->ParseShaderParameters();
 		material->RequestResource();
@@ -1790,7 +1790,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
 		mtl->m_ParameterList[i]->ReleaseResource();
-		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = ts2ms(pProp->GetValue().bstrVal);
+		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		mtl->m_ParameterList[i]->RequestResource();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1987,7 +1987,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		terrain->m_HeightScale = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
-		std::string path = ts2ms(pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal).c_str());
 		if (!path.empty())
 		{
 			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
@@ -2007,7 +2007,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyTerrainSplatMap:
 	{
-		std::string path = ts2ms(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
 		if (res)
 		{

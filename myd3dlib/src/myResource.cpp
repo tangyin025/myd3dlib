@@ -199,6 +199,11 @@ std::string ZipIStreamDir::GetFullPath(const char * path)
 	return std::string();
 }
 
+std::string ZipIStreamDir::GetRelativePath(const char * path)
+{
+	return std::string();
+}
+
 IStreamPtr ZipIStreamDir::OpenIStream(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
@@ -230,6 +235,24 @@ std::string FileIStreamDir::GetFullPath(const char * path)
 
 	fullPath.resize(dwLen);
 	return fullPath;
+}
+
+std::string FileIStreamDir::GetRelativePath(const char * path)
+{
+	char currentDir[MAX_PATH];
+	::GetCurrentDirectoryA(_countof(currentDir), currentDir);
+	::PathAppendA(currentDir, m_dir.c_str());
+	char relativePath[MAX_PATH];
+	if (::PathRelativePathToA(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
+	{
+		char canonicalizedPath[MAX_PATH];
+		if (::PathCanonicalizeA(canonicalizedPath, relativePath) && CheckPath(canonicalizedPath))
+		{
+			return std::string(canonicalizedPath);
+		}
+	}
+
+	return std::string();
 }
 
 IStreamPtr FileIStreamDir::OpenIStream(const char * path)
@@ -302,6 +325,39 @@ std::string StreamDirMgr::GetFullPath(const char * path)
 		full_path.resize(MAX_PATH);
 		GetFullPathNameA(ret.c_str(), full_path.size(), &full_path[0], NULL);
 		return full_path;
+	}
+
+	return std::string();
+}
+
+std::string StreamDirMgr::GetRelativePath(const char * path)
+{
+	if (PathIsRelativeA(path))
+	{
+		return std::string(path);
+	}
+
+	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
+	for (; dir_iter != m_DirList.end(); dir_iter++)
+	{
+		std::string ret = (*dir_iter)->GetRelativePath(path);
+		if (!ret.empty())
+		{
+			return ret;
+		}
+	}
+
+	// ! will return the default first combined path
+	if (!m_DirList.empty())
+	{
+		char currentDir[MAX_PATH];
+		::GetCurrentDirectoryA(_countof(currentDir), currentDir);
+		::PathAppendA(currentDir, m_DirList.front()->m_dir.c_str());
+		char relativePath[MAX_PATH];
+		if (::PathRelativePathToA(relativePath, path, 0, currentDir, FILE_ATTRIBUTE_DIRECTORY) && CheckPath(relativePath))
+		{
+			return std::string(relativePath);
+		}
 	}
 
 	return std::string();

@@ -132,6 +132,8 @@ namespace my
 
 		virtual std::string GetFullPath(const char * path) = 0;
 
+		virtual std::string GetRelativePath(const char * path) = 0;
+
 		virtual IStreamPtr OpenIStream(const char * path) = 0;
 	};
 
@@ -151,6 +153,8 @@ namespace my
 
 		std::string GetFullPath(const char * path);
 
+		std::string GetRelativePath(const char * path);
+
 		IStreamPtr OpenIStream(const char * path);
 	};
 
@@ -165,6 +169,8 @@ namespace my
 		bool CheckPath(const char * path);
 
 		std::string GetFullPath(const char * path);
+
+		std::string GetRelativePath(const char * path);
 
 		IStreamPtr OpenIStream(const char * path);
 	};
@@ -194,6 +200,8 @@ namespace my
 		bool CheckPath(const char * path);
 
 		std::string GetFullPath(const char * path);
+
+		std::string GetRelativePath(const char * path);
 
 		IStreamPtr OpenIStream(const char * path);
 	};

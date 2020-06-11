@@ -767,7 +767,7 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
-	std::string path = ts2ms((LPCTSTR)dlg.GetPathName());
+	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
 	std::string sub_mesh_name = ts2ms(buff);
 	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh_name.c_str());
 	if (!mesh)
@@ -822,7 +822,7 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-	std::string path = ts2ms((LPCTSTR)dlg.GetPathName());
+	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
 	std::string sub_mesh_name = ts2ms(buff);
 	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh_name.c_str());
 	if (!mesh)
