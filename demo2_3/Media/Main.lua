@@ -1,3 +1,4 @@
+require "ui/zhCN.lua"
 require "Hud.lua"
 require "Settings.lua"
 require "Player.lua"

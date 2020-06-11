@@ -36,6 +36,16 @@ static void CImgRegionDocFileVersions_Loading498(CImgRegionDoc * pDoc, CArchive 
 	ar >> pDoc->m_strProjectDir;
 	ar >> pDoc->m_strLuaPath;
 
+	pDoc->m_Dict.clear();
+	size_t dict_count;
+	ar >> dict_count;
+	for (size_t i = 0; i < dict_count; i++)
+	{
+		CString key, value;
+		ar >> key >> value;
+		pDoc->m_Dict.insert(CImgRegionDoc::Dictionary::value_type((LPCTSTR)key, value));
+	}
+
 	pDoc->SerializeSubTreeNode(ar, version);
 }
 
@@ -52,6 +62,14 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 	ar << pDoc->m_ImageStr;
 	ar << pDoc->m_strProjectDir;
 	ar << pDoc->m_strLuaPath;
+
+	ar << pDoc->m_Dict.size();
+	CImgRegionDoc::Dictionary::iterator dict_iter = pDoc->m_Dict.begin();
+	for (; dict_iter != pDoc->m_Dict.end(); dict_iter++)
+	{
+		ar << CString(dict_iter->first.c_str());
+		ar << dict_iter->second;
+	}
 
 	pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION);
 }

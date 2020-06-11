@@ -105,6 +105,7 @@ BEGIN
         MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
         MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
         MENUITEM "属性(&O)...",                   ID_FILE_PROPERTY
+        MENUITEM "导入词典(&D)",                    ID_IMPORT_DICTIONARY
         MENUITEM SEPARATOR
         MENUITEM "导出图片(&I)...",                 ID_EXPORT_IMG
         MENUITEM "导出Lua(&L)...",                ID_EXPORT_LUA
