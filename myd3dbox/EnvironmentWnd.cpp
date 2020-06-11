@@ -361,20 +361,20 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertySkyBox:
 		{
-			std::wstring path = pProp->GetValue().bstrVal;
-			boost::basic_regex<TCHAR> reg(_T("_(FR|BK|LF|RT|UP|DN)"));
-			boost::match_results<std::basic_string<TCHAR>::const_iterator> what;
+			std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+			boost::basic_regex<char> reg("_(FR|BK|LF|RT|UP|DN)");
+			boost::match_results<std::string::const_iterator> what;
 			if (boost::regex_search(path, what, reg, boost::match_default) && what[1].matched)
 			{
-				const TCHAR * tex_name[6] = { _T("FR"), _T("BK"), _T("LF"), _T("RT"), _T("UP"), _T("DN") };
+				const char * tex_name[6] = { "FR", "BK", "LF", "RT", "UP", "DN" };
 				for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
 				{
-					std::basic_string<TCHAR> new_path;
+					std::string new_path;
 					new_path.insert(new_path.end(), path.begin(), what[1].first);
 					new_path.append(tex_name[i]);
 					new_path.insert(new_path.end(), what[1].second, path.end());
 					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
-					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = ts2ms(new_path.c_str());
+					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = new_path.c_str();
 					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();
 				}
 				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -386,7 +386,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				int i = pProp->GetData() - SkyBoxPropertyTextureFront;
 				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
-				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = ts2ms(path.c_str());
+				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = path.c_str();
 				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();
 			}
 		}
