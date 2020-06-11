@@ -10,7 +10,7 @@
  * accepted if you are using GCC for compilation (and probably by
  * other compilers too).
  *
- * Author: David Turner, 2005, 2006, 2008
+ * Author: David Turner, 2005, 2006, 2008-2013, 2015
  *
  * This code is explicitly placed into the public domain.
  *
@@ -22,7 +22,7 @@
 #include <ctype.h>
 
 #define  PROGRAM_NAME     "apinames"
-#define  PROGRAM_VERSION  "0.1"
+#define  PROGRAM_VERSION  "0.3"
 
 #define  LINEBUFF_SIZE  1024
 
@@ -31,7 +31,9 @@ typedef enum  OutputFormat_
   OUTPUT_LIST = 0,      /* output the list of names, one per line             */
   OUTPUT_WINDOWS_DEF,   /* output a Windows .DEF file for Visual C++ or Mingw */
   OUTPUT_BORLAND_DEF,   /* output a Windows .DEF file for Borland C++         */
-  OUTPUT_WATCOM_LBC     /* output a Watcom Linker Command File                */
+  OUTPUT_WATCOM_LBC,    /* output a Watcom Linker Command File                */
+  OUTPUT_NETWARE_IMP,   /* output a NetWare ImportFile                        */
+  OUTPUT_GNU_VERMAP     /* output a version map for GNU or Solaris linker     */
 
 } OutputFormat;
 
@@ -59,8 +61,9 @@ static void
 names_add( const char*  name,
            const char*  end )
 {
-  int   nn, len, h;
-  Name  nm;
+  unsigned int  h;
+  int           nn, len;
+  Name          nm;
 
   if ( end <= name )
     return;
@@ -86,15 +89,16 @@ names_add( const char*  name,
   if ( num_names >= max_names )
   {
     max_names += (max_names >> 1) + 4;
-    the_names  = (NameRec*)realloc( the_names, sizeof(the_names[0])*max_names );
-    if ( the_names == NULL )
+    the_names  = (NameRec*)realloc( the_names,
+                                    sizeof ( the_names[0] ) * max_names );
+    if ( !the_names )
       panic( "not enough memory" );
   }
   nm = &the_names[num_names++];
 
   nm->hash = h;
   nm->name = (char*)malloc( len+1 );
-  if ( nm->name == NULL )
+  if ( !nm->name )
     panic( "not enough memory" );
 
   memcpy( nm->name, name, len );
@@ -115,7 +119,8 @@ name_compare( const void*  name1,
 static void
 names_sort( void )
 {
-  qsort( the_names, (size_t)num_names, sizeof(the_names[0]), name_compare );
+  qsort( the_names, (size_t)num_names,
+         sizeof ( the_names[0] ), name_compare );
 }
 
 
@@ -125,6 +130,7 @@ names_dump( FILE*         out,
             const char*   dll_name )
 {
   int  nn;
+
 
   switch ( format )
   {
@@ -150,23 +156,26 @@ names_dump( FILE*         out,
 
     case OUTPUT_WATCOM_LBC:
       {
-        /* we must omit the .dll suffix from the library name */
-        char   temp[512];
-        char*  dot;
+        const char*  dot;
+        char         temp[512];
 
-        if ( dll_name == NULL )
+
+        if ( !dll_name )
         {
           fprintf( stderr,
-                   "you must provide a DLL name with the -d option !!\n" );
-          exit(4);
+                   "you must provide a DLL name with the -d option!\n" );
+          exit( 4 );
         }
 
+        /* we must omit the .dll suffix from the library name */
         dot = strchr( dll_name, '.' );
-        if ( dot != NULL )
+        if ( dot )
         {
-          int  len = (dot - dll_name);
-          if ( len > (int)(sizeof(temp)-1) )
-            len = sizeof(temp)-1;
+          int  len = dot - dll_name;
+
+
+          if ( len > (int)( sizeof ( temp ) - 1 ) )
+            len = sizeof ( temp ) - 1;
 
           memcpy( temp, dll_name, len );
           temp[len] = 0;
@@ -177,6 +186,25 @@ names_dump( FILE*         out,
         for ( nn = 0; nn < num_names; nn++ )
           fprintf( out, "++_%s.%s.%s\n", the_names[nn].name, dll_name,
                         the_names[nn].name );
+      }
+      break;
+
+    case OUTPUT_NETWARE_IMP:
+      {
+        if ( dll_name )
+          fprintf( out, "  (%s)\n", dll_name );
+        for ( nn = 0; nn < num_names - 1; nn++ )
+          fprintf( out, "  %s,\n", the_names[nn].name );
+        fprintf( out, "  %s\n", the_names[num_names - 1].name );
+      }
+      break;
+
+    case OUTPUT_GNU_VERMAP:
+      {
+        fprintf( out, "{\n\tglobal:\n" );
+        for ( nn = 0; nn < num_names; nn++ )
+          fprintf( out, "\t\t%s;\n", the_names[nn].name );
+        fprintf( out, "\tlocal:\n\t\t*;\n};\n" );
       }
       break;
 
@@ -201,7 +229,7 @@ typedef enum  State_
 static int
 read_header_file( FILE*  file, int  verbose )
 {
-  static char  buff[ LINEBUFF_SIZE+1 ];
+  static char  buff[LINEBUFF_SIZE + 1];
   State        state = STATE_START;
 
   while ( !feof( file ) )
@@ -265,7 +293,7 @@ read_header_file( FILE*  file, int  verbose )
           if ( p > name )
           {
             if ( verbose )
-              fprintf( stderr, ">>> %.*s\n", p-name, name );
+              fprintf( stderr, ">>> %.*s\n", (int)(p - name), name );
 
             names_add( name, p );
           }
@@ -304,6 +332,8 @@ usage( void )
    "           -w     : output .DEF file for Visual C++ and Mingw\n"
    "           -wB    : output .DEF file for Borland C++\n"
    "           -wW    : output Watcom Linker Response File\n"
+   "           -wN    : output NetWare Import File\n"
+   "           -wL    : output version map for GNU or Solaris linker\n"
    "\n";
 
   fprintf( stderr,
@@ -352,7 +382,7 @@ int  main( int argc, const char* const*  argv )
           arg += 2;
 
         out = fopen( arg, "wt" );
-        if ( out == NULL )
+        if ( !out )
         {
           fprintf( stderr, "could not open '%s' for writing\n", argv[2] );
           exit(3);
@@ -387,6 +417,14 @@ int  main( int argc, const char* const*  argv )
             format = OUTPUT_WATCOM_LBC;
             break;
 
+          case 'N':
+            format = OUTPUT_NETWARE_IMP;
+            break;
+
+          case 'L':
+            format = OUTPUT_GNU_VERMAP;
+            break;
+
           case 0:
             break;
 
@@ -417,7 +455,7 @@ int  main( int argc, const char* const*  argv )
     {
       FILE*  file = fopen( argv[0], "rb" );
 
-      if ( file == NULL )
+      if ( !file )
         fprintf( stderr, "unable to open '%s'\n", argv[0] );
       else
       {
