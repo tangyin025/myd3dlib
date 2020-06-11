@@ -49,8 +49,6 @@ public:
 
 	std::string m_InitSound;
 
-	std::string m_InitScene;
-
 	std::string m_InitScript;
 
 	my::Vector3 m_ViewedCenter;

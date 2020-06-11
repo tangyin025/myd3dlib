@@ -302,7 +302,6 @@ Game::Game(void)
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
-		("scene", boost::program_options::value(&m_InitScene)/*->default_value("scene01.xml")*/, "Scene")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
 		;
 	boost::program_options::variables_map vm;
@@ -442,11 +441,6 @@ HRESULT Game::OnCreateDevice(
 	m_Console = ConsolePtr(new Console());
 
 	FModContext::LoadEventFile(m_InitSound.c_str());
-
-	if (!m_InitScene.empty())
-	{
-		LoadScene(m_InitScene.c_str());
-	}
 
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
