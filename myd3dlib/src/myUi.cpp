@@ -1903,49 +1903,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 
 void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
-    // Check if the arrow button has been held for a while.
-    // If so, update the thumb position to simulate repeated
-    // scroll.
-	if(m_Arrow != CLEAR)
-	{
-		DWORD dwAbsoluteTime = timeGetTime();
-		switch(m_Arrow)
-		{
-		case CLICKED_UP:
-			if(330 < dwAbsoluteTime - m_dwArrowTS)
-			{
-				Scroll(-1);
-				m_Arrow = HELD_UP;
-				m_dwArrowTS = dwAbsoluteTime;
-			}
-			break;
-
-		case HELD_UP:
-			if(50 < dwAbsoluteTime - m_dwArrowTS)
-			{
-				Scroll(-1);
-				m_dwArrowTS = dwAbsoluteTime;
-			}
-			break;
-
-		case CLICKED_DOWN:
-			if(330 < dwAbsoluteTime - m_dwArrowTS)
-			{
-				Scroll( 1);
-				m_Arrow = HELD_DOWN;
-				m_dwArrowTS = dwAbsoluteTime;
-			}
-			break;
-
-		case HELD_DOWN:
-			if(50 < dwAbsoluteTime - m_dwArrowTS)
-			{
-				Scroll( 1);
-				m_dwArrowTS = dwAbsoluteTime;
-			}
-			break;
-		}
-	}
+	SimulateRepeatedScroll();
 
 	if(m_bVisible)
 	{
@@ -2021,6 +1979,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
 				m_dwArrowTS = timeGetTime();
+				m_bPressed = true;
 				SetCaptureControl(this);
 				return true;
 			}
@@ -2032,6 +1991,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
 				m_dwArrowTS = timeGetTime();
+				m_bPressed = true;
 				SetCaptureControl(this);
 				return true;
 			}
@@ -2055,12 +2015,14 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
+					m_bPressed = true;
 					SetCaptureControl(this);
 					return true;
 				}
 				else if(pt.y >= ThumbButtonRect.b && pt.y < DownButtonRect.t)
 				{
 					Scroll( m_nPageSize);
+					m_bPressed = true;
 					SetCaptureControl(this);
 					return true;
 				}
@@ -2069,8 +2031,10 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 		break;
 
 	case WM_LBUTTONUP:
+		if (m_bPressed || m_bDrag)
 		{
 			SetCaptureControl(NULL);
+			m_bPressed = false;
 			m_bDrag = false;
 			m_Arrow = CLEAR;
 			break;
@@ -2112,6 +2076,53 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 bool ScrollBar::CanHaveFocus(void)
 {
 	return m_bVisible && m_bEnabled;
+}
+
+void ScrollBar::SimulateRepeatedScroll(void)
+{
+	// Check if the arrow button has been held for a while.
+	// If so, update the thumb position to simulate repeated
+	// scroll.
+	if (m_Arrow != CLEAR)
+	{
+		DWORD dwAbsoluteTime = timeGetTime();
+		switch (m_Arrow)
+		{
+		case CLICKED_UP:
+			if (330 < dwAbsoluteTime - m_dwArrowTS)
+			{
+				Scroll(-1);
+				m_Arrow = HELD_UP;
+				m_dwArrowTS = dwAbsoluteTime;
+			}
+			break;
+
+		case HELD_UP:
+			if (50 < dwAbsoluteTime - m_dwArrowTS)
+			{
+				Scroll(-1);
+				m_dwArrowTS = dwAbsoluteTime;
+			}
+			break;
+
+		case CLICKED_DOWN:
+			if (330 < dwAbsoluteTime - m_dwArrowTS)
+			{
+				Scroll(1);
+				m_Arrow = HELD_DOWN;
+				m_dwArrowTS = dwAbsoluteTime;
+			}
+			break;
+
+		case HELD_DOWN:
+			if (50 < dwAbsoluteTime - m_dwArrowTS)
+			{
+				Scroll(1);
+				m_dwArrowTS = dwAbsoluteTime;
+			}
+			break;
+		}
+	}
 }
 
 void ScrollBar::Scroll(int nDelta)
@@ -2336,6 +2347,8 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 					Skin->DrawImage(ui_render, Skin->m_DropdownImage, m_DropdownRect, m_Skin->m_Color);
 
 					// ! ScrollBar source copy
+					m_ScrollBar.SimulateRepeatedScroll();
+
 					m_ScrollBar.m_Rect = Rectangle::LeftTop(m_DropdownRect.r, m_DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
 
 					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar.m_Rect, m_Skin->m_Color);
@@ -2484,7 +2497,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if(m_bHasFocus && m_bOpened)
+		if(m_bHasFocus && m_bOpened && !m_bPressed)
 		{
 			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 			{
@@ -2558,11 +2571,12 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 							break;
 						}
 					}
-					m_bPressed = true;
-					SetCaptureControl(this);
+					OnMouseLeave(pt);
 					return true;
 				}
 			}
+			m_bOpened = false;
+			OnMouseLeave(pt);
 			break;
 
 		case WM_LBUTTONUP:

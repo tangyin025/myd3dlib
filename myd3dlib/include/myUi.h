@@ -754,6 +754,8 @@ namespace my
 	class ScrollBar : public Control
 	{
 	public:
+		bool m_bPressed;
+
 		bool m_bDrag;
 
 		float m_UpDownButtonHeight;
@@ -783,7 +785,8 @@ namespace my
 
 	protected:
 		ScrollBar(void)
-			: m_bDrag(false)
+			: m_bPressed(false)
+			, m_bDrag(false)
 			, m_UpDownButtonHeight(20)
 			, m_nPosition(0)
 			, m_nPageSize(1)
@@ -798,6 +801,7 @@ namespace my
 	public:
 		ScrollBar(const char * Name)
 			: Control(Name)
+			, m_bPressed(false)
 			, m_bDrag(false)
 			, m_UpDownButtonHeight(20)
 			, m_nPosition(0)
@@ -830,6 +834,8 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual bool CanHaveFocus(void);
+
+		void SimulateRepeatedScroll(void);
 
 		void Scroll(int nDelta);
 
