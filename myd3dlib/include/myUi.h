@@ -1009,6 +1009,11 @@ namespace my
 			OnLayout();
 		}
 
+		~ComboBox(void)
+		{
+			m_ScrollBar.m_Parent = NULL;
+		}
+
 		friend class boost::serialization::access;
 
 		template<class Archive>

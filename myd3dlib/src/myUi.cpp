@@ -2617,6 +2617,8 @@ void ComboBox::OnLayout(void)
 	m_ScrollBar.m_Height = UDim(0, m_DropdownSize.y);
 
 	m_ScrollBar.m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
+
+	m_ScrollBar.m_Parent = this;
 }
 
 void ComboBox::SetDropdownSize(const Vector2 & DropdownSize)
