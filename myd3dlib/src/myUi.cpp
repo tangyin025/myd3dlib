@@ -2501,9 +2501,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		{
 			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 			{
-				// ! overload scrollbars capture
-				SetFocusControl(this);
-				SetCaptureControl(this);
 				return true;
 			}
 		}
