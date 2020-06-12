@@ -26,6 +26,8 @@ public:
 
 	virtual void Draw(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Offset, const my::Vector2 & Size);
 
+	virtual bool HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam, LPARAM lParam);
+
 	virtual bool CanHaveFocus(void);
 
 	int MoveLineIndex(int index, int step);

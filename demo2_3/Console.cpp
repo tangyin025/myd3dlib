@@ -34,6 +34,16 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 	}
 }
 
+bool MessagePanel::HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_MOUSEWHEEL && m_scrollbar->HandleMouse(uMsg, pt, wParam, lParam))
+	{
+		return true;
+	}
+
+	return m_Parent->HandleMouse(uMsg, pt, wParam, lParam);
+}
+
 bool MessagePanel::CanHaveFocus(void)
 {
 	return false;

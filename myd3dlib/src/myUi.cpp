@@ -2095,6 +2095,16 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			return true;
 		}
 		break;
+
+	case WM_MOUSEWHEEL:
+		{
+			UINT uLines;
+			SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
+			int zDelta = (short)HIWORD(wParam) / WHEEL_DELTA;
+			Scroll(-zDelta * uLines);
+			return true;
+		}
+		break;
 	}
 	return false;
 }
@@ -2561,19 +2571,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				m_bPressed = false;
 				SetCaptureControl(NULL);
 				return true;
-			}
-			break;
-
-		case WM_MOUSEWHEEL:
-			if(m_bHasFocus)
-			{
-	            int zDelta = (short)HIWORD(wParam) / WHEEL_DELTA;
-				if(m_bOpened)
-				{
-					UINT uLines;
-					SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
-					m_ScrollBar.Scroll(-zDelta * uLines);
-				}
 			}
 			break;
 		}
