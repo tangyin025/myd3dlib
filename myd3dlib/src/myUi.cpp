@@ -805,7 +805,7 @@ void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control *
 		case VK_UP:
 			if (m_Rect.l < rect.r && m_Rect.r > rect.l)
 			{
-				dist = rect.t - m_Rect.t;
+				dist = rect.b - m_Rect.b;
 			}
 			break;
 		case VK_DOWN:
@@ -817,7 +817,7 @@ void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control *
 		case VK_LEFT:
 			if (m_Rect.t < rect.b && m_Rect.b > rect.t)
 			{
-				dist = rect.l - m_Rect.l;
+				dist = rect.r - m_Rect.r;
 			}
 			break;
 		case VK_RIGHT:
