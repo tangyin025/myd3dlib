@@ -18,6 +18,7 @@ namespace boost
 class Game
 	: public my::DxutApp
 	, public my::TimerMgr
+	, public my::FontLibrary
 	, public my::DialogMgr
 	, public my::InputMgr
 	, public my::ResourceMgr

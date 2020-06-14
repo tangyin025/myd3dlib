@@ -18,6 +18,7 @@
 
 class CMainApp : public CWinAppEx
 	, public my::D3DContext
+	, public my::FontLibrary
 	, public my::ResourceMgr
 	, public RenderPipeline
 	, public PhysxContext

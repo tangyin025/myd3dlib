@@ -177,7 +177,8 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 	return false;
 }
 
-Font::FontLibrary::FontLibrary(void)
+FontLibrary::FontLibrary(void)
+	: m_Scale(1, 1)
 {
 	FT_Error err = FT_Init_FreeType(&m_Library);
 	if(err)
@@ -186,7 +187,7 @@ Font::FontLibrary::FontLibrary(void)
 	}
 }
 
-Font::FontLibrary::~FontLibrary(void)
+FontLibrary::~FontLibrary(void)
 {
 	FT_Done_FreeType(m_Library);
 }
@@ -194,8 +195,8 @@ Font::FontLibrary::~FontLibrary(void)
 Font::Font(int font_pixel_gap)
 	: m_face(NULL)
 	, FONT_PIXEL_GAP(font_pixel_gap)
-	, m_Scale(0,0)
 {
+	FontLibrary::getSingleton().m_EventScaleChange.connect(boost::bind(&Font::OnScaleChange, this, _1));
 }
 
 Font::~Font(void)
@@ -205,10 +206,14 @@ Font::~Font(void)
 		FT_Done_Face(m_face);
 		m_face = NULL;
 	}
+
+	FontLibrary::getSingleton().m_EventScaleChange.disconnect(boost::bind(&Font::OnScaleChange, this, _1));
 }
 
-void Font::SetScale(const Vector2 & Scale)
+void Font::OnScaleChange(const Vector2 & Scale)
 {
+	_ASSERT(m_face);
+
 	FT_Size_RequestRec  req;
 	req.type = FT_SIZE_REQUEST_TYPE_NOMINAL;
 	req.width = (FT_Long)(m_Height * Scale.x * 64);
@@ -220,8 +225,6 @@ void Font::SetScale(const Vector2 & Scale)
 	{
 		THROW_CUSEXCEPTION("FT_Request_Size failed");
 	}
-
-	m_Scale = Scale;
 
 	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 
@@ -238,7 +241,7 @@ void Font::Create(FT_Face face, int height)
 
 	CreateFontTexture(512, 512);
 
-	SetScale(Vector2(1,1));
+	OnScaleChange(FontLibrary::getSingleton().m_Scale);
 
 	m_LineHeight = m_face->size->metrics.height / 64;
 }
@@ -393,11 +396,11 @@ void Font::LoadCharacter(int character)
 
 	InsertCharacter(
 		character,
-		m_face->glyph->metrics.width / 64.0f / m_Scale.x,
-		m_face->glyph->metrics.height / 64.0f / m_Scale.y,
-		m_face->glyph->metrics.horiBearingX / 64.0f / m_Scale.x,
-		m_face->glyph->metrics.horiBearingY / 64.0f / m_Scale.y,
-		m_face->glyph->metrics.horiAdvance / 64.0f / m_Scale.x,
+		m_face->glyph->metrics.width / 64.0f / FontLibrary::getSingleton().m_Scale.x,
+		m_face->glyph->metrics.height / 64.0f / FontLibrary::getSingleton().m_Scale.y,
+		m_face->glyph->metrics.horiBearingX / 64.0f / FontLibrary::getSingleton().m_Scale.x,
+		m_face->glyph->metrics.horiBearingY / 64.0f / FontLibrary::getSingleton().m_Scale.y,
+		m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
 		m_face->glyph->bitmap.buffer,
 		m_face->glyph->bitmap.width,
 		m_face->glyph->bitmap.rows,

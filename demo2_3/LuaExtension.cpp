@@ -475,7 +475,6 @@ void LuaContext::Init(void)
 				value("AlignRightBottom", my::Font::AlignRightBottom)
 			]
 			.def_readonly("Height", &my::Font::m_Height)
-			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
 		, class_<my::ResourceMgr>("ResourceMgr")

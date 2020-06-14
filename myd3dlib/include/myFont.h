@@ -76,21 +76,27 @@ namespace my
 		bool AssignRect(const CSize & size, CRect & outRect);
 	};
 
+	class FontLibrary : public SingleInstance<FontLibrary>
+	{
+	public:
+		FT_LibraryRec_ * m_Library;
+
+		Vector2 m_Scale;
+
+		typedef boost::signals2::signal<void(const Vector2 &)> ScaleEvent;
+
+		ScaleEvent m_EventScaleChange;
+
+		FontLibrary(void);
+
+		virtual ~FontLibrary(void);
+	};
+
 	class UIRender;
 
 	class Font : public DeviceResourceBase
 	{
 	public:
-		class FontLibrary : public Singleton<FontLibrary>
-		{
-		public:
-			FT_LibraryRec_ * m_Library;
-
-			FontLibrary(void);
-
-			~FontLibrary(void);
-		};
-
 		enum Align
 		{
 			AlignLeft			= 1,
@@ -132,8 +138,6 @@ namespace my
 
 		int m_Height;
 
-		my::Vector2 m_Scale;
-
 		int m_LineHeight;
 
 		CharacterMap m_characterMap;
@@ -149,9 +153,7 @@ namespace my
 
 		virtual ~Font(void);
 
-		const Vector2 & GetScale(void) const { return m_Scale; }
-
-		void SetScale(const Vector2 & Scale);
+		void OnScaleChange(const Vector2 & Scale);
 
 		void Create(FT_FaceRec_ * face, int height);
 
