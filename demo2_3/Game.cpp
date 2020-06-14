@@ -530,7 +530,7 @@ HRESULT Game::OnResetDevice(
 
 	FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgViewport().y);
 
-	FontLibrary::m_EventScaleChange(FontLibrary::m_Scale);
+	FontLibrary::m_EventScaleChanged(FontLibrary::m_Scale);
 
 	if (FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{

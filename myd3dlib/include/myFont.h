@@ -85,7 +85,7 @@ namespace my
 
 		typedef boost::signals2::signal<void(const Vector2 &)> ScaleEvent;
 
-		ScaleEvent m_EventScaleChange;
+		ScaleEvent m_EventScaleChanged;
 
 		FontLibrary(void);
 
@@ -153,7 +153,7 @@ namespace my
 
 		virtual ~Font(void);
 
-		void OnScaleChange(const Vector2 & Scale);
+		void OnScaleChanged(const Vector2 & Scale);
 
 		void Create(FT_FaceRec_ * face, int height);
 

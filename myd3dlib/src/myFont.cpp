@@ -196,7 +196,7 @@ Font::Font(int font_pixel_gap)
 	: m_face(NULL)
 	, FONT_PIXEL_GAP(font_pixel_gap)
 {
-	FontLibrary::getSingleton().m_EventScaleChange.connect(boost::bind(&Font::OnScaleChange, this, _1));
+	FontLibrary::getSingleton().m_EventScaleChanged.connect(boost::bind(&Font::OnScaleChanged, this, _1));
 }
 
 Font::~Font(void)
@@ -207,10 +207,10 @@ Font::~Font(void)
 		m_face = NULL;
 	}
 
-	FontLibrary::getSingleton().m_EventScaleChange.disconnect(boost::bind(&Font::OnScaleChange, this, _1));
+	FontLibrary::getSingleton().m_EventScaleChanged.disconnect(boost::bind(&Font::OnScaleChanged, this, _1));
 }
 
-void Font::OnScaleChange(const Vector2 & Scale)
+void Font::OnScaleChanged(const Vector2 & Scale)
 {
 	_ASSERT(m_face);
 
@@ -241,7 +241,7 @@ void Font::Create(FT_Face face, int height)
 
 	CreateFontTexture(512, 512);
 
-	OnScaleChange(FontLibrary::getSingleton().m_Scale);
+	OnScaleChanged(FontLibrary::getSingleton().m_Scale);
 
 	m_LineHeight = m_face->size->metrics.height / 64;
 }
