@@ -40,8 +40,7 @@ bool MessagePanel::HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam,
 	{
 		return true;
 	}
-
-	return m_Parent->HandleMouse(uMsg, pt, wParam, lParam);
+	return false;
 }
 
 bool MessagePanel::CanHaveFocus(void)

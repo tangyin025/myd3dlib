@@ -3071,8 +3071,10 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 
 bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (Control::s_FocusControl) {
-		if (Control::s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam)) {
+	if (Control::s_FocusControl)
+	{
+		if (Control::s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam))
+		{
 			return true;
 		}
 	}
@@ -3087,7 +3089,8 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			Control * ControlPtd = Control::s_FocusControl;
 			for (; ControlPtd; ControlPtd = ControlPtd->m_Parent)
 			{
-				if (ControlPtd->HandleKeyboard(uMsg, wParam, lParam)) {
+				if (ControlPtd->HandleKeyboard(uMsg, wParam, lParam))
+				{
 					return true;
 				}
 			}
@@ -3135,17 +3138,20 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			Ray ray = CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), ClientRect.Size());
 
-			if (Control::s_CaptureControl) {
+			if (Control::s_CaptureControl)
+			{
 				Vector2 pt;
 				if (Control::s_CaptureControl->RayToWorld(ray, pt))
 				{
-					if (Control::s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam)) {
+					if (Control::s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam))
+					{
 						return true;
 					}
 				}
 				break;
 			}
 
+			bool bFindMouseOver = false;
 			DialogList::reverse_iterator dlg_iter = m_DlgList.rbegin();
 			for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 			{
@@ -3155,25 +3161,24 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					Vector2 pt;
 					if ((*dlg_iter)->RayToWorld(ray, pt))
 					{
-						if ((*dlg_iter)->HitTest(pt))
+						Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
+						if (!bFindMouseOver && ControlPtd)
 						{
-							Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
-							if (ControlPtd)
+							Control::SetMouseOverControl(ControlPtd, pt);
+							bFindMouseOver = true;
+						}
+						for (; ControlPtd; ControlPtd = ControlPtd->m_Parent)
+						{
+							if (ControlPtd->HitTest(pt) && ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
 							{
-								Control::SetMouseOverControl(ControlPtd, pt);
-
-								if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
-								{
-									return true;
-								}
+								return true;
 							}
-							break;
 						}
 					}
 				}
 			}
 
-			if (dlg_iter == m_DlgList.rend() && Control::s_MouseOverControl)
+			if (!bFindMouseOver && Control::s_MouseOverControl)
 			{
 				Control::SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
 			}
