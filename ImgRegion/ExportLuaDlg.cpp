@@ -104,47 +104,47 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 	ASSERT(hItem);
 	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
-	HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
-	std::string var_class = (hParentItem ? tstou8((LPCTSTR)pReg->m_Class) : "Dialog");
-	size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_ImageRect, pReg->m_ImageBorder, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
-	RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
-	if (skin_iter == m_SkinMap.end())
+	if (!pReg->m_ImageStr.IsEmpty())
 	{
-		std::string skin_class;
-		if (var_class == "Dialog")
+		HTREEITEM hParentItem = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
+		const std::string var_class = (hParentItem ? tstou8((LPCTSTR)pReg->m_Class) : "Dialog");
+		size_t seed = _hash_value(var_class, pReg->m_Color, pReg->m_ImageStr, pReg->m_ImageRect, pReg->m_ImageBorder, pReg->m_Font, pReg->m_FontColor, pReg->m_TextAlign);
+		RegSkinMap::const_iterator skin_iter = m_SkinMap.find(seed);
+		if (skin_iter == m_SkinMap.end())
 		{
-			skin_class = "DialogSkin";
-		}
-		else if (var_class == "ProgressBar")
-		{
-			skin_class = "ProgressBarSkin";
-		}
-		else if (var_class == "Button" || var_class == "CheckBox")
-		{
-			skin_class = "ButtonSkin";
-		}
-		else if (var_class == "EditBox" || var_class == "ImeEditBox")
-		{
-			skin_class = "EditBoxSkin";
-		}
-		else if (var_class == "ScrollBar")
-		{
-			skin_class = "ScrollBarSkin";
-		}
-		else if (var_class == "ComboBox")
-		{
-			skin_class = "ComboBoxSkin";
-		}
-		else
-		{
-			skin_class = "ControlSkin";
-		}
-		std::string skin_var_name = str_printf("editor_skin_%u", seed);
-		m_SkinMap.insert(std::make_pair(seed, skin_var_name));
-		ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
-		ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
-		if (!pReg->m_ImageStr.IsEmpty())
-		{
+			std::string skin_class;
+			if (var_class == "Dialog")
+			{
+				skin_class = "DialogSkin";
+			}
+			else if (var_class == "ProgressBar")
+			{
+				skin_class = "ProgressBarSkin";
+			}
+			else if (var_class == "Button" || var_class == "CheckBox")
+			{
+				skin_class = "ButtonSkin";
+			}
+			else if (var_class == "EditBox" || var_class == "ImeEditBox")
+			{
+				skin_class = "EditBoxSkin";
+			}
+			else if (var_class == "ScrollBar")
+			{
+				skin_class = "ScrollBarSkin";
+			}
+			else if (var_class == "ComboBox")
+			{
+				skin_class = "ComboBoxSkin";
+			}
+			else
+			{
+				skin_class = "ControlSkin";
+			}
+			std::string skin_var_name = str_printf("editor_skin_%u", seed);
+			m_SkinMap.insert(std::make_pair(seed, skin_var_name));
+			ofs << skin_var_name << "=" << skin_class << "()" << std::endl;
+			ofs << skin_var_name << ".Color=ARGB(" << (int)pReg->m_Color.GetAlpha() << "," << (int)pReg->m_Color.GetRed() << "," << (int)pReg->m_Color.GetGreen() << "," << (int)pReg->m_Color.GetBlue() << ")" << std::endl;
 			ofs << skin_var_name << ".Image=ControlImage()" << std::endl;
 			std::basic_string<TCHAR> strRelatedPath(MAX_PATH, _T('\0'));
 			PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
@@ -153,63 +153,195 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 			ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << tstou8(strRelatedPath.c_str()) << "\")" << std::endl;
 			ofs << skin_var_name << ".Image.Rect=Rectangle.LeftTop(" << pReg->m_ImageRect.X << "," << pReg->m_ImageRect.Y << "," << pReg->m_ImageRect.Width << "," << pReg->m_ImageRect.Height << ")" << std::endl;
 			ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_ImageBorder.x << "," << pReg->m_ImageBorder.y << "," << pReg->m_ImageBorder.z << "," << pReg->m_ImageBorder.w << ")" << std::endl;
-		}
-		if (pReg->m_Font)
-		{
-			CString strFamily;
-			Gdiplus::FontFamily family;
-			pReg->m_Font->GetFamily(&family);
-			family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
-			strFamily.ReleaseBuffer();
-			ofs << skin_var_name << ".Font=game:LoadFont(\"";
-			if (strFamily == _T("Noto Sans CJK SC Regular"))
+			ofs << skin_var_name << ".Font=";
+			if (pReg->m_Font)
 			{
-				ofs << "font/NotoSansCJK.ttc\", " << pReg->m_Font->GetSize() << ", 14)";
+				CString strFamily;
+				Gdiplus::FontFamily family;
+				pReg->m_Font->GetFamily(&family);
+				family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+				strFamily.ReleaseBuffer();
+				if (strFamily == _T("Noto Sans CJK SC Regular"))
+				{
+					ofs << "game:LoadFont(\"font/NotoSansCJK.ttc\", " << pReg->m_Font->GetSize() << ", 14)";
+				}
+				else
+				{
+					ofs << "game.Font";
+				}
 			}
 			else
 			{
-				ofs << "font/wqy-microhei.ttc\", " << pReg->m_Font->GetSize() << ", 0)";
+				ofs << "game.Font";
+			}
+			ofs << std::endl;
+			ofs << skin_var_name << ".TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
+			ofs << skin_var_name << ".TextAlign=Font.";
+			switch (pReg->m_TextAlign)
+			{
+			default:
+				ofs << "AlignLeftTop";
+				break;
+			case TextAlignCenterTop:
+				ofs << "AlignCenterTop";
+				break;
+			case TextAlignRightTop:
+				ofs << "AlignRightTop";
+				break;
+			case TextAlignLeftMiddle:
+				ofs << "AlignLeftMiddle";
+				break;
+			case TextAlignCenterMiddle:
+				ofs << "AlignCenterMiddle";
+				break;
+			case TextAlignRightMiddle:
+				ofs << "AlignRightMiddle";
+				break;
+			case TextAlignLeftBottom:
+				ofs << "AlignLeftBottom";
+				break;
+			case TextAlignCenterBottom:
+				ofs << "AlignCenterBottom";
+				break;
+			case TextAlignRightBottom:
+				ofs << "AlignRightBottom";
+				break;
+			}
+			ofs << std::endl;
+			if (var_class == "Dialog")
+			{
+			}
+			else if (var_class == "ProgressBar")
+			{
+				ofs << skin_var_name << ".ForegroundImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ForegroundImage.Texture=game:LoadTexture(\"texture / CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ForegroundImage.Rect=Rectangle.LeftTop(35,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".ForegroundImage.Border=Vector4(7,7,7,7)" << std::endl;
+			}
+			else if (var_class == "Button")
+			{
+				ofs << skin_var_name << ".PressedOffset=Vector2(1,2)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".PressedImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Rect=Rectangle.LeftTop(18,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Border=Vector4(7,7,7,7)" << std::endl;
+			}
+			else if (var_class == "CheckBox")
+			{
+				ofs << skin_var_name << ".PressedOffset=Vector2(0,0)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Rect=Rectangle.LeftTop(69,43,20,20)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Border=Vector4(0,0,0,0)" << std::endl;
+				ofs << skin_var_name << ".PressedImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Rect=Rectangle.LeftTop(90,43,20,20)" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Border=Vector4(0,0,0,0)" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Rect=Rectangle.LeftTop(111,43,20,20)" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Border=Vector4(0,0,0,0)" << std::endl;
+			}
+			else if (var_class == "EditBox" || var_class == "ImeEditBox")
+			{
+				ofs << skin_var_name << ".DisabledImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".FocusedImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".FocusedImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".FocusedImage.Rect=Rectangle.LeftTop(18,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".FocusedImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".SelBkColor=ARGB(255,255,128,0)" << std::endl;
+				ofs << skin_var_name << ".CaretColor=ARGB(255,255,255,255)" << std::endl;
+				ofs << skin_var_name << ".CaretImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".CaretImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".CaretImage.Rect=Rectangle.LeftTop(154,43,2,2)" << std::endl;
+				ofs << skin_var_name << ".CaretImage.Border=Vector4(7,7,7,7)" << std::endl;
+			}
+			else if (var_class == "ScrollBar")
+			{
+				ofs << skin_var_name << ".UpBtnNormalImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".UpBtnNormalImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".UpBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".UpBtnNormalImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".UpBtnDisabledImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".UpBtnDisabledImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".UpBtnDisabledImage.Rect=Rectangle.LeftTop(52,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".UpBtnDisabledImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".DownBtnNormalImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DownBtnNormalImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DownBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".DownBtnNormalImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".DownBtnDisabledImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DownBtnDisabledImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DownBtnDisabledImage.Rect=Rectangle.LeftTop(52,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".DownBtnDisabledImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".ThumbBtnNormalImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ThumbBtnNormalImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ThumbBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".ThumbBtnNormalImage.Border=Vector4(7,7,7,7)" << std::endl;
+			}
+			else if (var_class == "ComboBox")
+			{
+				ofs << skin_var_name << ".PressedOffset=Vector2(1, 2)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Texture=game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".DisabledImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".PressedImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Rect=Rectangle.LeftTop(18,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".PressedImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".MouseOverImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".DropdownImage=ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DropdownImage.Texture=game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DropdownImage.Rect=Rectangle.LeftTop(52,43,16,16)" << std::endl;
+				ofs << skin_var_name << ".DropdownImage.Border=Vector4(7,7,7,7)" << std::endl;
+				ofs << skin_var_name << ".DropdownItemTextColor = ARGB(255, 255, 255, 255)" << std::endl;
+				ofs << skin_var_name << ".DropdownItemTextAlign = Font.AlignCenterMiddle" << std::endl;
+				ofs << skin_var_name << ".DropdownItemMouseOverImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".DropdownItemMouseOverImage.Texture = game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".DropdownItemMouseOverImage.Rect = Rectangle.LeftTop(35, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".DropdownItemMouseOverImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnNormalImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnNormalImage.Texture = game:LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnNormalImage.Rect = Rectangle.LeftTop(52, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnNormalImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnDisabledImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnDisabledImage.Texture = game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnDisabledImage.Rect = Rectangle.LeftTop(1, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarUpBtnDisabledImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnNormalImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnNormalImage.Texture = game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnNormalImage.Rect = Rectangle.LeftTop(52, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnNormalImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnDisabledImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnDisabledImage.Texture = game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnDisabledImage.Rect = Rectangle.LeftTop(1, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarDownBtnDisabledImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarThumbBtnNormalImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ScrollBarThumbBtnNormalImage.Texture = game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ScrollBarThumbBtnNormalImage.Rect = Rectangle.LeftTop(52, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarThumbBtnNormalImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarImage = ControlImage()" << std::endl;
+				ofs << skin_var_name << ".ScrollBarImage.Texture = game : LoadTexture(\"texture/CommonUI.png\")" << std::endl;
+				ofs << skin_var_name << ".ScrollBarImage.Rect = Rectangle.LeftTop(1, 43, 16, 16)" << std::endl;
+				ofs << skin_var_name << ".ScrollBarImage.Border = Vector4(7, 7, 7, 7)" << std::endl;
 			}
 			ofs << std::endl;
 		}
-		else
-		{
-			ofs << skin_var_name << ".Font=game.Font" << std::endl;
-		}
-		ofs << skin_var_name << ".TextColor=ARGB(" << (int)pReg->m_FontColor.GetAlpha() << "," << (int)pReg->m_FontColor.GetRed() << "," << (int)pReg->m_FontColor.GetGreen() << "," << (int)pReg->m_FontColor.GetBlue() << ")" << std::endl;
-		ofs << skin_var_name << ".TextAlign=Font.";
-		switch (pReg->m_TextAlign)
-		{
-		default:
-			ofs << "AlignLeftTop";
-			break;
-		case TextAlignCenterTop:
-			ofs << "AlignCenterTop";
-			break;
-		case TextAlignRightTop:
-			ofs << "AlignRightTop";
-			break;
-		case TextAlignLeftMiddle:
-			ofs << "AlignLeftMiddle";
-			break;
-		case TextAlignCenterMiddle:
-			ofs << "AlignCenterMiddle";
-			break;
-		case TextAlignRightMiddle:
-			ofs << "AlignRightMiddle";
-			break;
-		case TextAlignLeftBottom:
-			ofs << "AlignLeftBottom";
-			break;
-		case TextAlignCenterBottom:
-			ofs << "AlignCenterBottom";
-			break;
-		case TextAlignRightBottom:
-			ofs << "AlignRightBottom";
-			break;
-		}
-		ofs << std::endl;
-		ofs << std::endl;
 	}
 
 	HTREEITEM hChildItem = m_pDoc->m_TreeCtrl.GetChildItem(hItem);
