@@ -162,9 +162,9 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 			family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
 			strFamily.ReleaseBuffer();
 			ofs << skin_var_name << ".Font=game:LoadFont(\"";
-			if (strFamily == _T("Î¢ÈíÑÅºÚ"))
+			if (strFamily == _T("Noto Sans CJK SC Regular"))
 			{
-				ofs << "font/wqy-microhei.ttc\", " << pReg->m_Font->GetSize() << ", 0)";
+				ofs << "font/NotoSansCJK.ttc\", " << pReg->m_Font->GetSize() << ", 14)";
 			}
 			else
 			{

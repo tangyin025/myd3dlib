@@ -463,7 +463,7 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	{
 		pen.y = rect.b - m_LineHeight;
 	}
-	pen.y += m_LineHeight;
+	pen.y += m_LineHeight + m_face->size->metrics.descender / 64;
 
 	return pen;
 }
