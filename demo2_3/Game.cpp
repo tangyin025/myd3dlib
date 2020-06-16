@@ -740,16 +740,6 @@ void Game::OnFrameTick(
 
 	PhysxSceneContext::TickPostRender(fElapsedTime);
 
-	for (physx::PxU32 i = 0; i < mBufferedActiveTransforms.size(); ++i)
-	{
-		if (std::find(mDeletedActors.begin(), mDeletedActors.end(), mBufferedActiveTransforms[i].actor) == mDeletedActors.end())
-		{
-			Actor * actor = (Actor *)mBufferedActiveTransforms[i].userData;
-			actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
-		}
-	}
-	mDeletedActors.clear();
-
 	TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
 	for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
 	{

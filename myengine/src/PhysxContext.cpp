@@ -269,13 +269,23 @@ void PhysxSceneContext::TickPostRender(float dtime)
 	if(m_WaitForResults)
 	{
 		m_Sync.Wait(INFINITE);
-	}
 
-	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(mActiveTransformCount, 0);
-	mBufferedActiveTransforms.resize(mActiveTransformCount);
-	if (!mBufferedActiveTransforms.empty())
-	{
-		physx::PxMemCopy(&mBufferedActiveTransforms[0], activeTransforms, sizeof(physx::PxActiveTransform) * mActiveTransformCount);
+		const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(mActiveTransformCount, 0);
+		mBufferedActiveTransforms.resize(mActiveTransformCount);
+		if (!mBufferedActiveTransforms.empty())
+		{
+			physx::PxMemCopy(&mBufferedActiveTransforms[0], activeTransforms, sizeof(physx::PxActiveTransform) * mActiveTransformCount);
+		}
+
+		for (physx::PxU32 i = 0; i < mBufferedActiveTransforms.size(); ++i)
+		{
+			if (std::find(mDeletedActors.begin(), mDeletedActors.end(), mBufferedActiveTransforms[i].actor) == mDeletedActors.end())
+			{
+				Actor * actor = (Actor *)mBufferedActiveTransforms[i].userData;
+				actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
+			}
+		}
+		mDeletedActors.clear();
 	}
 }
 
