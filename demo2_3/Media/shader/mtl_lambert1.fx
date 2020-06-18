@@ -60,9 +60,9 @@ struct NORMAL_VS_OUTPUT
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: NORMAL;
-	float3 Tangent			: TANGENT;
-	float3 Binormal			: BINORMAL;
-	float3 ViewPos			: TEXCOORD1;
+	float3 Tangent			: TEXCOORD1;
+	float3 Binormal			: TEXCOORD2;
+	float3 ViewPos			: TEXCOORD3;
 };
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )

@@ -20,14 +20,14 @@ sampler NormalTextureSampler = sampler_state
 struct TRANSPARENT_VS_OUTPUT
 {
 	float4 Pos			: POSITION;
-	float4 PosWS		: POSITION1;
+	float4 PosWS		: TEXCOORD6;
 	float2 texCoord0	: TEXCOORD0;
 	float2 texCoord1	: TEXCOORD1;
 	float2 texCoord2	: TEXCOORD2;
-	float3 Normal		: TEXCOORD3;
-	float3 Tangent		: TEXCOORD4;
-	float3 Binormal		: TEXCOORD5;
-	float3 ViewWS		: TEXCOORD6;
+	float3 Normal		: NORMAL;
+	float3 Tangent		: TEXCOORD3;
+	float3 Binormal		: TEXCOORD4;
+	float3 ViewWS		: TEXCOORD5;
 };
 
 TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
@@ -40,10 +40,10 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	Out.texCoord2 = Tex0 /4.0 + g_Time * 0.01;
 	Out.Normal = TransformNormal(In);
 	Out.Tangent = TransformTangent(In);
-	Out.Binormal = cross(Out.Normal, Out.Tangent);
+	Out.Binormal = cross(Out.Tangent, Out.Normal); // ! left handed water_bump.dds
 	Out.ViewWS = g_Eye - Out.PosWS.xyz; // ! dont normalize here
 	
-	float3x3 m = float3x3(Out.Tangent,-Out.Binormal,Out.Normal);
+	float3x3 m = float3x3(Out.Tangent,Out.Binormal,Out.Normal);
 	float4 nt0 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord0,0,0));
 	float4 nt1 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord1,0,0));
 	float4 nt2 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord2,0,0));
@@ -59,7 +59,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 {
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
-	float3x3 m = float3x3(In.Tangent,-In.Binormal,In.Normal);
+	float3x3 m = float3x3(In.Tangent,In.Binormal,In.Normal);
 	float3 nt0 = tex2D(NormalTextureSampler, In.texCoord0).xyz;
 	float3 nt1 = tex2D(NormalTextureSampler, In.texCoord1).xyz;
 	float3 nt2 = tex2D(NormalTextureSampler, In.texCoord2).xyz;
