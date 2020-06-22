@@ -2,10 +2,8 @@
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
-	float2 Tex0				: TEXCOORD0;
 	float4 Color			: COLOR;
 	float3 Normal			: NORMAL;
-	float3 Tangent			: TANGENT;
 };
 
 float4 TransformPosWS(VS_INPUT In)
@@ -25,7 +23,7 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return In.Tex0;
+	return float2(In.Pos.x / 32, In.Pos.z / 32);
 }
 
 float3 TransformNormal(VS_INPUT In)
@@ -35,7 +33,7 @@ float3 TransformNormal(VS_INPUT In)
 
 float3 TransformTangent(VS_INPUT In)
 {
-	return normalize(mul(In.Tangent, (float3x3)g_World));
+	return normalize(mul(cross(In.Normal, float3(0, 0, 1)), (float3x3)g_World));
 }
 
 float4 TransformLightWS(VS_INPUT In)

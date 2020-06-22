@@ -159,8 +159,6 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, 
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
 				terrain->m_VertexElems.SetPosition(pVertex, Pos);
 				terrain->m_VertexElems.SetNormal(pVertex, Normal);
-				terrain->m_VertexElems.SetTangent(pVertex, Normal.cross(Vector3(0, 0, 1)));
-				terrain->m_VertexElems.SetTexcoord(pVertex, Vector2((float)pos_j / terrain->m_ChunkSize, (float)pos_i / terrain->m_ChunkSize));
 			}
 		}
 		m_vb.Unlock();
@@ -302,13 +300,9 @@ void Terrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
-	m_VertexElems.InsertTexcoordElement(offset);
-	offset += sizeof(Vector2);
 	m_VertexElems.InsertColorElement(offset);
 	offset += sizeof(D3DCOLOR);
 	m_VertexElems.InsertNormalElement(offset);
-	offset += sizeof(Vector3);
-	m_VertexElems.InsertTangentElement(offset);
 	offset += sizeof(Vector3);
 	_ASSERT(m_VertexStride == offset);
 }
@@ -716,7 +710,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
-		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		*m_PxMaterial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
