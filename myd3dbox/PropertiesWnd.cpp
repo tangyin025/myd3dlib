@@ -1987,19 +1987,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		terrain->m_HeightScale = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal).c_str());
-		if (!path.empty())
+		CString strPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
+		if (!strPath.IsEmpty())
 		{
-			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
-			if (res)
-			{
-				terrain->UpdateHeightMap(res.get(), terrain->m_HeightScale);
-				Actor * actor = terrain->m_Actor;
-				actor->UpdateAABB();
-				actor->UpdateOctNode();
-				pFrame->UpdateSelBox();
-				pFrame->UpdatePivotTransform();
-			}
+			my::Texture2DPtr res(new my::Texture2D());
+			res->CreateTextureFromFile(strPath, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+			terrain->UpdateHeightMap(res.get(), terrain->m_HeightScale);
+			Actor * actor = terrain->m_Actor;
+			actor->UpdateAABB();
+			actor->UpdateOctNode();
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2007,15 +2005,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyTerrainSplatMap:
 	{
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path.c_str()));
-		if (res)
+		CString strPath = pProp->GetValue().bstrVal;
+		if (!strPath.IsEmpty())
 		{
+			my::Texture2DPtr res(new my::Texture2D());
+			res->CreateTextureFromFile(strPath, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 			terrain->UpdateSplatmap(res.get());
-			my::EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
 		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	}
