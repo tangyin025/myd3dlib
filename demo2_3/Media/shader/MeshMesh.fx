@@ -1,6 +1,6 @@
 
 #ifdef SKELETON
-shared row_major float2x4 g_dualquat[96];
+row_major float2x4 g_dualquat[96];
 #endif
 
 struct VS_INPUT

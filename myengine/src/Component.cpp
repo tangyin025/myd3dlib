@@ -995,7 +995,13 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, NULL, m_MaterialList[i]->m_Shader.c_str(), PassID);
+						D3DXMACRO macro[2] = { { 0 } };
+						int j = 0;
+						if (m_bUseAnimation)
+						{
+							macro[j++].Name = "SKELETON";
+						}
+						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_MaterialList[i]->m_Shader.c_str(), PassID);
 						if (shader)
 						{
 							if (!handle_World)
