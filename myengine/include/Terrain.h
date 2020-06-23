@@ -99,18 +99,10 @@ public:
 	}
 
 	template <typename T>
-	T GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j) const
-	{
-		_ASSERT(i >= 0 && i < (int)desc.Height);
-		_ASSERT(j >= 0 && j < (int)desc.Width);
-		return *(T *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(T));
-	}
+	static T GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j);
 
 	template <typename T>
-	my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j, float HeightScale) const
-	{
-		return my::Vector3((float)j, HeightScale * GetSampleValue<T>(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
-	}
+	static my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j, float HeightScale);
 
 	void CreateElements(void);
 

@@ -141,12 +141,12 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, 
 			{
 				int pos_i = m_Row * terrain->m_ChunkSize + i;
 				int pos_j = m_Col * terrain->m_ChunkSize + j;
-				const Vector3 Pos = terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j, HeightScale);
+				const Vector3 Pos = Terrain::GetSamplePos<T>(desc, lrc, pos_i, pos_j, HeightScale);
 				const Vector3 Dirs[4] = {
-					terrain->GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j, HeightScale) - Pos,
-					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1, HeightScale) - Pos,
-					terrain->GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j, HeightScale) - Pos,
-					terrain->GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1, HeightScale) - Pos,
+					Terrain::GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j, HeightScale) - Pos,
+					Terrain::GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1, HeightScale) - Pos,
+					Terrain::GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j, HeightScale) - Pos,
+					Terrain::GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1, HeightScale) - Pos,
 				};
 				const Vector3 Nors[4] = {
 					Dirs[0].cross(Dirs[1]).normalize(),
@@ -294,6 +294,29 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
 	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
 	return Clamp(Lod, 0, _Quad(m_ChunkSize));
+}
+
+template <>
+unsigned char Terrain::GetSampleValue<unsigned char>(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j)
+{
+	_ASSERT(i >= 0 && i < (int)desc.Height);
+	_ASSERT(j >= 0 && j < (int)desc.Width);
+	return *(unsigned char *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(unsigned char));
+}
+
+template <>
+short Terrain::GetSampleValue<short>(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j)
+{
+	_ASSERT(i >= 0 && i < (int)desc.Height);
+	_ASSERT(j >= 0 && j < (int)desc.Width);
+	int value = *(unsigned short *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(unsigned short));
+	return (short)(value - 32768);
+}
+
+template <typename T>
+my::Vector3 Terrain::GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j, float HeightScale)
+{
+	return my::Vector3((float)j, HeightScale * GetSampleValue<T>(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
 }
 
 void Terrain::CreateElements(void)
@@ -689,7 +712,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 					//// ! Reverse physx height field row, column
 					unsigned char * pVertex = (unsigned char *)pVertices + m_IndexTable[i][j] * m_VertexStride;
 					int sample_i = (col * m_ChunkSize + j) * (m_RowChunks * m_ChunkSize + 1) + raw * m_ChunkSize + i;
-					Samples[sample_i].height = (signed short)(m_VertexElems.GetPosition(pVertex).y / m_HeightScale);
+					Samples[sample_i].height = (short)Clamp<int>((int)(m_VertexElems.GetPosition(pVertex).y / m_HeightScale + 0.5f), SHRT_MIN, SHRT_MAX);
 					Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
 					Samples[sample_i].materialIndex1 = physx::PxBitAndByte(0, false);
 				}
@@ -744,7 +767,7 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 				chunk->UpdateVertices<unsigned char>(desc, lrc, HeightScale);
 				break;
 			case D3DFMT_L16:
-				chunk->UpdateVertices<unsigned short>(desc, lrc, HeightScale);
+				chunk->UpdateVertices<short>(desc, lrc, HeightScale);
 				break;
 			}
 			chunk->UpdateAABB();
