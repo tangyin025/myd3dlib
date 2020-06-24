@@ -549,24 +549,24 @@ void CMainFrame::OnFileNew()
 	m_EventCameraPropChanged(&arg);
 
 	// TODO:
-	MaterialPtr mtl(new Material());
-	mtl->m_Shader = "shader/mtl_water2.fx";
-	mtl->ParseShaderParameters();
+	//MaterialPtr mtl(new Material());
+	//mtl->m_Shader = "shader/mtl_water2.fx";
+	//mtl->ParseShaderParameters();
 
-	//MeshComponentPtr mesh_cmp(new MeshComponent());
-	//mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
-	//mesh_cmp->m_MeshSubMeshName = "Teapot001";
-	//mesh_cmp->AddMaterial(mtl);
+	////MeshComponentPtr mesh_cmp(new MeshComponent());
+	////mesh_cmp->m_MeshPath = "mesh/Teapot.mesh.xml";
+	////mesh_cmp->m_MeshSubMeshName = "Teapot001";
+	////mesh_cmp->AddMaterial(mtl);
 
-	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), 2, 2, 32, 1.0f));
-	terrain->AddMaterial(mtl);
+	//TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), 2, 2, 32, 1.0f));
+	//terrain->AddMaterial(mtl);
 
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	actor->AddComponent(terrain);
-	actor->UpdateAABB();
-	actor->UpdateWorld();
-	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
-	m_ActorList.insert(actor);
+	//ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	//actor->AddComponent(terrain);
+	//actor->UpdateAABB();
+	//actor->UpdateWorld();
+	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
+	//m_ActorList.insert(actor);
 
 	//m_selactors.clear();
 	//m_selactors.insert(actor.get());
@@ -947,10 +947,20 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
-	MaterialPtr mtl(new Material());
-	mtl->m_Shader = theApp.default_shader;
-	mtl->ParseShaderParameters();
-	terrain->AddMaterial(mtl);
+	if (dlg.m_UseTerrainMaterial)
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_shader;
+		mtl->ParseShaderParameters();
+		terrain->AddMaterial(mtl);
+	}
+	if (dlg.m_UseWaterMaterial)
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_water_shader;
+		mtl->ParseShaderParameters();
+		terrain->AddMaterial(mtl);
+	}
 	(*actor_iter)->AddComponent(terrain);
 	if (dlg.m_AlignToCenter)
 	{

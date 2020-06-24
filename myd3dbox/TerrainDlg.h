@@ -26,4 +26,6 @@ public:
 	int m_ColChunks;
 	int m_ChunkSize;
 	BOOL m_AlignToCenter;
+	BOOL m_UseTerrainMaterial;
+	BOOL m_UseWaterMaterial;
 };

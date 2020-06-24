@@ -19,6 +19,8 @@ CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
 	, m_AlignToCenter(TRUE)
+	, m_UseTerrainMaterial(TRUE)
+	, m_UseWaterMaterial(FALSE)
 {
 }
 
@@ -33,6 +35,8 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT2, m_ColChunks);
 	DDX_Text(pDX, IDC_EDIT3, m_ChunkSize);
 	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
+	DDX_Check(pDX, IDC_CHECK2, m_UseTerrainMaterial);
+	DDX_Check(pDX, IDC_CHECK3, m_UseWaterMaterial);
 }
 
 

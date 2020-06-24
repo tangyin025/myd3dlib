@@ -39,6 +39,7 @@ public:
 	std::string default_normal_texture;
 	std::string default_specular_texture;
 	std::string default_shader;
+	std::string default_water_shader;
 	std::string default_sky_texture[6];
 	unsigned int default_pass_mask;
 	D3DXHANDLE technique_RenderSceneColor;
