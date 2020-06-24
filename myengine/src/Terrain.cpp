@@ -648,23 +648,27 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)
 			};
-			if (terrain->m_MaterialList.size() >= 1 && terrain->m_MaterialList[0]->m_PassMask & PassMask)
-			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_MaterialList[0]->m_PassMask & PassMask))
-					{
-						Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, terrain->m_MaterialList[0]->m_Shader.c_str(), PassID);
-						if (shader)
-						{
-							if (!terrain->handle_World)
-							{
-								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
-							}
+			const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
 
-							const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
-							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_MaterialList[0].get(), MAKELONG(chunk->m_Row, chunk->m_Col));
+			for (DWORD i = 0; i < terrain->m_MaterialList.size(); i++)
+			{
+				if (terrain->m_MaterialList[i] && (terrain->m_MaterialList[i]->m_PassMask & PassMask))
+				{
+					for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+					{
+						if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_MaterialList[i]->m_PassMask & PassMask))
+						{
+							Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, terrain->m_MaterialList[i]->m_Shader.c_str(), PassID);
+							if (shader)
+							{
+								if (!terrain->handle_World)
+								{
+									BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+								}
+
+								pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
+									0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_MaterialList[i].get(), MAKELONG(chunk->m_Row, chunk->m_Col));
+							}
 						}
 					}
 				}
