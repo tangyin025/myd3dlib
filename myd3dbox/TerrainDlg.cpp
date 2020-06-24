@@ -9,39 +9,41 @@
 #include "Component.h"
 #include "PropertiesWnd.h"
 
-// TerrainDlg dialog
+// CTerrainDlg dialog
 
-IMPLEMENT_DYNAMIC(TerrainDlg, CDialogEx)
+IMPLEMENT_DYNAMIC(CTerrainDlg, CDialogEx)
 
-TerrainDlg::TerrainDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(TerrainDlg::IDD, pParent)
+CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CTerrainDlg::IDD, pParent)
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
+	, m_AlignToCenter(TRUE)
 {
 }
 
-TerrainDlg::~TerrainDlg()
+CTerrainDlg::~CTerrainDlg()
 {
 }
 
-void TerrainDlg::DoDataExchange(CDataExchange* pDX)
+void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_RowChunks);
 	DDX_Text(pDX, IDC_EDIT2, m_ColChunks);
 	DDX_Text(pDX, IDC_EDIT3, m_ChunkSize);
+	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
 }
 
 
-BEGIN_MESSAGE_MAP(TerrainDlg, CDialogEx)
+BEGIN_MESSAGE_MAP(CTerrainDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// TerrainDlg message handlers
+// CTerrainDlg message handlers
 
 
-BOOL TerrainDlg::OnInitDialog()
+BOOL CTerrainDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 

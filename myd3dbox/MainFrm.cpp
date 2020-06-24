@@ -7,7 +7,6 @@
 
 #include "MainFrm.h"
 #include "ChildView.h"
-#include "ShapeDlg.h"
 #include "TerrainDlg.h"
 #include "Terrain.h"
 #include "Material.h"
@@ -941,7 +940,7 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	TerrainDlg dlg;
+	CTerrainDlg dlg;
 	if (dlg.DoModal() != IDOK)
 	{
 		return;

@@ -151,6 +151,7 @@ BEGIN
     RTEXT           "Row",IDC_STATIC,21,74,40,8
     RTEXT           "Colum",IDC_STATIC,103,74,40,8
     RTEXT           "Chunk Size",IDC_STATIC,185,74,40,8
+    CONTROL         "Align to center",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,64,100,63,10
 END
 
 IDD_DIALOG3 DIALOGEX 0, 0, 309, 177
