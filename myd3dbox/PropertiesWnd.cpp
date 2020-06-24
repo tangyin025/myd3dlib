@@ -585,7 +585,19 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
 	pComponent->GetSubItem(PropId + 5);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_MaterialList[0].get());
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 6);
+	for (unsigned int i = 0; i < terrain->m_MaterialList.size(); i++)
+	{
+		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
+		{
+			TCHAR buff[128];
+			_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
+			CreatePropertiesMaterial(pMaterialList, buff, terrain->m_MaterialList[i].get());
+			continue;
+		}
+		UpdatePropertiesMaterial(pMaterialList->GetSubItem(i), terrain->m_MaterialList[i].get());
+	}
+	RemovePropertiesFrom(pMaterialList, terrain->m_MaterialList.size());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1068,7 +1080,14 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("SplatMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainSplatMap);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, _T("ChunkMaterial"), terrain->m_MaterialList[0].get());
+	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
+	pComponent->AddSubItem(pProp);
+	for (unsigned int i = 0; i < terrain->m_MaterialList.size(); i++)
+	{
+		TCHAR buff[128];
+		_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
+		CreatePropertiesMaterial(pProp, buff, terrain->m_MaterialList[i].get());
+	}
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
