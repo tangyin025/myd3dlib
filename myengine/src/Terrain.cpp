@@ -158,7 +158,7 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, 
 
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
 				terrain->m_VertexElems.SetPosition(pVertex, Pos);
-				terrain->m_VertexElems.SetNormal(pVertex, Normal);
+				terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE((Normal.x + 1.f) * 0.5f, (Normal.y + 1.f) * 0.5f, (Normal.z + 1.f) * 0.5f, 0), 1);
 			}
 		}
 		m_vb.Unlock();
@@ -181,7 +181,7 @@ void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 				int pos_j = m_Col * terrain->m_ChunkSize + j;
 
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-				terrain->m_VertexElems.SetColor(pVertex, Color[Clamp<int>(pos_i, 0, desc.Height - 1)][Clamp<int>(pos_j, 0, desc.Width - 1)]);
+				terrain->m_VertexElems.SetColor(pVertex, Color[Clamp<int>(pos_i, 0, desc.Height - 1)][Clamp<int>(pos_j, 0, desc.Width - 1)], 0);
 			}
 		}
 		m_vb.Unlock();
@@ -323,10 +323,10 @@ void Terrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
-	m_VertexElems.InsertColorElement(offset);
+	m_VertexElems.InsertColorElement(offset, 0);
 	offset += sizeof(D3DCOLOR);
-	m_VertexElems.InsertNormalElement(offset);
-	offset += sizeof(Vector3);
+	m_VertexElems.InsertColorElement(offset, 1);
+	offset += sizeof(D3DCOLOR);
 	_ASSERT(m_VertexStride == offset);
 }
 

@@ -68,7 +68,7 @@ public:
 
 	my::D3DVertexElementSet m_VertexElems;
 
-	static const DWORD m_VertexStride = 28;
+	static const DWORD m_VertexStride = 12 + 4 + 4;
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
