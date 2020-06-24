@@ -952,9 +952,18 @@ void CMainFrame::OnComponentTerrain()
 	mtl->ParseShaderParameters();
 	terrain->AddMaterial(mtl);
 	(*actor_iter)->AddComponent(terrain);
+	if (dlg.m_AlignToCenter)
+	{
+		my::Vector3 center = terrain->m_aabb.Center();
+		(*actor_iter)->m_Position.x -= center.x;
+		(*actor_iter)->m_Position.z -= center.z;
+		(*actor_iter)->UpdateWorld();
+		// TODO: update pxactor, ref Actor::SetPose
+	}
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
+	UpdatePivotTransform();
 	m_selchunkid.SetPoint(0, 0);
 
 	my::EventArg arg;
