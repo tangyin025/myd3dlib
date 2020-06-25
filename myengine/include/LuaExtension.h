@@ -7,6 +7,8 @@ extern "C"
 #include <lualib.h>
 }
 
+#include "mySingleton.h"
+
 class LuaContext
 	: public my::SingleInstance<LuaContext>
 {

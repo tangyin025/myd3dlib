@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "LuaExtension.h"
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
@@ -6,8 +5,11 @@
 #include <luabind/iterator_policy.hpp>
 #include <luabind/return_reference_to_policy.hpp>
 #include <luabind/copy_policy.hpp>
+#include "libc.h"
+#include "myDxutApp.h"
+#include "myResource.h"
+#include "myInput.h"
 #include "LuaExtension.inl"
-#include "Console.h"
 #include "Material.h"
 #include "RenderPipeline.h"
 #include "PhysxContext.h"
@@ -658,8 +660,6 @@ void LuaContext::Init(void)
 				def("LoadFromFile", &my::Dialog::LoadFromFile)
 			]
 			.def("SaveToFile", &my::Dialog::SaveToFile)
-
-		, class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 	];
 
 	module(m_State)[

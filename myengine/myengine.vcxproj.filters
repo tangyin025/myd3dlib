@@ -45,6 +45,9 @@
     <ClInclude Include="include\ActionTrack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\LuaExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp">
@@ -77,5 +80,13 @@
     <ClCompile Include="src\ActionTrack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LuaExtension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\LuaExtension.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -459,7 +459,10 @@ HRESULT Game::OnCreateDevice(
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxSceneContext> >("Game")
+
+		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
+
+		, luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxSceneContext> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)

@@ -36,9 +36,6 @@
     <ClCompile Include="Net\SocketAPI.cpp">
       <Filter>Net</Filter>
     </ClCompile>
-    <ClCompile Include="LuaExtension.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,9 +56,6 @@
     <ClInclude Include="Net\SocketAPI.h">
       <Filter>Net</Filter>
     </ClInclude>
-    <ClInclude Include="LuaExtension.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,10 +72,5 @@
     <Image Include="icon1.ico">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LuaExtension.inl">
-      <Filter>Header Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

@@ -79,6 +79,7 @@
     <ClInclude Include="include\Character.h" />
     <ClInclude Include="include\Component.h" />
     <ClInclude Include="include\FModContext.h" />
+    <ClInclude Include="include\LuaExtension.h" />
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\PhysxContext.h" />
     <ClInclude Include="include\RenderPipeline.h" />
@@ -91,6 +92,7 @@
     <ClCompile Include="src\Character.cpp" />
     <ClCompile Include="src\Component.cpp" />
     <ClCompile Include="src\FModContext.cpp" />
+    <ClCompile Include="src\LuaExtension.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\PhysxContext.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(PHYSX_DIR)Source\PhysXCharacterKinematic\src;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)Source\foundation\include;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\characterkinematic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -98,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\LuaExtension.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

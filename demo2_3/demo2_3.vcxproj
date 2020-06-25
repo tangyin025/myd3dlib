@@ -103,7 +103,6 @@
   <ItemGroup>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="LuaExtension.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -116,7 +115,6 @@
   <ItemGroup>
     <ClInclude Include="Console.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="LuaExtension.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -175,9 +173,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LuaExtension.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
