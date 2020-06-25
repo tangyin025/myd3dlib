@@ -205,6 +205,12 @@
     <ProjectReference Include="..\libboost_serialization\libboost_serialization.vcxproj">
       <Project>{97882a3e-fe4e-4cff-9863-517ffd484289}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\lua51\lua51.vcxproj">
+      <Project>{198a862b-2908-48a8-8654-5d6b4583e441}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\luabind\luabind.vcxproj">
+      <Project>{8f8c0f3c-baec-48ff-900a-33c045bb395f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\myd3dlib\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
     </ProjectReference>

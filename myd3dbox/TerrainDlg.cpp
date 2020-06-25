@@ -20,7 +20,7 @@ CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_ChunkSize(32)
 	, m_AlignToCenter(TRUE)
 	, m_UseTerrainMaterial(TRUE)
-	, m_UseWaterMaterial(FALSE)
+	, m_UseWaterMaterial(TRUE)
 {
 }
 
