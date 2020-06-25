@@ -304,6 +304,22 @@ void CMainApp::DestroyD3DDevice(void)
 	}
 }
 
+bool CMainApp::ExecuteCode(const char * code)
+{
+	if (dostring(code, "CMainApp::ExecuteCode") && !lua_isnil(m_State, -1))
+	{
+		std::string msg = lua_tostring(m_State, -1);
+		if (msg.empty())
+			msg = "error object is not a string";
+		lua_pop(m_State, 1);
+
+		m_EventLog(msg.c_str());
+
+		return false;
+	}
+	return false;
+}
+
 // CMainApp initialization
 
 BOOL CMainApp::InitInstance()

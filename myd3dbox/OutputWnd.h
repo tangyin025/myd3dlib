@@ -25,12 +25,8 @@ class COutputWnd : public CDockablePane
 public:
 	COutputWnd();
 
-	void UpdateFonts();
-
 // Attributes
 //protected:
-	CMFCTabCtrl	m_wndTabs;
-
 	COutputEdit m_wndOutputDebug;
 
 protected:

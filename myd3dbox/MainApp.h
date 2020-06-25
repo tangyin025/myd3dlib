@@ -50,6 +50,7 @@ public:
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
 	void DestroyD3DDevice(void);
+	bool ExecuteCode(const char * code);
 
 // Overrides
 public:

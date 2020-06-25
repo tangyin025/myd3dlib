@@ -7,6 +7,7 @@
 #include "PropertiesWnd.h"
 #include "EnvironmentWnd.h"
 #include "OutputWnd.h"
+#include "ScriptWnd.h"
 #include "Actor.h"
 #include "PhysxContext.h"
 #include "Terrain.h"
@@ -29,6 +30,7 @@ public:
 	CPropertiesWnd    m_wndProperties;
 	CEnvironmentWnd		m_wndEnvironment;
 	COutputWnd        m_wndOutput;
+	CScriptWnd		  m_wndScript;
 	CString m_strPathName;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
