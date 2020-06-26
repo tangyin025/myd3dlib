@@ -26,8 +26,6 @@ COutputEdit::~COutputEdit()
 
 BEGIN_MESSAGE_MAP(COutputEdit, CRichEditCtrl)
 	ON_WM_CONTEXTMENU()
-	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
-	ON_COMMAND(ID_EDIT_CLEAR, OnEditClear)
 	////ON_COMMAND(ID_VIEW_OUTPUTWND, OnViewOutput)
 	ON_WM_WINDOWPOSCHANGING()
 END_MESSAGE_MAP()
@@ -37,33 +35,18 @@ END_MESSAGE_MAP()
 void COutputEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CRichEditCtrl::OnContextMenu(pWnd, point);
-	//CMenu menu;
-	//menu.LoadMenu(IDR_OUTPUT_POPUP);
-
-	//CMenu* pSumMenu = menu.GetSubMenu(0);
-
-	//if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
-	//{
-	//	CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
-
-	//	if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
-	//		return;
-
-	//	((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
-	//	UpdateDialogControls(this, FALSE);
-	//}
-
-	//SetFocus();
 }
 
-void COutputEdit::OnEditCopy()
+BOOL COutputEdit::PreTranslateMessage(MSG* pMsg)
 {
-	MessageBox(_T("Copy output"));
-}
+	// TODO: Add your specialized code here and/or call the base class
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
+	{
+		// ! rich edit VK_ESCAPE will destroy window
+		return TRUE;
+	}
 
-void COutputEdit::OnEditClear()
-{
-	MessageBox(_T("Clear output"));
+	return CRichEditCtrl::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////

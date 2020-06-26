@@ -53,6 +53,30 @@ void CScriptEdit::OnScriptExecute()
 	}
 }
 
+BOOL CScriptEdit::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		switch (pMsg->wParam)
+		{
+		case VK_ESCAPE:
+			// ! rich edit VK_ESCAPE will destroy window
+			return TRUE;
+
+		case VK_RETURN:
+			if (::GetKeyState(VK_CONTROL) < 0)
+			{
+				OnCmdMsg(ID_SCRIPT_EXECUTE, 0, NULL, NULL);
+				return TRUE;
+			}
+			break;
+		}
+	}
+
+	return CRichEditCtrl::PreTranslateMessage(pMsg);
+}
+
 CScriptWnd::CScriptWnd()
 {
 }
@@ -61,6 +85,7 @@ CScriptWnd::CScriptWnd()
 CScriptWnd::~CScriptWnd()
 {
 }
+
 BEGIN_MESSAGE_MAP(CScriptWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
