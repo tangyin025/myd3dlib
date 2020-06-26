@@ -10,12 +10,13 @@
 #include "ScriptWnd.h"
 #include "Actor.h"
 #include "PhysxContext.h"
-#include "Terrain.h"
+#include "LuaExtension.h"
 #include "Pivot.h"
 
 class CMainFrame : public CFrameWndEx
 	, public PhysxSceneContext
 	, public my::OctRoot
+	, public LuaContext
 {
 	
 public: // create from serialization only
@@ -58,7 +59,9 @@ public:
 	void UpdatePivotTransform(void);
 	void OnFrameTick(float fElapsedTime);
 	void OnSelChanged();
+	void InitFileContext();
 	void ClearFileContext();
+	bool ExecuteCode(const char * code);
 
 // Implementation
 public:

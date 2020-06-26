@@ -10,7 +10,6 @@
 #include "resource.h"       // main symbols
 #include "RenderPipeline.h"
 #include "PhysxContext.h"
-#include "LuaExtension.h"
 
 // CMainApp:
 // See myd3dbox.cpp for the implementation of this class
@@ -22,7 +21,6 @@ class CMainApp : public CWinAppEx
 	, public my::ResourceMgr
 	, public RenderPipeline
 	, public PhysxContext
-	, public LuaContext
 {
 public:
 	CMainApp();
@@ -50,7 +48,6 @@ public:
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
 	void DestroyD3DDevice(void);
-	bool ExecuteCode(const char * code);
 
 // Overrides
 public:

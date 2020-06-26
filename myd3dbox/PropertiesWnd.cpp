@@ -8,6 +8,7 @@
 #include "MainApp.h"
 #include "ShapeDlg.h"
 #include "Material.h"
+#include "Terrain.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

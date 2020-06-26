@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ScriptWnd.h"
-#include "MainApp.h"
+#include "resource.h"
+#include "MainFrm.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CScriptEdit
@@ -49,7 +50,9 @@ void CScriptEdit::OnScriptExecute()
 	GetWindowText(ret);
 	if (!ret.IsEmpty())
 	{
-		theApp.ExecuteCode(tstou8((LPCTSTR)ret).c_str());
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT_VALID(pFrame);
+		pFrame->ExecuteCode(tstou8((LPCTSTR)ret).c_str());
 	}
 }
 

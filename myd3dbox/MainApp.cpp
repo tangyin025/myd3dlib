@@ -8,164 +8,10 @@
 #include "MainFrm.h"
 #include "ChildView.h"
 #include <boost/program_options.hpp>
-#include <luabind/luabind.hpp>
-#include <luabind/operator.hpp>
-#include <luabind/iterator_policy.hpp>
-#include "LuaExtension.inl"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
-static int lua_print(lua_State * L)
-{
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-
-	int n = lua_gettop(L);  /* number of arguments */
-	int i;
-	lua_getglobal(L, "tostring");
-	for (i = 1; i <= n; i++) {
-		const char *s;
-		lua_pushvalue(L, -1);  /* function to be called */
-		lua_pushvalue(L, i);   /* value to print */
-		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);  /* get result */
-		if (s == NULL)
-			return luaL_error(L, LUA_QL("tostring") " must return a string to "
-				LUA_QL("print"));
-		if (i > 1)
-			pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)_T("\t"));
-		pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)u8tots(s).c_str());
-		lua_pop(L, 1);  /* pop result */
-	}
-	pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)_T("\n"));
-	return 0;
-}
-
-typedef struct LoadF {
-	int extraline;
-	//FILE *f;
-	my::IStreamPtr stream;
-	char buff[LUAL_BUFFERSIZE];
-} LoadF;
-
-static const char *getF(lua_State *L, void *ud, size_t *size) {
-	LoadF *lf = (LoadF *)ud;
-	(void)L;
-	if (lf->extraline) {
-		lf->extraline = 0;
-		*size = 1;
-		return "\n";
-	}
-	//if (feof(lf->f)) return NULL;
-	*size = lf->stream->read(lf->buff, sizeof(lf->buff));
-	return (*size > 0) ? lf->buff : NULL;
-}
-//
-//static int errfile (lua_State *L, const char *what, int fnameindex) {
-//	const char *serr = strerror(errno);
-//	const char *filename = lua_tostring(L, fnameindex) + 1;
-//	lua_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
-//	lua_remove(L, fnameindex);
-//	return LUA_ERRFILE;
-//}
-
-static int luaL_loadfile(lua_State *L, const char *filename)
-{
-	LoadF lf;
-	//int status, readstatus;
-	//int c;
-	int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
-	lf.extraline = 0;
-	//if (filename == NULL) {
-	//	lua_pushliteral(L, "=stdin");
-	//	lf.f = stdin;
-	//}
-	//else {
-	lua_pushfstring(L, "@%s", filename);
-	//	lf.f = fopen(filename, "r");
-	//	if (lf.f == NULL) return errfile(L, "open", fnameindex);
-	//}
-	//c = getc(lf.f);
-	//if (c == '#') {  /* Unix exec. file? */
-	//	lf.extraline = 1;
-	//	while ((c = getc(lf.f)) != EOF && c != '\n') ;  /* skip first line */
-	//	if (c == '\n') c = getc(lf.f);
-	//}
-	//if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
-	//	lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
-	//	if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
-	//	/* skip eventual `#!...' */
-	//	while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
-	//	lf.extraline = 0;
-	//}
-	//ungetc(c, lf.f);
-	try
-	{
-		lf.stream = theApp.OpenIStream(filename);
-	}
-	catch (const my::Exception & e)
-	{
-		lua_pushfstring(L, e.what().c_str());
-		lua_remove(L, fnameindex);
-		return LUA_ERRFILE;
-	}
-	int status = lua_load(L, getF, &lf, lua_tostring(L, -1));
-	//readstatus = ferror(lf.f);
-	//if (filename) fclose(lf.f);  /* close file (even in case of errors) */
-	//if (readstatus) {
-	//	lua_settop(L, fnameindex);  /* ignore results from `lua_load' */
-	//	return errfile(L, "read", fnameindex);
-	//}
-	lua_remove(L, fnameindex);
-	return status;
-}
-
-static int load_aux(lua_State *L, int status) {
-	if (status == 0)  /* OK? */
-		return 1;
-	else {
-		lua_pushnil(L);
-		lua_insert(L, -2);  /* put before error message */
-		return 2;  /* return nil plus error message */
-	}
-}
-
-static int luaB_loadfile(lua_State *L) {
-	const char *fname = luaL_optstring(L, 1, NULL);
-	return load_aux(L, luaL_loadfile(L, fname));
-}
-
-static int luaB_dofile(lua_State *L) {
-	const char *fname = luaL_optstring(L, 1, NULL);
-	int n = lua_gettop(L);
-	if (luaL_loadfile(L, fname) != 0) lua_error(L);
-	lua_call(L, 0, LUA_MULTRET);
-	return lua_gettop(L) - n;
-}
-
-static void loaderror(lua_State *L, const char *filename) {
-	luaL_error(L, "error loading module " LUA_QS " from file " LUA_QS ":\n\t%s",
-		lua_tostring(L, 1), filename, lua_tostring(L, -1));
-}
-
-static int loader_Lua(lua_State *L) {
-	//const char *filename;
-	const char *name = luaL_checkstring(L, 1);
-	//filename = findfile(L, name, "path");
-	//if (filename == NULL) return 1;  /* library not found in this path */
-	if (luaL_loadfile(L, name) != 0)
-		loaderror(L, name);
-	return 1;  /* library loaded successfully */
-}
-
-static int os_exit(lua_State * L)
-{
-	AfxGetMainWnd()->SendMessage(WM_CLOSE);
-	return 0;
-}
 
 // CMainApp
 
@@ -303,22 +149,6 @@ void CMainApp::DestroyD3DDevice(void)
 	}
 }
 
-bool CMainApp::ExecuteCode(const char * code)
-{
-	if (dostring(code, "CMainApp::ExecuteCode") && !lua_isnil(m_State, -1))
-	{
-		std::string msg = lua_tostring(m_State, -1);
-		if (msg.empty())
-			msg = "error object is not a string";
-		lua_pop(m_State, 1);
-
-		m_EventLog(msg.c_str());
-
-		return false;
-	}
-	return false;
-}
-
 // CMainApp initialization
 
 BOOL CMainApp::InitInstance()
@@ -407,27 +237,6 @@ BOOL CMainApp::InitInstance()
 	{
 		return FALSE;
 	}
-
-	LuaContext::Init();
-	lua_pushcfunction(m_State, lua_print);
-	lua_setglobal(m_State, "print");
-	lua_pushcfunction(m_State, luaB_loadfile);
-	lua_setglobal(m_State, "loadfile");
-	lua_pushcfunction(m_State, luaB_dofile);
-	lua_setglobal(m_State, "dofile");
-	lua_getglobal(m_State, "package");
-	lua_getfield(m_State, -1, "loaders");
-	lua_pushcfunction(m_State, loader_Lua);
-	lua_rawseti(m_State, -2, 2);
-	lua_getglobal(m_State, "os");
-	lua_pushcclosure(m_State, os_exit, 0);
-	lua_setfield(m_State, -2, "exit");
-	lua_settop(m_State, 0);
-	luabind::module(m_State)
-	[
-		luabind::class_<CMainApp, luabind::bases<my::ResourceMgr> >("MainApp")
-	];
-	luabind::globals(m_State)["app"] = this;
 
 	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 	if(!m_d3d9)
@@ -674,8 +483,6 @@ BOOL CMainApp::OnIdle(LONG lCount)
 int CMainApp::ExitInstance()
 {
 	// TODO: Add your specialized code here and/or call the base class
-	LuaContext::Shutdown();
-
 	PhysxContext::Shutdown();
 
 	return CWinAppEx::ExitInstance();

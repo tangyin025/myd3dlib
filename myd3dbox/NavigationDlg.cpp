@@ -9,6 +9,7 @@
 #include "RecastDump.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
+#include "Terrain.h"
 
 
 // CNavigationDlg dialog
