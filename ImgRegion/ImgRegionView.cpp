@@ -981,6 +981,34 @@ BOOL CImgRegionView::PreTranslateMessage(MSG* pMsg)
 			case VK_DELETE:
 				pDoc->OnDelRegion();
 				return TRUE;
+
+			case 'C':
+				if (::GetKeyState(VK_CONTROL) < 0)
+				{
+					pDoc->OnEditCopy();
+				}
+				return TRUE;
+
+			case 'V':
+				if (::GetKeyState(VK_CONTROL) < 0)
+				{
+					pDoc->OnEditPaste();
+				}
+				return TRUE;
+
+			case 'Z':
+				if (::GetKeyState(VK_CONTROL) < 0)
+				{
+					pDoc->OnEditUndo();
+				}
+				return TRUE;
+
+			case 'Y':
+				if (::GetKeyState(VK_CONTROL) < 0)
+				{
+					pDoc->OnEditRedo();
+				}
+				return TRUE;
 			}
 			break;
 		}
