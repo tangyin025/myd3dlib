@@ -822,7 +822,7 @@ BOOL CMainFrame::DoOpen(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-	*ia >> BOOST_SERIALIZATION_NVP(m_ActorList);
+	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
@@ -902,7 +902,26 @@ BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
 	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-	*oa << BOOST_SERIALIZATION_NVP(m_ActorList);
+
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		CMainFrame * pFrame;
+		CMainFrame::ActorPtrSet m_ActorList;
+		Callback(CMainFrame * _pFrame)
+			: pFrame(_pFrame)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			ASSERT(dynamic_cast<Actor *>(oct_entity));
+			Actor * actor = static_cast<Actor *>(oct_entity);
+			m_ActorList.insert(actor->shared_from_this());
+		}
+	} cb(this);
+	QueryEntityAll(&cb);
+
+	// ! save all actor in the scene, including lua context actor
+	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
 
 	theApp.AddToRecentFileList(m_strPathName);
 

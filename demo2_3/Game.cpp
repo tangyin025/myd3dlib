@@ -1129,7 +1129,7 @@ void Game::LoadScene(const char * path)
 
 DWORD Game::LoadSceneProc(void)
 {
-	*m_LoadSceneArchive >> BOOST_SERIALIZATION_NVP(m_ActorList);
+	*m_LoadSceneArchive >> boost::serialization::make_nvp("ActorList", m_ActorList);
 	return 0;
 }
 
