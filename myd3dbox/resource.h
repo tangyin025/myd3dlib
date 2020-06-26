@@ -35,6 +35,7 @@
 #define IDD_DIALOG3                     313
 #define IDD_DIALOG4                     314
 #define IDD_DIALOG5                     316
+#define IDR_POPUP_SCRIPT                317
 #define IDC_EDIT1                       1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT3                       1002
@@ -85,13 +86,14 @@
 #define ID_SHOW_NAVIGATION              32794
 #define ID_TOOLS_SIMPLIFYMESH           32795
 #define ID_TOOLS_TERRAINGRASSBRUSH      32796
+#define ID_SCRIPT_EXECUTE               32797
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        320
-#define _APS_NEXT_COMMAND_VALUE         32797
+#define _APS_NEXT_RESOURCE_VALUE        318
+#define _APS_NEXT_COMMAND_VALUE         32798
 #define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

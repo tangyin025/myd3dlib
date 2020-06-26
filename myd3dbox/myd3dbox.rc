@@ -100,6 +100,17 @@ BEGIN
     END
 END
 
+IDR_POPUP_SCRIPT MENU
+BEGIN
+    POPUP "Script"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Execute",                     ID_SCRIPT_EXECUTE
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

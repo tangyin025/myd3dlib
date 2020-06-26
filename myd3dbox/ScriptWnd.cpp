@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ScriptWnd.h"
-
+#include "MainApp.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CScriptEdit
@@ -19,40 +19,66 @@ BEGIN_MESSAGE_MAP(CScriptEdit, CRichEditCtrl)
 	ON_COMMAND(ID_EDIT_CLEAR, OnEditClear)
 	////ON_COMMAND(ID_VIEW_OUTPUTWND, OnViewOutput)
 	ON_WM_WINDOWPOSCHANGING()
+	ON_COMMAND(ID_EDIT_CUT, &CScriptEdit::OnEditCut)
+	ON_COMMAND(ID_EDIT_PASTE, &CScriptEdit::OnEditPaste)
+	ON_COMMAND(ID_SCRIPT_EXECUTE, &CScriptEdit::OnScriptExecute)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
 
 void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	CRichEditCtrl::OnContextMenu(pWnd, point);
-	//CMenu menu;
-	//menu.LoadMenu(IDR_OUTPUT_POPUP);
+	CMenu menu;
+	menu.LoadMenu(IDR_POPUP_SCRIPT);
 
-	//CMenu* pSumMenu = menu.GetSubMenu(0);
+	CMenu* pSumMenu = menu.GetSubMenu(0);
 
-	//if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
-	//{
-	//	CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
+	if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CFrameWndEx)))
+	{
+		CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
 
-	//	if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
-	//		return;
+		if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
+			return;
 
-	//	((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
-	//	UpdateDialogControls(this, FALSE);
-	//}
+		((CFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
+		UpdateDialogControls(this, FALSE);
+	}
 
-	//SetFocus();
+	SetFocus();
 }
 
 void CScriptEdit::OnEditCopy()
 {
-	MessageBox(_T("Copy output"));
+	Copy();
 }
 
 void CScriptEdit::OnEditClear()
 {
-	MessageBox(_T("Clear output"));
+	Clear();
+}
+
+void CScriptEdit::OnEditCut()
+{
+	// TODO: Add your command handler code here
+	Cut();
+}
+
+
+void CScriptEdit::OnEditPaste()
+{
+	// TODO: Add your command handler code here
+	Paste();
+}
+
+void CScriptEdit::OnScriptExecute()
+{
+	// TODO: Add your command handler code here
+	CString ret;
+	GetWindowText(ret);
+	if (!ret.IsEmpty())
+	{
+		theApp.ExecuteCode(tstou8((LPCTSTR)ret).c_str());
+	}
 }
 
 CScriptWnd::CScriptWnd()

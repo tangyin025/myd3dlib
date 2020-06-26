@@ -17,6 +17,10 @@ protected:
 	afx_msg void OnEditClear();
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnEditCut();
+	afx_msg void OnEditPaste();
+	afx_msg void OnScriptExecute();
 };
 
 class CScriptWnd :
