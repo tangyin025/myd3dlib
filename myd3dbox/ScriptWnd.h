@@ -13,13 +13,9 @@ public:
 
 protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-	afx_msg void OnEditCopy();
-	afx_msg void OnEditClear();
 
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnEditCut();
-	afx_msg void OnEditPaste();
 	afx_msg void OnScriptExecute();
 };
 

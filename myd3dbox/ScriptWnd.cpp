@@ -15,12 +15,7 @@ CScriptEdit::~CScriptEdit()
 
 BEGIN_MESSAGE_MAP(CScriptEdit, CRichEditCtrl)
 	ON_WM_CONTEXTMENU()
-	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
-	ON_COMMAND(ID_EDIT_CLEAR, OnEditClear)
-	////ON_COMMAND(ID_VIEW_OUTPUTWND, OnViewOutput)
 	ON_WM_WINDOWPOSCHANGING()
-	ON_COMMAND(ID_EDIT_CUT, &CScriptEdit::OnEditCut)
-	ON_COMMAND(ID_EDIT_PASTE, &CScriptEdit::OnEditPaste)
 	ON_COMMAND(ID_SCRIPT_EXECUTE, &CScriptEdit::OnScriptExecute)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
@@ -45,29 +40,6 @@ void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 
 	SetFocus();
-}
-
-void CScriptEdit::OnEditCopy()
-{
-	Copy();
-}
-
-void CScriptEdit::OnEditClear()
-{
-	Clear();
-}
-
-void CScriptEdit::OnEditCut()
-{
-	// TODO: Add your command handler code here
-	Cut();
-}
-
-
-void CScriptEdit::OnEditPaste()
-{
-	// TODO: Add your command handler code here
-	Paste();
 }
 
 void CScriptEdit::OnScriptExecute()
