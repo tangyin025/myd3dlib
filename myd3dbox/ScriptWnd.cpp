@@ -85,6 +85,8 @@ int CScriptWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_editScript.SetFont(&afxGlobalData.fontRegular);
 
+	m_editScript.SetOptions(ECOOP_XOR, ECO_WANTRETURN);
+
 	return 0;
 }
 

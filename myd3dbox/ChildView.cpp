@@ -1376,6 +1376,12 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			pFrame->m_EventCameraPropChanged(&arg);
 		}
 		return;
+	case VK_DELETE:
+		if (!pFrame->m_selactors.empty())
+		{
+			pFrame->OnCmdMsg(ID_EDIT_DELETE, 0, NULL, NULL);
+		}
+		return;
 	}
 
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
