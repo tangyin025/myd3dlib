@@ -577,10 +577,10 @@ void CMainFrame::UpdateSelBox(void)
 	if (!m_selactors.empty())
 	{
 		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-		SelActorList::const_iterator sel_iter = m_selactors.begin();
-		for (; sel_iter != m_selactors.end(); sel_iter++)
+		SelActorList::const_iterator actor_iter = m_selactors.begin();
+		for (; actor_iter != m_selactors.end(); actor_iter++)
 		{
-			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
+			m_selbox.unionSelf((*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
 		}
 	}
 }
@@ -709,6 +709,12 @@ void CMainFrame::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
 bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
+
+	SelActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
+	if (actor_iter != m_selactors.end())
+	{
+		m_selactors.erase(actor_iter);
+	}
 
 	if (actor->IsViewNotified())
 	{
@@ -1239,13 +1245,15 @@ void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
 	SelActorList::iterator actor_iter = m_selactors.begin();
-	for (; actor_iter != m_selactors.end(); actor_iter++)
+	for (; actor_iter != m_selactors.end(); actor_iter = m_selactors.begin())
 	{
-		RemoveEntity((*actor_iter));
+		ActorPtr actor = (*actor_iter)->shared_from_this();
 
-		m_ActorList.erase((*actor_iter)->shared_from_this());
+		RemoveEntity(actor.get());
+
+		m_ActorList.erase(actor);
 	}
-	m_selactors.clear();
+
 	OnSelChanged();
 }
 
