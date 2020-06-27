@@ -189,12 +189,16 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 
 void Actor::CopyFrom(const Actor & rhs)
 {
+	if (rhs.m_Name)
+	{
+		SetName(NamedObject::MakeUniqueName(rhs.m_Name).c_str());
+	}
+
 	m_aabb = rhs.m_aabb;
 	m_Position = rhs.m_Position;
 	m_Rotation = rhs.m_Rotation;
 	m_Scale = rhs.m_Scale;
 	m_World = rhs.m_World;
-
 	m_Cmps.resize(rhs.m_Cmps.size());
 	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
 	{

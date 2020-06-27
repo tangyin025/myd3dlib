@@ -15,6 +15,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace my;
 
@@ -59,6 +61,20 @@ NamedObject::~NamedObject(void)
 std::string NamedObject::MakeUniqueName(const char * Prefix)
 {
 	static unsigned int index = 0;
+	_ASSERT(Prefix);
+
+	boost::regex reg("_(\\d+)$");
+	boost::match_results<const char *> what;
+	if (boost::regex_search(Prefix, what, reg, boost::match_default) && what[1].matched)
+	{
+		index = Max(index, boost::lexical_cast<unsigned int>(what[1]) + 1);
+		std::string remove_postfix(Prefix, what[0].first);
+		if (!remove_postfix.empty())
+		{
+			return MakeUniqueName(remove_postfix.c_str());
+		}
+	}
+
 	for (; ; index++)
 	{
 		std::string ret = str_printf("%s_%u", Prefix, index);
@@ -67,6 +83,7 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 			return ret;
 		}
 	}
+
 	THROW_CUSEXCEPTION("MakeUniqueName failed");
 }
 

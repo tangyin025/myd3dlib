@@ -90,6 +90,11 @@ void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polym
 
 void Component::CopyFrom(const Component & rhs)
 {
+	if (rhs.m_Name)
+	{
+		SetName(NamedObject::MakeUniqueName(rhs.m_Name).c_str());
+	}
+
 	m_Type = rhs.m_Type;
 	m_LodMask = rhs.m_LodMask;
 	m_MaterialList.resize(rhs.m_MaterialList.size());
