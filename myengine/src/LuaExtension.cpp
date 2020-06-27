@@ -773,7 +773,10 @@ void LuaContext::Init(void)
 		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
 			.def("PostMessage", &my::DxutWindow::PostMessage)
 
-		, class_<my::DxutApp, CD3D9Enumeration>("DxutApp")
+		, class_<my::D3DContext>("D3DContext")
+			.def("GetNamedObject", &my::D3DContext::GetNamedObject)
+
+		, class_<my::DxutApp, bases<my::D3DContext, CD3D9Enumeration> >("DxutApp")
 			.scope
 			[
 				def("DXUTD3DDeviceTypeToString", &my::DxutApp::DXUTD3DDeviceTypeToString),
@@ -790,7 +793,6 @@ void LuaContext::Init(void)
 			.property("PureHardwareVP", &my::DxutApp::GetPureHardwareVP, &my::DxutApp::SetPureHardwareVP)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
-			.def("GetNamedObject", &my::DxutApp::GetNamedObject)
 
 		, class_<my::TimerEventArg, my::EventArg>("TimerEventArg")
 			.def_readonly("Interval", &my::TimerEventArg::m_Interval)

@@ -1256,8 +1256,6 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				new_actor->SetName(my::NamedObject::MakeUniqueName("editor_actor").c_str());
 				pFrame->AddEntity(new_actor.get(), new_actor->m_aabb.transform(new_actor->m_World));
 				pFrame->m_ActorList.insert(new_actor);
-				new_actor->RequestResource();
-				new_actor->EnterPhysxScene(pFrame);
 				new_selactors.push_back(new_actor.get());
 			}
 			pFrame->m_selactors.swap(new_selactors);

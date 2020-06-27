@@ -656,9 +656,22 @@ void CMainFrame::InitFileContext()
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-		luabind::class_<CMainApp, luabind::bases<my::ResourceMgr> >("MainApp")
+		luabind::class_<CWnd> ("CWnd")
+
+		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxSceneContext> >("MainFrame")
+			.def("AddEntity", &CMainFrame::AddEntity)
+			.def("RemoveEntity", &CMainFrame::RemoveEntity)
+			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
+			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
+
+		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
+			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)
+			.def_readonly("SkyLightCam", &CMainApp::m_SkyLightCam)
+			.def_readwrite("SkyLightColor", &CMainApp::m_SkyLightColor)
+			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
+			.def_readonly("Font", &CMainApp::m_Font)
 	];
-	luabind::globals(m_State)["app"] = &theApp;
+	luabind::globals(m_State)["theApp"] = &theApp;
 }
 
 void CMainFrame::ClearFileContext()
@@ -666,31 +679,10 @@ void CMainFrame::ClearFileContext()
 	OctRoot::ClearAllEntity();
 	PhysxSceneContext::ClearSerializedObjs();
 	theApp.ReleaseResource();
-	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
-	{
-		(*actor_iter)->StopAllAction();
-
-		(*actor_iter)->ClearAllAttacher();
-
-		if ((*actor_iter)->m_Base)
-		{
-			(*actor_iter)->m_Base->Detach(actor_iter->get());
-		}
-
-		if ((*actor_iter)->IsRequested())
-		{
-			(*actor_iter)->ReleaseResource();
-		}
-
-		if ((*actor_iter)->IsEnteredPhysx())
-		{
-			(*actor_iter)->LeavePhysxScene(this);
-		}
-	}
 	m_ActorList.clear();
 	m_selactors.clear();
 	LuaContext::Shutdown();
+	_ASSERT(theApp.m_NamedObjs.empty());
 }
 
 bool CMainFrame::ExecuteCode(const char * code)
@@ -707,6 +699,42 @@ bool CMainFrame::ExecuteCode(const char * code)
 		return false;
 	}
 	return false;
+}
+
+void CMainFrame::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
+{
+	OctNode::AddEntity(entity, aabb);
+}
+
+bool CMainFrame::RemoveEntity(my::OctEntity * entity)
+{
+	Actor * actor = dynamic_cast<Actor *>(entity);
+
+	if (actor->IsViewNotified())
+	{
+		actor->NotifyLeaveView();
+	}
+
+	actor->StopAllAction();
+
+	actor->ClearAllAttacher();
+
+	if (actor->m_Base)
+	{
+		actor->m_Base->Detach(actor);
+	}
+
+	if (actor->IsRequested())
+	{
+		actor->ReleaseResource();
+	}
+
+	if (actor->IsEnteredPhysx())
+	{
+		actor->LeavePhysxScene(this);
+	}
+
+	return OctNode::RemoveEntity(entity);
 }
 
 void CMainFrame::OnDestroy()
@@ -941,8 +969,6 @@ void CMainFrame::OnCreateActor()
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
 	m_ActorList.insert(actor);
-	actor->RequestResource();
-	actor->EnterPhysxScene(this);
 
 	m_selactors.clear();
 	m_selactors.push_back(actor.get());
@@ -962,8 +988,6 @@ void CMainFrame::OnCreateCharacter()
 	character->UpdateWorld();
 	AddEntity(character.get(), character->m_aabb.transform(character->m_World));
 	m_ActorList.insert(character);
-	character->RequestResource();
-	character->EnterPhysxScene(this);
 
 	m_selactors.clear();
 	m_selactors.push_back(character.get());
@@ -1217,26 +1241,7 @@ void CMainFrame::OnEditDelete()
 	SelActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		(*actor_iter)->StopAllAction();
-
-		(*actor_iter)->ClearAllAttacher();
-
-		if ((*actor_iter)->m_Base)
-		{
-			(*actor_iter)->m_Base->Detach((*actor_iter));
-		}
-
-		if ((*actor_iter)->IsRequested())
-		{
-			(*actor_iter)->ReleaseResource();
-		}
-
-		if ((*actor_iter)->IsEnteredPhysx())
-		{
-			(*actor_iter)->LeavePhysxScene(this);
-		}
-
-		(*actor_iter)->m_Node->GetTopNode()->RemoveEntity((*actor_iter));
+		RemoveEntity((*actor_iter));
 
 		m_ActorList.erase((*actor_iter)->shared_from_this());
 	}
