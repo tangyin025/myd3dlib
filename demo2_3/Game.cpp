@@ -1036,6 +1036,11 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
+	if (actor->IsViewNotified())
+	{
+		actor->NotifyLeaveView();
+	}
+
 	actor->StopAllAction();
 
 	actor->ClearAllAttacher();
@@ -1043,11 +1048,6 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 	if (actor->m_Base)
 	{
 		actor->m_Base->Detach(actor);
-	}
-
-	if (actor->IsViewNotified())
-	{
-		actor->NotifyLeaveView();
 	}
 
 	if (actor->IsRequested())

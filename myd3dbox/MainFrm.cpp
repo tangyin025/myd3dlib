@@ -710,12 +710,6 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
-	SelActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
-	if (actor_iter != m_selactors.end())
-	{
-		m_selactors.erase(actor_iter);
-	}
-
 	if (actor->IsViewNotified())
 	{
 		actor->NotifyLeaveView();
@@ -738,6 +732,12 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 	if (actor->IsEnteredPhysx())
 	{
 		actor->LeavePhysxScene(this);
+	}
+
+	SelActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
+	if (actor_iter != m_selactors.end())
+	{
+		m_selactors.erase(actor_iter);
 	}
 
 	return OctNode::RemoveEntity(entity);
