@@ -1168,6 +1168,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->m_SpawnSizeX.AddNode(10,10,0,0);
 	sphe_emit_cmp->m_SpawnSizeY.AddNode(0,1,0,0);
 	sphe_emit_cmp->m_SpawnSizeY.AddNode(10,10,0,0);
+	sphe_emit_cmp->m_SpawnTime = theApp.m_fTotalTime;
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();

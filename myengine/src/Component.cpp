@@ -443,8 +443,6 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 {
 	_ASSERT(m_Actor);
 
-	shader->SetFloat(handle_Time, D3DContext::getSingleton().m_fTotalTime);
-
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
@@ -498,7 +496,6 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							if (!handle_World)
 							{
-								BOOST_VERIFY(handle_Time = shader->GetParameterByName(NULL, "g_Time"));
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
@@ -955,8 +952,6 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	_ASSERT(m_Actor);
 
-	shader->SetFloat(handle_Time, D3DContext::getSingleton().m_fTotalTime);
-
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
@@ -1011,7 +1006,6 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 						{
 							if (!handle_World)
 							{
-								BOOST_VERIFY(handle_Time = shader->GetParameterByName(NULL, "g_Time"));
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
@@ -1153,14 +1147,11 @@ void EmitterComponent::ReleaseResource(void)
 
 void EmitterComponent::Update(float fElapsedTime)
 {
-	m_EmitterTime += fElapsedTime;
 }
 
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	_ASSERT(m_Actor);
-
-	shader->SetFloat(handle_Time, m_EmitterTime);
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
@@ -1228,7 +1219,6 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 				{
 					if (!handle_World)
 					{
-						BOOST_VERIFY(handle_Time = shader->GetParameterByName(NULL, "g_Time"));
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 						BOOST_VERIFY(handle_EmitterScale = shader->GetParameterByName(NULL, "g_EmitterScale"));
 					}
@@ -1347,9 +1337,9 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 
 	EmitterComponent::Update(fElapsedTime);
 
-	RemoveParticleBefore(m_EmitterTime - m_ParticleLifeTime);
+	RemoveParticleBefore(D3DContext::getSingleton().m_fTotalTime - m_ParticleLifeTime);
 
-	for (; m_SpawnTime < m_EmitterTime; m_SpawnTime += m_SpawnInterval)
+	for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
 	{
 		const float SpawnTimeCycle = Round<float>(m_SpawnTime, 0, m_SpawnCycle);
 
@@ -1357,11 +1347,11 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 			Vector3(
 				Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 				Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
+				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transformCoord(m_Actor->m_World),
 			Vector3::SphericalToCartesian(
 				m_SpawnSpeed,
 				m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-				m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)),
+				m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World),
 			Vector4(
 				m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 				m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),

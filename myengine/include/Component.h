@@ -390,10 +390,6 @@ public:
 
 	VelocityType m_EmitterVelType;
 
-	float m_EmitterTime;
-
-	D3DXHANDLE handle_Time;
-
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_EmitterScale;
@@ -403,8 +399,6 @@ protected:
 		: Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
 		, m_EmitterVelType(VelocityTypeNone)
-		, m_EmitterTime(0)
-		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{
@@ -416,8 +410,6 @@ public:
 		, Emitter(Capacity)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterVelType(_VelocityType)
-		, m_EmitterTime(0)
-		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{
@@ -529,7 +521,7 @@ protected:
 		, m_HalfSpawnArea(0, 0, 0)
 		, m_SpawnSpeed(0)
 		, m_SpawnCycle(5)
-		, m_SpawnTime(0)
+		, m_SpawnTime(FLT_MAX)
 	{
 	}
 
@@ -541,7 +533,7 @@ public:
 		, m_HalfSpawnArea(0,0,0)
 		, m_SpawnSpeed(0)
 		, m_SpawnCycle(5)
-		, m_SpawnTime(0)
+		, m_SpawnTime(FLT_MAX)
 	{
 	}
 
