@@ -15,6 +15,8 @@ namespace my
 
 class Component;
 
+class EmitterComponent;
+
 class RenderPipeline
 {
 public:
@@ -54,19 +56,33 @@ public:
 
 	ShaderCacheMap m_ShaderCache;
 
+	my::D3DVertexElementSet m_ParticleVertElems;
+
 	my::D3DVertexElementSet m_ParticleInstanceElems;
 
-	static std::vector<D3DVERTEXELEMENT9> m_ParticleIEList;
+	DWORD m_ParticleVertStride;
 
 	DWORD m_ParticleInstanceStride;
+
+	std::vector<D3DVERTEXELEMENT9> m_ParticleIEList;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_ParticleIEDecl;
+
+	static const UINT m_ParticleNumVertices = 4;
+
+	static const UINT m_ParticlePrimitiveCount = 2;
+
+	my::VertexBuffer m_ParticleVb;
+
+	my::IndexBuffer m_ParticleIb;
 
 	my::VertexBuffer m_ParticleInstanceData;
 
 	my::D3DVertexElementSet m_MeshInstanceElems;
 
-	std::vector<D3DVERTEXELEMENT9> m_MeshIEList;
-
 	DWORD m_MeshInstanceStride;
+
+	std::vector<D3DVERTEXELEMENT9> m_MeshIEList;
 
 	my::VertexBuffer m_MeshInstanceData;
 
@@ -325,23 +341,23 @@ public:
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
 
-	struct EmitterAtom
+	struct EmitterInstanceAtom
 	{
-		IDirect3DVertexDeclaration9* pDecl;
-		IDirect3DVertexBuffer9 * pVB;
-		IDirect3DIndexBuffer9 * pIB;
-		D3DPRIMITIVETYPE PrimitiveType;
-		UINT NumVertices;
-		UINT VertexStride;
-		UINT PrimitiveCount;
-		my::Emitter * emitter;
-		my::Effect * shader;
-		Component * cmp;
-		Material * mtl;
-		LPARAM lparam;
+		std::vector<EmitterComponent *> cmps;
 	};
 
-	typedef std::vector<EmitterAtom> EmitterAtomList;
+	class EmitterInstanceAtomKey : public boost::tuple<my::Effect *, Material *, LPARAM>
+	{
+	public:
+		EmitterInstanceAtomKey(my::Effect * shader, Material * mtl, LPARAM lparam)
+			: tuple(shader, mtl, lparam)
+		{
+		}
+
+		bool operator == (const EmitterInstanceAtomKey & rhs) const;
+	};
+
+	typedef boost::unordered_map<EmitterInstanceAtomKey, EmitterInstanceAtom> EmitterInstanceAtomMap;
 
 	struct Pass
 	{
@@ -349,7 +365,7 @@ public:
 		IndexedPrimitiveUPAtomList m_IndexedPrimitiveUPList;
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
-		EmitterAtomList m_EmitterList;
+		EmitterInstanceAtomMap m_EmitterInstanceMap;
 	};
 
 	boost::array<Pass, PassTypeNum> m_Pass;
@@ -472,11 +488,10 @@ public:
 		UINT NumVertices,
 		UINT VertexStride,
 		UINT PrimitiveCount,
-		my::Emitter * emitter,
 		my::Effect * shader,
-		Component * cmp,
 		Material * mtl,
-		LPARAM lparam);
+		LPARAM lparam,
+		EmitterInstanceAtom & atom);
 
 	void PushIndexedPrimitive(
 		unsigned int PassID,
@@ -515,18 +530,5 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushEmitter(
-		unsigned int PassID,
-		IDirect3DVertexDeclaration9* pDecl,
-		IDirect3DVertexBuffer9 * pVB,
-		IDirect3DIndexBuffer9 * pIB,
-		D3DPRIMITIVETYPE PrimitiveType,
-		UINT NumVertices,
-		UINT VertexStride,
-		UINT PrimitiveCount,
-		my::Emitter * emitter,
-		my::Effect * shader,
-		Component * cmp,
-		Material * mtl,
-		LPARAM lparam);
+	void PushEmitter(unsigned int PassID, my::Effect * shader, Material * mtl, LPARAM lparam, EmitterComponent * cmp);
 };

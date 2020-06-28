@@ -1144,55 +1144,10 @@ ComponentPtr EmitterComponent::Clone(void) const
 void EmitterComponent::RequestResource(void)
 {
 	Component::RequestResource();
-
-	if (!m_Decl)
-	{
-		IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-		std::vector<D3DVERTEXELEMENT9> elems = m_VertexElems.BuildVertexElementList(0);
-		elems.insert(elems.end(), RenderPipeline::m_ParticleIEList.begin(), RenderPipeline::m_ParticleIEList.end());
-		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-		elems.push_back(ve_end);
-		HRESULT hr;
-		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
-
-		m_NumVertices = 4;
-		m_VertexStride = D3DXGetDeclVertexSize(&elems[0], 0);
-		m_PrimitiveCount = 2;
-
-		_ASSERT(!m_vb.m_ptr);
-		m_vb.CreateVertexBuffer(m_VertexStride * m_NumVertices, 0, 0, D3DPOOL_MANAGED);
-		unsigned char * pVertices = (unsigned char *)m_vb.Lock(0, m_VertexStride * m_NumVertices);
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 0, Vector3(0, 0.5f, 0.5f));
-		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0, 0));
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 1, Vector3(0, 0.5f, -0.5f));
-		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(1, 0));
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 2, Vector3(0, -0.5f, -0.5f));
-		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 2, Vector2(1, 1));
-		m_VertexElems.SetPosition(pVertices + m_VertexStride * 3, Vector3(0, -0.5f, 0.5f));
-		m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0, 1));
-		m_vb.Unlock();
-
-		_ASSERT(!m_ib.m_ptr);
-		m_ib.CreateIndexBuffer(sizeof(WORD) * m_PrimitiveCount * 3, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-		WORD * pIndices = (WORD *)m_ib.Lock(0, sizeof(WORD) * m_PrimitiveCount * 3);
-		pIndices[0] = 0;
-		pIndices[1] = 3;
-		pIndices[2] = 1;
-		pIndices[3] = 1;
-		pIndices[4] = 3;
-		pIndices[5] = 2;
-		m_ib.Unlock();
-	}
 }
 
 void EmitterComponent::ReleaseResource(void)
 {
-	m_Decl.Release();
-
-	m_vb.OnDestroyDevice();
-
-	m_ib.OnDestroyDevice();
-
 	Component::ReleaseResource();
 }
 
@@ -1229,7 +1184,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 
 void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	if (m_Decl && m_MaterialList.size() >= 1 && (m_MaterialList[0]->m_PassMask & PassMask))
+	if (m_MaterialList.size() >= 1 && (m_MaterialList[0]->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
@@ -1278,7 +1233,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_EmitterScale = shader->GetParameterByName(NULL, "g_EmitterScale"));
 					}
 
-					pipeline->PushEmitter(PassID, m_Decl, m_vb.m_ptr, m_ib.m_ptr, D3DPT_TRIANGLELIST, m_NumVertices, m_VertexStride, m_PrimitiveCount, this, shader, this, m_MaterialList[0].get(), 0);
+					pipeline->PushEmitter(PassID, shader, m_MaterialList[0].get(), 0, this);
 				}
 			}
 		}

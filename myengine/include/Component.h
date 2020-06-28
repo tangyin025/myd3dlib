@@ -370,20 +370,6 @@ class EmitterComponent
 	, public my::Emitter
 {
 public:
-	my::D3DVertexElementSet m_VertexElems;
-
-	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
-	UINT m_NumVertices;
-
-	UINT m_VertexStride;
-
-	UINT m_PrimitiveCount;
-
-	my::VertexBuffer m_vb;
-
-	my::IndexBuffer m_ib;
-
 	enum FaceType
 	{
 		FaceTypeX			= 0,
@@ -435,11 +421,6 @@ public:
 		, handle_World(NULL)
 		, handle_EmitterScale(NULL)
 	{
-		WORD offset = 0;
-		m_VertexElems.InsertPositionElement(offset);
-		offset += sizeof(my::Vector3);
-		m_VertexElems.InsertTexcoordElement(offset, 0);
-		offset += sizeof(my::Vector2);
 	}
 
 	friend class boost::serialization::access;
@@ -448,7 +429,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-		ar & BOOST_SERIALIZATION_NVP(m_VertexElems);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
 	}
