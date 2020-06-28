@@ -199,6 +199,8 @@ void Actor::CopyFrom(const Actor & rhs)
 	m_Rotation = rhs.m_Rotation;
 	m_Scale = rhs.m_Scale;
 	m_World = rhs.m_World;
+	m_LodDist = rhs.m_LodDist;
+	m_LodFactor = rhs.m_LodFactor;
 	m_Cmps.resize(rhs.m_Cmps.size());
 	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
 	{

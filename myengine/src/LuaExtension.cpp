@@ -316,8 +316,12 @@ void LuaContext::Init(void)
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
 			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
 
+		, class_<my::Emitter::Particle>("EmitterParticle")
+			.def_readwrite("Position", &my::Emitter::Particle::m_Position)
+
 		, class_<my::Emitter>("Emitter")
 			.def(constructor<unsigned int>())
+			.def_readonly("ParticleList", &my::Emitter::m_ParticleList, luabind::return_stl_iterator)
 			.def("RemoveAllParticle", &my::Emitter::RemoveAllParticle)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
@@ -879,7 +883,7 @@ void LuaContext::Init(void)
 		, class_<ComponentEventArg, my::EventArg>("ComponentEventArg")
 			.def_readonly("self", &ComponentEventArg::self)
 
-		, class_<Component, boost::shared_ptr<Component> >("Component")
+		, class_<Component, my::NamedObject, boost::shared_ptr<Component> >("Component")
 			.enum_("ComponentType")
 			[
 				value("ComponentTypeComponent", Component::ComponentTypeComponent),
@@ -893,6 +897,16 @@ void LuaContext::Init(void)
 				value("ComponentTypeTerrain", Component::ComponentTypeTerrain)
 			]
 			.def_readonly("Type", &Component::m_Type)
+			.enum_("LODMask")
+			[
+				value("LOD0", Component::LOD0),
+				value("LOD1", Component::LOD1),
+				value("LOD2", Component::LOD2),
+				value("LOD0_1", Component::LOD0_1),
+				value("LOD1_2", Component::LOD1_2),
+				value("LOD0_1_2", Component::LOD0_1_2)
+			]
+			.def_readwrite("LodMask", &Component::m_LodMask)
 			.def_readonly("Actor", &Component::m_Actor)
 			.def("IsRequested", &Component::IsRequested)
 			.def("IsEnteredPhysx", &Component::IsEnteredPhysx)

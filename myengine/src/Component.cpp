@@ -1125,7 +1125,8 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
 {
 	Component::CopyFrom(rhs);
-	// TODO:
+	m_EmitterFaceType = rhs.m_EmitterFaceType;
+	m_EmitterVelType = rhs.m_EmitterVelType;
 }
 
 ComponentPtr EmitterComponent::Clone(void) const
