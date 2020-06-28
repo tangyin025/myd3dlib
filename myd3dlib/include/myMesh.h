@@ -6,8 +6,6 @@
 #include "mySingleton.h"
 #include "rapidxml.hpp"
 
-#define MESH_INSTANCE_MAX 1024u
-
 namespace my
 {
 	class D3DVertexElement

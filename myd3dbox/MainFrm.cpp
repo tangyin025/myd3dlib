@@ -687,6 +687,7 @@ void CMainFrame::ClearFileContext()
 
 bool CMainFrame::ExecuteCode(const char * code)
 {
+	CWaitCursor wait;
 	if (dostring(code, "CMainFrame::ExecuteCode") && !lua_isnil(m_State, -1))
 	{
 		std::string msg = lua_tostring(m_State, -1);
@@ -836,7 +837,7 @@ BOOL CMainFrame::DoOpen(LPCTSTR lpszFileName)
 	InitFileContext();
 	m_strPathName = lpszFileName;
 
-	CWaitCursor waiter;
+	CWaitCursor wait;
 	my::IStreamBuff buff(my::FileIStream::Open(m_strPathName));
 	std::istream ifs(&buff);
 	LPCTSTR Ext = PathFindExtension((LPCTSTR)m_strPathName);
@@ -917,7 +918,7 @@ BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
 
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 	ASSERT_VALID(pView);
-	CWaitCursor waiter;
+	CWaitCursor wait;
 	std::ofstream ofs(m_strPathName, std::ios::binary, _OPENPROT);
 	LPCTSTR Ext = PathFindExtension(m_strPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
