@@ -54,9 +54,9 @@ public:
 
 	my::Vector3 m_ViewedCenter;
 
-	typedef std::map<Actor *, boost::weak_ptr<Actor> > WeakActorMap;
+	typedef std::set<Actor *> ViewedActorSet;
 
-	WeakActorMap m_ViewedActors;
+	ViewedActorSet m_ViewedActors;
 
 	typedef std::set<ActorPtr> ActorPtrSet;
 

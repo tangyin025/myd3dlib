@@ -690,19 +690,17 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
-	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
-	for (; weak_actor_iter != m_ViewedActors.end(); weak_actor_iter++)
+	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
 	{
 		// ! Actor::Update will change other actors scope, event if octree node
-		ActorPtr actor = weak_actor_iter->second.lock();
-		if (actor)
-		{
-			_ASSERT(OctNode::HaveNode(actor->m_Node));
+		Actor * actor = (*actor_iter);
 
-			if (!actor->m_Base)
-			{
-				actor->Update(fElapsedTime);
-			}
+		_ASSERT(OctNode::HaveNode(actor->m_Node));
+
+		if (!actor->m_Base)
+		{
+			actor->Update(fElapsedTime);
 		}
 	}
 
@@ -956,16 +954,16 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 
 void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 {
-	WeakActorMap::iterator weak_actor_iter = m_ViewedActors.begin();
-	for (; weak_actor_iter != m_ViewedActors.end(); )
+	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); )
 	{
-		ActorPtr actor = weak_actor_iter->second.lock();
-		if (actor && actor->m_Node)
+		Actor * actor = (*actor_iter);
+		if (actor->m_Node)
 		{
 			IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
 			if (intersect_type != IntersectionTests::IntersectionTypeOutside)
 			{
-				weak_actor_iter++;
+				actor_iter++;
 				continue;
 			}
 
@@ -984,18 +982,18 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				actor->ReleaseResource();
 			}
 		}
-		weak_actor_iter = m_ViewedActors.erase(weak_actor_iter);
+		actor_iter = m_ViewedActors.erase(actor_iter);
 	}
 
 	struct Callback : public OctNode::QueryCallback
 	{
-		WeakActorMap & m_ViewedActors;
+		ViewedActorSet & m_ViewedActors;
 
 		Game * m_game;
 
 		AABB m_aabb;
 
-		Callback(WeakActorMap & ViewedActors, Game * game, const AABB & aabb)
+		Callback(ViewedActorSet & ViewedActors, Game * game, const AABB & aabb)
 			: m_ViewedActors(ViewedActors)
 			, m_game(game)
 			, m_aabb(aabb)
@@ -1005,10 +1003,8 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor * actor = dynamic_cast<Actor *>(oct_entity);
-			if (m_ViewedActors.find(actor) == m_ViewedActors.end())
+			if (m_ViewedActors.insert(actor).second)
 			{
-				m_ViewedActors.insert(std::make_pair(actor, actor->shared_from_this()));
-
 				if (!actor->IsRequested())
 				{
 					actor->RequestResource();
@@ -1040,11 +1036,6 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
-	if (actor->IsViewNotified())
-	{
-		actor->NotifyLeaveView();
-	}
-
 	actor->StopAllAction();
 
 	actor->ClearAllAttacher();
@@ -1052,6 +1043,11 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 	if (actor->m_Base)
 	{
 		actor->m_Base->Detach(actor);
+	}
+
+	if (actor->IsViewNotified())
+	{
+		actor->NotifyLeaveView();
 	}
 
 	if (actor->IsRequested())
@@ -1062,6 +1058,12 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 	if (actor->IsEnteredPhysx())
 	{
 		actor->LeavePhysxScene(this);
+	}
+
+	ViewedActorSet::iterator actor_iter = m_ViewedActors.find(actor);
+	if (actor_iter != m_ViewedActors.end())
+	{
+		m_ViewedActors.erase(actor_iter);
 	}
 
 	return OctNode::RemoveEntity(entity);
