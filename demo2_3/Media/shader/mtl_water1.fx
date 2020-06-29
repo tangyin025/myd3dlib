@@ -12,6 +12,7 @@
 
 float g_FresExp:MaterialParameter = 3.0;
 float g_ReflStrength:MaterialParameter = 3.4;
+float g_WaterHeight:MaterialParameter = 0.0;
 float3 g_WaterColor:MaterialParameter = { 0.00784, 0.03921, 0.12156 };
 texture g_NormalTexture:MaterialParameter<string Initialize="texture/WaterNormal2.png";>;
 texture g_ReflectTexture:MaterialParameter<string Initialize="texture/galileo_cross.dds";>;
@@ -52,6 +53,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 {
 	TRANSPARENT_VS_OUTPUT Out;
 	float4 PosWS = TransformPosWS(In);
+	PosWS.y = g_World[3].y + g_WaterHeight;
 	float2 Tex0 = TransformUV(In);
 	// float3 Normal = TransformNormal(In);
 	// float3 Tangent = TransformTangent(In);
@@ -85,8 +87,8 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 	Out.texCoord0 = Tex0 + g_Time * 0.02;
 	Out.texCoord1 = Tex0 * 2.0 + g_Time * -0.02;
 	Out.texCoord2 = Tex0 / 2.0 + g_Time * 0.01;
-	Out.Normal = TransformNormal(In);
-	Out.Tangent = TransformTangent(In);
+	Out.Normal = float3(0,1,0);//TransformNormal(In);
+	Out.Tangent = float3(1,0,0);//TransformTangent(In);
 	Out.Binormal = cross(Out.Normal, Out.Tangent);
 	Out.ViewWS = g_Eye - PosWS.xyz; // ! dont normalize here
 	return Out;
