@@ -945,7 +945,10 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_entity));
 			Actor * actor = static_cast<Actor *>(oct_entity);
-			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			if (actor->IsRequested())
+			{
+				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			}
 		}
 	};
 
