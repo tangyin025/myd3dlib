@@ -87,6 +87,10 @@ public:
 
 	ChunkArray2D m_Chunks;
 
+	my::VertexBuffer m_RootVb;
+
+	my::IndexBuffer m_RootIb;
+
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE handle_World;
