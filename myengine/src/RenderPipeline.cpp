@@ -555,16 +555,16 @@ void RenderPipeline::OnDestroyDevice(void)
 
 	ClearAllObjects();
 
-	unsigned int PassID = 0;
-	for (; PassID < m_Pass.size(); PassID++)
-	{
-		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_MeshInstanceMap.begin();
-		//for (; mesh_inst_iter != m_MeshInstanceMap.end(); mesh_inst_iter++)
-		//{
-		//	mesh_inst_iter->second.m_Decl.Release();
-		//}
-		m_Pass[PassID].m_MeshInstanceMap.clear();
-	}
+	//unsigned int PassID = 0;
+	//for (; PassID < m_Pass.size(); PassID++)
+	//{
+	//	//MeshInstanceAtomMap::iterator mesh_inst_iter = m_MeshInstanceMap.begin();
+	//	//for (; mesh_inst_iter != m_MeshInstanceMap.end(); mesh_inst_iter++)
+	//	//{
+	//	//	mesh_inst_iter->second.m_Decl.Release();
+	//	//}
+	//	m_Pass[PassID].m_MeshInstanceMap.clear();
+	//}
 }
 
 void RenderPipeline::OnRender(
@@ -931,12 +931,12 @@ void RenderPipeline::ClearAllObjects(void)
 		m_Pass[PassID].m_IndexedPrimitiveList.clear();
 		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
 		m_Pass[PassID].m_MeshList.clear();
-		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
-		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
-		{
-			mesh_inst_iter->second.cmps.clear();
-		}
-		//m_Pass[PassID].m_MeshInstanceMap.clear();
+		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
+		//for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
+		//{
+		//	mesh_inst_iter->second.cmps.clear(); // ! key material ptr will be invalid
+		//}
+		m_Pass[PassID].m_MeshInstanceMap.clear();
 		m_Pass[PassID].m_EmitterInstanceMap.clear();
 	}
 }
