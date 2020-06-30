@@ -298,6 +298,18 @@ void LuaContext::Init(void)
 				def("Translation", (my::Matrix4(*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]
 
+		, class_<my::Ray>("Ray")
+			.def(constructor<const my::Vector3 &, const my::Vector3 &>())
+			.def_readwrite("p", &my::Ray::p)
+			.def_readwrite("d", &my::Ray::d)
+			.def("transform", &my::Ray::transform)
+			.def("transformSelf", &my::Ray::transformSelf)
+
+		, class_<my::RayResult>("RayResult")
+			.def(constructor<bool, float>())
+			.def_readonly("first", &my::RayResult::first)
+			.def_readonly("second", &my::RayResult::second)
+
 		, class_<my::AABB>("AABB")
 			.def(constructor<float, float>())
 			.def(constructor<float, float, float, float, float, float>())
@@ -995,6 +1007,7 @@ void LuaContext::Init(void)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
+			.def("RayTest", &Terrain::RayTest)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)

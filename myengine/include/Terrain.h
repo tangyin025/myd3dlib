@@ -153,6 +153,8 @@ public:
 	void UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale);
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
+
+	my::RayResult RayTest(const my::Ray & local_ray);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
