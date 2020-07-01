@@ -176,13 +176,15 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		const my::Vector3 & ViewPos;
 		const my::Vector3 & TargetPos;
 		CMainFrame * pFrame;
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame)
+		BOOL UpdateLod;
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame, BOOL _UpdateLod)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
 			, TargetPos(_TargetPos)
 			, pFrame(_pFrame)
+			, UpdateLod(_UpdateLod)
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -197,11 +199,15 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			{
 				actor->EnterPhysxScene(pFrame);
 			}
+			if (UpdateLod)
+			{
+				actor->SetLod(actor->CalculateLod(ViewPos, TargetPos));
+			}
 			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame));
+	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame, pFrame->GetActiveView() == this));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 

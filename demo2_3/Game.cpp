@@ -966,6 +966,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	for (; actor_iter != m_ViewedActors.end(); )
 	{
 		Actor * actor = (*actor_iter);
+
 		if (actor->m_Node)
 		{
 			IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, Out);
@@ -990,6 +991,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				actor->ReleaseResource();
 			}
 		}
+
 		actor_iter = m_ViewedActors.erase(actor_iter);
 	}
 
@@ -1011,6 +1013,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor * actor = dynamic_cast<Actor *>(oct_entity);
+
 			if (m_ViewedActors.insert(actor).second)
 			{
 				if (!actor->IsRequested())
@@ -1028,6 +1031,8 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 					actor->NotifyEnterView();
 				}
 			}
+
+			actor->SetLod(actor->CalculateLod(m_game->m_Camera->m_Eye, m_game->m_ViewedCenter));
 		}
 	};
 

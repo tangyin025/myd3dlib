@@ -60,7 +60,7 @@ public:
 
 	bool m_ViewNotified;
 
-	Component::LODMask m_Lod;
+	unsigned int m_Lod;
 
 	float m_LodDist;
 
@@ -106,7 +106,7 @@ protected:
 		, m_Requested(false)
 		, m_EnteredPhysx(false)
 		, m_ViewNotified(false)
-		, m_Lod(Component::LOD0)
+		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
@@ -125,7 +125,7 @@ public:
 		, m_Requested(false)
 		, m_EnteredPhysx(false)
 		, m_ViewNotified(false)
-		, m_Lod(Component::LOD0)
+		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
@@ -201,7 +201,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	Component::LODMask CalculateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+
+	void SetLod(Component::LODMask lod);
 
 	void ClearRigidActor(void);
 

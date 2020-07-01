@@ -225,11 +225,7 @@ void Actor::RequestResource(void)
 		m_Animation->RequestResource();
 	}
 
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->RequestResource();
-	}
+	_ASSERT(m_Lod == Component::LOD_INFINITE);
 }
 
 void Actor::ReleaseResource(void)
@@ -241,11 +237,15 @@ void Actor::ReleaseResource(void)
 		m_Animation->ReleaseResource();
 	}
 
+	SetLod(Component::LOD_INFINITE);
+
+#ifdef _DEBUG
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->ReleaseResource();
+		_ASSERT(!(*cmp_iter)->IsRequested());
 	}
+#endif
 }
 
 void Actor::EnterPhysxScene(PhysxSceneContext * scene)
@@ -452,23 +452,22 @@ void Actor::UpdateOctNode(void)
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	if ((RenderPipeline::PassMaskLight | RenderPipeline::PassMaskOpaque | RenderPipeline::PassMaskTransparent) & PassMask)
+	bool CmpAdded = false;
+	for (unsigned int lod = m_Lod; lod > 0 && !CmpAdded; lod >>= 1)
 	{
-		// ! only scene pass update lod
-		UpdateLod(ViewPos, TargetPos);
-	}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->m_LodMask & m_Lod)
+		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
-			(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			if ((*cmp_iter)->IsRequested() && ((*cmp_iter)->m_LodMask & lod))
+			{
+				(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+				CmpAdded = true;
+			}
 		}
 	}
 }
 
-void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(m_OctAabb);
 
@@ -476,15 +475,39 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 
 	if (DistanceSq < m_LodDist * m_LodDist)
 	{
-		m_Lod = Component::LOD0;
+		return Component::LOD0;
 	}
 	else if (DistanceSq < powf(m_LodDist * powf(m_LodFactor, 2.0f), 2.0f))
 	{
-		m_Lod = Component::LOD1;
+		return Component::LOD1;
 	}
-	else
+	return Component::LOD2;
+}
+
+void Actor::SetLod(Component::LODMask lod)
+{
+	if (m_Lod != lod)
 	{
-		m_Lod = Component::LOD2;
+		m_Lod = lod;
+
+		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+		{
+			if ((*cmp_iter)->m_LodMask >= lod)
+			{
+				if (!(*cmp_iter)->IsRequested())
+				{
+					(*cmp_iter)->RequestResource();
+				}
+			}
+			else
+			{
+				if ((*cmp_iter)->IsRequested())
+				{
+					(*cmp_iter)->ReleaseResource();
+				}
+			}
+		}
 	}
 }
 
@@ -547,7 +570,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 	m_Cmps.push_back(cmp);
 	cmp->m_Actor = this;
 
-	if (IsRequested())
+	if (IsRequested() && (cmp->m_LodMask & m_Lod))
 	{
 		cmp->RequestResource();
 	}
@@ -567,7 +590,7 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		(*cmp_iter)->m_Actor = NULL;
 		m_Cmps.erase(cmp_iter);
 
-		if (IsRequested())
+		if (IsRequested() && cmp->IsRequested())
 		{
 			cmp->ReleaseResource();
 		}
