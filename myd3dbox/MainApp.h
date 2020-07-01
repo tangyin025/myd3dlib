@@ -31,6 +31,7 @@ public:
 	my::FontPtr m_Font;
 
 	// cfg
+	float default_fov;
 	std::string default_font;
 	int default_font_height;
 	int default_font_face_index;

@@ -60,7 +60,7 @@ CChildView::CChildView()
 	, m_raychunkid(0, 0)
 {
 	// TODO: add construction code here
-	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f);
+	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1f, 3000.0f);
 	m_Camera.reset(model_view_camera);
 	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
@@ -1054,7 +1054,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 		_ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
 		m_Camera->UpdateViewProj();
-		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
+		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(theApp.default_fov));
 	}
 }
 

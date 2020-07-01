@@ -200,6 +200,7 @@ BOOL CMainApp::InitInstance()
 	std::vector<std::string> path_list;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list), "Path")
+		("default_fov", boost::program_options::value(&default_fov)->default_value(75.0f), "Default fov")
 		("default_font", boost::program_options::value(&default_font)->default_value("font/wqy-microhei.ttc"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
 		("default_font_face_index", boost::program_options::value(&default_font_face_index)->default_value(0), "Default font face index")

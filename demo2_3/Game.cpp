@@ -297,6 +297,7 @@ Game::Game(void)
 		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
+		("fov", boost::program_options::value(&m_InitFov)->default_value(75.0f), "Fov")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(13), "Font Height")
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
@@ -319,7 +320,7 @@ Game::Game(void)
 		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
 	}
 
-	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f), 1.333333f, 0.1f, 3000.0f));
+	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(m_InitFov), 1.333333f, 0.1f, 3000.0f));
 	const float k = cos(D3DXToRadian(45));
 	const float d = 20.0f;
 	m_Camera->m_Eye = my::Vector3(d * k * k, d * k + 1, d * k * k);

@@ -22,6 +22,7 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum CameraProperty
 	{
+		CameraPropertyFov,
 		CameraPropertyLookAt,
 		CameraPropertyEular,
 		CameraPropertyBgColor,

@@ -95,6 +95,9 @@ void CEnvironmentWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pCamera = new CSimpleProp(_T("Camera"), PropertyCamera, FALSE);
 	m_wndPropList.AddProperty(pCamera, FALSE, FALSE);
+	CMFCPropertyGridProperty * pFov = new CSimpleProp(_T("Fov (Y)"), (_variant_t)0.0f, NULL, CameraPropertyFov);
+	pCamera->AddSubItem(pFov);
+
 	CMFCPropertyGridProperty * pLookAt = new CSimpleProp(_T("LookAt"), CameraPropertyLookAt, TRUE);
 	pCamera->AddSubItem(pLookAt);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
@@ -205,6 +208,8 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	CMFCPropertyGridProperty * pCamera = m_wndPropList.GetProperty(PropertyCamera);
 	ASSERT_VALID(pCamera);
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(camera_prop_arg->pView->m_Camera.get());
+	pCamera->GetSubItem(CameraPropertyFov)->SetValue((_variant_t)D3DXToDegree(model_view_camera->m_Fov));
+
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)model_view_camera->m_LookAt.x);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)model_view_camera->m_LookAt.y);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)model_view_camera->m_LookAt.z);
@@ -346,6 +351,8 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyCamera:
 		{
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
+			model_view_camera->m_Fov = D3DXToRadian(
+				pTopProp->GetSubItem(CameraPropertyFov)->GetValue().fltVal);
 			model_view_camera->m_LookAt = my::Vector3(
 				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
 				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,

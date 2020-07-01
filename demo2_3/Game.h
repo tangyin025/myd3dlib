@@ -40,6 +40,8 @@ public:
 
 	ConsolePtr m_Console;
 
+	float m_InitFov;
+
 	std::string m_InitFont;
 
 	int m_InitFontHeight;
