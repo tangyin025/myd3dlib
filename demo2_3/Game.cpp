@@ -298,6 +298,7 @@ Game::Game(void)
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
 		("fov", boost::program_options::value(&m_InitFov)->default_value(75.0f), "Fov")
+		("loadshadercache", boost::program_options::value(&m_InitLoadShaderCache)->default_value(true), "Load Shader Cache")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(13), "Font Height")
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
@@ -420,9 +421,12 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	TCHAR szDir[MAX_PATH];
-	GetCurrentDirectory(_countof(szDir), szDir);
-	RenderPipeline::LoadShaderCache(szDir);
+	if (m_InitLoadShaderCache)
+	{
+		TCHAR szDir[MAX_PATH];
+		GetCurrentDirectory(_countof(szDir), szDir);
+		RenderPipeline::LoadShaderCache(szDir);
+	}
 
 	if (!FModContext::Init())
 	{

@@ -42,6 +42,8 @@ public:
 
 	float m_InitFov;
 
+	bool m_InitLoadShaderCache;
+
 	std::string m_InitFont;
 
 	int m_InitFontHeight;
