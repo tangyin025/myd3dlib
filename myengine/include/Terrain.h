@@ -144,7 +144,7 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	virtual bool AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
 	void CreateHeightFieldShape(unsigned int filterWord0);
 
