@@ -1016,7 +1016,7 @@ void LuaContext::Init(void)
 		, class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
 			.def_readonly("other", &TriggerEventArg::other)
 
-		, class_<Actor, my::NamedObject, my::OctEntity, boost::shared_ptr<Actor> >("Actor")
+		, class_<Actor, bases<my::NamedObject, my::OctEntity>, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
