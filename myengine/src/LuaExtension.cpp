@@ -367,6 +367,7 @@ void LuaContext::Init(void)
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 
 		, class_<my::OctEntity>("OctEntity")
+			.def_readonly("OctAabb", &my::OctEntity::m_OctAabb)
 	];
 
 	module(m_State)[

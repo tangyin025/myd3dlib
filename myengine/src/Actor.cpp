@@ -470,7 +470,10 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 
 void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	float DistanceSq = (m_Position - ViewPos).magnitudeSq();
+	_ASSERT(m_OctAabb);
+
+	float DistanceSq = (m_OctAabb->Center() - ViewPos).magnitudeSq();
+
 	if (DistanceSq < m_LodDist * m_LodDist)
 	{
 		m_Lod = Component::LOD0;

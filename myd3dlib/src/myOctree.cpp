@@ -15,17 +15,8 @@ OctEntity::~OctEntity(void)
 		
 		m_Node->OctNode::RemoveEntity(this);
 	}
-}
 
-const AABB & OctEntity::GetOctAABB(void) const
-{
-	_ASSERT(m_Node);
-
-	OctNode::OctEntityMap::const_iterator entity_iter = m_Node->m_Entities.find(const_cast<OctEntity *>(this));
-
-	_ASSERT(entity_iter != m_Node->m_Entities.end());
-
-	return entity_iter->second;
+	_ASSERT(!m_OctAabb);
 }
 
 const float OctNode::THRESHOLD = 0.1f;
@@ -132,8 +123,10 @@ void OctNode::AddEntity(OctEntity * entity, const AABB & aabb)
 			}
 		}
 	}
-	m_Entities.insert(std::make_pair(entity, aabb));
+	std::pair<OctEntityMap::iterator, bool> result = m_Entities.insert(std::make_pair(entity, aabb));
+	_ASSERT(result.second);
 	entity->m_Node = this;
+	entity->m_OctAabb = &result.first->second;
 }
 
 void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb)
@@ -265,6 +258,7 @@ bool OctNode::RemoveEntity(OctEntity * entity)
 		{
 			entity->m_Node->m_Entities.erase(entity_iter);
 			entity->m_Node = NULL;
+			entity->m_OctAabb = NULL;
 			return true;
 		}
 	}

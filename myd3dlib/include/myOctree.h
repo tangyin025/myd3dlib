@@ -15,15 +15,16 @@ namespace my
 
 		OctNode * m_Node;
 
+		const AABB * m_OctAabb;
+
 	public:
 		OctEntity(void)
 			: m_Node(NULL)
+			, m_OctAabb(NULL)
 		{
 		}
 
 		virtual ~OctEntity(void);
-
-		const AABB & GetOctAABB(void) const;
 	};
 
 	typedef boost::shared_ptr<OctEntity> OctEntityPtr;

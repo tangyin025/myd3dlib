@@ -963,7 +963,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 		Actor * actor = (*actor_iter);
 		if (actor->m_Node)
 		{
-			IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(actor->GetOctAABB(), Out);
+			IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, Out);
 			if (intersect_type != IntersectionTests::IntersectionTypeOutside)
 			{
 				actor_iter++;
