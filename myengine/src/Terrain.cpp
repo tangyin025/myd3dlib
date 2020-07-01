@@ -32,15 +32,13 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(void)
-	: m_aabb(my::AABB::Invalid())
-	, m_Row(0)
+	: m_Row(0)
 	, m_Col(0)
 {
 }
 
 TerrainChunk::TerrainChunk(int Row, int Col, int ChunkSize)
-	: m_aabb((float)Col * ChunkSize, -1, (float)Row * ChunkSize, (float)Col * ChunkSize + ChunkSize, 1, (float)Row * ChunkSize + ChunkSize)
-	, m_Row(Row)
+	: m_Row(Row)
 	, m_Col(Col)
 {
 	m_vb.CreateVertexBuffer((ChunkSize + 1) * (ChunkSize + 1) * Terrain::m_VertexStride, 0, 0, D3DPOOL_MANAGED);
@@ -54,7 +52,6 @@ TerrainChunk::~TerrainChunk(void)
 template<class Archive>
 void TerrainChunk::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_vb).GetDesc();
@@ -67,7 +64,6 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void TerrainChunk::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	DWORD BufferSize;
@@ -107,31 +103,28 @@ void TerrainChunk::load<boost::archive::binary_iarchive>(boost::archive::binary_
 template
 void TerrainChunk::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
-void TerrainChunk::UpdateAABB(void)
+my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
 {
-	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
-	_ASSERT(terrain);
-	VOID * pVertices = m_vb.Lock(0, 0, 0);
+	AABB ret = AABB::Invalid();
+	VOID * pVertices = const_cast<VertexBuffer &>(m_vb).Lock(0, 0, D3DLOCK_READONLY);
 	if (pVertices)
 	{
-		m_aabb = AABB::Invalid();
 		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
 		{
 			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
 			{
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-				m_aabb.unionSelf(terrain->m_VertexElems.GetPosition(pVertex));
+				ret.unionSelf(terrain->m_VertexElems.GetPosition(pVertex));
 			}
 		}
-		m_vb.Unlock();
+		const_cast<VertexBuffer &>(m_vb).Unlock();
 	}
+	return ret;
 }
 
 template <typename T>
-void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale)
+void TerrainChunk::UpdateVertices(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale)
 {
-	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
-	_ASSERT(terrain);
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
@@ -177,10 +170,8 @@ void TerrainChunk::UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, 
 	}
 }
 
-void TerrainChunk::UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
+void TerrainChunk::UpdateColors(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
 {
-	Terrain * terrain = dynamic_cast<Terrain *>(m_Node->GetTopNode());
-	_ASSERT(terrain);
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
@@ -290,9 +281,9 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 		for (int j = 0; j < m_ColChunks; j++)
 		{
 			m_Chunks[i][j].reset(new TerrainChunk(i, j, m_ChunkSize));
-			AddEntity(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb);
-			m_Chunks[i][j]->UpdateVertices<unsigned char>(desc_h, lrc_h, 1.0f);
-			m_Chunks[i][j]->UpdateColors(desc_c, lrc_c);
+			m_Chunks[i][j]->UpdateVertices<unsigned char>(this, desc_h, lrc_h, 1.0f);
+			m_Chunks[i][j]->UpdateColors(this, desc_c, lrc_c);
+			AddEntity(m_Chunks[i][j].get(), m_Chunks[i][j]->CalculateAABB(this));
 		}
 	}
 }
@@ -554,6 +545,7 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 		for (int j = 0; j < m_ColChunks; j++)
 		{
 			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d", i, j).c_str(), m_Chunks[i][j]);
+			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), *m_Chunks[i][j]->m_OctAabb);
 		}
 	}
 }
@@ -588,8 +580,10 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
+			AABB aabb;
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d", i, j).c_str(), m_Chunks[i][j]);
-			AddEntity(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb);
+			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), aabb);
+			AddEntity(m_Chunks[i][j].get(), aabb);
 		}
 	}
 }
@@ -659,7 +653,7 @@ my::AABB Terrain::CalculateAABB(void) const
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
-			ret.unionSelf(m_Chunks[i][j]->m_aabb);
+			ret.unionSelf(*m_Chunks[i][j]->m_OctAabb);
 		}
 	}
 	return ret;
@@ -854,15 +848,14 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 			{
 			case D3DFMT_A8:
 			case D3DFMT_L8:
-				chunk->UpdateVertices<unsigned char>(desc, lrc, HeightScale);
+				chunk->UpdateVertices<unsigned char>(this, desc, lrc, HeightScale);
 				break;
 			case D3DFMT_L16:
-				chunk->UpdateVertices<short>(desc, lrc, HeightScale);
+				chunk->UpdateVertices<short>(this, desc, lrc, HeightScale);
 				break;
 			}
-			chunk->UpdateAABB();
 			RemoveEntity(chunk);
-			AddEntity(chunk, chunk->m_aabb);
+			AddEntity(chunk, chunk->CalculateAABB(this));
 		}
 	}
 	HeightMap->UnlockRect(0);
@@ -880,7 +873,7 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 			{
 			case D3DFMT_A8R8G8B8:
 			case D3DFMT_X8R8G8B8:
-				m_Chunks[i][j]->UpdateColors(desc, lrc);
+				m_Chunks[i][j]->UpdateColors(this, desc, lrc);
 				break;
 			}
 		}

@@ -243,7 +243,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeTerrain:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			PushWireAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_aabb.transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
+			PushWireAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_OctAabb->transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
 		}
 		break;
 	}
@@ -262,15 +262,15 @@ double CChildView::EndPerformanceCount(void)
 
 bool CChildView::OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor)
 {
-	my::Frustum local_ftm = frustum.transform(actor->m_World.transpose());
 	if (actor->m_Cmps.empty())
 	{
-		my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(actor->m_aabb, local_ftm);
+		my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(*actor->m_OctAabb, frustum);
 		if (intersect_type != my::IntersectionTests::IntersectionTypeOutside)
 		{
 			return true;
 		}
 	}
+	my::Frustum local_ftm = frustum.transform(actor->m_World.transpose());
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
@@ -509,16 +509,15 @@ bool CChildView::OverlapTestFrustumAndMesh(
 
 my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * actor)
 {
-	my::Ray local_ray = ray.transform(actor->m_World.inverse());
 	if (actor->m_Cmps.empty())
 	{
-		my::RayResult ret = my::IntersectionTests::rayAndAABB(local_ray.p, local_ray.d, actor->m_aabb);
+		my::RayResult ret = my::IntersectionTests::rayAndAABB(ray.p, ray.d, *actor->m_OctAabb);
 		if (ret.first)
 		{
-			ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
 			return ret;
 		}
 	}
+	my::Ray local_ray = ray.transform(actor->m_World.inverse());
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{

@@ -5,12 +5,12 @@
 #include <boost/multi_array.hpp>
 #include <boost/unordered_map.hpp>
 
+class Terrain;
+
 class TerrainChunk
 	: public my::OctEntity
 {
 public:
-	my::AABB m_aabb;
-
 	int m_Row;
 
 	int m_Col;
@@ -39,12 +39,12 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void UpdateAABB(void);
+	my::AABB CalculateAABB(Terrain * terrain) const;
 
 	template <typename T>
-	void UpdateVertices(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale);
+	void UpdateVertices(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale);
 
-	void UpdateColors(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
+	void UpdateColors(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
