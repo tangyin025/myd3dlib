@@ -382,6 +382,8 @@ namespace my
 
 		void OnIORequestReady(const std::string & key, IORequestPtr request);
 
+		void OnIORequestCallback(IORequestPtr request);
+
 		void LoadTextureAsync(const char * path, IResourceCallback * callback);
 
 		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
@@ -433,11 +435,7 @@ namespace my
 		rapidxml::xml_document<char> m_doc;
 
 	public:
-		MeshIORequest(const char * path, const char * sub_mesh_name)
-			: m_path(path)
-			, m_sub_mesh_name(sub_mesh_name)
-		{
-		}
+		MeshIORequest(const char * path, const char * sub_mesh_name);
 
 		virtual void LoadResource(void);
 

@@ -731,7 +731,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsyn
 
 		request->m_PostLoadEvent.SetEvent();
 
-		OnIORequestReady(key, request);
+		OnIORequestCallback(request);
 
 		return m_IORequestList.end();
 	}
@@ -812,8 +812,8 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 {
 	_ASSERT(request->m_PostLoadEvent.Wait(0));
 
-	if(!request->m_res)
-	{
+	//if(!request->m_res)
+	//{
 		// ! havent handled exception
 		try
 		{
@@ -840,12 +840,17 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		{
 			D3DContext::getSingleton().m_EventLog(str_printf("%s error: %s", key.c_str(), e.what()).c_str());
 		}
-	}
+	//}
 
+	OnIORequestCallback(request);
+}
+
+void ResourceMgr::OnIORequestCallback(IORequestPtr request)
+{
 	if (request->m_res)
 	{
 		IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
-		for(; callback_iter != request->m_callbacks.end(); callback_iter++)
+		for (; callback_iter != request->m_callbacks.end(); callback_iter++)
 		{
 			_ASSERT(*callback_iter);
 
@@ -992,6 +997,13 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
+MeshIORequest::MeshIORequest(const char * path, const char * sub_mesh_name)
+	: m_path(path)
+	, m_sub_mesh_name(sub_mesh_name)
+{
+	m_res.reset(new OgreMesh());
+}
+
 void MeshIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
@@ -1001,24 +1013,24 @@ void MeshIORequest::LoadResource(void)
 		try
 		{
 			m_doc.parse<0>((char *)&(*m_cache)[0]);
+
+			boost::dynamic_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(&m_doc, m_sub_mesh_name);
 		}
 		catch(rapidxml::parse_error &)
 		{
 			m_doc.clear();
+
+			m_res->OnDestroyDevice();
 		}
 	}
 }
 
 void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if(!m_doc.first_node())
+	if(!m_doc.first_node() || !boost::dynamic_pointer_cast<OgreMesh>(m_res)->m_ptr)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
-
-	OgreMeshPtr res(new OgreMesh());
-	res->CreateMeshFromOgreXml(&m_doc, m_sub_mesh_name);
-	m_res = res;
 }
 
 std::string MeshIORequest::BuildKey(const char * path, const char * sub_mesh_name)
