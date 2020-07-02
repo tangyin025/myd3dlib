@@ -1362,8 +1362,28 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			if (!pFrame->m_selactors.empty())
 			{
-				float radius = pFrame->m_selbox.Extent().magnitude() * 0.5f;
-				model_view_camera->m_LookAt = pFrame->m_selbox.Center();
+				my::AABB focus_box = pFrame->m_selbox;
+				if (pFrame->m_selactors.size() == 1)
+				{
+					Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors.front()->m_Cmps.begin();
+					for (; cmp_iter != pFrame->m_selactors.front()->m_Cmps.end(); cmp_iter++)
+					{
+						if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+						{
+							Terrain * terrain = dynamic_cast<Terrain *>(cmp_iter->get());
+							my::AABB chunk_box = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_OctAabb->transform(terrain->m_Actor->m_World);
+							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
+							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
+								|| fabs(model_view_camera->m_Distance - chunk_radius / asin(model_view_camera->m_Fov * 0.5f)) > EPSILON_E6)
+							{
+								focus_box = chunk_box;
+							}
+							break;
+						}
+					}
+				}
+				float radius = focus_box.Extent().magnitude() * 0.5f;
+				model_view_camera->m_LookAt = focus_box.Center();
 				model_view_camera->m_Distance = radius / asin(model_view_camera->m_Fov * 0.5f);
 			}
 			else
