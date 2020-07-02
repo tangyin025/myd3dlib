@@ -203,7 +203,7 @@ public:
 
 	Component::LODMask CalculateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void SetLod(Component::LODMask lod);
+	void SetLod(unsigned int lod);
 
 	void ClearRigidActor(void);
 

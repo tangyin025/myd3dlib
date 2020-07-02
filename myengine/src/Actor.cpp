@@ -226,6 +226,8 @@ void Actor::RequestResource(void)
 	}
 
 	_ASSERT(m_Lod == Component::LOD_INFINITE);
+
+	SetLod(Component::LOD_INFINITE >> 1);
 }
 
 void Actor::ReleaseResource(void)
@@ -489,7 +491,7 @@ Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Ve
 	return Component::LOD2;
 }
 
-void Actor::SetLod(Component::LODMask lod)
+void Actor::SetLod(unsigned int lod)
 {
 	if (m_Lod != lod)
 	{
