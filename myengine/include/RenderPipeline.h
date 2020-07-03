@@ -346,11 +346,27 @@ public:
 		std::vector<EmitterComponent *> cmps;
 	};
 
-	class EmitterInstanceAtomKey : public boost::tuple<my::Effect *, Material *, LPARAM>
+	class EmitterInstanceAtomKey : public boost::tuple<
+		IDirect3DVertexBuffer9 *,
+		IDirect3DIndexBuffer9 *,
+		D3DPRIMITIVETYPE,
+		DWORD,
+		DWORD,
+		my::Effect *,
+		Material *,
+		LPARAM>
 	{
 	public:
-		EmitterInstanceAtomKey(my::Effect * shader, Material * mtl, LPARAM lparam)
-			: tuple(shader, mtl, lparam)
+		EmitterInstanceAtomKey(
+			IDirect3DVertexBuffer9 * pVB,
+			IDirect3DIndexBuffer9 * pIB,
+			D3DPRIMITIVETYPE PrimitiveType,
+			DWORD NumVertices,
+			DWORD PrimitiveCount,
+			my::Effect * shader,
+			Material * mtl,
+			LPARAM lparam)
+			: tuple(pVB, pIB, PrimitiveType, NumVertices, PrimitiveCount, shader, mtl, lparam)
 		{
 		}
 

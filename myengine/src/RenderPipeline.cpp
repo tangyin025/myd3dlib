@@ -908,15 +908,15 @@ void RenderPipeline::RenderAllObjects(
 				PassID,
 				pd3dDevice,
 				m_ParticleIEDecl,
-				m_ParticleVb.m_ptr,
-				m_ParticleIb.m_ptr,
-				D3DPT_TRIANGLELIST,
-				m_ParticleNumVertices,
-				m_ParticleVertStride,
-				m_ParticlePrimitiveCount,
 				emitter_inst_iter->first.get<0>(),
 				emitter_inst_iter->first.get<1>(),
 				emitter_inst_iter->first.get<2>(),
+				emitter_inst_iter->first.get<3>(),
+				m_ParticleVertStride,
+				emitter_inst_iter->first.get<4>(),
+				emitter_inst_iter->first.get<5>(),
+				emitter_inst_iter->first.get<6>(),
+				emitter_inst_iter->first.get<7>(),
 				emitter_inst_iter->second);
 			m_PassDrawCall[PassID]++;
 		}
@@ -1229,7 +1229,9 @@ bool RenderPipeline::MeshInstanceAtomKey::operator == (const MeshInstanceAtomKey
 bool RenderPipeline::EmitterInstanceAtomKey::operator == (const EmitterInstanceAtomKey & rhs) const
 {
 	return get<0>() == rhs.get<0>()
-		&& *get<1>() == *rhs.get<1>();
+		&& get<1>() == rhs.get<1>()
+		&& get<5>() == rhs.get<5>()
+		&& *get<6>() == *rhs.get<6>();
 }
 
 namespace boost
@@ -1296,7 +1298,9 @@ namespace boost
 	{
 		size_t seed = 0;
 		boost::hash_combine(seed, key.get<0>());
-		boost::hash_combine(seed, *key.get<1>());
+		boost::hash_combine(seed, key.get<1>());
+		boost::hash_combine(seed, key.get<5>());
+		boost::hash_combine(seed, *key.get<6>());
 		return seed;
 	}
 }
@@ -1347,7 +1351,15 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 
 void RenderPipeline::PushEmitter(unsigned int PassID, my::Effect * shader, Material * mtl, LPARAM lparam, EmitterComponent * cmp)
 {
-	EmitterInstanceAtomKey key(shader, mtl, lparam);
+	EmitterInstanceAtomKey key(
+		m_ParticleVb.m_ptr,
+		m_ParticleIb.m_ptr,
+		D3DPT_TRIANGLELIST,
+		m_ParticleNumVertices,
+		m_ParticlePrimitiveCount,
+		shader,
+		mtl,
+		lparam);
 	EmitterInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_EmitterInstanceMap.find(key);
 	if (atom_iter == m_Pass[PassID].m_EmitterInstanceMap.end())
 	{
