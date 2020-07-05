@@ -1204,25 +1204,25 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_shader;
+		mtl->ParseShaderParameters();
+		terrain->AddMaterial(mtl);
+	}
 	if (dlg.m_UseTerrainMaterial)
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
 		mtl->ParseShaderParameters();
-		terrain->SetMaterial(Terrain::MaterialUsageTerrain, mtl);
+		terrain->AddMaterial(mtl);
 	}
 	if (dlg.m_UseWaterMaterial)
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_water_shader;
 		mtl->ParseShaderParameters();
-		terrain->SetMaterial(Terrain::MaterialUsageWater, mtl);
-	}
-	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = "shader/mtl_grass1.fx";
-		mtl->ParseShaderParameters();
-		terrain->SetMaterial(Terrain::MaterialUsageGrass, mtl);
+		terrain->AddMaterial(mtl);
 	}
 	(*actor_iter)->AddComponent(terrain);
 	if (dlg.m_AlignToCenter)

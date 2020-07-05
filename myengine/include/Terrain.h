@@ -9,6 +9,7 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctEntity
+	, public my::Emitter
 {
 public:
 	int m_Row;
@@ -52,7 +53,6 @@ typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 class Terrain
 	: public Component
 	, public my::OctRoot
-	, public my::Emitter
 {
 public:
 	int m_RowChunks;
@@ -88,24 +88,9 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	enum MaterialUsage
-	{
-		MaterialUsageTerrain = 0,
-		MaterialUsageWater,
-		MaterialUsageGrass,
-	};
-
 	my::VertexBuffer m_RootVb;
 
 	my::IndexBuffer m_RootIb;
-
-	my::VertexBuffer m_ParticleVb;
-
-	my::IndexBuffer m_ParticleIb;
-
-	static const int m_GrassStage = 32;
-
-	static const int m_GrassDensity = 1;
 
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
@@ -129,8 +114,6 @@ public:
 	void CreateElements(void);
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
-
-	void CreateParticles(void);
 
 protected:
 	Terrain(void);
