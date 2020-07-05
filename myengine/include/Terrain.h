@@ -105,7 +105,7 @@ public:
 
 	static const int m_GrassStage = 32;
 
-	static const int m_GrassDensity = 8;
+	static const int m_GrassDensity = 1;
 
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
