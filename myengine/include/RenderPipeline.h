@@ -15,12 +15,10 @@ namespace my
 
 class Component;
 
-class EmitterComponent;
-
 class RenderPipeline
 {
 public:
-	static const unsigned int PARTICLE_INSTANCE_MAX = 4096;
+	static const unsigned int PARTICLE_INSTANCE_MAX = 65536;
 
 	static const unsigned int MESH_INSTANCE_MAX = 4096;
 
@@ -29,6 +27,7 @@ public:
 		MeshTypeMesh			= 0,
 		MeshTypeParticle		= 1,
 		MeshTypeTerrain			= 2,
+		MeshTypeTerrainGrass	= 3,
 		MeshTypeNum
 	};
 
@@ -56,13 +55,13 @@ public:
 
 	ShaderCacheMap m_ShaderCache;
 
-	my::D3DVertexElementSet m_ParticleVertElems;
+	static my::D3DVertexElementSet m_ParticleVertElems;
 
 	my::D3DVertexElementSet m_ParticleInstanceElems;
 
-	DWORD m_ParticleVertStride;
+	static const DWORD m_ParticleVertStride = 20;
 
-	DWORD m_ParticleInstanceStride;
+	static const DWORD m_ParticleInstanceStride = 56;
 
 	std::vector<D3DVERTEXELEMENT9> m_ParticleIEList;
 
@@ -80,7 +79,7 @@ public:
 
 	my::D3DVertexElementSet m_MeshInstanceElems;
 
-	DWORD m_MeshInstanceStride;
+	static const DWORD m_MeshInstanceStride = 64;
 
 	std::vector<D3DVERTEXELEMENT9> m_MeshIEList;
 
@@ -343,7 +342,8 @@ public:
 
 	struct EmitterInstanceAtom
 	{
-		std::vector<EmitterComponent *> cmps;
+		std::vector<my::Emitter *> emitters;
+		std::vector<Component *> cmps;
 	};
 
 	class EmitterInstanceAtomKey : public boost::tuple<
@@ -546,5 +546,5 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushEmitter(unsigned int PassID, my::Effect * shader, Material * mtl, LPARAM lparam, EmitterComponent * cmp);
+	void PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp);
 };

@@ -152,6 +152,10 @@ public:
 
 	virtual bool AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
+	void SetMaterial(unsigned int i, MaterialPtr material);
+
+	MaterialPtr GetMaterial(unsigned int i) const;
+
 	void AddMaterial(MaterialPtr material);
 
 	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
@@ -393,15 +397,12 @@ public:
 
 	D3DXHANDLE handle_World;
 
-	D3DXHANDLE handle_EmitterScale;
-
 protected:
 	EmitterComponent(void)
 		: Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
 		, m_EmitterVelType(VelocityTypeNone)
 		, handle_World(NULL)
-		, handle_EmitterScale(NULL)
 	{
 	}
 
@@ -412,7 +413,6 @@ public:
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterVelType(_VelocityType)
 		, handle_World(NULL)
-		, handle_EmitterScale(NULL)
 	{
 	}
 

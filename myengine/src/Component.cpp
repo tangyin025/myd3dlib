@@ -161,14 +161,34 @@ bool Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 	return true;
 }
 
+void Component::SetMaterial(unsigned int i, MaterialPtr material)
+{
+	if (i >= m_MaterialList.size())
+	{
+		m_MaterialList.resize(i + 1);
+	}
+
+	if (IsRequested() && m_MaterialList[i])
+	{
+		m_MaterialList[i]->ReleaseResource();
+	}
+
+	m_MaterialList[i] = material;
+
+	if (IsRequested() && m_MaterialList[i])
+	{
+		m_MaterialList[i]->RequestResource();
+	}
+}
+
+MaterialPtr Component::GetMaterial(unsigned int i) const
+{
+	return m_MaterialList[i];
+}
+
 void Component::AddMaterial(MaterialPtr material)
 {
-	m_MaterialList.push_back(material);
-
-	if (IsRequested())
-	{
-		material->RequestResource();
-	}
+	SetMaterial(m_MaterialList.size(), material);
 }
 
 void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0)
@@ -1168,8 +1188,6 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 	_ASSERT(m_Actor);
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
-
-	shader->SetVector(handle_EmitterScale, m_Actor->m_Scale);
 }
 
 my::AABB EmitterComponent::CalculateAABB(void) const
@@ -1236,10 +1254,9 @@ bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					if (!handle_World)
 					{
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-						BOOST_VERIFY(handle_EmitterScale = shader->GetParameterByName(NULL, "g_EmitterScale"));
 					}
 
-					pipeline->PushEmitter(PassID, shader, m_MaterialList[0].get(), 0, this);
+					pipeline->PushEmitter(PassID, this, shader, m_MaterialList[0].get(), 0, this);
 
 					ret = true;
 				}

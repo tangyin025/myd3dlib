@@ -88,5 +88,8 @@
     <None Include="include\LuaExtension.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="include\RenderPipeline.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

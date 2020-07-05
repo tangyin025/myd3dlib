@@ -2886,6 +2886,24 @@ namespace my
 		template <UINT Quad>
 		AABB Slice(const Vector3 & cente);
 
+		bool Intersect(const Vector3 & pos) const
+		{
+			if (Intersect2D(pos) && pos.y >= m_min.y && pos.y < m_max.y)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		bool Intersect2D(const Vector3 & pos) const
+		{
+			if (pos.x >= m_min.x && pos.x < m_max.x && pos.z >= m_min.z && pos.z < m_max.z)
+			{
+				return true;
+			}
+			return false;
+		}
+
 		AABB Intersect(const AABB & rhs) const
 		{
 			return AABB(

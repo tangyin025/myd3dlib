@@ -1209,14 +1209,20 @@ void CMainFrame::OnComponentTerrain()
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
 		mtl->ParseShaderParameters();
-		terrain->AddMaterial(mtl);
+		terrain->SetMaterial(Terrain::MaterialUsageTerrain, mtl);
 	}
 	if (dlg.m_UseWaterMaterial)
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_water_shader;
 		mtl->ParseShaderParameters();
-		terrain->AddMaterial(mtl);
+		terrain->SetMaterial(Terrain::MaterialUsageWater, mtl);
+	}
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = "shader/mtl_grass1.fx";
+		mtl->ParseShaderParameters();
+		terrain->SetMaterial(Terrain::MaterialUsageGrass, mtl);
 	}
 	(*actor_iter)->AddComponent(terrain);
 	if (dlg.m_AlignToCenter)

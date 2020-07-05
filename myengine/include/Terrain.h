@@ -52,6 +52,7 @@ typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 class Terrain
 	: public Component
 	, public my::OctRoot
+	, public my::Emitter
 {
 public:
 	int m_RowChunks;
@@ -87,13 +88,30 @@ public:
 
 	ChunkArray2D m_Chunks;
 
+	enum MaterialUsage
+	{
+		MaterialUsageTerrain = 0,
+		MaterialUsageWater,
+		MaterialUsageGrass,
+	};
+
 	my::VertexBuffer m_RootVb;
 
 	my::IndexBuffer m_RootIb;
 
+	my::VertexBuffer m_ParticleVb;
+
+	my::IndexBuffer m_ParticleIb;
+
+	static const int m_GrassStage = 32;
+
+	static const int m_GrassDensity = 8;
+
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE handle_World;
+
+	my::Vector3 m_LocalViewPos;
 
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
@@ -111,6 +129,8 @@ public:
 	void CreateElements(void);
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
+
+	void CreateParticles(void);
 
 protected:
 	Terrain(void);

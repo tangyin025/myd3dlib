@@ -1,5 +1,6 @@
 #include <sstream>
 #include "RenderPipeline.h"
+#include "RenderPipeline.inl"
 #include "myResource.h"
 #include "myDxutApp.h"
 #include "myEmitter.h"
@@ -25,11 +26,10 @@
 
 using namespace my;
 
+my::D3DVertexElementSet RenderPipeline::m_ParticleVertElems;
+
 RenderPipeline::RenderPipeline(void)
-	: m_ParticleVertStride(0)
-	, m_ParticleInstanceStride(0)
-	, m_MeshInstanceStride(0)
-	, SHADOW_MAP_SIZE(1024)
+	: SHADOW_MAP_SIZE(1024)
 	, SHADOW_EPSILON(0.001f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
@@ -123,6 +123,9 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	case RenderPipeline::MeshTypeTerrain:
 		logoss << "MeshTerrain";
 		break;
+	case RenderPipeline::MeshTypeTerrainGrass:
+		logoss << "MeshTerrainGrass";
+		break;
 	default:
 		logoss << "MeshUnknown";
 		break;
@@ -157,6 +160,9 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		break;
 	case RenderPipeline::MeshTypeTerrain:
 		oss << "MeshTerrain.fx";
+		break;
+	case RenderPipeline::MeshTypeTerrainGrass:
+		oss << "MeshTerrainGrass.fx";
 		break;
 	default:
 		oss << "MeshUnknown.fx";
@@ -387,7 +393,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(my::Vector3);
 	m_ParticleVertElems.InsertTexcoordElement(offset, 0);
 	offset += sizeof(my::Vector2);
-	m_ParticleVertStride = offset;
 
 	offset = 0;
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, 1);
@@ -398,7 +403,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(Vector4);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 3);
 	offset += sizeof(Vector4);
-	m_ParticleInstanceStride = offset;
 
 	m_ParticleIEList = m_ParticleVertElems.BuildVertexElementList(0);
 	std::vector<D3DVERTEXELEMENT9> elems = m_ParticleInstanceElems.BuildVertexElementList(1);
@@ -418,7 +422,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(Vector4);
 	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
 	offset += sizeof(Vector4);
-	m_MeshInstanceStride = offset;
 
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
 
@@ -1085,12 +1088,12 @@ void RenderPipeline::DrawEmitter(
 	DWORD NumTotalInstances = 0;
 	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, 0, D3DLOCK_DISCARD);
 	_ASSERT(pVertices);
-	std::vector<EmitterComponent *>::const_iterator cmp_iter = atom.cmps.begin();
-	for (; cmp_iter != atom.cmps.end() && NumTotalInstances < PARTICLE_INSTANCE_MAX; cmp_iter++)
+	std::vector<Emitter *>::const_iterator emitter_iter = atom.emitters.begin();
+	for (; emitter_iter != atom.emitters.end() && NumTotalInstances < PARTICLE_INSTANCE_MAX; emitter_iter++)
 	{
-		const DWORD NumInstances = my::Min<DWORD>((*cmp_iter)->m_ParticleList.size(), PARTICLE_INSTANCE_MAX - NumTotalInstances);
+		const DWORD NumInstances = my::Min<DWORD>((*emitter_iter)->m_ParticleList.size(), PARTICLE_INSTANCE_MAX - NumTotalInstances);
 		int NumRemaining = NumInstances;
-		Emitter::ParticleList::const_array_range array_one = (*cmp_iter)->m_ParticleList.array_one();
+		Emitter::ParticleList::const_array_range array_one = (*emitter_iter)->m_ParticleList.array_one();
 		int count_one = my::Min<int>(NumRemaining, array_one.second);
 		if (count_one > 0)
 		{
@@ -1099,7 +1102,7 @@ void RenderPipeline::DrawEmitter(
 			pVertices += length;
 			NumRemaining -= count_one;
 		}
-		Emitter::ParticleList::const_array_range array_two = (*cmp_iter)->m_ParticleList.array_two();
+		Emitter::ParticleList::const_array_range array_two = (*emitter_iter)->m_ParticleList.array_two();
 		int count_two = my::Min<int>(NumRemaining, array_two.second);
 		if (count_two > 0)
 		{
@@ -1234,77 +1237,6 @@ bool RenderPipeline::EmitterInstanceAtomKey::operator == (const EmitterInstanceA
 		&& *get<6>() == *rhs.get<6>();
 }
 
-namespace boost
-{
-	static size_t hash_value(const MaterialParameter & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.m_Type);
-		boost::hash_combine(seed, key.m_Name);
-		switch (key.m_Type)
-		{
-		case MaterialParameter::ParameterTypeFloat:
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat &>(key).m_Value);
-			break;
-		case MaterialParameter::ParameterTypeFloat2:
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat2 &>(key).m_Value.x);
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat2 &>(key).m_Value.y);
-			break;
-		case MaterialParameter::ParameterTypeFloat3:
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat3 &>(key).m_Value.x);
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat3 &>(key).m_Value.y);
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat3 &>(key).m_Value.z);
-			break;
-		case MaterialParameter::ParameterTypeFloat4:
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat4 &>(key).m_Value.x);
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat4 &>(key).m_Value.y);
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat4 &>(key).m_Value.z);
-			boost::hash_combine(seed, static_cast<const MaterialParameterFloat4 &>(key).m_Value.w);
-			break;
-		case MaterialParameter::ParameterTypeTexture:
-			boost::hash_combine(seed, static_cast<const MaterialParameterTexture &>(key).m_TexturePath);
-			break;
-		}
-		return seed;
-	}
-
-	static size_t hash_value(const Material & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.m_PassMask);
-		boost::hash_combine(seed, key.m_PassMask);
-		boost::hash_combine(seed, key.m_CullMode);
-		boost::hash_combine(seed, key.m_ZEnable);
-		boost::hash_combine(seed, key.m_ZWriteEnable);
-		boost::hash_combine(seed, key.m_BlendMode);
-		for (unsigned int i = 0; i < key.m_ParameterList.size(); i++)
-		{
-			boost::hash_combine(seed, *key.m_ParameterList[i]);
-		}
-		return seed;
-	}
-
-	static size_t hash_value(const RenderPipeline::MeshInstanceAtomKey & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.get<0>());
-		boost::hash_combine(seed, key.get<1>());
-		boost::hash_combine(seed, key.get<2>());
-		boost::hash_combine(seed, *key.get<3>());
-		return seed;
-	}
-
-	static size_t hash_value(const RenderPipeline::EmitterInstanceAtomKey & key)
-	{
-		size_t seed = 0;
-		boost::hash_combine(seed, key.get<0>());
-		boost::hash_combine(seed, key.get<1>());
-		boost::hash_combine(seed, key.get<5>());
-		boost::hash_combine(seed, *key.get<6>());
-		return seed;
-	}
-}
-
 void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl, lparam);
@@ -1349,7 +1281,7 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 	}
 }
 
-void RenderPipeline::PushEmitter(unsigned int PassID, my::Effect * shader, Material * mtl, LPARAM lparam, EmitterComponent * cmp)
+void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp)
 {
 	EmitterInstanceAtomKey key(
 		m_ParticleVb.m_ptr,
@@ -1364,10 +1296,12 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Effect * shader, Mater
 	if (atom_iter == m_Pass[PassID].m_EmitterInstanceMap.end())
 	{
 		EmitterInstanceAtom & atom = m_Pass[PassID].m_EmitterInstanceMap[key];
-		atom.cmps.push_back(dynamic_cast<EmitterComponent *>(cmp));
+		atom.emitters.push_back(emitter);
+		atom.cmps.push_back(cmp);
 	}
 	else
 	{
-		atom_iter->second.cmps.push_back(dynamic_cast<EmitterComponent *>(cmp));
+		atom_iter->second.emitters.push_back(emitter);
+		atom_iter->second.cmps.push_back(cmp);
 	}
 }

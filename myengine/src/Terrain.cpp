@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
+#include "RenderPipeline.inl"
 #include "myDxutApp.h"
 #include "myEffect.h"
 #include "myResource.h"
@@ -118,6 +119,11 @@ my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
 			}
 		}
 		const_cast<VertexBuffer &>(m_vb).Unlock();
+
+		if (ret.m_max.y - ret.m_min.y < EPSILON_E6)
+		{
+			ret.m_max.y = ret.m_min.y + 1;
+		}
 	}
 	return ret;
 }
@@ -246,18 +252,21 @@ static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N)
 }
 
 Terrain::Terrain(void)
-	: m_RowChunks(1)
+	: Emitter(m_GrassStage * m_GrassDensity * m_GrassStage * m_GrassDensity)
+	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
 	, m_HeightScale(1)
 	, handle_World(NULL)
 {
 	CreateElements();
+	CreateParticles();
 }
 
 Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain, Name)
 	, OctRoot(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
+	, Emitter(m_GrassStage * m_GrassDensity * m_GrassStage * m_GrassDensity)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
@@ -267,6 +276,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	, handle_World(NULL)
 {
 	CreateElements();
+	CreateParticles();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	m_RootVb.CreateVertexBuffer((m_RowChunks + 1) * (m_ColChunks + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 	m_RootIb.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
@@ -293,6 +303,8 @@ Terrain::~Terrain(void)
 	m_Decl.Release();
 	m_RootVb.OnDestroyDevice();
 	m_RootIb.OnDestroyDevice();
+	m_ParticleVb.OnDestroyDevice();
+	m_ParticleIb.OnDestroyDevice();
 	ClearAllEntity();
 }
 
@@ -526,6 +538,48 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 	return frag;
 }
 
+void Terrain::CreateParticles(void)
+{
+	_ASSERT(!m_ParticleVb.m_ptr);
+	m_ParticleVb.CreateVertexBuffer(RenderPipeline::m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, 0, 0, D3DPOOL_MANAGED);
+	unsigned char * pVertices = (unsigned char *)m_ParticleVb.Lock(0, RenderPipeline::m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices);
+	RenderPipeline::m_ParticleVertElems.SetPosition(pVertices + RenderPipeline::m_ParticleVertStride * 0, Vector3(0, 0.5f, 0.5f));
+	RenderPipeline::m_ParticleVertElems.SetTexcoord(pVertices + RenderPipeline::m_ParticleVertStride * 0, Vector2(0, 0));
+	RenderPipeline::m_ParticleVertElems.SetPosition(pVertices + RenderPipeline::m_ParticleVertStride * 1, Vector3(0, 0.5f, -0.5f));
+	RenderPipeline::m_ParticleVertElems.SetTexcoord(pVertices + RenderPipeline::m_ParticleVertStride * 1, Vector2(1, 0));
+	RenderPipeline::m_ParticleVertElems.SetPosition(pVertices + RenderPipeline::m_ParticleVertStride * 2, Vector3(0, -0.5f, -0.5f));
+	RenderPipeline::m_ParticleVertElems.SetTexcoord(pVertices + RenderPipeline::m_ParticleVertStride * 2, Vector2(1, 1));
+	RenderPipeline::m_ParticleVertElems.SetPosition(pVertices + RenderPipeline::m_ParticleVertStride * 3, Vector3(0, -0.5f, 0.5f));
+	RenderPipeline::m_ParticleVertElems.SetTexcoord(pVertices + RenderPipeline::m_ParticleVertStride * 3, Vector2(0, 1));
+	m_ParticleVb.Unlock();
+
+	_ASSERT(!m_ParticleIb.m_ptr);
+	m_ParticleIb.CreateIndexBuffer(sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount * 3, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+	WORD * pIndices = (WORD *)m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount * 3);
+	pIndices[0] = 0;
+	pIndices[1] = 3;
+	pIndices[2] = 1;
+	pIndices[3] = 1;
+	pIndices[4] = 3;
+	pIndices[5] = 2;
+	m_ParticleIb.Unlock();
+
+	for (int i = 0; i < m_GrassStage; i++)
+	{
+		for (int j = 0; j < m_GrassStage; j++)
+		{
+			for (int k = 0; k < m_GrassDensity; k++)
+			{
+				for (int l = 0; l < m_GrassDensity; l++)
+				{
+					Spawn(Vector3(j + (float)l / m_GrassDensity, 0, i + (float)k / m_GrassDensity),
+						Vector3(0, 0, 0), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+				}
+			}
+		}
+	}
+}
+
 template<class Archive>
 void Terrain::save(Archive & ar, const unsigned int version) const
 {
@@ -638,7 +692,15 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 {
 	_ASSERT(m_Actor);
 
-	shader->SetMatrix(handle_World, m_Actor->m_World);
+	if (lparam == Terrain::MaterialUsageGrass)
+	{
+		Vector3 Pos(floor(m_LocalViewPos.x - m_GrassStage / 2), 0, floor(m_LocalViewPos.z - m_GrassStage / 2));
+		shader->SetMatrix(handle_World, Matrix4::Translation(Pos) * m_Actor->m_World);
+	}
+	else
+	{
+		shader->SetMatrix(handle_World, m_Actor->m_World);
+	}
 }
 
 void Terrain::Update(float fElapsedTime)
@@ -697,6 +759,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				RootPrimitiveCount += 2;
 				return;
 			}
+
 			const unsigned int lod[5] =
 			{
 				lod0,
@@ -706,7 +769,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)
 			};
 			const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
-			for (DWORD i = 0; i < terrain->m_MaterialList.size(); i++)
+			for (DWORD i = 0; i < terrain->m_MaterialList.size() && i <= Terrain::MaterialUsageWater; i++)
 			{
 				if (terrain->m_MaterialList[i] && (terrain->m_MaterialList[i]->m_PassMask & PassMask))
 				{
@@ -723,7 +786,44 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								}
 
 								pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-									0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_MaterialList[i].get(), MAKELONG(chunk->m_Row, chunk->m_Col));
+									0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_MaterialList[i].get(), i);
+
+								ret = true;
+							}
+						}
+					}
+				}
+			}
+
+			if (lod0 == 0 && aabb.Intersect2D(LocalViewPos))
+			{
+				if (terrain->m_MaterialList.size() > Terrain::MaterialUsageGrass && terrain->m_MaterialList[Terrain::MaterialUsageGrass])
+				{
+					for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+					{
+						if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_MaterialList[Terrain::MaterialUsageGrass]->m_PassMask & PassMask))
+						{
+							D3DXMACRO macro[2] = { {"EMITTER_FACE_TYPE","5"},{0,0} };
+							Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrainGrass, macro, terrain->m_MaterialList[Terrain::MaterialUsageGrass]->m_Shader.c_str(), PassID);
+							if (shader)
+							{
+								if (!terrain->handle_World)
+								{
+									BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+								}
+
+								RenderPipeline::EmitterInstanceAtomKey key(
+									terrain->m_ParticleVb.m_ptr,
+									terrain->m_ParticleIb.m_ptr,
+									D3DPT_TRIANGLELIST,
+									RenderPipeline::m_ParticleNumVertices,
+									RenderPipeline::m_ParticlePrimitiveCount,
+									shader,
+									terrain->m_MaterialList[Terrain::MaterialUsageGrass].get(),
+									Terrain::MaterialUsageGrass);
+								RenderPipeline::EmitterInstanceAtom & atom = pipeline->m_Pass[PassID].m_EmitterInstanceMap[key];
+								atom.emitters.push_back(terrain);
+								atom.cmps.push_back(terrain);
 
 								ret = true;
 							}
@@ -740,13 +840,13 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	{
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
+		m_LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		Callback cb(pipeline, PassMask, m_LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
 		QueryEntity(LocalFrustum, &cb);
 		m_RootIb.Unlock();
 		if (cb.RootPrimitiveCount > 0)
 		{
-			for (DWORD i = 0; i < m_MaterialList.size(); i++)
+			for (DWORD i = 0; i < Terrain::MaterialUsageWater; i++)
 			{
 				if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
 				{
@@ -763,7 +863,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								}
 
 								pipeline->PushIndexedPrimitive(PassID, m_Decl, m_RootVb.m_ptr, m_RootIb.m_ptr, D3DPT_TRIANGLELIST,
-									0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_MaterialList[i].get(), MAKELONG(0, 0));
+									0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_MaterialList[i].get(), i);
 
 								ret = true;
 							}
