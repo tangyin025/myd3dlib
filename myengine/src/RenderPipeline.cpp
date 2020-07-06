@@ -26,8 +26,6 @@
 
 using namespace my;
 
-my::D3DVertexElementSet RenderPipeline::m_ParticleVertElems;
-
 RenderPipeline::RenderPipeline(void)
 	: SHADOW_MAP_SIZE(1024)
 	, SHADOW_EPSILON(0.001f)

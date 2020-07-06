@@ -769,8 +769,8 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	{
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-		m_LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		Callback cb(pipeline, PassMask, m_LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
+		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
 		QueryEntity(LocalFrustum, &cb);
 		m_RootIb.Unlock();
 		if (cb.RootPrimitiveCount > 0)

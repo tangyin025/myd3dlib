@@ -55,7 +55,7 @@ public:
 
 	ShaderCacheMap m_ShaderCache;
 
-	static my::D3DVertexElementSet m_ParticleVertElems;
+	my::D3DVertexElementSet m_ParticleVertElems;
 
 	my::D3DVertexElementSet m_ParticleInstanceElems;
 

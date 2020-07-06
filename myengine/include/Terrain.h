@@ -96,8 +96,6 @@ public:
 
 	D3DXHANDLE handle_World;
 
-	my::Vector3 m_LocalViewPos;
-
 	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
 	TerrainChunk * GetChunk(int i, int j)
