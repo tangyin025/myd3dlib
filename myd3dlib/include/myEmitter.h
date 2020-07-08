@@ -94,6 +94,16 @@ namespace my
 		{
 		}
 
+		size_t GetCapacity(void) const
+		{
+			return m_ParticleList.capacity();
+		}
+
+		void SetCapacity(size_t new_capacity)
+		{
+			m_ParticleList.set_capacity(new_capacity);
+		}
+
 		void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
 		void RemoveAllParticle(void);

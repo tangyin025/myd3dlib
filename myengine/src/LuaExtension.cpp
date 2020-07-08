@@ -335,6 +335,7 @@ void LuaContext::Init(void)
 		, class_<my::Emitter>("Emitter")
 			.def(constructor<unsigned int>())
 			.def_readonly("ParticleList", &my::Emitter::m_ParticleList, luabind::return_stl_iterator)
+			.property("Capacity", &my::Emitter::GetCapacity, &my::Emitter::SetCapacity)
 			.def("Spawn", &my::Emitter::Spawn)
 			.def("RemoveAllParticle", &my::Emitter::RemoveAllParticle)
 
