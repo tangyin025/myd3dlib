@@ -4,6 +4,7 @@
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
 #include <luabind/return_reference_to_policy.hpp>
+#include <luabind/out_value_policy.hpp>
 #include <luabind/copy_policy.hpp>
 #include "libc.h"
 #include "myDxutApp.h"
@@ -1010,7 +1011,7 @@ void LuaContext::Init(void)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
-			.def("RayTest", &Terrain::RayTest)
+			.def("Raycast", &Terrain::Raycast, luabind::pure_out_value(_4) + luabind::pure_out_value(_5) + luabind::pure_out_value(_6) + luabind::pure_out_value(_7))
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)

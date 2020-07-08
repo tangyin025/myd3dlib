@@ -728,6 +728,11 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 						{
 							if (i == 0)
 							{
+								if (lod0 > 0)
+								{
+									continue;
+								}
+
 								D3DXMACRO macro[2] = { {"EMITTER_FACE_TYPE","5"}, {0} };
 								my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, terrain->m_MaterialList[i]->m_Shader.c_str(), PassID);
 								if (shader)
@@ -922,16 +927,21 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 	ColorMap->UnlockRect(0);
 }
 
-my::RayResult Terrain::RayTest(const my::Ray & local_ray)
+bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal, int & hitRow, int & hitColumn)
 {
 	struct Callback : public my::OctNode::QueryCallback
 	{
-		const my::Ray & ray;
 		Terrain * terrain;
+		const my::Vector3 & origin;
+		const my::Vector3 & dir;
 		my::RayResult ret;
-		Callback(const my::Ray & _ray, Terrain * _terrain)
-			: ray(_ray)
-			, terrain(_terrain)
+		my::Vector3 retNormal;
+		int retRow;
+		int retColumn;
+		Callback(Terrain * _terrain, const my::Vector3 & _origin, const my::Vector3 & _dir)
+			: terrain(_terrain)
+			, origin(_origin)
+			, dir(_dir)
 			, ret(false, FLT_MAX)
 		{
 		}
@@ -949,17 +959,30 @@ my::RayResult Terrain::RayTest(const my::Ray & local_ray)
 				const my::Vector3 & v2 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + idx[i + 2] * terrain->m_VertexStride);
 				if (my::IntersectionTests::isValidTriangle(v0, v1, v2))
 				{
-					my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
+					my::RayResult result = my::CollisionDetector::rayAndTriangle(origin, dir, v0, v1, v2);
 					if (result.first && result.second < ret.second)
 					{
 						ret = result;
+						retNormal = my::IntersectionTests::calculateTriangleNormal(v0, v1, v2);
+						retRow = chunk->m_Row;
+						retColumn = chunk->m_Col;
 					}
 				}
 			}
 			chunk->m_vb.Unlock();
 			const_cast<my::IndexBuffer&>(frag.ib).Unlock();
 		}
-	} cb(local_ray, this);
-	QueryEntity(local_ray, &cb);
-	return cb.ret;
+	} cb(this, origin, dir);
+
+	QueryEntity(my::Ray(origin, dir), &cb);
+
+	if (cb.ret.first)
+	{
+		hitPos = origin + dir * cb.ret.second;
+		hitNormal = cb.retNormal;
+		hitRow = cb.retRow;
+		hitColumn = cb.retColumn;
+		return true;
+	}
+	return false;
 }

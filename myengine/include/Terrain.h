@@ -155,7 +155,7 @@ public:
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 
-	my::RayResult RayTest(const my::Ray & local_ray);
+	bool Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal, int & hitRow, int & hitColumn);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
