@@ -9,7 +9,6 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctEntity
-	, public my::Emitter
 {
 public:
 	int m_Row;
@@ -155,7 +154,7 @@ public:
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 
-	bool Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal, int & hitRow, int & hitColumn);
+	bool Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

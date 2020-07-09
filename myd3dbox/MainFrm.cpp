@@ -1204,12 +1204,6 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
-	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_shader;
-		mtl->ParseShaderParameters();
-		terrain->AddMaterial(mtl);
-	}
 	if (dlg.m_UseTerrainMaterial)
 	{
 		MaterialPtr mtl(new Material());

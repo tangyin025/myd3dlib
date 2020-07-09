@@ -1001,7 +1001,7 @@ void LuaContext::Init(void)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnCycle", &SphericalEmitterComponent::m_SpawnCycle)
 
-		, class_<TerrainChunk, bases<my::OctEntity, my::Emitter> >("TerrainChunk")
+		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)
 			.def_readonly("Col", &TerrainChunk::m_Col)
 
@@ -1012,7 +1012,7 @@ void LuaContext::Init(void)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
-			.def("Raycast", &Terrain::Raycast, luabind::pure_out_value(_4) + luabind::pure_out_value(_5) + luabind::pure_out_value(_6) + luabind::pure_out_value(_7))
+			.def("Raycast", &Terrain::Raycast, luabind::pure_out_value(_4) + luabind::pure_out_value(_5))
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)

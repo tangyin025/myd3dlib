@@ -33,19 +33,16 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(void)
-	: Emitter(1)
-	, m_Row(0)
+	: m_Row(0)
 	, m_Col(0)
 {
 }
 
 TerrainChunk::TerrainChunk(int Row, int Col, int ChunkSize)
-	: Emitter(1)
-	, m_Row(Row)
+	: m_Row(Row)
 	, m_Col(Col)
 {
 	m_vb.CreateVertexBuffer((ChunkSize + 1) * (ChunkSize + 1) * Terrain::m_VertexStride, 0, 0, D3DPOOL_MANAGED);
-	//Spawn(Vector3(0, 0, 0), Vector3(0, 0, 0), Vector4(0, 0, 0, 0), Vector2(1, 1), 0, 0);
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -56,7 +53,6 @@ TerrainChunk::~TerrainChunk(void)
 template<class Archive>
 void TerrainChunk::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(m_ParticleList);
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_vb).GetDesc();
@@ -69,7 +65,6 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void TerrainChunk::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(m_ParticleList);
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	DWORD BufferSize;
@@ -726,40 +721,18 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					{
 						if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_MaterialList[i]->m_PassMask & PassMask))
 						{
-							if (i == 0)
+							Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, terrain->m_MaterialList[i]->m_Shader.c_str(), PassID);
+							if (shader)
 							{
-								if (lod0 > 0)
+								if (!terrain->handle_World)
 								{
-									continue;
+									BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
 								}
 
-								D3DXMACRO macro[2] = { {"EMITTER_FACE_TYPE","5"}, {0} };
-								my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, terrain->m_MaterialList[i]->m_Shader.c_str(), PassID);
-								if (shader)
-								{
-									if (!terrain->handle_World)
-									{
-										BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
-									}
+								pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
+									0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_MaterialList[i].get(), MAKELONG(chunk->m_Row, chunk->m_Col));
 
-									pipeline->PushEmitter(PassID, chunk, shader, terrain->m_MaterialList[i].get(), 0, terrain);
-								}
-							}
-							else
-							{
-								Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, NULL, terrain->m_MaterialList[i]->m_Shader.c_str(), PassID);
-								if (shader)
-								{
-									if (!terrain->handle_World)
-									{
-										BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
-									}
-
-									pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-										0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_MaterialList[i].get(), i);
-
-									ret = true;
-								}
+								ret = true;
 							}
 						}
 					}
@@ -780,7 +753,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		m_RootIb.Unlock();
 		if (cb.RootPrimitiveCount > 0)
 		{
-			for (DWORD i = 1; i < m_MaterialList.size(); i++)
+			for (DWORD i = 0; i < m_MaterialList.size(); i++)
 			{
 				if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
 				{
@@ -797,7 +770,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								}
 
 								pipeline->PushIndexedPrimitive(PassID, m_Decl, m_RootVb.m_ptr, m_RootIb.m_ptr, D3DPT_TRIANGLELIST,
-									0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_MaterialList[i].get(), i);
+									0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_MaterialList[i].get(), MAKELONG(0, 0));
 
 								ret = true;
 							}
@@ -927,7 +900,7 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 	ColorMap->UnlockRect(0);
 }
 
-bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal, int & hitRow, int & hitColumn)
+bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal)
 {
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -936,8 +909,6 @@ bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::V
 		const my::Vector3 & dir;
 		my::RayResult ret;
 		my::Vector3 retNormal;
-		int retRow;
-		int retColumn;
 		Callback(Terrain * _terrain, const my::Vector3 & _origin, const my::Vector3 & _dir)
 			: terrain(_terrain)
 			, origin(_origin)
@@ -964,8 +935,6 @@ bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::V
 					{
 						ret = result;
 						retNormal = my::IntersectionTests::calculateTriangleNormal(v0, v1, v2);
-						retRow = chunk->m_Row;
-						retColumn = chunk->m_Col;
 					}
 				}
 			}
@@ -980,8 +949,6 @@ bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::V
 	{
 		hitPos = origin + dir * cb.ret.second;
 		hitNormal = cb.retNormal;
-		hitRow = cb.retRow;
-		hitColumn = cb.retColumn;
 		return true;
 	}
 	return false;
