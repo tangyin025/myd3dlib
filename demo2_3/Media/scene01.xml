@@ -54,7 +54,7 @@
 <PhysxSceneContext class_id="3" tracking_level="0" version="0">
 	<StreamBuffSize>112</StreamBuffSize>
 	<StreamBuff>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 	</StreamBuff>
 </PhysxSceneContext>
@@ -124,13 +124,16 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 				<item class_id="14" tracking_level="0" version="1">
 					<px class_id="16" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
 						<Component class_id="15" tracking_level="1" version="0" object_id="_3">
+							<NamedObject object_id="_4">
+								<Name>editor_terrain_0</Name>
+							</NamedObject>
 							<m_Type>8</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_MaterialList class_id="17" tracking_level="0" version="0">
 								<count>1</count>
 								<item_version>1</item_version>
 								<item class_id="18" tracking_level="0" version="1">
-									<px class_id="19" tracking_level="1" version="0" object_id="_4">
+									<px class_id="19" tracking_level="1" version="0" object_id="_5">
 										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
 										<m_PassMask>11</m_PassMask>
 										<m_CullMode>2</m_CullMode>
@@ -141,8 +144,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 											<count>4</count>
 											<item_version>1</item_version>
 											<item class_id="21" tracking_level="0" version="1">
-												<px class_id="23" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_5">
-													<MaterialParameter class_id="22" tracking_level="1" version="0" object_id="_6">
+												<px class_id="23" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
+													<MaterialParameter class_id="22" tracking_level="1" version="0" object_id="_7">
 														<m_Type>5</m_Type>
 														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
@@ -150,8 +153,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_7">
-													<MaterialParameter object_id="_8">
+												<px class_id_reference="23" object_id="_8">
+													<MaterialParameter object_id="_9">
 														<m_Type>5</m_Type>
 														<m_Name>g_NormalTexture</m_Name>
 													</MaterialParameter>
@@ -159,8 +162,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_9">
-													<MaterialParameter object_id="_10">
+												<px class_id_reference="23" object_id="_10">
+													<MaterialParameter object_id="_11">
 														<m_Type>5</m_Type>
 														<m_Name>g_SpecularTexture</m_Name>
 													</MaterialParameter>
@@ -168,8 +171,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 												</px>
 											</item>
 											<item>
-												<px class_id="24" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_11">
-													<MaterialParameter object_id="_12">
+												<px class_id="24" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_12">
+													<MaterialParameter object_id="_13">
 														<m_Type>1</m_Type>
 														<m_Name>g_SpecularExp</m_Name>
 													</MaterialParameter>
@@ -210,7 +213,7 @@ AAAAAAAAAAAAAAAAAAAA/3//fwAAAABCAAAAAAAAAAAAAAD/f/9/AAAAAAAAAAAAAAAAQgAAAP9/
 /38AAAAAQgAAAAAAAABCAAAA/3//fwA=
 						</VertexBuffer>
 						<m_Chunk_0_0 class_id="25" tracking_level="0" version="1">
-							<px class_id="26" tracking_level="1" version="0" object_id="_13">
+							<px class_id="26" tracking_level="1" version="0" object_id="_14">
 								<m_Row>0</m_Row>
 								<m_Col>0</m_Col>
 								<BufferSize>21780</BufferSize>
@@ -619,24 +622,24 @@ AP9//38A
 			<ActorType>0</ActorType>
 			<PxActorSize>628</PxActorSize>
 			<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
-AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABgv0cJAAAA
-gAEAAABQuUsJAAAAgAAAAAAw6BAHAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAADwOgMQ
-CAADAAAAAABUOwMQAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxQuUsJAAAAAM3Nzc3N
-zc3N9NYDEAcAAwDQAE8JtNcDEAMAAAAw6BAHzc3Nzc3Nzc1gziEHAAAAgQAAAADNzc3NAQAAAAAA
+U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+ACMAQAAAAAcAIwAQAQAABgAjAIABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAEzn
+IwAAAAAHAAAAAAEAAABM5yMAAAAABgAAAAACAAAATOcjAAAAAAAAAAAAAAAAAAMAAADwHrQHAAAA
+gAAAAAAQL7QHAAAAgAEAAADQDrQHAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAD4DWYP
+CAADAAAAAABMDmYPAgAAAAMAAAADAAAAAAAAAAAAAD8AAAA/AAAAPwAAAADwHrQHAAAAAAAAAAAG
+AAAAnDxmDwcAAwBoLbIHPD1mDwMAAADQDrQHAJz///////8gp2kFAAAAgQAAAAD/////AQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
-PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAAHNzc3Nzc3Nzc3NzZiAAxAGAAMASHkLBwAAAAAA
-AAAAYL9HCQEAAQECAAAAAQABAQAAAADNzc3Nzc3NzWDOIQcAAACFAAAAAM3Nzc3/////vOoiBwEA
-AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQDNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
+PAvEAAABAAAAxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTE
+xMTExMTEMaYAAAAAAZz/AJz/AJz/AJz/AAAAAAH/AJz/AJz/AJz/AFgiZg8GAAMAuOquBwAAAAAA
+AAAAEC+0BwEAAQECAAAAAQABAQAAAAACAAAAAwAAACCnaQUAAACFAAAAAAcAAAD/////DAdqBQEA
+AAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 			</m_PxActor>
 		</px>
 	</item>
 	<item>
-		<px class_id_reference="8" object_id="_14">
-			<NamedObject object_id="_15">
+		<px class_id_reference="8" object_id="_15">
+			<NamedObject object_id="_16">
 				<Name>editor_actor_1</Name>
 			</NamedObject>
 			<m_aabb>
@@ -676,15 +679,18 @@ AA==
 				<count>1</count>
 				<item_version>1</item_version>
 				<item>
-					<px class_id="27" class_name="MeshComponent" tracking_level="1" version="0" object_id="_16">
-						<Component object_id="_17">
+					<px class_id="27" class_name="MeshComponent" tracking_level="1" version="0" object_id="_17">
+						<Component object_id="_18">
+							<NamedObject object_id="_19">
+								<Name>editor_mesh_cmp_1</Name>
+							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_MaterialList>
 								<count>1</count>
 								<item_version>1</item_version>
 								<item>
-									<px class_id_reference="19" object_id="_18">
+									<px class_id_reference="19" object_id="_20">
 										<m_Shader>shader/mtl_lambert1.fx</m_Shader>
 										<m_PassMask>11</m_PassMask>
 										<m_CullMode>2</m_CullMode>
@@ -695,8 +701,8 @@ AA==
 											<count>4</count>
 											<item_version>1</item_version>
 											<item>
-												<px class_id_reference="23" object_id="_19">
-													<MaterialParameter object_id="_20">
+												<px class_id_reference="23" object_id="_21">
+													<MaterialParameter object_id="_22">
 														<m_Type>5</m_Type>
 														<m_Name>g_DiffuseTexture</m_Name>
 													</MaterialParameter>
@@ -704,8 +710,8 @@ AA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_21">
-													<MaterialParameter object_id="_22">
+												<px class_id_reference="23" object_id="_23">
+													<MaterialParameter object_id="_24">
 														<m_Type>5</m_Type>
 														<m_Name>g_NormalTexture</m_Name>
 													</MaterialParameter>
@@ -713,8 +719,8 @@ AA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="23" object_id="_23">
-													<MaterialParameter object_id="_24">
+												<px class_id_reference="23" object_id="_25">
+													<MaterialParameter object_id="_26">
 														<m_Type>5</m_Type>
 														<m_Name>g_SpecularTexture</m_Name>
 													</MaterialParameter>
@@ -722,8 +728,8 @@ AA==
 												</px>
 											</item>
 											<item>
-												<px class_id_reference="24" object_id="_25">
-													<MaterialParameter object_id="_26">
+												<px class_id_reference="24" object_id="_27">
+													<MaterialParameter object_id="_28">
 														<m_Type>1</m_Type>
 														<m_Name>g_SpecularExp</m_Name>
 													</MaterialParameter>
@@ -745,19 +751,19 @@ AA==
 			<ActorType>1</ActorType>
 			<PxActorSize>804</PxActorSize>
 			<m_PxActor>
-U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
-AM3NQAAAAAcAzc0QAQAABQDNzTACAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABQAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACQuUsJAAAA
-gAAAAAAwwEcJAAAAgAEAAABgWlAJAAAAgAIAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAADwOgMQ
-CAADAAAAAABUOwMQAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMyQuUsJAQAAAM3Nzc3N
-zc3N9NYDEAcAAwCwbVMJtNcDEAMAAABgWlAJzc3Nzc3Nzc1gziEHAAAAgQAAAADNzc3NAQAAAAAA
+U0VCRAAEAwMAAAAA7h8zAVdfMzIAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
+ACMAQAAAAAcAIwAQAQAABQAjADACAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAEzn
+IwAAAAAHAAAAAAEAAABM5yMAAAAABQAAAAACAAAATOcjAAAAAAAAAAAAAAAAAAMAAAAwH7QHAAAA
+gAAAAADgL7QHAAAAgAEAAABwAMQMAAAAgAIAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAD4DWYP
+CAADAAAAAABMDmYPAgAAAAYAAAAAAAAAAQAAAAAAAD8AAAA/AAAAPwAAAAAwH7QHAQAAAAUAAAAA
+AAAAnDxmDwcAAwCoQccMPD1mDwMAAABwAMQMxMTExMTExMQgp2kFAAAAgQAAAADExMTEAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAACtej
-PAvNAQADAAAAAACAPwAAgD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAAHNzc3Nzc3Nzc3NzaBaAxAFAAMAMIwLBwAAAAAA
-AAAAMMBHCQEAAQEDAAAAAQABAQEAAADNzc3Nzc3NzWDOIQcAAACDAAAAAM3Nzc3/////0PkiBwEA
-AQAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEABAEAAAAAAAAAAAAAAAAAAIA/AAAA
+PAv/AQADAAAAAACAPwAAgD8AAIA////////////////////////////////////////v+f8Qov8A
+nP8AnP8AnP8AAAAAAf8AnP8AnP8AnP8AAAAAAAEAnP8AnP+f2v///4AfZg8FAAMAkIRsBQAAAAAA
+AAAA4C+0BwEAAQEDAAAAAQABAQEAAACl8QJgjJ7rrCCnaQUAAACDAAAAAO9HGhD/////8BVqBQEA
+AQAAAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEABAEAAAAAAAAAAAAAAAAAAIA/AAAA
 AAAAAAAAAAAAmpkZPgAAAAAAAAAAAAAAAK7FnfQAAAAAAAAAAAAAAAD//39/AABEQv//f38AAAAA
-zcxMPQAAgD8AAIA/AACAPwAAgD8K16M7CtcjOwAAAACQ4VMJAAAAAAAAAAAAAAAAAACAPwAAAAAA
+zcxMPQAAgD8AAIA/AACAPwAAgD8K16M7CtcjOwAAAADQQ9IHAAAAAAAAAAAAAAAAAACAPwAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAA
 			</m_PxActor>

@@ -51,6 +51,7 @@ Component::~Component(void)
 template<class Archive>
 void Component::save(Archive & ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
@@ -59,6 +60,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Component::load(Archive & ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
