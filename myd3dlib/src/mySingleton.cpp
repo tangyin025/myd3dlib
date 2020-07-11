@@ -47,6 +47,8 @@ IResourceCallback::~IResourceCallback(void)
 	_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(this));
 }
 
+unsigned int NamedObject::UniqueNameIndex = 0;
+
 NamedObject::NamedObject(const char * Name)
 	: m_Name(NULL)
 {
@@ -60,14 +62,13 @@ NamedObject::~NamedObject(void)
 
 std::string NamedObject::MakeUniqueName(const char * Prefix)
 {
-	static unsigned int index = 0;
 	_ASSERT(Prefix);
 
 	boost::regex reg("_(\\d+)$");
 	boost::match_results<const char *> what;
 	if (boost::regex_search(Prefix, what, reg, boost::match_default) && what[1].matched)
 	{
-		index = Max(index, boost::lexical_cast<unsigned int>(what[1]) + 1);
+		UniqueNameIndex = Max(UniqueNameIndex, boost::lexical_cast<unsigned int>(what[1]) + 1);
 		std::string remove_postfix(Prefix, what[0].first);
 		if (!remove_postfix.empty())
 		{
@@ -75,9 +76,9 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 		}
 	}
 
-	for (; ; index++)
+	for (; ; UniqueNameIndex++)
 	{
-		std::string ret = str_printf("%s_%u", Prefix, index);
+		std::string ret = str_printf("%s_%u", Prefix, UniqueNameIndex);
 		if (!D3DContext::getSingleton().GetNamedObject(ret.c_str()))
 		{
 			return ret;
@@ -85,6 +86,11 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 	}
 
 	THROW_CUSEXCEPTION("MakeUniqueName failed");
+}
+
+void NamedObject::ResetUniqueNameIndex(void)
+{
+	UniqueNameIndex = 0;
 }
 
 void NamedObject::SetName(const char * Name)

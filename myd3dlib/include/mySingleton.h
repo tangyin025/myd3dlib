@@ -147,6 +147,8 @@ namespace my
 	class NamedObject
 	{
 	protected:
+		static unsigned int UniqueNameIndex;
+
 		const char * m_Name;
 
 		NamedObject(void)
@@ -160,6 +162,8 @@ namespace my
 		virtual ~NamedObject(void);
 
 		static std::string MakeUniqueName(const char * Prefix);
+
+		static void ResetUniqueNameIndex(void);
 
 		void SetName(const char * Name);
 

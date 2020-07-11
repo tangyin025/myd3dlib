@@ -683,6 +683,7 @@ void CMainFrame::ClearFileContext()
 	m_selactors.clear();
 	LuaContext::Shutdown();
 	_ASSERT(theApp.m_NamedObjs.empty());
+	my::NamedObject::ResetUniqueNameIndex();
 }
 
 bool CMainFrame::ExecuteCode(const char * code)
