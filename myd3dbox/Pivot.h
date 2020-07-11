@@ -30,6 +30,8 @@ public:
 
 	my::Vector3 m_DragPt;
 
+	my::Quaternion m_DragRot;
+
 	my::Plane m_DragPlane;
 
 	my::Vector3 m_DragDeltaPos;
