@@ -1258,6 +1258,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
+			my::Matrix4 trans = my::Matrix4::Identity();
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
@@ -1265,7 +1266,9 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				(*sel_iter)->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
-				(*sel_iter)->m_World *= my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_DragDeltaRot, my::Vector3(0, 0, 0));
+				trans = my::Matrix4::AffineTransformation(1,
+					pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot, my::Vector3(0, 0, 0));
+				(*sel_iter)->m_World *= trans;
 				(*sel_iter)->m_World.Decompose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position);
 				break;
 			}
@@ -1291,8 +1294,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 							part_iter->m_Position += pFrame->m_Pivot.m_DragDeltaPos;
 							break;
 						case Pivot::PivotModeRot:
-							part_iter->m_Position = part_iter->m_Position.transformCoord(
-								my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_DragDeltaRot, my::Vector3(0, 0, 0)));
+							part_iter->m_Position = part_iter->m_Position.transformCoord(trans);
 							break;
 						}
 					}

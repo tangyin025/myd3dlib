@@ -792,7 +792,7 @@ void AnimationRoot::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone
 	Vector3 d0 = target.GetPosition() - parent.GetPosition();
 	Vector3 d1 = particle.getPosition() - parent.GetPosition();
 	Bone final(
-		target.GetRotation() * Quaternion::RotationFromTo(d0, d1),
+		target.GetRotation() * Quaternion::RotationFromTo(d0, d1, Vector3::zero),
 		parent.GetPosition() + d1.normalize() * d0.magnitude());
 	particle.setPosition(final.GetPosition());
 	anim_pose_hier[node_i].SetRotation(final.GetRotation() * m_Actor->m_Rotation.conjugate());

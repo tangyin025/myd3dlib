@@ -163,6 +163,44 @@ const Vector4 Vector4::unitZ(0, 0, 1, 0);
 
 const Vector4 Vector4::unitW(0, 0, 0, 1);
 
+Quaternion Quaternion::RotationFromTo(const Vector3 & from, const Vector3 & to, const Vector3 & fallback_axis)
+{
+	// Copy, since cannot modify local
+	Vector3 v0 = from.normalize();
+	Vector3 v1 = to.normalize();
+	float d = v0.dot(v1);
+	// If dot == 1, vectors are the same
+	if (d >= 1.0f)
+	{
+		return Identity();
+	}
+
+	if (d < (EPSILON_E6 - 1.0f))
+	{
+		if (fallback_axis != Vector3::zero)
+		{
+			// rotate 180 degrees about the fallback axis
+			return RotationAxis(fallback_axis, D3DX_PI);
+		}
+		else
+		{
+			// Generate an axis
+			Vector3 axis = Vector3::unitX.cross(v0);
+			if (axis.magnitudeSq() < 0.000001f)
+			{
+				// pick another if colinear
+				axis = Vector3::unitY.cross(v0);
+			}
+			return RotationAxis(axis.normalize(), D3DX_PI);
+		}
+	}
+
+	float s = sqrtf((1 + d) * 2);
+	float invs = 1 / s;
+	Vector3 c = v0.cross(v1);
+	return Quaternion(c.x * invs, c.y * invs, c.z * invs, s * 0.5f).normalize();
+}
+
 const Quaternion Quaternion::identity(Quaternion::Identity());
 
 const Matrix4 Matrix4::identity(Matrix4::Identity());

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Pivot.h"
+#include "MainApp.h"
 
 using namespace my;
 
@@ -369,20 +370,21 @@ bool Pivot::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
 	{
         k = local_ray.p - local_ray.d * local_ray.p.dot(local_ray.d);
 	}
+	theApp.m_EventLog(str_printf("%f, %f, %f", k.x, k.y, k.z).c_str());
     switch(m_DragAxis)
     {
     case PivotDragAxisX:
-		m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z));
+		m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z), Vector3(1, 0, 0));
 		m_Rot = m_DragDeltaRot * m_Rot;
 		m_DragPt = k;
         return true;
     case PivotDragAxisY:
-        m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z), Vector3(k.x, 0, k.z));
+		m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z), Vector3(k.x, 0, k.z), Vector3(0, 1, 0));
 		m_Rot = m_DragDeltaRot * m_Rot;
 		m_DragPt = k;
-        return true;
+		return true;
     case PivotDragAxisZ:
-        m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0), Vector3(k.x, k.y, 0));
+		m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0), Vector3(k.x, k.y, 0), Vector3(0, 0, 1));
 		m_Rot = m_DragDeltaRot * m_Rot;
 		m_DragPt = k;
         return true;

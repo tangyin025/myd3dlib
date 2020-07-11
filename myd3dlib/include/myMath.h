@@ -1659,10 +1659,7 @@ namespace my
 			return ret;
 		}
 
-		static Quaternion RotationFromTo(const Vector3 & from, const Vector3 & to)
-		{
-			Vector3 c = from.cross(to); return Quaternion(c.x, c.y, c.z, sqrt(from.magnitudeSq() * to.magnitudeSq()) + from.dot(to)).normalize();
-		}
+		static Quaternion RotationFromTo(const Vector3 & from, const Vector3 & to, const Vector3 & _fallback_axis);
 
 		Quaternion lerp(const Quaternion & rhs, float t) const
 		{
