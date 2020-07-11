@@ -20,8 +20,6 @@ Pivot::Pivot(void)
 	, m_Rot(Quaternion::Identity())
 	, m_DragAxis(PivotDragNone)
 	, m_Captured(false)
-	, m_DragPos(0,0,0)
-	, m_DragRot(Quaternion::Identity())
 	, m_DragPt(0,0,0)
 	, m_DragPlane(Plane::NormalDistance(Vector3(1,0,0),0))
 	, m_DragDeltaPos(0,0,0)
@@ -232,37 +230,31 @@ bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 	switch (m_DragAxis)
 	{
 	case PivotDragAxisX:
-		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitX.cross(Vector3::unitX.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
 		return true;
 	case PivotDragAxisY:
-		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitY.cross(Vector3::unitY.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
 		return true;
 	case PivotDragAxisZ:
-		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
 		return true;
 	case PivotDragPlanX:
-		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitX;
 		m_DragPlane.d = -m_DragPt.x;
 		m_Captured = true;
 		return true;
 	case PivotDragPlanY:
-		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitY;
 		m_DragPlane.d = -m_DragPt.y;
 		m_Captured = true;
 		return true;
 	case PivotDragPlanZ:
-		m_DragPos = m_Pos;
 		m_DragPlane.normal = Vector3::unitZ;
 		m_DragPlane.d = -m_DragPt.z;
 		m_Captured = true;
@@ -284,7 +276,6 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 		{
 			m_DragAxis = PivotDragAxisX;
 			m_DragPt = k;
-			m_DragRot = m_Rot;
 			m_Captured = true;
 			return true;
 		}
@@ -292,7 +283,6 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 		{
 			m_DragAxis = PivotDragAxisY;
 			m_DragPt = k;
-			m_DragRot = m_Rot;
 			m_Captured = true;
 			return true;
 		}
@@ -300,7 +290,6 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 		{
 			m_DragAxis = PivotDragAxisZ;
 			m_DragPt = k;
-			m_DragRot = m_Rot;
 			m_Captured = true;
 			return true;
 		}
@@ -333,27 +322,33 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 		{
 		case PivotDragAxisX:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, 0);
-			m_Pos = m_DragPos + m_DragDeltaPos;
+			m_Pos += m_DragDeltaPos;
+			m_DragPt = pt;
 			return true;
 		case PivotDragAxisY:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, 0);
-			m_Pos = m_DragPos + m_DragDeltaPos;
+			m_Pos += m_DragDeltaPos;
+			m_DragPt = pt;
 			return true;
 		case PivotDragAxisZ:
 			m_DragDeltaPos = Vector3(0, 0, pt.z - m_DragPt.z);
-			m_Pos = m_DragPos + m_DragDeltaPos;
+			m_Pos += m_DragDeltaPos;
+			m_DragPt = pt;
 			return true;
 		case PivotDragPlanX:
 			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, pt.z - m_DragPt.z);
-			m_Pos = m_DragPos + m_DragDeltaPos;
+			m_Pos += m_DragDeltaPos;
+			m_DragPt = pt;
 			return true;
 		case PivotDragPlanY:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, pt.z - m_DragPt.z);
-			m_Pos = m_DragPos + m_DragDeltaPos;
+			m_Pos += m_DragDeltaPos;
+			m_DragPt = pt;
 			return true;
 		case PivotDragPlanZ:
 			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, pt.y - m_DragPt.y, 0);
-			m_Pos = m_DragPos + m_DragDeltaPos;
+			m_Pos += m_DragDeltaPos;
+			m_DragPt = pt;
 			return true;
 		}
 	}
@@ -362,7 +357,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 
 bool Pivot::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
 {
-	Matrix4 trans = Matrix4::Compose(Scale, m_DragRot, m_Pos).inverse();
+	Matrix4 trans = Matrix4::Compose(Scale, m_Rot, m_Pos).inverse();
 	Ray local_ray = ray.transform(trans);
     RayResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
     Vector3 k;
@@ -378,15 +373,18 @@ bool Pivot::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
     {
     case PivotDragAxisX:
 		m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z));
-		m_Rot = m_DragDeltaRot * m_DragRot;
+		m_Rot = m_DragDeltaRot * m_Rot;
+		m_DragPt = k;
         return true;
     case PivotDragAxisY:
         m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z), Vector3(k.x, 0, k.z));
-		m_Rot = m_DragDeltaRot * m_DragRot;
+		m_Rot = m_DragDeltaRot * m_Rot;
+		m_DragPt = k;
         return true;
     case PivotDragAxisZ:
         m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0), Vector3(k.x, k.y, 0));
-		m_Rot = m_DragDeltaRot * m_DragRot;
+		m_Rot = m_DragDeltaRot * m_Rot;
+		m_DragPt = k;
         return true;
     }
     return false;

@@ -2451,6 +2451,30 @@ namespace my
 			return ret;
 		}
 
+		static Matrix4 AffineTransformation(float Scaling, const Vector3 & rotationCenter, const Quaternion & rotation, const Vector3 & translation)
+		{
+			Matrix4 ret;
+			D3DXMatrixAffineTransformation(
+				(D3DXMATRIX *)&ret,
+				Scaling,
+				(D3DXVECTOR3 *)&rotationCenter,
+				(D3DXQUATERNION *)&rotation,
+				(D3DXVECTOR3 *)&translation);
+			return ret;
+		}
+
+		static Matrix4 AffineTransformation2D(float Scaling, const Vector2 & rotationCenter, float rotation, const Vector2 & translation)
+		{
+			Matrix4 ret;
+			D3DXMatrixAffineTransformation2D(
+				(D3DXMATRIX *)&ret,
+				Scaling,
+				(D3DXVECTOR2 *)&rotationCenter,
+				rotation,
+				(D3DXVECTOR2 *)&translation);
+			return ret;
+		}
+
 		static Matrix4 Translation(float x, float y, float z)
 		{
 			return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1);

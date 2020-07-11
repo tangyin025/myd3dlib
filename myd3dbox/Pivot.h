@@ -28,10 +28,6 @@ public:
 
 	PivotDragAxis m_DragAxis;
 
-	my::Vector3 m_DragPos;
-
-	my::Quaternion m_DragRot;
-
 	my::Vector3 m_DragPt;
 
 	my::Plane m_DragPlane;

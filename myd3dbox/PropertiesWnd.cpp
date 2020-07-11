@@ -1426,13 +1426,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		Actor * actor = (Actor *)pActor->GetValue().ulVal;
-		actor->m_Position.x = pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
-		actor->m_Position.y = pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
-		actor->m_Position.z = pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal;
-		actor->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
+		my::Vector3 pos(
+			pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal,
+			pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
+			pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal);
+		my::Vector3 DeltaPos = pos - actor->m_Position;
+		actor->m_Position = pos;
+		my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal),
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal),
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal)));
+		my::Quaternion DeltaRot = rot / actor->m_Rotation;
+		actor->m_Rotation = rot;
 		actor->m_Scale.x = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		actor->m_Scale.y = pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
@@ -1457,6 +1462,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				my::Emitter::ParticleList::iterator part_iter = emit_cmp->m_ParticleList.begin();
 				for (; part_iter != emit_cmp->m_ParticleList.end(); part_iter++)
 				{
+					part_iter->m_Position = part_iter->m_Position.transformCoord(
+						my::Matrix4::AffineTransformation(1, actor->m_Position, DeltaRot, DeltaPos));
 				}
 			}
 		}
