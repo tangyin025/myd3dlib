@@ -995,7 +995,7 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
-					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
+					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
 					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
 				}
 
