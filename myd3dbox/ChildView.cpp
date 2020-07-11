@@ -1099,16 +1099,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (!pFrame->m_selactors.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
-		_ASSERT(m_selactorwlds.empty());
-		m_selactorwlds.resize(pFrame->m_selactors.size(), my::Matrix4::Identity());
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			size_t i = std::distance(pFrame->m_selactors.begin(), sel_iter);
-			m_selactorwlds[i][0].xyz = (*sel_iter)->m_Position;
-			m_selactorwlds[i][1] = (my::Vector4 &)(*sel_iter)->m_Rotation;
-			m_selactorwlds[i][2].xyz = (*sel_iter)->m_Scale;
-
 			physx::PxRigidBody * body = NULL;
 			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->isRigidBody()))
 			{
@@ -1220,21 +1213,18 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
-		ASSERT(m_selactorwlds.size() == pFrame->m_selactors.size());
-		SelActorWorldList::iterator actor_world_iter = m_selactorwlds.begin();
-		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
+		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
+		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			size_t i = std::distance(m_selactorwlds.begin(), actor_world_iter);
-			pFrame->m_selactors[i]->UpdateOctNode();
+			(*sel_iter)->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
-			if (pFrame->m_selactors[i]->m_PxActor && (body = pFrame->m_selactors[i]->m_PxActor->isRigidBody()) && !body->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->isRigidBody()) && !body->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, false);
 				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));
 			}
 		}
-		m_selactorwlds.clear();
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
 
@@ -1265,31 +1255,29 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			pFrame->m_selactors.swap(new_selactors);
 		}
 		StartPerformanceCount();
-		ASSERT(m_selactorwlds.size() == pFrame->m_selactors.size());
-		SelActorWorldList::iterator actor_world_iter = m_selactorwlds.begin();
-		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
+		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
+		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			size_t i = std::distance(m_selactorwlds.begin(), actor_world_iter);
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				pFrame->m_selactors[i]->m_Position += pFrame->m_Pivot.m_DragDeltaPos;
-				pFrame->m_selactors[i]->UpdateWorld();
+				(*sel_iter)->m_Position += pFrame->m_Pivot.m_DragDeltaPos;
+				(*sel_iter)->UpdateWorld();
 				break;
 			case Pivot::PivotModeRot:
-				pFrame->m_selactors[i]->m_World *= my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_DragDeltaRot, my::Vector3(0, 0, 0));
-				pFrame->m_selactors[i]->m_World.Decompose(pFrame->m_selactors[i]->m_Scale, pFrame->m_selactors[i]->m_Rotation, pFrame->m_selactors[i]->m_Position);
+				(*sel_iter)->m_World *= my::Matrix4::AffineTransformation(1, pFrame->m_Pivot.m_Pos, pFrame->m_Pivot.m_DragDeltaRot, my::Vector3(0, 0, 0));
+				(*sel_iter)->m_World.Decompose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position);
 				break;
 			}
 
-			if (pFrame->m_selactors[i]->m_PxActor)
+			if ((*sel_iter)->m_PxActor)
 			{
-				pFrame->m_selactors[i]->m_PxActor->setGlobalPose(physx::PxTransform(
-					(physx::PxVec3&)pFrame->m_selactors[i]->m_Position, (physx::PxQuat&)pFrame->m_selactors[i]->m_Rotation), true);
+				(*sel_iter)->m_PxActor->setGlobalPose(physx::PxTransform(
+					(physx::PxVec3&)(*sel_iter)->m_Position, (physx::PxQuat&)(*sel_iter)->m_Rotation), true);
 			}
 
-			Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors[i]->m_Cmps.begin();
-			for (; cmp_iter != pFrame->m_selactors[i]->m_Cmps.end(); cmp_iter++)
+			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
+			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
 			{
 				if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter)
 				{
