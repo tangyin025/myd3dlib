@@ -1290,6 +1290,19 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				pFrame->m_selactors[i]->m_PxActor->setGlobalPose(physx::PxTransform(
 					(physx::PxVec3&)pFrame->m_selactors[i]->m_Position, (physx::PxQuat&)pFrame->m_selactors[i]->m_Rotation), true);
 			}
+
+			Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors[i]->m_Cmps.begin();
+			for (; cmp_iter != pFrame->m_selactors[i]->m_Cmps.end(); cmp_iter++)
+			{
+				if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter)
+				{
+					StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent *>(cmp_iter->get());
+					my::Emitter::ParticleList::iterator part_iter = emit_cmp->m_ParticleList.begin();
+					for (; part_iter != emit_cmp->m_ParticleList.end(); part_iter++)
+					{
+					}
+				}
+			}
 		}
 		Invalidate();
 	}

@@ -1447,6 +1447,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_PxActor->setGlobalPose(physx::PxTransform(
 				(physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
 		}
+
+		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+		{
+			if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter)
+			{
+				StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent *>(cmp_iter->get());
+				my::Emitter::ParticleList::iterator part_iter = emit_cmp->m_ParticleList.begin();
+				for (; part_iter != emit_cmp->m_ParticleList.end(); part_iter++)
+				{
+				}
+			}
+		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
