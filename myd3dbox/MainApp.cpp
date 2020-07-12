@@ -288,6 +288,8 @@ HRESULT CMainApp::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	D3DContext::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 	if(FAILED(hr = my::ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
@@ -330,7 +332,7 @@ HRESULT CMainApp::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	D3DContext::m_EventDeviceReset();
+	D3DContext::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
@@ -357,24 +359,24 @@ void CMainApp::OnLostDevice(void)
 {
 	m_UIRender->OnLostDevice();
 
-	D3DContext::m_EventDeviceLost();
-
 	ResourceMgr::OnLostDevice();
 
 	RenderPipeline::OnLostDevice();
+
+	D3DContext::OnLostDevice();
 }
 
 void CMainApp::OnDestroyDevice(void)
 {
 	m_UIRender->OnDestroyDevice();
 
-	D3DContext::m_EventDeviceDestroy();
-
 	ResourceMgr::OnDestroyDevice();
 
 	RenderPipeline::OnDestroyDevice();
 
 	m_UIRender.reset();
+
+	D3DContext::OnDestroyDevice();
 }
 
 // CAboutDlg dialog used for App About

@@ -25,21 +25,16 @@ BOOST_CLASS_EXPORT(NamedObject)
 DeviceResourceBase::DeviceResourceBase(void)
 	: m_Key(NULL)
 {
-	// ! boost signals is thread-safety, ref: https://www.boost.org/doc/libs/1_63_0/doc/html/signals2/thread-safety.html
-	D3DContext::getSingleton().m_EventDeviceReset.connect(boost::bind(&DeviceResourceBase::OnResetDevice, this));
+	CriticalSectionLock lock(D3DContext::getSingleton().m_DeviceObjectsSec);
 
-	D3DContext::getSingleton().m_EventDeviceLost.connect(boost::bind(&DeviceResourceBase::OnLostDevice, this));
-
-	D3DContext::getSingleton().m_EventDeviceDestroy.connect(boost::bind(&DeviceResourceBase::OnDestroyDevice, this));
+	D3DContext::getSingleton().m_DeviceObjects.insert(this);
 }
 
 DeviceResourceBase::~DeviceResourceBase(void)
 {
-	D3DContext::getSingleton().m_EventDeviceReset.disconnect(boost::bind(&DeviceResourceBase::OnResetDevice, this));
+	CriticalSectionLock lock(D3DContext::getSingleton().m_DeviceObjectsSec);
 
-	D3DContext::getSingleton().m_EventDeviceLost.disconnect(boost::bind(&DeviceResourceBase::OnLostDevice, this));
-
-	D3DContext::getSingleton().m_EventDeviceDestroy.disconnect(boost::bind(&DeviceResourceBase::OnDestroyDevice, this));
+	D3DContext::getSingleton().m_DeviceObjects.erase(this);
 }
 
 IResourceCallback::~IResourceCallback(void)

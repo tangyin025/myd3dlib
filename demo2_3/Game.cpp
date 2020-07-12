@@ -635,7 +635,7 @@ void Game::OnDestroyDevice(void)
 
 	LuaContext::Shutdown();
 
-	_ASSERT(m_NamedObjs.empty());
+	_ASSERT(m_NamedObjects.empty());
 
 	m_SimpleSample.reset();
 

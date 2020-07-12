@@ -682,7 +682,7 @@ void CMainFrame::ClearFileContext()
 	m_ActorList.clear();
 	m_selactors.clear();
 	LuaContext::Shutdown();
-	_ASSERT(theApp.m_NamedObjs.empty());
+	_ASSERT(theApp.m_NamedObjects.empty());
 	my::NamedObject::ResetUniqueNameIndex();
 }
 

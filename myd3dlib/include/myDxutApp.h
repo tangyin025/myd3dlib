@@ -5,6 +5,7 @@
 #include "myThread.h"
 #include <atlbase.h>
 #include "DXUTenum.h"
+#include <boost/unordered_set.hpp>
 
 namespace my
 {
@@ -72,19 +73,17 @@ namespace my
 
 		bool m_DeviceObjectsReset;
 
-		typedef boost::signals2::signal<void (void)> DeviceEvent;
+		typedef boost::unordered_set<DeviceResourceBase *> DeviceResourceBaseSet;
 
-		DeviceEvent m_EventDeviceReset;
+		DeviceResourceBaseSet m_DeviceObjects;
 
-		DeviceEvent m_EventDeviceLost;
-
-		DeviceEvent m_EventDeviceDestroy;
+		CriticalSection m_DeviceObjectsSec;
 
 		typedef boost::unordered_map<std::string, NamedObject *> NamedObjectMap;
 
-		NamedObjectMap m_NamedObjs;
+		NamedObjectMap m_NamedObjects;
 
-		CriticalSection m_NamedObjsSec;
+		CriticalSection m_NamedObjectsSec;
 
 		typedef boost::signals2::signal<void(const char *)> LogEvent;
 
@@ -104,6 +103,18 @@ namespace my
 			, m_DeviceObjectsReset(false)
 		{
 		}
+
+		virtual HRESULT OnCreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
 
 		const char * RegisterNamedObject(const char * Name, NamedObject * Object);
 
@@ -184,18 +195,6 @@ namespace my
 
 		virtual bool ModifyDeviceSettings(
 			DXUTD3D9DeviceSettings * pDeviceSettings);
-
-		virtual HRESULT OnCreateDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual HRESULT OnResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual void OnLostDevice(void);
-
-		virtual void OnDestroyDevice(void);
 
 		virtual void OnFrameTick(
 			double fTime,

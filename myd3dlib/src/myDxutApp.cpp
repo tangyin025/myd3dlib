@@ -136,19 +136,72 @@ void Clock::UpdateClock(void)
 	m_llLastElapsedTime = qwTime.QuadPart;
 }
 
+HRESULT D3DContext::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	CriticalSectionLock lock(m_DeviceObjectsSec);
+
+	m_DeviceObjectsCreated = true;
+
+	return S_OK;
+}
+
+HRESULT D3DContext::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	CriticalSectionLock lock(m_DeviceObjectsSec);
+
+	m_DeviceObjectsReset = true;
+
+	DeviceResourceBaseSet::iterator device_iter = m_DeviceObjects.begin();
+	for (; device_iter != m_DeviceObjects.end(); device_iter++)
+	{
+		(*device_iter)->OnResetDevice();
+	}
+	return S_OK;
+}
+
+void D3DContext::OnLostDevice(void)
+{
+	CriticalSectionLock lock(m_DeviceObjectsSec);
+
+	m_DeviceObjectsReset = false;
+
+	DeviceResourceBaseSet::iterator device_iter = m_DeviceObjects.begin();
+	for (; device_iter != m_DeviceObjects.end(); device_iter++)
+	{
+		(*device_iter)->OnLostDevice();
+	}
+}
+
+void D3DContext::OnDestroyDevice(void)
+{
+	CriticalSectionLock lock(m_DeviceObjectsSec);
+
+	m_DeviceObjectsCreated = false;
+
+	DeviceResourceBaseSet::iterator device_iter = m_DeviceObjects.begin();
+	for (; device_iter != m_DeviceObjects.end(); device_iter++)
+	{
+		(*device_iter)->OnDestroyDevice();
+	}
+}
+
 const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 {
 	_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
 
-	CriticalSectionLock lock(m_NamedObjsSec);
+	CriticalSectionLock lock(m_NamedObjectsSec);
 
-	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
-	if (obj_iter != m_NamedObjs.end())
+	NamedObjectMap::const_iterator obj_iter = m_NamedObjects.find(Name);
+	if (obj_iter != m_NamedObjects.end())
 	{
 		THROW_CUSEXCEPTION(str_printf("%s already existed", Name));
 	}
 
-	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjs.insert(NamedObjectMap::value_type(Name, Object));
+	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjects.insert(NamedObjectMap::value_type(Name, Object));
 
 	_ASSERT(result.second);
 
@@ -159,13 +212,13 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 {
 	_ASSERT(GetCurrentThreadId() == m_d3dThreadId);
 
-	CriticalSectionLock lock(m_NamedObjsSec);
+	CriticalSectionLock lock(m_NamedObjectsSec);
 
-	NamedObjectMap::iterator obj_iter = m_NamedObjs.find(Name);
-	if (obj_iter != m_NamedObjs.end())
+	NamedObjectMap::iterator obj_iter = m_NamedObjects.find(Name);
+	if (obj_iter != m_NamedObjects.end())
 	{
 		_ASSERT(Object == obj_iter->second);
-		m_NamedObjs.erase(obj_iter);
+		m_NamedObjects.erase(obj_iter);
 	}
 }
 
@@ -173,10 +226,10 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 {
 	_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
 
-	CriticalSectionLock lock(m_NamedObjsSec);
+	CriticalSectionLock lock(m_NamedObjectsSec);
 
-	NamedObjectMap::const_iterator obj_iter = m_NamedObjs.find(Name);
-	if (obj_iter != m_NamedObjs.end())
+	NamedObjectMap::const_iterator obj_iter = m_NamedObjects.find(Name);
+	if (obj_iter != m_NamedObjects.end())
 	{
 		return obj_iter->second;
 	}
@@ -196,31 +249,6 @@ bool DxutApp::ModifyDeviceSettings(
 	DXUTD3D9DeviceSettings * pDeviceSettings)
 {
 	return true;
-}
-
-HRESULT DxutApp::OnCreateDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	return S_OK;
-}
-
-HRESULT DxutApp::OnResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	m_EventDeviceReset();
-	return S_OK;
-}
-
-void DxutApp::OnLostDevice(void)
-{
-	m_EventDeviceLost();
-}
-
-void DxutApp::OnDestroyDevice(void)
-{
-	m_EventDeviceDestroy();
 }
 
 void DxutApp::OnFrameTick(
@@ -1874,8 +1902,6 @@ HRESULT DxutApp::Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 		return hr;
 	}
 
-	m_DeviceObjectsCreated = true;
-
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
@@ -1884,8 +1910,6 @@ HRESULT DxutApp::Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 	{
 		return hr;
 	}
-
-	m_DeviceObjectsReset = true;
 
 	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
@@ -1900,15 +1924,12 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 	if(m_DeviceObjectsReset)
 	{
 		OnLostDevice();
-		m_DeviceObjectsReset = false;
 	}
 
 	if(FAILED(hr = m_d3dDevice->Reset(&deviceSettings.pp)))
 	{
 		return hr;
 	}
-
-	m_DeviceObjectsReset = true;
 
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
@@ -1917,7 +1938,6 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		OnLostDevice();
-		m_DeviceObjectsReset = false;
 		return hr;
 	}
 
@@ -1981,7 +2001,6 @@ void DxutApp::Cleanup3DEnvironment(void)
 	if(m_DeviceObjectsReset)
 	{
 		OnLostDevice();
-		m_DeviceObjectsReset = false;
 	}
 
 	if(m_DeviceObjectsCreated)
@@ -1994,6 +2013,5 @@ void DxutApp::Cleanup3DEnvironment(void)
 			_stprintf_s(msg, _countof(msg), _T("no zero reference count: %u"), references);
 			MessageBox(m_wnd->m_hWnd, msg, NULL, MB_OK);
 		}
-		m_DeviceObjectsCreated = false;
 	}
 }
