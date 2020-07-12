@@ -263,7 +263,7 @@ Terrain::Terrain(void)
 
 Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain, Name)
-	, OctRoot(my::AABB(0, (float)ChunkSize * my::Max(RowChunks, ColChunks)))
+	, OctRoot(0, (float)ChunkSize * my::Max(RowChunks, ColChunks))
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)

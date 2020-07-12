@@ -213,7 +213,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor)
 {
-	PushWireAABB(actor->m_Node->m_aabb, D3DCOLOR_ARGB(255, 255, 255, 0));
+	PushWireAABB(*actor->m_Node, D3DCOLOR_ARGB(255, 255, 255, 0));
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{

@@ -29,7 +29,7 @@ namespace my
 
 	typedef boost::shared_ptr<OctEntity> OctEntityPtr;
 
-	class OctNode
+	class OctNode : public AABB
 	{
 	public:
 		struct QueryCallback
@@ -44,8 +44,6 @@ namespace my
 
 		OctNode * m_Parent;
 
-		AABB m_aabb;
-
 		Vector3 m_Half;
 
 		typedef std::map<OctEntity *, AABB> OctEntityMap;
@@ -59,15 +57,35 @@ namespace my
 	public:
 		OctNode(void)
 			: m_Parent(NULL)
-			, m_aabb(AABB::Invalid())
 			, m_Half(0, 0, 0)
 		{
 		}
 
-		OctNode(OctNode * Parent, const AABB & aabb)
-			: m_Parent(Parent)
-			, m_aabb(aabb)
-			, m_Half(aabb.Center())
+		OctNode(OctNode * Parent, float minv, float maxv)
+			: AABB(minv, maxv)
+			, m_Parent(Parent)
+			, m_Half(Center())
+		{
+		}
+
+		OctNode(OctNode * Parent, float minx, float miny, float minz, float maxx, float maxy, float maxz)
+			: AABB(minx, miny, minz, maxx, maxy, maxz)
+			, m_Parent(Parent)
+			, m_Half(Center())
+		{
+		}
+
+		OctNode(OctNode * Parent, const Vector3 & _Min, const Vector3 & _Max)
+			: AABB(_Min, _Max)
+			, m_Parent(Parent)
+			, m_Half(Center())
+		{
+		}
+
+		OctNode(OctNode * Parent, const Vector3 & center, float radius)
+			: AABB(center, radius)
+			, m_Parent(Parent)
+			, m_Half(Center())
 		{
 		}
 
@@ -104,13 +122,27 @@ namespace my
 	{
 	protected:
 		OctRoot(void)
-			: OctNode(NULL, AABB::Invalid())
 		{
 		}
 
 	public:
-		OctRoot(const AABB & aabb)
-			: OctNode(NULL, aabb)
+		OctRoot(float minv, float maxv)
+			: OctNode(NULL, minv, maxv)
+		{
+		}
+
+		OctRoot(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+			: OctNode(NULL, minx, miny, minz, maxx, maxy, maxz)
+		{
+		}
+
+		OctRoot(const Vector3 & _Min, const Vector3 & _Max)
+			: OctNode(NULL, _Min, _Max)
+		{
+		}
+
+		OctRoot(const Vector3 & center, float radius)
+			: OctNode(NULL, center, radius)
 		{
 		}
 
@@ -119,7 +151,7 @@ namespace my
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(m_aabb);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AABB);
 			ar & BOOST_SERIALIZATION_NVP(m_Half);
 		}
 	};

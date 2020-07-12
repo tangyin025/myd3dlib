@@ -285,7 +285,7 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: OctRoot(my::AABB(-4096, 4096))
+	: OctRoot(-4096, 4096)
 	, Thread(boost::bind(&Game::LoadSceneProc, this))
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)

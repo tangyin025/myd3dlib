@@ -82,8 +82,8 @@ void CNavigationDlg::OnOK()
 	m_cfg.detailSampleDist = 1.8f;// m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = 0.2f;// m_cellHeight * m_detailSampleMaxError;
 
-	rcVcopy(m_cfg.bmin, &pFrame->m_aabb.m_min.x);
-	rcVcopy(m_cfg.bmax, &pFrame->m_aabb.m_max.x);
+	rcVcopy(m_cfg.bmin, &pFrame->m_min.x);
+	rcVcopy(m_cfg.bmax, &pFrame->m_max.x);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.

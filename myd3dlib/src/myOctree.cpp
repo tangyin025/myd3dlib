@@ -62,62 +62,62 @@ OctNode * OctNode::GetTopNode(void)
 void OctNode::AddEntity(OctEntity * entity, const AABB & aabb)
 {
 	_ASSERT(!entity->m_Node);
-	if (m_aabb.m_max.x - m_aabb.m_min.x > MIN_BLOCK + THRESHOLD || m_aabb.m_max.y - m_aabb.m_min.y > MIN_BLOCK + THRESHOLD || m_aabb.m_max.z - m_aabb.m_min.z > MIN_BLOCK + THRESHOLD)
+	if (m_max.x - m_min.x > MIN_BLOCK + THRESHOLD || m_max.y - m_min.y > MIN_BLOCK + THRESHOLD || m_max.z - m_min.z > MIN_BLOCK + THRESHOLD)
 	{
-		if (aabb.m_min.x > m_Half.x - THRESHOLD && aabb.m_max.x < m_aabb.m_max.x + THRESHOLD)
+		if (aabb.m_min.x > m_Half.x - THRESHOLD && aabb.m_max.x < m_max.x + THRESHOLD)
 		{
-			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_aabb.m_max.y + THRESHOLD)
+			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_max.y + THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyPz], m_aabb.Slice<AABB::QuadrantPxPyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxPyPz], Slice<AABB::QuadrantPxPyPz>(m_Half), entity, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyNz], m_aabb.Slice<AABB::QuadrantPxPyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxPyNz], Slice<AABB::QuadrantPxPyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
-			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_aabb.m_min.y - THRESHOLD)
+			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_min.y - THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyPz], m_aabb.Slice<AABB::QuadrantPxNyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxNyPz], Slice<AABB::QuadrantPxNyPz>(m_Half), entity, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyNz], m_aabb.Slice<AABB::QuadrantPxNyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxNyNz], Slice<AABB::QuadrantPxNyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
 		}
-		else if (aabb.m_max.x < m_Half.x + THRESHOLD && aabb.m_min.x > m_aabb.m_min.x - THRESHOLD)
+		else if (aabb.m_max.x < m_Half.x + THRESHOLD && aabb.m_min.x > m_min.x - THRESHOLD)
 		{
-			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_aabb.m_max.y + THRESHOLD)
+			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_max.y + THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyPz], m_aabb.Slice<AABB::QuadrantNxPyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxPyPz], Slice<AABB::QuadrantNxPyPz>(m_Half), entity, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyNz], m_aabb.Slice<AABB::QuadrantNxPyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxPyNz], Slice<AABB::QuadrantNxPyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
-			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_aabb.m_min.y - THRESHOLD)
+			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_min.y - THRESHOLD)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_aabb.m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyPz], m_aabb.Slice<AABB::QuadrantNxNyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxNyPz], Slice<AABB::QuadrantNxNyPz>(m_Half), entity, aabb);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_aabb.m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyNz], m_aabb.Slice<AABB::QuadrantNxNyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxNyNz], Slice<AABB::QuadrantNxNyNz>(m_Half), entity, aabb);
 					return;
 				}
 			}
@@ -133,7 +133,7 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 {
 	if (!child)
 	{
-		child.reset(new OctNode(this, child_aabb));
+		child.reset(new OctNode(this, child_aabb.m_min, child_aabb.m_max));
 	}
 	child->OctNode::AddEntity(entity, aabb);
 }
@@ -154,7 +154,7 @@ void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 	{
 		if (*node_iter)
 		{
-			if (IntersectionTests::rayAndAABB(ray.p, ray.d, (*node_iter)->m_aabb).first)
+			if (IntersectionTests::rayAndAABB(ray.p, ray.d, *(*node_iter)).first)
 			{
 				(*node_iter)->QueryEntity(ray, callback);
 			}
@@ -182,7 +182,7 @@ void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 	{
 		if (*node_iter)
 		{
-			switch (IntersectionTests::IntersectAABBAndAABB((*node_iter)->m_aabb, aabb))
+			switch (IntersectionTests::IntersectAABBAndAABB(*(*node_iter), aabb))
 			{
 			case IntersectionTests::IntersectionTypeInside:
 				(*node_iter)->QueryEntityAll(callback);
@@ -216,7 +216,7 @@ void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 	{
 		if (*node_iter)
 		{
-			switch (IntersectionTests::IntersectAABBAndFrustum((*node_iter)->m_aabb, frustum))
+			switch (IntersectionTests::IntersectAABBAndFrustum(*(*node_iter), frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
 				(*node_iter)->QueryEntityAll(callback);

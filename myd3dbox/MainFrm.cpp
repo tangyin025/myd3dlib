@@ -238,7 +238,7 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-	: OctRoot(my::AABB(-4096, 4096))
+	: OctRoot(-4096, 4096)
 	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
@@ -1222,7 +1222,7 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->AddComponent(terrain);
 	if (dlg.m_AlignToCenter)
 	{
-		my::Vector3 center = terrain->m_aabb.Center();
+		my::Vector3 center = terrain->Center();
 		(*actor_iter)->m_Position.x -= center.x;
 		(*actor_iter)->m_Position.z -= center.z;
 		(*actor_iter)->UpdateWorld();
