@@ -1194,13 +1194,16 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 
 my::AABB EmitterComponent::CalculateAABB(void) const
 {
+	_ASSERT(m_Actor);
+
 	if (!m_ParticleList.empty())
 	{
+		Matrix4 worldToLocal = m_Actor->m_World.inverse();
 		AABB ret = AABB::Invalid();
 		ParticleList::const_iterator part_iter = m_ParticleList.begin();
 		for (; part_iter != m_ParticleList.end(); part_iter++)
 		{
-			ret.unionSelf(AABB(part_iter->m_Position, part_iter->m_Size.x * 0.5f));
+			ret.unionSelf(AABB(part_iter->m_Position.transformCoord(worldToLocal), part_iter->m_Size.x * 0.5f));
 		}
 		return ret;
 	}

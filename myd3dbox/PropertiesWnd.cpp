@@ -1857,6 +1857,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEmitterParticleCount:
 	{
 		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Actor * actor = emit_cmp->m_Actor;
 		unsigned int new_size = pProp->GetValue().uintVal;
 		if (new_size < emit_cmp->m_ParticleList.size())
 		{
@@ -1864,9 +1865,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		else
 		{
-			emit_cmp->m_ParticleList.resize(new_size, my::Emitter::Particle(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
+			emit_cmp->m_ParticleList.resize(new_size, my::Emitter::Particle(actor->m_Position, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
 		}
 		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
+		actor->UpdateAABB();
+		actor->UpdateOctNode();
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -1925,6 +1930,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		particle.m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
+		Actor * actor = emit_cmp->m_Actor;
+		actor->UpdateAABB();
+		actor->UpdateOctNode();
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
