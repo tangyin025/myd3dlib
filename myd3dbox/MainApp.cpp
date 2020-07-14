@@ -374,9 +374,9 @@ void CMainApp::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	m_UIRender.reset();
-
 	D3DContext::OnDestroyDevice();
+
+	m_UIRender.reset();
 }
 
 // CAboutDlg dialog used for App About
