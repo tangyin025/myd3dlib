@@ -46,7 +46,7 @@ namespace my
 
 		OctEntityMap m_Entities;
 
-		typedef std::array<boost::shared_ptr<OctNode>, AABB::QuadrantNum> ChildArray;
+		typedef std::array<boost::shared_ptr<OctNode>, QuadrantNum> ChildArray;
 
 		ChildArray m_Childs;
 
