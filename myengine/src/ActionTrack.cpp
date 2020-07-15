@@ -237,7 +237,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	m_WorldEmitterActor.reset(new Actor(
 		NamedObject::MakeUniqueName("ActionTrackEmitterInst_actor").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), *Root));
 	m_WorldEmitterActor->AddComponent(m_WorldEmitterInst);
-	Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb);
+	Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)

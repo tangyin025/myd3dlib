@@ -32,7 +32,7 @@ require "Action.lua"
 -- actor:CreateRigidActor(Actor.eRIGID_STATIC)
 -- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
 -- actor:UpdateWorld()
--- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World))
+-- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World),1.0,0.1)
 
 -- 创建一个物理球
 actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -84,7 +84,7 @@ end
 
 game.EventLoadScene=function(arg)
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World))
+	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
 	SPlayer.player.EventEnterView=function(arg)
 		arg.self:PlayAction(SAction.act_tuowei)
 	end
@@ -94,7 +94,7 @@ game.EventLoadScene=function(arg)
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World))
+	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
 	SPlayer.player:Attach(actor3, 10)
 	
 	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -102,17 +102,17 @@ game.EventLoadScene=function(arg)
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World))
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
 	SPlayer.player:Attach(actor4, 29)
 	
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World))
+	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
 	actor2.EventEnterView=function(arg)
 		arg.self:PlayAction(SAction.act_sound)
 	end
 	
 	actor5:UpdateWorld()
-	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World))
+	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
 	
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)

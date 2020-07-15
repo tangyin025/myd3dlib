@@ -703,9 +703,9 @@ bool CMainFrame::ExecuteCode(const char * code)
 	return false;
 }
 
-void CMainFrame::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
+void CMainFrame::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)
 {
-	OctNode::AddEntity(entity, aabb);
+	OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
 bool CMainFrame::RemoveEntity(my::OctEntity * entity)
@@ -863,7 +863,7 @@ BOOL CMainFrame::DoOpen(LPCTSTR lpszFileName)
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
-		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 
 	theApp.AddToRecentFileList(m_strPathName);
@@ -975,7 +975,7 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
-	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
+	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
 	m_ActorList.insert(actor);
 
 	m_selactors.clear();
@@ -994,7 +994,7 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(my::NamedObject::MakeUniqueName("editor_character").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
 	character->UpdateWorld();
-	AddEntity(character.get(), character->m_aabb.transform(character->m_World));
+	AddEntity(character.get(), character->m_aabb.transform(character->m_World), Actor::MinBlock, Actor::Threshold);
 	m_ActorList.insert(character);
 
 	m_selactors.clear();

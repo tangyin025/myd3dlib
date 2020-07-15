@@ -1248,7 +1248,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = (*sel_iter)->Clone();
-				pFrame->AddEntity(new_actor.get(), new_actor->m_aabb.transform(new_actor->m_World));
+				pFrame->AddEntity(new_actor.get(), new_actor->m_aabb.transform(new_actor->m_World), Actor::MinBlock, Actor::Threshold);
 				pFrame->m_ActorList.insert(new_actor);
 				new_selactors.push_back(new_actor.get());
 			}

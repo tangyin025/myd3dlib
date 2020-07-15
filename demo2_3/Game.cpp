@@ -1040,9 +1040,9 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 	QueryEntity(In, &cb);
 }
 
-void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb)
+void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)
 {
-	OctNode::AddEntity(entity, aabb);
+	OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
 bool Game::RemoveEntity(my::OctEntity * entity)
@@ -1166,7 +1166,7 @@ void Game::LoadSceneCheck(DWORD dwMilliseconds)
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
-		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
+		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 
 	if (m_EventLoadScene)

@@ -251,6 +251,10 @@ static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N)
 	return k;
 }
 
+const float Terrain::MinBlock = 1.0f;
+
+const float Terrain::Threshold = 0.1f;
+
 Terrain::Terrain(void)
 	: m_RowChunks(1)
 	, m_ColChunks(1)
@@ -289,7 +293,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 			m_Chunks[i][j].reset(new TerrainChunk(i, j, m_ChunkSize));
 			m_Chunks[i][j]->UpdateVertices<unsigned char>(this, desc_h, lrc_h, 1.0f);
 			m_Chunks[i][j]->UpdateColors(this, desc_c, lrc_c);
-			AddEntity(m_Chunks[i][j].get(), m_Chunks[i][j]->CalculateAABB(this));
+			AddEntity(m_Chunks[i][j].get(), m_Chunks[i][j]->CalculateAABB(this), MinBlock, Threshold);
 		}
 	}
 }
@@ -589,7 +593,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 			AABB aabb;
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d", i, j).c_str(), m_Chunks[i][j]);
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), aabb);
-			AddEntity(m_Chunks[i][j].get(), aabb);
+			AddEntity(m_Chunks[i][j].get(), aabb, MinBlock, Threshold);
 		}
 	}
 }
@@ -874,7 +878,7 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 				break;
 			}
 			RemoveEntity(chunk);
-			AddEntity(chunk, chunk->CalculateAABB(this));
+			AddEntity(chunk, chunk->CalculateAABB(this), MinBlock, Threshold);
 		}
 	}
 	HeightMap->UnlockRect(0);

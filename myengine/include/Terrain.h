@@ -54,6 +54,10 @@ class Terrain
 	, public my::OctRoot
 {
 public:
+	static const float MinBlock;
+
+	static const float Threshold;
+
 	int m_RowChunks;
 
 	int m_ColChunks;

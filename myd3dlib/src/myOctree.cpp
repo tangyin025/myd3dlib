@@ -19,10 +19,6 @@ OctEntity::~OctEntity(void)
 	_ASSERT(!m_OctAabb);
 }
 
-const float OctNode::THRESHOLD = 0.1f;
-
-const float OctNode::MIN_BLOCK = 1.0f;
-
 bool OctNode::HaveNode(const OctNode * node) const
 {
 	if (this == node)
@@ -59,65 +55,65 @@ OctNode * OctNode::GetTopNode(void)
 	return this;
 }
 
-void OctNode::AddEntity(OctEntity * entity, const AABB & aabb)
+void OctNode::AddEntity(OctEntity * entity, const AABB & aabb, float minblock, float threshold)
 {
 	_ASSERT(!entity->m_Node);
-	if (m_max.x - m_min.x > MIN_BLOCK + THRESHOLD || m_max.y - m_min.y > MIN_BLOCK + THRESHOLD || m_max.z - m_min.z > MIN_BLOCK + THRESHOLD)
+	if (m_max.x - m_min.x > minblock + threshold || m_max.y - m_min.y > minblock + threshold || m_max.z - m_min.z > minblock + threshold)
 	{
-		if (aabb.m_min.x > m_Half.x - THRESHOLD && aabb.m_max.x < m_max.x + THRESHOLD)
+		if (aabb.m_min.x > m_Half.x - threshold && aabb.m_max.x < m_max.x + threshold)
 		{
-			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_max.y + THRESHOLD)
+			if (aabb.m_min.y > m_Half.y - threshold && aabb.m_max.y < m_max.y + threshold)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_max.z + threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyPz], Slice<AABB::QuadrantPxPyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxPyPz], Slice<AABB::QuadrantPxPyPz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_min.z - threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxPyNz], Slice<AABB::QuadrantPxPyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxPyNz], Slice<AABB::QuadrantPxPyNz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
 			}
-			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_min.y - THRESHOLD)
+			else if (aabb.m_max.y < m_Half.y + threshold && aabb.m_min.y > m_min.y - threshold)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_max.z + threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyPz], Slice<AABB::QuadrantPxNyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxNyPz], Slice<AABB::QuadrantPxNyPz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_min.z - threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantPxNyNz], Slice<AABB::QuadrantPxNyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantPxNyNz], Slice<AABB::QuadrantPxNyNz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
 			}
 		}
-		else if (aabb.m_max.x < m_Half.x + THRESHOLD && aabb.m_min.x > m_min.x - THRESHOLD)
+		else if (aabb.m_max.x < m_Half.x + threshold && aabb.m_min.x > m_min.x - threshold)
 		{
-			if (aabb.m_min.y > m_Half.y - THRESHOLD && aabb.m_max.y < m_max.y + THRESHOLD)
+			if (aabb.m_min.y > m_Half.y - threshold && aabb.m_max.y < m_max.y + threshold)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_max.z + threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyPz], Slice<AABB::QuadrantNxPyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxPyPz], Slice<AABB::QuadrantNxPyPz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_min.z - threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxPyNz], Slice<AABB::QuadrantNxPyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxPyNz], Slice<AABB::QuadrantNxPyNz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
 			}
-			else if (aabb.m_max.y < m_Half.y + THRESHOLD && aabb.m_min.y > m_min.y - THRESHOLD)
+			else if (aabb.m_max.y < m_Half.y + threshold && aabb.m_min.y > m_min.y - threshold)
 			{
-				if (aabb.m_min.z > m_Half.z - THRESHOLD && aabb.m_max.z < m_max.z + THRESHOLD)
+				if (aabb.m_min.z > m_Half.z - threshold && aabb.m_max.z < m_max.z + threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyPz], Slice<AABB::QuadrantNxNyPz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxNyPz], Slice<AABB::QuadrantNxNyPz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
-				else if (aabb.m_max.z < m_Half.z + THRESHOLD && aabb.m_min.z > m_min.z - THRESHOLD)
+				else if (aabb.m_max.z < m_Half.z + threshold && aabb.m_min.z > m_min.z - threshold)
 				{
-					AddToChild(m_Childs[AABB::QuadrantNxNyNz], Slice<AABB::QuadrantNxNyNz>(m_Half), entity, aabb);
+					AddToChild(m_Childs[AABB::QuadrantNxNyNz], Slice<AABB::QuadrantNxNyNz>(m_Half), entity, aabb, minblock, threshold);
 					return;
 				}
 			}
@@ -129,13 +125,13 @@ void OctNode::AddEntity(OctEntity * entity, const AABB & aabb)
 	entity->m_OctAabb = &result.first->second;
 }
 
-void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb)
+void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb, float minblock, float threshold)
 {
 	if (!child)
 	{
 		child.reset(new OctNode(this, child_aabb.m_min, child_aabb.m_max));
 	}
-	child->OctNode::AddEntity(entity, aabb);
+	child->OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
 void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const

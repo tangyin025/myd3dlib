@@ -147,7 +147,7 @@ public:
 
 	void CheckViewedActor(const my::AABB & In, const my::AABB & Out);
 
-	void AddEntity(my::OctEntity * entity, const my::AABB & aabb);
+	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 
 	bool RemoveEntity(my::OctEntity * entity);
 

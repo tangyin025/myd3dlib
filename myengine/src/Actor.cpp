@@ -25,6 +25,10 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Actor)
 
+const float Actor::MinBlock = 1.0f;
+
+const float Actor::Threshold = 0.1f;
+
 Actor::~Actor(void)
 {
 	if (m_Node)
@@ -448,7 +452,7 @@ void Actor::UpdateOctNode(void)
 	{
 		my::OctNode * Root = m_Node->GetTopNode();
 		Root->OctNode::RemoveEntity(this);
-		Root->OctNode::AddEntity(this, m_aabb.transform(m_World));
+		Root->OctNode::AddEntity(this, m_aabb.transform(m_World), MinBlock, Threshold);
 	}
 }
 

@@ -62,7 +62,7 @@ public:
 	void InitFileContext();
 	void ClearFileContext();
 	bool ExecuteCode(const char * code);
-	void AddEntity(my::OctEntity * entity, const my::AABB & aabb);
+	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	bool RemoveEntity(my::OctEntity * entity);
 
 // Implementation

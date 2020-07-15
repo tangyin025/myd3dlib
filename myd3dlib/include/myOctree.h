@@ -38,10 +38,6 @@ namespace my
 			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
 		};
 
-		static const float THRESHOLD;
-
-		static const float MIN_BLOCK;
-
 		OctNode * m_Parent;
 
 		Vector3 m_Half;
@@ -99,9 +95,9 @@ namespace my
 
 		OctNode * GetTopNode(void);
 
-		virtual void AddEntity(OctEntity * entity, const AABB & aabb);
+		virtual void AddEntity(OctEntity * entity, const AABB & aabb, float minblock, float threshold);
 
-		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb);
+		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb, float minblock, float threshold);
 
 		void QueryEntity(const Ray & ray, QueryCallback * callback) const;
 

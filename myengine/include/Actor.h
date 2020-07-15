@@ -42,6 +42,10 @@ class Actor
 	, public boost::enable_shared_from_this<Actor>
 {
 public:
+	static const float MinBlock;
+
+	static const float Threshold;
+
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	my::AABB m_aabb;
