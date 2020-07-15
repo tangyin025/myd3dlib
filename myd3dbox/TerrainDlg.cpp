@@ -57,3 +57,33 @@ BOOL CTerrainDlg::OnInitDialog()
 				  // EXCEPTION: OCX Property Pages should return FALSE
 }
 
+void CTerrainDlg::OnOK()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (!UpdateData(TRUE))
+	{
+		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
+		// the UpdateData routine will set focus to correct item
+		return;
+	}
+
+	m_terrain.reset(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 1.0f));
+
+	if (m_UseTerrainMaterial)
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_shader;
+		mtl->ParseShaderParameters();
+		m_terrain->AddMaterial(mtl);
+	}
+
+	if (m_UseWaterMaterial)
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_water_shader;
+		mtl->ParseShaderParameters();
+		m_terrain->AddMaterial(mtl);
+	}
+
+	EndDialog(IDOK);
+}

@@ -1204,25 +1204,10 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), dlg.m_RowChunks, dlg.m_ColChunks, dlg.m_ChunkSize, 1.0f));
-	if (dlg.m_UseTerrainMaterial)
-	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_shader;
-		mtl->ParseShaderParameters();
-		terrain->AddMaterial(mtl);
-	}
-	if (dlg.m_UseWaterMaterial)
-	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_water_shader;
-		mtl->ParseShaderParameters();
-		terrain->AddMaterial(mtl);
-	}
-	(*actor_iter)->AddComponent(terrain);
+	(*actor_iter)->AddComponent(dlg.m_terrain);
 	if (dlg.m_AlignToCenter)
 	{
-		my::Vector3 center = terrain->Center();
+		my::Vector3 center = dlg.m_terrain->Center();
 		(*actor_iter)->m_Position.x -= center.x;
 		(*actor_iter)->m_Position.z -= center.z;
 		(*actor_iter)->UpdateWorld();

@@ -1,6 +1,6 @@
 #pragma once
 #include "afxpropertygridctrl.h"
-
+#include "Terrain.h"
 
 // CTerrainDlg dialog
 
@@ -15,6 +15,8 @@ public:
 // Dialog Data
 	enum { IDD = IDD_DIALOG2 };
 
+	TerrainPtr m_terrain;
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
@@ -28,4 +30,5 @@ public:
 	BOOL m_AlignToCenter;
 	BOOL m_UseTerrainMaterial;
 	BOOL m_UseWaterMaterial;
+	virtual void OnOK();
 };
