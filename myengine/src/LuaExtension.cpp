@@ -49,6 +49,34 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
+template <typename T>
+class Tex2D : public boost::multi_array_ref<T, 2>
+{
+public:
+	Tex2D(const D3DSURFACE_DESC & desc, const D3DLOCKED_RECT & lrc)
+		: multi_array_ref((T*)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)])
+	{
+		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
+			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
+			|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
+			|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
+			|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
+		{
+			THROW_CUSEXCEPTION("unsupported tex format");
+		}
+	}
+
+	void Set(int i, int j, T value)
+	{
+		operator[](i).operator[](j) = value;
+	}
+
+	const T & Get(int i, int j) const
+	{
+		return operator[](i).operator[](j);
+	}
+};
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -374,9 +402,31 @@ void LuaContext::Init(void)
 	];
 
 	module(m_State)[
-		class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
+		class_<D3DLOCKED_RECT>("D3DLOCKED_RECT")
+			.def_readonly("Format", &D3DLOCKED_RECT::Pitch)
+			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
+
+		, class_<Tex2D<unsigned char> >("Tex2DByte")
+			.def(constructor<const D3DSURFACE_DESC &, const D3DLOCKED_RECT &>())
+			.def("Set", &Tex2D<unsigned char>::Set)
+			.def("Get", &Tex2D<unsigned char>::Get)
+
+		, class_<Tex2D<short> >("Tex2DShort")
+			.def(constructor<const D3DSURFACE_DESC &, const D3DLOCKED_RECT &>())
+			.def("Set", &Tex2D<short>::Set)
+			.def("Get", &Tex2D<short>::Get)
+
+		, class_<Tex2D<DWORD> >("Tex2DDWord")
+			.def(constructor<const D3DSURFACE_DESC &, const D3DLOCKED_RECT &>())
+			.def("Set", &Tex2D<DWORD>::Set)
+			.def("Get", &Tex2D<DWORD>::Get)
+
+		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture2D")
+			.def("GetLevelDesc", &my::Texture2D::GetLevelDesc)
+			.def("LockRect", &my::Texture2D::LockRect)
+			.def("UnlockRect", &my::Texture2D::UnlockRect)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
 
