@@ -18,6 +18,7 @@
 #include "Animation.h"
 #include "Terrain.h"
 #include "ActionTrack.h"
+#include <boost/shared_container_iterator.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -74,6 +75,176 @@ public:
 	const T & Get(int i, int j) const
 	{
 		return operator[](i).operator[](j);
+	}
+};
+
+class TerrainVert2D
+{
+public:
+	struct Vertex
+	{
+		my::Vector3 Pos;
+		D3DCOLOR Color;
+		D3DCOLOR Normal;
+	};
+
+	typedef boost::multi_array_ref<Vertex, 2> TerrainChunkVert2D;
+
+	typedef boost::multi_array<Vertex *, 2> ChunkVertRowPtr2D;
+
+	ChunkVertRowPtr2D m_Verts;
+
+	Terrain * m_terrain;
+
+public:
+	TerrainVert2D(Terrain * terrain)
+		: m_Verts(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
+		, m_terrain(terrain)
+	{
+		for (int i = 0; i < m_Verts.shape()[0]; i++)
+		{
+			for (int j = 0; j < m_Verts.shape()[1]; j++)
+			{
+				m_Verts[i][j] = (Vertex *)m_terrain->m_Chunks[i][j]->m_vb.Lock(0, 0, 0);
+			}
+		}
+	}
+
+	~TerrainVert2D(void)
+	{
+		_ASSERT(NULL == m_Verts[0][0]); // ! must manually call Release
+	}
+
+	void Release(void)
+	{
+		for (int i = 0; i < m_Verts.shape()[0]; i++)
+		{
+			for (int j = 0; j < m_Verts.shape()[1]; j++)
+			{
+				if (m_Verts[i][j])
+				{
+					m_terrain->m_Chunks[i][j]->m_vb.Unlock();
+					m_Verts[i][j] = NULL;
+				}
+			}
+		}
+	}
+
+	void GetIndices(int i, int j, int & k, int & l, int & m, int & n) const
+	{
+		if (i < 0)
+		{
+			k = 0;
+			m = 0;
+		}
+		else if (i >= m_Verts.shape()[0] * m_terrain->m_IndexTable.shape()[0])
+		{
+			k = m_Verts.shape()[0] - 1;
+			m = m_terrain->m_IndexTable.shape()[0] - 1;
+		}
+		else
+		{
+			k = i / m_terrain->m_IndexTable.shape()[0];
+			m = i % m_terrain->m_IndexTable.shape()[0];
+		}
+		if (j < 0)
+		{
+			l = 0;
+			n = 0;
+		}
+		else if (j >= m_Verts.shape()[1] * m_terrain->m_IndexTable.shape()[1])
+		{
+			l = m_Verts.shape()[1] - 1;
+			n = m_terrain->m_IndexTable.shape()[1] - 1;
+		}
+		else
+		{
+			l = j / m_terrain->m_IndexTable.shape()[1];
+			n = j % m_terrain->m_IndexTable.shape()[1];
+		}
+	}
+
+	std::pair<
+		boost::shared_container_iterator<std::list<Vertex *> >,
+		boost::shared_container_iterator<std::list<Vertex *> > >GetVertex(int i, int j)
+	{
+		int k, l, m, n;
+		GetIndices(i, j, k, l, m, n);
+		boost::shared_ptr<std::list<Vertex *> > ret(new std::list<Vertex *>());
+		TerrainChunkVert2D vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+		ret->push_back(&vert[m][n]);
+		if (m == 0 && k > 0)
+		{
+			TerrainChunkVert2D vert(m_Verts[k - 1][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+			ret->push_back(&vert[m_terrain->m_IndexTable.shape()[0] - 1][n]);
+		}
+		if (n == 0 && l > 0)
+		{
+			TerrainChunkVert2D vert(m_Verts[k][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+			ret->push_back(&vert[m][m_terrain->m_IndexTable.shape()[1] - 1]);
+		}
+		if (m == 0 && k > 0 && n == 0 && l > 0)
+		{
+			TerrainChunkVert2D vert(m_Verts[k - 1][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+			ret->push_back(&vert[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]);
+		}
+		return boost::make_shared_container_range(ret);
+	}
+
+	const Vertex & GetVertex(int i, int j) const
+	{
+		int k, l, m, n;
+		GetIndices(i, j, k, l, m, n);
+		TerrainChunkVert2D vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+		return vert[m][n];
+	}
+
+	void SetPos(int i, int j, const my::Vector3 & Pos)
+	{
+		boost::shared_container_iterator<std::list<Vertex *> > iter, end;
+		for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
+		{
+			(*iter)->Pos = Pos;
+		}
+	}
+
+	const my::Vector3 & GetPos(int i, int j) const
+	{
+		return GetVertex(i, j).Pos;
+	}
+
+	void SetColor(int i, int j, D3DCOLOR Color)
+	{
+		boost::shared_container_iterator<std::list<Vertex *> > iter, end;
+		for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
+		{
+			(*iter)->Color = Color;
+		}
+	}
+
+	D3DCOLOR GetColor(int i, int j) const
+	{
+		return GetVertex(i, j).Color;
+	}
+
+	void SetNormal(int i, int j, const my::Vector3 & Normal)
+	{
+		D3DCOLOR dw = D3DCOLOR_COLORVALUE((Normal.x + 1.f) * 0.5f, (Normal.y + 1.f) * 0.5f, (Normal.z + 1.f) * 0.5f, 0);
+		boost::shared_container_iterator<std::list<Vertex *> > iter, end;
+		for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
+		{
+			(*iter)->Normal = dw;
+		}
+	}
+
+	my::Vector3 GetNormal(int i, int j) const
+	{
+		D3DCOLOR dw = GetVertex(i, j).Normal;
+		CONST FLOAT f = 1.0f / 255.0f;
+		return my::Vector3(
+			f * (FLOAT)(unsigned char)(dw >> 16),
+			f * (FLOAT)(unsigned char)(dw >> 8),
+			f * (FLOAT)(unsigned char)(dw >> 0)) * 2.0f - 1.0f;
 	}
 };
 
