@@ -51,11 +51,20 @@ static DWORD ARGB(int a, int r, int g, int b)
 }
 
 template <typename T>
-class Tex2D : public boost::multi_array_ref<T, 2>
+class TexturePixel2D
 {
 public:
-	Tex2D(const D3DSURFACE_DESC & desc, const D3DLOCKED_RECT & lrc)
-		: multi_array_ref((T*)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)])
+	D3DSURFACE_DESC desc;
+
+	D3DLOCKED_RECT lrc;
+
+	my::Texture2D * m_texture;
+
+public:
+	TexturePixel2D(my::Texture2D * texture)
+		: desc(texture->GetLevelDesc(0))
+		, lrc(texture->LockRect(NULL, NULL, NULL))
+		, m_texture(texture)
 	{
 		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
 			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
@@ -67,14 +76,30 @@ public:
 		}
 	}
 
+	~TexturePixel2D(void)
+	{
+		_ASSERT(NULL == lrc.pBits);
+	}
+
+	void Release(void)
+	{
+		if (lrc.pBits)
+		{
+			m_texture->UnlockRect();
+			lrc.pBits = NULL;
+		}
+	}
+
 	void Set(int i, int j, T value)
 	{
-		operator[](i).operator[](j) = value;
+		boost::multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
+		ref[i][j] = value;
 	}
 
 	const T & Get(int i, int j) const
 	{
-		return operator[](i).operator[](j);
+		boost::const_multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
+		return ref[i][j];
 	}
 };
 
@@ -577,20 +602,23 @@ void LuaContext::Init(void)
 			.def_readonly("Format", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
-		, class_<Tex2D<unsigned char> >("Tex2DByte")
-			.def(constructor<const D3DSURFACE_DESC &, const D3DLOCKED_RECT &>())
-			.def("Set", &Tex2D<unsigned char>::Set)
-			.def("Get", &Tex2D<unsigned char>::Get)
+		, class_<TexturePixel2D<unsigned char> >("TexturePixel2DByte")
+			.def(constructor<my::Texture2D *>())
+			.def("Release", &TexturePixel2D<unsigned char>::Release)
+			.def("Set", &TexturePixel2D<unsigned char>::Set)
+			.def("Get", &TexturePixel2D<unsigned char>::Get)
 
-		, class_<Tex2D<short> >("Tex2DShort")
-			.def(constructor<const D3DSURFACE_DESC &, const D3DLOCKED_RECT &>())
-			.def("Set", &Tex2D<short>::Set)
-			.def("Get", &Tex2D<short>::Get)
+		, class_<TexturePixel2D<short> >("TexturePixel2DShort")
+			.def(constructor<my::Texture2D *>())
+			.def("Release", &TexturePixel2D<short>::Release)
+			.def("Set", &TexturePixel2D<short>::Set)
+			.def("Get", &TexturePixel2D<short>::Get)
 
-		, class_<Tex2D<DWORD> >("Tex2DDWord")
-			.def(constructor<const D3DSURFACE_DESC &, const D3DLOCKED_RECT &>())
-			.def("Set", &Tex2D<DWORD>::Set)
-			.def("Get", &Tex2D<DWORD>::Get)
+		, class_<TexturePixel2D<DWORD> >("TexturePixel2DDWord")
+			.def(constructor<my::Texture2D *>())
+			.def("Release", &TexturePixel2D<DWORD>::Release)
+			.def("Set", &TexturePixel2D<DWORD>::Set)
+			.def("Get", &TexturePixel2D<DWORD>::Get)
 
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
@@ -1221,6 +1249,16 @@ void LuaContext::Init(void)
 			.def_readwrite("SpawnSizeY", &SphericalEmitterComponent::m_SpawnSizeY)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnCycle", &SphericalEmitterComponent::m_SpawnCycle)
+
+		, class_<TerrainVert2D>("TerrainVert2D")
+			.def(constructor<Terrain *>())
+			.def("Release", &TerrainVert2D::Release)
+			.def("SetPos", &TerrainVert2D::SetPos)
+			.def("GetPos", &TerrainVert2D::GetPos)
+			.def("SetColor", &TerrainVert2D::SetColor)
+			.def("GetColor", &TerrainVert2D::GetColor)
+			.def("SetNormal", &TerrainVert2D::SetNormal)
+			.def("GetNormal", &TerrainVert2D::GetNormal)
 
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)
