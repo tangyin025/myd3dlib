@@ -50,7 +50,6 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
-template <typename T>
 class TexturePixel2D
 {
 public:
@@ -61,19 +60,11 @@ public:
 	my::Texture2D * m_texture;
 
 public:
-	TexturePixel2D(my::Texture2D * texture)
+	explicit TexturePixel2D(my::Texture2D * texture)
 		: desc(texture->GetLevelDesc(0))
-		, lrc(texture->LockRect(NULL, NULL, NULL))
+		, lrc(texture->LockRect(NULL, 0, 0))
 		, m_texture(texture)
 	{
-		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
-			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
-			|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
-			|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
-			|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
-		{
-			THROW_CUSEXCEPTION("unsupported tex format");
-		}
 	}
 
 	~TexturePixel2D(void)
@@ -90,14 +81,32 @@ public:
 		}
 	}
 
+	template <typename T>
 	void Set(int i, int j, T value)
 	{
+		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
+			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
+			|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
+			|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
+			|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
+		{
+			THROW_CUSEXCEPTION("unsupported tex format");
+		}
 		boost::multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
 		ref[i][j] = value;
 	}
 
+	template <typename T>
 	const T & Get(int i, int j) const
 	{
+		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
+			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
+			|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
+			|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
+			|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
+		{
+			THROW_CUSEXCEPTION("unsupported tex format");
+		}
 		boost::const_multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
 		return ref[i][j];
 	}
@@ -113,16 +122,12 @@ public:
 		D3DCOLOR Normal;
 	};
 
-	typedef boost::multi_array_ref<Vertex, 2> TerrainChunkVert2D;
-
-	typedef boost::multi_array<Vertex *, 2> ChunkVertRowPtr2D;
-
-	ChunkVertRowPtr2D m_Verts;
+	boost::multi_array<Vertex *, 2> m_Verts;
 
 	Terrain * m_terrain;
 
 public:
-	TerrainVert2D(Terrain * terrain)
+	explicit TerrainVert2D(Terrain * terrain)
 		: m_Verts(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 		, m_terrain(terrain)
 	{
@@ -196,21 +201,21 @@ public:
 		int k, l, m, n;
 		GetIndices(i, j, k, l, m, n);
 		boost::shared_ptr<std::list<Vertex *> > ret(new std::list<Vertex *>());
-		TerrainChunkVert2D vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+		boost::multi_array_ref<Vertex, 2> vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
 		ret->push_back(&vert[m][n]);
 		if (m == 0 && k > 0)
 		{
-			TerrainChunkVert2D vert(m_Verts[k - 1][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+			boost::multi_array_ref<Vertex, 2> vert(m_Verts[k - 1][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
 			ret->push_back(&vert[m_terrain->m_IndexTable.shape()[0] - 1][n]);
 		}
 		if (n == 0 && l > 0)
 		{
-			TerrainChunkVert2D vert(m_Verts[k][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+			boost::multi_array_ref<Vertex, 2> vert(m_Verts[k][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
 			ret->push_back(&vert[m][m_terrain->m_IndexTable.shape()[1] - 1]);
 		}
 		if (m == 0 && k > 0 && n == 0 && l > 0)
 		{
-			TerrainChunkVert2D vert(m_Verts[k - 1][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+			boost::multi_array_ref<Vertex, 2> vert(m_Verts[k - 1][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
 			ret->push_back(&vert[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]);
 		}
 		return boost::make_shared_container_range(ret);
@@ -220,7 +225,7 @@ public:
 	{
 		int k, l, m, n;
 		GetIndices(i, j, k, l, m, n);
-		TerrainChunkVert2D vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
+		boost::multi_array_ref<Vertex, 2> vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
 		return vert[m][n];
 	}
 
@@ -265,11 +270,11 @@ public:
 	my::Vector3 GetNormal(int i, int j) const
 	{
 		D3DCOLOR dw = GetVertex(i, j).Normal;
-		CONST FLOAT f = 1.0f / 255.0f;
+		const float f = 1.0f / 255.0f;
 		return my::Vector3(
-			f * (FLOAT)(unsigned char)(dw >> 16),
-			f * (FLOAT)(unsigned char)(dw >> 8),
-			f * (FLOAT)(unsigned char)(dw >> 0)) * 2.0f - 1.0f;
+			f * (float)(unsigned char)(dw >> 16),
+			f * (float)(unsigned char)(dw >> 8),
+			f * (float)(unsigned char)(dw >> 0)) * 2.0f - 1.0f;
 	}
 };
 
@@ -602,23 +607,15 @@ void LuaContext::Init(void)
 			.def_readonly("Format", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
-		, class_<TexturePixel2D<unsigned char> >("TexturePixel2DByte")
+		, class_<TexturePixel2D >("TexturePixel2D")
 			.def(constructor<my::Texture2D *>())
-			.def("Release", &TexturePixel2D<unsigned char>::Release)
-			.def("Set", &TexturePixel2D<unsigned char>::Set)
-			.def("Get", &TexturePixel2D<unsigned char>::Get)
-
-		, class_<TexturePixel2D<short> >("TexturePixel2DShort")
-			.def(constructor<my::Texture2D *>())
-			.def("Release", &TexturePixel2D<short>::Release)
-			.def("Set", &TexturePixel2D<short>::Set)
-			.def("Get", &TexturePixel2D<short>::Get)
-
-		, class_<TexturePixel2D<DWORD> >("TexturePixel2DDWord")
-			.def(constructor<my::Texture2D *>())
-			.def("Release", &TexturePixel2D<DWORD>::Release)
-			.def("Set", &TexturePixel2D<DWORD>::Set)
-			.def("Get", &TexturePixel2D<DWORD>::Get)
+			.def("Release", &TexturePixel2D::Release)
+			.def("SetByte", &TexturePixel2D::Set<unsigned char>)
+			.def("GetByte", &TexturePixel2D::Get<unsigned char>)
+			.def("SetShort", &TexturePixel2D::Set<short>)
+			.def("GetShort", &TexturePixel2D::Get<short>)
+			.def("SetDWord", &TexturePixel2D::Set<DWORD>)
+			.def("GetDWord", &TexturePixel2D::Get<DWORD>)
 
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
