@@ -201,22 +201,18 @@ public:
 		int k, l, m, n;
 		GetIndices(i, j, k, l, m, n);
 		boost::shared_ptr<std::list<Vertex *> > ret(new std::list<Vertex *>());
-		boost::multi_array_ref<Vertex, 2> vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
-		ret->push_back(&vert[m][n]);
+		ret->push_back(&m_Verts[k][l][m_terrain->m_IndexTable[m][n]]);
 		if (m == 0 && k > 0)
 		{
-			boost::multi_array_ref<Vertex, 2> vert(m_Verts[k - 1][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
-			ret->push_back(&vert[m_terrain->m_IndexTable.shape()[0] - 1][n]);
+			ret->push_back(&m_Verts[k - 1][l][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][n]]);
 		}
 		if (n == 0 && l > 0)
 		{
-			boost::multi_array_ref<Vertex, 2> vert(m_Verts[k][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
-			ret->push_back(&vert[m][m_terrain->m_IndexTable.shape()[1] - 1]);
+			ret->push_back(&m_Verts[k][l - 1][m_terrain->m_IndexTable[m][m_terrain->m_IndexTable.shape()[1] - 1]]);
 		}
 		if (m == 0 && k > 0 && n == 0 && l > 0)
 		{
-			boost::multi_array_ref<Vertex, 2> vert(m_Verts[k - 1][l - 1], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
-			ret->push_back(&vert[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]);
+			ret->push_back(&m_Verts[k - 1][l - 1][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]]);
 		}
 		return boost::make_shared_container_range(ret);
 	}
@@ -225,8 +221,7 @@ public:
 	{
 		int k, l, m, n;
 		GetIndices(i, j, k, l, m, n);
-		boost::multi_array_ref<Vertex, 2> vert(m_Verts[k][l], boost::extents[m_terrain->m_IndexTable.shape()[0]][m_terrain->m_IndexTable.shape()[1]]);
-		return vert[m][n];
+		return m_Verts[k][l][m_terrain->m_IndexTable[m][n]];
 	}
 
 	void SetPos(int i, int j, const my::Vector3 & Pos)
@@ -1251,11 +1246,11 @@ void LuaContext::Init(void)
 			.def(constructor<Terrain *>())
 			.def("Release", &TerrainVert2D::Release)
 			.def("SetPos", &TerrainVert2D::SetPos)
-			.def("GetPos", &TerrainVert2D::GetPos)
+			.def("GetPos", &TerrainVert2D::GetPos, copy(result))
 			.def("SetColor", &TerrainVert2D::SetColor)
-			.def("GetColor", &TerrainVert2D::GetColor)
+			.def("GetColor", &TerrainVert2D::GetColor, copy(result))
 			.def("SetNormal", &TerrainVert2D::SetNormal)
-			.def("GetNormal", &TerrainVert2D::GetNormal)
+			.def("GetNormal", &TerrainVert2D::GetNormal, copy(result))
 
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)
