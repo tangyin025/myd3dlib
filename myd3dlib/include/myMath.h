@@ -2888,7 +2888,7 @@ namespace my
 			AABB ret;
 			if (m_min.x > m_max.x)
 			{
-				ret.m_min.x = ret.m_max.x = (m_min.x + m_max.x) * 0.5;
+				ret.m_min.x = ret.m_max.x = (m_min.x + m_max.x) * 0.5f;
 			}
 			else
 			{
@@ -2897,7 +2897,7 @@ namespace my
 			}
 			if (m_min.y > m_max.y)
 			{
-				ret.m_min.y = ret.m_max.y = (m_min.y + m_max.y) * 0.5;
+				ret.m_min.y = ret.m_max.y = (m_min.y + m_max.y) * 0.5f;
 			}
 			else
 			{
@@ -2906,7 +2906,7 @@ namespace my
 			}
 			if (m_min.z > m_max.z)
 			{
-				ret.m_min.z = ret.m_max.z = (m_min.z + m_max.z) * 0.5;
+				ret.m_min.z = ret.m_max.z = (m_min.z + m_max.z) * 0.5f;
 			}
 			else
 			{
@@ -2920,15 +2920,15 @@ namespace my
 		{
 			if (m_min.x > m_max.x)
 			{
-				m_min.x = m_max.x = (m_min.x + m_max.x) * 0.5;
+				m_min.x = m_max.x = (m_min.x + m_max.x) * 0.5f;
 			}
 			if (m_min.y > m_max.y)
 			{
-				m_min.y = m_max.y = (m_min.y + m_max.y) * 0.5;
+				m_min.y = m_max.y = (m_min.y + m_max.y) * 0.5f;
 			}
 			if (m_min.z > m_max.z)
 			{
-				m_min.z = m_max.z = (m_min.z + m_max.z) * 0.5;
+				m_min.z = m_max.z = (m_min.z + m_max.z) * 0.5f;
 			}
 			return *this;
 		}

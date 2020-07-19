@@ -38,11 +38,24 @@ TerrainChunk::TerrainChunk(void)
 {
 }
 
-TerrainChunk::TerrainChunk(int Row, int Col, int ChunkSize)
+TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
 	: m_Row(Row)
 	, m_Col(Col)
 {
-	m_vb.CreateVertexBuffer((ChunkSize + 1) * (ChunkSize + 1) * Terrain::m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_vb.CreateVertexBuffer((terrain->m_IndexTable.shape()[0]) * (terrain->m_IndexTable.shape()[1]) * Terrain::m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+
+	VOID * pVertices = m_vb.Lock(0, 0, 0);
+	for (int i = 0; i < (int)terrain->m_IndexTable.shape()[0]; i++)
+	{
+		for (int j = 0; j < (int)terrain->m_IndexTable.shape()[1]; j++)
+		{
+			unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
+			terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)m_Col * terrain->m_ChunkSize + j, 0, (float)m_Row * terrain->m_ChunkSize + i), 0);
+			terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
+			terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
+		}
+	}
+	m_vb.Unlock();
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -110,9 +123,9 @@ my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
 	VOID * pVertices = const_cast<VertexBuffer &>(m_vb).Lock(0, 0, D3DLOCK_READONLY);
 	if (pVertices)
 	{
-		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
+		for (int i = 0; i < (int)terrain->m_IndexTable.shape()[0]; i++)
 		{
-			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
+			for (int j = 0; j < (int)terrain->m_IndexTable.shape()[1]; j++)
 			{
 				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
 				ret.unionSelf(terrain->m_VertexElems.GetPosition(pVertex));
@@ -126,86 +139,6 @@ my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
 		}
 	}
 	return ret;
-}
-
-template <typename T>
-void TerrainChunk::UpdateVertices(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale)
-{
-	VOID * pVertices = m_vb.Lock(0, 0, 0);
-	if (pVertices)
-	{
-		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
-		{
-			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
-			{
-				int pos_i = m_Row * terrain->m_ChunkSize + i;
-				int pos_j = m_Col * terrain->m_ChunkSize + j;
-				const Vector3 Pos = Terrain::GetSamplePos<T>(desc, lrc, pos_i, pos_j, HeightScale);
-				const Vector3 Dirs[4] = {
-					Terrain::GetSamplePos<T>(desc, lrc, pos_i - 1, pos_j, HeightScale) - Pos,
-					Terrain::GetSamplePos<T>(desc, lrc, pos_i, pos_j - 1, HeightScale) - Pos,
-					Terrain::GetSamplePos<T>(desc, lrc, pos_i + 1, pos_j, HeightScale) - Pos,
-					Terrain::GetSamplePos<T>(desc, lrc, pos_i, pos_j + 1, HeightScale) - Pos,
-				};
-				const Vector3 Nors[4] = {
-					Dirs[0].cross(Dirs[1]).normalize(),
-					Dirs[1].cross(Dirs[2]).normalize(),
-					Dirs[2].cross(Dirs[3]).normalize(),
-					Dirs[3].cross(Dirs[0]).normalize(),
-				};
-				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
-
-				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-				terrain->m_VertexElems.SetPosition(pVertex, Pos, 0);
-				terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE((Normal.x + 1.f) * 0.5f, (Normal.y + 1.f) * 0.5f, (Normal.z + 1.f) * 0.5f, 0), 1);
-
-				if ((i == 0 || i == terrain->m_IndexTable.shape()[0] - 1) && (j == 0 || j == terrain->m_IndexTable.shape()[1] - 1))
-				{
-					VOID * pRootVertices = terrain->m_RootVb.Lock(0, 0, 0);
-					unsigned char * pRootVertex = (unsigned char *)pRootVertices + ((terrain->m_ColChunks + 1)
-						* (i == 0 ? m_Row : (m_Row + 1))
-						+ (j == 0 ? m_Col : (m_Col + 1))
-						) * terrain->m_VertexStride;
-					terrain->m_VertexElems.SetPosition(pRootVertex, terrain->m_VertexElems.GetPosition(pVertex, 0), 0);
-					terrain->m_VertexElems.SetColor(pRootVertex, terrain->m_VertexElems.GetColor(pVertex, 1), 1);
-					terrain->m_RootVb.Unlock();
-				}
-			}
-		}
-		m_vb.Unlock();
-	}
-}
-
-void TerrainChunk::UpdateColors(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc)
-{
-	VOID * pVertices = m_vb.Lock(0, 0, 0);
-	if (pVertices)
-	{
-		boost::multi_array_ref<D3DCOLOR, 2> Color((D3DCOLOR *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(D3DCOLOR)]);
-		for (unsigned int i = 0; i < terrain->m_IndexTable.shape()[0]; i++)
-		{
-			for (unsigned int j = 0; j < terrain->m_IndexTable.shape()[1]; j++)
-			{
-				int pos_i = m_Row * terrain->m_ChunkSize + i;
-				int pos_j = m_Col * terrain->m_ChunkSize + j;
-
-				unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-				terrain->m_VertexElems.SetColor(pVertex, Color[Clamp<int>(pos_i, 0, desc.Height - 1)][Clamp<int>(pos_j, 0, desc.Width - 1)], 0);
-
-				if ((i == 0 || i == terrain->m_IndexTable.shape()[0] - 1) && (j == 0 || j == terrain->m_IndexTable.shape()[1] - 1))
-				{
-					VOID * pRootVertices = terrain->m_RootVb.Lock(0, 0, 0);
-					unsigned char * pRootVertex = (unsigned char *)pRootVertices + ((terrain->m_ColChunks + 1)
-						* (i == 0 ? m_Row : (m_Row + 1))
-						+ (j == 0 ? m_Col : (m_Col + 1))
-						) * terrain->m_VertexStride;
-					terrain->m_VertexElems.SetColor(pRootVertex, terrain->m_VertexElems.GetColor(pVertex, 0), 0);
-					terrain->m_RootVb.Unlock();
-				}
-			}
-		}
-		m_vb.Unlock();
-	}
 }
 
 static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)
@@ -279,20 +212,24 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	CreateElements();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	m_RootVb.CreateVertexBuffer((m_RowChunks + 1) * (m_ColChunks + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	VOID * pVertices = m_RootVb.Lock(0, 0, 0);
+	for (int i = 0; i < (int)m_RowChunks + 1; i++)
+	{
+		for (int j = 0; j < (int)m_ColChunks + 1; j++)
+		{
+			unsigned char * pVertex = (unsigned char *)pVertices + (i * (m_ColChunks + 1) + j) * m_VertexStride;
+			m_VertexElems.SetPosition(pVertex, Vector3((float)j * m_ChunkSize, 0, (float)i * m_ChunkSize), 0);
+			m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
+			m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
+		}
+	}
+	m_RootVb.Unlock();
 	m_RootIb.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
-	unsigned char buff_h[1] = { 0 };
-	D3DSURFACE_DESC desc_h = { D3DFMT_L8, D3DRTYPE_TEXTURE, 0, D3DPOOL_MANAGED, D3DMULTISAMPLE_NONE, 0, 1, 1 };
-	D3DLOCKED_RECT lrc_h = { sizeof(buff_h[0]), buff_h };
-	D3DCOLOR buff_c[1] = { D3DCOLOR_ARGB(255, 0, 0, 0) };
-	D3DSURFACE_DESC desc_c = { D3DFMT_A8R8G8B8, D3DRTYPE_TEXTURE, 0, D3DPOOL_MANAGED, D3DMULTISAMPLE_NONE, 0, 1, 1 };
-	D3DLOCKED_RECT lrc_c = { sizeof(buff_c[0]), buff_c };
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
-			m_Chunks[i][j].reset(new TerrainChunk(i, j, m_ChunkSize));
-			m_Chunks[i][j]->UpdateVertices<unsigned char>(this, desc_h, lrc_h, 1.0f);
-			m_Chunks[i][j]->UpdateColors(this, desc_c, lrc_c);
+			m_Chunks[i][j].reset(new TerrainChunk(i, j, this));
 			AddEntity(m_Chunks[i][j].get(), m_Chunks[i][j]->CalculateAABB(this), MinBlock, Threshold);
 		}
 	}
@@ -810,7 +747,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	{
 		for (int col = 0; col < m_ColChunks; col++)
 		{
-			TerrainChunk * chunk = GetChunk(raw, col);
+			TerrainChunk * chunk = m_Chunks[raw][col].get();
 			VOID * pVertices = chunk->m_vb.Lock(0, 0, 0);
 			for (int i = 0; i < ((raw < m_RowChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); i++)
 			{
@@ -860,48 +797,91 @@ void Terrain::ClearShape(void)
 
 void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 {
-	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
-	D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
+	my::TexturePixel2D pixel(HeightMap);
+	TerrainVert2D vert(this);
+	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
+	{
+		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
+		{
+			switch (pixel.desc.Format)
+			{
+			case D3DFMT_A8:
+			case D3DFMT_L8:
+				vert.SetHeight(i, j, HeightScale * pixel.Get<unsigned char>(i, j));
+				break;
+			case D3DFMT_L16:
+				vert.SetHeight(i, j, HeightScale * ((int)pixel.Get<unsigned short>(i, j) - 32768));
+				break;
+			}
+		}
+	}
+	pixel.Release();
+	vert.Release();
+
+	UpdateVerticesNormal();
+
+	UpdateChunkAABB();
+}
+
+void Terrain::UpdateVerticesNormal(void)
+{
+	TerrainVert2D vert(this);
+	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
+	{
+		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
+		{
+			const Vector3 pos((float)j, vert.GetHeight(i, j), (float)i);
+			const Vector3 Dirs[4] = {
+				Vector3((float)j, vert.GetHeight(i - 1, j), (float)i - 1) - pos,
+				Vector3((float)j - 1, vert.GetHeight(i, j - 1), (float)i) - pos,
+				Vector3((float)j, vert.GetHeight(i + 1, j), (float)i + 1) - pos,
+				Vector3((float)j + 1, vert.GetHeight(i, j + 1), (float)i) - pos,
+			};
+			const Vector3 Nors[4] = {
+				Dirs[0].cross(Dirs[1]).normalize(),
+				Dirs[1].cross(Dirs[2]).normalize(),
+				Dirs[2].cross(Dirs[3]).normalize(),
+				Dirs[3].cross(Dirs[0]).normalize(),
+			};
+			const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
+			vert.SetNormal(i, j, Normal);
+		}
+	}
+	vert.Release();
+}
+
+void Terrain::UpdateChunkAABB(void)
+{
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
-			TerrainChunk * chunk = GetChunk(i, j);
-			switch (desc.Format)
-			{
-			case D3DFMT_A8:
-			case D3DFMT_L8:
-				chunk->UpdateVertices<unsigned char>(this, desc, lrc, HeightScale);
-				break;
-			case D3DFMT_L16:
-				chunk->UpdateVertices<short>(this, desc, lrc, HeightScale);
-				break;
-			}
+			TerrainChunk * chunk = m_Chunks[i][j].get();
 			RemoveEntity(chunk);
 			AddEntity(chunk, chunk->CalculateAABB(this), MinBlock, Threshold);
 		}
 	}
-	HeightMap->UnlockRect(0);
 }
 
 void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 {
-	D3DSURFACE_DESC desc = ColorMap->GetLevelDesc(0);
-	D3DLOCKED_RECT lrc = ColorMap->LockRect(NULL, D3DLOCK_READONLY, 0);
-	for (int i = 0; i < m_RowChunks; i++)
+	my::TexturePixel2D pixel(ColorMap);
+	TerrainVert2D vert(this);
+	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
-		for (int j = 0; j < m_ColChunks; j++)
+		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
 		{
-			switch (desc.Format)
+			switch (pixel.desc.Format)
 			{
 			case D3DFMT_A8R8G8B8:
 			case D3DFMT_X8R8G8B8:
-				m_Chunks[i][j]->UpdateColors(this, desc, lrc);
+				vert.SetColor(i, j, pixel.Get<DWORD>(i, j));
 				break;
 			}
 		}
 	}
-	ColorMap->UnlockRect(0);
+	pixel.Release();
+	vert.Release();
 }
 
 bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal)
@@ -956,4 +936,158 @@ bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::V
 		return true;
 	}
 	return false;
+}
+
+TerrainVert2D::TerrainVert2D(Terrain * terrain)
+	: m_Verts(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
+	, m_RootVerts((Vertex *)terrain->m_RootVb.Lock(0, 0, 0), boost::extents[terrain->m_RowChunks + 1][terrain->m_ColChunks + 1])
+	, m_terrain(terrain)
+{
+	for (int i = 0; i < (int)m_Verts.shape()[0]; i++)
+	{
+		for (int j = 0; j < (int)m_Verts.shape()[1]; j++)
+		{
+			m_Verts[i][j] = (Vertex *)m_terrain->m_Chunks[i][j]->m_vb.Lock(0, 0, 0);
+		}
+	}
+}
+
+TerrainVert2D::~TerrainVert2D(void)
+{
+	if (m_Verts[0][0])
+	{
+		Release();
+	}
+}
+
+void TerrainVert2D::Release(void)
+{
+	for (int i = 0; i < (int)m_Verts.shape()[0]; i++)
+	{
+		for (int j = 0; j < (int)m_Verts.shape()[1]; j++)
+		{
+			if (m_Verts[i][j])
+			{
+				m_terrain->m_Chunks[i][j]->m_vb.Unlock();
+				m_Verts[i][j] = NULL;
+			}
+		}
+	}
+	m_terrain->m_RootVb.Unlock();
+}
+
+void TerrainVert2D::GetIndices(int i, int j, int & k, int & l, int & m, int & n) const
+{
+	if (i < 0)
+	{
+		k = 0;
+		m = 0;
+	}
+	else if (i >= (int)m_Verts.shape()[0] * ((int)m_terrain->m_IndexTable.shape()[0] - 1))
+	{
+		k = m_Verts.shape()[0] - 1;
+		m = m_terrain->m_IndexTable.shape()[0] - 1;
+	}
+	else
+	{
+		k = i / (m_terrain->m_IndexTable.shape()[0] - 1);
+		m = i % (m_terrain->m_IndexTable.shape()[0] - 1);
+	}
+	if (j < 0)
+	{
+		l = 0;
+		n = 0;
+	}
+	else if (j >= (int)m_Verts.shape()[1] * ((int)m_terrain->m_IndexTable.shape()[1] - 1))
+	{
+		l = m_Verts.shape()[1] - 1;
+		n = m_terrain->m_IndexTable.shape()[1] - 1;
+	}
+	else
+	{
+		l = j / (m_terrain->m_IndexTable.shape()[1] - 1);
+		n = j % (m_terrain->m_IndexTable.shape()[1] - 1);
+	}
+}
+
+std::pair<
+	boost::shared_container_iterator<std::list<TerrainVert2D::Vertex *> >,
+	boost::shared_container_iterator<std::list<TerrainVert2D::Vertex *> > >TerrainVert2D::GetVertex(int i, int j)
+{
+	int k, l, m, n;
+	GetIndices(i, j, k, l, m, n);
+	boost::shared_ptr<std::list<Vertex *> > ret(new std::list<Vertex *>());
+	ret->push_back(&m_Verts[k][l][m_terrain->m_IndexTable[m][n]]);
+	if (m == 0 && k > 0)
+	{
+		ret->push_back(&m_Verts[k - 1][l][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][n]]);
+	}
+	if (n == 0 && l > 0)
+	{
+		ret->push_back(&m_Verts[k][l - 1][m_terrain->m_IndexTable[m][m_terrain->m_IndexTable.shape()[1] - 1]]);
+	}
+	if (m == 0 && k > 0 && n == 0 && l > 0)
+	{
+		ret->push_back(&m_Verts[k - 1][l - 1][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]]);
+	}
+	if ((m == 0 || m == m_terrain->m_IndexTable.shape()[0] - 1) && (n == 0 || n == m_terrain->m_IndexTable.shape()[1] - 1))
+	{
+		ret->push_back(&m_RootVerts[m == 0 ? k : k + 1][n == 0 ? l : l + 1]);
+	}
+	return boost::make_shared_container_range(ret);
+}
+
+const TerrainVert2D::Vertex & TerrainVert2D::GetVertex(int i, int j) const
+{
+	int k, l, m, n;
+	GetIndices(i, j, k, l, m, n);
+	return m_Verts[k][l][m_terrain->m_IndexTable[m][n]];
+}
+
+void TerrainVert2D::SetHeight(int i, int j, float Height)
+{
+	boost::shared_container_iterator<std::list<Vertex *> > iter, end;
+	for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
+	{
+		(*iter)->Pos.y = Height;
+	}
+}
+
+float TerrainVert2D::GetHeight(int i, int j) const
+{
+	return GetVertex(i, j).Pos.y;
+}
+
+void TerrainVert2D::SetColor(int i, int j, D3DCOLOR Color)
+{
+	boost::shared_container_iterator<std::list<Vertex *> > iter, end;
+	for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
+	{
+		(*iter)->Color = Color;
+	}
+}
+
+D3DCOLOR TerrainVert2D::GetColor(int i, int j) const
+{
+	return GetVertex(i, j).Color;
+}
+
+void TerrainVert2D::SetNormal(int i, int j, const my::Vector3 & Normal)
+{
+	D3DCOLOR dw = D3DCOLOR_COLORVALUE((Normal.x + 1.0f) * 0.5f, (Normal.y + 1.0f) * 0.5f, (Normal.z + 1.0f) * 0.5f, 0);
+	boost::shared_container_iterator<std::list<Vertex *> > iter, end;
+	for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
+	{
+		(*iter)->Normal = dw;
+	}
+}
+
+my::Vector3 TerrainVert2D::GetNormal(int i, int j) const
+{
+	D3DCOLOR dw = GetVertex(i, j).Normal;
+	const float f = 1.0f / 255.0f;
+	return my::Vector3(
+		f * (float)(unsigned char)(dw >> 16),
+		f * (float)(unsigned char)(dw >> 8),
+		f * (float)(unsigned char)(dw >> 0)) * 2.0f - 1.0f;
 }

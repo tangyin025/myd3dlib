@@ -4,6 +4,7 @@
 #include "Component.h"
 #include <boost/multi_array.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/shared_container_iterator.hpp>
 
 class Terrain;
 
@@ -21,7 +22,7 @@ protected:
 	TerrainChunk(void);
 
 public:
-	TerrainChunk(int Row, int Col, int ChunkSize);
+	TerrainChunk(int Row, int Col, Terrain * terrain);
 
 	virtual ~TerrainChunk(void);
 
@@ -40,11 +41,6 @@ public:
 	}
 
 	my::AABB CalculateAABB(Terrain * terrain) const;
-
-	template <typename T>
-	void UpdateVertices(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, float HeightScale);
-
-	void UpdateColors(Terrain * terrain, D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -156,9 +152,57 @@ public:
 
 	void UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale);
 
+	void UpdateVerticesNormal(void);
+
+	void UpdateChunkAABB(void);
+
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 
 	bool Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
+
+class TerrainVert2D
+{
+public:
+	struct Vertex
+	{
+		my::Vector3 Pos;
+		D3DCOLOR Color;
+		D3DCOLOR Normal;
+	};
+
+	boost::multi_array<Vertex *, 2> m_Verts;
+
+	boost::multi_array_ref<Vertex, 2> m_RootVerts;
+
+	Terrain * m_terrain;
+
+public:
+	explicit TerrainVert2D(Terrain * terrain);
+
+	~TerrainVert2D(void);
+
+	void Release(void);
+
+	void GetIndices(int i, int j, int & k, int & l, int & m, int & n) const;
+
+	std::pair<
+		boost::shared_container_iterator<std::list<Vertex *> >,
+		boost::shared_container_iterator<std::list<Vertex *> > >GetVertex(int i, int j);
+
+	const Vertex & GetVertex(int i, int j) const;
+
+	void SetHeight(int i, int j, float Height);
+
+	float GetHeight(int i, int j) const;
+
+	void SetColor(int i, int j, D3DCOLOR Color);
+
+	D3DCOLOR GetColor(int i, int j) const;
+
+	void SetNormal(int i, int j, const my::Vector3 & Normal);
+
+	my::Vector3 GetNormal(int i, int j) const;
+};

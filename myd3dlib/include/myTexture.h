@@ -137,6 +137,53 @@ namespace my
 
 	typedef boost::intrusive_ptr<Texture2D> Texture2DPtr;
 
+	class TexturePixel2D
+	{
+	public:
+		D3DSURFACE_DESC desc;
+
+		D3DLOCKED_RECT lrc;
+
+		my::Texture2D * m_texture;
+
+	public:
+		explicit TexturePixel2D(my::Texture2D * texture);
+
+		~TexturePixel2D(void);
+
+		void Release(void);
+
+		template <typename T>
+		void Set(int i, int j, T value)
+		{
+			if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
+				|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
+				|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
+				|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
+				|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
+			{
+				THROW_CUSEXCEPTION("unsupported tex format");
+			}
+			boost::multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
+			ref[Clamp(i, 0, (int)desc.Height - 1)][Clamp(j, 0, (int)desc.Width - 1)] = value;
+		}
+
+		template <typename T>
+		const T & Get(int i, int j) const
+		{
+			if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
+				|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
+				|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
+				|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
+				|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
+			{
+				THROW_CUSEXCEPTION("unsupported tex format");
+			}
+			boost::const_multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
+			return ref[Clamp(i, 0, (int)desc.Height - 1)][Clamp(j, 0, (int)desc.Width - 1)];
+		}
+	};
+
 	class CubeTexture : public BaseTexture
 	{
 	public:

@@ -18,7 +18,6 @@
 #include "Animation.h"
 #include "Terrain.h"
 #include "ActionTrack.h"
-#include <boost/shared_container_iterator.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -49,243 +48,6 @@ static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
-
-class TexturePixel2D
-{
-public:
-	D3DSURFACE_DESC desc;
-
-	D3DLOCKED_RECT lrc;
-
-	my::Texture2D * m_texture;
-
-public:
-	explicit TexturePixel2D(my::Texture2D * texture)
-		: desc(texture->GetLevelDesc(0))
-		, lrc(texture->LockRect(NULL, 0, 0))
-		, m_texture(texture)
-	{
-	}
-
-	~TexturePixel2D(void)
-	{
-		if (lrc.pBits)
-		{
-			Release();
-		}
-	}
-
-	void Release(void)
-	{
-		if (lrc.pBits)
-		{
-			m_texture->UnlockRect();
-			lrc.pBits = NULL;
-		}
-	}
-
-	template <typename T>
-	void Set(int i, int j, T value)
-	{
-		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
-			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
-			|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
-			|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
-			|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
-		{
-			THROW_CUSEXCEPTION("unsupported tex format");
-		}
-		boost::multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
-		ref[i][j] = value;
-	}
-
-	template <typename T>
-	const T & Get(int i, int j) const
-	{
-		if (!(sizeof(T) == 1 && desc.Format == D3DFMT_A8
-			|| sizeof(T) == 1 && desc.Format == D3DFMT_L8
-			|| sizeof(T) == 2 && desc.Format == D3DFMT_L16
-			|| sizeof(T) == 4 && desc.Format == D3DFMT_A8R8G8B8
-			|| sizeof(T) == 4 && desc.Format == D3DFMT_X8R8G8B8))
-		{
-			THROW_CUSEXCEPTION("unsupported tex format");
-		}
-		boost::const_multi_array_ref<T, 2> ref((T *)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(T)]);
-		return ref[i][j];
-	}
-};
-
-class TerrainVert2D
-{
-public:
-	struct Vertex
-	{
-		my::Vector3 Pos;
-		D3DCOLOR Color;
-		D3DCOLOR Normal;
-	};
-
-	boost::multi_array<Vertex *, 2> m_Verts;
-
-	boost::multi_array_ref<Vertex, 2> m_RootVerts;
-
-	Terrain * m_terrain;
-
-public:
-	explicit TerrainVert2D(Terrain * terrain)
-		: m_Verts(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
-		, m_RootVerts((Vertex *)terrain->m_RootVb.Lock(0, 0, 0), boost::extents[terrain->m_RowChunks + 1][terrain->m_ColChunks + 1])
-		, m_terrain(terrain)
-	{
-		for (int i = 0; i < m_Verts.shape()[0]; i++)
-		{
-			for (int j = 0; j < m_Verts.shape()[1]; j++)
-			{
-				m_Verts[i][j] = (Vertex *)m_terrain->m_Chunks[i][j]->m_vb.Lock(0, 0, 0);
-			}
-		}
-	}
-
-	~TerrainVert2D(void)
-	{
-		if (m_Verts[0][0])
-		{
-			Release();
-		}
-	}
-
-	void Release(void)
-	{
-		for (int i = 0; i < m_Verts.shape()[0]; i++)
-		{
-			for (int j = 0; j < m_Verts.shape()[1]; j++)
-			{
-				if (m_Verts[i][j])
-				{
-					m_terrain->m_Chunks[i][j]->m_vb.Unlock();
-					m_Verts[i][j] = NULL;
-				}
-			}
-		}
-		m_terrain->m_RootVb.Unlock();
-	}
-
-	void GetIndices(int i, int j, int & k, int & l, int & m, int & n) const
-	{
-		if (i < 0)
-		{
-			k = 0;
-			m = 0;
-		}
-		else if (i >= m_Verts.shape()[0] * (m_terrain->m_IndexTable.shape()[0] - 1))
-		{
-			k = m_Verts.shape()[0] - 1;
-			m = m_terrain->m_IndexTable.shape()[0] - 1;
-		}
-		else
-		{
-			k = i / (m_terrain->m_IndexTable.shape()[0] - 1);
-			m = i % (m_terrain->m_IndexTable.shape()[0] - 1);
-		}
-		if (j < 0)
-		{
-			l = 0;
-			n = 0;
-		}
-		else if (j >= m_Verts.shape()[1] * (m_terrain->m_IndexTable.shape()[1] - 1))
-		{
-			l = m_Verts.shape()[1] - 1;
-			n = m_terrain->m_IndexTable.shape()[1] - 1;
-		}
-		else
-		{
-			l = j / (m_terrain->m_IndexTable.shape()[1] - 1);
-			n = j % (m_terrain->m_IndexTable.shape()[1] - 1);
-		}
-	}
-
-	std::pair<
-		boost::shared_container_iterator<std::list<Vertex *> >,
-		boost::shared_container_iterator<std::list<Vertex *> > >GetVertex(int i, int j)
-	{
-		int k, l, m, n;
-		GetIndices(i, j, k, l, m, n);
-		boost::shared_ptr<std::list<Vertex *> > ret(new std::list<Vertex *>());
-		ret->push_back(&m_Verts[k][l][m_terrain->m_IndexTable[m][n]]);
-		if (m == 0 && k > 0)
-		{
-			ret->push_back(&m_Verts[k - 1][l][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][n]]);
-		}
-		if (n == 0 && l > 0)
-		{
-			ret->push_back(&m_Verts[k][l - 1][m_terrain->m_IndexTable[m][m_terrain->m_IndexTable.shape()[1] - 1]]);
-		}
-		if (m == 0 && k > 0 && n == 0 && l > 0)
-		{
-			ret->push_back(&m_Verts[k - 1][l - 1][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]]);
-		}
-		if ((m == 0 || m == m_terrain->m_IndexTable.shape()[0] - 1) && (n == 0 || n == m_terrain->m_IndexTable.shape()[1] - 1))
-		{
-			ret->push_back(&m_RootVerts[m == 0 ? k : k + 1][n == 0 ? l : l + 1]);
-		}
-		return boost::make_shared_container_range(ret);
-	}
-
-	const Vertex & GetVertex(int i, int j) const
-	{
-		int k, l, m, n;
-		GetIndices(i, j, k, l, m, n);
-		return m_Verts[k][l][m_terrain->m_IndexTable[m][n]];
-	}
-
-	void SetPos(int i, int j, const my::Vector3 & Pos)
-	{
-		boost::shared_container_iterator<std::list<Vertex *> > iter, end;
-		for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
-		{
-			(*iter)->Pos = Pos;
-		}
-	}
-
-	const my::Vector3 & GetPos(int i, int j) const
-	{
-		return GetVertex(i, j).Pos;
-	}
-
-	void SetColor(int i, int j, D3DCOLOR Color)
-	{
-		boost::shared_container_iterator<std::list<Vertex *> > iter, end;
-		for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
-		{
-			(*iter)->Color = Color;
-		}
-	}
-
-	D3DCOLOR GetColor(int i, int j) const
-	{
-		return GetVertex(i, j).Color;
-	}
-
-	void SetNormal(int i, int j, const my::Vector3 & Normal)
-	{
-		D3DCOLOR dw = D3DCOLOR_COLORVALUE((Normal.x + 1.f) * 0.5f, (Normal.y + 1.f) * 0.5f, (Normal.z + 1.f) * 0.5f, 0);
-		boost::shared_container_iterator<std::list<Vertex *> > iter, end;
-		for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
-		{
-			(*iter)->Normal = dw;
-		}
-	}
-
-	my::Vector3 GetNormal(int i, int j) const
-	{
-		D3DCOLOR dw = GetVertex(i, j).Normal;
-		const float f = 1.0f / 255.0f;
-		return my::Vector3(
-			f * (float)(unsigned char)(dw >> 16),
-			f * (float)(unsigned char)(dw >> 8),
-			f * (float)(unsigned char)(dw >> 0)) * 2.0f - 1.0f;
-	}
-};
 
 LuaContext::LuaContext(void)
 	: m_State(NULL)
@@ -616,22 +378,22 @@ void LuaContext::Init(void)
 			.def_readonly("Format", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
-		, class_<TexturePixel2D >("TexturePixel2D")
-			.def(constructor<my::Texture2D *>())
-			.def("Release", &TexturePixel2D::Release)
-			.def("SetByte", &TexturePixel2D::Set<unsigned char>)
-			.def("GetByte", &TexturePixel2D::Get<unsigned char>)
-			.def("SetShort", &TexturePixel2D::Set<short>)
-			.def("GetShort", &TexturePixel2D::Get<short>)
-			.def("SetDWord", &TexturePixel2D::Set<DWORD>)
-			.def("GetDWord", &TexturePixel2D::Get<DWORD>)
-
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture2D")
 			.def("GetLevelDesc", &my::Texture2D::GetLevelDesc)
 			.def("LockRect", &my::Texture2D::LockRect)
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
+
+		, class_<my::TexturePixel2D>("TexturePixel2D")
+			.def(constructor<my::Texture2D *>())
+			.def("Release", &my::TexturePixel2D::Release)
+			.def("SetByte", &my::TexturePixel2D::Set<unsigned char>)
+			.def("GetByte", &my::TexturePixel2D::Get<unsigned char>)
+			.def("SetUShort", &my::TexturePixel2D::Set<unsigned short>)
+			.def("GetUShort", &my::TexturePixel2D::Get<unsigned short>)
+			.def("SetDWord", &my::TexturePixel2D::Set<DWORD>)
+			.def("GetDWord", &my::TexturePixel2D::Get<DWORD>)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
 
@@ -1256,16 +1018,6 @@ void LuaContext::Init(void)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnCycle", &SphericalEmitterComponent::m_SpawnCycle)
 
-		, class_<TerrainVert2D>("TerrainVert2D")
-			.def(constructor<Terrain *>())
-			.def("Release", &TerrainVert2D::Release)
-			.def("SetPos", &TerrainVert2D::SetPos)
-			.def("GetPos", &TerrainVert2D::GetPos, copy(result))
-			.def("SetColor", &TerrainVert2D::SetColor)
-			.def("GetColor", &TerrainVert2D::GetColor, copy(result))
-			.def("SetNormal", &TerrainVert2D::SetNormal)
-			.def("GetNormal", &TerrainVert2D::GetNormal, copy(result))
-
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)
 			.def_readonly("Col", &TerrainChunk::m_Col)
@@ -1277,7 +1029,21 @@ void LuaContext::Init(void)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
 			.def("GetChunk", &Terrain::GetChunk)
+			.def("UpdateHeightMap", &Terrain::UpdateHeightMap)
+			.def("UpdateVerticesNormal", &Terrain::UpdateVerticesNormal)
+			.def("UpdateChunkAABB", &Terrain::UpdateChunkAABB)
+			.def("UpdateSplatmap", &Terrain::UpdateSplatmap)
 			.def("Raycast", &Terrain::Raycast, luabind::pure_out_value(_4) + luabind::pure_out_value(_5))
+
+		, class_<TerrainVert2D>("TerrainVert2D")
+			.def(constructor<Terrain *>())
+			.def("Release", &TerrainVert2D::Release)
+			.def("SetHeight", &TerrainVert2D::SetHeight)
+			.def("GetHeight", &TerrainVert2D::GetHeight, copy(result))
+			.def("SetColor", &TerrainVert2D::SetColor)
+			.def("GetColor", &TerrainVert2D::GetColor, copy(result))
+			.def("SetNormal", &TerrainVert2D::SetNormal)
+			.def("GetNormal", &TerrainVert2D::GetNormal, copy(result))
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)
