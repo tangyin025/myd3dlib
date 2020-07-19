@@ -69,7 +69,10 @@ public:
 
 	~TexturePixel2D(void)
 	{
-		_ASSERT(NULL == lrc.pBits);
+		if (lrc.pBits)
+		{
+			Release();
+		}
 	}
 
 	void Release(void)
@@ -124,11 +127,14 @@ public:
 
 	boost::multi_array<Vertex *, 2> m_Verts;
 
+	boost::multi_array_ref<Vertex, 2> m_RootVerts;
+
 	Terrain * m_terrain;
 
 public:
 	explicit TerrainVert2D(Terrain * terrain)
 		: m_Verts(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
+		, m_RootVerts((Vertex *)terrain->m_RootVb.Lock(0, 0, 0), boost::extents[terrain->m_RowChunks + 1][terrain->m_ColChunks + 1])
 		, m_terrain(terrain)
 	{
 		for (int i = 0; i < m_Verts.shape()[0]; i++)
@@ -142,7 +148,10 @@ public:
 
 	~TerrainVert2D(void)
 	{
-		_ASSERT(NULL == m_Verts[0][0]); // ! must manually call Release
+		if (m_Verts[0][0])
+		{
+			Release();
+		}
 	}
 
 	void Release(void)
@@ -158,6 +167,7 @@ public:
 				}
 			}
 		}
+		m_terrain->m_RootVb.Unlock();
 	}
 
 	void GetIndices(int i, int j, int & k, int & l, int & m, int & n) const
@@ -167,30 +177,30 @@ public:
 			k = 0;
 			m = 0;
 		}
-		else if (i >= m_Verts.shape()[0] * m_terrain->m_IndexTable.shape()[0])
+		else if (i >= m_Verts.shape()[0] * (m_terrain->m_IndexTable.shape()[0] - 1))
 		{
 			k = m_Verts.shape()[0] - 1;
 			m = m_terrain->m_IndexTable.shape()[0] - 1;
 		}
 		else
 		{
-			k = i / m_terrain->m_IndexTable.shape()[0];
-			m = i % m_terrain->m_IndexTable.shape()[0];
+			k = i / (m_terrain->m_IndexTable.shape()[0] - 1);
+			m = i % (m_terrain->m_IndexTable.shape()[0] - 1);
 		}
 		if (j < 0)
 		{
 			l = 0;
 			n = 0;
 		}
-		else if (j >= m_Verts.shape()[1] * m_terrain->m_IndexTable.shape()[1])
+		else if (j >= m_Verts.shape()[1] * (m_terrain->m_IndexTable.shape()[1] - 1))
 		{
 			l = m_Verts.shape()[1] - 1;
 			n = m_terrain->m_IndexTable.shape()[1] - 1;
 		}
 		else
 		{
-			l = j / m_terrain->m_IndexTable.shape()[1];
-			n = j % m_terrain->m_IndexTable.shape()[1];
+			l = j / (m_terrain->m_IndexTable.shape()[1] - 1);
+			n = j % (m_terrain->m_IndexTable.shape()[1] - 1);
 		}
 	}
 
@@ -213,6 +223,10 @@ public:
 		if (m == 0 && k > 0 && n == 0 && l > 0)
 		{
 			ret->push_back(&m_Verts[k - 1][l - 1][m_terrain->m_IndexTable[m_terrain->m_IndexTable.shape()[0] - 1][m_terrain->m_IndexTable.shape()[1] - 1]]);
+		}
+		if ((m == 0 || m == m_terrain->m_IndexTable.shape()[0] - 1) && (n == 0 || n == m_terrain->m_IndexTable.shape()[1] - 1))
+		{
+			ret->push_back(&m_RootVerts[m == 0 ? k : k + 1][n == 0 ? l : l + 1]);
 		}
 		return boost::make_shared_container_range(ret);
 	}
