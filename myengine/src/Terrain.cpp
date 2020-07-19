@@ -252,7 +252,7 @@ static int _Quad(int v)
 	return 0;
 }
 
-unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos)
+unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos) const
 {
 	float DistanceSq = Vector2(
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
