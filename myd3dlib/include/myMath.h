@@ -2883,6 +2883,56 @@ namespace my
 				&& m_min.z < m_max.z;
 		}
 
+		AABB valid(void) const
+		{
+			AABB ret;
+			if (m_min.x > m_max.x)
+			{
+				ret.m_min.x = ret.m_max.x = (m_min.x + m_max.x) * 0.5;
+			}
+			else
+			{
+				ret.m_min.x = m_min.x;
+				ret.m_max.x = m_max.x;
+			}
+			if (m_min.y > m_max.y)
+			{
+				ret.m_min.y = ret.m_max.y = (m_min.y + m_max.y) * 0.5;
+			}
+			else
+			{
+				ret.m_min.y = m_min.y;
+				ret.m_max.y = m_max.y;
+			}
+			if (m_min.z > m_max.z)
+			{
+				ret.m_min.z = ret.m_max.z = (m_min.z + m_max.z) * 0.5;
+			}
+			else
+			{
+				ret.m_min.z = m_min.z;
+				ret.m_max.z = m_max.z;
+			}
+			return ret;
+		}
+
+		AABB & validSelf(void)
+		{
+			if (m_min.x > m_max.x)
+			{
+				m_min.x = m_max.x = (m_min.x + m_max.x) * 0.5;
+			}
+			if (m_min.y > m_max.y)
+			{
+				m_min.y = m_max.y = (m_min.y + m_max.y) * 0.5;
+			}
+			if (m_min.z > m_max.z)
+			{
+				m_min.z = m_max.z = (m_min.z + m_max.z) * 0.5;
+			}
+			return *this;
+		}
+
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
@@ -2989,6 +3039,28 @@ namespace my
 			m_max.y = Max(m_max.y, rhs.m_max.y);
 			m_max.z = Max(m_max.z, rhs.m_max.z);
 			return *this;
+		}
+
+		AABB shrink(float x, float y, float z) const
+		{
+			return AABB(
+				m_min.x + x,
+				m_min.y + y,
+				m_min.z + z,
+				m_max.x - x,
+				m_max.y - y,
+				m_max.z - z).valid();
+		}
+
+		AABB & shrinkSelf(float x, float y, float z)
+		{
+			m_min.x += x;
+			m_min.y += y;
+			m_min.z += z;
+			m_max.x -= x;
+			m_max.y -= y;
+			m_max.z -= z;
+			return validSelf();
 		}
 
 		Vector3 p(const Vector3 & normal) const

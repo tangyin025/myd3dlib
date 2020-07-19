@@ -122,7 +122,7 @@ my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
 
 		if (ret.m_max.y - ret.m_min.y < EPSILON_E6)
 		{
-			ret.m_max.y = ret.m_min.y + 1;
+			ret.shrinkSelf(0, -1.0f, 0);
 		}
 	}
 	return ret;
@@ -267,7 +267,7 @@ Terrain::Terrain(void)
 
 Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain, Name)
-	, OctRoot(0, (float)ChunkSize * my::Max(RowChunks, ColChunks))
+	, OctRoot(0, -1.0f, 0, (float)ChunkSize * ColChunks, 1.0f, (float)ChunkSize * RowChunks)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
