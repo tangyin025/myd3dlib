@@ -684,9 +684,9 @@ void Game::OnFrameTick(
 		m_ViewedCenter = m_Camera->m_Eye;
 	}
 
-	CheckViewedActor(AABB(m_ViewedCenter, 100.0f), AABB(m_ViewedCenter, 100.0f));
-
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+
+	CheckViewedActor(AABB(m_ViewedCenter, 100.0f), AABB(m_ViewedCenter, 100.0f));
 
 	if (!InputMgr::Capture(fTime, fElapsedTime))
 	{

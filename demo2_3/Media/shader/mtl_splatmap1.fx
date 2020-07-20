@@ -1,8 +1,8 @@
 
-texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-texture g_DiffuseTexture1:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-texture g_DiffuseTexture2:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-texture g_DiffuseTexture3:MaterialParameter<string Initialize="texture/Checker.bmp";>;
+texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Black.dds";>;
+texture g_DiffuseTexture1:MaterialParameter<string Initialize="texture/Red.dds";>;
+texture g_DiffuseTexture2:MaterialParameter<string Initialize="texture/Green.dds";>;
+texture g_DiffuseTexture3:MaterialParameter<string Initialize="texture/Blue.dds";>;
 float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 float g_SpecularExp:MaterialParameter = 25;
 float g_SpecularStrength:MaterialParameter = 1;
