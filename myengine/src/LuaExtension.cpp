@@ -1,4 +1,10 @@
 #include "LuaExtension.h"
+extern "C"
+{
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
@@ -1319,4 +1325,9 @@ int LuaContext::docall(int narg, int clear)
 int LuaContext::dostring(const char *s, const char *name)
 {
 	return luaL_loadbuffer(m_State, s, strlen(s), name) || docall(0, 1);
+}
+
+int LuaContext::dogcstep(int step)
+{
+	return lua_gc(m_State, LUA_GCSTEP, step);
 }

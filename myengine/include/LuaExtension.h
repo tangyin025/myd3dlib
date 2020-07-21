@@ -1,13 +1,8 @@
 #pragma once
 
-extern "C"
-{
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-}
-
 #include "mySingleton.h"
+
+struct lua_State;
 
 class LuaContext
 	: public my::SingleInstance<LuaContext>
@@ -27,4 +22,6 @@ public:
 	int docall(int narg, int clear);
 
 	int dostring(const char *s, const char *name);
+
+	int dogcstep(int step);
 };

@@ -452,6 +452,11 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	ASSERT_VALID(pFrame);
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	ASSERT_VALID(pView);
+	if (pFrame->m_State)
+	{
+		pFrame->dogcstep(1);
+	}
+
 	if (!m_IORequestList.empty())
 	{
 		m_bNeedDraw = TRUE;

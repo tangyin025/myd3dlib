@@ -664,6 +664,8 @@ void Game::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
+	LuaContext::dogcstep(1);
+
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	LoadSceneCheck(0);
