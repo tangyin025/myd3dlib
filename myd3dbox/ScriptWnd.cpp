@@ -47,11 +47,23 @@ void CScriptEdit::CheckFileChange()
 		return;
 	}
 
+	m_strPathTime = status.m_mtime;
+
+	if (GetModify())
+	{
+		if (AfxMessageBox(_T("reload script file?"), MB_OKCANCEL) != IDOK)
+		{
+			return;
+		}
+	}
+
 	CFile cFile(m_strPathName, CFile::modeRead);
 	EDITSTREAM es;
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamInCallback;
 	StreamIn(SF_TEXT, es);
+
+	m_strPathTime = CTime::GetCurrentTime();
 }
 
 void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
@@ -119,6 +131,7 @@ void CScriptEdit::OnScriptNew()
 	Clear();
 	EmptyUndoBuffer();
 	m_strPathName.Empty();
+	GetParent()->SetWindowText(_T("Script"));
 }
 
 void CScriptEdit::OnScriptOpen()
@@ -141,6 +154,8 @@ void CScriptEdit::OnScriptOpen()
 	StreamIn(SF_TEXT, es);
 
 	m_strPathName = strPathName;
+	m_strPathTime = CTime::GetCurrentTime();
+	GetParent()->SetWindowText(m_strPathName);
 }
 
 static DWORD CALLBACK _ScriptStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
@@ -165,6 +180,8 @@ void CScriptEdit::OnScriptSave()
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamOutCallback;
 	StreamOut(SF_TEXT, es);
+
+	m_strPathTime = CTime::GetCurrentTime();
 }
 
 void CScriptEdit::OnScriptSaveAs()
@@ -187,6 +204,8 @@ void CScriptEdit::OnScriptSaveAs()
 	StreamOut(SF_TEXT, es);
 
 	m_strPathName = strPathName;
+	m_strPathTime = CTime::GetCurrentTime();
+	GetParent()->SetWindowText(m_strPathName);
 }
 
 CScriptWnd::CScriptWnd()

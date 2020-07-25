@@ -199,6 +199,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_DESTROY()
+	ON_WM_ACTIVATE()
 	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
@@ -766,6 +767,17 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return __super::PreTranslateMessage(pMsg);
+}
+
+void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
+{
+	__super::OnActivate(nState, pWndOther, bMinimized);
+
+	// TODO: Add your message handler code here
+	if (nState == WA_ACTIVE || nState == WA_CLICKACTIVE)
+	{
+		m_wndScript.m_editScript.CheckFileChange();
+	}
 }
 
 void CMainFrame::OnFileNew()
