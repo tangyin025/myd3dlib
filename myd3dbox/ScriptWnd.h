@@ -16,9 +16,12 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnScriptExecute();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnScriptExecute();
 	afx_msg void OnScriptOpen();
+	afx_msg void OnScriptNew();
+	afx_msg void OnScriptSave();
+	afx_msg void OnScriptSaveAs();
 };
 
 class CScriptWnd :

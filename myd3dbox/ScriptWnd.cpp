@@ -19,6 +19,9 @@ BEGIN_MESSAGE_MAP(CScriptEdit, CRichEditCtrl)
 	ON_WM_WINDOWPOSCHANGING()
 	ON_COMMAND(ID_SCRIPT_EXECUTE, &CScriptEdit::OnScriptExecute)
 	ON_COMMAND(ID_SCRIPT_OPEN, &CScriptEdit::OnScriptOpen)
+	ON_COMMAND(ID_SCRIPT_NEW, &CScriptEdit::OnScriptNew)
+	ON_COMMAND(ID_SCRIPT_SAVE, &CScriptEdit::OnScriptSave)
+	ON_COMMAND(ID_SCRIPT_SAVE_AS, &CScriptEdit::OnScriptSaveAs)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
@@ -42,6 +45,48 @@ void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 
 	SetFocus();
+}
+
+BOOL CScriptEdit::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		switch (pMsg->wParam)
+		{
+		case VK_ESCAPE:
+			// ! rich edit VK_ESCAPE will destroy window
+			return TRUE;
+
+		case VK_RETURN:
+			if (::GetKeyState(VK_CONTROL) < 0)
+			{
+				OnCmdMsg(ID_SCRIPT_EXECUTE, 0, NULL, NULL);
+				return TRUE;
+			}
+			break;
+		}
+	}
+
+	return CRichEditCtrl::PreTranslateMessage(pMsg);
+}
+
+void CScriptEdit::OnScriptExecute()
+{
+	// TODO: Add your command handler code here
+	CString ret;
+	GetWindowText(ret);
+	if (!ret.IsEmpty())
+	{
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT_VALID(pFrame);
+		pFrame->ExecuteCode(tstou8((LPCTSTR)ret).c_str());
+	}
+}
+
+void CScriptEdit::OnScriptNew()
+{
+	// TODO: Add your command handler code here
 }
 
 static DWORD CALLBACK _ScriptStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
@@ -71,41 +116,14 @@ void CScriptEdit::OnScriptOpen()
 	StreamIn(SF_TEXT, es);
 }
 
-void CScriptEdit::OnScriptExecute()
+void CScriptEdit::OnScriptSave()
 {
 	// TODO: Add your command handler code here
-	CString ret;
-	GetWindowText(ret);
-	if (!ret.IsEmpty())
-	{
-		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-		ASSERT_VALID(pFrame);
-		pFrame->ExecuteCode(tstou8((LPCTSTR)ret).c_str());
-	}
 }
 
-BOOL CScriptEdit::PreTranslateMessage(MSG* pMsg)
+void CScriptEdit::OnScriptSaveAs()
 {
-	// TODO: Add your specialized code here and/or call the base class
-	if (pMsg->message == WM_KEYDOWN)
-	{
-		switch (pMsg->wParam)
-		{
-		case VK_ESCAPE:
-			// ! rich edit VK_ESCAPE will destroy window
-			return TRUE;
-
-		case VK_RETURN:
-			if (::GetKeyState(VK_CONTROL) < 0)
-			{
-				OnCmdMsg(ID_SCRIPT_EXECUTE, 0, NULL, NULL);
-				return TRUE;
-			}
-			break;
-		}
-	}
-
-	return CRichEditCtrl::PreTranslateMessage(pMsg);
+	// TODO: Add your command handler code here
 }
 
 CScriptWnd::CScriptWnd()
