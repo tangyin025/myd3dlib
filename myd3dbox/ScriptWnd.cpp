@@ -62,6 +62,7 @@ void CScriptEdit::CheckFileChange()
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamInCallback;
 	StreamIn(SF_TEXT, es);
+	SetModify(FALSE);
 
 	m_strPathTime = CTime::GetCurrentTime();
 }
@@ -129,6 +130,7 @@ void CScriptEdit::OnScriptNew()
 	// TODO: Add your command handler code here
 	SetSel(0, -1);
 	Clear();
+	SetModify(FALSE);
 	EmptyUndoBuffer();
 	m_strPathName.Empty();
 	GetParent()->SetWindowText(_T("Script"));
@@ -152,6 +154,7 @@ void CScriptEdit::OnScriptOpen()
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamInCallback;
 	StreamIn(SF_TEXT, es);
+	SetModify(FALSE);
 
 	m_strPathName = strPathName;
 	m_strPathTime = CTime::GetCurrentTime();
@@ -180,6 +183,7 @@ void CScriptEdit::OnScriptSave()
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamOutCallback;
 	StreamOut(SF_TEXT, es);
+	SetModify(FALSE);
 
 	m_strPathTime = CTime::GetCurrentTime();
 }
@@ -202,6 +206,7 @@ void CScriptEdit::OnScriptSaveAs()
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamOutCallback;
 	StreamOut(SF_TEXT, es);
+	SetModify(FALSE);
 
 	m_strPathName = strPathName;
 	m_strPathTime = CTime::GetCurrentTime();
