@@ -26,6 +26,34 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
 
+static DWORD CALLBACK _ScriptStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+{
+	CFile * pFile = (CFile *)dwCookie;
+	*pcb = pFile->Read(pbBuff, cb);
+	return 0;
+}
+
+void CScriptEdit::CheckFileChange()
+{
+	if (m_strPathName.IsEmpty())
+	{
+		return;
+	}
+
+	CFileStatus status;
+	CFile::GetStatus(m_strPathName, status);
+	if (status.m_mtime <= m_strPathTime)
+	{
+		return;
+	}
+
+	CFile cFile(m_strPathName, CFile::modeRead);
+	EDITSTREAM es;
+	es.dwCookie = (DWORD)&cFile;
+	es.pfnCallback = _ScriptStreamInCallback;
+	StreamIn(SF_TEXT, es);
+}
+
 void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CMenu menu;
@@ -91,13 +119,6 @@ void CScriptEdit::OnScriptNew()
 	Clear();
 	EmptyUndoBuffer();
 	m_strPathName.Empty();
-}
-
-static DWORD CALLBACK _ScriptStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
-{
-	CFile * pFile = (CFile *)dwCookie;
-	*pcb = pFile->Read(pbBuff, cb);
-	return 0;
 }
 
 void CScriptEdit::OnScriptOpen()

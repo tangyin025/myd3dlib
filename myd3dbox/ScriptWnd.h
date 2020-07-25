@@ -11,10 +11,14 @@ public:
 
 	virtual ~CScriptEdit();
 
+	void CheckFileChange();
+
 protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 
 	CString m_strPathName;
+
+	CTime m_strPathTime;
 
 	DECLARE_MESSAGE_MAP()
 public:
