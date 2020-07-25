@@ -104,6 +104,11 @@ IDR_POPUP_SCRIPT MENU
 BEGIN
     POPUP "Script"
     BEGIN
+        MENUITEM "New",                         ID_SCRIPT_NEW
+        MENUITEM "Open...",                     ID_SCRIPT_OPEN
+        MENUITEM "Save...",                     ID_SCRIPT_SAVE
+        MENUITEM "Save As...",                  ID_SCRIPT_SAVE_AS
+        MENUITEM SEPARATOR
         MENUITEM "Execute",                     ID_SCRIPT_EXECUTE
     END
 END

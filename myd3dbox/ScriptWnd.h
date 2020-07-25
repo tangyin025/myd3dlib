@@ -18,6 +18,7 @@ protected:
 public:
 	afx_msg void OnScriptExecute();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnScriptOpen();
 };
 
 class CScriptWnd :

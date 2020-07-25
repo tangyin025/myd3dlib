@@ -18,6 +18,7 @@ BEGIN_MESSAGE_MAP(CScriptEdit, CRichEditCtrl)
 	ON_WM_CONTEXTMENU()
 	ON_WM_WINDOWPOSCHANGING()
 	ON_COMMAND(ID_SCRIPT_EXECUTE, &CScriptEdit::OnScriptExecute)
+	ON_COMMAND(ID_SCRIPT_OPEN, &CScriptEdit::OnScriptOpen)
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
@@ -41,6 +42,33 @@ void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 
 	SetFocus();
+}
+
+static DWORD CALLBACK _ScriptStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+{
+	CFile * pFile = (CFile *)dwCookie;
+	*pcb = pFile->Read(pbBuff, cb);
+	return 0;
+}
+
+void CScriptEdit::OnScriptOpen()
+{
+	// TODO: Add your command handler code here
+	CString strPathName;
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult != IDOK)
+	{
+		return;
+	}
+
+	CFile cFile(strPathName, CFile::modeRead);
+	EDITSTREAM es;
+	es.dwCookie = (DWORD)&cFile;
+	es.pfnCallback = _ScriptStreamInCallback;
+	StreamIn(SF_TEXT, es);
 }
 
 void CScriptEdit::OnScriptExecute()
