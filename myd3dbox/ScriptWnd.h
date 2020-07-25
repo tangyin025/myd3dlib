@@ -14,6 +14,8 @@ public:
 protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 
+	CString m_strPathName;
+
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);

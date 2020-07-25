@@ -87,6 +87,10 @@ void CScriptEdit::OnScriptExecute()
 void CScriptEdit::OnScriptNew()
 {
 	// TODO: Add your command handler code here
+	SetSel(0, -1);
+	Clear();
+	EmptyUndoBuffer();
+	m_strPathName.Empty();
 }
 
 static DWORD CALLBACK _ScriptStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
@@ -114,16 +118,54 @@ void CScriptEdit::OnScriptOpen()
 	es.dwCookie = (DWORD)&cFile;
 	es.pfnCallback = _ScriptStreamInCallback;
 	StreamIn(SF_TEXT, es);
+
+	m_strPathName = strPathName;
+}
+
+static DWORD CALLBACK _ScriptStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+{
+	CFile* pFile = (CFile*)dwCookie;
+	pFile->Write(pbBuff, cb);
+	*pcb = cb;
+	return 0;
 }
 
 void CScriptEdit::OnScriptSave()
 {
 	// TODO: Add your command handler code here
+	if (m_strPathName.IsEmpty())
+	{
+		OnScriptSaveAs();
+		return;
+	}
+
+	CFile cFile(m_strPathName, CFile::modeCreate | CFile::modeWrite);
+	EDITSTREAM es;
+	es.dwCookie = (DWORD)&cFile;
+	es.pfnCallback = _ScriptStreamOutCallback;
+	StreamOut(SF_TEXT, es);
 }
 
 void CScriptEdit::OnScriptSaveAs()
 {
 	// TODO: Add your command handler code here
+	CString strPathName;
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult != IDOK)
+	{
+		return;
+	}
+
+	CFile cFile(strPathName, CFile::modeCreate | CFile::modeWrite);
+	EDITSTREAM es;
+	es.dwCookie = (DWORD)&cFile;
+	es.pfnCallback = _ScriptStreamOutCallback;
+	StreamOut(SF_TEXT, es);
+
+	m_strPathName = strPathName;
 }
 
 CScriptWnd::CScriptWnd()
