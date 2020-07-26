@@ -51,7 +51,7 @@ void CScriptEdit::CheckFileChange()
 
 	if (GetModify())
 	{
-		if (AfxMessageBox(_T("reload script file?"), MB_OKCANCEL) != IDOK)
+		if (AfxMessageBox(str_printf(_T("Reload %s ?"), (LPCTSTR)m_strPathName).c_str(), MB_OKCANCEL) != IDOK)
 		{
 			return;
 		}

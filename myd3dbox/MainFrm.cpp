@@ -687,6 +687,81 @@ void CMainFrame::ClearFileContext()
 	my::NamedObject::ResetUniqueNameIndex();
 }
 
+BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
+{
+	my::IStreamBuff buff(my::FileIStream::Open(lpszFileName));
+	std::istream ifs(&buff);
+	LPCTSTR Ext = PathFindExtension(lpszFileName);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
+	if (_tcsicmp(Ext, _T(".xml")) == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_xml_iarchive(ifs));
+	}
+	else if (_tcsicmp(Ext, _T(".txt")) == 0)
+	{
+		ia.reset(new boost::archive::polymorphic_text_iarchive(ifs));
+	}
+	else
+	{
+		ia.reset(new boost::archive::polymorphic_binary_iarchive(ifs));
+	}
+	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
+
+	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+	return TRUE;
+}
+
+BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
+{
+	std::ofstream ofs(lpszPathName, std::ios::binary, _OPENPROT);
+	LPCTSTR Ext = PathFindExtension(lpszPathName);
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
+	if (_tcsicmp(Ext, _T(".xml")) == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
+	}
+	else if (_tcsicmp(Ext, _T(".txt")) == 0)
+	{
+		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
+	}
+	else
+	{
+		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
+	}
+	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		CMainFrame * pFrame;
+		CMainFrame::ActorPtrSet m_ActorList;
+		Callback(CMainFrame * _pFrame)
+			: pFrame(_pFrame)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			ASSERT(dynamic_cast<Actor *>(oct_entity));
+			Actor * actor = static_cast<Actor *>(oct_entity);
+			m_ActorList.insert(actor->shared_from_this());
+		}
+	} cb(this);
+	QueryEntityAll(&cb);
+
+	// ! save all actor in the scene, including lua context actor
+	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
+
+	return TRUE;
+}
+
 bool CMainFrame::ExecuteCode(const char * code)
 {
 	CWaitCursor wait;
@@ -783,9 +858,9 @@ void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
+	m_strPathName.Empty();
 	ClearFileContext();
 	InitFileContext();
-	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 	theApp.m_BgColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_SkyLightCam.m_Eular = my::Vector3(D3DXToRadian(-45), 0, 0);
@@ -841,44 +916,14 @@ void CMainFrame::OnFileOpen()
 		return;
 	}
 
-	DoOpen(strPathName);
-}
-
-BOOL CMainFrame::DoOpen(LPCTSTR lpszFileName)
-{
-	ClearFileContext();
-	InitFileContext();
-	m_strPathName = lpszFileName;
-
-	CWaitCursor wait;
-	my::IStreamBuff buff(my::FileIStream::Open(m_strPathName));
-	std::istream ifs(&buff);
-	LPCTSTR Ext = PathFindExtension((LPCTSTR)m_strPathName);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_tcsicmp(Ext, _T(".xml")) == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(ifs));
-	}
-	else if (_tcsicmp(Ext, _T(".txt")) == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(ifs));
-	}
-	else
-	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(ifs));
-	}
-	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
-	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
-
-	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
-	{
-		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
-	}
+	m_strPathName = strPathName;
 
 	theApp.AddToRecentFileList(m_strPathName);
+
+	CWaitCursor wait;
+	ClearFileContext();
+	InitFileContext();
+	OpenFileContext(strPathName);
 
 	theApp.RequestResource();
 
@@ -888,7 +933,6 @@ BOOL CMainFrame::DoOpen(LPCTSTR lpszFileName)
 	ASSERT_VALID(pView);
 	CEnvironmentWnd::CameraPropEventArgs arg(pView);
 	m_EventCameraPropChanged(&arg);
-	return TRUE;
 }
 
 void CMainFrame::OnFileSave()
@@ -897,83 +941,33 @@ void CMainFrame::OnFileSave()
 	DWORD dwAttrib = GetFileAttributes(m_strPathName);
 	if (dwAttrib & FILE_ATTRIBUTE_READONLY)
 	{
-		DoSave(NULL);
+		OnFileSaveAs();
 	}
 	else
 	{
-		DoSave(m_strPathName);
+		SaveFileContext(m_strPathName);
 	}
 }
 
 void CMainFrame::OnFileSaveAs()
 {
 	// TODO: Add your command handler code here
-	DoSave(NULL);
-}
-
-BOOL CMainFrame::DoSave(LPCTSTR lpszPathName)
-{
-	if (!lpszPathName)
+	CString strPathName;
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult != IDOK)
 	{
-		CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-		dlg.m_ofn.lpstrFile = m_strPathName.GetBuffer(_MAX_PATH);
-		INT_PTR nResult = dlg.DoModal();
-		m_strPathName.ReleaseBuffer();
-		if (nResult != IDOK)
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		m_strPathName = lpszPathName;
+		return;
 	}
 
-	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
-	ASSERT_VALID(pView);
-	CWaitCursor wait;
-	std::ofstream ofs(m_strPathName, std::ios::binary, _OPENPROT);
-	LPCTSTR Ext = PathFindExtension(m_strPathName);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_tcsicmp(Ext, _T(".xml")) == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
-	}
-	else if (_tcsicmp(Ext, _T(".txt")) == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
-	}
-	else
-	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
-	}
-	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
-	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-
-	struct Callback : public my::OctNode::QueryCallback
-	{
-		CMainFrame * pFrame;
-		CMainFrame::ActorPtrSet m_ActorList;
-		Callback(CMainFrame * _pFrame)
-			: pFrame(_pFrame)
-		{
-		}
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
-		{
-			ASSERT(dynamic_cast<Actor *>(oct_entity));
-			Actor * actor = static_cast<Actor *>(oct_entity);
-			m_ActorList.insert(actor->shared_from_this());
-		}
-	} cb(this);
-	QueryEntityAll(&cb);
-
-	// ! save all actor in the scene, including lua context actor
-	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
+	m_strPathName = strPathName;
 
 	theApp.AddToRecentFileList(m_strPathName);
 
-	return TRUE;
+	CWaitCursor wait;
+	SaveFileContext(m_strPathName);
 }
 
 void CMainFrame::OnCreateActor()

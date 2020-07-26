@@ -61,6 +61,8 @@ public:
 	void OnSelChanged();
 	void InitFileContext();
 	void ClearFileContext();
+	BOOL OpenFileContext(LPCTSTR lpszFileName);
+	BOOL SaveFileContext(LPCTSTR lpszPathName);
 	bool ExecuteCode(const char * code);
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	bool RemoveEntity(my::OctEntity * entity);
@@ -93,10 +95,8 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileNew();
 	afx_msg void OnFileOpen();
-	BOOL DoOpen(LPCTSTR lpszFileName);
 	afx_msg void OnFileSave();
 	afx_msg void OnFileSaveAs();
-	BOOL DoSave(LPCTSTR lpszPathName);
 	afx_msg void OnCreateActor();
 	afx_msg void OnCreateCharacter();
 	afx_msg void OnComponentMesh();

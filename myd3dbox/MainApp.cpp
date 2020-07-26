@@ -511,9 +511,21 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	// TODO: Add your specialized code here and/or call the base class
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (pFrame->DoOpen(lpszFileName))
+	CWaitCursor wait;
+	pFrame->ClearFileContext();
+	pFrame->InitFileContext();
+	if (pFrame->OpenFileContext(lpszFileName))
 	{
 		g_bRemoveFromMRU = FALSE;
+
+		RequestResource();
+
+		pFrame->OnSelChanged();
+
+		CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+		ASSERT_VALID(pView);
+		CEnvironmentWnd::CameraPropEventArgs arg(pView);
+		pFrame->m_EventCameraPropChanged(&arg);
 	}
 	return NULL;
 }
