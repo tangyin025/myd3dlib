@@ -42,6 +42,8 @@ public:
 
 	boost::shared_ptr<physx::PxFoundation> m_Foundation;
 
+	boost::shared_ptr<physx::PxPvd> m_Pvd;
+
 	boost::shared_ptr<physx::PxPhysics> m_sdk;
 
 	boost::shared_ptr<physx::PxCooking> m_Cooking;
@@ -189,6 +191,8 @@ public:
 	virtual void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs);
 
 	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count);
+
+	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count);
 
 	void removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor);
 };

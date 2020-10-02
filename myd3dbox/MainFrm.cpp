@@ -720,7 +720,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 
 BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 {
-	std::ofstream ofs(lpszPathName, std::ios::binary, _OPENPROT);
+	std::ofstream ofs(lpszPathName, std::ios::binary);
 	LPCTSTR Ext = PathFindExtension(lpszPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (_tcsicmp(Ext, _T(".xml")) == 0)

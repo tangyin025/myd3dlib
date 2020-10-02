@@ -380,10 +380,10 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxActor)
 	{
-		physx::PxRigidDynamic * rigidDynamic = m_PxActor->isRigidDynamic();
+		physx::PxRigidDynamic * rigidDynamic = m_PxActor->is<physx::PxRigidDynamic>();
 		if (rigidDynamic)
 		{
-			if (rigidDynamic->getRigidDynamicFlags().isSet(physx::PxRigidDynamicFlag::eKINEMATIC))
+			if (rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
 				rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 				if (m_Base)
@@ -556,7 +556,7 @@ void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)
 {
 	_ASSERT(m_PxActor);
 
-	physx::PxRigidBody * body = m_PxActor->isRigidBody();
+	physx::PxRigidBody * body = m_PxActor->is<physx::PxRigidBody>();
 	if (body)
 	{
 		body->setRigidBodyFlag(Flag, Value);
@@ -567,7 +567,7 @@ bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 {
 	_ASSERT(m_PxActor);
 
-	physx::PxRigidBody * body = m_PxActor->isRigidBody();
+	physx::PxRigidBody * body = m_PxActor->is<physx::PxRigidBody>();
 	if (body)
 	{
 		return body->getRigidBodyFlags() & Flag;
@@ -652,7 +652,7 @@ ActorPtr Actor::LoadFromFile(const char * path)
 
 void Actor::SaveToFile(const char * path) const
 {
-	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary, _OPENPROT);
+	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary);
 	LPCSTR Ext = PathFindExtensionA(path);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (_stricmp(Ext, ".xml") == 0)

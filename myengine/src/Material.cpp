@@ -501,7 +501,7 @@ MaterialPtr Material::LoadFromFile(const char * path)
 
 void Material::SaveToFile(const char * path) const
 {
-	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary, _OPENPROT);
+	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary);
 	LPCSTR Ext = PathFindExtensionA(path);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (_stricmp(Ext, ".xml") == 0)

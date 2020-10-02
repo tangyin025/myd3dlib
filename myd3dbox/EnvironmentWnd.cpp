@@ -377,9 +377,9 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
 				{
 					std::string new_path;
-					new_path.insert(new_path.end(), path.begin(), what[1].first);
+					new_path.insert<std::string::const_iterator>(new_path.end(), path.begin(), what[1].first);
 					new_path.append(tex_name[i]);
-					new_path.insert(new_path.end(), what[1].second, path.end());
+					new_path.insert<std::string::const_iterator>(new_path.end(), what[1].second, path.end());
 					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
 					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = new_path.c_str();
 					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();

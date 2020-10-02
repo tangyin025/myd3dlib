@@ -641,7 +641,7 @@ void AnimationRoot::Update(float fElapsedTime)
 
 void AnimationRoot::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
+	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter == range.second);
 	_ASSERT(sequence->m_GroupOwner == NULL);
@@ -651,7 +651,7 @@ void AnimationRoot::AddSequenceGroup(const std::string & name, AnimationNodeSequ
 
 void AnimationRoot::RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
-	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(name);
+	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
 	_ASSERT(seq_iter != range.second);
 	_ASSERT(sequence->m_GroupOwner == this);
@@ -725,7 +725,7 @@ void AnimationRoot::UpdateSequenceGroup(void)
 
 void AnimationRoot::SyncSequenceGroupTime(const std::string & Group, float Percent)
 {
-	SequenceGroupMap::_Pairii range = m_SequenceGroup.equal_range(Group);
+	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(Group);
 	SyncSequenceGroupTime(range.first, range.second, Percent);
 }
 

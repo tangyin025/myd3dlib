@@ -1103,7 +1103,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			physx::PxRigidBody * body = NULL;
-			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->isRigidBody()))
+			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->is<physx::PxRigidBody>()))
 			{
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, true);
 			}
@@ -1219,7 +1219,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			(*sel_iter)->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
-			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->isRigidBody()) && !body->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->is<physx::PxRigidBody>()) && !body->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, false);
 				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));

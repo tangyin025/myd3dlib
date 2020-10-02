@@ -267,14 +267,14 @@ void CPropertiesWnd::UpdatePropertiesRigidActor(CMFCPropertyGridProperty * pRigi
 	physx::PxRigidBodyFlags bodyFlags;
 	if (actor->m_PxActor)
 	{
-		physx::PxRigidBody * body = actor->m_PxActor->isRigidBody();
+		physx::PxRigidBody * body = actor->m_PxActor->is<physx::PxRigidBody>();
 		if (body)
 		{
 			bodyFlags = body->getRigidBodyFlags();
 		}
 	}
 	pRigidActor->GetSubItem(1)->SetValue((_variant_t)(VARIANT_BOOL)bodyFlags.isSet(physx::PxRigidBodyFlag::eKINEMATIC));
-	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->isRigidBody(), FALSE);
+	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>(), FALSE);
 }
 
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp)
@@ -685,7 +685,7 @@ void CPropertiesWnd::CreatePropertiesRigidActor(CMFCPropertyGridProperty * pPare
 	physx::PxRigidBodyFlags bodyFlags;
 	if (actor->m_PxActor)
 	{
-		physx::PxRigidBody * body = actor->m_PxActor->isRigidBody();
+		physx::PxRigidBody * body = actor->m_PxActor->is<physx::PxRigidBody>();
 		if (body)
 		{
 			bodyFlags = body->getRigidBodyFlags();
@@ -694,7 +694,7 @@ void CPropertiesWnd::CreatePropertiesRigidActor(CMFCPropertyGridProperty * pPare
 	const TCHAR * szDesc = _T("Enables kinematic mode for the actor.\n\nKinematic actors are special dynamic actors that are not influenced by forces(such as gravity), and have no momentum. They are considered to have infinite mass and can be moved around the world using the setKinematicTarget() method. They will push regular dynamic actors out of the way. Kinematics will not collide with static or other kinematic objects.\n\nKinematic actors are great for moving platforms or characters, where direct motion control is desired.\n\nYou can not connect Reduced joints to kinematic actors. Lagrange joints work ok if the platform is moving with a relatively low, uniform velocity.");
 	pProp = new CCheckBoxProp(_T("eKINEMATIC"), bodyFlags.isSet(physx::PxRigidBodyFlag::eKINEMATIC), szDesc, PropertyActorRigidActorKinematic);
 	pRigidActor->AddSubItem(pProp);
-	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->isRigidBody(), FALSE);
+	pRigidActor->GetSubItem(1)->Show(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>(), FALSE);
 }
 
 void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
@@ -1495,7 +1495,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->ClearRigidActor();
 		actor->CreateRigidActor((physx::PxActorType::Enum)i);
 		physx::PxRigidBody * body;
-		if (actor->m_PxActor && (body = actor->m_PxActor->isRigidBody()))
+		if (actor->m_PxActor && (body = actor->m_PxActor->is<physx::PxRigidBody>()))
 		{
 			body->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
 		}
@@ -1507,8 +1507,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyActorRigidActorKinematic:
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-		ASSERT(actor->m_PxActor && actor->m_PxActor->isRigidBody());
-		actor->m_PxActor->isRigidBody()->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, pProp->GetValue().boolVal != 0);
+		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>());
+		actor->m_PxActor->is<physx::PxRigidBody>()->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

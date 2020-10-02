@@ -146,7 +146,7 @@ void CNavigationDlg::OnOK()
 		{
 			Actor * actor = dynamic_cast<Actor *>(oct_entity);
 			ASSERT(actor);
-			if (!actor->m_PxActor || !actor->m_PxActor->isRigidStatic())
+			if (!actor->m_PxActor || !actor->m_PxActor->is<physx::PxRigidStatic>())
 			{
 				return;
 			}

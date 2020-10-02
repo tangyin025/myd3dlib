@@ -43,7 +43,7 @@ void PhysxAllocator::deallocate(void * ptr)
 
 bool PhysxContext::Init(void)
 {
-	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, *this), PhysxDeleter<physx::PxFoundation>()), m_Foundation))
+	if(!(m_Foundation.reset(PxCreateFoundation(PX_FOUNDATION_VERSION, m_Allocator, *this), PhysxDeleter<physx::PxFoundation>()), m_Foundation))
 	{
 		THROW_CUSEXCEPTION("PxCreateFoundation failed");
 	}
@@ -65,7 +65,7 @@ bool PhysxContext::Init(void)
 		THROW_CUSEXCEPTION("PxCreateCooking failed");
 	}
 
-	if(!PxInitExtensions(*m_sdk))
+	if(!PxInitExtensions(*m_sdk, NULL))
 	{
 		THROW_CUSEXCEPTION("PxInitExtensions failed");
 	}
@@ -417,7 +417,7 @@ void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 
 void PhysxSceneContext::Flush(void)
 {
-	m_PxScene->flush(false);
+	m_PxScene->flushSimulation(false);
 }
 
 physx::PxFilterFlags PhysxSceneContext::filter(
@@ -495,6 +495,11 @@ void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 		// fetchResults true will block other px thread
 		mTriggerPairs.push_back(pairs[i]);
 	}
+}
+
+void PhysxSceneContext::onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count)
+{
+
 }
 
 void PhysxSceneContext::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor)

@@ -105,7 +105,7 @@ public:
 		//m_cmps.push_back(emit_cmp);
 
 		//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Identity()));
-		//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *m_PxMaterial, PxTransform::createIdentity());
+		//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *m_PxMaterial, PxTransform(physx::PxIdentity));
 		//rigid_cmp->RequestResource();
 		//m_cmps.push_back(rigid_cmp);
 

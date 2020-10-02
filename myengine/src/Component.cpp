@@ -256,7 +256,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	}
 
 	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
 		return;
 	}
@@ -558,7 +558,7 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 	}
 
 	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
 		return;
 	}
@@ -613,7 +613,7 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
 		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
@@ -636,7 +636,7 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	}
 
 	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
 		return;
 	}
@@ -689,7 +689,7 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat::createIdentity());
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
 		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
@@ -923,7 +923,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 		boost::shared_ptr<physx::PxClothFabric> fabric(PxClothFabricCreate(
 			*PhysxContext::getSingleton().m_sdk, desc, (physx::PxVec3&)my::Vector3::Gravity, true), PhysxDeleter<physx::PxClothFabric>());
 		m_Cloth.reset(PhysxContext::getSingleton().m_sdk->createCloth(
-			physx::PxTransform::createIdentity(), *fabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
+			physx::PxTransform(physx::PxIdentity), *fabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
 	}
 }
 

@@ -737,7 +737,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	}
 
 	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
 		return;
 	}
@@ -771,7 +771,8 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
 	hfDesc.samples.data       = &Samples[0];
 	hfDesc.samples.stride     = sizeof(Samples[0]);
-	m_PxHeightField.reset(PhysxContext::getSingleton().m_sdk->createHeightField(hfDesc), PhysxDeleter<physx::PxHeightField>());
+	m_PxHeightField.reset(PhysxContext::getSingleton().m_Cooking->createHeightField(
+		hfDesc, PhysxContext::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
 
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
