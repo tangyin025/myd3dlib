@@ -49,7 +49,7 @@ namespace my
 		}
 		else
 		{
-			float distance = sqrt(distanceSquare);
+			float distance = sqrtf(distanceSquare);
 			float newRadius = (lhs.getRadius() + distance + rhs.getRadius()) / 2;
 			Vector3 newCenter = lhs.getCenter() + centerOffset * ((newRadius - lhs.getRadius()) / distance);
 
@@ -396,10 +396,10 @@ namespace my
 		bool v[4];
 		if(discrm > 0)
 		{
-			t[0] = (-b + sqrt(discrm)) / (2 * a);
+			t[0] = (-b + sqrtf(discrm)) / (2 * a);
 			k[0] = pos + dir * t[0];
 			v[0] = (k[0].x >= 0 && k[0].x <= cylinderHeight);
-			t[1] = (-b - sqrt(discrm)) / (2 * a);
+			t[1] = (-b - sqrtf(discrm)) / (2 * a);
 			k[1] = pos + dir * t[1];
 			v[1] = (k[1].x >= 0 && k[1].x <= cylinderHeight);
 			t[2] = (0 - pos.x) / dir.x;
@@ -442,8 +442,8 @@ namespace my
 		float t[2];
 		if(discrm > 0)
 		{
-			t[0] = (-b + sqrt(discrm)) / (2 * a);
-			t[1] = (-b - sqrt(discrm)) / (2 * a);
+			t[0] = (-b + sqrtf(discrm)) / (2 * a);
+			t[1] = (-b - sqrtf(discrm)) / (2 * a);
 			return RayResult(true, Min(t[0], t[1]));
 		}
 		else if(discrm == 0)
@@ -1105,7 +1105,7 @@ namespace my
 		Vector3 closestPointWorld = closestPoint.transformCoord(box.getTransform());
 
 		contacts->contactNormal = (closestPointWorld - centre).normalize();
-		contacts->penetration = sphere.radius - sqrt(distanceSquare);
+		contacts->penetration = sphere.radius - sqrtf(distanceSquare);
 		contacts->contactPoint = closestPointWorld;
 		contacts->bodys[0] = box.body;
 		contacts->bodys[1] = sphere.body;

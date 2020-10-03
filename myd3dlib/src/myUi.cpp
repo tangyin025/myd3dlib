@@ -3021,7 +3021,7 @@ void Dialog::SaveToFile(const char * path) const
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 {
-	m_Eye = Vector3(Viewport.x * 0.5f, Viewport.y * 0.5f, -Viewport.y * 0.5f * cot(fov / 2));
+	m_Eye = Vector3(Viewport.x * 0.5f, Viewport.y * 0.5f, -Viewport.y * 0.5f * cotf(fov / 2));
 
 	m_View = Matrix4::LookAtRH(m_Eye, Vector3(m_Eye.x, m_Eye.y, 0), Vector3(0, -1, 0));
 

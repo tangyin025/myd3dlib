@@ -11,7 +11,7 @@ int my::Round<int>(int v, int min, int max)
 template <>
 float my::Round<float>(float v, float min, float max)
 {
-	return v >= max ? min + fmod(v - max, max - min) : (v < min ? max - fmod(min - v, max - min) : v);
+	return v >= max ? min + fmodf(v - max, max - min) : (v < min ? max - fmodf(min - v, max - min) : v);
 }
 
 template <>

@@ -64,7 +64,7 @@ CChildView::CChildView()
 	m_Camera.reset(model_view_camera);
 	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
-	model_view_camera->m_Distance = cot(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
+	model_view_camera->m_Distance = cotf(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
 
 	m_SwapChainBuffer.reset(new my::Surface());
 	ZeroMemory(&m_SwapChainBufferDesc, sizeof(m_SwapChainBufferDesc));
@@ -1399,7 +1399,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			else
 			{
 				model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
-				model_view_camera->m_Distance = cot(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
+				model_view_camera->m_Distance = cotf(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
 			}
 			m_Camera->UpdateViewProj();
 			StartPerformanceCount();

@@ -28,7 +28,7 @@ std::vector<D3DVERTEXELEMENT9> D3DVertexElementSet::BuildVertexElementList(WORD 
 			const D3DVertexElement & elem = elems[Usage][UsageIndex];
 			if(elem.Type != D3DDECLTYPE_UNUSED)
 			{
-				D3DVERTEXELEMENT9 ve = {Stream, elem.Offset, elem.Type, elem.Method, Usage, UsageIndex};
+				D3DVERTEXELEMENT9 ve = {Stream, elem.Offset, (BYTE)elem.Type, (BYTE)elem.Method, (BYTE)Usage, (BYTE)UsageIndex};
 				ret.push_back(ve);
 			}
 		}
@@ -1338,7 +1338,7 @@ void OgreMesh::Transform(const Matrix4 & trans)
 	VOID * pVertices = LockVertexBuffer();
 	DWORD NumVertices = GetNumVertices();
 	DWORD VertexStride = GetNumBytesPerVertex();
-	for (int vertex_i = 0; vertex_i < NumVertices; vertex_i++)
+	for (int vertex_i = 0; vertex_i < (int)NumVertices; vertex_i++)
 	{
 		for (int UsageIndex = 0; UsageIndex < 1; UsageIndex++)
 		{

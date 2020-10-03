@@ -39,7 +39,7 @@ namespace my
 
 		addVelocity(resultingAcc * duration);		
 
-		velocity *= pow(damping, duration);
+		velocity *= powf(damping, duration);
 
 		addPosition(velocity * duration);
 	}
@@ -276,7 +276,7 @@ namespace my
 
 	void ParticleFakeSpring::updateForce(Particle * particle, float duration)
 	{
-		float gamma = 0.5f * sqrt(4 * springConstant - damping * damping);
+		float gamma = 0.5f * sqrtf(4 * springConstant - damping * damping);
 
 		if(gamma != 0)
 		{
@@ -284,9 +284,9 @@ namespace my
 
 			Vector3 C = position * (damping / (2 * gamma)) + particle->getVelocity() / gamma;
 
-			Vector3 target = position * cos(gamma * duration) + C * sin(gamma * duration);
+			Vector3 target = position * cosf(gamma * duration) + C * sinf(gamma * duration);
 
-			target *= exp(-0.5f * damping * duration);
+			target *= expf(-0.5f * damping * duration);
 
 			Vector3 accel = (target - position) / (duration * duration) - particle->getVelocity() /** duration*/;
 
@@ -893,9 +893,9 @@ namespace my
 		addRotation(resultingAngularAcc * duration);
 
 		// Impose drag.
-		velocity *= pow(damping, duration);
+		velocity *= powf(damping, duration);
 
-		rotation *= pow(angularDamping, duration);
+		rotation *= powf(angularDamping, duration);
 
 		// Update linear position.
 		addPosition(velocity * duration);
@@ -913,7 +913,7 @@ namespace my
 		{
 			float currentMotion = velocity.magnitudeSq() + rotation.magnitudeSq();
 
-			float bias = pow(0.5f, duration);
+			float bias = powf(0.5f, duration);
 
 			motion = bias * motion + (1 - bias) * currentMotion;
 
@@ -1205,7 +1205,7 @@ namespace my
 		if(abs(contactNormal.x) > abs(contactNormal.y))
 		{
 			// Scaling factor to ensure the results are normalised
-			float s_inv = 1.0f / sqrt(contactNormal.x * contactNormal.x + contactNormal.z * contactNormal.z);
+			float s_inv = 1.0f / sqrtf(contactNormal.x * contactNormal.x + contactNormal.z * contactNormal.z);
 
 			// The new X-axis is at right angles to the world Y-axis
 			contantTangents[0] = Vector3(contactNormal.z * s_inv, 0, -contactNormal.x * s_inv);
@@ -1216,7 +1216,7 @@ namespace my
 		else
 		{
 			// Scaling factor to ensure the results are normalised
-			float s_inv = 1.0f / sqrt(contactNormal.y * contactNormal.y + contactNormal.z * contactNormal.z);
+			float s_inv = 1.0f / sqrtf(contactNormal.y * contactNormal.y + contactNormal.z * contactNormal.z);
 
 			// The new X-axis is at right angles to the world X-axis
 			contantTangents[0] = Vector3(0, -contactNormal.z * s_inv, contactNormal.y * s_inv);
@@ -1409,7 +1409,7 @@ namespace my
 		Vector3 impulseContact = velKill.transformCoord(impulseMatrix);
 
 		// Check for exceeding friction
-		float planarImpulse = sqrt(impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z);
+		float planarImpulse = sqrtf(impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z);
 
 		if (planarImpulse > impulseContact.x * friction)
 		{

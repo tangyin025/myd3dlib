@@ -12,7 +12,7 @@
 #define EPSILON_E6			(1.0e-6)
 #define EPSILON_E12			(1.0e-12)
 
-#define cot(x)	tan(D3DX_PI / 2 - (x))
+#define cotf(x)	tanf(D3DX_PI / 2 - (x))
 
 #define IS_UNITED(v) (abs((float)(v) - 1) < EPSILON_E6)
 
@@ -270,7 +270,7 @@ namespace my
 
 		float magnitude(void) const
 		{
-			return sqrt(magnitudeSq());
+			return sqrtf(magnitudeSq());
 		}
 
 		float magnitudeSq(void) const
@@ -547,7 +547,7 @@ namespace my
 
 		float magnitude(void) const
 		{
-			return sqrt(magnitudeSq());
+			return sqrtf(magnitudeSq());
 		}
 
 		float magnitudeSq(void) const
@@ -604,21 +604,21 @@ namespace my
 	public:
 		static Vector3 SphericalToCartesian(float rho, float elevation, float azimuth)
 		{
-			return Vector3(rho * sin(elevation) * sin(azimuth), rho * cos(elevation), rho * sin(elevation) * cos(azimuth));
+			return Vector3(rho * sinf(elevation) * sinf(azimuth), rho * cosf(elevation), rho * sinf(elevation) * cosf(azimuth));
 		}
 
 		Vector3 cartesianToSpherical(void) const
 		{
 			float rho = magnitude();
 
-			return Vector3(rho, asin(y / rho), atan2(z, x));
+			return Vector3(rho, asinf(y / rho), atan2f(z, x));
 		}
 
 		static float Angle(const Vector3 & v0, const Vector3 & v1)
 		{
-			const float cos = v0.dot(v1);					// |v0|*|v1|*Cos(Angle)
-			const float sin = (v0.cross(v1)).magnitude();	// |v0|*|v1|*Sin(Angle)
-			return atan2(sin, cos);
+			const float cosf = v0.dot(v1);					// |v0|*|v1|*Cos(Angle)
+			const float sinf = (v0.cross(v1)).magnitude();	// |v0|*|v1|*Sin(Angle)
+			return atan2f(sinf, cosf);
 		}
 
 		static float CosTheta(const Vector3 & v0, const Vector3 & v1)
@@ -882,7 +882,7 @@ namespace my
 
 		float magnitude(void) const
 		{
-			return sqrt(magnitudeSq());
+			return sqrtf(magnitudeSq());
 		}
 
 		float magnitudeSq(void) const
@@ -1597,7 +1597,7 @@ namespace my
 
 		float magnitude(void) const
 		{
-			return sqrt(magnitudeSq());
+			return sqrtf(magnitudeSq());
 		}
 
 		float magnitudeSq(void) const
@@ -1636,8 +1636,8 @@ namespace my
 
 		static Quaternion RotationAxis(const Vector3 & v, float angle)
 		{
-			//float c = cos(angle / 2);
-			//float s = sin(angle / 2);
+			//float c = cosf(angle / 2);
+			//float s = sinf(angle / 2);
 			//return Quaternion(v.x * s, v.y * s, v.z * s, c);
 
 			Quaternion ret;
@@ -1713,25 +1713,25 @@ namespace my
 		static Quaternion RotationEulerAngles(const Vector3 & angles)
 		{
 			return Quaternion(
-				sin(angles.x * 0.5f) * cos(angles.y * 0.5f) * cos(angles.z * 0.5f) - cos(angles.x * 0.5f) * sin(angles.y * 0.5f) * sin(angles.z * 0.5f),
-				cos(angles.x * 0.5f) * sin(angles.y * 0.5f) * cos(angles.z * 0.5f) + sin(angles.x * 0.5f) * cos(angles.y * 0.5f) * sin(angles.z * 0.5f),
-				cos(angles.x * 0.5f) * cos(angles.y * 0.5f) * sin(angles.z * 0.5f) - sin(angles.x * 0.5f) * sin(angles.y * 0.5f) * cos(angles.z * 0.5f),
-				cos(angles.x * 0.5f) * cos(angles.y * 0.5f) * cos(angles.z * 0.5f) + sin(angles.x * 0.5f) * sin(angles.y * 0.5f) * sin(angles.z * 0.5f));
+				sinf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * cosf(angles.z * 0.5f) - cosf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * sinf(angles.z * 0.5f),
+				cosf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * cosf(angles.z * 0.5f) + sinf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * sinf(angles.z * 0.5f),
+				cosf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * sinf(angles.z * 0.5f) - sinf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * cosf(angles.z * 0.5f),
+				cosf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * cosf(angles.z * 0.5f) + sinf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * sinf(angles.z * 0.5f));
 		}
 
 		float ToEulerAngleX(void) const
 		{
-			return atan2((w * x + y * z) * 2, 1 - (x * x + y * y) * 2);
+			return atan2f((w * x + y * z) * 2, 1 - (x * x + y * y) * 2);
 		}
 
 		float ToEulerAngleY(void) const
 		{
-			return asin((w * y - z * x) * 2);
+			return asinf((w * y - z * x) * 2);
 		}
 
 		float ToEulerAngleZ(void) const
 		{
-			return atan2((w * z + x * y) * 2, 1 - (y * y + z * z) * 2);
+			return atan2f((w * z + x * y) * 2, 1 - (y * y + z * z) * 2);
 		}
 
 		Vector3 ToEulerAngles(void) const
@@ -2262,7 +2262,7 @@ namespace my
 
 		static Matrix4 PerspectiveFovLH(float fovy, float aspect, float zn, float zf)
 		{
-			float yScale = cot(fovy / 2);
+			float yScale = cotf(fovy / 2);
 			float xScale = yScale / aspect;
 
 			return Matrix4(
@@ -2275,7 +2275,7 @@ namespace my
 
 		static Matrix4 PerspectiveFovRH(float fovy, float aspect, float zn, float zf)
 		{
-			float yScale = cot(fovy / 2);
+			float yScale = cotf(fovy / 2);
 			float xScale = yScale / aspect;
 
 			return Matrix4(
@@ -2287,7 +2287,7 @@ namespace my
 
 		static Matrix4 PerspectiveAovLH(float fovx, float aspect, float zn, float zf)
 		{
-			float xScale = cot(fovx / 2);
+			float xScale = cotf(fovx / 2);
 			float yScale = xScale * aspect;
 
 			return Matrix4(
@@ -2299,7 +2299,7 @@ namespace my
 
 		static Matrix4 PerspectiveAovRH(float fovx, float aspect, float zn, float zf)
 		{
-			float xScale = cot(fovx / 2);
+			float xScale = cotf(fovx / 2);
 			float yScale = xScale * aspect;
 
 			return Matrix4(
@@ -2367,24 +2367,24 @@ namespace my
 
 		static Matrix4 RotationX(float angle)
 		{
-			float c = cos(angle);
-			float s = sin(angle);
+			float c = cosf(angle);
+			float s = sinf(angle);
 
 			return Matrix4(1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1);
 		}
 
 		static Matrix4 RotationY(float angle)
 		{
-			float c = cos(angle);
-			float s = sin(angle);
+			float c = cosf(angle);
+			float s = sinf(angle);
 
 			return Matrix4(c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
 		}
 
 		static Matrix4 RotationZ(float angle)
 		{
-			float c = cos(angle);
-			float s = sin(angle);
+			float c = cosf(angle);
+			float s = sinf(angle);
 
 			return Matrix4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 		}
@@ -2554,8 +2554,8 @@ namespace my
 
 		Matrix4 rotateX(float angle) const
 		{
-			float c = cos(angle);
-			float s = sin(angle);
+			float c = cosf(angle);
+			float s = sinf(angle);
 
 			return Matrix4(
 				_11, _12 * c - _13 * s, _12 * s + _13 * c, _14,
@@ -2566,8 +2566,8 @@ namespace my
 
 		Matrix4 rotateY(float angle) const
 		{
-			float c = cos(angle);
-			float s = sin(angle);
+			float c = cosf(angle);
+			float s = sinf(angle);
 
 			return Matrix4(
 				_11 * c + _13 * s, _12, _13 * c - _11 * s, _14,
@@ -2578,8 +2578,8 @@ namespace my
 
 		Matrix4 rotateZ(float angle) const
 		{
-			float c = cos(angle);
-			float s = sin(angle);
+			float c = cosf(angle);
+			float s = sinf(angle);
 
 			return Matrix4(
 				_11 * c - _12 * s, _11 * s + _12 * c, _13, _14,
@@ -2707,7 +2707,7 @@ namespace my
 
 		float magnitude(void) const
 		{
-			return sqrt(magnitudeSq());
+			return sqrtf(magnitudeSq());
 		}
 
 		float magnitudeSq(void) const
