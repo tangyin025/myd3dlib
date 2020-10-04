@@ -952,9 +952,9 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		offset += sizeof(D3DCOLOR);
 	}
 
-	if(texture_coords > MAXBYTE)
+	if (texture_coords > D3DVertexElementSet::MAX_USAGE_INDEX)
 	{
-		THROW_CUSEXCEPTION("texture coords overflow ( > 255 )");
+		texture_coords = D3DVertexElementSet::MAX_USAGE_INDEX;
 	}
 
 	for(int i = 0; i < texture_coords; i++)
