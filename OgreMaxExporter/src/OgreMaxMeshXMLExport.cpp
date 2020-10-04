@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "IGame/IGame.h"
 #include "IGame/IGameModifier.h"
 #include <fstream>
-#include "libc.h"
+#include "../../myd3dlib/include/libc.h"
 namespace OgreMax
 {
 	MeshXMLExporter::MeshXMLExporter(const Config& config, MaterialMap& map) : m_materialMap(map), OgreMaxExporter(config)

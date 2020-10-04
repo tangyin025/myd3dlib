@@ -4,7 +4,7 @@
 #include "stdmat.h"
 #include "impexp.h"
 #include "IGame/IGame.h"
-#include "libc.h"
+#include "../../myd3dlib/include/libc.h"
 
 namespace OgreMax {
 
