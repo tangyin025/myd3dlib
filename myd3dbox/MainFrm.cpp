@@ -29,6 +29,7 @@
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
 #include "LuaExtension.inl"
+#include "myException.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -821,6 +822,25 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 	return OctNode::RemoveEntity(entity);
 }
 
+void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
+{
+	ComponentEventArg* cmp_arg = dynamic_cast<ComponentEventArg*>(arg);
+	ASSERT(cmp_arg);
+
+	MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp_arg->self);
+	ASSERT(mesh_cmp);
+	ASSERT(mesh_cmp->m_Actor);
+
+	mesh_cmp->m_Actor->UpdateAABB();
+	mesh_cmp->m_Actor->UpdateOctNode();
+	mesh_cmp->m_MeshEventReady.clear();
+
+	if (std::find(m_selactors.begin(), m_selactors.end(), mesh_cmp->m_Actor) != m_selactors.end())
+	{
+		UpdateSelBox();
+	}
+}
+
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
@@ -1023,34 +1043,64 @@ void CMainFrame::OnComponentMesh()
 		return;
 	}
 
-	TCHAR buff[256] = _T("");
-	if (IDOK != CWin32InputBox::InputBox(NULL, _T("sub mesh name"), buff, _countof(buff), false, m_hWnd))
-	{
-		return;
-	}
-
 	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
-	std::string sub_mesh_name = ts2ms(buff);
-	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh_name.c_str());
-	if (!mesh)
+
+	my::CachePtr cache = my::FileIStream::Open(dlg.GetPathName())->GetWholeCache();
+	cache->push_back(0);
+	rapidxml::xml_document<char> doc;
+	try
 	{
+		doc.parse<0>((char*)&(*cache)[0]);
+	}
+	catch (rapidxml::parse_error& e)
+	{
+		theApp.m_EventLog(e.what());
 		return;
 	}
 
-	MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
-	mesh_cmp->m_MeshPath = path;
-	mesh_cmp->m_MeshSubMeshName = sub_mesh_name;
-	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+	const rapidxml::xml_node<char>* node_root = &doc;
+	DEFINE_XML_NODE_SIMPLE(mesh, root);
+	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
+	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
+	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
+	if (node_sharedgeometry)
 	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_shader;
-		mtl->ParseShaderParameters();
-		mesh_cmp->m_MaterialList.push_back(mtl);
+		MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
+		mesh_cmp->m_MeshPath = path;
+		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+		{
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = theApp.default_shader;
+			mtl->ParseShaderParameters();
+			mesh_cmp->m_MaterialList.push_back(mtl);
+		}
+		mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
+		(*actor_iter)->AddComponent(mesh_cmp);
+		(*actor_iter)->UpdateAABB();
+		(*actor_iter)->UpdateOctNode();
 	}
-	(*actor_iter)->AddComponent(mesh_cmp);
-	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->UpdateOctNode();
-	UpdateSelBox();
+	else
+	{
+		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
+		DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
+		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
+
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
+			mesh_cmp->m_MeshPath = path;
+			mesh_cmp->m_MeshSubMeshName = attr_name->value();
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = theApp.default_shader;
+			mtl->ParseShaderParameters();
+			mesh_cmp->m_MaterialList.push_back(mtl);
+			mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
+			(*actor_iter)->AddComponent(mesh_cmp);
+			(*actor_iter)->UpdateAABB();
+			(*actor_iter)->UpdateOctNode();
+		}
+	}
 
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
