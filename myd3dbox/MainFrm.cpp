@@ -984,10 +984,10 @@ void CMainFrame::OnFileSaveAs()
 
 	m_strPathName = strPathName;
 
-	theApp.AddToRecentFileList(m_strPathName);
-
 	CWaitCursor wait;
 	SaveFileContext(m_strPathName);
+
+	theApp.AddToRecentFileList(m_strPathName);
 }
 
 void CMainFrame::OnCreateActor()

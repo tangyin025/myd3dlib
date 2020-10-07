@@ -324,6 +324,16 @@ namespace OgreMax
 		Tab<DWORD> smGrpIds = mesh->GetActiveSmgrps();
 		Tab<int> texMaps = mesh->GetActiveMapChannelNum();
 
+		// Starting with 3DXI V2.0 this returns all active channels
+		// including the standard ones such as Texture Coordinates, Vertex Colors, Illum, and Alpha. so remove it..
+		for (int ch = 0; ch < texMaps.Count(); ) {
+			if (texMaps[ch] <= 0) {
+				texMaps.Delete(ch, 1);
+			}
+			else
+				ch++;
+		}
+
 		of << "\t\t<submesh ";
 		
 		if (mtlName.length() > 0)

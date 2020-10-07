@@ -35,6 +35,10 @@ CMainApp::CMainApp()
 	m_bNeedDraw = FALSE;
 	m_bHiColorIcons = TRUE;
 
+	// TODO: replace application ID string below with unique ID string; recommended
+	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
+	SetAppID(_T("MFCApplication1.AppID.NoVersion"));
+
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 	m_UIRender.reset(new my::UIRender());
