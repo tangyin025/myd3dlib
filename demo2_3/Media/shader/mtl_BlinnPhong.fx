@@ -5,6 +5,13 @@ texture g_SpecularTexture:MaterialParameter<string Initialize="texture/White.dds
 float g_Shininess:MaterialParameter = 25;
 // float g_FresExp:MaterialParameter = 5;
 // float g_ReflStrength:MaterialParameter = 1;
+float4x4 thresholdMatrix =
+{
+	1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
+	13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
+	4.0 / 17.0, 12.0 / 17.0,  2.0 / 17.0, 10.0 / 17.0,
+	16.0 / 17.0,  8.0 / 17.0, 14.0 / 17.0,  6.0 / 17.0
+};
 
 sampler DiffuseTextureSampler = sampler_state
 {
@@ -128,6 +135,7 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float4 ScreenLight = tex2D(LightRTSampler, In.ScreenTex / In.ScreenPos.w);
 	float3 Final = Diffuse.xyz * In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
 	float Alpha = Diffuse.w * In.Color.w;
+	clip(Alpha - thresholdMatrix[In.ScreenTex.x / In.ScreenPos.w * g_ScreenDim.x % 4][In.ScreenTex.y / In.ScreenPos.w * g_ScreenDim.y % 4]);
     return float4(Final, Alpha);
 }
 
