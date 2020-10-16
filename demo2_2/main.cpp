@@ -272,7 +272,7 @@ public:
 		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
 		Material mtl;
-		mtl.m_Shader = "shader/mtl_lambert1.fx";
+		mtl.m_Shader = "shader/mtl_BlinnPhong.fx";
 		mtl.ParseShaderParameters();
 
 		m_Dlg.reset(new Dialog(NamedObject::MakeUniqueName("dialog").c_str()));

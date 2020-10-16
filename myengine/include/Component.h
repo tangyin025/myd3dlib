@@ -194,6 +194,8 @@ public:
 
 	my::EventFunction m_MeshEventReady;
 
+	my::Vector4 m_MeshColor;
+
 	bool m_bInstance;
 
 	bool m_bUseAnimation;
@@ -202,14 +204,18 @@ public:
 
 	D3DXHANDLE handle_World;
 
+	D3DXHANDLE handle_MeshColor;
+
 	D3DXHANDLE handle_dualquat;
 
 protected:
 	MeshComponent(void)
-		: m_bInstance(false)
+		: m_MeshColor(my::Vector4(1, 1, 1, 1))
+		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
+		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
 	{
 	}
@@ -217,10 +223,12 @@ protected:
 public:
 	MeshComponent(const char * Name)
 		: Component(ComponentTypeMesh, Name)
+		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
+		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
 	{
 	}
@@ -280,6 +288,8 @@ public:
 
 	std::vector<unsigned short> m_IndexData;
 
+	my::Vector4 m_MeshColor;
+
 	bool m_bUseAnimation;
 
 	my::D3DVertexElementSet m_VertexElems;
@@ -304,13 +314,17 @@ public:
 
 	D3DXHANDLE handle_World;
 
+	D3DXHANDLE handle_MeshColor;
+
 	D3DXHANDLE handle_dualquat;
 
 protected:
 	ClothComponent(void)
-		: m_bUseAnimation(false)
+		: m_MeshColor(my::Vector4(1, 1, 1, 1))
+		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
+		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
 	{
 	}
@@ -318,9 +332,11 @@ protected:
 public:
 	ClothComponent(const char * Name)
 		: Component(ComponentTypeCloth, Name)
+		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
+		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
 	{
 	}

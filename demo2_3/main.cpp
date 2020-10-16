@@ -45,7 +45,7 @@ public:
 		//MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.05f)), false));
 		//mesh_cmp->m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 		//MaterialPtr mtl(new Material());
-		//mtl->m_Shader = "mtl_lambert1.fx";
+		//mtl->m_Shader = "mtl_BlinnPhong.fx";
 		//mtl->m_PassMask = Material::PassMaskOpaque;
 		//mtl->m_MeshColor = Vector4(1,1,1,1);
 		//mtl->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";
@@ -62,7 +62,7 @@ public:
 		//mesh_cmp.reset(new MeshComponent(my::AABB(-10,10), my::Matrix4::Identity(), false));
 		//mesh_cmp->m_MeshRes.m_Path = "mesh/plane.mesh.xml";
 		//mtl.reset(new Material());
-		//mtl->m_Shader = "mtl_lambert1.fx";
+		//mtl->m_Shader = "mtl_BlinnPhong.fx";
 		//mtl->m_PassMask = Material::PassMaskOpaque;
 		//mtl->m_MeshColor = Vector4(1,1,1,1);
 		//mtl->m_MeshTexture.m_Path = "texture/Checker.bmp";
@@ -129,7 +129,7 @@ public:
 		//mesh_cmp->m_lods.resize(1);
 		//mesh_cmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 		//MaterialPtr mtl(new Material());
-		//mtl->m_Shader = "mtl_lambert1.fx";
+		//mtl->m_Shader = "mtl_BlinnPhong.fx";
 		//mtl->m_PassMask = Material::PassMaskOpaque;
 		//mtl->m_MeshColor = Vector4(1,1,1,1);
 		//mtl->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";

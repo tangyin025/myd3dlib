@@ -373,6 +373,7 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 }
@@ -383,6 +384,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 }
@@ -468,6 +470,8 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
+	shader->SetVector(handle_MeshColor, m_MeshColor);
+
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 	{
 		if (!m_Actor->m_Animation->m_DualQuats.empty())
@@ -522,6 +526,7 @@ bool MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 							if (!handle_World)
 							{
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+								BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
 									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
@@ -755,6 +760,7 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	unsigned int IndexSize = m_IndexData.size() * sizeof(unsigned short);
 	ar << BOOST_SERIALIZATION_NVP(IndexSize);
 	ar << boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
+	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
@@ -785,6 +791,7 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(IndexSize);
 	m_IndexData.resize(IndexSize / sizeof(unsigned short));
 	ar >> boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
@@ -983,6 +990,8 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
+	shader->SetVector(handle_MeshColor, m_MeshColor);
+
 	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 	{
 		if (!m_Actor->m_Animation->m_DualQuats.empty())
@@ -1038,6 +1047,7 @@ bool ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 							if (!handle_World)
 							{
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+								BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
 								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 								{
 									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));

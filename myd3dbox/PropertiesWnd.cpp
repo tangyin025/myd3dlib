@@ -349,7 +349,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyMeshMeshPath)
+	if (!pProp || pProp->GetData() != PropertyMeshPath)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesMesh(pComponent, mesh_cmp);
@@ -357,9 +357,12 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshPath.c_str()).c_str());
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str());
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 4);
+	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 2)))->SetColor(color);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_MeshColor.w);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 6);
 	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
@@ -446,14 +449,17 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyClothSceneCollision)
+	if (!pProp || pProp->GetData() != PropertyClothColor)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesCloth(pComponent, cloth_cmp);
 	}
+	COLORREF color = RGB(cloth_cmp->m_MeshColor.x * 255, cloth_cmp->m_MeshColor.y * 255, cloth_cmp->m_MeshColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 0)))->SetColor(color);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)cloth_cmp->m_MeshColor.w);
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 1);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 3);
 	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
@@ -798,11 +804,20 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshMeshPath);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str(), NULL, PropertyMeshMeshSubMeshName);
+	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str(), NULL, PropertyMeshSubMeshName);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
+
+	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
+	CColorProp* pColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyMeshColor);
+	pColor->EnableOtherButton(_T("Other..."));
+	pComponent->AddSubItem(pColor);
+
+	CMFCPropertyGridProperty* pAlpha = new CSimpleProp(_T("Alpha"), mesh_cmp->m_MeshColor.w, NULL, PropertyMeshAlpha);
+	pComponent->AddSubItem(pAlpha);
+
 	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("UseAnimation"), (_variant_t)mesh_cmp->m_bUseAnimation, NULL, PropertyMeshUseAnimation);
@@ -916,6 +931,15 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
+
+	COLORREF color = RGB(cloth_cmp->m_MeshColor.x * 255, cloth_cmp->m_MeshColor.y * 255, cloth_cmp->m_MeshColor.z * 255);
+	CColorProp* pColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyClothColor);
+	pColor->EnableOtherButton(_T("Other..."));
+	pComponent->AddSubItem(pColor);
+
+	CMFCPropertyGridProperty* pAlpha = new CSimpleProp(_T("Alpha"), cloth_cmp->m_MeshColor.w, NULL, PropertyClothAlpha);
+	pComponent->AddSubItem(pAlpha);
+
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
 	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("SceneCollision"), (_variant_t)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION), NULL, PropertyClothSceneCollision);
 	pComponent->AddSubItem(pProp);
@@ -1122,9 +1146,9 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 3;
 	case Component::ComponentTypeSphericalEmitter:
@@ -1660,8 +1684,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyMeshMeshPath:
-	case PropertyMeshMeshSubMeshName:
+	case PropertyMeshPath:
+	case PropertyMeshSubMeshName:
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 		//mesh_cmp->m_MeshRes.ReleaseResource();
@@ -1669,6 +1693,20 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		//mesh_cmp->m_MeshRes.RequestResource();
 		//EventArgs arg;
 		//pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyMeshColor:
+	case PropertyMeshAlpha:
+	{
+		MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetValue().ulVal);
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 2)))->GetColor();
+		mesh_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
+		mesh_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
+		mesh_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
+		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyMeshInstance:
@@ -1832,6 +1870,20 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		mtl->m_ParameterList[i]->ReleaseResource();
 		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		mtl->m_ParameterList[i]->RequestResource();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyClothColor:
+	case PropertyClothAlpha:
+	{
+		ClothComponent* cloth_cmp = dynamic_cast<ClothComponent*>((Component*)pProp->GetParent()->GetValue().ulVal);
+		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 0)))->GetColor();
+		cloth_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
+		cloth_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
+		cloth_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
+		cloth_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 1)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
