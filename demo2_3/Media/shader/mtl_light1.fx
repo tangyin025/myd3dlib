@@ -1,12 +1,10 @@
 
 struct LIGHT_VS_OUTPUT
 {
-	float4 Pos				: POSITION;
+	float4 Pos				: SV_Position;
 	float4 Color			: COLOR0;
-	float4 ScreenPos		: TEXCOORD0;
-	float2 ScreenTex		: TEXCOORD1;
-	float4 Light			: TEXCOORD2;
-	float3 Eye				: TEXCOORD3;
+	float4 Light			: TEXCOORD0;
+	float3 Eye				: TEXCOORD1;
 };
 
 LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
@@ -15,9 +13,6 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
-	Output.ScreenPos = Output.Pos;
-	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
-	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.Light = TransformLightWS(In);
 	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View).xyz;
 	Output.Eye = mul(float4(g_Eye, 1.0), g_View).xyz;
@@ -26,8 +21,8 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 
 float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
-	float4 Normal = tex2D(NormalRTSampler, In.ScreenTex / In.ScreenPos.w);
-	float4 ViewPos = tex2D(PositionRTSampler, In.ScreenTex / In.ScreenPos.w);
+	float4 Normal = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
+	float4 ViewPos = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 LightVec = In.Light.xyz - ViewPos.xyz;
 	float LightDist = length(LightVec);
 	LightVec = LightVec / LightDist;

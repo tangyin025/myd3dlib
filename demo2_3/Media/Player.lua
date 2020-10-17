@@ -24,7 +24,7 @@ player=Player("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1)
 
 -- Ä£ÐÍ²ÄÖÊ
 local lambert1=Material()
-lambert1.Shader="shader/mtl_lambert1.fx"
+lambert1.Shader="shader/mtl_BlinnPhong.fx"
 lambert1.PassMask=Material.PassMaskShadowNormalOpaque
 lambert1:AddParameterTexture("g_DiffuseTexture", "character/casual19_m_35.jpg")
 lambert1:AddParameterTexture("g_NormalTexture", "character/casual19_m_35_normal.png")

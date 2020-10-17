@@ -90,12 +90,10 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 
 struct COLOR_VS_OUTPUT
 {
-	float4 Pos				: POSITION;
+	float4 Pos				: SV_Position;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: NORMAL;
 	float4 Color			: COLOR0;
-	float4 ScreenPos		: TEXCOORD1;
-	float2 ScreenTex		: TEXCOORD2;
 	float4 ShadowPos		: TEXCOORD3;
 	float3 ViewDir			: TEXCOORD4;
 };
@@ -108,9 +106,6 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.Tex0 = TransformUV(In) * g_TextureScale;
 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Color = TransformColor(In);
-	Output.ScreenPos = Output.Pos;
-	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
-	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.ShadowPos = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewDir = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
     return Output;    
@@ -129,7 +124,7 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	Diffuse += tex2D(DiffuseTextureSampler1, In.Tex0) * In.Color.r;
 	Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.g;
 	Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.b;
-	float4 ScreenLight = tex2D(LightRTSampler, In.ScreenTex / In.ScreenPos.w);
+	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Diffuse.xyz * g_SpecularStrength * (ScreenLight.w + SkySpecular);
     return float4(Final.xyz, 1);
 }

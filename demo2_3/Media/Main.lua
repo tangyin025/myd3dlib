@@ -18,7 +18,7 @@ require "Action.lua"
 -- actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
 -- local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 -- local lambert1=Material()
--- lambert1.Shader="shader/mtl_lambert1.fx"
+-- lambert1.Shader="shader/mtl_BlinnPhong.fx"
 -- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
 -- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 -- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
@@ -37,7 +37,7 @@ require "Action.lua"
 -- 创建一个物理球
 actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert2=Material()
-lambert2.Shader="shader/mtl_lambert1.fx"
+lambert2.Shader="shader/mtl_BlinnPhong.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
 lambert2:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 lambert2:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")

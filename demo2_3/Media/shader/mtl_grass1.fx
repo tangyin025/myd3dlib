@@ -95,10 +95,8 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 
 struct COLOR_VS_OUTPUT
 {
-	float4 Pos				: POSITION;
+	float4 Pos				: SV_Position;
 	float2 Tex0				: TEXCOORD0;
-	float4 ScreenPos		: TEXCOORD1;
-	float2 ScreenTex		: TEXCOORD2;
 	float4 ShadowPos		: TEXCOORD3;
 	float3 ViewDir			: TEXCOORD4;
 };
@@ -109,9 +107,6 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
-	Output.ScreenPos = Output.Pos;
-	Output.ScreenTex.x = Output.Pos.x * 0.5 + Output.Pos.w * 0.5 + Output.Pos.w * 0.5 / g_ScreenDim.x;
-	Output.ScreenTex.y = Output.Pos.w - Output.Pos.y * 0.5 - 0.5 * Output.Pos.w + Output.Pos.w * 0.5 / g_ScreenDim.y;
 	Output.ShadowPos = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewDir = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
     return Output;    
@@ -124,12 +119,12 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3 ViewSkyLightDir = mul(SkyLightDir, (float3x3)g_View);
 	float LightAmount = GetLigthAmount(In.ShadowPos);
-	float3 Normal = tex2D(NormalRTSampler, In.ScreenTex / In.ScreenPos.w).xyz;
+	float3 Normal = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
 	float3 SkyDiffuse = saturate(dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(Normal, In.ViewDir);
 	float SkySpecular = pow(saturate(dot(Ref, ViewSkyLightDir) * LightAmount), g_SpecularExp) * g_SkyLightColor.w;
 	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
-	float4 ScreenLight = tex2D(LightRTSampler, In.ScreenTex / In.ScreenPos.w);
+	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
     return float4(Final, 1);
 }
