@@ -111,6 +111,7 @@ static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeAngleCamera + 1] =
 // CResourceViewBar
 
 CPropertiesWnd::CPropertiesWnd()
+	: m_IsOnPropertyChanged(FALSE)
 {
 	memset(&m_pProp, 0, sizeof(m_pProp));
 }
@@ -180,7 +181,7 @@ void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CMainFrame::SelActorList::iterator actor_iter = pFrame->m_selactors.begin();
-	if (actor_iter != pFrame->m_selactors.end())
+	if (actor_iter != pFrame->m_selactors.end() && !m_IsOnPropertyChanged)
 	{
 		UpdatePropertiesActor(*actor_iter);
 		m_wndPropList.AdjustLayout();
@@ -359,7 +360,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str());
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 2)))->SetColor(color);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_MeshColor.w);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
 	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 6);
@@ -456,7 +457,7 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	}
 	COLORREF color = RGB(cloth_cmp->m_MeshColor.x * 255, cloth_cmp->m_MeshColor.y * 255, cloth_cmp->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 0)))->SetColor(color);
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)cloth_cmp->m_MeshColor.w);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)(cloth_cmp->m_MeshColor.w * 255));
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
 	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 3);
@@ -512,7 +513,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
 	COLORREF color = RGB(particle.m_Color.x * 255, particle.m_Color.y * 255, particle.m_Color.z * 255);
 	pProp = pParticle->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColor); (DYNAMIC_DOWNCAST(CColorProp, pProp))->SetColor(color);
-	pProp = pParticle->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorAlpha); pProp->SetValue((_variant_t)particle.m_Color.w);
+	pProp = pParticle->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorAlpha); pProp->SetValue((_variant_t)(long)(particle.m_Color.w * 255));
 	pProp = pParticle->GetSubItem(4)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
 	pProp = pParticle->GetSubItem(4)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
 	pProp = pParticle->GetSubItem(5); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)D3DXToDegree(particle.m_Angle));
@@ -815,7 +816,7 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pColor->EnableOtherButton(_T("Other..."));
 	pComponent->AddSubItem(pColor);
 
-	CMFCPropertyGridProperty* pAlpha = new CSimpleProp(_T("Alpha"), mesh_cmp->m_MeshColor.w, NULL, PropertyMeshAlpha);
+	CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("Alpha"), (long)(mesh_cmp->m_MeshColor.w * 255), NULL, PropertyMeshAlpha);
 	pComponent->AddSubItem(pAlpha);
 
 	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
@@ -937,7 +938,7 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pColor->EnableOtherButton(_T("Other..."));
 	pComponent->AddSubItem(pColor);
 
-	CMFCPropertyGridProperty* pAlpha = new CSimpleProp(_T("Alpha"), cloth_cmp->m_MeshColor.w, NULL, PropertyClothAlpha);
+	CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("Alpha"), (long)(cloth_cmp->m_MeshColor.w * 255), NULL, PropertyClothAlpha);
 	pComponent->AddSubItem(pAlpha);
 
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
@@ -1004,7 +1005,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pColor->EnableOtherButton(_T("Other..."));
 	pParticle->AddSubItem(pColor);
 
-	CMFCPropertyGridProperty * pAlpha = new CSimpleProp(_T("Alpha"), particle.m_Color.w, NULL, PropertyEmitterParticleColorAlpha);
+	CMFCPropertyGridProperty * pAlpha = new CSliderProp(_T("Alpha"), (long)(particle.m_Color.w * 255), NULL, PropertyEmitterParticleColorAlpha);
 	pParticle->AddSubItem(pAlpha);
 
 	CMFCPropertyGridProperty * pSize = new CMFCPropertyGridProperty(_T("Size"), PropertyEmitterParticleSize, TRUE);
@@ -1361,6 +1362,8 @@ void CPropertiesWnd::SetPropListFont()
 
 afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
+	m_IsOnPropertyChanged = TRUE;
+
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	//if (pFrame->m_selactors.empty())
@@ -1704,7 +1707,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		mesh_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
 		mesh_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
 		mesh_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
-		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
+		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().lVal / 255.0f;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -1883,7 +1886,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		cloth_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
 		cloth_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
 		cloth_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
-		cloth_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 1)->GetValue().fltVal;
+		cloth_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 1)->GetValue().lVal / 255.0f;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -1978,7 +1981,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle.m_Color.x = GetRValue(color) / 255.0f;
 		particle.m_Color.y = GetGValue(color) / 255.0f;
 		particle.m_Color.z = GetBValue(color) / 255.0f;
-		particle.m_Color.w = pParticle->GetSubItem(3)->GetValue().fltVal;
+		particle.m_Color.w = pParticle->GetSubItem(3)->GetValue().lVal / 255.0f;
 		particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		particle.m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
@@ -2120,5 +2123,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	}
+	m_IsOnPropertyChanged = FALSE;
 	return 0;
 }

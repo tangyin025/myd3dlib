@@ -53,6 +53,7 @@ protected:
 	CComboBox m_wndObjectCombo;
 	//CPropertiesToolBar m_wndToolBar;
 	CMFCPropertyGridCtrl m_wndPropList;
+	BOOL m_IsOnPropertyChanged;
 public:
 	struct PassMaskDesc
 	{
