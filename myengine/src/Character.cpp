@@ -107,12 +107,12 @@ void Character::EnterPhysxScene(PhysxSceneContext * scene)
 	physx::PxActor * actor = m_PxController->getActor();
 	actor->userData = this;
 
-	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void Character::LeavePhysxScene(PhysxSceneContext * scene)
 {
-	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 
 	scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
 

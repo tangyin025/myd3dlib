@@ -9,6 +9,7 @@
 #include "ShapeDlg.h"
 #include "Material.h"
 #include "Terrain.h"
+#include <boost/scope_exit.hpp>
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1363,6 +1364,11 @@ void CPropertiesWnd::SetPropListFont()
 afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	m_IsOnPropertyChanged = TRUE;
+	BOOST_SCOPE_EXIT(&m_IsOnPropertyChanged)
+	{
+		m_IsOnPropertyChanged = FALSE;
+	}
+	BOOST_SCOPE_EXIT_END
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -2123,6 +2129,5 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	}
-	m_IsOnPropertyChanged = FALSE;
 	return 0;
 }

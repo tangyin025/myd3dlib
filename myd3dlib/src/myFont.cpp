@@ -196,7 +196,7 @@ Font::Font(int font_pixel_gap)
 	: m_face(NULL)
 	, FONT_PIXEL_GAP(font_pixel_gap)
 {
-	FontLibrary::getSingleton().m_EventScaleChanged.connect(boost::bind(&Font::OnScaleChanged, this, _1));
+	FontLibrary::getSingleton().m_EventScaleChanged.connect(boost::bind(&Font::OnScaleChanged, this, boost::placeholders::_1));
 }
 
 Font::~Font(void)
@@ -207,7 +207,7 @@ Font::~Font(void)
 		m_face = NULL;
 	}
 
-	FontLibrary::getSingleton().m_EventScaleChanged.disconnect(boost::bind(&Font::OnScaleChanged, this, _1));
+	FontLibrary::getSingleton().m_EventScaleChanged.disconnect(boost::bind(&Font::OnScaleChanged, this, boost::placeholders::_1));
 }
 
 void Font::OnScaleChanged(const Vector2 & Scale)
