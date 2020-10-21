@@ -1121,25 +1121,67 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
 	if (dlg.DoModal() != IDOK)
 	{
 		return;
 	}
 
-	TCHAR buff[256] = _T("");
-	if (IDOK != CWin32InputBox::InputBox(NULL, _T("sub mesh name"), buff, _countof(buff), false, m_hWnd))
+	my::CachePtr cache = my::FileIStream::Open(dlg.GetPathName())->GetWholeCache();
+	cache->push_back(0);
+	rapidxml::xml_document<char> doc;
+	try
 	{
+		doc.parse<0>((char*)&(*cache)[0]);
+	}
+	catch (rapidxml::parse_error& e)
+	{
+		theApp.m_EventLog(e.what());
 		return;
 	}
 
-	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
-	std::string sub_mesh_name = ts2ms(buff);
-	my::OgreMeshPtr mesh = theApp.LoadMesh(path.c_str(), sub_mesh_name.c_str());
-	if (!mesh)
+	my::OgreMeshPtr mesh(new my::OgreMesh());
+	const rapidxml::xml_node<char>* node_root = &doc;
+	DEFINE_XML_NODE_SIMPLE(mesh, root);
+	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
+	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
+	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
+	if (node_sharedgeometry)
 	{
-		return;
+		rapidxml::xml_node<char>* node_boneassignments = node_mesh->first_node("boneassignments");
+		mesh->CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true);
+	}
+	else
+	{
+		std::string sub_mesh_name;
+		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
+		DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
+		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
+			if (sub_mesh_name.empty())
+			{
+				TCHAR buff[256] = _T("");
+#ifdef UNICODE
+				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, attr_name->value(), -1, buff, _countof(buff));
+#else
+				strcpy_s(buff, sizeof(buff), attr_name->value());
+#endif
+				if (IDOK != CWin32InputBox::InputBox(NULL, _T("sub mesh name"), buff, _countof(buff), false, m_hWnd))
+				{
+					return;
+				}
+				sub_mesh_name = ts2ms(buff);
+			}
+			if (sub_mesh_name == attr_name->value())
+			{
+				DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+				rapidxml::xml_node<char>* node_boneassignments = node_submesh->first_node("boneassignments");
+				mesh->CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false);
+				break;
+			}
+		}
 	}
 
 	ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
