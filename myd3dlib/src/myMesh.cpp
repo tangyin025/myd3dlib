@@ -878,9 +878,10 @@ void OgreMesh::CreateMeshFromOgreXml(
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
-	if (sub_mesh_name.empty())
+	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
+	if (node_sharedgeometry)
 	{
-		DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
+		_ASSERT(sub_mesh_name.empty());
 		rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
 		CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
 		return;
