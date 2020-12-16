@@ -931,12 +931,12 @@ void ClothComponent::EnterPhysxScene(PhysxScene * scene)
 		scene->m_PxScene->addActor(*m_Cloth);
 	}
 
-	PhysxScene::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void ClothComponent::LeavePhysxScene(PhysxScene * scene)
 {
-	PhysxScene::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 
 	if (m_Cloth)
 	{
