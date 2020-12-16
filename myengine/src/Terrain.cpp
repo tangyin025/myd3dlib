@@ -771,12 +771,12 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
 	hfDesc.samples.data       = &Samples[0];
 	hfDesc.samples.stride     = sizeof(Samples[0]);
-	m_PxHeightField.reset(PhysxContext::getSingleton().m_Cooking->createHeightField(
-		hfDesc, PhysxContext::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
+	m_PxHeightField.reset(PhysxSdk::getSingleton().m_Cooking->createHeightField(
+		hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
 
-	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	m_PxShape.reset(PhysxContext::getSingleton().m_sdk->createShape(
+	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*m_PxMaterial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 

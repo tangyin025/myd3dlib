@@ -37,7 +37,7 @@ Character::~Character(void)
 {
 	if (IsEnteredPhysx())
 	{
-		_ASSERT(false); LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
+		_ASSERT(false); LeavePhysxScene(PhysxScene::getSingletonPtr());
 	}
 }
 
@@ -87,11 +87,11 @@ void Character::ReleaseResource(void)
 	Actor::ReleaseResource();
 }
 
-void Character::EnterPhysxScene(PhysxSceneContext * scene)
+void Character::EnterPhysxScene(PhysxScene * scene)
 {
 	Actor::EnterPhysxScene(scene);
 
-	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = m_Height;
@@ -110,7 +110,7 @@ void Character::EnterPhysxScene(PhysxSceneContext * scene)
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
-void Character::LeavePhysxScene(PhysxSceneContext * scene)
+void Character::LeavePhysxScene(PhysxScene * scene)
 {
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 
@@ -173,7 +173,7 @@ void Character::Update(float fElapsedTime)
 			}
 
 			m_Velocity = Vector3(
-				Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y + PhysxContext::getSingleton().Gravity.y * fElapsedTime,
+				Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y + PhysxSdk::getSingleton().Gravity.y * fElapsedTime,
 				Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed);
 
 			if (ForwardSpeed > EPSILON_E6)

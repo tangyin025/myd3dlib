@@ -86,9 +86,9 @@ void Actor::save(Archive & ar, const unsigned int version) const
 				}
 			}
 		}
-		physx::PxSerialization::complete(*collection, *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get());
+		physx::PxSerialization::complete(*collection, *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get());
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get());
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get());
 		unsigned int PxActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
 		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -125,7 +125,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
-		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysxSceneContext::getSingleton().m_Registry, PhysxSceneContext::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
+		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
@@ -254,7 +254,7 @@ void Actor::ReleaseResource(void)
 #endif
 }
 
-void Actor::EnterPhysxScene(PhysxSceneContext * scene)
+void Actor::EnterPhysxScene(PhysxScene * scene)
 {
 	m_EnteredPhysx = true;
 
@@ -270,7 +270,7 @@ void Actor::EnterPhysxScene(PhysxSceneContext * scene)
 	}
 }
 
-void Actor::LeavePhysxScene(PhysxSceneContext * scene)
+void Actor::LeavePhysxScene(PhysxScene * scene)
 {
 	m_EnteredPhysx = false;
 
@@ -540,12 +540,12 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	switch (ActorType)
 	{
 	case physx::PxActorType::eRIGID_STATIC:
-		m_PxActor.reset(PhysxContext::getSingleton().m_sdk->createRigidStatic(
+		m_PxActor.reset(PhysxSdk::getSingleton().m_sdk->createRigidStatic(
 			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
 		m_PxActor->userData = this;
 		break;
 	case physx::PxActorType::eRIGID_DYNAMIC:
-		m_PxActor.reset(PhysxContext::getSingleton().m_sdk->createRigidDynamic(
+		m_PxActor.reset(PhysxSdk::getSingleton().m_sdk->createRigidDynamic(
 			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
 		m_PxActor->userData = this;
 		break;
@@ -588,7 +588,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 
 	if (IsEnteredPhysx())
 	{
-		cmp->EnterPhysxScene(PhysxSceneContext::getSingletonPtr());
+		cmp->EnterPhysxScene(PhysxScene::getSingletonPtr());
 	}
 }
 
@@ -608,7 +608,7 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 
 		if (IsEnteredPhysx())
 		{
-			cmp->LeavePhysxScene(PhysxSceneContext::getSingletonPtr());
+			cmp->LeavePhysxScene(PhysxScene::getSingletonPtr());
 		}
 	}
 	else

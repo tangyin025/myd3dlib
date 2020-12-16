@@ -239,7 +239,7 @@ BOOL CMainApp::InitInstance()
 
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-	if (!PhysxContext::Init())
+	if (!PhysxSdk::Init())
 	{
 		return FALSE;
 	}
@@ -503,7 +503,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 int CMainApp::ExitInstance()
 {
 	// TODO: Add your specialized code here and/or call the base class
-	PhysxContext::Shutdown();
+	PhysxSdk::Shutdown();
 
 	return CWinAppEx::ExitInstance();
 }

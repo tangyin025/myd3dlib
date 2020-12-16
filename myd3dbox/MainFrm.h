@@ -14,7 +14,7 @@
 #include "Pivot.h"
 
 class CMainFrame : public CFrameWndEx
-	, public PhysxSceneContext
+	, public PhysxScene
 	, public my::OctRoot
 	, public LuaContext
 {

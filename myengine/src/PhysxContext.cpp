@@ -21,7 +21,7 @@
 #include <boost/serialization/export.hpp>
 #include "CctCharacterControllerManager.h"
 
-const my::Vector3 PhysxContext::Gravity(0.0f, -9.81f, 0.0f);
+const my::Vector3 PhysxSdk::Gravity(0.0f, -9.81f, 0.0f);
 
 void * PhysxAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
@@ -41,7 +41,7 @@ void PhysxAllocator::deallocate(void * ptr)
 #endif
 }
 
-bool PhysxContext::Init(void)
+bool PhysxSdk::Init(void)
 {
 	if(!(m_Foundation.reset(PxCreateFoundation(PX_FOUNDATION_VERSION, m_Allocator, *this), PhysxDeleter<physx::PxFoundation>()), m_Foundation))
 	{
@@ -77,7 +77,7 @@ bool PhysxContext::Init(void)
 	return true;
 }
 
-void PhysxContext::Shutdown(void)
+void PhysxSdk::Shutdown(void)
 {
 	if(m_sdk)
 	{
@@ -93,7 +93,7 @@ void PhysxContext::Shutdown(void)
 	m_Foundation.reset();
 }
 
-void PhysxContext::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
+void PhysxSdk::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
 	switch (code)
 	{
@@ -112,21 +112,21 @@ void PhysxContext::reportError(physx::PxErrorCode::Enum code, const char* messag
 	}
 }
 
-void PhysxSceneContext::StepperTask::run(void)
+void PhysxScene::StepperTask::run(void)
 {
 	m_PxScene->SubstepDone(this);
 	release();
 }
 
-const char * PhysxSceneContext::StepperTask::getName(void) const
+const char * PhysxScene::StepperTask::getName(void) const
 {
 	return "Stepper Task";
 }
 
-bool PhysxSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher)
+bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher)
 {
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = (physx::PxVec3&)PhysxContext::Gravity;
+	sceneDesc.gravity = (physx::PxVec3&)PhysxSdk::Gravity;
 	sceneDesc.simulationEventCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
@@ -150,26 +150,26 @@ bool PhysxSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 	return true;
 }
 
-float PhysxSceneContext::GetVisualizationParameter(physx::PxVisualizationParameter::Enum paramEnum) const
+float PhysxScene::GetVisualizationParameter(physx::PxVisualizationParameter::Enum paramEnum) const
 {
 	return m_PxScene->getVisualizationParameter(paramEnum);
 }
 
-void PhysxSceneContext::SetVisualizationParameter(physx::PxVisualizationParameter::Enum param, float value)
+void PhysxScene::SetVisualizationParameter(physx::PxVisualizationParameter::Enum param, float value)
 {
 	m_PxScene->setVisualizationParameter(param, value);
 }
 
-void PhysxSceneContext::SetControllerDebugRenderingFlags(physx::PxU32 flags)
+void PhysxScene::SetControllerDebugRenderingFlags(physx::PxU32 flags)
 {
 	m_ControllerMgr->setDebugRenderingFlags(physx::PxControllerDebugRenderFlags(flags));
 }
 
 template<class Archive>
-void PhysxSceneContext::save(Archive & ar, const unsigned int version) const
+void PhysxScene::save(Archive & ar, const unsigned int version) const
 {
-	const_cast<PhysxSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxContext::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
-	const_cast<PhysxSceneContext *>(this)->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
+	const_cast<PhysxScene *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
+	const_cast<PhysxScene *>(this)->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
 	physx::PxDefaultMemoryOutputStream ostr;
 	physx::PxSerialization::createSerialObjectIds(*m_Collection, physx::PxSerialObjectId(1));
 	physx::PxSerialization::serializeCollectionToBinary(ostr, *m_Collection, *m_Registry);
@@ -179,41 +179,41 @@ void PhysxSceneContext::save(Archive & ar, const unsigned int version) const
 }
 
 template<class Archive>
-void PhysxSceneContext::load(Archive & ar, const unsigned int version)
+void PhysxScene::load(Archive & ar, const unsigned int version)
 {
 	unsigned int StreamBuffSize;
 	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
-	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxContext::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
+	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
 	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
 }
 
 template
-void PhysxSceneContext::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
+void PhysxScene::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysxSceneContext::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
+void PhysxScene::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysxSceneContext::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
+void PhysxScene::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysxSceneContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
+void PhysxScene::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
 
 template
-void PhysxSceneContext::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
+void PhysxScene::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
 
 template
-void PhysxSceneContext::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
+void PhysxScene::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
 
 template
-void PhysxSceneContext::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
+void PhysxScene::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
 
 template
-void PhysxSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
+void PhysxScene::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
-void PhysxSceneContext::ClearSerializedObjs(void)
+void PhysxScene::ClearSerializedObjs(void)
 {
 	m_Collection.reset();
 
@@ -222,7 +222,7 @@ void PhysxSceneContext::ClearSerializedObjs(void)
 	m_SerializeBuff.reset();
 }
 
-void PhysxSceneContext::Shutdown(void)
+void PhysxScene::Shutdown(void)
 {
 	m_EventPxThreadSubstep.disconnect_all_slots();
 	ClearSerializedObjs();
@@ -231,7 +231,7 @@ void PhysxSceneContext::Shutdown(void)
 	m_PxScene.reset();
 }
 
-void PhysxSceneContext::TickPreRender(float dtime)
+void PhysxScene::TickPreRender(float dtime)
 {
 	m_Sync.ResetEvent();
 
@@ -240,7 +240,7 @@ void PhysxSceneContext::TickPreRender(float dtime)
 	m_WaitForResults = Advance(dtime);
 }
 
-void PhysxSceneContext::TickPostRender(float dtime)
+void PhysxScene::TickPostRender(float dtime)
 {
 	if(m_WaitForResults)
 	{
@@ -265,7 +265,7 @@ void PhysxSceneContext::TickPostRender(float dtime)
 	}
 }
 
-bool PhysxSceneContext::Advance(float dtime)
+bool PhysxScene::Advance(float dtime)
 {
 	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
 
@@ -285,7 +285,7 @@ bool PhysxSceneContext::Advance(float dtime)
 	return true;
 }
 
-bool PhysxSceneContext::AdvanceSync(float dtime)
+bool PhysxScene::AdvanceSync(float dtime)
 {
 	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
 
@@ -307,12 +307,12 @@ bool PhysxSceneContext::AdvanceSync(float dtime)
 	return true;
 }
 
-void PhysxSceneContext::Substep(StepperTask & completionTask)
+void PhysxScene::Substep(StepperTask & completionTask)
 {
 	m_PxScene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
 }
 
-void PhysxSceneContext::SubstepDone(StepperTask * ownerTask)
+void PhysxScene::SubstepDone(StepperTask * ownerTask)
 {
 	m_PxScene->fetchResults(true, &m_ErrorState);
 
@@ -338,7 +338,7 @@ void PhysxSceneContext::SubstepDone(StepperTask * ownerTask)
 	task.removeReference();
 }
 
-void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
+void PhysxScene::PushRenderBuffer(my::DrawHelper * drawHelper)
 {
 	const physx::PxRenderBuffer & debugRenderable = m_PxScene->getRenderBuffer();
 
@@ -391,12 +391,12 @@ void PhysxSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	}
 }
 
-void PhysxSceneContext::Flush(void)
+void PhysxScene::Flush(void)
 {
 	m_PxScene->flushSimulation(false);
 }
 
-physx::PxFilterFlags PhysxSceneContext::filter(
+physx::PxFilterFlags PhysxScene::filter(
 	physx::PxFilterObjectAttributes attributes0,
 	physx::PxFilterData filterData0,
 	physx::PxFilterObjectAttributes attributes1,
@@ -423,19 +423,19 @@ physx::PxFilterFlags PhysxSceneContext::filter(
 	return physx::PxFilterFlag::eDEFAULT;
 }
 
-void PhysxSceneContext::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
+void PhysxScene::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
 {
 }
 
-void PhysxSceneContext::onWake(physx::PxActor** actors, physx::PxU32 count)
+void PhysxScene::onWake(physx::PxActor** actors, physx::PxU32 count)
 {
 }
 
-void PhysxSceneContext::onSleep(physx::PxActor** actors, physx::PxU32 count)
+void PhysxScene::onSleep(physx::PxActor** actors, physx::PxU32 count)
 {
 }
 
-void PhysxSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
+void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
 {
 	std::vector<physx::PxContactPairPoint> contactPoints;
 	for (physx::PxU32 i = 0; i < nbPairs; i++)
@@ -458,7 +458,7 @@ void PhysxSceneContext::onContact(const physx::PxContactPairHeader& pairHeader, 
 	}
 }
 
-void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
+void PhysxScene::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 {
 	for (physx::PxU32 i = 0; i < count; i++)
 	{
@@ -473,12 +473,12 @@ void PhysxSceneContext::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 coun
 	}
 }
 
-void PhysxSceneContext::onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count)
+void PhysxScene::onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count)
 {
 
 }
 
-void PhysxSceneContext::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor)
+void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor)
 {
 	// check if the actor is in the active transform list and remove
 	if (actor->getType() == physx::PxActorType::eRIGID_DYNAMIC)

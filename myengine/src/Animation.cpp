@@ -837,7 +837,7 @@ void AnimationRoot::AddIK(const std::string & bone_name, float hitRadius, unsign
 
 void AnimationRoot::UpdateIK(IKContext & ik)
 {
-	PhysxSceneContext * scene = dynamic_cast<PhysxSceneContext *>(m_Actor->m_Node->GetTopNode());
+	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
 
 	Vector3 pos[3] = {

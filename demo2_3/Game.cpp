@@ -397,14 +397,14 @@ HRESULT Game::OnCreateDevice(
 
 	InputMgr::Create(m_hinst, m_wnd->m_hWnd);
 
-	if (!PhysxContext::Init())
+	if (!PhysxSdk::Init())
 	{
-		THROW_CUSEXCEPTION("PhysxContext::Init failed");
+		THROW_CUSEXCEPTION("PhysxSdk::Init failed");
 	}
 
-	if (!PhysxSceneContext::Init(m_sdk.get(), m_CpuDispatcher.get()))
+	if (!PhysxScene::Init(m_sdk.get(), m_CpuDispatcher.get()))
 	{
-		THROW_CUSEXCEPTION("PhysxSceneContext::Init failed");
+		THROW_CUSEXCEPTION("PhysxScene::Init failed");
 	}
 
 	ResourceMgr::StartIORequestProc(4);
@@ -467,7 +467,7 @@ HRESULT Game::OnCreateDevice(
 
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
-		, luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxSceneContext> >("Game")
+		, luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxScene> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)
@@ -647,9 +647,9 @@ void Game::OnDestroyDevice(void)
 
 	FModContext::Shutdown();
 
-	PhysxSceneContext::Shutdown();
+	PhysxScene::Shutdown();
 
-	PhysxContext::Shutdown();
+	PhysxSdk::Shutdown();
 
 	RenderPipeline::OnDestroyDevice();
 
@@ -674,7 +674,7 @@ void Game::OnFrameTick(
 
 	CheckIORequests(0);
 
-	PhysxSceneContext::PushRenderBuffer(this);
+	PhysxScene::PushRenderBuffer(this);
 
 	Player * player = Player::getSingletonPtr();
 	if (player && player->m_Node)
@@ -717,7 +717,7 @@ void Game::OnFrameTick(
 
 	ParallelTaskManager::DoAllParallelTasks();
 
-	PhysxSceneContext::TickPreRender(fElapsedTime);
+	PhysxScene::TickPreRender(fElapsedTime);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
@@ -746,7 +746,7 @@ void Game::OnFrameTick(
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	PhysxSceneContext::TickPostRender(fElapsedTime);
+	PhysxScene::TickPostRender(fElapsedTime);
 
 	TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
 	for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
@@ -1112,7 +1112,7 @@ void Game::OnControlFocus(bool bFocus)
 void Game::LoadScene(const char * path)
 {
 	ClearAllEntity();
-	PhysxSceneContext::ClearSerializedObjs();
+	PhysxScene::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();
 
@@ -1132,7 +1132,7 @@ void Game::LoadScene(const char * path)
 		m_LoadSceneArchive.reset(new boost::archive::polymorphic_binary_iarchive(*m_LoadSceneStream));
 	}
 	*m_LoadSceneArchive >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	*m_LoadSceneArchive >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*m_LoadSceneArchive >> boost::serialization::make_nvp("PhysxScene", (PhysxScene &)*this);
 	*m_LoadSceneArchive >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	RenderPipeline::RequestResource();

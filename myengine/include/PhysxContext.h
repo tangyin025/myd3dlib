@@ -31,8 +31,8 @@ struct PhysxDeleter
 	}
 };
 
-class PhysxContext
-	: public my::SingleInstance<PhysxContext>
+class PhysxSdk
+	: public my::SingleInstance<PhysxSdk>
 	, public physx::PxErrorCallback
 {
 public:
@@ -51,7 +51,7 @@ public:
 	boost::shared_ptr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
 public:
-	PhysxContext(void)
+	PhysxSdk(void)
 	{
 	}
 
@@ -62,8 +62,8 @@ public:
 	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 };
 
-class PhysxSceneContext
-	: public my::SingleInstance<PhysxSceneContext>
+class PhysxScene
+	: public my::SingleInstance<PhysxScene>
 	, public physx::PxSimulationEventCallback
 {
 public:
@@ -71,9 +71,9 @@ public:
 		: public physx::PxLightCpuTask
 	{
 	public:
-		PhysxSceneContext * m_PxScene;
+		PhysxScene * m_PxScene;
 
-		StepperTask(PhysxSceneContext * Scene)
+		StepperTask(PhysxScene * Scene)
 			: m_PxScene(Scene)
 		{
 		}
@@ -120,7 +120,7 @@ public:
 	TriggerPairList mTriggerPairs;
 
 public:
-	PhysxSceneContext(void)
+	PhysxScene(void)
 		: m_Completion0(this)
 		, m_Completion1(this)
 		, m_Timer(1/60.0f,0)

@@ -28,8 +28,8 @@ class Game
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
-	, public PhysxContext
-	, public PhysxSceneContext
+	, public PhysxSdk
+	, public PhysxScene
 	, public FModContext
 	, public my::Thread
 {

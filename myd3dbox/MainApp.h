@@ -20,7 +20,7 @@ class CMainApp : public CWinAppEx
 	, public my::FontLibrary
 	, public my::ResourceMgr
 	, public RenderPipeline
-	, public PhysxContext
+	, public PhysxSdk
 {
 public:
 	CMainApp();

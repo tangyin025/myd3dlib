@@ -1218,7 +1218,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ParamStartPos", &ActionTrackPose::m_ParamStartPos)
 			.def_readwrite("ParamEndPos", &ActionTrackPose::m_ParamEndPos)
 
-		, class_<PhysxSceneContext>("PhysxSceneContext")
+		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")
 			[
 				value("eSCALE", physx::PxVisualizationParameter::eSCALE),
@@ -1259,8 +1259,8 @@ void LuaContext::Init(void)
 				value("eMBP_REGIONS", physx::PxVisualizationParameter::eMBP_REGIONS),
 				value("eNUM_VALUES", physx::PxVisualizationParameter::eNUM_VALUES)
 			]
-			.def("GetVisualizationParameter", &PhysxSceneContext::GetVisualizationParameter)
-			.def("SetVisualizationParameter", &PhysxSceneContext::SetVisualizationParameter)
+			.def("GetVisualizationParameter", &PhysxScene::GetVisualizationParameter)
+			.def("SetVisualizationParameter", &PhysxScene::SetVisualizationParameter)
 			.enum_("PxControllerDebugRenderFlag")
 			[
 				value("eTEMPORAL_BV", physx::PxControllerDebugRenderFlag::eTEMPORAL_BV),
@@ -1269,7 +1269,7 @@ void LuaContext::Init(void)
 				value("eNONE", physx::PxControllerDebugRenderFlag::eNONE),
 				value("eALL", physx::PxControllerDebugRenderFlag::eALL)
 			]
-			.def("SetControllerDebugRenderingFlags", &PhysxSceneContext::SetControllerDebugRenderingFlags)
+			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
 	];
 }
 

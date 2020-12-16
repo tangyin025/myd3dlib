@@ -181,9 +181,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void EnterPhysxScene(PhysxSceneContext * scene);
+	virtual void EnterPhysxScene(PhysxScene * scene);
 
-	virtual void LeavePhysxScene(PhysxSceneContext * scene);
+	virtual void LeavePhysxScene(PhysxScene * scene);
 
 	virtual void NotifyEnterView(void);
 

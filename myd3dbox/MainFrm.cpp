@@ -261,7 +261,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	if (!PhysxSceneContext::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
+	if (!PhysxScene::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
 		return -1;
 
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
@@ -609,7 +609,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		(*actor_iter)->Update(fElapsedTime);
 	}
 
-	PhysxSceneContext::AdvanceSync(fElapsedTime);
+	PhysxScene::AdvanceSync(fElapsedTime);
 
 	bool haveSelActors = false;
 	physx::PxU32 nbActiveTransforms;
@@ -660,7 +660,7 @@ void CMainFrame::InitFileContext()
 	[
 		luabind::class_<CWnd> ("CWnd")
 
-		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxSceneContext> >("MainFrame")
+		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxScene> >("MainFrame")
 			.def("AddEntity", &CMainFrame::AddEntity)
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
@@ -679,7 +679,7 @@ void CMainFrame::InitFileContext()
 void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
-	PhysxSceneContext::ClearSerializedObjs();
+	PhysxScene::ClearSerializedObjs();
 	theApp.ReleaseResource();
 	m_ActorList.clear();
 	m_selactors.clear();
@@ -707,7 +707,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 		ia.reset(new boost::archive::polymorphic_binary_iarchive(ifs));
 	}
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*ia >> boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*ia >> boost::serialization::make_nvp("PhysxScene", (PhysxScene &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
@@ -737,7 +737,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
 	}
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("PhysxSceneContext", (PhysxSceneContext &)*this);
+	*oa << boost::serialization::make_nvp("PhysxScene", (PhysxScene &)*this);
 	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	struct Callback : public my::OctNode::QueryCallback
@@ -849,7 +849,7 @@ void CMainFrame::OnDestroy()
 	//m_emitter.reset();
 	ClearFileContext();
 	theApp.DestroyD3DDevice();
-	PhysxSceneContext::Shutdown();
+	PhysxScene::Shutdown();
 }
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
