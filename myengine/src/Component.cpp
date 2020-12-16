@@ -573,48 +573,32 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		return;
 	}
 
-	std::string key(m_Mesh->m_Key);
-	if (key.empty())
-	{
-		return;
-	}
-
-	key += "triangle";
 	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
-	PhysxSceneContext::PxObjectMap::iterator collection_obj_iter = PhysxSceneContext::getSingleton().m_CollectionObjs.find(key);
-	if (collection_obj_iter != PhysxSceneContext::getSingleton().m_CollectionObjs.end())
+	physx::PxTriangleMeshDesc desc;
+	desc.points.count = m_Mesh->GetNumVertices();
+	desc.points.stride = m_Mesh->GetNumBytesPerVertex();
+	desc.points.data = m_Mesh->LockVertexBuffer();
+	desc.triangles.count = m_Mesh->GetNumFaces();
+	if (m_Mesh->GetOptions() & D3DXMESH_32BIT)
 	{
-		triangle_mesh.reset(collection_obj_iter->second, collection_obj_iter->second->is<physx::PxTriangleMesh>());
+		desc.triangles.stride = 3 * sizeof(DWORD);
 	}
 	else
 	{
-		physx::PxTriangleMeshDesc desc;
-		desc.points.count = m_Mesh->GetNumVertices();
-		desc.points.stride = m_Mesh->GetNumBytesPerVertex();
-		desc.points.data = m_Mesh->LockVertexBuffer();
-		desc.triangles.count = m_Mesh->GetNumFaces();
-		if (m_Mesh->GetOptions() & D3DXMESH_32BIT)
-		{
-			desc.triangles.stride = 3 * sizeof(DWORD);
-		}
-		else
-		{
-			desc.triangles.stride = 3 * sizeof(WORD);
-			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-		}
-		desc.triangles.data = m_Mesh->LockIndexBuffer();
-		physx::PxDefaultMemoryOutputStream writeBuffer;
-		bool status = PhysxContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
-		m_Mesh->UnlockIndexBuffer();
-		m_Mesh->UnlockVertexBuffer();
-		if (!status)
-		{
-			return;
-		}
-		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		triangle_mesh.reset(PhysxContext::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
-		PhysxSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, triangle_mesh));
+		desc.triangles.stride = 3 * sizeof(WORD);
+		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 	}
+	desc.triangles.data = m_Mesh->LockIndexBuffer();
+	physx::PxDefaultMemoryOutputStream writeBuffer;
+	bool status = PhysxContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
+	m_Mesh->UnlockIndexBuffer();
+	m_Mesh->UnlockVertexBuffer();
+	if (!status)
+	{
+		return;
+	}
+	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	triangle_mesh.reset(PhysxContext::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
 
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
@@ -651,46 +635,26 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		return;
 	}
 
-	std::string key(m_Mesh->m_Key);
-	if (key.empty())
+	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
+	physx::PxConvexMeshDesc desc;
+	desc.points.count = m_Mesh->GetNumVertices();
+	desc.points.stride = m_Mesh->GetNumBytesPerVertex();
+	desc.points.data = m_Mesh->LockVertexBuffer();
+	desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
+	if (bInflateConvex)
+	{
+		desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
+	}
+	desc.vertexLimit = 256;
+	physx::PxDefaultMemoryOutputStream writeBuffer;
+	bool status = PhysxContext::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
+	m_Mesh->UnlockVertexBuffer();
+	if (!status)
 	{
 		return;
 	}
-
-	key += "convex";
-	if (bInflateConvex)
-	{
-		key += "inflate";
-	}
-	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
-	PhysxSceneContext::PxObjectMap::iterator collection_obj_iter = PhysxSceneContext::getSingleton().m_CollectionObjs.find(key);
-	if (collection_obj_iter != PhysxSceneContext::getSingleton().m_CollectionObjs.end())
-	{
-		convex_mesh.reset(collection_obj_iter->second, collection_obj_iter->second->is<physx::PxConvexMesh>());
-	}
-	else
-	{
-		physx::PxConvexMeshDesc desc;
-		desc.points.count = m_Mesh->GetNumVertices();
-		desc.points.stride = m_Mesh->GetNumBytesPerVertex();
-		desc.points.data = m_Mesh->LockVertexBuffer();
-		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
-		if (bInflateConvex)
-		{
-			desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
-		}
-		desc.vertexLimit = 256;
-		physx::PxDefaultMemoryOutputStream writeBuffer;
-		bool status = PhysxContext::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
-		m_Mesh->UnlockVertexBuffer();
-		if (!status)
-		{
-			return;
-		}
-		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		convex_mesh.reset(PhysxContext::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
-		PhysxSceneContext::getSingleton().m_CollectionObjs.insert(std::make_pair(key, convex_mesh));
-	}
+	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	convex_mesh.reset(PhysxContext::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
 
 	m_PxMaterial.reset(PhysxContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 

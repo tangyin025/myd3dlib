@@ -107,8 +107,6 @@ public:
 
 	typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > PxObjectMap;
 
-	PxObjectMap m_CollectionObjs;
-
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;

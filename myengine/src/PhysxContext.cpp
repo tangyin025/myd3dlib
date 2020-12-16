@@ -170,25 +170,12 @@ void PhysxSceneContext::save(Archive & ar, const unsigned int version) const
 {
 	const_cast<PhysxSceneContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxContext::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
 	const_cast<PhysxSceneContext *>(this)->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
-	PxObjectMap::const_iterator collection_obj_iter = m_CollectionObjs.begin();
-	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
-	{
-		m_Collection->add(*collection_obj_iter->second);
-	}
 	physx::PxDefaultMemoryOutputStream ostr;
 	physx::PxSerialization::createSerialObjectIds(*m_Collection, physx::PxSerialObjectId(1));
 	physx::PxSerialization::serializeCollectionToBinary(ostr, *m_Collection, *m_Registry);
 	unsigned int StreamBuffSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(StreamBuffSize);
 	ar << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	collection_obj_iter = m_CollectionObjs.begin();
-	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
-	{
-		std::string key = collection_obj_iter->first;
-		ar << BOOST_SERIALIZATION_NVP(key);
-		physx::PxSerialObjectId id = m_Collection->getId(*collection_obj_iter->second);
-		ar << BOOST_SERIALIZATION_NVP(id);
-	}
 }
 
 template<class Archive>
@@ -200,15 +187,6 @@ void PhysxSceneContext::load(Archive & ar, const unsigned int version)
 	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
 	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxContext::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
 	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
-	const unsigned int numObjs = m_Collection->getNbObjects();
-	for (unsigned int i = 0; i < numObjs; i++)
-	{
-		std::string key;
-		ar >> BOOST_SERIALIZATION_NVP(key);
-		physx::PxSerialObjectId id;
-		ar >> BOOST_SERIALIZATION_NVP(id);
-		m_CollectionObjs.insert(std::make_pair(key, boost::shared_ptr<physx::PxBase>(m_Collection->find(id), PhysxDeleter<physx::PxBase>())));
-	}
 }
 
 template
@@ -237,8 +215,6 @@ void PhysxSceneContext::load<boost::archive::polymorphic_iarchive>(boost::archiv
 
 void PhysxSceneContext::ClearSerializedObjs(void)
 {
-	m_CollectionObjs.clear();
-
 	m_Collection.reset();
 
 	m_Registry.reset();
