@@ -254,30 +254,6 @@ void ControlImage::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Border);
 }
 
-template
-void ControlImage::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlImage::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlImage::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlImage::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void ControlImage::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void ControlImage::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
-
 ControlSkin::~ControlSkin(void)
 {
 }
@@ -327,30 +303,6 @@ void ControlSkin::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
 	ar >> BOOST_SERIALIZATION_NVP(m_MouseClickSound);
 }
-
-template
-void ControlSkin::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlSkin::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlSkin::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlSkin::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void ControlSkin::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void ControlSkin::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void ControlSkin::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void ControlSkin::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
 {
@@ -449,30 +401,6 @@ void Control::load(Archive & ar, const unsigned int version)
 		(*ctrl_iter)->m_Parent = this;
 	}
 }
-
-template
-void Control::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void Control::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void Control::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void Control::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void Control::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void Control::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void Control::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void Control::SetFocusControl(Control * control)
 {
@@ -2290,30 +2218,6 @@ void ComboBox::load(Archive & ar, const unsigned int version)
 	OnLayout();
 }
 
-template
-void ComboBox::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void ComboBox::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void ComboBox::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void ComboBox::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void ComboBox::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void ComboBox::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void ComboBox::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void ComboBox::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
-
 void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
@@ -2774,30 +2678,6 @@ void Dialog::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_EnableDrag);
 }
-
-template
-void Dialog::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void Dialog::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void Dialog::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void Dialog::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void Dialog::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void Dialog::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void Dialog::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void Dialog::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime)
 {

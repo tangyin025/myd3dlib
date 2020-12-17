@@ -167,30 +167,6 @@ void Actor::load(Archive & ar, const unsigned int version)
 	UpdateWorld();
 }
 
-template
-void Actor::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void Actor::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void Actor::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void Actor::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void Actor::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void Actor::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
-
 void Actor::CopyFrom(const Actor & rhs)
 {
 	if (rhs.m_Name)

@@ -119,27 +119,3 @@ void NamedObject::load(Archive & ar, const unsigned int version)
 		SetName(Name.c_str());
 	}
 }
-
-template
-void NamedObject::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const;
-
-template
-void NamedObject::save<boost::archive::text_oarchive>(boost::archive::text_oarchive & ar, const unsigned int version) const;
-
-template
-void NamedObject::save<boost::archive::binary_oarchive>(boost::archive::binary_oarchive & ar, const unsigned int version) const;
-
-template
-void NamedObject::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void NamedObject::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version);
-
-template
-void NamedObject::load<boost::archive::text_iarchive>(boost::archive::text_iarchive & ar, const unsigned int version);
-
-template
-void NamedObject::load<boost::archive::binary_iarchive>(boost::archive::binary_iarchive & ar, const unsigned int version);
-
-template
-void NamedObject::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
