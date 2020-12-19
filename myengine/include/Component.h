@@ -482,10 +482,15 @@ public:
 	friend class boost::serialization::access;
 
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
+	void save(Archive& ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	void CopyFrom(const StaticEmitterComponent & rhs);

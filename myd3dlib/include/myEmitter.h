@@ -67,18 +67,6 @@ namespace my
 				: circular_buffer(buffer_capacity, allocator_type())
 			{
 			}
-
-			template<class Archive>
-			inline void serialize(Archive & ar, const unsigned int version)
-			{
-				boost::serialization::split_member(ar, *this, version);
-			}
-
-			template<class Archive>
-			void save(Archive & ar, const unsigned int version) const;
-
-			template<class Archive>
-			void load(Archive & ar, const unsigned int version);
 		};
 
 		ParticleList m_ParticleList;
@@ -86,11 +74,6 @@ namespace my
 	public:
 		Emitter(unsigned int Capacity)
 			: m_ParticleList(Capacity)
-		{
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
 		{
 		}
 

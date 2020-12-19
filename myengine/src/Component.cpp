@@ -1174,6 +1174,30 @@ bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 	return ret;
 }
 
+template<class Archive>
+void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	ParticleList::capacity_type buffer_capacity = m_ParticleList.capacity();
+	ar << BOOST_SERIALIZATION_NVP(buffer_capacity);
+	boost::serialization::stl::save_collection<Archive, ParticleList>(ar, m_ParticleList);
+}
+
+template<class Archive>
+void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	ParticleList::capacity_type buffer_capacity;
+	ar >> BOOST_SERIALIZATION_NVP(buffer_capacity);
+	m_ParticleList.set_capacity(buffer_capacity);
+	boost::serialization::item_version_type item_version(0);
+	boost::serialization::collection_size_type count;
+	ar >> BOOST_SERIALIZATION_NVP(count);
+	ar >> BOOST_SERIALIZATION_NVP(item_version);
+	m_ParticleList.resize(count);
+	boost::serialization::stl::collection_load_impl<Archive, ParticleList>(ar, m_ParticleList, count, item_version);
+}
+
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)
 {
 	EmitterComponent::CopyFrom(rhs);
