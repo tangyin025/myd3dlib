@@ -183,10 +183,10 @@ void PhysxScene::load(Archive & ar, const unsigned int version)
 {
 	unsigned int StreamBuffSize;
 	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
-	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
+	m_SerializeBuff.resize(StreamBuffSize);
+	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(&m_SerializeBuff[0], m_SerializeBuff.size()));
 	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
-	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
+	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(&m_SerializeBuff[0], *m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
 }
 
 template
@@ -201,7 +201,7 @@ void PhysxScene::ClearSerializedObjs(void)
 
 	m_Registry.reset();
 
-	m_SerializeBuff.reset();
+	m_SerializeBuff.clear();
 }
 
 void PhysxScene::Shutdown(void)
