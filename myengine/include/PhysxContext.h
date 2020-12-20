@@ -106,8 +106,6 @@ public:
 
 	boost::shared_ptr<physx::PxCollection> m_Collection;
 
-	typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > PxObjectMap;
-
 	std::vector<unsigned char, boost::alignment::aligned_allocator<unsigned char, PX_SERIAL_FILE_ALIGN> > m_SerializeBuff;
 
 	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;
