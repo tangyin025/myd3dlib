@@ -627,7 +627,7 @@ ClothComponent::~ClothComponent(void)
 {
 	if (IsEnteredPhysx())
 	{
-		_ASSERT(false); LeavePhysxScene(PhysxScene::getSingletonPtr());
+		_ASSERT(false); LeavePhysxScene((PhysxScene*)m_Cloth->getScene()->userData);
 	}
 }
 

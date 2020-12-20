@@ -137,6 +137,7 @@ bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * di
 	{
 		THROW_CUSEXCEPTION("sdk->createScene failed");
 	}
+	m_PxScene->userData = this;
 
 	m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene), PhysxDeleter<physx::PxControllerManager>());
 	if (!m_ControllerMgr)

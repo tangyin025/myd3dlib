@@ -564,7 +564,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 
 	if (IsEnteredPhysx())
 	{
-		cmp->EnterPhysxScene(PhysxScene::getSingletonPtr());
+		cmp->EnterPhysxScene((PhysxScene *)m_PxActor->getScene()->userData);
 	}
 }
 
@@ -584,7 +584,7 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 
 		if (IsEnteredPhysx())
 		{
-			cmp->LeavePhysxScene(PhysxScene::getSingletonPtr());
+			cmp->LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
 		}
 	}
 	else

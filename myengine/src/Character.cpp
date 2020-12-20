@@ -37,7 +37,7 @@ Character::~Character(void)
 {
 	if (IsEnteredPhysx())
 	{
-		_ASSERT(false); LeavePhysxScene(PhysxScene::getSingletonPtr());
+		_ASSERT(false); LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
 	}
 }
 
