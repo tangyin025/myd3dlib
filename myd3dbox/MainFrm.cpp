@@ -679,7 +679,6 @@ void CMainFrame::InitFileContext()
 void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
-	PhysxScene::ClearSerializedObjs();
 	theApp.ReleaseResource();
 	m_ActorList.clear();
 	m_selactors.clear();
@@ -696,18 +695,47 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
 	if (_tcsicmp(Ext, _T(".xml")) == 0)
 	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(ifs));
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		ia.reset(new Archive(ifs));
 	}
 	else if (_tcsicmp(Ext, _T(".txt")) == 0)
 	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(ifs));
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		ia.reset(new Archive(ifs));
 	}
 	else
 	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(ifs));
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		ia.reset(new Archive(ifs));
 	}
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*ia >> boost::serialization::make_nvp("PhysxScene", (PhysxScene &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
@@ -726,18 +754,47 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
 	if (_tcsicmp(Ext, _T(".xml")) == 0)
 	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ofs));
+		class Archive
+			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::xml_oarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::ostream& os, unsigned int flags = 0)
+				: polymorphic_oarchive_route(os, flags)
+			{
+			}
+		};
+		oa.reset(new Archive(ofs));
 	}
 	else if (_tcsicmp(Ext, _T(".txt")) == 0)
 	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ofs));
+		class Archive
+			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::text_oarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::ostream& os, unsigned int flags = 0)
+				: polymorphic_oarchive_route(os, flags)
+			{
+			}
+		};
+		oa.reset(new Archive(ofs));
 	}
 	else
 	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ofs));
+		class Archive
+			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::binary_oarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::ostream& os, unsigned int flags = 0)
+				: polymorphic_oarchive_route(os, flags)
+			{
+			}
+		};
+		oa.reset(new Archive(ofs));
 	}
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("PhysxScene", (PhysxScene &)*this);
 	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	struct Callback : public my::OctNode::QueryCallback

@@ -54,6 +54,9 @@ Actor::~Actor(void)
 template<class Archive>
 void Actor::save(Archive & ar, const unsigned int version) const
 {
+	PhysxSerializationContext* pxar = dynamic_cast<PhysxSerializationContext*>(&ar);
+	_ASSERT(pxar);
+
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Position);
@@ -86,9 +89,9 @@ void Actor::save(Archive & ar, const unsigned int version) const
 				}
 			}
 		}
-		physx::PxSerialization::complete(*collection, *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get());
+		physx::PxSerialization::complete(*collection, *pxar->m_Registry);
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get());
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry);
 		unsigned int PxActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
 		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -98,6 +101,9 @@ void Actor::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Actor::load(Archive & ar, const unsigned int version)
 {
+	PhysxSerializationContext* pxar = dynamic_cast<PhysxSerializationContext*>(&ar);
+	_ASSERT(pxar);
+
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Position);
@@ -125,7 +131,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
-		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
+		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry), PhysxDeleter<physx::PxCollection>());
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
@@ -562,7 +568,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 		cmp->RequestResource();
 	}
 
-	if (IsEnteredPhysx())
+	if (IsEnteredPhysx() && m_PxActor && m_PxActor->getScene())
 	{
 		cmp->EnterPhysxScene((PhysxScene *)m_PxActor->getScene()->userData);
 	}
@@ -582,7 +588,7 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 			cmp->ReleaseResource();
 		}
 
-		if (IsEnteredPhysx())
+		if (IsEnteredPhysx() && m_PxActor && m_PxActor->getScene())
 		{
 			cmp->LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
 		}

@@ -37,7 +37,12 @@ Character::~Character(void)
 {
 	if (IsEnteredPhysx())
 	{
-		_ASSERT(false); LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
+		_ASSERT(false);
+
+		if (m_PxActor && m_PxActor->getScene())
+		{
+			LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
+		}
 	}
 }
 

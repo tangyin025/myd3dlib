@@ -1112,7 +1112,6 @@ void Game::OnControlFocus(bool bFocus)
 void Game::LoadScene(const char * path)
 {
 	ClearAllEntity();
-	PhysxScene::ClearSerializedObjs();
 	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();
 
@@ -1121,18 +1120,47 @@ void Game::LoadScene(const char * path)
 	LPCSTR Ext = PathFindExtensionA(path);
 	if (_stricmp(Ext, ".xml") == 0)
 	{
-		m_LoadSceneArchive.reset(new boost::archive::polymorphic_xml_iarchive(*m_LoadSceneStream));
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		m_LoadSceneArchive.reset(new Archive(*m_LoadSceneStream));
 	}
 	else if (_stricmp(Ext, ".txt") == 0)
 	{
-		m_LoadSceneArchive.reset(new boost::archive::polymorphic_text_iarchive(*m_LoadSceneStream));
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		m_LoadSceneArchive.reset(new Archive(*m_LoadSceneStream));
 	}
 	else
 	{
-		m_LoadSceneArchive.reset(new boost::archive::polymorphic_binary_iarchive(*m_LoadSceneStream));
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		m_LoadSceneArchive.reset(new Archive(*m_LoadSceneStream));
 	}
 	*m_LoadSceneArchive >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	*m_LoadSceneArchive >> boost::serialization::make_nvp("PhysxScene", (PhysxScene &)*this);
 	*m_LoadSceneArchive >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	RenderPipeline::RequestResource();

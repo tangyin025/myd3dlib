@@ -31,6 +31,14 @@ struct PhysxDeleter
 	}
 };
 
+class PhysxSerializationContext
+{
+public:
+	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
+
+	PhysxSerializationContext(void);
+};
+
 class PhysxSdk
 	: public my::SingleInstance<PhysxSdk>
 	, public physx::PxErrorCallback
@@ -63,8 +71,7 @@ public:
 };
 
 class PhysxScene
-	: public my::SingleInstance<PhysxScene>
-	, public physx::PxSimulationEventCallback
+	: public physx::PxSimulationEventCallback
 {
 public:
 	class StepperTask
@@ -101,12 +108,6 @@ public:
 
 	boost::shared_ptr<physx::PxControllerManager> m_ControllerMgr;
 
-	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
-
-	boost::shared_ptr<physx::PxCollection> m_Collection;
-
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
 	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;
 
 	std::vector<physx::PxActor *> mDeletedActors;
@@ -136,20 +137,6 @@ public:
 	void SetVisualizationParameter(physx::PxVisualizationParameter::Enum param, float value);
 
 	void SetControllerDebugRenderingFlags(physx::PxU32 flags);
-
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::split_member(ar, *this, version);
-	}
-
-	void ClearSerializedObjs(void);
 
 	void Shutdown(void);
 

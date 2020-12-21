@@ -41,6 +41,11 @@ void PhysxAllocator::deallocate(void * ptr)
 #endif
 }
 
+PhysxSerializationContext::PhysxSerializationContext(void)
+	: m_Registry(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>())
+{
+}
+
 bool PhysxSdk::Init(void)
 {
 	if(!(m_Foundation.reset(PxCreateFoundation(PX_FOUNDATION_VERSION, m_Allocator, *this), PhysxDeleter<physx::PxFoundation>()), m_Foundation))
@@ -166,49 +171,9 @@ void PhysxScene::SetControllerDebugRenderingFlags(physx::PxU32 flags)
 	m_ControllerMgr->setDebugRenderingFlags(physx::PxControllerDebugRenderFlags(flags));
 }
 
-template<class Archive>
-void PhysxScene::save(Archive & ar, const unsigned int version) const
-{
-	const_cast<PhysxScene *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
-	const_cast<PhysxScene *>(this)->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
-	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::createSerialObjectIds(*m_Collection, physx::PxSerialObjectId(1));
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *m_Collection, *m_Registry);
-	unsigned int StreamBuffSize = ostr.getSize();
-	ar << BOOST_SERIALIZATION_NVP(StreamBuffSize);
-	ar << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-}
-
-template<class Archive>
-void PhysxScene::load(Archive & ar, const unsigned int version)
-{
-	unsigned int StreamBuffSize;
-	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
-	m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
-	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>());
-	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
-}
-
-template
-void PhysxScene::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void PhysxScene::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
-
-void PhysxScene::ClearSerializedObjs(void)
-{
-	m_Collection.reset();
-
-	m_Registry.reset();
-
-	m_SerializeBuff.reset();
-}
-
 void PhysxScene::Shutdown(void)
 {
 	m_EventPxThreadSubstep.disconnect_all_slots();
-	ClearSerializedObjs();
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 	m_ControllerMgr.reset();
 	m_PxScene.reset();
