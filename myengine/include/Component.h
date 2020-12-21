@@ -6,7 +6,6 @@
 #include "myMesh.h"
 #include <atlbase.h>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include <boost/align/aligned_allocator.hpp>
 
 namespace my
 {
@@ -297,7 +296,7 @@ public:
 
 	std::vector<physx::PxClothParticle> m_particles;
 
-	std::vector<unsigned char, boost::alignment::aligned_allocator<unsigned char, PX_SERIAL_FILE_ALIGN> > m_SerializeBuff;
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	boost::shared_ptr<physx::PxClothFabric> m_Fabric;
 

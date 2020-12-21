@@ -74,7 +74,7 @@ public:
 
 	ComponentPtrList m_Cmps;
 
-	std::vector<unsigned char, boost::alignment::aligned_allocator<unsigned char, PX_SERIAL_FILE_ALIGN> > m_SerializeBuff;
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	boost::shared_ptr<physx::PxRigidActor> m_PxActor;
 

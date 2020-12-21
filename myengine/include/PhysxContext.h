@@ -5,7 +5,6 @@
 #include "myMath.h"
 #include "myUtility.h"
 #include "myThread.h"
-#include <boost/align/aligned_allocator.hpp>
 
 class PhysxAllocator : public physx::PxAllocatorCallback
 {
@@ -106,7 +105,7 @@ public:
 
 	boost::shared_ptr<physx::PxCollection> m_Collection;
 
-	std::vector<unsigned char, boost::alignment::aligned_allocator<unsigned char, PX_SERIAL_FILE_ALIGN> > m_SerializeBuff;
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	std::vector<physx::PxActiveTransform> mBufferedActiveTransforms;
 
