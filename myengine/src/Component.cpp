@@ -714,9 +714,9 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 
 	unsigned int ClothSize;
 	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
-	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
+	m_SerializeBuff.resize(ClothSize);
+	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(&m_SerializeBuff[0], m_SerializeBuff.size()));
+	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(&m_SerializeBuff[0], *PhysxScene::getSingleton().m_Registry, PhysxScene::getSingleton().m_Collection.get()), PhysxDeleter<physx::PxCollection>());
 	const unsigned int numObjs = collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
