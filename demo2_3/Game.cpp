@@ -1100,7 +1100,7 @@ void Game::OnControlFocus(bool bFocus)
 void Game::LoadScene(const char * path)
 {
 	ClearAllEntity();
-
+	RenderPipeline::ReleaseResource();
 	m_ActorList.clear();
 
 	my::IStreamBuff buff(OpenIStream(path));
@@ -1149,8 +1149,8 @@ void Game::LoadScene(const char * path)
 		};
 		ia.reset(new Archive(ifs));
 	}
-	//*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	//*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
+	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
@@ -1158,4 +1158,6 @@ void Game::LoadScene(const char * path)
 	{
 		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
+
+	RenderPipeline::RequestResource();
 }
