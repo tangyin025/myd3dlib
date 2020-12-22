@@ -58,8 +58,6 @@ public:
 
 	bool m_Requested;
 
-	bool m_EnteredPhysx;
-
 	bool m_ViewNotified;
 
 	unsigned int m_Lod;
@@ -108,7 +106,6 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_EnteredPhysx(false)
 		, m_ViewNotified(false)
 		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
@@ -127,7 +124,6 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_EnteredPhysx(false)
 		, m_ViewNotified(false)
 		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
@@ -161,11 +157,6 @@ public:
 	bool IsRequested(void) const
 	{
 		return m_Requested;
-	}
-
-	bool IsEnteredPhysx(void) const
-	{
-		return m_EnteredPhysx;
 	}
 
 	bool IsViewNotified(void) const

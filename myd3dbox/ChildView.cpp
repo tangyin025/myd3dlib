@@ -195,7 +195,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			{
 				actor->RequestResource();
 			}
-			if (!actor->IsEnteredPhysx())
+			if (actor->m_PxActor && !actor->m_PxActor->getScene())
 			{
 				actor->EnterPhysxScene(pFrame);
 			}

@@ -35,14 +35,11 @@ ShapeHitEventArg::ShapeHitEventArg(Character * _self)
 
 Character::~Character(void)
 {
-	if (IsEnteredPhysx())
+	if (m_PxActor && m_PxActor->getScene())
 	{
 		_ASSERT(false);
 
-		if (m_PxActor && m_PxActor->getScene())
-		{
-			LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
-		}
+		LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
 	}
 }
 

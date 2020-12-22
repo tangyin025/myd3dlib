@@ -40,8 +40,6 @@ Component::~Component(void)
 {
 	_ASSERT(!IsRequested());
 
-	_ASSERT(!IsEnteredPhysx());
-
 	if (m_Actor)
 	{
 		_ASSERT(false); //m_Actor->RemoveComponent(shared_from_this());
@@ -113,12 +111,10 @@ void Component::ReleaseResource(void)
 
 void Component::EnterPhysxScene(PhysxScene * scene)
 {
-	m_EnteredPhysx = true;
 }
 
 void Component::LeavePhysxScene(PhysxScene * scene)
 {
-	m_EnteredPhysx = false;
 }
 
 void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -625,7 +621,7 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 
 ClothComponent::~ClothComponent(void)
 {
-	if (IsEnteredPhysx())
+	if (m_Cloth && m_Cloth->getScene())
 	{
 		_ASSERT(false); LeavePhysxScene((PhysxScene*)m_Cloth->getScene()->userData);
 	}
@@ -870,6 +866,8 @@ void ClothComponent::EnterPhysxScene(PhysxScene * scene)
 
 void ClothComponent::LeavePhysxScene(PhysxScene * scene)
 {
+	_ASSERT(!m_Cloth || m_Cloth->getScene() == scene->m_PxScene.get());
+
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 
 	if (m_Cloth)

@@ -48,7 +48,7 @@ Actor::~Actor(void)
 
 	_ASSERT(!IsRequested());
 
-	_ASSERT(!IsEnteredPhysx());
+	_ASSERT(!m_PxActor || !m_PxActor->getScene());
 }
 
 template<class Archive>
@@ -238,8 +238,6 @@ void Actor::ReleaseResource(void)
 
 void Actor::EnterPhysxScene(PhysxScene * scene)
 {
-	m_EnteredPhysx = true;
-
 	if (m_PxActor)
 	{
 		scene->m_PxScene->addActor(*m_PxActor);
@@ -254,7 +252,7 @@ void Actor::EnterPhysxScene(PhysxScene * scene)
 
 void Actor::LeavePhysxScene(PhysxScene * scene)
 {
-	m_EnteredPhysx = false;
+	_ASSERT(!m_PxActor || m_PxActor->getScene() == scene->m_PxScene.get());
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -568,7 +566,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 		cmp->RequestResource();
 	}
 
-	if (IsEnteredPhysx() && m_PxActor && m_PxActor->getScene())
+	if (m_PxActor && m_PxActor->getScene())
 	{
 		cmp->EnterPhysxScene((PhysxScene *)m_PxActor->getScene()->userData);
 	}
@@ -580,18 +578,19 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 	if (cmp_iter != m_Cmps.end())
 	{
 		_ASSERT((*cmp_iter)->m_Actor == this);
-		(*cmp_iter)->m_Actor = NULL;
-		m_Cmps.erase(cmp_iter);
+
+		if (m_PxActor && m_PxActor->getScene())
+		{
+			cmp->LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
+		}
 
 		if (IsRequested() && cmp->IsRequested())
 		{
 			cmp->ReleaseResource();
 		}
 
-		if (IsEnteredPhysx() && m_PxActor && m_PxActor->getScene())
-		{
-			cmp->LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
-		}
+		(*cmp_iter)->m_Actor = NULL;
+		m_Cmps.erase(cmp_iter);
 	}
 	else
 	{

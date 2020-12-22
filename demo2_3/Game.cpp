@@ -983,7 +983,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				actor->NotifyLeaveView();
 			}
 
-			if (actor->IsEnteredPhysx())
+			if (actor->m_PxActor && actor->m_PxActor->getScene())
 			{
 				actor->LeavePhysxScene(this);
 			}
@@ -1023,7 +1023,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 					actor->RequestResource();
 				}
 
-				if (!actor->IsEnteredPhysx())
+				if (actor->m_PxActor && !actor->m_PxActor->getScene())
 				{
 					actor->EnterPhysxScene(m_game);
 				}
@@ -1070,7 +1070,7 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 		actor->ReleaseResource();
 	}
 
-	if (actor->IsEnteredPhysx())
+	if (actor->m_PxActor && actor->m_PxActor->getScene())
 	{
 		actor->LeavePhysxScene(this);
 	}
