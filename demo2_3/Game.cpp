@@ -1023,7 +1023,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 					actor->RequestResource();
 				}
 
-				if (actor->m_PxActor && !actor->m_PxActor->getScene())
+				if (!actor->m_PxActor || !actor->m_PxActor->getScene())
 				{
 					actor->EnterPhysxScene(m_game);
 				}
