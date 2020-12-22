@@ -31,7 +31,6 @@ class Game
 	, public PhysxSdk
 	, public PhysxScene
 	, public FModContext
-	, public my::Thread
 {
 public:
 	my::UIRenderPtr m_UIRender;
@@ -65,14 +64,6 @@ public:
 	typedef std::set<ActorPtr> ActorPtrSet;
 
 	ActorPtrSet m_ActorList;
-
-	boost::shared_ptr<my::IStreamBuff> m_LoadSceneBuff;
-
-	boost::shared_ptr<std::istream> m_LoadSceneStream;
-
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> m_LoadSceneArchive;
-
-	my::EventFunction m_EventLoadScene;
 
 	bool m_Activated;
 
@@ -156,8 +147,4 @@ public:
 	virtual void OnControlFocus(bool bFocus);
 
 	void LoadScene(const char * path);
-
-	DWORD LoadSceneProc(void);
-
-	void LoadSceneCheck(DWORD dwMilliseconds);
 };

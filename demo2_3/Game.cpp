@@ -286,7 +286,6 @@ static int os_exit(lua_State * L)
 
 Game::Game(void)
 	: OctRoot(-4096, 4096)
-	, Thread(boost::bind(&Game::LoadSceneProc, this))
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_Activated(false)
@@ -493,7 +492,6 @@ HRESULT Game::OnCreateDevice(
 			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadScene", &Game::LoadScene)
-			.def_readwrite("EventLoadScene", &Game::m_EventLoadScene)
 
 		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
 			.def(luabind::constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
@@ -611,14 +609,6 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	m_EventLoadScene.clear(); // ! clear boost function before shutdown lua context
-
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-
-	LoadSceneCheck(INFINITE);
-
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-
 	RenderPipeline::ReleaseResource();
 
 	ParallelTaskManager::StopParallelThread();
@@ -667,8 +657,6 @@ void Game::OnFrameTick(
 	LuaContext::dogcstep(1);
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-
-	LoadSceneCheck(0);
 
 	DrawHelper::BeginLine();
 
@@ -1112,12 +1100,13 @@ void Game::OnControlFocus(bool bFocus)
 void Game::LoadScene(const char * path)
 {
 	ClearAllEntity();
-	RenderPipeline::ReleaseResource();
+
 	m_ActorList.clear();
 
-	m_LoadSceneBuff.reset(new IStreamBuff(OpenIStream(path)));
-	m_LoadSceneStream.reset(new std::istream(m_LoadSceneBuff.get()));
+	my::IStreamBuff buff(OpenIStream(path));
+	std::istream ifs(&buff);
 	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
 	if (_stricmp(Ext, ".xml") == 0)
 	{
 		class Archive
@@ -1130,7 +1119,7 @@ void Game::LoadScene(const char * path)
 			{
 			}
 		};
-		m_LoadSceneArchive.reset(new Archive(*m_LoadSceneStream));
+		ia.reset(new Archive(ifs));
 	}
 	else if (_stricmp(Ext, ".txt") == 0)
 	{
@@ -1144,7 +1133,7 @@ void Game::LoadScene(const char * path)
 			{
 			}
 		};
-		m_LoadSceneArchive.reset(new Archive(*m_LoadSceneStream));
+		ia.reset(new Archive(ifs));
 	}
 	else
 	{
@@ -1158,50 +1147,15 @@ void Game::LoadScene(const char * path)
 			{
 			}
 		};
-		m_LoadSceneArchive.reset(new Archive(*m_LoadSceneStream));
+		ia.reset(new Archive(ifs));
 	}
-	*m_LoadSceneArchive >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
-	*m_LoadSceneArchive >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
-
-	RenderPipeline::RequestResource();
-
-	Thread::CreateThread(CREATE_SUSPENDED);
-
-	D3DContext::m_serializeThreadId = Thread::GetThreadId();
-
-	Thread::ResumeThread();
-}
-
-DWORD Game::LoadSceneProc(void)
-{
-	*m_LoadSceneArchive >> boost::serialization::make_nvp("ActorList", m_ActorList);
-	return 0;
-}
-
-void Game::LoadSceneCheck(DWORD dwMilliseconds)
-{
-	if (!m_LoadSceneArchive || !Thread::WaitForThreadStopped(dwMilliseconds))
-	{
-		return;
-	}
-
-	Thread::CloseThread();
-
-	m_LoadSceneArchive.reset();
-
-	m_LoadSceneStream.reset();
-
-	m_LoadSceneBuff.reset();
+	//*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
+	//*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
 		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
-	}
-
-	if (m_EventLoadScene)
-	{
-		EventArg arg;
-		m_EventLoadScene(&arg);
 	}
 }

@@ -191,7 +191,7 @@ void D3DContext::OnDestroyDevice(void)
 
 const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 {
-	_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
+	_ASSERT(GetCurrentThreadId() == m_d3dThreadId);
 
 	CriticalSectionLock lock(m_NamedObjectsSec);
 
@@ -224,7 +224,7 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 
 NamedObject * D3DContext::GetNamedObject(const char * Name)
 {
-	_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
+	_ASSERT(GetCurrentThreadId() == m_d3dThreadId);
 
 	CriticalSectionLock lock(m_NamedObjectsSec);
 

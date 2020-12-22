@@ -735,8 +735,8 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 		};
 		ia.reset(new Archive(ifs));
 	}
-	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	//*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	//*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
@@ -794,8 +794,8 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		};
 		oa.reset(new Archive(ofs));
 	}
-	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	//*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
+	//*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 
 	struct Callback : public my::OctNode::QueryCallback
 	{
