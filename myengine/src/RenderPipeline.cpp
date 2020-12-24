@@ -1220,68 +1220,47 @@ bool RenderPipeline::EmitterInstanceAtomKey::operator == (const EmitterInstanceA
 void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl, lparam);
-	MeshInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_MeshInstanceMap.find(key);
-	if (atom_iter == m_Pass[PassID].m_MeshInstanceMap.end())
+	std::pair<MeshInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshInstanceMap.insert(std::make_pair(key, MeshInstanceAtom()));
+	if (res.second)
 	{
-		MeshInstanceAtom & atom = m_Pass[PassID].m_MeshInstanceMap[key];
 		DWORD submeshes = 0;
 		mesh->GetAttributeTable(NULL, &submeshes);
-		atom.m_AttribTable.resize(submeshes);
-		mesh->GetAttributeTable(&atom.m_AttribTable[0], &submeshes);
+		res.first->second.m_AttribTable.resize(submeshes);
+		mesh->GetAttributeTable(&res.first->second.m_AttribTable[0], &submeshes);
 
-		atom.m_velist.resize(MAX_FVF_DECL_SIZE);
-		mesh->GetDeclaration(&atom.m_velist[0]);
+		res.first->second.m_velist.resize(MAX_FVF_DECL_SIZE);
+		mesh->GetDeclaration(&res.first->second.m_velist[0]);
 		unsigned int i = 0;
-		for (; i < atom.m_velist.size(); i++)
+		for (; i < res.first->second.m_velist.size(); i++)
 		{
-			if (atom.m_velist[i].Stream == 0xff || atom.m_velist[i].Type == D3DDECLTYPE_UNUSED)
+			if (res.first->second.m_velist[i].Stream == 0xff || res.first->second.m_velist[i].Type == D3DDECLTYPE_UNUSED)
 			{
 				break;
 			}
 		}
-		if (i >= atom.m_velist.size())
+		if (i >= res.first->second.m_velist.size())
 		{
 			THROW_CUSEXCEPTION("invalid vertex declaration");
 		}
-		atom.m_velist.insert(atom.m_velist.begin() + i, m_MeshIEList.begin(), m_MeshIEList.end());
-		atom.m_VertexStride = D3DXGetDeclVertexSize(&atom.m_velist[0], 0);
-		_ASSERT(D3DXGetDeclVertexSize(&atom.m_velist[0], 1) == m_MeshInstanceStride);
+		res.first->second.m_velist.insert(res.first->second.m_velist.begin() + i, m_MeshIEList.begin(), m_MeshIEList.end());
+		res.first->second.m_VertexStride = D3DXGetDeclVertexSize(&res.first->second.m_velist[0], 0);
+		_ASSERT(D3DXGetDeclVertexSize(&res.first->second.m_velist[0], 1) == m_MeshInstanceStride);
 
 		HRESULT hr;
 		CComPtr<IDirect3DDevice9> Device = mesh->GetDevice();
-		if (FAILED(hr = Device->CreateVertexDeclaration(&atom.m_velist[0], &atom.m_Decl)))
+		if (FAILED(hr = Device->CreateVertexDeclaration(&res.first->second.m_velist[0], &res.first->second.m_Decl)))
 		{
 			THROW_D3DEXCEPTION(hr);
 		}
-		atom.cmps.push_back(cmp);
 	}
-	else
-	{
-		atom_iter->second.cmps.push_back(cmp);
-	}
+	res.first->second.cmps.push_back(cmp);
 }
 
 void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp)
 {
 	EmitterInstanceAtomKey key(
-		m_ParticleVb.m_ptr,
-		m_ParticleIb.m_ptr,
-		D3DPT_TRIANGLELIST,
-		m_ParticleNumVertices,
-		m_ParticlePrimitiveCount,
-		shader,
-		mtl,
-		lparam);
-	EmitterInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_EmitterInstanceMap.find(key);
-	if (atom_iter == m_Pass[PassID].m_EmitterInstanceMap.end())
-	{
-		EmitterInstanceAtom & atom = m_Pass[PassID].m_EmitterInstanceMap[key];
-		atom.emitters.push_back(emitter);
-		atom.cmps.push_back(cmp);
-	}
-	else
-	{
-		atom_iter->second.emitters.push_back(emitter);
-		atom_iter->second.cmps.push_back(cmp);
-	}
+		m_ParticleVb.m_ptr, m_ParticleIb.m_ptr, D3DPT_TRIANGLELIST, m_ParticleNumVertices, m_ParticlePrimitiveCount, shader, mtl, lparam);
+	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
+	res.first->second.emitters.push_back(emitter);
+	res.first->second.cmps.push_back(cmp);
 }
