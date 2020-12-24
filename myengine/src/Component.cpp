@@ -509,13 +509,13 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		return;
 	}
 
-	// ! TODO: need attribid for sub mesh
+	const D3DXATTRIBUTERANGE& att = m_Mesh->m_AttribTable[m_MeshSubMeshId];
 	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
 	physx::PxTriangleMeshDesc desc;
-	desc.points.count = m_Mesh->GetNumVertices();
+	desc.points.count = att.VertexCount;
 	desc.points.stride = m_Mesh->GetNumBytesPerVertex();
-	desc.points.data = m_Mesh->LockVertexBuffer();
-	desc.triangles.count = m_Mesh->GetNumFaces();
+	desc.points.data = (unsigned char *)m_Mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
+	desc.triangles.count = att.FaceCount;
 	if (m_Mesh->GetOptions() & D3DXMESH_32BIT)
 	{
 		desc.triangles.stride = 3 * sizeof(DWORD);
@@ -525,7 +525,7 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		desc.triangles.stride = 3 * sizeof(WORD);
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 	}
-	desc.triangles.data = m_Mesh->LockIndexBuffer();
+	desc.triangles.data = (unsigned char *)m_Mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
 	physx::PxDefaultMemoryOutputStream writeBuffer;
 	bool status = PhysxSdk::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
 	m_Mesh->UnlockIndexBuffer();
@@ -572,11 +572,12 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		return;
 	}
 
+	const D3DXATTRIBUTERANGE& att = m_Mesh->m_AttribTable[m_MeshSubMeshId];
 	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
 	physx::PxConvexMeshDesc desc;
-	desc.points.count = m_Mesh->GetNumVertices();
+	desc.points.count = att.VertexCount;
 	desc.points.stride = m_Mesh->GetNumBytesPerVertex();
-	desc.points.data = m_Mesh->LockVertexBuffer();
+	desc.points.data = (unsigned char *)m_Mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
 	desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
 	if (bInflateConvex)
 	{
@@ -741,7 +742,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId)
 {
 	if (m_VertexData.empty())
 	{
-		D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[AttribId];
+		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[AttribId];
 		m_VertexStride = mesh->GetNumBytesPerVertex();
 		m_VertexData.resize(att.VertexCount * m_VertexStride);
 		memcpy(&m_VertexData[0], (unsigned char *)mesh->LockVertexBuffer() + att.VertexStart * m_VertexStride, m_VertexData.size());
