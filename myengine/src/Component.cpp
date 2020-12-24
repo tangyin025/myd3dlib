@@ -1258,6 +1258,13 @@ ComponentPtr SphericalEmitterComponent::Clone(void) const
 	return ret;
 }
 
+void SphericalEmitterComponent::RequestResource(void)
+{
+	EmitterComponent::RequestResource();
+
+	m_SpawnTime = D3DContext::getSingleton().m_fTotalTime;
+}
+
 void SphericalEmitterComponent::Update(float fElapsedTime)
 {
 	_ASSERT(m_SpawnInterval > 0);

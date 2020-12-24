@@ -570,6 +570,8 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
+	virtual void RequestResource(void);
+
 	virtual void Update(float fElapsedTime);
 };
 
