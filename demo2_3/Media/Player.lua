@@ -34,7 +34,7 @@ lambert1:AddParameterTexture("g_SpecularTexture", "character/casual19_m_35_spec.
 local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshSubMeshName=""
-cmp:AddMaterial(lambert1)
+cmp.Material=lambert1
 cmp.bUseAnimation=true
 player:AddComponent(cmp)
 

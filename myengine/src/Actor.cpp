@@ -563,12 +563,11 @@ void Actor::AddComponent(ComponentPtr cmp)
 
 	if (IsRequested() && (cmp->m_LodMask & m_Lod))
 	{
-		cmp->RequestResource();
-	}
+		_ASSERT(m_Node);
 
-	if (m_PxActor && m_PxActor->getScene())
-	{
-		cmp->EnterPhysxScene((PhysxScene *)m_PxActor->getScene()->userData);
+		cmp->RequestResource();
+
+		cmp->EnterPhysxScene(dynamic_cast<PhysxScene *>(m_Node->GetTopNode()));
 	}
 }
 
@@ -579,13 +578,12 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 	{
 		_ASSERT((*cmp_iter)->m_Actor == this);
 
-		if (m_PxActor && m_PxActor->getScene())
-		{
-			cmp->LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
-		}
-
 		if (IsRequested() && cmp->IsRequested())
 		{
+			_ASSERT(m_Node);
+
+			cmp->LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
+
 			cmp->ReleaseResource();
 		}
 

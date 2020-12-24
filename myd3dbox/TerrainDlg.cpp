@@ -74,7 +74,7 @@ void CTerrainDlg::OnOK()
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
 		mtl->ParseShaderParameters();
-		m_terrain->AddMaterial(mtl);
+		m_terrain->SetMaterial(mtl);
 	}
 
 	if (m_UseWaterMaterial)
@@ -82,7 +82,7 @@ void CTerrainDlg::OnOK()
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_water_shader;
 		mtl->ParseShaderParameters();
-		m_terrain->AddMaterial(mtl);
+		m_terrain->SetMaterial(mtl);
 	}
 
 	EndDialog(IDOK);

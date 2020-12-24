@@ -23,7 +23,7 @@ require "Action.lua"
 -- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
 -- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 -- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
--- cmp:AddMaterial(lambert1)
+-- cmp.Material=lambert1
 -- cmp.MeshPath="mesh/plane.mesh.xml"
 -- cmp.MeshEventReady=function(arg)
 	-- cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
@@ -44,7 +44,7 @@ lambert2:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
 lambert2:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp2.MeshPath="mesh/Sphere.mesh.xml"
-cmp2:AddMaterial(lambert2)
+cmp2.Material=lambert2
 actor2:AddComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
@@ -53,7 +53,7 @@ cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
 actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp3=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
-cmp3:AddMaterial(lambert2:Clone())
+cmp3.Material=lambert2:Clone()
 actor3:AddComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
@@ -62,7 +62,7 @@ cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 actor4=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp4=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
-cmp4:AddMaterial(lambert2:Clone())
+cmp4.Material=lambert2:Clone()
 actor4:AddComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)

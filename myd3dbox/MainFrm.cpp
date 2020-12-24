@@ -862,12 +862,9 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		actor->ReleaseResource();
-	}
-
-	if (actor->m_PxActor && actor->m_PxActor->getScene())
-	{
 		actor->LeavePhysxScene(this);
+
+		actor->ReleaseResource();
 	}
 
 	SelActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
@@ -1122,19 +1119,19 @@ void CMainFrame::OnComponentMesh()
 	rapidxml::xml_node<char>* node_sharedgeometry = node_mesh->first_node("sharedgeometry");
 	if (node_sharedgeometry)
 	{
-		MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
-		mesh_cmp->m_MeshPath = path;
-		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+		int submesh_i = 0;
+		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
+			mesh_cmp->m_MeshPath = path;
+			mesh_cmp->m_MeshSubMeshId = submesh_i;
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
-			mesh_cmp->m_MaterialList.push_back(mtl);
+			mesh_cmp->SetMaterial(mtl);
+			mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
+			(*actor_iter)->AddComponent(mesh_cmp);
 		}
-		mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
-		(*actor_iter)->AddComponent(mesh_cmp);
-		(*actor_iter)->UpdateAABB();
-		(*actor_iter)->UpdateOctNode();
 	}
 	else
 	{
@@ -1144,18 +1141,15 @@ void CMainFrame::OnComponentMesh()
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-
 			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
 			mesh_cmp->m_MeshPath = path;
 			mesh_cmp->m_MeshSubMeshName = attr_name->value();
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
-			mesh_cmp->m_MaterialList.push_back(mtl);
+			mesh_cmp->SetMaterial(mtl);
 			mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
 			(*actor_iter)->AddComponent(mesh_cmp);
-			(*actor_iter)->UpdateAABB();
-			(*actor_iter)->UpdateOctNode();
 		}
 	}
 
@@ -1197,7 +1191,6 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
-	my::OgreMeshPtr mesh(new my::OgreMesh());
 	const rapidxml::xml_node<char>* node_root = &doc;
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
@@ -1206,51 +1199,42 @@ void CMainFrame::OnComponentCloth()
 	if (node_sharedgeometry)
 	{
 		rapidxml::xml_node<char>* node_boneassignments = node_mesh->first_node("boneassignments");
+		my::OgreMeshPtr mesh(new my::OgreMesh());
 		mesh->CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true);
+		std::vector<D3DXATTRIBUTERANGE>::iterator att_iter = mesh->m_AttribTable.begin();
+		for (; att_iter != mesh->m_AttribTable.end(); att_iter++)
+		{
+			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
+			cloth_cmp->CreateClothFromMesh(mesh, std::distance(mesh->m_AttribTable.begin(), att_iter));
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = theApp.default_shader;
+			mtl->ParseShaderParameters();
+			cloth_cmp->SetMaterial(mtl);
+			(*actor_iter)->AddComponent(cloth_cmp);
+		}
 	}
 	else
 	{
-		std::string sub_mesh_name;
 		DEFINE_XML_NODE_SIMPLE(submeshnames, mesh);
 		DEFINE_XML_NODE_SIMPLE(submeshname, submeshnames);
 		for (; node_submesh != NULL && node_submeshname != NULL; node_submesh = node_submesh->next_sibling(), node_submeshname = node_submeshname->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-			if (sub_mesh_name.empty())
-			{
-				TCHAR buff[256] = _T("");
-#ifdef UNICODE
-				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, attr_name->value(), -1, buff, _countof(buff));
-#else
-				strcpy_s(buff, sizeof(buff), attr_name->value());
-#endif
-				if (IDOK != CWin32InputBox::InputBox(NULL, _T("sub mesh name"), buff, _countof(buff), false, m_hWnd))
-				{
-					return;
-				}
-				sub_mesh_name = ts2ms(buff);
-			}
-			if (sub_mesh_name == attr_name->value())
-			{
-				DEFINE_XML_NODE_SIMPLE(geometry, submesh);
-				rapidxml::xml_node<char>* node_boneassignments = node_submesh->first_node("boneassignments");
-				mesh->CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false);
-				break;
-			}
+			DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+			rapidxml::xml_node<char>* node_boneassignments = node_submesh->first_node("boneassignments");
+			my::OgreMeshPtr mesh(new my::OgreMesh());
+			mesh->CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false);
+			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
+			cloth_cmp->CreateClothFromMesh(mesh, 0);
+			MaterialPtr mtl(new Material());
+			mtl->m_Shader = theApp.default_shader;
+			mtl->ParseShaderParameters();
+			cloth_cmp->SetMaterial(mtl);
+			(*actor_iter)->AddComponent(cloth_cmp);
 		}
 	}
 
-	ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
-	cloth_cmp->CreateClothFromMesh(mesh);
-	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
-	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_shader;
-		mtl->ParseShaderParameters();
-		cloth_cmp->m_MaterialList.push_back(mtl);
-	}
-	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
@@ -1278,7 +1262,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
-	emit_cmp->AddMaterial(mtl);
+	emit_cmp->SetMaterial(mtl);
 	(*actor_iter)->AddComponent(emit_cmp);
 	emit_cmp->Spawn((*actor_iter)->m_Position, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 	(*actor_iter)->UpdateAABB();
@@ -1328,7 +1312,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
-	sphe_emit_cmp->AddMaterial(mtl);
+	sphe_emit_cmp->SetMaterial(mtl);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();

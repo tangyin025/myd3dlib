@@ -226,7 +226,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 {
 	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter,
 		NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(), m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::VelocityTypeNone));
-	m_WorldEmitterInst->AddMaterial(m_Template->m_EmitterMaterial->Clone());
+	m_WorldEmitterInst->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
 	if (!m_Actor->m_Node)
 	{

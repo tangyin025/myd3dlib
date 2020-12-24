@@ -364,19 +364,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
 	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 6);
-	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-	{
-		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
-		{
-			TCHAR buff[128];
-			_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
-			CreatePropertiesMaterial(pMaterialList, buff, mesh_cmp->m_MaterialList[i].get());
-			continue;
-		}
-		UpdatePropertiesMaterial(pMaterialList->GetSubItem(i), mesh_cmp->m_MaterialList[i].get());
-	}
-	RemovePropertiesFrom(pMaterialList, mesh_cmp->m_MaterialList.size());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
@@ -461,19 +449,7 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)(cloth_cmp->m_MeshColor.w * 255));
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 3);
-	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
-	{
-		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
-		{
-			TCHAR buff[128];
-			_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
-			CreatePropertiesMaterial(pMaterialList, buff, cloth_cmp->m_MaterialList[i].get());
-			continue;
-		}
-		UpdatePropertiesMaterial(pMaterialList->GetSubItem(i), cloth_cmp->m_MaterialList[i].get());
-	}
-	RemovePropertiesFrom(pMaterialList, cloth_cmp->m_MaterialList.size());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 3), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
@@ -498,7 +474,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		UpdatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
 	RemovePropertiesFrom(pParticleList, 1 + emit_cmp->m_ParticleList.size());
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 2), emit_cmp->m_MaterialList[0].get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 2), emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)
@@ -548,7 +524,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnSizeY);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnAngle);
 	pComponent->GetSubItem(PropId + 15)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnCycle);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 16), sphe_emit_cmp->m_MaterialList[0].get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 16), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -594,19 +570,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
 	pComponent->GetSubItem(PropId + 4);
 	pComponent->GetSubItem(PropId + 5);
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 6);
-	for (unsigned int i = 0; i < terrain->m_MaterialList.size(); i++)
-	{
-		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
-		{
-			TCHAR buff[128];
-			_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
-			CreatePropertiesMaterial(pMaterialList, buff, terrain->m_MaterialList[i].get());
-			continue;
-		}
-		UpdatePropertiesMaterial(pMaterialList->GetSubItem(i), terrain->m_MaterialList[i].get());
-	}
-	RemovePropertiesFrom(pMaterialList, terrain->m_MaterialList.size());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -824,14 +788,7 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("UseAnimation"), (_variant_t)mesh_cmp->m_bUseAnimation, NULL, PropertyMeshUseAnimation);
 	pComponent->AddSubItem(pProp);
-	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
-	pComponent->AddSubItem(pProp);
-	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-	{
-		TCHAR buff[128];
-		_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
-		CreatePropertiesMaterial(pProp, buff, mesh_cmp->m_MaterialList[i].get());
-	}
+	CreatePropertiesMaterial(pComponent, _T("Material"), mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, LPCTSTR lpszName, Material * mtl)
@@ -945,14 +902,7 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
 	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("SceneCollision"), (_variant_t)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION), NULL, PropertyClothSceneCollision);
 	pComponent->AddSubItem(pProp);
-	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
-	pComponent->AddSubItem(pProp);
-	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
-	{
-		TCHAR buff[128];
-		_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
-		CreatePropertiesMaterial(pProp, buff, cloth_cmp->m_MaterialList[i].get());
-	}
+	CreatePropertiesMaterial(pComponent, _T("Material"), cloth_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
@@ -973,7 +923,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	{
 		CreatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);
 	}
-	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_MaterialList[0].get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, EmitterComponent * emit_cmp)
@@ -1057,7 +1007,7 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
 	pProp = new CSimpleProp(_T("SpawnCycle"), (_variant_t)sphe_emit_cmp->m_SpawnCycle, NULL, PropertySphericalEmitterSpawnCycle);
 	pComponent->AddSubItem(pProp);
-	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_MaterialList[0].get());
+	CreatePropertiesMaterial(pComponent, _T("Material"), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline)
@@ -1109,12 +1059,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
 	pComponent->AddSubItem(pProp);
-	for (unsigned int i = 0; i < terrain->m_MaterialList.size(); i++)
-	{
-		TCHAR buff[128];
-		_stprintf_s(buff, _countof(buff), _T("Material%d"), i);
-		CreatePropertiesMaterial(pProp, buff, terrain->m_MaterialList[i].get());
-	}
+	CreatePropertiesMaterial(pComponent, _T("Material"), terrain->m_Material.get());
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -1724,14 +1669,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
 		// ! reset shader handles
 		mesh_cmp->handle_World = NULL;
-		MaterialPtrList::iterator mat_iter = mesh_cmp->m_MaterialList.begin();
-		for (; mat_iter != mesh_cmp->m_MaterialList.end(); mat_iter++)
+		Material::MaterialParameterPtrList::iterator param_iter = mesh_cmp->m_Material->m_ParameterList.begin();
+		for (; param_iter != mesh_cmp->m_Material->m_ParameterList.end(); param_iter++)
 		{
-			Material::MaterialParameterPtrList::iterator param_iter = (*mat_iter)->m_ParameterList.begin();
-			for (; param_iter != (*mat_iter)->m_ParameterList.end(); param_iter++)
-			{
-				(*param_iter)->m_Handle = NULL;
-			}
+			(*param_iter)->m_Handle = NULL;
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1743,14 +1684,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		mesh_cmp->m_bUseAnimation = pProp->GetValue().boolVal != 0;
 		// ! reset shader handles
 		mesh_cmp->handle_World = NULL;
-		MaterialPtrList::iterator mat_iter = mesh_cmp->m_MaterialList.begin();
-		for (; mat_iter != mesh_cmp->m_MaterialList.end(); mat_iter++)
+		Material::MaterialParameterPtrList::iterator param_iter = mesh_cmp->m_Material->m_ParameterList.begin();
+		for (; param_iter != mesh_cmp->m_Material->m_ParameterList.end(); param_iter++)
 		{
-			Material::MaterialParameterPtrList::iterator param_iter = (*mat_iter)->m_ParameterList.begin();
-			for (; param_iter != (*mat_iter)->m_ParameterList.end(); param_iter++)
-			{
-				(*param_iter)->m_Handle = NULL;
-			}
+			(*param_iter)->m_Handle = NULL;
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

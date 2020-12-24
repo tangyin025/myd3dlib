@@ -971,13 +971,10 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				actor->NotifyLeaveView();
 			}
 
-			if (actor->m_PxActor && actor->m_PxActor->getScene())
-			{
-				actor->LeavePhysxScene(this);
-			}
-
 			if (actor->IsRequested())
 			{
+				actor->LeavePhysxScene(this);
+
 				actor->ReleaseResource();
 			}
 		}
@@ -1009,10 +1006,7 @@ void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
 				if (!actor->IsRequested())
 				{
 					actor->RequestResource();
-				}
 
-				if (!actor->m_PxActor || !actor->m_PxActor->getScene())
-				{
 					actor->EnterPhysxScene(m_game);
 				}
 
@@ -1055,12 +1049,9 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		actor->ReleaseResource();
-	}
-
-	if (actor->m_PxActor && actor->m_PxActor->getScene())
-	{
 		actor->LeavePhysxScene(this);
+
+		actor->ReleaseResource();
 	}
 
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.find(actor);

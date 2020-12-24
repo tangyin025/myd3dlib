@@ -16,8 +16,6 @@ class Material;
 
 typedef boost::shared_ptr<Material> MaterialPtr;
 
-typedef std::vector<MaterialPtr> MaterialPtrList;
-
 class Actor;
 
 class PhysxScene;
@@ -77,7 +75,7 @@ public:
 
 	bool m_Requested;
 
-	MaterialPtrList m_MaterialList;
+	MaterialPtr m_Material;
 
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
@@ -143,11 +141,9 @@ public:
 
 	virtual bool AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void SetMaterial(unsigned int i, MaterialPtr material);
+	void SetMaterial(MaterialPtr material);
 
-	MaterialPtr GetMaterial(unsigned int i) const;
-
-	void AddMaterial(MaterialPtr material);
+	MaterialPtr GetMaterial(void) const;
 
 	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
 
@@ -181,6 +177,8 @@ public:
 
 	std::string m_MeshSubMeshName;
 
+	int m_MeshSubMeshId;
+
 	my::OgreMeshPtr m_Mesh;
 
 	my::EventFunction m_MeshEventReady;
@@ -201,7 +199,8 @@ public:
 
 protected:
 	MeshComponent(void)
-		: m_MeshColor(my::Vector4(1, 1, 1, 1))
+		: m_MeshSubMeshId(0)
+		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, handle_Time(NULL)
@@ -214,6 +213,7 @@ protected:
 public:
 	MeshComponent(const char * Name)
 		: Component(ComponentTypeMesh, Name)
+		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
@@ -269,8 +269,6 @@ class ClothComponent
 	: public Component
 {
 public:
-	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
-
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
 	std::vector<unsigned char> m_VertexData;
@@ -352,7 +350,7 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
-	void CreateClothFromMesh(my::OgreMeshPtr mesh);
+	void CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId);
 
 	virtual void RequestResource(void);
 

@@ -52,7 +52,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
-	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar << BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 template<class Archive>
@@ -61,7 +61,7 @@ void Component::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
-	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 void Component::CopyFrom(const Component & rhs)
@@ -73,10 +73,9 @@ void Component::CopyFrom(const Component & rhs)
 
 	m_Type = rhs.m_Type;
 	m_LodMask = rhs.m_LodMask;
-	m_MaterialList.resize(rhs.m_MaterialList.size());
-	for (unsigned int i = 0; i < rhs.m_MaterialList.size(); i++)
+	if (rhs.m_Material)
 	{
-		m_MaterialList[i] = rhs.m_MaterialList[i]->Clone();
+		m_Material = rhs.m_Material->Clone();
 	}
 }
 
@@ -91,10 +90,9 @@ void Component::RequestResource(void)
 {
 	m_Requested = true;
 
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	if (m_Material)
 	{
-		(*mtl_iter)->RequestResource();
+		m_Material->RequestResource();
 	}
 }
 
@@ -102,10 +100,9 @@ void Component::ReleaseResource(void)
 {
 	m_Requested = false;
 
-	MaterialPtrList::iterator mtl_iter = m_MaterialList.begin();
-	for (; mtl_iter != m_MaterialList.end(); mtl_iter++)
+	if (m_Material)
 	{
-		(*mtl_iter)->ReleaseResource();
+		m_Material->ReleaseResource();
 	}
 }
 
@@ -135,34 +132,24 @@ bool Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 	return true;
 }
 
-void Component::SetMaterial(unsigned int i, MaterialPtr material)
+void Component::SetMaterial(MaterialPtr material)
 {
-	if (i >= m_MaterialList.size())
+	if (IsRequested() && m_Material)
 	{
-		m_MaterialList.resize(i + 1);
+		m_Material->ReleaseResource();
 	}
 
-	if (IsRequested() && m_MaterialList[i])
-	{
-		m_MaterialList[i]->ReleaseResource();
-	}
+	m_Material = material;
 
-	m_MaterialList[i] = material;
-
-	if (IsRequested() && m_MaterialList[i])
+	if (IsRequested() && m_Material)
 	{
-		m_MaterialList[i]->RequestResource();
+		m_Material->RequestResource();
 	}
 }
 
-MaterialPtr Component::GetMaterial(unsigned int i) const
+MaterialPtr Component::GetMaterial(void) const
 {
-	return m_MaterialList[i];
-}
-
-void Component::AddMaterial(MaterialPtr material)
-{
-	SetMaterial(m_MaterialList.size(), material);
+	return m_Material;
 }
 
 void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0)
@@ -345,6 +332,7 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
@@ -356,6 +344,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshName);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
@@ -366,6 +355,8 @@ void MeshComponent::CopyFrom(const MeshComponent & rhs)
 	Component::CopyFrom(rhs);
 	m_MeshPath = rhs.m_MeshPath;
 	m_MeshSubMeshName = rhs.m_MeshSubMeshName;
+	m_MeshSubMeshId = rhs.m_MeshSubMeshId;
+	m_MeshColor = rhs.m_MeshColor;
 	m_bInstance = rhs.m_bInstance;
 	m_bUseAnimation = rhs.m_bUseAnimation;
 }
@@ -450,48 +441,45 @@ bool MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 
 	if (m_Mesh)
 	{
-		for (DWORD i = 0; i < m_MaterialList.size(); i++)
+		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
+					D3DXMACRO macro[3] = { {0} };
+					int j = 0;
+					if (m_bInstance)
 					{
-						D3DXMACRO macro[3] = { {0} };
-						int j = 0;
+						macro[j++].Name = "INSTANCE";
+					}
+					if (m_bUseAnimation)
+					{
+						macro[j++].Name = "SKELETON";
+					}
+					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_Material->m_Shader.c_str(), PassID);
+					if (shader)
+					{
+						if (!handle_World)
+						{
+							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
+							if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
+							{
+								BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
+							}
+						}
+
 						if (m_bInstance)
 						{
-							macro[j++].Name = "INSTANCE";
+							pipeline->PushMeshInstance(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), m_MeshSubMeshId);
 						}
-						if (m_bUseAnimation)
+						else
 						{
-							macro[j++].Name = "SKELETON";
+							pipeline->PushMesh(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), m_MeshSubMeshId);
 						}
-						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_MaterialList[i]->m_Shader.c_str(), PassID);
-						if (shader)
-						{
-							if (!handle_World)
-							{
-								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-								BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
-								{
-									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
-								}
-							}
 
-							if (m_bInstance)
-							{
-								pipeline->PushMeshInstance(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get(), i);
-							}
-							else
-							{
-								pipeline->PushMesh(PassID, m_Mesh.get(), i, shader, this, m_MaterialList[i].get(), i);
-							}
-
-							ret = true;
-						}
+						ret = true;
 					}
 				}
 			}
@@ -521,6 +509,7 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		return;
 	}
 
+	// ! TODO: need attribid for sub mesh
 	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
 	physx::PxTriangleMeshDesc desc;
 	desc.points.count = m_Mesh->GetNumVertices();
@@ -667,7 +656,6 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	_ASSERT(pxar);
 
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	ar << BOOST_SERIALIZATION_NVP(m_AttribTable);
 	unsigned int VertexSize = m_VertexData.size();
 	ar << BOOST_SERIALIZATION_NVP(VertexSize);
 	ar << boost::serialization::make_nvp("m_VertexData", boost::serialization::binary_object((void *)&m_VertexData[0], VertexSize));
@@ -699,7 +687,6 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	_ASSERT(pxar);
 
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	ar >> BOOST_SERIALIZATION_NVP(m_AttribTable);
 	unsigned int VertexSize;
 	ar >> BOOST_SERIALIZATION_NVP(VertexSize);
 	m_VertexData.resize(VertexSize);
@@ -750,39 +737,40 @@ ComponentPtr ClothComponent::Clone(void) const
 	return ret;
 }
 
-void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
+void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId)
 {
 	if (m_VertexData.empty())
 	{
+		D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[AttribId];
 		m_VertexStride = mesh->GetNumBytesPerVertex();
-		m_VertexData.resize(mesh->GetNumVertices() * m_VertexStride);
-		memcpy(&m_VertexData[0], mesh->LockVertexBuffer(), m_VertexData.size());
+		m_VertexData.resize(att.VertexCount * m_VertexStride);
+		memcpy(&m_VertexData[0], (unsigned char *)mesh->LockVertexBuffer() + att.VertexStart * m_VertexStride, m_VertexData.size());
 		mesh->UnlockVertexBuffer();
 
-		m_IndexData.resize(mesh->GetNumFaces() * 3);
+		m_IndexData.resize(att.FaceCount * 3);
 		if (mesh->GetNumVertices() > USHRT_MAX)
 		{
 			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %u", m_IndexData.size()));
 		}
 		VOID * pIndices = mesh->LockIndexBuffer();
-		for (unsigned int face_i = 0; face_i < mesh->GetNumFaces(); face_i++)
+		for (unsigned int face_i = 0; face_i < att.FaceCount; face_i++)
 		{
+			// ! take care of att.VertexStart
 			if(mesh->GetOptions() & D3DXMESH_32BIT)
 			{
-				m_IndexData[face_i * 3 + 0] = (WORD)*((DWORD *)pIndices + face_i * 3 + 0);
-				m_IndexData[face_i * 3 + 1] = (WORD)*((DWORD *)pIndices + face_i * 3 + 1);
-				m_IndexData[face_i * 3 + 2] = (WORD)*((DWORD *)pIndices + face_i * 3 + 2);
+				m_IndexData[face_i * 3 + 0] = (WORD)*((DWORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = (WORD)*((DWORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = (WORD)*((DWORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
 			}
 			else
 			{
-				m_IndexData[face_i * 3 + 0] = *((WORD *)pIndices + face_i * 3 + 0);
-				m_IndexData[face_i * 3 + 1] = *((WORD *)pIndices + face_i * 3 + 1);
-				m_IndexData[face_i * 3 + 2] = *((WORD *)pIndices + face_i * 3 + 2);
+				m_IndexData[face_i * 3 + 0] = *((WORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = *((WORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = *((WORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
 			}
 		}
 		mesh->UnlockIndexBuffer();
 
-		m_AttribTable = mesh->m_AttribTable;
 		m_VertexElems = mesh->m_VertexElems;
 		std::vector<D3DVERTEXELEMENT9> velist(MAX_FVF_DECL_SIZE);
 		mesh->GetDeclaration(&velist[0]);
@@ -797,7 +785,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 			THROW_CUSEXCEPTION("mesh must have vertex color for cloth weight");
 		}
 
-		m_particles.resize(mesh->GetNumVertices());
+		m_particles.resize(att.VertexCount);
 		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
 		for(unsigned int i = 0; i < m_particles.size(); i++) {
 			unsigned char * pVertex = pVertices + i * m_VertexStride;
@@ -815,10 +803,10 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 
 		physx::PxClothMeshDesc desc;
 		desc.points.data = &m_VertexData[0] + m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
-		desc.points.count = mesh->GetNumVertices();
-		desc.points.stride = mesh->GetNumBytesPerVertex();
+		desc.points.count = att.VertexCount;
+		desc.points.stride = m_VertexStride;
 		desc.triangles.data = &m_IndexData[0];
-		desc.triangles.count = mesh->GetNumFaces();
+		desc.triangles.count = att.FaceCount;
 		desc.triangles.stride = 3 * sizeof(unsigned short);
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 		boost::shared_ptr<physx::PxClothFabric> fabric(PxClothFabricCreate(
@@ -920,47 +908,38 @@ bool ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 
 	if (!m_VertexData.empty())
 	{
-		for (unsigned int i = 0; i < m_AttribTable.size(); i++)
+		_ASSERT(!m_VertexData.empty());
+		_ASSERT(!m_IndexData.empty());
+		_ASSERT(0 != m_VertexStride);
+		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			_ASSERT(!m_VertexData.empty());
-			_ASSERT(!m_IndexData.empty());
-			_ASSERT(0 != m_VertexStride);
-			if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
+					D3DXMACRO macro[2] = { { 0 } };
+					int j = 0;
+					if (m_bUseAnimation)
 					{
-						D3DXMACRO macro[2] = { { 0 } };
-						int j = 0;
-						if (m_bUseAnimation)
+						macro[j++].Name = "SKELETON";
+					}
+					my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_Material->m_Shader.c_str(), PassID);
+					if (shader)
+					{
+						if (!handle_World)
 						{
-							macro[j++].Name = "SKELETON";
-						}
-						my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeMesh, macro, m_MaterialList[i]->m_Shader.c_str(), PassID);
-						if (shader)
-						{
-							if (!handle_World)
+							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
+							if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
 							{
-								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
-								BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-								if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
-								{
-									BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
-								}
+								BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 							}
-
-							pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
-								m_AttribTable[i].VertexStart,
-								m_AttribTable[i].VertexCount,
-								m_AttribTable[i].FaceCount,
-								&m_IndexData[m_AttribTable[i].FaceStart * 3],
-								D3DFMT_INDEX16,
-								&m_VertexData[0],
-								m_VertexStride, shader, this, m_MaterialList[i].get(), i);
-
-							ret = true;
 						}
+
+						pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
+							0, m_VertexData.size() / m_VertexStride, m_IndexData.size() / 3, &m_IndexData[0], D3DFMT_INDEX16, &m_VertexData[0], m_VertexStride, shader, this, m_Material.get(), 0);
+
+						ret = true;
 					}
 				}
 			}
@@ -1120,11 +1099,11 @@ bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 {
 	bool ret = false;
 
-	if (m_MaterialList.size() >= 1 && (m_MaterialList[0]->m_PassMask & PassMask))
+	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
-			if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[0]->m_PassMask & PassMask))
+			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
 				D3DXMACRO macro[3] = { {0} };
 				macro[0].Name = "EMITTER_FACE_TYPE";
@@ -1159,7 +1138,7 @@ bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					macro[1].Definition = "1";
 					break;
 				}
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_MaterialList[0]->m_Shader.c_str(), PassID);
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)
 				{
 					if (!handle_World)
@@ -1167,7 +1146,7 @@ bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 					}
 
-					pipeline->PushEmitter(PassID, this, shader, m_MaterialList[0].get(), 0, this);
+					pipeline->PushEmitter(PassID, this, shader, m_Material.get(), 0, this);
 
 					ret = true;
 				}

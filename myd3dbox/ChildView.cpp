@@ -194,9 +194,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			if (!actor->IsRequested())
 			{
 				actor->RequestResource();
-			}
-			if (!actor->m_PxActor || !actor->m_PxActor->getScene())
-			{
+
 				actor->EnterPhysxScene(pFrame);
 			}
 			if (UpdateLod)
@@ -236,12 +234,9 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				theApp.m_SimpleSample->SetMatrix(theApp.handle_World, mesh_cmp->m_Actor->m_World);
 				theApp.m_SimpleSample->SetVector(theApp.handle_MeshColor, my::Vector4(0,1,0,1));
 				UINT passes = theApp.m_SimpleSample->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-				{
-					theApp.m_SimpleSample->BeginPass(0);
-					mesh_cmp->m_Mesh->DrawSubset(i);
-					theApp.m_SimpleSample->EndPass();
-				}
+				theApp.m_SimpleSample->BeginPass(0);
+				mesh_cmp->m_Mesh->DrawSubset(mesh_cmp->m_MeshSubMeshId);
+				theApp.m_SimpleSample->EndPass();
 				theApp.m_SimpleSample->End();
 			}
 		}
