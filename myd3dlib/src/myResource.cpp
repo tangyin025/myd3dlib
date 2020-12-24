@@ -121,10 +121,10 @@ FileOStream::~FileOStream(void)
 	_close(m_fp);
 }
 
-OStreamPtr FileOStream::Open(LPCTSTR pFilename)
+OStreamPtr FileOStream::Open(LPCTSTR pFilename, int OpenFlag /*= _O_WRONLY | _O_BINARY | _O_CREAT | _O_TRUNC*/, int ShareFlag /*= _SH_DENYRW*/, int PermissionFlag /*= _S_IWRITE*/)
 {
 	int fp;
-	errno_t err = _tsopen_s(&fp, pFilename, _O_WRONLY | _O_BINARY | _O_CREAT | _O_TRUNC, _SH_DENYRW, _S_IWRITE);
+	errno_t err = _tsopen_s(&fp, pFilename, OpenFlag, ShareFlag, PermissionFlag);
 	if (0 != err)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %S", pFilename));

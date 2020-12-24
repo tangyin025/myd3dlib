@@ -105,7 +105,7 @@ namespace my
 
 		~FileOStream(void);
 
-		static OStreamPtr Open(LPCTSTR pFilename);
+		static OStreamPtr Open(LPCTSTR pFilename, int OpenFlag = _O_WRONLY | _O_BINARY | _O_CREAT | _O_TRUNC, int ShareFlag = _SH_DENYRW, int PermissionFlag = _S_IWRITE);
 
 		virtual int write(const void * buff, unsigned write_size);
 	};
