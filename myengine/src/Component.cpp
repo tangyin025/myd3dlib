@@ -428,7 +428,7 @@ my::AABB MeshComponent::CalculateAABB(void) const
 {
 	if (m_Mesh)
 	{
-		return m_Mesh->m_aabb;
+		return m_Mesh->CalculateAABB(m_MeshSubMeshId);
 	}
 	return Component::CalculateAABB();
 }

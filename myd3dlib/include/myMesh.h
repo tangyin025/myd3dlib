@@ -358,8 +358,6 @@ namespace my
 
 		std::vector<std::string> m_MaterialNameList;
 
-		AABB m_aabb;
-
 		std::vector<DWORD> m_Adjacency;
 
 		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
@@ -405,6 +403,8 @@ namespace my
 		UINT GetMaterialNum(void) const;
 
 		const std::string & GetMaterialName(DWORD AttribId) const;
+
+		AABB CalculateAABB(DWORD AttribId);
 	};
 
 	typedef boost::intrusive_ptr<OgreMesh> OgreMeshPtr;

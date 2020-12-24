@@ -991,8 +991,6 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	CreateMesh(facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 
-	m_aabb = AABB(FLT_MAX,-FLT_MAX);
-
 	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	VOID * pVertices = LockVertexBuffer();
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
@@ -1008,14 +1006,6 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.x, attr_tmp, node_position, x);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.z, attr_tmp, node_position, z);
-
-			m_aabb.m_min.x = Min(m_aabb.m_min.x, Position.x);
-			m_aabb.m_min.y = Min(m_aabb.m_min.y, Position.y);
-			m_aabb.m_min.z = Min(m_aabb.m_min.z, Position.z);
-
-			m_aabb.m_max.x = Max(m_aabb.m_max.x, Position.x);
-			m_aabb.m_max.y = Max(m_aabb.m_max.y, Position.y);
-			m_aabb.m_max.z = Max(m_aabb.m_max.z, Position.z);
 		}
 
 		if(normals)
@@ -1327,7 +1317,6 @@ void OgreMesh::SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD O
 {
 	OgreMeshPtr simplified_mesh(new OgreMesh());
 	simplified_mesh->Create(SimplifyMesh(&m_Adjacency[0], MinValue, Options).Detach());
-	simplified_mesh->m_aabb = m_aabb;
 	simplified_mesh->m_Adjacency = m_Adjacency;
 	simplified_mesh->m_MaterialNameList = m_MaterialNameList;
 	simplified_mesh->m_VertexElems = m_VertexElems;
@@ -1379,4 +1368,20 @@ UINT OgreMesh::GetMaterialNum(void) const
 const std::string & OgreMesh::GetMaterialName(DWORD AttribId) const
 {
 	return m_MaterialNameList[AttribId];
+}
+
+AABB OgreMesh::CalculateAABB(DWORD AttribId)
+{
+	const D3DXATTRIBUTERANGE& att = m_AttribTable[AttribId];
+	void* pVertices = LockVertexBuffer(D3DLOCK_READONLY);
+	DWORD VertexStride = GetNumBytesPerVertex();
+	AABB ret(FLT_MAX, -FLT_MAX);
+	for (DWORD i = 0; i < att.VertexCount; i++)
+	{
+		unsigned char* pVertex = (unsigned char*)pVertices + att.VertexStart * VertexStride + i * VertexStride;
+		const Vector3 vertex = m_VertexElems.GetPosition(pVertex);
+		ret.unionSelf(vertex);
+	}
+	UnlockVertexBuffer();
+	return ret;
 }
