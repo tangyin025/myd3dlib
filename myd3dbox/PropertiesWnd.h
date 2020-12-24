@@ -116,6 +116,7 @@ public:
 		PropertyMesh,
 		PropertyMeshPath,
 		PropertyMeshSubMeshName,
+		PropertyMeshSubMeshId,
 		PropertyMeshColor,
 		PropertyMeshAlpha,
 		PropertyMeshInstance,

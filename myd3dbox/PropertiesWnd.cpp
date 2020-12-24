@@ -359,12 +359,13 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshPath.c_str()).c_str());
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)mesh_cmp->m_MeshSubMeshId);
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 2)))->SetColor(color);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), mesh_cmp->m_Material.get());
+	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 3)))->SetColor(color);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)(long)(mesh_cmp->m_MeshColor.w * 255));
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), mesh_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
@@ -772,7 +773,12 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshPath.c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
 	pComponent->AddSubItem(pProp);
+
 	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str(), NULL, PropertyMeshSubMeshName);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("MeshSubMeshId"), (_variant_t)mesh_cmp->m_MeshSubMeshId, NULL, PropertyMeshSubMeshId);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
@@ -1093,7 +1099,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
@@ -1640,6 +1646,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMeshPath:
 	case PropertyMeshSubMeshName:
+	case PropertyMeshSubMeshId:
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 		//mesh_cmp->m_MeshRes.ReleaseResource();
@@ -1654,11 +1661,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetValue().ulVal);
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 2)))->GetColor();
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 3)))->GetColor();
 		mesh_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
 		mesh_cmp->m_MeshColor.y = GetGValue(color) / 255.0f;
 		mesh_cmp->m_MeshColor.z = GetBValue(color) / 255.0f;
-		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().lVal / 255.0f;
+		mesh_cmp->m_MeshColor.w = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().lVal / 255.0f;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
