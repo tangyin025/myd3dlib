@@ -886,6 +886,22 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 	return boost::dynamic_pointer_cast<BaseTexture>(request->m_res);
 }
 
+void ResourceMgr::LoadVertexBufferAsync(const char* path, IResourceCallback* callback)
+{
+	IORequestPtr request(new VertexBufferIORequest(path));
+	request->m_callbacks.insert(callback);
+	LoadIORequestAsync(path, request, false);
+}
+
+boost::intrusive_ptr<VertexBuffer> ResourceMgr::LoadVertexBuffer(const char* path)
+{
+	SimpleResourceCallback cb;
+	IORequestPtr request(new VertexBufferIORequest(path));
+	request->m_callbacks.insert(&cb);
+	LoadIORequestAndWait(path, request);
+	return boost::dynamic_pointer_cast<VertexBuffer>(request->m_res);
+}
+
 void ResourceMgr::LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback)
 {
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
@@ -997,6 +1013,36 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
+VertexBufferIORequest::VertexBufferIORequest(const char* path)
+	: m_path(path)
+{
+	m_res.reset(new VertexBuffer());
+}
+
+void VertexBufferIORequest::LoadResource(void)
+{
+	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+	{
+		try
+		{
+			boost::dynamic_pointer_cast<VertexBuffer>(m_res)->CreateVertexBufferFromIStream(
+				ResourceMgr::getSingleton().OpenIStream(m_path.c_str()), 0, 0, D3DPOOL_MANAGED);
+		}
+		catch (my::Exception * e)
+		{
+			m_res->OnDestroyDevice();
+		}
+	}
+}
+
+void VertexBufferIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+{
+	if (!boost::dynamic_pointer_cast<VertexBuffer>(m_res)->m_ptr)
+	{
+		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
+	}
+}
+
 MeshIORequest::MeshIORequest(const char * path, const char * sub_mesh_name)
 	: m_path(path)
 	, m_sub_mesh_name(sub_mesh_name)
@@ -1008,18 +1054,17 @@ void MeshIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
-		m_cache->push_back(0);
+		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
+		cache->push_back(0);
 		try
 		{
-			m_doc.parse<0>((char *)&(*m_cache)[0]);
+			rapidxml::xml_document<char> doc;
+			doc.parse<0>((char *)&(*cache)[0]);
 
-			boost::dynamic_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(&m_doc, m_sub_mesh_name);
+			boost::dynamic_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(&doc, m_sub_mesh_name);
 		}
 		catch(rapidxml::parse_error &)
 		{
-			m_doc.clear();
-
 			m_res->OnDestroyDevice();
 		}
 	}
@@ -1027,7 +1072,7 @@ void MeshIORequest::LoadResource(void)
 
 void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if(!m_doc.first_node() || !boost::dynamic_pointer_cast<OgreMesh>(m_res)->m_ptr)
+	if(!boost::dynamic_pointer_cast<OgreMesh>(m_res)->m_ptr)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}

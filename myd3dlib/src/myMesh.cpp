@@ -224,6 +224,33 @@ void VertexBuffer::CreateVertexBuffer(
 	Create(pVB);
 }
 
+void VertexBuffer::CreateVertexBufferFromIStream(
+	IStreamPtr istr,
+	DWORD Usage,
+	DWORD FVF,
+	D3DPOOL Pool)
+{
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	CreateVertexBuffer(istr->GetSize(), Usage, FVF, Pool);
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	istr->seek(0);
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	void* buff = Lock();
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	istr->read(buff, istr->GetSize());
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	Unlock();
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+}
+
+void VertexBuffer::SaveVertexBuffer(const char* path)
+{
+	std::ofstream ofs(path);
+	D3DVERTEXBUFFER_DESC desc = GetDesc();
+	ofs.write((char*)Lock(0, 0, D3DLOCK_READONLY), desc.Size);
+	ofs.flush();
+}
+
 D3DVERTEXBUFFER_DESC VertexBuffer::GetDesc(void)
 {
 	D3DVERTEXBUFFER_DESC desc;

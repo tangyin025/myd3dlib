@@ -17,42 +17,6 @@
 
 namespace my
 {
-	typedef std::vector<unsigned char> Cache;
-
-	typedef boost::shared_ptr<Cache> CachePtr;
-
-	class IStream
-	{
-	public:
-		virtual ~IStream(void)
-		{
-		}
-
-		virtual int read(void * buff, unsigned read_size) = 0;
-
-		virtual long seek(long offset) = 0;
-
-		virtual long tell(void) = 0;
-
-		virtual unsigned long GetSize(void) = 0;
-
-		virtual CachePtr GetWholeCache(void);
-	};
-
-	typedef boost::shared_ptr<IStream> IStreamPtr;
-
-	class OStream
-	{
-	public:
-		virtual ~OStream(void)
-		{
-		}
-
-		virtual int write(const void * buff, unsigned write_size) = 0;
-	};
-
-	typedef boost::shared_ptr<OStream> OStreamPtr;
-
 	class ZipIStream : public IStream
 	{
 	protected:
@@ -281,6 +245,8 @@ namespace my
 
 	class BaseTexture;
 
+	class VertexBuffer;
+
 	class OgreMesh;
 
 	class OgreMeshSet;
@@ -389,6 +355,10 @@ namespace my
 
 		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
 
+		void LoadVertexBufferAsync(const char* path, IResourceCallback* callback);
+
+		boost::intrusive_ptr<VertexBuffer> LoadVertexBuffer(const char* path);
+
 		void LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback);
 
 		boost::intrusive_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
@@ -424,16 +394,25 @@ namespace my
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 	};
 
+	class VertexBufferIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+	public:
+		VertexBufferIORequest(const char* path);
+
+		virtual void LoadResource(void);
+
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
+
 	class MeshIORequest : public IORequest
 	{
 	protected:
 		std::string m_path;
 
 		std::string m_sub_mesh_name;
-
-		CachePtr m_cache;
-
-		rapidxml::xml_document<char> m_doc;
 
 	public:
 		MeshIORequest(const char * path, const char * sub_mesh_name);

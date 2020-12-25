@@ -126,6 +126,42 @@ namespace my
 		}
 	};
 
+	typedef std::vector<unsigned char> Cache;
+
+	typedef boost::shared_ptr<Cache> CachePtr;
+
+	class IStream
+	{
+	public:
+		virtual ~IStream(void)
+		{
+		}
+
+		virtual int read(void* buff, unsigned read_size) = 0;
+
+		virtual long seek(long offset) = 0;
+
+		virtual long tell(void) = 0;
+
+		virtual unsigned long GetSize(void) = 0;
+
+		virtual CachePtr GetWholeCache(void);
+	};
+
+	typedef boost::shared_ptr<IStream> IStreamPtr;
+
+	class OStream
+	{
+	public:
+		virtual ~OStream(void)
+		{
+		}
+
+		virtual int write(const void* buff, unsigned write_size) = 0;
+	};
+
+	typedef boost::shared_ptr<OStream> OStreamPtr;
+
 	class IResourceCallback
 	{
 	public:
