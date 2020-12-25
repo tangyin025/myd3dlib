@@ -883,7 +883,7 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 	IORequestPtr request(new TextureIORequest(path));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(path, request);
-	return boost::dynamic_pointer_cast<BaseTexture>(request->m_res);
+	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
 }
 
 void ResourceMgr::LoadVertexBufferAsync(const char* path, IResourceCallback* callback)
@@ -899,7 +899,7 @@ boost::intrusive_ptr<VertexBuffer> ResourceMgr::LoadVertexBuffer(const char* pat
 	IORequestPtr request(new VertexBufferIORequest(path));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(path, request);
-	return boost::dynamic_pointer_cast<VertexBuffer>(request->m_res);
+	return boost::dynamic_pointer_cast<VertexBuffer>(cb.m_res);
 }
 
 void ResourceMgr::LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback)
@@ -917,7 +917,7 @@ boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const ch
 	IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(key, request);
-	return boost::dynamic_pointer_cast<OgreMesh>(request->m_res);
+	return boost::dynamic_pointer_cast<OgreMesh>(cb.m_res);
 }
 
 void ResourceMgr::LoadSkeletonAsync(const char * path, IResourceCallback * callback)
@@ -933,7 +933,7 @@ boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char
 	IORequestPtr request(new SkeletonIORequest(path));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(path, request);
-	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(request->m_res);
+	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(cb.m_res);
 }
 
 void ResourceMgr::LoadEffectAsync(const char * path, const char * macros, IResourceCallback * callback)
@@ -951,7 +951,7 @@ boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const ch
 	IORequestPtr request(new EffectIORequest(path, macros));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(key, request);
-	return boost::dynamic_pointer_cast<Effect>(request->m_res);
+	return boost::dynamic_pointer_cast<Effect>(cb.m_res);
 }
 
 void ResourceMgr::LoadFontAsync(const char * path, int height, int face_index, IResourceCallback * callback)
@@ -969,7 +969,7 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 	IORequestPtr request(new FontIORequest(path, height, face_index));
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(key, request);
-	return boost::dynamic_pointer_cast<Font>(request->m_res);
+	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
 
 void TextureIORequest::LoadResource(void)
