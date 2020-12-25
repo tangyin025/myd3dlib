@@ -163,7 +163,7 @@ public:
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
 
-class TerrainVert2D
+class TerrainModifier
 {
 public:
 	struct Vertex
@@ -180,9 +180,9 @@ public:
 	Terrain * m_terrain;
 
 public:
-	explicit TerrainVert2D(Terrain * terrain);
+	explicit TerrainModifier(Terrain * terrain);
 
-	~TerrainVert2D(void);
+	~TerrainModifier(void);
 
 	void Release(void);
 

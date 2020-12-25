@@ -745,7 +745,7 @@ void Terrain::ClearShape(void)
 void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 {
 	my::TexturePixel2D pixel(HeightMap);
-	TerrainVert2D vert(this);
+	TerrainModifier vert(this);
 	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
 		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
@@ -772,7 +772,7 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 
 void Terrain::UpdateVerticesNormal(void)
 {
-	TerrainVert2D vert(this);
+	TerrainModifier vert(this);
 	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
 		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
@@ -813,7 +813,7 @@ void Terrain::UpdateChunkAABB(void)
 void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 {
 	my::TexturePixel2D pixel(ColorMap);
-	TerrainVert2D vert(this);
+	TerrainModifier vert(this);
 	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
 		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
@@ -885,7 +885,7 @@ bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::V
 	return false;
 }
 
-TerrainVert2D::TerrainVert2D(Terrain * terrain)
+TerrainModifier::TerrainModifier(Terrain * terrain)
 	: m_Verts(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 	, m_RootVerts((Vertex *)terrain->m_RootVb.Lock(0, 0, 0), boost::extents[terrain->m_RowChunks + 1][terrain->m_ColChunks + 1])
 	, m_terrain(terrain)
@@ -899,7 +899,7 @@ TerrainVert2D::TerrainVert2D(Terrain * terrain)
 	}
 }
 
-TerrainVert2D::~TerrainVert2D(void)
+TerrainModifier::~TerrainModifier(void)
 {
 	if (m_Verts[0][0])
 	{
@@ -907,7 +907,7 @@ TerrainVert2D::~TerrainVert2D(void)
 	}
 }
 
-void TerrainVert2D::Release(void)
+void TerrainModifier::Release(void)
 {
 	for (int i = 0; i < (int)m_Verts.shape()[0]; i++)
 	{
@@ -923,7 +923,7 @@ void TerrainVert2D::Release(void)
 	m_terrain->m_RootVb.Unlock();
 }
 
-void TerrainVert2D::GetIndices(int i, int j, int & k, int & l, int & m, int & n) const
+void TerrainModifier::GetIndices(int i, int j, int & k, int & l, int & m, int & n) const
 {
 	if (i < 0)
 	{
@@ -958,8 +958,8 @@ void TerrainVert2D::GetIndices(int i, int j, int & k, int & l, int & m, int & n)
 }
 
 std::pair<
-	boost::shared_container_iterator<std::list<TerrainVert2D::Vertex *> >,
-	boost::shared_container_iterator<std::list<TerrainVert2D::Vertex *> > >TerrainVert2D::GetVertex(int i, int j)
+	boost::shared_container_iterator<std::list<TerrainModifier::Vertex *> >,
+	boost::shared_container_iterator<std::list<TerrainModifier::Vertex *> > >TerrainModifier::GetVertex(int i, int j)
 {
 	int k, l, m, n;
 	GetIndices(i, j, k, l, m, n);
@@ -984,14 +984,14 @@ std::pair<
 	return boost::make_shared_container_range(ret);
 }
 
-const TerrainVert2D::Vertex & TerrainVert2D::GetVertex(int i, int j) const
+const TerrainModifier::Vertex & TerrainModifier::GetVertex(int i, int j) const
 {
 	int k, l, m, n;
 	GetIndices(i, j, k, l, m, n);
 	return m_Verts[k][l][m_terrain->m_IndexTable[m][n]];
 }
 
-void TerrainVert2D::SetHeight(int i, int j, float Height)
+void TerrainModifier::SetHeight(int i, int j, float Height)
 {
 	boost::shared_container_iterator<std::list<Vertex *> > iter, end;
 	for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
@@ -1000,12 +1000,12 @@ void TerrainVert2D::SetHeight(int i, int j, float Height)
 	}
 }
 
-float TerrainVert2D::GetHeight(int i, int j) const
+float TerrainModifier::GetHeight(int i, int j) const
 {
 	return GetVertex(i, j).Pos.y;
 }
 
-void TerrainVert2D::SetColor(int i, int j, D3DCOLOR Color)
+void TerrainModifier::SetColor(int i, int j, D3DCOLOR Color)
 {
 	boost::shared_container_iterator<std::list<Vertex *> > iter, end;
 	for (boost::tie(iter, end) = GetVertex(i, j); iter != end; iter++)
@@ -1014,12 +1014,12 @@ void TerrainVert2D::SetColor(int i, int j, D3DCOLOR Color)
 	}
 }
 
-D3DCOLOR TerrainVert2D::GetColor(int i, int j) const
+D3DCOLOR TerrainModifier::GetColor(int i, int j) const
 {
 	return GetVertex(i, j).Color;
 }
 
-void TerrainVert2D::SetNormal(int i, int j, const my::Vector3 & Normal)
+void TerrainModifier::SetNormal(int i, int j, const my::Vector3 & Normal)
 {
 	D3DCOLOR dw = D3DCOLOR_COLORVALUE((Normal.x + 1.0f) * 0.5f, (Normal.y + 1.0f) * 0.5f, (Normal.z + 1.0f) * 0.5f, 0);
 	boost::shared_container_iterator<std::list<Vertex *> > iter, end;
@@ -1029,7 +1029,7 @@ void TerrainVert2D::SetNormal(int i, int j, const my::Vector3 & Normal)
 	}
 }
 
-my::Vector3 TerrainVert2D::GetNormal(int i, int j) const
+my::Vector3 TerrainModifier::GetNormal(int i, int j) const
 {
 	D3DCOLOR dw = GetVertex(i, j).Normal;
 	const float f = 1.0f / 255.0f;
