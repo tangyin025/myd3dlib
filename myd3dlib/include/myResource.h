@@ -59,21 +59,6 @@ namespace my
 		virtual unsigned long GetSize(void);
 	};
 
-	class FileOStream : public OStream
-	{
-	protected:
-		int m_fp;
-
-	public:
-		FileOStream(int fp);
-
-		~FileOStream(void);
-
-		static OStreamPtr Open(LPCTSTR pFilename, int OpenFlag = _O_WRONLY | _O_BINARY | _O_CREAT | _O_TRUNC, int ShareFlag = _SH_DENYRW, int PermissionFlag = _S_IWRITE);
-
-		virtual int write(const void * buff, unsigned write_size);
-	};
-
 	class StreamDir
 	{
 	public:

@@ -150,18 +150,6 @@ namespace my
 
 	typedef boost::shared_ptr<IStream> IStreamPtr;
 
-	class OStream
-	{
-	public:
-		virtual ~OStream(void)
-		{
-		}
-
-		virtual int write(const void* buff, unsigned write_size) = 0;
-	};
-
-	typedef boost::shared_ptr<OStream> OStreamPtr;
-
 	class IResourceCallback
 	{
 	public:

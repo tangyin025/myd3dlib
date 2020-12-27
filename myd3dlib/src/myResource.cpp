@@ -110,33 +110,6 @@ unsigned long FileIStream::GetSize(void)
 	return _filelength(m_fp);
 }
 
-FileOStream::FileOStream(int fp)
-	: m_fp(fp)
-{
-	_ASSERT(NULL != m_fp);
-}
-
-FileOStream::~FileOStream(void)
-{
-	_close(m_fp);
-}
-
-OStreamPtr FileOStream::Open(LPCTSTR pFilename, int OpenFlag /*= _O_WRONLY | _O_BINARY | _O_CREAT | _O_TRUNC*/, int ShareFlag /*= _SH_DENYRW*/, int PermissionFlag /*= _S_IWRITE*/)
-{
-	int fp;
-	errno_t err = _tsopen_s(&fp, pFilename, OpenFlag, ShareFlag, PermissionFlag);
-	if (0 != err)
-	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %S", pFilename));
-	}
-	return OStreamPtr(new FileOStream(fp));
-}
-
-int FileOStream::write(const void * buff, unsigned write_size)
-{
-	return _write(m_fp, buff, write_size);
-}
-
 std::string StreamDir::ReplaceSlash(const char * path)
 {
 	size_t pos = 0;

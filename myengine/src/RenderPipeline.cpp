@@ -6,7 +6,6 @@
 #include "myEmitter.h"
 #include "Component.h"
 #include "Actor.h"
-#include "libc.h"
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -23,6 +22,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <fstream>
 
 using namespace my;
 
@@ -202,9 +202,11 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		err.Release();
 	}
 
-	my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("ShaderCache_%u"), seed).c_str());
-	ostr->write(buff->GetBufferPointer(), buff->GetBufferSize());
-	ostr.reset();
+	TCHAR BuffPath[MAX_PATH];
+	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%u"), seed);
+	std::ofstream ofs(BuffPath, std::ios::binary);
+	ofs.write((char*)buff->GetBufferPointer(), buff->GetBufferSize());
+	ofs.flush();
 
 	LPD3DXEFFECT pEffect = NULL;
 	my::D3DContext::getSingleton().m_d3dDeviceSec.Enter();
