@@ -187,10 +187,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 {
 	CreateElements();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_RootVb.CreateVertexBuffer((m_RowChunks + 1) * (m_ColChunks + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 	VOID * pVertices = m_RootVb.Lock(0, 0, 0);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	for (int i = 0; i < (int)m_RowChunks + 1; i++)
 	{
 		for (int j = 0; j < (int)m_ColChunks + 1; j++)
@@ -201,10 +199,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 			m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
 		}
 	}
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_RootVb.Unlock();
 	m_RootIb.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
