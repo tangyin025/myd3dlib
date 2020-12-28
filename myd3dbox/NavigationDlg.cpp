@@ -233,7 +233,7 @@ void CNavigationDlg::OnOK()
 						{
 							TerrainChunk * chunk = terrain->GetChunk(i, j);
 							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
-							const void * pVertices = chunk->m_vb.Lock(0, 0, D3DLOCK_READONLY);
+							const void * pVertices = chunk->m_vb->Lock(0, 0, D3DLOCK_READONLY);
 							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
 							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
 							{
@@ -250,7 +250,7 @@ void CNavigationDlg::OnOK()
 								rcRasterizeTriangle(pDlg, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
 							}
 							const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-							chunk->m_vb.Unlock();
+							chunk->m_vb->Unlock();
 						}
 					}
 					break;

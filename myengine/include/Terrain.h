@@ -16,7 +16,7 @@ public:
 
 	int m_Col;
 
-	my::VertexBuffer m_vb;
+	my::VertexBufferPtr m_vb;
 
 protected:
 	TerrainChunk(void);

@@ -741,14 +741,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 						terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
 					my::RayResult result = pView->OverlapTestRayAndMesh(
 						ray,
-						chunk->m_vb.Lock(0, 0, D3DLOCK_READONLY),
+						chunk->m_vb->Lock(0, 0, D3DLOCK_READONLY),
 						frag.VertNum,
 						terrain->m_VertexStride,
 						const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
 						false,
 						frag.PrimitiveCount,
 						terrain->m_VertexElems);
-					chunk->m_vb.Unlock();
+					chunk->m_vb->Unlock();
 					const_cast<my::IndexBuffer&>(frag.ib).Unlock();
 					if (result.first && result.second < ret.second)
 					{
