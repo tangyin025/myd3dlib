@@ -1012,6 +1012,7 @@ void VertexBufferIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if (!boost::dynamic_pointer_cast<VertexBuffer>(m_res)->m_ptr)
 	{
+		m_res.reset();
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 }
@@ -1047,6 +1048,7 @@ void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!boost::dynamic_pointer_cast<OgreMesh>(m_res)->m_ptr)
 	{
+		m_res.reset();
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 }

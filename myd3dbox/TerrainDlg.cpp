@@ -69,6 +69,10 @@ void CTerrainDlg::OnOK()
 
 	m_terrain.reset(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 1.0f));
 
+	m_terrain->SaveChunkData("..\\demo2_3\\Media\\123abc");
+
+	m_terrain->m_ChunkPath = "123abc";
+
 	if (m_UseTerrainMaterial)
 	{
 		MaterialPtr mtl(new Material());

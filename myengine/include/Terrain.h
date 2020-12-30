@@ -10,11 +10,14 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctEntity
+	, public my::IResourceCallback
 {
 public:
 	int m_Row;
 
 	int m_Col;
+
+	bool m_Requested;
 
 	my::VertexBufferPtr m_vb;
 
@@ -39,6 +42,17 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
+	virtual void OnReady(my::IORequest* request);
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	my::AABB CalculateAABB(Terrain * terrain) const;
 };
@@ -82,6 +96,8 @@ public:
 	typedef boost::unordered_map<unsigned int, Fragment> FragmentMap;
 
 	FragmentMap m_Fragment;
+
+	std::string m_ChunkPath;
 
 	typedef boost::multi_array<TerrainChunkPtr, 2> ChunkArray2D;
 
@@ -159,6 +175,8 @@ public:
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 
 	bool Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal);
+
+	void SaveChunkData(const char* path);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
