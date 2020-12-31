@@ -65,9 +65,9 @@ TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
 
 TerrainChunk::~TerrainChunk(void)
 {
-	if (m_vb)
+	if (IsRequested())
 	{
-		m_vb->OnDestroyDevice();
+		_ASSERT(false); ReleaseResource();
 	}
 }
 
@@ -247,7 +247,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 		for (int j = 0; j < m_ColChunks; j++)
 		{
 			m_Chunks[i][j].reset(new TerrainChunk(i, j, this));
-			AABB aabb(i * m_ChunkSize, -1, j * m_ChunkSize, (i + 1) * m_ChunkSize, 1, (j + 1) * m_ChunkSize);
+			AABB aabb(j * m_ChunkSize, -1, i * m_ChunkSize, (j + 1) * m_ChunkSize, 1, (i + 1) * m_ChunkSize);
 			AddEntity(m_Chunks[i][j].get(), aabb, MinBlock, Threshold);
 		}
 	}
@@ -572,6 +572,16 @@ void Terrain::ReleaseResource(void)
 {
 	m_Decl.Release();
 	m_Fragment.clear();
+	for (int i = 0; i < m_RowChunks; i++)
+	{
+		for (int j = 0; j < m_ColChunks; j++)
+		{
+			if (m_Chunks[i][j]->IsRequested())
+			{
+				m_Chunks[i][j]->ReleaseResource();
+			}
+		}
+	}
 	Component::ReleaseResource();
 }
 
@@ -629,6 +639,10 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			const unsigned int lod0 = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
 			if (lod0 == _Quad(terrain->m_ChunkSize))
 			{
+				if (chunk->IsRequested())
+				{
+					chunk->ReleaseResource();
+				}
 				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
