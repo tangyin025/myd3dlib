@@ -37,7 +37,6 @@ TerrainChunk::TerrainChunk(void)
 	: m_Row(0)
 	, m_Col(0)
 	, m_Requested(false)
-	//, m_vb(new VertexBuffer())
 {
 }
 
@@ -45,22 +44,7 @@ TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
 	: m_Row(Row)
 	, m_Col(Col)
 	, m_Requested(false)
-	//, m_vb(new VertexBuffer())
 {
-	//m_vb->CreateVertexBuffer((terrain->m_IndexTable.shape()[0]) * (terrain->m_IndexTable.shape()[1]) * Terrain::m_VertexStride, 0, 0, D3DPOOL_MANAGED);
-
-	//VOID * pVertices = m_vb->Lock(0, 0, 0);
-	//for (int i = 0; i < (int)terrain->m_IndexTable.shape()[0]; i++)
-	//{
-	//	for (int j = 0; j < (int)terrain->m_IndexTable.shape()[1]; j++)
-	//	{
-	//		unsigned char * pVertex = (unsigned char *)pVertices + terrain->m_IndexTable[i][j] * terrain->m_VertexStride;
-	//		terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)m_Col * terrain->m_ChunkSize + j, 0, (float)m_Row * terrain->m_ChunkSize + i), 0);
-	//		terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
-	//		terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
-	//	}
-	//}
-	//m_vb->Unlock();
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -76,11 +60,6 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
-	//D3DVERTEXBUFFER_DESC desc = m_vb->GetDesc();
-	//ar << boost::serialization::make_nvp("BufferSize", desc.Size);
-	//void * pVertices = m_vb->Lock(0, 0, D3DLOCK_READONLY);
-	//ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
-	//m_vb->Unlock();
 }
 
 template<class Archive>
@@ -88,17 +67,6 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
-	//DWORD BufferSize;
-	//ar >> BOOST_SERIALIZATION_NVP(BufferSize);
-	//ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
-	//m_vb->OnDestroyDevice();
-	//m_vb->CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
-	//void * pVertices = m_vb->Lock(0, 0, 0);
-	//ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-	//ar >> boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
-	//ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	//m_vb->Unlock();
-	//ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 }
 
 void TerrainChunk::OnReady(my::IORequest* request)
@@ -500,6 +468,7 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_RootVb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
 	void * pVertices = const_cast<my::VertexBuffer&>(m_RootVb).Lock(0, 0, D3DLOCK_READONLY);
@@ -527,6 +496,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
 	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
