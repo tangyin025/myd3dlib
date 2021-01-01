@@ -227,32 +227,24 @@ void CNavigationDlg::OnOK()
 						TRACE("OnToolsBuildnavigation: invalid terrain component");
 						continue;
 					}
-					for (int i = 0; i < terrain->m_RowChunks; i++)
+					TerrainStream tstr(terrain);
+					for (int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkSize; i++)
 					{
-						for (int j = 0; j < terrain->m_ColChunks; j++)
+						for (int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkSize; j++)
 						{
-							TerrainChunk * chunk = terrain->GetChunk(i, j);
-							const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
-							const void * pVertices = chunk->m_vb->Lock(0, 0, D3DLOCK_READONLY);
-							const void * pIndices = const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY);
-							for (unsigned int face_i = 0; face_i < frag.PrimitiveCount; face_i++)
-							{
-								int i0 = *((Terrain::IndexTable::element *)pIndices + face_i * 3 + 0);
-								int i1 = *((Terrain::IndexTable::element *)pIndices + face_i * 3 + 1);
-								int i2 = *((Terrain::IndexTable::element *)pIndices + face_i * 3 + 2);
-
-								my::Vector3 v0 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i0 * terrain->m_VertexStride).transformCoord(actor->m_World);
-								my::Vector3 v1 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i1 * terrain->m_VertexStride).transformCoord(actor->m_World);
-								my::Vector3 v2 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + i2 * terrain->m_VertexStride).transformCoord(actor->m_World);
-
-								my::Vector3 Normal = (v1 - v0).cross(v2 - v0).normalize();
-
-								rcRasterizeTriangle(pDlg, &v0.x, &v1.x, &v2.x, Normal.y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
-							}
-							const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-							chunk->m_vb->Unlock();
+							my::Vector3 v0 = tstr.GetPos(i + 0, j + 0).transformCoord(actor->m_World);
+							my::Vector3 v1 = tstr.GetPos(i + 1, j + 0).transformCoord(actor->m_World);
+							my::Vector3 v2 = tstr.GetPos(i + 1, j + 1).transformCoord(actor->m_World);
+							my::Vector3 v3 = tstr.GetPos(i + 0, j + 1).transformCoord(actor->m_World);
+							my::Vector3 Normal[2] = {
+								(v1 - v0).cross(v3 - v0).normalize(),
+								(v1 - v3).cross(v2 - v3).normalize()
+							};
+							rcRasterizeTriangle(pDlg, &v0.x, &v1.y, &v3.z, Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
+							rcRasterizeTriangle(pDlg, &v3.x, &v1.y, &v2.z, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
 						}
 					}
+					tstr.Release();
 					break;
 				}
 				}

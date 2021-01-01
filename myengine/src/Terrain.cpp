@@ -724,27 +724,18 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	}
 
 	std::vector<physx::PxHeightFieldSample> Samples((m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
-	for (int Row = 0; Row < m_RowChunks; Row++)
+	TerrainStream tstr(this);
+	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 	{
-		for (int Col = 0; Col < m_ColChunks; Col++)
+		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
 		{
-			TerrainChunk * chunk = m_Chunks[Row][Col].get();
-			VOID * pVertices = chunk->m_vb->Lock(0, 0, 0);
-			for (int i = 0; i < ((Row < m_RowChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); i++)
-			{
-				for (int j = 0; j < ((Col < m_ColChunks - 1) ? m_ChunkSize : m_ChunkSize + 1); j++)
-				{
-					//// ! Reverse physx height field row, column
-					unsigned char * pVertex = (unsigned char *)pVertices + m_IndexTable[i][j] * m_VertexStride;
-					int sample_i = (Col * m_ChunkSize + j) * (m_RowChunks * m_ChunkSize + 1) + Row * m_ChunkSize + i;
-					Samples[sample_i].height = (short)Clamp<int>((int)(m_VertexElems.GetPosition(pVertex).y / m_HeightScale + 0.5f), SHRT_MIN, SHRT_MAX);
-					Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
-					Samples[sample_i].materialIndex1 = physx::PxBitAndByte(0, false);
-				}
-			}
-			chunk->m_vb->Unlock();
+			int sample_i = j * (m_RowChunks * m_ChunkSize + 1) + i;
+			Samples[sample_i].height = (short)Clamp<int>((int)(tstr.GetPos(i, j).y / m_HeightScale + 0.5f), SHRT_MIN, SHRT_MAX);
+			Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
+			Samples[sample_i].materialIndex1 = physx::PxBitAndByte(0, false);
 		}
 	}
+	tstr.Release();
 
 	physx::PxHeightFieldDesc hfDesc;
 	hfDesc.nbRows             = m_ColChunks * m_ChunkSize + 1;
