@@ -5,6 +5,7 @@
 #include <boost/multi_array.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/shared_container_iterator.hpp>
+#include <fstream>
 
 class Terrain;
 
@@ -181,46 +182,41 @@ public:
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
 
-class TerrainModifier
+class TerrainStream
 {
-public:
-	struct Vertex
-	{
-		my::Vector3 Pos;
-		D3DCOLOR Color;
-		D3DCOLOR Normal;
-	};
+protected:
+	Terrain* m_terrain;
 
-	boost::multi_array<Vertex *, 2> m_Verts;
+	boost::multi_array<std::fstream, 2> m_fstrs;
 
-	boost::multi_array_ref<Vertex, 2> m_RootVerts;
-
-	Terrain * m_terrain;
+	unsigned char * m_RootVerts;
 
 public:
-	explicit TerrainModifier(Terrain * terrain);
+	explicit TerrainStream(Terrain* terrain);
 
-	~TerrainModifier(void);
+	~TerrainStream(void);
 
 	void Release(void);
 
-	void GetIndices(int i, int j, int & k, int & l, int & m, int & n) const;
+	void GetIndices(int i, int j, int& k, int& l, int& m, int& n) const;
 
-	std::pair<
-		boost::shared_container_iterator<std::list<Vertex *> >,
-		boost::shared_container_iterator<std::list<Vertex *> > >GetVertex(int i, int j);
+	std::fstream& GetStream(int k, int l);
 
-	const Vertex & GetVertex(int i, int j) const;
+	my::Vector3 GetPos(int i, int j);
 
-	void SetHeight(int i, int j, float Height);
+	void SetPos(const my::Vector3& Pos, int i, int j);
 
-	float GetHeight(int i, int j) const;
+	void SetPos(const my::Vector3& Pos, int k, int l, int m, int n);
 
-	void SetColor(int i, int j, D3DCOLOR Color);
+	D3DCOLOR GetColor(int i, int j);
 
-	D3DCOLOR GetColor(int i, int j) const;
+	void SetColor(D3DCOLOR Color, int i, int j);
 
-	void SetNormal(int i, int j, const my::Vector3 & Normal);
+	void SetColor(D3DCOLOR Color, int k, int l, int m, int n);
 
-	my::Vector3 GetNormal(int i, int j) const;
+	my::Vector3 GetNormal(int i, int j);
+
+	void SetNormal(const my::Vector3& Normal, int i, int j);
+
+	void SetNormal(D3DCOLOR dw, int k, int l, int m, int n);
 };
