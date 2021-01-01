@@ -227,8 +227,8 @@ BOOL CMainApp::InitInstance()
 	boost::program_options::notify(vm);
 	if (path_list.empty())
 	{
-		path_list.push_back("Media");
 		path_list.push_back("..\\demo2_3\\Media");
+		path_list.push_back("Media");
 	}
 	std::vector<std::string>::const_iterator path_iter = path_list.begin();
 	for (; path_iter != path_list.end(); path_iter++)

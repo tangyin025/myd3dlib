@@ -188,6 +188,7 @@ public:
 		PropertyTerrainRowChunks,
 		PropertyTerrainColChunks,
 		PropertyTerrainChunkSize,
+		PropertyTerrainChunkPath,
 		PropertyTerrainHeightScale,
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,

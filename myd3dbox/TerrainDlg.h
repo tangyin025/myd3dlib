@@ -27,6 +27,7 @@ public:
 	int m_RowChunks;
 	int m_ColChunks;
 	int m_ChunkSize;
+	CString m_AssetPath;
 	BOOL m_AlignToCenter;
 	BOOL m_UseTerrainMaterial;
 	BOOL m_UseWaterMaterial;

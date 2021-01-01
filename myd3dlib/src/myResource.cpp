@@ -289,18 +289,14 @@ std::string StreamDirMgr::GetFullPath(const char * path)
 	}
 
 	// ! will return the default first combined path
+	char currentDir[MAX_PATH];
+	::GetCurrentDirectoryA(_countof(currentDir), currentDir);
 	if(!m_DirList.empty())
 	{
-		std::string ret(MAX_PATH, '\0');
-		PathCombineA(&ret[0], m_DirList.front()->m_dir.c_str(), path);
-		ret = ZipIStreamDir::ReplaceSlash(ret.c_str());
-		std::string full_path;
-		full_path.resize(MAX_PATH);
-		GetFullPathNameA(ret.c_str(), full_path.size(), &full_path[0], NULL);
-		return full_path;
+		::PathAppendA(currentDir, m_DirList.front()->m_dir.c_str());
 	}
-
-	return std::string();
+	::PathAppendA(currentDir, path);
+	return std::string(currentDir);
 }
 
 std::string StreamDirMgr::GetRelativePath(const char * path)
@@ -321,22 +317,21 @@ std::string StreamDirMgr::GetRelativePath(const char * path)
 	}
 
 	// ! will return the default first combined path
+	char currentDir[MAX_PATH];
+	::GetCurrentDirectoryA(_countof(currentDir), currentDir);
 	if (!m_DirList.empty())
 	{
-		char currentDir[MAX_PATH];
-		::GetCurrentDirectoryA(_countof(currentDir), currentDir);
 		::PathAppendA(currentDir, m_DirList.front()->m_dir.c_str());
-		char relativePath[MAX_PATH];
-		if (::PathRelativePathToA(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
+	}
+	char relativePath[MAX_PATH];
+	if (::PathRelativePathToA(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
+	{
+		char canonicalizedPath[MAX_PATH];
+		if (::PathCanonicalizeA(canonicalizedPath, relativePath))
 		{
-			char canonicalizedPath[MAX_PATH];
-			if (::PathCanonicalizeA(canonicalizedPath, relativePath) && CheckPath(canonicalizedPath))
-			{
-				return std::string(canonicalizedPath);
-			}
+			return std::string(canonicalizedPath);
 		}
 	}
-
 	return std::string();
 }
 
