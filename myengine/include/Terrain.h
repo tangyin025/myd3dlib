@@ -198,7 +198,7 @@ public:
 
 	void Release(void);
 
-	void GetIndices(int i, int j, int& k, int& l, int& m, int& n) const;
+	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
 
 	std::fstream& GetStream(int k, int l);
 
