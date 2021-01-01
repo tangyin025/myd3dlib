@@ -175,8 +175,6 @@ public:
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 
-	bool Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal);
-
 	void SaveChunkData(const char* path);
 };
 

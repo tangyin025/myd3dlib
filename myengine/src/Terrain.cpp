@@ -863,60 +863,6 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 	}
 }
 
-bool Terrain::Raycast(const my::Vector3 & origin, const my::Vector3 & dir, my::Vector3 & hitPos, my::Vector3 & hitNormal)
-{
-	struct Callback : public my::OctNode::QueryCallback
-	{
-		Terrain * terrain;
-		const my::Vector3 & origin;
-		const my::Vector3 & dir;
-		my::RayResult ret;
-		my::Vector3 retNormal;
-		Callback(Terrain * _terrain, const my::Vector3 & _origin, const my::Vector3 & _dir)
-			: terrain(_terrain)
-			, origin(_origin)
-			, dir(_dir)
-			, ret(false, FLT_MAX)
-		{
-		}
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
-		{
-			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
-			const Terrain::Fragment & frag = terrain->GetFragment(0, 0, 0, 0, 0);
-			VOID * pVertices = chunk->m_vb->Lock(0, 0, D3DLOCK_READONLY);
-			boost::multi_array_ref<IndexTable::element, 1> idx(
-				(IndexTable::element *)const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY), boost::extents[frag.PrimitiveCount * 3]);
-			for (unsigned int i = 0; i < idx.shape()[0]; i += 3)
-			{
-				const my::Vector3 & v0 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + idx[i + 0] * terrain->m_VertexStride);
-				const my::Vector3 & v1 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + idx[i + 1] * terrain->m_VertexStride);
-				const my::Vector3 & v2 = terrain->m_VertexElems.GetPosition((unsigned char *)pVertices + idx[i + 2] * terrain->m_VertexStride);
-				if (my::IntersectionTests::isValidTriangle(v0, v1, v2))
-				{
-					my::RayResult result = my::CollisionDetector::rayAndTriangle(origin, dir, v0, v1, v2);
-					if (result.first && result.second < ret.second)
-					{
-						ret = result;
-						retNormal = my::IntersectionTests::calculateTriangleNormal(v0, v1, v2);
-					}
-				}
-			}
-			chunk->m_vb->Unlock();
-			const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-		}
-	} cb(this, origin, dir);
-
-	QueryEntity(my::Ray(origin, dir), &cb);
-
-	if (cb.ret.first)
-	{
-		hitPos = origin + dir * cb.ret.second;
-		hitNormal = cb.retNormal;
-		return true;
-	}
-	return false;
-}
-
 void Terrain::SaveChunkData(const char* path)
 {
 	for (int Row = 0; Row < m_RowChunks; Row++)
