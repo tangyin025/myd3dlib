@@ -602,10 +602,6 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			const unsigned int lod0 = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
 			if (lod0 == _Quad(terrain->m_ChunkSize))
 			{
-				if (chunk->IsRequested())
-				{
-					chunk->ReleaseResource();
-				}
 				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
@@ -615,6 +611,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				RootPrimitiveCount += 2;
 				return;
 			}
+			terrain->m_ViewedChunks.insert(chunk);
 
 			if (!chunk->m_vb)
 			{
@@ -673,6 +670,19 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		TerrainChunkSet::iterator viewed_chunk_iter = m_ViewedChunks.begin();
+		int LastLod = _Quad(m_ChunkSize);
+		float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);
+		for (; viewed_chunk_iter != m_ViewedChunks.end(); )
+		{
+			if (((*viewed_chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+			{
+				(*viewed_chunk_iter)->ReleaseResource();
+				viewed_chunk_iter = m_ViewedChunks.erase(viewed_chunk_iter);
+			}
+			else
+				viewed_chunk_iter++;
+		}
 		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
 		QueryEntity(LocalFrustum, &cb);
 		m_RootIb.Unlock();

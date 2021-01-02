@@ -104,6 +104,10 @@ public:
 
 	ChunkArray2D m_Chunks;
 
+	typedef std::set<TerrainChunk*> TerrainChunkSet;
+
+	TerrainChunkSet m_ViewedChunks;
+
 	my::VertexBuffer m_RootVb;
 
 	my::IndexBuffer m_RootIb;
