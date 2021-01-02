@@ -17,6 +17,8 @@ public:
 
 	TerrainPtr m_terrain;
 
+	std::string m_terrain_name;
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
@@ -27,7 +29,7 @@ public:
 	int m_RowChunks;
 	int m_ColChunks;
 	int m_ChunkSize;
-	CString m_AssetPath;
+	CString m_ChunkPath;
 	BOOL m_AlignToCenter;
 	BOOL m_UseTerrainMaterial;
 	BOOL m_UseWaterMaterial;

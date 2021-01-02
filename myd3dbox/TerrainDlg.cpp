@@ -15,14 +15,15 @@ IMPLEMENT_DYNAMIC(CTerrainDlg, CDialogEx)
 
 CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTerrainDlg::IDD, pParent)
+	, m_terrain_name(my::NamedObject::MakeUniqueName("editor_terrain"))
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
-	, m_AssetPath(_T("terrain/chunk"))
 	, m_AlignToCenter(TRUE)
 	, m_UseTerrainMaterial(TRUE)
 	, m_UseWaterMaterial(FALSE)
 {
+	m_ChunkPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name.c_str()).c_str());
 }
 
 CTerrainDlg::~CTerrainDlg()
@@ -35,7 +36,7 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT1, m_RowChunks);
 	DDX_Text(pDX, IDC_EDIT2, m_ColChunks);
 	DDX_Text(pDX, IDC_EDIT3, m_ChunkSize);
-	DDX_Text(pDX, IDC_EDIT4, m_AssetPath);
+	DDX_Text(pDX, IDC_EDIT4, m_ChunkPath);
 	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
 	DDX_Check(pDX, IDC_CHECK2, m_UseTerrainMaterial);
 	DDX_Check(pDX, IDC_CHECK3, m_UseWaterMaterial);
@@ -69,9 +70,9 @@ void CTerrainDlg::OnOK()
 		return;
 	}
 
-	m_terrain.reset(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 1.0f));
+	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 1.0f));
 
-	std::string FullPath = theApp.GetFullPath(ts2ms(m_AssetPath).c_str());
+	std::string FullPath = theApp.GetFullPath(ts2ms(m_ChunkPath).c_str());
 
 	m_terrain->SaveChunkData(FullPath.c_str());
 
