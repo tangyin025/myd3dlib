@@ -946,9 +946,9 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 
 			if (actor->IsRequested())
 			{
-				m_ViewedActors.insert(actor);
-
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+
+				m_ViewedActors.insert(actor);
 			}
 		}
 	};

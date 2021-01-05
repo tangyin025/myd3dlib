@@ -213,10 +213,6 @@ void Actor::RequestResource(void)
 	{
 		m_Animation->RequestResource();
 	}
-
-	//_ASSERT(m_Lod == Component::LOD_CULLING);
-
-	//SetLod(Component::LOD_CULLING >> 1);
 }
 
 void Actor::ReleaseResource(void)
@@ -228,15 +224,14 @@ void Actor::ReleaseResource(void)
 		m_Animation->ReleaseResource();
 	}
 
-	//SetLod(Component::LOD_CULLING);
-
-#ifdef _DEBUG
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		_ASSERT(!(*cmp_iter)->IsRequested());
+		if ((*cmp_iter)->IsRequested())
+		{
+			(*cmp_iter)->ReleaseResource();
+		}
 	}
-#endif
 }
 
 void Actor::EnterPhysxScene(PhysxScene * scene)
@@ -244,12 +239,6 @@ void Actor::EnterPhysxScene(PhysxScene * scene)
 	if (m_PxActor)
 	{
 		scene->m_PxScene->addActor(*m_PxActor);
-	}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->EnterPhysxScene(scene);
 	}
 }
 
@@ -260,7 +249,10 @@ void Actor::LeavePhysxScene(PhysxScene * scene)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->LeavePhysxScene(scene);
+		if ((*cmp_iter)->IsRequested())
+		{
+			(*cmp_iter)->LeavePhysxScene(scene);
+		}
 	}
 
 	if (m_PxActor)
