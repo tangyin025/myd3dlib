@@ -236,7 +236,8 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
 	pActor->GetSubItem(5)->SetValue((_variant_t)actor->m_LodDist);
 	pActor->GetSubItem(6)->SetValue((_variant_t)actor->m_LodFactor);
-	UpdatePropertiesRigidActor(pActor->GetSubItem(7), actor);
+	pActor->GetSubItem(7)->SetValue((_variant_t)actor->m_CullingDist);
+	UpdatePropertiesRigidActor(pActor->GetSubItem(8), actor);
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
 	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
 	{
@@ -630,9 +631,10 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 
 	CMFCPropertyGridProperty * pLodDist = new CSimpleProp(_T("LodDist"), (_variant_t)actor->m_LodDist, NULL, PropertyActorLodDist);
 	pActor->AddSubItem(pLodDist);
-
 	CMFCPropertyGridProperty * pLodFactor = new CSimpleProp(_T("LodFactor"), (_variant_t)actor->m_LodFactor, NULL, PropertyActorLodFactor);
 	pActor->AddSubItem(pLodFactor);
+	CMFCPropertyGridProperty* pCullingDist = new CSimpleProp(_T("CullingDist"), (_variant_t)actor->m_CullingDist, NULL, PropertyActorCullingDist);
+	pActor->AddSubItem(pCullingDist);
 
 	CreatePropertiesRigidActor(pActor, actor);
 
@@ -1097,7 +1099,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 8;
+		return 9;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -1469,6 +1471,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
 		actor->m_LodFactor = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorCullingDist:
+	{
+		Actor* actor = (Actor*)pProp->GetParent()->GetValue().ulVal;
+		actor->m_CullingDist = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

@@ -459,7 +459,11 @@ Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Ve
 
 	float DistanceSq = (m_OctAabb->Center() - ViewPos).magnitudeSq();
 
-	if (DistanceSq < m_LodDist * m_LodDist)
+	if (DistanceSq >= m_CullingDist * m_CullingDist)
+	{
+		return Component::LOD_CULLING;
+	}
+	else if (DistanceSq < m_LodDist * m_LodDist)
 	{
 		return Component::LOD0;
 	}
@@ -467,11 +471,7 @@ Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Ve
 	{
 		return Component::LOD1;
 	}
-	else if (DistanceSq < m_CullingDist * m_CullingDist)
-	{
-		return Component::LOD2;
-	}
-	return Component::LOD_CULLING;
+	return Component::LOD2;
 }
 
 void Actor::SetLod(unsigned int lod)

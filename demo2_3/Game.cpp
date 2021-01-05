@@ -968,6 +968,8 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
+		else
+			actor_iter++;
 	}
 
 	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, m_ViewedActors));
