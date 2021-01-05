@@ -136,8 +136,6 @@ public:
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void CheckViewedActor(const my::AABB & In, const my::AABB & Out);
-
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 
 	bool RemoveEntity(my::OctEntity * entity);

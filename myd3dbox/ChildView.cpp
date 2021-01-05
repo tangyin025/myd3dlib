@@ -190,18 +190,18 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_entity));
-			Actor * actor = static_cast<Actor *>(oct_entity);
-			if (!actor->IsRequested())
-			{
-				actor->RequestResource();
 
-				actor->EnterPhysxScene(pFrame);
-			}
+			Actor * actor = static_cast<Actor *>(oct_entity);
+
 			if (UpdateLod)
 			{
 				actor->SetLod(actor->CalculateLod(ViewPos, TargetPos));
 			}
-			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+
+			if (actor->IsRequested())
+			{
+				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			}
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());

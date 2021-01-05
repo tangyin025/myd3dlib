@@ -676,8 +676,6 @@ void Game::OnFrameTick(
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
-	CheckViewedActor(AABB(m_ViewedCenter, 100.0f), AABB(m_ViewedCenter, 100.0f));
-
 	if (!InputMgr::Capture(fTime, fElapsedTime))
 	{
 		// TODO: lost user input
@@ -926,102 +924,53 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
 		const my::Vector3 & TargetPos;
+		ViewedActorSet& m_ViewedActors;
 
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos)
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, ViewedActorSet& ViewedActors)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
 			, TargetPos(_TargetPos)
+			, m_ViewedActors(ViewedActors)
 		{
 		}
 
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_entity));
+
 			Actor * actor = static_cast<Actor *>(oct_entity);
+
+			actor->SetLod(actor->CalculateLod(ViewPos, TargetPos));
+
 			if (actor->IsRequested())
 			{
+				m_ViewedActors.insert(actor);
+
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 			}
 		}
 	};
 
-	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter));
-}
-
-void Game::CheckViewedActor(const my::AABB & In, const my::AABB & Out)
-{
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != m_ViewedActors.end(); )
 	{
-		Actor * actor = (*actor_iter);
+		Actor* actor = (*actor_iter);
 
-		if (actor->m_Node)
+		_ASSERT(actor->m_Node);
+
+		float DistanceSq = (actor->m_OctAabb->Center() - m_ViewedCenter).magnitudeSq();
+
+		if (DistanceSq >= actor->m_CullingDist * actor->m_CullingDist)
 		{
-			IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, Out);
-			if (intersect_type != IntersectionTests::IntersectionTypeOutside)
-			{
-				actor_iter++;
-				continue;
-			}
+			actor->SetLod(Component::LOD_CULLING);
 
-			if (actor->IsViewNotified())
-			{
-				actor->NotifyLeaveView();
-			}
-
-			if (actor->IsRequested())
-			{
-				actor->LeavePhysxScene(this);
-
-				actor->ReleaseResource();
-			}
+			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
-
-		actor_iter = m_ViewedActors.erase(actor_iter);
 	}
 
-	struct Callback : public OctNode::QueryCallback
-	{
-		ViewedActorSet & m_ViewedActors;
-
-		Game * m_game;
-
-		AABB m_aabb;
-
-		Callback(ViewedActorSet & ViewedActors, Game * game, const AABB & aabb)
-			: m_ViewedActors(ViewedActors)
-			, m_game(game)
-			, m_aabb(aabb)
-		{
-		}
-
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
-		{
-			Actor * actor = dynamic_cast<Actor *>(oct_entity);
-
-			if (m_ViewedActors.insert(actor).second)
-			{
-				if (!actor->IsRequested())
-				{
-					actor->RequestResource();
-
-					actor->EnterPhysxScene(m_game);
-				}
-
-				if (!actor->IsViewNotified())
-				{
-					actor->NotifyEnterView();
-				}
-			}
-
-			actor->SetLod(actor->CalculateLod(m_game->m_Camera->m_Eye, m_game->m_ViewedCenter));
-		}
-	};
-
-	Callback cb(m_ViewedActors, this, In);
-	QueryEntity(In, &cb);
+	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, m_ViewedActors));
 }
 
 void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)

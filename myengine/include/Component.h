@@ -63,7 +63,7 @@ public:
 		LOD0 = 1 << 0,
 		LOD1 = 1 << 1,
 		LOD2 = 1 << 2,
-		LOD_INFINITE = 1 << 3,
+		LOD_CULLING = 1 << 3,
 		LOD0_1 = LOD0 | LOD1,
 		LOD1_2 = LOD1 | LOD2,
 		LOD0_1_2 = LOD0 | LOD1 | LOD2,

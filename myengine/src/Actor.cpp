@@ -64,6 +64,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
+	ar << BOOST_SERIALIZATION_NVP(m_CullingDist);
 	ar << BOOST_SERIALIZATION_NVP(m_Animation);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
@@ -111,6 +112,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
+	ar >> BOOST_SERIALIZATION_NVP(m_CullingDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animation);
 	if (m_Animation)
 	{
@@ -187,6 +189,7 @@ void Actor::CopyFrom(const Actor & rhs)
 	m_World = rhs.m_World;
 	m_LodDist = rhs.m_LodDist;
 	m_LodFactor = rhs.m_LodFactor;
+	m_CullingDist = rhs.m_CullingDist;
 	m_Cmps.resize(rhs.m_Cmps.size());
 	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
 	{
@@ -211,9 +214,9 @@ void Actor::RequestResource(void)
 		m_Animation->RequestResource();
 	}
 
-	_ASSERT(m_Lod == Component::LOD_INFINITE);
+	//_ASSERT(m_Lod == Component::LOD_CULLING);
 
-	SetLod(Component::LOD_INFINITE >> 1);
+	//SetLod(Component::LOD_CULLING >> 1);
 }
 
 void Actor::ReleaseResource(void)
@@ -225,7 +228,7 @@ void Actor::ReleaseResource(void)
 		m_Animation->ReleaseResource();
 	}
 
-	SetLod(Component::LOD_INFINITE);
+	//SetLod(Component::LOD_CULLING);
 
 #ifdef _DEBUG
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
@@ -440,7 +443,7 @@ bool Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 {
 	bool ret = false;
 
-	for (unsigned int lod = m_Lod; lod < Component::LOD_INFINITE && !ret; lod <<= 1)
+	for (unsigned int lod = m_Lod; lod < Component::LOD_CULLING && !ret; lod <<= 1)
 	{
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -472,7 +475,11 @@ Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Ve
 	{
 		return Component::LOD1;
 	}
-	return Component::LOD2;
+	else if (DistanceSq < m_CullingDist * m_CullingDist)
+	{
+		return Component::LOD2;
+	}
+	return Component::LOD_CULLING;
 }
 
 void Actor::SetLod(unsigned int lod)
@@ -481,23 +488,47 @@ void Actor::SetLod(unsigned int lod)
 	{
 		m_Lod = lod;
 
-		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+		if (m_Lod < Component::LOD_CULLING)
 		{
-			if ((*cmp_iter)->m_LodMask >= lod)
+			if (!IsRequested())
 			{
-				if (!(*cmp_iter)->IsRequested())
+				RequestResource();
+
+				EnterPhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
+
+				NotifyEnterView();
+			}
+
+			ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+			for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+			{
+				if ((*cmp_iter)->m_LodMask >= lod)
 				{
-					(*cmp_iter)->RequestResource();
+					if (!(*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->RequestResource();
+
+						(*cmp_iter)->EnterPhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
+					}
+				}
+				else
+				{
+					if ((*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
+
+						(*cmp_iter)->ReleaseResource();
+					}
 				}
 			}
-			else
-			{
-				if ((*cmp_iter)->IsRequested())
-				{
-					(*cmp_iter)->ReleaseResource();
-				}
-			}
+		}
+		else if (IsRequested())
+		{
+			NotifyLeaveView();
+
+			LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
+
+			ReleaseResource();
 		}
 	}
 }

@@ -66,6 +66,8 @@ public:
 
 	float m_LodFactor;
 
+	float m_CullingDist;
+
 	boost::shared_ptr<AnimationRoot> m_Animation;
 
 	typedef std::vector<ComponentPtr> ComponentPtrList;
@@ -107,9 +109,10 @@ protected:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_ViewNotified(false)
-		, m_Lod(Component::LOD_INFINITE)
+		, m_Lod(Component::LOD_CULLING)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
+		, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
 		, m_Base(NULL)
 		, m_ActionTrackPoseInstRef(0)
 	{
@@ -125,9 +128,10 @@ public:
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 		, m_ViewNotified(false)
-		, m_Lod(Component::LOD_INFINITE)
+		, m_Lod(Component::LOD_CULLING)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
+		, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
 		, m_Base(NULL)
 		, m_ActionTrackPoseInstRef(0)
 	{
