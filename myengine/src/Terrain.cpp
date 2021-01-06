@@ -618,7 +618,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				return;
 			}
 
-			if (terrain->m_ViewedChunks.insert(chunk).second)
+			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && terrain->m_ViewedChunks.insert(chunk).second)
 			{
 				_ASSERT(!chunk->IsRequested());
 
@@ -678,18 +678,21 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		TerrainChunkSet::iterator viewed_chunk_iter = m_ViewedChunks.begin();
-		int LastLod = _Quad(m_ChunkSize);
-		float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);
-		for (; viewed_chunk_iter != m_ViewedChunks.end(); )
+		if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
-			if (((*viewed_chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+			TerrainChunkSet::iterator viewed_chunk_iter = m_ViewedChunks.begin();
+			int LastLod = _Quad(m_ChunkSize);
+			float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);
+			for (; viewed_chunk_iter != m_ViewedChunks.end(); )
 			{
-				(*viewed_chunk_iter)->ReleaseResource();
-				viewed_chunk_iter = m_ViewedChunks.erase(viewed_chunk_iter);
+				if (((*viewed_chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+				{
+					(*viewed_chunk_iter)->ReleaseResource();
+					viewed_chunk_iter = m_ViewedChunks.erase(viewed_chunk_iter);
+				}
+				else
+					viewed_chunk_iter++;
 			}
-			else
-				viewed_chunk_iter++;
 		}
 		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
 		QueryEntity(LocalFrustum, &cb);
