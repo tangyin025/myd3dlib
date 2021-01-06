@@ -683,10 +683,6 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
-	m_SkyLightCam.UpdateViewProj();
-
-	m_Camera->UpdateViewProj();
-
 	struct Callback : public OctNode::QueryCallback
 	{
 		ViewedActorSet& m_ViewedActors;
@@ -731,7 +727,7 @@ void Game::OnFrameTick(
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != m_ViewedActors.end(); )
 	{
-		Actor * actor = (*actor_iter);
+		Actor* actor = (*actor_iter);
 
 		_ASSERT(OctNode::HaveNode(actor->m_Node));
 
@@ -740,7 +736,9 @@ void Game::OnFrameTick(
 		{
 			if (!actor->m_Base)
 			{
-				// ! Actor::Update will change other actors scope, event if octree node
+				// ! Note:
+				// 1) Actor::Update will change other actor's life time
+				// 2) Actor::Update will invalid main camera's properties
 				actor->Update(fElapsedTime);
 			}
 			actor_iter++;
@@ -764,6 +762,10 @@ void Game::OnFrameTick(
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
 	}
+
+	m_SkyLightCam.UpdateViewProj();
+
+	m_Camera->UpdateViewProj();
 
 	PhysxScene::TickPreRender(fElapsedTime);
 

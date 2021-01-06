@@ -126,10 +126,10 @@ end
 -- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 -- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
 
--- 特殊渲染选项
+-- -- 特殊渲染选项
 -- game.SsaoEnable=true
--- game:SetVisualizationParameter(PhysxSceneContext.eSCALE,1)
--- game:SetVisualizationParameter(PhysxSceneContext.eCOLLISION_SHAPES,1)
--- game:SetVisualizationParameter(PhysxSceneContext.eCOLLISION_FNORMALS,1)
--- game:SetVisualizationParameter(PhysxSceneContext.eCOLLISION_AABBS,1)
--- game:SetControllerDebugRenderingFlags(PhysxSceneContext.eALL)
+-- game:SetVisualizationParameter(PhysxScene.eSCALE,1)
+-- game:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
+-- game:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
+-- game:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
+-- game:SetControllerDebugRenderingFlags(PhysxScene.eALL)

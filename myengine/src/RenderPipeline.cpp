@@ -686,6 +686,7 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		V(pd3dDevice->SetVertexShader(NULL));
 		V(pd3dDevice->SetPixelShader(NULL));
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::Translation(pRC->m_Camera->m_Eye)));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&pRC->m_Camera->m_View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&pRC->m_Camera->m_Proj));
 		V(pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP));
@@ -694,7 +695,6 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
 		V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::Translation(pRC->m_Camera->m_Eye)));
 		for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
 		{
 			if (m_SkyBoxTextures[i].m_Texture)
