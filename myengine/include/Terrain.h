@@ -20,6 +20,8 @@ public:
 
 	bool m_Requested;
 
+	unsigned int m_Lod[5];
+
 	my::VertexBufferPtr m_vb;
 
 protected:

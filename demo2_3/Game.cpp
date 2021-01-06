@@ -683,30 +683,94 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
-	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
-	{
-		// ! Actor::Update will change other actors scope, event if octree node
-		Actor * actor = (*actor_iter);
-
-		_ASSERT(OctNode::HaveNode(actor->m_Node));
-
-		if (!actor->m_Base)
-		{
-			actor->Update(fElapsedTime);
-		}
-	}
-
 	m_SkyLightCam.UpdateViewProj();
 
 	m_Camera->UpdateViewProj();
 
-	ParallelTaskManager::DoAllParallelTasks();
+	struct Callback : public OctNode::QueryCallback
+	{
+		ViewedActorSet& m_ViewedActors;
+
+		Game* m_game;
+
+		AABB m_aabb;
+
+		Callback(ViewedActorSet& ViewedActors, Game* game, const AABB& aabb)
+			: m_ViewedActors(ViewedActors)
+			, m_game(game)
+			, m_aabb(aabb)
+		{
+		}
+
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor* actor = dynamic_cast<Actor*>(oct_entity);
+
+			if (m_ViewedActors.insert(actor).second)
+			{
+				_ASSERT(!actor->IsRequested());
+				{
+					actor->RequestResource();
+
+					actor->EnterPhysxScene(m_game);
+				}
+
+				_ASSERT(!actor->IsViewNotified());
+				{
+					actor->NotifyEnterView();
+				}
+			}
+
+			actor->SetLod(actor->CalculateLod(m_game->m_Camera->m_Eye, m_game->m_ViewedCenter));
+		}
+	};
+
+	Callback cb(m_ViewedActors, this, AABB(m_ViewedCenter, 100.0f));
+	QueryEntity(cb.m_aabb, &cb);
+
+	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); )
+	{
+		Actor * actor = (*actor_iter);
+
+		_ASSERT(OctNode::HaveNode(actor->m_Node));
+
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, AABB(m_ViewedCenter, 100 + 10.0f));
+		if (intersect_type != IntersectionTests::IntersectionTypeOutside)
+		{
+			if (!actor->m_Base)
+			{
+				// ! Actor::Update will change other actors scope, event if octree node
+				actor->Update(fElapsedTime);
+			}
+			actor_iter++;
+		}
+		else
+		{
+			actor->SetLod(Component::LOD_CULLING);
+
+			_ASSERT(actor->IsViewNotified());
+			{
+				actor->NotifyLeaveView();
+			}
+
+			_ASSERT(actor->IsRequested());
+			{
+				actor->LeavePhysxScene(this);
+
+				actor->ReleaseResource();
+			}
+
+			actor_iter = m_ViewedActors.erase(actor_iter);
+		}
+	}
 
 	PhysxScene::TickPreRender(fElapsedTime);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
+		ParallelTaskManager::DoAllParallelTasks();
+
 		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
 		V(m_d3dDevice->SetVertexShader(NULL));
@@ -942,35 +1006,12 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
-			actor->SetLod(actor->CalculateLod(ViewPos, TargetPos));
-
 			if (actor->IsRequested())
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
-
-				m_ViewedActors.insert(actor);
 			}
 		}
 	};
-
-	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != m_ViewedActors.end(); )
-	{
-		Actor* actor = (*actor_iter);
-
-		_ASSERT(actor->m_Node);
-
-		float DistanceSq = (actor->m_OctAabb->Center() - m_ViewedCenter).magnitudeSq();
-
-		if (DistanceSq >= actor->m_CullingDist * actor->m_CullingDist)
-		{
-			actor->SetLod(Component::LOD_CULLING);
-
-			actor_iter = m_ViewedActors.erase(actor_iter);
-		}
-		else
-			actor_iter++;
-	}
 
 	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, m_ViewedActors));
 }

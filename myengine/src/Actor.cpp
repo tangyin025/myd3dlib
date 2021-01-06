@@ -476,51 +476,33 @@ Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Ve
 
 void Actor::SetLod(unsigned int lod)
 {
+	_ASSERT(IsRequested());
+
 	if (m_Lod != lod)
 	{
 		m_Lod = lod;
 
-		if (m_Lod < Component::LOD_CULLING)
+		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
-			if (!IsRequested())
+			if ((*cmp_iter)->m_LodMask >= lod)
 			{
-				RequestResource();
-
-				EnterPhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
-
-				NotifyEnterView();
-			}
-
-			ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-			for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-			{
-				if ((*cmp_iter)->m_LodMask >= lod)
+				if (!(*cmp_iter)->IsRequested())
 				{
-					if (!(*cmp_iter)->IsRequested())
-					{
-						(*cmp_iter)->RequestResource();
+					(*cmp_iter)->RequestResource();
 
-						(*cmp_iter)->EnterPhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
-					}
-				}
-				else
-				{
-					if ((*cmp_iter)->IsRequested())
-					{
-						(*cmp_iter)->LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
-
-						(*cmp_iter)->ReleaseResource();
-					}
+					(*cmp_iter)->EnterPhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
 				}
 			}
-		}
-		else if (IsRequested())
-		{
-			NotifyLeaveView();
+			else
+			{
+				if ((*cmp_iter)->IsRequested())
+				{
+					(*cmp_iter)->LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
 
-			LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
-
-			ReleaseResource();
+					(*cmp_iter)->ReleaseResource();
+				}
+			}
 		}
 	}
 }

@@ -37,6 +37,7 @@ TerrainChunk::TerrainChunk(void)
 	, m_Col(0)
 	, m_Requested(false)
 {
+	m_Lod[0] = UINT_MAX;
 }
 
 TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
@@ -44,6 +45,7 @@ TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
 	, m_Col(Col)
 	, m_Requested(false)
 {
+	m_Lod[0] = UINT_MAX;
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -599,8 +601,12 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
-			const unsigned int lod0 = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
-			if (lod0 == _Quad(terrain->m_ChunkSize))
+			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			{
+				chunk->m_Lod[0] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
+			}
+
+			if (chunk->m_Lod[0] == _Quad(terrain->m_ChunkSize))
 			{
 				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
@@ -611,14 +617,16 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				RootPrimitiveCount += 2;
 				return;
 			}
-			terrain->m_ViewedChunks.insert(chunk);
+
+			if (terrain->m_ViewedChunks.insert(chunk).second)
+			{
+				_ASSERT(!chunk->IsRequested());
+
+				chunk->RequestResource();
+			}
 
 			if (!chunk->m_vb)
 			{
-				if (!chunk->IsRequested())
-				{
-					chunk->RequestResource();
-				}
 				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
@@ -629,15 +637,15 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				return;
 			}
 
-			const unsigned int lod[5] =
+			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				lod0,
-				terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos),
-				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos)
-			};
-			const Fragment & frag = terrain->GetFragment(lod[0], lod[1], lod[2], lod[3], lod[4]);
+				chunk->m_Lod[1] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos);
+				chunk->m_Lod[2] = terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos);
+				chunk->m_Lod[3] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos);
+				chunk->m_Lod[4] = terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos);
+			}
+
+			const Fragment & frag = terrain->GetFragment(chunk->m_Lod[0], chunk->m_Lod[1], chunk->m_Lod[2], chunk->m_Lod[3], chunk->m_Lod[4]);
 			if (terrain->m_Material && (terrain->m_Material->m_PassMask & PassMask))
 			{
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
