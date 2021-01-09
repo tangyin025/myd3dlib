@@ -716,8 +716,6 @@ void Game::OnFrameTick(
 					actor->NotifyEnterView();
 				}
 			}
-
-			actor->SetLod(actor->CalculateLod(m_game->m_Camera->m_Eye, m_game->m_ViewedCenter));
 		}
 	};
 
@@ -734,6 +732,8 @@ void Game::OnFrameTick(
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, AABB(m_ViewedCenter, 100 + 10.0f));
 		if (intersect_type != IntersectionTests::IntersectionTypeOutside)
 		{
+			actor->SetLod(actor->CalculateLod(m_Camera->m_Eye, m_ViewedCenter));
+
 			if (!actor->m_Base)
 			{
 				// ! Note:
@@ -741,6 +741,7 @@ void Game::OnFrameTick(
 				// 2) Actor::Update will invalid main camera's properties
 				actor->Update(fElapsedTime);
 			}
+
 			actor_iter++;
 		}
 		else

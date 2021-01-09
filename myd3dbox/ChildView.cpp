@@ -193,17 +193,38 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
-			if (!actor->IsRequested())
-			{
-				actor->RequestResource();
-			}
-
 			if (UpdateLod)
 			{
-				actor->SetLod(actor->CalculateLod(ViewPos, TargetPos));
+				const unsigned int Lod = actor->CalculateLod(ViewPos, TargetPos);
+
+				if (Lod < Component::LOD_CULLING)
+				{
+					if (!actor->IsRequested())
+					{
+						actor->RequestResource();
+
+						actor->EnterPhysxScene(pFrame);
+					}
+
+					actor->SetLod(Lod);
+				}
+				else
+				{
+					if (actor->IsRequested())
+					{
+						actor->SetLod(Component::LOD_CULLING);
+
+						actor->LeavePhysxScene(pFrame);
+
+						actor->ReleaseResource();
+					}
+				}
 			}
 
-			actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			if (actor->IsRequested())
+			{
+				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			}
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
