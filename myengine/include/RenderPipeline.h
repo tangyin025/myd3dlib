@@ -513,24 +513,6 @@ public:
 
 	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void DrawEmitter(
-		unsigned int PassID,
-		IDirect3DDevice9 * pd3dDevice,
-		IDirect3DVertexDeclaration9* pDecl,
-		IDirect3DVertexBuffer9 * pVB,
-		IDirect3DIndexBuffer9 * pIB,
-		IDirect3DVertexBuffer9 * pInstance,
-		D3DPRIMITIVETYPE PrimitiveType,
-		UINT NumVertices,
-		UINT VertexStride,
-		UINT PrimitiveCount,
-		UINT NumInstances,
-		UINT InstanceStride,
-		my::Effect * shader,
-		Component* cmp,
-		Material * mtl,
-		LPARAM lparam);
-
 	void PushIndexedPrimitive(
 		unsigned int PassID,
 		IDirect3DVertexDeclaration9* pDecl,
