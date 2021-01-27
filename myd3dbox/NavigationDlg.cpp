@@ -82,8 +82,11 @@ void CNavigationDlg::OnOK()
 	m_cfg.detailSampleDist = 1.8f;// m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = 0.2f;// m_cellHeight * m_detailSampleMaxError;
 
-	rcVcopy(m_cfg.bmin, &pFrame->m_min.x);
-	rcVcopy(m_cfg.bmax, &pFrame->m_max.x);
+	//rcVcopy(m_cfg.bmin, &pFrame->m_min.x);
+	//rcVcopy(m_cfg.bmax, &pFrame->m_max.x);
+	my::AABB box(-100, 100);
+	rcVcopy(m_cfg.bmin, &box.m_min.x);
+	rcVcopy(m_cfg.bmax, &box.m_max.x);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
@@ -240,8 +243,8 @@ void CNavigationDlg::OnOK()
 								(v1 - v0).cross(v3 - v0).normalize(),
 								(v1 - v3).cross(v2 - v3).normalize()
 							};
-							rcRasterizeTriangle(pDlg, &v0.x, &v1.y, &v3.z, Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
-							rcRasterizeTriangle(pDlg, &v3.x, &v1.y, &v2.z, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
+							rcRasterizeTriangle(pDlg, &v0.x, &v1.x, &v3.x, Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
+							rcRasterizeTriangle(pDlg, &v3.x, &v1.x, &v2.x, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
 						}
 					}
 					tstr.Release();
