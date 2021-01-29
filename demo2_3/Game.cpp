@@ -466,6 +466,21 @@ HRESULT Game::OnCreateDevice(
 
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
+		, luabind::class_<ActorEventArg, my::EventArg>("ActorEventArg")
+			.def_readonly("self", &ActorEventArg::self)
+
+		, luabind::class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
+			.def_readonly("other", &TriggerEventArg::other)
+
+		//, luabind::class_<ShapeHitEventArg, ActorEventArg>("ShapeHitEventArg")
+		//	.def_readonly("worldPos", &ShapeHitEventArg::worldPos)
+		//	.def_readonly("worldNormal", &ShapeHitEventArg::worldNormal)
+		//	.def_readonly("dir", &ShapeHitEventArg::dir)
+		//	.def_readonly("length", &ShapeHitEventArg::length)
+		//	.def_readonly("cmp", &ShapeHitEventArg::cmp)
+		//	.def_readonly("other", &ShapeHitEventArg::other)
+		//	.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
+
 		, luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxScene> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
@@ -480,6 +495,10 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("FogEnable", &Game::m_FogEnable)
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
+			.def_readwrite("EventEnterView", &Game::m_EventEnterView)
+			.def_readwrite("EventLeaveView", &Game::m_EventLeaveView)
+			.def_readwrite("EventEnterTrigger", &Game::m_EventEnterTrigger)
+			.def_readwrite("EventLeaveTrigger", &Game::m_EventLeaveTrigger)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -700,11 +719,12 @@ void Game::OnFrameTick(
 					actor->RequestResource();
 
 					actor->EnterPhysxScene(m_game);
-				}
 
-				_ASSERT(!actor->IsViewNotified());
-				{
-					actor->NotifyEnterView();
+					if (m_game->m_EventEnterView)
+					{
+						ActorEventArg arg(actor);
+						m_game->m_EventEnterView(&arg);
+					}
 				}
 			}
 		}
@@ -739,13 +759,14 @@ void Game::OnFrameTick(
 		{
 			actor->SetLod(Component::LOD_CULLING);
 
-			_ASSERT(actor->IsViewNotified());
-			{
-				actor->NotifyLeaveView();
-			}
-
 			_ASSERT(actor->IsRequested());
 			{
+				if (m_EventLeaveView)
+				{
+					ActorEventArg arg(actor);
+					m_EventLeaveView(&arg);
+				}
+
 				actor->LeavePhysxScene(this);
 
 				actor->ReleaseResource();
@@ -801,12 +822,12 @@ void Game::OnFrameTick(
 		{
 			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
 			_ASSERT(self);
-			if (self->m_EventEnterTrigger)
+			if (m_EventEnterTrigger)
 			{
 				Actor * other = (Actor *)trigger_iter->otherActor->userData;
 				_ASSERT(other);
 				TriggerEventArg arg(self, other);
-				self->m_EventEnterTrigger(&arg);
+				m_EventEnterTrigger(&arg);
 			}
 			break;
 		}
@@ -814,12 +835,12 @@ void Game::OnFrameTick(
 		{
 			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
 			_ASSERT(self);
-			if (self->m_EventLeaveTrigger)
+			if (m_EventLeaveTrigger)
 			{
 				Actor * other = (Actor *)trigger_iter->otherActor->userData;
 				_ASSERT(other);
 				TriggerEventArg arg(self, other);
-				self->m_EventLeaveTrigger(&arg);
+				m_EventLeaveTrigger(&arg);
 			}
 			break;
 		}
@@ -1019,11 +1040,6 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
-	if (actor->IsViewNotified())
-	{
-		actor->NotifyLeaveView();
-	}
-
 	actor->StopAllAction();
 
 	actor->ClearAllAttacher();
@@ -1035,6 +1051,12 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
+		if (m_EventLeaveView)
+		{
+			ActorEventArg arg(actor);
+			m_EventLeaveView(&arg);
+		}
+
 		actor->LeavePhysxScene(this);
 
 		actor->ReleaseResource();

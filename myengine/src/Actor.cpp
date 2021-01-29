@@ -36,8 +36,6 @@ Actor::~Actor(void)
 		m_Node->GetTopNode()->RemoveEntity(this);
 	}
 
-	_ASSERT(!IsViewNotified());
-
 	_ASSERT(m_ActionInstList.empty());
 
 	ClearAllComponent();
@@ -260,28 +258,6 @@ void Actor::LeavePhysxScene(PhysxScene * scene)
 		scene->m_PxScene->removeActor(*m_PxActor, false);
 
 		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
-	}
-}
-
-void Actor::NotifyEnterView(void)
-{
-	m_ViewNotified = true;
-
-	if (m_EventEnterView)
-	{
-		ActorEventArg arg(this);
-		m_EventEnterView(&arg);
-	}
-}
-
-void Actor::NotifyLeaveView(void)
-{
-	m_ViewNotified = false;
-
-	if (m_EventLeaveView)
-	{
-		ActorEventArg arg(this);
-		m_EventLeaveView(&arg);
 	}
 }
 

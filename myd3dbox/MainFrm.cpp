@@ -846,11 +846,6 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
-	if (actor->IsViewNotified())
-	{
-		actor->NotifyLeaveView();
-	}
-
 	actor->StopAllAction();
 
 	actor->ClearAllAttacher();

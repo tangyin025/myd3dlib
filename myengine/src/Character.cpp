@@ -21,18 +21,6 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Character)
 
-ShapeHitEventArg::ShapeHitEventArg(Character * _self)
-	: ActorEventArg(_self)
-	, worldPos(0, 0, 0)
-	, worldNormal(1, 0, 0)
-	, dir(1, 0, 0)
-	, length(0)
-	, cmp(NULL)
-	, other(NULL)
-	, triangleIndex(0)
-{
-}
-
 Character::~Character(void)
 {
 	if (m_PxActor && m_PxActor->getScene())
@@ -245,20 +233,20 @@ void Character::OnPxThreadSubstep(float dtime)
 
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
-	if (m_EventShapeHit)
-	{
-		ShapeHitEventArg arg(this);
-		arg.worldPos = (Vector3 &)hit.worldPos;
-		arg.worldNormal = (Vector3 &)hit.worldNormal;
-		arg.dir = (Vector3 &)hit.dir;
-		arg.length = hit.length;
-		arg.cmp = (Component *)hit.shape->userData;
-		_ASSERT(arg.cmp);
-		arg.other = (Actor *)hit.actor->userData;
-		_ASSERT(arg.other);
-		arg.triangleIndex = hit.triangleIndex;
-		m_EventShapeHit(&arg);
-	}
+	//if (m_EventShapeHit)
+	//{
+	//	ShapeHitEventArg arg(this);
+	//	arg.worldPos = (Vector3 &)hit.worldPos;
+	//	arg.worldNormal = (Vector3 &)hit.worldNormal;
+	//	arg.dir = (Vector3 &)hit.dir;
+	//	arg.length = hit.length;
+	//	arg.cmp = (Component *)hit.shape->userData;
+	//	_ASSERT(arg.cmp);
+	//	arg.other = (Actor *)hit.actor->userData;
+	//	_ASSERT(arg.other);
+	//	arg.triangleIndex = hit.triangleIndex;
+	//	m_EventShapeHit(&arg);
+	//}
 }
 
 void Character::onControllerHit(const physx::PxControllersHit& hit)

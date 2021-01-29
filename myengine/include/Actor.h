@@ -13,29 +13,6 @@ class Action;
 
 class ActionInst;
 
-struct ActorEventArg : public my::EventArg
-{
-public:
-	Actor * self;
-
-	ActorEventArg(Actor * _self)
-		: self(_self)
-	{
-	}
-};
-
-struct TriggerEventArg : public ActorEventArg
-{
-public:
-	Actor * other;
-
-	TriggerEventArg(Actor * _self, Actor * _other)
-		: ActorEventArg(_self)
-		, other(_other)
-	{
-	}
-};
-
 class Actor
 	: public my::NamedObject
 	, public my::OctEntity
@@ -57,8 +34,6 @@ public:
 	my::Matrix4 m_World;
 
 	bool m_Requested;
-
-	bool m_ViewNotified;
 
 	unsigned int m_Lod;
 
@@ -92,14 +67,6 @@ public:
 
 	int m_ActionTrackPoseInstRef;
 
-	my::EventFunction m_EventEnterView;
-
-	my::EventFunction m_EventLeaveView;
-
-	my::EventFunction m_EventEnterTrigger;
-
-	my::EventFunction m_EventLeaveTrigger;
-
 protected:
 	Actor(void)
 		: m_aabb(my::AABB::Invalid())
@@ -108,7 +75,6 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_ViewNotified(false)
 		, m_Lod(Component::LOD_CULLING)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
@@ -127,7 +93,6 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_ViewNotified(false)
 		, m_Lod(Component::LOD_CULLING)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
@@ -163,11 +128,6 @@ public:
 		return m_Requested;
 	}
 
-	bool IsViewNotified(void) const
-	{
-		return m_ViewNotified;
-	}
-
 	void CopyFrom(const Actor & rhs);
 
 	virtual ActorPtr Clone(void) const;
@@ -179,10 +139,6 @@ public:
 	virtual void EnterPhysxScene(PhysxScene * scene);
 
 	virtual void LeavePhysxScene(PhysxScene * scene);
-
-	virtual void NotifyEnterView(void);
-
-	virtual void NotifyLeaveView(void);
 
 	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
 
