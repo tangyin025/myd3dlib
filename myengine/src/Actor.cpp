@@ -308,7 +308,10 @@ void Actor::Update(float fElapsedTime)
 			(*cmp_iter)->Update(fElapsedTime);
 		}
 	}
+}
 
+void Actor::UpdateAttaches(float fElapsedTime)
+{
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{

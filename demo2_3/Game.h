@@ -15,53 +15,6 @@ namespace boost
 	};
 };
 
-struct ActorEventArg : public my::EventArg
-{
-public:
-	Actor* self;
-
-	ActorEventArg(Actor* _self)
-		: self(_self)
-	{
-	}
-};
-
-struct TriggerEventArg : public ActorEventArg
-{
-public:
-	Actor* other;
-
-	TriggerEventArg(Actor* _self, Actor* _other)
-		: ActorEventArg(_self)
-		, other(_other)
-	{
-	}
-};
-//
-//struct ShapeHitEventArg : public ActorEventArg
-//{
-//public:
-//	my::Vector3 worldPos;		//!< Contact position in world space
-//	my::Vector3 worldNormal;	//!< Contact normal in world space
-//	my::Vector3 dir;			//!< Motion direction
-//	float length;				//!< Motion length
-//	Component* cmp;			//!< Touched shape
-//	Actor* other;				//!< Touched actor
-//	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
-//
-//	ShapeHitEventArg::ShapeHitEventArg(Character* _self)
-//		: ActorEventArg(_self)
-//		, worldPos(0, 0, 0)
-//		, worldNormal(1, 0, 0)
-//		, dir(1, 0, 0)
-//		, length(0)
-//		, cmp(NULL)
-//		, other(NULL)
-//		, triangleIndex(0)
-//	{
-//	}
-//};
-
 class Game
 	: public my::DxutApp
 	, public my::TimerMgr
@@ -111,14 +64,6 @@ public:
 	typedef std::set<ActorPtr> ActorPtrSet;
 
 	ActorPtrSet m_ActorList;
-
-	my::EventFunction m_EventEnterView;
-
-	my::EventFunction m_EventLeaveView;
-
-	my::EventFunction m_EventEnterTrigger;
-
-	my::EventFunction m_EventLeaveTrigger;
 
 	bool m_Activated;
 

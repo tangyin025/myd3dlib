@@ -74,63 +74,32 @@ anim.SkeletonEventReady=function(arg)
 end
 player.Animation=anim
 
--- 鼠标移动事件
-player.EventMouseMove=function(arg)
-	if Control.GetFocusControl() then
-		return
-	end
-	if arg.x ~= 0 then
-		player.LookAngle.y=player.LookAngle.y-math.rad(arg.x)
-	end
-	if arg.y ~= 0 then
-		player.LookAngle.x=player.LookAngle.x-math.rad(arg.y)
-	end
-	if arg.z ~= 0 then
-		player.LookDist=player.LookDist-arg.z/480.0
-	end
-end
-
--- 键盘按下事件
-player.EventKeyDown=function(arg)
-	if Control.GetFocusControl() then
-		return
-	end
-	if arg.kc == 57 then
-		player.Velocity.y=5.0
-		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,0,"")
-		player:PlayAction(SAction.act_jump)
-	end
-	if arg.kc == 17 then
-		player.MoveAxis.y=player.MoveAxis.y+1
-	end
-	if arg.kc == 30 then
-		-- player.Animation:Play("jumpforward","",2,0.3,0.3,false,1,1,"move")
-		player.MoveAxis.x=player.MoveAxis.x+1
-	end
-	if arg.kc == 31 then
-		player.MoveAxis.y=player.MoveAxis.y-1
-	end
-	if arg.kc == 32 then
-		player.MoveAxis.x=player.MoveAxis.x-1
-	end
-end
-
--- 键盘抬起事件
-player.EventKeyUp=function(arg)
-	if Control.GetFocusControl() then
-		return
-	end
-	if arg.kc == 17 then
-		player.MoveAxis.y=player.MoveAxis.y-1
-	end
-	if arg.kc == 30 then
-		player.MoveAxis.x=player.MoveAxis.x-1
-	end
-	if arg.kc == 31 then
-		player.MoveAxis.y=player.MoveAxis.y+1
-	end
-	if arg.kc == 32 then
-		player.MoveAxis.x=player.MoveAxis.x+1
+player.EventUpdate=function(arg)
+	if not Control.GetFocusControl() then
+		-- 键盘按下事件
+		if game.keyboard:IsKeyPress(57) then
+			arg.self.Velocity.y=5.0
+			arg.self:PlayAction(SAction.act_jump)
+		end
+		if game.keyboard:IsKeyDown(17) then
+			arg.self.MoveAxis.y=1
+		elseif game.keyboard:IsKeyDown(31) then
+			arg.self.MoveAxis.y=-1
+		else
+			arg.self.MoveAxis.y=0
+		end
+		if game.keyboard:IsKeyDown(30) then
+			arg.self.MoveAxis.x=1
+		elseif game.keyboard:IsKeyDown(32) then
+			arg.self.MoveAxis.x=-1
+		else
+			arg.self.MoveAxis.x=0
+		end
+		
+		-- 鼠标移动事件
+		arg.self.LookAngle.y=arg.self.LookAngle.y-math.rad(game.mouse:GetX())
+		arg.self.LookAngle.x=arg.self.LookAngle.x-math.rad(game.mouse:GetY())
+		arg.self.LookDist=arg.self.LookDist-game.mouse:GetZ()/480.0
 	end
 end
 

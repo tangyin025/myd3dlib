@@ -837,6 +837,28 @@ void LuaContext::Init(void)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
+		, class_<my::Keyboard, boost::shared_ptr<my::Keyboard> >("Keyboard")
+			.enum_("KeyCode")
+			[
+				value("KC_UNASSIGNED", my::KC_UNASSIGNED),
+				value("KC_MEDIASELECT", my::KC_MEDIASELECT)
+			]
+			.def("IsKeyDown", &my::Keyboard::IsKeyDown)
+			.def("IsKeyPress", &my::Keyboard::IsKeyPress)
+			.def("IsKeyRelease", &my::Keyboard::IsKeyRelease)
+
+		, class_<my::Mouse, boost::shared_ptr<my::Mouse> >("Mouse")
+			.def("GetX", &my::Mouse::GetX)
+			.def("GetY", &my::Mouse::GetY)
+			.def("GetZ", &my::Mouse::GetZ)
+			.def("IsButtonDown", &my::Mouse::IsButtonDown)
+			.def("IsButtonPress", &my::Mouse::IsButtonPress)
+			.def("IsButtonRelease", &my::Mouse::IsButtonRelease)
+
+		, class_<my::InputMgr>("InputMgr")
+			.def_readonly("keyboard", &my::InputMgr::m_keyboard)
+			.def_readonly("mouse", &my::InputMgr::m_mouse)
+
 		, class_<my::TimerEventArg, my::EventArg>("TimerEventArg")
 			.def_readonly("Interval", &my::TimerEventArg::m_Interval)
 
@@ -1022,6 +1044,12 @@ void LuaContext::Init(void)
 			.def("GetNormal", &TerrainStream::GetNormal, copy(result))
 			.def("SetNormal", (void(TerrainStream::*)(const my::Vector3&, int, int))&TerrainStream::SetNormal)
 
+		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
+			.def_readonly("self", &ActorEventArg::self)
+
+		, class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
+			.def_readonly("other", &TriggerEventArg::other)
+
 		, class_<Actor, bases<my::NamedObject, my::OctEntity>, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def_readwrite("aabb", &Actor::m_aabb)
@@ -1033,7 +1061,12 @@ void LuaContext::Init(void)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
 			.def_readwrite("Animation", &Actor::m_Animation)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
-			.def(self == other<const Actor &>())
+			.def_readwrite("EventEnterView", &Actor::m_EventEnterView)
+			.def_readwrite("EventLeaveView", &Actor::m_EventLeaveView)
+			.def_readwrite("EventEnterTrigger", &Actor::m_EventEnterTrigger)
+			.def_readwrite("EventLeaveTrigger", &Actor::m_EventLeaveTrigger)
+			.def_readwrite("EventUpdate", &Actor::m_EventUpdate)
+			.def(self == other<const Actor&>())
 			.def("IsRequested", &Actor::IsRequested)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)
@@ -1074,12 +1107,22 @@ void LuaContext::Init(void)
 
 		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
 
+		, class_<ShapeHitEventArg, ActorEventArg>("ShapeHitEventArg")
+			.def_readonly("worldPos", &ShapeHitEventArg::worldPos)
+			.def_readonly("worldNormal", &ShapeHitEventArg::worldNormal)
+			.def_readonly("dir", &ShapeHitEventArg::dir)
+			.def_readonly("length", &ShapeHitEventArg::length)
+			.def_readonly("cmp", &ShapeHitEventArg::cmp)
+			.def_readonly("other", &ShapeHitEventArg::other)
+			.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
+
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
 			.def_readwrite("filterWord0", &Character::m_filterWord0)
 			.def_readonly("MoveFlags", &Character::m_MoveFlags)
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
+			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
 			.def("SetPose", &Character::SetPose)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")

@@ -466,22 +466,7 @@ HRESULT Game::OnCreateDevice(
 
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
-		, luabind::class_<ActorEventArg, my::EventArg>("ActorEventArg")
-			.def_readonly("self", &ActorEventArg::self)
-
-		, luabind::class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
-			.def_readonly("other", &TriggerEventArg::other)
-
-		//, luabind::class_<ShapeHitEventArg, ActorEventArg>("ShapeHitEventArg")
-		//	.def_readonly("worldPos", &ShapeHitEventArg::worldPos)
-		//	.def_readonly("worldNormal", &ShapeHitEventArg::worldNormal)
-		//	.def_readonly("dir", &ShapeHitEventArg::dir)
-		//	.def_readonly("length", &ShapeHitEventArg::length)
-		//	.def_readonly("cmp", &ShapeHitEventArg::cmp)
-		//	.def_readonly("other", &ShapeHitEventArg::other)
-		//	.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
-
-		, luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr, PhysxScene> >("Game")
+		, luabind::class_<Game, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)
@@ -495,10 +480,6 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("FogEnable", &Game::m_FogEnable)
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
-			.def_readwrite("EventEnterView", &Game::m_EventEnterView)
-			.def_readwrite("EventLeaveView", &Game::m_EventLeaveView)
-			.def_readwrite("EventEnterTrigger", &Game::m_EventEnterTrigger)
-			.def_readwrite("EventLeaveTrigger", &Game::m_EventLeaveTrigger)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -720,10 +701,10 @@ void Game::OnFrameTick(
 
 					actor->EnterPhysxScene(m_game);
 
-					if (m_game->m_EventEnterView)
+					if (actor->m_EventEnterView)
 					{
 						ActorEventArg arg(actor);
-						m_game->m_EventEnterView(&arg);
+						actor->m_EventEnterView(&arg);
 					}
 				}
 			}
@@ -751,6 +732,14 @@ void Game::OnFrameTick(
 				// 1) Actor::Update will change other actor's life time
 				// 2) Actor::Update will invalid main camera's properties
 				actor->Update(fElapsedTime);
+
+				if (actor->m_EventUpdate)
+				{
+					ActorEventArg arg(actor);
+					actor->m_EventUpdate(&arg);
+				}
+
+				actor->UpdateAttaches(fElapsedTime);
 			}
 
 			actor_iter++;
@@ -761,10 +750,10 @@ void Game::OnFrameTick(
 
 			_ASSERT(actor->IsRequested());
 			{
-				if (m_EventLeaveView)
+				if (actor->m_EventLeaveView)
 				{
 					ActorEventArg arg(actor);
-					m_EventLeaveView(&arg);
+					actor->m_EventLeaveView(&arg);
 				}
 
 				actor->LeavePhysxScene(this);
@@ -822,12 +811,12 @@ void Game::OnFrameTick(
 		{
 			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
 			_ASSERT(self);
-			if (m_EventEnterTrigger)
+			if (self->m_EventEnterTrigger)
 			{
 				Actor * other = (Actor *)trigger_iter->otherActor->userData;
 				_ASSERT(other);
 				TriggerEventArg arg(self, other);
-				m_EventEnterTrigger(&arg);
+				self->m_EventEnterTrigger(&arg);
 			}
 			break;
 		}
@@ -835,12 +824,12 @@ void Game::OnFrameTick(
 		{
 			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
 			_ASSERT(self);
-			if (m_EventLeaveTrigger)
+			if (self->m_EventLeaveTrigger)
 			{
 				Actor * other = (Actor *)trigger_iter->otherActor->userData;
 				_ASSERT(other);
 				TriggerEventArg arg(self, other);
-				m_EventLeaveTrigger(&arg);
+				self->m_EventLeaveTrigger(&arg);
 			}
 			break;
 		}
@@ -1051,10 +1040,10 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		if (m_EventLeaveView)
+		if (actor->m_EventLeaveView)
 		{
 			ActorEventArg arg(actor);
-			m_EventLeaveView(&arg);
+			actor->m_EventLeaveView(&arg);
 		}
 
 		actor->LeavePhysxScene(this);

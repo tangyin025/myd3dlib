@@ -261,18 +261,21 @@ namespace my
 
 		virtual bool Capture(void);
 
-		bool IsKeyDown(KeyCode kc) const
+		bool IsKeyDown(unsigned int kc) const
 		{
+			_ASSERT(kc < _countof(m_State));
 			return m_State[kc] & 0x80;
 		}
 
-		bool IsKeyPress(KeyCode kc) const
+		bool IsKeyPress(unsigned int kc) const
 		{
+			_ASSERT(kc < _countof(m_State));
 			return !(m_LastFrameState[kc] & 0x80) && (m_State[kc] & 0x80);
 		}
 
-		bool IsKeyRelease(KeyCode kc) const
+		bool IsKeyRelease(unsigned int kc) const
 		{
+			_ASSERT(kc < _countof(m_State));
 			return (m_LastFrameState[kc] & 0x80) && !(m_State[kc] & 0x80);
 		}
 	};
@@ -308,19 +311,19 @@ namespace my
 			return m_State.lZ;
 		}
 
-		bool IsButtonDown(int i) const
+		bool IsButtonDown(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgbButtons));
 			return m_State.rgbButtons[i] & 0x80;
 		}
 
-		bool IsButtonPress(int i) const
+		bool IsButtonPress(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgbButtons));
 			return !(m_LastFrameState.rgbButtons[i] & 0x80) && (m_State.rgbButtons[i] & 0x80);
 		}
 
-		bool IsButtonRelease(int i) const
+		bool IsButtonRelease(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgbButtons));
 			return (m_LastFrameState.rgbButtons[i] & 0x80) && !(m_State.rgbButtons[i] & 0x80);
@@ -413,25 +416,25 @@ namespace my
 			return m_State.lRz;
 		}
 
-		DWORD GetPov(int i) const
+		DWORD GetPov(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgdwPOV));
 			return m_State.rgdwPOV[i];
 		}
 
-		bool IsButtonDown(int i) const
+		bool IsButtonDown(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgbButtons));
 			return m_State.rgbButtons[i] & 0x80;
 		}
 
-		bool IsButtonPress(int i) const
+		bool IsButtonPress(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgbButtons));
 			return !(m_LastFrameState.rgbButtons[i] & 0x80) && (m_State.rgbButtons[i] & 0x80);
 		}
 
-		bool IsButtonRelease(int i) const
+		bool IsButtonRelease(unsigned int i) const
 		{
 			_ASSERT(i < _countof(m_State.rgbButtons));
 			return (m_LastFrameState.rgbButtons[i] & 0x80) && !(m_State.rgbButtons[i] & 0x80);

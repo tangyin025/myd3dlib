@@ -7,6 +7,20 @@
 
 class Character;
 
+struct ShapeHitEventArg : public ActorEventArg
+{
+public:
+	my::Vector3 worldPos;		//!< Contact position in world space
+	my::Vector3 worldNormal;	//!< Contact normal in world space
+	my::Vector3 dir;			//!< Motion direction
+	float length;				//!< Motion length
+	Component* cmp;			//!< Touched shape
+	Actor* other;				//!< Touched actor
+	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
+
+	ShapeHitEventArg::ShapeHitEventArg(Character* _self);
+};
+
 class Character
 	: public Actor
 	, public physx::PxUserControllerHitReport
@@ -40,6 +54,8 @@ public:
 	float m_SteeringAngular;
 
 	float m_Resistance;
+
+	my::EventFunction m_EventShapeHit;
 
 protected:
 	Character(void)

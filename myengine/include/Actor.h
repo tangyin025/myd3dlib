@@ -9,6 +9,29 @@ class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
 
+struct ActorEventArg : public my::EventArg
+{
+public:
+	Actor* self;
+
+	ActorEventArg(Actor* _self)
+		: self(_self)
+	{
+	}
+};
+
+struct TriggerEventArg : public ActorEventArg
+{
+public:
+	Actor* other;
+
+	TriggerEventArg(Actor* _self, Actor* _other)
+		: ActorEventArg(_self)
+		, other(_other)
+	{
+	}
+};
+
 class Action;
 
 class ActionInst;
@@ -66,6 +89,16 @@ public:
 	ActionInstPtrList m_ActionInstList;
 
 	int m_ActionTrackPoseInstRef;
+
+	my::EventFunction m_EventEnterView;
+
+	my::EventFunction m_EventLeaveView;
+
+	my::EventFunction m_EventEnterTrigger;
+
+	my::EventFunction m_EventLeaveTrigger;
+
+	my::EventFunction m_EventUpdate;
 
 protected:
 	Actor(void)
@@ -143,6 +176,8 @@ public:
 	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
 
 	virtual void Update(float fElapsedTime);
+
+	void UpdateAttaches(float fElapsedTime);
 
 	virtual void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
