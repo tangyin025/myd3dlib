@@ -1080,7 +1080,6 @@ void LuaContext::Init(void)
 			.def_readonly("MoveFlags", &Character::m_MoveFlags)
 			.def_readwrite("Velocity", &Character::m_Velocity)
 			.def_readwrite("Orientation", &Character::m_Orientation)
-			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
 			.def("SetPose", &Character::SetPose)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
