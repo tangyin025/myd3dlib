@@ -59,22 +59,6 @@ namespace my
 
 	typedef boost::shared_ptr<Input> InputPtr;
 
-	struct InputEventArg : public EventArg
-	{
-	public:
-		bool handled;
-
-	public:
-		InputEventArg(void)
-			: handled(false)
-		{
-		}
-
-		virtual ~InputEventArg(void)
-		{
-		}
-	};
-
 	class InputDevice
 	{
 	public:
@@ -259,26 +243,12 @@ namespace my
 		KC_MEDIASELECT = 0xED     // Media Select
 	};
 
-	struct KeyboardEventArg : public InputEventArg
-	{
-	public:
-		const DWORD kc;
-
-	public:
-		KeyboardEventArg(DWORD _kc)
-			: kc(_kc)
-		{
-		}
-	};
-
 	class Keyboard : public InputDevice
 	{
 	public:
 		BYTE m_State[256];
 
-		EventSignal m_PressedEvent;
-
-		EventSignal m_ReleasedEvent;
+		BYTE m_LastFrameState[256];
 
 	public:
 		Keyboard(void);
@@ -291,51 +261,30 @@ namespace my
 
 		virtual bool Capture(void);
 
-		bool IsKeyDown(KeyCode kc);
+		bool IsKeyDown(KeyCode kc) const
+		{
+			return m_State[kc] & 0x80;
+		}
+
+		bool IsKeyPress(KeyCode kc) const
+		{
+			return !(m_LastFrameState[kc] & 0x80) && (m_State[kc] & 0x80);
+		}
+
+		bool IsKeyRelease(KeyCode kc) const
+		{
+			return (m_LastFrameState[kc] & 0x80) && !(m_State[kc] & 0x80);
+		}
 	};
 
 	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
-
-	struct MouseMoveEventArg : public InputEventArg
-	{
-	public:
-		const LONG x;
-
-		const LONG y;
-
-		const LONG z;
-
-	public:
-		MouseMoveEventArg(LONG _x, LONG _y, LONG _z)
-			: x(_x)
-			, y(_y)
-			, z(_z)
-		{
-		}
-	};
-
-	struct MouseBtnEventArg : public InputEventArg
-	{
-	public:
-		const DWORD index;
-
-	public:
-		MouseBtnEventArg(DWORD _index)
-			: index(_index)
-		{
-		}
-	};
 
 	class Mouse : public InputDevice
 	{
 	public:
 		DIMOUSESTATE m_State;
 
-		EventSignal m_MovedEvent;
-
-		EventSignal m_PressedEvent;
-
-		EventSignal m_ReleasedEvent;
+		DIMOUSESTATE m_LastFrameState;
 
 	public:
 		Mouse(void);
@@ -343,6 +292,39 @@ namespace my
 		void CreateMouse(LPDIRECTINPUT8 input, HWND hwnd);
 
 		virtual bool Capture(void);
+
+		LONG GetX(void) const
+		{
+			return m_State.lX;
+		}
+
+		LONG GetY(void) const
+		{
+			return m_State.lY;
+		}
+
+		LONG GetZ(void) const
+		{
+			return m_State.lZ;
+		}
+
+		bool IsButtonDown(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgbButtons));
+			return m_State.rgbButtons[i] & 0x80;
+		}
+
+		bool IsButtonPress(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgbButtons));
+			return !(m_LastFrameState.rgbButtons[i] & 0x80) && (m_State.rgbButtons[i] & 0x80);
+		}
+
+		bool IsButtonRelease(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgbButtons));
+			return (m_LastFrameState.rgbButtons[i] & 0x80) && !(m_State.rgbButtons[i] & 0x80);
+		}
 	};
 
 	typedef boost::shared_ptr<Mouse> MousePtr;
@@ -359,21 +341,6 @@ namespace my
 		JA_S1,
 	};
 
-	struct JoystickAxisEventArg : public InputEventArg
-	{
-	public:
-		const DWORD axis;
-
-		const LONG value;
-
-	public:
-		JoystickAxisEventArg(DWORD _axis, LONG _value)
-			: axis(_axis)
-			, value(_value)
-		{
-		}
-	};
-
 	enum JoystickPov
 	{
 		JP_North		= 0,
@@ -386,45 +353,12 @@ namespace my
 		JP_NorthWest	= 31500,
 	};
 
-	struct JoystickPovEventArg : public InputEventArg
-	{
-	public:
-		const DWORD index;
-
-		const DWORD dir;
-
-	public:
-		JoystickPovEventArg(DWORD _index, DWORD _dir)
-			: index(_index)
-			, dir(_dir)
-		{
-		}
-	};
-
-	struct JoystickBtnEventArg : public InputEventArg
-	{
-	public:
-		const DWORD index;
-
-	public:
-		JoystickBtnEventArg(DWORD _index)
-			: index(_index)
-		{
-		}
-	};
-
 	class Joystick : public InputDevice
 	{
 	public:
 		DIJOYSTATE m_State;
 
-		EventSignal m_AxisMovedEvent;
-
-		EventSignal m_PovMovedEvent;
-
-		EventSignal m_BtnPressedEvent;
-
-		EventSignal m_BtnReleasedEvent;
+		DIJOYSTATE m_LastFrameState;
 
 	public:
 		Joystick(void)
@@ -447,9 +381,61 @@ namespace my
 			LONG max_z,
 			float dead_zone);
 
-		void CheckAxis(LONG value, JoystickAxis axis);
-
 		bool Capture(void);
+
+		LONG GetX(void) const
+		{
+			return m_State.lX;
+		}
+
+		LONG GetY(void) const
+		{
+			return m_State.lY;
+		}
+
+		LONG GetZ(void) const
+		{
+			return m_State.lZ;
+		}
+
+		LONG GetRx(void) const
+		{
+			return m_State.lRx;
+		}
+
+		LONG GetRy(void) const
+		{
+			return m_State.lRy;
+		}
+
+		LONG GetRz(void) const
+		{
+			return m_State.lRz;
+		}
+
+		DWORD GetPov(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgdwPOV));
+			return m_State.rgdwPOV[i];
+		}
+
+		bool IsButtonDown(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgbButtons));
+			return m_State.rgbButtons[i] & 0x80;
+		}
+
+		bool IsButtonPress(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgbButtons));
+			return !(m_LastFrameState.rgbButtons[i] & 0x80) && (m_State.rgbButtons[i] & 0x80);
+		}
+
+		bool IsButtonRelease(int i) const
+		{
+			_ASSERT(i < _countof(m_State.rgbButtons));
+			return (m_LastFrameState.rgbButtons[i] & 0x80) && !(m_State.rgbButtons[i] & 0x80);
+		}
 	};
 
 	typedef boost::shared_ptr<Joystick> JoystickPtr;

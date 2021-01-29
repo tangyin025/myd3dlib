@@ -575,8 +575,7 @@ void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd)
 
 bool Keyboard::Capture(void)
 {
-	BYTE OldState[256];
-	memcpy(OldState, m_State, sizeof(OldState));
+	memcpy(m_LastFrameState, m_State, sizeof(m_LastFrameState));
 
 	DIDEVICEOBJECTDATA diBuff[KEYBOARD_DX_BUFFERSIZE];
 	DWORD entries = KEYBOARD_DX_BUFFERSIZE;
@@ -594,23 +593,8 @@ bool Keyboard::Capture(void)
 	{
 		KeyCode kc = (KeyCode)diBuff[i].dwOfs;
 		m_State[kc] = static_cast<BYTE>(diBuff[i].dwData);
-		if (diBuff[i].dwData & 0x80)
-		{
-			KeyboardEventArg arg(kc);
-			m_PressedEvent(&arg);
-		}
-		else
-		{
-			KeyboardEventArg arg(kc);
-			m_ReleasedEvent(&arg);
-		}
 	}
 	return true;
-}
-
-bool Keyboard::IsKeyDown(KeyCode kc)
-{
-	return m_State[kc] & 0x80;
 }
 
 Mouse::Mouse(void)
@@ -633,8 +617,7 @@ void Mouse::CreateMouse(LPDIRECTINPUT8 input, HWND hwnd)
 
 bool Mouse::Capture(void)
 {
-	DIMOUSESTATE OldState;
-	memcpy(&OldState, &m_State, sizeof(OldState));
+	memcpy(&m_LastFrameState, &m_State, sizeof(m_LastFrameState));
 
 	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
 	{
@@ -644,32 +627,6 @@ bool Mouse::Capture(void)
 		}
 
 		GetDeviceState(sizeof(m_State), &m_State);
-	}
-
-	for (DWORD i = 0; i < _countof(m_State.rgbButtons); i++)
-	{
-		if (m_State.rgbButtons[i] & 0x80)
-		{
-			if (!(OldState.rgbButtons[i] & 0x80))
-			{
-				MouseBtnEventArg arg(i);
-				m_PressedEvent(&arg);
-			}
-		}
-		else
-		{
-			if (OldState.rgbButtons[i] & 0x80)
-			{
-				MouseBtnEventArg arg(i);
-				m_ReleasedEvent(&arg);
-			}
-		}
-	}
-
-	if (m_State.lX || m_State.lY || m_State.lZ)
-	{
-		MouseMoveEventArg arg(m_State.lX, m_State.lY, m_State.lZ);
-		m_MovedEvent(&arg);
 	}
 	return true;
 }
@@ -781,19 +738,9 @@ void Joystick::CreateJoystick(
 	ZeroMemory(&m_State, sizeof(m_State));
 }
 
-void Joystick::CheckAxis(LONG value, JoystickAxis axis)
-{
-	if (value)
-	{
-		JoystickAxisEventArg arg(axis, value);
-		m_AxisMovedEvent(&arg);
-	}
-}
-
 bool Joystick::Capture(void)
 {
-	DIJOYSTATE OldState;
-	memcpy(&OldState, &m_State, sizeof(OldState));
+	memcpy(&m_LastFrameState, &m_State, sizeof(m_LastFrameState));
 
 	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
 	{
@@ -803,44 +750,6 @@ bool Joystick::Capture(void)
 		}
 
 		GetDeviceState(sizeof(m_State), &m_State);
-	}
-
-	CheckAxis(m_State.lX, JA_X);
-	CheckAxis(m_State.lY, JA_Y);
-	CheckAxis(m_State.lZ, JA_Z);
-	CheckAxis(m_State.lRx, JA_Rx);
-	CheckAxis(m_State.lRy, JA_Ry);
-	CheckAxis(m_State.lRz, JA_Rz);
-	CheckAxis(m_State.rglSlider[0], JA_S0);
-	CheckAxis(m_State.rglSlider[1], JA_S1);
-
-	for (DWORD i = 0; i < _countof(m_State.rgdwPOV); i++)
-	{
-		if (LOWORD(m_State.rgdwPOV[i]) != 0xFFFF)
-		{
-			JoystickPovEventArg arg(i, (JoystickPov)m_State.rgdwPOV[i]);
-			m_PovMovedEvent(&arg);
-		}
-	}
-
-	for (DWORD i = 0; i < _countof(m_State.rgbButtons); i++)
-	{
-		if (m_State.rgbButtons[i] & 0x80)
-		{
-			if (!(OldState.rgbButtons[i] & 0x80))
-			{
-				JoystickBtnEventArg arg(i);
-				m_BtnPressedEvent(&arg);
-			}
-		}
-		else
-		{
-			if (OldState.rgbButtons[i] & 0x80)
-			{
-				JoystickBtnEventArg arg(i);
-				m_BtnReleasedEvent(&arg);
-			}
-		}
 	}
 	return true;
 }

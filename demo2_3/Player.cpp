@@ -10,7 +10,6 @@ Player::Player(void)
 	, m_LookDist(3)
 	, m_MoveAxis(0, 0)
 {
-	Init();
 }
 
 Player::Player(const char * Name, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
@@ -19,46 +18,10 @@ Player::Player(const char * Name, const my::Vector3 & Position, const my::Quater
 	, m_LookDist(3)
 	, m_MoveAxis(0, 0)
 {
-	Init();
 }
 
 Player::~Player(void)
 {
-	Destroy();
-}
-
-void Player::Init(void)
-{
-	Game::getSingleton().m_mouse->m_MovedEvent.connect(boost::bind(&Player::OnMouseMove, this, _1));
-	Game::getSingleton().m_mouse->m_PressedEvent.connect(boost::bind(&Player::OnMouseBtnDown, this, _1));
-	Game::getSingleton().m_mouse->m_ReleasedEvent.connect(boost::bind(&Player::OnMouseBtnUp, this, _1));
-	Game::getSingleton().m_keyboard->m_PressedEvent.connect(boost::bind(&Player::OnKeyDown, this, _1));
-	Game::getSingleton().m_keyboard->m_ReleasedEvent.connect(boost::bind(&Player::OnKeyUp, this, _1));
-	if (Game::getSingleton().m_joystick)
-	{
-		Game::getSingleton().m_joystick->m_AxisMovedEvent.connect(boost::bind(&Player::OnJoystickAxisMove, this, _1));
-		Game::getSingleton().m_joystick->m_PovMovedEvent.connect(boost::bind(&Player::OnJoystickPovMove, this, _1));
-		Game::getSingleton().m_joystick->m_BtnPressedEvent.connect(boost::bind(&Player::OnJoystickBtnDown, this, _1));
-		Game::getSingleton().m_joystick->m_BtnReleasedEvent.connect(boost::bind(&Player::OnJoystickBtnUp, this, _1));
-	}
-	Game::getSingleton().m_ActivateEvent.connect(boost::bind(&Player::OnWindowActivate, this, _1));
-}
-
-void Player::Destroy(void)
-{
-	Game::getSingleton().m_mouse->m_MovedEvent.disconnect(boost::bind(&Player::OnMouseMove, this, _1));
-	Game::getSingleton().m_mouse->m_PressedEvent.disconnect(boost::bind(&Player::OnMouseBtnDown, this, _1));
-	Game::getSingleton().m_mouse->m_ReleasedEvent.disconnect(boost::bind(&Player::OnMouseBtnUp, this, _1));
-	Game::getSingleton().m_keyboard->m_PressedEvent.disconnect(boost::bind(&Player::OnKeyDown, this, _1));
-	Game::getSingleton().m_keyboard->m_ReleasedEvent.disconnect(boost::bind(&Player::OnKeyUp, this, _1));
-	if (Game::getSingleton().m_joystick)
-	{
-		Game::getSingleton().m_joystick->m_AxisMovedEvent.disconnect(boost::bind(&Player::OnJoystickAxisMove, this, _1));
-		Game::getSingleton().m_joystick->m_PovMovedEvent.disconnect(boost::bind(&Player::OnJoystickPovMove, this, _1));
-		Game::getSingleton().m_joystick->m_BtnPressedEvent.disconnect(boost::bind(&Player::OnJoystickBtnDown, this, _1));
-		Game::getSingleton().m_joystick->m_BtnReleasedEvent.disconnect(boost::bind(&Player::OnJoystickBtnUp, this, _1));
-	}
-	Game::getSingleton().m_ActivateEvent.disconnect(boost::bind(&Player::OnWindowActivate, this, _1));
 }
 
 void Player::Update(float fElapsedTime)
@@ -81,84 +44,4 @@ void Player::Update(float fElapsedTime)
 	camera->m_Eular = m_LookAngle;
 	camera->m_Eye = m_Position + Vector3(0, 0.75f, 0) + m_LookMatrix[2].xyz * m_LookDist;
 	Game::getSingleton().m_SkyLightCam.m_Eye = m_Position;
-}
-
-void Player::OnMouseMove(my::EventArg * arg)
-{
-	if (m_EventMouseMove)
-	{
-		m_EventMouseMove(arg);
-	}
-}
-
-void Player::OnMouseBtnDown(my::EventArg * arg)
-{
-	if (m_EventMouseBtnDown)
-	{
-		m_EventMouseBtnDown(arg);
-	}
-}
-
-void Player::OnMouseBtnUp(my::EventArg * arg)
-{
-	if (m_EventMouseBtnUp)
-	{
-		m_EventMouseBtnUp(arg);
-	}
-}
-
-void Player::OnKeyDown(my::EventArg * arg)
-{
-	if (m_EventKeyDown)
-	{
-		m_EventKeyDown(arg);
-	}
-}
-
-void Player::OnKeyUp(my::EventArg * arg)
-{
-	if (m_EventKeyUp)
-	{
-		m_EventKeyUp(arg);
-	}
-}
-
-void Player::OnJoystickAxisMove(my::EventArg * arg)
-{
-	if (m_EventJoystickAxisMove)
-	{
-		m_EventJoystickAxisMove(arg);
-	}
-}
-
-void Player::OnJoystickPovMove(my::EventArg * arg)
-{
-	if (m_EventJoystickPovMove)
-	{
-		m_EventJoystickPovMove(arg);
-	}
-}
-
-void Player::OnJoystickBtnDown(my::EventArg * arg)
-{
-	if (m_EventJoystickBtnDown)
-	{
-		m_EventJoystickBtnDown(arg);
-	}
-}
-
-void Player::OnJoystickBtnUp(my::EventArg * arg)
-{
-	if (m_EventJoystickBtnUp)
-	{
-		m_EventJoystickBtnUp(arg);
-	}
-}
-
-void Player::OnWindowActivate(bool bActivated)
-{
-	if (!bActivated)
-	{
-		m_MoveAxis.SetPoint(0, 0);
-	}
 }

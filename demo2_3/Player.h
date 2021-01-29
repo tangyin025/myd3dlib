@@ -15,24 +15,6 @@ public:
 
 	CPoint m_MoveAxis;
 
-	my::EventFunction m_EventMouseMove;
-
-	my::EventFunction m_EventMouseBtnDown;
-
-	my::EventFunction m_EventMouseBtnUp;
-
-	my::EventFunction m_EventKeyDown;
-
-	my::EventFunction m_EventKeyUp;
-
-	my::EventFunction m_EventJoystickAxisMove;
-
-	my::EventFunction m_EventJoystickPovMove;
-
-	my::EventFunction m_EventJoystickBtnDown;
-
-	my::EventFunction m_EventJoystickBtnUp;
-
 protected:
 	Player(void);
 
@@ -47,29 +29,5 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Character);
 	}
 
-	void Init(void);
-
-	void Destroy(void);
-
 	virtual void Update(float fElapsedTime);
-
-	void OnMouseMove(my::EventArg * arg);
-
-	void OnMouseBtnDown(my::EventArg * arg);
-
-	void OnMouseBtnUp(my::EventArg * arg);
-
-	void OnKeyDown(my::EventArg * arg);
-
-	void OnKeyUp(my::EventArg * arg);
-
-	void OnJoystickAxisMove(my::EventArg * arg);
-
-	void OnJoystickPovMove(my::EventArg * arg);
-
-	void OnJoystickBtnDown(my::EventArg * arg);
-
-	void OnJoystickBtnUp(my::EventArg * arg);
-
-	void OnWindowActivate(bool bActivated);
 };

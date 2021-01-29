@@ -846,31 +846,6 @@ void LuaContext::Init(void)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 
-		, class_<my::InputEventArg, my::EventArg>("InputEventArg")
-			.def_readwrite("handled", &my::InputEventArg::handled)
-
-		, class_<my::KeyboardEventArg, my::InputEventArg>("KeyboardEventArg")
-			.def_readonly("kc", &my::KeyboardEventArg::kc)
-
-		, class_<my::MouseMoveEventArg, my::InputEventArg>("MouseMoveEventArg")
-			.def_readonly("x", &my::MouseMoveEventArg::x)
-			.def_readonly("y", &my::MouseMoveEventArg::y)
-			.def_readonly("z", &my::MouseMoveEventArg::z)
-
-		, class_<my::MouseBtnEventArg, my::InputEventArg>("MouseBtnEventArg")
-			.def_readonly("index", &my::MouseBtnEventArg::index)
-
-		, class_<my::JoystickAxisEventArg, my::InputEventArg>("JoystickAxisEventArg")
-			.def_readonly("axis", &my::JoystickAxisEventArg::axis)
-			.def_readonly("value", &my::JoystickAxisEventArg::value)
-
-		, class_<my::JoystickPovEventArg, my::InputEventArg>("JoystickPovEventArg")
-			.def_readonly("index", &my::JoystickPovEventArg::index)
-			.def_readonly("dir", &my::JoystickPovEventArg::dir)
-
-		, class_<my::JoystickBtnEventArg, my::InputEventArg>("JoystickBtnEventArg")
-			.def_readonly("index", &my::JoystickBtnEventArg::index)
-
 		, class_<CPoint>("CPoint")
 			.def_readwrite("x", &CPoint::x)
 			.def_readwrite("y", &CPoint::y)
