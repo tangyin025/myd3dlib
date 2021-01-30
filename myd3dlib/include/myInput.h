@@ -332,20 +332,9 @@ namespace my
 
 	typedef boost::shared_ptr<Mouse> MousePtr;
 
-	enum JoystickAxis
-	{
-		JA_X,
-		JA_Y,
-		JA_Z,
-		JA_Rx,
-		JA_Ry,
-		JA_Rz,
-		JA_S0,
-		JA_S1,
-	};
-
 	enum JoystickPov
 	{
+		JP_None			= 0xFFFF,
 		JP_North		= 0,
 		JP_NorthEast	= 4500,
 		JP_East			= 9000,
@@ -367,8 +356,6 @@ namespace my
 		Joystick(void)
 		{
 		}
-
-		static LPCTSTR TranslateAxis(DWORD axis);
 
 		static LPCTSTR TranslatePov(DWORD pov);
 
@@ -414,6 +401,12 @@ namespace my
 		LONG GetRz(void) const
 		{
 			return m_State.lRz;
+		}
+
+		LONG GetSlider(unsigned int i) const
+		{
+			_ASSERT(i < _countof(m_State.rglSlider));
+			return m_State.rglSlider[i];
 		}
 
 		DWORD GetPov(unsigned int i) const

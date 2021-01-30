@@ -631,26 +631,11 @@ bool Mouse::Capture(void)
 	return true;
 }
 
-LPCTSTR Joystick::TranslateAxis(DWORD axis)
-{
-	switch(axis)
-	{
-	case JA_X: return _T("JA_X");
-	case JA_Y: return _T("JA_Y");
-	case JA_Z: return _T("JA_Z");
-	case JA_Rx: return _T("JA_Rx");
-	case JA_Ry: return _T("JA_Ry");
-	case JA_Rz: return _T("JA_Rz");
-	case JA_S0: return _T("JA_S0");
-	case JA_S1: return _T("JA_S1");
-	}
-	return _T("unknown axis");
-}
-
 LPCTSTR Joystick::TranslatePov(DWORD pov)
 {
 	switch(pov)
 	{
+	case JP_None: return _T("JP_None");
 	case JP_North: return _T("JP_North");
 	case JP_NorthEast: return _T("JP_NorthEast");
 	case JP_East: return _T("JP_East");
