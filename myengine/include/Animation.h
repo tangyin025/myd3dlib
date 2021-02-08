@@ -252,38 +252,6 @@ public:
 };
 
 typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
-//
-//class AnimationNodeBlendBySpeed : public AnimationNodeBlend
-//{
-//public:
-//	float m_Speed0;
-//
-//	float m_BlendInTime;
-//
-//public:
-//	AnimationNodeBlendBySpeed(void)
-//		: m_Speed0(0.1f)
-//		, m_BlendInTime(0.3f)
-//	{
-//	}
-//
-//	~AnimationNodeBlendBySpeed(void)
-//	{
-//	}
-//
-//	friend class boost::serialization::access;
-//
-//	template<class Archive>
-//	void serialize(Archive & ar, const unsigned int version)
-//	{
-//		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeBlend);
-//		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
-//	}
-//
-//	virtual void Tick(float fElapsedTime, float fTotalWeight);
-//};
-//
-//typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;
 
 class AnimationNodeRate : public AnimationNode
 {

@@ -104,6 +104,10 @@ player.EventUpdate=function(arg)
 		
 		if game.keyboard:IsKeyDown(42) then
 			speed=10
+			node_run:SetActiveChild(1,0.1)
+			rate_run.Rate=speed/7
+		else
+			node_run:SetActiveChild(0,0.1)
 		end
 		
 		-- 鼠标移动事件
@@ -120,9 +124,12 @@ player.EventUpdate=function(arg)
 		local moveDir=Quaternion.RotationYawPitchRoll(angle,0,0)*Vector3(0,0,1)
 		velocity.x=moveDir.x*speed
 		velocity.z=moveDir.z*speed
+		node_walk:SetActiveChild(1,0.1)
+		rate_walk.Rate=speed/1.2
 	else
 		velocity.x=0
 		velocity.z=0
+		node_walk:SetActiveChild(0,0.1)
 	end
 	local moveFlag=arg.self:Move(velocity*game.ElapsedTime,0.001,game.ElapsedTime)
 	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then

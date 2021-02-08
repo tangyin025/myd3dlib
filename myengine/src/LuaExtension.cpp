@@ -1334,12 +1334,8 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeBlend, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlend")
 			.def(constructor<>())
-			.def_readwrite("ActiveChild", &AnimationNodeBlend::m_ActiveChild)
-
-		//, class_<AnimationNodeBlendBySpeed, AnimationNodeBlend, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendBySpeed")
-		//	.def(constructor<>())
-		//	.def_readwrite("Speed0", &AnimationNodeBlendBySpeed::m_Speed0)
-		//	.def_readwrite("BlendInTime", &AnimationNodeBlendBySpeed::m_BlendInTime)
+			.def_readonly("ActiveChild", &AnimationNodeBlend::m_ActiveChild)
+			.def("SetActiveChild", &AnimationNodeBlend::SetActiveChild)
 
 		, class_<AnimationNodeRate, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRate")
 			.def(constructor<>())
