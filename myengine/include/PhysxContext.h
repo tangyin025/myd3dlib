@@ -44,8 +44,6 @@ class PhysxSdk
 	, public physx::PxErrorCallback
 {
 public:
-	static const my::Vector3 Gravity;
-
 	PhysxAllocator m_Allocator;
 
 	boost::shared_ptr<physx::PxFoundation> m_Foundation;

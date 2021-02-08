@@ -21,8 +21,6 @@
 #include <boost/serialization/export.hpp>
 #include "CctCharacterControllerManager.h"
 
-const my::Vector3 PhysxSdk::Gravity(0.0f, -9.81f, 0.0f);
-
 void * PhysxAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
 #ifdef _DEBUG
@@ -131,7 +129,7 @@ const char * PhysxScene::StepperTask::getName(void) const
 bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher)
 {
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = (physx::PxVec3&)PhysxSdk::Gravity;
+	sceneDesc.gravity = (physx::PxVec3&)my::Vector3::Gravity;
 	sceneDesc.simulationEventCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
