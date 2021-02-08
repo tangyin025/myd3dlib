@@ -75,6 +75,7 @@ end
 player.Animation=anim
 
 local velocity=Vector3(0,0,0)
+local LookDist=3
 player.EventUpdate=function(arg)
 	velocity.y=velocity.y-9.81*game.ElapsedTime
 	local speed=2
@@ -113,7 +114,7 @@ player.EventUpdate=function(arg)
 		-- 鼠标移动事件
 		game.Camera.Eular.y=game.Camera.Eular.y-math.rad(game.mouse:GetX())
 		game.Camera.Eular.x=game.Camera.Eular.x-math.rad(game.mouse:GetY())
-		-- local LookDist=5-game.mouse:GetZ()/480.0
+		LookDist=LookDist-game.mouse:GetZ()/480.0
 	end
 	
 	local lengthsq=direction:magnitudeSq()
@@ -137,7 +138,7 @@ player.EventUpdate=function(arg)
 	end
 	
 	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Eular.y,game.Camera.Eular.x,game.Camera.Eular.z)
-	game.Camera.Eye=arg.self.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*3
+	game.Camera.Eye=arg.self.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*LookDist
 	game.ViewedCenter=arg.self.Position
 end
 
