@@ -252,52 +252,52 @@ public:
 };
 
 typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
+//
+//class AnimationNodeBlendBySpeed : public AnimationNodeBlend
+//{
+//public:
+//	float m_Speed0;
+//
+//	float m_BlendInTime;
+//
+//public:
+//	AnimationNodeBlendBySpeed(void)
+//		: m_Speed0(0.1f)
+//		, m_BlendInTime(0.3f)
+//	{
+//	}
+//
+//	~AnimationNodeBlendBySpeed(void)
+//	{
+//	}
+//
+//	friend class boost::serialization::access;
+//
+//	template<class Archive>
+//	void serialize(Archive & ar, const unsigned int version)
+//	{
+//		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeBlend);
+//		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
+//	}
+//
+//	virtual void Tick(float fElapsedTime, float fTotalWeight);
+//};
+//
+//typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;
 
-class AnimationNodeBlendBySpeed : public AnimationNodeBlend
+class AnimationNodeRate : public AnimationNode
 {
 public:
-	float m_Speed0;
-
-	float m_BlendInTime;
+	float m_Rate;
 
 public:
-	AnimationNodeBlendBySpeed(void)
-		: m_Speed0(0.1f)
-		, m_BlendInTime(0.3f)
-	{
-	}
-
-	~AnimationNodeBlendBySpeed(void)
-	{
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeBlend);
-		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
-	}
-
-	virtual void Tick(float fElapsedTime, float fTotalWeight);
-};
-
-typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;
-
-class AnimationNodeRateBySpeed : public AnimationNode
-{
-public:
-	float m_Speed0;
-
-public:
-	AnimationNodeRateBySpeed(void)
+	AnimationNodeRate(void)
 		: AnimationNode(1)
-		, m_Speed0(1.0f)
+		, m_Rate(1.0f)
 	{
 	}
 
-	~AnimationNodeRateBySpeed(void)
+	~AnimationNodeRate(void)
 	{
 	}
 
@@ -307,7 +307,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
+		ar & BOOST_SERIALIZATION_NVP(m_Rate);
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
@@ -315,7 +315,7 @@ public:
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
 
-typedef boost::shared_ptr<AnimationNodeRateBySpeed> AnimationNodeRateBySpeedPtr;
+typedef boost::shared_ptr<AnimationNodeRate> AnimationNodeRateBySpeedPtr;
 
 class Actor;
 

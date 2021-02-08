@@ -827,7 +827,12 @@ void LuaContext::Init(void)
 		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
 			.def("PostMessage", &my::DxutWindow::PostMessage)
 
-		, class_<my::D3DContext>("D3DContext")
+		, class_<my::Clock>("Clock")
+			.def_readonly("AbsoluteTime", &my::Clock::m_fAbsoluteTime)
+			.def_readonly("ElapsedTime", &my::Clock::m_fElapsedTime)
+			.def_readonly("TotalTime", &my::Clock::m_fTotalTime)
+
+		, class_<my::D3DContext, my::Clock>("D3DContext")
 			.def("GetNamedObject", &my::D3DContext::GetNamedObject)
 
 		, class_<my::DxutApp, bases<my::D3DContext, CD3D9Enumeration> >("DxutApp")
@@ -1297,13 +1302,16 @@ void LuaContext::Init(void)
 			.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
 
 		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
+			.enum_("CollisionFlag")
+			[
+				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
+				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
+				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+			]
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
-			.def_readwrite("filterWord0", &Character::m_filterWord0)
-			.def_readonly("MoveFlags", &Character::m_MoveFlags)
-			.def_readwrite("Velocity", &Character::m_Velocity)
-			.def_readwrite("Orientation", &Character::m_Orientation)
 			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
 			.def("SetPose", &Character::SetPose)
+			.def("Move", &Character::Move)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
@@ -1325,14 +1333,14 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("ActiveChild", &AnimationNodeBlend::m_ActiveChild)
 
-		, class_<AnimationNodeBlendBySpeed, AnimationNodeBlend, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendBySpeed")
-			.def(constructor<>())
-			.def_readwrite("Speed0", &AnimationNodeBlendBySpeed::m_Speed0)
-			.def_readwrite("BlendInTime", &AnimationNodeBlendBySpeed::m_BlendInTime)
+		//, class_<AnimationNodeBlendBySpeed, AnimationNodeBlend, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendBySpeed")
+		//	.def(constructor<>())
+		//	.def_readwrite("Speed0", &AnimationNodeBlendBySpeed::m_Speed0)
+		//	.def_readwrite("BlendInTime", &AnimationNodeBlendBySpeed::m_BlendInTime)
 
-		, class_<AnimationNodeRateBySpeed, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRateBySpeed")
+		, class_<AnimationNodeRate, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRate")
 			.def(constructor<>())
-			.def_readwrite("Speed0", &AnimationNodeRateBySpeed::m_Speed0)
+			.def_readwrite("Rate", &AnimationNodeRate::m_Rate)
 
 		, class_<AnimationEventArg, my::EventArg>("AnimationEventArg")
 			.def_readonly("self", &AnimationEventArg::self)

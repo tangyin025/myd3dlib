@@ -24,10 +24,10 @@ BOOST_CLASS_EXPORT(AnimationNodeSequence)
 BOOST_CLASS_EXPORT(AnimationNodeSlot)
 
 BOOST_CLASS_EXPORT(AnimationNodeBlend)
+//
+//BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
 
-BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
-
-BOOST_CLASS_EXPORT(AnimationNodeRateBySpeed)
+BOOST_CLASS_EXPORT(AnimationNodeRate)
 
 BOOST_CLASS_EXPORT(AnimationRoot)
 
@@ -416,51 +416,51 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 	}
 	return pose;
 }
+//
+//void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
+//{
+//	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
+//	Character * character = dynamic_cast<Character *>(Root->m_Actor);
+//	if (character)
+//	{
+//		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+//		if (speed_sq < m_Speed0 * m_Speed0)
+//		{
+//			if (m_ActiveChild != 0)
+//			{
+//				SetActiveChild(0, m_BlendInTime);
+//			}
+//		}
+//		else
+//		{
+//			if (m_ActiveChild != 1)
+//			{
+//				SetActiveChild(1, m_BlendInTime);
+//			}
+//		}
+//	}
+//
+//	AnimationNodeBlend::Tick(fElapsedTime, fTotalWeight);
+//}
 
-void AnimationNodeBlendBySpeed::Tick(float fElapsedTime, float fTotalWeight)
+void AnimationNodeRate::Tick(float fElapsedTime, float fTotalWeight)
 {
-	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
-	Character * character = dynamic_cast<Character *>(Root->m_Actor);
-	if (character)
-	{
-		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
-		if (speed_sq < m_Speed0 * m_Speed0)
-		{
-			if (m_ActiveChild != 0)
-			{
-				SetActiveChild(0, m_BlendInTime);
-			}
-		}
-		else
-		{
-			if (m_ActiveChild != 1)
-			{
-				SetActiveChild(1, m_BlendInTime);
-			}
-		}
-	}
-
-	AnimationNodeBlend::Tick(fElapsedTime, fTotalWeight);
-}
-
-void AnimationNodeRateBySpeed::Tick(float fElapsedTime, float fTotalWeight)
-{
-	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
-	Character * character = dynamic_cast<Character *>(Root->m_Actor);
-	float fRate = 1.0f;
-	if (character)
-	{
-		float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
-		fRate = sqrtf(speed_sq) / m_Speed0;
-	}
+	//AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
+	//Character * character = dynamic_cast<Character *>(Root->m_Actor);
+	//float fRate = 1.0f;
+	//if (character)
+	//{
+	//	float speed_sq = character->m_Velocity.x * character->m_Velocity.x + character->m_Velocity.z * character->m_Velocity.z;
+	//	fRate = sqrtf(speed_sq) / m_Speed0;
+	//}
 
 	if (m_Childs[0])
 	{
-		m_Childs[0]->Tick(fElapsedTime * fRate, fTotalWeight);
+		m_Childs[0]->Tick(fElapsedTime * m_Rate, fTotalWeight);
 	}
 }
 
-my::BoneList & AnimationNodeRateBySpeed::GetPose(my::BoneList & pose) const
+my::BoneList & AnimationNodeRate::GetPose(my::BoneList & pose) const
 {
 	if (m_Childs[0])
 	{

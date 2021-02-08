@@ -228,11 +228,29 @@ void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 
 	m_Position = Pos;
 
-	m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+	m_Rotation = Rot;
 
 	UpdateWorld();
 
 	UpdateOctNode();
+}
+
+unsigned int Character::Move(const my::Vector3& disp, float minDist, float elapsedTime, unsigned int filterWord0)
+{
+	physx::PxControllerCollisionFlags moveFlags;
+
+	if (m_PxController)
+	{
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0)));
+
+		m_Position = (Vector3&)physx::toVec3(m_PxController->getPosition());
+
+		UpdateWorld();
+
+		UpdateOctNode();
+	}
+
+	return moveFlags;
 }
 
 bool Character::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)

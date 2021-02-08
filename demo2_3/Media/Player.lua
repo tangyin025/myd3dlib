@@ -44,20 +44,20 @@ seq_idle.Name="idle1"
 local seq_walk=AnimationNodeSequence()
 seq_walk.Name="walk"
 seq_walk.Group="move"
-local rate_walk=AnimationNodeRateBySpeed()
+local rate_walk=AnimationNodeRate()
 rate_walk.Speed0=1.2
 rate_walk.Child0=seq_walk
-local node_walk=AnimationNodeBlendBySpeed()
+local node_walk=AnimationNodeBlend()
 node_walk.Speed0=1.0
 node_walk.Child0=seq_idle
 node_walk.Child1=rate_walk
 local seq_run=AnimationNodeSequence()
 seq_run.Name="run"
 seq_run.Group="move"
-local rate_run=AnimationNodeRateBySpeed()
+local rate_run=AnimationNodeRate()
 rate_run.Speed0=7
 rate_run.Child0=seq_run
-local node_run=AnimationNodeBlendBySpeed()
+local node_run=AnimationNodeBlend()
 node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=rate_run
@@ -75,32 +75,49 @@ end
 player.Animation=anim
 
 player.EventUpdate=function(arg)
-	if not Control.GetFocusControl() then
-		-- 键盘按下事件
-		if game.keyboard:IsKeyPress(57) then
-			arg.self.Velocity.y=5.0
-			arg.self:PlayAction(SAction.act_jump)
-		end
-		if game.keyboard:IsKeyDown(17) then
-			arg.self.MoveAxis.y=1
-		elseif game.keyboard:IsKeyDown(31) then
-			arg.self.MoveAxis.y=-1
-		else
-			arg.self.MoveAxis.y=0
-		end
-		if game.keyboard:IsKeyDown(30) then
-			arg.self.MoveAxis.x=1
-		elseif game.keyboard:IsKeyDown(32) then
-			arg.self.MoveAxis.x=-1
-		else
-			arg.self.MoveAxis.x=0
-		end
-		
-		-- 鼠标移动事件
-		arg.self.LookAngle.y=arg.self.LookAngle.y-math.rad(game.mouse:GetX())
-		arg.self.LookAngle.x=arg.self.LookAngle.x-math.rad(game.mouse:GetY())
-		arg.self.LookDist=arg.self.LookDist-game.mouse:GetZ()/480.0
+	if Control.GetFocusControl() then
+		return
 	end
+	
+	-- 键盘按下事件
+	local direction=Vector3(0,0,0)
+	if game.keyboard:IsKeyPress(57) then
+		velocity.y=5.0
+		arg.self:PlayAction(SAction.act_jump)
+	end
+	if game.keyboard:IsKeyDown(17) then
+		direction.z=1
+	elseif game.keyboard:IsKeyDown(31) then
+		direction.z=-1
+	else
+		direction.z=0
+	end
+	if game.keyboard:IsKeyDown(30) then
+		direction.x=1
+	elseif game.keyboard:IsKeyDown(32) then
+		direction.x=-1
+	else
+		direction.x=0
+	end
+	local speed=6
+	if game.keyboard:IsKeyDown(42) then
+		speed=12
+	end
+
+	local lengthsq=direction:magnitudeSq()
+	if lengthsq > 0.000001 then
+		direction=direction*(1/math.sqrt(lengthsq))
+		local angle=math.atan2(direction.x,direction.z)+game.Camera.Eular.y+math.pi
+		arg.self.Rotation=Quaternion.RotationYawPitchRoll(angle,0,0)
+		arg.self:Move(direction*speed*game.ElapsedTime,0.001,game.ElapsedTime,1)
+	end
+	
+	-- 鼠标移动事件
+	game.Camera.Eular.y=game.Camera.Eular.y-math.rad(game.mouse:GetX())
+	game.Camera.Eular.x=game.Camera.Eular.x-math.rad(game.mouse:GetY())
+	-- local LookDist=5-game.mouse:GetZ()/480.0
+	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Eular.y,game.Camera.Eular.x,game.Camera.Eular.z)
+	game.Camera.Eye=arg.self.Position+LookMatrix.row2.xyz*5
 end
 
 -- 处理碰撞事件

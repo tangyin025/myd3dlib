@@ -33,27 +33,9 @@ public:
 
 	float m_ContactOffset;
 
-	unsigned int m_filterWord0;
-
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 	boost::shared_ptr<physx::PxController> m_PxController;
-
-	physx::PxControllerCollisionFlags m_MoveFlags;
-
-	my::Vector3 m_Velocity;
-
-	float m_Orientation;
-
-	float m_TargetSpeed;
-
-	float m_TargetOrientation;
-
-	float m_SteeringLinear;
-
-	float m_SteeringAngular;
-
-	float m_Resistance;
 
 	my::EventFunction m_EventShapeHit;
 
@@ -62,15 +44,6 @@ protected:
 		: m_Height(1.0f)
 		, m_Radius(1.0f)
 		, m_ContactOffset(0.1f)
-		, m_filterWord0(0)
-		, m_Velocity(0, 0, 0)
-		, m_MoveFlags(0)
-		, m_Orientation(0)
-		, m_TargetSpeed(0)
-		, m_TargetOrientation(0)
-		, m_SteeringLinear(100)
-		, m_SteeringAngular(D3DX_PI * 3)
-		, m_Resistance(50)
 	{
 	}
 
@@ -80,15 +53,6 @@ public:
 		, m_Height(Height)
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
-		, m_filterWord0(filterWord0)
-		, m_Velocity(0,0,0)
-		, m_MoveFlags(0)
-		, m_Orientation(0)
-		, m_TargetSpeed(0)
-		, m_TargetOrientation(0)
-		, m_SteeringLinear(100)
-		, m_SteeringAngular(D3DX_PI * 3)
-		, m_Resistance(50)
 	{
 	}
 
@@ -121,6 +85,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
+
+	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0);
 
 	virtual bool AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
