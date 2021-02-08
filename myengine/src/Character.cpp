@@ -235,13 +235,13 @@ void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateOctNode();
 }
 
-unsigned int Character::Move(const my::Vector3& disp, float minDist, float elapsedTime, unsigned int filterWord0)
+unsigned int Character::Move(const my::Vector3& disp, float minDist, float elapsedTime)
 {
 	physx::PxControllerCollisionFlags moveFlags;
 
 	if (m_PxController)
 	{
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0)));
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
 		m_Position = (Vector3&)physx::toVec3(m_PxController->getPosition());
 

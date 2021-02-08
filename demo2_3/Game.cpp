@@ -479,6 +479,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readwrite("FogEnable", &Game::m_FogEnable)
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
+			.def_readwrite("ViewedCenter", &Game::m_ViewedCenter)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)

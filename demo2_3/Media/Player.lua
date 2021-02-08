@@ -74,50 +74,64 @@ anim.SkeletonEventReady=function(arg)
 end
 player.Animation=anim
 
+local velocity=Vector3(0,0,0)
 player.EventUpdate=function(arg)
-	if Control.GetFocusControl() then
-		return
+	velocity.y=velocity.y-9.81*game.ElapsedTime
+	local speed=2
+	local direction=Vector3(0,0,0)
+	if not Control.GetFocusControl() then
+		-- 键盘按下事件
+		if game.keyboard:IsKeyPress(57) then
+			velocity.y=5.0
+			arg.self:PlayAction(SAction.act_jump)
+		end
+		
+		if game.keyboard:IsKeyDown(17) then
+			direction.z=1
+		elseif game.keyboard:IsKeyDown(31) then
+			direction.z=-1
+		else
+			direction.z=0
+		end
+		
+		if game.keyboard:IsKeyDown(30) then
+			direction.x=1
+		elseif game.keyboard:IsKeyDown(32) then
+			direction.x=-1
+		else
+			direction.x=0
+		end
+		
+		if game.keyboard:IsKeyDown(42) then
+			speed=10
+		end
+		
+		-- 鼠标移动事件
+		game.Camera.Eular.y=game.Camera.Eular.y-math.rad(game.mouse:GetX())
+		game.Camera.Eular.x=game.Camera.Eular.x-math.rad(game.mouse:GetY())
+		-- local LookDist=5-game.mouse:GetZ()/480.0
 	end
 	
-	-- 键盘按下事件
-	local direction=Vector3(0,0,0)
-	if game.keyboard:IsKeyPress(57) then
-		velocity.y=5.0
-		arg.self:PlayAction(SAction.act_jump)
-	end
-	if game.keyboard:IsKeyDown(17) then
-		direction.z=1
-	elseif game.keyboard:IsKeyDown(31) then
-		direction.z=-1
-	else
-		direction.z=0
-	end
-	if game.keyboard:IsKeyDown(30) then
-		direction.x=1
-	elseif game.keyboard:IsKeyDown(32) then
-		direction.x=-1
-	else
-		direction.x=0
-	end
-	local speed=6
-	if game.keyboard:IsKeyDown(42) then
-		speed=12
-	end
-
 	local lengthsq=direction:magnitudeSq()
 	if lengthsq > 0.000001 then
 		direction=direction*(1/math.sqrt(lengthsq))
 		local angle=math.atan2(direction.x,direction.z)+game.Camera.Eular.y+math.pi
 		arg.self.Rotation=Quaternion.RotationYawPitchRoll(angle,0,0)
-		arg.self:Move(direction*speed*game.ElapsedTime,0.001,game.ElapsedTime,1)
+		local moveDir=Quaternion.RotationYawPitchRoll(angle,0,0)*Vector3(0,0,1)
+		velocity.x=moveDir.x*speed
+		velocity.z=moveDir.z*speed
+	else
+		velocity.x=0
+		velocity.z=0
+	end
+	local moveFlag=arg.self:Move(velocity*game.ElapsedTime,0.001,game.ElapsedTime)
+	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then
+		velocity.y=0
 	end
 	
-	-- 鼠标移动事件
-	game.Camera.Eular.y=game.Camera.Eular.y-math.rad(game.mouse:GetX())
-	game.Camera.Eular.x=game.Camera.Eular.x-math.rad(game.mouse:GetY())
-	-- local LookDist=5-game.mouse:GetZ()/480.0
 	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Eular.y,game.Camera.Eular.x,game.Camera.Eular.z)
-	game.Camera.Eye=arg.self.Position+LookMatrix.row2.xyz*5
+	game.Camera.Eye=arg.self.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*3
+	game.ViewedCenter=arg.self.Position
 end
 
 -- 处理碰撞事件

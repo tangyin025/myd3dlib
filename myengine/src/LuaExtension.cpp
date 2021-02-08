@@ -1311,6 +1311,7 @@ void LuaContext::Init(void)
 				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 			]
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
+			.def_readwrite("filterWord0", &Character::m_filterWord0)
 			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
 			.def("SetPose", &Character::SetPose)
 			.def("Move", &Character::Move)
