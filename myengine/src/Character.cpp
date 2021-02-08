@@ -108,113 +108,115 @@ void Character::OnPxTransformChanged(const physx::PxTransform & trans)
 
 void Character::Update(float fElapsedTime)
 {
-	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
-	for (; action_inst_iter != m_ActionInstList.end(); )
-	{
-		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
-		{
-			(*action_inst_iter)->Update(fElapsedTime);
+	//ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
+	//for (; action_inst_iter != m_ActionInstList.end(); )
+	//{
+	//	if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
+	//	{
+	//		(*action_inst_iter)->Update(fElapsedTime);
 
-			action_inst_iter++;
-		}
-		else
-		{
-			(*action_inst_iter)->Stop();
+	//		action_inst_iter++;
+	//	}
+	//	else
+	//	{
+	//		(*action_inst_iter)->Stop();
 
-			// ! make sure action inst was not in parallel task list
-			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
-		}
-	}
+	//		// ! make sure action inst was not in parallel task list
+	//		action_inst_iter = m_ActionInstList.erase(action_inst_iter);
+	//	}
+	//}
 
-	if (m_PxController)
-	{
-		if (!m_Base && m_ActionTrackPoseInstRef == 0)
-		{
-			Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
-			float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
-			float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
-			if (ForwardSpeed > m_TargetSpeed)
-			{
-				ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * fElapsedTime, m_TargetSpeed);
-			}
-			else
-			{
-				ForwardSpeed = my::Min(ForwardSpeed + m_SteeringLinear * fElapsedTime, m_TargetSpeed);
-			}
-			if (LeftwardSpeed > 0)
-			{
-				LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * fElapsedTime, 0.0f);
-			}
-			else
-			{
-				LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
-			}
+	//if (m_PxController)
+	//{
+	//	if (!m_Base && m_ActionTrackPoseInstRef == 0)
+	//	{
+	//		Matrix4 Uvn(Matrix4::RotationY(m_TargetOrientation));
+	//		float ForwardSpeed = m_Velocity.dot(Uvn[2].xyz);
+	//		float LeftwardSpeed = m_Velocity.dot(Uvn[0].xyz);
+	//		if (ForwardSpeed > m_TargetSpeed)
+	//		{
+	//			ForwardSpeed = my::Max(ForwardSpeed - m_Resistance * fElapsedTime, m_TargetSpeed);
+	//		}
+	//		else
+	//		{
+	//			ForwardSpeed = my::Min(ForwardSpeed + m_SteeringLinear * fElapsedTime, m_TargetSpeed);
+	//		}
+	//		if (LeftwardSpeed > 0)
+	//		{
+	//			LeftwardSpeed = my::Max(LeftwardSpeed - m_Resistance * fElapsedTime, 0.0f);
+	//		}
+	//		else
+	//		{
+	//			LeftwardSpeed = my::Min(LeftwardSpeed + m_Resistance * fElapsedTime, 0.0f);
+	//		}
 
-			m_Velocity = Vector3(
-				Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y + PhysxSdk::getSingleton().Gravity.y * fElapsedTime,
-				Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed);
+	//		m_Velocity = Vector3(
+	//			Uvn[2].x * ForwardSpeed + Uvn[0].x * LeftwardSpeed, m_Velocity.y + PhysxSdk::getSingleton().Gravity.y * fElapsedTime,
+	//			Uvn[2].z * ForwardSpeed + Uvn[0].z * LeftwardSpeed);
 
-			if (ForwardSpeed > EPSILON_E6)
-			{
-				const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
-				const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
-				if (Delta > EPSILON_E6)
-				{
-					m_Orientation += Min(Delta, m_SteeringAngular * fElapsedTime);
-				}
-				else if (Delta < EPSILON_E6)
-				{
-					m_Orientation += Max(Delta, -m_SteeringAngular * fElapsedTime);
-				}
-			}
+	//		if (ForwardSpeed > EPSILON_E6)
+	//		{
+	//			const float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
+	//			const float Delta = my::Round(TargetOrientation - m_Orientation, -D3DX_PI, D3DX_PI);
+	//			if (Delta > EPSILON_E6)
+	//			{
+	//				m_Orientation += Min(Delta, m_SteeringAngular * fElapsedTime);
+	//			}
+	//			else if (Delta < EPSILON_E6)
+	//			{
+	//				m_Orientation += Max(Delta, -m_SteeringAngular * fElapsedTime);
+	//			}
+	//		}
 
-			m_MoveFlags = m_PxController->move((physx::PxVec3 &)m_Velocity * fElapsedTime,
-				0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+	//		m_MoveFlags = m_PxController->move((physx::PxVec3 &)m_Velocity * fElapsedTime,
+	//			0.01f * fElapsedTime, fElapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
-			if (m_MoveFlags.isSet(physx::PxControllerCollisionFlag::eCOLLISION_DOWN))
-			{
-				m_Velocity.y = 0;
-			}
+	//		if (m_MoveFlags.isSet(physx::PxControllerCollisionFlag::eCOLLISION_DOWN))
+	//		{
+	//			m_Velocity.y = 0;
+	//		}
 
-			m_Position = (Vector3 &)physx::toVec3(m_PxController->getPosition());
+	//		m_Position = (Vector3 &)physx::toVec3(m_PxController->getPosition());
 
-			m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
+	//		m_Rotation = Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0);
 
-			UpdateWorld();
+	//		UpdateWorld();
 
-			UpdateOctNode();
-		}
-	}
+	//		UpdateOctNode();
+	//	}
+	//}
 
-	if (m_Animation)
-	{
-		m_Animation->Update(fElapsedTime);
-	}
+	Actor::Update(fElapsedTime);
 
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->m_LodMask & m_Lod)
-		{
-			(*cmp_iter)->Update(fElapsedTime);
-		}
-	}
+	//if (m_Animation)
+	//{
+	//	m_Animation->Update(fElapsedTime);
+	//}
 
-	AttachPairList::iterator att_iter = m_Attaches.begin();
-	for (; att_iter != m_Attaches.end(); att_iter++)
-	{
-		if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
-		{
-			const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
-			att_iter->first->SetPose(bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
-		}
-		else
-		{
-			att_iter->first->SetPose(m_Position, m_Rotation);
-		}
+	//ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	//for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	//{
+	//	if ((*cmp_iter)->m_LodMask & m_Lod)
+	//	{
+	//		(*cmp_iter)->Update(fElapsedTime);
+	//	}
+	//}
 
-		att_iter->first->Update(fElapsedTime);
-	}
+	//AttachPairList::iterator att_iter = m_Attaches.begin();
+	//for (; att_iter != m_Attaches.end(); att_iter++)
+	//{
+	//	if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
+	//	{
+	//		const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
+	//		att_iter->first->SetPose(bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
+	//	}
+	//	else
+	//	{
+	//		att_iter->first->SetPose(m_Position, m_Rotation);
+	//	}
+
+	//	att_iter->first->Update(fElapsedTime);
+	//}
 }
 
 void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)

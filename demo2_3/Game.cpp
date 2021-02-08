@@ -18,7 +18,6 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/program_options.hpp>
-#include "Player.h"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -492,12 +491,6 @@ HRESULT Game::OnCreateDevice(
 			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadScene", &Game::LoadScene)
-
-		, luabind::class_<Player, Character, boost::shared_ptr<Actor> >("Player")
-			.def(luabind::constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
-			.def_readwrite("LookAngle", &Player::m_LookAngle)
-			.def_readwrite("LookDist", &Player::m_LookDist)
-			.def_readwrite("MoveAxis", &Player::m_MoveAxis)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -654,16 +647,6 @@ void Game::OnFrameTick(
 	CheckIORequests(0);
 
 	PhysxScene::PushRenderBuffer(this);
-
-	Player * player = Player::getSingletonPtr();
-	if (player && player->m_Node)
-	{
-		m_ViewedCenter = player->m_Position;
-	}
-	else
-	{
-		m_ViewedCenter = m_Camera->m_Eye;
-	}
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 
@@ -836,22 +819,22 @@ void Game::OnFrameTick(
 		}
 	}
 
-	if (player && player->m_Node)
-	{
-		m_EventSystem->set3DListenerAttributes(0,
-			(FMOD_VECTOR *)&player->m_Position,
-			(FMOD_VECTOR *)&player->m_Velocity,
-			(FMOD_VECTOR *)&player->m_LookMatrix[2].xyz,
-			(FMOD_VECTOR *)&player->m_LookMatrix[1].xyz);
-	}
-	else
-	{
-		m_EventSystem->set3DListenerAttributes(0,
-			(FMOD_VECTOR *)&m_Camera->m_Eye,
-			NULL,
-			(FMOD_VECTOR *)&m_Camera->m_View[2].xyz,
-			(FMOD_VECTOR *)&m_Camera->m_View[1].xyz);
-	}
+	//if (player && player->m_Node)
+	//{
+	//	m_EventSystem->set3DListenerAttributes(0,
+	//		(FMOD_VECTOR *)&player->m_Position,
+	//		(FMOD_VECTOR *)&player->m_Velocity,
+	//		(FMOD_VECTOR *)&player->m_LookMatrix[2].xyz,
+	//		(FMOD_VECTOR *)&player->m_LookMatrix[1].xyz);
+	//}
+	//else
+	//{
+	//	m_EventSystem->set3DListenerAttributes(0,
+	//		(FMOD_VECTOR *)&m_Camera->m_Eye,
+	//		NULL,
+	//		(FMOD_VECTOR *)&m_Camera->m_View[2].xyz,
+	//		(FMOD_VECTOR *)&m_Camera->m_View[1].xyz);
+	//}
 
 	FModContext::Update();
 
@@ -947,15 +930,15 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	Player * player = Player::getSingletonPtr();
-	if (!player || !player->m_Node)
-	{
-		LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
-		if (lr || *pbNoFurtherProcessing)
-		{
-			return lr;
-		}
-	}
+	//Player * player = Player::getSingletonPtr();
+	//if (!player || !player->m_Node)
+	//{
+	//	LRESULT lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+	//	if (lr || *pbNoFurtherProcessing)
+	//	{
+	//		return lr;
+	//	}
+	//}
 	return 0;
 }
 
