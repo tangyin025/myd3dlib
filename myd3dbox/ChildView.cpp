@@ -1056,7 +1056,7 @@ void CChildView::OnPaint()
 					pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
-						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"y", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 					}
 				}
 				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();

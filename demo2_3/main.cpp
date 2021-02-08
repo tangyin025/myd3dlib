@@ -205,7 +205,7 @@ public:
 		pt = m_Camera->WorldToScreen(Vector3(0, 0, 12), GetDlgViewport());
 		if (pt.z > 0.0f && pt.z < 1.0f)
 		{
-			m_Font->PushString(ui_render, L"y", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+			m_Font->PushString(ui_render, L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 		}
 
 		Game::OnUIRender(ui_render, fTime, fElapsedTime);
