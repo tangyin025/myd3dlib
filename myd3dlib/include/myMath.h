@@ -599,8 +599,6 @@ namespace my
 
 		Vector3 transformNormalTranspose(const Matrix4 & m) const;
 
-		Vector3 transform(const Quaternion & q) const;
-
 	public:
 		static Vector3 SphericalToCartesian(float rho, float elevation, float azimuth)
 		{
@@ -1482,6 +1480,11 @@ namespace my
 				rhs.w * y + rhs.y * w + rhs.z * x - rhs.x * z,
 				rhs.w * z + rhs.z * w + rhs.x * y - rhs.y * x,
 				rhs.w * w - rhs.x * x - rhs.y * y - rhs.z * z);
+		}
+
+		Vector3 operator * (const Vector3& rhs) const
+		{
+			return Quaternion(conjugate() * Quaternion(rhs.x, rhs.y, rhs.z, 0) * *this).xyz;
 		}
 
 		Quaternion operator * (float scaler) const

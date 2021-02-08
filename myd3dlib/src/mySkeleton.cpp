@@ -319,7 +319,7 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	const_reference bone = operator[](root_i);
 	reference hier_bone = hierarchyBoneList[root_i];
 	hier_bone.m_rotation = bone.m_rotation * rootRotation;
-	hier_bone.m_position = bone.m_position.transform(rootRotation) + rootPosition;
+	hier_bone.m_position = rootRotation * bone.m_position + rootPosition;
 
 	int node_i = boneHierarchy[root_i].m_child;
 	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)

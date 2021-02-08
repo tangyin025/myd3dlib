@@ -114,13 +114,6 @@ Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
 	return Vector4(x, y, z, 0).transformTranspose(m).xyz;
 }
 
-Vector3 Vector3::transform(const Quaternion & q) const
-{
-	Quaternion ret(q.conjugate() * Quaternion(x, y, z, 0) * q);
-
-	return Vector3(ret.x, ret.y, ret.z);
-}
-
 const Vector3 Vector3::zero(0, 0, 0);
 
 const Vector3 Vector3::one(1, 1, 1);

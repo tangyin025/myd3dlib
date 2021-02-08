@@ -570,7 +570,7 @@ void AnimationRoot::Update(float fElapsedTime)
 			int particle_i = 0;
 			Bone parent(
 				anim_pose_hier[jb_iter->second.root_i].m_rotation * m_Actor->m_Rotation,
-				anim_pose_hier[jb_iter->second.root_i].m_position.transform(m_Actor->m_Rotation) + m_Actor->m_Position);
+				m_Actor->m_Rotation * anim_pose_hier[jb_iter->second.root_i].m_position + m_Actor->m_Position);
 			UpdateJiggleBone(jb_iter->second, parent, jb_iter->first, particle_i, fElapsedTime);
 		}
 
@@ -583,7 +583,7 @@ void AnimationRoot::Update(float fElapsedTime)
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
 			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
-			final_pose[i].m_position = (-bind_pose_hier[i].m_position).transform(final_pose[i].m_rotation) + anim_pose_hier[i].m_position;
+			final_pose[i].m_position = final_pose[i].m_rotation * -bind_pose_hier[i].m_position + anim_pose_hier[i].m_position;
 		}
 
 		m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
@@ -731,7 +731,7 @@ void AnimationRoot::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone
 {
 	Bone target(
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
-		m_Skeleton->m_boneBindPose[node_i].m_position.transform(parent.GetRotation()) + parent.GetPosition());
+		parent.GetRotation() * m_Skeleton->m_boneBindPose[node_i].m_position + parent.GetPosition());
 	Particle & particle = context.m_ParticleList[particle_i];
 	particle.clearAccumulator();
 	particle.setAcceleration(Vector3::Gravity);
@@ -748,7 +748,7 @@ void AnimationRoot::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone
 		parent.GetPosition() + d1.normalize() * d0.magnitude());
 	particle.setPosition(final.GetPosition());
 	anim_pose_hier[node_i].SetRotation(final.GetRotation() * m_Actor->m_Rotation.conjugate());
-	anim_pose_hier[node_i].SetPosition((final.GetPosition() - m_Actor->m_Position).transform(m_Actor->m_Rotation.conjugate()));
+	anim_pose_hier[node_i].SetPosition(m_Actor->m_Rotation.conjugate() * (final.GetPosition() - m_Actor->m_Position));
 
 	particle_i++;
 	node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
@@ -808,8 +808,8 @@ void AnimationRoot::UpdateIK(IKContext & ik)
 	physx::PxSphereGeometry sphere(ik.hitRadius);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(ik.filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
 	bool status = scene->m_PxScene->sweep(sphere,
-		physx::PxTransform((physx::PxVec3&)(pos[0].transform(m_Actor->m_Rotation) + m_Actor->m_Position)),
-		(physx::PxVec3&)normal[2].transform(m_Actor->m_Rotation), length[2], hit, physx::PxHitFlag::eDEFAULT, filterData);
+		physx::PxTransform((physx::PxVec3&)(m_Actor->m_Rotation * pos[0] + m_Actor->m_Position)),
+		(physx::PxVec3&)(m_Actor->m_Rotation * normal[2]), length[2], hit, physx::PxHitFlag::eDEFAULT, filterData);
 	if (status && hit.block.distance > 0)
 	{
 		float new_theta[2] = {
@@ -840,7 +840,7 @@ void AnimationRoot::TransformHierarchyBoneList(
 	BoneHierarchy::const_reference node = boneHierarchy[root_i];
 	BoneList::reference bone = boneList[root_i];
 	bone.m_rotation *= Rotation;
-	bone.m_position = (bone.m_position - Position).transform(Rotation) + Position;
+	bone.m_position = Rotation * (bone.m_position - Position) + Position;
 
 	int node_i = boneHierarchy[root_i].m_child;
 	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
