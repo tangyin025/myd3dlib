@@ -379,7 +379,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				return true;
 			}
 			my::Matrix4 p2w;
-			my::Vector3 sph = m_Camera->m_View.column<2>().xyz.cartesianToSpherical();
+			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
 			void * pvb = theApp.m_ParticleVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, D3DLOCK_READONLY);
 			void * pib = theApp.m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount, D3DLOCK_READONLY);
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
@@ -622,10 +622,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			EmitterComponent * emitter = dynamic_cast<EmitterComponent *>(cmp);
 			if (emitter->m_ParticleList.empty())
 			{
-				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.column<2>().xyz));
+				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.getColumn<2>().xyz));
 			}
 			my::Matrix4 p2w;
-			my::Vector3 sph = m_Camera->m_View.column<2>().xyz.cartesianToSpherical();
+			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
 			void * pvb = theApp.m_ParticleVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, D3DLOCK_READONLY);
 			void * pib = theApp.m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount, D3DLOCK_READONLY);
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();

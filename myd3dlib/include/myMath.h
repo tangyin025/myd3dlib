@@ -1803,25 +1803,34 @@ namespace my
 		}
 
 		template <size_t i>
-		Vector4 & row(void)
+		const Vector4 & getRow(void) const
 		{
 			return Subscribe<Vector4, i>(*this);
 		}
 
 		template <size_t i>
-		const Vector4 & row(void) const
+		void setRow(Vector4 & value)
 		{
-			return Subscribe<Vector4, i>(*this);
+			Subscribe<Vector4, i>(*this) = value;
 		}
 
 		template <size_t i>
-		Vector4 column(void) const
+		Vector4 getColumn(void) const
 		{
 			return Vector4(
 				Subscribe<float, i>(Subscribe<Vector4, 0>(*this)),
 				Subscribe<float, i>(Subscribe<Vector4, 1>(*this)),
 				Subscribe<float, i>(Subscribe<Vector4, 2>(*this)),
 				Subscribe<float, i>(Subscribe<Vector4, 3>(*this)));
+		}
+
+		template <size_t i>
+		void setColumn(Vector4& value)
+		{
+			Subscribe<float, i>(Subscribe<Vector4, 0>(*this)) = value.x;
+			Subscribe<float, i>(Subscribe<Vector4, 1>(*this)) = value.y;
+			Subscribe<float, i>(Subscribe<Vector4, 2>(*this)) = value.z;
+			Subscribe<float, i>(Subscribe<Vector4, 3>(*this)) = value.w;
 		}
 
 	public:

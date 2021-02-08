@@ -172,7 +172,7 @@ LRESULT OrthoCamera::MsgProc(
 
 Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	Vector3 dir = -m_View.column<2>().xyz.normalize();
+	Vector3 dir = -m_View.getColumn<2>().xyz.normalize();
 
 	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 0.0f);
 
@@ -234,7 +234,7 @@ void PerspectiveCamera::OnViewportChanged(const Vector2 & Viewport)
 
 float PerspectiveCamera::CalculateViewportScaler(Vector3 WorldPos) const
 {
-	float z = Vector4(WorldPos, 1.0f).dot(-m_View.column<2>());
+	float z = Vector4(WorldPos, 1.0f).dot(-m_View.getColumn<2>());
 	return z * tan(m_Fov * 0.5f);
 }
 
@@ -343,8 +343,8 @@ LRESULT ModelViewerCamera::MsgProc(
 		}
 		case DragModeTrake:
 		{
-			Vector3 Right = m_View.column<0>().xyz.normalize();
-			Vector3 Up = m_View.column<1>().xyz.normalize();
+			Vector3 Right = m_View.getColumn<0>().xyz.normalize();
+			Vector3 Up = m_View.getColumn<1>().xyz.normalize();
 			m_LookAt += Right * delta.x + Up * delta.y;
 			m_DragPt = pt;
 			*pbNoFurtherProcessing = true;

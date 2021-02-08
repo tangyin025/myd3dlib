@@ -37,7 +37,7 @@ void Pivot::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, c
 	switch (m_Mode)
 	{
 	case PivotModeMove:
-		DrawMoveController(pd3dDevice, Scale, camera->m_View.column<2>().xyz);
+		DrawMoveController(pd3dDevice, Scale, camera->m_View.getColumn<2>().xyz);
 		break;
 	case PivotModeRot:
 		DrawRotController(pd3dDevice, Scale);
