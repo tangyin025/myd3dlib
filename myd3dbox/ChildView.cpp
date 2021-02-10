@@ -1325,6 +1325,8 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
 			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
 			{
+				(*cmp_iter)->OnSetPose();
+
 				if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter)
 				{
 					StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent *>(cmp_iter->get());

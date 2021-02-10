@@ -368,6 +368,12 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateWorld();
 
 	UpdateOctNode();
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->OnSetPose();
+	}
 }
 
 my::AABB Actor::CalculateAABB(void) const

@@ -106,32 +106,6 @@ void Component::ReleaseResource(void)
 	}
 }
 
-void Component::EnterPhysxScene(PhysxScene * scene)
-{
-}
-
-void Component::LeavePhysxScene(PhysxScene * scene)
-{
-}
-
-void Component::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
-{
-}
-
-void Component::Update(float fElapsedTime)
-{
-}
-
-my::AABB Component::CalculateAABB(void) const
-{
-	return AABB(-1, 1);
-}
-
-bool Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
-{
-	return true;
-}
-
 void Component::SetMaterial(MaterialPtr material)
 {
 	if (IsRequested() && m_Material)
@@ -886,6 +860,14 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 	}
 }
 
+void ClothComponent::OnSetPose(void)
+{
+	if (m_Cloth)
+	{
+		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
+	}
+}
+
 my::AABB ClothComponent::CalculateAABB(void) const
 {
 	if (!m_VertexData.empty())
@@ -959,8 +941,6 @@ void ClothComponent::UpdateCloth(void)
 {
 	if (m_Cloth)
 	{
-		m_Cloth->setTargetPose(physx::PxTransform((physx::PxVec3&)m_Actor->m_Position, (physx::PxQuat&)m_Actor->m_Rotation));
-
 		_ASSERT(m_particles.size() == m_VertexData.size() / m_VertexStride);
 		physx::PxClothParticleData * readData = m_Cloth->lockParticleData(physx::PxDataAccessFlag::eWRITABLE);
 		if (readData)

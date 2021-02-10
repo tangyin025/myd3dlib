@@ -129,17 +129,35 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void EnterPhysxScene(PhysxScene * scene);
+	virtual void EnterPhysxScene(PhysxScene* scene)
+	{
+	}
 
-	virtual void LeavePhysxScene(PhysxScene * scene);
+	virtual void LeavePhysxScene(PhysxScene* scene)
+	{
+	}
 
-	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
+	{
+	}
 
-	virtual void Update(float fElapsedTime);
+	virtual void OnSetPose(void)
+	{
+	}
 
-	virtual my::AABB CalculateAABB(void) const;
+	virtual void Update(float fElapsedTime)
+	{
+	}
 
-	virtual bool AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	virtual my::AABB CalculateAABB(void) const
+	{
+		return my::AABB(-1, 1);
+	}
+
+	virtual bool AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
+	{
+		return true;
+	}
 
 	void SetMaterial(MaterialPtr material);
 
@@ -361,6 +379,8 @@ public:
 	virtual void LeavePhysxScene(PhysxScene * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
+
+	virtual void OnSetPose(void);
 
 	virtual my::AABB CalculateAABB(void) const;
 
