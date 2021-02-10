@@ -581,7 +581,9 @@ ClothComponent::~ClothComponent(void)
 {
 	if (m_Cloth && m_Cloth->getScene())
 	{
-		_ASSERT(false); LeavePhysxScene((PhysxScene*)m_Cloth->getScene()->userData);
+		_ASSERT(false);
+
+		LeavePhysxScene((PhysxScene*)m_Cloth->getScene()->userData);
 	}
 }
 

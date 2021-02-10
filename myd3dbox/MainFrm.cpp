@@ -617,6 +617,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
+		_ASSERT(actor);
 		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
 		if (!haveSelActors && m_selactors.end() != std::find(m_selactors.begin(), m_selactors.end(), actor))
 		{

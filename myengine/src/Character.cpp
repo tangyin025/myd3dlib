@@ -28,7 +28,7 @@ Character::~Character(void)
 	{
 		_ASSERT(false);
 
-		LeavePhysxScene((PhysxScene*)m_Actor->m_PxActor->getScene()->userData);
+		LeavePhysxScene((PhysxScene*)m_PxController->getActor()->getScene()->userData);
 	}
 }
 
@@ -82,9 +82,14 @@ void Character::EnterPhysxScene(PhysxScene * scene)
 
 void Character::LeavePhysxScene(PhysxScene * scene)
 {
+	_ASSERT(!m_PxController || m_PxController->getActor()->getScene() == scene->m_PxScene.get());
+
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 
-	scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
+	if (m_PxController)
+	{
+		scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
+	}
 
 	m_PxController.reset();
 
