@@ -1101,7 +1101,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeActor:
 		return 9;
 	case Component::ComponentTypeCharacter:
-		return GetComponentPropCount(Component::ComponentTypeActor);
+		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	case Component::ComponentTypeCloth:
