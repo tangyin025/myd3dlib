@@ -407,11 +407,9 @@ my::AABB MeshComponent::CalculateAABB(void) const
 	return Component::CalculateAABB();
 }
 
-bool MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(m_Actor);
-
-	bool ret = false;
 
 	if (m_Mesh)
 	{
@@ -452,15 +450,11 @@ bool MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							pipeline->PushMesh(PassID, m_Mesh.get(), m_MeshSubMeshId, shader, this, m_Material.get(), m_MeshSubMeshId);
 						}
-
-						ret = true;
 					}
 				}
 			}
 		}
 	}
-
-	return ret;
 }
 
 void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
@@ -885,10 +879,8 @@ my::AABB ClothComponent::CalculateAABB(void) const
 	return Component::CalculateAABB();
 }
 
-bool ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	bool ret = false;
-
 	if (!m_VertexData.empty())
 	{
 		_ASSERT(!m_VertexData.empty());
@@ -921,15 +913,11 @@ bool ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 
 						pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
 							0, m_VertexData.size() / m_VertexStride, m_IndexData.size() / 3, &m_IndexData[0], D3DFMT_INDEX16, &m_VertexData[0], m_VertexStride, shader, this, m_Material.get(), 0);
-
-						ret = true;
 					}
 				}
 			}
 		}
 	}
-
-	return ret;
 }
 
 void ClothComponent::Update(float fElapsedTime)
@@ -1076,10 +1064,8 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 	return Component::CalculateAABB();
 }
 
-bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	bool ret = false;
-
 	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
@@ -1128,14 +1114,10 @@ bool EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 					}
 
 					pipeline->PushEmitter(PassID, this, shader, m_Material.get(), 0, this);
-
-					ret = true;
 				}
 			}
 		}
 	}
-
-	return ret;
 }
 
 template<class Archive>

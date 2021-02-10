@@ -416,26 +416,26 @@ void Actor::UpdateOctNode(void)
 	}
 }
 
-bool Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	bool ret = false;
-
-	for (unsigned int lod = m_Lod; lod < Component::LOD_CULLING && !ret; lod <<= 1)
+	for (unsigned int lod = m_Lod; lod < Component::LOD_CULLING; lod <<= 1)
 	{
+		bool lodRequested = false;
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
-			if ((*cmp_iter)->IsRequested() && ((*cmp_iter)->m_LodMask & lod))
+			if (((*cmp_iter)->m_LodMask & lod) && (*cmp_iter)->IsRequested())
 			{
-				if ((*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos))
-				{
-					ret = true;
-				}
+				(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+				lodRequested = true;
 			}
 		}
-	}
 
-	return ret;
+		if (lodRequested)
+		{
+			break;
+		}
+	}
 }
 
 Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)

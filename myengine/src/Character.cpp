@@ -253,9 +253,9 @@ unsigned int Character::Move(const my::Vector3& disp, float minDist, float elaps
 	return moveFlags;
 }
 
-bool Character::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void Character::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	return Actor::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+	Actor::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 }
 
 void Character::OnPxThreadSubstep(float dtime)

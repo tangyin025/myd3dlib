@@ -92,7 +92,7 @@ public:
 
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime);
 
-	virtual bool AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
 	virtual void OnPxThreadSubstep(float dtime);
 

@@ -575,7 +575,7 @@ my::AABB Terrain::CalculateAABB(void) const
 	return ret;
 }
 
-bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(m_Actor);
 
@@ -587,15 +587,13 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		Terrain * terrain;
 		IndexTable::element * pIndices;
 		unsigned int RootPrimitiveCount;
-		bool & ret;
-		Callback(RenderPipeline * _pipeline, unsigned int _PassMask, const Vector3 & _LocalViewPos, Terrain * _terrain, IndexTable::element * _pIndices, bool & _ret)
+		Callback(RenderPipeline * _pipeline, unsigned int _PassMask, const Vector3 & _LocalViewPos, Terrain * _terrain, IndexTable::element * _pIndices)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
 			, terrain(_terrain)
 			, pIndices(_pIndices)
 			, RootPrimitiveCount(0)
-			, ret(_ret)
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -662,16 +660,12 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
 								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
-
-							ret = true;
 						}
 					}
 				}
 			}
 		}
 	};
-
-	bool ret = false;
 
 	if (m_Decl)
 	{
@@ -694,7 +688,7 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					viewed_chunk_iter++;
 			}
 		}
-		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0), ret);
+		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0));
 		QueryEntity(LocalFrustum, &cb);
 		m_RootIb.Unlock();
 		if (cb.RootPrimitiveCount > 0)
@@ -715,16 +709,12 @@ bool Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_RootVb.m_ptr, m_RootIb.m_ptr, D3DPT_TRIANGLELIST,
 								0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(0, 0));
-
-							ret = true;
 						}
 					}
 				}
 			}
 		}
 	}
-
-	return ret;
 }
 
 void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
