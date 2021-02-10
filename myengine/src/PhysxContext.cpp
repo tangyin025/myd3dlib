@@ -204,6 +204,7 @@ void PhysxScene::TickPostRender(float dtime)
 			if (std::find(mDeletedActors.begin(), mDeletedActors.end(), mBufferedActiveTransforms[i].actor) == mDeletedActors.end())
 			{
 				Actor * actor = (Actor *)mBufferedActiveTransforms[i].userData;
+				_ASSERT(actor);
 				actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
 			}
 		}
@@ -424,7 +425,7 @@ void PhysxScene::onAdvance(const physx::PxRigidBody* const* bodyBuffer, const ph
 
 }
 
-void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor)
+void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxActor * actor)
 {
 	// check if the actor is in the active transform list and remove
 	if (actor->getType() == physx::PxActorType::eRIGID_DYNAMIC)
@@ -438,6 +439,6 @@ void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * 
 				break;
 			}
 		}
-		mDeletedActors.push_back(const_cast<physx::PxRigidActor*>(actor));
+		mDeletedActors.push_back(const_cast<physx::PxActor*>(actor));
 	}
 }

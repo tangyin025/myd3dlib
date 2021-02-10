@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "Terrain.h"
 #include "Material.h"
 #include "resource.h"
 #include <sstream>

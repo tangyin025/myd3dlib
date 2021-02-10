@@ -1,15 +1,13 @@
 #pragma once
 
-#include "Actor.h"
-#include "mySpline.h"
-#include <boost/intrusive_ptr.hpp>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include "Component.h"
 
 class Character;
 
-struct ShapeHitEventArg : public ActorEventArg
+struct ShapeHitEventArg : public my::EventArg
 {
 public:
+	Character* self;
 	my::Vector3 worldPos;		//!< Contact position in world space
 	my::Vector3 worldNormal;	//!< Contact normal in world space
 	my::Vector3 dir;			//!< Motion direction
@@ -18,11 +16,21 @@ public:
 	Actor* other;				//!< Touched actor
 	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
 
-	ShapeHitEventArg::ShapeHitEventArg(Character* _self);
+	ShapeHitEventArg::ShapeHitEventArg(Character* _self)
+		: self(_self)
+		, worldPos(0, 0, 0)
+		, worldNormal(1, 0, 0)
+		, dir(1, 0, 0)
+		, length(0)
+		, cmp(NULL)
+		, other(NULL)
+		, triangleIndex(0)
+	{
+	}
 };
 
 class Character
-	: public Actor
+	: public Component
 	, public physx::PxUserControllerHitReport
 	, public physx::PxControllerBehaviorCallback
 {
@@ -51,8 +59,8 @@ protected:
 	}
 
 public:
-	Character(const char * Name, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
-		: Actor(Name, Position, Rotation, Scale, aabb)
+	Character(const char * Name, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
+		: Component(ComponentTypeCharacter, Name)
 		, m_Height(Height)
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
@@ -84,11 +92,11 @@ public:
 
 	virtual void LeavePhysxScene(PhysxScene * scene);
 
-	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
+	virtual void OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam);
+
+	virtual void OnSetPose(void);
 
 	virtual void Update(float fElapsedTime);
-
-	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime);
 

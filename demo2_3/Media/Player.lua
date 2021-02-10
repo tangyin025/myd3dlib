@@ -20,7 +20,9 @@ mesh2:Transform(Matrix4.Compose(
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
 -- 创建Player主体
-player=Character("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1), 1.5, 0.1, 0.1, 1)
+player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+local character_cmp=Character(NamedObject.MakeUniqueName("character_cmp"),1.5,0.1,0.1,1)
+player:AddComponent(character_cmp)
 
 -- 模型材质
 local lambert1=Material()
@@ -132,7 +134,7 @@ player.EventUpdate=function(arg)
 		velocity.z=0
 		node_walk:SetActiveChild(0,0.1)
 	end
-	local moveFlag=arg.self:Move(velocity*game.ElapsedTime,0.001,game.ElapsedTime)
+	local moveFlag=character_cmp:Move(velocity*game.ElapsedTime,0.001,game.ElapsedTime)
 	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then
 		velocity.y=0
 	end

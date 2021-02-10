@@ -1060,21 +1060,21 @@ void CMainFrame::OnCreateActor()
 
 void CMainFrame::OnCreateCharacter()
 {
-	// TODO: Add your command handler code here
-	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
-	my::Vector3 Pos(0,0,0);
-	if (pView)
+	//// TODO: Add your command handler code here
+	SelActorList::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
 	{
-		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
+		return;
 	}
-	CharacterPtr character(new Character(my::NamedObject::MakeUniqueName("editor_character").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1), 1.0f, 1.0f, 0.1f, 1));
-	character->UpdateWorld();
-	AddEntity(character.get(), character->m_aabb.transform(character->m_World), Actor::MinBlock, Actor::Threshold);
-	m_ActorList.insert(character);
 
-	m_selactors.clear();
-	m_selactors.push_back(character.get());
-	OnSelChanged();
+	CharacterPtr character_cmp(new Character(my::NamedObject::MakeUniqueName("editor_character_cmp").c_str(), 1.0f, 1.0f, 0.1f, 1));
+	(*actor_iter)->AddComponent(character_cmp);
+	(*actor_iter)->UpdateAABB();
+	(*actor_iter)->UpdateOctNode();
+	UpdateSelBox();
+
+	my::EventArg arg;
+	m_EventAttributeChanged(&arg);
 }
 
 void CMainFrame::OnComponentMesh()

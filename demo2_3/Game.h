@@ -3,7 +3,7 @@
 #include "Console.h"
 #include "LuaExtension.h"
 #include "RenderPipeline.h"
-#include "Character.h"
+#include "Actor.h"
 #include "PhysxContext.h"
 #include "FModContext.h"
 

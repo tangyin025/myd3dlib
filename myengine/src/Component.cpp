@@ -830,6 +830,8 @@ void ClothComponent::LeavePhysxScene(PhysxScene * scene)
 	if (m_Cloth)
 	{
 		scene->m_PxScene->removeActor(*m_Cloth);
+
+		scene->removeRenderActorsFromPhysicsActor(m_Cloth.get());
 	}
 
 	Component::LeavePhysxScene(scene);

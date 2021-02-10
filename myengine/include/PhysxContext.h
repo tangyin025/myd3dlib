@@ -175,5 +175,5 @@ public:
 
 	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count);
 
-	void removeRenderActorsFromPhysicsActor(const physx::PxRigidActor * actor);
+	void removeRenderActorsFromPhysicsActor(const physx::PxActor * actor);
 };

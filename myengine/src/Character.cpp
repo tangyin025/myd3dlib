@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "Actor.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -21,53 +22,43 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Character)
 
-ShapeHitEventArg::ShapeHitEventArg(Character* _self)
-	: ActorEventArg(_self)
-	, worldPos(0, 0, 0)
-	, worldNormal(1, 0, 0)
-	, dir(1, 0, 0)
-	, length(0)
-	, cmp(NULL)
-	, other(NULL)
-	, triangleIndex(0)
-{
-}
-
 Character::~Character(void)
 {
-	if (m_PxActor && m_PxActor->getScene())
+	if (m_PxController)
 	{
 		_ASSERT(false);
 
-		LeavePhysxScene((PhysxScene*)m_PxActor->getScene()->userData);
+		LeavePhysxScene((PhysxScene*)m_Actor->m_PxActor->getScene()->userData);
 	}
 }
 
 template<class Archive>
 void Character::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Actor);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 }
 
 template<class Archive>
 void Character::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Actor);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 }
 
 void Character::RequestResource(void)
 {
-	Actor::RequestResource();
+	Component::RequestResource();
 }
 
 void Character::ReleaseResource(void)
 {
-	Actor::ReleaseResource();
+	Component::ReleaseResource();
 }
 
 void Character::EnterPhysxScene(PhysxScene * scene)
 {
-	Actor::EnterPhysxScene(scene);
+	Component::EnterPhysxScene(scene);
+
+	_ASSERT(m_Actor);
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
@@ -75,15 +66,16 @@ void Character::EnterPhysxScene(PhysxScene * scene)
 	desc.height = m_Height;
 	desc.radius = m_Radius;
 	desc.contactOffset = m_ContactOffset;
-	desc.position = physx::PxExtendedVec3(m_Position.x, m_Position.y, m_Position.z);
+	desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y, m_Actor->m_Position.z);
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
 	desc.userData = this;
 	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysxDeleter<physx::PxController>());
 
+	// ! TODO: rescurely call Actor::OnPxTransformChanged, Character::OnSetPose
 	physx::PxActor * actor = m_PxController->getActor();
-	actor->userData = this;
+	actor->userData = m_Actor;
 
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
@@ -98,12 +90,7 @@ void Character::LeavePhysxScene(PhysxScene * scene)
 
 	m_PxMaterial.reset();
 
-	Actor::LeavePhysxScene(scene);
-}
-
-void Character::OnPxTransformChanged(const physx::PxTransform & trans)
-{
-
+	Component::LeavePhysxScene(scene);
 }
 
 void Character::Update(float fElapsedTime)
@@ -186,8 +173,6 @@ void Character::Update(float fElapsedTime)
 	//	}
 	//}
 
-	Actor::Update(fElapsedTime);
-
 	//if (m_Animation)
 	//{
 	//	m_Animation->Update(fElapsedTime);
@@ -219,20 +204,16 @@ void Character::Update(float fElapsedTime)
 	//}
 }
 
-void Character::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
+void Character::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
+{
+}
+
+void Character::OnSetPose(void)
 {
 	if (m_PxController)
 	{
-		m_PxController->setPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+		m_PxController->setPosition(physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y, m_Actor->m_Position.z));
 	}
-
-	m_Position = Pos;
-
-	m_Rotation = Rot;
-
-	UpdateWorld();
-
-	UpdateOctNode();
 }
 
 unsigned int Character::Move(const my::Vector3& disp, float minDist, float elapsedTime)
@@ -243,11 +224,8 @@ unsigned int Character::Move(const my::Vector3& disp, float minDist, float elaps
 	{
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
-		m_Position = (Vector3&)physx::toVec3(m_PxController->getPosition());
-
-		UpdateWorld();
-
-		UpdateOctNode();
+		// ! TODO: rescurely call Actor::OnPxTransformChanged, Character::OnSetPose
+		m_Actor->SetPose((Vector3&)physx::toVec3(m_PxController->getPosition()), m_Actor->m_Rotation);
 	}
 
 	return moveFlags;
@@ -255,12 +233,10 @@ unsigned int Character::Move(const my::Vector3& disp, float minDist, float elaps
 
 void Character::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	Actor::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 }
 
 void Character::OnPxThreadSubstep(float dtime)
 {
-
 }
 
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)

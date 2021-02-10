@@ -1,5 +1,5 @@
 #include "Animation.h"
-#include "Character.h"
+#include "Actor.h"
 #include "myResource.h"
 #include "PhysxContext.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>

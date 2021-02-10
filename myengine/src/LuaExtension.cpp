@@ -20,9 +20,10 @@ extern "C"
 #include "Material.h"
 #include "RenderPipeline.h"
 #include "PhysxContext.h"
-#include "Character.h"
 #include "Animation.h"
+#include "Actor.h"
 #include "Terrain.h"
+#include "Character.h"
 #include "ActionTrack.h"
 
 static int add_file_and_line(lua_State * L)
@@ -1231,6 +1232,18 @@ void LuaContext::Init(void)
 			.def("GetNormal", &TerrainStream::GetNormal, copy(result))
 			.def("SetNormal", (void(TerrainStream::*)(const my::Vector3&, int, int))&TerrainStream::SetNormal)
 
+		, class_<Character, Component, boost::shared_ptr<Component> >("Character")
+			.enum_("CollisionFlag")
+			[
+				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
+				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
+				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+			]
+			.def(constructor<const char*, float, float, float, unsigned int>())
+			.def_readwrite("filterWord0", &Character::m_filterWord0)
+			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
+			.def("Move", &Character::Move)
+
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)
 
@@ -1302,19 +1315,6 @@ void LuaContext::Init(void)
 			.def_readonly("cmp", &ShapeHitEventArg::cmp)
 			.def_readonly("other", &ShapeHitEventArg::other)
 			.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
-
-		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
-			.enum_("CollisionFlag")
-			[
-				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
-				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
-				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
-			]
-			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &, float, float, float, unsigned int>())
-			.def_readwrite("filterWord0", &Character::m_filterWord0)
-			.def_readwrite("EventShapeHit", &Character::m_EventShapeHit)
-			.def("SetPose", &Character::SetPose)
-			.def("Move", &Character::Move)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
