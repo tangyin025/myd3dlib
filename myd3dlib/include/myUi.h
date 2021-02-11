@@ -489,13 +489,17 @@ namespace my
 	class Button : public Static
 	{
 	protected:
+		D3DXCOLOR m_BlendColor;
+
 		Button(void)
+			: m_BlendColor(0, 0, 0, 0)
 		{
 		}
 
 	public:
 		Button(const char * Name)
 			: Static(Name)
+			, m_BlendColor(0, 0, 0, 0)
 		{
 		}
 
@@ -977,6 +981,8 @@ namespace my
 
 		EventFunction m_EventSelectionChanged;
 
+		D3DXCOLOR m_BlendColor;
+
 	protected:
 		ComboBox(void)
 			: m_DropdownSize(100, 100)
@@ -988,6 +994,7 @@ namespace my
 			, m_ItemHeight(15)
 			, m_iFocused(0)
 			, m_iSelected(-1)
+			, m_BlendColor(0, 0, 0, 0)
 		{
 			OnLayout();
 		}
@@ -1005,6 +1012,7 @@ namespace my
 			, m_ItemHeight(15)
 			, m_iFocused(0)
 			, m_iSelected(-1)
+			, m_BlendColor(0, 0, 0, 0)
 		{
 			OnLayout();
 		}

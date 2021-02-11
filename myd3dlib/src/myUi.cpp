@@ -845,16 +845,19 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 				}
 				else
 				{
+					D3DXCOLOR DstColor = m_Skin->m_Color;
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						BtnRect = m_Rect.offset(-Skin->m_PressedOffset);
-						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Skin->m_Color);
 					}
 					else
 					{
 						BtnRect = m_Rect;
-						Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
+						DstColor.a = 0;
 					}
+					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
+					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_BlendColor);
 				}
 			}
 
@@ -2300,16 +2303,19 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 				else
 				{
+					D3DXCOLOR DstColor = m_Skin->m_Color;
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						BtnRect = m_Rect.offset(-Skin->m_PressedOffset);
-						Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Skin->m_Color);
 					}
 					else
 					{
 						BtnRect = m_Rect;
-						Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
+						DstColor.a = 0;
 					}
+					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
+					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_BlendColor);
 				}
 			}
 
