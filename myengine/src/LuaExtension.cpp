@@ -250,11 +250,8 @@ void LuaContext::Init(void)
 			.def("slerpSelf", &my::Quaternion::slerpSelf, luabind::return_reference_to(_1))
 			.def("squad", &my::Quaternion::squad)
 			.def("squadSelf", &my::Quaternion::squadSelf, luabind::return_reference_to(_1))
-			.def("ToAxisAngle", &my::Quaternion::ToAxisAngle, luabind::pure_out_value(_2) + luabind::pure_out_value(_3))
-			.def("ToEulerAngleX", &my::Quaternion::ToEulerAngleX)
-			.def("ToEulerAngleY", &my::Quaternion::ToEulerAngleY)
-			.def("ToEulerAngleZ", &my::Quaternion::ToEulerAngleZ)
-			.def("ToEulerAngles", &my::Quaternion::ToEulerAngles)
+			.def("toAxisAngle", &my::Quaternion::toAxisAngle, luabind::pure_out_value(_2) + luabind::pure_out_value(_3))
+			.def("toEulerAngles", &my::Quaternion::toEulerAngles)
 			.scope
 			[
 				def("Identity", &my::Quaternion::Identity),
@@ -301,6 +298,7 @@ void LuaContext::Init(void)
 			.def("translateSelf", (my::Matrix4 & (my::Matrix4::*)(const my::Vector3 &))&my::Matrix4::translateSelf, luabind::return_reference_to(_1))
 			.def("lerp", &my::Matrix4::lerp)
 			.def("lerpSelf", &my::Matrix4::lerpSelf, luabind::return_reference_to(_1))
+			.def("toEulerAngles", &my::Matrix4::toEulerAngles)
 			.scope
 			[
 				def("Compose", (my::Matrix4(*)(const my::Vector3 &, const my::Quaternion &, const my::Vector3 &))&my::Matrix4::Compose),

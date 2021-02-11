@@ -789,7 +789,7 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 		const Bone & bone = m_boneBindPose[i];
 		ofs << "\t\t\t<position x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.z << "\"/>\n";
 		Vector3 axis; float angle;
-		bone.m_rotation.ToAxisAngle(axis, angle);
+		bone.m_rotation.toAxisAngle(axis, angle);
 		ofs << "\t\t\t<rotation angle=\"" << angle << "\">\n";
 		ofs << "\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
 		ofs << "\t\t\t</rotation>\n";
@@ -829,7 +829,7 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 				Bone anim_bone(bone.GetRotation() * base_bone.GetRotation().conjugate(), bone.GetPosition() - base_bone.GetPosition());
 				ofs << "\t\t\t\t\t\t\t<translate x=\"" << anim_bone.m_position.x << "\" y=\"" << anim_bone.m_position.y << "\" z=\"" << anim_bone.m_position.x << "\"/>\n";
 				Vector3 axis; float angle;
-				anim_bone.m_rotation.ToAxisAngle(axis, angle);
+				anim_bone.m_rotation.toAxisAngle(axis, angle);
 				ofs << "\t\t\t\t\t\t\t<rotate angle=\"" << angle << "\">\n";
 				ofs << "\t\t\t\t\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
 				ofs << "\t\t\t\t\t\t\t</rotate>\n";

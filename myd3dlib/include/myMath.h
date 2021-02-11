@@ -1708,39 +1708,32 @@ namespace my
 			return *this;
 		}
 
-		void ToAxisAngle(Vector3 & outAxis, float & outAngle) const
+		void toAxisAngle(Vector3 & outAxis, float & outAngle) const
 		{
 			D3DXQuaternionToAxisAngle((D3DXQUATERNION *)this, (D3DXVECTOR3 *)&outAxis, &outAngle);
 		}
 
-		static Quaternion RotationEulerAngles(const Vector3 & angles)
+		static Quaternion RotationEulerAngles(float x, float y, float z)
 		{
-			return Quaternion(
-				sinf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * cosf(angles.z * 0.5f) - cosf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * sinf(angles.z * 0.5f),
-				cosf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * cosf(angles.z * 0.5f) + sinf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * sinf(angles.z * 0.5f),
-				cosf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * sinf(angles.z * 0.5f) - sinf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * cosf(angles.z * 0.5f),
-				cosf(angles.x * 0.5f) * cosf(angles.y * 0.5f) * cosf(angles.z * 0.5f) + sinf(angles.x * 0.5f) * sinf(angles.y * 0.5f) * sinf(angles.z * 0.5f));
+			float cX(cosf(x / 2.0f));
+			float sX(sinf(x / 2.0f));
+
+			float cY(cosf(y / 2.0f));
+			float sY(sinf(y / 2.0f));
+
+			float cZ(cosf(z / 2.0f));
+			float sZ(sinf(z / 2.0f));
+
+			Quaternion qX(sX, 0.0f, 0.0f, cX);
+			Quaternion qY(0.0f, sY, 0.0f, cY);
+			Quaternion qZ(0.0f, 0.0f, sZ, cZ);
+
+			Quaternion q = (qY * qX) * qZ;
+			_ASSERT(abs(q.magnitudeSq() - 1.0f) < EPSILON_E6);
+			return q;
 		}
 
-		float ToEulerAngleX(void) const
-		{
-			return atan2f((w * x + y * z) * 2, 1 - (x * x + y * y) * 2);
-		}
-
-		float ToEulerAngleY(void) const
-		{
-			return asinf((w * y - z * x) * 2);
-		}
-
-		float ToEulerAngleZ(void) const
-		{
-			return atan2f((w * z + x * y) * 2, 1 - (y * y + z * z) * 2);
-		}
-
-		Vector3 ToEulerAngles(void) const
-		{
-			return Vector3(ToEulerAngleX(), ToEulerAngleY(), ToEulerAngleZ());
-		}
+		Vector3 toEulerAngles(void) const;
 
 	public:
 		static const Quaternion identity;
@@ -2660,6 +2653,61 @@ namespace my
 		}
 
 		static Matrix4 UDQtoRM(const Matrix4 & dual);
+
+		static void MakePositive(Vector3 & euler)
+		{
+			const float negativeFlip = -0.0001f;
+			const float positiveFlip = (D3DX_PI * 2.0f) - 0.0001f;
+
+			if (euler.x < negativeFlip)
+				euler.x += 2.0f * D3DX_PI;
+			else if (euler.x > positiveFlip)
+				euler.x -= 2.0f * D3DX_PI;
+
+			if (euler.y < negativeFlip)
+				euler.y += 2.0f * D3DX_PI;
+			else if (euler.y > positiveFlip)
+				euler.y -= 2.0f * D3DX_PI;
+
+			if (euler.z < negativeFlip)
+				euler.z += 2.0f * D3DX_PI;
+			else if (euler.z > positiveFlip)
+				euler.z -= 2.0f * D3DX_PI;
+		}
+
+		Vector3 toEulerAngles(void) const
+		{
+			// from http://www.geometrictools.com/Documentation/EulerAngles.pdf
+			// YXZ order
+			Vector3 ret;
+			if (_23 < 0.999f) // some fudge for imprecision
+			{
+				if (_23 > -0.999f) // some fudge for imprecision
+				{
+					ret.x = asin(_23);
+					ret.y = atan2(-_13, _33);
+					ret.z = atan2(-_21, _22);
+					MakePositive(ret);
+				}
+				else
+				{
+					// WARNING.  Not unique.  YA - ZA = atan2(-r01,r00)
+					ret.x = -D3DX_PI * 0.5f;
+					ret.y = atan2(-_12, _11);
+					ret.z = 0.0f;
+					MakePositive(ret);
+				}
+			}
+			else
+			{
+				// WARNING.  Not unique.  YA + ZA = atan2(r01,r00)
+				ret.x = D3DX_PI * 0.5f;
+				ret.y = atan2(_12, _11);
+				ret.z = 0.0f;
+				MakePositive(ret);
+			}
+			return ret;
+		}
 
 	public:
 		static const Matrix4 identity;

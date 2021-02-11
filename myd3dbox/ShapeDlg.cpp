@@ -66,7 +66,7 @@ void CShapeDlg::OnOK()
 
 	// ! physx attached shape is not writable
 	m_cmp->ClearShape();
-	my::Quaternion rot(my::Quaternion::RotationEulerAngles(my::Vector3(D3DXToRadian(m_angle.x), D3DXToRadian(m_angle.y), D3DXToRadian(m_angle.z))));
+	my::Quaternion rot(my::Quaternion::RotationEulerAngles(D3DXToRadian(m_angle.x), D3DXToRadian(m_angle.y), D3DXToRadian(m_angle.z)));
 	switch (m_type)
 	{
 	case physx::PxGeometryType::eSPHERE:

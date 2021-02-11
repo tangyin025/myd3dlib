@@ -227,7 +227,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)actor->m_Position.x);
 	pActor->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)actor->m_Position.y);
 	pActor->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)actor->m_Position.z);
-	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
+	my::Vector3 angle = actor->m_Rotation.toEulerAngles();
 	pActor->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
 	pActor->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
 	pActor->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
@@ -327,7 +327,7 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pShape, Co
 	pShape->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)localPose.p.x);
 	pShape->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)localPose.p.y);
 	pShape->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)localPose.p.z);
-	my::Vector3 angle = ((my::Quaternion &)localPose.q).ToEulerAngles();
+	my::Vector3 angle = ((my::Quaternion &)localPose.q).toEulerAngles();
 	pShape->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
 	pShape->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
 	pShape->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
@@ -610,7 +610,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pProp = new CSimpleProp(_T("z"), (_variant_t)actor->m_Position.z, NULL, PropertyActorPosZ);
 	pPosition->AddSubItem(pProp);
 
-	my::Vector3 angle = actor->m_Rotation.ToEulerAngles();
+	my::Vector3 angle = actor->m_Rotation.toEulerAngles();
 	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyActorRot, TRUE);
 	pActor->AddSubItem(pRotate);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyActorRotX);
@@ -745,7 +745,7 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	pProp = new CSimpleProp(_T("z"), (_variant_t)localPose.p.z, NULL, PropertyShapeLocalPosZ);
 	pLocalPos->AddSubItem(pProp);
 
-	my::Vector3 angle = ((my::Quaternion &)localPose.q).ToEulerAngles();
+	my::Vector3 angle = ((my::Quaternion &)localPose.q).toEulerAngles();
 	CMFCPropertyGridProperty * pLocalRot = new CSimpleProp(_T("LocalRot"), PropertyShapeLocalRot, TRUE);
 	pShape->AddSubItem(pLocalRot);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyShapeLocalRotX);
@@ -1420,10 +1420,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal);
 		my::Vector3 DeltaPos = pos - actor->m_Position;
 		actor->m_Position = pos;
-		my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
+		my::Quaternion rot = my::Quaternion::RotationEulerAngles(
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal),
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal),
-			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal)));
+			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal));
 		my::Quaternion DeltaRot = rot / actor->m_Rotation;
 		actor->m_Rotation = rot;
 		actor->m_Scale.x = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
@@ -1593,10 +1593,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal,
 			pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal,
 			pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal);
-		physx::PxQuat localRot = (physx::PxQuat &)my::Quaternion::RotationEulerAngles(my::Vector3(
+		physx::PxQuat localRot = (physx::PxQuat &)my::Quaternion::RotationEulerAngles(
 			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal),
 			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal),
-			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
+			D3DXToRadian(pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal));
 		cmp->m_PxShape->setLocalPose(physx::PxTransform(localPos, localRot));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

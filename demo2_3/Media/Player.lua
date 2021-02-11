@@ -123,10 +123,11 @@ player.EventUpdate=function(arg)
 	if lengthsq > 0.000001 then
 		direction=direction*(1/math.sqrt(lengthsq))
 		local angle=math.atan2(direction.x,direction.z)+game.Camera.Eular.y+math.pi
-		local localAngle=arg.self.Rotation:ToEulerAngleY()
-		localAngle=localAngle+Round(angle-localAngle,-math.pi,math.pi)--*(1.0-math.pow(0.8,30*game.ElapsedTime))
-		arg.self.Rotation=Quaternion.RotationYawPitchRoll(localAngle,0,0)
-		local moveDir=Quaternion.RotationYawPitchRoll(angle,0,0)*Vector3(0,0,1)
+		local localAngle=arg.self.Rotation:toEulerAngles().y
+		local delta=Round(angle-localAngle,-math.pi,math.pi)
+		localAngle=localAngle+delta*(1.0-math.pow(0.8,30*game.ElapsedTime))
+		arg.self.Rotation=Quaternion.RotationEulerAngles(0,localAngle,0)
+		local moveDir=Quaternion.RotationEulerAngles(0,angle,0)*Vector3(0,0,1)
 		velocity.x=moveDir.x*speed
 		velocity.z=moveDir.z*speed
 		node_walk:SetActiveChild(1,0.1)
