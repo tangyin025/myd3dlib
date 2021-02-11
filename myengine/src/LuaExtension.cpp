@@ -76,7 +76,13 @@ void LuaContext::Init(void)
 	using namespace luabind;
 
 	module(m_State)[
-		class_<my::Vector2>("Vector2")
+		def("Lerp", (float(*)(float, float, float))&my::Lerp<float>)
+
+		, def("Clamp", (float(*)(float, float, float))&my::Clamp<float>)
+
+		, def("Round", (float(*)(float, float, float))&my::Round<float>)
+
+		, class_<my::Vector2>("Vector2")
 			.def(constructor<float, float>())
 			.def_readwrite("x", &my::Vector2::x)
 			.def_readwrite("y", &my::Vector2::y)
@@ -244,13 +250,19 @@ void LuaContext::Init(void)
 			.def("slerpSelf", &my::Quaternion::slerpSelf, luabind::return_reference_to(_1))
 			.def("squad", &my::Quaternion::squad)
 			.def("squadSelf", &my::Quaternion::squadSelf, luabind::return_reference_to(_1))
+			.def("ToAxisAngle", &my::Quaternion::ToAxisAngle, luabind::pure_out_value(_2) + luabind::pure_out_value(_3))
+			.def("ToEulerAngleX", &my::Quaternion::ToEulerAngleX)
+			.def("ToEulerAngleY", &my::Quaternion::ToEulerAngleY)
+			.def("ToEulerAngleZ", &my::Quaternion::ToEulerAngleZ)
+			.def("ToEulerAngles", &my::Quaternion::ToEulerAngles)
 			.scope
 			[
 				def("Identity", &my::Quaternion::Identity),
 				def("RotationAxis", &my::Quaternion::RotationAxis),
 				def("RotationMatrix", &my::Quaternion::RotationMatrix),
 				def("RotationYawPitchRoll", &my::Quaternion::RotationYawPitchRoll),
-				def("RotationFromTo", &my::Quaternion::RotationFromTo)
+				def("RotationFromTo", &my::Quaternion::RotationFromTo),
+				def("RotationEulerAngles", &my::Quaternion::RotationEulerAngles)
 			]
 
 		, class_<my::Matrix4>("Matrix4")
