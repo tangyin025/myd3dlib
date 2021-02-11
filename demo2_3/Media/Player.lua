@@ -141,6 +141,7 @@ player.EventUpdate=function(arg)
 	
 	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Eular.y,game.Camera.Eular.x,game.Camera.Eular.z)
 	game.Camera.Eye=arg.self.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*LookDist
+	game.SkyLightCam.Eye=arg.self.Position
 	game.ViewedCenter=arg.self.Position
 end
 
