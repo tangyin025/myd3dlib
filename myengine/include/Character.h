@@ -43,6 +43,8 @@ public:
 
 	unsigned int m_filterWord0;
 
+	bool m_muted;
+
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 	boost::shared_ptr<physx::PxController> m_PxController;
@@ -55,6 +57,7 @@ protected:
 		, m_Radius(1.0f)
 		, m_ContactOffset(0.1f)
 		, m_filterWord0(0)
+		, m_muted(false)
 	{
 	}
 
@@ -65,6 +68,7 @@ public:
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
 		, m_filterWord0(filterWord0)
+		, m_muted(false)
 	{
 	}
 

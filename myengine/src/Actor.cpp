@@ -263,7 +263,9 @@ void Actor::LeavePhysxScene(PhysxScene * scene)
 
 void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
 {
-	if (m_PxActor && !m_Base)
+	_ASSERT(m_PxActor);
+
+	if (!m_Base)
 	{
 		m_Position = (my::Vector3 &)trans.p;
 

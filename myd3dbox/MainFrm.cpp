@@ -616,12 +616,14 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(nbActiveTransforms);
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
-		Actor * actor = (Actor *)activeTransforms[i].userData;
-		_ASSERT(actor);
-		actor->OnPxTransformChanged(activeTransforms[i].actor2World);
-		if (!haveSelActors && m_selactors.end() != std::find(m_selactors.begin(), m_selactors.end(), actor))
+		if (activeTransforms[i].userData)
 		{
-			haveSelActors = true;
+			Actor* actor = (Actor*)activeTransforms[i].userData;
+			actor->OnPxTransformChanged(activeTransforms[i].actor2World);
+			if (!haveSelActors && m_selactors.end() != std::find(m_selactors.begin(), m_selactors.end(), actor))
+			{
+				haveSelActors = true;
+			}
 		}
 	}
 

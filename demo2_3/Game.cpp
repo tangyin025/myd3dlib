@@ -792,27 +792,29 @@ void Game::OnFrameTick(
 		{
 		case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
 		{
-			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
-			_ASSERT(self);
-			if (self->m_EventEnterTrigger)
+			if (trigger_iter->triggerActor->userData)
 			{
-				Actor * other = (Actor *)trigger_iter->otherActor->userData;
-				_ASSERT(other);
-				TriggerEventArg arg(self, other);
-				self->m_EventEnterTrigger(&arg);
+				Actor* self = (Actor*)trigger_iter->triggerActor->userData;
+				if (self->m_EventEnterTrigger && trigger_iter->otherActor->userData)
+				{
+					Actor* other = (Actor*)trigger_iter->otherActor->userData;
+					TriggerEventArg arg(self, other);
+					self->m_EventEnterTrigger(&arg);
+				}
 			}
 			break;
 		}
 		case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
 		{
-			Actor * self = (Actor *)trigger_iter->triggerActor->userData;
-			_ASSERT(self);
-			if (self->m_EventLeaveTrigger)
+			if (trigger_iter->triggerActor->userData)
 			{
-				Actor * other = (Actor *)trigger_iter->otherActor->userData;
-				_ASSERT(other);
-				TriggerEventArg arg(self, other);
-				self->m_EventLeaveTrigger(&arg);
+				Actor* self = (Actor*)trigger_iter->triggerActor->userData;
+				if (self->m_EventLeaveTrigger && trigger_iter->otherActor->userData)
+				{
+					Actor* other = (Actor*)trigger_iter->otherActor->userData;
+					TriggerEventArg arg(self, other);
+					self->m_EventLeaveTrigger(&arg);
+				}
 			}
 			break;
 		}

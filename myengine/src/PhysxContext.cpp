@@ -203,9 +203,11 @@ void PhysxScene::TickPostRender(float dtime)
 		{
 			if (std::find(mDeletedActors.begin(), mDeletedActors.end(), mBufferedActiveTransforms[i].actor) == mDeletedActors.end())
 			{
-				Actor * actor = (Actor *)mBufferedActiveTransforms[i].userData;
-				_ASSERT(actor);
-				actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
+				if (mBufferedActiveTransforms[i].userData)
+				{
+					Actor* actor = (Actor*)mBufferedActiveTransforms[i].userData;
+					actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
+				}
 			}
 		}
 		mDeletedActors.clear();
