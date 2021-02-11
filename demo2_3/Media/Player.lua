@@ -114,15 +114,15 @@ player.EventUpdate=function(arg)
 		end
 		
 		-- 鼠标移动事件
-		game.Camera.Eular.y=game.Camera.Eular.y-math.rad(game.mouse:GetX())
-		game.Camera.Eular.x=game.Camera.Eular.x-math.rad(game.mouse:GetY())
+		game.Camera.Euler.y=game.Camera.Euler.y-math.rad(game.mouse:GetX())
+		game.Camera.Euler.x=game.Camera.Euler.x-math.rad(game.mouse:GetY())
 		LookDist=LookDist-game.mouse:GetZ()/480.0
 	end
 	
 	local lengthsq=direction:magnitudeSq()
 	if lengthsq > 0.000001 then
 		direction=direction*(1/math.sqrt(lengthsq))
-		local angle=math.atan2(direction.x,direction.z)+game.Camera.Eular.y+math.pi
+		local angle=math.atan2(direction.x,direction.z)+game.Camera.Euler.y+math.pi
 		local localAngle=arg.self.Rotation:toEulerAngles().y
 		local delta=Round(angle-localAngle,-math.pi,math.pi)
 		localAngle=localAngle+delta*(1.0-math.pow(0.8,30*game.ElapsedTime))
@@ -142,7 +142,7 @@ player.EventUpdate=function(arg)
 		velocity.y=0
 	end
 	
-	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Eular.y,game.Camera.Eular.x,game.Camera.Eular.z)
+	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Euler.y,game.Camera.Euler.x,game.Camera.Euler.z)
 	game.Camera.Eye=arg.self.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*LookDist
 	game.SkyLightCam.Eye=arg.self.Position
 	game.ViewedCenter=arg.self.Position

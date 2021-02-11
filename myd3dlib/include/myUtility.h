@@ -144,7 +144,7 @@ namespace my
 
 		Vector3 m_Eye;
 
-		Vector3 m_Eular;
+		Vector3 m_Euler;
 
 		float m_Nz;
 
@@ -154,7 +154,7 @@ namespace my
 		Camera(float Aspect, float Nz, float Fz)
 			: m_Aspect(Aspect)
 			, m_Eye(0,0,0)
-			, m_Eular(0,0,0)
+			, m_Euler(0,0,0)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
 		{

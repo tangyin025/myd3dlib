@@ -378,7 +378,7 @@ void LuaContext::Init(void)
 		, class_<my::Camera, my::BaseCamera, boost::shared_ptr<my::Camera> >("Camera")
 			.def_readwrite("Aspect", &my::Camera::m_Aspect)
 			.def_readwrite("Eye", &my::Camera::m_Eye)
-			.def_readwrite("Eular", &my::Camera::m_Eular)
+			.def_readwrite("Euler", &my::Camera::m_Euler)
 			.def_readwrite("Nz", &my::Camera::m_Nz)
 			.def_readwrite("Fz", &my::Camera::m_Fz)
 

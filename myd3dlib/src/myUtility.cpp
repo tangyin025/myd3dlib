@@ -149,7 +149,7 @@ Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 &
 
 void OrthoCamera::UpdateViewProj(void)
 {
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 
@@ -196,7 +196,7 @@ float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
 
 void PerspectiveCamera::UpdateViewProj(void)
 {
-	m_View = Matrix4::Compose(Vector3::one, m_Eular, m_Eye).inverse();
+	m_View = Matrix4::Compose(Vector3::one, m_Euler, m_Eye).inverse();
 
 	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
 
@@ -240,7 +240,7 @@ float PerspectiveCamera::CalculateViewportScaler(Vector3 WorldPos) const
 
 void ModelViewerCamera::UpdateViewProj(void)
 {
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);
 
 	m_Eye = m_LookAt + Rotation[2].xyz * m_Distance;
 
@@ -335,8 +335,8 @@ LRESULT ModelViewerCamera::MsgProc(
 		{
 		case DragModeRotate:
 		{
-			m_Eular.x -= D3DXToRadian((pt.y - m_DragPt.y) * 0.5f);
-			m_Eular.y -= D3DXToRadian((pt.x - m_DragPt.x) * 0.5f);
+			m_Euler.x -= D3DXToRadian((pt.y - m_DragPt.y) * 0.5f);
+			m_Euler.y -= D3DXToRadian((pt.x - m_DragPt.x) * 0.5f);
 			m_DragPt = pt;
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -369,7 +369,7 @@ LRESULT ModelViewerCamera::MsgProc(
 
 void FirstPersonCamera::UpdateViewProj(void)
 {
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Euler.y, m_Euler.x, m_Euler.z);
 
 	m_Eye += (m_LocalVel * 5.0f * D3DContext::getSingleton().m_fElapsedTime).transform(Rotation).xyz;
 
@@ -411,8 +411,8 @@ LRESULT FirstPersonCamera::MsgProc(
 	case WM_MOUSEMOVE:
 		if(m_DragMode)
 		{
-			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPt.y);
-			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPt.x);
+			m_Euler.x -= D3DXToRadian(HIWORD(lParam) - m_DragPt.y);
+			m_Euler.y -= D3DXToRadian(LOWORD(lParam) - m_DragPt.x);
 			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;

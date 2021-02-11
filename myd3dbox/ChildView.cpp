@@ -62,7 +62,7 @@ CChildView::CChildView()
 	// TODO: add construction code here
 	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1f, 3000.0f);
 	m_Camera.reset(model_view_camera);
-	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
+	m_Camera->m_Euler = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	model_view_camera->m_LookAt = my::Vector3(0, 0, 0);
 	model_view_camera->m_Distance = cotf(model_view_camera->m_Fov * 0.5f) * m_CameraDiagonal * 0.5f;
 

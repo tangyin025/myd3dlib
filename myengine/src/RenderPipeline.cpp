@@ -303,7 +303,7 @@ template<class Archive>
 void RenderPipeline::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
-	ar << BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Eular);
+	ar << BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Euler);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	// ! archive_exception::unregistered_class for polymorphic pointer of MaterialParameterTexture
@@ -326,7 +326,7 @@ template<class Archive>
 void RenderPipeline::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Eular);
+	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Euler);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
 	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)

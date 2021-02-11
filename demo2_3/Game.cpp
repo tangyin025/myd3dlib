@@ -322,7 +322,7 @@ Game::Game(void)
 	const float k = cos(D3DXToRadian(45));
 	const float d = 20.0f;
 	m_Camera->m_Eye = my::Vector3(d * k * k, d * k + 1, d * k * k);
-	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
+	m_Camera->m_Euler = my::Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());

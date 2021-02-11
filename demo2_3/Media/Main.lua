@@ -6,7 +6,7 @@ require "Action.lua"
 
 -- -- 设置环境光
 -- game.SkyLightCam.Eye=Vector3(0,0,0)
--- game.SkyLightCam.Eular=Vector3(math.rad(-30),math.rad(0),0)
+-- game.SkyLightCam.Euler=Vector3(math.rad(-30),math.rad(0),0)
 -- game.SkyLightCam.Width=50
 -- game.SkyLightCam.Height=50
 -- game.SkyLightCam.Nz=-50
@@ -89,7 +89,7 @@ SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
 SPlayer.player.EventEnterView=function(arg)
 	arg.self:PlayAction(SAction.act_tuowei)
-	game.Camera.Eular=Vector3(0,0,0)
+	game.Camera.Euler=Vector3(0,0,0)
 end
 
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)

@@ -24,7 +24,7 @@ class CEnvironmentWnd : public CDockablePane
 	{
 		CameraPropertyFov,
 		CameraPropertyLookAt,
-		CameraPropertyEular,
+		CameraPropertyEuler,
 		CameraPropertyBgColor,
 	};
 
@@ -40,7 +40,7 @@ class CEnvironmentWnd : public CDockablePane
 
 	enum SkyLightProperty
 	{
-		SkyLightPropertyEular,
+		SkyLightPropertyEuler,
 		SkyLightPropertyDiffuse,
 		SkyLightPropertySpecular,
 		SkyLightPropertyAmbientColor,
