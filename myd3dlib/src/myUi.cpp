@@ -829,18 +829,17 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			Rectangle BtnRect;
+			Rectangle BtnRect = m_Rect;
 
 			if(!m_bEnabled)
 			{
-				BtnRect = m_Rect;
 				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Skin->m_Color);
 			}
 			else
 			{
 				if(m_bPressed)
 				{
-					BtnRect = m_Rect.offset(Skin->m_PressedOffset);
+					BtnRect = BtnRect.offset(Skin->m_PressedOffset);
 					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 				}
 				else
@@ -848,11 +847,10 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 					D3DXCOLOR DstColor = m_Skin->m_Color;
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						BtnRect = m_Rect.offset(-Skin->m_PressedOffset);
+						BtnRect = BtnRect.offset(-Skin->m_PressedOffset);
 					}
 					else
 					{
-						BtnRect = m_Rect;
 						DstColor.a = 0;
 					}
 					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
@@ -2089,28 +2087,33 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 			Rectangle BtnRect = Rectangle::LeftMiddle(m_Rect.l, m_Rect.t + m_Rect.Height() * 0.5f, m_CheckBtnSize.x, m_CheckBtnSize.y);
 
+			Rectangle TextRect(BtnRect.r, m_Rect.t, m_Rect.r, m_Rect.b);
+
 			if(!m_bEnabled)
 			{
 				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Skin->m_Color);
 			}
 			else
 			{
-				if(m_Checked)
+				D3DXCOLOR DstColor = m_Skin->m_Color;
+				if (m_bMouseOver /*|| m_bHasFocus*/)
 				{
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
+					BtnRect = BtnRect.offset(-Skin->m_PressedOffset);
+
+					TextRect = TextRect.offset(-Skin->m_PressedOffset);
 				}
 				else
 				{
-					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
+					DstColor.a = 0;
 				}
-
-				if(m_bMouseOver /*|| m_bHasFocus*/)
+				Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);
+				D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+				Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_BlendColor);
+				if (m_Checked)
 				{
-					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_Skin->m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 				}
 			}
-
-			Rectangle TextRect(BtnRect.r, m_Rect.t, m_Rect.r, m_Rect.b);
 
 			Skin->DrawString(ui_render, m_Text.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
@@ -2232,11 +2235,10 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 			ComboBoxSkinPtr Skin = boost::dynamic_pointer_cast<ComboBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			Rectangle BtnRect;
+			Rectangle BtnRect = m_Rect;
 
 			if(!m_bEnabled)
 			{
-				BtnRect = m_Rect;
 				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Skin->m_Color);
 			}
 			else
@@ -2245,7 +2247,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				{
 					ui_render->Flush();
 
-					BtnRect = m_Rect.offset(Skin->m_PressedOffset);
+					BtnRect = BtnRect.offset(Skin->m_PressedOffset);
 
 					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Skin->m_Color);
 
@@ -2306,11 +2308,10 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 					D3DXCOLOR DstColor = m_Skin->m_Color;
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						BtnRect = m_Rect.offset(-Skin->m_PressedOffset);
+						BtnRect = BtnRect.offset(-Skin->m_PressedOffset);
 					}
 					else
 					{
-						BtnRect = m_Rect;
 						DstColor.a = 0;
 					}
 					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Skin->m_Color);

@@ -48,6 +48,7 @@ com_chx_skin.Image.Border=Vector4(0,0,0,0)
 com_chx_skin.Font=game.Font
 com_chx_skin.TextColor=ARGB(255,255,255,255)
 com_chx_skin.TextAlign=Font.AlignLeftMiddle
+com_chx_skin.PressedOffset=Vector2(1,2)
 com_chx_skin.DisabledImage=ControlImage()
 com_chx_skin.DisabledImage.Texture=game:LoadTexture("texture/CommonUI.png")
 com_chx_skin.DisabledImage.Rect=Rectangle.LeftTop(69,43,20,20)
