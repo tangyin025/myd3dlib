@@ -207,6 +207,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_SAVE_AS, &CMainFrame::OnFileSaveAs)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
 	ON_COMMAND(ID_CREATE_CHARACTER, &CMainFrame::OnCreateCharacter)
+	ON_UPDATE_COMMAND_UI(ID_CREATE_CHARACTER, &CMainFrame::OnUpdateCreateCharacter)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_MESH, &CMainFrame::OnUpdateComponentMesh)
 	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
@@ -1078,6 +1079,12 @@ void CMainFrame::OnCreateCharacter()
 
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateCreateCharacter(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnComponentMesh()

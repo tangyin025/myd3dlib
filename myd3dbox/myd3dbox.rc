@@ -327,15 +327,13 @@ BEGIN
     POPUP "&Create"
     BEGIN
         MENUITEM "Actor",                       ID_CREATE_ACTOR
+        MENUITEM SEPARATOR
         MENUITEM "Character",                   ID_CREATE_CHARACTER
-        POPUP "Component"
-        BEGIN
-            MENUITEM "Mesh...",                     ID_COMPONENT_MESH
-            MENUITEM "Cloth...",                    ID_COMPONENT_CLOTH
-            MENUITEM "StaticEmitter",               ID_COMPONENT_STATICEMITTER
-            MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
-            MENUITEM "Terrain...",                  ID_COMPONENT_TERRAIN
-        END
+        MENUITEM "Mesh...",                     ID_COMPONENT_MESH
+        MENUITEM "Cloth...",                    ID_COMPONENT_CLOTH
+        MENUITEM "StaticEmitter",               ID_COMPONENT_STATICEMITTER
+        MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
+        MENUITEM "Terrain...",                  ID_COMPONENT_TERRAIN
     END
     POPUP "&Tools"
     BEGIN
