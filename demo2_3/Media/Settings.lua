@@ -453,7 +453,8 @@ function RefreshDisplayAdapter()
 		cbx_vertical_sync.Selected=cbx_vertical_sync:GetNumItems()-1
 	end
 	cbx_vertical_sync:AddItem("Off")
-	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE)
+	-- luabind issue for vs2019, vs2015 worked well: 2147483648 to int will be -2147483648, and then to uint will be 4294967295, ref enum_maker.hpp struct value
+	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,2147483648)--DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE)
 	if bit.tobit(local_device_settings.pp.PresentationInterval) == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE then
 		cbx_vertical_sync.Selected=cbx_vertical_sync:GetNumItems()-1
 	end
@@ -662,6 +663,8 @@ function OnRefreshRateChanged()
 		-- print("Settings.OnRefreshRateChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.FullScreen_RefreshRateInHz=GetComboBoxSelectedData(cbx_refresh_rate)
+	else
+		local_device_settings.pp.FullScreen_RefreshRateInHz=0
 	end
 end
 
