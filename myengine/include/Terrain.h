@@ -181,7 +181,7 @@ public:
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 
-	void SaveChunkData(const char* path);
+	void CreateChunkData(const char* full_path_without_ext);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

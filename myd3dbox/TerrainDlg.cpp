@@ -74,7 +74,7 @@ void CTerrainDlg::OnOK()
 
 	std::string FullPath = theApp.GetFullPath(ts2ms(m_ChunkPath).c_str());
 
-	m_terrain->SaveChunkData(FullPath.c_str());
+	m_terrain->CreateChunkData(FullPath.c_str());
 
 	m_terrain->m_ChunkPath = theApp.GetRelativePath(FullPath.c_str());
 

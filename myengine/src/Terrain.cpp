@@ -865,7 +865,7 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 	}
 }
 
-void Terrain::SaveChunkData(const char* path)
+void Terrain::CreateChunkData(const char* full_path_without_ext)
 {
 	for (int Row = 0; Row < m_RowChunks; Row++)
 	{
@@ -884,7 +884,7 @@ void Terrain::SaveChunkData(const char* path)
 			}
 
 			std::ostringstream chunk_path;
-			chunk_path << path << "_" << Row << "_" << Col << ".chunk";
+			chunk_path << full_path_without_ext << "_" << Row << "_" << Col << ".chunk";
 			std::ofstream ofs(chunk_path.str(), std::ios::binary);
 			ofs.write(&buff[0], buff.size());
 		}
@@ -1027,7 +1027,7 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
-		my::ResourceMgr::getSingleton().CheckIORequests(0);
+		//my::ResourceMgr::getSingleton().CheckIORequests(0);
 	}
 }
 
@@ -1080,7 +1080,7 @@ void TerrainStream::SetColor(D3DCOLOR Color, int k, int l, int m, int n)
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
-		my::ResourceMgr::getSingleton().CheckIORequests(0);
+		//my::ResourceMgr::getSingleton().CheckIORequests(0);
 	}
 }
 
@@ -1138,6 +1138,6 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
-		my::ResourceMgr::getSingleton().CheckIORequests(0);
+		//my::ResourceMgr::getSingleton().CheckIORequests(0);
 	}
 }
