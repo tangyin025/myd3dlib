@@ -337,7 +337,10 @@ BEGIN
     END
     POPUP "&Tools"
     BEGIN
+        MENUITEM "Move",                        ID_PIVOT_MOVE
+        MENUITEM "Rotate",                      ID_PIVOT_ROTATE
         MENUITEM "Build &Navigation",           ID_TOOLS_BUILDNAVIGATION
+        MENUITEM "&Clear Shader",               ID_VIEW_CLEARSHADER
     END
     POPUP "&View"
     BEGIN
@@ -362,12 +365,6 @@ BEGIN
             END
         END
         MENUITEM "S&plit",                      ID_WINDOW_SPLIT
-        POPUP "Pivot"
-        BEGIN
-            MENUITEM "Move",                        ID_PIVOT_MOVE
-            MENUITEM "Rotate",                      ID_PIVOT_ROTATE
-        END
-        MENUITEM "&Clear Shader",               ID_VIEW_CLEARSHADER
     END
     POPUP "&Help"
     BEGIN
