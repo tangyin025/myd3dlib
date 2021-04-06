@@ -54,9 +54,6 @@
     <ClCompile Include="SimplifyMeshDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainGrassBrashDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OutputWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,9 +105,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimplifyMeshDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainGrassBrashDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OutputWnd.h">

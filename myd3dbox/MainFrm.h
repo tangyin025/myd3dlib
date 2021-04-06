@@ -119,8 +119,6 @@ public:
 	afx_msg void OnUpdatePivotRotate(CCmdUI *pCmdUI);
 	afx_msg void OnViewClearshader();
 	afx_msg void OnToolsBuildnavigation();
-	afx_msg void OnToolsSimplifymesh();
-	afx_msg void OnToolsTerraingrassbrush();
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 };
 

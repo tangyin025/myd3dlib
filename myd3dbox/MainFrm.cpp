@@ -22,7 +22,6 @@
 #include <fstream>
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
-#include "TerrainGrassBrashDlg.h"
 #include "Animation.h"
 #include "Win32InputBox.h"
 #include <luabind/luabind.hpp>
@@ -226,8 +225,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
 	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
-	ON_COMMAND(ID_TOOLS_SIMPLIFYMESH, &CMainFrame::OnToolsSimplifymesh)
-	ON_COMMAND(ID_TOOLS_TERRAINGRASSBRUSH, &CMainFrame::OnToolsTerraingrassbrush)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1438,58 +1435,4 @@ void CMainFrame::OnToolsBuildnavigation()
 	{
 		return;
 	}
-}
-
-void CMainFrame::OnToolsSimplifymesh()
-{
-	// TODO: Add your command handler code here
-	CSimplifyMeshDlg dlg;
-	if (dlg.DoModal() != IDOK)
-	{
-		return;
-	}
-}
-
-void CMainFrame::OnToolsTerraingrassbrush()
-{
-	// TODO: Add your command handler code here
-	//CTerrainGrassBrashDlg dlg;
-	//if (dlg.DoModal() != IDOK)
-	//{
-	//	return;
-	//}
-
-	//SelActorList::iterator actor_iter = m_selactors.begin();
-	//if (actor_iter == m_selactors.end())
-	//{
-	//	return;
-	//}
-
-	//Terrain * terrain = NULL;
-	//Actor::ComponentPtrList::iterator cmp_iter = (*actor_iter)->m_Cmps.begin();
-	//for (; cmp_iter != (*actor_iter)->m_Cmps.end(); cmp_iter++)
-	//{
-	//	if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
-	//	{
-	//		terrain = dynamic_cast<Terrain *>(cmp_iter->get());
-	//	}
-	//}
-	//if (!terrain)
-	//{
-	//	return;
-	//}
-
-	//D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
-	//for (float z = 0; z < terrain->m_RowChunks * terrain->m_ChunkSize; z += 1.0f)
-	//{
-	//	for (float x = 0; x < terrain->m_ColChunks * terrain->m_ChunkSize; x += 1.0f)
-	//	{
-	//		int i = (int)floor(z / terrain->m_ChunkSize);
-	//		int j = (int)floor(x / terrain->m_ChunkSize);
-	//		TerrainChunk * chunk = terrain->m_Chunks[i][j];
-	//		//chunk->Spawn(my::Vector3(x, terrain->GetPosHeight(lrc.pBits, lrc.Pitch, x, z), z),
-	//		//	my::Vector3::zero, my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), boost::hash_value(std::make_pair(x, z)) / (float)SIZE_MAX * D3DX_PI * 2.0f);
-	//	}
-	//}
-	//terrain->m_HeightMap.UnlockRect();
 }

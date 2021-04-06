@@ -310,7 +310,7 @@ BEGIN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
@@ -338,8 +338,6 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "Build &Navigation",           ID_TOOLS_BUILDNAVIGATION
-        MENUITEM "Simplify &Mesh",              ID_TOOLS_SIMPLIFYMESH
-        MENUITEM "Terrain &Grass Brush",        ID_TOOLS_TERRAINGRASSBRUSH
     END
     POPUP "&View"
     BEGIN
