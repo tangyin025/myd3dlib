@@ -225,6 +225,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
 	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
+	ON_COMMAND(ID_TERRAIN_PAINT_HEIGHTFIELD, &CMainFrame::OnTerrainPaintHeightfield)
+	ON_UPDATE_COMMAND_UI(ID_TERRAIN_PAINT_HEIGHTFIELD, &CMainFrame::OnUpdateTerrainPaintHeightfield)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -242,6 +244,7 @@ CMainFrame::CMainFrame()
 	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
+	, m_TerrainPaintMode(TerrainPaintNone)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -1435,4 +1438,39 @@ void CMainFrame::OnToolsBuildnavigation()
 	{
 		return;
 	}
+}
+
+void CMainFrame::OnTerrainPaintHeightfield()
+{
+	// TODO: Add your command handler code here
+	if (m_TerrainPaintMode == TerrainPaintHeightField)
+	{
+		m_TerrainPaintMode = TerrainPaintNone;
+	}
+	else
+	{
+		m_TerrainPaintMode = TerrainPaintHeightField;
+	}
+}
+
+void CMainFrame::OnUpdateTerrainPaintHeightfield(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	if (m_selactors.empty())
+	{
+		pCmdUI->Enable(FALSE);
+		return;
+	}
+
+	Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
+	for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+		{
+			pCmdUI->Enable(TRUE);
+			pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintHeightField);
+			return;
+		}
+	}
+	pCmdUI->Enable(FALSE);
 }

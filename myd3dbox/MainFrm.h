@@ -40,6 +40,14 @@ public:
 	ActorPtrSet m_ActorList;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
+	enum TerrainPaintMode
+	{
+		TerrainPaintNone,
+		TerrainPaintHeightField,
+		TerrainPaintTexture,
+		TerrainPaintGrass,
+	};
+	TerrainPaintMode m_TerrainPaintMode;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;
 	my::EventSignal m_EventSelectionPlaying;
@@ -120,6 +128,8 @@ public:
 	afx_msg void OnViewClearshader();
 	afx_msg void OnToolsBuildnavigation();
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
+	afx_msg void OnTerrainPaintHeightfield();
+	afx_msg void OnUpdateTerrainPaintHeightfield(CCmdUI* pCmdUI);
 };
 
 
