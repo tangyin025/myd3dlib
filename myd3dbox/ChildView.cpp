@@ -1038,8 +1038,14 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
-					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
-					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
+					if (pFrame->m_TerrainPaintMode == CMainFrame::TerrainPaintHeightField)
+					{
+					}
+					else
+					{
+						m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
+						pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
+					}
 				}
 
 				theApp.m_UIRender->Begin();
@@ -1139,6 +1145,12 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+	if (pFrame->HandleTerrainLButtonDown(ray))
+	{
+		Invalidate();
+		return;
+	}
+
 	if (!pFrame->m_selactors.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();

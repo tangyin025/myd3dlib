@@ -637,6 +637,11 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 
 void CMainFrame::OnSelChanged()
 {
+	if (m_TerrainPaintMode != TerrainPaintNone)
+	{
+		m_TerrainPaintMode = TerrainPaintNone;
+	}
+
 	UpdateSelBox();
 	UpdatePivotTransform();
 	my::EventArg arg;
@@ -892,6 +897,26 @@ void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
 	{
 		UpdateSelBox();
 	}
+}
+
+bool CMainFrame::HandleTerrainLButtonDown(const my::Ray& ray)
+{
+	if (!m_selactors.empty())
+	{
+		Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
+		for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
+		{
+			if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+			{
+				if (m_TerrainPaintMode == TerrainPaintHeightField)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 void CMainFrame::OnDestroy()
@@ -1397,6 +1422,7 @@ void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
+	m_TerrainPaintMode = TerrainPaintNone;
 	m_Pivot.m_Mode = Pivot::PivotModeMove;
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -1405,12 +1431,13 @@ void CMainFrame::OnPivotMove()
 void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeMove);
+	pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintNone && m_Pivot.m_Mode == Pivot::PivotModeMove);
 }
 
 void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
+	m_TerrainPaintMode = TerrainPaintNone;
 	m_Pivot.m_Mode = Pivot::PivotModeRot;
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -1419,7 +1446,7 @@ void CMainFrame::OnPivotRotate()
 void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
+	pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintNone && m_Pivot.m_Mode == Pivot::PivotModeRot);
 }
 
 void CMainFrame::OnViewClearshader()
@@ -1456,21 +1483,19 @@ void CMainFrame::OnTerrainPaintHeightfield()
 void CMainFrame::OnUpdateTerrainPaintHeightfield(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	if (m_selactors.empty())
+	if (!m_selactors.empty())
 	{
-		pCmdUI->Enable(FALSE);
-		return;
-	}
-
-	Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
-	for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+		Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
+		for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
 		{
-			pCmdUI->Enable(TRUE);
-			pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintHeightField);
-			return;
+			if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+			{
+				pCmdUI->Enable(TRUE);
+				pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintHeightField);
+				return;
+			}
 		}
 	}
+
 	pCmdUI->Enable(FALSE);
 }

@@ -75,6 +75,7 @@ public:
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	bool RemoveEntity(my::OctEntity * entity);
 	void OnMeshComponentReady(my::EventArg* arg);
+	bool HandleTerrainLButtonDown(const my::Ray& ray);
 
 // Implementation
 public:
