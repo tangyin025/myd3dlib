@@ -1430,13 +1430,13 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch (nChar)
 	{
 	case 'W':
-		if (pFrame->m_Pivot.m_Mode != Pivot::PivotModeMove)
+		if (pFrame->m_TerrainPaintMode != CMainFrame::TerrainPaintNone || pFrame->m_Pivot.m_Mode != Pivot::PivotModeMove)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_MOVE, 0, NULL, NULL);
 		}
 		return;
 	case 'E':
-		if (pFrame->m_Pivot.m_Mode != Pivot::PivotModeRot)
+		if (pFrame->m_TerrainPaintMode != CMainFrame::TerrainPaintNone || pFrame->m_Pivot.m_Mode != Pivot::PivotModeRot)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_ROTATE, 0, NULL, NULL);
 		}

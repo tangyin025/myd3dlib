@@ -1051,9 +1051,15 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
 
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
+#if 0
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
 		my::ResourceMgr::getSingleton().CheckIORequests(0);
 		m_terrain->m_ViewedChunks.erase(m_terrain->m_Chunks[k][l].get());
+#else
+		unsigned char* pVertices = (unsigned char*)m_terrain->m_Chunks[k][l]->m_vb->Lock(0, 0, D3DLOCK_DISCARD);
+		memcpy(pVertices + off, &Pos, sizeof(Pos));
+		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+#endif
 	}
 }
 
@@ -1105,9 +1111,15 @@ void TerrainStream::SetColor(D3DCOLOR Color, int k, int l, int m, int n)
 
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
+#if 0
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
 		my::ResourceMgr::getSingleton().CheckIORequests(0);
 		m_terrain->m_ViewedChunks.erase(m_terrain->m_Chunks[k][l].get());
+#else
+		unsigned char* pVertices = (unsigned char*)m_terrain->m_Chunks[k][l]->m_vb->Lock(0, 0, D3DLOCK_DISCARD);
+		memcpy(pVertices + off, &Color, sizeof(Color));
+		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+#endif
 	}
 }
 
@@ -1164,8 +1176,14 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
+#if 0
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
 		my::ResourceMgr::getSingleton().CheckIORequests(0);
 		m_terrain->m_ViewedChunks.erase(m_terrain->m_Chunks[k][l].get());
+#else
+		unsigned char* pVertices = (unsigned char*)m_terrain->m_Chunks[k][l]->m_vb->Lock(0, 0, D3DLOCK_DISCARD);
+		memcpy(pVertices + off, &dw, sizeof(dw));
+		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+#endif
 	}
 }
