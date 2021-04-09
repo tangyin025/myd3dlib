@@ -188,7 +188,7 @@ typedef boost::shared_ptr<Terrain> TerrainPtr;
 
 class TerrainStream
 {
-protected:
+public:
 	Terrain* m_terrain;
 
 	boost::multi_array<std::fstream, 2> m_fstrs;

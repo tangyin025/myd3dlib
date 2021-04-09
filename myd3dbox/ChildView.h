@@ -41,7 +41,7 @@ public:
 	BOOL m_bShowCmpHandle;
 	BOOL m_bShowNavigation;
 	BOOL m_bCopyActors;
-	BOOL m_TerrainPaintCaptured;
+	boost::shared_ptr<TerrainStream> m_TerrainPaintCaptured;
 protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
@@ -152,7 +152,7 @@ public:
 	virtual void OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView);
 	afx_msg void OnShowNavigation();
 	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
-	void OnTerrainPaintHeightField(const my::Ray& ray, Terrain* terrain);
+	void OnTerrainPaintHeightField(const my::Ray& ray, TerrainStream & tstr);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp
