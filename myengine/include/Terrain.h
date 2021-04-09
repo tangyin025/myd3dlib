@@ -195,7 +195,7 @@ public:
 
 	boost::multi_array<bool, 2> m_AabbDirty;
 
-	unsigned char * m_RootVerts;
+	boost::multi_array<bool, 2> m_VertDirty;
 
 public:
 	explicit TerrainStream(Terrain* terrain);
