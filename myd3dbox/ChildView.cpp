@@ -57,6 +57,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
+	, m_TerrainPaintCaptured(FALSE)
 	, m_raychunkid(0, 0)
 {
 	// TODO: add construction code here
@@ -1148,22 +1149,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelTerrainComponent());
 	if (terrain && pFrame->m_TerrainPaintMode == CMainFrame::TerrainPaintHeightField)
 	{
-		my::Ray local_ray = ray.transform(pFrame->m_selactors.front()->m_World.inverse());
-		my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, terrain);
-		if (res.first)
-		{
-			my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-			TerrainStream tstr(terrain);
-			for (int i = my::Max(0, (int)(pt.z - pFrame->m_TerrainPaintHeightFieldRadius));
-				i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize, (int)(pt.z + pFrame->m_TerrainPaintHeightFieldRadius)); i++)
-			{
-				for (int j = my::Max(0, (int)(pt.x - pFrame->m_TerrainPaintHeightFieldRadius));
-					j < my::Min(terrain->m_ColChunks* terrain->m_ChunkSize, (int)(pt.x + pFrame->m_TerrainPaintHeightFieldRadius)); j++)
-				{
-					tstr.SetPos(my::Vector3(j, pFrame->m_TerrainPaintHeightFieldLength, i), i, j, true);
-				}
-			}
-		}
+		OnTerrainPaintHeightField(ray, terrain);
+		m_TerrainPaintCaptured = TRUE;
+		SetCapture();
 		Invalidate();
 		return;
 	}
@@ -1281,6 +1269,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	if (m_TerrainPaintCaptured)
+	{
+		m_TerrainPaintCaptured = FALSE;
+		ReleaseCapture();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		return;
+	}
+
 	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
@@ -1299,9 +1296,9 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		}
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
-
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+		return;
 	}
 }
 
@@ -1309,6 +1306,16 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	if (m_TerrainPaintCaptured)
+	{
+		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		Terrain* terrain = dynamic_cast<Terrain*>(pFrame->GetSelTerrainComponent());
+		ASSERT(terrain);
+		OnTerrainPaintHeightField(ray, terrain);
+		Invalidate();
+		return;
+	}
+
 	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
 	{
@@ -1376,6 +1383,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 		Invalidate();
+		return;
 	}
 }
 
@@ -1619,4 +1627,28 @@ void CChildView::OnUpdateShowNavigation(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_bShowNavigation);
+}
+
+
+void CChildView::OnTerrainPaintHeightField(const my::Ray& ray, Terrain* terrain)
+{
+	// TODO: Add your implementation code here.
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	my::Ray local_ray = ray.transform(pFrame->m_selactors.front()->m_World.inverse());
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, terrain);
+	if (res.first)
+	{
+		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+		TerrainStream tstr(terrain);
+		for (int i = my::Max(0, (int)(pt.z - pFrame->m_TerrainPaintHeightFieldRadius));
+			i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize, (int)(pt.z + pFrame->m_TerrainPaintHeightFieldRadius)); i++)
+		{
+			for (int j = my::Max(0, (int)(pt.x - pFrame->m_TerrainPaintHeightFieldRadius));
+				j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize, (int)(pt.x + pFrame->m_TerrainPaintHeightFieldRadius)); j++)
+			{
+				tstr.SetPos(my::Vector3(j, pFrame->m_TerrainPaintHeightFieldLength, i), i, j, true);
+			}
+		}
+	}
 }
