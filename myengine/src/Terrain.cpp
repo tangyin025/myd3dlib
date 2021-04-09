@@ -894,6 +894,7 @@ void Terrain::CreateChunkData(const char* full_path_without_ext)
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_fstrs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
+	, m_AabbDirty(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 	, m_RootVerts((unsigned char *)terrain->m_RootVb.Lock(0, 0, 0))
 {
 }
@@ -911,14 +912,32 @@ void TerrainStream::Release(void)
 	_ASSERT(m_RootVerts);
 	m_terrain->m_RootVb.Unlock();
 	m_RootVerts = NULL;
-	for (int i = 0; i < m_fstrs.shape()[0]; i++)
+	for (int k = 0; k < m_fstrs.shape()[0]; k++)
 	{
-		for (int j = 0; j < m_fstrs.shape()[1]; j++)
+		for (int l = 0; l < m_fstrs.shape()[1]; l++)
 		{
-			if (m_fstrs[i][j].is_open())
+			if (m_fstrs[k][l].is_open())
 			{
-				m_fstrs[i][j].flush();
-				m_fstrs[i][j].close();
+				if (m_AabbDirty[k][l])
+				{
+					AABB aabb = AABB::Invalid();
+					for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
+					{
+						for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
+						{
+							aabb.unionSelf(GetPos(k * m_terrain->m_ChunkSize + m, l * m_terrain->m_ChunkSize + n));
+						}
+					}
+					if (aabb.m_max.y - aabb.m_min.y < EPSILON_E6)
+					{
+						aabb.shrinkSelf(0, -1.0f, 0);
+					}
+					TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
+					m_terrain->RemoveEntity(chunk);
+					m_terrain->AddEntity(chunk, aabb, Terrain::MinBlock, Terrain::Threshold);
+				}
+				m_fstrs[k][l].flush();
+				m_fstrs[k][l].close();
 			}
 		}
 	}
@@ -1061,6 +1080,8 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
 		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
 #endif
 	}
+
+	m_AabbDirty[k][l] = true;
 }
 
 D3DCOLOR TerrainStream::GetColor(int i, int j)

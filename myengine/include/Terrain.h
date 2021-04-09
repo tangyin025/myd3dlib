@@ -193,6 +193,8 @@ protected:
 
 	boost::multi_array<std::fstream, 2> m_fstrs;
 
+	boost::multi_array<bool, 2> m_AabbDirty;
+
 	unsigned char * m_RootVerts;
 
 public:
