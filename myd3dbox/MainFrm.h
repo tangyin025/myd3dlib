@@ -48,6 +48,8 @@ public:
 		TerrainPaintGrass,
 	};
 	TerrainPaintMode m_TerrainPaintMode;
+	float m_TerrainPaintHeightFieldRadius;
+	float m_TerrainPaintHeightFieldLength;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;
 	my::EventSignal m_EventSelectionPlaying;
@@ -75,7 +77,7 @@ public:
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	bool RemoveEntity(my::OctEntity * entity);
 	void OnMeshComponentReady(my::EventArg* arg);
-	bool HandleTerrainLButtonDown(const my::Ray& ray);
+	Component* GetSelTerrainComponent(void);
 
 // Implementation
 public:

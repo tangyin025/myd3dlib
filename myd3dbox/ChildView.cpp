@@ -1145,8 +1145,25 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	if (pFrame->HandleTerrainLButtonDown(ray))
+	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelTerrainComponent());
+	if (terrain && pFrame->m_TerrainPaintMode == CMainFrame::TerrainPaintHeightField)
 	{
+		my::Ray local_ray = ray.transform(pFrame->m_selactors.front()->m_World.inverse());
+		my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, terrain);
+		if (res.first)
+		{
+			my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+			TerrainStream tstr(terrain);
+			for (int i = my::Max(0, (int)(pt.z - pFrame->m_TerrainPaintHeightFieldRadius));
+				i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize, (int)(pt.z + pFrame->m_TerrainPaintHeightFieldRadius)); i++)
+			{
+				for (int j = my::Max(0, (int)(pt.x - pFrame->m_TerrainPaintHeightFieldRadius));
+					j < my::Min(terrain->m_ColChunks* terrain->m_ChunkSize, (int)(pt.x + pFrame->m_TerrainPaintHeightFieldRadius)); j++)
+				{
+					tstr.SetPos(my::Vector3(j, pFrame->m_TerrainPaintHeightFieldLength, i), i, j, true);
+				}
+			}
+		}
 		Invalidate();
 		return;
 	}

@@ -791,10 +791,10 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 			{
 			case D3DFMT_A8:
 			case D3DFMT_L8:
-				tstr.SetPos(Vector3(j, HeightScale * pixel.Get<unsigned char>(i, j), i), i, j);
+				tstr.SetPos(Vector3(j, HeightScale * pixel.Get<unsigned char>(i, j), i), i, j, false);
 				break;
 			case D3DFMT_L16:
-				tstr.SetPos(Vector3(j, HeightScale * ((int)pixel.Get<unsigned short>(i, j) - 32768), i), i, j);
+				tstr.SetPos(Vector3(j, HeightScale * ((int)pixel.Get<unsigned short>(i, j) - 32768), i), i, j, false);
 				break;
 			}
 		}
@@ -990,7 +990,7 @@ my::Vector3 TerrainStream::GetPos(int i, int j)
 	return ret;
 }
 
-void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j)
+void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNormal)
 {
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
@@ -1015,6 +1015,31 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j)
 	{
 		m_terrain->m_VertexElems.SetPosition(m_RootVerts + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Pos);
 	}
+
+	if (UpdateNormal)
+	{
+		for (int _i = Max(0, i - 1); _i <= Min((int)m_terrain->m_Chunks.shape()[0] * ((int)m_terrain->m_IndexTable.shape()[0] - 1), i + 1); _i++)
+		{
+			for (int _j = Max(0, j - 1); _j <= Min((int)m_terrain->m_Chunks.shape()[1] * ((int)m_terrain->m_IndexTable.shape()[1] - 1), j + 1); _j++)
+			{
+				const Vector3 pos = GetPos(_i, _j);
+				const Vector3 Dirs[4] = {
+					GetPos(_i - 1, _j) - pos,
+					GetPos(_i, _j - 1) - pos,
+					GetPos(_i + 1, _j) - pos,
+					GetPos(_i, _j + 1) - pos
+				};
+				const Vector3 Nors[4] = {
+					Dirs[0].cross(Dirs[1]).normalize(),
+					Dirs[1].cross(Dirs[2]).normalize(),
+					Dirs[2].cross(Dirs[3]).normalize(),
+					Dirs[3].cross(Dirs[0]).normalize()
+				};
+				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
+				SetNormal(Normal, _i, _j);
+			}
+		}
+	}
 }
 
 void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
@@ -1027,7 +1052,8 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
-		//my::ResourceMgr::getSingleton().CheckIORequests(0);
+		my::ResourceMgr::getSingleton().CheckIORequests(0);
+		m_terrain->m_ViewedChunks.erase(m_terrain->m_Chunks[k][l].get());
 	}
 }
 
@@ -1080,7 +1106,8 @@ void TerrainStream::SetColor(D3DCOLOR Color, int k, int l, int m, int n)
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
-		//my::ResourceMgr::getSingleton().CheckIORequests(0);
+		my::ResourceMgr::getSingleton().CheckIORequests(0);
+		m_terrain->m_ViewedChunks.erase(m_terrain->m_Chunks[k][l].get());
 	}
 }
 
@@ -1138,6 +1165,7 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
 		m_terrain->m_Chunks[k][l]->ReleaseResource();
-		//my::ResourceMgr::getSingleton().CheckIORequests(0);
+		my::ResourceMgr::getSingleton().CheckIORequests(0);
+		m_terrain->m_ViewedChunks.erase(m_terrain->m_Chunks[k][l].get());
 	}
 }

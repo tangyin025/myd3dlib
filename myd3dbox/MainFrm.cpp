@@ -245,6 +245,8 @@ CMainFrame::CMainFrame()
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
 	, m_TerrainPaintMode(TerrainPaintNone)
+	, m_TerrainPaintHeightFieldRadius(5.0f)
+	, m_TerrainPaintHeightFieldLength(5.0f)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -899,7 +901,7 @@ void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
 	}
 }
 
-bool CMainFrame::HandleTerrainLButtonDown(const my::Ray& ray)
+Component* CMainFrame::GetSelTerrainComponent(void)
 {
 	if (!m_selactors.empty())
 	{
@@ -908,15 +910,12 @@ bool CMainFrame::HandleTerrainLButtonDown(const my::Ray& ray)
 		{
 			if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
 			{
-				if (m_TerrainPaintMode == TerrainPaintHeightField)
-				{
-					return true;
-				}
+				return cmp_iter->get();
 			}
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 void CMainFrame::OnDestroy()
@@ -1483,18 +1482,12 @@ void CMainFrame::OnTerrainPaintHeightfield()
 void CMainFrame::OnUpdateTerrainPaintHeightfield(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	if (!m_selactors.empty())
+	Terrain* terrain = dynamic_cast<Terrain*>(GetSelTerrainComponent());
+	if (terrain)
 	{
-		Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
-		for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
-		{
-			if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
-			{
-				pCmdUI->Enable(TRUE);
-				pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintHeightField);
-				return;
-			}
-		}
+		pCmdUI->Enable(TRUE);
+		pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintHeightField);
+		return;
 	}
 
 	pCmdUI->Enable(FALSE);

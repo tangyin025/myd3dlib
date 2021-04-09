@@ -208,7 +208,7 @@ public:
 
 	my::Vector3 GetPos(int i, int j);
 
-	void SetPos(const my::Vector3& Pos, int i, int j);
+	void SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNormal);
 
 	void SetPos(const my::Vector3& Pos, int k, int l, int m, int n);
 
