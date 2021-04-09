@@ -1310,6 +1310,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		OnTerrainPaintHeightField(ray, *m_TerrainPaintCaptured);
 		Invalidate();
+		UpdateWindow();
 		return;
 	}
 
@@ -1380,6 +1381,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 		Invalidate();
+		UpdateWindow();
 		return;
 	}
 }
