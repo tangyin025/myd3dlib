@@ -223,10 +223,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_MOVE, &CMainFrame::OnUpdatePivotMove)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
-	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
+	ON_COMMAND(ID_TOOLS_CLEARSHADER, &CMainFrame::OnViewClearshader)
 	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
-	ON_COMMAND(ID_TERRAIN_PAINT_HEIGHTFIELD, &CMainFrame::OnTerrainPaintHeightfield)
-	ON_UPDATE_COMMAND_UI(ID_TERRAIN_PAINT_HEIGHTFIELD, &CMainFrame::OnUpdateTerrainPaintHeightfield)
+	ON_COMMAND(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnPaintTerrainHeightField)
+	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnUpdatePaintTerrainHeightField)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -244,9 +244,9 @@ CMainFrame::CMainFrame()
 	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
-	, m_TerrainPaintMode(TerrainPaintNone)
-	, m_TerrainPaintHeightFieldRadius(5.0f)
-	, m_TerrainPaintHeightFieldLength(5.0f)
+	, m_PaintMode(PaintNone)
+	, m_PaintTerrainHeightFieldRadius(5.0f)
+	, m_PaintTerrainHeightFieldLength(5.0f)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -639,9 +639,9 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 
 void CMainFrame::OnSelChanged()
 {
-	if (m_TerrainPaintMode != TerrainPaintNone)
+	if (m_PaintMode != PaintNone)
 	{
-		m_TerrainPaintMode = TerrainPaintNone;
+		m_PaintMode = PaintNone;
 	}
 
 	UpdateSelBox();
@@ -1421,7 +1421,7 @@ void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
-	m_TerrainPaintMode = TerrainPaintNone;
+	m_PaintMode = PaintNone;
 	m_Pivot.m_Mode = Pivot::PivotModeMove;
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -1430,13 +1430,13 @@ void CMainFrame::OnPivotMove()
 void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintNone && m_Pivot.m_Mode == Pivot::PivotModeMove);
+	pCmdUI->SetCheck(m_PaintMode == PaintNone && m_Pivot.m_Mode == Pivot::PivotModeMove);
 }
 
 void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
-	m_TerrainPaintMode = TerrainPaintNone;
+	m_PaintMode = PaintNone;
 	m_Pivot.m_Mode = Pivot::PivotModeRot;
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -1445,7 +1445,7 @@ void CMainFrame::OnPivotRotate()
 void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintNone && m_Pivot.m_Mode == Pivot::PivotModeRot);
+	pCmdUI->SetCheck(m_PaintMode == PaintNone && m_Pivot.m_Mode == Pivot::PivotModeRot);
 }
 
 void CMainFrame::OnViewClearshader()
@@ -1466,27 +1466,27 @@ void CMainFrame::OnToolsBuildnavigation()
 	}
 }
 
-void CMainFrame::OnTerrainPaintHeightfield()
+void CMainFrame::OnPaintTerrainHeightField()
 {
 	// TODO: Add your command handler code here
-	if (m_TerrainPaintMode == TerrainPaintHeightField)
+	if (m_PaintMode == PaintTerrainHeightField)
 	{
-		m_TerrainPaintMode = TerrainPaintNone;
+		m_PaintMode = PaintNone;
 	}
 	else
 	{
-		m_TerrainPaintMode = TerrainPaintHeightField;
+		m_PaintMode = PaintTerrainHeightField;
 	}
 }
 
-void CMainFrame::OnUpdateTerrainPaintHeightfield(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	Terrain* terrain = dynamic_cast<Terrain*>(GetSelTerrainComponent());
 	if (terrain)
 	{
 		pCmdUI->Enable(TRUE);
-		pCmdUI->SetCheck(m_TerrainPaintMode == TerrainPaintHeightField);
+		pCmdUI->SetCheck(m_PaintMode == PaintTerrainHeightField);
 		return;
 	}
 

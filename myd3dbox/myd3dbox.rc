@@ -339,9 +339,9 @@ BEGIN
     BEGIN
         MENUITEM "Move",                        ID_PIVOT_MOVE
         MENUITEM "Rotate",                      ID_PIVOT_ROTATE
-        MENUITEM "Terrain Paint Height Field",  ID_TERRAIN_PAINT_HEIGHTFIELD
+        MENUITEM "Paint Terrain Height Field",  ID_PAINT_TERRAINHEIGHTFIELD
         MENUITEM "Build &Navigation",           ID_TOOLS_BUILDNAVIGATION
-        MENUITEM "&Clear Shader",               ID_VIEW_CLEARSHADER
+        MENUITEM "&Clear Shader",               ID_TOOLS_CLEARSHADER
     END
     POPUP "&View"
     BEGIN

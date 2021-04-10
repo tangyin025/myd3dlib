@@ -81,7 +81,7 @@
 #define ID_RENDERMODE_SSAO              32789
 #define ID_COMPONENT_CLOTH              32790
 #define ID_CREATE_CHARACTER             32791
-#define ID_VIEW_CLEARSHADER             32792
+#define ID_TOOLS_CLEARSHADER            32792
 #define ID_TOOLS_BUILDNAVIGATION        32793
 #define ID_SHOW_NAVIGATION              32794
 #define ID_SCRIPT_EXECUTE               32795
@@ -90,7 +90,7 @@
 #define ID_SCRIPT_SAVE                  32798
 #define ID_SCRIPT_SAVE_AS               32799
 #define ID_VIEW_PIVOT32800              32800
-#define ID_TERRAIN_PAINT_HEIGHTFIELD    32801
+#define ID_PAINT_TERRAINHEIGHTFIELD     32801
 
 // Next default values for new objects
 // 
