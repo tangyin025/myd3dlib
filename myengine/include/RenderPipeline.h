@@ -287,6 +287,29 @@ public:
 
 	typedef std::vector<IndexedPrimitiveAtom> IndexedPrimitiveAtomList;
 
+	struct IndexedPrimitiveInstanceAtom
+	{
+		IDirect3DVertexDeclaration9* pDecl;
+		IDirect3DVertexBuffer9* pVB;
+		IDirect3DIndexBuffer9* pIB;
+		IDirect3DVertexBuffer9* pInstance;
+		D3DPRIMITIVETYPE PrimitiveType;
+		INT BaseVertexIndex;
+		UINT MinVertexIndex;
+		UINT NumVertices;
+		UINT VertexStride;
+		UINT StartIndex;
+		UINT PrimitiveCount;
+		UINT NumInstance;
+		UINT InstanceStride;
+		my::Effect* shader;
+		Component* cmp;
+		Material* mtl;
+		LPARAM lparam;
+	};
+
+	typedef std::vector<IndexedPrimitiveInstanceAtom> IndexedPrimitiveInstanceAtomList;
+
 	struct IndexedPrimitiveUPAtom
 	{
 		IDirect3DVertexDeclaration9* pDecl;
@@ -378,6 +401,7 @@ public:
 	struct Pass
 	{
 		IndexedPrimitiveAtomList m_IndexedPrimitiveList;
+		IndexedPrimitiveInstanceAtomList m_IndexedPrimitiveInstanceList;
 		IndexedPrimitiveUPAtomList m_IndexedPrimitiveUPList;
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
@@ -528,6 +552,26 @@ public:
 		my::Effect * shader,
 		Component * cmp,
 		Material * mtl,
+		LPARAM lparam);
+
+	void PushIndexedPrimitiveInstance(
+		unsigned int PassID,
+		IDirect3DVertexDeclaration9* pDecl,
+		IDirect3DVertexBuffer9* pVB,
+		IDirect3DIndexBuffer9* pIB,
+		IDirect3DVertexBuffer9* pInstance,
+		D3DPRIMITIVETYPE PrimitiveType,
+		INT BaseVertexIndex,
+		UINT MinVertexIndex,
+		UINT NumVertices,
+		UINT VertexStride,
+		UINT StartIndex,
+		UINT PrimitiveCount,
+		UINT NumInstances,
+		UINT InstanceStride,
+		my::Effect* shader,
+		Component* cmp,
+		Material* mtl,
 		LPARAM lparam);
 
 	void PushIndexedPrimitiveUP(

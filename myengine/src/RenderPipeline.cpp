@@ -837,25 +837,51 @@ void RenderPipeline::RenderAllObjects(
 		m_PassDrawCall[PassID]++;
 	}
 
-	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_Pass[PassID].m_IndexedPrimitiveUPList.begin();
-	for (; indexed_prim_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); indexed_prim_iter++)
+	IndexedPrimitiveInstanceAtomList::iterator prim_inst_iter = m_Pass[PassID].m_IndexedPrimitiveInstanceList.begin();
+	for (; prim_inst_iter != m_Pass[PassID].m_IndexedPrimitiveInstanceList.end(); prim_inst_iter++)
+	{
+		DrawIndexedPrimitiveInstance(
+			PassID,
+			pd3dDevice,
+			prim_inst_iter->pDecl,
+			prim_inst_iter->pVB,
+			prim_inst_iter->pIB,
+			prim_inst_iter->pInstance,
+			prim_inst_iter->PrimitiveType,
+			prim_inst_iter->BaseVertexIndex,
+			prim_inst_iter->MinVertexIndex,
+			prim_inst_iter->NumVertices,
+			prim_inst_iter->VertexStride,
+			prim_inst_iter->StartIndex,
+			prim_inst_iter->PrimitiveCount,
+			prim_inst_iter->NumInstance,
+			prim_inst_iter->InstanceStride,
+			prim_inst_iter->shader,
+			prim_inst_iter->cmp,
+			prim_inst_iter->mtl,
+			prim_inst_iter->lparam);
+		m_PassDrawCall[PassID]++;
+	}
+
+	IndexedPrimitiveUPAtomList::iterator prim_up_iter = m_Pass[PassID].m_IndexedPrimitiveUPList.begin();
+	for (; prim_up_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); prim_up_iter++)
 	{
 		DrawIndexedPrimitiveUP(
 			PassID,
 			pd3dDevice,
-			indexed_prim_iter->pDecl,
-			indexed_prim_iter->PrimitiveType,
-			indexed_prim_iter->MinVertexIndex,
-			indexed_prim_iter->NumVertices,
-			indexed_prim_iter->PrimitiveCount,
-			indexed_prim_iter->pIndexData,
-			indexed_prim_iter->IndexDataFormat,
-			indexed_prim_iter->pVertexStreamZeroData,
-			indexed_prim_iter->VertexStreamZeroStride,
-			indexed_prim_iter->shader,
-			indexed_prim_iter->cmp,
-			indexed_prim_iter->mtl,
-			indexed_prim_iter->lparam);
+			prim_up_iter->pDecl,
+			prim_up_iter->PrimitiveType,
+			prim_up_iter->MinVertexIndex,
+			prim_up_iter->NumVertices,
+			prim_up_iter->PrimitiveCount,
+			prim_up_iter->pIndexData,
+			prim_up_iter->IndexDataFormat,
+			prim_up_iter->pVertexStreamZeroData,
+			prim_up_iter->VertexStreamZeroStride,
+			prim_up_iter->shader,
+			prim_up_iter->cmp,
+			prim_up_iter->mtl,
+			prim_up_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -1145,6 +1171,47 @@ void RenderPipeline::PushIndexedPrimitive(
 	atom.mtl = mtl;
 	atom.lparam = lparam;
 	m_Pass[PassID].m_IndexedPrimitiveList.push_back(atom);
+}
+
+void RenderPipeline::PushIndexedPrimitiveInstance(
+	unsigned int PassID,
+	IDirect3DVertexDeclaration9* pDecl,
+	IDirect3DVertexBuffer9* pVB,
+	IDirect3DIndexBuffer9* pIB,
+	IDirect3DVertexBuffer9* pInstance,
+	D3DPRIMITIVETYPE PrimitiveType,
+	INT BaseVertexIndex,
+	UINT MinVertexIndex,
+	UINT NumVertices,
+	UINT VertexStride,
+	UINT StartIndex,
+	UINT PrimitiveCount,
+	UINT NumInstances,
+	UINT InstanceStride,
+	my::Effect* shader,
+	Component* cmp,
+	Material* mtl,
+	LPARAM lparam)
+{
+	IndexedPrimitiveInstanceAtom atom;
+	atom.pDecl = pDecl;
+	atom.pVB = pVB;
+	atom.pIB = pIB;
+	atom.pInstance = pInstance;
+	atom.PrimitiveType = PrimitiveType;
+	atom.BaseVertexIndex = BaseVertexIndex;
+	atom.MinVertexIndex = MinVertexIndex;
+	atom.NumVertices = NumVertices;
+	atom.VertexStride = VertexStride;
+	atom.StartIndex = StartIndex;
+	atom.PrimitiveCount = PrimitiveCount;
+	atom.NumInstance = NumInstances;
+	atom.InstanceStride = InstanceStride;
+	atom.shader = shader;
+	atom.cmp = cmp;
+	atom.mtl = mtl;
+	atom.lparam = lparam;
+	m_Pass[PassID].m_IndexedPrimitiveInstanceList.push_back(atom);
 }
 
 void RenderPipeline::PushIndexedPrimitiveUP(
