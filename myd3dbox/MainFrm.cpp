@@ -227,6 +227,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
 	ON_COMMAND(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnPaintTerrainHeightField)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnUpdatePaintTerrainHeightField)
+	ON_COMMAND(ID_PAINT_TERRAINTEXTURE, &CMainFrame::OnPaintTerrainTexture)
+	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINTEXTURE, &CMainFrame::OnUpdatePaintTerrainTexture)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1487,6 +1489,35 @@ void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintMode == PaintTerrainHeightField);
+		return;
+	}
+
+	pCmdUI->Enable(FALSE);
+}
+
+
+void CMainFrame::OnPaintTerrainTexture()
+{
+	// TODO: Add your command handler code here
+	if (m_PaintMode == PaintTerrainTexture)
+	{
+		m_PaintMode = PaintNone;
+	}
+	else
+	{
+		m_PaintMode = PaintTerrainTexture;
+	}
+}
+
+
+void CMainFrame::OnUpdatePaintTerrainTexture(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	Terrain* terrain = dynamic_cast<Terrain*>(GetSelTerrainComponent());
+	if (terrain)
+	{
+		pCmdUI->Enable(TRUE);
+		pCmdUI->SetCheck(m_PaintMode == PaintTerrainTexture);
 		return;
 	}
 
