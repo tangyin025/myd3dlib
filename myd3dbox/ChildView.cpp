@@ -1041,6 +1041,9 @@ void CChildView::OnPaint()
 					if (pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
 					{
 					}
+					else if (pFrame->m_PaintMode == CMainFrame::PaintTerrainTexture)
+					{
+					}
 					else
 					{
 						m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
@@ -1150,6 +1153,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		m_PaintCaptured.reset(new TerrainStream(terrain));
 		OnPaintTerrainHeightField(ray, *m_PaintCaptured);
+		SetCapture();
+		Invalidate();
+		return;
+	}
+
+	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainTexture)
+	{
+		m_PaintCaptured.reset(new TerrainStream(terrain));
+		OnPaintTerrainTexture(ray, *m_PaintCaptured);
 		SetCapture();
 		Invalidate();
 		return;
@@ -1309,6 +1321,15 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		OnPaintTerrainHeightField(ray, *m_PaintCaptured);
+		Invalidate();
+		UpdateWindow();
+		return;
+	}
+
+	if (m_PaintCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainTexture)
+	{
+		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		OnPaintTerrainTexture(ray, *m_PaintCaptured);
 		Invalidate();
 		UpdateWindow();
 		return;
@@ -1646,6 +1667,29 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 				j < my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.x + pFrame->m_PaintTerrainHeightFieldRadius)); j++)
 			{
 				tstr.SetPos(my::Vector3(j, pFrame->m_PaintTerrainHeightFieldLength, i), i, j, true);
+			}
+		}
+	}
+}
+
+
+void CChildView::OnPaintTerrainTexture(const my::Ray& ray, TerrainStream& tstr)
+{
+	// TODO: Add your implementation code here.
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain);
+	if (res.first)
+	{
+		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+		for (int i = my::Max(0, (int)(pt.z - pFrame->m_PaintTerrainHeightFieldRadius));
+			i < my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.z + pFrame->m_PaintTerrainHeightFieldRadius)); i++)
+		{
+			for (int j = my::Max(0, (int)(pt.x - pFrame->m_PaintTerrainHeightFieldRadius));
+				j < my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.x + pFrame->m_PaintTerrainHeightFieldRadius)); j++)
+			{
+				tstr.SetColor(D3DCOLOR_ARGB(255,255,0,0), i, j);
 			}
 		}
 	}
