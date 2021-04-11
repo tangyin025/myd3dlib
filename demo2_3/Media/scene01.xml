@@ -200,19 +200,69 @@
 						<m_ChunkPath>terrain/editor_terrain_0</m_ChunkPath>
 						<BufferSize>80</BufferSize>
 						<VertexBuffer>
-AAAAAAAAgD8AAAAAAACAPgAAAAAAAAAAAACAvgAAAAAAAAAAf/9/AAAAAAAAAAAAAAAAQv////9/
+AAAAAAAAAAAAAAAA/////3//fwAAAABCAAAAAAAAAAD/////f/9/AAAAAAAAAAAAAAAAQv////9/
 /38AAAAAQgAAAAAAAABC/////3//fwA=
 						</VertexBuffer>
 						<BufferSize>36</BufferSize>
 						<GrassVertexBuffer>
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAgD8AAAAAAACAPgAAAAAAAAAAAACAvgAAAAAAAAAA
 						</GrassVertexBuffer>
 						<BufferSize>6</BufferSize>
 						<GrassIndexBuffer>
 AAABAAIA
 						</GrassIndexBuffer>
+						<m_GrassMaterial>
+							<px class_id_reference="17" object_id="_14">
+								<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
+								<m_PassMask>11</m_PassMask>
+								<m_CullMode>2</m_CullMode>
+								<m_ZEnable>1</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>4</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="21" object_id="_15">
+											<MaterialParameter object_id="_16">
+												<m_Type>5</m_Type>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="21" object_id="_17">
+											<MaterialParameter object_id="_18">
+												<m_Type>5</m_Type>
+												<m_Name>g_NormalTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Normal.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="21" object_id="_19">
+											<MaterialParameter object_id="_20">
+												<m_Type>5</m_Type>
+												<m_Name>g_SpecularTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/White.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="22" object_id="_21">
+											<MaterialParameter object_id="_22">
+												<m_Type>1</m_Type>
+												<m_Name>g_Shininess</m_Name>
+											</MaterialParameter>
+											<m_Value>2.500000000e+01</m_Value>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_GrassMaterial>
 						<m_Chunk_0_0 class_id="23" tracking_level="0" version="1">
-							<px class_id="24" tracking_level="1" version="0" object_id="_14">
+							<px class_id="24" tracking_level="1" version="0" object_id="_23">
 								<m_Row>0</m_Row>
 								<m_Col>0</m_Col>
 								<m_Material>
@@ -240,22 +290,22 @@ AAABAAIA
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
 AM3NQAAAAAgAzc0QAQAABwDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
-zc0AAAAIAAAAAAEAAADNzc3NAAAABwAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACAFEwJAAAA
-gAEAAADw80sJAAAAgAIAAAAwBEwJAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC4nasP
-CQADAAAAAAAknqsPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwwBEwJAAAAAM3Nzc3N
-zc3NGEisDwgAAwBYgE4J1EisDwMAAADw80sJzc3Nzc3Nzc1g9TUJAAAAgQAAAADNzc3NAQAAAAAA
+zc0AAAAIAAAAAAEAAADNzc3NAAAABwAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADQIuYJAAAA
+gAIAAABgQ+YJAAAAgAEAAAAQM+YJAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC4nc4C
+CQADAAAAAAAkns4CAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMwQM+YJAAAAAM3Nzc3N
+zc3NGEjPAggAAwAwCuQJ1EjPAgMAAADQIuYJzc3Nzc3Nzc3gQ88JAAAAgQAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAsBAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3Nzeznqw8HAAMAkD2UAAAAAAAA
-AAAAgBRMCQEAAQEAAAAAAQABAQAAAAAAAAAAzc3NzWD1NQkAAACFAAAAAM3Nzc0wgzYJ////AAEA
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzeznzgIHAAMAWGXfCQAAAAAA
+AAAAYEPmCQEAAQEAAAAAAQABAQAAAAAAAAAAzc3NzeBDzwkAAACFAAAAAM3Nzc1w2M8J////AAEA
 AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 			</m_PxActor>
 		</px>
 	</item>
 	<item>
-		<px class_id_reference="7" object_id="_15">
-			<NamedObject object_id="_16">
+		<px class_id_reference="7" object_id="_24">
+			<NamedObject object_id="_25">
 				<Name>editor_actor_1</Name>
 			</NamedObject>
 			<m_aabb>
@@ -296,15 +346,15 @@ AA==
 				<count>1</count>
 				<item_version>1</item_version>
 				<item>
-					<px class_id="25" class_name="MeshComponent" tracking_level="1" version="0" object_id="_17">
-						<Component object_id="_18">
-							<NamedObject object_id="_19">
+					<px class_id="25" class_name="MeshComponent" tracking_level="1" version="0" object_id="_26">
+						<Component object_id="_27">
+							<NamedObject object_id="_28">
 								<Name>editor_mesh_cmp_1</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="17" object_id="_20">
+								<px class_id_reference="17" object_id="_29">
 									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
 									<m_PassMask>11</m_PassMask>
 									<m_CullMode>2</m_CullMode>
@@ -315,8 +365,8 @@ AA==
 										<count>4</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="21" object_id="_21">
-												<MaterialParameter object_id="_22">
+											<px class_id_reference="21" object_id="_30">
+												<MaterialParameter object_id="_31">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -324,8 +374,8 @@ AA==
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="21" object_id="_23">
-												<MaterialParameter object_id="_24">
+											<px class_id_reference="21" object_id="_32">
+												<MaterialParameter object_id="_33">
 													<m_Type>5</m_Type>
 													<m_Name>g_NormalTexture</m_Name>
 												</MaterialParameter>
@@ -333,8 +383,8 @@ AA==
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="21" object_id="_25">
-												<MaterialParameter object_id="_26">
+											<px class_id_reference="21" object_id="_34">
+												<MaterialParameter object_id="_35">
 													<m_Type>5</m_Type>
 													<m_Name>g_SpecularTexture</m_Name>
 												</MaterialParameter>
@@ -342,8 +392,8 @@ AA==
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="22" object_id="_27">
-												<MaterialParameter object_id="_28">
+											<px class_id_reference="22" object_id="_36">
+												<MaterialParameter object_id="_37">
 													<m_Type>1</m_Type>
 													<m_Name>g_Shininess</m_Name>
 												</MaterialParameter>
@@ -373,17 +423,17 @@ AA==
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
 AM3NQAAAAAgAzc0QAQAABgDNzVACAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
-zc0AAAAIAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABAM1EJAAAA
-gAIAAABwBEwJAAAAgAAAAABQFUwJAAAAgAEAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAC4nasP
-CQADAAAAAAAknqsPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxwBEwJAQAAAM3Nzc3N
-zc3NGEisDwgAAwDIWEYJ1EisDwMAAABAM1EJzc3Nzc3Nzc1g9TUJAAAAgQAAAADNzc3NAQAAAAAA
+zc0AAAAIAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABAzOoMAAAA
+gAIAAAAwROYJAAAAgAEAAABQM+YJAAAAgAAAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAC4nc4C
+CQADAAAAAAAkns4CAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxQM+YJAQAAAM3Nzc3N
+zc3NGEjPAggAAwCgX+MJ1EjPAgMAAABAzOoMzc3Nzc3Nzc3gQ88JAAAAgQAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAACtej
 PAsBAQADAAAAAACAPwAAgD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzfC+qw8GAAMAEMBHCQAAAAAA
-AAAAUBVMCQEAAQEBAAAAAQABAQAAAAABAAAAzc3NzWD1NQkAAACDAAAAAM3Nzc1AjzYJ////AAEB
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzfC+zgIGAAMAuB/PCQAAAAAA
+AAAAMETmCQEAAQEBAAAAAQABAQAAAAABAAAAzc3NzeBDzwkAAACDAAAAAM3Nzc2Q5M8J////AAEB
 AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEBBAEAAAAAAAAAAAAAAAAAAIA/AAAA
 AAAAAAAAAAAAmpkZPgAAAAAAAAAAAAAAAK7FnfQAAAAAAAAAAAAAAAD//39/AABEQv//f38AAAAA
-zcxMPQAAgD8AAIA/AACAPwAAgD+uxZ10CtejOwrXIzsAAAAAzc3NzQAAAAAAAAAAAAAAAHBaVgnN
+zcxMPQAAgD8AAIA/AACAPwAAgD+uxZ10CtejOwrXIzsAAAAAzc3NzQAAAAAAAAAAAAAAACAg3AzN
 zc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 			</m_PxActor>

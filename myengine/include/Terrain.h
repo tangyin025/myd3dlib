@@ -130,6 +130,8 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_GrassDecl;
 
+	MaterialPtr m_GrassMaterial;
+
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE handle_World;
@@ -150,6 +152,10 @@ public:
 	void CreateElements(void);
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
+
+	void SetGrassMaterial(MaterialPtr material);
+
+	MaterialPtr GetGrassMaterial(void) const;
 
 protected:
 	Terrain(void);

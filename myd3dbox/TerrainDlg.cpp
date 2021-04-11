@@ -94,5 +94,12 @@ void CTerrainDlg::OnOK()
 		m_terrain->SetMaterial(mtl);
 	}
 
+	{
+		MaterialPtr mtl(new Material());
+		mtl->m_Shader = theApp.default_shader;
+		mtl->ParseShaderParameters();
+		m_terrain->SetGrassMaterial(mtl);
+	}
+
 	EndDialog(IDOK);
 }
