@@ -24,6 +24,8 @@ public:
 
 	my::VertexBufferPtr m_vb;
 
+	MaterialPtr m_Material;
+
 protected:
 	TerrainChunk(void);
 

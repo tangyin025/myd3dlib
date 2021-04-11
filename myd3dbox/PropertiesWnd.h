@@ -193,6 +193,7 @@ public:
 		PropertyTerrainHeightScale,
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,
+		PropertyTerrainChunkMaterial,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

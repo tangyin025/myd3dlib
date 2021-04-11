@@ -757,6 +757,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	{
 		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
+	m_strPathName = lpszFileName;
 	return TRUE;
 }
 
@@ -1014,8 +1015,6 @@ void CMainFrame::OnFileOpen()
 	{
 		return;
 	}
-
-	m_strPathName = strPathName;
 
 	theApp.AddToRecentFileList(m_strPathName);
 

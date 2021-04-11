@@ -61,6 +61,7 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
+	ar << BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 template<class Archive>
@@ -68,6 +69,7 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
+	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 void TerrainChunk::OnReady(my::IORequest* request)
@@ -87,6 +89,11 @@ void TerrainChunk::RequestResource(void)
 		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
 		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(chunk_path.str().c_str(), this);
 	}
+
+	if (m_Material)
+	{
+		m_Material->RequestResource();
+	}
 }
 
 void TerrainChunk::ReleaseResource(void)
@@ -98,6 +105,11 @@ void TerrainChunk::ReleaseResource(void)
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(chunk_path.str(), this);
 
 		m_vb.reset();
+	}
+
+	if (m_Material)
+	{
+		m_Material->ReleaseResource();
 	}
 
 	m_Requested = false;
@@ -663,7 +675,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							}
 
 							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, terrain->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
+								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material ? chunk->m_Material.get() : terrain->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
 						}
 					}
 				}
