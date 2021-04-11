@@ -1,1 +1,0 @@
-22 serialization::archive 10 21 shader/WaterEffect.fx 2 13 g_CubeTexture 6 25 texture/galileo_cross.dds 20 g_WaterNormalTexture 6 24 texture/WaterNormal2.png

@@ -1,4 +1,5 @@
 
+texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
 texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Black.dds";>;
 texture g_DiffuseTexture1:MaterialParameter<string Initialize="texture/Red.dds";>;
 texture g_DiffuseTexture2:MaterialParameter<string Initialize="texture/Green.dds";>;
@@ -6,6 +7,16 @@ texture g_DiffuseTexture3:MaterialParameter<string Initialize="texture/Blue.dds"
 float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 float g_SpecularExp:MaterialParameter = 25;
 float g_SpecularStrength:MaterialParameter = 1;
+
+sampler DiffuseTextureSampler = sampler_state
+{
+    Texture = <g_DiffuseTexture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+};
 
 sampler DiffuseTextureSampler0 = sampler_state
 {
@@ -119,7 +130,7 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	float3 SkyDiffuse = saturate(dot(In.Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(In.Normal.xyz, In.ViewDir);
 	float SkySpecular = pow(saturate(dot(Ref, ViewSkyLightDir) * LightAmount), g_SpecularExp) * g_SkyLightColor.w;
-	float4 Diffuse = float4(0,0,0,0);
+	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
 	Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.a;
 	Diffuse += tex2D(DiffuseTextureSampler1, In.Tex0) * In.Color.r;
 	Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.g;
