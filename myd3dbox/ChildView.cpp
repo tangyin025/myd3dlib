@@ -758,7 +758,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				{
 					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 					my::RayResult result;
-					if (!chunk->m_vb)
+					if (!chunk->m_Vb)
 					{
 						unsigned short ib[6] = {
 							(terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0),
@@ -769,14 +769,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 							(terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 1)};
 						result = pView->OverlapTestRayAndMesh(
 							ray,
-							terrain->m_RootVb.Lock(0, 0, D3DLOCK_READONLY),
+							terrain->m_Vb.Lock(0, 0, D3DLOCK_READONLY),
 							(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
 							terrain->m_VertexStride,
 							ib,
 							true,
 							2,
 							terrain->m_VertexElems);
-						terrain->m_RootVb.Unlock();
+						terrain->m_Vb.Unlock();
 					}
 					else
 					{
@@ -788,14 +788,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
 						result = pView->OverlapTestRayAndMesh(
 							ray,
-							chunk->m_vb->Lock(0, 0, D3DLOCK_READONLY),
+							chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
 							frag.VertNum,
 							terrain->m_VertexStride,
 							const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
 							false,
 							frag.PrimitiveCount,
 							terrain->m_VertexElems);
-						chunk->m_vb->Unlock();
+						chunk->m_Vb->Unlock();
 						const_cast<my::IndexBuffer&>(frag.ib).Unlock();
 					}
 					if (result.first && result.second < ret.second)

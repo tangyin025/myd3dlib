@@ -22,7 +22,7 @@ public:
 
 	unsigned int m_Lod[5];
 
-	my::VertexBufferPtr m_vb;
+	my::VertexBufferPtr m_Vb;
 
 	MaterialPtr m_Material;
 
@@ -106,9 +106,9 @@ public:
 
 	TerrainChunkSet m_ViewedChunks;
 
-	my::VertexBuffer m_RootVb;
+	my::VertexBuffer m_Vb;
 
-	my::IndexBuffer m_RootIb;
+	my::IndexBuffer m_Ib;
 
 	my::D3DVertexElementSet m_VertexElems;
 

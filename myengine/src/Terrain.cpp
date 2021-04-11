@@ -74,7 +74,7 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 
 void TerrainChunk::OnReady(my::IORequest* request)
 {
-	m_vb = boost::dynamic_pointer_cast<VertexBuffer>(request->m_res);
+	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(request->m_res);
 }
 
 void TerrainChunk::RequestResource(void)
@@ -83,7 +83,7 @@ void TerrainChunk::RequestResource(void)
 
 	if (!dynamic_cast<Terrain *>(m_Node->GetTopNode())->m_ChunkPath.empty())
 	{
-		_ASSERT(!m_vb);
+		_ASSERT(!m_Vb);
 
 		std::ostringstream chunk_path;
 		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
@@ -104,7 +104,7 @@ void TerrainChunk::ReleaseResource(void)
 		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(chunk_path.str(), this);
 
-		m_vb.reset();
+		m_Vb.reset();
 	}
 
 	if (m_Material)
@@ -203,8 +203,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 {
 	CreateElements();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
-	m_RootVb.CreateVertexBuffer((m_RowChunks + 1) * (m_ColChunks + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
-	VOID * pVertices = m_RootVb.Lock(0, 0, 0);
+	m_Vb.CreateVertexBuffer((m_RowChunks + 1) * (m_ColChunks + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	VOID * pVertices = m_Vb.Lock(0, 0, 0);
 	for (int i = 0; i < (int)m_RowChunks + 1; i++)
 	{
 		for (int j = 0; j < (int)m_ColChunks + 1; j++)
@@ -215,8 +215,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 			m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
 		}
 	}
-	m_RootVb.Unlock();
-	m_RootIb.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+	m_Vb.Unlock();
+	m_Ib.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
@@ -227,7 +227,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 		}
 	}
 	m_GrassVb.CreateVertexBuffer(3 * m_GrassVertexStride, 0, 0, D3DPOOL_MANAGED);
-	pVertices = m_RootVb.Lock(0, 0, 0);
+	pVertices = m_GrassVb.Lock(0, 0, 0);
 	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 0 * m_GrassVertexStride, my::Vector3( 0.00f, 1, 0));
 	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 1 * m_GrassVertexStride, my::Vector3( 0.25f, 0, 0));
 	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 2 * m_GrassVertexStride, my::Vector3(-0.25f, 0, 0));
@@ -243,8 +243,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 Terrain::~Terrain(void)
 {
 	m_Decl.Release();
-	m_RootVb.OnDestroyDevice();
-	m_RootIb.OnDestroyDevice();
+	m_Vb.OnDestroyDevice();
+	m_Ib.OnDestroyDevice();
 	ClearAllEntity();
 }
 
@@ -496,11 +496,11 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
-	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_RootVb).GetDesc();
+	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_Vb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
-	void * pVertices = const_cast<my::VertexBuffer&>(m_RootVb).Lock(0, 0, D3DLOCK_READONLY);
+	void * pVertices = const_cast<my::VertexBuffer&>(m_Vb).Lock(0, 0, D3DLOCK_READONLY);
 	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
-	const_cast<my::VertexBuffer&>(m_RootVb).Unlock();
+	const_cast<my::VertexBuffer&>(m_Vb).Unlock();
 	desc = const_cast<my::VertexBuffer&>(m_GrassVb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
 	pVertices = const_cast<my::VertexBuffer&>(m_GrassVb).Lock(0, 0, D3DLOCK_READONLY);
@@ -537,15 +537,15 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
 	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present
-	m_RootVb.OnDestroyDevice();
-	m_RootVb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
-	void * pVertices = m_RootVb.Lock(0, 0, 0);
+	m_Vb.OnDestroyDevice();
+	m_Vb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
+	void * pVertices = m_Vb.Lock(0, 0, 0);
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	ar >> boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
 	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	m_RootVb.Unlock();
-	m_RootIb.OnDestroyDevice();
-	m_RootIb.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+	m_Vb.Unlock();
+	m_Ib.OnDestroyDevice();
+	m_Ib.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
 	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
@@ -700,7 +700,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				chunk->RequestResource();
 			}
 
-			if (!chunk->m_vb)
+			if (!chunk->m_Vb)
 			{
 				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
 				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
@@ -735,7 +735,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
 							}
 
-							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
+							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_Vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
 								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, chunk->m_Material ? chunk->m_Material.get() : terrain->m_Material.get(), MAKELONG(chunk->m_Row, chunk->m_Col));
 						}
 					}
@@ -765,9 +765,9 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					viewed_chunk_iter++;
 			}
 		}
-		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_RootIb.Lock(0, 0, 0));
+		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_Ib.Lock(0, 0, 0));
 		QueryEntity(LocalFrustum, &cb);
-		m_RootIb.Unlock();
+		m_Ib.Unlock();
 		if (cb.RootPrimitiveCount > 0)
 		{
 			if (m_Material && (m_Material->m_PassMask & PassMask))
@@ -784,7 +784,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							}
 
-							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_RootVb.m_ptr, m_RootIb.m_ptr, D3DPT_TRIANGLELIST,
+							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_Vb.m_ptr, m_Ib.m_ptr, D3DPT_TRIANGLELIST,
 								0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(-1, -1));
 						}
 					}
@@ -1011,12 +1011,12 @@ void TerrainStream::Release(void)
 			if (m_VertDirty[k][l])
 			{
 				TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
-				D3DVERTEXBUFFER_DESC desc = chunk->m_vb->GetDesc();
-				void* pVertices = chunk->m_vb->Lock(0, 0, D3DLOCK_READONLY);
+				D3DVERTEXBUFFER_DESC desc = chunk->m_Vb->GetDesc();
+				void* pVertices = chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY);
 				std::fstream& fstr = GetStream(k, l);
 				fstr.seekg(0, std::ios::beg);
 				fstr.write((char*)pVertices, desc.Size);
-				chunk->m_vb->Unlock();
+				chunk->m_Vb->Unlock();
 
 				m_VertDirty[k][l] = false;
 			}
@@ -1092,9 +1092,9 @@ my::Vector3 TerrainStream::GetPos(int i, int j)
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
-		void * pbuff = m_terrain->m_Chunks[k][l]->m_vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
+		void * pbuff = m_terrain->m_Chunks[k][l]->m_Vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
 		ret = *(my::Vector3*)pbuff;
-		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+		m_terrain->m_Chunks[k][l]->m_Vb->Unlock();
 		return ret;
 	}
 	std::fstream& fstr = GetStream(k, l);
@@ -1126,8 +1126,8 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNorm
 
 	if ((m == 0 || m == m_terrain->m_ChunkSize) && (n == 0 || n == m_terrain->m_ChunkSize))
 	{
-		m_terrain->m_VertexElems.SetPosition((unsigned char*)m_terrain->m_RootVb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Pos);
-		m_terrain->m_RootVb.Unlock();
+		m_terrain->m_VertexElems.SetPosition((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Pos);
+		m_terrain->m_Vb.Unlock();
 	}
 
 	if (UpdateNormal)
@@ -1161,9 +1161,9 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
-		void* pbuff = m_terrain->m_Chunks[k][l]->m_vb->Lock(off, sizeof(Pos), 0);
+		void* pbuff = m_terrain->m_Chunks[k][l]->m_Vb->Lock(off, sizeof(Pos), 0);
 		*(my::Vector3*)pbuff = Pos;
-		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+		m_terrain->m_Chunks[k][l]->m_Vb->Unlock();
 		m_VertDirty[k][l] = true;
 		m_AabbDirty[k][l] = true;
 		return;
@@ -1183,9 +1183,9 @@ D3DCOLOR TerrainStream::GetColor(int i, int j)
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Offset;
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
-		void* pbuff = m_terrain->m_Chunks[k][l]->m_vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
+		void* pbuff = m_terrain->m_Chunks[k][l]->m_Vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
 		ret = *(D3DCOLOR*)pbuff;
-		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+		m_terrain->m_Chunks[k][l]->m_Vb->Unlock();
 		return ret;
 	}
 	std::fstream& fstr = GetStream(k, l);
@@ -1217,8 +1217,8 @@ void TerrainStream::SetColor(D3DCOLOR Color, int i, int j)
 
 	if ((m == 0 || m == m_terrain->m_ChunkSize) && (n == 0 || n == m_terrain->m_ChunkSize))
 	{
-		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_RootVb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Color, 0);
-		m_terrain->m_RootVb.Unlock();
+		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Color, 0);
+		m_terrain->m_Vb.Unlock();
 	}
 }
 
@@ -1227,9 +1227,9 @@ void TerrainStream::SetColor(D3DCOLOR Color, int k, int l, int m, int n)
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Offset;
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
-		void* pbuff = m_terrain->m_Chunks[k][l]->m_vb->Lock(off, sizeof(Color), 0);
+		void* pbuff = m_terrain->m_Chunks[k][l]->m_Vb->Lock(off, sizeof(Color), 0);
 		*(D3DCOLOR*)pbuff = Color;
-		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+		m_terrain->m_Chunks[k][l]->m_Vb->Unlock();
 		m_VertDirty[k][l] = true;
 		return;
 	}
@@ -1247,9 +1247,9 @@ my::Vector3 TerrainStream::GetNormal(int i, int j)
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][1].Offset;
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
-		void* pbuff = m_terrain->m_Chunks[k][l]->m_vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
+		void* pbuff = m_terrain->m_Chunks[k][l]->m_Vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
 		ret = *(D3DCOLOR*)pbuff;
-		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+		m_terrain->m_Chunks[k][l]->m_Vb->Unlock();
 		const float f = 1.0f / 255.0f;
 		return my::Vector3(
 			f * (float)(unsigned char)(ret >> 16),
@@ -1290,8 +1290,8 @@ void TerrainStream::SetNormal(const my::Vector3& Normal, int i, int j)
 
 	if ((m == 0 || m == m_terrain->m_ChunkSize) && (n == 0 || n == m_terrain->m_ChunkSize))
 	{
-		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_RootVb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, dw, 1);
-		m_terrain->m_RootVb.Unlock();
+		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, dw, 1);
+		m_terrain->m_Vb.Unlock();
 	}
 }
 
@@ -1300,9 +1300,9 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][1].Offset;
 	if (m_terrain->m_Chunks[k][l]->IsRequested())
 	{
-		void* pbuff = m_terrain->m_Chunks[k][l]->m_vb->Lock(off, sizeof(dw), 0);
+		void* pbuff = m_terrain->m_Chunks[k][l]->m_Vb->Lock(off, sizeof(dw), 0);
 		*(D3DCOLOR*)pbuff = dw;
-		m_terrain->m_Chunks[k][l]->m_vb->Unlock();
+		m_terrain->m_Chunks[k][l]->m_Vb->Unlock();
 		m_VertDirty[k][l] = true;
 		return;
 	}
