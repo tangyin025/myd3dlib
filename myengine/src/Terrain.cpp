@@ -554,6 +554,10 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 {
 	_ASSERT(m_Actor);
 
+	short Row = LOWORD(lparam);
+
+	short Col = HIWORD(lparam);
+
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 }
 
@@ -708,7 +712,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							}
 
 							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_RootVb.m_ptr, m_RootIb.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(0, 0));
+								0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(-1, -1));
 						}
 					}
 				}
