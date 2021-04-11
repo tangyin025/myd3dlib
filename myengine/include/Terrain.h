@@ -85,12 +85,6 @@ public:
 
 	float m_HeightScale;
 
-	my::D3DVertexElementSet m_VertexElems;
-
-	static const DWORD m_VertexStride = 12 + 4 + 4;
-
-	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
 	struct Fragment
 	{
 		unsigned int VertNum;
@@ -115,6 +109,26 @@ public:
 	my::VertexBuffer m_RootVb;
 
 	my::IndexBuffer m_RootIb;
+
+	my::D3DVertexElementSet m_VertexElems;
+
+	static const DWORD m_VertexStride = 12 + 4 + 4;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	my::VertexBuffer m_GrassVb;
+
+	my::IndexBuffer m_GrassIb;
+
+	my::D3DVertexElementSet m_GrassVertexElems;
+
+	my::D3DVertexElementSet m_GrassInstanceElems;
+
+	static const DWORD m_GrassVertexStride = 12;
+
+	static const DWORD m_GrassInstanceStride = 12;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_GrassDecl;
 
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 

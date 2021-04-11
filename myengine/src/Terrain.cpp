@@ -226,6 +226,18 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 			AddEntity(m_Chunks[i][j].get(), aabb, MinBlock, Threshold);
 		}
 	}
+	m_GrassVb.CreateVertexBuffer(3 * m_GrassVertexStride, 0, 0, D3DPOOL_MANAGED);
+	pVertices = m_RootVb.Lock(0, 0, 0);
+	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 0 * m_GrassVertexStride, my::Vector3( 0.00f, 1, 0));
+	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 1 * m_GrassVertexStride, my::Vector3( 0.25f, 0, 0));
+	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 2 * m_GrassVertexStride, my::Vector3(-0.25f, 0, 0));
+	m_GrassVb.Unlock();
+	m_GrassIb.CreateIndexBuffer(3 * sizeof(unsigned short), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+	unsigned short* pIndex = (unsigned short*)m_GrassIb.Lock(0, 0, 0);
+	pIndex[0] = 0;
+	pIndex[1] = 1;
+	pIndex[2] = 2;
+	m_GrassIb.Unlock();
 }
 
 Terrain::~Terrain(void)
@@ -286,6 +298,14 @@ void Terrain::CreateElements(void)
 	m_VertexElems.InsertColorElement(offset, 1);
 	offset += sizeof(D3DCOLOR);
 	_ASSERT(m_VertexStride == offset);
+
+	m_GrassVertexElems.InsertPositionElement(0);
+	offset = sizeof(Vector3);
+	_ASSERT(m_GrassVertexStride == offset);
+
+	m_GrassInstanceElems.InsertPositionElement(0, 1);
+	offset = sizeof(Vector3);
+	_ASSERT(m_GrassInstanceStride == offset);
 }
 
 template <class T>
@@ -481,6 +501,16 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	void * pVertices = const_cast<my::VertexBuffer&>(m_RootVb).Lock(0, 0, D3DLOCK_READONLY);
 	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
 	const_cast<my::VertexBuffer&>(m_RootVb).Unlock();
+	desc = const_cast<my::VertexBuffer&>(m_GrassVb).GetDesc();
+	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
+	pVertices = const_cast<my::VertexBuffer&>(m_GrassVb).Lock(0, 0, D3DLOCK_READONLY);
+	ar << boost::serialization::make_nvp("GrassVertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
+	const_cast<my::VertexBuffer&>(m_GrassVb).Unlock();
+	D3DINDEXBUFFER_DESC idesc = const_cast<my::IndexBuffer&>(m_GrassIb).GetDesc();
+	ar << boost::serialization::make_nvp("BufferSize", idesc.Size);
+	void* pIndices = const_cast<my::IndexBuffer&>(m_GrassIb).Lock(0, 0, D3DLOCK_READONLY);
+	ar << boost::serialization::make_nvp("GrassIndexBuffer", boost::serialization::binary_object(pIndices, idesc.Size));
+	const_cast<my::IndexBuffer&>(m_GrassIb).Unlock();
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
@@ -517,6 +547,24 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	m_RootIb.OnDestroyDevice();
 	m_RootIb.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	m_GrassVb.OnDestroyDevice();
+	m_GrassVb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
+	pVertices = m_GrassVb.Lock(0, 0, 0);
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ar >> boost::serialization::make_nvp("GrassVertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
+	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	m_GrassVb.Unlock();
+	m_GrassIb.OnDestroyDevice();
+	m_GrassIb.CreateIndexBuffer(BufferSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+	void * pIndices = m_GrassIb.Lock(0, 0, 0);
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ar >> boost::serialization::make_nvp("GrassIndexBuffer", boost::serialization::binary_object(pIndices, BufferSize));
+	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	m_GrassIb.Unlock();
+	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	for (int i = 0; i < m_RowChunks; i++)
 	{
@@ -543,11 +591,24 @@ void Terrain::RequestResource(void)
 		HRESULT hr;
 		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 	}
+
+	if (!m_GrassDecl)
+	{
+		IDirect3DDevice9* pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
+		std::vector<D3DVERTEXELEMENT9> elems = m_GrassVertexElems.BuildVertexElementList(0);
+		std::vector<D3DVERTEXELEMENT9> rhs = m_GrassInstanceElems.BuildVertexElementList(1);
+		elems.insert(elems.begin(), rhs.begin(), rhs.end());
+		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+		elems.push_back(ve_end);
+		HRESULT hr;
+		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_GrassDecl));
+	}
 }
 
 void Terrain::ReleaseResource(void)
 {
 	m_Decl.Release();
+	m_GrassDecl.Release();
 	m_Fragment.clear();
 	for (int i = 0; i < m_RowChunks; i++)
 	{
