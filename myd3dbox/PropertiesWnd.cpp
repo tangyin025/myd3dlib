@@ -574,36 +574,37 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 5);
 	pComponent->GetSubItem(PropId + 6);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), terrain->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), terrain->m_GrassMaterial.get());
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material;
-	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
+	pComponent->GetSubItem(PropId + 9)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
 
 	CString strTitle;
 	strTitle.Format(_T("Chunk_%d_%d Material"), pFrame->m_selchunkid.x, pFrame->m_selchunkid.y);
 	if (mtl)
 	{
-		if (pComponent->GetSubItem(PropId + 9)->GetSubItemsCount() <= 0)
+		if (pComponent->GetSubItem(PropId + 10)->GetSubItemsCount() <= 0)
 		{
-			RemovePropertiesFrom(pComponent, PropId + 9);
+			RemovePropertiesFrom(pComponent, PropId + 10);
 			CreatePropertiesMaterial(pComponent, strTitle, mtl.get());
 		}
 		else
 		{
-			pComponent->GetSubItem(PropId + 9)->SetName(strTitle, FALSE);
-			UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 9), mtl.get());
+			pComponent->GetSubItem(PropId + 10)->SetName(strTitle, FALSE);
+			UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 10), mtl.get());
 		}
 	}
 	else
 	{
-		if (pComponent->GetSubItem(PropId + 9)->GetSubItemsCount() <= 0)
+		if (pComponent->GetSubItem(PropId + 10)->GetSubItemsCount() <= 0)
 		{
-			pComponent->GetSubItem(PropId + 9)->SetName(strTitle, FALSE);
+			pComponent->GetSubItem(PropId + 10)->SetName(strTitle, FALSE);
 		}
 		else
 		{
-			RemovePropertiesFrom(pComponent, PropId + 9);
+			RemovePropertiesFrom(pComponent, PropId + 10);
 			CMFCPropertyGridProperty* pMaterial = new CSimpleProp(strTitle, PropertyMaterial, FALSE);
 			pComponent->AddSubItem(pMaterial);
 		}
@@ -1104,6 +1105,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pProp = new CFileProp(_T("SplatMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainSplatMap);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, _T("Material"), terrain->m_Material.get());
+	CreatePropertiesMaterial(pComponent, _T("Grass Material"), terrain->m_GrassMaterial.get());
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -1164,7 +1166,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 17;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 11;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
