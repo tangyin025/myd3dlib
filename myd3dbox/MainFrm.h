@@ -44,7 +44,7 @@ public:
 	{
 		PaintNone,
 		PaintTerrainHeightField,
-		PaintTerrainTexture,
+		PaintTerrainColor,
 		PaintGrass,
 	};
 	PaintMode m_PaintMode;
@@ -133,8 +133,8 @@ public:
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 	afx_msg void OnPaintTerrainHeightField();
 	afx_msg void OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI);
-	afx_msg void OnPaintTerrainTexture();
-	afx_msg void OnUpdatePaintTerrainTexture(CCmdUI* pCmdUI);
+	afx_msg void OnPaintTerrainColor();
+	afx_msg void OnUpdatePaintTerrainColor(CCmdUI* pCmdUI);
 };
 
 

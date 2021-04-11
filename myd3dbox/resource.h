@@ -91,7 +91,7 @@
 #define ID_SCRIPT_SAVE_AS               32799
 #define ID_VIEW_PIVOT32800              32800
 #define ID_PAINT_TERRAINHEIGHTFIELD     32801
-#define ID_PAINT_TERRAINTEXTURE         32802
+#define ID_PAINT_TERRAINCOLOR           32802
 
 // Next default values for new objects
 // 

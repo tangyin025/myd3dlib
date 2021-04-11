@@ -153,7 +153,7 @@ public:
 	afx_msg void OnShowNavigation();
 	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
 	void OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream & tstr);
-	void OnPaintTerrainTexture(const my::Ray& ray, TerrainStream& tstr);
+	void OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

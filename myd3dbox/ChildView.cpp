@@ -1041,7 +1041,7 @@ void CChildView::OnPaint()
 					if (pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
 					{
 					}
-					else if (pFrame->m_PaintMode == CMainFrame::PaintTerrainTexture)
+					else if (pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
 					{
 					}
 					else
@@ -1158,10 +1158,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainTexture)
+	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
 	{
 		m_PaintCaptured.reset(new TerrainStream(terrain));
-		OnPaintTerrainTexture(ray, *m_PaintCaptured);
+		OnPaintTerrainColor(ray, *m_PaintCaptured);
 		SetCapture();
 		Invalidate();
 		return;
@@ -1326,10 +1326,10 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (m_PaintCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainTexture)
+	if (m_PaintCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		OnPaintTerrainTexture(ray, *m_PaintCaptured);
+		OnPaintTerrainColor(ray, *m_PaintCaptured);
 		Invalidate();
 		UpdateWindow();
 		return;
@@ -1673,7 +1673,7 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 }
 
 
-void CChildView::OnPaintTerrainTexture(const my::Ray& ray, TerrainStream& tstr)
+void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 {
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
