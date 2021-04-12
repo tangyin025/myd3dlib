@@ -1603,6 +1603,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case physx::PxGeometryType::eHEIGHTFIELD:
 			if (dlg.DoModal() == IDOK)
 			{
+				UpdatePropertiesShape(pProp->GetParent(), cmp);
+				m_wndPropList.AdjustLayout();
 				my::EventArg arg;
 				pFrame->m_EventAttributeChanged(&arg);
 			}
@@ -1610,6 +1612,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		default:
 		{
 			cmp->ClearShape();
+			UpdatePropertiesShape(pProp->GetParent(), cmp);
+			m_wndPropList.AdjustLayout();
 			my::EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 			break;
