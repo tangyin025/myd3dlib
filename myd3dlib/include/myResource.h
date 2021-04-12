@@ -167,9 +167,11 @@ namespace my
 
 		Event m_PostLoadEvent;
 
-		typedef std::set<IResourceCallback *> IResourceCallbackSet;
+		typedef boost::function<void(my::DeviceResourceBasePtr)> ResourceCallback;
 
-		IResourceCallbackSet m_callbacks;
+		typedef std::vector<ResourceCallback> ResourceCallbackSet;
+
+		ResourceCallbackSet m_callbacks;
 
 		DeviceResourceBasePtr m_res;
 
@@ -210,18 +212,95 @@ namespace my
 
 		ThreadPtrList m_Threads;
 
+		bool IsMainThread(void) const;
+
 	public:
 		AsynchronousIOMgr(void);
 
 		DWORD IORequestProc(void);
 
-		IORequestPtrPairList::iterator PushIORequest(const std::string & key, my::IORequestPtr request, bool front);
+		template <typename T>
+		IORequestPtrPairList::iterator PushIORequest(const std::string & key, my::IORequestPtr request, const T & callback, bool front)
+		{
+			_ASSERT(IsMainThread());
 
-		void RemoveIORequestCallback(const std::string & key, IResourceCallback * callback);
+			m_IORequestListMutex.Wait(INFINITE);
+
+			IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+			for (; req_iter != m_IORequestList.end(); req_iter++)
+			{
+				if (req_iter->first == key)
+				{
+					_ASSERT(request->m_callbacks.empty());
+					_ASSERT(req_iter->second->m_callbacks.end() == std::find(req_iter->second->m_callbacks.begin(), req_iter->second->m_callbacks.end(), callback));
+					req_iter->second->m_callbacks.push_back(callback);
+					m_IORequestListMutex.Release();
+					return req_iter;
+				}
+			}
+
+			request->m_callbacks.push_back(callback);
+
+			if (front)
+			{
+				m_IORequestList.push_front(std::make_pair(key, request));
+				m_IORequestListMutex.Release();
+				m_IORequestListCondition.Wake(1);
+				return m_IORequestList.begin();
+			}
+
+			m_IORequestList.push_back(std::make_pair(key, request));
+			m_IORequestListMutex.Release();
+			m_IORequestListCondition.Wake(1);
+			return --m_IORequestList.end();
+		}
+
+		template <typename T>
+		void RemoveIORequestCallback(const std::string& key, const T & callback)
+		{
+			_ASSERT(IsMainThread());
+
+			m_IORequestListMutex.Wait(INFINITE);
+
+			IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+			for (; req_iter != m_IORequestList.end(); req_iter++)
+			{
+				if (req_iter->first == key)
+				{
+					IORequest::ResourceCallbackSet::iterator callback_iter = std::find(req_iter->second->m_callbacks.begin(), req_iter->second->m_callbacks.end(), callback);
+					if (callback_iter != req_iter->second->m_callbacks.end())
+					{
+						req_iter->second->m_callbacks.erase(callback_iter);
+						if (req_iter->second->m_callbacks.empty())
+						{
+							m_IORequestList.erase(req_iter);
+						}
+					}
+					break;
+				}
+			}
+
+			m_IORequestListMutex.Release();
+		}
 
 		//void RemoveAllIORequest(void);
 
-		bool FindIORequestCallback(const IResourceCallback * callback);
+		template <typename T>
+		bool FindIORequestCallback(const T & callback)
+		{
+			_ASSERT(IsMainThread());
+
+			IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+			for (; req_iter != m_IORequestList.end(); req_iter++)
+			{
+				IORequest::ResourceCallbackSet::iterator callback_iter = std::find(req_iter->second->m_callbacks.begin(), req_iter->second->m_callbacks.end(), callback);
+				if (callback_iter != req_iter->second->m_callbacks.end())
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 
 		void StartIORequestProc(LONG lMaximumCount);
 
@@ -324,9 +403,32 @@ namespace my
 
 		void AddResource(const std::string & key, DeviceResourceBasePtr res);
 
-		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front);
+		template <typename T>
+		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request, const T & callback, bool front)
+		{
+			_ASSERT(IsMainThread());
 
-		void LoadIORequestAndWait(const std::string & key, IORequestPtr request);
+			_ASSERT(!key.empty());
+
+			DeviceResourceBasePtr res = GetResource(key);
+			if (res)
+			{
+				request->m_res = res;
+
+				request->m_callbacks.push_back(callback);
+
+				request->m_PostLoadEvent.SetEvent();
+
+				OnIORequestCallback(request);
+
+				return m_IORequestList.end();
+			}
+
+			return PushIORequest(key, request, callback, front);
+		}
+
+		template <typename T>
+		void LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T& callback);
 
 		bool CheckIORequests(DWORD dwMilliseconds);
 
@@ -336,27 +438,60 @@ namespace my
 
 		void OnIORequestCallback(IORequestPtr request);
 
-		void LoadTextureAsync(const char * path, IResourceCallback * callback);
+		template <typename T>
+		void LoadTextureAsync(const char* path, const T & callback)
+		{
+			IORequestPtr request(new TextureIORequest(path));
+			LoadIORequestAsync(path, request, callback, false);
+		}
 
 		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
 
-		void LoadVertexBufferAsync(const char* path, IResourceCallback* callback);
+		template <typename T>
+		void LoadVertexBufferAsync(const char* path, const T & callback)
+		{
+			IORequestPtr request(new VertexBufferIORequest(path));
+			LoadIORequestAsync(path, request, callback, false);
+		}
 
 		boost::intrusive_ptr<VertexBuffer> LoadVertexBuffer(const char* path);
 
-		void LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback);
+		template <typename T>
+		void LoadMeshAsync(const char* path, const char* sub_mesh_name, const T & callback)
+		{
+			std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
+			IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
+			LoadIORequestAsync(key, request, callback, false);
+		}
 
 		boost::intrusive_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
 
-		void LoadSkeletonAsync(const char * path, IResourceCallback * callback);
+		template <typename T>
+		void LoadSkeletonAsync(const char* path, const T & callback)
+		{
+			IORequestPtr request(new SkeletonIORequest(path));
+			LoadIORequestAsync(path, request, callback, false);
+		}
 
 		boost::intrusive_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
 
-		void LoadEffectAsync(const char * path, const char * macros, IResourceCallback * callback);
+		template <typename T>
+		void LoadEffectAsync(const char* path, const char* macros, const T & callback)
+		{
+			std::string key = EffectIORequest::BuildKey(path, macros);
+			IORequestPtr request(new EffectIORequest(path, macros));
+			LoadIORequestAsync(key, request, callback, false);
+		}
 
 		boost::intrusive_ptr<Effect> LoadEffect(const char * path, const char * macros);
 
-		void LoadFontAsync(const char * path, int height, int face_index, IResourceCallback * callback);
+		template <typename T>
+		void LoadFontAsync(const char* path, int height, int face_index, const T & callback)
+		{
+			std::string key = FontIORequest::BuildKey(path, height, face_index);
+			IORequestPtr request(new FontIORequest(path, height, face_index));
+			LoadIORequestAsync(key, request, callback, false);
+		}
 
 		boost::intrusive_ptr<Font> LoadFont(const char * path, int height, int face_index);
 	};

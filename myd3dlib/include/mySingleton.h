@@ -150,24 +150,6 @@ namespace my
 
 	typedef boost::shared_ptr<IStream> IStreamPtr;
 
-	class IResourceCallback
-	{
-	public:
-		friend class IORequest;
-
-		friend class AsynchronousIOMgr;
-
-		friend class ResourceMgr;
-
-		IResourceCallback(void)
-		{
-		}
-
-		virtual ~IResourceCallback(void);
-
-		virtual void OnReady(IORequest * request) = 0;
-	};
-
 	class NamedObject
 	{
 	protected:

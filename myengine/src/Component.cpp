@@ -342,9 +342,9 @@ ComponentPtr MeshComponent::Clone(void) const
 	return ret;
 }
 
-void MeshComponent::OnReady(my::IORequest * request)
+void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
 {
-	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(request->m_res);
+	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
 
 	if (m_MeshEventReady)
 	{
@@ -361,7 +361,7 @@ void MeshComponent::RequestResource(void)
 	{
 		_ASSERT(!m_Mesh);
 
-		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshSubMeshName.c_str(), this);
+		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshSubMeshName.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
 	}
 }
 
@@ -369,7 +369,7 @@ void MeshComponent::ReleaseResource(void)
 {
 	if (!m_MeshPath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), this);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
 
 		m_Mesh.reset();
 	}

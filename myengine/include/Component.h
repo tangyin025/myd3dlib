@@ -187,7 +187,6 @@ public:
 
 class MeshComponent
 	: public Component
-	, public my::IResourceCallback
 {
 public:
 	std::string m_MeshPath;
@@ -261,7 +260,7 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
-	virtual void OnReady(my::IORequest * request);
+	void OnMeshReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 

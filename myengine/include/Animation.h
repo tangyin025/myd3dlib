@@ -300,7 +300,7 @@ public:
 	}
 };
 
-class AnimationRoot : public AnimationNodeSlot, public my::IResourceCallback
+class AnimationRoot : public AnimationNodeSlot
 {
 public:
 	Actor * m_Actor;
@@ -383,7 +383,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual void OnReady(my::IORequest * request);
+	void OnSkeletonReady(my::DeviceResourceBasePtr res);
 
 	void RequestResource(void);
 

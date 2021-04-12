@@ -354,6 +354,11 @@ IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path));
 }
 
+bool AsynchronousIOMgr::IsMainThread(void) const
+{
+	return GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId;
+}
+
 AsynchronousIOMgr::AsynchronousIOMgr(void)
 	: m_bStopped(false)
 {
@@ -399,73 +404,10 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 
 	return 0;
 }
-
-AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequest(const std::string & key, my::IORequestPtr request, bool front)
-{
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
-	m_IORequestListMutex.Wait(INFINITE);
-
-	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-	for (; req_iter != m_IORequestList.end(); req_iter++)
-	{
-		if (req_iter->first == key)
-		{
-			IORequest::IResourceCallbackSet::const_iterator callback_iter = request->m_callbacks.begin();
-			for (; callback_iter != request->m_callbacks.end(); callback_iter++)
-			{
-				_ASSERT(req_iter->second->m_callbacks.find(*callback_iter) == req_iter->second->m_callbacks.end());
-				req_iter->second->m_callbacks.insert(*callback_iter);
-			}
-			m_IORequestListMutex.Release();
-			return req_iter;
-		}
-	}
-
-	if (front)
-	{
-		m_IORequestList.push_front(std::make_pair(key, request));
-		m_IORequestListMutex.Release();
-		m_IORequestListCondition.Wake(1);
-		return m_IORequestList.begin();
-	}
-
-	m_IORequestList.push_back(std::make_pair(key, request));
-	m_IORequestListMutex.Release();
-	m_IORequestListCondition.Wake(1);
-	return --m_IORequestList.end();
-}
-
-void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResourceCallback * callback)
-{
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
-	m_IORequestListMutex.Wait(INFINITE);
-
-	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-	for(; req_iter != m_IORequestList.end(); req_iter++)
-	{
-		if(req_iter->first == key)
-		{
-			IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(callback);
-			if (callback_iter != req_iter->second->m_callbacks.end())
-			{
-				req_iter->second->m_callbacks.erase(callback_iter);
-				if (req_iter->second->m_callbacks.empty())
-				{
-					m_IORequestList.erase(req_iter);
-				}
-			}
-			break;
-		}
-	}
-
-	m_IORequestListMutex.Release();
-}
 //
 //void AsynchronousIOMgr::RemoveAllIORequest(void)
 //{
-//	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+//	_ASSERT(IsMainThread());
 //
 //	m_IORequestListMutex.Wait(INFINITE);
 //
@@ -487,22 +429,6 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 //	m_IORequestListMutex.Release();
 //}
 
-bool AsynchronousIOMgr::FindIORequestCallback(const IResourceCallback * callback)
-{
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
-	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
-	for (; req_iter != m_IORequestList.end(); req_iter++)
-	{
-		IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(const_cast<IResourceCallback *>(callback));
-		if (callback_iter != req_iter->second->m_callbacks.end())
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 {
 	m_bStopped = false;
@@ -519,7 +445,7 @@ void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 
 void AsynchronousIOMgr::StopIORequestProc(void)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(IsMainThread());
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
@@ -643,7 +569,7 @@ HRESULT ResourceMgr::Close(
 
 void ResourceMgr::EnterDeviceSectionIfNotMainThread(void)
 {
-	if (GetCurrentThreadId() != D3DContext::getSingleton().m_d3dThreadId)
+	if (!IsMainThread())
 	{
 		D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	}
@@ -651,7 +577,7 @@ void ResourceMgr::EnterDeviceSectionIfNotMainThread(void)
 
 void ResourceMgr::LeaveDeviceSectionIfNotMainThread(void)
 {
-	if (GetCurrentThreadId() != D3DContext::getSingleton().m_d3dThreadId)
+	if (!IsMainThread())
 	{
 		D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 	}
@@ -659,7 +585,7 @@ void ResourceMgr::LeaveDeviceSectionIfNotMainThread(void)
 
 DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(IsMainThread());
 
 	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.find(key);
 	if(res_iter != m_ResourceSet.end())
@@ -671,7 +597,7 @@ DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 
 void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(IsMainThread());
 
 	_ASSERT(!GetResource(key));
 
@@ -686,34 +612,14 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 	D3DContext::getSingleton().m_EventLog(logs.c_str());
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request, bool front)
+template <typename T>
+void ResourceMgr::LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T& callback)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
-	_ASSERT(!key.empty());
-
-	DeviceResourceBasePtr res = GetResource(key);
-	if (res)
-	{
-		request->m_res = res;
-
-		request->m_PostLoadEvent.SetEvent();
-
-		OnIORequestCallback(request);
-
-		return m_IORequestList.end();
-	}
-
-	return PushIORequest(key, request, front);
-}
-
-void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr request)
-{
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(IsMainThread());
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, true);
+	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, callback, true);
 	if (req_iter != m_IORequestList.end())
 	{
 		if (req_iter->second->m_PostLoadEvent.Wait(INFINITE))
@@ -727,7 +633,7 @@ void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr req
 
 bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(IsMainThread());
 
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for (; req_iter != m_IORequestList.end(); )
@@ -764,7 +670,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 
 ResourceMgr::IORequestPtrPairList::iterator ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	_ASSERT(IsMainThread());
 
 	IORequestPtrPair pair = *req_iter;
 	m_IORequestListMutex.Wait(INFINITE);
@@ -817,31 +723,24 @@ void ResourceMgr::OnIORequestCallback(IORequestPtr request)
 {
 	if (request->m_res)
 	{
-		IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
+		IORequest::ResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
 		for (; callback_iter != request->m_callbacks.end(); callback_iter++)
 		{
 			_ASSERT(*callback_iter);
 
-			(*callback_iter)->OnReady(request.get());
+			(*callback_iter)(request->m_res);
 		}
 	}
 }
 
-void ResourceMgr::LoadTextureAsync(const char * path, IResourceCallback * callback)
-{
-	IORequestPtr request(new TextureIORequest(path));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request, false);
-}
-
-class SimpleResourceCallback : public IResourceCallback
+class SimpleResourceCallback
 {
 public:
 	DeviceResourceBasePtr m_res;
 
-	virtual void OnReady(IORequest * request)
+	void OnResourceReady(DeviceResourceBasePtr res)
 	{
-		m_res = request->m_res;
+		m_res = res;
 	}
 };
 
@@ -849,33 +748,16 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new TextureIORequest(path));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(path, request);
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
-}
-
-void ResourceMgr::LoadVertexBufferAsync(const char* path, IResourceCallback* callback)
-{
-	IORequestPtr request(new VertexBufferIORequest(path));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request, false);
 }
 
 boost::intrusive_ptr<VertexBuffer> ResourceMgr::LoadVertexBuffer(const char* path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new VertexBufferIORequest(path));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(path, request);
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<VertexBuffer>(cb.m_res);
-}
-
-void ResourceMgr::LoadMeshAsync(const char * path, const char * sub_mesh_name, IResourceCallback * callback)
-{
-	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
-	IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(key, request, false);
 }
 
 boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
@@ -883,33 +765,16 @@ boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const ch
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(key, request);
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<OgreMesh>(cb.m_res);
-}
-
-void ResourceMgr::LoadSkeletonAsync(const char * path, IResourceCallback * callback)
-{
-	IORequestPtr request(new SkeletonIORequest(path));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request, false);
 }
 
 boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new SkeletonIORequest(path));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(path, request);
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(cb.m_res);
-}
-
-void ResourceMgr::LoadEffectAsync(const char * path, const char * macros, IResourceCallback * callback)
-{
-	std::string key = EffectIORequest::BuildKey(path, macros);
-	IORequestPtr request(new EffectIORequest(path, macros));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(key, request, false);
 }
 
 boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
@@ -917,17 +782,8 @@ boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const ch
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new EffectIORequest(path, macros));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(key, request);
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<Effect>(cb.m_res);
-}
-
-void ResourceMgr::LoadFontAsync(const char * path, int height, int face_index, IResourceCallback * callback)
-{
-	std::string key = FontIORequest::BuildKey(path, height, face_index);
-	IORequestPtr request(new FontIORequest(path, height, face_index));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(key, request, false);
 }
 
 boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, int face_index)
@@ -935,8 +791,7 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 	std::string key = FontIORequest::BuildKey(path, height, face_index);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new FontIORequest(path, height, face_index));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(key, request);
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
 
@@ -996,7 +851,7 @@ void VertexBufferIORequest::LoadResource(void)
 			boost::dynamic_pointer_cast<VertexBuffer>(m_res)->CreateVertexBufferFromIStream(
 				ResourceMgr::getSingleton().OpenIStream(m_path.c_str()), 0, 0, D3DPOOL_MANAGED);
 		}
-		catch (my::Exception * e)
+		catch (my::Exception *)
 		{
 			m_res->OnDestroyDevice();
 		}

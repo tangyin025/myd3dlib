@@ -116,9 +116,9 @@ MaterialParameterTexture::~MaterialParameterTexture(void)
 	}
 }
 
-void MaterialParameterTexture::OnReady(my::IORequest * request)
+void MaterialParameterTexture::OnTextureReady(my::DeviceResourceBasePtr res)
 {
-	m_Texture = boost::dynamic_pointer_cast<my::BaseTexture>(request->m_res);
+	m_Texture = boost::dynamic_pointer_cast<my::BaseTexture>(res);
 }
 
 void MaterialParameterTexture::RequestResource(void)
@@ -127,7 +127,7 @@ void MaterialParameterTexture::RequestResource(void)
 	{
 		_ASSERT(!m_Texture);
 
-		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), this);
+		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), boost::bind(&MaterialParameterTexture::OnTextureReady, this, boost::placeholders::_1));
 	}
 }
 
@@ -135,7 +135,7 @@ void MaterialParameterTexture::ReleaseResource(void)
 {
 	if (!m_TexturePath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, this);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath, boost::bind(&MaterialParameterTexture::OnTextureReady, this, boost::placeholders::_1));
 
 		m_Texture.reset();
 	}
@@ -445,7 +445,7 @@ void Material::SetParameterTexture(const std::string & Name, const std::string &
 		{
 			// ! SetParameterTexture must be call outside resource request
 			MaterialParameterTexture * param_texture = dynamic_cast<MaterialParameterTexture *>(param_iter->get());
-			_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(param_texture));
+			_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(boost::bind(&MaterialParameterTexture::OnTextureReady, param_texture, boost::placeholders::_1)));
 			_ASSERT(!param_texture->m_Texture);
 			param_texture->m_TexturePath = Path;
 		}

@@ -11,7 +11,6 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctEntity
-	, public my::IResourceCallback
 {
 public:
 	int m_Row;
@@ -55,7 +54,7 @@ public:
 		return m_Requested;
 	}
 
-	virtual void OnReady(my::IORequest* request);
+	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 

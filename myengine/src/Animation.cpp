@@ -463,9 +463,9 @@ AnimationRoot::~AnimationRoot(void)
 	}
 }
 
-void AnimationRoot::OnReady(my::IORequest * request)
+void AnimationRoot::OnSkeletonReady(my::DeviceResourceBasePtr res)
 {
-	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(request->m_res);
+	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 
 	if (m_SkeletonEventReady)
 	{
@@ -494,7 +494,7 @@ void AnimationRoot::RequestResource(void)
 	{
 		_ASSERT(!m_Skeleton);
 
-		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), this);
+		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&AnimationRoot::OnSkeletonReady, this, boost::placeholders::_1));
 	}
 }
 
@@ -502,7 +502,7 @@ void AnimationRoot::ReleaseResource(void)
 {
 	if (!m_SkeletonPath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, this);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, boost::bind(&AnimationRoot::OnSkeletonReady, this, boost::placeholders::_1));
 
 		m_Skeleton.reset();
 	}

@@ -213,7 +213,7 @@ public:
 	virtual MaterialParameterPtr Clone(void) const;
 };
 
-class MaterialParameterTexture : public MaterialParameter, public my::IResourceCallback
+class MaterialParameterTexture : public MaterialParameter
 {
 public:
 	friend class RenderPipeline;
@@ -245,7 +245,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
 	}
 
-	virtual void OnReady(my::IORequest * request);
+	void OnTextureReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 

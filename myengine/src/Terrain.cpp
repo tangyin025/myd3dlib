@@ -72,9 +72,9 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
 
-void TerrainChunk::OnReady(my::IORequest* request)
+void TerrainChunk::OnVertexBufferReady(my::DeviceResourceBasePtr res)
 {
-	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(request->m_res);
+	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(res);
 }
 
 void TerrainChunk::RequestResource(void)
@@ -87,7 +87,7 @@ void TerrainChunk::RequestResource(void)
 
 		std::ostringstream chunk_path;
 		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
-		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(chunk_path.str().c_str(), this);
+		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(chunk_path.str().c_str(), boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 	}
 
 	if (m_Material)
@@ -102,7 +102,7 @@ void TerrainChunk::ReleaseResource(void)
 	{
 		std::ostringstream chunk_path;
 		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(chunk_path.str(), this);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(chunk_path.str(), boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 
 		m_Vb.reset();
 	}
