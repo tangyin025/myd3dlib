@@ -1000,6 +1000,7 @@ void RenderPipeline::ClearAllObjects(void)
 	for (; PassID < m_Pass.size(); PassID++)
 	{
 		m_Pass[PassID].m_IndexedPrimitiveList.clear();
+		m_Pass[PassID].m_IndexedPrimitiveInstanceList.clear();
 		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
 		m_Pass[PassID].m_MeshList.clear();
 		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();

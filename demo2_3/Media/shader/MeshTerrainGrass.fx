@@ -9,8 +9,12 @@ struct VS_INPUT
 
 float4 TransformPosWS(VS_INPUT In)
 {
+	float3 Up = float3(0, 1, 0);
+	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
+	float3 Right = normalize(cross(Up, Dir));
+	Dir = cross(Right, Up);
 	float4 Pos = mul(In.Pos1, g_World);
-	Pos.xyz += Right * -In.Pos.z + Up * In.Pos.y + Dir * In.Pos.x;
+	Pos.xyz += Right * In.Pos.x + Up * In.Pos.y + Dir * In.Pos.z;
 	return Pos;
 }
 
@@ -26,7 +30,7 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return In.Pos.xy;
+	return float2(In.Pos.x, 1 - In.Pos.y);
 }
 
 float3 TransformNormal(VS_INPUT In)
@@ -53,5 +57,5 @@ float4 TransformLightWS(VS_INPUT In)
 
 float4 TransformColor(VS_INPUT In)
 {
-	return g_MeshColor;
+	return float4(1, 1, 1, 1);
 }

@@ -23,8 +23,6 @@ public:
 
 	my::VertexBufferPtr m_Vb;
 
-	my::VertexBufferPtr m_GrassInstance;
-
 	MaterialPtr m_Material;
 
 protected:
@@ -120,6 +118,8 @@ public:
 	my::VertexBuffer m_GrassVb;
 
 	my::IndexBuffer m_GrassIb;
+
+	my::VertexBuffer m_GrassInstance;
 
 	my::D3DVertexElementSet m_GrassVertexElems;
 
