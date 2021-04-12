@@ -20,8 +20,6 @@ CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
 	, m_AlignToCenter(TRUE)
-	, m_UseTerrainMaterial(TRUE)
-	, m_UseWaterMaterial(FALSE)
 {
 	m_ChunkPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name.c_str()).c_str());
 }
@@ -38,8 +36,6 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT3, m_ChunkSize);
 	DDX_Text(pDX, IDC_EDIT4, m_ChunkPath);
 	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
-	DDX_Check(pDX, IDC_CHECK2, m_UseTerrainMaterial);
-	DDX_Check(pDX, IDC_CHECK3, m_UseWaterMaterial);
 }
 
 
@@ -78,18 +74,9 @@ void CTerrainDlg::OnOK()
 
 	m_terrain->m_ChunkPath = theApp.GetRelativePath(FullPath.c_str());
 
-	if (m_UseTerrainMaterial)
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;
-		mtl->ParseShaderParameters();
-		m_terrain->SetMaterial(mtl);
-	}
-
-	if (m_UseWaterMaterial)
-	{
-		MaterialPtr mtl(new Material());
-		mtl->m_Shader = theApp.default_water_shader;
 		mtl->ParseShaderParameters();
 		m_terrain->SetMaterial(mtl);
 	}

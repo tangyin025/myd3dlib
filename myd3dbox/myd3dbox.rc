@@ -165,8 +165,6 @@ BEGIN
     RTEXT           "Colum",IDC_STATIC,103,74,40,8
     RTEXT           "Chunk Size",IDC_STATIC,185,74,40,8
     CONTROL         "Align to center",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,64,97,63,10
-    CONTROL         "Use terrain material",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,64,112,79,10
-    CONTROL         "Use water material",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,64,127,76,10
     EDITTEXT        IDC_EDIT4,64,48,122,14,ES_AUTOHSCROLL
     RTEXT           "Asset",IDC_STATIC,21,48,40,8
 END

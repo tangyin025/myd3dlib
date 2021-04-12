@@ -31,7 +31,5 @@ public:
 	int m_ChunkSize;
 	CString m_ChunkPath;
 	BOOL m_AlignToCenter;
-	BOOL m_UseTerrainMaterial;
-	BOOL m_UseWaterMaterial;
 	virtual void OnOK();
 };
