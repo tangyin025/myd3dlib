@@ -68,11 +68,11 @@ void CTerrainDlg::OnOK()
 
 	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 1.0f));
 
-	std::string FullPath = theApp.GetFullPath(ts2ms(m_ChunkPath).c_str());
+	m_terrain->m_ChunkPath = ts2ms(m_ChunkPath);
 
-	m_terrain->CreateChunkData(FullPath.c_str());
-
-	m_terrain->m_ChunkPath = theApp.GetRelativePath(FullPath.c_str());
+	TerrainStream tstr(m_terrain.get());
+	std::fill(tstr.m_AabbDirty.data(), tstr.m_AabbDirty.data() + tstr.m_AabbDirty.num_elements(), true);
+	tstr.Release();
 
 	{
 		MaterialPtr mtl(new Material());

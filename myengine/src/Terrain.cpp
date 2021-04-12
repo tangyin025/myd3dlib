@@ -978,32 +978,6 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 	}
 }
 
-void Terrain::CreateChunkData(const char* full_path_without_ext)
-{
-	for (int Row = 0; Row < m_RowChunks; Row++)
-	{
-		for (int Col = 0; Col < m_ColChunks; Col++)
-		{
-			std::vector<char> buff((m_ChunkSize + 1) * (m_ChunkSize + 1) * Terrain::m_VertexStride);
-			for (int i = 0; i < m_ChunkSize + 1; i++)
-			{
-				for (int j = 0; j < m_ChunkSize + 1; j++)
-				{
-					char* pVertex = &buff[0] + m_IndexTable[i][j] * m_VertexStride;
-					m_VertexElems.SetPosition(pVertex, Vector3((float)Col * m_ChunkSize + j, 0, (float)Row * m_ChunkSize + i), 0);
-					m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
-					m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
-				}
-			}
-
-			std::ostringstream chunk_path;
-			chunk_path << full_path_without_ext << "_" << Row << "_" << Col << ".chunk";
-			std::ofstream ofs(chunk_path.str(), std::ios::binary);
-			ofs.write(&buff[0], buff.size());
-		}
-	}
-}
-
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_fstrs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
@@ -1114,7 +1088,27 @@ std::fstream& TerrainStream::GetStream(int k, int l)
 	{
 		std::ostringstream chunk_path;
 		chunk_path << m_terrain->m_ChunkPath << "_" << k << "_" << l << ".chunk";
-		ret.open(my::ResourceMgr::getSingleton().GetFullPath(chunk_path.str().c_str()), std::ios::in | std::ios::out | std::ios::binary);
+		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(chunk_path.str().c_str());
+		ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
+
+		if (!ret.is_open())
+		{
+			std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * Terrain::m_VertexStride);
+			for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
+			{
+				for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
+				{
+					char* pVertex = &buff[0] + m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride;
+					m_terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)l * m_terrain->m_ChunkSize + n, 0, (float)k * m_terrain->m_ChunkSize + m), 0);
+					m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
+					m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
+				}
+			}
+			std::ofstream ofs(full_chunk_path, std::ios::binary);
+			ofs.write(&buff[0], buff.size());
+			ofs.close();
+			ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
+		}
 	}
 	_ASSERT(ret.is_open());
 	return ret;

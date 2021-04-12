@@ -203,8 +203,6 @@ public:
 	void UpdateChunkAABB(void);
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
-
-	void CreateChunkData(const char* full_path_without_ext);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
