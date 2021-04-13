@@ -218,6 +218,8 @@ public:
 
 	boost::multi_array<std::fstream, 2> m_fstrs;
 
+	boost::multi_array<std::fstream, 2> m_grassfstrs;
+
 	boost::multi_array<bool, 2> m_AabbDirty;
 
 	boost::multi_array<bool, 2> m_VertDirty;
@@ -232,6 +234,8 @@ public:
 	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
 
 	std::fstream& GetStream(int k, int l);
+
+	std::fstream& GetGrassStream(int k, int l);
 
 	my::Vector3 GetPos(int i, int j);
 
@@ -250,4 +254,10 @@ public:
 	void SetNormal(const my::Vector3& Normal, int i, int j);
 
 	void SetNormal(D3DCOLOR dw, int k, int l, int m, int n);
+
+	void AddGrass(const my::Vector3& Pos);
+
+	void DeleteGrass(const my::Vector3& Pos, float Radius, int k, int l);
+
+	void DeleteGrass(const my::Vector3& Pos, float Radius);
 };

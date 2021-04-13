@@ -1163,6 +1163,31 @@ std::fstream& TerrainStream::GetStream(int k, int l)
 	return ret;
 }
 
+std::fstream& TerrainStream::GetGrassStream(int k, int l)
+{
+	std::fstream& ret = m_grassfstrs[k][l];
+	if (!ret.is_open())
+	{
+		std::ostringstream chunk_path;
+		chunk_path << m_terrain->m_ChunkPath << "_" << k << "_" << l << ".grass";
+		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(chunk_path.str().c_str());
+		ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
+
+
+		if (!ret.is_open())
+		{
+			std::vector<char> buff(m_terrain->m_GrassInstanceStride);
+			m_terrain->m_GrassInstanceElems.SetPosition(&buff[0] + 0 * m_terrain->m_GrassInstanceStride, Vector3(0, 0, 0), 1);
+			std::ofstream ofs(full_chunk_path, std::ios::binary);
+			ofs.write(&buff[0], buff.size());
+			ofs.close();
+			ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
+		}
+	}
+	_ASSERT(ret.is_open());
+	return ret;
+}
+
 my::Vector3 TerrainStream::GetPos(int i, int j)
 {
 	my::Vector3 ret;
@@ -1389,4 +1414,96 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 	std::fstream& fstr = GetStream(k, l);
 	fstr.seekp(off, std::ios::beg);
 	fstr.write((char*)&dw, sizeof(dw));
+}
+
+void TerrainStream::AddGrass(const my::Vector3& Pos)
+{
+	int k, l, m, n, o, p;
+	GetIndices((int)Pos.z, (int)Pos.x, k, l, m, n, o, p);
+
+	TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
+	std::streamoff off = chunk->m_GrassNum * m_terrain->m_GrassInstanceStride;
+	if (chunk->IsRequested())
+	{
+		D3DVERTEXBUFFER_DESC desc = chunk->m_GrassInstance->GetDesc();
+		if (chunk->m_GrassNum >= desc.Size / m_terrain->m_GrassInstanceStride)
+		{
+			unsigned char* pVertices = (unsigned char*)chunk->m_GrassInstance->Lock(0, 0, D3DLOCK_READONLY);
+			std::vector<unsigned char> buff;
+			buff.insert(buff.end(), pVertices, pVertices + desc.Size);
+			chunk->m_GrassInstance->Unlock();
+
+			chunk->m_GrassInstance->OnDestroyDevice();
+			chunk->m_GrassInstance->CreateVertexBuffer(desc.Size + 1024 * m_terrain->m_GrassInstanceStride, 0, 0, D3DPOOL_MANAGED);
+			pVertices = (unsigned char*)chunk->m_GrassInstance->Lock(0, 0, 0);
+			memcpy(pVertices, &buff[0], buff.size());
+			chunk->m_GrassInstance->Unlock();
+		}
+
+		void* pbuff = chunk->m_GrassInstance->Lock(off, sizeof(Pos), 0);
+		*(Vector3*)pbuff = Pos;
+		chunk->m_GrassInstance->Unlock();
+		chunk->m_GrassNum++;
+		// ! dirty
+		return;
+	}
+
+	std::fstream& fstr = GetGrassStream(k, l);
+	fstr.seekp(off, std::ios::beg);
+	fstr.write((char*)&Pos, sizeof(Pos));
+}
+
+void TerrainStream::DeleteGrass(const my::Vector3& Pos, float Radius, int k, int l)
+{
+	TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
+	if (chunk->IsRequested())
+	{
+		boost::multi_array_ref<Vector3, 1> ref((Vector3*)chunk->m_GrassInstance->Lock(0, 0, 0), boost::extents[chunk->m_GrassNum]);
+		for (unsigned int i = 0; i < chunk->m_GrassNum;)
+		{
+			if ((Pos - ref[i]).magnitudeSq() <= Radius * Radius)
+			{
+				ref[i] = ref[chunk->m_GrassNum - 1];
+				chunk->m_GrassNum--;
+			}
+			else
+			{
+				i++;
+			}
+		}
+		chunk->m_GrassInstance->Unlock();
+		// ! dirty
+		return;
+	}
+
+	std::fstream& fstr = GetGrassStream(k, l);
+	for (unsigned int i = 0; i < chunk->m_GrassNum;)
+	{
+		Vector3 p0;
+		fstr.seekp(i * m_terrain->m_GrassInstanceStride, std::ios::beg);
+		fstr.read((char*)&p0, sizeof(p0));
+		if ((Pos - p0).magnitudeSq() <= Radius * Radius)
+		{
+			fstr.seekp((chunk->m_GrassNum - 1) * m_terrain->m_GrassInstanceStride, std::ios::beg);
+			fstr.read((char*)&p0, sizeof(p0));
+			fstr.seekp(i * m_terrain->m_GrassInstanceStride, std::ios::beg);
+			fstr.write((char*)&p0, sizeof(p0));
+			chunk->m_GrassNum--;
+		}
+		else
+		{
+			i++;
+		}
+	}
+}
+
+void TerrainStream::DeleteGrass(const my::Vector3& Pos, float Radius)
+{
+	for (int k = Max(0, (int)(Pos.z - Radius)); k <= Min((int)m_terrain->m_Chunks.shape()[0], (int)(Pos.z + Radius)); k++)
+	{
+		for (int l = Max(0, (int)(Pos.x - Radius)); l <= Min((int)m_terrain->m_Chunks.shape()[1], (int)(Pos.x + Radius)); l++)
+		{
+			DeleteGrass(Pos, Radius, k, l);
+		}
+	}
 }
