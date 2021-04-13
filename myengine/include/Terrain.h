@@ -25,6 +25,10 @@ public:
 
 	MaterialPtr m_Material;
 
+	int m_GrassNum;
+
+	my::VertexBuffer m_GrassInstance;
+
 protected:
 	TerrainChunk(void);
 
@@ -118,8 +122,6 @@ public:
 	my::VertexBuffer m_GrassVb;
 
 	my::IndexBuffer m_GrassIb;
-
-	my::VertexBuffer m_GrassInstance;
 
 	my::D3DVertexElementSet m_GrassVertexElems;
 
