@@ -36,7 +36,6 @@ TerrainChunk::TerrainChunk(void)
 	: m_Row(0)
 	, m_Col(0)
 	, m_Requested(false)
-	, m_GrassNum(0)
 {
 	m_Lod[0] = UINT_MAX;
 }
@@ -45,7 +44,6 @@ TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
 	: m_Row(Row)
 	, m_Col(Col)
 	, m_Requested(false)
-	, m_GrassNum(0)
 {
 	m_Lod[0] = UINT_MAX;
 }
@@ -64,7 +62,6 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Row);
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	ar << BOOST_SERIALIZATION_NVP(m_GrassNum);
 }
 
 template<class Archive>
@@ -73,17 +70,11 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Row);
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	ar >> BOOST_SERIALIZATION_NVP(m_GrassNum);
 }
 
 void TerrainChunk::OnVertexBufferReady(my::DeviceResourceBasePtr res)
 {
 	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(res);
-}
-
-void TerrainChunk::OnGrassInstanceReady(my::DeviceResourceBasePtr res)
-{
-	m_GrassInstance = boost::dynamic_pointer_cast<VertexBuffer>(res);
 }
 
 void TerrainChunk::RequestResource(void)
@@ -103,15 +94,6 @@ void TerrainChunk::RequestResource(void)
 	{
 		m_Material->RequestResource();
 	}
-
-	if (m_GrassNum > 0)
-	{
-		_ASSERT(!m_GrassInstance);
-
-		std::ostringstream grass_path;
-		grass_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".grass";
-		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(grass_path.str().c_str(), boost::bind(&TerrainChunk::OnGrassInstanceReady, this, boost::placeholders::_1));
-	}
 }
 
 void TerrainChunk::ReleaseResource(void)
@@ -128,15 +110,6 @@ void TerrainChunk::ReleaseResource(void)
 	if (m_Material)
 	{
 		m_Material->ReleaseResource();
-	}
-
-	if (m_GrassNum > 0)
-	{
-		std::ostringstream grass_path;
-		grass_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".grass";
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(grass_path.str(), boost::bind(&TerrainChunk::OnGrassInstanceReady, this, boost::placeholders::_1));
-
-		m_GrassInstance.reset();
 	}
 
 	m_Requested = false;
@@ -253,18 +226,6 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 			AddEntity(m_Chunks[i][j].get(), aabb, MinBlock, Threshold);
 		}
 	}
-	m_GrassVb.CreateVertexBuffer(3 * m_GrassVertexStride, 0, 0, D3DPOOL_MANAGED);
-	pVertices = m_GrassVb.Lock(0, 0, 0);
-	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 0 * m_GrassVertexStride, my::Vector3( 0.00f, 1.0f, 0.0f));
-	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 1 * m_GrassVertexStride, my::Vector3(-0.25f, 0.0f, 0.0f));
-	m_GrassVertexElems.SetPosition((unsigned char*)pVertices + 2 * m_GrassVertexStride, my::Vector3( 0.25f, 0.0f, 0.0f));
-	m_GrassVb.Unlock();
-	m_GrassIb.CreateIndexBuffer(3 * sizeof(unsigned short), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-	unsigned short* pIndex = (unsigned short*)m_GrassIb.Lock(0, 0, 0);
-	pIndex[0] = 0;
-	pIndex[1] = 1;
-	pIndex[2] = 2;
-	m_GrassIb.Unlock();
 }
 
 Terrain::~Terrain(void)
@@ -325,14 +286,6 @@ void Terrain::CreateElements(void)
 	m_VertexElems.InsertColorElement(offset, 1);
 	offset += sizeof(D3DCOLOR);
 	_ASSERT(m_VertexStride == offset);
-
-	m_GrassVertexElems.InsertPositionElement(0);
-	offset = sizeof(Vector3);
-	_ASSERT(m_GrassVertexStride == offset);
-
-	m_GrassInstanceElems.InsertPositionElement(0, 1);
-	offset = sizeof(Vector3);
-	_ASSERT(m_GrassInstanceStride == offset);
 }
 
 template <class T>
@@ -513,26 +466,6 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 	return frag;
 }
 
-void Terrain::SetGrassMaterial(MaterialPtr material)
-{
-	if (IsRequested() && m_GrassMaterial)
-	{
-		m_GrassMaterial->ReleaseResource();
-	}
-
-	m_GrassMaterial = material;
-
-	if (IsRequested() && m_GrassMaterial)
-	{
-		m_GrassMaterial->RequestResource();
-	}
-}
-
-MaterialPtr Terrain::GetGrassMaterial(void) const
-{
-	return m_GrassMaterial;
-}
-
 template<class Archive>
 void Terrain::save(Archive & ar, const unsigned int version) const
 {
@@ -548,17 +481,6 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	void * pVertices = const_cast<my::VertexBuffer&>(m_Vb).Lock(0, 0, D3DLOCK_READONLY);
 	ar << boost::serialization::make_nvp("VertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
 	const_cast<my::VertexBuffer&>(m_Vb).Unlock();
-	desc = const_cast<my::VertexBuffer&>(m_GrassVb).GetDesc();
-	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
-	pVertices = const_cast<my::VertexBuffer&>(m_GrassVb).Lock(0, 0, D3DLOCK_READONLY);
-	ar << boost::serialization::make_nvp("GrassVertexBuffer", boost::serialization::binary_object(pVertices, desc.Size));
-	const_cast<my::VertexBuffer&>(m_GrassVb).Unlock();
-	D3DINDEXBUFFER_DESC idesc = const_cast<my::IndexBuffer&>(m_GrassIb).GetDesc();
-	ar << boost::serialization::make_nvp("BufferSize", idesc.Size);
-	void* pIndices = const_cast<my::IndexBuffer&>(m_GrassIb).Lock(0, 0, D3DLOCK_READONLY);
-	ar << boost::serialization::make_nvp("GrassIndexBuffer", boost::serialization::binary_object(pIndices, idesc.Size));
-	const_cast<my::IndexBuffer&>(m_GrassIb).Unlock();
-	ar << BOOST_SERIALIZATION_NVP(m_GrassMaterial);
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
@@ -595,25 +517,6 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	m_Ib.OnDestroyDevice();
 	m_Ib.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	m_GrassVb.OnDestroyDevice();
-	m_GrassVb.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
-	pVertices = m_GrassVb.Lock(0, 0, 0);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-	ar >> boost::serialization::make_nvp("GrassVertexBuffer", boost::serialization::binary_object(pVertices, BufferSize));
-	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	m_GrassVb.Unlock();
-	m_GrassIb.OnDestroyDevice();
-	m_GrassIb.CreateIndexBuffer(BufferSize, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-	void * pIndices = m_GrassIb.Lock(0, 0, 0);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-	ar >> boost::serialization::make_nvp("GrassIndexBuffer", boost::serialization::binary_object(pIndices, BufferSize));
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	m_GrassIb.Unlock();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-	ar >> BOOST_SERIALIZATION_NVP(m_GrassMaterial);
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	for (int i = 0; i < m_RowChunks; i++)
 	{
@@ -640,35 +543,11 @@ void Terrain::RequestResource(void)
 		HRESULT hr;
 		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 	}
-
-	if (!m_GrassDecl)
-	{
-		IDirect3DDevice9* pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-		std::vector<D3DVERTEXELEMENT9> elems = m_GrassVertexElems.BuildVertexElementList(0);
-		std::vector<D3DVERTEXELEMENT9> inst_elems = m_GrassInstanceElems.BuildVertexElementList(1);
-		elems.insert(elems.begin(), inst_elems.begin(), inst_elems.end());
-		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-		elems.push_back(ve_end);
-		HRESULT hr;
-		V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_GrassDecl));
-	}
-
-	if (m_GrassMaterial)
-	{
-		m_GrassMaterial->RequestResource();
-	}
 }
 
 void Terrain::ReleaseResource(void)
 {
-	if (m_GrassMaterial)
-	{
-		m_GrassMaterial->ReleaseResource();
-	}
-
 	m_Decl.Release();
-
-	m_GrassDecl.Release();
 
 	m_Fragment.clear();
 
@@ -801,27 +680,6 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_Vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
 								0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, shader, terrain, mtl, MAKELONG(chunk->m_Row, chunk->m_Col));
-						}
-					}
-				}
-			}
-
-			if (chunk->m_Lod[0] <= 0 && chunk->m_GrassNum > 0 && chunk->m_GrassInstance && terrain->m_GrassMaterial && (terrain->m_GrassMaterial->m_PassMask & PassMask))
-			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (terrain->m_GrassMaterial->m_PassMask & PassMask))
-					{
-						Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrainGrass, NULL, terrain->m_GrassMaterial->m_Shader.c_str(), PassID);
-						if (shader)
-						{
-							if (!terrain->handle_World)
-							{
-								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
-							}
-
-							pipeline->PushIndexedPrimitiveInstance(PassID, terrain->m_GrassDecl, terrain->m_GrassVb.m_ptr, terrain->m_GrassIb.m_ptr, chunk->m_GrassInstance->m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, 3, terrain->m_GrassVertexStride, 0, 1, chunk->m_GrassNum, terrain->m_GrassInstanceStride, shader, terrain, terrain->m_GrassMaterial.get(), MAKELONG(-1, -1));
 						}
 					}
 				}
@@ -1163,31 +1021,6 @@ std::fstream& TerrainStream::GetStream(int k, int l)
 	return ret;
 }
 
-std::fstream& TerrainStream::GetGrassStream(int k, int l)
-{
-	std::fstream& ret = m_grassfstrs[k][l];
-	if (!ret.is_open())
-	{
-		std::ostringstream chunk_path;
-		chunk_path << m_terrain->m_ChunkPath << "_" << k << "_" << l << ".grass";
-		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(chunk_path.str().c_str());
-		ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
-
-
-		if (!ret.is_open())
-		{
-			std::vector<char> buff(m_terrain->m_GrassInstanceStride);
-			m_terrain->m_GrassInstanceElems.SetPosition(&buff[0] + 0 * m_terrain->m_GrassInstanceStride, Vector3(0, 0, 0), 1);
-			std::ofstream ofs(full_chunk_path, std::ios::binary);
-			ofs.write(&buff[0], buff.size());
-			ofs.close();
-			ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
-		}
-	}
-	_ASSERT(ret.is_open());
-	return ret;
-}
-
 my::Vector3 TerrainStream::GetPos(int i, int j)
 {
 	my::Vector3 ret;
@@ -1414,96 +1247,4 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 	std::fstream& fstr = GetStream(k, l);
 	fstr.seekp(off, std::ios::beg);
 	fstr.write((char*)&dw, sizeof(dw));
-}
-
-void TerrainStream::AddGrass(const my::Vector3& Pos)
-{
-	int k, l, m, n, o, p;
-	GetIndices((int)Pos.z, (int)Pos.x, k, l, m, n, o, p);
-
-	TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
-	std::streamoff off = chunk->m_GrassNum * m_terrain->m_GrassInstanceStride;
-	if (chunk->IsRequested())
-	{
-		D3DVERTEXBUFFER_DESC desc = chunk->m_GrassInstance->GetDesc();
-		if (chunk->m_GrassNum >= desc.Size / m_terrain->m_GrassInstanceStride)
-		{
-			unsigned char* pVertices = (unsigned char*)chunk->m_GrassInstance->Lock(0, 0, D3DLOCK_READONLY);
-			std::vector<unsigned char> buff;
-			buff.insert(buff.end(), pVertices, pVertices + desc.Size);
-			chunk->m_GrassInstance->Unlock();
-
-			chunk->m_GrassInstance->OnDestroyDevice();
-			chunk->m_GrassInstance->CreateVertexBuffer(desc.Size + 1024 * m_terrain->m_GrassInstanceStride, 0, 0, D3DPOOL_MANAGED);
-			pVertices = (unsigned char*)chunk->m_GrassInstance->Lock(0, 0, 0);
-			memcpy(pVertices, &buff[0], buff.size());
-			chunk->m_GrassInstance->Unlock();
-		}
-
-		void* pbuff = chunk->m_GrassInstance->Lock(off, sizeof(Pos), 0);
-		*(Vector3*)pbuff = Pos;
-		chunk->m_GrassInstance->Unlock();
-		chunk->m_GrassNum++;
-		// ! dirty
-		return;
-	}
-
-	std::fstream& fstr = GetGrassStream(k, l);
-	fstr.seekp(off, std::ios::beg);
-	fstr.write((char*)&Pos, sizeof(Pos));
-}
-
-void TerrainStream::DeleteGrass(const my::Vector3& Pos, float Radius, int k, int l)
-{
-	TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
-	if (chunk->IsRequested())
-	{
-		boost::multi_array_ref<Vector3, 1> ref((Vector3*)chunk->m_GrassInstance->Lock(0, 0, 0), boost::extents[chunk->m_GrassNum]);
-		for (unsigned int i = 0; i < chunk->m_GrassNum;)
-		{
-			if ((Pos - ref[i]).magnitudeSq() <= Radius * Radius)
-			{
-				ref[i] = ref[chunk->m_GrassNum - 1];
-				chunk->m_GrassNum--;
-			}
-			else
-			{
-				i++;
-			}
-		}
-		chunk->m_GrassInstance->Unlock();
-		// ! dirty
-		return;
-	}
-
-	std::fstream& fstr = GetGrassStream(k, l);
-	for (unsigned int i = 0; i < chunk->m_GrassNum;)
-	{
-		Vector3 p0;
-		fstr.seekp(i * m_terrain->m_GrassInstanceStride, std::ios::beg);
-		fstr.read((char*)&p0, sizeof(p0));
-		if ((Pos - p0).magnitudeSq() <= Radius * Radius)
-		{
-			fstr.seekp((chunk->m_GrassNum - 1) * m_terrain->m_GrassInstanceStride, std::ios::beg);
-			fstr.read((char*)&p0, sizeof(p0));
-			fstr.seekp(i * m_terrain->m_GrassInstanceStride, std::ios::beg);
-			fstr.write((char*)&p0, sizeof(p0));
-			chunk->m_GrassNum--;
-		}
-		else
-		{
-			i++;
-		}
-	}
-}
-
-void TerrainStream::DeleteGrass(const my::Vector3& Pos, float Radius)
-{
-	for (int k = Max(0, (int)(Pos.z - Radius)); k <= Min((int)m_terrain->m_Chunks.shape()[0], (int)(Pos.z + Radius)); k++)
-	{
-		for (int l = Max(0, (int)(Pos.x - Radius)); l <= Min((int)m_terrain->m_Chunks.shape()[1], (int)(Pos.x + Radius)); l++)
-		{
-			DeleteGrass(Pos, Radius, k, l);
-		}
-	}
 }

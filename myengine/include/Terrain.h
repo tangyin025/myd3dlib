@@ -25,10 +25,6 @@ public:
 
 	MaterialPtr m_Material;
 
-	int m_GrassNum;
-
-	my::VertexBufferPtr m_GrassInstance;
-
 protected:
 	TerrainChunk(void);
 
@@ -57,8 +53,6 @@ public:
 	}
 
 	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
-
-	void OnGrassInstanceReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 
@@ -121,22 +115,6 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
-	my::VertexBuffer m_GrassVb;
-
-	my::IndexBuffer m_GrassIb;
-
-	my::D3DVertexElementSet m_GrassVertexElems;
-
-	my::D3DVertexElementSet m_GrassInstanceElems;
-
-	static const DWORD m_GrassVertexStride = 12;
-
-	static const DWORD m_GrassInstanceStride = 12;
-
-	CComPtr<IDirect3DVertexDeclaration9> m_GrassDecl;
-
-	MaterialPtr m_GrassMaterial;
-
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE handle_World;
@@ -157,10 +135,6 @@ public:
 	void CreateElements(void);
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
-
-	void SetGrassMaterial(MaterialPtr material);
-
-	MaterialPtr GetGrassMaterial(void) const;
 
 protected:
 	Terrain(void);
@@ -218,8 +192,6 @@ public:
 
 	boost::multi_array<std::fstream, 2> m_fstrs;
 
-	boost::multi_array<std::fstream, 2> m_grassfstrs;
-
 	boost::multi_array<bool, 2> m_AabbDirty;
 
 	boost::multi_array<bool, 2> m_VertDirty;
@@ -234,8 +206,6 @@ public:
 	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
 
 	std::fstream& GetStream(int k, int l);
-
-	std::fstream& GetGrassStream(int k, int l);
 
 	my::Vector3 GetPos(int i, int j);
 
@@ -254,10 +224,4 @@ public:
 	void SetNormal(const my::Vector3& Normal, int i, int j);
 
 	void SetNormal(D3DCOLOR dw, int k, int l, int m, int n);
-
-	void AddGrass(const my::Vector3& Pos);
-
-	void DeleteGrass(const my::Vector3& Pos, float Radius, int k, int l);
-
-	void DeleteGrass(const my::Vector3& Pos, float Radius);
 };

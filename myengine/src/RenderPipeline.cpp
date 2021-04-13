@@ -121,9 +121,6 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	case RenderPipeline::MeshTypeTerrain:
 		logoss << "MeshTerrain";
 		break;
-	case RenderPipeline::MeshTypeTerrainGrass:
-		logoss << "MeshTerrainGrass";
-		break;
 	default:
 		logoss << "MeshUnknown";
 		break;
@@ -158,9 +155,6 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 		break;
 	case RenderPipeline::MeshTypeTerrain:
 		oss << "MeshTerrain.fx";
-		break;
-	case RenderPipeline::MeshTypeTerrainGrass:
-		oss << "MeshTerrainGrass.fx";
 		break;
 	default:
 		oss << "MeshUnknown.fx";

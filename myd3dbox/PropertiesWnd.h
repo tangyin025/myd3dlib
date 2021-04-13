@@ -193,7 +193,6 @@ public:
 		PropertyTerrainHeightScale,
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,
-		PropertyTerrainGrassMaterial,
 		PropertyTerrainChunkMaterial,
 		PropertyCount
 	};

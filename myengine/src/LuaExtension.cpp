@@ -1242,8 +1242,6 @@ void LuaContext::Init(void)
 			.def("SetColor", (void(TerrainStream::*)(D3DCOLOR, int, int))&TerrainStream::SetColor)
 			.def("GetNormal", &TerrainStream::GetNormal, copy(result))
 			.def("SetNormal", (void(TerrainStream::*)(const my::Vector3&, int, int))&TerrainStream::SetNormal)
-			.def("AddGrass", &TerrainStream::AddGrass)
-			.def("DeleteGrass", (void(TerrainStream::*)(const my::Vector3& Pos, float Radius))&TerrainStream::DeleteGrass)
 
 		, class_<Character, Component, boost::shared_ptr<Component> >("Character")
 			.enum_("CollisionFlag")
