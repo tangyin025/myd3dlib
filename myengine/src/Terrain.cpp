@@ -48,10 +48,6 @@ TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
 	, m_GrassNum(0)
 {
 	m_Lod[0] = UINT_MAX;
-	m_GrassInstance.CreateVertexBuffer(1 * terrain->m_GrassInstanceStride, 0, 0, D3DPOOL_MANAGED);
-	void * pVertices = m_GrassInstance.Lock(0, 0, 0);
-	terrain->m_GrassInstanceElems.SetPosition((unsigned char*)pVertices + 0 * terrain->m_GrassInstanceStride, my::Vector3(0, 0, 0), 1);
-	m_GrassInstance.Unlock();
 }
 
 TerrainChunk::~TerrainChunk(void)
@@ -69,13 +65,6 @@ void TerrainChunk::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Col);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	ar << BOOST_SERIALIZATION_NVP(m_GrassNum);
-	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_GrassInstance).GetDesc();
-	DWORD BufferSize = Min<UINT>(desc.Size, Max<int>(1, m_GrassNum) * dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_GrassInstanceStride);
-	_ASSERT(BufferSize >= dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_GrassInstanceStride);
-	ar << boost::serialization::make_nvp("BufferSize", BufferSize);
-	void * pVertices = const_cast<my::VertexBuffer&>(m_GrassInstance).Lock(0, 0, D3DLOCK_READONLY);
-	ar << boost::serialization::make_nvp("GrassInstanceBuffer", boost::serialization::binary_object(pVertices, desc.Size));
-	const_cast<my::VertexBuffer&>(m_GrassInstance).Unlock();
 }
 
 template<class Archive>
@@ -85,23 +74,16 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Col);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	ar >> BOOST_SERIALIZATION_NVP(m_GrassNum);
-	DWORD BufferSize;
-	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
-	//_ASSERT(BufferSize == Max(1, m_GrassNum) * dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_GrassInstanceStride);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	m_GrassInstance.OnDestroyDevice();
-	m_GrassInstance.CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
-	void * pVertices = m_GrassInstance.Lock(0, 0, 0);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-	ar >> boost::serialization::make_nvp("GrassInstanceBuffer", boost::serialization::binary_object(pVertices, BufferSize));
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-	m_GrassInstance.Unlock();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 }
 
 void TerrainChunk::OnVertexBufferReady(my::DeviceResourceBasePtr res)
 {
 	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(res);
+}
+
+void TerrainChunk::OnGrassInstanceReady(my::DeviceResourceBasePtr res)
+{
+	m_GrassInstance = boost::dynamic_pointer_cast<VertexBuffer>(res);
 }
 
 void TerrainChunk::RequestResource(void)
@@ -121,6 +103,15 @@ void TerrainChunk::RequestResource(void)
 	{
 		m_Material->RequestResource();
 	}
+
+	if (m_GrassNum > 0)
+	{
+		_ASSERT(!m_GrassInstance);
+
+		std::ostringstream grass_path;
+		grass_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".grass";
+		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(grass_path.str().c_str(), boost::bind(&TerrainChunk::OnGrassInstanceReady, this, boost::placeholders::_1));
+	}
 }
 
 void TerrainChunk::ReleaseResource(void)
@@ -137,6 +128,15 @@ void TerrainChunk::ReleaseResource(void)
 	if (m_Material)
 	{
 		m_Material->ReleaseResource();
+	}
+
+	if (m_GrassNum > 0)
+	{
+		std::ostringstream grass_path;
+		grass_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".grass";
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(grass_path.str(), boost::bind(&TerrainChunk::OnGrassInstanceReady, this, boost::placeholders::_1));
+
+		m_GrassInstance.reset();
 	}
 
 	m_Requested = false;
@@ -806,7 +806,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				}
 			}
 
-			if (chunk->m_Lod[0] <= 0 && chunk->m_GrassNum > 0 && terrain->m_GrassMaterial && (terrain->m_GrassMaterial->m_PassMask & PassMask))
+			if (chunk->m_Lod[0] <= 0 && chunk->m_GrassNum > 0 && chunk->m_GrassInstance && terrain->m_GrassMaterial && (terrain->m_GrassMaterial->m_PassMask & PassMask))
 			{
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
@@ -820,7 +820,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
 							}
 
-							pipeline->PushIndexedPrimitiveInstance(PassID, terrain->m_GrassDecl, terrain->m_GrassVb.m_ptr, terrain->m_GrassIb.m_ptr, chunk->m_GrassInstance.m_ptr, D3DPT_TRIANGLELIST,
+							pipeline->PushIndexedPrimitiveInstance(PassID, terrain->m_GrassDecl, terrain->m_GrassVb.m_ptr, terrain->m_GrassIb.m_ptr, chunk->m_GrassInstance->m_ptr, D3DPT_TRIANGLELIST,
 								0, 0, 3, terrain->m_GrassVertexStride, 0, 1, chunk->m_GrassNum, terrain->m_GrassInstanceStride, shader, terrain, terrain->m_GrassMaterial.get(), MAKELONG(-1, -1));
 						}
 					}

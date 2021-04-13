@@ -27,7 +27,7 @@ public:
 
 	int m_GrassNum;
 
-	my::VertexBuffer m_GrassInstance;
+	my::VertexBufferPtr m_GrassInstance;
 
 protected:
 	TerrainChunk(void);
@@ -57,6 +57,8 @@ public:
 	}
 
 	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
+
+	void OnGrassInstanceReady(my::DeviceResourceBasePtr res);
 
 	virtual void RequestResource(void);
 
