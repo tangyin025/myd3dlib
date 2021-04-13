@@ -515,6 +515,8 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	// TODO: Add your specialized code here and/or call the base class
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	pFrame->m_strPathName = lpszFileName;
+	theApp.AddToRecentFileList(lpszFileName);
 	CWaitCursor wait;
 	pFrame->ClearFileContext();
 	pFrame->InitFileContext();
