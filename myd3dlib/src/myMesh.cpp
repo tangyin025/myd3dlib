@@ -692,7 +692,7 @@ void Mesh::ComputeDualQuaternionSkinnedVertices(
 	void * pSrcVertices,
 	DWORD SrcVertexStride,
 	const D3DVertexElementSet & SrcVertexElems,
-	const my::TransformList & dualQuaternionList)
+	const TransformList & dualQuaternionList)
 {
 	for (unsigned int i = 0; i < NumVerts; i++)
 	{
@@ -860,6 +860,94 @@ void Mesh::ComputeTangentFrame(
 		// Gram-Schmidt orthogonalize
 		VertexElems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
 	}
+}
+
+RayResult Mesh::RayTest(
+	const Ray& ray,
+	void* pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void* pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	const D3DVertexElementSet& VertexElems)
+{
+	RayResult ret(false, FLT_MAX);
+	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i0 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 0) : *((DWORD*)pIndices + face_i * 3 + 0);
+		int i1 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 1) : *((DWORD*)pIndices + face_i * 3 + 1);
+		int i2 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 2) : *((DWORD*)pIndices + face_i * 3 + 2);
+
+		const Vector3& v0 = VertexElems.GetPosition((unsigned char*)pVertices + i0 * VertexStride);
+		const Vector3& v1 = VertexElems.GetPosition((unsigned char*)pVertices + i1 * VertexStride);
+		const Vector3& v2 = VertexElems.GetPosition((unsigned char*)pVertices + i2 * VertexStride);
+
+		if (IntersectionTests::isValidTriangle(v0, v1, v2))
+		{
+			RayResult result = CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
+			if (result.first && result.second < ret.second)
+			{
+				ret = result;
+			}
+		}
+	}
+	return ret;
+}
+
+DWORD Mesh::FrustumTest(
+	const Frustum& frustum,
+	void* pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void* pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	const D3DVertexElementSet& VertexElems)
+{
+	IntersectionTests::IntersectionType ret = IntersectionTests::IntersectionTypeUnknown;
+	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i0 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 0) : *((DWORD*)pIndices + face_i * 3 + 0);
+		int i1 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 1) : *((DWORD*)pIndices + face_i * 3 + 1);
+		int i2 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 2) : *((DWORD*)pIndices + face_i * 3 + 2);
+
+		const Vector3& v0 = VertexElems.GetPosition((unsigned char*)pVertices + i0 * VertexStride);
+		const Vector3& v1 = VertexElems.GetPosition((unsigned char*)pVertices + i1 * VertexStride);
+		const Vector3& v2 = VertexElems.GetPosition((unsigned char*)pVertices + i2 * VertexStride);
+
+		if (IntersectionTests::isValidTriangle(v0, v1, v2))
+		{
+			IntersectionTests::IntersectionType result = IntersectionTests::IntersectTriangleAndFrustum(v0, v1, v2, frustum);
+			if (result == IntersectionTests::IntersectionTypeInside)
+			{
+				if (ret == IntersectionTests::IntersectionTypeOutside)
+				{
+					return IntersectionTests::IntersectionTypeIntersect;
+				}
+				else
+				{
+					ret = IntersectionTests::IntersectionTypeInside;
+				}
+			}
+			else if (result == IntersectionTests::IntersectionTypeOutside)
+			{
+				if (ret == IntersectionTests::IntersectionTypeInside)
+				{
+					return IntersectionTests::IntersectionTypeIntersect;
+				}
+				else
+				{
+					ret = IntersectionTests::IntersectionTypeOutside;
+				}
+			}
+			else
+			{
+				return IntersectionTests::IntersectionTypeIntersect;
+			}
+		}
+	}
+	return IntersectionTests::IntersectionTypeOutside;
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInFile(

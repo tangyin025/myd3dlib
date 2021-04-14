@@ -335,7 +335,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
 					mesh_cmp->m_Actor->m_Animation->m_DualQuats);
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -345,14 +345,14 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					elems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
-				if (ret)
+				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
 					return true;
 				}
 			}
 			else
 			{
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumVertices(),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
@@ -362,7 +362,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->m_VertexElems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
-				if (ret)
+				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
 					return true;
 				}
@@ -425,9 +425,9 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					break;
 				}
 				my::Frustum local_ftm = frustum.transform(p2w.transpose());
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					pvb, RenderPipeline::m_ParticleNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticlePrimitiveCount, theApp.m_ParticleVertElems);
-				if (ret)
+				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
 					theApp.m_ParticleVb.Unlock();
 					theApp.m_ParticleIb.Unlock();
@@ -463,7 +463,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
 					cloth_cmp->m_Actor->m_Animation->m_DualQuats);
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -471,14 +471,14 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					true,
 					cloth_cmp->m_IndexData.size() / 3,
 					elems);
-				if (ret)
+				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
 					return true;
 				}
 			}
 			else
 			{
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexStride,
@@ -486,7 +486,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					true,
 					cloth_cmp->m_IndexData.size() / 3,
 					cloth_cmp->m_VertexElems);
-				if (ret)
+				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
 					return true;
 				}
@@ -496,38 +496,6 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 
 	case Component::ComponentTypeTerrain:
 		break;
-	}
-	return false;
-}
-
-bool CChildView::OverlapTestFrustumAndMesh(
-	const my::Frustum & frustum,
-	void * pVertices,
-	DWORD NumVerts,
-	DWORD VertexStride,
-	void * pIndices,
-	bool bIndices16,
-	DWORD NumFaces,
-	const my::D3DVertexElementSet & VertexElems)
-{
-	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
-	{
-		int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
-		int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
-		int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
-
-		const my::Vector3 & v0 = VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride);
-		const my::Vector3 & v1 = VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
-		const my::Vector3 & v2 = VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
-
-		if (my::IntersectionTests::isValidTriangle(v0, v1, v2))
-		{
-			my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v0, v1, v2, frustum);
-			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
-			{
-				return true;
-			}
-		}
 	}
 	return false;
 }
@@ -585,7 +553,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
 					mesh_cmp->m_Actor->m_Animation->m_DualQuats);
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = my::Mesh::RayTest(local_ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -598,7 +566,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			else
 			{
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = my::Mesh::RayTest(local_ray,
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumVertices(),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
@@ -671,7 +639,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					break;
 				}
 				my::Ray local_ray = ray.transform(p2w.inverse());
-				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
+				my::RayResult ret = my::Mesh::RayTest(local_ray,
 					pvb, RenderPipeline::m_ParticleNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticlePrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret.first)
 				{
@@ -710,7 +678,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
 					cloth_cmp->m_Actor->m_Animation->m_DualQuats);
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = my::Mesh::RayTest(local_ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -721,7 +689,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			else
 			{
-				ret = OverlapTestRayAndMesh(local_ray,
+				ret = my::Mesh::RayTest(local_ray,
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexStride,
@@ -767,7 +735,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 							(terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1),
 							(terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0),
 							(terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 1)};
-						result = pView->OverlapTestRayAndMesh(
+						result = my::Mesh::RayTest(
 							ray,
 							terrain->m_Vb.Lock(0, 0, D3DLOCK_READONLY),
 							(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
@@ -786,7 +754,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 							terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
 							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
 							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
-						result = pView->OverlapTestRayAndMesh(
+						result = my::Mesh::RayTest(
 							ray,
 							chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
 							frag.VertNum,
@@ -818,39 +786,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 		break;
 	}
 	return my::RayResult(false, FLT_MAX);
-}
-
-my::RayResult CChildView::OverlapTestRayAndMesh(
-	const my::Ray & ray,
-	void * pVertices,
-	DWORD NumVerts,
-	DWORD VertexStride,
-	void * pIndices,
-	bool bIndices16,
-	DWORD NumFaces,
-	const my::D3DVertexElementSet & VertexElems)
-{
-	my::RayResult ret(false, FLT_MAX);
-	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
-	{
-		int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
-		int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
-		int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
-
-		const my::Vector3 & v0 = VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride);
-		const my::Vector3 & v1 = VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
-		const my::Vector3 & v2 = VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
-
-		if (my::IntersectionTests::isValidTriangle(v0, v1, v2))
-		{
-			my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
-			if (result.first && result.second < ret.second)
-			{
-				ret = result;
-			}
-		}
-	}
-	return ret;
 }
 
 void CChildView::OnSelectionChanged(my::EventArg * arg)

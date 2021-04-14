@@ -336,7 +336,7 @@ namespace my
 			void * pSrcVertices,
 			DWORD SrcVertexStride,
 			const D3DVertexElementSet & SrcVertexElems,
-			const my::TransformList & dualQuaternionList);
+			const TransformList & dualQuaternionList);
 
 		static void ComputeNormalFrame(
 			void * pVertices,
@@ -355,6 +355,26 @@ namespace my
 			bool bIndices16,
 			DWORD NumFaces,
 			const D3DVertexElementSet & VertexElems);
+
+		static RayResult RayTest(
+			const Ray& ray,
+			void* pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void* pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			const D3DVertexElementSet& VertexElems);
+
+		static DWORD FrustumTest(
+			const Frustum& frustum,
+			void* pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void* pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			const D3DVertexElementSet& VertexElems);
 	};
 
 	typedef boost::intrusive_ptr<Mesh> MeshPtr;

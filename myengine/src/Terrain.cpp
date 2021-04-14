@@ -1003,7 +1003,7 @@ std::fstream& TerrainStream::GetStream(int k, int l)
 
 		if (!ret.is_open())
 		{
-			std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * Terrain::m_VertexStride);
+			std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
 			for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
 			{
 				for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
@@ -1250,4 +1250,65 @@ void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
 	std::fstream& fstr = GetStream(k, l);
 	fstr.seekp(off, std::ios::beg);
 	fstr.write((char*)&dw, sizeof(dw));
+}
+
+my::RayResult TerrainStream::RayTest(const my::Ray& local_ray)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		const my::Ray& ray;
+		TerrainStream& tstr;
+		my::RayResult ret;
+		Callback(const my::Ray& _ray, TerrainStream& _tstr)
+			: ray(_ray)
+			, tstr(_tstr)
+			, ret(false, FLT_MAX)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			my::RayResult result;
+			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
+			const Terrain::Fragment& frag = tstr.m_terrain->GetFragment(0, 0, 0, 0, 0);
+			if (chunk->IsRequested())
+			{
+				result = Mesh::RayTest(
+					ray,
+					chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
+					frag.VertNum,
+					tstr.m_terrain->m_VertexStride,
+					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+					false,
+					frag.PrimitiveCount,
+					tstr.m_terrain->m_VertexElems);
+				chunk->m_Vb->Unlock();
+				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+			}
+			else
+			{
+				std::vector<char> buff(tstr.m_terrain->m_IndexTable.shape()[0] * tstr.m_terrain->m_IndexTable.shape()[1] * tstr.m_terrain->m_VertexStride);
+				std::fstream& fstr = tstr.GetStream(chunk->m_Row, chunk->m_Col);
+				fstr.seekg(0, std::ios::beg);
+				fstr.read(&buff[0], buff.size());
+				result = Mesh::RayTest(
+					ray,
+					&buff[0],
+					frag.VertNum,
+					tstr.m_terrain->m_VertexStride,
+					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+					false,
+					frag.PrimitiveCount,
+					tstr.m_terrain->m_VertexElems);
+				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+			}
+			if (result.first && result.second < ret.second)
+			{
+				ret = result;
+			}
+		}
+	};
+
+	Callback cb(local_ray, *this);
+	m_terrain->QueryEntity(local_ray, &cb);
+	return cb.ret;
 }

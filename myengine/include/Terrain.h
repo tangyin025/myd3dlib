@@ -226,4 +226,6 @@ public:
 	void SetNormal(const my::Vector3& Normal, int i, int j);
 
 	void SetNormal(D3DCOLOR dw, int k, int l, int m, int n);
+
+	my::RayResult RayTest(const my::Ray& local_ray);
 };
