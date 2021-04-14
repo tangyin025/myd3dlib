@@ -85,9 +85,8 @@ void TerrainChunk::RequestResource(void)
 	{
 		_ASSERT(!m_Vb);
 
-		std::ostringstream chunk_path;
-		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
-		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(chunk_path.str().c_str(), boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadVertexBufferAsync(
+			TerrainStream::GetChunkPath(dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath.c_str(), m_Row, m_Col).c_str(), boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 	}
 
 	if (m_Material)
@@ -100,9 +99,8 @@ void TerrainChunk::ReleaseResource(void)
 {
 	if (!dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath.empty())
 	{
-		std::ostringstream chunk_path;
-		chunk_path << dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath << "_" << m_Row << "_" << m_Col << ".chunk";
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(chunk_path.str(), boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(
+			TerrainStream::GetChunkPath(dynamic_cast<Terrain*>(m_Node->GetTopNode())->m_ChunkPath.c_str(), m_Row, m_Col), boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 
 		m_Vb.reset();
 	}
@@ -885,6 +883,13 @@ void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 	}
 }
 
+std::string TerrainStream::GetChunkPath(const char* root_path, int Row, int Col)
+{
+	std::ostringstream chunk_path;
+	chunk_path << root_path << "_" << Row << "_" << Col << ".chunk";
+	return chunk_path.str();
+}
+
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_fstrs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
@@ -993,9 +998,7 @@ std::fstream& TerrainStream::GetStream(int k, int l)
 	std::fstream& ret = m_fstrs[k][l];
 	if (!ret.is_open())
 	{
-		std::ostringstream chunk_path;
-		chunk_path << m_terrain->m_ChunkPath << "_" << k << "_" << l << ".chunk";
-		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(chunk_path.str().c_str());
+		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(GetChunkPath(m_terrain->m_ChunkPath.c_str(), k, l).c_str());
 		ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
 
 		if (!ret.is_open())

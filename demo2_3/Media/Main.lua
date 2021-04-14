@@ -119,7 +119,7 @@ game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
 
 SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
-local actor6 = game:GetNamedObject("editor_actor_1")
+local actor6 = game:GetNamedObject("editor_actor1")
 actor6.EventEnterView=function(arg)
 	arg.self:PlayAction(SAction.act_moving)
 end

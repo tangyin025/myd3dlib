@@ -32,4 +32,5 @@ public:
 	CString m_ChunkPath;
 	BOOL m_AlignToCenter;
 	virtual void OnOK();
+	afx_msg void OnChangeEdit4();
 };

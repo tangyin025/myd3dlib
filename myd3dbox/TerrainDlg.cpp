@@ -40,6 +40,7 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CTerrainDlg, CDialogEx)
+	ON_EN_CHANGE(IDC_EDIT4, &CTerrainDlg::OnChangeEdit4)
 END_MESSAGE_MAP()
 
 
@@ -51,6 +52,7 @@ BOOL CTerrainDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  Add extra initialization here
+	OnChangeEdit4();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -64,6 +66,17 @@ void CTerrainDlg::OnOK()
 		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
 		// the UpdateData routine will set focus to correct item
 		return;
+	}
+
+	CString strText;
+	GetDlgItemText(IDC_STATIC5, strText);
+	if (!strText.IsEmpty())
+	{
+		strText.Format(_T("Overwrite existed '%s'?"), m_ChunkPath);
+		if (IDCANCEL == AfxMessageBox(strText, MB_OKCANCEL))
+		{
+			return;
+		}
 	}
 
 	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 1.0f));
@@ -82,4 +95,25 @@ void CTerrainDlg::OnOK()
 	}
 
 	EndDialog(IDOK);
+}
+
+
+void CTerrainDlg::OnChangeEdit4()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialogEx::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+	CString strText;
+	GetDlgItemText(IDC_EDIT4, strText);
+	if (my::ResourceMgr::getSingleton().CheckPath(TerrainStream::GetChunkPath(ts2ms(strText).c_str(), 0, 0).c_str()))
+	{
+		SetDlgItemText(IDC_STATIC5, _T("Existed !"));
+	}
+	else
+	{
+		SetDlgItemText(IDC_STATIC5, _T(""));
+	}
 }

@@ -59,7 +59,7 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 {
 	_ASSERT(Prefix);
 
-	boost::regex reg("_(\\d+)$");
+	boost::regex reg("(\\d+)$");
 	boost::match_results<const char *> what;
 	if (boost::regex_search(Prefix, what, reg, boost::match_default) && what[1].matched)
 	{
@@ -73,7 +73,7 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 
 	for (; ; UniqueNameIndex++)
 	{
-		std::string ret = str_printf("%s_%u", Prefix, UniqueNameIndex);
+		std::string ret = str_printf("%s%u", Prefix, UniqueNameIndex);
 		if (!D3DContext::getSingleton().GetNamedObject(ret.c_str()))
 		{
 			return ret;

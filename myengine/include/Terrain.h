@@ -196,6 +196,8 @@ public:
 
 	boost::multi_array<bool, 2> m_VertDirty;
 
+	static std::string GetChunkPath(const char* chunk_name, int Row, int Col);
+
 public:
 	explicit TerrainStream(Terrain* terrain);
 
