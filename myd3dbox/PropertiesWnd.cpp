@@ -1947,10 +1947,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		actor->UpdateAABB();
 		actor->UpdateOctNode();
-		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
-		m_wndPropList.AdjustLayout();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
+		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
+		m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -2018,6 +2018,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
+		UpdatePropertiesStaticEmitter(pParticle->GetParent()->GetParent(), emit_cmp);
+		m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
