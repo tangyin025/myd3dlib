@@ -8,6 +8,7 @@
 #include "PhysxContext.h"
 #include "RenderPipeline.h"
 #include "libc.h"
+#include <boost/multi_array.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -31,6 +32,8 @@ BOOST_CLASS_EXPORT(MeshComponent)
 BOOST_CLASS_EXPORT(ClothComponent)
 
 BOOST_CLASS_EXPORT(EmitterComponent)
+
+BOOST_CLASS_EXPORT(StaticEmitterChunk)
 
 BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
@@ -1138,15 +1141,25 @@ template<class Archive>
 void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ParticleList::capacity_type buffer_capacity = m_ParticleList.capacity();
 	ar << BOOST_SERIALIZATION_NVP(buffer_capacity);
 	boost::serialization::stl::save_collection<Archive, ParticleList>(ar, m_ParticleList);
+	DWORD ChunkSize = m_Chunks.size();
+	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
+	for (int i = 0; i < (int)m_Chunks.size(); i++)
+	{
+		ar << boost::serialization::make_nvp(str_printf("m_chunk_%d", i).c_str(), m_Chunks[i]);
+		ar << boost::serialization::make_nvp(str_printf("m_chunk_%d_aabb", i).c_str(), m_Chunks[i]->m_OctAabb);
+	}
 }
 
 template<class Archive>
 void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 {
+	ClearAllEntity();
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ParticleList::capacity_type buffer_capacity;
 	ar >> BOOST_SERIALIZATION_NVP(buffer_capacity);
 	m_ParticleList.set_capacity(buffer_capacity);
@@ -1156,6 +1169,16 @@ void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(item_version);
 	m_ParticleList.resize(count);
 	boost::serialization::stl::collection_load_impl<Archive, ParticleList>(ar, m_ParticleList, count, item_version);
+	DWORD ChunkSize;
+	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
+	m_Chunks.resize(ChunkSize);
+	for (int i = 0; i < (int)ChunkSize; i++)
+	{
+		AABB aabb;
+		ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d", i).c_str(), m_Chunks[i]);
+		ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d_aabb", i).c_str(), aabb);
+		AddEntity(m_Chunks[i].get(), aabb, 0.01f, 0.01f);
+	}
 }
 
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)
@@ -1174,6 +1197,143 @@ ComponentPtr StaticEmitterComponent::Clone(void) const
 void StaticEmitterComponent::Update(float fElapsedTime)
 {
 	EmitterComponent::Update(fElapsedTime);
+}
+
+void StaticEmitterComponent::BuildOctNode(void)
+{
+	ClearAllEntity();
+
+	m_Chunks.clear();
+
+	*static_cast<AABB*>(this) = CalculateAABB();
+
+	m_Half = Center();
+
+	const float Step = 1.0f;
+	const Vector3 extent = Extent();
+	boost::multi_array<std::vector<Particle>, 3> dim(boost::extents[(int)(extent.x / Step)][(int)(extent.y / Step)][(int)(extent.z / Step)]);
+	ParticleList::const_iterator particle_iter = m_ParticleList.begin();
+	for (; particle_iter != m_ParticleList.end(); particle_iter++)
+	{
+		int i = Max(0, Min<int>(dim.shape()[0], (particle_iter->m_Position.x - m_min.x) / Step));
+		int j = Max(0, Min<int>(dim.shape()[1], (particle_iter->m_Position.y - m_min.y) / Step));
+		int k = Max(0, Min<int>(dim.shape()[2], (particle_iter->m_Position.z - m_min.z) / Step));
+		dim[i][j][k].push_back(*particle_iter);
+	}
+
+	m_ParticleList.clear();
+
+	int particle_i = 0;
+	for (int i = 0; i < dim.shape()[0]; i++)
+	{
+		for (int j = 0; j < dim.shape()[1]; j++)
+		{
+			for (int k = 0; k < dim.shape()[2]; k++)
+			{
+				if (!dim[i][j][k].empty())
+				{
+					StaticEmitterChunkPtr chunk(new StaticEmitterChunk());
+					chunk->m_Start = particle_i;
+					chunk->m_Count = dim[i][j][k].size();
+					m_ParticleList.insert(m_ParticleList.begin() + particle_i, dim[i][j][k].begin(), dim[i][j][k].end());
+					particle_i += chunk->m_Count;
+					_ASSERT(m_ParticleList.size() == particle_i);
+
+					AddEntity(chunk.get(), AABB(
+						m_min.x + (i + 0) * Step, m_min.y + (j + 0) * Step, m_min.z + (k + 0) * Step,
+						m_min.x + (i + 1) * Step, m_min.y + (j + 1) * Step, m_min.z + (k + 1) * Step), 0.01f, 0.01f);
+
+					m_Chunks.push_back(chunk);
+				}
+			}
+		}
+	}
+}
+
+void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
+{
+	if (m_Chunks.empty())
+	{
+		EmitterComponent::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+		return;
+	}
+
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		RenderPipeline* pipeline;
+		unsigned int PassMask;
+		const Vector3& LocalViewPos;
+		StaticEmitterComponent* cmp;
+		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticEmitterComponent* _cmp)
+			: pipeline(_pipeline)
+			, PassMask(_PassMask)
+			, LocalViewPos(_LocalViewPos)
+			, cmp(_cmp)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
+			if (cmp->m_Material && (cmp->m_Material->m_PassMask & PassMask))
+			{
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				{
+					if (RenderPipeline::PassTypeToMask(PassID) & (cmp->m_Material->m_PassMask & PassMask))
+					{
+						D3DXMACRO macro[3] = { {0} };
+						macro[0].Name = "EMITTER_FACE_TYPE";
+						switch (cmp->m_EmitterFaceType)
+						{
+						default:
+							macro[0].Definition = "0";
+							break;
+						case FaceTypeY:
+							macro[0].Definition = "1";
+							break;
+						case FaceTypeZ:
+							macro[0].Definition = "2";
+							break;
+						case FaceTypeCamera:
+							macro[0].Definition = "3";
+							break;
+						case FaceTypeAngle:
+							macro[0].Definition = "4";
+							break;
+						case FaceTypeAngleCamera:
+							macro[0].Definition = "5";
+							break;
+						}
+						macro[1].Name = "EMITTER_VEL_TYPE";
+						switch (cmp->m_EmitterVelType)
+						{
+						default:
+							macro[1].Definition = "0";
+							break;
+						case VelocityTypeVel:
+							macro[1].Definition = "1";
+							break;
+						}
+						my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, cmp->m_Material->m_Shader.c_str(), PassID);
+						if (shader)
+						{
+							if (!cmp->handle_World)
+							{
+								BOOST_VERIFY(cmp->handle_World = shader->GetParameterByName(NULL, "g_World"));
+							}
+
+							pipeline->PushEmitter(PassID, &cmp->m_ParticleList[chunk->m_Start], chunk->m_Count, shader, cmp->m_Material.get(), 0, cmp);
+						}
+					}
+				}
+			}
+		}
+	};
+
+	_ASSERT(m_ParticleList.is_linearized());
+	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+	Callback cb(pipeline, PassMask, LocalViewPos, this);
+	QueryEntity(LocalFrustum, &cb);
 }
 
 template<class Archive>

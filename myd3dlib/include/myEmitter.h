@@ -60,14 +60,7 @@ namespace my
 			}
 		};
 
-		class ParticleList : public boost::circular_buffer<Particle>
-		{
-		public:
-			explicit ParticleList(capacity_type buffer_capacity)
-				: circular_buffer(buffer_capacity, allocator_type())
-			{
-			}
-		};
+		typedef boost::circular_buffer<Particle> ParticleList;
 
 		ParticleList m_ParticleList;
 

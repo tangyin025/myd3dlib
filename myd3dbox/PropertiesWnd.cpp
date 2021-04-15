@@ -1941,9 +1941,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			emit_cmp->m_ParticleList.resize(new_size, my::Emitter::Particle(actor->m_Position, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
 		}
-		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
+		if (emit_cmp->m_Type == Component::ComponentTypeStaticEmitter)
+		{
+			dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildOctNode();
+		}
 		actor->UpdateAABB();
 		actor->UpdateOctNode();
+		UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
+		m_wndPropList.AdjustLayout();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
 		my::EventArg arg;
@@ -2004,6 +2009,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		particle.m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
+		if (emit_cmp->m_Type == Component::ComponentTypeStaticEmitter)
+		{
+			dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildOctNode();
+		}
 		Actor * actor = emit_cmp->m_Actor;
 		actor->UpdateAABB();
 		actor->UpdateOctNode();

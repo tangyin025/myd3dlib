@@ -468,10 +468,46 @@ public:
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
 
+class StaticEmitterChunk
+	: public my::OctEntity
+{
+public:
+	unsigned int m_Start;
+
+	unsigned int m_Count;
+
+public:
+	StaticEmitterChunk(void)
+		: m_Start(0)
+		, m_Count(0)
+	{
+	}
+
+	virtual ~StaticEmitterChunk(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_Start);
+		ar & BOOST_SERIALIZATION_NVP(m_Count);
+	}
+};
+
+typedef boost::shared_ptr<StaticEmitterChunk> StaticEmitterChunkPtr;
+
 class StaticEmitterComponent
 	: public EmitterComponent
+	, public my::OctRoot
 {
 protected:
+	typedef std::vector<StaticEmitterChunkPtr> StaticEmitterChunkPtrList;
+
+	StaticEmitterChunkPtrList m_Chunks;
+
 	StaticEmitterComponent(void)
 	{
 	}
@@ -479,11 +515,13 @@ protected:
 public:
 	StaticEmitterComponent(const char * Name, unsigned int Capacity)
 		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, FaceTypeCamera, VelocityTypeNone)
+		, OctRoot(-1.0f, 1.0f)
 	{
 	}
 
 	virtual ~StaticEmitterComponent(void)
 	{
+		ClearAllEntity();
 	}
 
 	friend class boost::serialization::access;
@@ -505,6 +543,10 @@ public:
 	virtual ComponentPtr Clone(void) const;
 
 	virtual void Update(float fElapsedTime);
+
+	void BuildOctNode(void);
+
+	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 };
 
 typedef boost::shared_ptr<StaticEmitterComponent> StaticEmitterComponentPtr;
