@@ -1117,7 +1117,17 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 					}
 
-					pipeline->PushEmitter(PassID, this, shader, m_Material.get(), 0, this);
+					ParticleList::array_range array_one = m_ParticleList.array_one();
+					if (array_one.second > 0)
+					{
+						pipeline->PushEmitter(PassID, array_one.first, array_one.second, shader, m_Material.get(), 0, this);
+					}
+
+					ParticleList::array_range array_two = m_ParticleList.array_two();
+					if (array_two.second > 0)
+					{
+						pipeline->PushEmitter(PassID, array_two.first, array_two.second, shader, m_Material.get(), 0, this);
+					}
 				}
 			}
 		}
@@ -1235,8 +1245,6 @@ void SphericalEmitterComponent::RequestResource(void)
 void SphericalEmitterComponent::Update(float fElapsedTime)
 {
 	_ASSERT(m_SpawnInterval > 0);
-
-	EmitterComponent::Update(fElapsedTime);
 
 	RemoveParticleBefore(D3DContext::getSingleton().m_fTotalTime - m_ParticleLifeTime);
 

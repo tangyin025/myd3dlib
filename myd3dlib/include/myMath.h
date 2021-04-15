@@ -1829,6 +1829,19 @@ namespace my
 			Subscribe<float, i>(Subscribe<Vector4, 3>(*this)) = value.w;
 		}
 
+		bool operator ==(const Matrix4& rhs) const
+		{
+			return Subscribe<Vector4, 0>(*this) == Subscribe<Vector4, 0>(rhs)
+				&& Subscribe<Vector4, 1>(*this) == Subscribe<Vector4, 1>(rhs)
+				&& Subscribe<Vector4, 2>(*this) == Subscribe<Vector4, 2>(rhs)
+				&& Subscribe<Vector4, 3>(*this) == Subscribe<Vector4, 3>(rhs);
+		}
+
+		bool operator !=(const Matrix4& rhs) const
+		{
+			return !operator ==(rhs);
+		}
+
 	public:
 		Matrix4 operator - (void) const
 		{

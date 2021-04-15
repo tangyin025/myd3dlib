@@ -479,10 +479,9 @@ BOOL CMainApp::OnIdle(LONG lCount)
 
 	m_d3dDeviceSec.Enter();
 
-	float fElapsedTime = my::Min(0.016f, m_fElapsedTime);
 	if (!pFrame->m_selactors.empty())
 	{
-		pFrame->OnFrameTick(fElapsedTime);
+		pFrame->OnFrameTick(m_fElapsedTime);
 
 		my::EventArg arg;
 		pFrame->m_EventSelectionPlaying(&arg);

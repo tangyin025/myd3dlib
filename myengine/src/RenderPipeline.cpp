@@ -935,31 +935,12 @@ void RenderPipeline::RenderAllObjects(
 			_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
 			DWORD NumTotalInstances = 0;
 			unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, 0, D3DLOCK_DISCARD);
-			_ASSERT(pVertices);
-			std::vector<Emitter *>::const_iterator emitter_iter = emitter_inst_iter->second.emitters.begin();
-			for (; emitter_iter != emitter_inst_iter->second.emitters.end() && NumTotalInstances < PARTICLE_INSTANCE_MAX; emitter_iter++)
+			std::vector<boost::tuple<Component*, my::Emitter::Particle*, unsigned int> >::const_iterator cmp_iter = emitter_inst_iter->second.cmps.begin();
+			for (; cmp_iter != emitter_inst_iter->second.cmps.end(); cmp_iter++)
 			{
-				const DWORD NumInstances = my::Min<DWORD>((*emitter_iter)->m_ParticleList.size(), PARTICLE_INSTANCE_MAX - NumTotalInstances);
-				int NumRemaining = NumInstances;
-				Emitter::ParticleList::const_array_range array_one = (*emitter_iter)->m_ParticleList.array_one();
-				int count_one = my::Min<int>(NumRemaining, array_one.second);
-				if (count_one > 0)
-				{
-					size_t length = count_one * sizeof(Emitter::ParticleList::value_type);
-					memcpy(pVertices, array_one.first, length);
-					pVertices += length;
-					NumRemaining -= count_one;
-				}
-				Emitter::ParticleList::const_array_range array_two = (*emitter_iter)->m_ParticleList.array_two();
-				int count_two = my::Min<int>(NumRemaining, array_two.second);
-				if (count_two > 0)
-				{
-					size_t length = count_two * sizeof(Emitter::ParticleList::value_type);
-					memcpy(pVertices, array_two.first, length);
-					pVertices += length;
-					NumRemaining -= count_two;
-				}
-				NumTotalInstances += NumInstances;
+				int Count = Min<int>(PARTICLE_INSTANCE_MAX - NumTotalInstances, cmp_iter->get<2>());
+				memcpy(pVertices, cmp_iter->get<1>(), Count * sizeof(Emitter::Particle));
+				NumTotalInstances += Count;
 			}
 			m_ParticleInstanceData.Unlock();
 
@@ -979,7 +960,7 @@ void RenderPipeline::RenderAllObjects(
 					NumTotalInstances,
 					m_ParticleInstanceStride,
 					emitter_inst_iter->first.get<5>(),
-					emitter_inst_iter->second.cmps.front(),
+					emitter_inst_iter->second.cmps.front().get<0>(),
 					emitter_inst_iter->first.get<6>(),
 					emitter_inst_iter->first.get<7>());
 				m_PassDrawCall[PassID]++;
@@ -1310,11 +1291,10 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 	res.first->second.cmps.push_back(cmp);
 }
 
-void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp)
+void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter::Particle* particles, unsigned int particle_num, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp)
 {
 	EmitterInstanceAtomKey key(
 		m_ParticleVb.m_ptr, m_ParticleIb.m_ptr, D3DPT_TRIANGLELIST, m_ParticleNumVertices, m_ParticlePrimitiveCount, shader, mtl, lparam);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
-	res.first->second.emitters.push_back(emitter);
-	res.first->second.cmps.push_back(cmp);
+	res.first->second.cmps.push_back(boost::make_tuple(cmp, particles, particle_num));
 }

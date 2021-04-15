@@ -2,16 +2,12 @@
 
 #include "myMesh.h"
 #include "myEffect.h"
+#include "myEmitter.h"
 #include "myUtility.h"
 #include "Material.h"
 #include <boost/unordered_map.hpp>
 #include <boost/array.hpp>
 #include <boost/tuple/tuple.hpp>
-
-namespace my
-{
-	class Emitter;
-};
 
 class Component;
 
@@ -364,8 +360,7 @@ public:
 
 	struct EmitterInstanceAtom
 	{
-		std::vector<my::Emitter *> emitters;
-		std::vector<Component *> cmps;
+		std::vector<boost::tuple<Component *, my::Emitter::Particle *, unsigned int> > cmps;
 	};
 
 	class EmitterInstanceAtomKey : public boost::tuple<
@@ -593,5 +588,5 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushEmitter(unsigned int PassID, my::Emitter * emitter, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp);
+	void PushEmitter(unsigned int PassID, my::Emitter::Particle * particles, unsigned int particle_num, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp);
 };

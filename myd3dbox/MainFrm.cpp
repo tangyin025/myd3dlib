@@ -1319,7 +1319,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::NamedObject::MakeUniqueName("editor_sphe_emit_cmp").c_str(), 1024));
+	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::NamedObject::MakeUniqueName("editor_sphe_emit_cmp").c_str(), 4096));
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;
