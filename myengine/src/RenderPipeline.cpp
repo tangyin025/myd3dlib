@@ -939,7 +939,7 @@ void RenderPipeline::RenderAllObjects(
 			for (; cmp_iter != emitter_inst_iter->second.cmps.end(); cmp_iter++)
 			{
 				int Count = Min<int>(PARTICLE_INSTANCE_MAX - NumTotalInstances, cmp_iter->get<2>());
-				memcpy(pVertices, cmp_iter->get<1>(), Count * sizeof(Emitter::Particle));
+				memcpy(pVertices + NumTotalInstances * sizeof(Emitter::Particle), cmp_iter->get<1>(), Count * sizeof(Emitter::Particle));
 				NumTotalInstances += Count;
 			}
 			m_ParticleInstanceData.Unlock();
