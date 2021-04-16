@@ -1296,7 +1296,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	mtl->ParseShaderParameters();
 	emit_cmp->SetMaterial(mtl);
 	(*actor_iter)->AddComponent(emit_cmp);
-	emit_cmp->Spawn((*actor_iter)->m_Position, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
+	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();

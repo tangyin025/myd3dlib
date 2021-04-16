@@ -45,9 +45,9 @@ float4 TransformPosWS(VS_INPUT In)
 		float3(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.z * In.SizeAngleTime.x), In.SizeAngleTime.z, float3(1, 0, 0));
 #endif
 #if EMITTER_VEL_TYPE == 1
-	float4 Pos = float4(In.Pos.xyz + In.Velocity * (g_Time - In.SizeAngleTime.w), In.Pos.w);
+	float4 Pos = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
 #else
-	float4 Pos = In.Pos;
+	float4 Pos = mul(In.Pos, g_World);
 #endif
 	Pos.xyz += Offset;
 	return Pos;

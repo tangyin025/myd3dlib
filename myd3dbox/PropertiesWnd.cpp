@@ -1477,13 +1477,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal,
 			pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
 			pActor->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal);
-		my::Vector3 DeltaPos = pos - actor->m_Position;
 		actor->m_Position = pos;
 		my::Quaternion rot = my::Quaternion::RotationEulerAngles(
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal),
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal),
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal));
-		my::Quaternion DeltaRot = rot / actor->m_Rotation;
 		actor->m_Rotation = rot;
 		actor->m_Scale.x = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		actor->m_Scale.y = pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
@@ -1503,16 +1501,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 		{
-			if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter)
-			{
-				StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent *>(cmp_iter->get());
-				my::Emitter::ParticleList::iterator part_iter = emit_cmp->m_ParticleList.begin();
-				for (; part_iter != emit_cmp->m_ParticleList.end(); part_iter++)
-				{
-					part_iter->m_Position = part_iter->m_Position.transformCoord(
-						my::Matrix4::AffineTransformation(1, actor->m_Position, DeltaRot, DeltaPos));
-				}
-			}
+			(*cmp_iter)->OnSetPose();
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

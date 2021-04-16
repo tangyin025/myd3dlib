@@ -1240,6 +1240,9 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (m_PaintEmitterCaptured)
 	{
+		m_PaintEmitterCaptured->m_Actor->UpdateAABB();
+		m_PaintEmitterCaptured->m_Actor->UpdateOctNode();
+		pFrame->UpdateSelBox();
 		m_PaintEmitterCaptured = NULL;
 		ReleaseCapture();
 		my::EventArg arg;
@@ -1348,24 +1351,6 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
 			{
 				(*cmp_iter)->OnSetPose();
-
-				if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter)
-				{
-					StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent *>(cmp_iter->get());
-					my::Emitter::ParticleList::iterator part_iter = emit_cmp->m_ParticleList.begin();
-					for (; part_iter != emit_cmp->m_ParticleList.end(); part_iter++)
-					{
-						switch (pFrame->m_Pivot.m_Mode)
-						{
-						case Pivot::PivotModeMove:
-							part_iter->m_Position += pFrame->m_Pivot.m_DragDeltaPos;
-							break;
-						case Pivot::PivotModeRot:
-							part_iter->m_Position = part_iter->m_Position.transformCoord(trans);
-							break;
-						}
-					}
-				}
 			}
 		}
 		Invalidate();
@@ -1664,5 +1649,60 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 
 void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterComponent* emit)
 {
+	// TODO: Add your implementation code here.
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		const my::Ray& ray;
+		CMainFrame* pFrame;
+		StaticEmitterComponent* emit;
+		Callback(const my::Ray& _ray, CMainFrame* _pFrame, StaticEmitterComponent* _emit)
+			: ray(_ray)
+			, pFrame(_pFrame)
+			, emit(_emit)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor* actor = dynamic_cast<Actor*>(oct_entity);
+			ASSERT(actor);
+			my::Ray local_ray = ray.transform(actor->m_World.inverse());
+			my::Matrix4 terrain2emit = actor->m_World * emit->m_Actor->m_World.inverse();
+			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+			{
+				if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+				{
+					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
+					my::RayResult res = tstr.RayTest(local_ray);
+					if (res.first)
+					{
+						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+						for (int i = 0; i < 1; i++)
+						{
+							my::Ray spawn_ray(my::Vector3(0, 1000, 0), my::Vector3(0, -1, 0));
+							spawn_ray.p.x = pt.x;// my::Random(pt.x - pFrame->m_PaintTerrainHeightFieldRadius, pt.x + pFrame->m_PaintTerrainHeightFieldRadius);
+							spawn_ray.p.z = pt.z;// my::Random(pt.z - pFrame->m_PaintTerrainHeightFieldRadius, pt.z + pFrame->m_PaintTerrainHeightFieldRadius);
+							my::RayResult spawn_res = tstr.RayTest(spawn_ray);
+							if (spawn_res.first)
+							{
+								if (emit->m_ParticleList.full())
+								{
+									emit->m_ParticleList.set_capacity(emit->m_ParticleList.capacity() + 4096);
+								}
+								emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
+									my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	Callback cb(ray, pFrame, emit);
+	pFrame->QueryEntity(ray, &cb);
+	emit->BuildChunks();
 }
