@@ -1198,6 +1198,8 @@ void LuaContext::Init(void)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
 			.def(constructor<const char *, unsigned int>())
+			.def_readwrite("ChunkStep", &StaticEmitterComponent::m_ChunkStep)
+			.def("BuildChunks", &StaticEmitterComponent::BuildChunks)
 
 		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
 			.def(constructor<const char *, unsigned int>())

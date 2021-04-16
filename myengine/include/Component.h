@@ -503,11 +503,14 @@ class StaticEmitterComponent
 	: public EmitterComponent
 	, public my::OctRoot
 {
-protected:
+public:
+	float m_ChunkStep;
+
 	typedef std::vector<StaticEmitterChunkPtr> StaticEmitterChunkPtrList;
 
 	StaticEmitterChunkPtrList m_Chunks;
 
+protected:
 	StaticEmitterComponent(void)
 	{
 	}
@@ -516,6 +519,7 @@ public:
 	StaticEmitterComponent(const char * Name, unsigned int Capacity)
 		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, FaceTypeCamera, VelocityTypeNone)
 		, OctRoot(-1.0f, 1.0f)
+		, m_ChunkStep(1.0f)
 	{
 	}
 
@@ -544,7 +548,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void BuildOctNode(void);
+	void BuildChunks(void);
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 };

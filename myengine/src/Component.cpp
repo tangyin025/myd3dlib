@@ -1145,6 +1145,7 @@ void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
 	ParticleList::capacity_type buffer_capacity = m_ParticleList.capacity();
 	ar << BOOST_SERIALIZATION_NVP(buffer_capacity);
 	boost::serialization::stl::save_collection<Archive, ParticleList>(ar, m_ParticleList);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkStep);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)m_Chunks.size(); i++)
@@ -1169,6 +1170,7 @@ void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(item_version);
 	m_ParticleList.resize(count);
 	boost::serialization::stl::collection_load_impl<Archive, ParticleList>(ar, m_ParticleList, count, item_version);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkStep);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	m_Chunks.resize(ChunkSize);
@@ -1177,7 +1179,7 @@ void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 		AABB aabb;
 		ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d", i).c_str(), m_Chunks[i]);
 		ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d_aabb", i).c_str(), aabb);
-		AddEntity(m_Chunks[i].get(), aabb, 0.01f, 0.01f);
+		AddEntity(m_Chunks[i].get(), aabb, m_ChunkStep, 0.01f);
 	}
 }
 
@@ -1199,25 +1201,40 @@ void StaticEmitterComponent::Update(float fElapsedTime)
 	EmitterComponent::Update(fElapsedTime);
 }
 
-void StaticEmitterComponent::BuildOctNode(void)
+void StaticEmitterComponent::BuildChunks(void)
 {
+	_ASSERT(m_ChunkStep > 0.0f);
+
 	ClearAllEntity();
 
 	m_Chunks.clear();
 
-	*static_cast<AABB*>(this) = CalculateAABB();
+	AABB aabb = CalculateAABB();
 
-	m_Half = Center();
+	m_Half = aabb.Center();
 
-	const float Step = 1.0f;
-	const Vector3 extent = Extent();
-	boost::multi_array<std::vector<Particle>, 3> dim(boost::extents[(int)(extent.x / Step)][(int)(extent.y / Step)][(int)(extent.z / Step)]);
+	const Vector3 extent = aabb.Extent();
+
+	const int HalfStage[3] = {
+		(int)ceilf(extent.x / 2 / m_ChunkStep),
+		(int)ceilf(extent.y / 2 / m_ChunkStep),
+		(int)ceilf(extent.z / 2 / m_ChunkStep) };
+
+	const Vector3 HalfExtent(HalfStage[0] * m_ChunkStep, HalfStage[1] * m_ChunkStep, HalfStage[2] * m_ChunkStep);
+
+	_ASSERT(HalfExtent.magnitudeSq() > 0.0f);
+
+	m_min = m_Half - HalfExtent;
+
+	m_max = m_Half + HalfExtent;
+
+	boost::multi_array<std::vector<Particle>, 3> dim(boost::extents[HalfStage[0] * 2][HalfStage[1] * 2][HalfStage[2] * 2]);
 	ParticleList::const_iterator particle_iter = m_ParticleList.begin();
 	for (; particle_iter != m_ParticleList.end(); particle_iter++)
 	{
-		int i = Max(0, Min<int>(dim.shape()[0], (particle_iter->m_Position.x - m_min.x) / Step));
-		int j = Max(0, Min<int>(dim.shape()[1], (particle_iter->m_Position.y - m_min.y) / Step));
-		int k = Max(0, Min<int>(dim.shape()[2], (particle_iter->m_Position.z - m_min.z) / Step));
+		int i = (int)((particle_iter->m_Position.x - m_min.x) / m_ChunkStep);
+		int j = (int)((particle_iter->m_Position.y - m_min.y) / m_ChunkStep);
+		int k = (int)((particle_iter->m_Position.z - m_min.z) / m_ChunkStep);
 		dim[i][j][k].push_back(*particle_iter);
 	}
 
@@ -1240,8 +1257,8 @@ void StaticEmitterComponent::BuildOctNode(void)
 					_ASSERT(m_ParticleList.size() == particle_i);
 
 					AddEntity(chunk.get(), AABB(
-						m_min.x + (i + 0) * Step, m_min.y + (j + 0) * Step, m_min.z + (k + 0) * Step,
-						m_min.x + (i + 1) * Step, m_min.y + (j + 1) * Step, m_min.z + (k + 1) * Step), 0.01f, 0.01f);
+						m_min.x + (i + 0) * m_ChunkStep, m_min.y + (j + 0) * m_ChunkStep, m_min.z + (k + 0) * m_ChunkStep,
+						m_min.x + (i + 1) * m_ChunkStep, m_min.y + (j + 1) * m_ChunkStep, m_min.z + (k + 1) * m_ChunkStep), m_ChunkStep, 0.01f);
 
 					m_Chunks.push_back(chunk);
 				}

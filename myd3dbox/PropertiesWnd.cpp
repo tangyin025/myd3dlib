@@ -1943,7 +1943,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		if (emit_cmp->m_Type == Component::ComponentTypeStaticEmitter)
 		{
-			dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildOctNode();
+			dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildChunks();
 		}
 		actor->UpdateAABB();
 		actor->UpdateOctNode();
@@ -2011,7 +2011,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle.m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
 		if (emit_cmp->m_Type == Component::ComponentTypeStaticEmitter)
 		{
-			dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildOctNode();
+			dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildChunks();
 		}
 		Actor * actor = emit_cmp->m_Actor;
 		actor->UpdateAABB();

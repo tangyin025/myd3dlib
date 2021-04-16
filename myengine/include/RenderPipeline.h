@@ -353,7 +353,13 @@ public:
 		{
 		}
 
-		bool operator == (const MeshInstanceAtomKey & rhs) const;
+		bool operator == (const MeshInstanceAtomKey & rhs) const
+		{
+			return get<0>() == rhs.get<0>()
+				&& get<1>() == rhs.get<1>()
+				&& get<2>() == rhs.get<2>()
+				&& *get<3>() == *rhs.get<3>(); // ! mtl ptr must be valid object
+		}
 	};
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
@@ -387,7 +393,13 @@ public:
 		{
 		}
 
-		bool operator == (const EmitterInstanceAtomKey & rhs) const;
+		bool operator == (const EmitterInstanceAtomKey & rhs) const
+		{
+			return get<0>() == rhs.get<0>()
+				&& get<1>() == rhs.get<1>()
+				&& get<5>() == rhs.get<5>()
+				&& *get<6>() == *rhs.get<6>();
+		}
 	};
 
 	typedef boost::unordered_map<EmitterInstanceAtomKey, EmitterInstanceAtom> EmitterInstanceAtomMap;
