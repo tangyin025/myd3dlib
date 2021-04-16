@@ -469,7 +469,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 2), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 3);
 	pParticleList->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_ParticleList.size());
-	int NumParticles = my::Min(10, (int)emit_cmp->m_ParticleList.size());
+	int NumParticles = my::Min(theApp.max_editable_particle_count, (int)emit_cmp->m_ParticleList.size());
 	for (int i = 0; i < NumParticles; i++)
 	{
 		if (pParticleList->GetSubItemsCount() <= i + 1)
@@ -968,7 +968,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->AddSubItem(pParticleList);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)emit_cmp->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
 	pParticleList->AddSubItem(pProp);
-	int NumParticles = my::Min(10, (int)emit_cmp->m_ParticleList.size());
+	int NumParticles = my::Min(theApp.max_editable_particle_count, (int)emit_cmp->m_ParticleList.size());
 	for (int i = 0; i < NumParticles; i++)
 	{
 		CreatePropertiesStaticEmitterParticle(pParticleList, i, emit_cmp);

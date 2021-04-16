@@ -29,7 +29,7 @@ CMainApp::CMainApp()
 {
 	default_font_height = 13;
 	default_font_face_index = 0;
-	default_pass_mask = 0;
+	max_editable_particle_count = 10;
 	technique_RenderSceneColor = NULL;
 	handle_MeshColor = NULL;
 	m_bNeedDraw = FALSE;
@@ -220,7 +220,7 @@ BOOL CMainApp::InitInstance()
 		("default_sky_right_texture", boost::program_options::value(&default_sky_texture[0])->default_value("texture/cloudy_noon_RT.jpg"), "Default sky right texture")
 		("default_sky_up_texture", boost::program_options::value(&default_sky_texture[2])->default_value("texture/cloudy_noon_UP.jpg"), "Default sky up texture")
 		("default_sky_down_texture", boost::program_options::value(&default_sky_texture[3])->default_value("texture/cloudy_noon_DN.jpg"), "Default sky down texture")
-		("default_pass_mask", boost::program_options::value(&default_pass_mask)->default_value(RenderPipeline::PassMaskShadowNormalOpaque), "Default pass mask")
+		("max_editable_particle_count", boost::program_options::value(&max_editable_particle_count)->default_value(10), "Max editable particle count")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);

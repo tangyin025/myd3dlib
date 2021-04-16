@@ -42,7 +42,7 @@ public:
 	std::string default_shader;
 	std::string default_water_shader;
 	std::string default_sky_texture[6];
-	unsigned int default_pass_mask;
+	int max_editable_particle_count;
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;
 	BOOL m_bNeedDraw;
