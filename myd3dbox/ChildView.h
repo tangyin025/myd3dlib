@@ -41,7 +41,8 @@ public:
 	BOOL m_bShowCmpHandle;
 	BOOL m_bShowNavigation;
 	BOOL m_bCopyActors;
-	boost::shared_ptr<TerrainStream> m_PaintCaptured;
+	boost::shared_ptr<TerrainStream> m_PaintTerrainCaptured;
+	StaticEmitterComponent* m_PaintEmitterCaptured;
 protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
@@ -136,6 +137,7 @@ public:
 	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
 	void OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream & tstr);
 	void OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr);
+	void OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterComponent* emit);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

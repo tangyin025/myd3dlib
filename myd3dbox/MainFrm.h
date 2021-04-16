@@ -45,7 +45,7 @@ public:
 		PaintNone,
 		PaintTerrainHeightField,
 		PaintTerrainColor,
-		PaintGrass,
+		PaintEmitterInstance,
 	};
 	PaintMode m_PaintMode;
 	float m_PaintTerrainHeightFieldRadius;
@@ -77,7 +77,7 @@ public:
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	bool RemoveEntity(my::OctEntity * entity);
 	void OnMeshComponentReady(my::EventArg* arg);
-	Component* GetSelTerrainComponent(void);
+	Component* GetSelComponent(Component::ComponentType Type);
 
 // Implementation
 public:
@@ -135,6 +135,8 @@ public:
 	afx_msg void OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI);
 	afx_msg void OnPaintTerrainColor();
 	afx_msg void OnUpdatePaintTerrainColor(CCmdUI* pCmdUI);
+	afx_msg void OnPaintEmitterinstance();
+	afx_msg void OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI);
 };
 
 

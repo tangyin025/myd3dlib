@@ -57,6 +57,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
+	, m_PaintEmitterCaptured(NULL)
 	, m_raychunkid(0, 0)
 {
 	// TODO: add construction code here
@@ -979,6 +980,9 @@ void CChildView::OnPaint()
 					else if (pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
 					{
 					}
+					else if (pFrame->m_PaintMode == CMainFrame::PaintEmitterInstance)
+					{
+					}
 					else
 					{
 						m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 40.0f / m_SwapChainBufferDesc.Height;
@@ -1083,11 +1087,11 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelTerrainComponent());
+	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelComponent(Component::ComponentTypeTerrain));
 	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
 	{
-		m_PaintCaptured.reset(new TerrainStream(terrain));
-		OnPaintTerrainHeightField(ray, *m_PaintCaptured);
+		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
+		OnPaintTerrainHeightField(ray, *m_PaintTerrainCaptured);
 		SetCapture();
 		Invalidate();
 		return;
@@ -1095,8 +1099,18 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
 	{
-		m_PaintCaptured.reset(new TerrainStream(terrain));
-		OnPaintTerrainColor(ray, *m_PaintCaptured);
+		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
+		OnPaintTerrainColor(ray, *m_PaintTerrainCaptured);
+		SetCapture();
+		Invalidate();
+		return;
+	}
+
+	StaticEmitterComponent* emit = dynamic_cast<StaticEmitterComponent*>(pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter));
+	if (emit && pFrame->m_PaintMode == CMainFrame::PaintEmitterInstance)
+	{
+		m_PaintEmitterCaptured = emit;
+		OnPaintEmitterInstance(ray, emit);
 		SetCapture();
 		Invalidate();
 		return;
@@ -1215,9 +1229,18 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (m_PaintCaptured)
+	if (m_PaintTerrainCaptured)
 	{
-		m_PaintCaptured.reset();
+		m_PaintTerrainCaptured.reset();
+		ReleaseCapture();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		return;
+	}
+
+	if (m_PaintEmitterCaptured)
+	{
+		m_PaintEmitterCaptured = NULL;
 		ReleaseCapture();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1252,19 +1275,28 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (m_PaintCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
+	if (m_PaintTerrainCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		OnPaintTerrainHeightField(ray, *m_PaintCaptured);
+		OnPaintTerrainHeightField(ray, *m_PaintTerrainCaptured);
 		Invalidate();
 		UpdateWindow();
 		return;
 	}
 
-	if (m_PaintCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
+	if (m_PaintTerrainCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		OnPaintTerrainColor(ray, *m_PaintCaptured);
+		OnPaintTerrainColor(ray, *m_PaintTerrainCaptured);
+		Invalidate();
+		UpdateWindow();
+		return;
+	}
+
+	if (m_PaintEmitterCaptured && pFrame->m_PaintMode == CMainFrame::PaintEmitterInstance)
+	{
+		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		OnPaintEmitterInstance(ray, m_PaintEmitterCaptured);
 		Invalidate();
 		UpdateWindow();
 		return;
@@ -1628,4 +1660,9 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 			}
 		}
 	}
+}
+
+void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterComponent* emit)
+{
+
 }

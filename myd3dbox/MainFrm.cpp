@@ -229,6 +229,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnUpdatePaintTerrainHeightField)
 	ON_COMMAND(ID_PAINT_TERRAINCOLOR, &CMainFrame::OnPaintTerrainColor)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINCOLOR, &CMainFrame::OnUpdatePaintTerrainColor)
+	ON_COMMAND(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnPaintEmitterinstance)
+	ON_UPDATE_COMMAND_UI(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnUpdatePaintEmitterinstance)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -902,14 +904,14 @@ void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
 	}
 }
 
-Component* CMainFrame::GetSelTerrainComponent(void)
+Component* CMainFrame::GetSelComponent(Component::ComponentType Type)
 {
 	if (!m_selactors.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
 		for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
 		{
-			if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+			if ((*cmp_iter)->m_Type == Type)
 			{
 				return cmp_iter->get();
 			}
@@ -1483,7 +1485,7 @@ void CMainFrame::OnPaintTerrainHeightField()
 void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	Terrain* terrain = dynamic_cast<Terrain*>(GetSelTerrainComponent());
+	Terrain* terrain = dynamic_cast<Terrain*>(GetSelComponent(Component::ComponentTypeTerrain));
 	if (terrain)
 	{
 		pCmdUI->Enable(TRUE);
@@ -1512,11 +1514,40 @@ void CMainFrame::OnPaintTerrainColor()
 void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	Terrain* terrain = dynamic_cast<Terrain*>(GetSelTerrainComponent());
+	Terrain* terrain = dynamic_cast<Terrain*>(GetSelComponent(Component::ComponentTypeTerrain));
 	if (terrain)
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintMode == PaintTerrainColor);
+		return;
+	}
+
+	pCmdUI->Enable(FALSE);
+}
+
+
+void CMainFrame::OnPaintEmitterinstance()
+{
+	// TODO: Add your command handler code here
+	if (m_PaintMode == PaintEmitterInstance)
+	{
+		m_PaintMode = PaintNone;
+	}
+	else
+	{
+		m_PaintMode = PaintEmitterInstance;
+	}
+}
+
+
+void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	StaticEmitterComponent* emit = dynamic_cast<StaticEmitterComponent*>(GetSelComponent(Component::ComponentTypeStaticEmitter));
+	if (emit)
+	{
+		pCmdUI->Enable(TRUE);
+		pCmdUI->SetCheck(m_PaintMode == PaintEmitterInstance);
 		return;
 	}
 
