@@ -2024,6 +2024,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyStaticEmitterChunkStep:
+	{
+		StaticEmitterComponent * emit_cmp = (StaticEmitterComponent*)pProp->GetParent()->GetValue().ulVal;
+		emit_cmp->m_ChunkStep = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
+		if (!emit_cmp->m_Chunks.empty())
+		{
+			emit_cmp->BuildChunks();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertySphericalEmitterParticleCapacity:
 	{
 		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
