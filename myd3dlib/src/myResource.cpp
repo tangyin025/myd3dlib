@@ -369,29 +369,31 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 	m_IORequestListMutex.Wait(INFINITE);
 	while(!m_bStopped)
 	{
+		int Priority = INT_MIN;
+		IORequestPtr priority_req;
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(!req_iter->second->m_PreLoadEvent.Wait(0))
+			if(!req_iter->second->m_PreLoadEvent.Wait(0) && req_iter->second->m_Priority > Priority)
 			{
 				_ASSERT(!req_iter->second->m_callbacks.empty());
-				break;
+				Priority = req_iter->second->m_Priority;
+				priority_req = req_iter->second;
 			}
 		}
-		if(req_iter != m_IORequestList.end())
+
+		if(priority_req)
 		{
 			// ! req_iter will be invalid after release mutex
-			IORequestPtr request = req_iter->second;
-
-			request->m_PreLoadEvent.SetEvent();
+			priority_req->m_PreLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Release();
 
 			// ! HAVENT HANDLED EXCEPTION YET
-			request->LoadResource();
+			priority_req->LoadResource();
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe
-			request->m_PostLoadEvent.SetEvent();
+			priority_req->m_PostLoadEvent.SetEvent();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
@@ -619,7 +621,7 @@ void ResourceMgr::LoadIORequestAndWait(const std::string& key, IORequestPtr requ
 
 	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
-	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, callback, true);
+	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, callback);
 	if (req_iter != m_IORequestList.end())
 	{
 		if (req_iter->second->m_PostLoadEvent.Wait(INFINITE))
@@ -672,7 +674,7 @@ ResourceMgr::IORequestPtrPairList::iterator ResourceMgr::OnIORequestIteratorRead
 {
 	_ASSERT(IsMainThread());
 
-	IORequestPtrPair pair = *req_iter;
+	IORequestPtrPairList::value_type pair = *req_iter;
 	m_IORequestListMutex.Wait(INFINITE);
 	IORequestPtrPairList::iterator ret = m_IORequestList.erase(req_iter);
 	m_IORequestListMutex.Release();
@@ -747,7 +749,7 @@ public:
 boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
-	IORequestPtr request(new TextureIORequest(path));
+	IORequestPtr request(new TextureIORequest(path, INT_MAX));
 	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
 }
@@ -755,7 +757,7 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 boost::intrusive_ptr<VertexBuffer> ResourceMgr::LoadVertexBuffer(const char* path)
 {
 	SimpleResourceCallback cb;
-	IORequestPtr request(new VertexBufferIORequest(path));
+	IORequestPtr request(new VertexBufferIORequest(path, INT_MAX));
 	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<VertexBuffer>(cb.m_res);
 }
@@ -764,7 +766,7 @@ boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const ch
 {
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
-	IORequestPtr request(new MeshIORequest(path, sub_mesh_name));
+	IORequestPtr request(new MeshIORequest(path, sub_mesh_name, INT_MAX));
 	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<OgreMesh>(cb.m_res);
 }
@@ -772,7 +774,7 @@ boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const ch
 boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
 {
 	SimpleResourceCallback cb;
-	IORequestPtr request(new SkeletonIORequest(path));
+	IORequestPtr request(new SkeletonIORequest(path, INT_MAX));
 	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(cb.m_res);
 }
@@ -781,7 +783,7 @@ boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const ch
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	SimpleResourceCallback cb;
-	IORequestPtr request(new EffectIORequest(path, macros));
+	IORequestPtr request(new EffectIORequest(path, macros, INT_MAX));
 	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<Effect>(cb.m_res);
 }
@@ -790,7 +792,7 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 {
 	std::string key = FontIORequest::BuildKey(path, height, face_index);
 	SimpleResourceCallback cb;
-	IORequestPtr request(new FontIORequest(path, height, face_index));
+	IORequestPtr request(new FontIORequest(path, height, face_index, INT_MAX));
 	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
 	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
@@ -836,8 +838,9 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-VertexBufferIORequest::VertexBufferIORequest(const char* path)
-	: m_path(path)
+VertexBufferIORequest::VertexBufferIORequest(const char* path, int Priority)
+	: IORequest(Priority)
+	, m_path(path)
 {
 	m_res.reset(new VertexBuffer());
 }
@@ -867,8 +870,9 @@ void VertexBufferIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-MeshIORequest::MeshIORequest(const char * path, const char * sub_mesh_name)
-	: m_path(path)
+MeshIORequest::MeshIORequest(const char * path, const char * sub_mesh_name, int Priority)
+	: IORequest(Priority)
+	, m_path(path)
 	, m_sub_mesh_name(sub_mesh_name)
 {
 	m_res.reset(new OgreMesh());
@@ -937,8 +941,9 @@ void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	m_res = res;
 }
 
-EffectIORequest::EffectIORequest(const char * path, std::string macros)
-	: m_path(path)
+EffectIORequest::EffectIORequest(const char * path, std::string macros, int Priority)
+	: IORequest(Priority)
+	, m_path(path)
 {
 	boost::trim_if(macros, boost::algorithm::is_any_of(" \t,"));
 	if (!macros.empty())
