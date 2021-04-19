@@ -72,11 +72,15 @@ Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
 	return Vector4(x, y, 0, 0).transformTranspose(m).xy;
 }
 
-Vector2 Vector2::RandomCircle(float MaxRadius)
+Vector2 Vector2::RandomUnit(void)
 {
-	float angle = (Random(0.0f, 1.0f) * 2.0f - 1.0f) * D3DX_PI;
-	float radius = sqrtf(Random(0.0f, 1.0f)) * MaxRadius;
-	return Vector2(radius * cos(angle), radius * sin(angle));
+	float a = Random(0.0f, 2.0f * D3DX_PI);
+	return Vector2(cosf(a), sinf(a));
+}
+
+Vector2 Vector2::RandomUnitCircle(void)
+{
+	return RandomUnit() * powf(Random(0.0f, 1.0f), 1.0f / 2.0f);
 }
 
 const Vector2 Vector2::zero(0, 0);
@@ -119,6 +123,19 @@ Vector3 Vector3::transformNormal(const Matrix4 & m) const
 Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
 {
 	return Vector4(x, y, z, 0).transformTranspose(m).xyz;
+}
+
+Vector3 Vector3::RandomUnit(void)
+{
+	float z = Random(-1.0f, 1.0f);
+	float a = Random(0.0f, 2.0f * D3DX_PI);
+	float r = sqrtf(1.0f - z * z);
+	return Vector3(r * cosf(a), r * sinf(a), z);
+}
+
+Vector3 Vector3::RandomUnitSphere(void)
+{
+	return RandomUnit() * powf(Random(0.0f, 1.0f), 1.0f / 3.0f);
 }
 
 const Vector3 Vector3::zero(0, 0, 0);

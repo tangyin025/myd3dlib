@@ -1708,7 +1708,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 						{
 							if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 							{
-								my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomCircle(pFrame->m_PaintRadius) : my::Vector2::zero);
+								my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
 								my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
 								my::RayResult spawn_res = tstr.RayTest(spawn_ray);
 								if (spawn_res.first)

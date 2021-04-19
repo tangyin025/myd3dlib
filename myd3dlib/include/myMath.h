@@ -319,9 +319,11 @@ namespace my
 
 		Vector2 transformNormalTranspose(const Matrix4 & m) const;
 
-		static Vector2 RandomCircle(float MaxRadius);
-
 	public:
+		static Vector2 RandomUnit(void);
+
+		static Vector2 RandomUnitCircle(void);
+
 		static const Vector2 zero;
 
 		static const Vector2 one;
@@ -632,6 +634,10 @@ namespace my
 		{
 			return (b * b + c * c - a * a) / (2 * b * c);
 		}
+
+		static Vector3 RandomUnit(void);
+
+		static Vector3 RandomUnitSphere(void);
 
 		static const Vector3 zero;
 
@@ -2699,16 +2705,16 @@ namespace my
 			{
 				if (_23 > -0.999f) // some fudge for imprecision
 				{
-					ret.x = asin(_23);
-					ret.y = atan2(-_13, _33);
-					ret.z = atan2(-_21, _22);
+					ret.x = asinf(_23);
+					ret.y = atan2f(-_13, _33);
+					ret.z = atan2f(-_21, _22);
 					MakePositive(ret);
 				}
 				else
 				{
 					// WARNING.  Not unique.  YA - ZA = atan2(-r01,r00)
 					ret.x = -D3DX_PI * 0.5f;
-					ret.y = atan2(-_12, _11);
+					ret.y = atan2f(-_12, _11);
 					ret.z = 0.0f;
 					MakePositive(ret);
 				}
@@ -2717,7 +2723,7 @@ namespace my
 			{
 				// WARNING.  Not unique.  YA + ZA = atan2(r01,r00)
 				ret.x = D3DX_PI * 0.5f;
-				ret.y = atan2(_12, _11);
+				ret.y = atan2f(_12, _11);
 				ret.z = 0.0f;
 				MakePositive(ret);
 			}
