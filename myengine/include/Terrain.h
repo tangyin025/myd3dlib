@@ -190,6 +190,8 @@ class TerrainStream
 public:
 	Terrain* m_terrain;
 
+	bool m_OverwriteStream;
+
 	boost::multi_array<std::fstream, 2> m_fstrs;
 
 	boost::multi_array<bool, 2> m_AabbDirty;
@@ -199,7 +201,7 @@ public:
 	static std::string GetChunkPath(const char* chunk_name, int Row, int Col);
 
 public:
-	explicit TerrainStream(Terrain* terrain);
+	explicit TerrainStream(Terrain* terrain, bool OverwriteStream);
 
 	~TerrainStream(void);
 

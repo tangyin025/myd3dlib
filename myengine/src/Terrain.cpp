@@ -116,7 +116,7 @@ void TerrainChunk::ReleaseResource(void)
 my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
 {
 	AABB ret = AABB::Invalid();
-	TerrainStream tstr(terrain);
+	TerrainStream tstr(terrain, false);
 	for (int i = 0; i < (int)terrain->m_IndexTable.shape()[0]; i++)
 	{
 		for (int j = 0; j < (int)terrain->m_IndexTable.shape()[1]; j++)
@@ -753,7 +753,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	}
 
 	std::vector<physx::PxHeightFieldSample> Samples((m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
-	TerrainStream tstr(this);
+	TerrainStream tstr(this, false);
 	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 	{
 		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
@@ -800,7 +800,7 @@ void Terrain::ClearShape(void)
 void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 {
 	my::TexturePixel2D pixel(HeightMap);
-	TerrainStream tstr(this);
+	TerrainStream tstr(this, false);
 	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
 		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
@@ -827,7 +827,7 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 
 void Terrain::UpdateVerticesNormal(void)
 {
-	TerrainStream tstr(this);
+	TerrainStream tstr(this, false);
 	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
 		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
@@ -867,7 +867,7 @@ void Terrain::UpdateChunkAABB(void)
 void Terrain::UpdateSplatmap(my::Texture2D * ColorMap)
 {
 	my::TexturePixel2D pixel(ColorMap);
-	TerrainStream tstr(this);
+	TerrainStream tstr(this, false);
 	for (int i = 0; i <= (int)m_Chunks.shape()[0] * ((int)m_IndexTable.shape()[0] - 1); i++)
 	{
 		for (int j = 0; j <= (int)m_Chunks.shape()[1] * ((int)m_IndexTable.shape()[1] - 1); j++)
@@ -890,8 +890,9 @@ std::string TerrainStream::GetChunkPath(const char* root_path, int Row, int Col)
 	return chunk_path.str();
 }
 
-TerrainStream::TerrainStream(Terrain* terrain)
+TerrainStream::TerrainStream(Terrain* terrain, bool OverwriteStream)
 	: m_terrain(terrain)
+	, m_OverwriteStream(OverwriteStream)
 	, m_fstrs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 	, m_AabbDirty(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 	, m_VertDirty(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
@@ -996,30 +997,32 @@ void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int
 std::fstream& TerrainStream::GetStream(int k, int l)
 {
 	std::fstream& ret = m_fstrs[k][l];
-	if (!ret.is_open())
+	if (!m_OverwriteStream && !ret.is_open())
 	{
 		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(GetChunkPath(m_terrain->m_ChunkPath.c_str(), k, l).c_str());
 		ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
-
-		if (!ret.is_open())
-		{
-			std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
-			for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
-			{
-				for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
-				{
-					char* pVertex = &buff[0] + m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride;
-					m_terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)l * m_terrain->m_ChunkSize + n, 0, (float)k * m_terrain->m_ChunkSize + m), 0);
-					m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
-					m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
-				}
-			}
-			std::ofstream ofs(full_chunk_path, std::ios::binary);
-			ofs.write(&buff[0], buff.size());
-			ofs.close();
-			ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
-		}
 	}
+
+	if (!ret.is_open())
+	{
+		std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
+		for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
+		{
+			for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
+			{
+				char* pVertex = &buff[0] + m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride;
+				m_terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)l * m_terrain->m_ChunkSize + n, 0, (float)k * m_terrain->m_ChunkSize + m), 0);
+				m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
+				m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
+			}
+		}
+		std::string full_chunk_path = my::ResourceMgr::getSingleton().GetFullPath(GetChunkPath(m_terrain->m_ChunkPath.c_str(), k, l).c_str());
+		std::ofstream ofs(full_chunk_path, std::ios::binary);
+		ofs.write(&buff[0], buff.size());
+		ofs.close();
+		ret.open(full_chunk_path, std::ios::in | std::ios::out | std::ios::binary);
+	}
+
 	_ASSERT(ret.is_open());
 	return ret;
 }

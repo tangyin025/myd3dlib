@@ -83,7 +83,7 @@ void CTerrainDlg::OnOK()
 
 	m_terrain->m_ChunkPath = ts2ms(m_ChunkPath);
 
-	TerrainStream tstr(m_terrain.get());
+	TerrainStream tstr(m_terrain.get(), true);
 	std::fill(tstr.m_AabbDirty.data(), tstr.m_AabbDirty.data() + tstr.m_AabbDirty.num_elements(), true);
 	tstr.Release();
 

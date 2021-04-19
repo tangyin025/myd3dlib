@@ -230,7 +230,7 @@ void CNavigationDlg::OnOK()
 						TRACE("OnToolsBuildnavigation: invalid terrain component");
 						continue;
 					}
-					TerrainStream tstr(terrain);
+					TerrainStream tstr(terrain, false);
 					for (int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkSize; i++)
 					{
 						for (int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkSize; j++)
