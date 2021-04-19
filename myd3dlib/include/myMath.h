@@ -319,6 +319,8 @@ namespace my
 
 		Vector2 transformNormalTranspose(const Matrix4 & m) const;
 
+		static Vector2 RandomCircle(float MaxRadius);
+
 	public:
 		static const Vector2 zero;
 

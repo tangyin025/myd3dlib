@@ -51,18 +51,20 @@ public:
 	enum PaintShape
 	{
 		PaintShapeCircle,
-		PaintShapeSquare,
 	};
 	PaintShape m_PaintShape;
 	enum PaintMode
 	{
 		PaintModeOverwrite,
+		PaintModeAdditive,
+		PaintModeSubtractive,
 	};
 	PaintMode m_PaintMode;
 	float m_PaintRadius;
-	float m_PaintStrength;
+	float m_PaintHeight;
 	my::Spline m_PaintSpline;
 	D3DXCOLOR m_PaintColor;
+	int m_PaintDensity;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;
 	my::EventSignal m_EventSelectionPlaying;

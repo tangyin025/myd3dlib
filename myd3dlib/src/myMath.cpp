@@ -72,6 +72,13 @@ Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
 	return Vector4(x, y, 0, 0).transformTranspose(m).xy;
 }
 
+Vector2 Vector2::RandomCircle(float MaxRadius)
+{
+	float angle = (Random(0.0f, 1.0f) * 2.0f - 1.0f) * D3DX_PI;
+	float radius = sqrtf(Random(0.0f, 1.0f)) * MaxRadius;
+	return Vector2(radius * cos(angle), radius * sin(angle));
+}
+
 const Vector2 Vector2::zero(0, 0);
 
 const Vector2 Vector2::one(1, 1);

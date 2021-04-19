@@ -252,8 +252,9 @@ CMainFrame::CMainFrame()
 	, m_PaintShape(PaintShapeCircle)
 	, m_PaintMode(PaintModeOverwrite)
 	, m_PaintRadius(5.0f)
-	, m_PaintStrength(5.0f)
+	, m_PaintHeight(5.0f)
 	, m_PaintColor(1.0f, 1.0f, 1.0f, 1.0f)
+	, m_PaintDensity(1)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);

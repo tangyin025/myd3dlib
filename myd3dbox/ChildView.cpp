@@ -1624,25 +1624,7 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 					float alpha = diff.magnitude() / pFrame->m_PaintRadius;
 					if (alpha <= 1)
 					{
-						float height = pFrame->m_PaintSpline.Interpolate(1 - alpha, 1) * pFrame->m_PaintStrength;
-						tstr.SetPos(my::Vector3(j, height, i), i, j, true);
-					}
-				}
-				else if (pFrame->m_PaintShape == CMainFrame::PaintShapeSquare)
-				{
-					my::Vector2 diff(j - pt.x, i - pt.z);
-					float alpha;
-					if (diff.x > diff.y)
-					{
-						alpha = diff.x / pFrame->m_PaintRadius;
-					}
-					else
-					{
-						alpha = diff.y / pFrame->m_PaintRadius;
-					}
-					if (alpha <= 1)
-					{
-						float height = pFrame->m_PaintSpline.Interpolate(1 - alpha, 1) * pFrame->m_PaintStrength;
+						float height = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
 						tstr.SetPos(my::Vector3(j, height, i), i, j, true);
 					}
 				}
@@ -1672,24 +1654,6 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 				{
 					my::Vector2 diff(j - pt.x, i - pt.z);
 					float alpha = diff.magnitude() / pFrame->m_PaintRadius;
-					if (alpha <= 1)
-					{
-						D3DXCOLOR color = pFrame->m_PaintColor * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
-						tstr.SetColor(color, i, j);
-					}
-				}
-				else if (pFrame->m_PaintShape == CMainFrame::PaintShapeSquare)
-				{
-					my::Vector2 diff(j - pt.x, i - pt.z);
-					float alpha;
-					if (diff.x > diff.y)
-					{
-						alpha = diff.x / pFrame->m_PaintRadius;
-					}
-					else
-					{
-						alpha = diff.y / pFrame->m_PaintRadius;
-					}
 					if (alpha <= 1)
 					{
 						D3DXCOLOR color = pFrame->m_PaintColor * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
@@ -1733,21 +1697,25 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 					my::RayResult res = tstr.RayTest(local_ray);
 					if (res.first)
 					{
-						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-						for (int i = 0; i < 1; i++)
+						if (emit->m_ParticleList.full())
 						{
-							my::Ray spawn_ray(my::Vector3(0, 1000, 0), my::Vector3(0, -1, 0));
-							spawn_ray.p.x = pt.x;// my::Random(pt.x - pFrame->m_PaintRadius, pt.x + pFrame->m_PaintRadius);
-							spawn_ray.p.z = pt.z;// my::Random(pt.z - pFrame->m_PaintRadius, pt.z + pFrame->m_PaintRadius);
-							my::RayResult spawn_res = tstr.RayTest(spawn_ray);
-							if (spawn_res.first)
+							emit->m_ParticleList.set_capacity(emit->m_ParticleList.capacity() + 1024);
+						}
+
+						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+
+						for (int i = 0; i < pFrame->m_PaintDensity; i++)
+						{
+							if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 							{
-								if (emit->m_ParticleList.full())
+								my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomCircle(pFrame->m_PaintRadius) : my::Vector2::zero);
+								my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
+								my::RayResult spawn_res = tstr.RayTest(spawn_ray);
+								if (spawn_res.first)
 								{
-									emit->m_ParticleList.set_capacity(emit->m_ParticleList.capacity() + 4096);
+									emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
+										my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 								}
-								emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
-									my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 							}
 						}
 					}
