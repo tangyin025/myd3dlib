@@ -40,16 +40,29 @@ public:
 	ActorPtrSet m_ActorList;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
+	enum PaintType
+	{
+		PaintTypeNone,
+		PaintTypeTerrainHeightField,
+		PaintTypeTerrainColor,
+		PaintTypeEmitterInstance,
+	};
+	PaintType m_PaintType;
+	enum PaintShape
+	{
+		PaintShapeCircle,
+		PaintShapeSquare,
+	};
+	PaintShape m_PaintShape;
 	enum PaintMode
 	{
-		PaintNone,
-		PaintTerrainHeightField,
-		PaintTerrainColor,
-		PaintEmitterInstance,
+		PaintModeOverwrite,
 	};
 	PaintMode m_PaintMode;
-	float m_PaintTerrainHeightFieldRadius;
-	float m_PaintTerrainHeightFieldLength;
+	float m_PaintRadius;
+	float m_PaintStrength;
+	my::Spline m_PaintSpline;
+	D3DXCOLOR m_PaintColor;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;
 	my::EventSignal m_EventSelectionPlaying;

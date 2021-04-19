@@ -974,13 +974,13 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
-					if (pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
+					if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 					{
 					}
-					else if (pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
+					else if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
 					{
 					}
-					else if (pFrame->m_PaintMode == CMainFrame::PaintEmitterInstance)
+					else if (pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 					{
 					}
 					else
@@ -1088,7 +1088,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelComponent(Component::ComponentTypeTerrain));
-	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
+	if (terrain && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
 		OnPaintTerrainHeightField(ray, *m_PaintTerrainCaptured);
@@ -1097,7 +1097,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (terrain && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
+	if (terrain && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
 		OnPaintTerrainColor(ray, *m_PaintTerrainCaptured);
@@ -1107,7 +1107,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 
 	StaticEmitterComponent* emit = dynamic_cast<StaticEmitterComponent*>(pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter));
-	if (emit && pFrame->m_PaintMode == CMainFrame::PaintEmitterInstance)
+	if (emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		m_PaintEmitterCaptured = emit;
 		OnPaintEmitterInstance(ray, emit);
@@ -1278,7 +1278,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (m_PaintTerrainCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainHeightField)
+	if (m_PaintTerrainCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		OnPaintTerrainHeightField(ray, *m_PaintTerrainCaptured);
@@ -1287,7 +1287,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (m_PaintTerrainCaptured && pFrame->m_PaintMode == CMainFrame::PaintTerrainColor)
+	if (m_PaintTerrainCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		OnPaintTerrainColor(ray, *m_PaintTerrainCaptured);
@@ -1296,7 +1296,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (m_PaintEmitterCaptured && pFrame->m_PaintMode == CMainFrame::PaintEmitterInstance)
+	if (m_PaintEmitterCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		OnPaintEmitterInstance(ray, m_PaintEmitterCaptured);
@@ -1410,13 +1410,13 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch (nChar)
 	{
 	case 'W':
-		if (pFrame->m_PaintMode != CMainFrame::PaintNone || pFrame->m_Pivot.m_Mode != Pivot::PivotModeMove)
+		if (pFrame->m_PaintType != CMainFrame::PaintTypeNone || pFrame->m_Pivot.m_Mode != Pivot::PivotModeMove)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_MOVE, 0, NULL, NULL);
 		}
 		return;
 	case 'E':
-		if (pFrame->m_PaintMode != CMainFrame::PaintNone || pFrame->m_Pivot.m_Mode != Pivot::PivotModeRot)
+		if (pFrame->m_PaintType != CMainFrame::PaintTypeNone || pFrame->m_Pivot.m_Mode != Pivot::PivotModeRot)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_ROTATE, 0, NULL, NULL);
 		}
@@ -1612,13 +1612,40 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-		for (int i = my::Max(0, (int)(pt.z - pFrame->m_PaintTerrainHeightFieldRadius));
-			i < my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.z + pFrame->m_PaintTerrainHeightFieldRadius)); i++)
+		for (int i = my::Max(0, (int)roundf(pt.z - pFrame->m_PaintRadius));
+			i <= my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.z + pFrame->m_PaintRadius)); i++)
 		{
-			for (int j = my::Max(0, (int)(pt.x - pFrame->m_PaintTerrainHeightFieldRadius));
-				j < my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.x + pFrame->m_PaintTerrainHeightFieldRadius)); j++)
+			for (int j = my::Max(0, (int)roundf(pt.x - pFrame->m_PaintRadius));
+				j <= my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.x + pFrame->m_PaintRadius)); j++)
 			{
-				tstr.SetPos(my::Vector3(j, pFrame->m_PaintTerrainHeightFieldLength, i), i, j, true);
+				if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
+				{
+					my::Vector2 diff(j - pt.x, i - pt.z);
+					float alpha = diff.magnitude() / pFrame->m_PaintRadius;
+					if (alpha <= 1)
+					{
+						float height = pFrame->m_PaintSpline.Interpolate(1 - alpha, 1) * pFrame->m_PaintStrength;
+						tstr.SetPos(my::Vector3(j, height, i), i, j, true);
+					}
+				}
+				else if (pFrame->m_PaintShape == CMainFrame::PaintShapeSquare)
+				{
+					my::Vector2 diff(j - pt.x, i - pt.z);
+					float alpha;
+					if (diff.x > diff.y)
+					{
+						alpha = diff.x / pFrame->m_PaintRadius;
+					}
+					else
+					{
+						alpha = diff.y / pFrame->m_PaintRadius;
+					}
+					if (alpha <= 1)
+					{
+						float height = pFrame->m_PaintSpline.Interpolate(1 - alpha, 1) * pFrame->m_PaintStrength;
+						tstr.SetPos(my::Vector3(j, height, i), i, j, true);
+					}
+				}
 			}
 		}
 	}
@@ -1635,13 +1662,40 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-		for (int i = my::Max(0, (int)(pt.z - pFrame->m_PaintTerrainHeightFieldRadius));
-			i < my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.z + pFrame->m_PaintTerrainHeightFieldRadius)); i++)
+		for (int i = my::Max(0, (int)roundf(pt.z - pFrame->m_PaintRadius));
+			i <= my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.z + pFrame->m_PaintRadius)); i++)
 		{
-			for (int j = my::Max(0, (int)(pt.x - pFrame->m_PaintTerrainHeightFieldRadius));
-				j < my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)(pt.x + pFrame->m_PaintTerrainHeightFieldRadius)); j++)
+			for (int j = my::Max(0, (int)roundf(pt.x - pFrame->m_PaintRadius));
+				j <= my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.x + pFrame->m_PaintRadius)); j++)
 			{
-				tstr.SetColor(D3DCOLOR_ARGB(255,255,0,0), i, j);
+				if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
+				{
+					my::Vector2 diff(j - pt.x, i - pt.z);
+					float alpha = diff.magnitude() / pFrame->m_PaintRadius;
+					if (alpha <= 1)
+					{
+						D3DXCOLOR color = pFrame->m_PaintColor * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
+						tstr.SetColor(color, i, j);
+					}
+				}
+				else if (pFrame->m_PaintShape == CMainFrame::PaintShapeSquare)
+				{
+					my::Vector2 diff(j - pt.x, i - pt.z);
+					float alpha;
+					if (diff.x > diff.y)
+					{
+						alpha = diff.x / pFrame->m_PaintRadius;
+					}
+					else
+					{
+						alpha = diff.y / pFrame->m_PaintRadius;
+					}
+					if (alpha <= 1)
+					{
+						D3DXCOLOR color = pFrame->m_PaintColor * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
+						tstr.SetColor(color, i, j);
+					}
+				}
 			}
 		}
 	}
@@ -1683,8 +1737,8 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 						for (int i = 0; i < 1; i++)
 						{
 							my::Ray spawn_ray(my::Vector3(0, 1000, 0), my::Vector3(0, -1, 0));
-							spawn_ray.p.x = pt.x;// my::Random(pt.x - pFrame->m_PaintTerrainHeightFieldRadius, pt.x + pFrame->m_PaintTerrainHeightFieldRadius);
-							spawn_ray.p.z = pt.z;// my::Random(pt.z - pFrame->m_PaintTerrainHeightFieldRadius, pt.z + pFrame->m_PaintTerrainHeightFieldRadius);
+							spawn_ray.p.x = pt.x;// my::Random(pt.x - pFrame->m_PaintRadius, pt.x + pFrame->m_PaintRadius);
+							spawn_ray.p.z = pt.z;// my::Random(pt.z - pFrame->m_PaintRadius, pt.z + pFrame->m_PaintRadius);
 							my::RayResult spawn_res = tstr.RayTest(spawn_ray);
 							if (spawn_res.first)
 							{

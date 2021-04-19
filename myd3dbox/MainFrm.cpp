@@ -248,12 +248,17 @@ CMainFrame::CMainFrame()
 	, m_bEatAltUp(FALSE)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
-	, m_PaintMode(PaintNone)
-	, m_PaintTerrainHeightFieldRadius(5.0f)
-	, m_PaintTerrainHeightFieldLength(5.0f)
+	, m_PaintType(PaintTypeNone)
+	, m_PaintShape(PaintShapeCircle)
+	, m_PaintMode(PaintModeOverwrite)
+	, m_PaintRadius(5.0f)
+	, m_PaintStrength(5.0f)
+	, m_PaintColor(1.0f, 1.0f, 1.0f, 1.0f)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
+	m_PaintSpline.AddNode(0, 0, 1, 1);
+	m_PaintSpline.AddNode(1, 1, 1, 1);
 }
 
 CMainFrame::~CMainFrame()
@@ -642,9 +647,9 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 
 void CMainFrame::OnSelChanged()
 {
-	if (m_PaintMode != PaintNone)
+	if (m_PaintType != PaintTypeNone)
 	{
-		m_PaintMode = PaintNone;
+		m_PaintType = PaintTypeNone;
 	}
 
 	UpdateSelBox();
@@ -1424,7 +1429,7 @@ void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
-	m_PaintMode = PaintNone;
+	m_PaintType = PaintTypeNone;
 	m_Pivot.m_Mode = Pivot::PivotModeMove;
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -1433,13 +1438,13 @@ void CMainFrame::OnPivotMove()
 void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_PaintMode == PaintNone && m_Pivot.m_Mode == Pivot::PivotModeMove);
+	pCmdUI->SetCheck(m_PaintType == PaintTypeNone && m_Pivot.m_Mode == Pivot::PivotModeMove);
 }
 
 void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
-	m_PaintMode = PaintNone;
+	m_PaintType = PaintTypeNone;
 	m_Pivot.m_Mode = Pivot::PivotModeRot;
 	my::EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -1448,7 +1453,7 @@ void CMainFrame::OnPivotRotate()
 void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_PaintMode == PaintNone && m_Pivot.m_Mode == Pivot::PivotModeRot);
+	pCmdUI->SetCheck(m_PaintType == PaintTypeNone && m_Pivot.m_Mode == Pivot::PivotModeRot);
 }
 
 void CMainFrame::OnViewClearshader()
@@ -1472,13 +1477,13 @@ void CMainFrame::OnToolsBuildnavigation()
 void CMainFrame::OnPaintTerrainHeightField()
 {
 	// TODO: Add your command handler code here
-	if (m_PaintMode == PaintTerrainHeightField)
+	if (m_PaintType == PaintTypeTerrainHeightField)
 	{
-		m_PaintMode = PaintNone;
+		m_PaintType = PaintTypeNone;
 	}
 	else
 	{
-		m_PaintMode = PaintTerrainHeightField;
+		m_PaintType = PaintTypeTerrainHeightField;
 	}
 }
 
@@ -1489,7 +1494,7 @@ void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 	if (terrain)
 	{
 		pCmdUI->Enable(TRUE);
-		pCmdUI->SetCheck(m_PaintMode == PaintTerrainHeightField);
+		pCmdUI->SetCheck(m_PaintType == PaintTypeTerrainHeightField);
 		return;
 	}
 
@@ -1500,13 +1505,13 @@ void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 void CMainFrame::OnPaintTerrainColor()
 {
 	// TODO: Add your command handler code here
-	if (m_PaintMode == PaintTerrainColor)
+	if (m_PaintType == PaintTypeTerrainColor)
 	{
-		m_PaintMode = PaintNone;
+		m_PaintType = PaintTypeNone;
 	}
 	else
 	{
-		m_PaintMode = PaintTerrainColor;
+		m_PaintType = PaintTypeTerrainColor;
 	}
 }
 
@@ -1518,7 +1523,7 @@ void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 	if (terrain)
 	{
 		pCmdUI->Enable(TRUE);
-		pCmdUI->SetCheck(m_PaintMode == PaintTerrainColor);
+		pCmdUI->SetCheck(m_PaintType == PaintTypeTerrainColor);
 		return;
 	}
 
@@ -1529,13 +1534,13 @@ void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 void CMainFrame::OnPaintEmitterinstance()
 {
 	// TODO: Add your command handler code here
-	if (m_PaintMode == PaintEmitterInstance)
+	if (m_PaintType == PaintTypeEmitterInstance)
 	{
-		m_PaintMode = PaintNone;
+		m_PaintType = PaintTypeNone;
 	}
 	else
 	{
-		m_PaintMode = PaintEmitterInstance;
+		m_PaintType = PaintTypeEmitterInstance;
 	}
 }
 
@@ -1547,7 +1552,7 @@ void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 	if (emit)
 	{
 		pCmdUI->Enable(TRUE);
-		pCmdUI->SetCheck(m_PaintMode == PaintEmitterInstance);
+		pCmdUI->SetCheck(m_PaintType == PaintTypeEmitterInstance);
 		return;
 	}
 
