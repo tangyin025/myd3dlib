@@ -2122,8 +2122,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		CMFCPropertyGridProperty * pComponent = pProp->GetParent();
 		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		terrain->m_HeightScale = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
-		CString strPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
+		terrain->m_HeightScale = pComponent->GetSubItem(PropId + 4)->GetValue().fltVal;
+		CString strPath = pComponent->GetSubItem(PropId + 5)->GetValue().bstrVal;
 		if (!strPath.IsEmpty())
 		{
 			my::Texture2DPtr res(new my::Texture2D());

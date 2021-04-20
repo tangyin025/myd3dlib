@@ -752,16 +752,15 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 		return;
 	}
 
-	std::vector<physx::PxHeightFieldSample> Samples((m_RowChunks * m_ChunkSize + 1) * (m_ColChunks * m_ChunkSize + 1));
+	boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
 	TerrainStream tstr(this, false);
 	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 	{
 		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
 		{
-			int sample_i = j * (m_RowChunks * m_ChunkSize + 1) + i;
-			Samples[sample_i].height = (short)Clamp<int>((int)(tstr.GetPos(i, j).y / m_HeightScale + 0.5f), SHRT_MIN, SHRT_MAX);
-			Samples[sample_i].materialIndex0 = physx::PxBitAndByte(0, false);
-			Samples[sample_i].materialIndex1 = physx::PxBitAndByte(0, false);
+			Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / m_HeightScale), SHRT_MIN, SHRT_MAX);
+			Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
+			Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
 		}
 	}
 	tstr.Release();
@@ -770,8 +769,8 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	hfDesc.nbRows             = m_ColChunks * m_ChunkSize + 1;
 	hfDesc.nbColumns          = m_RowChunks * m_ChunkSize + 1;
 	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
-	hfDesc.samples.data       = &Samples[0];
-	hfDesc.samples.stride     = sizeof(Samples[0]);
+	hfDesc.samples.data       = Samples.data();
+	hfDesc.samples.stride     = sizeof(Samples[0][0]);
 	m_PxHeightField.reset(PhysxSdk::getSingleton().m_Cooking->createHeightField(
 		hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
 
