@@ -195,6 +195,8 @@ public:
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,
 		PropertyTerrainChunkMaterial,
+		PropertyPaint,
+		PropertyPaintShape,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -237,6 +239,9 @@ public:
 	static LPCTSTR GetComponentTypeName(DWORD type);
 	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
 	static Property GetMaterialParameterTypeProp(DWORD type);
+
+	void UpdatePropertiesPaintTool(void);
+	void CreatePropertiesPaintTool(void);
 
 // Implementation
 public:

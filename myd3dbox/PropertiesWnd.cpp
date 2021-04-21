@@ -108,6 +108,24 @@ static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeAngleCamera + 1] =
 	_T("FaceTypeAngleCamera"),
 };
 
+static LPCTSTR g_PaintType[CMainFrame::PaintTypeEmitterInstance + 1] =
+{
+	_T("PaintNone"),
+	_T("PaintTerrainHeightField"),
+	_T("PaintTerrainColor"),
+	_T("PaintEmitterInstance"),
+};
+
+static LPCTSTR g_PaintShape[CMainFrame::PaintShapeCircle + 1] =
+{
+	_T("Circle"),
+};
+
+static LPCTSTR g_PaintMode[CMainFrame::PaintModeGreater + 1] =
+{
+	_T("Greater"),
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
 
@@ -170,19 +188,11 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 	{
 		if (!m_IsOnPropertyChanged)
 		{
-			if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
+			if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField
+				|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
+				|| pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 			{
-				m_wndPropList.RemoveAll();
-				m_wndPropList.AdjustLayout();
-			}
-			else if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
-			{
-				m_wndPropList.RemoveAll();
-				m_wndPropList.AdjustLayout();
-			}
-			else if (pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
-			{
-				m_wndPropList.RemoveAll();
+				UpdatePropertiesPaintTool();
 				m_wndPropList.AdjustLayout();
 			}
 			else
@@ -1236,6 +1246,41 @@ CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(DWORD type
 	}
 	ASSERT(FALSE);
 	return PropertyUnknown;
+}
+
+void CPropertiesWnd::UpdatePropertiesPaintTool(void)
+{
+	CMFCPropertyGridProperty* pPaint = NULL;
+	if (m_wndPropList.GetPropertyCount() >= 1)
+	{
+		pPaint = m_wndPropList.GetProperty(0);
+	}
+	if (!pPaint || pPaint->GetData() != PropertyPaint)
+	{
+		m_wndPropList.RemoveAll();
+		CreatePropertiesPaintTool();
+		return;
+	}
+
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pPaint->SetName(g_PaintType[pFrame->m_PaintType]);
+	pPaint->GetSubItem(0)->SetValue((_variant_t)g_PaintShape[pFrame->m_PaintShape]);
+}
+
+void CPropertiesWnd::CreatePropertiesPaintTool(void)
+{
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CMFCPropertyGridProperty* pPaint = new CSimpleProp(g_PaintType[pFrame->m_PaintType], PropertyPaint, FALSE);
+	m_wndPropList.AddProperty(pPaint, FALSE, FALSE);
+
+	CMFCPropertyGridProperty* pProp = new CComboProp(_T("PaintShape"), g_PaintShape[pFrame->m_PaintShape], NULL, PropertyPaintShape);
+	for (unsigned int i = 0; i < _countof(g_PaintShape); i++)
+	{
+		pProp->AddOption(g_PaintShape[i], TRUE);
+	}
+	pPaint->AddSubItem(pProp);
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
