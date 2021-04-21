@@ -1625,6 +1625,12 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 					if (alpha <= 1)
 					{
 						float height = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
+						switch (pFrame->m_PaintMode)
+						{
+						case CMainFrame::PaintModeGreater:
+							height = my::Max(height, tstr.GetPos(i, j).y);
+							break;
+						}
 						tstr.SetPos(my::Vector3(j, height, i), i, j, true);
 					}
 				}
@@ -1657,6 +1663,15 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 					if (alpha <= 1)
 					{
 						D3DXCOLOR color = pFrame->m_PaintColor * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
+						switch (pFrame->m_PaintMode)
+						{
+						case CMainFrame::PaintModeGreater:
+							color.r = my::Max(color.r, D3DXCOLOR(tstr.GetColor(i, j)).r);
+							color.g = my::Max(color.g, D3DXCOLOR(tstr.GetColor(i, j)).g);
+							color.b = my::Max(color.b, D3DXCOLOR(tstr.GetColor(i, j)).b);
+							color.a = my::Max(color.a, D3DXCOLOR(tstr.GetColor(i, j)).a);
+							break;
+						}
 						tstr.SetColor(color, i, j);
 					}
 				}

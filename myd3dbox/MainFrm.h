@@ -55,9 +55,7 @@ public:
 	PaintShape m_PaintShape;
 	enum PaintMode
 	{
-		PaintModeOverwrite,
-		PaintModeAdditive,
-		PaintModeSubtractive,
+		PaintModeGreater,
 	};
 	PaintMode m_PaintMode;
 	float m_PaintRadius;
