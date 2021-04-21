@@ -1486,6 +1486,8 @@ void CMainFrame::OnPaintTerrainHeightField()
 	{
 		m_PaintType = PaintTypeTerrainHeightField;
 	}
+	my::EventArg arg;
+	m_EventPivotModeChanged(&arg);
 }
 
 void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
@@ -1514,6 +1516,8 @@ void CMainFrame::OnPaintTerrainColor()
 	{
 		m_PaintType = PaintTypeTerrainColor;
 	}
+	my::EventArg arg;
+	m_EventPivotModeChanged(&arg);
 }
 
 
@@ -1543,6 +1547,8 @@ void CMainFrame::OnPaintEmitterinstance()
 	{
 		m_PaintType = PaintTypeEmitterInstance;
 	}
+	my::EventArg arg;
+	m_EventPivotModeChanged(&arg);
 }
 
 

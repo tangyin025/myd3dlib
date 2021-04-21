@@ -163,20 +163,33 @@ void CPropertiesWnd::AdjustLayout()
 
 void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 {
-	OnCmpAttriChanged(arg);
-}
-
-void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
-{
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CMainFrame::SelActorList::iterator actor_iter = pFrame->m_selactors.begin();
 	if (actor_iter != pFrame->m_selactors.end())
 	{
 		if (!m_IsOnPropertyChanged)
 		{
-			UpdatePropertiesActor(*actor_iter);
-			m_wndPropList.AdjustLayout();
+			if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
+			{
+				m_wndPropList.RemoveAll();
+				m_wndPropList.AdjustLayout();
+			}
+			else if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
+			{
+				m_wndPropList.RemoveAll();
+				m_wndPropList.AdjustLayout();
+			}
+			else if (pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
+			{
+				m_wndPropList.RemoveAll();
+				m_wndPropList.AdjustLayout();
+			}
+			else
+			{
+				UpdatePropertiesActor(*actor_iter);
+				m_wndPropList.AdjustLayout();
+			}
 		}
 	}
 	else
@@ -1269,7 +1282,8 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//// All commands will be routed via this control , not via the parent frame:
 	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
 
 	AdjustLayout();
 	return 0;
@@ -1281,7 +1295,8 @@ void CPropertiesWnd::OnDestroy()
 
 	//// TODO: Add your message handler code here
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
 }
 
 void CPropertiesWnd::OnSize(UINT nType, int cx, int cy)

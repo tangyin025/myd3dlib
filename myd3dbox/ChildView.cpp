@@ -1233,8 +1233,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		m_PaintTerrainCaptured.reset();
 		ReleaseCapture();
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
+		Invalidate();
 		return;
 	}
 
@@ -1245,8 +1244,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		pFrame->UpdateSelBox();
 		m_PaintEmitterCaptured = NULL;
 		ReleaseCapture();
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
+		Invalidate();
 		return;
 	}
 
