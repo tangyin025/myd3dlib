@@ -379,7 +379,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return true;
 			}
-			my::Matrix4 p2w;
+			my::Matrix4 p2local;
 			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
 			void * pvb = theApp.m_ParticleVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, D3DLOCK_READONLY);
 			void * pib = theApp.m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount, D3DLOCK_READONLY);
@@ -389,44 +389,44 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				switch (emitter->m_EmitterFaceType)
 				{
 				case EmitterComponent::FaceTypeX:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeY:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeZ:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeCamera:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeAngle:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeAngleCamera:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position);
 					break;
 				}
-				my::Frustum local_ftm = frustum.transform(p2w.transpose());
-				DWORD ret = my::Mesh::FrustumTest(local_ftm,
+				my::Frustum particle_ftm = local_ftm.transform(p2local.transpose());
+				DWORD ret = my::Mesh::FrustumTest(particle_ftm,
 					pvb, RenderPipeline::m_ParticleNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticlePrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
@@ -593,7 +593,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			{
 				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.getColumn<2>().xyz));
 			}
-			my::Matrix4 p2w;
+			my::Matrix4 p2local;
 			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
 			void * pvb = theApp.m_ParticleVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, D3DLOCK_READONLY);
 			void * pib = theApp.m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount, D3DLOCK_READONLY);
@@ -603,44 +603,44 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				switch (emitter->m_EmitterFaceType)
 				{
 				case EmitterComponent::FaceTypeX:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeY:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeZ:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeCamera:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeAngle:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
 						part_iter->m_Position);
 					break;
 				case EmitterComponent::FaceTypeAngleCamera:
-					p2w = my::Matrix4::Compose(
+					p2local = my::Matrix4::Compose(
 						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
 						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
 						part_iter->m_Position);
 					break;
 				}
-				my::Ray local_ray = ray.transform(p2w.inverse());
-				my::RayResult ret = my::Mesh::RayTest(local_ray,
+				my::Ray particle_ray = local_ray.transform(p2local.inverse());
+				my::RayResult ret = my::Mesh::RayTest(particle_ray,
 					pvb, RenderPipeline::m_ParticleNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticlePrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret.first)
 				{

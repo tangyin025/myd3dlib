@@ -163,18 +163,7 @@ void CPropertiesWnd::AdjustLayout()
 
 void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 {
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (!pFrame->m_selactors.empty())
-	{
-		UpdatePropertiesActor(*pFrame->m_selactors.begin());
-		m_wndPropList.AdjustLayout();
-	}
-	else
-	{
-		m_wndPropList.RemoveAll();
-		m_wndPropList.AdjustLayout();
-	}
+	OnCmpAttriChanged(arg);
 }
 
 void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
@@ -182,9 +171,17 @@ void CPropertiesWnd::OnCmpAttriChanged(my::EventArg * arg)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CMainFrame::SelActorList::iterator actor_iter = pFrame->m_selactors.begin();
-	if (actor_iter != pFrame->m_selactors.end() && !m_IsOnPropertyChanged)
+	if (actor_iter != pFrame->m_selactors.end())
 	{
-		UpdatePropertiesActor(*actor_iter);
+		if (!m_IsOnPropertyChanged)
+		{
+			UpdatePropertiesActor(*actor_iter);
+			m_wndPropList.AdjustLayout();
+		}
+	}
+	else
+	{
+		m_wndPropList.RemoveAll();
 		m_wndPropList.AdjustLayout();
 	}
 }
