@@ -1419,6 +1419,24 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			pFrame->OnCmdMsg(ID_PIVOT_ROTATE, 0, NULL, NULL);
 		}
 		return;
+	case 'T':
+		if (pFrame->GetSelComponent(Component::ComponentTypeTerrain) && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainHeightField)
+		{
+			pFrame->OnCmdMsg(ID_PAINT_TERRAINHEIGHTFIELD, 0, NULL, NULL);
+		}
+		return;
+	case 'Y':
+		if (pFrame->GetSelComponent(Component::ComponentTypeTerrain) && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainColor)
+		{
+			pFrame->OnCmdMsg(ID_PAINT_TERRAINCOLOR, 0, NULL, NULL);
+		}
+		return;
+	case 'U':
+		if (pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter) && pFrame->m_PaintType != CMainFrame::PaintTypeEmitterInstance)
+		{
+			pFrame->OnCmdMsg(ID_PAINT_EMITTERINSTANCE, 0, NULL, NULL);
+		}
+		return;
 	case 'F':
 		{
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
