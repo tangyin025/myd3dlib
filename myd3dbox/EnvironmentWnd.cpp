@@ -226,7 +226,7 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
 	{
 		pSkyBox->GetSubItem(SkyBoxPropertyTextureFront + i)->SetValue(
-			(_variant_t)ms2ts(theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath.c_str()).c_str());
+			(_variant_t)ms2ts(theApp.GetFullPath(theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath.c_str()).c_str()).c_str());
 	}
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
