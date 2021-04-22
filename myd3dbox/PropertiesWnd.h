@@ -197,6 +197,16 @@ public:
 		PropertyTerrainChunkMaterial,
 		PropertyPaint,
 		PropertyPaintShape,
+		PropertyPaintMode,
+		PropertyPaintRadius,
+		PropertyPaintHeight,
+		PropertyPaintColor,
+		PropertyPaintColorR,
+		PropertyPaintColorG,
+		PropertyPaintColorB,
+		PropertyPaintColorA,
+		PropertyPaintSpline,
+		PropertyPaintDensity,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

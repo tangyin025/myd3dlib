@@ -554,7 +554,6 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
 {
-	_ASSERT(pSpline->GetData() >= PropertySphericalEmitterSpawnInclination && pSpline->GetData() <= PropertySphericalEmitterSpawnAngle);
 	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
 	pSpline->GetSubItem(0)->SetValue((_variant_t)spline->size());
 	unsigned int i = 0;
@@ -1081,7 +1080,6 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline)
 {
-	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
 	CMFCPropertyGridProperty * pSpline = new CSimpleProp(lpszName, PropertyId, TRUE);
 	pParentProp->AddSubItem(pSpline);
 	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
@@ -1266,6 +1264,15 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(void)
 	ASSERT_VALID(pFrame);
 	pPaint->SetName(g_PaintType[pFrame->m_PaintType]);
 	pPaint->GetSubItem(0)->SetValue((_variant_t)g_PaintShape[pFrame->m_PaintShape]);
+	pPaint->GetSubItem(1)->SetValue((_variant_t)g_PaintMode[pFrame->m_PaintMode]);
+	pPaint->GetSubItem(2)->SetValue((_variant_t)pFrame->m_PaintRadius);
+	pPaint->GetSubItem(3)->SetValue((_variant_t)pFrame->m_PaintHeight);
+	pPaint->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)pFrame->m_PaintColor.r);
+	pPaint->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)pFrame->m_PaintColor.g);
+	pPaint->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)pFrame->m_PaintColor.b);
+	pPaint->GetSubItem(4)->GetSubItem(3)->SetValue((_variant_t)pFrame->m_PaintColor.a);
+	UpdatePropertiesSpline(pPaint->GetSubItem(5), &pFrame->m_PaintSpline);
+	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintDensity);
 }
 
 void CPropertiesWnd::CreatePropertiesPaintTool(void)
@@ -1280,6 +1287,33 @@ void CPropertiesWnd::CreatePropertiesPaintTool(void)
 	{
 		pProp->AddOption(g_PaintShape[i], TRUE);
 	}
+	pPaint->AddSubItem(pProp);
+
+	pProp = new CComboProp(_T("PaintMode"), g_PaintMode[pFrame->m_PaintMode], NULL, PropertyPaintMode);
+	for (unsigned int i = 0; i < _countof(g_PaintMode); i++)
+	{
+		pPaint->AddOption(g_PaintMode[i], TRUE);
+	}
+	pPaint->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("PaintRadius"), pFrame->m_PaintRadius, NULL, PropertyPaintRadius);
+	pPaint->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("PaintHeight"), pFrame->m_PaintHeight, NULL, PropertyPaintHeight);
+	pPaint->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pPaintColor = new CSimpleProp(_T("PaintColor"), PropertyPaintColor, FALSE);
+	pPaint->AddSubItem(pPaintColor);
+	pProp = new CSimpleProp(_T("R"), (_variant_t)pFrame->m_PaintColor.r, NULL, PropertyPaintColorR);
+	pPaintColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("G"), (_variant_t)pFrame->m_PaintColor.g, NULL, PropertyPaintColorG);
+	pPaintColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("B"), (_variant_t)pFrame->m_PaintColor.b, NULL, PropertyPaintColorB);
+	pPaintColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("A"), (_variant_t)pFrame->m_PaintColor.a, NULL, PropertyPaintColorA);
+	pPaintColor->AddSubItem(pProp);
+
+	CreatePropertiesSpline(pPaint, _T("PaintSpline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
+	pProp = new CSimpleProp(_T("PaintDensity"), (_variant_t)pFrame->m_PaintDensity, NULL, PropertyPaintDensity);
 	pPaint->AddSubItem(pProp);
 }
 
@@ -2145,7 +2179,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pSpline = pProp->GetParent()->GetParent();
 			break;
 		}
-		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pSpline->GetParent()->GetValue().ulVal;
 		my::Spline * spline = (my::Spline *)pSpline->GetValue().ulVal;
 		switch (PropertyId)
 		{
@@ -2240,6 +2273,72 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		UpdatePropertiesTerrain(pComponent, terrain);
 		m_wndPropList.AdjustLayout();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintShape:
+	{
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_PaintShape));
+		pFrame->m_PaintShape = (CMainFrame::PaintShape)i;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintMode:
+	{
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_PaintMode));
+		pFrame->m_PaintMode = (CMainFrame::PaintMode)i;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintRadius:
+	{
+		pFrame->m_PaintRadius = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintHeight:
+	{
+		pFrame->m_PaintHeight = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintColor:
+	case PropertyPaintColorR:
+	case PropertyPaintColorG:
+	case PropertyPaintColorB:
+	case PropertyPaintColorA:
+	{
+		CMFCPropertyGridProperty* pPaintColor = NULL;
+		switch (PropertyId)
+		{
+		case PropertyPaintColor:
+			pPaintColor = pProp;
+			break;
+		case PropertyPaintColorR:
+		case PropertyPaintColorG:
+		case PropertyPaintColorB:
+		case PropertyPaintColorA:
+			pPaintColor = pProp->GetParent();
+			break;
+		}
+		pFrame->m_PaintColor.r = pPaintColor->GetSubItem(0)->GetValue().fltVal;
+		pFrame->m_PaintColor.g = pPaintColor->GetSubItem(1)->GetValue().fltVal;
+		pFrame->m_PaintColor.b = pPaintColor->GetSubItem(2)->GetValue().fltVal;
+		pFrame->m_PaintColor.a = pPaintColor->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyPaintDensity:
+	{
+		pFrame->m_PaintDensity = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
