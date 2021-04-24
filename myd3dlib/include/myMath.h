@@ -69,7 +69,7 @@ namespace my
 	}
 
 	template <typename T>
-	T Round(T v, T min, T max);
+	T Wrap(T v, T min, T max);
 
 	template <typename T>
 	T Random(T range);

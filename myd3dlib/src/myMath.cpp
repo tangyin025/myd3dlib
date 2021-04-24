@@ -3,13 +3,13 @@
 using namespace my;
 
 template <>
-int my::Round<int>(int v, int min, int max)
+int my::Wrap<int>(int v, int min, int max)
 {
 	return v >= max ? min + (v - max) % (max - min) : (v < min ? max - (min - v) % (max - min) : v);
 }
 
 template <>
-float my::Round<float>(float v, float min, float max)
+float my::Wrap<float>(float v, float min, float max)
 {
 	return v >= max ? min + fmodf(v - max, max - min) : (v < min ? max - fmodf(min - v, max - min) : v);
 }

@@ -81,7 +81,7 @@ void LuaContext::Init(void)
 
 		, def("Clamp", (float(*)(float, float, float))&my::Clamp<float>)
 
-		, def("Round", (float(*)(float, float, float))&my::Round<float>)
+		, def("Wrap", (float(*)(float, float, float))&my::Wrap<float>)
 
 		, class_<my::Vector2>("Vector2")
 			.def(constructor<float, float>())

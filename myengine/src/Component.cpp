@@ -1428,7 +1428,7 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 
 	for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
 	{
-		const float SpawnTimeCycle = Round<float>(m_SpawnTime, 0, m_SpawnCycle);
+		const float SpawnTimeCycle = Wrap<float>(m_SpawnTime, 0, m_SpawnCycle);
 
 		Spawn(
 			Vector3(
