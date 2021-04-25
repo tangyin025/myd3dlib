@@ -683,12 +683,6 @@ void Game::OnFrameTick(
 					actor->RequestResource();
 
 					actor->EnterPhysxScene(m_game);
-
-					if (actor->m_EventEnterView)
-					{
-						ActorEventArg arg(actor);
-						actor->m_EventEnterView(&arg);
-					}
 				}
 			}
 		}
@@ -716,12 +710,6 @@ void Game::OnFrameTick(
 				// 2) Actor::Update will invalid main camera's properties
 				actor->Update(fElapsedTime);
 
-				if (actor->m_EventUpdate)
-				{
-					ActorEventArg arg(actor);
-					actor->m_EventUpdate(&arg);
-				}
-
 				actor->UpdateAttaches(fElapsedTime);
 			}
 
@@ -733,12 +721,6 @@ void Game::OnFrameTick(
 
 			_ASSERT(actor->IsRequested());
 			{
-				if (actor->m_EventLeaveView)
-				{
-					ActorEventArg arg(actor);
-					actor->m_EventLeaveView(&arg);
-				}
-
 				actor->LeavePhysxScene(this);
 
 				actor->ReleaseResource();
@@ -1025,12 +1007,6 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		if (actor->m_EventLeaveView)
-		{
-			ActorEventArg arg(actor);
-			actor->m_EventLeaveView(&arg);
-		}
-
 		actor->LeavePhysxScene(this);
 
 		actor->ReleaseResource();

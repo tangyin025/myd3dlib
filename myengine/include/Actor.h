@@ -116,17 +116,11 @@ public:
 
 	int m_ActionTrackPoseInstRef;
 
-	my::EventFunction m_EventEnterView;
-
-	my::EventFunction m_EventLeaveView;
-
 	my::EventFunction m_EventEnterTrigger;
 
 	my::EventFunction m_EventLeaveTrigger;
 
 	my::EventFunction m_EventShapeHit;
-
-	my::EventFunction m_EventUpdate;
 
 protected:
 	Actor(void)

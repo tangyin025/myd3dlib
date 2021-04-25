@@ -48,6 +48,16 @@ cmp2.Material=lambert2
 actor2:AddComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
 cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,1)
+class 'Actor2Behavior'(Component)
+function Actor2Behavior:__init(name)
+	Component.__init(self,name)
+end
+function Actor2Behavior:RequestResource()
+	Component.RequestResource(self)
+	self.Actor:PlayAction(SAction.act_sound)
+end
+actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
+actor2:AddComponent(actor2_behavior)
 
 -- 在角色手部绑定物体
 actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
@@ -87,10 +97,6 @@ game:LoadScene("scene01.xml")
 
 SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
-SPlayer.player.EventEnterView=function(arg)
-	arg.self:PlayAction(SAction.act_tuowei)
-	game.Camera.Euler=Vector3(0,0,0)
-end
 
 actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 for cmp in actor3.Cmps do
@@ -110,9 +116,6 @@ SPlayer.player:Attach(actor4, 29)
 
 actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
 game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
-actor2.EventEnterView=function(arg)
-	arg.self:PlayAction(SAction.act_sound)
-end
 
 actor5:UpdateWorld()
 game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
@@ -120,9 +123,16 @@ game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
 SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
 local actor6 = game:GetNamedObject("editor_actor1")
-actor6.EventEnterView=function(arg)
-	arg.self:PlayAction(SAction.act_moving)
+class 'Actor6Behavior'(Component)
+function Actor6Behavior:__init(name)
+	Component.__init(self,name)
 end
+function Actor6Behavior:RequestResource()
+	Component.RequestResource(self)
+	self.Actor:PlayAction(SAction.act_moving)
+end
+actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
+actor6:AddComponent(actor6_behavior)
 
 -- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 -- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)

@@ -76,17 +76,27 @@ anim.SkeletonEventReady=function(arg)
 end
 player.Animation=anim
 
-local velocity=Vector3(0,0,0)
-local LookDist=3
-player.EventUpdate=function(arg)
-	velocity.y=velocity.y-9.81*game.ElapsedTime
+-- 角色行为
+class 'PlayerBehavior'(Component)
+function PlayerBehavior:__init(name)
+	Component.__init(self,name)
+	self.velocity=Vector3(0,0,0)
+	self.LookDist=3
+end
+function PlayerBehavior:RequestResource()
+	Component.RequestResource(self)
+	self.Actor:PlayAction(SAction.act_tuowei)
+	game.Camera.Euler=Vector3(0,0,0)
+end
+function PlayerBehavior:Update(elapsedTime)
+	self.velocity.y=self.velocity.y-9.81*elapsedTime
 	local speed=2
 	local direction=Vector3(0,0,0)
 	if not Control.GetFocusControl() then
 		-- 键盘按下事件
 		if game.keyboard:IsKeyPress(57) then
-			velocity.y=5.0
-			arg.self:PlayAction(SAction.act_jump)
+			self.velocity.y=5.0
+			self.Actor:PlayAction(SAction.act_jump)
 		end
 		
 		if game.keyboard:IsKeyDown(17) then
@@ -116,37 +126,39 @@ player.EventUpdate=function(arg)
 		-- 鼠标移动事件
 		game.Camera.Euler.y=game.Camera.Euler.y-math.rad(game.mouse:GetX())
 		game.Camera.Euler.x=game.Camera.Euler.x-math.rad(game.mouse:GetY())
-		LookDist=LookDist-game.mouse:GetZ()/480.0
+		self.LookDist=self.LookDist-game.mouse:GetZ()/480.0
 	end
 	
 	local lengthsq=direction:magnitudeSq()
 	if lengthsq > 0.000001 then
 		direction=direction*(1/math.sqrt(lengthsq))
 		local angle=math.atan2(direction.x,direction.z)+game.Camera.Euler.y+math.pi
-		local localAngle=arg.self.Rotation:toEulerAngles().y
+		local localAngle=self.Actor.Rotation:toEulerAngles().y
 		local delta=Wrap(angle-localAngle,-math.pi,math.pi)
-		localAngle=localAngle+delta*(1.0-math.pow(0.8,30*game.ElapsedTime))
-		arg.self.Rotation=Quaternion.RotationEulerAngles(0,localAngle,0)
+		localAngle=localAngle+delta*(1.0-math.pow(0.8,30*elapsedTime))
+		self.Actor.Rotation=Quaternion.RotationEulerAngles(0,localAngle,0)
 		local moveDir=Quaternion.RotationEulerAngles(0,angle,0)*Vector3(0,0,1)
-		velocity.x=moveDir.x*speed
-		velocity.z=moveDir.z*speed
+		self.velocity.x=moveDir.x*speed
+		self.velocity.z=moveDir.z*speed
 		node_walk:SetActiveChild(1,0.1)
 		rate_walk.Rate=speed/1.2
 	else
-		velocity.x=0
-		velocity.z=0
+		self.velocity.x=0
+		self.velocity.z=0
 		node_walk:SetActiveChild(0,0.1)
 	end
-	local moveFlag=character_cmp:Move(velocity*game.ElapsedTime,0.001,game.ElapsedTime)
+	local moveFlag=character_cmp:Move(self.velocity*elapsedTime,0.001,elapsedTime)
 	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then
-		velocity.y=0
+		self.velocity.y=0
 	end
 	
 	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Euler.y,game.Camera.Euler.x,game.Camera.Euler.z)
-	game.Camera.Eye=arg.self.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*LookDist
-	game.SkyLightCam.Eye=arg.self.Position
-	game.ViewedCenter=arg.self.Position
+	game.Camera.Eye=self.Actor.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*self.LookDist
+	game.SkyLightCam.Eye=self.Actor.Position
+	game.ViewedCenter=self.Actor.Position
 end
+player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
+player:AddComponent(player_behavior)
 
 -- 处理碰撞事件
 player.EventShapeHit=function(arg)
