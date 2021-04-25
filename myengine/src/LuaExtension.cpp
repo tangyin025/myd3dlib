@@ -110,6 +110,11 @@ void LuaContext::Init(void)
 			.def("transformNormal", &my::Vector2::transformNormal)
 			.def("transformNormalTranspose", &my::Vector2::transformNormalTranspose)
 			.def("transform", &my::Vector2::transform)
+			.scope
+			[
+				def("RandomUnit", &my::Vector2::RandomUnit),
+				def("RandomUnitCircle", &my::Vector2::RandomUnitCircle)
+			]
 
 		, class_<my::Vector3>("Vector3")
 			.def(constructor<float, float, float>())
@@ -140,6 +145,11 @@ void LuaContext::Init(void)
 			.def("transformNormal", &my::Vector3::transformNormal)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
 			.def("transform", (my::Vector3(my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
+			.scope
+			[
+				def("RandomUnit", &my::Vector3::RandomUnit),
+				def("RandomUnitCircle", &my::Vector3::RandomUnitSphere)
+			]
 
 		, class_<my::Vector4>("Vector4")
 			.def(constructor<float, float, float, float>())
