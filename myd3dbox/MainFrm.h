@@ -89,7 +89,7 @@ public:
 	bool ExecuteCode(const char * code);
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	bool RemoveEntity(my::OctEntity * entity);
-	void OnMeshComponentReady(my::EventArg* arg);
+	//void OnMeshComponentReady(my::EventArg* arg);
 	Component* GetSelComponent(Component::ComponentType Type);
 
 // Implementation

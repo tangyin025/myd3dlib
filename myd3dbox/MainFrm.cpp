@@ -890,25 +890,25 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 
 	return OctNode::RemoveEntity(entity);
 }
-
-void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
-{
-	ComponentEventArg* cmp_arg = dynamic_cast<ComponentEventArg*>(arg);
-	ASSERT(cmp_arg);
-
-	MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp_arg->self);
-	ASSERT(mesh_cmp);
-	ASSERT(mesh_cmp->m_Actor);
-
-	mesh_cmp->m_Actor->UpdateAABB();
-	mesh_cmp->m_Actor->UpdateOctNode();
-	mesh_cmp->m_MeshEventReady.clear();
-
-	if (std::find(m_selactors.begin(), m_selactors.end(), mesh_cmp->m_Actor) != m_selactors.end())
-	{
-		UpdateSelBox();
-	}
-}
+//
+//void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
+//{
+//	ComponentEventArg* cmp_arg = dynamic_cast<ComponentEventArg*>(arg);
+//	ASSERT(cmp_arg);
+//
+//	MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp_arg->self);
+//	ASSERT(mesh_cmp);
+//	ASSERT(mesh_cmp->m_Actor);
+//
+//	mesh_cmp->m_Actor->UpdateAABB();
+//	mesh_cmp->m_Actor->UpdateOctNode();
+//	mesh_cmp->m_MeshEventReady.clear();
+//
+//	if (std::find(m_selactors.begin(), m_selactors.end(), mesh_cmp->m_Actor) != m_selactors.end())
+//	{
+//		UpdateSelBox();
+//	}
+//}
 
 Component* CMainFrame::GetSelComponent(Component::ComponentType Type)
 {
@@ -1167,7 +1167,6 @@ void CMainFrame::OnComponentMesh()
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
-			mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
 			(*actor_iter)->AddComponent(mesh_cmp);
 		}
 	}
@@ -1186,7 +1185,6 @@ void CMainFrame::OnComponentMesh()
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
-			mesh_cmp->m_MeshEventReady = boost::bind(&CMainFrame::OnMeshComponentReady, this, _1);
 			(*actor_iter)->AddComponent(mesh_cmp);
 		}
 	}

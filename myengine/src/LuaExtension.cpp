@@ -1125,9 +1125,6 @@ void LuaContext::Init(void)
 			]
 			.def("SaveToFile", &Material::SaveToFile)
 
-		, class_<ComponentEventArg, my::EventArg>("ComponentEventArg")
-			.def_readonly("self", &ComponentEventArg::self)
-
 		, class_<Component, my::NamedObject, boost::shared_ptr<Component> >("Component")
 			.enum_("ComponentType")
 			[
@@ -1184,7 +1181,6 @@ void LuaContext::Init(void)
 			.def_readwrite("MeshPath", &MeshComponent::m_MeshPath)
 			.def_readwrite("MeshSubMeshName", &MeshComponent::m_MeshSubMeshName)
 			.def_readonly("Mesh", &MeshComponent::m_Mesh)
-			.def_readwrite("MeshEventReady", &MeshComponent::m_MeshEventReady)
 			.def_readwrite("bInstance", &MeshComponent::m_bInstance)
 			.def_readwrite("bUseAnimation", &MeshComponent::m_bUseAnimation)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)

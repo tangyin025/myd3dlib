@@ -348,12 +348,6 @@ ComponentPtr MeshComponent::Clone(void) const
 void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
 {
 	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
-
-	if (m_MeshEventReady)
-	{
-		ComponentEventArg arg(this);
-		m_MeshEventReady(&arg);
-	}
 }
 
 void MeshComponent::RequestResource(void)

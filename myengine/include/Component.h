@@ -26,17 +26,6 @@ class Component;
 
 typedef boost::shared_ptr<Component> ComponentPtr;
 
-struct ComponentEventArg : public my::EventArg
-{
-public:
-	Component * self;
-
-	ComponentEventArg(Component * _self)
-		: self(_self)
-	{
-	}
-};
-
 class Component
 	: public my::NamedObject
 	, public boost::enable_shared_from_this<Component>
@@ -196,8 +185,6 @@ public:
 	int m_MeshSubMeshId;
 
 	my::OgreMeshPtr m_Mesh;
-
-	my::EventFunction m_MeshEventReady;
 
 	my::Vector4 m_MeshColor;
 
