@@ -32,6 +32,32 @@ public:
 	}
 };
 
+struct ShapeHitEventArg : public ActorEventArg
+{
+public:
+	Component* self_cmp;
+	my::Vector3 worldPos;		//!< Contact position in world space
+	my::Vector3 worldNormal;	//!< Contact normal in world space
+	my::Vector3 dir;			//!< Motion direction
+	float length;				//!< Motion length
+	Actor* other;				//!< Touched actor
+	Component* other_cmp;			//!< Touched shape
+	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
+
+	ShapeHitEventArg::ShapeHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+		: ActorEventArg(_self)
+		, self_cmp(_self_cmp)
+		, worldPos(0, 0, 0)
+		, worldNormal(1, 0, 0)
+		, dir(1, 0, 0)
+		, length(0)
+		, other(_other)
+		, other_cmp(_other_cmp)
+		, triangleIndex(0)
+	{
+	}
+};
+
 class Action;
 
 class ActionInst;
@@ -97,6 +123,8 @@ public:
 	my::EventFunction m_EventEnterTrigger;
 
 	my::EventFunction m_EventLeaveTrigger;
+
+	my::EventFunction m_EventShapeHit;
 
 	my::EventFunction m_EventUpdate;
 

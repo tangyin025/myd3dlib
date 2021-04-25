@@ -2,33 +2,6 @@
 
 #include "Component.h"
 
-class Character;
-
-struct ShapeHitEventArg : public my::EventArg
-{
-public:
-	Character* self;
-	my::Vector3 worldPos;		//!< Contact position in world space
-	my::Vector3 worldNormal;	//!< Contact normal in world space
-	my::Vector3 dir;			//!< Motion direction
-	float length;				//!< Motion length
-	Component* cmp;			//!< Touched shape
-	Actor* other;				//!< Touched actor
-	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
-
-	ShapeHitEventArg::ShapeHitEventArg(Character* _self)
-		: self(_self)
-		, worldPos(0, 0, 0)
-		, worldNormal(1, 0, 0)
-		, dir(1, 0, 0)
-		, length(0)
-		, cmp(NULL)
-		, other(NULL)
-		, triangleIndex(0)
-	{
-	}
-};
-
 class Character
 	: public Component
 	, public physx::PxUserControllerHitReport
@@ -48,8 +21,6 @@ public:
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 	boost::shared_ptr<physx::PxController> m_PxController;
-
-	my::EventFunction m_EventShapeHit;
 
 protected:
 	Character(void)
