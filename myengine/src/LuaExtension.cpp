@@ -12,6 +12,7 @@ extern "C"
 #include <luabind/return_reference_to_policy.hpp>
 #include <luabind/out_value_policy.hpp>
 #include <luabind/copy_policy.hpp>
+#include <luabind/adopt_policy.hpp>
 #include "libc.h"
 #include "myDxutApp.h"
 #include "myResource.h"
@@ -56,6 +57,70 @@ static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
+
+struct ComponentScript : Component, luabind::wrap_base
+{
+	ComponentScript(const char* Name)
+		: Component(Component::ComponentTypeScript, Name)
+	{
+		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::AddComponent
+	}
+
+	virtual ~ComponentScript(void)
+	{
+		_ASSERT(!IsRequested());
+	}
+
+	virtual void RequestResource(void)
+	{
+		luabind::wrap_base::call<void>("RequestResource");
+	}
+
+	static void default_RequestResource(Component * ptr)
+	{
+		ptr->Component::RequestResource();
+	}
+
+	virtual void ReleaseResource(void)
+	{
+		luabind::wrap_base::call<void>("ReleaseResource");
+	}
+
+	static void default_ReleaseResource(Component* ptr)
+	{
+		ptr->Component::ReleaseResource();
+	}
+
+	virtual void EnterPhysxScene(PhysxScene* scene)
+	{
+		luabind::wrap_base::call<void>("EnterPhysxScene", scene);
+	}
+
+	static void default_EnterPhysxScene(Component* ptr, PhysxScene* scene)
+	{
+		ptr->Component::EnterPhysxScene(scene);
+	}
+
+	virtual void LeavePhysxScene(PhysxScene* scene)
+	{
+		luabind::wrap_base::call<void>("LeavePhysxScene", scene);
+	}
+
+	static void default_LeavePhysxScene(Component* ptr, PhysxScene* scene)
+	{
+		ptr->Component::LeavePhysxScene(scene);
+	}
+
+	virtual void Update(float fElapsedTime)
+	{
+		luabind::wrap_base::call<void>("Update", fElapsedTime);
+	}
+
+	static void default_Update(Component* ptr, float fElapsedTime)
+	{
+		ptr->Component::Update(fElapsedTime);
+	}
+};
 
 LuaContext::LuaContext(void)
 	: m_State(NULL)
@@ -1125,7 +1190,8 @@ void LuaContext::Init(void)
 			]
 			.def("SaveToFile", &Material::SaveToFile)
 
-		, class_<Component, my::NamedObject, boost::shared_ptr<Component> >("Component")
+		, class_<Component, ComponentScript, my::NamedObject, boost::shared_ptr<Component> >("Component")
+			.def(constructor<const char *>())
 			.enum_("ComponentType")
 			[
 				value("ComponentTypeComponent", Component::ComponentTypeComponent),
@@ -1152,10 +1218,11 @@ void LuaContext::Init(void)
 			.def_readonly("Actor", &Component::m_Actor)
 			.def("IsRequested", &Component::IsRequested)
 			.def("Clone", &Component::Clone)
-			.def("RequestResource", &Component::RequestResource)
-			.def("ReleaseResource", &Component::ReleaseResource)
-			.def("EnterPhysxScene", &Component::EnterPhysxScene)
-			.def("LeavePhysxScene", &Component::LeavePhysxScene)
+			.def("RequestResource", &Component::RequestResource, &ComponentScript::default_RequestResource)
+			.def("ReleaseResource", &Component::ReleaseResource, &ComponentScript::default_ReleaseResource)
+			.def("EnterPhysxScene", &Component::EnterPhysxScene, &ComponentScript::default_EnterPhysxScene)
+			.def("LeavePhysxScene", &Component::LeavePhysxScene, &ComponentScript::default_LeavePhysxScene)
+			.def("Update", &Component::Update, &ComponentScript::default_Update)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
@@ -1324,7 +1391,7 @@ void LuaContext::Init(void)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
-			.def("AddComponent", &Actor::AddComponent)
+			.def("AddComponent", &Actor::AddComponent/*, luabind::adopt(_1)*/)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 			.scope

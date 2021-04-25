@@ -134,3 +134,13 @@ end
 -- game:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
 -- game:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
 -- game:SetControllerDebugRenderingFlags(PhysxScene.eALL)
+
+-- class 'MyCmp'(Component)
+-- function MyCmp:__init()
+	-- Component.__init(self, 'mu ha ha ha')
+-- end
+-- function MyCmp:Update(elapsedtime)
+	-- print(self.Name)
+-- end
+-- m=MyCmp()
+-- SPlayer.player:AddComponent(m)
