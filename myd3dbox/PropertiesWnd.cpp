@@ -2042,6 +2042,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterSpaceType));
 		emit_cmp->m_EmitterSpaceType = (EmitterComponent::SpaceType)i;
+		Actor* actor = emit_cmp->m_Actor;
+		actor->UpdateAABB();
+		actor->UpdateOctNode();
+		pFrame->UpdateSelBox();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

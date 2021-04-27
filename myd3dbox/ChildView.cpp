@@ -425,7 +425,16 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 						part_iter->m_Position);
 					break;
 				}
-				my::Frustum particle_ftm = (emitter->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? frustum.transform(p2local.transpose()) : local_ftm.transform(p2local.transpose()));
+				my::Frustum particle_ftm;
+				switch (emitter->m_EmitterSpaceType)
+				{
+				case EmitterComponent::SpaceTypeWorld:
+					particle_ftm = frustum.transform(p2local.transpose());
+					break;
+				case EmitterComponent::SpaceTypeLocal:
+					particle_ftm = local_ftm.transform(p2local.transpose());
+					break;
+				}
 				DWORD ret = my::Mesh::FrustumTest(particle_ftm,
 					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
@@ -639,7 +648,16 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 						part_iter->m_Position);
 					break;
 				}
-				my::Ray particle_ray = (emitter->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? ray.transform(p2local.inverse()) : local_ray.transform(p2local.inverse()));
+				my::Ray particle_ray;
+				switch (emitter->m_EmitterSpaceType)
+				{
+				case EmitterComponent::SpaceTypeWorld:
+					particle_ray = ray.transform(p2local.inverse());
+					break;
+				case EmitterComponent::SpaceTypeLocal:
+					particle_ray = local_ray.transform(p2local.inverse());
+					break;
+				}
 				my::RayResult ret = my::Mesh::RayTest(particle_ray,
 					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret.first)
@@ -1255,6 +1273,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
+			(*sel_iter)->UpdateAABB();
 			(*sel_iter)->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;

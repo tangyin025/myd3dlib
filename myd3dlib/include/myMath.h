@@ -2831,6 +2831,12 @@ namespace my
 		Vector3 d;
 
 	public:
+		Ray(void)
+			//: p(Vector3(0,0,0))
+			//, d(Vector3(1,0,0))
+		{
+		}
+
 		Ray(const Vector3 & _p, const Vector3 & _d)
 			: p(_p)
 			, d(_d)
