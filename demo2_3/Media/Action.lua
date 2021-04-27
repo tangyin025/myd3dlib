@@ -31,6 +31,7 @@ track.ParticleColorB:AddNode(0,1,0,0)
 track.ParticleColorB:AddNode(3,0,0,0)
 track.ParticleColorA:AddNode(0,1,0,0)
 track.ParticleColorA:AddNode(3,0,0,0)
+track.AttachBoneName="Bip01_Spine"
 track.SpawnInterval=0.1
 track.SpawnLength=99999
 track:AddKeyFrame(0,99999,0.1)

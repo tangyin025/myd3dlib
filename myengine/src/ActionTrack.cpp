@@ -221,6 +221,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
+	, m_AttachBoneId(-1)
 	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
@@ -240,6 +241,15 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	//Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
 
 	m_Actor->AddComponent(m_WorldEmitterCmp);
+
+	if (m_Actor->m_Animation)
+	{
+		OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = m_Actor->m_Animation->m_Skeleton->m_boneNameMap.find(m_Template->m_AttachBoneName);
+		if (bone_name_iter != m_Actor->m_Animation->m_Skeleton->m_boneNameMap.end())
+		{
+			m_AttachBoneId = bone_name_iter->second;
+		}
+	}
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
@@ -275,8 +285,19 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
+			Vector3 SpawnPos;
+			if (m_AttachBoneId >= 0)
+			{
+				const Bone& bone = m_Actor->m_Animation->anim_pose_hier[m_AttachBoneId];
+				SpawnPos = bone.m_position.transformCoord(m_Actor->m_World);
+			}
+			else
+			{
+				SpawnPos = m_Actor->m_Position;
+			}
+
 			m_WorldEmitterCmp->Spawn(
-				Vector3(0, 0, 0), m_Actor->m_Position, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
+				Vector3(0, 0, 0), SpawnPos, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
 		}
 
 		if (key_inst_iter->m_SpawnCount <= 0)
@@ -308,9 +329,9 @@ void ActionTrackEmitterInst::DoTask(void)
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
-		particle_iter->m_Position.x = particle_iter->m_Velocity.x + m_Template->m_ParticlePosX.Interpolate(ParticleTime, 0);
-		particle_iter->m_Position.y = particle_iter->m_Velocity.y + m_Template->m_ParticlePosY.Interpolate(ParticleTime, 0);
-		particle_iter->m_Position.z = particle_iter->m_Velocity.z + m_Template->m_ParticlePosZ.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.x = particle_iter->m_Velocity.x + m_Template->m_ParticleVelocityX.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.y = particle_iter->m_Velocity.y + m_Template->m_ParticleVelocityY.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.z = particle_iter->m_Velocity.z + m_Template->m_ParticleVelocityZ.Interpolate(ParticleTime, 0);
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);

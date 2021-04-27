@@ -221,11 +221,11 @@ public:
 
 	float m_ParticleLifeTime;
 
-	my::Spline m_ParticlePosX;
+	my::Spline m_ParticleVelocityX;
 
-	my::Spline m_ParticlePosY;
+	my::Spline m_ParticleVelocityY;
 
-	my::Spline m_ParticlePosZ;
+	my::Spline m_ParticleVelocityZ;
 
 	my::Spline m_ParticleColorR;
 
@@ -240,6 +240,8 @@ public:
 	my::Spline m_ParticleSizeY;
 
 	my::Spline m_ParticleAngle;
+
+	std::string m_AttachBoneName;
 
 	struct KeyFrame
 	{
@@ -275,6 +277,8 @@ protected:
 	//boost::shared_ptr<Actor> m_WorldEmitterActor;
 
 	boost::shared_ptr<EmitterComponent> m_WorldEmitterCmp;
+
+	int m_AttachBoneId;
 
 	float m_ActionTime;
 
