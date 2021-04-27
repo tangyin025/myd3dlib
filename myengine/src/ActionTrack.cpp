@@ -224,38 +224,42 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
-	m_WorldEmitterInst.reset(new EmitterComponent(Component::ComponentTypeEmitter,
-		NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(), m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone));
-	m_WorldEmitterInst->SetMaterial(m_Template->m_EmitterMaterial->Clone());
+	m_WorldEmitterCmp.reset(new EmitterComponent(Component::ComponentTypeEmitter,
+		NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(), m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeWorld, EmitterComponent::VelocityTypeNone));
+	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
-	if (!m_Actor->m_Node)
-	{
-		THROW_CUSEXCEPTION("ActionTrackEmitterInst: !m_Actor->m_Node"); // ! Actor::PlayAction should be call after being AddEntity
-	}
+	//if (!m_Actor->m_Node)
+	//{
+	//	THROW_CUSEXCEPTION("ActionTrackEmitterInst: !m_Actor->m_Node"); // ! Actor::PlayAction should be call after being AddEntity
+	//}
 
-	my::OctNode * Root = m_Actor->m_Node->GetTopNode();
-	m_WorldEmitterActor.reset(new Actor(
-		NamedObject::MakeUniqueName("ActionTrackEmitterInst_actor").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), *Root));
-	m_WorldEmitterActor->AddComponent(m_WorldEmitterInst);
-	Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
+	//my::OctNode * Root = m_Actor->m_Node->GetTopNode();
+	//m_WorldEmitterActor.reset(new Actor(
+	//	NamedObject::MakeUniqueName("ActionTrackEmitterInst_actor").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), *Root));
+	//m_WorldEmitterActor->AddComponent(m_WorldEmitterCmp);
+	//Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
+
+	m_Actor->AddComponent(m_WorldEmitterCmp);
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 {
 	_ASSERT(m_TaskEvent.Wait(0));
 
-	if (m_WorldEmitterActor->m_Node)
-	{
-		my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
-		Root->RemoveEntity(m_WorldEmitterActor.get());
-	}
+	//if (m_WorldEmitterActor->m_Node)
+	//{
+	//	my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
+	//	Root->RemoveEntity(m_WorldEmitterActor.get());
+	//}
+
+	m_Actor->RemoveComponent(m_WorldEmitterCmp);
 }
 
 void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 {
 	m_ActionTime = Time + fElapsedTime;
 
-	m_WorldEmitterInst->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
+	m_WorldEmitterCmp->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
 
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
@@ -271,7 +275,7 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			m_WorldEmitterInst->Spawn(
+			m_WorldEmitterCmp->Spawn(
 				Vector3(0, 0, 0), m_Actor->m_Position, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
 		}
 
@@ -294,14 +298,14 @@ void ActionTrackEmitterInst::Stop(void)
 {
 	m_TaskEvent.Wait(INFINITE);
 
-	m_WorldEmitterInst->RemoveAllParticle();
+	m_WorldEmitterCmp->RemoveAllParticle();
 }
 
 void ActionTrackEmitterInst::DoTask(void)
 {
 	// ! take care of thread safe
-	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterInst->m_ParticleList.begin();
-	for (; particle_iter != m_WorldEmitterInst->m_ParticleList.end(); particle_iter++)
+	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterCmp->m_ParticleList.begin();
+	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
 		particle_iter->m_Position.x = particle_iter->m_Velocity.x + m_Template->m_ParticlePosX.Interpolate(ParticleTime, 0);

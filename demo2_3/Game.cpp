@@ -705,9 +705,8 @@ void Game::OnFrameTick(
 
 			if (!actor->m_Base)
 			{
-				// ! Note:
-				// 1) Actor::Update will change other actor's life time
-				// 2) Actor::Update will invalid main camera's properties
+				// ! Actor::Update may change other actor's life time
+				// ! Actor::Update may invalid the main camera's properties
 				actor->Update(fElapsedTime);
 
 				actor->UpdateAttaches(fElapsedTime);

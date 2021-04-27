@@ -272,9 +272,9 @@ class ActionTrackEmitterInst : public ActionTrackInst, public my::ParallelTask
 protected:
 	boost::intrusive_ptr<const ActionTrackEmitter> m_Template;
 
-	boost::shared_ptr<Actor> m_WorldEmitterActor;
+	//boost::shared_ptr<Actor> m_WorldEmitterActor;
 
-	boost::shared_ptr<EmitterComponent> m_WorldEmitterInst;
+	boost::shared_ptr<EmitterComponent> m_WorldEmitterCmp;
 
 	float m_ActionTime;
 
