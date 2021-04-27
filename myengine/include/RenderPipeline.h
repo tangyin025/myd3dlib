@@ -62,13 +62,13 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_ParticleIEDecl;
 
-	static const UINT m_ParticleNumVertices = 4;
+	static const UINT m_ParticleQuadNumVertices = 4;
 
-	static const UINT m_ParticlePrimitiveCount = 2;
+	static const UINT m_ParticleQuadPrimitiveCount = 2;
 
-	my::VertexBuffer m_ParticleVb;
+	my::VertexBuffer m_ParticleQuadVb;
 
-	my::IndexBuffer m_ParticleIb;
+	my::IndexBuffer m_ParticleQuadIb;
 
 	my::VertexBuffer m_ParticleInstanceData;
 
@@ -600,5 +600,16 @@ public:
 
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushEmitter(unsigned int PassID, my::Emitter::Particle * particles, unsigned int particle_num, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp);
+	void PushEmitter(
+		unsigned int PassID,
+		IDirect3DVertexBuffer9* pVB,
+		IDirect3DIndexBuffer9* pIB,
+		UINT NumVertices,
+		UINT PrimitiveCount,
+		my::Emitter::Particle* particles,
+		unsigned int particle_num,
+		my::Effect* shader,
+		Component* cmp,
+		Material* mtl,
+		LPARAM lparam);
 };

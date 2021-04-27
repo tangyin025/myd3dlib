@@ -471,9 +471,9 @@ HRESULT RenderPipeline::OnResetDevice(
 	HRESULT hr;
 	V(pd3dDevice->CreateVertexDeclaration(&m_ParticleIEList[0], &m_ParticleIEDecl));
 		
-	_ASSERT(!m_ParticleVb.m_ptr);
-	m_ParticleVb.CreateVertexBuffer(m_ParticleVertStride * m_ParticleNumVertices, 0, 0, D3DPOOL_MANAGED);
-	unsigned char * pVertices = (unsigned char *)m_ParticleVb.Lock(0, m_ParticleVertStride * m_ParticleNumVertices);
+	_ASSERT(!m_ParticleQuadVb.m_ptr);
+	m_ParticleQuadVb.CreateVertexBuffer(m_ParticleVertStride * m_ParticleQuadNumVertices, 0, 0, D3DPOOL_MANAGED);
+	unsigned char * pVertices = (unsigned char *)m_ParticleQuadVb.Lock(0, m_ParticleVertStride * m_ParticleQuadNumVertices);
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 0, Vector3(0, 0.5f, 0.5f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 0, Vector2(0, 0));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 1, Vector3(0, 0.5f, -0.5f));
@@ -482,18 +482,18 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 2, Vector2(1, 1));
 	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 3, Vector3(0, -0.5f, 0.5f));
 	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 3, Vector2(0, 1));
-	m_ParticleVb.Unlock();
+	m_ParticleQuadVb.Unlock();
 
-	_ASSERT(!m_ParticleIb.m_ptr);
-	m_ParticleIb.CreateIndexBuffer(sizeof(WORD) * m_ParticlePrimitiveCount * 3, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-	WORD * pIndices = (WORD *)m_ParticleIb.Lock(0, sizeof(WORD) * m_ParticlePrimitiveCount * 3);
+	_ASSERT(!m_ParticleQuadIb.m_ptr);
+	m_ParticleQuadIb.CreateIndexBuffer(sizeof(WORD) * m_ParticleQuadPrimitiveCount * 3, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+	WORD * pIndices = (WORD *)m_ParticleQuadIb.Lock(0, sizeof(WORD) * m_ParticleQuadPrimitiveCount * 3);
 	pIndices[0] = 0;
 	pIndices[1] = 3;
 	pIndices[2] = 1;
 	pIndices[3] = 1;
 	pIndices[4] = 3;
 	pIndices[5] = 2;
-	m_ParticleIb.Unlock();
+	m_ParticleQuadIb.Unlock();
 
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
 	m_ParticleInstanceData.CreateVertexBuffer(m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
@@ -512,8 +512,8 @@ HRESULT RenderPipeline::OnResetDevice(
 void RenderPipeline::OnLostDevice(void)
 {
 	m_ParticleIEDecl.Release();
-	m_ParticleVb.OnDestroyDevice();
-	m_ParticleIb.OnDestroyDevice();
+	m_ParticleQuadVb.OnDestroyDevice();
+	m_ParticleQuadIb.OnDestroyDevice();
 	m_ParticleInstanceData.OnDestroyDevice();
 	m_MeshInstanceData.OnDestroyDevice();
 	m_ShadowRT->OnDestroyDevice();
@@ -522,9 +522,9 @@ void RenderPipeline::OnLostDevice(void)
 
 void RenderPipeline::OnDestroyDevice(void)
 {
-	_ASSERT(!m_ParticleVb.m_ptr);
+	_ASSERT(!m_ParticleQuadVb.m_ptr);
 
-	_ASSERT(!m_ParticleIb.m_ptr);
+	_ASSERT(!m_ParticleQuadIb.m_ptr);
 
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
 
@@ -1275,10 +1275,28 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 	res.first->second.cmps.push_back(cmp);
 }
 
-void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter::Particle* particles, unsigned int particle_num, my::Effect * shader, Material * mtl, LPARAM lparam, Component * cmp)
+void RenderPipeline::PushEmitter(
+	unsigned int PassID,
+	IDirect3DVertexBuffer9* pVB,
+	IDirect3DIndexBuffer9* pIB,
+	UINT NumVertices,
+	UINT PrimitiveCount,
+	my::Emitter::Particle* particles,
+	unsigned int particle_num,
+	my::Effect* shader,
+	Component* cmp,
+	Material* mtl,
+	LPARAM lparam)
 {
+#ifdef _DEBUG
+	HRESULT hr;
+	D3DVERTEXBUFFER_DESC desc;
+	V(pVB->GetDesc(&desc));
+	_ASSERT(desc.Size == NumVertices * m_ParticleVertStride);
+#endif
+
 	EmitterInstanceAtomKey key(
-		m_ParticleVb.m_ptr, m_ParticleIb.m_ptr, D3DPT_TRIANGLELIST, m_ParticleNumVertices, m_ParticlePrimitiveCount, shader, mtl, lparam);
+		pVB, pIB, D3DPT_TRIANGLELIST, NumVertices, PrimitiveCount, shader, mtl, lparam);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
 	res.first->second.cmps.push_back(boost::make_tuple(cmp, particles, particle_num));
 }

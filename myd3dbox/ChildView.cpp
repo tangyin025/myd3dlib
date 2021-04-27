@@ -381,8 +381,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			}
 			my::Matrix4 p2local;
 			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
-			void * pvb = theApp.m_ParticleVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, D3DLOCK_READONLY);
-			void * pib = theApp.m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount, D3DLOCK_READONLY);
+			void * pvb = theApp.m_ParticleQuadVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleQuadNumVertices, D3DLOCK_READONLY);
+			void * pib = theApp.m_ParticleQuadIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticleQuadPrimitiveCount, D3DLOCK_READONLY);
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
@@ -427,16 +427,16 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				}
 				my::Frustum particle_ftm = local_ftm.transform(p2local.transpose());
 				DWORD ret = my::Mesh::FrustumTest(particle_ftm,
-					pvb, RenderPipeline::m_ParticleNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticlePrimitiveCount, theApp.m_ParticleVertElems);
+					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
 				{
-					theApp.m_ParticleVb.Unlock();
-					theApp.m_ParticleIb.Unlock();
+					theApp.m_ParticleQuadVb.Unlock();
+					theApp.m_ParticleQuadIb.Unlock();
 					return true;
 				}
 			}
-			theApp.m_ParticleVb.Unlock();
-			theApp.m_ParticleIb.Unlock();
+			theApp.m_ParticleQuadVb.Unlock();
+			theApp.m_ParticleQuadIb.Unlock();
 		}
 		break;
 
@@ -595,8 +595,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			my::Matrix4 p2local;
 			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
-			void * pvb = theApp.m_ParticleVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleNumVertices, D3DLOCK_READONLY);
-			void * pib = theApp.m_ParticleIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticlePrimitiveCount, D3DLOCK_READONLY);
+			void * pvb = theApp.m_ParticleQuadVb.Lock(0, theApp.m_ParticleVertStride * RenderPipeline::m_ParticleQuadNumVertices, D3DLOCK_READONLY);
+			void * pib = theApp.m_ParticleQuadIb.Lock(0, sizeof(WORD) * RenderPipeline::m_ParticleQuadPrimitiveCount, D3DLOCK_READONLY);
 			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
 			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
 			{
@@ -641,16 +641,16 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				}
 				my::Ray particle_ray = local_ray.transform(p2local.inverse());
 				my::RayResult ret = my::Mesh::RayTest(particle_ray,
-					pvb, RenderPipeline::m_ParticleNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticlePrimitiveCount, theApp.m_ParticleVertElems);
+					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret.first)
 				{
-					theApp.m_ParticleVb.Unlock();
-					theApp.m_ParticleIb.Unlock();
+					theApp.m_ParticleQuadVb.Unlock();
+					theApp.m_ParticleQuadIb.Unlock();
 					return ret;
 				}
 			}
-			theApp.m_ParticleVb.Unlock();
-			theApp.m_ParticleIb.Unlock();
+			theApp.m_ParticleQuadVb.Unlock();
+			theApp.m_ParticleQuadIb.Unlock();
 		}
 		break;
 
