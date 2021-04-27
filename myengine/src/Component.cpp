@@ -1248,9 +1248,18 @@ void StaticEmitterComponent::BuildChunks(void)
 	ParticleList::const_iterator particle_iter = m_ParticleList.begin();
 	for (; particle_iter != m_ParticleList.end(); particle_iter++)
 	{
-		int i = (int)((particle_iter->m_Position.x - m_min.x) / m_ChunkStep);
-		int j = (int)((particle_iter->m_Position.y - m_min.y) / m_ChunkStep);
-		int k = (int)((particle_iter->m_Position.z - m_min.z) / m_ChunkStep);
+		Vector3 local_part;
+		if (m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+		{
+			local_part = particle_iter->m_Position.transformCoord(m_Actor->m_World.inverse());
+		}
+		else
+		{
+			local_part = particle_iter->m_Position;
+		}
+		int i = (int)((local_part.x - m_min.x) / m_ChunkStep);
+		int j = (int)((local_part.y - m_min.y) / m_ChunkStep);
+		int k = (int)((local_part.z - m_min.z) / m_ChunkStep);
 		dim[i][j][k].push_back(*particle_iter);
 	}
 
@@ -1316,18 +1325,10 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 
 	_ASSERT(m_ParticleList.is_linearized());
 
-	if (m_EmitterSpaceType == SpaceTypeWorld)
-	{
-		Callback cb(pipeline, PassMask, TargetPos, this);
-		QueryEntity(frustum, &cb);
-	}
-	else
-	{
-		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
-		Callback cb(pipeline, PassMask, LocalViewPos, this);
-		QueryEntity(LocalFrustum, &cb);
-	}
+	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+	Callback cb(pipeline, PassMask, LocalViewPos, this);
+	QueryEntity(LocalFrustum, &cb);
 }
 
 template<class Archive>

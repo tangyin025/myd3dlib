@@ -41,16 +41,16 @@ LPCTSTR CPropertiesWnd::GetPassMaskDesc(DWORD mask)
 
 LPCTSTR CPropertiesWnd::g_CullModeDesc[] =
 {
-	_T("D3DCULL_NONE"),
-	_T("D3DCULL_CW"),
-	_T("D3DCULL_CCW")
+	_T("NONE"),
+	_T("CW"),
+	_T("CCW")
 };
 
 LPCTSTR CPropertiesWnd::g_BlendModeDesc[] =
 {
-	_T("BlendModeNone"),
-	_T("BlendModeAlpha"),
-	_T("BlendModeAdditive")
+	_T("None"),
+	_T("Alpha"),
+	_T("Additive")
 };
 
 static const CPropertiesWnd::PassMaskDesc g_LodMaskDesc[] =
@@ -100,18 +100,18 @@ static LPCTSTR g_ActorTypeDesc[physx::PxActorType::eACTOR_COUNT + 1] =
 
 static LPCTSTR g_EmitterFaceType[EmitterComponent::FaceTypeAngleCamera + 1] =
 {
-	_T("FaceTypeX"),
-	_T("FaceTypeY"),
-	_T("FaceTypeZ"),
-	_T("FaceTypeCamera"),
-	_T("FaceTypeAngle"),
-	_T("FaceTypeAngleCamera"),
+	_T("X"),
+	_T("Y"),
+	_T("Z"),
+	_T("Camera"),
+	_T("Angle"),
+	_T("AngleCamera"),
 };
 
 static LPCTSTR g_EmitterSpaceType[EmitterComponent::SpaceTypeLocal + 1] =
 {
-	_T("SpaceTypeWorld"),
-	_T("SpaceTypeLocal"),
+	_T("World"),
+	_T("Local"),
 };
 
 static LPCTSTR g_PaintType[CMainFrame::PaintTypeEmitterInstance + 1] =
@@ -1613,6 +1613,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 		{
 			(*cmp_iter)->OnSetPose();
+
+			if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
+				&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+			{
+				dynamic_cast<StaticEmitterComponent *>(cmp_iter->get())->BuildChunks();
+			}
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2041,11 +2047,21 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		EmitterComponent* emit_cmp = (EmitterComponent*)pProp->GetParent()->GetValue().ulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterSpaceType));
+		EmitterComponent::SpaceType old_space_type = emit_cmp->m_EmitterSpaceType;
 		emit_cmp->m_EmitterSpaceType = (EmitterComponent::SpaceType)i;
 		Actor* actor = emit_cmp->m_Actor;
-		actor->UpdateAABB();
-		actor->UpdateOctNode();
-		pFrame->UpdateSelBox();
+		EmitterComponent::ParticleList::iterator part_iter = emit_cmp->m_ParticleList.begin();
+		for (; part_iter != emit_cmp->m_ParticleList.end(); part_iter++)
+		{
+			if (old_space_type == EmitterComponent::SpaceTypeWorld && emit_cmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeLocal)
+			{
+				part_iter->m_Position = part_iter->m_Position.transformCoord(actor->m_World.inverse());
+			}
+			else if (old_space_type == EmitterComponent::SpaceTypeLocal && emit_cmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+			{
+				part_iter->m_Position = part_iter->m_Position.transformCoord(actor->m_World);
+			}
+		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

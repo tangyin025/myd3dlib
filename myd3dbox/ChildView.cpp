@@ -1282,6 +1282,16 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, false);
 				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));
 			}
+
+			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
+			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
+			{
+				if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
+					&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+				{
+					dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->BuildChunks();
+				}
+			}
 		}
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
