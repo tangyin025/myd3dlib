@@ -637,6 +637,8 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void Update(float fElapsedTime);
+
+	virtual my::AABB CalculateAABB(void) const;
 };
 
 typedef boost::shared_ptr<SphericalEmitterComponent> SphericalEmitterComponentPtr;

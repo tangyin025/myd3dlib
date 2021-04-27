@@ -1450,3 +1450,8 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 		}
 	}
 }
+
+my::AABB SphericalEmitterComponent::CalculateAABB(void) const
+{
+	return Component::CalculateAABB();
+}
