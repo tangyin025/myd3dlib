@@ -425,7 +425,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 						part_iter->m_Position);
 					break;
 				}
-				my::Frustum particle_ftm = local_ftm.transform(p2local.transpose());
+				my::Frustum particle_ftm = (emitter->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? frustum.transform(p2local.transpose()) : local_ftm.transform(p2local.transpose()));
 				DWORD ret = my::Mesh::FrustumTest(particle_ftm,
 					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
@@ -639,7 +639,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 						part_iter->m_Position);
 					break;
 				}
-				my::Ray particle_ray = local_ray.transform(p2local.inverse());
+				my::Ray particle_ray = (emitter->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? ray.transform(p2local.inverse()) : local_ray.transform(p2local.inverse()));
 				my::RayResult ret = my::Mesh::RayTest(particle_ray,
 					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
 				if (ret.first)

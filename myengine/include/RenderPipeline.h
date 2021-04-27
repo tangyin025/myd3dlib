@@ -375,7 +375,7 @@ public:
 		D3DPRIMITIVETYPE,
 		DWORD,
 		DWORD,
-		my::Matrix4 *,
+		const my::Matrix4 *,
 		my::Effect *,
 		Material *,
 		LPARAM>
@@ -387,7 +387,7 @@ public:
 			D3DPRIMITIVETYPE PrimitiveType,
 			DWORD NumVertices,
 			DWORD PrimitiveCount,
-			my::Matrix4 * world,
+			const my::Matrix4 * world,
 			my::Effect * shader,
 			Material * mtl,
 			LPARAM lparam)

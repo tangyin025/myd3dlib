@@ -397,6 +397,14 @@ public:
 
 	FaceType m_EmitterFaceType;
 
+	enum SpaceType
+	{
+		SpaceTypeWorld		= 0,
+		SpaceTypeLocal		= 1,
+	};
+
+	SpaceType m_EmitterSpaceType;
+
 	enum VelocityType
 	{
 		VelocityTypeNone	= 0,
@@ -411,16 +419,18 @@ protected:
 	EmitterComponent(void)
 		: Emitter(1)
 		, m_EmitterFaceType(FaceTypeX)
+		, m_EmitterSpaceType(SpaceTypeWorld)
 		, m_EmitterVelType(VelocityTypeNone)
 		, handle_World(NULL)
 	{
 	}
 
 public:
-	EmitterComponent(ComponentType Type, const char * Name, unsigned int Capacity, FaceType _FaceType, VelocityType _VelocityType)
+	EmitterComponent(ComponentType Type, const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType)
 		: Component(Type, Name)
 		, Emitter(Capacity)
 		, m_EmitterFaceType(_FaceType)
+		, m_EmitterSpaceType(_SpaceTypeWorld)
 		, m_EmitterVelType(_VelocityType)
 		, handle_World(NULL)
 	{
@@ -433,6 +443,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
+		ar & BOOST_SERIALIZATION_NVP(m_EmitterSpaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
 	}
 
@@ -506,7 +517,7 @@ protected:
 
 public:
 	StaticEmitterComponent(const char * Name, unsigned int Capacity)
-		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, FaceTypeCamera, VelocityTypeNone)
+		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, FaceTypeCamera, SpaceTypeWorld, VelocityTypeNone)
 		, OctRoot(-1.0f, 1.0f)
 		, m_ChunkStep(1.0f)
 	{
@@ -591,7 +602,7 @@ protected:
 
 public:
 	SphericalEmitterComponent(const char * Name, unsigned int Capacity)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, FaceTypeCamera, VelocityTypeVel)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, FaceTypeCamera, SpaceTypeWorld, VelocityTypeVel)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)

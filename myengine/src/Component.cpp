@@ -1044,7 +1044,14 @@ void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * s
 {
 	_ASSERT(m_Actor);
 
-	shader->SetMatrix(handle_World, m_Actor->m_World);
+	if (m_EmitterSpaceType == SpaceTypeWorld)
+	{
+		shader->SetMatrix(handle_World, my::Matrix4::identity);
+	}
+	else
+	{
+		shader->SetMatrix(handle_World, m_Actor->m_World);
+	}
 }
 
 my::AABB EmitterComponent::CalculateAABB(void) const
@@ -1057,7 +1064,14 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 		ParticleList::const_iterator part_iter = m_ParticleList.begin();
 		for (; part_iter != m_ParticleList.end(); part_iter++)
 		{
-			ret.unionSelf(AABB(part_iter->m_Position, part_iter->m_Size.x * 0.5f));
+			if (m_EmitterSpaceType == SpaceTypeWorld)
+			{
+				ret.unionSelf(AABB(part_iter->m_Position.transformCoord(m_Actor->m_World.inverse()), part_iter->m_Size.x * 0.5f));
+			}
+			else
+			{
+				ret.unionSelf(AABB(part_iter->m_Position, part_iter->m_Size.x * 0.5f));
+			}
 		}
 		return ret;
 	}
@@ -1301,8 +1315,19 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 	};
 
 	_ASSERT(m_ParticleList.is_linearized());
-	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+
+	Frustum LocalFrustum;
+	Vector3 LocalViewPos;
+	if (m_EmitterSpaceType == SpaceTypeWorld)
+	{
+		LocalFrustum = frustum;
+		LocalViewPos = TargetPos;
+	}
+	else
+	{
+		LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+		LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+	}
 	Callback cb(pipeline, PassMask, LocalViewPos, this);
 	QueryEntity(LocalFrustum, &cb);
 }
@@ -1383,15 +1408,24 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 	{
 		const float SpawnTimeCycle = Wrap<float>(m_SpawnTime, 0, m_SpawnCycle);
 
-		Spawn(
-			Vector3(
-				Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-				Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-				Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
-			Vector3::SphericalToCartesian(
-				m_SpawnSpeed,
-				m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-				m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)),
+		Vector3 pos = Vector3(
+			Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+			Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+			Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z));
+
+		Vector3 vel = Vector3::SphericalToCartesian(
+			m_SpawnSpeed,
+			m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
+			m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0));
+
+		if (m_EmitterSpaceType == SpaceTypeWorld)
+		{
+			pos = pos.transformCoord(m_Actor->m_World);
+
+			vel = vel.transformNormal(m_Actor->m_World);
+		}
+
+		Spawn(pos, vel,
 			Vector4(
 				m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 				m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
