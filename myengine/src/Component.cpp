@@ -1064,7 +1064,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 	return Component::CalculateAABB();
 }
 
-void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void EmitterComponent::AddToPipelineImpl(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
 {
 	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
@@ -1113,21 +1113,28 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 						BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 					}
 
-					ParticleList::array_range array_one = m_ParticleList.array_one();
-					if (array_one.second > 0)
+					if (particle_num1 > 0)
 					{
-						pipeline->PushEmitter(PassID, array_one.first, array_one.second, shader, m_Material.get(), 0, this);
+						pipeline->PushEmitter(PassID, particles1, particle_num1, shader, m_Material.get(), 0, this);
 					}
 
-					ParticleList::array_range array_two = m_ParticleList.array_two();
-					if (array_two.second > 0)
+					if (particle_num2 > 0)
 					{
-						pipeline->PushEmitter(PassID, array_two.first, array_two.second, shader, m_Material.get(), 0, this);
+						pipeline->PushEmitter(PassID, particles2, particle_num2, shader, m_Material.get(), 0, this);
 					}
 				}
 			}
 		}
 	}
+}
+
+void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+{
+	ParticleList::array_range array_one = m_ParticleList.array_one();
+
+	ParticleList::array_range array_two = m_ParticleList.array_two();
+
+	AddToPipelineImpl(pipeline, PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
 }
 
 template<class Archive>
@@ -1286,58 +1293,8 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
-			if (cmp->m_Material && (cmp->m_Material->m_PassMask & PassMask))
-			{
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-				{
-					if (RenderPipeline::PassTypeToMask(PassID) & (cmp->m_Material->m_PassMask & PassMask))
-					{
-						D3DXMACRO macro[3] = { {0} };
-						macro[0].Name = "EMITTER_FACE_TYPE";
-						switch (cmp->m_EmitterFaceType)
-						{
-						default:
-							macro[0].Definition = "0";
-							break;
-						case FaceTypeY:
-							macro[0].Definition = "1";
-							break;
-						case FaceTypeZ:
-							macro[0].Definition = "2";
-							break;
-						case FaceTypeCamera:
-							macro[0].Definition = "3";
-							break;
-						case FaceTypeAngle:
-							macro[0].Definition = "4";
-							break;
-						case FaceTypeAngleCamera:
-							macro[0].Definition = "5";
-							break;
-						}
-						macro[1].Name = "EMITTER_VEL_TYPE";
-						switch (cmp->m_EmitterVelType)
-						{
-						default:
-							macro[1].Definition = "0";
-							break;
-						case VelocityTypeVel:
-							macro[1].Definition = "1";
-							break;
-						}
-						my::Effect* shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, cmp->m_Material->m_Shader.c_str(), PassID);
-						if (shader)
-						{
-							if (!cmp->handle_World)
-							{
-								BOOST_VERIFY(cmp->handle_World = shader->GetParameterByName(NULL, "g_World"));
-							}
 
-							pipeline->PushEmitter(PassID, &cmp->m_ParticleList[chunk->m_Start], chunk->m_Count, shader, cmp->m_Material.get(), 0, cmp);
-						}
-					}
-				}
-			}
+			cmp->AddToPipelineImpl(pipeline, PassMask, &cmp->m_ParticleList[chunk->m_Start], chunk->m_Count, NULL, 0);
 		}
 	};
 
