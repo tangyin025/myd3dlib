@@ -1316,20 +1316,18 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 
 	_ASSERT(m_ParticleList.is_linearized());
 
-	Frustum LocalFrustum;
-	Vector3 LocalViewPos;
 	if (m_EmitterSpaceType == SpaceTypeWorld)
 	{
-		LocalFrustum = frustum;
-		LocalViewPos = TargetPos;
+		Callback cb(pipeline, PassMask, TargetPos, this);
+		QueryEntity(frustum, &cb);
 	}
 	else
 	{
-		LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
-		LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
+		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		Callback cb(pipeline, PassMask, LocalViewPos, this);
+		QueryEntity(LocalFrustum, &cb);
 	}
-	Callback cb(pipeline, PassMask, LocalViewPos, this);
-	QueryEntity(LocalFrustum, &cb);
 }
 
 template<class Archive>
@@ -1408,32 +1406,47 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 	{
 		const float SpawnTimeCycle = Wrap<float>(m_SpawnTime, 0, m_SpawnCycle);
 
-		Vector3 pos = Vector3(
-			Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
-			Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-			Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z));
-
-		Vector3 vel = Vector3::SphericalToCartesian(
-			m_SpawnSpeed,
-			m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-			m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0));
-
 		if (m_EmitterSpaceType == SpaceTypeWorld)
 		{
-			pos = pos.transformCoord(m_Actor->m_World);
-
-			vel = vel.transformNormal(m_Actor->m_World);
+			Spawn(
+				Vector3(
+					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transformCoord(m_Actor->m_World),
+				Vector3::SphericalToCartesian(
+					m_SpawnSpeed,
+					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World),
+				Vector4(
+					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
+				Vector2(
+					m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
+				m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), m_SpawnTime);
 		}
-
-		Spawn(pos, vel,
-			Vector4(
-				m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
-			Vector2(
-				m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
-				m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
-			m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), m_SpawnTime);
+		else
+		{
+			Spawn(
+				Vector3(
+					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
+				Vector3::SphericalToCartesian(
+					m_SpawnSpeed,
+					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)),
+				Vector4(
+					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnColorB.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnColorA.Interpolate(SpawnTimeCycle, 1)),
+				Vector2(
+					m_SpawnSizeX.Interpolate(SpawnTimeCycle, 1),
+					m_SpawnSizeY.Interpolate(SpawnTimeCycle, 1)),
+				m_SpawnAngle.Interpolate(SpawnTimeCycle, 0), m_SpawnTime);
+		}
 	}
 }

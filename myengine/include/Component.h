@@ -516,8 +516,8 @@ protected:
 	}
 
 public:
-	StaticEmitterComponent(const char * Name, unsigned int Capacity)
-		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, FaceTypeCamera, SpaceTypeWorld, VelocityTypeNone)
+	StaticEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld)
+		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, VelocityTypeNone)
 		, OctRoot(-1.0f, 1.0f)
 		, m_ChunkStep(1.0f)
 	{
@@ -601,8 +601,8 @@ protected:
 	}
 
 public:
-	SphericalEmitterComponent(const char * Name, unsigned int Capacity)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, FaceTypeCamera, SpaceTypeWorld, VelocityTypeVel)
+	SphericalEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, VelocityTypeVel)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)

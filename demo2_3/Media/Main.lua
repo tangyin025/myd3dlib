@@ -79,7 +79,7 @@ cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,1)
 
 -- 搞一个trigger
 actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-local cmp5=StaticEmitterComponent(NamedObject.MakeUniqueName("mesh_cmp"),1)
+local cmp5=StaticEmitterComponent(NamedObject.MakeUniqueName("mesh_cmp"),1,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeLocal)
 actor5:AddComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,2)
