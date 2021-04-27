@@ -1298,5 +1298,6 @@ void RenderPipeline::PushEmitter(
 	EmitterInstanceAtomKey key(
 		pVB, pIB, D3DPT_TRIANGLELIST, NumVertices, PrimitiveCount, shader, mtl, lparam);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
+	_ASSERT(res.second || res.first->first.get<4>() == PrimitiveCount);
 	res.first->second.cmps.push_back(boost::make_tuple(cmp, particles, particle_num));
 }
