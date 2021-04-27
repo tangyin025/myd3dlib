@@ -65,7 +65,8 @@ namespace boost
 		boost::hash_combine(seed, key.get<0>());
 		boost::hash_combine(seed, key.get<1>());
 		boost::hash_combine(seed, key.get<5>());
-		boost::hash_combine(seed, *key.get<6>());
+		boost::hash_combine(seed, key.get<6>());
+		boost::hash_combine(seed, *key.get<7>());
 		return seed;
 	}
 }

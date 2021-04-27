@@ -375,6 +375,7 @@ public:
 		D3DPRIMITIVETYPE,
 		DWORD,
 		DWORD,
+		my::Matrix4 *,
 		my::Effect *,
 		Material *,
 		LPARAM>
@@ -386,10 +387,11 @@ public:
 			D3DPRIMITIVETYPE PrimitiveType,
 			DWORD NumVertices,
 			DWORD PrimitiveCount,
+			my::Matrix4 * world,
 			my::Effect * shader,
 			Material * mtl,
 			LPARAM lparam)
-			: tuple(pVB, pIB, PrimitiveType, NumVertices, PrimitiveCount, shader, mtl, lparam)
+			: tuple(pVB, pIB, PrimitiveType, NumVertices, PrimitiveCount, world, shader, mtl, lparam)
 		{
 		}
 
@@ -398,7 +400,8 @@ public:
 			return get<0>() == rhs.get<0>()
 				&& get<1>() == rhs.get<1>()
 				&& get<5>() == rhs.get<5>()
-				&& *get<6>() == *rhs.get<6>();
+				&& get<6>() == rhs.get<6>()
+				&& *get<7>() == *rhs.get<7>();
 		}
 	};
 

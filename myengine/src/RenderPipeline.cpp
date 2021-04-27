@@ -959,10 +959,10 @@ void RenderPipeline::RenderAllObjects(
 					0, emitter_inst_iter->first.get<4>(),
 					NumTotalInstances,
 					m_ParticleInstanceStride,
-					emitter_inst_iter->first.get<5>(),
-					emitter_inst_iter->second.cmps.front().get<0>(),
 					emitter_inst_iter->first.get<6>(),
-					emitter_inst_iter->first.get<7>());
+					emitter_inst_iter->second.cmps.front().get<0>(),
+					emitter_inst_iter->first.get<7>(),
+					emitter_inst_iter->first.get<8>());
 				m_PassDrawCall[PassID]++;
 			}
 		}
@@ -1296,7 +1296,7 @@ void RenderPipeline::PushEmitter(
 #endif
 
 	EmitterInstanceAtomKey key(
-		pVB, pIB, D3DPT_TRIANGLELIST, NumVertices, PrimitiveCount, shader, mtl, lparam);
+		pVB, pIB, D3DPT_TRIANGLELIST, NumVertices, PrimitiveCount, &cmp->m_Actor->m_World, shader, mtl, lparam);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
 	_ASSERT(res.second || res.first->first.get<4>() == PrimitiveCount);
 	res.first->second.cmps.push_back(boost::make_tuple(cmp, particles, particle_num));
