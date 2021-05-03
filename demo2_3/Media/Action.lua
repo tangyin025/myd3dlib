@@ -8,7 +8,7 @@ act_jump:AddTrack(track)
 
 act_sound=Action()
 act_sound.Length=5.0
-track=ActionTrackSound()
+local track=ActionTrackSound()
 track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
 act_sound:AddTrack(track)
 
