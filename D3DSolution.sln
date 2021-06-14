@@ -77,6 +77,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgR
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnoise", "libnoise\libnoise.vcxproj", "{7C3D0F9B-E990-4D6F-9800-CDA1E7F72F67}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MayaExport_fg", "MayaExport\MayaExport_fg.vcxproj", "{B8E79576-F7E4-4E50-97DB-08FF62F206AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -213,6 +215,14 @@ Global
 		{7C3D0F9B-E990-4D6F-9800-CDA1E7F72F67}.Release|Win32.Build.0 = Release|Win32
 		{7C3D0F9B-E990-4D6F-9800-CDA1E7F72F67}.Release|x64.ActiveCfg = Release|x64
 		{7C3D0F9B-E990-4D6F-9800-CDA1E7F72F67}.Release|x64.Build.0 = Release|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|Win32.ActiveCfg = Debug|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|Win32.Build.0 = Debug|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|x64.ActiveCfg = Debug|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|x64.Build.0 = Debug|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|Win32.ActiveCfg = Release|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|Win32.Build.0 = Release|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|x64.ActiveCfg = Release|x64
+		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

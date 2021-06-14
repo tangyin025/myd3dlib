@@ -1830,10 +1830,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshSubMeshId:
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-		//mesh_cmp->m_MeshRes.ReleaseResource();
-		//mesh_cmp->m_MeshRes.m_Path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		//mesh_cmp->m_MeshRes.RequestResource();
-		//EventArgs arg;
+		//std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		//if (path.empty())
+		//{
+		//	MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+		//	UpdatePropertiesMesh(pProp->GetParent(), mesh_cmp);
+		//	return 0;
+		//}
+		//mesh_cmp->ReleaseResource();
+		//mesh_cmp->m_MeshPath = path;
+		//mesh_cmp->RequestResource();
+		//my::EventArg arg;
 		//pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
@@ -1883,11 +1890,20 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialShader:
 	{
-		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-		material->m_Shader = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		Material* material = (Material*)pProp->GetParent()->GetValue().ulVal;
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesMaterial(pProp->GetParent(), material);
+			return 0;
+		}
 		material->ReleaseResource();
+		material->m_Shader = path;
 		material->ParseShaderParameters();
 		material->RequestResource();
+		UpdatePropertiesMaterial(pProp->GetParent(), material);
+		m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -2001,8 +2017,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesMaterialParameter(pProp->GetParent(), i, mtl->m_ParameterList[i].get());
+			return 0;
+		}
 		mtl->m_ParameterList[i]->ReleaseResource();
-		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		boost::dynamic_pointer_cast<MaterialParameterTexture>(mtl->m_ParameterList[i])->m_TexturePath = path;
 		mtl->m_ParameterList[i]->RequestResource();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

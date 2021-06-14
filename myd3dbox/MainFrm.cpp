@@ -1136,6 +1136,11 @@ void CMainFrame::OnComponentMesh()
 	}
 
 	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+	if (path.empty())
+	{
+		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());
+		return;
+	}
 
 	my::CachePtr cache = my::FileIStream::Open(dlg.GetPathName())->GetWholeCache();
 	cache->push_back(0);

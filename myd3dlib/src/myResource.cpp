@@ -303,7 +303,12 @@ std::string StreamDirMgr::GetRelativePath(const char * path)
 {
 	if (PathIsRelativeA(path))
 	{
-		return std::string(path);
+		char canonicalizedPath[MAX_PATH];
+		if (::PathCanonicalizeA(canonicalizedPath, path) && CheckPath(canonicalizedPath))
+		{
+			return std::string(canonicalizedPath);
+		}
+		return std::string();
 	}
 
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
@@ -313,23 +318,6 @@ std::string StreamDirMgr::GetRelativePath(const char * path)
 		if (!ret.empty())
 		{
 			return ret;
-		}
-	}
-
-	// ! will return the default first combined path
-	char currentDir[MAX_PATH];
-	::GetCurrentDirectoryA(_countof(currentDir), currentDir);
-	if (!m_DirList.empty())
-	{
-		::PathAppendA(currentDir, m_DirList.front()->m_dir.c_str());
-	}
-	char relativePath[MAX_PATH];
-	if (::PathRelativePathToA(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, path, 0))
-	{
-		char canonicalizedPath[MAX_PATH];
-		if (::PathCanonicalizeA(canonicalizedPath, relativePath))
-		{
-			return std::string(canonicalizedPath);
 		}
 	}
 	return std::string();

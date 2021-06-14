@@ -369,6 +369,11 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertySkyBox:
 		{
 			std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+			if (path.empty())
+			{
+				MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+				return 0l;
+			}
 			boost::regex reg("_(FR|BK|LF|RT|UP|DN)");
 			boost::match_results<std::string::const_iterator> what;
 			if (boost::regex_search(path, what, reg, boost::match_default) && what[1].matched)
