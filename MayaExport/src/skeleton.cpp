@@ -73,12 +73,13 @@ namespace OgreMayaExporter
 					MGlobal::getActiveSelectionList(selectionList);
 					// Set Neutral Pose
 					//check if we want the skin bind pose
-					if (params.neutralPoseFrame == NPT_BINDPOSE)
+					if (params.neutralPoseType == NPT_BINDPOSE)
 					{
 						// Note: we reset to the bind pose, then get current matrix
 						// if bind pose could not be restored we use the current pose as a bind pose
-						MGlobal::selectByName(jointDag.partialPathName(),MGlobal::kReplaceList);
-						MGlobal::executeCommand("dagPose -r -g -bp");
+						MGlobal::selectByName(rootDag.fullPathName(),MGlobal::kReplaceList);
+						MGlobal::executeCommand("doEnableNodeItems false all",true);
+						MGlobal::executeCommand("dagPose -r -g -bp",true);
 					}
 					//check if we want specified frame as neutral pose
 					else if (params.neutralPoseType == NPT_FRAME)
@@ -222,6 +223,7 @@ namespace OgreMayaExporter
 		MStatus stat;
 		int i;
 		std::cout << "Loading joint animations...\n";
+		MGlobal::executeCommand("doEnableNodeItems true all", true);
 		// save current time for later restore
 		double curtime = MAnimControl::currentTime().as(MTime::kSeconds);
 		// clear animations list

@@ -102,7 +102,7 @@ namespace OgreMayaExporter
 			}
 			else if ((MString("-np") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
-				MString npType = args.asString(i,&stat);
+				MString npType = args.asString(++i,&stat);
 				if (npType == "curFrame")
 					neutralPoseType = NPT_CURFRAME;
 				else if (npType == "bindPose")
