@@ -437,6 +437,7 @@ my::BoneList & AnimationNodeRate::GetPose(my::BoneList & pose) const
 template<class Archive>
 void Animator::save(Archive & ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 }
@@ -444,6 +445,7 @@ void Animator::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Animator::load(Archive & ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ReloadSequenceGroup();
@@ -490,6 +492,8 @@ void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 
 void Animator::RequestResource(void)
 {
+	Component::RequestResource();
+
 	if (!m_SkeletonPath.empty())
 	{
 		_ASSERT(!m_Skeleton);
@@ -510,6 +514,8 @@ void Animator::ReleaseResource(void)
 	m_JiggleBones.clear();
 
 	m_Iks.clear();
+
+	Component::ReleaseResource();
 }
 
 void Animator::Update(float fElapsedTime)
