@@ -312,7 +312,6 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
-	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 }
 
 template<class Archive>
@@ -324,7 +323,6 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
-	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 }
 
 void MeshComponent::CopyFrom(const MeshComponent & rhs)
@@ -335,7 +333,6 @@ void MeshComponent::CopyFrom(const MeshComponent & rhs)
 	m_MeshSubMeshId = rhs.m_MeshSubMeshId;
 	m_MeshColor = rhs.m_MeshColor;
 	m_bInstance = rhs.m_bInstance;
-	m_bUseAnimation = rhs.m_bUseAnimation;
 }
 
 ComponentPtr MeshComponent::Clone(void) const
@@ -382,12 +379,11 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
 
-	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
+	AnimationRoot* animator = m_Actor->GetAnimator();
+
+	if (animator && !animator->m_DualQuats.empty() && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 	{
-		if (!m_Actor->m_Animation->m_DualQuats.empty())
-		{
-			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animation->m_DualQuats[0], m_Actor->m_Animation->m_DualQuats.size());
-		}
+		shader->SetMatrixArray(handle_dualquat, &animator->m_DualQuats[0], animator->m_DualQuats.size());
 	}
 }
 
@@ -412,6 +408,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	{
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
+			AnimationRoot* animator = m_Actor->GetAnimator();
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
@@ -422,7 +419,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 					{
 						macro[j++].Name = "INSTANCE";
 					}
-					if (m_bUseAnimation)
+					if (animator && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 					{
 						macro[j++].Name = "SKELETON";
 					}
@@ -433,7 +430,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-							if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
+							if (animator && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 							{
 								BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 							}
@@ -632,7 +629,6 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(IndexSize);
 	ar << boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
-	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 
@@ -665,7 +661,6 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	m_IndexData.resize(IndexSize / sizeof(unsigned short));
 	ar >> boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 
@@ -846,12 +841,11 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
 
-	if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
+	AnimationRoot* animator = m_Actor->GetAnimator();
+
+	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 	{
-		if (!m_Actor->m_Animation->m_DualQuats.empty())
-		{
-			shader->SetMatrixArray(handle_dualquat, &m_Actor->m_Animation->m_DualQuats[0], m_Actor->m_Animation->m_DualQuats.size());
-		}
+		shader->SetMatrixArray(handle_dualquat, &animator->m_DualQuats[0], animator->m_DualQuats.size());
 	}
 }
 
@@ -889,13 +883,14 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 		_ASSERT(0 != m_VertexStride);
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
+			AnimationRoot* animator = m_Actor->GetAnimator();
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
 					D3DXMACRO macro[2] = { { 0 } };
 					int j = 0;
-					if (m_bUseAnimation)
+					if (animator && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 					{
 						macro[j++].Name = "SKELETON";
 					}
@@ -906,7 +901,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-							if (m_bUseAnimation && m_Actor && m_Actor->m_Animation)
+							if (animator && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 							{
 								BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 							}
@@ -936,14 +931,15 @@ void ClothComponent::UpdateCloth(void)
 		{
 			unsigned char * pVertices = &m_VertexData[0];
 			const DWORD NbParticles = m_Cloth->getNbParticles();
-			if (m_bUseAnimation && m_Actor && m_Actor->m_Animation && !m_Actor->m_Animation->m_DualQuats.empty())
+			AnimationRoot* animator = m_Actor->GetAnimator();
+			if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				for (unsigned int i = 0; i < NbParticles; i++)
 				{
 					void * pVertex = pVertices + i * m_VertexStride;
 					if (readData->particles[i].invWeight == 0)
 					{
-						my::Vector3 pos = m_Actor->m_Animation->m_DualQuats.TransformVertexWithDualQuaternionList(
+						my::Vector3 pos = animator->m_DualQuats.TransformVertexWithDualQuaternionList(
 							(my::Vector3 &)m_particles[i].pos,
 							m_VertexElems.GetBlendIndices(pVertex),
 							m_VertexElems.GetBlendWeight(pVertex));
@@ -982,15 +978,15 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 	if (!m_ClothSpheres.empty())
 	{
 		m_ClothSpheresTmp.resize(m_ClothSpheres.size());
-
-		if (m_bUseAnimation && m_Actor && m_Actor->m_Animation && !m_Actor->m_Animation->m_DualQuats.empty())
+		AnimationRoot* animator = m_Actor->GetAnimator();
+		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 		{
 			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)
 			{
 				m_ClothSpheresTmp[i].radius = m_ClothSpheres[i].first.radius;
 				if (m_ClothSpheres[i].second >= 0)
 				{
-					Matrix4 & dual = m_Actor->m_Animation->m_DualQuats[m_ClothSpheres[i].second];
+					Matrix4 & dual = animator->m_DualQuats[m_ClothSpheres[i].second];
 					m_ClothSpheresTmp[i].pos = (physx::PxVec3 &)TransformList::TransformVertexWithDualQuaternion(
 						(Vector3 &)m_ClothSpheres[i].first.pos, dual);
 				}

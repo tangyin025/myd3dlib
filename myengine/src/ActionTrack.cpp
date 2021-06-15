@@ -84,13 +84,14 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 
 	_ASSERT(m_Actor);
 
-	ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
-	ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
-	for (; key_iter != key_end; key_iter++)
+	AnimationRoot* animator = m_Actor->GetAnimator();
+	if (animator)
 	{
-		if (m_Actor->m_Animation)
+		ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
+		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+		for (; key_iter != key_end; key_iter++)
 		{
-			m_Actor->m_Animation->Play(
+			animator->Play(
 				key_iter->second.Name,
 				key_iter->second.RootList,
 				key_iter->second.Rate,
@@ -107,9 +108,10 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 
 void ActionTrackAnimationInst::Stop(void)
 {
-	if (m_Actor->m_Animation)
+	AnimationRoot* animator = m_Actor->GetAnimator();
+	if (animator)
 	{
-		m_Actor->m_Animation->Stop((DWORD_PTR)this);
+		animator->Stop((DWORD_PTR)this);
 	}
 }
 
@@ -242,10 +244,11 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 
 	m_Actor->AddComponent(m_WorldEmitterCmp);
 
-	if (m_Actor->m_Animation)
+	AnimationRoot* animator = m_Actor->GetAnimator();
+	if (animator)
 	{
-		OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = m_Actor->m_Animation->m_Skeleton->m_boneNameMap.find(m_Template->m_AttachBoneName);
-		if (bone_name_iter != m_Actor->m_Animation->m_Skeleton->m_boneNameMap.end())
+		OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = animator->m_Skeleton->m_boneNameMap.find(m_Template->m_AttachBoneName);
+		if (bone_name_iter != animator->m_Skeleton->m_boneNameMap.end())
 		{
 			m_AttachBoneId = bone_name_iter->second;
 		}
@@ -279,6 +282,7 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
+	AnimationRoot* animator = m_Actor->GetAnimator();
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
@@ -286,9 +290,9 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
 			Vector3 SpawnPos;
-			if (m_AttachBoneId >= 0)
+			if (m_AttachBoneId >= 0 && animator)
 			{
-				const Bone& bone = m_Actor->m_Animation->anim_pose_hier[m_AttachBoneId];
+				const Bone& bone = animator->anim_pose_hier[m_AttachBoneId];
 				SpawnPos = bone.m_position.transformCoord(m_Actor->m_World);
 			}
 			else

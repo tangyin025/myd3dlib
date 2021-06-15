@@ -121,7 +121,6 @@ public:
 		PropertyMeshColor,
 		PropertyMeshAlpha,
 		PropertyMeshInstance,
-		PropertyMeshUseAnimation,
 		PropertyMaterial,
 		PropertyMaterialShader,
 		PropertyMaterialPassMask,

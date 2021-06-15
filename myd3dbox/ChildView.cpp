@@ -319,10 +319,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			if (mesh_cmp->m_bUseAnimation
-				&& mesh_cmp->m_Actor
-				&& mesh_cmp->m_Actor->m_Animation
-				&& !mesh_cmp->m_Actor->m_Animation->m_DualQuats.empty())
+			AnimationRoot* animator = mesh_cmp->m_Actor->GetAnimator();
+			if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
@@ -335,7 +333,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
-					mesh_cmp->m_Actor->m_Animation->m_DualQuats);
+					animator->m_DualQuats);
 				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -456,10 +454,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			if (cloth_cmp->m_bUseAnimation
-				&& cloth_cmp->m_Actor
-				&& cloth_cmp->m_Actor->m_Animation
-				&& !cloth_cmp->m_Actor->m_Animation->m_DualQuats.empty())
+			AnimationRoot* animator = cloth_cmp->m_Actor->GetAnimator();
+			if (animator && !animator->m_DualQuats.empty() && cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
 				my::D3DVertexElementSet elems;
@@ -472,7 +468,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
-					cloth_cmp->m_Actor->m_Animation->m_DualQuats);
+					animator->m_DualQuats);
 				DWORD ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -546,10 +542,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			if (mesh_cmp->m_bUseAnimation
-				&& mesh_cmp->m_Actor
-				&& mesh_cmp->m_Actor->m_Animation
-				&& !mesh_cmp->m_Actor->m_Animation->m_DualQuats.empty())
+			AnimationRoot* animator = mesh_cmp->m_Actor->GetAnimator();
+			if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
@@ -562,7 +556,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
-					mesh_cmp->m_Actor->m_Animation->m_DualQuats);
+					animator->m_DualQuats);
 				ret = my::Mesh::RayTest(local_ray,
 					&vertices[0],
 					vertices.size(),
@@ -680,10 +674,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			if (cloth_cmp->m_bUseAnimation
-				&& cloth_cmp->m_Actor
-				&& cloth_cmp->m_Actor->m_Animation
-				&& !cloth_cmp->m_Actor->m_Animation->m_DualQuats.empty())
+			AnimationRoot* animator = cloth_cmp->m_Actor->GetAnimator();
+			if (animator && !animator->m_DualQuats.empty() && cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
 				my::D3DVertexElementSet elems;
@@ -696,7 +688,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
-					cloth_cmp->m_Actor->m_Animation->m_DualQuats);
+					animator->m_DualQuats);
 				ret = my::Mesh::RayTest(local_ray,
 					&vertices[0],
 					vertices.size(),

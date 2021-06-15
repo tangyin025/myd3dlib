@@ -92,8 +92,6 @@ public:
 
 	float m_CullingDist;
 
-	boost::shared_ptr<AnimationRoot> m_Animation;
-
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
@@ -244,4 +242,6 @@ public:
 	void PlayAction(Action * action);
 
 	void StopAllAction(void);
+
+	AnimationRoot* GetAnimator(void);
 };

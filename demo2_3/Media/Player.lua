@@ -37,7 +37,6 @@ local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshSubMeshName=""
 cmp.Material=lambert1
-cmp.bUseAnimation=true
 player:AddComponent(cmp)
 
 -- 构建动画树
@@ -65,7 +64,7 @@ node_run.Child0=node_walk
 node_run.Child1=rate_run
 
 -- 加载动画资源
-local anim=AnimationRoot(player)
+local anim=AnimationRoot(NamedObject.MakeUniqueName("animator_cmp"))
 anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
@@ -74,7 +73,7 @@ anim.SkeletonEventReady=function(arg)
 	arg.self:AddIK("Bip01_L_Thigh", 0.1, character_cmp.filterWord0)
 	arg.self:AddIK("Bip01_R_Thigh", 0.1, character_cmp.filterWord0)
 end
-player.Animation=anim
+player:AddComponent(anim)
 
 -- 角色行为
 class 'PlayerBehavior'(Component)

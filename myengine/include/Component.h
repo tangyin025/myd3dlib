@@ -42,6 +42,7 @@ public:
 		ComponentTypeStaticEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
+		ComponentTypeAnimator,
 		ComponentTypeScript,
 	};
 
@@ -190,8 +191,6 @@ public:
 
 	bool m_bInstance;
 
-	bool m_bUseAnimation;
-
 	D3DXHANDLE handle_Time;
 
 	D3DXHANDLE handle_World;
@@ -205,7 +204,6 @@ protected:
 		: m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
-		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -219,7 +217,6 @@ public:
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
-		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -282,8 +279,6 @@ public:
 
 	my::Vector4 m_MeshColor;
 
-	bool m_bUseAnimation;
-
 	my::D3DVertexElementSet m_VertexElems;
 
 	std::vector<physx::PxClothParticle> m_particles;
@@ -313,7 +308,6 @@ public:
 protected:
 	ClothComponent(void)
 		: m_MeshColor(my::Vector4(1, 1, 1, 1))
-		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -325,7 +319,6 @@ public:
 	ClothComponent(const char * Name)
 		: Component(ComponentTypeCloth, Name)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
-		, m_bUseAnimation(false)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)

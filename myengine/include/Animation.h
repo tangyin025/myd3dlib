@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mySkeleton.h"
+#include "Component.h"
 #include "myPhysics.h"
 #include <boost/circular_buffer.hpp>
 
@@ -300,11 +301,11 @@ public:
 	}
 };
 
-class AnimationRoot : public AnimationNodeSlot
+class AnimationRoot
+	: public Component
+	, public AnimationNodeSlot
 {
 public:
-	Actor * m_Actor;
-
 	std::string m_SkeletonPath;
 
 	my::OgreSkeletonAnimationPtr m_Skeleton;
@@ -357,13 +358,12 @@ public:
 
 protected:
 	AnimationRoot(void)
-		: m_Actor(NULL)
 	{
 	}
 
 public:
-	AnimationRoot(Actor * actor)
-		: m_Actor(actor)
+	AnimationRoot(const char* Name)
+		: Component(ComponentTypeAnimator, Name)
 	{
 	}
 
@@ -385,11 +385,11 @@ public:
 
 	void OnSkeletonReady(my::DeviceResourceBasePtr res);
 
-	void RequestResource(void);
+	virtual void RequestResource(void);
 
-	void ReleaseResource(void);
+	virtual void ReleaseResource(void);
 
-	void Update(float fElapsedTime);
+	virtual void Update(float fElapsedTime);
 
 	void AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 

@@ -63,7 +63,6 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
 	ar << BOOST_SERIALIZATION_NVP(m_CullingDist);
-	ar << BOOST_SERIALIZATION_NVP(m_Animation);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
@@ -111,11 +110,6 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
 	ar >> BOOST_SERIALIZATION_NVP(m_CullingDist);
-	ar >> BOOST_SERIALIZATION_NVP(m_Animation);
-	if (m_Animation)
-	{
-		m_Animation->m_Actor = this;
-	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -206,21 +200,11 @@ ActorPtr Actor::Clone(void) const
 void Actor::RequestResource(void)
 {
 	m_Requested = true;
-
-	if (m_Animation)
-	{
-		m_Animation->RequestResource();
-	}
 }
 
 void Actor::ReleaseResource(void)
 {
 	m_Requested = false;
-
-	if (m_Animation)
-	{
-		m_Animation->ReleaseResource();
-	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -297,11 +281,6 @@ void Actor::Update(float fElapsedTime)
 		}
 	}
 
-	if (m_Animation)
-	{
-		m_Animation->Update(fElapsedTime);
-	}
-
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -314,12 +293,13 @@ void Actor::Update(float fElapsedTime)
 
 void Actor::UpdateAttaches(float fElapsedTime)
 {
+	AnimationRoot* animator = GetAnimator();
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
-		if (m_Animation && att_iter->second >= 0 && att_iter->second < (int)m_Animation->anim_pose_hier.size())
+		if (animator && att_iter->second >= 0 && att_iter->second < (int)animator->anim_pose_hier.size())
 		{
-			const Bone & bone = m_Animation->anim_pose_hier[att_iter->second];
+			const Bone & bone = animator->anim_pose_hier[att_iter->second];
 			att_iter->first->SetPose(
 				bone.m_position.transformCoord(m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_World)));
 		}
@@ -694,4 +674,17 @@ void Actor::StopAllAction(void)
 		(*action_inst_iter)->Stop();
 	}
 	m_ActionInstList.clear();
+}
+
+AnimationRoot* Actor::GetAnimator(void)
+{
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->m_Type == Component::ComponentTypeAnimator)
+		{
+			return dynamic_cast<AnimationRoot*>(cmp_iter->get());
+		}
+	}
+	return NULL;
 }
