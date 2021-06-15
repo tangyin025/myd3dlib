@@ -379,7 +379,7 @@ void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shad
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
 
-	AnimationRoot* animator = m_Actor->GetAnimator();
+	Animator* animator = m_Actor->GetAnimator();
 
 	if (animator && !animator->m_DualQuats.empty() && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 	{
@@ -408,7 +408,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	{
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			AnimationRoot* animator = m_Actor->GetAnimator();
+			Animator* animator = m_Actor->GetAnimator();
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
@@ -841,7 +841,7 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 
 	shader->SetVector(handle_MeshColor, m_MeshColor);
 
-	AnimationRoot* animator = m_Actor->GetAnimator();
+	Animator* animator = m_Actor->GetAnimator();
 
 	if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 	{
@@ -883,7 +883,7 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 		_ASSERT(0 != m_VertexStride);
 		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			AnimationRoot* animator = m_Actor->GetAnimator();
+			Animator* animator = m_Actor->GetAnimator();
 			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
@@ -931,7 +931,7 @@ void ClothComponent::UpdateCloth(void)
 		{
 			unsigned char * pVertices = &m_VertexData[0];
 			const DWORD NbParticles = m_Cloth->getNbParticles();
-			AnimationRoot* animator = m_Actor->GetAnimator();
+			Animator* animator = m_Actor->GetAnimator();
 			if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				for (unsigned int i = 0; i < NbParticles; i++)
@@ -978,7 +978,7 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 	if (!m_ClothSpheres.empty())
 	{
 		m_ClothSpheresTmp.resize(m_ClothSpheres.size());
-		AnimationRoot* animator = m_Actor->GetAnimator();
+		Animator* animator = m_Actor->GetAnimator();
 		if (animator && !animator->m_DualQuats.empty() && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 		{
 			for (unsigned int i = 0; i < m_ClothSpheres.size(); i++)

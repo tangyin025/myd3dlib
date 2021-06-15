@@ -96,9 +96,9 @@ public:
 	std::string m_Group;
 
 protected:
-	friend class AnimationRoot;
+	friend class Animator;
 
-	AnimationRoot * m_GroupOwner;
+	Animator * m_GroupOwner;
 
 public:
 	AnimationNodeSequence(void)
@@ -288,20 +288,20 @@ typedef boost::shared_ptr<AnimationNodeRate> AnimationNodeRateBySpeedPtr;
 
 class Actor;
 
-class AnimationRoot;
+class Animator;
 
 struct AnimationEventArg : public my::EventArg
 {
 public:
-	AnimationRoot * self;
+	Animator * self;
 
-	AnimationEventArg(AnimationRoot * _self)
+	AnimationEventArg(Animator * _self)
 		: self(_self)
 	{
 	}
 };
 
-class AnimationRoot
+class Animator
 	: public Component
 	, public AnimationNodeSlot
 {
@@ -357,17 +357,17 @@ public:
 	IKContextMap m_Iks;
 
 protected:
-	AnimationRoot(void)
+	Animator(void)
 	{
 	}
 
 public:
-	AnimationRoot(const char* Name)
+	Animator(const char* Name)
 		: Component(ComponentTypeAnimator, Name)
 	{
 	}
 
-	~AnimationRoot(void);
+	~Animator(void);
 
 	friend class boost::serialization::access;
 
@@ -423,4 +423,4 @@ public:
 		const my::Vector3 & Position);
 };
 
-typedef boost::shared_ptr<AnimationRoot> AnimationRootPtr;
+typedef boost::shared_ptr<Animator> AnimatorPtr;

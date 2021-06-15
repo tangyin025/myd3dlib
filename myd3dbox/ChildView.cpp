@@ -319,7 +319,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			AnimationRoot* animator = mesh_cmp->m_Actor->GetAnimator();
+			Animator* animator = mesh_cmp->m_Actor->GetAnimator();
 			if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
@@ -454,7 +454,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			AnimationRoot* animator = cloth_cmp->m_Actor->GetAnimator();
+			Animator* animator = cloth_cmp->m_Actor->GetAnimator();
 			if (animator && !animator->m_DualQuats.empty() && cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
@@ -542,7 +542,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			AnimationRoot* animator = mesh_cmp->m_Actor->GetAnimator();
+			Animator* animator = mesh_cmp->m_Actor->GetAnimator();
 			if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
@@ -674,7 +674,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			AnimationRoot* animator = cloth_cmp->m_Actor->GetAnimator();
+			Animator* animator = cloth_cmp->m_Actor->GetAnimator();
 			if (animator && !animator->m_DualQuats.empty() && cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);

@@ -29,7 +29,7 @@ BOOST_CLASS_EXPORT(AnimationNodeBlend)
 
 BOOST_CLASS_EXPORT(AnimationNodeRate)
 
-BOOST_CLASS_EXPORT(AnimationRoot)
+BOOST_CLASS_EXPORT(Animator)
 
 AnimationNode::~AnimationNode(void)
 {
@@ -114,7 +114,7 @@ AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSe
 
 	if (rhs.m_GroupOwner)
 	{
-		AnimationRoot * TmpGroupOwner = rhs.m_GroupOwner;
+		Animator * TmpGroupOwner = rhs.m_GroupOwner;
 
 		rhs.m_GroupOwner->RemoveSequenceGroup(rhs.m_Group, const_cast<AnimationNodeSequence *>(&rhs));
 
@@ -152,7 +152,7 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 
 float AnimationNodeSequence::GetLength(void) const
 {
-	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
+	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
@@ -184,7 +184,7 @@ std::string AnimationNodeSequence::GetRootList(void) const
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 {
-	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
+	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
@@ -217,7 +217,7 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 
 void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 {
-	AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
+	Animator * Root = dynamic_cast<Animator *>(GetTopNode());
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end();)
 	{
@@ -271,7 +271,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		m_Childs[0]->GetPose(pose);
 	}
 
-	const AnimationRoot * Root = dynamic_cast<const AnimationRoot *>(GetTopNode());
+	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
 	if (Root->m_Skeleton)
 	{
 		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
@@ -307,7 +307,7 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 
 		if (!Group.empty())
 		{
-			AnimationRoot * Root = dynamic_cast<AnimationRoot *>(GetTopNode());
+			Animator * Root = dynamic_cast<Animator *>(GetTopNode());
 			Root->AddSequenceGroup(Group, &m_SequenceSlot.front());
 			Root->SyncSequenceGroupTime(Group, seq.m_Time / seq.GetLength());
 		}
@@ -435,21 +435,21 @@ my::BoneList & AnimationNodeRate::GetPose(my::BoneList & pose) const
 }
 
 template<class Archive>
-void AnimationRoot::save(Archive & ar, const unsigned int version) const
+void Animator::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 }
 
 template<class Archive>
-void AnimationRoot::load(Archive & ar, const unsigned int version)
+void Animator::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ReloadSequenceGroup();
 }
 
-AnimationRoot::~AnimationRoot(void)
+Animator::~Animator(void)
 {
 	if (!m_SkeletonPath.empty())
 	{
@@ -463,7 +463,7 @@ AnimationRoot::~AnimationRoot(void)
 	}
 }
 
-void AnimationRoot::OnSkeletonReady(my::DeviceResourceBasePtr res)
+void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 {
 	m_Skeleton = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 
@@ -488,21 +488,21 @@ void AnimationRoot::OnSkeletonReady(my::DeviceResourceBasePtr res)
 	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
 }
 
-void AnimationRoot::RequestResource(void)
+void Animator::RequestResource(void)
 {
 	if (!m_SkeletonPath.empty())
 	{
 		_ASSERT(!m_Skeleton);
 
-		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&AnimationRoot::OnSkeletonReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
 	}
 }
 
-void AnimationRoot::ReleaseResource(void)
+void Animator::ReleaseResource(void)
 {
 	if (!m_SkeletonPath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, boost::bind(&AnimationRoot::OnSkeletonReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
 
 		m_Skeleton.reset();
 	}
@@ -512,7 +512,7 @@ void AnimationRoot::ReleaseResource(void)
 	m_Iks.clear();
 }
 
-void AnimationRoot::Update(float fElapsedTime)
+void Animator::Update(float fElapsedTime)
 {
 	if (m_Skeleton && m_Childs[0])
 	{
@@ -556,7 +556,7 @@ void AnimationRoot::Update(float fElapsedTime)
 	}
 }
 
-void AnimationRoot::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
+void Animator::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
 	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
@@ -566,7 +566,7 @@ void AnimationRoot::AddSequenceGroup(const std::string & name, AnimationNodeSequ
 	sequence->m_GroupOwner = this;
 }
 
-void AnimationRoot::RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
+void Animator::RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
 {
 	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(name);
 	SequenceGroupMap::iterator seq_iter = std::find(range.first, range.second, SequenceGroupMap::value_type(name, sequence));
@@ -576,7 +576,7 @@ void AnimationRoot::RemoveSequenceGroup(const std::string & name, AnimationNodeS
 	sequence->m_GroupOwner = NULL;
 }
 
-void AnimationRoot::ReloadSequenceGroup(void)
+void Animator::ReloadSequenceGroup(void)
 {
 	m_SequenceGroup.clear();
 
@@ -590,7 +590,7 @@ void AnimationRoot::ReloadSequenceGroup(void)
 	}
 }
 
-void AnimationRoot::ReloadSequenceGroupWalker(AnimationNode * node)
+void Animator::ReloadSequenceGroupWalker(AnimationNode * node)
 {
 	AnimationNodeSequence * sequence = dynamic_cast<AnimationNodeSequence *>(node);
 	if (sequence && !sequence->m_Group.empty())
@@ -608,7 +608,7 @@ void AnimationRoot::ReloadSequenceGroupWalker(AnimationNode * node)
 	}
 }
 
-void AnimationRoot::UpdateSequenceGroup(void)
+void Animator::UpdateSequenceGroup(void)
 {
 	SequenceGroupMap::iterator seq_iter = m_SequenceGroup.begin();
 	while (seq_iter != m_SequenceGroup.end())
@@ -640,13 +640,13 @@ void AnimationRoot::UpdateSequenceGroup(void)
 	}
 }
 
-void AnimationRoot::SyncSequenceGroupTime(const std::string & Group, float Percent)
+void Animator::SyncSequenceGroupTime(const std::string & Group, float Percent)
 {
 	std::pair<SequenceGroupMap::iterator, SequenceGroupMap::iterator> range = m_SequenceGroup.equal_range(Group);
 	SyncSequenceGroupTime(range.first, range.second, Percent);
 }
 
-void AnimationRoot::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent)
+void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent)
 {
 	SequenceGroupMap::iterator seq_iter = begin;
 	for (; seq_iter != end; seq_iter++)
@@ -655,7 +655,7 @@ void AnimationRoot::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, Sequ
 	}
 }
 
-void AnimationRoot::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)
+void Animator::AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant)
 {
 	_ASSERT(mass > 0);
 
@@ -681,7 +681,7 @@ void AnimationRoot::AddJiggleBone(const std::string & bone_name, float mass, flo
 	AddJiggleBone(context, bone_name_iter->second, mass, damping);
 }
 
-void AnimationRoot::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
+void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping)
 {
 	context.m_ParticleList.push_back(Particle(
 		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
@@ -692,7 +692,7 @@ void AnimationRoot::AddJiggleBone(JiggleBoneContext & context, int node_i, float
 	}
 }
 
-void AnimationRoot::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime)
+void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime)
 {
 	Bone target(
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
@@ -723,7 +723,7 @@ void AnimationRoot::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone
 	}
 }
 
-void AnimationRoot::AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0)
+void Animator::AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0)
 {
 	_ASSERT(m_Actor);
 
@@ -752,7 +752,7 @@ void AnimationRoot::AddIK(const std::string & bone_name, float hitRadius, unsign
 	ik.filterWord0 = filterWord0;
 }
 
-void AnimationRoot::UpdateIK(IKContext & ik)
+void Animator::UpdateIK(IKContext & ik)
 {
 	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
@@ -795,7 +795,7 @@ void AnimationRoot::UpdateIK(IKContext & ik)
 	}
 }
 
-void AnimationRoot::TransformHierarchyBoneList(
+void Animator::TransformHierarchyBoneList(
 	my::BoneList & boneList,
 	const my::BoneHierarchy & boneHierarchy,
 	int root_i,

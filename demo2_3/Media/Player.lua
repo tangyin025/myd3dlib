@@ -64,7 +64,7 @@ node_run.Child0=node_walk
 node_run.Child1=rate_run
 
 -- 加载动画资源
-local anim=AnimationRoot(NamedObject.MakeUniqueName("animator_cmp"))
+local anim=Animator(NamedObject.MakeUniqueName("anim_cmp"))
 anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"

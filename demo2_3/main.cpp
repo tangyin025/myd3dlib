@@ -135,7 +135,7 @@ public:
 		//mtl->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
 		//mtl->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
 		//mesh_cmp->m_MaterialList.push_back(mtl);
-		//AnimationRootPtr anim(new AnimationRoot());
+		//AnimatorPtr anim(new Animator());
 		//anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
 		//AnimationNodeSequencePtr node(new AnimationNodeSequence());
 		//node->m_Name = "walk";

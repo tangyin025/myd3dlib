@@ -3,7 +3,7 @@
 #include "myOctree.h"
 #include "Component.h"
 
-class AnimationRoot;
+class Animator;
 
 class Actor;
 
@@ -243,5 +243,5 @@ public:
 
 	void StopAllAction(void);
 
-	AnimationRoot* GetAnimator(void);
+	Animator* GetAnimator(void);
 };
