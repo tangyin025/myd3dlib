@@ -360,12 +360,8 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 
 my::AABB Actor::CalculateAABB(void) const
 {
-	if (m_Cmps.empty())
-	{
-		return AABB(-1, 1);
-	}
-
 	AABB ret = AABB::Invalid();
+
 	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -377,9 +373,10 @@ my::AABB Actor::CalculateAABB(void) const
 void Actor::UpdateAABB(void)
 {
 	m_aabb = CalculateAABB();
+
 	if (!m_aabb.IsValid())
 	{
-		m_aabb.unionSelf(AABB(m_aabb.Center() - 1, m_aabb.Center() + 1));
+		m_aabb = AABB(-1, 1);
 	}
 }
 

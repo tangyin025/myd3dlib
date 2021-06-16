@@ -892,25 +892,30 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 
 	return OctNode::RemoveEntity(entity);
 }
-//
-//void CMainFrame::OnMeshComponentReady(my::EventArg* arg)
-//{
-//	ComponentEventArg* cmp_arg = dynamic_cast<ComponentEventArg*>(arg);
-//	ASSERT(cmp_arg);
-//
-//	MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp_arg->self);
-//	ASSERT(mesh_cmp);
-//	ASSERT(mesh_cmp->m_Actor);
-//
-//	mesh_cmp->m_Actor->UpdateAABB();
-//	mesh_cmp->m_Actor->UpdateOctNode();
-//	mesh_cmp->m_MeshEventReady.clear();
-//
-//	if (std::find(m_selactors.begin(), m_selactors.end(), mesh_cmp->m_Actor) != m_selactors.end())
-//	{
-//		UpdateSelBox();
-//	}
-//}
+
+void CMainFrame::OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak_ptr<MeshComponent> mesh_cmp_weak_ptr)
+{
+	MeshComponentPtr mesh_cmp = mesh_cmp_weak_ptr.lock();
+	if (mesh_cmp)
+	{
+		ASSERT(mesh_cmp->m_Actor);
+		if (mesh_cmp->m_Actor->m_aabb == my::AABB(-1, 1))
+		{
+			mesh_cmp->m_Actor->UpdateAABB();
+		}
+		else
+		{
+			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+			ASSERT(mesh);
+			mesh_cmp->m_Actor->m_aabb.unionSelf(mesh->CalculateAABB(mesh_cmp->m_MeshSubMeshId));
+		}
+		mesh_cmp->m_Actor->UpdateOctNode();
+		if (std::find(m_selactors.begin(), m_selactors.end(), mesh_cmp->m_Actor) != m_selactors.end())
+		{
+			UpdateSelBox();
+		}
+	}
+}
 
 Component* CMainFrame::GetSelComponent(Component::ComponentType Type)
 {
@@ -1175,6 +1180,8 @@ void CMainFrame::OnComponentMesh()
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
 			(*actor_iter)->AddComponent(mesh_cmp);
+
+			theApp.LoadMeshAsync(path.c_str(), "", boost::bind(&CMainFrame::OnMeshComponentReady, this, boost::placeholders::_1, boost::weak_ptr<MeshComponent>(mesh_cmp)));
 		}
 	}
 	else
@@ -1193,6 +1200,8 @@ void CMainFrame::OnComponentMesh()
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
 			(*actor_iter)->AddComponent(mesh_cmp);
+
+			theApp.LoadMeshAsync(path.c_str(), attr_name->value(), boost::bind(&CMainFrame::OnMeshComponentReady, this, boost::placeholders::_1, boost::weak_ptr<MeshComponent>(mesh_cmp)));
 		}
 	}
 

@@ -3028,6 +3028,18 @@ namespace my
 		}
 
 	public:
+		bool operator ==(const AABB& rhs) const
+		{
+			return m_min == rhs.m_min
+				&& m_max == rhs.m_max;
+		}
+
+		bool operator !=(const AABB& rhs) const
+		{
+			return !operator ==(rhs);
+		}
+
+	public:
 		Vector3 Center(void) const
 		{
 			return Vector3(
