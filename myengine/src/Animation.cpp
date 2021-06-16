@@ -271,16 +271,12 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		m_Childs[0]->GetPose(pose);
 	}
 
-	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
-	if (Root->m_Skeleton)
+	SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
+	for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
 	{
-		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
-		for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
-		{
-			my::BoneList OtherPose(pose.size());
-			seq_iter->GetPose(OtherPose);
-			pose.LerpSelf(OtherPose, seq_iter->m_Weight);
-		}
+		my::BoneList OtherPose(pose.size());
+		seq_iter->GetPose(OtherPose);
+		pose.LerpSelf(OtherPose, seq_iter->m_Weight);
 	}
 	return pose;
 }
@@ -760,6 +756,8 @@ void Animator::AddIK(const std::string & bone_name, float hitRadius, unsigned in
 
 void Animator::UpdateIK(IKContext & ik)
 {
+	_ASSERT(m_Actor);
+
 	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
 
@@ -767,25 +765,23 @@ void Animator::UpdateIK(IKContext & ik)
 		anim_pose_hier[ik.id[0]].m_position,
 		anim_pose_hier[ik.id[1]].m_position,
 		anim_pose_hier[ik.id[2]].m_position };
-
 	Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
 	float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
 	Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
-	float theta[2] = {
-		acos(Vector3::CosTheta(normal[0], normal[2])),
-		acos(Vector3::CosTheta(-normal[0], normal[1])) };
+	float theta[2] = { acos(Vector3::CosTheta(normal[0], normal[2])), acos(Vector3::CosTheta(-normal[0], normal[1])) };
 
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(ik.hitRadius);
-	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(physx::PxFilterData(ik.filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
-	bool status = scene->m_PxScene->sweep(sphere,
-		physx::PxTransform((physx::PxVec3&)(m_Actor->m_Rotation * pos[0] + m_Actor->m_Position)),
-		(physx::PxVec3&)(m_Actor->m_Rotation * normal[2]), length[2], hit, physx::PxHitFlag::eDEFAULT, filterData);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(ik.filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
+	bool status = scene->m_PxScene->sweep(sphere, physx::PxTransform((physx::PxVec3&)pos[0].transformCoord(m_Actor->m_World)),
+		(physx::PxVec3&)(normal[2].transformNormal(m_Actor->m_World).normalize()), length[2] * m_Actor->m_Scale.x, hit, physx::PxHitFlag::eDEFAULT, filterData);
 	if (status && hit.block.distance > 0)
 	{
+		float local_dist = hit.block.distance / m_Actor->m_Scale.x; // ! m_Actor must be orthogonal Scale
 		float new_theta[2] = {
-			acos(Vector3::Cosine(length[1], length[0], hit.block.distance)),
-			acos(Vector3::Cosine(hit.block.distance, length[1], length[0])) };
+			acos(Vector3::Cosine(length[1], length[0], local_dist)),
+			acos(Vector3::Cosine(local_dist, length[1], length[0])) };
 		Quaternion rot[2] = {
 			Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
 			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };

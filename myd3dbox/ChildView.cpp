@@ -1279,7 +1279,6 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			(*sel_iter)->UpdateAABB();
 			(*sel_iter)->UpdateOctNode();
 
 			physx::PxRigidBody * body = NULL;
