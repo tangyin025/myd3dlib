@@ -1230,6 +1230,10 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 		return _T("SphericalEmitter");
 	case Component::ComponentTypeTerrain:
 		return _T("Terrain");
+	case Component::ComponentTypeScript:
+		return _T("Script");
+	case Component::ComponentTypeAnimator:
+		return _T("Animator");
 	}
 	return _T("Unknown");
 }

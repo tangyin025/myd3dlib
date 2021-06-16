@@ -42,8 +42,8 @@ public:
 		ComponentTypeStaticEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
-		ComponentTypeAnimator,
 		ComponentTypeScript,
+		ComponentTypeAnimator,
 	};
 
 	ComponentType m_Type;
