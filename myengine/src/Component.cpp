@@ -430,10 +430,13 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-							if (animator && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-							{
-								BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
-							}
+						}
+
+						if (!handle_dualquat && animator && m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+						{
+							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
+							BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 						}
 
 						if (m_bInstance)
@@ -901,10 +904,13 @@ void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline *
 						{
 							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
 							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
-							if (animator && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
-							{
-								BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
-							}
+						}
+
+						if (!handle_dualquat && animator && m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+						{
+							BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+							BOOST_VERIFY(handle_MeshColor = shader->GetParameterByName(NULL, "g_MeshColor"));
+							BOOST_VERIFY(handle_dualquat = shader->GetParameterByName(NULL, "g_dualquat"));
 						}
 
 						pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,

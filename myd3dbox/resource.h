@@ -81,7 +81,7 @@
 #define ID_RENDERMODE_FXAA              32788
 #define ID_RENDERMODE_SSAO              32789
 #define ID_COMPONENT_CLOTH              32790
-#define ID_COMPONENT_CHARACTER             32791
+#define ID_COMPONENT_CHARACTER          32791
 #define ID_TOOLS_CLEARSHADER            32792
 #define ID_TOOLS_BUILDNAVIGATION        32793
 #define ID_SHOW_NAVIGATION              32794
@@ -94,13 +94,14 @@
 #define ID_PAINT_TERRAINHEIGHTFIELD     32801
 #define ID_PAINT_TERRAINCOLOR           32802
 #define ID_PAINT_EMITTERINSTANCE        32803
+#define ID_COMPONENT_ANIMATOR           32804
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        318
-#define _APS_NEXT_COMMAND_VALUE         32804
+#define _APS_NEXT_COMMAND_VALUE         32805
 #define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

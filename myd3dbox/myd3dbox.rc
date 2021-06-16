@@ -327,12 +327,13 @@ BEGIN
     BEGIN
         MENUITEM "Actor",                       ID_CREATE_ACTOR
         MENUITEM SEPARATOR
-        MENUITEM "Character",                   ID_COMPONENT_CHARACTER
         MENUITEM "Mesh...",                     ID_COMPONENT_MESH
         MENUITEM "Cloth...",                    ID_COMPONENT_CLOTH
         MENUITEM "StaticEmitter",               ID_COMPONENT_STATICEMITTER
         MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
         MENUITEM "Terrain...",                  ID_COMPONENT_TERRAIN
+        MENUITEM "Character",                   ID_COMPONENT_CHARACTER
+        MENUITEM "Animator...",                 ID_COMPONENT_ANIMATOR
     END
     POPUP "&Tools"
     BEGIN
@@ -485,12 +486,13 @@ BEGIN
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
     BUTTON      ID_CREATE_ACTOR
-    BUTTON      ID_COMPONENT_CHARACTER
     BUTTON      ID_COMPONENT_MESH
     BUTTON      ID_COMPONENT_CLOTH
     BUTTON      ID_COMPONENT_STATICEMITTER
     BUTTON      ID_COMPONENT_SPHERICALEMITTER
     BUTTON      ID_COMPONENT_TERRAIN
+    BUTTON      ID_COMPONENT_CHARACTER
+    BUTTON      ID_COMPONENT_ANIMATOR
     SEPARATOR
     BUTTON      ID_PIVOT_MOVE
     BUTTON      ID_PIVOT_ROTATE

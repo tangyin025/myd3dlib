@@ -231,6 +231,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINCOLOR, &CMainFrame::OnUpdatePaintTerrainColor)
 	ON_COMMAND(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnPaintEmitterinstance)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnUpdatePaintEmitterinstance)
+	ON_COMMAND(ID_COMPONENT_ANIMATOR, &CMainFrame::OnComponentAnimator)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_ANIMATOR, &CMainFrame::OnUpdateComponentAnimator)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1507,7 +1509,6 @@ void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 	pCmdUI->Enable(FALSE);
 }
 
-
 void CMainFrame::OnPaintTerrainColor()
 {
 	// TODO: Add your command handler code here
@@ -1523,7 +1524,6 @@ void CMainFrame::OnPaintTerrainColor()
 	m_EventPivotModeChanged(&arg);
 }
 
-
 void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
@@ -1537,7 +1537,6 @@ void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 
 	pCmdUI->Enable(FALSE);
 }
-
 
 void CMainFrame::OnPaintEmitterinstance()
 {
@@ -1554,7 +1553,6 @@ void CMainFrame::OnPaintEmitterinstance()
 	m_EventPivotModeChanged(&arg);
 }
 
-
 void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
@@ -1567,4 +1565,65 @@ void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 	}
 
 	pCmdUI->Enable(FALSE);
+}
+
+void CMainFrame::OnComponentAnimator()
+{
+	// TODO: Add your command handler code here
+	SelActorList::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
+	{
+		return;
+	}
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	std::string path = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+	if (path.empty())
+	{
+		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());
+		return;
+	}
+
+	my::CachePtr cache = my::FileIStream::Open(dlg.GetPathName())->GetWholeCache();
+	cache->push_back(0);
+	rapidxml::xml_document<char> doc;
+	try
+	{
+		doc.parse<0>((char*)&(*cache)[0]);
+	}
+	catch (rapidxml::parse_error& e)
+	{
+		theApp.m_EventLog(e.what());
+		return;
+	}
+
+	const rapidxml::xml_node<char>* node_root = &doc;
+	DEFINE_XML_NODE_SIMPLE(skeleton, root);
+	rapidxml::xml_node<char>* node_animations = node_skeleton->first_node("animations");
+	if (node_animations != NULL)
+	{
+		DEFINE_XML_NODE_SIMPLE(animation, animations);
+		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
+		AnimationNodeSequencePtr seq(new AnimationNodeSequence());
+		seq->m_Name = attr_name->value();
+		AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName("editor_animator_cmp").c_str()));
+		animator->SetChild<0>(seq);
+		animator->ReloadSequenceGroup();
+		animator->m_SkeletonPath = path;
+		(*actor_iter)->AddComponent(animator);
+	}
+
+	my::EventArg arg;
+	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateComponentAnimator(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selactors.empty());
 }

@@ -150,6 +150,8 @@ public:
 	afx_msg void OnUpdatePaintTerrainColor(CCmdUI* pCmdUI);
 	afx_msg void OnPaintEmitterinstance();
 	afx_msg void OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI);
+	afx_msg void OnComponentAnimator();
+	afx_msg void OnUpdateComponentAnimator(CCmdUI* pCmdUI);
 };
 
 
