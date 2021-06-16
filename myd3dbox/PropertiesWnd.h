@@ -21,6 +21,8 @@ class Terrain;
 
 class TerrainChunk;
 
+class Animator;
+
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -207,6 +209,7 @@ public:
 		PropertyPaintColorA,
 		PropertyPaintSpline,
 		PropertyPaintDensity,
+		PropertyAnimatorSkeletonPath,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -228,6 +231,7 @@ public:
 	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
+	void UpdatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -243,6 +247,7 @@ public:
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
 	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
+	void CreatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);

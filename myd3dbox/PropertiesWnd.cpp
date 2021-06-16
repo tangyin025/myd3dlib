@@ -9,6 +9,7 @@
 #include "ShapeDlg.h"
 #include "Material.h"
 #include "Terrain.h"
+#include "Animation.h"
 #include <boost/scope_exit.hpp>
 
 #ifdef _DEBUG
@@ -333,6 +334,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	case Component::ComponentTypeTerrain:
 		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
+	case Component::ComponentTypeAnimator:
+		UpdatePropertiesAnimator(pComponent, dynamic_cast<Animator *>(cmp));
+		break;
 	}
 }
 
@@ -639,6 +643,17 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	}
 }
 
+void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pComponent, Animator* animator)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty* pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyAnimatorSkeletonPath)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+	}
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str());
+}
+
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 {
 	CMFCPropertyGridProperty * pActor = new CSimpleProp(GetComponentTypeName(Component::ComponentTypeActor), PropertyActor, FALSE);
@@ -773,6 +788,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	case Component::ComponentTypeTerrain:
 		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
+	case Component::ComponentTypeAnimator:
+		CreatePropertiesAnimator(pComponent, dynamic_cast<Animator *>(cmp));
+		break;
 	}
 }
 
@@ -835,9 +853,10 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
+	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
 	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str(), NULL, PropertyMeshSubMeshName);
@@ -958,8 +977,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 
 void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
 	COLORREF color = RGB(cloth_cmp->m_MeshColor.x * 255, cloth_cmp->m_MeshColor.y * 255, cloth_cmp->m_MeshColor.z * 255);
 	CColorProp* pColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyClothColor);
@@ -977,8 +995,8 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 
 void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitterComponent * emit_cmp)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
 	CComboProp * pEmitterFaceType = new CComboProp(_T("FaceType"), (_variant_t)g_EmitterFaceType[emit_cmp->m_EmitterFaceType], NULL, PropertyEmitterFaceType);
 	for (unsigned int i = 0; i < _countof(g_EmitterFaceType); i++)
 	{
@@ -1051,8 +1069,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 
 void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
 	CComboProp * pEmitterFaceType = new CComboProp(_T("FaceType"), (_variant_t)g_EmitterFaceType[sphe_emit_cmp->m_EmitterFaceType], NULL, PropertyEmitterFaceType);
 	for (unsigned int i = 0; i < _countof(g_EmitterFaceType); i++)
 	{
@@ -1124,8 +1142,8 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 
 void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
@@ -1164,6 +1182,15 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 		CMFCPropertyGridProperty* pMaterial = new CSimpleProp(strTitle, PropertyMaterial, FALSE);
 		pComponent->AddSubItem(pMaterial);
 	}
+}
+
+void CPropertiesWnd::CreatePropertiesAnimator(CMFCPropertyGridProperty* pComponent, Animator* animator)
+{
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -1206,6 +1233,8 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 18;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
+	case Component::ComponentTypeAnimator:
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -2402,6 +2431,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_PaintDensity = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyAnimatorSkeletonPath:
+	{
 		break;
 	}
 	}
