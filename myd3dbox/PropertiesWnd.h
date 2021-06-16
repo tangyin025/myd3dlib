@@ -213,6 +213,7 @@ public:
 		PropertyPaintColorA,
 		PropertyPaintSpline,
 		PropertyPaintDensity,
+		PropertyAnimator,
 		PropertyAnimatorSkeletonPath,
 		PropertyAnimationNode,
 		PropertyAnimationNodeType,
@@ -240,6 +241,7 @@ public:
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 	void UpdatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 	void UpdatePropertiesAnimationNode(CMFCPropertyGridProperty * pAnimationNode, AnimationNode * node);
+	void UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty* pAnimationNode, AnimationNodeSequence* seq);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);

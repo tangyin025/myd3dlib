@@ -664,6 +664,8 @@ void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 
 void CPropertiesWnd::UpdatePropertiesAnimationNode(CMFCPropertyGridProperty* pAnimationNode, AnimationNode* node)
 {
+	pAnimationNode->SetValue((_variant_t)(DWORD_PTR)node);
+
 	if (AnimationNodeSequence* seq = dynamic_cast<AnimationNodeSequence*>(node))
 	{
 		pAnimationNode->GetSubItem(0)->SetValue((_variant_t)g_AnimationNodeType[0]);
@@ -674,17 +676,22 @@ void CPropertiesWnd::UpdatePropertiesAnimationNode(CMFCPropertyGridProperty* pAn
 			CreatePropertiesAnimationNodeSequence(pAnimationNode, seq);
 		}
 
-		pAnimationNode->GetSubItem(1)->SetValue((_variant_t)ms2ts(seq->m_Name.c_str()).c_str());
+		UpdatePropertiesAnimationNodeSequence(pAnimationNode, seq);
+	}
+}
 
-		pAnimationNode->GetSubItem(1)->RemoveAllOptions();
-		Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
-		if (animator->m_Skeleton)
+void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty* pAnimationNode, AnimationNodeSequence* seq)
+{
+	pAnimationNode->GetSubItem(1)->SetValue((_variant_t)ms2ts(seq->m_Name.c_str()).c_str());
+
+	pAnimationNode->GetSubItem(1)->RemoveAllOptions();
+	Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
+	if (animator->m_Skeleton)
+	{
+		my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
+		for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
 		{
-			my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
-			for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
-			{
-				pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
-			}
+			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
 		}
 	}
 }
@@ -1233,6 +1240,7 @@ void CPropertiesWnd::CreatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 void CPropertiesWnd::CreatePropertiesAnimationNode(CMFCPropertyGridProperty* pParentCtrl, AnimationNode* node)
 {
 	CMFCPropertyGridProperty* pAnimationNode = new CSimpleProp(_T("AnimationNode"), PropertyAnimationNode, FALSE);
+	pAnimationNode->SetValue((_variant_t)(DWORD_PTR)node);
 	pParentCtrl->AddSubItem(pAnimationNode);
 
 	CMFCPropertyGridProperty* pProp = new CComboProp(_T("Type"), (_variant_t)_T("None"), NULL, PropertyAnimationNodeType);
@@ -1286,6 +1294,8 @@ CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
 		return PropertySphericalEmitter;
 	case Component::ComponentTypeTerrain:
 		return PropertyTerrain;
+	case Component::ComponentTypeAnimator:
+		return PropertyAnimator;
 	}
 	return PropertyUnknown;
 }
@@ -2510,6 +2520,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyAnimatorSkeletonPath:
 	{
+		break;
+	}
+	case PropertyAnimationNodeSequenceName:
+	{
+		CMFCPropertyGridProperty * pAnimatioNode = pProp->GetParent();
+		ASSERT(pAnimatioNode->GetData() == PropertyAnimationNode);
+		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pAnimatioNode->GetValue().ulVal);
+		ASSERT(node);
+		node->m_Name = ts2ms(pProp->GetValue().bstrVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	}
