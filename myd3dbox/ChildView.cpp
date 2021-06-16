@@ -255,14 +255,28 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			if (mesh_cmp->m_Mesh)
 			{
-				theApp.m_SimpleSample->SetTechnique(theApp.technique_RenderSceneColor);
-				theApp.m_SimpleSample->SetMatrix(theApp.handle_World, mesh_cmp->m_Actor->m_World);
-				theApp.m_SimpleSample->SetVector(theApp.handle_MeshColor, my::Vector4(0,1,0,1));
-				UINT passes = theApp.m_SimpleSample->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
-				theApp.m_SimpleSample->BeginPass(0);
-				mesh_cmp->m_Mesh->DrawSubset(mesh_cmp->m_MeshSubMeshId);
-				theApp.m_SimpleSample->EndPass();
-				theApp.m_SimpleSample->End();
+				D3DXMACRO macro[3] = { {0} };
+				Animator* animator = cmp->m_Actor->GetAnimator();
+				int j = 0;
+				if (animator && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+				{
+					macro[j++].Name = "SKELETON";
+				}
+				my::Effect* shader = theApp.QueryShader(RenderPipeline::MeshTypeMesh, macro, "shader/mtl_simplecolor.fx", RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeOpaque));
+				if (shader)
+				{
+					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_Actor->m_World);
+					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), my::Vector4(0, 1, 0, 1));
+					if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+					{
+						shader->SetMatrixArray(shader->GetParameterByName(NULL, "g_dualquat"), &animator->m_DualQuats[0], animator->m_DualQuats.size());
+					}
+					shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+					shader->BeginPass(RenderPipeline::PassTypeOpaque);
+					mesh_cmp->m_Mesh->DrawSubset(mesh_cmp->m_MeshSubMeshId);
+					shader->EndPass();
+					shader->End();
+				}
 			}
 		}
 		break;
