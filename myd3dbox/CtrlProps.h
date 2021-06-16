@@ -115,6 +115,8 @@ public:
 
 	virtual void OnSelectCombo();
 
+	virtual BOOL OnEdit(LPPOINT lptClick);
+
 	int m_iSelIndex;
 
 	DECLARE_DYNAMIC(CComboProp)

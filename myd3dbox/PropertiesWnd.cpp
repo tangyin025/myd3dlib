@@ -115,6 +115,12 @@ static LPCTSTR g_EmitterSpaceType[EmitterComponent::SpaceTypeLocal + 1] =
 	_T("Local"),
 };
 
+static LPCTSTR g_AnimationNodeType[] =
+{
+	_T("Sequence"),
+	_T("None")
+};
+
 static LPCTSTR g_PaintType[CMainFrame::PaintTypeEmitterInstance + 1] =
 {
 	_T("PaintNone"),
@@ -652,6 +658,35 @@ void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 		RemovePropertiesFrom(pComponent, PropId);
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str());
+
+	UpdatePropertiesAnimationNode(pComponent->GetSubItem(PropId + 1), animator->m_Childs[0].get());
+}
+
+void CPropertiesWnd::UpdatePropertiesAnimationNode(CMFCPropertyGridProperty* pAnimationNode, AnimationNode* node)
+{
+	if (AnimationNodeSequence* seq = dynamic_cast<AnimationNodeSequence*>(node))
+	{
+		pAnimationNode->GetSubItem(0)->SetValue((_variant_t)g_AnimationNodeType[0]);
+
+		if (pAnimationNode->GetSubItemsCount() <= 1 || pAnimationNode->GetSubItem(1)->GetData() != PropertyAnimationNodeSequenceName)
+		{
+			RemovePropertiesFrom(pAnimationNode, 1);
+			CreatePropertiesAnimationNodeSequence(pAnimationNode, seq);
+		}
+
+		pAnimationNode->GetSubItem(1)->SetValue((_variant_t)ms2ts(seq->m_Name.c_str()).c_str());
+
+		pAnimationNode->GetSubItem(1)->RemoveAllOptions();
+		Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
+		if (animator->m_Skeleton)
+		{
+			my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
+			for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
+			{
+				pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
+			}
+		}
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1191,6 +1226,46 @@ void CPropertiesWnd::CreatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
+
+	CreatePropertiesAnimationNode(pComponent, animator->m_Childs[0].get());
+}
+
+void CPropertiesWnd::CreatePropertiesAnimationNode(CMFCPropertyGridProperty* pParentCtrl, AnimationNode* node)
+{
+	CMFCPropertyGridProperty* pAnimationNode = new CSimpleProp(_T("AnimationNode"), PropertyAnimationNode, FALSE);
+	pParentCtrl->AddSubItem(pAnimationNode);
+
+	CMFCPropertyGridProperty* pProp = new CComboProp(_T("Type"), (_variant_t)_T("None"), NULL, PropertyAnimationNodeType);
+	for (unsigned int i = 0; i < _countof(g_AnimationNodeType); i++)
+	{
+		pProp->AddOption(g_AnimationNodeType[i], TRUE);
+	}
+	pAnimationNode->AddSubItem(pProp);
+
+	if (AnimationNodeSequence * seq = dynamic_cast<AnimationNodeSequence *>(node))
+	{
+		pProp->SetValue((_variant_t)g_AnimationNodeType[0]);
+
+		CreatePropertiesAnimationNodeSequence(pAnimationNode, seq);
+	}
+}
+
+void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty* pAnimationNode, AnimationNodeSequence* seq)
+{
+	ASSERT(pAnimationNode->GetSubItemsCount() == 1);
+
+	CMFCPropertyGridProperty* pProp = new CComboProp(_T("Name"), (_variant_t)ms2ts(seq->m_Name.c_str()).c_str(), NULL, PropertyAnimationNodeSequenceName);
+	pAnimationNode->AddSubItem(pProp);
+
+	Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
+	if (animator->m_Skeleton)
+	{
+		my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
+		for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
+		{
+			pProp->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
+		}
+	}
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -1234,7 +1309,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
 	case Component::ComponentTypeAnimator:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);

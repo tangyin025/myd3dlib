@@ -313,6 +313,11 @@ void CComboProp::OnSelectCombo()
 	}
 }
 
+BOOL CComboProp::OnEdit(LPPOINT lptClick)
+{
+	return CSimpleProp::OnEdit(lptClick);
+}
+
 void CCheckBoxProp::OnDrawName(CDC* pDC, CRect rect)
 {
 	m_rectCheck = rect;

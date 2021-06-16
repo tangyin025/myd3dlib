@@ -23,6 +23,10 @@ class TerrainChunk;
 
 class Animator;
 
+class AnimationNode;
+
+class AnimationNodeSequence;
+
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -210,6 +214,9 @@ public:
 		PropertyPaintSpline,
 		PropertyPaintDensity,
 		PropertyAnimatorSkeletonPath,
+		PropertyAnimationNode,
+		PropertyAnimationNodeType,
+		PropertyAnimationNodeSequenceName,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -232,6 +239,7 @@ public:
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 	void UpdatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
+	void UpdatePropertiesAnimationNode(CMFCPropertyGridProperty * pAnimationNode, AnimationNode * node);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -248,6 +256,8 @@ public:
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
 	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 	void CreatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
+	void CreatePropertiesAnimationNode(CMFCPropertyGridProperty * pParentCtrl, AnimationNode * node);
+	void CreatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);
