@@ -123,9 +123,9 @@ function PlayerBehavior:Update(elapsedTime)
 		end
 		
 		-- 鼠标移动事件
-		game.Camera.Euler.y=game.Camera.Euler.y-math.rad(game.mouse:GetX())
-		game.Camera.Euler.x=game.Camera.Euler.x-math.rad(game.mouse:GetY())
-		self.LookDist=self.LookDist-game.mouse:GetZ()/480.0
+		game.Camera.Euler.y=game.Camera.Euler.y-math.rad(game.mouse.X)
+		game.Camera.Euler.x=game.Camera.Euler.x-math.rad(game.mouse.Y)
+		self.LookDist=self.LookDist-game.mouse.Z/480.0
 	end
 	
 	local lengthsq=direction:magnitudeSq()

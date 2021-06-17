@@ -69,26 +69,6 @@ namespace my
 		{
 		}
 
-		void SetRotation(const Quaternion & rotation)
-		{
-			m_rotation = rotation;
-		}
-
-		const Quaternion & GetRotation(void) const
-		{
-			return m_rotation;
-		}
-
-		void SetPosition(const Vector3 & position)
-		{
-			m_position = position;
-		}
-
-		const Vector3 & GetPosition(void) const
-		{
-			return m_position;
-		}
-
 		Bone Increment(const Bone & rhs) const;
 
 		Bone & IncrementSelf(const Bone & rhs);

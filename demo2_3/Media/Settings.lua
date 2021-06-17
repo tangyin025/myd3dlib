@@ -409,9 +409,9 @@ end
 
 function RefreshDisplayAdapter()
 	local_device_settings=game.DeviceSettings
-	local adapter_info_list=game:GetAdapterInfoList()
+	local adapter_info_list=game.AdapterInfoList
 	cbx_display_adapter:RemoveAllItems()
-	for i=0,adapter_info_list:GetSize()-1 do
+	for i=0,adapter_info_list.Size-1 do
 		local adapter_info=adapter_info_list:GetAt(i)
 		cbx_display_adapter:AddItem(adapter_info.szUniqueDescription)
 		cbx_display_adapter:SetItemData(i,adapter_info.AdapterOrdinal)
@@ -448,21 +448,21 @@ function RefreshDisplayAdapter()
 	
 	cbx_vertical_sync:RemoveAllItems()
 	cbx_vertical_sync:AddItem("On")
-	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT)
+	cbx_vertical_sync:SetItemData(cbx_vertical_sync.NumItems-1,DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT)
 	if bit.tobit(local_device_settings.pp.PresentationInterval) == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT then
-		cbx_vertical_sync.Selected=cbx_vertical_sync:GetNumItems()-1
+		cbx_vertical_sync.Selected=cbx_vertical_sync.NumItems-1
 	end
 	cbx_vertical_sync:AddItem("Off")
 	-- luabind issue for vs2019, vs2015 worked well: 2147483648 to int will be -2147483648, and then to uint will be 4294967295, ref enum_maker.hpp struct value
-	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,2147483648)--DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE)
+	cbx_vertical_sync:SetItemData(cbx_vertical_sync.NumItems-1,2147483648)--DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE)
 	if bit.tobit(local_device_settings.pp.PresentationInterval) == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE then
-		cbx_vertical_sync.Selected=cbx_vertical_sync:GetNumItems()-1
+		cbx_vertical_sync.Selected=cbx_vertical_sync.NumItems-1
 	end
 	OnPresentIntervalChanged()
 end
 
 local function IsComboBoxSelectedValid(cbx)
-	return cbx.Selected >= 0 and cbx.Selected < cbx:GetNumItems()
+	return cbx.Selected >= 0 and cbx.Selected < cbx.NumItems
 end
 
 local function GetComboBoxSelectedData(cbx)
@@ -478,7 +478,7 @@ function OnAdapterChanged()
 		
 		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_render_device:RemoveAllItems()
-		for i=0,adapter_info.deviceInfoList:GetSize()-1 do
+		for i=0,adapter_info.deviceInfoList.Size-1 do
 			local device_info=adapter_info.deviceInfoList:GetAt(i)
 			cbx_render_device:AddItem(DxutApp.DXUTD3DDeviceTypeToString(device_info.DeviceType))
 			cbx_render_device:SetItemData(i,device_info.DeviceType)
@@ -501,7 +501,7 @@ function OnDeviceTypeChanged()
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
 		chx_windowed.Enable=false
 		chx_full_screen.Enable=false
-		for i=0,device_info.deviceSettingsComboList:GetSize()-1 do
+		for i=0,device_info.deviceSettingsComboList.Size-1 do
 			local device_settings_combo = device_info.deviceSettingsComboList:GetAt(i)
 			if device_settings_combo.AdapterOrdinal == adapter_original
 				and device_settings_combo.DeviceType == device_type then
@@ -537,12 +537,12 @@ function OnWindowedFullScreenChanged()
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
 		cbx_adapter_format:RemoveAllItems()
-		for i=0,device_info.deviceSettingsComboList:GetSize()-1 do
+		for i=0,device_info.deviceSettingsComboList.Size-1 do
 			local device_settings_combo=device_info.deviceSettingsComboList:GetAt(i)
 			assert(device_settings_combo.AdapterOrdinal == adapter_original)
 			assert(device_settings_combo.DeviceType == device_type)
 			if SameBool(device_settings_combo.Windowed ~= 0,chx_windowed.Checked) then
-				local item_idx=cbx_adapter_format:GetNumItems()
+				local item_idx=cbx_adapter_format.NumItems
 				local adapter_format_desc=DxutApp.DXUTD3DFormatToString(device_settings_combo.AdapterFormat)
 				if not cbx_adapter_format:ContainsItem(adapter_format_desc,0) then
 					cbx_adapter_format:AddItem(adapter_format_desc)
@@ -577,12 +577,12 @@ function OnAdapterFormatChanged()
 		
 		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_resolution:RemoveAllItems()
-		for i=0,adapter_info.displayModeList:GetSize()-1 do
+		for i=0,adapter_info.displayModeList.Size-1 do
 			local display_mode=adapter_info.displayModeList:GetAt(i)
 			if display_mode.Format == GetComboBoxSelectedData(cbx_adapter_format) then
 				local resolution_desc=string.format("%d by %d",display_mode.Width,display_mode.Height)
 				if not cbx_resolution:ContainsItem(resolution_desc,0) then
-					local item_idx=cbx_resolution:GetNumItems()
+					local item_idx=cbx_resolution.NumItems
 					cbx_resolution:AddItem(resolution_desc)
 					cbx_resolution:SetItemData(item_idx,MAKELONG(display_mode.Width,display_mode.Height))
 					if local_device_settings.pp.BackBufferWidth == display_mode.Width
@@ -598,13 +598,13 @@ function OnAdapterFormatChanged()
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
 		cbx_back_buffer_format:RemoveAllItems()
-		for i=0,device_info.deviceSettingsComboList:GetSize()-1 do
+		for i=0,device_info.deviceSettingsComboList.Size-1 do
 			local device_settings_combo=device_info.deviceSettingsComboList:GetAt(i)
 			assert(device_settings_combo.AdapterOrdinal == adapter_original)
 			assert(device_settings_combo.DeviceType == device_type)
 			if SameBool(device_settings_combo.Windowed ~= 0,chx_windowed.Checked)
 				and device_settings_combo.AdapterFormat == GetComboBoxSelectedData(cbx_adapter_format) then
-				local item_idx=cbx_back_buffer_format:GetNumItems()
+				local item_idx=cbx_back_buffer_format.NumItems
 				cbx_back_buffer_format:AddItem(DxutApp.DXUTD3DFormatToString(device_settings_combo.BackBufferFormat))
 				cbx_back_buffer_format:SetItemData(item_idx,device_settings_combo.BackBufferFormat)
 				if local_device_settings.pp.BackBufferFormat == device_settings_combo.BackBufferFormat then
@@ -632,12 +632,12 @@ function OnResolutionChanged()
 			local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 			local width=LOWORD(GetComboBoxSelectedData(cbx_resolution))
 			local height=HIWORD(GetComboBoxSelectedData(cbx_resolution))
-			for i=0,adapter_info.displayModeList:GetSize()-1 do
+			for i=0,adapter_info.displayModeList.Size-1 do
 				local display_mode=adapter_info.displayModeList:GetAt(i)
 				if display_mode.Format == GetComboBoxSelectedData(cbx_adapter_format)
 					and display_mode.Width == width and display_mode.Height == height then
 					local refresh_rate=display_mode.RefreshRate
-					local item_idx=cbx_refresh_rate:GetNumItems()
+					local item_idx=cbx_refresh_rate.NumItems
 					if 0 == refresh_rate then
 						cbx_refresh_rate:AddItem("Default Rate")
 					else
@@ -683,7 +683,7 @@ function OnBackBufferFormatChanged()
 		cbx_depth_stencil_format:RemoveAllItems()
 		-- Only EnableAutoDepthStencil can select Depth/Stencil format
 		if local_device_settings.pp.EnableAutoDepthStencil ~= 0 then
-			for i=0,device_settings_combo.depthStencilFormatList:GetSize()-1 do
+			for i=0,device_settings_combo.depthStencilFormatList.Size-1 do
 				local depth_stencil_format=device_settings_combo.depthStencilFormatList:GetAt(i)
 				cbx_depth_stencil_format:AddItem(DxutApp.DXUTD3DFormatToString(depth_stencil_format))
 				cbx_depth_stencil_format:SetItemData(i,depth_stencil_format)
@@ -715,10 +715,10 @@ function OnDepthStencilBufferFormatChanged()
 			chx_windowed.Checked and 1 or 0)
 		local depth_stencil_format=GetComboBoxSelectedData(cbx_depth_stencil_format)
 		cbx_multisample_type:RemoveAllItems()
-		for i=0,device_settings_combo.multiSampleTypeList:GetSize()-1 do
+		for i=0,device_settings_combo.multiSampleTypeList.Size-1 do
 			local multi_sample_type=device_settings_combo.multiSampleTypeList:GetAt(i)
 			if not device_settings_combo:IsDepthStencilMultiSampleConflict(depth_stencil_format,multi_sample_type) then
-				local item_idx=cbx_multisample_type:GetNumItems()
+				local item_idx=cbx_multisample_type.NumItems
 				cbx_multisample_type:AddItem(DxutApp.DXUTMultisampleTypeToString(multi_sample_type))
 				cbx_multisample_type:SetItemData(item_idx,multi_sample_type)
 				if local_device_settings.pp.MultiSampleType == multi_sample_type then
@@ -744,7 +744,7 @@ function OnMultisampleTypeChanged()
 			chx_windowed.Checked and 1 or 0)
 		local multi_sample_type=GetComboBoxSelectedData(cbx_multisample_type)
 		cbx_multisample_quality:RemoveAllItems()
-		for i=0,device_settings_combo.multiSampleTypeList:GetSize()-1 do
+		for i=0,device_settings_combo.multiSampleTypeList.Size-1 do
 			if multi_sample_type == device_settings_combo.multiSampleTypeList:GetAt(i) then
 				local max_quality = device_settings_combo.multiSampleQualityList:GetAt(i)
 				for quality=0,max_quality-1 do
