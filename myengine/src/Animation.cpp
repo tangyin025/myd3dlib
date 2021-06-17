@@ -516,7 +516,7 @@ void Animator::ReleaseResource(void)
 
 void Animator::Update(float fElapsedTime)
 {
-	if (m_Skeleton && m_Childs[0])
+	if (m_Skeleton)
 	{
 		Tick(fElapsedTime, 1.0f);
 
@@ -535,10 +535,8 @@ void Animator::Update(float fElapsedTime)
 		for (; jb_iter != m_JiggleBones.end(); jb_iter++)
 		{
 			int particle_i = 0;
-			Bone parent(
-				anim_pose_hier[jb_iter->second.root_i].m_rotation * m_Actor->m_Rotation,
-				m_Actor->m_Rotation * anim_pose_hier[jb_iter->second.root_i].m_position + m_Actor->m_Position);
-			UpdateJiggleBone(jb_iter->second, parent, jb_iter->first, particle_i, fElapsedTime);
+			UpdateJiggleBone(jb_iter->second, anim_pose_hier[jb_iter->second.root_i],
+				anim_pose_hier[jb_iter->second.root_i].m_position.transformCoord(m_Actor->m_World), jb_iter->first, particle_i, fElapsedTime);
 		}
 
 		IKContextMap::iterator ik_iter = m_Iks.begin();
@@ -694,34 +692,37 @@ void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, float mass
 	}
 }
 
-void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime)
+void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
 {
 	Bone target(
 		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.GetRotation(),
 		parent.GetRotation() * m_Skeleton->m_boneBindPose[node_i].m_position + parent.GetPosition());
+	Vector3 target_world_pos = target.m_position.transformCoord(m_Actor->m_World);
+
 	Particle & particle = context.m_ParticleList[particle_i];
 	particle.clearAccumulator();
 	particle.setAcceleration(Vector3::Gravity);
-	Vector3 distance = target.GetPosition() - particle.getPosition();
+	Vector3 distance = target_world_pos - particle.getPosition();
 	float length = distance.magnitude();
 	Vector3 direction = distance.normalize();
 	Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * length) : Vector3(0, 0, 0);
 	particle.addForce(force);
 	particle.integrate(fElapsedTime);
-	Vector3 d0 = target.GetPosition() - parent.GetPosition();
-	Vector3 d1 = particle.getPosition() - parent.GetPosition();
-	Bone final(
-		target.GetRotation() * Quaternion::RotationFromTo(d0, d1, Vector3::zero),
-		parent.GetPosition() + d1.normalize() * d0.magnitude());
-	particle.setPosition(final.GetPosition());
-	anim_pose_hier[node_i].SetRotation(final.GetRotation() * m_Actor->m_Rotation.conjugate());
-	anim_pose_hier[node_i].SetPosition(m_Actor->m_Rotation.conjugate() * (final.GetPosition() - m_Actor->m_Position));
+	Vector3 d0 = target_world_pos - parent_world_pos;
+	Vector3 d1 = particle.getPosition() - parent_world_pos;
+	particle.setPosition(parent_world_pos + d1.normalize() * d0.magnitude());
+
+	anim_pose_hier[node_i].SetRotation(
+		target.GetRotation() * m_Actor->m_Rotation * Quaternion::RotationFromTo(d0, d1, Vector3::zero) * m_Actor->m_Rotation.conjugate());
+
+	anim_pose_hier[node_i].SetPosition(
+		particle.getPosition().transformCoord(m_Actor->m_World.inverse()));
 
 	particle_i++;
-	node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
-	for (; node_i >= 0; node_i = m_Skeleton->m_boneHierarchy[node_i].m_sibling)
+	int sub_node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; sub_node_i >= 0; sub_node_i = m_Skeleton->m_boneHierarchy[sub_node_i].m_sibling)
 	{
-		UpdateJiggleBone(context, final, node_i, particle_i, fElapsedTime);
+		UpdateJiggleBone(context, anim_pose_hier[node_i], particle.getPosition(), sub_node_i, particle_i, fElapsedTime);
 	}
 }
 

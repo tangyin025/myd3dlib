@@ -366,7 +366,7 @@ namespace my
 			DWORD NumFaces,
 			const D3DVertexElementSet& VertexElems);
 
-		static DWORD FrustumTest(
+		static bool FrustumTest(
 			const Frustum& frustum,
 			void* pVertices,
 			DWORD NumVerts,

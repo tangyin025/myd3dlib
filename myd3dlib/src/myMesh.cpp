@@ -895,7 +895,7 @@ RayResult Mesh::RayTest(
 	return ret;
 }
 
-DWORD Mesh::FrustumTest(
+bool Mesh::FrustumTest(
 	const Frustum& frustum,
 	void* pVertices,
 	DWORD NumVerts,
@@ -905,7 +905,6 @@ DWORD Mesh::FrustumTest(
 	DWORD NumFaces,
 	const D3DVertexElementSet& VertexElems)
 {
-	IntersectionTests::IntersectionType ret = IntersectionTests::IntersectionTypeUnknown;
 	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
 	{
 		int i0 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 0) : *((DWORD*)pIndices + face_i * 3 + 0);
@@ -921,33 +920,15 @@ DWORD Mesh::FrustumTest(
 			IntersectionTests::IntersectionType result = IntersectionTests::IntersectTriangleAndFrustum(v0, v1, v2, frustum);
 			if (result == IntersectionTests::IntersectionTypeInside)
 			{
-				if (ret == IntersectionTests::IntersectionTypeOutside)
-				{
-					return IntersectionTests::IntersectionTypeIntersect;
-				}
-				else
-				{
-					ret = IntersectionTests::IntersectionTypeInside;
-				}
+				return true;
 			}
-			else if (result == IntersectionTests::IntersectionTypeOutside)
+			else if (result == IntersectionTests::IntersectionTypeIntersect)
 			{
-				if (ret == IntersectionTests::IntersectionTypeInside)
-				{
-					return IntersectionTests::IntersectionTypeIntersect;
-				}
-				else
-				{
-					ret = IntersectionTests::IntersectionTypeOutside;
-				}
-			}
-			else
-			{
-				return IntersectionTests::IntersectionTypeIntersect;
+				return true;
 			}
 		}
 	}
-	return IntersectionTests::IntersectionTypeOutside;
+	return false;
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInFile(

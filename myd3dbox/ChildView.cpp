@@ -348,7 +348,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
 					animator->m_DualQuats);
-				DWORD ret = my::Mesh::FrustumTest(local_ftm,
+				bool ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -358,14 +358,14 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					elems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
-				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
+				if (ret)
 				{
 					return true;
 				}
 			}
 			else
 			{
-				DWORD ret = my::Mesh::FrustumTest(local_ftm,
+				bool ret = my::Mesh::FrustumTest(local_ftm,
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumVertices(),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
@@ -375,7 +375,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->m_VertexElems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
-				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
+				if (ret)
 				{
 					return true;
 				}
@@ -447,9 +447,9 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					particle_ftm = local_ftm.transform(p2local.transpose());
 					break;
 				}
-				DWORD ret = my::Mesh::FrustumTest(particle_ftm,
+				bool ret = my::Mesh::FrustumTest(particle_ftm,
 					pvb, RenderPipeline::m_ParticleQuadNumVertices, theApp.m_ParticleVertStride, pib, true, RenderPipeline::m_ParticleQuadPrimitiveCount, theApp.m_ParticleVertElems);
-				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
+				if (ret)
 				{
 					theApp.m_ParticleQuadVb.Unlock();
 					theApp.m_ParticleQuadIb.Unlock();
@@ -483,7 +483,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
 					animator->m_DualQuats);
-				DWORD ret = my::Mesh::FrustumTest(local_ftm,
+				bool ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -491,14 +491,14 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					true,
 					cloth_cmp->m_IndexData.size() / 3,
 					elems);
-				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
+				if (ret)
 				{
 					return true;
 				}
 			}
 			else
 			{
-				DWORD ret = my::Mesh::FrustumTest(local_ftm,
+				bool ret = my::Mesh::FrustumTest(local_ftm,
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexStride,
@@ -506,7 +506,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					true,
 					cloth_cmp->m_IndexData.size() / 3,
 					cloth_cmp->m_VertexElems);
-				if (ret == my::IntersectionTests::IntersectionTypeInside || ret == my::IntersectionTests::IntersectionTypeIntersect)
+				if (ret)
 				{
 					return true;
 				}

@@ -1713,7 +1713,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->m_Scale.y = pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 		actor->UpdateWorld();
-		actor->UpdateAABB();
 		actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();

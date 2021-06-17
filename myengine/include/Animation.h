@@ -409,7 +409,7 @@ public:
 
 	void AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping);
 
-	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, int node_i, int & particle_i, float fElapsedTime);
+	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
 
 	void AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0);
 
