@@ -154,3 +154,48 @@ actor6:AddComponent(actor6_behavior)
 -- end
 -- m=MyCmp()
 -- SPlayer.player:AddComponent(m)
+
+-- actor9=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+-- local cmp15=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
+-- cmp15.MeshPath="character/body_anim_stand.ma.mesh.xml"
+-- cmp15.MeshSubMeshId=0
+-- local lambert9=Material()
+-- lambert9.Shader="shader/mtl_BlinnPhong.fx"
+-- lambert9.PassMask=Material.PassMaskShadowNormalOpaque
+-- lambert9:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert9:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+-- lambert9:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- cmp15.Material=lambert9
+-- actor9:AddComponent(cmp15)
+-- cmp15=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
+-- cmp15.MeshPath="character/body_anim_stand.ma.mesh.xml"
+-- cmp15.MeshSubMeshId=1
+-- local lambert9=Material()
+-- lambert9.Shader="shader/mtl_BlinnPhong.fx"
+-- lambert9.PassMask=Material.PassMaskShadowNormalOpaque
+-- lambert9:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert9:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+-- lambert9:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- cmp15.Material=lambert9
+-- actor9:AddComponent(cmp15)
+-- cmp15=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
+-- cmp15.MeshPath="character/body_anim_stand.ma.mesh.xml"
+-- cmp15.MeshSubMeshId=2
+-- local lambert9=Material()
+-- lambert9.Shader="shader/mtl_BlinnPhong.fx"
+-- lambert9.PassMask=Material.PassMaskShadowNormalOpaque
+-- lambert9:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert9:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
+-- lambert9:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- cmp15.Material=lambert9
+-- actor9:AddComponent(cmp15)
+-- -- 构建动画树
+-- local seq_idle=AnimationNodeSequence()
+-- seq_idle.Name="clip1"
+-- -- 加载动画资源
+-- local anim=Animator(NamedObject.MakeUniqueName("anim_cmp"))
+-- anim.Child0=seq_idle
+-- anim:ReloadSequenceGroup()
+-- anim.SkeletonPath="character/body_anim_stand.ma.skeleton.xml"
+-- actor9:AddComponent(anim)
+-- game:AddEntity(actor2ent(actor9),actor9.aabb:transform(actor9.World),1.0,0.1)

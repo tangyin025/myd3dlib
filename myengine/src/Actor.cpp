@@ -301,7 +301,7 @@ void Actor::UpdateAttaches(float fElapsedTime)
 		{
 			const Bone & bone = animator->anim_pose_hier[att_iter->second];
 			att_iter->first->SetPose(
-				bone.m_position.transformCoord(m_World), bone.m_rotation.multiply(Quaternion::RotationMatrix(m_World)));
+				bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
 		}
 		else
 		{
