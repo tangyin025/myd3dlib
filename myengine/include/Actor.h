@@ -2,14 +2,32 @@
 
 #include "myOctree.h"
 #include "Component.h"
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
 
 class Animator;
 
 class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
+
+class Action;
+
+class ActionInst;
+
+namespace boost {
+	namespace archive {
+		class polymorphic_iarchive;
+
+		class polymorphic_oarchive;
+	}
+}
+
+class ActorSerializationContext
+{
+public:
+	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
+
+	ActorSerializationContext(void);
+};
 
 struct ActorEventArg : public my::EventArg
 {
@@ -59,18 +77,6 @@ public:
 	{
 	}
 };
-
-class PhysxSerializationContext
-{
-public:
-	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
-
-	PhysxSerializationContext(void);
-};
-
-class Action;
-
-class ActionInst;
 
 class Actor
 	: public my::NamedObject

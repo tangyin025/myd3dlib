@@ -615,7 +615,7 @@ namespace boost {
 template<class Archive>
 void ClothComponent::save(Archive & ar, const unsigned int version) const
 {
-	PhysxSerializationContext* pxar = dynamic_cast<PhysxSerializationContext*>(&ar);
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
 	_ASSERT(pxar);
 
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
@@ -645,7 +645,7 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void ClothComponent::load(Archive & ar, const unsigned int version)
 {
-	PhysxSerializationContext* pxar = dynamic_cast<PhysxSerializationContext*>(&ar);
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
 	_ASSERT(pxar);
 
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);

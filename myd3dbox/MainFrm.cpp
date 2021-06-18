@@ -11,6 +11,8 @@
 #include "Terrain.h"
 #include "Material.h"
 #include "Character.h"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/set.hpp>
 #include <fstream>

@@ -8,6 +8,8 @@
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
 #include "LuaExtension.inl"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/program_options.hpp>

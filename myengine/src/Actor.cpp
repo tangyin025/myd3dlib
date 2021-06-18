@@ -25,7 +25,7 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Actor)
 
-PhysxSerializationContext::PhysxSerializationContext(void)
+ActorSerializationContext::ActorSerializationContext(void)
 	: m_Registry(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>())
 {
 }
@@ -57,7 +57,7 @@ Actor::~Actor(void)
 template<class Archive>
 void Actor::save(Archive & ar, const unsigned int version) const
 {
-	PhysxSerializationContext* pxar = dynamic_cast<PhysxSerializationContext*>(&ar);
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
 	_ASSERT(pxar);
 
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
@@ -104,7 +104,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Actor::load(Archive & ar, const unsigned int version)
 {
-	PhysxSerializationContext* pxar = dynamic_cast<PhysxSerializationContext*>(&ar);
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
 	_ASSERT(pxar);
 
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
@@ -178,7 +178,7 @@ boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::
 	{
 		class Archive
 			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
-			, public PhysxSerializationContext
+			, public ActorSerializationContext
 		{
 		public:
 			Archive(std::istream& is, unsigned int flags = 0)
@@ -193,7 +193,7 @@ boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::
 	{
 		class Archive
 			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
-			, public PhysxSerializationContext
+			, public ActorSerializationContext
 		{
 		public:
 			Archive(std::istream& is, unsigned int flags = 0)
@@ -206,7 +206,7 @@ boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::
 
 	class Archive
 		: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
-		, public PhysxSerializationContext
+		, public ActorSerializationContext
 	{
 	public:
 		Archive(std::istream& is, unsigned int flags = 0)
@@ -223,7 +223,7 @@ boost::shared_ptr<boost::archive::polymorphic_oarchive> Actor::GetOArchive(std::
 	{
 		class Archive
 			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::xml_oarchive>
-			, public PhysxSerializationContext
+			, public ActorSerializationContext
 		{
 		public:
 			Archive(std::ostream& os, unsigned int flags = 0)
@@ -237,7 +237,7 @@ boost::shared_ptr<boost::archive::polymorphic_oarchive> Actor::GetOArchive(std::
 	{
 		class Archive
 			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::text_oarchive>
-			, public PhysxSerializationContext
+			, public ActorSerializationContext
 		{
 		public:
 			Archive(std::ostream& os, unsigned int flags = 0)
@@ -250,7 +250,7 @@ boost::shared_ptr<boost::archive::polymorphic_oarchive> Actor::GetOArchive(std::
 
 	class Archive
 		: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::binary_oarchive>
-		, public PhysxSerializationContext
+		, public ActorSerializationContext
 	{
 	public:
 		Archive(std::ostream& os, unsigned int flags = 0)
