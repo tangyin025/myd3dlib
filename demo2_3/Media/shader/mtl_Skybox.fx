@@ -7,8 +7,8 @@ sampler DiffuseTextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
-    ADDRESSU = WRAP;
-    ADDRESSV = WRAP;
+    ADDRESSU = CLAMP;
+    ADDRESSV = CLAMP;
 };
 
 struct SKYBOX_VS_OUTPUT

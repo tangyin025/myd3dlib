@@ -1133,6 +1133,7 @@ void LuaContext::Init(void)
 			[
 				value("PassMaskNone", RenderPipeline::PassMaskNone),
 				value("PassMaskLight", RenderPipeline::PassMaskLight),
+				value("PassMaskBackground", RenderPipeline::PassMaskBackground),
 				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
 				value("PassMaskNormalOpaque", RenderPipeline::PassMaskNormalOpaque),
 				value("PassMaskShadowNormalOpaque", RenderPipeline::PassMaskShadowNormalOpaque),
