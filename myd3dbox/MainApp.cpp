@@ -523,8 +523,6 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	{
 		g_bRemoveFromMRU = FALSE;
 
-		RequestResource();
-
 		pFrame->OnSelChanged();
 
 		CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());

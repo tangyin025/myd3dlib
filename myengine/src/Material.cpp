@@ -393,6 +393,13 @@ void Material::ParseShaderParameters(void)
 				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
 			}
 		}
+		else if (Pass == "PassTypeBackground")
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeBackground;
+			}
+		}
 		else if (Pass == "PassTypeOpaque")
 		{
 			if (!assignment.empty())

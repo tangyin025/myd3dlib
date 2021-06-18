@@ -31,6 +31,9 @@ technique RenderScene
     pass PassTypeLight
     {          
     }
+	pass PassTypeBackground
+	{
+	}
     pass PassTypeOpaque
     {          
 		VertexShader = compile vs_3_0 VS();

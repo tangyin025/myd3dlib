@@ -31,8 +31,9 @@ public:
 		PassTypeShadow			= 0,
 		PassTypeNormal			= 1,
 		PassTypeLight			= 2,
-		PassTypeOpaque			= 3,
-		PassTypeTransparent		= 4,
+		PassTypeBackground		= 3,
+		PassTypeOpaque			= 4,
+		PassTypeTransparent		= 5,
 		PassTypeNum
 	};
 
@@ -40,6 +41,7 @@ public:
 	{
 		PassMaskNone = 0,
 		PassMaskLight = 1 << PassTypeLight,
+		PassMaskBackground = 1 << PassTypeBackground,
 		PassMaskOpaque = 1 << PassTypeOpaque,
 		PassMaskNormalOpaque = 1 << PassTypeNormal | 1 << PassTypeOpaque,
 		PassMaskShadowNormalOpaque = 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
@@ -88,15 +90,11 @@ public:
 
 	my::SurfacePtr m_ShadowDS;
 
-	my::Vector4 m_BgColor;
-
 	my::OrthoCamera m_SkyLightCam;
 
 	my::Vector4 m_SkyLightColor;
 
 	my::Vector4 m_AmbientColor;
-
-	MaterialParameterTexture m_SkyBoxTextures[6];
 
 	my::EffectPtr m_SimpleSample;
 
@@ -456,10 +454,6 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
-
-	virtual void RequestResource(void);
-
-	virtual void ReleaseResource(void);
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,

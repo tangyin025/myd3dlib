@@ -31,7 +31,6 @@ RenderPipeline::RenderPipeline(void)
 	, SHADOW_EPSILON(0.001f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
-	, m_BgColor(0.7f, 0.7f, 0.7f, 1.0f)
 	, m_SkyLightCam(sqrt(30 * 30 * 2.0f), 1.0f, -100, 100)
 	, m_SkyLightColor(1.0f, 1.0f, 1.0f, 1.0f)
 	, m_AmbientColor(0.3f, 0.3f, 0.3f, 3.0f)
@@ -296,15 +295,9 @@ void RenderPipeline::UpdateQuad(QuadVertex * quad, const my::Vector2 & dim)
 template<class Archive>
 void RenderPipeline::save(Archive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(m_BgColor);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Euler);
 	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
-	// ! archive_exception::unregistered_class for polymorphic pointer of MaterialParameterTexture
-	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
-	{
-		ar << boost::serialization::make_nvp("m_SkyBoxTextures", m_SkyBoxTextures[i].m_TexturePath);
-	}
 	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoBias);
 	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
@@ -319,14 +312,9 @@ void RenderPipeline::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void RenderPipeline::load(Archive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(m_BgColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Euler);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
-	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
-	{
-		ar >> boost::serialization::make_nvp("m_SkyBoxTextures", m_SkyBoxTextures[i].m_TexturePath);
-	}
 	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoBias);
 	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
@@ -343,22 +331,6 @@ void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::
 
 template
 void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
-
-void RenderPipeline::RequestResource(void)
-{
-	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
-	{
-		m_SkyBoxTextures[i].RequestResource();
-	}
-}
-
-void RenderPipeline::ReleaseResource(void)
-{
-	for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
-	{
-		m_SkyBoxTextures[i].ReleaseResource();
-	}
-}
 
 HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
@@ -589,7 +561,7 @@ void RenderPipeline::OnRender(
 	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
@@ -633,74 +605,10 @@ void RenderPipeline::OnRender(
 
 	m_SimpleSample->SetTexture(handle_LightRT, pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-	const D3DXCOLOR bgcolor = D3DCOLOR_COLORVALUE(m_BgColor.x, m_BgColor.y, m_BgColor.z, m_BgColor.w);
-	if (m_SkyBoxTextures[0].m_Texture)
+	RenderAllObjects(PassTypeBackground, pd3dDevice, fTime, fElapsedTime);
+	if (m_PassDrawCall[PassTypeBackground] <= 0)
 	{
-		struct CUSTOMVERTEX
-		{
-			float x, y, z;
-			D3DCOLOR color;
-			FLOAT tu, tv;
-		};
-		const CUSTOMVERTEX vertices[] =
-		{
-			{  1,  1,  1, bgcolor, 0, 0 },
-			{  1, -1,  1, bgcolor, 0, 1 },
-			{  1, -1, -1, bgcolor, 1, 1 },
-			{  1,  1, -1, bgcolor, 1, 0 },
-
-			{ -1,  1, -1, bgcolor, 0, 0 },
-			{ -1, -1, -1, bgcolor, 0, 1 },
-			{ -1, -1,  1, bgcolor, 1, 1 },
-			{ -1,  1,  1, bgcolor, 1, 0 },
-
-			{ -1,  1, -1, bgcolor, 0, 0 },
-			{ -1,  1,  1, bgcolor, 0, 1 },
-			{  1,  1,  1, bgcolor, 1, 1 },
-			{  1,  1, -1, bgcolor, 1, 0 },
-
-			{ -1, -1,  1, bgcolor, 0, 0 },
-			{ -1, -1, -1, bgcolor, 0, 1 },
-			{  1, -1, -1, bgcolor, 1, 1 },
-			{  1, -1,  1, bgcolor, 1, 0 },
-
-			{ -1,  1,  1, bgcolor, 0, 0 },
-			{ -1, -1,  1, bgcolor, 0, 1 },
-			{  1, -1,  1, bgcolor, 1, 1 },
-			{  1,  1,  1, bgcolor, 1, 0 },
-
-			{  1,  1, -1, bgcolor, 0, 0 },
-			{  1, -1, -1, bgcolor, 0, 1 },
-			{ -1, -1, -1, bgcolor, 1, 1 },
-			{ -1,  1, -1, bgcolor, 1, 0 },
-		};
-		pd3dDevice->SetFVF(D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1);
-		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		V(pd3dDevice->SetVertexShader(NULL));
-		V(pd3dDevice->SetPixelShader(NULL));
-		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::Translation(pRC->m_Camera->m_Eye)));
-		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&pRC->m_Camera->m_View));
-		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&pRC->m_Camera->m_Proj));
-		V(pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP));
-		V(pd3dDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP));
-		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
-		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
-		V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
-		V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE));
-		for (unsigned int i = 0; i < _countof(m_SkyBoxTextures); i++)
-		{
-			if (m_SkyBoxTextures[i].m_Texture)
-			{
-				V(pd3dDevice->SetTexture(0, m_SkyBoxTextures[i].m_Texture->m_ptr));
-				V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, &vertices[i * 4], sizeof(vertices[0])));
-			}
-		}
-	}
-	else
-	{
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, bgcolor, 1.0f, 0)); // ! d3dmultisample will not work
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0)); // ! d3dmultisample will not work
 	}
 
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID: D3DFILL_WIREFRAME));

@@ -116,18 +116,6 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEuler->AddSubItem(pProp);
 
-	CColorProp * pBgColor = new CColorProp(_T("BgColor"), 0, NULL, NULL, CameraPropertyBgColor);
-	pBgColor->EnableOtherButton(_T("Other..."));
-	pCamera->AddSubItem(pBgColor);
-
-	CMFCPropertyGridProperty * pSkyBox = new CSimpleProp(_T("SkyBox"), PropertySkyBox, FALSE);
-	m_wndPropList.AddProperty(pSkyBox, FALSE, FALSE);
-	for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
-	{
-		CMFCPropertyGridProperty * pProp = new CFileProp(sky_prop_info[i].name, TRUE, _T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, SkyBoxPropertyTextureFront + i);
-		pSkyBox->AddSubItem(pProp);
-	}
-
 	CMFCPropertyGridProperty * pSkyLight = new CSimpleProp(_T("SkyLight"), PropertySkyLight, FALSE);
 	m_wndPropList.AddProperty(pSkyLight, FALSE, FALSE);
 	CMFCPropertyGridProperty * pSkyLightDir = new CSimpleProp(_T("Euler"), SkyLightPropertyEuler, TRUE);
@@ -184,7 +172,7 @@ void CEnvironmentWnd::InitPropList()
 	m_wndPropList.AddProperty(pFog, FALSE, FALSE);
 	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, FogPropertyEnable);
 	pFog->AddSubItem(pProp);
-	pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, FogPropertyColor);
+	CColorProp * pBgColor = new CColorProp(_T("Color"), 0, NULL, NULL, FogPropertyColor);
 	pBgColor->EnableOtherButton(_T("Other..."));
 	pFog->AddSubItem(pBgColor);
 	pProp = new CSimpleProp(_T("StartDistance"), (_variant_t)0.0f, NULL, FogPropertyStartDistance);
@@ -218,23 +206,12 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.y));
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.z));
 
-	COLORREF color = RGB(theApp.m_BgColor.x * 255, theApp.m_BgColor.y * 255, theApp.m_BgColor.z * 255);
-	(DYNAMIC_DOWNCAST(CColorProp, pCamera->GetSubItem(CameraPropertyBgColor)))->SetColor((_variant_t)color);
-
-	CMFCPropertyGridProperty * pSkyBox = m_wndPropList.GetProperty(PropertySkyBox);
-	ASSERT_VALID(pSkyBox);
-	for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
-	{
-		pSkyBox->GetSubItem(SkyBoxPropertyTextureFront + i)->SetValue(
-			(_variant_t)ms2ts(theApp.GetFullPath(theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath.c_str()).c_str()).c_str());
-	}
-
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
 	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.x));
 	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.y));
 	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.z));
 
-	color = RGB(theApp.m_SkyLightColor.x * 255, theApp.m_SkyLightColor.y * 255, theApp.m_SkyLightColor.z * 255);
+	COLORREF color = RGB(theApp.m_SkyLightColor.x * 255, theApp.m_SkyLightColor.y * 255, theApp.m_SkyLightColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyDiffuse)))->SetColor((_variant_t)color);
 
 	pSkyLight->GetSubItem(SkyLightPropertySpecular)->SetValue((_variant_t)theApp.m_SkyLightColor.w);
@@ -361,46 +338,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(CameraPropertyBgColor)))->GetColor();
-			theApp.m_BgColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 			pView->m_Camera->UpdateViewProj();
-		}
-		break;
-	case PropertySkyBox:
-		{
-			std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-			if (path.empty())
-			{
-				MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
-				return 0l;
-			}
-			boost::regex reg("_(FR|BK|LF|RT|UP|DN)");
-			boost::match_results<std::string::const_iterator> what;
-			if (boost::regex_search(path, what, reg, boost::match_default) && what[1].matched)
-			{
-				const char * tex_name[6] = { "FR", "BK", "LF", "RT", "UP", "DN" };
-				for (unsigned int i = 0; i < _countof(sky_prop_info); i++)
-				{
-					std::string new_path;
-					new_path.insert<std::string::const_iterator>(new_path.end(), path.begin(), what[1].first);
-					new_path.append(tex_name[i]);
-					new_path.insert<std::string::const_iterator>(new_path.end(), what[1].second, path.end());
-					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
-					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = new_path.c_str();
-					theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();
-				}
-				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-				ASSERT_VALID(pFrame);
-				CEnvironmentWnd::CameraPropEventArgs arg(pView);
-				pFrame->m_EventCameraPropChanged(&arg);
-			}
-			else
-			{
-				int i = pProp->GetData() - SkyBoxPropertyTextureFront;
-				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].ReleaseResource();
-				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].m_TexturePath = path.c_str();
-				theApp.m_SkyBoxTextures[sky_prop_info[i].tex_id].RequestResource();
-			}
 		}
 		break;
 	case PropertySkyLight:

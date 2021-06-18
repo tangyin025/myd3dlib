@@ -46,6 +46,9 @@ technique RenderScene
 		VertexShader = compile vs_3_0 LightVS();
 		PixelShader  = compile ps_3_0 LightPS();
     }
+	pass PassTypeBackground
+	{
+	}
     pass PassTypeOpaque
     {          
     }

@@ -110,6 +110,9 @@ technique RenderScene
     pass PassTypeLight
     {          
     }
+	pass PassTypeBackground
+	{
+	}
     pass PassTypeOpaque
     {          
     }

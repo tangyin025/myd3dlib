@@ -589,8 +589,6 @@ void Game::OnDestroyDevice(void)
 {
 	m_EventLog("Game::OnDestroyDevice");
 
-	RenderPipeline::ReleaseResource();
-
 	ParallelTaskManager::StopParallelThread();
 
 	ClearAllEntity();
@@ -1038,7 +1036,7 @@ void Game::OnControlFocus(bool bFocus)
 void Game::LoadScene(const char * path)
 {
 	ClearAllEntity();
-	RenderPipeline::ReleaseResource();
+
 	m_ActorList.clear();
 
 	my::IStreamBuff buff(OpenIStream(path));
@@ -1054,6 +1052,4 @@ void Game::LoadScene(const char * path)
 	{
 		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
-
-	RenderPipeline::RequestResource();
 }

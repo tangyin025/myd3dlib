@@ -697,7 +697,6 @@ void CMainFrame::InitFileContext()
 void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
-	theApp.ReleaseResource();
 	m_ActorList.clear();
 	m_selactors.clear();
 	LuaContext::Shutdown();
@@ -885,15 +884,9 @@ void CMainFrame::OnFileNew()
 	ClearFileContext();
 	InitFileContext();
 	InitialUpdateFrame(NULL, TRUE);
-	theApp.m_BgColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_SkyLightCam.m_Euler = my::Vector3(D3DXToRadian(-45), 0, 0);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.3f);
-	for (int i = 0; i < _countof(theApp.m_SkyBoxTextures); i++)
-	{
-		theApp.m_SkyBoxTextures[i].m_TexturePath = theApp.default_sky_texture[i];
-	}
-	theApp.RequestResource();
 	OnSelChanged();
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
 	ASSERT_VALID(pView);
@@ -966,8 +959,6 @@ void CMainFrame::OnFileOpen()
 	ClearFileContext();
 	InitFileContext();
 	OpenFileContext(strPathName);
-
-	theApp.RequestResource();
 
 	OnSelChanged();
 
@@ -1262,7 +1253,7 @@ void CMainFrame::OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI)
 
 void CMainFrame::OnComponentSphericalemitter()
 {
-	//// TODO: Add your command handler code here
+	// TODO: Add your command handler code here
 	SelActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{

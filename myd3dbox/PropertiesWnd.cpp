@@ -18,17 +18,18 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-CPropertiesWnd::PassMaskDesc CPropertiesWnd::g_PassMaskDesc[] =
+static const CPropertiesWnd::PassMaskDesc g_PassMaskDesc[] =
 {
 	{ _T("None"), RenderPipeline::PassMaskNone },
 	{ _T("Light"), RenderPipeline::PassMaskLight },
+	{ _T("Background"), RenderPipeline::PassMaskBackground },
 	{ _T("Opaque"), RenderPipeline::PassMaskOpaque },
 	{ _T("NormalOpaque"), RenderPipeline::PassMaskNormalOpaque },
 	{ _T("ShadowNormalOpaque"), RenderPipeline::PassMaskShadowNormalOpaque },
 	{ _T("Transparent"), RenderPipeline::PassMaskTransparent },
 };
 
-LPCTSTR CPropertiesWnd::GetPassMaskDesc(DWORD mask)
+static LPCTSTR GetPassMaskDesc(DWORD mask)
 {
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
 	{
@@ -40,14 +41,14 @@ LPCTSTR CPropertiesWnd::GetPassMaskDesc(DWORD mask)
 	return g_PassMaskDesc[0].desc;
 }
 
-LPCTSTR CPropertiesWnd::g_CullModeDesc[] =
+static const LPCTSTR g_CullModeDesc[] =
 {
 	_T("NONE"),
 	_T("CW"),
 	_T("CCW")
 };
 
-LPCTSTR CPropertiesWnd::g_BlendModeDesc[] =
+static const LPCTSTR g_BlendModeDesc[] =
 {
 	_T("None"),
 	_T("Alpha"),
