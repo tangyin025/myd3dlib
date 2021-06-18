@@ -1776,7 +1776,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				body->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
 			}
-			pFrame->m_PxScene->addActor(*actor->m_PxActor);
+
+			if (actor->IsRequested())
+			{
+				pFrame->m_PxScene->addActor(*actor->m_PxActor);
+			}
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
