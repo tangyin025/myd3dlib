@@ -879,8 +879,6 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		actor->LeavePhysxScene(this);
-
 		actor->ReleaseResource();
 	}
 

@@ -203,8 +203,6 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					if (!actor->IsRequested())
 					{
 						actor->RequestResource();
-
-						actor->EnterPhysxScene(pFrame);
 					}
 
 					actor->SetLod(Lod);
@@ -214,8 +212,6 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					if (actor->IsRequested())
 					{
 						actor->SetLod(Component::LOD_CULLING);
-
-						actor->LeavePhysxScene(pFrame);
 
 						actor->ReleaseResource();
 					}

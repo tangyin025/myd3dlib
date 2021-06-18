@@ -24,12 +24,7 @@ BOOST_CLASS_EXPORT(Character)
 
 Character::~Character(void)
 {
-	if (m_PxController)
-	{
-		_ASSERT(false);
-
-		LeavePhysxScene((PhysxScene*)m_PxController->getActor()->getScene()->userData);
-	}
+	_ASSERT(!m_PxController || !m_PxController->getActor()->getScene());
 }
 
 template<class Archive>
@@ -47,18 +42,10 @@ void Character::load(Archive & ar, const unsigned int version)
 void Character::RequestResource(void)
 {
 	Component::RequestResource();
-}
-
-void Character::ReleaseResource(void)
-{
-	Component::ReleaseResource();
-}
-
-void Character::EnterPhysxScene(PhysxScene * scene)
-{
-	Component::EnterPhysxScene(scene);
 
 	_ASSERT(m_Actor);
+
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
@@ -80,8 +67,10 @@ void Character::EnterPhysxScene(PhysxScene * scene)
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
-void Character::LeavePhysxScene(PhysxScene * scene)
+void Character::ReleaseResource(void)
 {
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
 	_ASSERT(!m_PxController || m_PxController->getActor()->getScene() == scene->m_PxScene.get());
 
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
@@ -95,7 +84,7 @@ void Character::LeavePhysxScene(PhysxScene * scene)
 
 	m_PxMaterial.reset();
 
-	Component::LeavePhysxScene(scene);
+	Component::ReleaseResource();
 }
 
 void Character::Update(float fElapsedTime)

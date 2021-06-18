@@ -576,12 +576,7 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 
 ClothComponent::~ClothComponent(void)
 {
-	if (m_Cloth && m_Cloth->getScene())
-	{
-		_ASSERT(false);
-
-		LeavePhysxScene((PhysxScene*)m_Cloth->getScene()->userData);
-	}
+	_ASSERT(!m_Cloth || !m_Cloth->getScene());
 }
 
 namespace boost { 
@@ -797,18 +792,8 @@ void ClothComponent::RequestResource(void)
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-}
 
-void ClothComponent::ReleaseResource(void)
-{
-	m_Decl.Release();
-
-	Component::ReleaseResource();
-}
-
-void ClothComponent::EnterPhysxScene(PhysxScene * scene)
-{
-	Component::EnterPhysxScene(scene);
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
 	if (m_Cloth)
 	{
@@ -818,8 +803,12 @@ void ClothComponent::EnterPhysxScene(PhysxScene * scene)
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
-void ClothComponent::LeavePhysxScene(PhysxScene * scene)
+void ClothComponent::ReleaseResource(void)
 {
+	m_Decl.Release();
+
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
 	_ASSERT(!m_Cloth || m_Cloth->getScene() == scene->m_PxScene.get());
 
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
@@ -831,7 +820,7 @@ void ClothComponent::LeavePhysxScene(PhysxScene * scene)
 		scene->removeRenderActorsFromPhysicsActor(m_Cloth.get());
 	}
 
-	Component::LeavePhysxScene(scene);
+	Component::ReleaseResource();
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)

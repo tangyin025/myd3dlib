@@ -681,8 +681,6 @@ void Game::OnFrameTick(
 				_ASSERT(!actor->IsRequested());
 				{
 					actor->RequestResource();
-
-					actor->EnterPhysxScene(m_game);
 				}
 			}
 		}
@@ -720,8 +718,6 @@ void Game::OnFrameTick(
 
 			_ASSERT(actor->IsRequested());
 			{
-				actor->LeavePhysxScene(this);
-
 				actor->ReleaseResource();
 			}
 
@@ -1006,8 +1002,6 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->IsRequested())
 	{
-		actor->LeavePhysxScene(this);
-
 		actor->ReleaseResource();
 	}
 

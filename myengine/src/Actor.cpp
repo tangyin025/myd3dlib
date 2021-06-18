@@ -200,12 +200,19 @@ ActorPtr Actor::Clone(void) const
 void Actor::RequestResource(void)
 {
 	m_Requested = true;
+
+	if (m_PxActor)
+	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		_ASSERT(!m_PxActor->getScene());
+
+		scene->m_PxScene->addActor(*m_PxActor);
+	}
 }
 
 void Actor::ReleaseResource(void)
 {
-	m_Requested = false;
-
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -214,31 +221,15 @@ void Actor::ReleaseResource(void)
 			(*cmp_iter)->ReleaseResource();
 		}
 	}
-}
 
-void Actor::EnterPhysxScene(PhysxScene * scene)
-{
-	if (m_PxActor)
-	{
-		scene->m_PxScene->addActor(*m_PxActor);
-	}
-}
-
-void Actor::LeavePhysxScene(PhysxScene * scene)
-{
-	_ASSERT(!m_PxActor || m_PxActor->getScene() == scene->m_PxScene.get());
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->IsRequested())
-		{
-			(*cmp_iter)->LeavePhysxScene(scene);
-		}
-	}
+	m_Requested = false;
 
 	if (m_PxActor)
 	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
+
 		scene->m_PxScene->removeActor(*m_PxActor, false);
 
 		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
@@ -457,16 +448,12 @@ void Actor::SetLod(unsigned int lod)
 				if (!(*cmp_iter)->IsRequested())
 				{
 					(*cmp_iter)->RequestResource();
-
-					(*cmp_iter)->EnterPhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
 				}
 			}
 			else
 			{
 				if ((*cmp_iter)->IsRequested())
 				{
-					(*cmp_iter)->LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
-
 					(*cmp_iter)->ReleaseResource();
 				}
 			}
@@ -538,8 +525,6 @@ void Actor::AddComponent(ComponentPtr cmp)
 		_ASSERT(m_Node);
 
 		cmp->RequestResource();
-
-		cmp->EnterPhysxScene(dynamic_cast<PhysxScene *>(m_Node->GetTopNode()));
 	}
 }
 
@@ -553,8 +538,6 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		if (IsRequested() && cmp->IsRequested())
 		{
 			_ASSERT(m_Node);
-
-			cmp->LeavePhysxScene(dynamic_cast<PhysxScene*>(m_Node->GetTopNode()));
 
 			cmp->ReleaseResource();
 		}

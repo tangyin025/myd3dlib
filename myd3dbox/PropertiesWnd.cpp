@@ -1769,12 +1769,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
 		actor->ClearRigidActor();
 		actor->CreateRigidActor((physx::PxActorType::Enum)i);
-		physx::PxRigidBody * body;
-		if (actor->m_PxActor && (body = actor->m_PxActor->is<physx::PxRigidBody>()))
+		if (actor->m_PxActor)
 		{
-			body->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
+			physx::PxRigidBody* body = actor->m_PxActor->is<physx::PxRigidBody>();
+			if (body)
+			{
+				body->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
+			}
+			pFrame->m_PxScene->addActor(*actor->m_PxActor);
 		}
-		actor->EnterPhysxScene(pFrame);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

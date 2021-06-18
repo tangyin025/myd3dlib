@@ -91,26 +91,6 @@ struct ComponentScript : Component, luabind::wrap_base
 		ptr->Component::ReleaseResource();
 	}
 
-	virtual void EnterPhysxScene(PhysxScene* scene)
-	{
-		luabind::wrap_base::call<void>("EnterPhysxScene", scene);
-	}
-
-	static void default_EnterPhysxScene(Component* ptr, PhysxScene* scene)
-	{
-		ptr->Component::EnterPhysxScene(scene);
-	}
-
-	virtual void LeavePhysxScene(PhysxScene* scene)
-	{
-		luabind::wrap_base::call<void>("LeavePhysxScene", scene);
-	}
-
-	static void default_LeavePhysxScene(Component* ptr, PhysxScene* scene)
-	{
-		ptr->Component::LeavePhysxScene(scene);
-	}
-
 	virtual void Update(float fElapsedTime)
 	{
 		luabind::wrap_base::call<void>("Update", fElapsedTime);
@@ -1220,8 +1200,6 @@ void LuaContext::Init(void)
 			.def("Clone", &Component::Clone)
 			.def("RequestResource", &Component::RequestResource, &ComponentScript::default_RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource, &ComponentScript::default_ReleaseResource)
-			.def("EnterPhysxScene", &Component::EnterPhysxScene, &ComponentScript::default_EnterPhysxScene)
-			.def("LeavePhysxScene", &Component::LeavePhysxScene, &ComponentScript::default_LeavePhysxScene)
 			.def("Update", &Component::Update, &ComponentScript::default_Update)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
@@ -1371,8 +1349,6 @@ void LuaContext::Init(void)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)
 			.def("ReleaseResource", &Actor::ReleaseResource)
-			.def("EnterPhysxScene", &Actor::EnterPhysxScene)
-			.def("LeavePhysxScene", &Actor::LeavePhysxScene)
 			.def("SetPose", &Actor::SetPose)
 			.def("UpdateAABB", &Actor::UpdateAABB)
 			.def("UpdateWorld", &Actor::UpdateWorld)

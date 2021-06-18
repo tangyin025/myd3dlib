@@ -189,10 +189,6 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void EnterPhysxScene(PhysxScene * scene);
-
-	virtual void LeavePhysxScene(PhysxScene * scene);
-
 	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
 
 	virtual void Update(float fElapsedTime);

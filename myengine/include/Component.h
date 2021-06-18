@@ -119,14 +119,6 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void EnterPhysxScene(PhysxScene* scene)
-	{
-	}
-
-	virtual void LeavePhysxScene(PhysxScene* scene)
-	{
-	}
-
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 	{
 	}
@@ -351,10 +343,6 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
-
-	virtual void EnterPhysxScene(PhysxScene * scene);
-
-	virtual void LeavePhysxScene(PhysxScene * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
