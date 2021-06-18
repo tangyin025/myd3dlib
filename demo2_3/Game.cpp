@@ -8,12 +8,6 @@
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
 #include "LuaExtension.inl"
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/program_options.hpp>
@@ -1048,49 +1042,7 @@ void Game::LoadScene(const char * path)
 	my::IStreamBuff buff(OpenIStream(path));
 	std::istream ifs(&buff);
 	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::istream& is, unsigned int flags = 0)
-				: polymorphic_iarchive_route(is, flags)
-			{
-			}
-		};
-		ia.reset(new Archive(ifs));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::istream& is, unsigned int flags = 0)
-				: polymorphic_iarchive_route(is, flags)
-			{
-			}
-		};
-		ia.reset(new Archive(ifs));
-	}
-	else
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::istream& is, unsigned int flags = 0)
-				: polymorphic_iarchive_route(is, flags)
-			{
-			}
-		};
-		ia.reset(new Archive(ifs));
-	}
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)*this);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);

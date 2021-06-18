@@ -11,12 +11,6 @@
 #include "Terrain.h"
 #include "Material.h"
 #include "Character.h"
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/set.hpp>
 #include <fstream>
@@ -714,49 +708,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	my::IStreamBuff buff(my::FileIStream::Open(lpszFileName));
 	std::istream ifs(&buff);
 	LPCTSTR Ext = PathFindExtension(lpszFileName);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_tcsicmp(Ext, _T(".xml")) == 0)
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::istream& is, unsigned int flags = 0)
-				: polymorphic_iarchive_route(is, flags)
-			{
-			}
-		};
-		ia.reset(new Archive(ifs));
-	}
-	else if (_tcsicmp(Ext, _T(".txt")) == 0)
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::istream& is, unsigned int flags = 0)
-				: polymorphic_iarchive_route(is, flags)
-			{
-			}
-		};
-		ia.reset(new Archive(ifs));
-	}
-	else
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::istream& is, unsigned int flags = 0)
-				: polymorphic_iarchive_route(is, flags)
-			{
-			}
-		};
-		ia.reset(new Archive(ifs));
-	}
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str());
 	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
@@ -773,49 +725,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 {
 	std::ofstream ofs(lpszPathName, std::ios::binary);
 	LPCTSTR Ext = PathFindExtension(lpszPathName);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_tcsicmp(Ext, _T(".xml")) == 0)
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::xml_oarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::ostream& os, unsigned int flags = 0)
-				: polymorphic_oarchive_route(os, flags)
-			{
-			}
-		};
-		oa.reset(new Archive(ofs));
-	}
-	else if (_tcsicmp(Ext, _T(".txt")) == 0)
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::text_oarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::ostream& os, unsigned int flags = 0)
-				: polymorphic_oarchive_route(os, flags)
-			{
-			}
-		};
-		oa.reset(new Archive(ofs));
-	}
-	else
-	{
-		class Archive
-			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::binary_oarchive>
-			, public PhysxSerializationContext
-		{
-		public:
-			Archive(std::ostream& os, unsigned int flags = 0)
-				: polymorphic_oarchive_route(os, flags)
-			{
-			}
-		};
-		oa.reset(new Archive(ofs));
-	}
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(ofs, ts2ms(Ext).c_str());
 	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
 	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
 

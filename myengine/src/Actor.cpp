@@ -25,6 +25,11 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Actor)
 
+PhysxSerializationContext::PhysxSerializationContext(void)
+	: m_Registry(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>())
+{
+}
+
 const float Actor::MinBlock = 1.0f;
 
 const float Actor::Threshold = 0.1f;
@@ -165,6 +170,95 @@ void Actor::load(Archive & ar, const unsigned int version)
 	}
 
 	UpdateWorld();
+}
+
+boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::istream& istr, const char* ext)
+{
+	if (_stricmp(ext, ".xml") == 0)
+	{
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr));
+	}
+
+	if (_stricmp(ext, ".txt") == 0)
+	{
+		class Archive
+			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::istream& is, unsigned int flags = 0)
+				: polymorphic_iarchive_route(is, flags)
+			{
+			}
+		};
+		return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr));
+	}
+
+	class Archive
+		: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
+		, public PhysxSerializationContext
+	{
+	public:
+		Archive(std::istream& is, unsigned int flags = 0)
+			: polymorphic_iarchive_route(is, flags)
+		{
+		}
+	};
+	return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr));
+}
+
+boost::shared_ptr<boost::archive::polymorphic_oarchive> Actor::GetOArchive(std::ostream& ostr, const char* ext)
+{
+	if (_stricmp(ext, ".xml") == 0)
+	{
+		class Archive
+			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::xml_oarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::ostream& os, unsigned int flags = 0)
+				: polymorphic_oarchive_route(os, flags)
+			{
+			}
+		};
+		return boost::shared_ptr<boost::archive::polymorphic_oarchive>(new Archive(ostr));
+	}
+	else if (_stricmp(ext, ".txt") == 0)
+	{
+		class Archive
+			: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::text_oarchive>
+			, public PhysxSerializationContext
+		{
+		public:
+			Archive(std::ostream& os, unsigned int flags = 0)
+				: polymorphic_oarchive_route(os, flags)
+			{
+			}
+		};
+		return boost::shared_ptr<boost::archive::polymorphic_oarchive>(new Archive(ostr));
+	}
+
+	class Archive
+		: public boost::archive::detail::polymorphic_oarchive_route<boost::archive::binary_oarchive>
+		, public PhysxSerializationContext
+	{
+	public:
+		Archive(std::ostream& os, unsigned int flags = 0)
+			: polymorphic_oarchive_route(os, flags)
+		{
+		}
+	};
+	return boost::shared_ptr<boost::archive::polymorphic_oarchive>(new Archive(ostr));
 }
 
 void Actor::CopyFrom(const Actor & rhs)
@@ -559,49 +653,6 @@ void Actor::ClearAllComponent(void)
 		RemoveComponent(*cmp_iter);
 	}
 	_ASSERT(m_Cmps.empty());
-}
-
-ActorPtr Actor::LoadFromFile(const char * path)
-{
-	IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(path));
-	std::istream istr(&buff);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
-	}
-	else
-	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
-	}
-	ActorPtr ret;
-	*ia >> boost::serialization::make_nvp("Actor", ret);
-	return ret;
-}
-
-void Actor::SaveToFile(const char * path) const
-{
-	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
-	}
-	else
-	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
-	}
-	*oa << boost::serialization::make_nvp("Actor", shared_from_this());
 }
 
 void Actor::Attach(Actor * other, int BoneId)

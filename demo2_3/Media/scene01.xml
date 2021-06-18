@@ -76,24 +76,24 @@
 	<item class_id="6" tracking_level="0" version="1">
 		<px class_id="7" tracking_level="1" version="0" object_id="_1">
 			<NamedObject class_id="8" tracking_level="1" version="0" object_id="_2">
-				<Name>editor_actor1</Name>
+				<Name>editor_actor0</Name>
 			</NamedObject>
 			<m_aabb object_id="_3">
 				<m_min>
-					<x>-5.000000000e-01</x>
-					<y>-5.000000000e-01</y>
-					<z>-5.000000000e-01</z>
+					<x>0.000000000e+00</x>
+					<y>-1.000000000e+00</y>
+					<z>0.000000000e+00</z>
 				</m_min>
 				<m_max>
-					<x>5.000000000e-01</x>
-					<y>5.000000000e-01</y>
-					<z>5.000000000e-01</z>
+					<x>3.200000000e+01</x>
+					<y>1.000000000e+00</y>
+					<z>3.200000000e+01</z>
 				</m_max>
 			</m_aabb>
 			<m_Position>
-				<x>0.000000000e+00</x>
+				<x>-1.600000000e+01</x>
 				<y>0.000000000e+00</y>
-				<z>0.000000000e+00</z>
+				<z>-1.600000000e+01</z>
 			</m_Position>
 			<m_Rotation class_id="9" tracking_level="0" version="0">
 				<x>0.000000000e+00</x>
@@ -102,9 +102,9 @@
 				<w>1.000000000e+00</w>
 			</m_Rotation>
 			<m_Scale>
-				<x>2.000000000e+00</x>
-				<y>2.000000000e+00</y>
-				<z>2.000000000e+00</z>
+				<x>1.000000000e+00</x>
+				<y>1.000000000e+00</y>
+				<z>1.000000000e+00</z>
 			</m_Scale>
 			<m_LodDist>3.300000000e+01</m_LodDist>
 			<m_LodFactor>2.000000000e+00</m_LodFactor>
@@ -113,12 +113,12 @@
 				<count>1</count>
 				<item_version>1</item_version>
 				<item class_id="11" tracking_level="0" version="1">
-					<px class_id="13" class_name="MeshComponent" tracking_level="1" version="0" object_id="_4">
+					<px class_id="13" class_name="Terrain" tracking_level="1" version="0" object_id="_4">
 						<Component class_id="12" tracking_level="1" version="0" object_id="_5">
 							<NamedObject object_id="_6">
-								<Name>editor_mesh_cmp1</Name>
+								<Name>editor_terrain0</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
+							<m_Type>8</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material class_id="14" tracking_level="0" version="1">
 								<px class_id="15" tracking_level="1" version="0" object_id="_7">
@@ -171,140 +171,8 @@
 								</px>
 							</m_Material>
 						</Component>
-						<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>0</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-			</m_Cmps>
-			<ActorType>1</ActorType>
-			<PxActorSize>836</PxActorSize>
-			<m_PxActor>
-U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
-AM3NQAAAAAgAzc0QAQAABgDNzVACAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
-zc0AAAAIAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAAAQNAgOAAAA
-gAIAAAAA8aUFAAAAgAEAAAAw4KUFAAAAgAAAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAC4nfQC
-CQADAAAAAAAknvQCAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMww4KUFAQAAAM3Nzc3N
-zc3NGEj1AggAAwCwDJoF1Ej1AgMAAAAQNAgOzc3Nzc3Nzc2AcJEFAAAAgQAAAADNzc3NAQAAAAAA
-AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAACtej
-PAsBAQADAAAAAACAPwAAgD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzfC+9AIGAAMAgEebBQAAAAAA
-AAAAAPGlBQEAAQEBAAAAAQABAQAAAAABAAAAzc3NzYBwkQUAAACDAAAAAM3Nzc0AUZwH////AAEB
-AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEBBAEAAAAAAAAAAAAAAAAAAIA/AAAA
-AAAAAAAAAAAAmpkZPgAAAAAAAAAAAAAAAK7FnfQAAAAAAAAAAAAAAAD//39/AABEQv//f38AAAAA
-zcxMPQAAgD8AAIA/AACAPwAAgD+uxZ10CtejOwrXIzsAAAAAzc3NzQAAAAAAAAAAAAAAANDUoQXN
-zc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-			</m_PxActor>
-		</px>
-	</item>
-	<item>
-		<px class_id_reference="7" object_id="_16">
-			<NamedObject object_id="_17">
-				<Name>editor_actor0</Name>
-			</NamedObject>
-			<m_aabb object_id="_18">
-				<m_min>
-					<x>0.000000000e+00</x>
-					<y>-1.000000000e+00</y>
-					<z>0.000000000e+00</z>
-				</m_min>
-				<m_max>
-					<x>3.200000000e+01</x>
-					<y>1.000000000e+00</y>
-					<z>3.200000000e+01</z>
-				</m_max>
-			</m_aabb>
-			<m_Position>
-				<x>-1.600000000e+01</x>
-				<y>0.000000000e+00</y>
-				<z>-1.600000000e+01</z>
-			</m_Position>
-			<m_Rotation>
-				<x>0.000000000e+00</x>
-				<y>0.000000000e+00</y>
-				<z>0.000000000e+00</z>
-				<w>1.000000000e+00</w>
-			</m_Rotation>
-			<m_Scale>
-				<x>1.000000000e+00</x>
-				<y>1.000000000e+00</y>
-				<z>1.000000000e+00</z>
-			</m_Scale>
-			<m_LodDist>3.300000000e+01</m_LodDist>
-			<m_LodFactor>2.000000000e+00</m_LodFactor>
-			<m_CullingDist>6.969600000e+04</m_CullingDist>
-			<m_Cmps>
-				<count>1</count>
-				<item_version>1</item_version>
-				<item>
-					<px class_id="21" class_name="Terrain" tracking_level="1" version="0" object_id="_19">
-						<Component object_id="_20">
-							<NamedObject object_id="_21">
-								<Name>editor_terrain0</Name>
-							</NamedObject>
-							<m_Type>8</m_Type>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="15" object_id="_22">
-									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
-									<m_PassMask>11</m_PassMask>
-									<m_CullMode>2</m_CullMode>
-									<m_ZEnable>1</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>4</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="19" object_id="_23">
-												<MaterialParameter object_id="_24">
-													<m_Type>5</m_Type>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Checker.bmp</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="19" object_id="_25">
-												<MaterialParameter object_id="_26">
-													<m_Type>5</m_Type>
-													<m_Name>g_NormalTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="19" object_id="_27">
-												<MaterialParameter object_id="_28">
-													<m_Type>5</m_Type>
-													<m_Name>g_SpecularTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/White.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="20" object_id="_29">
-												<MaterialParameter object_id="_30">
-													<m_Type>1</m_Type>
-													<m_Name>g_Shininess</m_Name>
-												</MaterialParameter>
-												<m_Value>2.500000000e+01</m_Value>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-						</Component>
 						<OctRoot>
-							<AABB object_id="_31">
+							<AABB object_id="_16">
 								<m_min>
 									<x>0.000000000e+00</x>
 									<y>-1.000000000e+00</y>
@@ -332,8 +200,8 @@ AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 AAAAAAAAAAAAAAAA/////3//fwAAAABCAAAAAAAAAAD/////f/9/AAAAAAAAAAAAAAAAQv////9/
 /38AAAAAQgAAAAAAAABC/////3//fwA=
 						</VertexBuffer>
-						<m_Chunk_0_0 class_id="22" tracking_level="0" version="1">
-							<px class_id="23" tracking_level="1" version="0" object_id="_32">
+						<m_Chunk_0_0 class_id="21" tracking_level="0" version="1">
+							<px class_id="22" tracking_level="1" version="0" object_id="_17">
 								<m_Row>0</m_Row>
 								<m_Col>0</m_Col>
 								<m_Material>
@@ -341,7 +209,7 @@ AAAAAAAAAAAAAAAA/////3//fwAAAABCAAAAAAAAAAD/////f/9/AAAAAAAAAAAAAAAAQv////9/
 								</m_Material>
 							</px>
 						</m_Chunk_0_0>
-						<m_Chunk_0_0_aabb object_id="_33">
+						<m_Chunk_0_0_aabb object_id="_18">
 							<m_min>
 								<x>0.000000000e+00</x>
 								<y>-1.000000000e+00</y>
@@ -361,16 +229,148 @@ AAAAAAAAAAAAAAAA/////3//fwAAAABCAAAAAAAAAAD/////f/9/AAAAAAAAAAAAAAAAQv////9/
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
 AM3NQAAAAAgAzc0QAQAABwDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
-zc0AAAAIAAAAAAEAAADNzc3NAAAABwAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACgz6UFAAAA
-gAIAAADw36UFAAAAgAAAAAAw8KUFAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC4nfQC
-CQADAAAAAAAknvQCAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzw36UFAAAAAM3Nzc3N
-zc3NGEj1AggAAwC45KIF1Ej1AgMAAACgz6UFzc3Nzc3Nzc2AcJEFAAAAgQAAAADNzc3NAQAAAAAA
+zc0AAAAIAAAAAAEAAADNzc3NAAAABwAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADwOOsJAAAA
+gAEAAACgKOsJAAAAgAAAAACQXO0JAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC4nXkP
+CQADAAAAAAAknnkPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMygKOsJAAAAAM3Nzc3N
+zc3NGEh6DwgAAwDYFdkJ1Eh6DwMAAACQXO0Jzc3Nzc3Nzc3gPWUHAAAAgQAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAsBAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3Nzezn9AIHAAMA+EWbBQAAAAAA
-AAAAMPClBQEAAQEAAAAAAQABAQAAAAAAAAAAzc3NzYBwkQUAAACFAAAAAM3Nzc1QApIF////AAEA
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzezneQ8HAAMAyGvGCQAAAAAA
+AAAA8DjrCQEAAQEAAAAAAQABAQAAAAAAAAAAzc3NzeA9ZQcAAACFAAAAAM3Nzc2QuGUH////AAEA
 AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAgMEAAAAAAACAwQAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
+			</m_PxActor>
+		</px>
+	</item>
+	<item>
+		<px class_id_reference="7" object_id="_19">
+			<NamedObject object_id="_20">
+				<Name>editor_actor1</Name>
+			</NamedObject>
+			<m_aabb object_id="_21">
+				<m_min>
+					<x>-5.000000000e-01</x>
+					<y>-5.000000000e-01</y>
+					<z>-5.000000000e-01</z>
+				</m_min>
+				<m_max>
+					<x>5.000000000e-01</x>
+					<y>5.000000000e-01</y>
+					<z>5.000000000e-01</z>
+				</m_max>
+			</m_aabb>
+			<m_Position>
+				<x>0.000000000e+00</x>
+				<y>0.000000000e+00</y>
+				<z>0.000000000e+00</z>
+			</m_Position>
+			<m_Rotation>
+				<x>0.000000000e+00</x>
+				<y>0.000000000e+00</y>
+				<z>0.000000000e+00</z>
+				<w>1.000000000e+00</w>
+			</m_Rotation>
+			<m_Scale>
+				<x>2.000000000e+00</x>
+				<y>2.000000000e+00</y>
+				<z>2.000000000e+00</z>
+			</m_Scale>
+			<m_LodDist>3.300000000e+01</m_LodDist>
+			<m_LodFactor>2.000000000e+00</m_LodFactor>
+			<m_CullingDist>6.969600000e+04</m_CullingDist>
+			<m_Cmps>
+				<count>1</count>
+				<item_version>1</item_version>
+				<item>
+					<px class_id="23" class_name="MeshComponent" tracking_level="1" version="0" object_id="_22">
+						<Component object_id="_23">
+							<NamedObject object_id="_24">
+								<Name>editor_mesh_cmp1</Name>
+							</NamedObject>
+							<m_Type>3</m_Type>
+							<m_LodMask>7</m_LodMask>
+							<m_Material>
+								<px class_id_reference="15" object_id="_25">
+									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
+									<m_PassMask>11</m_PassMask>
+									<m_CullMode>2</m_CullMode>
+									<m_ZEnable>1</m_ZEnable>
+									<m_ZWriteEnable>1</m_ZWriteEnable>
+									<m_BlendMode>0</m_BlendMode>
+									<m_ParameterList>
+										<count>4</count>
+										<item_version>1</item_version>
+										<item>
+											<px class_id_reference="19" object_id="_26">
+												<MaterialParameter object_id="_27">
+													<m_Type>5</m_Type>
+													<m_Name>g_DiffuseTexture</m_Name>
+												</MaterialParameter>
+												<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+											</px>
+										</item>
+										<item>
+											<px class_id_reference="19" object_id="_28">
+												<MaterialParameter object_id="_29">
+													<m_Type>5</m_Type>
+													<m_Name>g_NormalTexture</m_Name>
+												</MaterialParameter>
+												<m_TexturePath>texture/Normal.dds</m_TexturePath>
+											</px>
+										</item>
+										<item>
+											<px class_id_reference="19" object_id="_30">
+												<MaterialParameter object_id="_31">
+													<m_Type>5</m_Type>
+													<m_Name>g_SpecularTexture</m_Name>
+												</MaterialParameter>
+												<m_TexturePath>texture/White.dds</m_TexturePath>
+											</px>
+										</item>
+										<item>
+											<px class_id_reference="20" object_id="_32">
+												<MaterialParameter object_id="_33">
+													<m_Type>1</m_Type>
+													<m_Name>g_Shininess</m_Name>
+												</MaterialParameter>
+												<m_Value>2.500000000e+01</m_Value>
+											</px>
+										</item>
+									</m_ParameterList>
+								</px>
+							</m_Material>
+						</Component>
+						<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
+						<m_MeshSubMeshName></m_MeshSubMeshName>
+						<m_MeshSubMeshId>0</m_MeshSubMeshId>
+						<m_MeshColor>
+							<x>1.000000000e+00</x>
+							<y>1.000000000e+00</y>
+							<z>1.000000000e+00</z>
+							<w>1.000000000e+00</w>
+						</m_MeshColor>
+						<m_bInstance>0</m_bInstance>
+					</px>
+				</item>
+			</m_Cmps>
+			<ActorType>1</ActorType>
+			<PxActorSize>836</PxActorSize>
+			<m_PxActor>
+U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
+AM3NQAAAAAgAzc0QAQAABgDNzVACAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
+zc0AAAAIAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACgpesJAAAA
+gAIAAADgKOsJAAAAgAAAAADAOesJAAAAgAEAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAC4nXkP
+CQADAAAAAAAknnkPAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzgKOsJAQAAAM3Nzc3N
+zc3NGEh6DwgAAwDIiMYJ1Eh6DwMAAACgpesJzc3Nzc3Nzc3gPWUHAAAAgQAAAADNzc3NAQAAAAAA
+AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAACtej
+PAsBAQADAAAAAACAPwAAgD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzfC+eQ8GAAMAUG3GCQAAAAAA
+AAAAwDnrCQEAAQEBAAAAAQABAQAAAAABAAAAzc3NzeA9ZQcAAACDAAAAAM3Nzc2gxGUH////AAEB
+AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEBBAEAAAAAAAAAAAAAAAAAAIA/AAAA
+AAAAAAAAAAAAmpkZPgAAAAAAAAAAAAAAAK7FnfQAAAAAAAAAAAAAAAD//39/AABEQv//f38AAAAA
+zcxMPQAAgD8AAIA/AACAPwAAgD+uxZ10CtejOwrXIzsAAAAAzc3NzQAAAAAAAAAAAAAAAKAT6AnN
+zc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 			</m_PxActor>
 		</px>
 	</item>

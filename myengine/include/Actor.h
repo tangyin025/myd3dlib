@@ -2,6 +2,8 @@
 
 #include "myOctree.h"
 #include "Component.h"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 
 class Animator;
 
@@ -56,6 +58,14 @@ public:
 		, triangleIndex(0)
 	{
 	}
+};
+
+class PhysxSerializationContext
+{
+public:
+	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
+
+	PhysxSerializationContext(void);
 };
 
 class Action;
@@ -171,6 +181,10 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	static boost::shared_ptr<boost::archive::polymorphic_iarchive> GetIArchive(std::istream & istr, const char* ext);
+
+	static boost::shared_ptr<boost::archive::polymorphic_oarchive> GetOArchive(std::ostream & ostr, const char* ext);
+
 	bool operator ==(const Actor & rhs) const
 	{
 		return this == &rhs;
@@ -224,10 +238,6 @@ public:
 	void RemoveComponent(ComponentPtr cmp);
 
 	void ClearAllComponent(void);
-
-	static ActorPtr LoadFromFile(const char * path);
-
-	void SaveToFile(const char * path) const;
 
 	void Attach(Actor * other, int BoneId);
 

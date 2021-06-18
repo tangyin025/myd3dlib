@@ -39,11 +39,6 @@ void PhysxAllocator::deallocate(void * ptr)
 #endif
 }
 
-PhysxSerializationContext::PhysxSerializationContext(void)
-	: m_Registry(physx::PxSerialization::createSerializationRegistry(*PhysxSdk::getSingleton().m_sdk), PhysxDeleter<physx::PxSerializationRegistry>())
-{
-}
-
 bool PhysxSdk::Init(void)
 {
 	if(!(m_Foundation.reset(PxCreateFoundation(PX_FOUNDATION_VERSION, m_Allocator, *this), PhysxDeleter<physx::PxFoundation>()), m_Foundation))

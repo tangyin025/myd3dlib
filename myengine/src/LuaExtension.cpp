@@ -1164,11 +1164,6 @@ void LuaContext::Init(void)
 			.def("AddParameterFloat4", &Material::AddParameterFloat4)
 			.def("AddParameterTexture", &Material::AddParameterTexture)
 			.def("SetParameterTexture", &Material::SetParameterTexture)
-			.scope
-			[
-				def("LoadFromFile", &Material::LoadFromFile)
-			]
-			.def("SaveToFile", &Material::SaveToFile)
 
 		, class_<Component, ComponentScript, my::NamedObject, boost::shared_ptr<Component> >("Component")
 			.def(constructor<const char *>())
@@ -1372,11 +1367,6 @@ void LuaContext::Init(void)
 			.def("AddComponent", &Actor::AddComponent/*, luabind::adopt(_1)*/)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
-			.scope
-			[
-				def("LoadFromFile", &Actor::LoadFromFile)
-			]
-			.def("SaveToFile", &Actor::SaveToFile)
 			.def("Attach", &Actor::Attach)
 			.def("Detach", &Actor::Detach)
 			.def("PlayAction", &Actor::PlayAction)

@@ -31,14 +31,6 @@ struct PhysxDeleter
 	}
 };
 
-class PhysxSerializationContext
-{
-public:
-	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
-
-	PhysxSerializationContext(void);
-};
-
 class PhysxSdk
 	: public my::SingleInstance<PhysxSdk>
 	, public physx::PxErrorCallback

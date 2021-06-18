@@ -339,8 +339,4 @@ public:
 	void AddParameterTexture(const std::string & Name, const std::string & Path);
 
 	void SetParameterTexture(const std::string & Name, const std::string & Path);
-
-	static MaterialPtr LoadFromFile(const char * path);
-
-	void SaveToFile(const char * path) const;
 };
