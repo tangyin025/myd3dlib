@@ -11,7 +11,7 @@
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/set.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/program_options.hpp>
 
 #ifdef _DEBUG
@@ -1035,7 +1035,11 @@ void Game::OnControlFocus(bool bFocus)
 
 void Game::LoadScene(const char * path)
 {
-	ClearAllEntity();
+	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		RemoveEntity(actor_iter->get());
+	}
 
 	m_ActorList.clear();
 
@@ -1057,7 +1061,7 @@ void Game::LoadScene(const char * path)
 	*ia >> boost::serialization::make_nvp("FogFalloff", m_FogFalloff);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
-	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
 		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);

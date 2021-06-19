@@ -36,7 +36,7 @@ public:
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
 	SelActorList m_selactors;
-	typedef std::set<ActorPtr> ActorPtrSet;
+	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;

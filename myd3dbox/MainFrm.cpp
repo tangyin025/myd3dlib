@@ -14,7 +14,7 @@
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/set.hpp>
+#include <boost/serialization/vector.hpp>
 #include <fstream>
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
@@ -762,7 +762,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_entity));
 			Actor * actor = static_cast<Actor *>(oct_entity);
-			m_ActorList.insert(actor->shared_from_this());
+			m_ActorList.push_back(actor->shared_from_this());
 		}
 	} cb(this);
 	QueryEntityAll(&cb);
@@ -935,7 +935,7 @@ void CMainFrame::OnFileNew()
 	//actor->AddComponent(animator);
 	//actor->UpdateWorld();
 	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
-	//m_ActorList.insert(actor);
+	//m_ActorList.push_back(actor);
 
 	//actor->RequestResource();
 	//actor->SetLod(0);
@@ -950,7 +950,7 @@ void CMainFrame::OnFileNew()
 	////actor->UpdateAABB();
 	////actor->UpdateWorld();
 	////AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
-	////m_ActorList.insert(actor);
+	////m_ActorList.push_back(actor);
 
 	//m_selactors.clear();
 	//m_selactors.push_back(actor.get());
@@ -1035,7 +1035,7 @@ void CMainFrame::OnCreateActor()
 	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
-	m_ActorList.insert(actor);
+	m_ActorList.push_back(actor);
 
 	m_selactors.clear();
 	m_selactors.push_back(actor.get());
@@ -1367,9 +1367,13 @@ void CMainFrame::OnEditDelete()
 	{
 		ActorPtr actor = (*actor_iter)->shared_from_this();
 
-		RemoveEntity(actor.get());
+		VERIFY(RemoveEntity(actor.get()));
 
-		m_ActorList.erase(actor);
+		ActorPtrSet::iterator actor_iter = std::find(m_ActorList.begin(), m_ActorList.end(), actor);
+		if (actor_iter != m_ActorList.end())
+		{
+			m_ActorList.erase(actor_iter);
+		}
 	}
 
 	OnSelChanged();

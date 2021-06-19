@@ -61,7 +61,7 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
-	typedef std::set<ActorPtr> ActorPtrSet;
+	typedef std::vector<ActorPtr> ActorPtrSet;
 
 	ActorPtrSet m_ActorList;
 
