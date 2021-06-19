@@ -2,6 +2,7 @@
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/cxx11/none_of.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 using namespace my;
 
@@ -119,10 +120,10 @@ void OctNode::AddEntity(OctEntity * entity, const AABB & aabb, float minblock, f
 			}
 		}
 	}
-	std::pair<OctEntityMap::iterator, bool> result = m_Entities.insert(std::make_pair(entity, aabb));
-	_ASSERT(result.second);
+	_ASSERT(m_Entities.end() == boost::find_if(m_Entities, (&boost::lambda::_1)->* & std::pair<OctEntity*, AABB>::first == entity));
+	m_Entities.push_back(std::make_pair(entity, aabb));
 	entity->m_Node = this;
-	entity->m_OctAabb = &result.first->second;
+	entity->m_OctAabb = &m_Entities.rbegin()->second;
 }
 
 void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb, float minblock, float threshold)
@@ -249,7 +250,7 @@ bool OctNode::RemoveEntity(OctEntity * entity)
 	if (entity->m_Node)
 	{
 		_ASSERT(HaveNode(entity->m_Node));
-		OctEntityMap::iterator entity_iter = entity->m_Node->m_Entities.find(entity);
+		OctEntityMap::iterator entity_iter = boost::find_if(entity->m_Node->m_Entities, (&boost::lambda::_1)->* & std::pair<OctEntity*, AABB>::first == entity);
 		if (entity_iter != entity->m_Node->m_Entities.end())
 		{
 			entity->m_Node->m_Entities.erase(entity_iter);

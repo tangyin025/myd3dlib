@@ -3,7 +3,7 @@
 #include "myCollision.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
-#include <vector>
+#include <list>
 #include <array>
 
 namespace my
@@ -42,7 +42,7 @@ namespace my
 
 		Vector3 m_Half;
 
-		typedef std::map<OctEntity *, AABB> OctEntityMap;
+		typedef std::list<std::pair<OctEntity *, AABB> > OctEntityMap;
 
 		OctEntityMap m_Entities;
 
