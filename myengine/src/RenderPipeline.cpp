@@ -9,19 +9,6 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
-#include <boost/archive/polymorphic_text_iarchive.hpp>
-#include <boost/archive/polymorphic_text_oarchive.hpp>
-#include <boost/archive/polymorphic_binary_iarchive.hpp>
-#include <boost/archive/polymorphic_binary_oarchive.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/binary_object.hpp>
-#include <boost/serialization/export.hpp>
 #include <fstream>
 
 using namespace my;
@@ -291,46 +278,6 @@ void RenderPipeline::UpdateQuad(QuadVertex * quad, const my::Vector2 & dim)
 	quad[3].u = 1.0f;
 	quad[3].v = 0.0f;
 }
-
-template<class Archive>
-void RenderPipeline::save(Archive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Euler);
-	ar << BOOST_SERIALIZATION_NVP(m_SkyLightColor);
-	ar << BOOST_SERIALIZATION_NVP(m_AmbientColor);
-	ar << BOOST_SERIALIZATION_NVP(m_DofParams);
-	ar << BOOST_SERIALIZATION_NVP(m_SsaoBias);
-	ar << BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
-	ar << BOOST_SERIALIZATION_NVP(m_SsaoRadius);
-	ar << BOOST_SERIALIZATION_NVP(m_SsaoScale);
-	ar << BOOST_SERIALIZATION_NVP(m_FogColor);
-	ar << BOOST_SERIALIZATION_NVP(m_FogStartDistance);
-	ar << BOOST_SERIALIZATION_NVP(m_FogHeight);
-	ar << BOOST_SERIALIZATION_NVP(m_FogFalloff);
-}
-
-template<class Archive>
-void RenderPipeline::load(Archive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightCam.m_Euler);
-	ar >> BOOST_SERIALIZATION_NVP(m_SkyLightColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_AmbientColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_DofParams);
-	ar >> BOOST_SERIALIZATION_NVP(m_SsaoBias);
-	ar >> BOOST_SERIALIZATION_NVP(m_SsaoIntensity);
-	ar >> BOOST_SERIALIZATION_NVP(m_SsaoRadius);
-	ar >> BOOST_SERIALIZATION_NVP(m_SsaoScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_FogColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_FogStartDistance);
-	ar >> BOOST_SERIALIZATION_NVP(m_FogHeight);
-	ar >> BOOST_SERIALIZATION_NVP(m_FogFalloff);
-}
-
-template
-void RenderPipeline::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const;
-
-template
-void RenderPipeline::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version);
 
 HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,

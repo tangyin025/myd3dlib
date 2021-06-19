@@ -710,8 +710,18 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	std::istream ifs(&buff);
 	LPCTSTR Ext = PathFindExtension(lpszFileName);
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str());
-	*ia >> boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*ia >> boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
+	*ia >> boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
+	*ia >> boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
+	*ia >> boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
+	*ia >> boost::serialization::make_nvp("SsaoBias", theApp.m_SsaoBias);
+	*ia >> boost::serialization::make_nvp("SsaoIntensity", theApp.m_SsaoIntensity);
+	*ia >> boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);
+	*ia >> boost::serialization::make_nvp("SsaoScale", theApp.m_SsaoScale);
+	*ia >> boost::serialization::make_nvp("FogColor", theApp.m_FogColor);
+	*ia >> boost::serialization::make_nvp("FogStartDistance", theApp.m_FogStartDistance);
+	*ia >> boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
+	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
@@ -727,8 +737,18 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	std::ofstream ofs(lpszPathName, std::ios::binary);
 	LPCTSTR Ext = PathFindExtension(lpszPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(ofs, ts2ms(Ext).c_str());
-	*oa << boost::serialization::make_nvp("RenderPipeline", (RenderPipeline &)theApp);
-	*oa << boost::serialization::make_nvp("OctRoot", (OctRoot &)*this);
+	*oa << boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
+	*oa << boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
+	*oa << boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
+	*oa << boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
+	*oa << boost::serialization::make_nvp("SsaoBias", theApp.m_SsaoBias);
+	*oa << boost::serialization::make_nvp("SsaoIntensity", theApp.m_SsaoIntensity);
+	*oa << boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);
+	*oa << boost::serialization::make_nvp("SsaoScale", theApp.m_SsaoScale);
+	*oa << boost::serialization::make_nvp("FogColor", theApp.m_FogColor);
+	*oa << boost::serialization::make_nvp("FogStartDistance", theApp.m_FogStartDistance);
+	*oa << boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
+	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
 	struct Callback : public my::OctNode::QueryCallback
 	{

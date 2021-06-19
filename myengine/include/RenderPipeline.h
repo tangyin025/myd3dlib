@@ -443,18 +443,6 @@ public:
 
 	static void UpdateQuad(QuadVertex * quad, const my::Vector2 & dim);
 
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::split_member(ar, *this, version);
-	}
-
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);

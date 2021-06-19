@@ -2,173 +2,148 @@
 	<sharedgeometry vertexcount="24">
 		<vertexbuffer positions="true" normals="true" colours_diffuse="false" colours_specular="false" texture_coords="1">
 			<vertex>
-				<position x="0.5" y="-0.5" z="0.5"/>
-				<normal x="0" y="0" z="1"/>
-				<texcoord u="1" v="1"/>
-			</vertex>
-			<vertex>
-				<position x="0.5" y="0.5" z="0.5"/>
-				<normal x="0" y="0" z="1"/>
-				<texcoord u="1" v="-0"/>
-			</vertex>
-			<vertex>
 				<position x="-0.5" y="-0.5" z="0.5"/>
 				<normal x="0" y="0" z="1"/>
-				<texcoord u="0" v="1"/>
+				<texcoord u="0.375" v="1"/>
+			</vertex>
+			<vertex>
+				<position x="0.5" y="-0.5" z="0.5"/>
+				<normal x="0" y="0" z="1"/>
+				<texcoord u="0.625" v="1"/>
 			</vertex>
 			<vertex>
 				<position x="-0.5" y="0.5" z="0.5"/>
 				<normal x="0" y="0" z="1"/>
-				<texcoord u="0" v="-0"/>
+				<texcoord u="0.375" v="0.75"/>
+			</vertex>
+			<vertex>
+				<position x="0.5" y="0.5" z="0.5"/>
+				<normal x="0" y="0" z="1"/>
+				<texcoord u="0.625" v="0.75"/>
+			</vertex>
+			<vertex>
+				<position x="-0.5" y="0.5" z="-0.5"/>
+				<normal x="0" y="1" z="0"/>
+				<texcoord u="0.375" v="0.5"/>
+			</vertex>
+			<vertex>
+				<position x="0.5" y="0.5" z="-0.5"/>
+				<normal x="0" y="1" z="0"/>
+				<texcoord u="0.625" v="0.5"/>
+			</vertex>
+			<vertex>
+				<position x="-0.5" y="-0.5" z="-0.5"/>
+				<normal x="0" y="0" z="-1"/>
+				<texcoord u="0.375" v="0.25"/>
+			</vertex>
+			<vertex>
+				<position x="0.5" y="-0.5" z="-0.5"/>
+				<normal x="0" y="0" z="-1"/>
+				<texcoord u="0.625" v="0.25"/>
 			</vertex>
 			<vertex>
 				<position x="-0.5" y="0.5" z="0.5"/>
 				<normal x="0" y="1" z="0"/>
-				<texcoord u="0" v="1"/>
+				<texcoord u="0.375" v="0.75"/>
 			</vertex>
 			<vertex>
 				<position x="0.5" y="0.5" z="0.5"/>
 				<normal x="0" y="1" z="0"/>
-				<texcoord u="1" v="1"/>
+				<texcoord u="0.625" v="0.75"/>
 			</vertex>
 			<vertex>
 				<position x="-0.5" y="0.5" z="-0.5"/>
-				<normal x="0" y="1" z="0"/>
-				<texcoord u="0" v="-0"/>
-			</vertex>
-			<vertex>
-				<position x="0.5" y="0.5" z="-0.5"/>
-				<normal x="0" y="1" z="0"/>
-				<texcoord u="1" v="-0"/>
+				<normal x="0" y="0" z="-1"/>
+				<texcoord u="0.375" v="0.5"/>
 			</vertex>
 			<vertex>
 				<position x="0.5" y="0.5" z="-0.5"/>
 				<normal x="0" y="0" z="-1"/>
-				<texcoord u="0" v="-0"/>
-			</vertex>
-			<vertex>
-				<position x="0.5" y="-0.5" z="-0.5"/>
-				<normal x="0" y="0" z="-1"/>
-				<texcoord u="0" v="1"/>
+				<texcoord u="0.625" v="0.5"/>
 			</vertex>
 			<vertex>
 				<position x="-0.5" y="-0.5" z="-0.5"/>
-				<normal x="0" y="0" z="-1"/>
-				<texcoord u="1" v="1"/>
+				<normal x="0" y="-1" z="0"/>
+				<texcoord u="0.375" v="0.25"/>
 			</vertex>
 			<vertex>
-				<position x="-0.5" y="0.5" z="-0.5"/>
-				<normal x="0" y="0" z="-1"/>
-				<texcoord u="1" v="-0"/>
+				<position x="0.5" y="-0.5" z="-0.5"/>
+				<normal x="0" y="-1" z="0"/>
+				<texcoord u="0.625" v="0.25"/>
 			</vertex>
 			<vertex>
 				<position x="-0.5" y="-0.5" z="0.5"/>
 				<normal x="0" y="-1" z="0"/>
-				<texcoord u="0" v="-0"/>
+				<texcoord u="0.375" v="-0"/>
 			</vertex>
 			<vertex>
 				<position x="0.5" y="-0.5" z="0.5"/>
 				<normal x="0" y="-1" z="0"/>
-				<texcoord u="1" v="-0"/>
+				<texcoord u="0.625" v="-0"/>
 			</vertex>
 			<vertex>
-				<position x="-0.5" y="-0.5" z="-0.5"/>
-				<normal x="0" y="-1" z="0"/>
-				<texcoord u="0" v="1"/>
+				<position x="0.5" y="-0.5" z="0.5"/>
+				<normal x="1" y="0" z="0"/>
+				<texcoord u="0.625" v="1"/>
 			</vertex>
 			<vertex>
 				<position x="0.5" y="-0.5" z="-0.5"/>
-				<normal x="0" y="-1" z="0"/>
-				<texcoord u="1" v="1"/>
+				<normal x="1" y="0" z="0"/>
+				<texcoord u="0.875" v="1"/>
 			</vertex>
 			<vertex>
 				<position x="0.5" y="0.5" z="0.5"/>
 				<normal x="1" y="0" z="0"/>
-				<texcoord u="0" v="-0"/>
+				<texcoord u="0.625" v="0.75"/>
 			</vertex>
 			<vertex>
 				<position x="0.5" y="0.5" z="-0.5"/>
 				<normal x="1" y="0" z="0"/>
-				<texcoord u="1" v="-0"/>
+				<texcoord u="0.875" v="0.75"/>
 			</vertex>
 			<vertex>
-				<position x="0.5" y="-0.5" z="0.5"/>
-				<normal x="1" y="0" z="0"/>
-				<texcoord u="0" v="1"/>
+				<position x="-0.5" y="-0.5" z="-0.5"/>
+				<normal x="-1" y="0" z="0"/>
+				<texcoord u="0.125" v="1"/>
 			</vertex>
 			<vertex>
-				<position x="0.5" y="-0.5" z="-0.5"/>
-				<normal x="1" y="0" z="0"/>
-				<texcoord u="1" v="1"/>
+				<position x="-0.5" y="-0.5" z="0.5"/>
+				<normal x="-1" y="0" z="0"/>
+				<texcoord u="0.375" v="1"/>
+			</vertex>
+			<vertex>
+				<position x="-0.5" y="0.5" z="-0.5"/>
+				<normal x="-1" y="0" z="0"/>
+				<texcoord u="0.125" v="0.75"/>
 			</vertex>
 			<vertex>
 				<position x="-0.5" y="0.5" z="0.5"/>
 				<normal x="-1" y="0" z="0"/>
-				<texcoord u="1" v="-0"/>
-			</vertex>
-			<vertex>
-				<position x="-0.5" y="0.5" z="-0.5"/>
-				<normal x="-1" y="0" z="0"/>
-				<texcoord u="0" v="-0"/>
-			</vertex>
-			<vertex>
-				<position x="-0.5" y="-0.5" z="0.5"/>
-				<normal x="-1" y="0" z="0"/>
-				<texcoord u="1" v="1"/>
-			</vertex>
-			<vertex>
-				<position x="-0.5" y="-0.5" z="-0.5"/>
-				<normal x="-1" y="0" z="0"/>
-				<texcoord u="0" v="1"/>
+				<texcoord u="0.375" v="0.75"/>
 			</vertex>
 		</vertexbuffer>
 	</sharedgeometry>
 	<submeshes>
-		<submesh material="lambert3" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
-			<faces count="2">
-				<face v1="2" v2="0" v3="3"/>
-				<face v1="3" v2="0" v3="1"/>
-			</faces>
-		</submesh>
 		<submesh material="lambert1" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
-			<faces count="2">
-				<face v1="4" v2="5" v3="6"/>
-				<face v1="6" v2="5" v3="7"/>
-			</faces>
-		</submesh>
-		<submesh material="lambert5" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
-			<faces count="2">
-				<face v1="11" v2="8" v3="10"/>
-				<face v1="10" v2="8" v3="9"/>
-			</faces>
-		</submesh>
-		<submesh material="lambert6" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
-			<faces count="2">
-				<face v1="14" v2="15" v3="12"/>
-				<face v1="12" v2="15" v3="13"/>
-			</faces>
-		</submesh>
-		<submesh material="lambert4" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
-			<faces count="2">
-				<face v1="18" v2="19" v3="16"/>
-				<face v1="16" v2="19" v3="17"/>
-			</faces>
-		</submesh>
-		<submesh material="lambert2" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
-			<faces count="2">
-				<face v1="23" v2="22" v3="21"/>
-				<face v1="21" v2="22" v3="20"/>
+			<faces count="12">
+				<face v1="0" v2="1" v3="2"/>
+				<face v1="2" v2="1" v3="3"/>
+				<face v1="8" v2="9" v3="4"/>
+				<face v1="4" v2="9" v3="5"/>
+				<face v1="10" v2="11" v3="6"/>
+				<face v1="6" v2="11" v3="7"/>
+				<face v1="12" v2="13" v3="14"/>
+				<face v1="14" v2="13" v3="15"/>
+				<face v1="16" v2="17" v3="18"/>
+				<face v1="18" v2="17" v3="19"/>
+				<face v1="20" v2="21" v3="22"/>
+				<face v1="22" v2="21" v3="23"/>
 			</faces>
 		</submesh>
 	</submeshes>
 	<boneassignments>
 	</boneassignments>
 	<submeshnames>
-		<submeshname name="polySurfaceShape1" index="0"/>
-		<submeshname name="polySurfaceShape2" index="1"/>
-		<submeshname name="polySurfaceShape3" index="2"/>
-		<submeshname name="polySurfaceShape4" index="3"/>
-		<submeshname name="polySurfaceShape5" index="4"/>
-		<submeshname name="polySurfaceShape6" index="5"/>
+		<submeshname name="pCubeShape1" index="0"/>
 	</submeshnames>
 </mesh>
