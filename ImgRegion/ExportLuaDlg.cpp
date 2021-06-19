@@ -149,7 +149,7 @@ void CExportLuaDlg::ExportTreeNodeSkin(std::ofstream & ofs, HTREEITEM hItem)
 			std::basic_string<TCHAR> strRelatedPath(MAX_PATH, _T('\0'));
 			PathRelativePathTo(&strRelatedPath[0], m_strProjectDir, FILE_ATTRIBUTE_DIRECTORY, pReg->m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
 			boost::trim_if(strRelatedPath, boost::algorithm::is_any_of(_T(".\\")));
-			boost::algorithm::replace_all(strRelatedPath, _T("\\"), ("/"));
+			boost::algorithm::replace_all(strRelatedPath, _T("\\"), _T("/"));
 			ofs << skin_var_name << ".Image.Texture=game:LoadTexture(\"" << tstou8(strRelatedPath.c_str()) << "\")" << std::endl;
 			ofs << skin_var_name << ".Image.Rect=Rectangle.LeftTop(" << pReg->m_ImageRect.X << "," << pReg->m_ImageRect.Y << "," << pReg->m_ImageRect.Width << "," << pReg->m_ImageRect.Height << ")" << std::endl;
 			ofs << skin_var_name << ".Image.Border=Vector4(" << pReg->m_ImageBorder.x << "," << pReg->m_ImageBorder.y << "," << pReg->m_ImageBorder.z << "," << pReg->m_ImageBorder.w << ")" << std::endl;
