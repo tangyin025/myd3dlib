@@ -57,6 +57,8 @@ NamedObject::~NamedObject(void)
 
 std::string NamedObject::MakeUniqueName(const char * Prefix)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	_ASSERT(Prefix);
 
 	boost::regex reg("(\\d+)$");
