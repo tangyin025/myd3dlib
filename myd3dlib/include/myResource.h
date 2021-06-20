@@ -434,15 +434,6 @@ namespace my
 		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
 
 		template <typename T>
-		void LoadVertexBufferAsync(const char* path, const T & callback, int Priority = 0)
-		{
-			IORequestPtr request(new VertexBufferIORequest(path, Priority));
-			LoadIORequestAsync(path, request, callback);
-		}
-
-		boost::intrusive_ptr<VertexBuffer> LoadVertexBuffer(const char* path);
-
-		template <typename T>
 		void LoadMeshAsync(const char* path, const char* sub_mesh_name, const T & callback, int Priority = 0)
 		{
 			std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
@@ -495,19 +486,6 @@ namespace my
 			, m_path(path)
 		{
 		}
-
-		virtual void LoadResource(void);
-
-		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
-	};
-
-	class VertexBufferIORequest : public IORequest
-	{
-	protected:
-		std::string m_path;
-
-	public:
-		VertexBufferIORequest(const char* path, int Priority);
 
 		virtual void LoadResource(void);
 

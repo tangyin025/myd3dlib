@@ -144,12 +144,6 @@ namespace my
 			DWORD FVF = 0,
 			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
-		void CreateVertexBufferFromIStream(
-			IStreamPtr istr,
-			DWORD Usage = 0,
-			DWORD FVF = 0,
-			D3DPOOL Pool = D3DPOOL_DEFAULT);
-
 		void SaveVertexBuffer(const char* path);
 
 		D3DVERTEXBUFFER_DESC GetDesc(void);

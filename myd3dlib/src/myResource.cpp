@@ -742,14 +742,6 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
 }
 
-boost::intrusive_ptr<VertexBuffer> ResourceMgr::LoadVertexBuffer(const char* path)
-{
-	SimpleResourceCallback cb;
-	IORequestPtr request(new VertexBufferIORequest(path, INT_MAX));
-	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
-	return boost::dynamic_pointer_cast<VertexBuffer>(cb.m_res);
-}
-
 boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
 {
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
@@ -823,38 +815,6 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		break;
 	default:
 		THROW_CUSEXCEPTION(str_printf("unsupported d3d texture format %u", imif.ResourceType));
-	}
-}
-
-VertexBufferIORequest::VertexBufferIORequest(const char* path, int Priority)
-	: IORequest(Priority)
-	, m_path(path)
-{
-	m_res.reset(new VertexBuffer());
-}
-
-void VertexBufferIORequest::LoadResource(void)
-{
-	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
-	{
-		try
-		{
-			boost::dynamic_pointer_cast<VertexBuffer>(m_res)->CreateVertexBufferFromIStream(
-				ResourceMgr::getSingleton().OpenIStream(m_path.c_str()), 0, 0, D3DPOOL_MANAGED);
-		}
-		catch (my::Exception *)
-		{
-			m_res->OnDestroyDevice();
-		}
-	}
-}
-
-void VertexBufferIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
-{
-	if (!boost::dynamic_pointer_cast<VertexBuffer>(m_res)->m_ptr)
-	{
-		m_res.reset();
-		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 }
 

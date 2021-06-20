@@ -190,18 +190,14 @@ class TerrainStream
 public:
 	Terrain* m_terrain;
 
-	bool m_OverwriteStream;
-
-	boost::multi_array<std::fstream, 2> m_fstrs;
+	std::fstream m_fstr;
 
 	boost::multi_array<bool, 2> m_AabbDirty;
 
 	boost::multi_array<bool, 2> m_VertDirty;
 
-	static std::string GetChunkPath(const char* chunk_name, int Row, int Col);
-
 public:
-	explicit TerrainStream(Terrain* terrain, bool OverwriteStream);
+	explicit TerrainStream(Terrain* terrain);
 
 	~TerrainStream(void);
 
@@ -209,7 +205,9 @@ public:
 
 	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
 
-	std::fstream& GetStream(int k, int l);
+	std::fstream& GetStream(int k, int l, int& stream_off);
+
+	static int CalculateStreamOff(int ColChunks, int Row, int Col, int ChunkSize, int VertexStride);
 
 	my::Vector3 GetPos(int i, int j);
 

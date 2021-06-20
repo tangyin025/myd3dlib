@@ -83,7 +83,7 @@ void CTerrainDlg::OnOK()
 
 	m_terrain->m_ChunkPath = ts2ms(m_ChunkPath);
 
-	TerrainStream tstr(m_terrain.get(), true);
+	TerrainStream tstr(m_terrain.get());
 	std::fill(tstr.m_AabbDirty.data(), tstr.m_AabbDirty.data() + tstr.m_AabbDirty.num_elements(), true);
 	tstr.Release();
 
@@ -108,7 +108,7 @@ void CTerrainDlg::OnChangeEdit4()
 	// TODO:  Add your control notification handler code here
 	CString strText;
 	GetDlgItemText(IDC_EDIT4, strText);
-	if (my::ResourceMgr::getSingleton().CheckPath(TerrainStream::GetChunkPath(ts2ms(strText).c_str(), 0, 0).c_str()))
+	if (my::ResourceMgr::getSingleton().CheckPath(theApp.GetFullPath(ts2ms(strText).c_str()).c_str()))
 	{
 		SetDlgItemText(IDC_STATIC5, _T("Existed !"));
 	}

@@ -1110,7 +1110,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelComponent(Component::ComponentTypeTerrain));
 	if (terrain && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 	{
-		m_PaintTerrainCaptured.reset(new TerrainStream(terrain, false));
+		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
 		OnPaintTerrainHeightField(ray, *m_PaintTerrainCaptured);
 		SetCapture();
 		Invalidate();
@@ -1119,7 +1119,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (terrain && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
 	{
-		m_PaintTerrainCaptured.reset(new TerrainStream(terrain, false));
+		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
 		OnPaintTerrainColor(ray, *m_PaintTerrainCaptured);
 		SetCapture();
 		Invalidate();
@@ -1754,7 +1754,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 			{
 				if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
 				{
-					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()), false);
+					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
 					my::RayResult res = tstr.RayTest(local_ray);
 					if (res.first)
 					{
