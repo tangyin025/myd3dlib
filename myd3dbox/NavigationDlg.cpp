@@ -168,7 +168,7 @@ void CNavigationDlg::OnOK()
 				case physx::PxGeometryType::ePLANE:
 				case physx::PxGeometryType::eCAPSULE:
 				case physx::PxGeometryType::eBOX:
-					TRACE("OnToolsBuildnavigation: unsupported collision shape");
+					pDlg->log(RC_LOG_PROGRESS, "buildNavigation: unsupported collision shape");
 					continue;
 				case physx::PxGeometryType::eCONVEXMESH:
 				{
@@ -182,7 +182,7 @@ void CNavigationDlg::OnOK()
 						geom.convexMesh->getPolygonData(i, hullpoly);
 						if (hullpoly.mNbVerts < 3)
 						{
-							TRACE("OnToolsBuildnavigation: invalid polygon");
+							pDlg->log(RC_LOG_ERROR, "buildNavigation: invalid polygon");
 							continue;
 						}
 						for (int j = 2; j < hullpoly.mNbVerts; j++)
@@ -227,7 +227,7 @@ void CNavigationDlg::OnOK()
 					Terrain * terrain = dynamic_cast<Terrain*>(cmp_iter->get());
 					if (!terrain)
 					{
-						TRACE("OnToolsBuildnavigation: invalid terrain component");
+						pDlg->log(RC_LOG_ERROR, "buildNavigation: invalid terrain component");
 						continue;
 					}
 					TerrainStream tstr(terrain, false);
