@@ -669,7 +669,7 @@ void Animator::AddJiggleBone(const std::string & bone_name, float mass, float da
 		return;
 	}
 
-	int root_i = m_Skeleton->FindParent(bone_name_iter->second);
+	int root_i = m_Skeleton->m_boneHierarchy.FindParent(bone_name_iter->second);
 	if (-1 == root_i)
 	{
 		return;
