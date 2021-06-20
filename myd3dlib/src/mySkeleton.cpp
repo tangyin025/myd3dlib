@@ -489,11 +489,14 @@ void OgreSkeleton::Clear(void)
 	m_boneHierarchy.clear();
 }
 
-int OgreSkeleton::GetBoneIndex(const std::string & bone_name) const
+int OgreSkeleton::GetBoneIndex(const char * bone_name) const
 {
-	_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
-
-	return m_boneNameMap.find(bone_name)->second;
+	BoneNameMap::const_iterator name_iter = m_boneNameMap.find(bone_name);
+	if (name_iter != m_boneNameMap.end())
+	{
+		return name_iter->second;
+	}
+	return -1;
 }
 
 const char * OgreSkeleton::FindBoneName(int node_i) const

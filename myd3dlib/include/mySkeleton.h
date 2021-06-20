@@ -221,7 +221,7 @@ namespace my
 
 		void Clear(void);
 
-		int GetBoneIndex(const std::string & bone_name) const;
+		int GetBoneIndex(const char * bone_name) const;
 
 		const char * FindBoneName(int node_i) const;
 

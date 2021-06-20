@@ -68,11 +68,11 @@ local anim=Animator(NamedObject.MakeUniqueName("anim_cmp"))
 anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-anim.SkeletonEventReady=function(arg)
+game:LoadSkeletonAsync(anim.SkeletonPath, function(res)
 	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	arg.self:AddIK("Bip01_L_Thigh", 0.1, character_cmp.filterWord0)
-	arg.self:AddIK("Bip01_R_Thigh", 0.1, character_cmp.filterWord0)
-end
+	anim:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, character_cmp.filterWord0)
+	anim:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, character_cmp.filterWord0)
+end, 0)
 player:AddComponent(anim)
 
 -- ½ÇÉ«ÐÐÎª

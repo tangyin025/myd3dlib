@@ -310,8 +310,6 @@ public:
 
 	my::OgreSkeletonAnimationPtr m_Skeleton;
 
-	my::EventFunction m_SkeletonEventReady;
-
 	my::BoneList anim_pose;
 
 	my::BoneList bind_pose_hier;
@@ -405,13 +403,13 @@ public:
 
 	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
 
-	void AddJiggleBone(const std::string & bone_name, float mass, float damping, float springConstant);
+	void AddJiggleBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant);
 
-	void AddJiggleBone(JiggleBoneContext & context, int node_i, float mass, float damping);
+	static void AddJiggleBone(JiggleBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping);
 
 	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
 
-	void AddIK(const std::string & bone_name, float hitRadius, unsigned int filterWord0);
+	void AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0);
 
 	void UpdateIK(IKContext & ik);
 
