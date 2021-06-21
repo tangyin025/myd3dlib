@@ -79,7 +79,7 @@ void CTerrainDlg::OnOK()
 		}
 	}
 
-	if (!::DeleteFileA(theApp.GetFullPath(ts2ms(m_ChunkPath).c_str()).c_str()))
+	if (!strText.IsEmpty() && !::DeleteFileA(theApp.GetFullPath(ts2ms(m_ChunkPath).c_str()).c_str()))
 	{
 		::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(),
 			MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), strText.GetBufferSetLength(MAX_PATH), strText.GetAllocLength(), NULL);
