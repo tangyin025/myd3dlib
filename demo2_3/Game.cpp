@@ -2,6 +2,10 @@
 #include "Game.h"
 #include "Material.h"
 #include "resource.h"
+#include "NavigationSerialization.h"
+#include "Recast.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -1040,8 +1044,9 @@ void Game::LoadScene(const char * path)
 	{
 		RemoveEntity(actor_iter->get());
 	}
-
 	m_ActorList.clear();
+	m_navQuery.reset();
+	m_navMesh.reset();
 
 	my::IStreamBuff buff(OpenIStream(path));
 	std::istream ifs(&buff);
@@ -1060,10 +1065,17 @@ void Game::LoadScene(const char * path)
 	*ia >> boost::serialization::make_nvp("FogHeight", m_FogHeight);
 	*ia >> boost::serialization::make_nvp("FogFalloff", m_FogFalloff);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
+	*ia >> boost::serialization::make_nvp("navMesh", m_navMesh);
 
 	actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
 		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+
+	if (m_navMesh)
+	{
+		m_navQuery.reset(new dtNavMeshQuery());
+		m_navQuery->init(m_navMesh.get(), 2048);
 	}
 }

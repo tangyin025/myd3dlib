@@ -7,13 +7,9 @@
 #include "PhysxContext.h"
 #include "FModContext.h"
 
-namespace boost
-{
-	namespace archive
-	{
-		class polymorphic_iarchive;
-	};
-};
+class dtNavMesh;
+
+class dtNavMeshQuery;
 
 class Game
 	: public my::DxutApp
@@ -64,6 +60,10 @@ public:
 	typedef std::vector<ActorPtr> ActorPtrSet;
 
 	ActorPtrSet m_ActorList;
+
+	boost::shared_ptr<dtNavMesh> m_navMesh;
+
+	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
 
 	bool m_Activated;
 

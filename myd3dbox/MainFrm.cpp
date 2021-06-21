@@ -699,6 +699,8 @@ void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
 	m_ActorList.clear();
+	m_navQuery.reset();
+	m_navMesh.reset();
 	m_selactors.clear();
 	LuaContext::Shutdown();
 	_ASSERT(theApp.m_NamedObjects.empty());

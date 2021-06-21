@@ -69,7 +69,7 @@ namespace boost {
 			dtStatus status = mesh.init(&header.params);
 			if (dtStatusFailed(status))
 			{
-				THROW_CUSEXCEPTION("cannot init dtNavMesh");
+				THROW_CUSEXCEPTION("init dtNavMesh failed");
 			}
 
 			for (int i = 0; i < header.numTiles; ++i)
@@ -77,10 +77,14 @@ namespace boost {
 				NavMeshTileHeader tileHeader;
 				ar >> BOOST_SERIALIZATION_NVP(tileHeader.tileRef);
 				ar >> BOOST_SERIALIZATION_NVP(tileHeader.dataSize);
-				std::vector<unsigned char> data(tileHeader.dataSize);
-				ar >> boost::serialization::make_nvp("tile.data", boost::serialization::binary_object(&data[0], data.size()));
+				unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+				if (!data)
+				{
+					THROW_CUSEXCEPTION("alloc tile data failed");
+				}
+				ar >> boost::serialization::make_nvp("tile.data", boost::serialization::binary_object(data, tileHeader.dataSize));
 
-				mesh.addTile(&data[0], data.size(), DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
+				mesh.addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
 			}
 		}
 
