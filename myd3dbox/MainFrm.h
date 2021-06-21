@@ -13,6 +13,10 @@
 #include "LuaExtension.h"
 #include "Pivot.h"
 
+class dtNavMesh;
+
+class dtNavMeshQuery;
+
 class CMainFrame : public CFrameWndEx
 	, public PhysxScene
 	, public my::OctRoot
@@ -38,6 +42,8 @@ public:
 	SelActorList m_selactors;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
+	boost::shared_ptr<dtNavMesh> m_navMesh;
+	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
 	enum PaintType

@@ -8,7 +8,7 @@
 #include "ChildView.h"
 #include "MainFrm.h"
 #include "Animation.h"
-//#include "DetourDebugDraw.h"
+#include "DetourDebugDraw.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -986,10 +986,10 @@ void CChildView::OnPaint()
 				DrawHelper::EndLine(theApp.m_d3dDevice);
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-				//if (m_bShowNavigation && pFrame->m_navMesh && pFrame->m_navQuery)
-				//{
-				//	duDebugDrawNavMesh(this, *pFrame->m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
-				//}
+				if (m_bShowNavigation && pFrame->m_navMesh && pFrame->m_navQuery)
+				{
+					duDebugDrawNavMesh(this, *pFrame->m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
+				}
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
