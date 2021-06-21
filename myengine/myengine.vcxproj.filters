@@ -48,6 +48,9 @@
     <ClInclude Include="include\LuaExtension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\NavigationSerialization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp">
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\LuaExtension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NavigationSerialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
