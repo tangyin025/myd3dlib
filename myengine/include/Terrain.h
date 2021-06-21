@@ -57,8 +57,6 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
-
-	my::AABB CalculateAABB(Terrain * terrain) const;
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -177,8 +175,6 @@ public:
 	void UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale);
 
 	void UpdateVerticesNormal(void);
-
-	void UpdateChunkAABB(void);
 
 	void UpdateSplatmap(my::Texture2D * ColorMap);
 };

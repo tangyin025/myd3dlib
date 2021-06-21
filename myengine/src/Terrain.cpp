@@ -182,24 +182,6 @@ void TerrainChunk::ReleaseResource(void)
 	m_Requested = false;
 }
 
-my::AABB TerrainChunk::CalculateAABB(Terrain * terrain) const
-{
-	AABB ret = AABB::Invalid();
-	TerrainStream tstr(terrain);
-	for (int i = 0; i < (int)terrain->m_IndexTable.shape()[0]; i++)
-	{
-		for (int j = 0; j < (int)terrain->m_IndexTable.shape()[1]; j++)
-		{
-			ret.unionSelf(tstr.GetPos(m_Row * terrain->m_ChunkSize + i, m_Col * terrain->m_ChunkSize + j));
-		}
-	}
-	if (ret.m_max.y - ret.m_min.y < EPSILON_E6)
-	{
-		ret.shrinkSelf(0, -1.0f, 0);
-	}
-	return ret;
-}
-
 static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)
 {
     _ASSERT((hs & (hs - 1)) == 0);
@@ -889,8 +871,6 @@ void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)
 	pixel.Release();
 
 	UpdateVerticesNormal();
-
-	UpdateChunkAABB();
 }
 
 void Terrain::UpdateVerticesNormal(void)
@@ -915,19 +895,6 @@ void Terrain::UpdateVerticesNormal(void)
 			};
 			const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
 			tstr.SetNormal(Normal, i, j);
-		}
-	}
-}
-
-void Terrain::UpdateChunkAABB(void)
-{
-	for (int i = 0; i < m_RowChunks; i++)
-	{
-		for (int j = 0; j < m_ColChunks; j++)
-		{
-			TerrainChunk * chunk = m_Chunks[i][j].get();
-			RemoveEntity(chunk);
-			AddEntity(chunk, chunk->CalculateAABB(this), MinBlock, Threshold);
 		}
 	}
 }

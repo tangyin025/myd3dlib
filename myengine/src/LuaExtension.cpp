@@ -1296,7 +1296,6 @@ void LuaContext::Init(void)
 			.def("GetChunk", &Terrain::GetChunk)
 			.def("UpdateHeightMap", &Terrain::UpdateHeightMap)
 			.def("UpdateVerticesNormal", &Terrain::UpdateVerticesNormal)
-			.def("UpdateChunkAABB", &Terrain::UpdateChunkAABB)
 			.def("UpdateSplatmap", &Terrain::UpdateSplatmap)
 
 		, class_<TerrainStream>("TerrainStream")
