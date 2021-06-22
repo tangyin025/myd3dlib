@@ -2038,7 +2038,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialZEnable:
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-		material->m_ZEnable = pProp->GetValue().boolVal != 0;
+		material->m_ZEnable = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -2046,7 +2046,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialZWriteEnable:
 	{
 		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-		material->m_ZWriteEnable = pProp->GetValue().boolVal != 0;
+		material->m_ZWriteEnable = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

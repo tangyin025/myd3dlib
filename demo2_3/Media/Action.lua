@@ -17,9 +17,9 @@ act_tuowei.Length=99999
 local particle1=Material()
 particle1.Shader="shader/mtl_particle1.fx"
 particle1.PassMask=Material.PassMaskTransparent
-particle1.ZWriteEnable=0
+particle1.ZWriteEnable=false
 particle1.BlendMode=Material.BlendModeAdditive
-particle1:AddParameterTexture("g_Texture", "texture/flare.dds")
+particle1:AddParameter("g_Texture", "texture/flare.dds")
 local track=ActionTrackEmitter()
 track.EmitterMaterial=particle1
 track.ParticleLifeTime=5

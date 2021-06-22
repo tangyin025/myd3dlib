@@ -303,29 +303,6 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 	return Clamp(Lod, 0, _Quad(m_ChunkSize));
 }
 
-template <>
-unsigned char Terrain::GetSampleValue<unsigned char>(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j)
-{
-	_ASSERT(i >= 0 && i < (int)desc.Height);
-	_ASSERT(j >= 0 && j < (int)desc.Width);
-	return *(unsigned char *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(unsigned char));
-}
-
-template <>
-short Terrain::GetSampleValue<short>(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j)
-{
-	_ASSERT(i >= 0 && i < (int)desc.Height);
-	_ASSERT(j >= 0 && j < (int)desc.Width);
-	int value = *(unsigned short *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(unsigned short));
-	return (short)(value - 32768);
-}
-
-template <typename T>
-my::Vector3 Terrain::GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j, float HeightScale)
-{
-	return my::Vector3((float)j, HeightScale * GetSampleValue<T>(desc, lrc, my::Clamp<int>(i, 0, desc.Height - 1), my::Clamp<int>(j, 0, desc.Width - 1)), (float)i);
-}
-
 void Terrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);

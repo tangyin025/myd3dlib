@@ -124,12 +124,6 @@ public:
 		TerrainChunk * ret = m_Chunks[i][j].get(); _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
 	}
 
-	template <typename T>
-	static T GetSampleValue(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j);
-
-	template <typename T>
-	static my::Vector3 GetSamplePos(D3DSURFACE_DESC & desc, D3DLOCKED_RECT & lrc, int i, int j, float HeightScale);
-
 	void CreateElements(void);
 
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);

@@ -276,9 +276,9 @@ public:
 
 	DWORD m_CullMode;
 
-	BOOL m_ZEnable;
+	bool m_ZEnable;
 
-	BOOL m_ZWriteEnable;
+	bool m_ZWriteEnable;
 
 	DWORD m_BlendMode;
 
@@ -290,8 +290,8 @@ public:
 	Material(void)
 		: m_PassMask(0)
 		, m_CullMode(D3DCULL_CW)
-		, m_ZEnable(TRUE)
-		, m_ZWriteEnable(TRUE)
+		, m_ZEnable(true)
+		, m_ZWriteEnable(true)
 		, m_BlendMode(BlendModeNone)
 	{
 	}
@@ -328,15 +328,41 @@ public:
 
 	void ParseShaderParameters(void);
 
-	void AddParameterFloat(const std::string & Name, float Value);
+	template <typename T>
+	void AddParameter(const std::string& Name, const T& Value);
 
-	void AddParameterFloat2(const std::string & Name, const my::Vector2 & Value);
+	MaterialParameterPtr GetParameter(const std::string& Name);
 
-	void AddParameterFloat3(const std::string & Name, const my::Vector3 & Value);
-
-	void AddParameterFloat4(const std::string & Name, const my::Vector4 & Value);
-
-	void AddParameterTexture(const std::string & Name, const std::string & Path);
-
-	void SetParameterTexture(const std::string & Name, const std::string & Path);
+	template <typename T>
+	void SetParameter(const char* Name, const T& Value);
 };
+
+template <>
+void Material::AddParameter<float>(const std::string& Name, const float& Value);
+
+template <>
+void Material::AddParameter<my::Vector2>(const std::string& Name, const my::Vector2& Value);
+
+template <>
+void Material::AddParameter<my::Vector3>(const std::string& Name, const my::Vector3& Value);
+
+template <>
+void Material::AddParameter<my::Vector4>(const std::string& Name, const my::Vector4& Value);
+
+template <>
+void Material::AddParameter<std::string>(const std::string& Name, const std::string& Value);
+
+template <>
+void Material::SetParameter<float>(const char* Name, const float& Value);
+
+template <>
+void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Value);
+
+template <>
+void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Value);
+
+template <>
+void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Value);
+
+template <>
+void Material::SetParameter<std::string>(const char* Name, const std::string& Value);

@@ -20,9 +20,9 @@ require "Action.lua"
 -- local lambert1=Material()
 -- lambert1.Shader="shader/mtl_BlinnPhong.fx"
 -- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
--- lambert1:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
--- lambert1:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
--- lambert1:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- lambert1:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert1:AddParameter("g_NormalTexture", "texture/Normal.dds")
+-- lambert1:AddParameter("g_SpecularTexture", "texture/White.dds")
 -- cmp.Material=lambert1
 -- cmp.MeshPath="mesh/plane.mesh.xml"
 -- cmp.MeshEventReady=function(arg)
@@ -39,9 +39,9 @@ actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Iden
 local lambert2=Material()
 lambert2.Shader="shader/mtl_BlinnPhong.fx"
 lambert2.PassMask=Material.PassMaskShadowNormalOpaque
-lambert2:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
-lambert2:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
-lambert2:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+lambert2:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
+lambert2:AddParameter("g_NormalTexture", "texture/Normal.dds")
+lambert2:AddParameter("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp2.MeshPath="mesh/Sphere.mesh.xml"
 cmp2.Material=lambert2
@@ -162,9 +162,9 @@ actor6:AddComponent(actor6_behavior)
 -- local lambert9=Material()
 -- lambert9.Shader="shader/mtl_BlinnPhong.fx"
 -- lambert9.PassMask=Material.PassMaskShadowNormalOpaque
--- lambert9:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
--- lambert9:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
--- lambert9:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- lambert9:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert9:AddParameter("g_NormalTexture", "texture/Normal.dds")
+-- lambert9:AddParameter("g_SpecularTexture", "texture/White.dds")
 -- cmp15.Material=lambert9
 -- actor9:AddComponent(cmp15)
 -- cmp15=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
@@ -173,9 +173,9 @@ actor6:AddComponent(actor6_behavior)
 -- local lambert9=Material()
 -- lambert9.Shader="shader/mtl_BlinnPhong.fx"
 -- lambert9.PassMask=Material.PassMaskShadowNormalOpaque
--- lambert9:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
--- lambert9:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
--- lambert9:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- lambert9:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert9:AddParameter("g_NormalTexture", "texture/Normal.dds")
+-- lambert9:AddParameter("g_SpecularTexture", "texture/White.dds")
 -- cmp15.Material=lambert9
 -- actor9:AddComponent(cmp15)
 -- cmp15=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
@@ -184,9 +184,9 @@ actor6:AddComponent(actor6_behavior)
 -- local lambert9=Material()
 -- lambert9.Shader="shader/mtl_BlinnPhong.fx"
 -- lambert9.PassMask=Material.PassMaskShadowNormalOpaque
--- lambert9:AddParameterTexture("g_DiffuseTexture", "texture/Checker.bmp")
--- lambert9:AddParameterTexture("g_NormalTexture", "texture/Normal.dds")
--- lambert9:AddParameterTexture("g_SpecularTexture", "texture/White.dds")
+-- lambert9:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
+-- lambert9:AddParameter("g_NormalTexture", "texture/Normal.dds")
+-- lambert9:AddParameter("g_SpecularTexture", "texture/White.dds")
 -- cmp15.Material=lambert9
 -- actor9:AddComponent(cmp15)
 -- -- 构建动画树
