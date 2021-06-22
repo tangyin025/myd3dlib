@@ -202,6 +202,16 @@ void D3DVertexElementSet::SetColor(void * pVertex, const D3DCOLOR & Color, BYTE 
 	return SetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex, Color);
 }
 
+void VertexBuffer::OnResetDevice(void)
+{
+
+}
+
+void VertexBuffer::OnLostDevice(void)
+{
+	_ASSERT(!m_ptr || GetDesc().Pool == D3DPOOL_MANAGED);
+}
+
 void VertexBuffer::Create(IDirect3DVertexBuffer9 * ptr)
 {
 	_ASSERT(!m_ptr);

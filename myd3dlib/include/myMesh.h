@@ -136,6 +136,10 @@ namespace my
 		{
 		}
 
+		virtual void OnResetDevice(void);
+
+		virtual void OnLostDevice(void);
+
 		void Create(IDirect3DVertexBuffer9 * ptr);
 
 		void CreateVertexBuffer(

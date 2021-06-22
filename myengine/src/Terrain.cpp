@@ -69,10 +69,10 @@ public:
 			int BufferSize = (m_ChunkSize + 1) * (m_ChunkSize + 1) * m_VertexStride;
 			VertexBufferPtr vb = boost::dynamic_pointer_cast<VertexBuffer>(m_res);
 			ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
-			vb->CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_DEFAULT);
+			vb->CreateVertexBuffer(BufferSize, 0, 0, D3DPOOL_MANAGED);
 			void* buff = vb->Lock();
 			ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
-			istr->read(buff, BufferSize);
+			BOOST_VERIFY(istr->read(buff, BufferSize) == BufferSize);
 			ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 			vb->Unlock();
 			ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
