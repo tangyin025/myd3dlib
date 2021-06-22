@@ -842,9 +842,9 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 
 void Terrain::ClearShape(void)
 {
-	Component::ClearShape();
-
 	m_PxHeightField.reset();
+
+	Component::ClearShape();
 }
 
 void Terrain::UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale)

@@ -475,7 +475,6 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 	}
 
 	const D3DXATTRIBUTERANGE& att = m_Mesh->m_AttribTable[m_MeshSubMeshId];
-	boost::shared_ptr<physx::PxTriangleMesh> triangle_mesh;
 	physx::PxTriangleMeshDesc desc;
 	desc.points.count = att.VertexCount;
 	desc.points.stride = m_Mesh->GetNumBytesPerVertex();
@@ -500,12 +499,12 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		return;
 	}
 	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	triangle_mesh.reset(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
+	m_PxMesh.reset(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
+	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(m_PxMesh->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
 		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -538,7 +537,6 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	}
 
 	const D3DXATTRIBUTERANGE& att = m_Mesh->m_AttribTable[m_MeshSubMeshId];
-	boost::shared_ptr<physx::PxConvexMesh> convex_mesh;
 	physx::PxConvexMeshDesc desc;
 	desc.points.count = att.VertexCount;
 	desc.points.stride = m_Mesh->GetNumBytesPerVertex();
@@ -557,12 +555,12 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		return;
 	}
 	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	convex_mesh.reset(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
+	m_PxMesh.reset(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(convex_mesh.get(), mesh_scaling),
+	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(m_PxMesh->is<physx::PxConvexMesh>(), mesh_scaling),
 		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -572,6 +570,13 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	SetQueryFilterWord0(filterWord0);
 
 	m_PxShape->userData = this;
+}
+
+void MeshComponent::ClearShape(void)
+{
+	m_PxMesh.reset();
+
+	Component::ClearShape();
 }
 
 ClothComponent::~ClothComponent(void)

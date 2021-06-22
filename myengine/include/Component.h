@@ -183,6 +183,8 @@ public:
 
 	bool m_bInstance;
 
+	boost::shared_ptr<physx::PxBase> m_PxMesh;
+
 	D3DXHANDLE handle_Time;
 
 	D3DXHANDLE handle_World;
@@ -253,6 +255,8 @@ public:
 	void CreateTriangleMeshShape(unsigned int filterWord0);
 
 	void CreateConvexMeshShape(bool bInflateConvex, unsigned int filterWord0);
+
+	virtual void ClearShape(void);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
