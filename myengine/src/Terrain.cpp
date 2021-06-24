@@ -943,7 +943,7 @@ void TerrainStream::Release(void)
 				void* pVertices = chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY);
 				int stream_off;
 				std::fstream& fstr = GetStream(k, l, stream_off);
-				fstr.seekg(stream_off, std::ios::beg);
+				fstr.seekp(stream_off, std::ios::beg);
 				fstr.write((char*)pVertices, desc.Size);
 				chunk->m_Vb->Unlock();
 
