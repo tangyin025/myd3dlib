@@ -11,6 +11,48 @@ class dtNavMesh;
 
 class dtNavMeshQuery;
 
+class SceneContext : public my::DeviceResourceBase
+{
+public:
+	my::Vector3 m_SkyLightCamEuler;
+	my::Vector4 m_SkyLightColor;
+	my::Vector4 m_AmbientColor;
+	my::Vector4 m_DofParams;
+	float m_SsaoBias;
+	float m_SsaoIntensity;
+	float m_SsaoRadius;
+	float m_SsaoScale;
+	my::Vector4 m_FogColor;
+	float m_FogStartDistance;
+	float m_FogHeight;
+	float m_FogFalloff;
+	typedef std::vector<ActorPtr> ActorPtrSet;
+	ActorPtrSet m_ActorList;
+	boost::shared_ptr<dtNavMesh> m_navMesh;
+
+public:
+	SceneContext(void)
+	{
+	}
+};
+
+typedef boost::intrusive_ptr<SceneContext> SceneContextPtr;
+
+class SceneContextRequest : public my::IORequest
+{
+protected:
+	std::string m_path;
+
+public:
+	SceneContextRequest(const char* path, int Priority);
+
+	virtual void SceneContextRequest::LoadResource(void);
+
+	virtual void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
+
+	static std::string SceneContextRequest::BuildKey(const char* path);
+};
+
 class Game
 	: public my::DxutApp
 	, public my::TimerMgr
@@ -57,11 +99,7 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
-	typedef std::vector<ActorPtr> ActorPtrSet;
-
-	ActorPtrSet m_ActorList;
-
-	boost::shared_ptr<dtNavMesh> m_navMesh;
+	SceneContextPtr m_scene;
 
 	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
 
@@ -144,5 +182,18 @@ public:
 
 	virtual void OnControlFocus(bool bFocus);
 
-	void LoadScene(const char * path);
+	template <typename T>
+	void LoadSceneAsync(const char* path, const T& callback, int Priority = 0)
+	{
+		std::string key = SceneContextRequest::BuildKey(path);
+		IORequestPtr request(new SceneContextRequest(path, Priority));
+		LoadIORequestAsync(key, request, callback);
+	}
+
+	boost::intrusive_ptr<SceneContext> GetScene(void) const
+	{
+		return m_scene;
+	}
+
+	void SetScene(boost::intrusive_ptr<SceneContext> scene);
 };

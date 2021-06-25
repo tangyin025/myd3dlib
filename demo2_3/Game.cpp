@@ -282,6 +282,53 @@ static int os_exit(lua_State * L)
 	return 0;
 }
 
+SceneContextRequest::SceneContextRequest(const char* path, int Priority)
+	: IORequest(Priority)
+	, m_path(path)
+{
+	m_res.reset(new SceneContext());
+}
+
+void SceneContextRequest::LoadResource(void)
+{
+	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+	{
+		my::IStreamBuff buff(ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+		std::istream ifs(&buff);
+		LPCSTR Ext = PathFindExtensionA(m_path.c_str());
+		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
+		SceneContextPtr scene = boost::dynamic_pointer_cast<SceneContext>(m_res);
+		*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", scene->m_SkyLightCamEuler);
+		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);
+		*ia >> boost::serialization::make_nvp("AmbientColor", scene->m_AmbientColor);
+		*ia >> boost::serialization::make_nvp("DofParams", scene->m_DofParams);
+		*ia >> boost::serialization::make_nvp("SsaoBias", scene->m_SsaoBias);
+		*ia >> boost::serialization::make_nvp("SsaoIntensity", scene->m_SsaoIntensity);
+		*ia >> boost::serialization::make_nvp("SsaoRadius", scene->m_SsaoRadius);
+		*ia >> boost::serialization::make_nvp("SsaoScale", scene->m_SsaoScale);
+		*ia >> boost::serialization::make_nvp("FogColor", scene->m_FogColor);
+		*ia >> boost::serialization::make_nvp("FogStartDistance", scene->m_FogStartDistance);
+		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
+		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
+		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
+		*ia >> boost::serialization::make_nvp("navMesh", scene->m_navMesh);
+	}
+}
+
+void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+{
+	if (boost::dynamic_pointer_cast<SceneContext>(m_res)->m_ActorList.empty())
+	{
+		m_res.reset();
+		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
+	}
+}
+
+std::string SceneContextRequest::BuildKey(const char* path)
+{
+	return path;
+}
+
 Game::Game(void)
 	: OctRoot(-4096, 4096)
 	, m_UIRender(new EffectUIRender())
@@ -461,8 +508,9 @@ HRESULT Game::OnCreateDevice(
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
-
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
+
+		, luabind::class_<SceneContext, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("SceneContext")
 
 		, luabind::class_<Game, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
@@ -490,7 +538,10 @@ HRESULT Game::OnCreateDevice(
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("OnControlSound", &Game::OnControlSound)
-			.def("LoadScene", &Game::LoadScene)
+			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
+			.property("Scene", &Game::GetScene, &Game::SetScene)
+
+		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -597,7 +648,7 @@ void Game::OnDestroyDevice(void)
 
 	ClearAllEntity();
 
-	m_ActorList.clear();
+	m_scene.reset();
 
 	m_Console.reset();
 
@@ -605,15 +656,15 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
-	LuaContext::Shutdown();
-
-	_ASSERT(m_NamedObjects.empty());
-
 	m_SimpleSample.reset();
 
 	m_UIRender->OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();
+
+	LuaContext::Shutdown();
+
+	_ASSERT(m_NamedObjects.empty());
 
 	ImeEditBox::Uninitialize();
 
@@ -1037,45 +1088,49 @@ void Game::OnControlFocus(bool bFocus)
 	}
 }
 
-void Game::LoadScene(const char * path)
+void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 {
-	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	if (m_scene)
 	{
-		RemoveEntity(actor_iter->get());
-	}
-	m_ActorList.clear();
-	m_navQuery.reset();
-	m_navMesh.reset();
+		SceneContext::ActorPtrSet::const_iterator actor_iter = m_scene->m_ActorList.begin();
+		for (; actor_iter != m_scene->m_ActorList.end(); actor_iter++)
+		{
+			RemoveEntity(actor_iter->get());
+		}
 
-	my::IStreamBuff buff(OpenIStream(path));
-	std::istream ifs(&buff);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
-	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", m_SkyLightCam.m_Euler);
-	*ia >> boost::serialization::make_nvp("SkyLightColor", m_SkyLightColor);
-	*ia >> boost::serialization::make_nvp("AmbientColor", m_AmbientColor);
-	*ia >> boost::serialization::make_nvp("DofParams", m_DofParams);
-	*ia >> boost::serialization::make_nvp("SsaoBias", m_SsaoBias);
-	*ia >> boost::serialization::make_nvp("SsaoIntensity", m_SsaoIntensity);
-	*ia >> boost::serialization::make_nvp("SsaoRadius", m_SsaoRadius);
-	*ia >> boost::serialization::make_nvp("SsaoScale", m_SsaoScale);
-	*ia >> boost::serialization::make_nvp("FogColor", m_FogColor);
-	*ia >> boost::serialization::make_nvp("FogStartDistance", m_FogStartDistance);
-	*ia >> boost::serialization::make_nvp("FogHeight", m_FogHeight);
-	*ia >> boost::serialization::make_nvp("FogFalloff", m_FogFalloff);
-	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
-	*ia >> boost::serialization::make_nvp("navMesh", m_navMesh);
-
-	actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
-	{
-		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+		if (m_scene->m_navMesh)
+		{
+			m_navQuery.reset();
+		}
 	}
 
-	if (m_navMesh)
+	m_scene.swap(scene);
+
+	if (m_scene)
 	{
-		m_navQuery.reset(new dtNavMeshQuery());
-		m_navQuery->init(m_navMesh.get(), 2048);
+		SceneContext::ActorPtrSet::const_iterator actor_iter = m_scene->m_ActorList.begin();
+		for (; actor_iter != m_scene->m_ActorList.end(); actor_iter++)
+		{
+			OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+		}
+
+		if (m_scene->m_navMesh)
+		{
+			m_navQuery.reset(new dtNavMeshQuery());
+			m_navQuery->init(m_scene->m_navMesh.get(), 2048);
+		}
+
+		m_SkyLightCam.m_Euler = m_scene->m_SkyLightCamEuler;
+		m_SkyLightColor = m_scene->m_SkyLightColor;
+		m_AmbientColor = m_scene->m_AmbientColor;
+		m_DofParams = m_scene->m_DofParams;
+		m_SsaoBias = m_scene->m_SsaoBias;
+		m_SsaoIntensity = m_scene->m_SsaoIntensity;
+		m_SsaoRadius = m_scene->m_SsaoRadius;
+		m_SsaoScale = m_scene->m_SsaoScale;
+		m_FogColor = m_scene->m_FogColor;
+		m_FogStartDistance = m_scene->m_FogStartDistance;
+		m_FogHeight = m_scene->m_FogHeight;
+		m_FogFalloff = m_scene->m_FogFalloff;
 	}
 }

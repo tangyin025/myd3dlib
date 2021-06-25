@@ -621,11 +621,11 @@ void LuaContext::Init(void)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
 			.def("LoadFontAsync", &my::ResourceMgr::LoadFontAsync<luabind::object>)
 
-		//, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
-		//, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
-		//, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
-		//, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
-		//, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
+		, def("res2texture", (boost::shared_ptr<my::BaseTexture>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
+		, def("res2mesh", (boost::shared_ptr<my::Mesh>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::Mesh, my::DeviceResourceBase>)
+		, def("res2skeleton", (boost::shared_ptr<my::OgreSkeletonAnimation>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
+		, def("res2effect", (boost::shared_ptr<my::Effect>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
+		, def("res2font", (boost::shared_ptr<my::Font>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
 	];
 
 	module(m_State)[
@@ -1387,7 +1387,7 @@ void LuaContext::Init(void)
 			.def("Detach", &Actor::Detach)
 			.def("PlayAction", &Actor::PlayAction)
 
-		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor> &))&boost::static_pointer_cast<my::OctEntity, Actor>)
+		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
