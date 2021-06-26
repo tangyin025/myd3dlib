@@ -95,6 +95,8 @@ public:
 
 	my::Vector3 m_ViewedCenter;
 
+	float m_ViewedDist;
+
 	typedef std::set<Actor *> ViewedActorSet;
 
 	ViewedActorSet m_ViewedActors;

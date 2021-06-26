@@ -4,36 +4,6 @@ require "Settings.lua"
 require "Player.lua"
 require "Action.lua"
 
--- -- 设置环境光
--- game.SkyLightCam.Eye=Vector3(0,0,0)
--- game.SkyLightCam.Euler=Vector3(math.rad(-30),math.rad(0),0)
--- game.SkyLightCam.Width=50
--- game.SkyLightCam.Height=50
--- game.SkyLightCam.Nz=-50
--- game.SkyLightCam.Fz=50
--- game.SkyLightDiffuse=Vector4(0.7,0.7,0.7,0.7)
--- game.SkyLightAmbient=Vector4(0.5,0.5,0.5,0.0)
-
--- -- 创建地面
--- actor=Actor(Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-512,512))
--- local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
--- local lambert1=Material()
--- lambert1.Shader="shader/mtl_BlinnPhong.fx"
--- lambert1.PassMask=Material.PassMaskShadowNormalOpaque
--- lambert1:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
--- lambert1:AddParameter("g_NormalTexture", "texture/Normal.dds")
--- lambert1:AddParameter("g_SpecularTexture", "texture/White.dds")
--- cmp.Material=lambert1
--- cmp.MeshPath="mesh/plane.mesh.xml"
--- cmp.MeshEventReady=function(arg)
-	-- cmp.Mesh:Transform(Matrix4.Scaling(256,1,256))
--- end
--- actor:AddComponent(cmp)
--- actor:CreateRigidActor(Actor.eRIGID_STATIC)
--- cmp:CreatePlaneShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),1)
--- actor:UpdateWorld()
--- game:AddEntity(actor2ent(actor),actor.aabb:transform(actor.World),1.0,0.1)
-
 -- 创建一个物理球
 actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert2=Material()
@@ -93,50 +63,53 @@ actor5.EventLeaveTrigger=function(arg)
 end
 
 -- 加载场景资源
-game:LoadScene("scene01.xml")
+game:LoadSceneAsync("scene01.xml", function(res)
+	game:SetScene(res2scene(res))
 
-SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
+	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
+	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
 
-actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-for cmp in actor3.Cmps do
-	cmp.SimulationFilterWord0 = 2
-	cmp.QueryFilterWord0 = 2
-end
-game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
-SPlayer.player:Attach(actor3, 10)
+	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+	for cmp in actor3.Cmps do
+		cmp.SimulationFilterWord0 = 2
+		cmp.QueryFilterWord0 = 2
+	end
+	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
+	SPlayer.player:Attach(actor3, 10)
 
-actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
-for cmp in actor4.Cmps do
-	cmp.SimulationFilterWord0 = 2
-	cmp.QueryFilterWord0 = 2
-end
-game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
-SPlayer.player:Attach(actor4, 29)
+	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
+	for cmp in actor4.Cmps do
+		cmp.SimulationFilterWord0 = 2
+		cmp.QueryFilterWord0 = 2
+	end
+	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
+	SPlayer.player:Attach(actor4, 29)
 
-actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
+	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
+	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
 
-actor5:UpdateWorld()
-game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
+	actor5:UpdateWorld()
+	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
 
-SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
-SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
-local actor6 = game:GetNamedObject("editor_actor1")
-class 'Actor6Behavior'(Component)
-function Actor6Behavior:__init(name)
-	Component.__init(self,name)
-end
-function Actor6Behavior:RequestResource()
-	Component.RequestResource(self)
-	self.Actor:PlayAction(SAction.act_moving)
-end
-actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
-actor6:AddComponent(actor6_behavior)	
+	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
+	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
+	local actor6 = game:GetNamedObject("editor_actor1")
+	class 'Actor6Behavior'(Component)
+	function Actor6Behavior:__init(name)
+		Component.__init(self,name)
+	end
+	function Actor6Behavior:RequestResource()
+		Component.RequestResource(self)
+		self.Actor:PlayAction(SAction.act_moving)
+	end
+	actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
+	actor6:AddComponent(actor6_behavior)	
 
--- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
--- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
+	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
+	-- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
 
+end, 0)
+	
 -- -- 特殊渲染选项
 -- game.SsaoEnable=true
 -- game:SetVisualizationParameter(PhysxScene.eSCALE,1)

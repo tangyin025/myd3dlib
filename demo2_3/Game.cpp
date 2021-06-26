@@ -333,6 +333,7 @@ Game::Game(void)
 	: OctRoot(-4096, 4096)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
+	, m_ViewedDist(1000.0f)
 	, m_Activated(false)
 {
 	boost::program_options::options_description desc("Options");
@@ -527,6 +528,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("Font", &Game::m_Font)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("ViewedCenter", &Game::m_ViewedCenter)
+			.def_readwrite("ViewedDist", &Game::m_ViewedDist)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -736,7 +738,7 @@ void Game::OnFrameTick(
 		}
 	};
 
-	Callback cb(m_ViewedActors, this, AABB(m_ViewedCenter, 100.0f));
+	Callback cb(m_ViewedActors, this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
 
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
@@ -746,7 +748,7 @@ void Game::OnFrameTick(
 
 		_ASSERT(OctNode::HaveNode(actor->m_Node));
 
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, AABB(m_ViewedCenter, 100 + 10.0f));
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + 10.0f));
 		if (intersect_type != IntersectionTests::IntersectionTypeOutside)
 		{
 			actor->SetLod(actor->CalculateLod(m_Camera->m_Eye, m_ViewedCenter));

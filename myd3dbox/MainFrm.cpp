@@ -684,6 +684,7 @@ void CMainFrame::InitFileContext()
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
+			.def_readonly("allactors", &CMainFrame::m_ActorList, luabind::return_stl_iterator)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
 			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)
