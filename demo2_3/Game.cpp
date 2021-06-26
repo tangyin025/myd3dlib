@@ -538,6 +538,7 @@ HRESULT Game::OnCreateDevice(
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("OnControlSound", &Game::OnControlSound)
+			.def("LoadScene", &Game::LoadScene)
 			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
 			.def("SetScene", &Game::SetScene)
 
@@ -1088,6 +1089,52 @@ void Game::OnControlFocus(bool bFocus)
 	}
 }
 
+void Game::LoadScene(const char* path)
+{
+	if (!m_ActorList.empty())
+	{
+		SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+		for (; actor_iter != m_ActorList.end(); actor_iter++)
+		{
+			RemoveEntity(actor_iter->get());
+		}
+		m_ActorList.clear();
+		m_navQuery.reset();
+		m_navMesh.reset();
+	}
+
+	my::IStreamBuff buff(OpenIStream(path));
+	std::istream ifs(&buff);
+	LPCSTR Ext = PathFindExtensionA(path);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
+	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", m_SkyLightCam.m_Euler);
+	*ia >> boost::serialization::make_nvp("SkyLightColor", m_SkyLightColor);
+	*ia >> boost::serialization::make_nvp("AmbientColor", m_AmbientColor);
+	*ia >> boost::serialization::make_nvp("DofParams", m_DofParams);
+	*ia >> boost::serialization::make_nvp("SsaoBias", m_SsaoBias);
+	*ia >> boost::serialization::make_nvp("SsaoIntensity", m_SsaoIntensity);
+	*ia >> boost::serialization::make_nvp("SsaoRadius", m_SsaoRadius);
+	*ia >> boost::serialization::make_nvp("SsaoScale", m_SsaoScale);
+	*ia >> boost::serialization::make_nvp("FogColor", m_FogColor);
+	*ia >> boost::serialization::make_nvp("FogStartDistance", m_FogStartDistance);
+	*ia >> boost::serialization::make_nvp("FogHeight", m_FogHeight);
+	*ia >> boost::serialization::make_nvp("FogFalloff", m_FogFalloff);
+	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
+	*ia >> boost::serialization::make_nvp("navMesh", m_navMesh);
+
+	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+
+	if (m_navMesh)
+	{
+		m_navQuery.reset(new dtNavMeshQuery());
+		m_navQuery->init(m_navMesh.get(), 2048);
+	}
+}
+
 void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 {
 	if (!m_ActorList.empty())
@@ -1097,30 +1144,9 @@ void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 		{
 			RemoveEntity(actor_iter->get());
 		}
-
-		if (m_navMesh)
-		{
-			m_navQuery.reset();
-			m_navMesh.reset();
-		}
-
 		m_ActorList.clear();
-	}
-
-	m_ActorList = scene->m_ActorList;
-
-	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
-	{
-		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
-	}
-
-	m_navMesh = scene->m_navMesh;
-
-	if (m_navMesh)
-	{
-		m_navQuery.reset(new dtNavMeshQuery());
-		m_navQuery->init(m_navMesh.get(), 2048);
+		m_navQuery.reset();
+		m_navMesh.reset();
 	}
 
 	m_SkyLightCam.m_Euler = scene->m_SkyLightCamEuler;
@@ -1135,4 +1161,18 @@ void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 	m_FogStartDistance = scene->m_FogStartDistance;
 	m_FogHeight = scene->m_FogHeight;
 	m_FogFalloff = scene->m_FogFalloff;
+	m_ActorList = scene->m_ActorList;
+	m_navMesh = scene->m_navMesh;
+
+	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	{
+		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+
+	if (m_navMesh)
+	{
+		m_navQuery.reset(new dtNavMeshQuery());
+		m_navQuery->init(m_navMesh.get(), 2048);
+	}
 }

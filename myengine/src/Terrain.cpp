@@ -1007,6 +1007,7 @@ std::fstream& TerrainStream::GetStream(int k, int l, int& stream_off)
 		if (!m_fstr.is_open())
 		{
 			std::ofstream ofs(full_path, std::ios::binary);
+			_ASSERT(ofs.is_open());
 			for (int k = 0; k < m_terrain->m_RowChunks; k++)
 			{
 				for (int l = 0; l < m_terrain->m_ColChunks; l++)

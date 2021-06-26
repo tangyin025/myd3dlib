@@ -184,6 +184,8 @@ public:
 
 	virtual void OnControlFocus(bool bFocus);
 
+	void LoadScene(const char* path);
+
 	template <typename T>
 	void LoadSceneAsync(const char* path, const T& callback, int Priority = 0)
 	{
