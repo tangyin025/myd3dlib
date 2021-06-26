@@ -539,7 +539,7 @@ HRESULT Game::OnCreateDevice(
 			.def("ClearAllEntity", &Game::ClearAllEntity)
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
-			.property("Scene", &Game::GetScene, &Game::SetScene)
+			.def("SetScene", &Game::SetScene)
 
 		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -648,7 +648,7 @@ void Game::OnDestroyDevice(void)
 
 	ClearAllEntity();
 
-	m_scene.reset();
+	m_ActorList.clear();
 
 	m_Console.reset();
 
@@ -656,15 +656,15 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
+	LuaContext::Shutdown();
+
+	_ASSERT(m_NamedObjects.empty());
+
 	m_SimpleSample.reset();
 
 	m_UIRender->OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();
-
-	LuaContext::Shutdown();
-
-	_ASSERT(m_NamedObjects.empty());
 
 	ImeEditBox::Uninitialize();
 
@@ -1090,47 +1090,49 @@ void Game::OnControlFocus(bool bFocus)
 
 void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 {
-	if (m_scene)
+	if (!m_ActorList.empty())
 	{
-		SceneContext::ActorPtrSet::const_iterator actor_iter = m_scene->m_ActorList.begin();
-		for (; actor_iter != m_scene->m_ActorList.end(); actor_iter++)
+		SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+		for (; actor_iter != m_ActorList.end(); actor_iter++)
 		{
 			RemoveEntity(actor_iter->get());
 		}
 
-		if (m_scene->m_navMesh)
+		if (m_navMesh)
 		{
 			m_navQuery.reset();
+			m_navMesh.reset();
 		}
+
+		m_ActorList.clear();
 	}
 
-	m_scene.swap(scene);
+	m_ActorList = scene->m_ActorList;
 
-	if (m_scene)
+	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
-		SceneContext::ActorPtrSet::const_iterator actor_iter = m_scene->m_ActorList.begin();
-		for (; actor_iter != m_scene->m_ActorList.end(); actor_iter++)
-		{
-			OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
-		}
-
-		if (m_scene->m_navMesh)
-		{
-			m_navQuery.reset(new dtNavMeshQuery());
-			m_navQuery->init(m_scene->m_navMesh.get(), 2048);
-		}
-
-		m_SkyLightCam.m_Euler = m_scene->m_SkyLightCamEuler;
-		m_SkyLightColor = m_scene->m_SkyLightColor;
-		m_AmbientColor = m_scene->m_AmbientColor;
-		m_DofParams = m_scene->m_DofParams;
-		m_SsaoBias = m_scene->m_SsaoBias;
-		m_SsaoIntensity = m_scene->m_SsaoIntensity;
-		m_SsaoRadius = m_scene->m_SsaoRadius;
-		m_SsaoScale = m_scene->m_SsaoScale;
-		m_FogColor = m_scene->m_FogColor;
-		m_FogStartDistance = m_scene->m_FogStartDistance;
-		m_FogHeight = m_scene->m_FogHeight;
-		m_FogFalloff = m_scene->m_FogFalloff;
+		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
+
+	m_navMesh = scene->m_navMesh;
+
+	if (m_navMesh)
+	{
+		m_navQuery.reset(new dtNavMeshQuery());
+		m_navQuery->init(m_navMesh.get(), 2048);
+	}
+
+	m_SkyLightCam.m_Euler = scene->m_SkyLightCamEuler;
+	m_SkyLightColor = scene->m_SkyLightColor;
+	m_AmbientColor = scene->m_AmbientColor;
+	m_DofParams = scene->m_DofParams;
+	m_SsaoBias = scene->m_SsaoBias;
+	m_SsaoIntensity = scene->m_SsaoIntensity;
+	m_SsaoRadius = scene->m_SsaoRadius;
+	m_SsaoScale = scene->m_SsaoScale;
+	m_FogColor = scene->m_FogColor;
+	m_FogStartDistance = scene->m_FogStartDistance;
+	m_FogHeight = scene->m_FogHeight;
+	m_FogFalloff = scene->m_FogFalloff;
 }

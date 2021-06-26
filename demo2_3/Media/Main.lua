@@ -94,7 +94,7 @@ end
 
 -- 加载场景资源
 game:LoadSceneAsync("scene01.xml", function(res)
-	game.Scene=res2scene(res)
+	game:SetScene(res2scene(res))
 	
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)

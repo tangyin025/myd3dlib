@@ -99,7 +99,9 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
-	SceneContextPtr m_scene;
+	SceneContext::ActorPtrSet m_ActorList;
+
+	boost::shared_ptr<dtNavMesh> m_navMesh;
 
 	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
 
@@ -188,11 +190,6 @@ public:
 		std::string key = SceneContextRequest::BuildKey(path);
 		IORequestPtr request(new SceneContextRequest(path, Priority));
 		LoadIORequestAsync(key, request, callback);
-	}
-
-	boost::intrusive_ptr<SceneContext> GetScene(void) const
-	{
-		return m_scene;
 	}
 
 	void SetScene(boost::intrusive_ptr<SceneContext> scene);
