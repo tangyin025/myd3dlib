@@ -67,14 +67,14 @@ game:LoadSceneAsync("scene01.xml", function(res)
 	game:SetScene(res2scene(res))
 
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-	game:AddEntity(actor2ent(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
+	game:AddEntity(act2entity(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
 
 	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor3.Cmps do
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	game:AddEntity(actor2ent(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
+	game:AddEntity(act2entity(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
 	SPlayer.player:Attach(actor3, 10)
 
 	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -82,14 +82,14 @@ game:LoadSceneAsync("scene01.xml", function(res)
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	game:AddEntity(actor2ent(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
+	game:AddEntity(act2entity(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
 	SPlayer.player:Attach(actor4, 29)
 
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddEntity(actor2ent(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
+	game:AddEntity(act2entity(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
 
 	actor5:UpdateWorld()
-	game:AddEntity(actor2ent(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
+	game:AddEntity(act2entity(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
 
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)

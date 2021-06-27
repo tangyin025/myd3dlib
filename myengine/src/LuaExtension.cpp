@@ -506,7 +506,7 @@ void LuaContext::Init(void)
 			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
 			.def("Transform", &my::OgreSkeletonAnimation::Transform)
 
-			// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
+		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
 		, class_<my::BaseEffect, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("BaseEffect")
 			//.def("GetAnnotation", &my::BaseEffect::GetAnnotation)
 			//.def("GetAnnotationByName", &my::BaseEffect::GetAnnotationByName)
@@ -1389,7 +1389,7 @@ void LuaContext::Init(void)
 			.def("Detach", &Actor::Detach)
 			.def("PlayAction", &Actor::PlayAction)
 
-		, def("actor2ent", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
+		, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)

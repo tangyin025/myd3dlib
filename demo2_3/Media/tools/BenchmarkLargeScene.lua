@@ -11,7 +11,7 @@ local act=Actor(NamedObject.MakeUniqueName("editor_act"),Vector3(-4096,0,-4096),
 act:AddComponent(terrain)
 act.LodFactor=1.5
 act:UpdateWorld()
-theApp.MainWnd:AddEntity(actor2ent(act),act.aabb:transform(act.World),1.0,0.1)
+theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
 table.insert(acts,act)
 
 for i=1,300000,1 do
@@ -26,6 +26,6 @@ for i=1,300000,1 do
 	act:AddComponent(mesh_cmp)
 	act.CullingDist=500
 	act:UpdateWorld()
-	theApp.MainWnd:AddEntity(actor2ent(act),act.aabb:transform(act.World),1.0,0.1)
+	theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
 	table.insert(acts,act)
 end
