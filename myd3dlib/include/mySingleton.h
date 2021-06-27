@@ -208,25 +208,4 @@ namespace my
 	typedef boost::function<void(EventArg *)> EventFunction;
 
 	typedef boost::signals2::signal<void(EventArg *)> EventSignal;
-
-	template <typename T>
-	class ScopeSetter
-	{
-	public:
-		T m_LastValue;
-
-		T & m_Value;
-
-		ScopeSetter(T& Value, const T& NewValue)
-			: m_Value(Value)
-		{
-			m_LastValue = m_Value;
-			m_Value = NewValue;
-		}
-
-		~ScopeSetter(void)
-		{
-			m_Value = m_LastValue;
-		}
-	};
 }

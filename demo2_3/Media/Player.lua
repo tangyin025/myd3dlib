@@ -146,15 +146,18 @@ function PlayerBehavior:Update(elapsedTime)
 		self.velocity.z=0
 		node_walk:SetActiveChild(0,0.1)
 	end
-	local moveFlag=character_cmp:Move(self.velocity*elapsedTime,0.001,elapsedTime)
-	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then
-		self.velocity.y=0
-	end
 	
 	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Euler.y,game.Camera.Euler.x,game.Camera.Euler.z)
 	game.Camera.Eye=self.Actor.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*self.LookDist
 	game.SkyLightCam.Eye=self.Actor.Position
 	game.ViewedCenter=self.Actor.Position
+end
+function PlayerBehavior:OnPxThreadSubstep(dtime)
+	print(dtime)
+	local moveFlag=character_cmp:Move(self.velocity*dtime,0.001,dtime)
+	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then
+		self.velocity.y=0
+	end
 end
 player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
 player:AddComponent(player_behavior)

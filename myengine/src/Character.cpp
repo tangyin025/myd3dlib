@@ -13,6 +13,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/scope_exit.hpp>
 #include "PhysxContext.h"
 #include "ActionTrack.h"
 #include "Animation.h"
@@ -63,8 +64,6 @@ void Character::RequestResource(void)
 	//// ! recursively call Actor::OnPxTransformChanged
 	//physx::PxActor * actor = m_PxController->getActor();
 	//actor->userData = m_Actor;
-
-	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void Character::ReleaseResource(void)
@@ -72,8 +71,6 @@ void Character::ReleaseResource(void)
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
 	_ASSERT(!m_PxController || m_PxController->getActor()->getScene() == scene->m_PxScene.get());
-
-	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, boost::placeholders::_1));
 
 	if (m_PxController)
 	{
@@ -89,6 +86,14 @@ void Character::ReleaseResource(void)
 
 void Character::Update(float fElapsedTime)
 {
+	// ! recursively call Character::OnSetPose
+	m_muted = true;
+	BOOST_SCOPE_EXIT(&m_muted)
+	{
+		m_muted = false;
+	}
+	BOOST_SCOPE_EXIT_END
+	m_Actor->SetPose((Vector3&)physx::toVec3(m_PxController->getPosition()), m_Actor->m_Rotation);
 }
 
 void Character::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
@@ -115,39 +120,27 @@ unsigned int Character::Move(const my::Vector3& disp, float minDist, float elaps
 	if (m_PxController)
 	{
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
-
-		// ! recursively call Character::OnSetPose
-		ScopeSetter<bool> setter(m_muted, true);
-		m_Actor->SetPose((Vector3&)physx::toVec3(m_PxController->getPosition()), m_Actor->m_Rotation);
 	}
 
 	return moveFlags;
 }
 
-void Character::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
-{
-}
-
-void Character::OnPxThreadSubstep(float dtime)
-{
-}
-
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
-	_ASSERT(m_Actor);
+	//_ASSERT(m_Actor);
 
-	if (m_Actor->m_EventShapeHit)
-	{
-		ShapeHitEventArg arg(m_Actor, this, (Actor *)hit.actor->userData, (Component *)hit.shape->userData);
-		_ASSERT(arg.other);
-		_ASSERT(arg.other_cmp);
-		arg.worldPos = (Vector3 &)hit.worldPos;
-		arg.worldNormal = (Vector3 &)hit.worldNormal;
-		arg.dir = (Vector3 &)hit.dir;
-		arg.length = hit.length;
-		arg.triangleIndex = hit.triangleIndex;
-		m_Actor->m_EventShapeHit(&arg);
-	}
+	//if (m_Actor->m_EventShapeHit)
+	//{
+	//	ShapeHitEventArg arg(m_Actor, this, (Actor *)hit.actor->userData, (Component *)hit.shape->userData);
+	//	_ASSERT(arg.other);
+	//	_ASSERT(arg.other_cmp);
+	//	arg.worldPos = (Vector3 &)hit.worldPos;
+	//	arg.worldNormal = (Vector3 &)hit.worldNormal;
+	//	arg.dir = (Vector3 &)hit.dir;
+	//	arg.length = hit.length;
+	//	arg.triangleIndex = hit.triangleIndex;
+	//	m_Actor->m_EventShapeHit(&arg);
+	//}
 }
 
 void Character::onControllerHit(const physx::PxControllersHit& hit)

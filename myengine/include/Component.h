@@ -131,6 +131,10 @@ public:
 	{
 	}
 
+	virtual void OnPxThreadSubstep(float dtime)
+	{
+	}
+
 	virtual my::AABB CalculateAABB(void) const
 	{
 		return my::AABB::Invalid();

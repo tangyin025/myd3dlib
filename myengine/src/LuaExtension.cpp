@@ -79,6 +79,12 @@ struct ComponentScript : Component, luabind::wrap_base
 	static void default_RequestResource(Component * ptr)
 	{
 		ptr->Component::RequestResource();
+
+		_ASSERT(ptr->m_Actor);
+
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(ptr->m_Actor->m_Node->GetTopNode());
+
+		scene->m_EventPxThreadSubstep.connect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
 	}
 
 	virtual void ReleaseResource(void)
@@ -88,6 +94,12 @@ struct ComponentScript : Component, luabind::wrap_base
 
 	static void default_ReleaseResource(Component* ptr)
 	{
+		_ASSERT(ptr->m_Actor);
+
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(ptr->m_Actor->m_Node->GetTopNode());
+
+		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
+
 		ptr->Component::ReleaseResource();
 	}
 
@@ -99,6 +111,16 @@ struct ComponentScript : Component, luabind::wrap_base
 	static void default_Update(Component* ptr, float fElapsedTime)
 	{
 		ptr->Component::Update(fElapsedTime);
+	}
+
+	virtual void OnPxThreadSubstep(float dtime)
+	{
+		luabind::wrap_base::call<void>("OnPxThreadSubstep", dtime);
+	}
+
+	static void default_OnPxThreadSubstep(Component* ptr, float dtime)
+	{
+		ptr->Component::OnPxThreadSubstep(dtime);
 	}
 };
 
@@ -1214,6 +1236,7 @@ void LuaContext::Init(void)
 			.def("RequestResource", &Component::RequestResource, &ComponentScript::default_RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource, &ComponentScript::default_ReleaseResource)
 			.def("Update", &Component::Update, &ComponentScript::default_Update)
+			.def("OnPxThreadSubstep", &Component::OnPxThreadSubstep, &ComponentScript::default_OnPxThreadSubstep)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
