@@ -78,8 +78,8 @@
     <ClInclude Include="include\ActionTrack.h" />
     <ClInclude Include="include\Actor.h" />
     <ClInclude Include="include\Animation.h" />
-    <ClInclude Include="include\Character.h" />
     <ClInclude Include="include\Component.h" />
+    <ClInclude Include="include\Controller.h" />
     <ClInclude Include="include\FModContext.h" />
     <ClInclude Include="include\LuaExtension.h" />
     <ClInclude Include="include\Material.h" />
@@ -92,8 +92,8 @@
     <ClCompile Include="src\ActionTrack.cpp" />
     <ClCompile Include="src\Actor.cpp" />
     <ClCompile Include="src\Animation.cpp" />
-    <ClCompile Include="src\Character.cpp" />
     <ClCompile Include="src\Component.cpp" />
+    <ClCompile Include="src\Controller.cpp" />
     <ClCompile Include="src\FModContext.cpp" />
     <ClCompile Include="src\LuaExtension.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>

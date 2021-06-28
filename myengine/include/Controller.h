@@ -2,7 +2,7 @@
 
 #include "Component.h"
 
-class Character
+class Controller
 	: public Component
 	, public physx::PxUserControllerHitReport
 	, public physx::PxControllerBehaviorCallback
@@ -23,7 +23,7 @@ public:
 	boost::shared_ptr<physx::PxController> m_PxController;
 
 protected:
-	Character(void)
+	Controller(void)
 		: m_Height(1.0f)
 		, m_Radius(1.0f)
 		, m_ContactOffset(0.1f)
@@ -33,8 +33,8 @@ protected:
 	}
 
 public:
-	Character(const char * Name, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
-		: Component(ComponentTypeCharacter, Name)
+	Controller(const char * Name, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
+		: Component(ComponentTypeController, Name)
 		, m_Height(Height)
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	virtual ~Character(void);
+	virtual ~Controller(void);
 
 	friend class boost::serialization::access;
 
@@ -84,4 +84,4 @@ public:
 	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxObstacle& obstacle);
 };
 
-typedef boost::shared_ptr<Character> CharacterPtr;
+typedef boost::shared_ptr<Controller> ControllerPtr;

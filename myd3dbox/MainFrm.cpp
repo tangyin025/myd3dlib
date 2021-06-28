@@ -10,7 +10,7 @@
 #include "TerrainDlg.h"
 #include "Terrain.h"
 #include "Material.h"
-#include "Character.h"
+#include "Controller.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -202,8 +202,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_FILE_SAVE_AS, &CMainFrame::OnFileSaveAs)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
-	ON_COMMAND(ID_COMPONENT_CHARACTER, &CMainFrame::OnCreateCharacter)
-	ON_UPDATE_COMMAND_UI(ID_COMPONENT_CHARACTER, &CMainFrame::OnUpdateCreateCharacter)
+	ON_COMMAND(ID_COMPONENT_CONTROLLER, &CMainFrame::OnCreateController)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_CONTROLLER, &CMainFrame::OnUpdateCreateController)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_MESH, &CMainFrame::OnUpdateComponentMesh)
 	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
@@ -1054,7 +1054,7 @@ void CMainFrame::OnCreateActor()
 	OnSelChanged();
 }
 
-void CMainFrame::OnCreateCharacter()
+void CMainFrame::OnCreateController()
 {
 	//// TODO: Add your command handler code here
 	SelActorList::iterator actor_iter = m_selactors.begin();
@@ -1063,8 +1063,8 @@ void CMainFrame::OnCreateCharacter()
 		return;
 	}
 
-	CharacterPtr character_cmp(new Character(my::NamedObject::MakeUniqueName("editor_character_cmp").c_str(), 1.0f, 1.0f, 0.1f, 1));
-	(*actor_iter)->AddComponent(character_cmp);
+	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName("editor_controller_cmp").c_str(), 1.0f, 1.0f, 0.1f, 1));
+	(*actor_iter)->AddComponent(controller_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
@@ -1073,7 +1073,7 @@ void CMainFrame::OnCreateCharacter()
 	m_EventAttributeChanged(&arg);
 }
 
-void CMainFrame::OnUpdateCreateCharacter(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateCreateController(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selactors.empty());

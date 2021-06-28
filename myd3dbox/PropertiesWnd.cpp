@@ -1283,7 +1283,7 @@ CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
 	{
 	case Component::ComponentTypeActor:
 		return PropertyActor;
-	case Component::ComponentTypeCharacter:
+	case Component::ComponentTypeController:
 		return PropertyCharacter;
 	case Component::ComponentTypeMesh:
 		return PropertyMesh;
@@ -1307,7 +1307,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	{
 	case Component::ComponentTypeActor:
 		return 9;
-	case Component::ComponentTypeCharacter:
+	case Component::ComponentTypeController:
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
@@ -1333,8 +1333,8 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 	{
 	case Component::ComponentTypeActor:
 		return _T("Actor");
-	case Component::ComponentTypeCharacter:
-		return _T("Character");
+	case Component::ComponentTypeController:
+		return _T("Controller");
 	case Component::ComponentTypeMesh:
 		return _T("Mesh");
 	case Component::ComponentTypeCloth:

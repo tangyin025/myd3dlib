@@ -81,7 +81,7 @@
 #define ID_RENDERMODE_FXAA              32788
 #define ID_RENDERMODE_SSAO              32789
 #define ID_COMPONENT_CLOTH              32790
-#define ID_COMPONENT_CHARACTER          32791
+#define ID_COMPONENT_CONTROLLER          32791
 #define ID_TOOLS_CLEARSHADER            32792
 #define ID_TOOLS_BUILDNAVIGATION        32793
 #define ID_SHOW_NAVIGATION              32794

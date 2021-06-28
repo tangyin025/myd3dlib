@@ -1,4 +1,4 @@
-#include "Character.h"
+#include "Controller.h"
 #include "Actor.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -21,26 +21,26 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(Character)
+BOOST_CLASS_EXPORT(Controller)
 
-Character::~Character(void)
+Controller::~Controller(void)
 {
 	_ASSERT(!m_PxController || !m_PxController->getActor()->getScene());
 }
 
 template<class Archive>
-void Character::save(Archive & ar, const unsigned int version) const
+void Controller::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 }
 
 template<class Archive>
-void Character::load(Archive & ar, const unsigned int version)
+void Controller::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 }
 
-void Character::RequestResource(void)
+void Controller::RequestResource(void)
 {
 	Component::RequestResource();
 
@@ -66,7 +66,7 @@ void Character::RequestResource(void)
 	//actor->userData = m_Actor;
 }
 
-void Character::ReleaseResource(void)
+void Controller::ReleaseResource(void)
 {
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
@@ -84,9 +84,9 @@ void Character::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void Character::Update(float fElapsedTime)
+void Controller::Update(float fElapsedTime)
 {
-	// ! recursively call Character::OnSetPose
+	// ! recursively call Controller::OnSetPose
 	m_muted = true;
 	BOOST_SCOPE_EXIT(&m_muted)
 	{
@@ -96,11 +96,11 @@ void Character::Update(float fElapsedTime)
 	m_Actor->SetPose((Vector3&)physx::toVec3(m_PxController->getPosition()), m_Actor->m_Rotation);
 }
 
-void Character::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
+void Controller::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
 {
 }
 
-void Character::OnSetPose(void)
+void Controller::OnSetPose(void)
 {
 	if (m_muted)
 	{
@@ -113,7 +113,7 @@ void Character::OnSetPose(void)
 	}
 }
 
-unsigned int Character::Move(const my::Vector3& disp, float minDist, float elapsedTime)
+unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elapsedTime)
 {
 	physx::PxControllerCollisionFlags moveFlags;
 
@@ -125,7 +125,7 @@ unsigned int Character::Move(const my::Vector3& disp, float minDist, float elaps
 	return moveFlags;
 }
 
-void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
+void Controller::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
 	//_ASSERT(m_Actor);
 
@@ -143,27 +143,27 @@ void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
 	//}
 }
 
-void Character::onControllerHit(const physx::PxControllersHit& hit)
+void Controller::onControllerHit(const physx::PxControllersHit& hit)
 {
 
 }
 
-void Character::onObstacleHit(const physx::PxControllerObstacleHit& hit)
+void Controller::onObstacleHit(const physx::PxControllerObstacleHit& hit)
 {
 
 }
 
-physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor)
-{
-	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
-}
-
-physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxController& controller)
+physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor)
 {
 	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
 
-physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxObstacle& obstacle)
+physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxController& controller)
+{
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
+}
+
+physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle& obstacle)
 {
 	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }

@@ -21,8 +21,8 @@ mesh2:Transform(Matrix4.Compose(
 
 -- 创建Player主体
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
-local character_cmp=Character(NamedObject.MakeUniqueName("character_cmp"),1.5,0.1,0.1,1)
-player:AddComponent(character_cmp)
+local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,1)
+player:AddComponent(controller_cmp)
 
 -- 模型材质
 local lambert1=Material()
@@ -70,8 +70,8 @@ anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 game:LoadSkeletonAsync(anim.SkeletonPath, function(res)
 	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	anim:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, character_cmp.filterWord0)
-	anim:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, character_cmp.filterWord0)
+	anim:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
+	anim:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
 end, 0)
 player:AddComponent(anim)
 
@@ -154,8 +154,8 @@ function PlayerBehavior:Update(elapsedTime)
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
 	print(dtime)
-	local moveFlag=character_cmp:Move(self.velocity*dtime,0.001,dtime)
-	if bit.band(moveFlag,Character.eCOLLISION_DOWN) ~= 0 then
+	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime)
+	if bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end
 end

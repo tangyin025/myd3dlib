@@ -24,7 +24,7 @@ extern "C"
 #include "Animation.h"
 #include "Actor.h"
 #include "Terrain.h"
-#include "Character.h"
+#include "Controller.h"
 #include "ActionTrack.h"
 #include "noise.h"
 
@@ -1211,7 +1211,7 @@ void LuaContext::Init(void)
 			[
 				value("ComponentTypeComponent", Component::ComponentTypeComponent),
 				value("ComponentTypeActor", Component::ComponentTypeActor),
-				value("ComponentTypeCharacter", Component::ComponentTypeCharacter),
+				value("ComponentTypeController", Component::ComponentTypeController),
 				value("ComponentTypeMesh", Component::ComponentTypeMesh),
 				value("ComponentTypeCloth", Component::ComponentTypeCloth),
 				value("ComponentTypeEmitter", Component::ComponentTypeEmitter),
@@ -1339,7 +1339,7 @@ void LuaContext::Init(void)
 			.def("SetNormal", (void(TerrainStream::*)(const my::Vector3&, int, int))&TerrainStream::SetNormal)
 			.def("RayTest", &TerrainStream::RayTest)
 
-		, class_<Character, Component, boost::shared_ptr<Component> >("Character")
+		, class_<Controller, Component, boost::shared_ptr<Component> >("Controller")
 			.enum_("CollisionFlag")
 			[
 				value("eCOLLISION_SIDES", physx::PxControllerCollisionFlag::eCOLLISION_SIDES),
@@ -1347,8 +1347,8 @@ void LuaContext::Init(void)
 				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 			]
 			.def(constructor<const char*, float, float, float, unsigned int>())
-			.def_readwrite("filterWord0", &Character::m_filterWord0)
-			.def("Move", &Character::Move)
+			.def_readwrite("filterWord0", &Controller::m_filterWord0)
+			.def("Move", &Controller::Move)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)

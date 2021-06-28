@@ -35,7 +35,7 @@ public:
 	{
 		ComponentTypeComponent,
 		ComponentTypeActor,
-		ComponentTypeCharacter,
+		ComponentTypeController,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
 		ComponentTypeEmitter,
