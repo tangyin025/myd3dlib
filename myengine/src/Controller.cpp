@@ -86,21 +86,16 @@ void Controller::ReleaseResource(void)
 
 void Controller::Update(float fElapsedTime)
 {
-	// ! recursively call Controller::OnSetPose
-	m_muted = true;
-	BOOST_SCOPE_EXIT(&m_muted)
-	{
-		m_muted = false;
-	}
-	BOOST_SCOPE_EXIT_END
-	m_Actor->SetPose((Vector3&)physx::toVec3(m_PxController->getPosition()), m_Actor->m_Rotation);
+	physx::PxTransform pose(physx::toVec3(m_PxController->getPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
+
+	m_Actor->OnPxTransformChanged(pose);
 }
 
 void Controller::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
 {
 }
 
-void Controller::OnSetPose(void)
+void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 {
 	if (m_muted)
 	{
@@ -109,7 +104,7 @@ void Controller::OnSetPose(void)
 
 	if (m_PxController)
 	{
-		m_PxController->setPosition(physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y, m_Actor->m_Position.z));
+		m_PxController->setPosition(physx::PxExtendedVec3(pose.p.x, pose.p.y, pose.p.z));
 	}
 }
 
@@ -120,6 +115,18 @@ unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elap
 	if (m_PxController)
 	{
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+
+		physx::PxTransform pose(physx::toVec3(m_PxController->getPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
+
+		// ! recursively call Controller::SetPxPoseOrbyPxThread
+		m_muted = true;
+		BOOST_SCOPE_EXIT(&m_muted)
+		{
+			m_muted = false;
+		}
+		BOOST_SCOPE_EXIT_END
+
+		m_Actor->SetPxPoseOrbyPxThread(pose);
 	}
 
 	return moveFlags;

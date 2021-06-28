@@ -217,6 +217,8 @@ public:
 
 	virtual void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
+	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose);
+
 	virtual my::AABB CalculateAABB(void) const;
 
 	void UpdateAABB(void);

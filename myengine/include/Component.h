@@ -123,7 +123,7 @@ public:
 	{
 	}
 
-	virtual void OnSetPose(void)
+	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 	{
 	}
 
@@ -354,7 +354,7 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	virtual void OnSetPose(void);
+	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose);
 
 	virtual my::AABB CalculateAABB(void) const;
 

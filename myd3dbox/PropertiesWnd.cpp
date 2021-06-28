@@ -1715,26 +1715,20 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 		actor->UpdateWorld();
 		actor->UpdateOctNode();
+		actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
-
-		if (actor->m_PxActor)
-		{
-			actor->m_PxActor->setGlobalPose(physx::PxTransform(
-				(physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
-		}
 
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 		{
-			(*cmp_iter)->OnSetPose();
-
 			if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
 				&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 			{
 				dynamic_cast<StaticEmitterComponent *>(cmp_iter->get())->BuildChunks();
 			}
 		}
+
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

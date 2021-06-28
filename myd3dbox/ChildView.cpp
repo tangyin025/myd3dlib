@@ -1380,17 +1380,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				break;
 			}
 
-			if ((*sel_iter)->m_PxActor)
-			{
-				(*sel_iter)->m_PxActor->setGlobalPose(physx::PxTransform(
-					(physx::PxVec3&)(*sel_iter)->m_Position, (physx::PxQuat&)(*sel_iter)->m_Rotation), true);
-			}
-
-			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
-			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
-			{
-				(*cmp_iter)->OnSetPose();
-			}
+			(*sel_iter)->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)(*sel_iter)->m_Position, (physx::PxQuat&)(*sel_iter)->m_Rotation));
 		}
 		Invalidate();
 		UpdateWindow();
