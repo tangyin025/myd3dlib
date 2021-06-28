@@ -54,7 +54,7 @@ void Controller::RequestResource(void)
 	desc.height = m_Height;
 	desc.radius = m_Radius;
 	desc.contactOffset = m_ContactOffset;
-	desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y, m_Actor->m_Position.z);
+	desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y + m_ContactOffset + m_Radius + m_Height * 0.5f, m_Actor->m_Position.z);
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
@@ -86,9 +86,12 @@ void Controller::ReleaseResource(void)
 
 void Controller::Update(float fElapsedTime)
 {
-	physx::PxTransform pose(physx::toVec3(m_PxController->getPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
+	if (m_PxController)
+	{
+		physx::PxTransform pose(physx::toVec3(m_PxController->getFootPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
 
-	m_Actor->OnPxTransformChanged(pose);
+		m_Actor->OnPxTransformChanged(pose);
+	}
 }
 
 void Controller::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
@@ -104,7 +107,7 @@ void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 
 	if (m_PxController)
 	{
-		m_PxController->setPosition(physx::PxExtendedVec3(pose.p.x, pose.p.y, pose.p.z));
+		m_PxController->setFootPosition(physx::PxExtendedVec3(pose.p.x, pose.p.y, pose.p.z));
 	}
 }
 
@@ -116,7 +119,7 @@ unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elap
 	{
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
-		physx::PxTransform pose(physx::toVec3(m_PxController->getPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
+		physx::PxTransform pose(physx::toVec3(m_PxController->getFootPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
 
 		// ! recursively call Controller::SetPxPoseOrbyPxThread
 		m_muted = true;

@@ -367,22 +367,6 @@ void Actor::ReleaseResource(void)
 	}
 }
 
-void Actor::OnPxTransformChanged(const physx::PxTransform & trans)
-{
-	//_ASSERT(m_PxActor);
-
-	if (!m_Base)
-	{
-		m_Position = (my::Vector3 &)trans.p;
-
-		m_Rotation = (my::Quaternion &)trans.q;
-
-		UpdateWorld();
-
-		UpdateOctNode();
-	}
-}
-
 void Actor::Update(float fElapsedTime)
 {
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
@@ -436,6 +420,35 @@ void Actor::UpdateAttaches(float fElapsedTime)
 
 void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
+	if (m_PxActor)
+	{
+		physx::PxRigidDynamic* rigidDynamic = m_PxActor->is<physx::PxRigidDynamic>();
+		if (rigidDynamic)
+		{
+			if (rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+			{
+				rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+				if (m_Base)
+				{
+					// ! attached Actor update render pose immediately
+				}
+				else
+				{
+					return;
+				}
+			}
+			else
+			{
+				m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+				return;
+			}
+		}
+		else
+		{
+			m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+		}
+	}
+
 	m_Position = Pos;
 
 	m_Rotation = Rot;
@@ -444,7 +457,11 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 
 	UpdateOctNode();
 
-	SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+	}
 }
 
 void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
@@ -457,19 +474,10 @@ void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 			if (rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
 				rigidDynamic->setKinematicTarget(pose);
-				if (m_Base)
-				{
-					// ! attached Actor update render pose immediately
-				}
-				else
-				{
-					return;
-				}
 			}
 			else
 			{
 				m_PxActor->setGlobalPose(pose);
-				return;
 			}
 		}
 		else
@@ -482,6 +490,22 @@ void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->SetPxPoseOrbyPxThread(pose);
+	}
+}
+
+void Actor::OnPxTransformChanged(const physx::PxTransform& trans)
+{
+	//_ASSERT(m_PxActor);
+
+	if (!m_Base)
+	{
+		m_Position = (my::Vector3&)trans.p;
+
+		m_Rotation = (my::Quaternion&)trans.q;
+
+		UpdateWorld();
+
+		UpdateOctNode();
 	}
 }
 

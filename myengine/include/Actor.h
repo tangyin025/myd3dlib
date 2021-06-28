@@ -209,8 +209,6 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnPxTransformChanged(const physx::PxTransform & trans);
-
 	virtual void Update(float fElapsedTime);
 
 	void UpdateAttaches(float fElapsedTime);
@@ -218,6 +216,8 @@ public:
 	virtual void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
 	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose);
+
+	virtual void OnPxTransformChanged(const physx::PxTransform& trans);
 
 	virtual my::AABB CalculateAABB(void) const;
 
