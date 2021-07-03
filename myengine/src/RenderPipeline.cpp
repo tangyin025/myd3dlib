@@ -155,7 +155,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 
 	CComPtr<ID3DXBuffer> err;
 	CComPtr<ID3DXEffectCompiler> compiler;
-	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR, &compiler, &err)))
+	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
@@ -191,7 +191,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	LPD3DXEFFECT pEffect = NULL;
 	my::D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
-		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
+		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
 	{
 		my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");

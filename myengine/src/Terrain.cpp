@@ -545,7 +545,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
 	m_Vb.Unlock();
 	m_Ib.OnDestroyDevice();
-	m_Ib.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+	m_Ib.CreateIndexBuffer(m_RowChunks * m_MinLodChunkSize * m_ColChunks * m_MinLodChunkSize * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
 	m_Chunks.resize(boost::extents[m_RowChunks][m_ColChunks]);
 	for (int i = 0; i < m_RowChunks; i++)
