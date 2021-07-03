@@ -248,30 +248,6 @@ void Texture2D::UnlockRect(UINT Level)
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->UnlockRect(Level));
 }
 
-TexturePixel2D::TexturePixel2D(my::Texture2D * texture)
-	: desc(texture->GetLevelDesc(0))
-	, lrc(texture->LockRect(NULL, 0, 0))
-	, m_texture(texture)
-{
-}
-
-TexturePixel2D::~TexturePixel2D(void)
-{
-	if (lrc.pBits)
-	{
-		Release();
-	}
-}
-
-void TexturePixel2D::Release(void)
-{
-	if (lrc.pBits)
-	{
-		m_texture->UnlockRect();
-		lrc.pBits = NULL;
-	}
-}
-
 void CubeTexture::CreateCubeTexture(
 	UINT EdgeLength,
 	UINT Levels,

@@ -2392,9 +2392,41 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		CString strPath = pComponent->GetSubItem(PropId + 5)->GetValue().bstrVal;
 		if (!strPath.IsEmpty())
 		{
-			my::Texture2DPtr res(new my::Texture2D());
-			res->CreateTextureFromFile(strPath, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
-			terrain->UpdateHeightMap(res.get(), terrain->m_HeightScale);
+			TerrainStream tstr(terrain);
+			my::IStreamPtr istr = my::FileIStream::Open(strPath);
+			int Resolution = (int)sqrt(istr->GetSize() / sizeof(unsigned short));
+			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, Resolution); i++)
+			{
+				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, Resolution); j++)
+				{
+					unsigned short r16;
+					istr->read(&r16, sizeof(r16));
+					tstr.SetPos(my::Vector3(j, terrain->m_HeightScale * (r16 - 32768), i), i, j, false);
+				}
+			}
+			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, Resolution); i++)
+			{
+				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, Resolution); j++)
+				{
+					const my::Vector3 pos = tstr.GetPos(i, j);
+					const my::Vector3 Dirs[4] = {
+						tstr.GetPos(i - 1, j) - pos,
+						tstr.GetPos(i, j - 1) - pos,
+						tstr.GetPos(i + 1, j) - pos,
+						tstr.GetPos(i, j + 1) - pos
+					};
+					const my::Vector3 Nors[4] = {
+						Dirs[0].cross(Dirs[1]).normalize(),
+						Dirs[1].cross(Dirs[2]).normalize(),
+						Dirs[2].cross(Dirs[3]).normalize(),
+						Dirs[3].cross(Dirs[0]).normalize()
+					};
+					const my::Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
+					tstr.SetNormal(Normal, i, j);
+				}
+			}
+			istr.reset();
+			tstr.Release();
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			actor->UpdateOctNode();
@@ -2407,13 +2439,30 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyTerrainSplatMap:
 	{
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 		CString strPath = pProp->GetValue().bstrVal;
 		if (!strPath.IsEmpty())
 		{
-			my::Texture2DPtr res(new my::Texture2D());
-			res->CreateTextureFromFile(strPath, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
-			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->UpdateSplatmap(res.get());
+			TerrainStream tstr(terrain);
+			my::Texture2D tex;
+			tex.CreateTextureFromFile(strPath, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+			D3DSURFACE_DESC desc = tex.GetLevelDesc();
+			if (desc.Format != D3DFMT_A8R8G8B8 && desc.Format != D3DFMT_X8R8G8B8)
+			{
+				MessageBox(_T("unsupported splatmap format"));
+				return 0;
+			}
+			D3DLOCKED_RECT lrc = tex.LockRect(NULL, D3DLOCK_READONLY, 0);
+			boost::multi_array_ref<DWORD, 2> pixel((DWORD*)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(DWORD)]);
+			for (int i = 0; i < my::Min<int>(terrain->m_RowChunks * terrain->m_ChunkSize + 1, desc.Height); i++)
+			{
+				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, desc.Width); j++)
+				{
+					tstr.SetColor(pixel[i][j], i, j);
+				}
+			}
+			tex.UnlockRect(0);
+			tstr.Release();
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

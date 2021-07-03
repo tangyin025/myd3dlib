@@ -167,12 +167,6 @@ public:
 	void CreateHeightFieldShape(unsigned int filterWord0);
 
 	virtual void ClearShape(void);
-
-	void UpdateHeightMap(my::Texture2D * HeightMap, float HeightScale);
-
-	void UpdateVerticesNormal(void);
-
-	void UpdateSplatmap(my::Texture2D * ColorMap);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
