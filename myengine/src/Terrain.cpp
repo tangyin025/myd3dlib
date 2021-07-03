@@ -240,13 +240,13 @@ Terrain::Terrain(void)
 	CreateElements();
 }
 
-Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, float HeightScale)
+Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, int MinLodChunkSize, float HeightScale)
 	: Component(ComponentTypeTerrain, Name)
 	, OctRoot(0, -1.0f, 0, (float)ChunkSize * ColChunks, 1.0f, (float)ChunkSize * RowChunks)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
-	, m_MinLodChunkSize(Min(2, ChunkSize))
+	, m_MinLodChunkSize(Min(ChunkSize, MinLodChunkSize))
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_HeightScale(HeightScale)
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
@@ -502,6 +502,7 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
+	ar << BOOST_SERIALIZATION_NVP(m_MinLodChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_Vb).GetDesc();
@@ -530,6 +531,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
+	ar >> BOOST_SERIALIZATION_NVP(m_MinLodChunkSize);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	DWORD BufferSize;

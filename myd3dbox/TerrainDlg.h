@@ -33,4 +33,5 @@ public:
 	BOOL m_AlignToCenter;
 	virtual void OnOK();
 	afx_msg void OnChangeEdit4();
+	int m_MinLodChunkSize;
 };

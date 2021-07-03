@@ -20,6 +20,7 @@ CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_ColChunks(1)
 	, m_ChunkSize(32)
 	, m_AlignToCenter(TRUE)
+	, m_MinLodChunkSize(2)
 {
 	m_ChunkPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name.c_str()).c_str());
 }
@@ -36,6 +37,7 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT3, m_ChunkSize);
 	DDX_Text(pDX, IDC_EDIT4, m_ChunkPath);
 	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
+	DDX_Text(pDX, IDC_EDIT5, m_MinLodChunkSize);
 }
 
 
@@ -87,7 +89,7 @@ void CTerrainDlg::OnOK()
 		return;
 	}
 
-	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, 512.0f / SHRT_MAX));
+	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, m_MinLodChunkSize, 512.0f / SHRT_MAX));
 
 	m_terrain->m_ChunkPath = ts2ms(m_ChunkPath);
 

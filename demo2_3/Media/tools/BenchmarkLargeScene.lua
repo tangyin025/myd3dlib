@@ -1,5 +1,5 @@
 acts={}
-local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),64,64,128,0.01)
+local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),64,64,128,2,0.01)
 terrain.ChunkPath="terrain/chunk_123456"
 local tstr=TerrainStream(terrain)
 tstr:GetPos(0,0)
