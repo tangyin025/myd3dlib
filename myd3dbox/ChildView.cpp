@@ -749,21 +749,27 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					my::RayResult result;
 					if (!chunk->m_Vb)
 					{
-						unsigned short ib[6] = {
-							(terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0),
-							(terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0),
-							(terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1),
-							(terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1),
-							(terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0),
-							(terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 1)};
+						std::vector<unsigned short> ib;
+						for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
+						{
+							for (int j = chunk->m_Col * terrain->m_MinLodChunkSize; j < chunk->m_Col * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; j++)
+							{
+								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 0));
+								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
+								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
+								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
+								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
+								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 1));
+							}
+						}
 						result = my::Mesh::RayTest(
 							ray,
 							terrain->m_Vb.Lock(0, 0, D3DLOCK_READONLY),
 							(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
 							terrain->m_VertexStride,
-							ib,
+							&ib[0],
 							true,
-							2,
+							ib.size() / 3,
 							terrain->m_VertexElems);
 						terrain->m_Vb.Unlock();
 					}

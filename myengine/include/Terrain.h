@@ -76,6 +76,8 @@ public:
 
 	int m_ChunkSize;
 
+	int m_MinLodChunkSize;
+
 	typedef boost::multi_array<unsigned int, 2> IndexTable;
 
 	IndexTable m_IndexTable;

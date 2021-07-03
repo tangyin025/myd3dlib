@@ -233,6 +233,7 @@ Terrain::Terrain(void)
 	: m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
+	, m_MinLodChunkSize(2)
 	, m_HeightScale(1)
 	, handle_World(NULL)
 {
@@ -245,6 +246,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
+	, m_MinLodChunkSize(Min(2, ChunkSize))
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_HeightScale(HeightScale)
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
@@ -252,20 +254,20 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 {
 	CreateElements();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
-	m_Vb.CreateVertexBuffer((m_RowChunks + 1) * (m_ColChunks + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_Vb.CreateVertexBuffer((m_RowChunks * m_MinLodChunkSize + 1) * (m_ColChunks * m_MinLodChunkSize + 1) * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 	VOID * pVertices = m_Vb.Lock(0, 0, 0);
-	for (int i = 0; i < (int)m_RowChunks + 1; i++)
+	for (int i = 0; i < (int)m_RowChunks * m_MinLodChunkSize + 1; i++)
 	{
-		for (int j = 0; j < (int)m_ColChunks + 1; j++)
+		for (int j = 0; j < (int)m_ColChunks * m_MinLodChunkSize + 1; j++)
 		{
-			unsigned char * pVertex = (unsigned char *)pVertices + (i * (m_ColChunks + 1) + j) * m_VertexStride;
-			m_VertexElems.SetPosition(pVertex, Vector3((float)j * m_ChunkSize, 0, (float)i * m_ChunkSize), 0);
+			unsigned char * pVertex = (unsigned char *)pVertices + (i * (m_ColChunks * m_MinLodChunkSize + 1) + j) * m_VertexStride;
+			m_VertexElems.SetPosition(pVertex, Vector3((float)j * m_ChunkSize / m_MinLodChunkSize, 0, (float)i * m_ChunkSize / m_MinLodChunkSize), 0);
 			m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 255, 255, 255), 0);
 			m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
 		}
 	}
 	m_Vb.Unlock();
-	m_Ib.CreateIndexBuffer(m_RowChunks * m_ColChunks * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+	m_Ib.CreateIndexBuffer(m_RowChunks * m_MinLodChunkSize * m_ColChunks * m_MinLodChunkSize * 2 * 3 * sizeof(IndexTable::element), 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
 	for (int i = 0; i < m_RowChunks; i++)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
@@ -285,11 +287,11 @@ Terrain::~Terrain(void)
 	ClearAllEntity();
 }
 
-static int _Quad(int v)
+static int _Quad(int v, int m)
 {
-	if (v > 1)
+	if (v > m)
 	{
-		return _Quad(v / 2) + 1;
+		return _Quad(v / 2, m) + 1;
 	}
 	return 0;
 }
@@ -300,7 +302,7 @@ unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPo
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
 	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
-	return Clamp(Lod, 0, _Quad(m_ChunkSize));
+	return Clamp(Lod, 0, _Quad(m_ChunkSize, m_MinLodChunkSize));
 }
 
 void Terrain::CreateElements(void)
@@ -649,15 +651,21 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				chunk->m_Lod[0] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
 			}
 
-			if (chunk->m_Lod[0] >= _Quad(terrain->m_ChunkSize))
+			if (chunk->m_Lod[0] >= _Quad(terrain->m_ChunkSize, terrain->m_MinLodChunkSize))
 			{
-				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
-				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
-				pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
-				pIndices[RootPrimitiveCount * 3 + 3] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
-				pIndices[RootPrimitiveCount * 3 + 4] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
-				pIndices[RootPrimitiveCount * 3 + 5] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 1);
-				RootPrimitiveCount += 2;
+				for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
+				{
+					for (int j = chunk->m_Col * terrain->m_MinLodChunkSize; j < chunk->m_Col * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; j++)
+					{
+						pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 0);
+						pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0);
+						pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1);
+						pIndices[RootPrimitiveCount * 3 + 3] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1);
+						pIndices[RootPrimitiveCount * 3 + 4] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0);
+						pIndices[RootPrimitiveCount * 3 + 5] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 1);
+						RootPrimitiveCount += 2;
+					}
+				}
 				return;
 			}
 
@@ -670,13 +678,19 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 			if (!chunk->m_Vb)
 			{
-				pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 0);
-				pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
-				pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
-				pIndices[RootPrimitiveCount * 3 + 3] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 0) + (chunk->m_Col + 1);
-				pIndices[RootPrimitiveCount * 3 + 4] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 0);
-				pIndices[RootPrimitiveCount * 3 + 5] = (terrain->m_ColChunks + 1) * (chunk->m_Row + 1) + (chunk->m_Col + 1);
-				RootPrimitiveCount += 2;
+				for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
+				{
+					for (int j = chunk->m_Col * terrain->m_MinLodChunkSize; j < chunk->m_Col * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; j++)
+					{
+						pIndices[RootPrimitiveCount * 3 + 0] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 0);
+						pIndices[RootPrimitiveCount * 3 + 1] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0);
+						pIndices[RootPrimitiveCount * 3 + 2] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1);
+						pIndices[RootPrimitiveCount * 3 + 3] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1);
+						pIndices[RootPrimitiveCount * 3 + 4] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0);
+						pIndices[RootPrimitiveCount * 3 + 5] = (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 1);
+						RootPrimitiveCount += 2;
+					}
+				}
 				return;
 			}
 
@@ -721,7 +735,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
 			TerrainChunkSet::iterator viewed_chunk_iter = m_ViewedChunks.begin();
-			int LastLod = _Quad(m_ChunkSize);
+			int LastLod = _Quad(m_ChunkSize, m_MinLodChunkSize);
 			float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);
 			for (; viewed_chunk_iter != m_ViewedChunks.end(); )
 			{
@@ -754,7 +768,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							}
 
 							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_Vb.m_ptr, m_Ib.m_ptr, D3DPT_TRIANGLELIST,
-								0, 0, (m_RowChunks + 1) * (m_ColChunks + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(-1, -1));
+								0, 0, (m_RowChunks * m_MinLodChunkSize + 1) * (m_ColChunks* m_MinLodChunkSize + 1), m_VertexStride, 0, cb.RootPrimitiveCount, shader, this, m_Material.get(), MAKELONG(-1, -1));
 						}
 					}
 				}
@@ -967,13 +981,13 @@ void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int
 	{
 		k = m_terrain->m_RowChunks - 1;
 		m = m_terrain->m_ChunkSize;
-		o = m_terrain->m_RowChunks;
+		o = m_terrain->m_RowChunks * m_terrain->m_MinLodChunkSize;
 	}
 	else
 	{
 		k = i / m_terrain->m_ChunkSize;
 		m = i % m_terrain->m_ChunkSize;
-		o = i / m_terrain->m_ChunkSize;
+		o = i * m_terrain->m_MinLodChunkSize / m_terrain->m_ChunkSize;
 	}
 
 	if (j < 0)
@@ -986,13 +1000,13 @@ void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int
 	{
 		l = m_terrain->m_ColChunks - 1;
 		n = m_terrain->m_ChunkSize;
-		p = m_terrain->m_ColChunks;
+		p = m_terrain->m_ColChunks * m_terrain->m_MinLodChunkSize;
 	}
 	else
 	{
 		l = j / m_terrain->m_ChunkSize;
 		n = j % m_terrain->m_ChunkSize;
-		p = j / m_terrain->m_ChunkSize;
+		p = j * m_terrain->m_MinLodChunkSize / m_terrain->m_ChunkSize;
 	}
 }
 
@@ -1085,9 +1099,9 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNorm
 		SetPos(Pos, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
 	}
 
-	if ((m == 0 || m == m_terrain->m_ChunkSize) && (n == 0 || n == m_terrain->m_ChunkSize))
+	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinLodChunkSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinLodChunkSize) == 0)
 	{
-		m_terrain->m_VertexElems.SetPosition((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Pos);
+		m_terrain->m_VertexElems.SetPosition((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks * m_terrain->m_MinLodChunkSize + 1) + p) * m_terrain->m_VertexStride, Pos);
 		m_terrain->m_Vb.Unlock();
 	}
 
@@ -1179,9 +1193,9 @@ void TerrainStream::SetColor(D3DCOLOR Color, int i, int j)
 		SetColor(Color, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
 	}
 
-	if ((m == 0 || m == m_terrain->m_ChunkSize) && (n == 0 || n == m_terrain->m_ChunkSize))
+	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinLodChunkSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinLodChunkSize) == 0)
 	{
-		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, Color, 0);
+		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks * m_terrain->m_MinLodChunkSize + 1) + p) * m_terrain->m_VertexStride, Color, 0);
 		m_terrain->m_Vb.Unlock();
 	}
 }
@@ -1255,9 +1269,9 @@ void TerrainStream::SetNormal(const my::Vector3& Normal, int i, int j)
 		SetNormal(dw, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
 	}
 
-	if ((m == 0 || m == m_terrain->m_ChunkSize) && (n == 0 || n == m_terrain->m_ChunkSize))
+	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinLodChunkSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinLodChunkSize) == 0)
 	{
-		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks + 1) + p) * m_terrain->m_VertexStride, dw, 1);
+		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_Vb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks * m_terrain->m_MinLodChunkSize + 1) + p) * m_terrain->m_VertexStride, dw, 1);
 		m_terrain->m_Vb.Unlock();
 	}
 }
