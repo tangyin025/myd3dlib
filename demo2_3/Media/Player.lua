@@ -153,7 +153,6 @@ function PlayerBehavior:Update(elapsedTime)
 	game.ViewedCenter=self.Actor.Position
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
-	print(dtime)
 	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime)
 	if bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0

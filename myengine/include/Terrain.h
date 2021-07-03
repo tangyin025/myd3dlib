@@ -105,9 +105,9 @@ public:
 
 	TerrainChunkSet m_ViewedChunks;
 
-	my::VertexBuffer m_Vb;
+	my::VertexBuffer m_rootVb;
 
-	my::IndexBuffer m_Ib;
+	my::IndexBuffer m_rootIb;
 
 	my::D3DVertexElementSet m_VertexElems;
 

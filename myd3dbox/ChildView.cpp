@@ -764,14 +764,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 						}
 						result = my::Mesh::RayTest(
 							ray,
-							terrain->m_Vb.Lock(0, 0, D3DLOCK_READONLY),
+							terrain->m_rootVb.Lock(0, 0, D3DLOCK_READONLY),
 							(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
 							terrain->m_VertexStride,
 							&ib[0],
 							true,
 							ib.size() / 3,
 							terrain->m_VertexElems);
-						terrain->m_Vb.Unlock();
+						terrain->m_rootVb.Unlock();
 					}
 					else
 					{
