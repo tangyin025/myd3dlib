@@ -48,7 +48,7 @@ protected:
 	int m_VertexStride;
 
 public:
-	TerrainChunkIORequest::TerrainChunkIORequest(const char* path, int ColChunks, int Row, int Col, int ChunkSize, int VertexStride, int Priority)
+	TerrainChunkIORequest(const char* path, int ColChunks, int Row, int Col, int ChunkSize, int VertexStride, int Priority)
 		: IORequest(Priority)
 		, m_path(path)
 		, m_ColChunks(ColChunks)

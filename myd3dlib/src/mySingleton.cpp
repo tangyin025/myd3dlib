@@ -36,11 +36,6 @@ DeviceResourceBase::~DeviceResourceBase(void)
 
 	D3DContext::getSingleton().m_DeviceObjects.erase(this);
 }
-//
-//IResourceCallback::~IResourceCallback(void)
-//{
-//	_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(this));
-//}
 
 unsigned int NamedObject::UniqueNameIndex = 0;
 

@@ -24,7 +24,7 @@ void CriticalSection::Leave(void)
 	::LeaveCriticalSection(&m_section);
 }
 
-BOOL CriticalSection::TryEnterCriticalSection(void)
+BOOL CriticalSection::TryEnter(void)
 {
 	return ::TryEnterCriticalSection(&m_section);
 }

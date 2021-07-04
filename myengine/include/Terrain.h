@@ -54,9 +54,9 @@ public:
 
 	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
 
-	virtual void RequestResource(void);
+	void RequestResource(void);
 
-	virtual void ReleaseResource(void);
+	void ReleaseResource(void);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;

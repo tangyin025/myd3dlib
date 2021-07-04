@@ -383,6 +383,12 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			// ! request list will be modified when set event, shared_ptr must be thread safe
 			priority_req->m_PostLoadEvent.SetEvent();
 
+			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+
+			priority_req.reset();
+
+			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+
 			m_IORequestListMutex.Wait(INFINITE);
 		}
 		else
@@ -638,6 +644,8 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 	}
 
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+
 	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.begin();
 	for (; res_iter != m_ResourceSet.end(); )
 	{
@@ -654,6 +662,8 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 			res_iter = m_ResourceSet.erase(res_iter);
 		}
 	}
+
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	return !m_IORequestList.empty();
 }

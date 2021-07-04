@@ -26,7 +26,7 @@ namespace my
 
 		void Leave(void);
 
-		BOOL TryEnterCriticalSection(void);
+		BOOL TryEnter(void);
 	};
 
 	class CriticalSectionLock

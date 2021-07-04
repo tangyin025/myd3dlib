@@ -109,6 +109,7 @@ namespace my
 
 		virtual ~D3DDeviceResource(void)
 		{
+			// ! need to check if D3DContext.m_d3dDeviceSec is entered
 			SAFE_RELEASE(m_ptr);
 		}
 
