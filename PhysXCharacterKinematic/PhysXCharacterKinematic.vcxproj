@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="debug|Win32">
+      <Configuration>debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="release|Win32">
+      <Configuration>release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1E04F7A2-C8F8-3D62-46FE-8762D28CA9A4}</ProjectGuid>
+    <RootNamespace>PhysXCharacterKinematic</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\D3DSolution.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\D3DSolution.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
+    <TargetExt>.dll</TargetExt>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <SkipCopyingSymbolsToOutputDirectory>true</SkipCopyingSymbolsToOutputDirectory>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /Zi /d2Zi+</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(PHYSX_DIR)Source/Common/include;$(PHYSX_DIR)../PxShared/include;$(PHYSX_DIR)../PxShared/src/foundation/include;$(PHYSX_DIR)../PxShared/src/fastxml/include;$(PHYSX_DIR)../PxShared/src/pvd/include;$(PHYSX_DIR)Include/characterkinematic;$(PHYSX_DIR)Include/common;$(PHYSX_DIR)Include/geometry;$(PHYSX_DIR)Include/extensions;$(PHYSX_DIR)Include;$(PHYSX_DIR)Source/GeomUtils/headers;$(PHYSX_DIR)Source/Common/src;$(PHYSX_DIR)Source/GeomUtils/src/contact;$(PHYSX_DIR)Source/GeomUtils/src/common;$(PHYSX_DIR)Source/GeomUtils/src/convex;$(PHYSX_DIR)Source/GeomUtils/src/distance;$(PHYSX_DIR)Source/GeomUtils/src/gjk;$(PHYSX_DIR)Source/GeomUtils/src/intersection;$(PHYSX_DIR)Source/GeomUtils/src/mesh;$(PHYSX_DIR)Source/GeomUtils/src/hf;$(PHYSX_DIR)Source/GeomUtils/src/pcm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;PX_PHYSX_DLL_NAME_POSTFIX=DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <WarningLevel>Level4</WarningLevel>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <ProgramDataBaseFileName>$(TargetDir)\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/MAP /MACHINE:x86 /DEBUG</AdditionalOptions>
+      <AdditionalDependencies>PhysX3CommonDEBUG_x86.lib;PhysX3ExtensionsDEBUG.lib;PxFoundationDEBUG_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)PhysX3CharacterKinematicDEBUG_x86.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>$(TargetDir)\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <ResourceCompile>
+    </ResourceCompile>
+    <ProjectReference>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
+    <TargetExt>.dll</TargetExt>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <SkipCopyingSymbolsToOutputDirectory>true</SkipCopyingSymbolsToOutputDirectory>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
+    <ClCompile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /d2Zi+</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>$(PHYSX_DIR)Source/Common/include;$(PHYSX_DIR)../PxShared/include;$(PHYSX_DIR)../PxShared/src/foundation/include;$(PHYSX_DIR)../PxShared/src/fastxml/include;$(PHYSX_DIR)../PxShared/src/pvd/include;$(PHYSX_DIR)Include/characterkinematic;$(PHYSX_DIR)Include/common;$(PHYSX_DIR)Include/geometry;$(PHYSX_DIR)Include/extensions;$(PHYSX_DIR)Include;$(PHYSX_DIR)Source/GeomUtils/headers;$(PHYSX_DIR)Source/Common/src;$(PHYSX_DIR)Source/GeomUtils/src/contact;$(PHYSX_DIR)Source/GeomUtils/src/common;$(PHYSX_DIR)Source/GeomUtils/src/convex;$(PHYSX_DIR)Source/GeomUtils/src/distance;$(PHYSX_DIR)Source/GeomUtils/src/gjk;$(PHYSX_DIR)Source/GeomUtils/src/intersection;$(PHYSX_DIR)Source/GeomUtils/src/mesh;$(PHYSX_DIR)Source/GeomUtils/src/hf;$(PHYSX_DIR)Source/GeomUtils/src/pcm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;PX_SUPPORT_PVD=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <WarningLevel>Level4</WarningLevel>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <ProgramDataBaseFileName>$(TargetDir)\$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/MAP /MACHINE:x86 /INCREMENTAL:NO</AdditionalOptions>
+      <AdditionalDependencies>PhysX3Common_x86.lib;PhysX3Extensions.lib;PxFoundation_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)PhysX3CharacterKinematic_x86.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ProgramDatabaseFile>$(TargetDir)\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <ResourceCompile>
+    </ResourceCompile>
+    <ProjectReference>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource_x86\PhysX3CharacterKinematic.rc">
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\CctBoxController.h">
+    </ClInclude>
+    <ClInclude Include="src\CctCapsuleController.h">
+    </ClInclude>
+    <ClInclude Include="src\CctCharacterController.h">
+    </ClInclude>
+    <ClInclude Include="src\CctCharacterControllerManager.h">
+    </ClInclude>
+    <ClInclude Include="src\CctController.h">
+    </ClInclude>
+    <ClInclude Include="src\CctInternalStructs.h">
+    </ClInclude>
+    <ClInclude Include="src\CctObstacleContext.h">
+    </ClInclude>
+    <ClInclude Include="src\CctSweptBox.h">
+    </ClInclude>
+    <ClInclude Include="src\CctSweptCapsule.h">
+    </ClInclude>
+    <ClInclude Include="src\CctSweptVolume.h">
+    </ClInclude>
+    <ClInclude Include="src\CctUtils.h">
+    </ClInclude>
+    <ClCompile Include="src\CctBoxController.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctCapsuleController.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctCharacterController.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctCharacterControllerCallbacks.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctCharacterControllerManager.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctController.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctObstacleContext.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctSweptBox.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctSweptCapsule.cpp">
+    </ClCompile>
+    <ClCompile Include="src\CctSweptVolume.cpp">
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="./PhysXExtensions.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="./../../../../PxShared/src/compiler/vc15win32/PxFoundation.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="./PhysXCommon.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
