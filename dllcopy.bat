@@ -8,9 +8,9 @@ xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CommonDEBUG_x86.pdb Debug
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CookingDEBUG_x86.dll Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CookingDEBUG_x86.map Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CookingDEBUG_x86.pdb Debug\ /Y
-xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematicDEBUG_x86.dll Debug\ /Y
-xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematicDEBUG_x86.map Debug\ /Y
-xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematicDEBUG_x86.pdb Debug\ /Y
+REM xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematicDEBUG_x86.dll Debug\ /Y
+REM xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematicDEBUG_x86.map Debug\ /Y
+REM xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematicDEBUG_x86.pdb Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundationDEBUG_x86.dll Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundationDEBUG_x86.pdb Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxPvdSDKDEBUG_x86.dll Debug\ /Y
@@ -28,9 +28,9 @@ xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3Common_x86.pdb Release\ /
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3Cooking_x86.dll Release\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3Cooking_x86.map Release\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3Cooking_x86.pdb Release\ /Y
-xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematic_x86.dll Release\ /Y
-xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematic_x86.map Release\ /Y
-xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematic_x86.pdb Release\ /Y
+REM xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematic_x86.dll Release\ /Y
+REM xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematic_x86.map Release\ /Y
+REM xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3CharacterKinematic_x86.pdb Release\ /Y
 xcopy D:\Games\fmodapi44425win-installer\api\fmodex.dll Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundation_x86.dll Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundation_x86.pdb Release\ /Y

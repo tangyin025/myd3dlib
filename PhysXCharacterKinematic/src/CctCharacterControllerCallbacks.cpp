@@ -44,7 +44,7 @@
 #include "PsMathUtils.h"
 #include "GuSIMDHelpers.h"
 
-static const bool gVisualizeTouchedTris = true;
+static const bool gVisualizeTouchedTris = false;
 static const float gDebugVisOffset = 0.01f;
 
 using namespace physx;

@@ -77,7 +77,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PxFoundationDEBUG_x86.lib PxPvdSDKDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib PhysX3CharacterKinematicDEBUG_x86.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PxFoundationDEBUG_x86.lib PxPvdSDKDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9d.lib;dinput8.lib;dsound.lib;winmm.lib;comctl32.lib;imm32.lib;version.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;$(FMOD_DIR)api\lib;$(FMOD_DIR)fmoddesignerapi\api\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -110,7 +110,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PxFoundation_x86.lib PxPvdSDK_x86.lib PhysX3Extensions.lib PhysX3CharacterKinematic_x86.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PxFoundation_x86.lib PxPvdSDK_x86.lib PhysX3Extensions.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9.lib;dinput8.lib;dsound.lib;winmm.lib;comctl32.lib;imm32.lib;version.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;$(FMOD_DIR)api\lib;$(FMOD_DIR)fmoddesignerapi\api\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -217,6 +217,9 @@
     </ProjectReference>
     <ProjectReference Include="..\myengine\myengine.vcxproj">
       <Project>{ecbe9ca0-c8a4-4594-ac78-d99d7264e54b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\PhysXCharacterKinematic\PhysXCharacterKinematic.vcxproj">
+      <Project>{1e04f7a2-c8f8-3d62-46fe-8762d28ca9a4}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Recast\Recast.vcxproj">
       <Project>{bce7e203-90f1-41cd-95e4-d616e838986c}</Project>

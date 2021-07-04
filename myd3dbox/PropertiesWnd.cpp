@@ -2401,7 +2401,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				{
 					unsigned short r16;
 					istr->read(&r16, sizeof(r16));
-					tstr.SetPos(my::Vector3(j, terrain->m_HeightScale * (r16 - 32768), i), i, j, false);
+					tstr.SetPos(my::Vector3(j, (float)r16 / 65536 * 2625 - 1150, i), i, j, false);
 				}
 			}
 			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, Resolution); i++)
