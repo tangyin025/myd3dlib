@@ -234,7 +234,6 @@ Terrain::Terrain(void)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
 	, m_MinLodChunkSize(2)
-	, m_HeightScale(1)
 	, handle_World(NULL)
 {
 	CreateElements();
@@ -248,7 +247,6 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	, m_ChunkSize(ChunkSize)
 	, m_MinLodChunkSize(Min(ChunkSize, MinLodChunkSize))
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
-	, m_HeightScale(HeightScale)
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
 	, handle_World(NULL)
 {
@@ -503,7 +501,6 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	ar << BOOST_SERIALIZATION_NVP(m_MinLodChunkSize);
-	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_rootVb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
@@ -532,7 +529,6 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
 	ar >> BOOST_SERIALIZATION_NVP(m_MinLodChunkSize);
-	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
@@ -796,13 +792,20 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 		return;
 	}
 
+	AABB aabb = CalculateAABB();
+	if (!aabb.IsValid())
+	{
+		return;
+	}
+
+	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
 	boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
 	TerrainStream tstr(this);
 	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 	{
 		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
 		{
-			Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / m_HeightScale), SHRT_MIN, SHRT_MAX);
+			Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
 			Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
 			Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
 		}
@@ -821,7 +824,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
+		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*m_PxMaterial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);

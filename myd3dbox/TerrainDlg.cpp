@@ -18,7 +18,7 @@ CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_terrain_name(my::NamedObject::MakeUniqueName("editor_terrain"))
 	, m_RowChunks(1)
 	, m_ColChunks(1)
-	, m_ChunkSize(32)
+	, m_ChunkSize(64)
 	, m_AlignToCenter(TRUE)
 	, m_MinLodChunkSize(2)
 {

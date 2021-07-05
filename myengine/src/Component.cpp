@@ -1034,6 +1034,7 @@ void EmitterComponent::ReleaseResource(void)
 
 void EmitterComponent::Update(float fElapsedTime)
 {
+
 }
 
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -1210,7 +1211,7 @@ ComponentPtr StaticEmitterComponent::Clone(void) const
 
 void StaticEmitterComponent::Update(float fElapsedTime)
 {
-	EmitterComponent::Update(fElapsedTime);
+
 }
 
 void StaticEmitterComponent::BuildChunks(void)

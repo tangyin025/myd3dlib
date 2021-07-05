@@ -82,8 +82,6 @@ public:
 
 	IndexTable m_IndexTable;
 
-	float m_HeightScale;
-
 	struct Fragment
 	{
 		unsigned int VertNum;

@@ -610,40 +610,39 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ColChunks);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(terrain->m_ChunkPath.c_str()).c_str());
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_HeightScale);
+	pComponent->GetSubItem(PropId + 4);
 	pComponent->GetSubItem(PropId + 5);
-	pComponent->GetSubItem(PropId + 6);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), terrain->m_Material.get());
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_Material.get());
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material;
-	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
+	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
 
 	CString strTitle;
 	strTitle.Format(_T("Chunk_%d_%d Material"), pFrame->m_selchunkid.x, pFrame->m_selchunkid.y);
 	if (mtl)
 	{
-		if (pComponent->GetSubItem(PropId + 9)->GetSubItemsCount() <= 0)
+		if (pComponent->GetSubItem(PropId + 8)->GetSubItemsCount() <= 0)
 		{
-			RemovePropertiesFrom(pComponent, PropId + 9);
+			RemovePropertiesFrom(pComponent, PropId + 8);
 			CreatePropertiesMaterial(pComponent, strTitle, mtl.get());
 		}
 		else
 		{
-			pComponent->GetSubItem(PropId + 9)->SetName(strTitle, FALSE);
-			UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 9), mtl.get());
+			pComponent->GetSubItem(PropId + 8)->SetName(strTitle, FALSE);
+			UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), mtl.get());
 		}
 	}
 	else
 	{
-		if (pComponent->GetSubItem(PropId + 9)->GetSubItemsCount() <= 0)
+		if (pComponent->GetSubItem(PropId + 8)->GetSubItemsCount() <= 0)
 		{
-			pComponent->GetSubItem(PropId + 9)->SetName(strTitle, FALSE);
+			pComponent->GetSubItem(PropId + 8)->SetName(strTitle, FALSE);
 		}
 		else
 		{
-			RemovePropertiesFrom(pComponent, PropId + 9);
+			RemovePropertiesFrom(pComponent, PropId + 8);
 			CMFCPropertyGridProperty* pMaterial = new CSimpleProp(strTitle, PropertyMaterial, FALSE);
 			pComponent->AddSubItem(pMaterial);
 		}
@@ -1199,8 +1198,6 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pProp = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(terrain->m_ChunkPath.c_str()).c_str(), NULL, PropertyTerrainChunkPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("HeightScale"), (_variant_t)terrain->m_HeightScale, NULL, PropertyTerrainHeightScale);
-	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("SplatMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainSplatMap);
@@ -1318,7 +1315,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 18;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeAnimator:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	}
@@ -2382,14 +2379,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyTerrainHeightScale:
 	case PropertyTerrainHeightMap:
 	{
 		CMFCPropertyGridProperty * pComponent = pProp->GetParent();
 		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		terrain->m_HeightScale = pComponent->GetSubItem(PropId + 4)->GetValue().fltVal;
-		CString strPath = pComponent->GetSubItem(PropId + 5)->GetValue().bstrVal;
+		CString strPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
 		if (!strPath.IsEmpty())
 		{
 			TerrainStream tstr(terrain);
