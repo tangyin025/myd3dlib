@@ -16,7 +16,7 @@ public:
 	virtual ~CNavigationDlg();
 
 // Dialog Data
-	enum { IDD = IDD_DIALOG3 };
+	enum { IDD = IDD_DIALOG4 };
 
 	/// These are just sample areas to use consistent values across the samples.
 	/// The use should specify these base on his needs.

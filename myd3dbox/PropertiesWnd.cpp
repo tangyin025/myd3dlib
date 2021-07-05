@@ -11,6 +11,7 @@
 #include "Terrain.h"
 #include "Animation.h"
 #include <boost/scope_exit.hpp>
+#include "ImportHeightDlg.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -2384,24 +2385,29 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		CMFCPropertyGridProperty * pComponent = pProp->GetParent();
 		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		CString strPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
-		if (!strPath.IsEmpty())
+		ImportHeightDlg dlg;
+		dlg.m_AssetPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
+		if (!dlg.m_AssetPath.IsEmpty())
 		{
 			TerrainStream tstr(terrain);
-			my::IStreamPtr istr = my::FileIStream::Open(strPath);
-			int Resolution = (int)sqrt(istr->GetSize() / sizeof(unsigned short));
-			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, Resolution); i++)
+			my::IStreamPtr istr = my::FileIStream::Open(dlg.m_AssetPath);
+			dlg.m_TerrainSize = (int)sqrt(istr->GetSize() / sizeof(unsigned short));
+			if (dlg.DoModal() != IDOK)
 			{
-				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, Resolution); j++)
+				return 0;
+			}
+			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); i++)
+			{
+				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); j++)
 				{
 					unsigned short r16;
 					istr->read(&r16, sizeof(r16));
-					tstr.SetPos(my::Vector3(j, (float)r16 / 65536 * 2625 - 1150, i), i, j, false);
+					tstr.SetPos(my::Vector3(j, (float)r16 / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel, i), i, j, false);
 				}
 			}
-			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, Resolution); i++)
+			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); i++)
 			{
-				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, Resolution); j++)
+				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); j++)
 				{
 					const my::Vector3 pos = tstr.GetPos(i, j);
 					const my::Vector3 Dirs[4] = {
