@@ -1,4 +1,6 @@
 
+float2 g_TerrainSize;
+
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
@@ -23,7 +25,7 @@ float4 TransformPosShadow(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return float2(In.Pos.x / 32, In.Pos.z / 32);
+	return float2(In.Pos.x / g_TerrainSize.x, In.Pos.z / g_TerrainSize.y);
 }
 
 float3 TransformNormal(VS_INPUT In)

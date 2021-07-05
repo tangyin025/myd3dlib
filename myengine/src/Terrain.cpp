@@ -235,6 +235,7 @@ Terrain::Terrain(void)
 	, m_ChunkSize(8)
 	, m_MinLodChunkSize(2)
 	, handle_World(NULL)
+	, handle_TerrainSize(NULL)
 {
 	CreateElements();
 }
@@ -249,6 +250,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
 	, handle_World(NULL)
+	, handle_TerrainSize(NULL)
 {
 	CreateElements();
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
@@ -600,6 +602,8 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 	short Col = HIWORD(lparam);
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
+
+	shader->SetVector(handle_TerrainSize, Vector2(m_RowChunks * m_ChunkSize, m_ColChunks * m_ChunkSize));
 }
 
 void Terrain::Update(float fElapsedTime)
@@ -714,6 +718,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							if (!terrain->handle_World)
 							{
 								BOOST_VERIFY(terrain->handle_World = shader->GetParameterByName(NULL, "g_World"));
+
+								BOOST_VERIFY(terrain->handle_TerrainSize = shader->GetParameterByName(NULL, "g_TerrainSize"));
 							}
 
 							pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_Vb->m_ptr, frag.ib.m_ptr, D3DPT_TRIANGLELIST,
@@ -763,6 +769,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 							if (!handle_World)
 							{
 								BOOST_VERIFY(handle_World = shader->GetParameterByName(NULL, "g_World"));
+
+								BOOST_VERIFY(handle_TerrainSize = shader->GetParameterByName(NULL, "g_TerrainSize"));
 							}
 
 							pipeline->PushIndexedPrimitive(PassID, m_Decl, m_rootVb.m_ptr, m_rootIb.m_ptr, D3DPT_TRIANGLELIST,
