@@ -89,7 +89,7 @@ void CTerrainDlg::OnOK()
 		return;
 	}
 
-	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, m_MinLodChunkSize, 512.0f / SHRT_MAX));
+	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, m_MinLodChunkSize));
 
 	m_terrain->m_ChunkPath = ts2ms(m_ChunkPath);
 

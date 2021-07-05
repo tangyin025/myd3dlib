@@ -1306,7 +1306,7 @@ void LuaContext::Init(void)
 			.def_readonly("Col", &TerrainChunk::m_Col)
 
 		, class_<Terrain, Component, boost::shared_ptr<Component> >("Terrain")
-			.def(constructor<const char *, int, int, int, int, float>())
+			.def(constructor<const char *, int, int, int, int>())
 			.def_readonly("RowChunks", &Terrain::m_RowChunks)
 			.def_readonly("ColChunks", &Terrain::m_ColChunks)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
