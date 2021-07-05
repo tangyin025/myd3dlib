@@ -468,12 +468,12 @@ void LuaContext::Init(void)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Fov", &my::PerspectiveCamera::m_Fov)
 
-		, class_<my::ModelViewerCamera, my::Camera, boost::shared_ptr<my::Camera> >("ModelViewerCamera")
+		, class_<my::ModelViewerCamera, my::PerspectiveCamera, boost::shared_ptr<my::Camera> >("ModelViewerCamera")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LookAt", &my::ModelViewerCamera::m_LookAt)
 			.def_readwrite("Distance", &my::ModelViewerCamera::m_Distance)
 
-		, class_<my::FirstPersonCamera, my::Camera, boost::shared_ptr<my::Camera> >("FirstPersonCamera")
+		, class_<my::FirstPersonCamera, my::PerspectiveCamera, boost::shared_ptr<my::Camera> >("FirstPersonCamera")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 
