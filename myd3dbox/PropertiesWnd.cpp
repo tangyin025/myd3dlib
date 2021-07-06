@@ -11,6 +11,7 @@
 #include "Terrain.h"
 #include "Animation.h"
 #include <boost/scope_exit.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include "ImportHeightDlg.h"
 
 #ifdef _DEBUG
@@ -964,17 +965,18 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param)
 {
 	CMFCPropertyGridProperty * pProp = NULL;
+	std::basic_string<TCHAR> name = ms2ts(mtl_param->m_Name.c_str());
+	boost::trim_left_if(name, boost::is_any_of(_T("g_")));
 	switch (mtl_param->m_Type)
 	{
 	case MaterialParameter::ParameterTypeFloat:
-		pProp = new CSimpleProp(ms2ts(mtl_param->m_Name.c_str()).c_str(), (_variant_t)
-			dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value, NULL, PropertyMaterialParameterFloat);
+		pProp = new CSimpleProp(name.c_str(), (_variant_t)dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value, NULL, PropertyMaterialParameterFloat);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	case MaterialParameter::ParameterTypeFloat2:
 	{
 		const my::Vector2 & Value = dynamic_cast<MaterialParameterFloat2 *>(mtl_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mtl_param->m_Name.c_str()).c_str(), PropertyMaterialParameterFloat2, TRUE);
+		CMFCPropertyGridProperty * pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat2, TRUE);
 		pParentCtrl->AddSubItem(pParameter);
 		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 		pParameter->AddSubItem(pProp);
@@ -985,7 +987,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	case MaterialParameter::ParameterTypeFloat3:
 	{
 		const my::Vector3 & Value = dynamic_cast<MaterialParameterFloat3 *>(mtl_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mtl_param->m_Name.c_str()).c_str(), PropertyMaterialParameterFloat3, TRUE);
+		CMFCPropertyGridProperty * pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat3, TRUE);
 		pParentCtrl->AddSubItem(pParameter);
 		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 		pParameter->AddSubItem(pProp);
@@ -998,7 +1000,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	case MaterialParameter::ParameterTypeFloat4:
 	{
 		const my::Vector4 & Value = dynamic_cast<MaterialParameterFloat4 *>(mtl_param)->m_Value;
-		CMFCPropertyGridProperty * pParameter = new CSimpleProp(ms2ts(mtl_param->m_Name.c_str()).c_str(), PropertyMaterialParameterFloat4, TRUE);
+		CMFCPropertyGridProperty * pParameter = new CSimpleProp(name.c_str(), PropertyMaterialParameterFloat4, TRUE);
 		pParentCtrl->AddSubItem(pParameter);
 		pProp = new CSimpleProp(_T("x"), (_variant_t)Value.x, NULL, PropertyMaterialParameterFloatValueX);
 		pParameter->AddSubItem(pProp);
@@ -1011,8 +1013,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
-		pProp = new CFileProp(ms2ts(mtl_param->m_Name.c_str()).c_str(), TRUE, (_variant_t)
-			ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
+		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	}

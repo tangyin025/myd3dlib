@@ -469,6 +469,7 @@ void Material::SetParameter<float>(const char* Name, const float& Value)
 	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have float param: %s", Name).c_str());
+		return;
 	}
 	boost::dynamic_pointer_cast<MaterialParameterFloat>(param)->m_Value = Value;
 }
@@ -480,6 +481,7 @@ void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Va
 	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat2)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector2 param: %s", Name).c_str());
+		return;
 	}
 	boost::dynamic_pointer_cast<MaterialParameterFloat2>(param)->m_Value = Value;
 }
@@ -491,6 +493,7 @@ void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Va
 	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat3)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector3 param: %s", Name).c_str());
+		return;
 	}
 	boost::dynamic_pointer_cast<MaterialParameterFloat3>(param)->m_Value = Value;
 }
@@ -502,6 +505,7 @@ void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Va
 	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat4)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector4 param: %s", Name).c_str());
+		return;
 	}
 	boost::dynamic_pointer_cast<MaterialParameterFloat4>(param)->m_Value = Value;
 }
@@ -510,9 +514,10 @@ template <>
 void Material::SetParameter<std::string>(const char* Name, const std::string& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat4)
+	if (!param || param->m_Type != MaterialParameter::ParameterTypeTexture)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Texture param: %s", Name).c_str());
+		return;
 	}
 	_ASSERT(!ResourceMgr::getSingleton().FindIORequestCallback(boost::bind(&MaterialParameterTexture::OnTextureReady, param.get(), boost::placeholders::_1)));
 	_ASSERT(!boost::dynamic_pointer_cast<MaterialParameterTexture>(param)->m_Texture);

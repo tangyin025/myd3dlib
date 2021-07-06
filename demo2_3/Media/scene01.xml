@@ -89,57 +89,78 @@
 							<m_LodMask>7</m_LodMask>
 							<m_Material class_id="12" tracking_level="0" version="1">
 								<px class_id="13" tracking_level="1" version="0" object_id="_6">
-									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
+									<m_Shader>shader/mtl_Splatmap.fx</m_Shader>
 									<m_PassMask>19</m_PassMask>
 									<m_CullMode>2</m_CullMode>
 									<m_ZEnable>1</m_ZEnable>
 									<m_ZWriteEnable>1</m_ZWriteEnable>
 									<m_BlendMode>0</m_BlendMode>
 									<m_ParameterList class_id="14" tracking_level="0" version="0">
-										<count>4</count>
+										<count>6</count>
 										<item_version>1</item_version>
 										<item class_id="15" tracking_level="0" version="1">
 											<px class_id="17" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_7">
 												<MaterialParameter class_id="16" tracking_level="1" version="0" object_id="_8">
 													<m_Type>5</m_Type>
-													<m_Name>g_DiffuseTexture</m_Name>
+													<m_Name>g_DiffuseTexture0</m_Name>
 												</MaterialParameter>
-												<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+												<m_TexturePath>texture/Red.dds</m_TexturePath>
 											</px>
 										</item>
 										<item>
 											<px class_id_reference="17" object_id="_9">
 												<MaterialParameter object_id="_10">
 													<m_Type>5</m_Type>
-													<m_Name>g_NormalTexture</m_Name>
+													<m_Name>g_DiffuseTexture1</m_Name>
 												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
+												<m_TexturePath>texture/Green.dds</m_TexturePath>
 											</px>
 										</item>
 										<item>
 											<px class_id_reference="17" object_id="_11">
 												<MaterialParameter object_id="_12">
 													<m_Type>5</m_Type>
-													<m_Name>g_SpecularTexture</m_Name>
+													<m_Name>g_DiffuseTexture2</m_Name>
 												</MaterialParameter>
-												<m_TexturePath>texture/White.dds</m_TexturePath>
+												<m_TexturePath>texture/Blue.dds</m_TexturePath>
 											</px>
 										</item>
 										<item>
-											<px class_id="18" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_13">
+											<px class_id_reference="17" object_id="_13">
 												<MaterialParameter object_id="_14">
+													<m_Type>5</m_Type>
+													<m_Name>g_DiffuseTexture3</m_Name>
+												</MaterialParameter>
+												<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+											</px>
+										</item>
+										<item>
+											<px class_id="18" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_15">
+												<MaterialParameter object_id="_16">
 													<m_Type>1</m_Type>
 													<m_Name>g_Shininess</m_Name>
 												</MaterialParameter>
 												<m_Value>2.500000000e+01</m_Value>
 											</px>
 										</item>
+										<item>
+											<px class_id="19" class_name="MaterialParameterFloat2" tracking_level="1" version="0" object_id="_17">
+												<MaterialParameter object_id="_18">
+													<m_Type>2</m_Type>
+													<m_Name>g_TextureScale</m_Name>
+												</MaterialParameter>
+												<m_Value class_id="20" tracking_level="0" version="0">
+													<x>1.600000000e+01</x>
+													<y>1.600000000e+01</y>
+												</m_Value>
+											</px>
+										</item>
 									</m_ParameterList>
 								</px>
 							</m_Material>
 						</Component>
-						<OctRoot class_id="19" tracking_level="0" version="0">
-							<AABB object_id="_15">
+						<OctRoot class_id="21" tracking_level="0" version="0">
+							<AABB object_id="_19">
 								<m_min>
 									<x>0.000000000e+00</x>
 									<y>-1.000000000e+00</y>
@@ -169,8 +190,8 @@ AAAAAAAAAAAAAAAA/////3//fwAAAABCAAAAAAAAAAD/////f/9/AAAAgEIAAAAAAAAAAP////9/
 //9//38AAAAAAAAAAAAAAIBC/////3//fwAAAABCAAAAAAAAgEL/////f/9/AAAAgEIAAAAAAACA
 Qv////9//38A
 						</VertexBuffer>
-						<m_Chunk_0_0 class_id="20" tracking_level="0" version="1">
-							<px class_id="21" tracking_level="1" version="0" object_id="_16">
+						<m_Chunk_0_0 class_id="22" tracking_level="0" version="1">
+							<px class_id="23" tracking_level="1" version="0" object_id="_20">
 								<m_Row>0</m_Row>
 								<m_Col>0</m_Col>
 								<m_Material>
@@ -178,7 +199,7 @@ Qv////9//38A
 								</m_Material>
 							</px>
 						</m_Chunk_0_0>
-						<m_Chunk_0_0_aabb object_id="_17">
+						<m_Chunk_0_0_aabb object_id="_21">
 							<m_min>
 								<x>0.000000000e+00</x>
 								<y>-1.000000000e+00</y>
@@ -193,15 +214,15 @@ Qv////9//38A
 					</px>
 				</item>
 				<item>
-					<px class_id="22" class_name="MeshComponent" tracking_level="1" version="0" object_id="_18">
-						<Component object_id="_19">
-							<NamedObject object_id="_20">
+					<px class_id="24" class_name="MeshComponent" tracking_level="1" version="0" object_id="_22">
+						<Component object_id="_23">
+							<NamedObject object_id="_24">
 								<Name>editor_sky_cmp1</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_21">
+								<px class_id_reference="13" object_id="_25">
 									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
 									<m_PassMask>8</m_PassMask>
 									<m_CullMode>3</m_CullMode>
@@ -212,8 +233,8 @@ Qv////9//38A
 										<count>1</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_22">
-												<MaterialParameter object_id="_23">
+											<px class_id_reference="17" object_id="_26">
+												<MaterialParameter object_id="_27">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -237,15 +258,15 @@ Qv////9//38A
 					</px>
 				</item>
 				<item>
-					<px class_id_reference="22" object_id="_24">
-						<Component object_id="_25">
-							<NamedObject object_id="_26">
+					<px class_id_reference="24" object_id="_28">
+						<Component object_id="_29">
+							<NamedObject object_id="_30">
 								<Name>editor_sky_cmp2</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_27">
+								<px class_id_reference="13" object_id="_31">
 									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
 									<m_PassMask>8</m_PassMask>
 									<m_CullMode>3</m_CullMode>
@@ -256,8 +277,8 @@ Qv////9//38A
 										<count>1</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_28">
-												<MaterialParameter object_id="_29">
+											<px class_id_reference="17" object_id="_32">
+												<MaterialParameter object_id="_33">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -281,15 +302,15 @@ Qv////9//38A
 					</px>
 				</item>
 				<item>
-					<px class_id_reference="22" object_id="_30">
-						<Component object_id="_31">
-							<NamedObject object_id="_32">
+					<px class_id_reference="24" object_id="_34">
+						<Component object_id="_35">
+							<NamedObject object_id="_36">
 								<Name>editor_sky_cmp3</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_33">
+								<px class_id_reference="13" object_id="_37">
 									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
 									<m_PassMask>8</m_PassMask>
 									<m_CullMode>3</m_CullMode>
@@ -300,8 +321,8 @@ Qv////9//38A
 										<count>1</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_34">
-												<MaterialParameter object_id="_35">
+											<px class_id_reference="17" object_id="_38">
+												<MaterialParameter object_id="_39">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -325,15 +346,15 @@ Qv////9//38A
 					</px>
 				</item>
 				<item>
-					<px class_id_reference="22" object_id="_36">
-						<Component object_id="_37">
-							<NamedObject object_id="_38">
+					<px class_id_reference="24" object_id="_40">
+						<Component object_id="_41">
+							<NamedObject object_id="_42">
 								<Name>editor_sky_cmp4</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_39">
+								<px class_id_reference="13" object_id="_43">
 									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
 									<m_PassMask>8</m_PassMask>
 									<m_CullMode>3</m_CullMode>
@@ -344,8 +365,8 @@ Qv////9//38A
 										<count>1</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_40">
-												<MaterialParameter object_id="_41">
+											<px class_id_reference="17" object_id="_44">
+												<MaterialParameter object_id="_45">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -369,15 +390,15 @@ Qv////9//38A
 					</px>
 				</item>
 				<item>
-					<px class_id_reference="22" object_id="_42">
-						<Component object_id="_43">
-							<NamedObject object_id="_44">
+					<px class_id_reference="24" object_id="_46">
+						<Component object_id="_47">
+							<NamedObject object_id="_48">
 								<Name>editor_sky_cmp5</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_45">
+								<px class_id_reference="13" object_id="_49">
 									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
 									<m_PassMask>8</m_PassMask>
 									<m_CullMode>3</m_CullMode>
@@ -388,8 +409,8 @@ Qv////9//38A
 										<count>1</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_46">
-												<MaterialParameter object_id="_47">
+											<px class_id_reference="17" object_id="_50">
+												<MaterialParameter object_id="_51">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -413,15 +434,15 @@ Qv////9//38A
 					</px>
 				</item>
 				<item>
-					<px class_id_reference="22" object_id="_48">
-						<Component object_id="_49">
-							<NamedObject object_id="_50">
+					<px class_id_reference="24" object_id="_52">
+						<Component object_id="_53">
+							<NamedObject object_id="_54">
 								<Name>editor_sky_cmp6</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_51">
+								<px class_id_reference="13" object_id="_55">
 									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
 									<m_PassMask>8</m_PassMask>
 									<m_CullMode>3</m_CullMode>
@@ -432,8 +453,8 @@ Qv////9//38A
 										<count>1</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_52">
-												<MaterialParameter object_id="_53">
+											<px class_id_reference="17" object_id="_56">
+												<MaterialParameter object_id="_57">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -462,25 +483,25 @@ Qv////9//38A
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
 AM3NQAAAAAgAzc0QAQAABwDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
-zc0AAAAIAAAAAAEAAADNzc3NAAAABwAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACwsEEKAAAA
-gAAAAAAAwUEKAAAAgAEAAABwoEEKAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC4ne8C
-CQADAAAAAAAknu8CAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMywsEEKAAAAAM3Nzc3N
-zc3NGEjwAggAAwAIYjIK1EjwAgMAAABwoEEKzc3Nzc3Nzc0gnCsKAAAAgQAAAADNzc3NAQAAAAAA
+zc0AAAAIAAAAAAEAAADNzc3NAAAABwAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABAGDAOAAAA
+gAAAAADAoeAJAAAAgAEAAACgjLgJAAAAgAIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC4nTYD
+CQADAAAAAAAknjYDAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMxAGDAOAAAAAM3Nzc3N
+zc3NGEg3AwgAAwBQXbwJ1Eg3AwMAAACgjLgJzc3Nzc3Nzc2w64oHAAAAgQAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAsBAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3Nzezn7wIHAAMAEEclCgAAAAAA
-AAAAAMFBCgEAAQEAAAAAAQABAQAAAAAAAAAAzc3NzSCcKwoAAACFAAAAAM3Nzc3wb30H////AAEA
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzeznNgMHAAMAKA2oCQAAAAAA
+AAAAwKHgCQEAAQEAAAAAAQABAQAAAAAAAAAAzc3NzbDrigcAAACFAAAAAM3Nzc3wb4sH////AAEA
 AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAAMIAAAAAAAAAwgAAzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 			</m_PxActor>
 		</px>
 	</item>
 	<item>
-		<px class_id_reference="4" object_id="_54">
-			<NamedObject object_id="_55">
+		<px class_id_reference="4" object_id="_58">
+			<NamedObject object_id="_59">
 				<Name>editor_actor1</Name>
 			</NamedObject>
-			<m_aabb object_id="_56">
+			<m_aabb object_id="_60">
 				<m_min>
 					<x>-5.000000000e-01</x>
 					<y>-5.000000000e-01</y>
@@ -515,15 +536,15 @@ AA==
 				<count>1</count>
 				<item_version>1</item_version>
 				<item>
-					<px class_id_reference="22" object_id="_57">
-						<Component object_id="_58">
-							<NamedObject object_id="_59">
+					<px class_id_reference="24" object_id="_61">
+						<Component object_id="_62">
+							<NamedObject object_id="_63">
 								<Name>editor_mesh_cmp1</Name>
 							</NamedObject>
 							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_60">
+								<px class_id_reference="13" object_id="_64">
 									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
 									<m_PassMask>19</m_PassMask>
 									<m_CullMode>2</m_CullMode>
@@ -534,8 +555,8 @@ AA==
 										<count>4</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_61">
-												<MaterialParameter object_id="_62">
+											<px class_id_reference="17" object_id="_65">
+												<MaterialParameter object_id="_66">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -543,8 +564,8 @@ AA==
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="17" object_id="_63">
-												<MaterialParameter object_id="_64">
+											<px class_id_reference="17" object_id="_67">
+												<MaterialParameter object_id="_68">
 													<m_Type>5</m_Type>
 													<m_Name>g_NormalTexture</m_Name>
 												</MaterialParameter>
@@ -552,8 +573,8 @@ AA==
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="17" object_id="_65">
-												<MaterialParameter object_id="_66">
+											<px class_id_reference="17" object_id="_69">
+												<MaterialParameter object_id="_70">
 													<m_Type>5</m_Type>
 													<m_Name>g_SpecularTexture</m_Name>
 												</MaterialParameter>
@@ -561,8 +582,8 @@ AA==
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="18" object_id="_67">
-												<MaterialParameter object_id="_68">
+											<px class_id_reference="18" object_id="_71">
+												<MaterialParameter object_id="_72">
 													<m_Type>1</m_Type>
 													<m_Name>g_Shininess</m_Name>
 												</MaterialParameter>
@@ -591,24 +612,24 @@ AA==
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAJ
 AM3NQAAAAAgAzc0QAQAABgDNzVACAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAkAAAAAAAAAAM3N
-zc0AAAAIAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAADwsEEKAAAA
-gAAAAAAg1E8KAAAAgAIAAADQwUEKAAAAgAEAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAC4ne8C
-CQADAAAAAAAknu8CAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzwsEEKAQAAAM3Nzc3N
-zc3NGEjwAggAAwCosCUK1EjwAgMAAAAg1E8Kzc3Nzc3Nzc0gnCsKAAAAgQAAAADNzc3NAQAAAAAA
+zc0AAAAIAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACAGDAOAAAA
+gAAAAAAQCNkJAAAAgAIAAACQouAJAAAAgAEAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAC4nTYD
+CQADAAAAAAAknjYDAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMyAGDAOAQAAAM3Nzc3N
+zc3NGEg3AwgAAwDIQqgJ1Eg3AwMAAAAQCNkJzc3Nzc3Nzc2w64oHAAAAgQAAAADNzc3NAQAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAACtej
 PAsBAQADAAAAAACAPwAAgD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzfC+7wIGAAMAmEglCgAAAAAA
-AAAA0MFBCgEAAQEBAAAAAQABAQAAAAABAAAAzc3NzSCcKwoAAACDAAAAAM3Nzc0QfH0H////AAEB
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAEAAIDNzc3Nzc3NzfC+NgMGAAMAsA6oCQAAAAAA
+AAAAkKLgCQEAAQEBAAAAAQABAQAAAAABAAAAzc3NzbDrigcAAACDAAAAAM3Nzc0wgK0J////AAEB
 AADNzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEBBAEAAAAAAAAAAAAAAAAAAIA/AAAA
 AAAAAAAAAAAAmpkZPgAAAAAAAAAAAAAAAK7FnfQAAAAAAAAAAAAAAAD//39/AABEQv//f38AAAAA
-zcxMPQAAgD8AAIA/AACAPwAAgD+uxZ10CtejOwrXIzsAAAAAzc3NzQAAAAAAAAAAAAAAADBmLw7N
+zcxMPQAAgD8AAIA/AACAPwAAgD+uxZ10CtejOwrXIzsAAAAAzc3NzQAAAAAAAAAAAAAAAIB2UA7N
 zc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 			</m_PxActor>
 		</px>
 	</item>
 </ActorList>
-<navMesh class_id="23" tracking_level="0" version="1">
+<navMesh class_id="25" tracking_level="0" version="1">
 	<px class_id="-1"></px>
 </navMesh>
 </boost_serialization>
