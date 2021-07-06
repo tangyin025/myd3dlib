@@ -40,7 +40,7 @@ public:
 	std::string default_normal_texture;
 	std::string default_specular_texture;
 	std::string default_shader;
-	std::string default_water_shader;
+	std::string default_terrain_shader;
 	std::string default_sky_texture[6];
 	int max_editable_particle_count;
 	D3DXHANDLE technique_RenderSceneColor;

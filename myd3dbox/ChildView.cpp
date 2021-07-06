@@ -1711,20 +1711,12 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 			{
 				if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 				{
-					my::Vector2 diff(j - pt.x, i - pt.z);
-					float alpha = diff.magnitude() / pFrame->m_PaintRadius;
-					if (alpha <= 1)
+					my::Vector2 offset(j - pt.x, i - pt.z);
+					float dist = offset.magnitude() / pFrame->m_PaintRadius;
+					if (dist <= 1)
 					{
-						D3DXCOLOR color = pFrame->m_PaintColor * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
-						switch (pFrame->m_PaintMode)
-						{
-						case CMainFrame::PaintModeGreater:
-							color.r = my::Max(color.r, D3DXCOLOR(tstr.GetColor(i, j)).r);
-							color.g = my::Max(color.g, D3DXCOLOR(tstr.GetColor(i, j)).g);
-							color.b = my::Max(color.b, D3DXCOLOR(tstr.GetColor(i, j)).b);
-							color.a = my::Max(color.a, D3DXCOLOR(tstr.GetColor(i, j)).a);
-							break;
-						}
+						D3DXCOLOR color;
+						D3DXColorLerp(&color, &pFrame->m_PaintColor, &D3DXCOLOR(tstr.GetColor(i, j)), dist);
 						tstr.SetColor(color, i, j);
 					}
 				}

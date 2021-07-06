@@ -1401,10 +1401,8 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(void)
 	pPaint->GetSubItem(1)->SetValue((_variant_t)g_PaintMode[pFrame->m_PaintMode]);
 	pPaint->GetSubItem(2)->SetValue((_variant_t)pFrame->m_PaintRadius);
 	pPaint->GetSubItem(3)->SetValue((_variant_t)pFrame->m_PaintHeight);
-	pPaint->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)pFrame->m_PaintColor.r);
-	pPaint->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)pFrame->m_PaintColor.g);
-	pPaint->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)pFrame->m_PaintColor.b);
-	pPaint->GetSubItem(4)->GetSubItem(3)->SetValue((_variant_t)pFrame->m_PaintColor.a);
+	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pPaint->GetSubItem(4)))->SetColor(color);
 	UpdatePropertiesSpline(pPaint->GetSubItem(5), &pFrame->m_PaintSpline);
 	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintDensity);
 }
@@ -1435,16 +1433,10 @@ void CPropertiesWnd::CreatePropertiesPaintTool(void)
 	pProp = new CSimpleProp(_T("PaintHeight"), pFrame->m_PaintHeight, NULL, PropertyPaintHeight);
 	pPaint->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pPaintColor = new CSimpleProp(_T("PaintColor"), PropertyPaintColor, FALSE);
+	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
+	CColorProp* pPaintColor = new CColorProp(_T("PaintColor"), color, NULL, NULL, PropertyPaintColor);
+	pPaintColor->EnableOtherButton(_T("Other..."));
 	pPaint->AddSubItem(pPaintColor);
-	pProp = new CSimpleProp(_T("R"), (_variant_t)pFrame->m_PaintColor.r, NULL, PropertyPaintColorR);
-	pPaintColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("G"), (_variant_t)pFrame->m_PaintColor.g, NULL, PropertyPaintColorG);
-	pPaintColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("B"), (_variant_t)pFrame->m_PaintColor.b, NULL, PropertyPaintColorB);
-	pPaintColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("A"), (_variant_t)pFrame->m_PaintColor.a, NULL, PropertyPaintColorA);
-	pPaintColor->AddSubItem(pProp);
 
 	CreatePropertiesSpline(pPaint, _T("PaintSpline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
 	pProp = new CSimpleProp(_T("PaintDensity"), (_variant_t)pFrame->m_PaintDensity, NULL, PropertyPaintDensity);
@@ -2537,28 +2529,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case PropertyPaintColor:
-	case PropertyPaintColorR:
-	case PropertyPaintColorG:
-	case PropertyPaintColorB:
-	case PropertyPaintColorA:
 	{
-		CMFCPropertyGridProperty* pPaintColor = NULL;
-		switch (PropertyId)
-		{
-		case PropertyPaintColor:
-			pPaintColor = pProp;
-			break;
-		case PropertyPaintColorR:
-		case PropertyPaintColorG:
-		case PropertyPaintColorB:
-		case PropertyPaintColorA:
-			pPaintColor = pProp->GetParent();
-			break;
-		}
-		pFrame->m_PaintColor.r = pPaintColor->GetSubItem(0)->GetValue().fltVal;
-		pFrame->m_PaintColor.g = pPaintColor->GetSubItem(1)->GetValue().fltVal;
-		pFrame->m_PaintColor.b = pPaintColor->GetSubItem(2)->GetValue().fltVal;
-		pFrame->m_PaintColor.a = pPaintColor->GetSubItem(3)->GetValue().fltVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp))->GetColor();
+		pFrame->m_PaintColor.r = GetRValue(color) / 255.0f;
+		pFrame->m_PaintColor.g = GetGValue(color) / 255.0f;
+		pFrame->m_PaintColor.b = GetBValue(color) / 255.0f;
+		pFrame->m_PaintColor.a = my::Clamp(1.0f - pFrame->m_PaintColor.r - pFrame->m_PaintColor.g - pFrame->m_PaintColor.b, 0.0f, 1.0f);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
