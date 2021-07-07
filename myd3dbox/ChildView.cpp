@@ -1673,11 +1673,11 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 			{
 				if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 				{
-					my::Vector2 diff(j - pt.x, i - pt.z);
-					float alpha = diff.magnitude() / pFrame->m_PaintRadius;
-					if (alpha <= 1)
+					my::Vector2 offset(j - pt.x, i - pt.z);
+					float dist = offset.magnitude() / pFrame->m_PaintRadius;
+					if (dist <= 1)
 					{
-						float height = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - alpha, 1);
+						float height = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - dist, 1);
 						switch (pFrame->m_PaintMode)
 						{
 						case CMainFrame::PaintModeGreater:
@@ -1716,7 +1716,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 					if (dist <= 1)
 					{
 						D3DXCOLOR color;
-						D3DXColorLerp(&color, &pFrame->m_PaintColor, &D3DXCOLOR(tstr.GetColor(i, j)), dist);
+						D3DXColorLerp(&color, &D3DXCOLOR(tstr.GetColor(i, j)), &pFrame->m_PaintColor, pFrame->m_PaintSpline.Interpolate(1 - dist, 1));
 						tstr.SetColor(color, i, j);
 					}
 				}
