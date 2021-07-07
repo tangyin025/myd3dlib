@@ -1074,13 +1074,13 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 	velist.push_back(ve_end);
 
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	CreateMesh(facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	VOID * pVertices = LockVertexBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
 	for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
 	{
@@ -1176,14 +1176,14 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 			}
 		}
 	}
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	UnlockVertexBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	VOID * pIndices = LockIndexBuffer();
 	DWORD * pAttrBuffer = LockAttributeBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 	int submesh_i = 0;
 	node_submesh_iter = node_submesh;
 	for(int face_i = 0; node_submesh_iter != NULL; node_submesh_iter = bUseSharedGeometry ? node_submesh_iter->next_sibling() : NULL, submesh_i++)
@@ -1229,15 +1229,15 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 		m_MaterialNameList.push_back(attr_material->value());
 	}
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	UnlockAttributeBuffer();
 	UnlockIndexBuffer();
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	std::vector<DWORD> adjacency(GetNumFaces() * 3);
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 	if(bComputeTangentFrame)
 	{
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
@@ -1249,28 +1249,28 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		//{
 		//	THROW_D3DEXCEPTION(hr);
 		//}
-		ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+		ResourceMgr::getSingleton().EnterDeviceSection();
 		VOID * pVertices = LockVertexBuffer();
 		VOID * pIndices = LockIndexBuffer();
-		ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+		ResourceMgr::getSingleton().LeaveDeviceSection();
 		ComputeTangentFrame(
 			pVertices, GetNumVertices(), GetNumBytesPerVertex(), pIndices, !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);
-		ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+		ResourceMgr::getSingleton().EnterDeviceSection();
 		UnlockVertexBuffer();
 		UnlockIndexBuffer();
-		ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+		ResourceMgr::getSingleton().LeaveDeviceSection();
 	}
 	m_Adjacency.resize(adjacency.size());
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 
 	DWORD AttribTblCount = 0;
-	ResourceMgr::getSingleton().EnterDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().EnterDeviceSection();
 	GetAttributeTable(NULL, &AttribTblCount);
 	m_AttribTable.resize(AttribTblCount);
 	GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
-	ResourceMgr::getSingleton().LeaveDeviceSectionIfNotMainThread();
+	ResourceMgr::getSingleton().LeaveDeviceSection();
 }
 
 void OgreMesh::SaveOgreMesh(const char * path)

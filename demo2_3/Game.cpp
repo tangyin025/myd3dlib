@@ -691,7 +691,7 @@ void Game::OnFrameTick(
 {
 	LuaContext::dogcstep(1);
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+	LeaveDeviceSection();
 
 	DrawHelper::BeginLine();
 
@@ -699,7 +699,7 @@ void Game::OnFrameTick(
 
 	PhysxScene::PushRenderBuffer(this);
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+	EnterDeviceSection();
 
 	if (!InputMgr::Capture(fTime, fElapsedTime))
 	{
@@ -809,7 +809,7 @@ void Game::OnFrameTick(
 
 	Present(NULL, NULL, NULL, NULL);
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+	LeaveDeviceSection();
 
 	PhysxScene::TickPostRender(fElapsedTime);
 
@@ -868,7 +868,7 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+	EnterDeviceSection();
 }
 
 void Game::OnRender(

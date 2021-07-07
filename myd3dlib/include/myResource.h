@@ -218,6 +218,10 @@ namespace my
 	public:
 		AsynchronousIOMgr(void);
 
+		void EnterDeviceSection(void);
+
+		void LeaveDeviceSection(void);
+
 		DWORD IORequestProc(void);
 
 		template <typename T>
@@ -381,10 +385,6 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		void EnterDeviceSectionIfNotMainThread(void);
-
-		void LeaveDeviceSectionIfNotMainThread(void);
-
 		DeviceResourceBasePtr GetResource(const std::string & key);
 
 		void AddResource(const std::string & key, DeviceResourceBasePtr res);
@@ -414,7 +414,23 @@ namespace my
 		}
 
 		template <typename T>
-		void LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T& callback);
+		void LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T& callback)
+		{
+			_ASSERT(IsMainThread());
+
+			LeaveDeviceSection();
+
+			IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, callback);
+			if (req_iter != m_IORequestList.end())
+			{
+				if (req_iter->second->m_PostLoadEvent.Wait(INFINITE))
+				{
+					OnIORequestIteratorReady(req_iter);
+				}
+			}
+
+			EnterDeviceSection();
+		}
 
 		bool CheckIORequests(DWORD dwMilliseconds);
 

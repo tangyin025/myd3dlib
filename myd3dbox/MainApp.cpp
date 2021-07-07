@@ -450,7 +450,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	// TODO: Add your specialized code here and/or call the base class
 	Clock::UpdateClock();
 
-	m_d3dDeviceSec.Leave();
+	LeaveDeviceSection();
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -477,7 +477,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		bContinue = TRUE;
 	}
 
-	m_d3dDeviceSec.Enter();
+	EnterDeviceSection();
 
 	if (!pFrame->m_selactors.empty())
 	{

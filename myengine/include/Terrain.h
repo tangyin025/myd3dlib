@@ -176,7 +176,7 @@ class TerrainStream
 public:
 	Terrain* m_terrain;
 
-	std::fstream m_fstr;
+	boost::multi_array<my::VertexBufferPtr, 2> m_Vbs;
 
 	boost::multi_array<bool, 2> m_AabbDirty;
 
@@ -191,7 +191,9 @@ public:
 
 	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
 
-	std::fstream& GetStream(int k, int l, int& stream_off);
+	my::VertexBufferPtr GetVB(int k, int l);
+
+	void SetVB(int k, int l, my::DeviceResourceBasePtr res);
 
 	static int CalculateStreamOff(int ColChunks, int Row, int Col, int ChunkSize, int VertexStride);
 

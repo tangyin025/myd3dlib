@@ -189,16 +189,13 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	ofs.flush();
 
 	LPD3DXEFFECT pEffect = NULL;
-	my::D3DContext::getSingleton().m_d3dDeviceSec.Enter();
 	if (FAILED(D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
 		buff->GetBufferPointer(), buff->GetBufferSize(), NULL, NULL, D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, my::ResourceMgr::getSingleton().m_EffectPool, &pEffect, &err)))
 	{
-		my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
 		return NULL;
 	}
-	my::D3DContext::getSingleton().m_d3dDeviceSec.Leave();
 
 	my::EffectPtr shader(new my::Effect());
 	shader->Create(pEffect);

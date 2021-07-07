@@ -352,6 +352,16 @@ AsynchronousIOMgr::AsynchronousIOMgr(void)
 {
 }
 
+void AsynchronousIOMgr::EnterDeviceSection(void)
+{
+	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+}
+
+void AsynchronousIOMgr::LeaveDeviceSection(void)
+{
+	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+}
+
 DWORD AsynchronousIOMgr::IORequestProc(void)
 {
 	m_IORequestListMutex.Wait(INFINITE);
@@ -383,11 +393,11 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			// ! request list will be modified when set event, shared_ptr must be thread safe
 			priority_req->m_PostLoadEvent.SetEvent();
 
-			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+			EnterDeviceSection();
 
 			priority_req.reset();
 
-			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+			LeaveDeviceSection();
 
 			m_IORequestListMutex.Wait(INFINITE);
 		}
@@ -407,7 +417,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 //
 //	m_IORequestListMutex.Wait(INFINITE);
 //
-//	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+//	LeaveDeviceSection();
 //
 //	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 //	for (; req_iter != m_IORequestList.end(); req_iter++)
@@ -418,7 +428,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 //		}
 //	}
 //
-//	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+//	EnterDeviceSection();
 //
 //	m_IORequestList.clear();
 //
@@ -429,7 +439,7 @@ void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 {
 	m_bStopped = false;
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+	EnterDeviceSection();
 
 	for (int i = 0; i < lMaximumCount; i++)
 	{
@@ -443,7 +453,7 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 {
 	_ASSERT(IsMainThread());
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+	LeaveDeviceSection();
 
 	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
@@ -563,22 +573,6 @@ HRESULT ResourceMgr::Close(
 	return S_OK;
 }
 
-void ResourceMgr::EnterDeviceSectionIfNotMainThread(void)
-{
-	if (!IsMainThread())
-	{
-		D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-	}
-}
-
-void ResourceMgr::LeaveDeviceSectionIfNotMainThread(void)
-{
-	if (!IsMainThread())
-	{
-		D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-	}
-}
-
 DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 {
 	_ASSERT(IsMainThread());
@@ -608,25 +602,6 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 	D3DContext::getSingleton().m_EventLog(logs.c_str());
 }
 
-template <typename T>
-void ResourceMgr::LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T& callback)
-{
-	_ASSERT(IsMainThread());
-
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
-
-	IORequestPtrPairList::iterator req_iter = LoadIORequestAsync(key, request, callback);
-	if (req_iter != m_IORequestList.end())
-	{
-		if (req_iter->second->m_PostLoadEvent.Wait(INFINITE))
-		{
-			OnIORequestIteratorReady(req_iter);
-		}
-	}
-
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
-}
-
 bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 {
 	_ASSERT(IsMainThread());
@@ -644,7 +619,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 	}
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+	EnterDeviceSection();
 
 	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.begin();
 	for (; res_iter != m_ResourceSet.end(); )
@@ -663,7 +638,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 		}
 	}
 
-	D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+	LeaveDeviceSection();
 
 	return !m_IORequestList.empty();
 }
@@ -693,7 +668,7 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		{
 			_ASSERT(D3DContext::getSingleton().m_DeviceObjectsCreated);
 
-			D3DContext::getSingleton().m_d3dDeviceSec.Enter();
+			EnterDeviceSection();
 
 			request->CreateResource(D3DContext::getSingleton().m_d3dDevice);
 
@@ -702,7 +677,7 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 				request->m_res->OnResetDevice();
 			}
 
-			D3DContext::getSingleton().m_d3dDeviceSec.Leave();
+			LeaveDeviceSection();
 
 			AddResource(key, request->m_res);
 		}
@@ -748,7 +723,7 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new TextureIORequest(path, INT_MAX));
-	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
 }
 
@@ -757,7 +732,7 @@ boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const ch
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new MeshIORequest(path, sub_mesh_name, INT_MAX));
-	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<OgreMesh>(cb.m_res);
 }
 
@@ -765,7 +740,7 @@ boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new SkeletonIORequest(path, INT_MAX));
-	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(cb.m_res);
 }
 
@@ -774,7 +749,7 @@ boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const ch
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new EffectIORequest(path, macros, INT_MAX));
-	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<Effect>(cb.m_res);
 }
 
@@ -783,7 +758,7 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 	std::string key = FontIORequest::BuildKey(path, height, face_index);
 	SimpleResourceCallback cb;
 	IORequestPtr request(new FontIORequest(path, height, face_index, INT_MAX));
-	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, _1));
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
 
