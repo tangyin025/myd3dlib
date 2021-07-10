@@ -556,7 +556,7 @@ namespace my
 			particleContactArray.resize(maxContacts);
 		}
 
-		unsigned getMaxContacts(void) const
+		size_t getMaxContacts(void) const
 		{
 			return particleContactArray.size();
 		}
@@ -1241,7 +1241,7 @@ namespace my
 			contactList.resize(maxContacts);
 		}
 
-		unsigned getMaxContacts(void) const
+		size_t getMaxContacts(void) const
 		{
 			return contactList.size();
 		}

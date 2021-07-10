@@ -26,7 +26,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // COutputList message handlers
 
-static DWORD CALLBACK _ScriptStreamInCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+static DWORD CALLBACK _ScriptStreamInCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
 {
 	CFile * pFile = (CFile *)dwCookie;
 	*pcb = pFile->Read(pbBuff, cb);
@@ -59,7 +59,7 @@ void CScriptEdit::CheckFileChange()
 
 	CFile cFile(m_strPathName, CFile::modeRead);
 	EDITSTREAM es;
-	es.dwCookie = (DWORD)&cFile;
+	es.dwCookie = (DWORD_PTR)&cFile;
 	es.pfnCallback = _ScriptStreamInCallback;
 	StreamIn(SF_TEXT, es);
 	SetModify(FALSE);
@@ -151,7 +151,7 @@ void CScriptEdit::OnScriptOpen()
 
 	CFile cFile(strPathName, CFile::modeRead);
 	EDITSTREAM es;
-	es.dwCookie = (DWORD)&cFile;
+	es.dwCookie = (DWORD_PTR)&cFile;
 	es.pfnCallback = _ScriptStreamInCallback;
 	StreamIn(SF_TEXT, es);
 	SetModify(FALSE);
@@ -161,7 +161,7 @@ void CScriptEdit::OnScriptOpen()
 	GetParent()->SetWindowText(m_strPathName);
 }
 
-static DWORD CALLBACK _ScriptStreamOutCallback(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+static DWORD CALLBACK _ScriptStreamOutCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
 {
 	CFile* pFile = (CFile*)dwCookie;
 	pFile->Write(pbBuff, cb);
@@ -180,7 +180,7 @@ void CScriptEdit::OnScriptSave()
 
 	CFile cFile(m_strPathName, CFile::modeCreate | CFile::modeWrite);
 	EDITSTREAM es;
-	es.dwCookie = (DWORD)&cFile;
+	es.dwCookie = (DWORD_PTR)&cFile;
 	es.pfnCallback = _ScriptStreamOutCallback;
 	StreamOut(SF_TEXT, es);
 	SetModify(FALSE);
@@ -203,7 +203,7 @@ void CScriptEdit::OnScriptSaveAs()
 
 	CFile cFile(strPathName, CFile::modeCreate | CFile::modeWrite);
 	EDITSTREAM es;
-	es.dwCookie = (DWORD)&cFile;
+	es.dwCookie = (DWORD_PTR)&cFile;
 	es.pfnCallback = _ScriptStreamOutCallback;
 	StreamOut(SF_TEXT, es);
 	SetModify(FALSE);

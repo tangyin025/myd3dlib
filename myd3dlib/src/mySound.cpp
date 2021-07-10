@@ -185,8 +185,8 @@ void SoundBuffer::CreateSoundBufferFromFileInMemory(
 		static LRESULT CALLBACK MMIOProc(
 			LPSTR lpmmioinfo,  
 			UINT uMsg,         
-			LONG lParam1,      
-			LONG lParam2)
+			LPARAM lParam1,
+			LPARAM lParam2)
 		{
 			MMIOINFO * pinfo = (MMIOINFO *)lpmmioinfo;
 			switch(uMsg)

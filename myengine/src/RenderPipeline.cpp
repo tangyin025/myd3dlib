@@ -183,7 +183,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	}
 
 	TCHAR BuffPath[MAX_PATH];
-	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%u"), seed);
+	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%zx"), seed);
 	std::ofstream ofs(BuffPath, std::ios::binary);
 	ofs.write((char*)buff->GetBufferPointer(), buff->GetBufferSize());
 	ofs.flush();
@@ -215,12 +215,15 @@ void RenderPipeline::LoadShaderCache(LPCTSTR szDir)
 		{
 			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				boost::basic_regex<TCHAR> reg(_T("ShaderCache_(\\d+)"));
+				boost::basic_regex<TCHAR> reg(_T("ShaderCache_([0-9a-fA-F]+)"));
 				boost::match_results<const TCHAR *> what;
 				if (boost::regex_search(ffd.cFileName, what, reg, boost::match_default) && what[1].matched)
 				{
 					std::basic_string<TCHAR> seed_str(what[1].first, what[1].second);
-					size_t seed = boost::lexical_cast<size_t>(seed_str);
+					std::basic_stringstream<TCHAR> ss;
+					ss << std::hex << seed_str;
+					size_t seed;
+					ss >> seed;
 					std::basic_string<TCHAR> path(szDir);
 					path.append(_T("\\")).append(ffd.cFileName);
 					my::EffectPtr shader(new my::Effect());
