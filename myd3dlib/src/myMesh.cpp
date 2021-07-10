@@ -849,7 +849,7 @@ void Mesh::ComputeTangentFrame(
 		const Vector3 & t = tan1[vertex_i];
 
 		// Gram-Schmidt orthogonalize
-		VertexElems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
+		VertexElems.SetTangent(pVertex, (t - n * n.dot(t)).normalize(), 0);
 	}
 }
 
