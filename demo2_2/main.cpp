@@ -177,6 +177,11 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
+		if (FAILED(hr = DxutApp::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hr;
+		}
+
 		if(FAILED(hr = D3DXCreateFont(
 			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial"), &m_font)))
 		{

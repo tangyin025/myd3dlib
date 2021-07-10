@@ -21,16 +21,18 @@ void PrintCallStack(std::ostringstream & ostr)
 
 	CONTEXT Context;
 	ZeroMemory( &Context, sizeof( CONTEXT ) );
-//	Context.ContextFlags = CONTEXT_CONTROL;
-//	__asm {
-//Label:
-//		mov [Context.Ebp], ebp;
-//		mov [Context.Esp], esp;
-//		mov eax, [Label];
-//		mov [Context.Eip], eax;
-//	}
-
+#ifndef _WIN64
+	Context.ContextFlags = CONTEXT_CONTROL;
+	__asm {
+	Label:
+		mov[Context.Ebp], ebp;
+		mov[Context.Esp], esp;
+		mov eax, [Label];
+		mov[Context.Eip], eax;
+	}
+#else
 	GetThreadContext(hThread, &Context);
+#endif
 
 	struct ReadMemoryRoutine {
 		static BOOL CALLBACK Proc(HANDLE hProcess, DWORD64 lpBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead) {
@@ -43,12 +45,21 @@ void PrintCallStack(std::ostringstream & ostr)
 
 	STACKFRAME64 StackFrame;
 	ZeroMemory(&StackFrame, sizeof(StackFrame));
-	StackFrame.AddrPC.Offset    = Context.Rip;
-	StackFrame.AddrPC.Mode      = AddrModeFlat;
+#ifndef _WIN64
+	StackFrame.AddrPC.Offset = Context.Eip;
+	StackFrame.AddrPC.Mode = AddrModeFlat;
+	StackFrame.AddrFrame.Offset = Context.Ebp;
+	StackFrame.AddrFrame.Mode = AddrModeFlat;
+	StackFrame.AddrStack.Offset = Context.Esp;
+	StackFrame.AddrStack.Mode = AddrModeFlat;
+#else
+	StackFrame.AddrPC.Offset = Context.Rip;
+	StackFrame.AddrPC.Mode = AddrModeFlat;
 	StackFrame.AddrFrame.Offset = Context.Rbp;
-	StackFrame.AddrFrame.Mode   = AddrModeFlat;
+	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Offset = Context.Rsp;
-	StackFrame.AddrStack.Mode   = AddrModeFlat;
+	StackFrame.AddrStack.Mode = AddrModeFlat;
+#endif
 	while (1) {
 		if (!StackWalk64(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &StackFrame, &Context, &ReadMemoryRoutine::Proc, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
 			break;

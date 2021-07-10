@@ -96,7 +96,7 @@
       <AdditionalOptions>/MAP /MACHINE:x86 /DEBUG</AdditionalOptions>
       <AdditionalDependencies>PhysX3CommonDEBUG_x86.lib;PhysX3ExtensionsDEBUG.lib;PxFoundationDEBUG_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)PhysX3CharacterKinematicDEBUG_x86.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win64;$(PHYSX_DIR)..\PxShared\lib\vc15win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(TargetDir)\$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -174,7 +174,7 @@
       <AdditionalOptions>/MAP /MACHINE:x86 /INCREMENTAL:NO</AdditionalOptions>
       <AdditionalDependencies>PhysX3Common_x86.lib;PhysX3Extensions.lib;PxFoundation_x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)PhysX3CharacterKinematic_x86.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win64;$(PHYSX_DIR)..\PxShared\lib\vc15win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ProgramDatabaseFile>$(TargetDir)\$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
