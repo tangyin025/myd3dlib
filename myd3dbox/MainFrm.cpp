@@ -221,7 +221,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_TOOLS_CLEARSHADER, &CMainFrame::OnViewClearshader)
-	ON_COMMAND(ID_TOOLS_BUILDNAVIGATION, &CMainFrame::OnToolsBuildnavigation)
 	ON_COMMAND(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnPaintTerrainHeightField)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_TERRAINHEIGHTFIELD, &CMainFrame::OnUpdatePaintTerrainHeightField)
 	ON_COMMAND(ID_PAINT_TERRAINCOLOR, &CMainFrame::OnPaintTerrainColor)
@@ -1426,16 +1425,6 @@ void CMainFrame::OnViewClearshader()
 	theApp.m_ShaderCache.clear();
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
-}
-
-void CMainFrame::OnToolsBuildnavigation()
-{
-	//// TODO: Add your command handler code here
-	CNavigationDlg dlg;
-	if (dlg.DoModal() != IDOK)
-	{
-		return;
-	}
 }
 
 void CMainFrame::OnPaintTerrainHeightField()
