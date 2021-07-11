@@ -21,14 +21,11 @@ namespace my
 				: x(_x), y(_y), z(_z), color(_color)
 			{
 			}
-
-			Vertex(const Vector3 & v, D3DCOLOR _color)
-				: x(v.x), y(v.y), z(v.z), color(_color)
-			{
-			}
 		};
 
-		std::vector<Vertex> m_vertices;
+		std::vector<Vertex> m_lineVerts;
+
+		std::vector<Vertex> m_triVerts;
 
 	public:
 		DrawHelper(void)
@@ -39,13 +36,17 @@ namespace my
 
 		void EndLine(IDirect3DDevice9 * pd3dDevice);
 
-		void PushVertex(float x, float y, float z, D3DCOLOR color);
+		void PushLineVertex(float x, float y, float z, D3DCOLOR color);
 
-		void PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color);
+		void PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color);
 
-		void PushWireAABB(const AABB & aabb, D3DCOLOR Color);
+		void PushLineAABB(const AABB & aabb, D3DCOLOR color);
 
-		void PushGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0), const Matrix4 & Transform = Matrix4::identity);
+		void PushLineGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0), const Matrix4 & Transform = Matrix4::identity);
+
+		void PushTriangleVertex(float x, float y, float z, D3DCOLOR color);
+
+		void PushTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, D3DCOLOR color);
 	};
 
 	class TimerEventArg : public EventArg

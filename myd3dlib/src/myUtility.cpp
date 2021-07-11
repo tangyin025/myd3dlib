@@ -9,31 +9,39 @@ using namespace my;
 
 void DrawHelper::BeginLine(void)
 {
-	m_vertices.clear();
+	m_lineVerts.clear();
+
+	m_triVerts.clear();
 }
 
 void DrawHelper::EndLine(IDirect3DDevice9 * pd3dDevice)
 {
-	if (!m_vertices.empty())
+	HRESULT hr;
+	if (!m_lineVerts.empty())
 	{
-		HRESULT hr;
 		V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vertices.size() / 2, &m_vertices[0], sizeof(m_vertices[0])));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_lineVerts.size() / 2, &m_lineVerts[0], sizeof(m_lineVerts[0])));
+	}
+
+	if (!m_triVerts.empty())
+	{
+		V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, m_triVerts.size() / 3, &m_triVerts[0], sizeof(m_triVerts[0])));
 	}
 }
 
-void DrawHelper::PushVertex(float x, float y, float z, D3DCOLOR color)
+void DrawHelper::PushLineVertex(float x, float y, float z, D3DCOLOR color)
 {
-	m_vertices.push_back(Vertex(x, y, z, color));
+	m_lineVerts.push_back(Vertex(x, y, z, color));
 }
 
-void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color)
+void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color)
 {
-	m_vertices.push_back(Vertex(v0, Color));
-	m_vertices.push_back(Vertex(v1, Color));
+	PushLineVertex(v0.x, v0.y, v0.z, color);
+	PushLineVertex(v1.x, v1.y, v1.z, color);
 }
 
-void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color)
+void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
 {
 	Vector3 v[8] = {
 		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z),
@@ -45,12 +53,12 @@ void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color)
 		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z),
 		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z),
 	};
-	PushLine(v[0], v[1], Color); PushLine(v[1], v[2], Color); PushLine(v[2], v[3], Color); PushLine(v[3], v[0], Color);
-	PushLine(v[4], v[5], Color); PushLine(v[5], v[6], Color); PushLine(v[6], v[7], Color); PushLine(v[7], v[4], Color);
-	PushLine(v[0], v[4], Color); PushLine(v[1], v[5], Color); PushLine(v[2], v[6], Color); PushLine(v[3], v[7], Color);
+	PushLine(v[0], v[1], color); PushLine(v[1], v[2], color); PushLine(v[2], v[3], color); PushLine(v[3], v[0], color);
+	PushLine(v[4], v[5], color); PushLine(v[5], v[6], color); PushLine(v[6], v[7], color); PushLine(v[7], v[4], color);
+	PushLine(v[0], v[4], color); PushLine(v[1], v[5], color); PushLine(v[2], v[6], color); PushLine(v[3], v[7], color);
 }
 
-void DrawHelper::PushGrid(float length, float linesEvery, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform)
+void DrawHelper::PushLineGrid(float length, float linesEvery, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform)
 {
 	PushLine(Vector3(-length, 0, 0).transformCoord(Transform), Vector3( length, 0, 0).transformCoord(Transform), AxisColor);
 	PushLine(Vector3(0, -length, 0).transformCoord(Transform), Vector3(0,  length, 0).transformCoord(Transform), AxisColor);
@@ -68,6 +76,18 @@ void DrawHelper::PushGrid(float length, float linesEvery, unsigned subLines, D3D
 	PushLine(Vector3(-length, -length, 0).transformCoord(Transform), Vector3( length, -length, 0).transformCoord(Transform), GridColor);
 	PushLine(Vector3( length, -length, 0).transformCoord(Transform), Vector3( length,  length, 0).transformCoord(Transform), GridColor);
 	PushLine(Vector3(-length, -length, 0).transformCoord(Transform), Vector3(-length,  length, 0).transformCoord(Transform), GridColor);
+}
+
+void DrawHelper::PushTriangleVertex(float x, float y, float z, D3DCOLOR color)
+{
+	m_triVerts.push_back(Vertex(x, y, z, color));
+}
+
+void DrawHelper::PushTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, D3DCOLOR color)
+{
+	PushTriangleVertex(v0.x, v0.y, v0.z, color);
+	PushTriangleVertex(v1.x, v1.y, v1.z, color);
+	PushTriangleVertex(v2.x, v2.y, v2.z, color);
 }
 
 void Timer::Step(float fElapsedTime, int MaxIter)

@@ -247,7 +247,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor)
 {
-	PushWireAABB(*actor->m_Node, D3DCOLOR_ARGB(255, 255, 255, 0));
+	PushLineAABB(*actor->m_Node, D3DCOLOR_ARGB(255, 255, 255, 0));
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
@@ -294,7 +294,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeTerrain:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			PushWireAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_OctAabb->transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
+			PushLineAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_OctAabb->transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
 		}
 		break;
 	}
@@ -874,7 +874,11 @@ void CChildView::vertex(const float* pos, unsigned int color)
 {
 	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
 	{
-		PushVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
 	}
 }
 
@@ -882,7 +886,11 @@ void CChildView::vertex(const float x, const float y, const float z, unsigned in
 {
 	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
 	{
-		PushVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
 	}
 }
 
@@ -890,7 +898,11 @@ void CChildView::vertex(const float* pos, unsigned int color, const float* uv)
 {
 	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
 	{
-		PushVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
 	}
 }
 
@@ -898,7 +910,11 @@ void CChildView::vertex(const float x, const float y, const float z, unsigned in
 {
 	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
 	{
-		PushVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
+	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+	{
+		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
 	}
 }
 
@@ -949,7 +965,7 @@ void CChildView::OnPaint()
 
 			if (m_bShowGrid)
 			{
-				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+				PushLineGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
 			}
 
 			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -981,7 +997,7 @@ void CChildView::OnPaint()
 				{
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
-					PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
+					PushLineAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
 					CMainFrame::SelActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 					{
@@ -992,19 +1008,18 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetVertexShader(NULL));
 				V(theApp.m_d3dDevice->SetPixelShader(NULL));
 				V(theApp.m_d3dDevice->SetTexture(0, NULL));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
 				DrawHelper::EndLine(theApp.m_d3dDevice);
-
-				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
-				//if (m_bShowNavigation && pFrame->m_navMesh && pFrame->m_navQuery)
-				//{
-				//	duDebugDrawNavMeshWithClosedList(this, *pFrame->m_navMesh, *pFrame->m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
-				//}
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
