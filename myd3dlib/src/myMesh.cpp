@@ -9,6 +9,15 @@
 
 using namespace my;
 
+D3DVertexElementSet::D3DVertexElementSet(D3DVERTEXELEMENT9* elems)
+{
+	D3DVERTEXELEMENT9* elem_iter = elems;
+	for (; elem_iter->Type != D3DDECLTYPE_UNUSED; elem_iter++)
+	{
+		InsertVertexElement(elem_iter->Offset, (D3DDECLTYPE)elem_iter->Type, (D3DDECLUSAGE)elem_iter->Usage, elem_iter->UsageIndex, (D3DDECLMETHOD)elem_iter->Method);
+	}
+}
+
 void D3DVertexElementSet::InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
 {
 	_ASSERT(Type != D3DDECLTYPE_UNUSED);

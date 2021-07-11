@@ -56,6 +56,8 @@ namespace my
 		{
 		}
 
+		D3DVertexElementSet(D3DVERTEXELEMENT9* elems);
+
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
