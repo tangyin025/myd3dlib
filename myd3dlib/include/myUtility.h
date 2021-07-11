@@ -17,6 +17,11 @@ namespace my
 
 			D3DCOLOR color;
 
+			Vertex(float _x, float _y, float _z, D3DCOLOR _color)
+				: x(_x), y(_y), z(_z), color(_color)
+			{
+			}
+
 			Vertex(const Vector3 & v, D3DCOLOR _color)
 				: x(v.x), y(v.y), z(v.z), color(_color)
 			{
@@ -33,6 +38,8 @@ namespace my
 		void BeginLine(void);
 
 		void EndLine(IDirect3DDevice9 * pd3dDevice);
+
+		void PushVertex(float x, float y, float z, D3DCOLOR color);
 
 		void PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color);
 

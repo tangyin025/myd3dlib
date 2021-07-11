@@ -16,6 +16,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <fstream>
+#include "NavigationSerialization.h"
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
 #include "Animation.h"
@@ -25,7 +26,6 @@
 #include <luabind/iterator_policy.hpp>
 #include "LuaExtension.inl"
 #include "myException.h"
-#include "NavigationSerialization.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -230,6 +230,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PAINT_EMITTERINSTANCE, &CMainFrame::OnUpdatePaintEmitterinstance)
 	ON_COMMAND(ID_COMPONENT_ANIMATOR, &CMainFrame::OnComponentAnimator)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_ANIMATOR, &CMainFrame::OnUpdateComponentAnimator)
+	ON_COMMAND(ID_COMPONENT_NAVIGATION, &CMainFrame::OnCreateNavigation)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_NAVIGATION, &CMainFrame::OnUpdateCreateNavigation)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1579,6 +1581,40 @@ void CMainFrame::OnComponentAnimator()
 }
 
 void CMainFrame::OnUpdateComponentAnimator(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selactors.empty());
+}
+
+
+void CMainFrame::OnCreateNavigation()
+{
+	// TODO: Add your command handler code here
+	SelActorList::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
+	{
+		return;
+	}
+
+	CNavigationDlg dlg;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName("editor_navigation").c_str()));
+	navi_cmp->m_navMesh.reset(dlg.m_navMesh);
+	navi_cmp->m_navQuery.reset(dlg.m_navQuery);
+	(*actor_iter)->AddComponent(navi_cmp);
+
+	UpdateSelBox();
+	UpdatePivotTransform();
+	my::EventArg arg;
+	m_EventAttributeChanged(&arg);
+}
+
+
+void CMainFrame::OnUpdateCreateNavigation(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selactors.empty());

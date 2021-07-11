@@ -44,6 +44,7 @@ public:
 		ComponentTypeTerrain,
 		ComponentTypeScript,
 		ComponentTypeAnimator,
+		ComponentTypeNavigation,
 	};
 
 	ComponentType m_Type;

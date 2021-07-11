@@ -349,6 +349,7 @@ BEGIN
         MENUITEM "Terrain...",                  ID_COMPONENT_TERRAIN
         MENUITEM "Controller",                  ID_COMPONENT_CONTROLLER
         MENUITEM "Animator...",                 ID_COMPONENT_ANIMATOR
+        MENUITEM "Navigation...",               ID_COMPONENT_NAVIGATION
     END
     POPUP "&Tools"
     BEGIN

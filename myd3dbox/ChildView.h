@@ -53,16 +53,7 @@ protected:
 	ScrInfoMap m_ScrInfo;
 	LARGE_INTEGER m_qwTime[2];
 	CPoint m_raychunkid;
-
-	struct Vertex
-	{
-		float x, y, z;
-		unsigned int color;
-		float u, v;
-	};
-	typedef std::vector<Vertex> VertexList;
-	VertexList m_verts;
-	duDebugDrawPrimitives m_prim;
+	DWORD m_duDebugDrawPrimitives;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);

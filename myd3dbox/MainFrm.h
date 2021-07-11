@@ -156,6 +156,8 @@ public:
 	afx_msg void OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI);
 	afx_msg void OnComponentAnimator();
 	afx_msg void OnUpdateComponentAnimator(CCmdUI* pCmdUI);
+	afx_msg void OnCreateNavigation();
+	afx_msg void OnUpdateCreateNavigation(CCmdUI* pCmdUI);
 };
 
 

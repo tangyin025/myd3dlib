@@ -311,7 +311,6 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
 		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
 		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
-		*ia >> boost::serialization::make_nvp("navMesh", scene->m_navMesh);
 	}
 }
 
@@ -1100,8 +1099,6 @@ void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 			RemoveEntity(actor_iter->get());
 		}
 		m_ActorList.clear();
-		m_navQuery.reset();
-		m_navMesh.reset();
 	}
 
 	m_SkyLightCam.m_Euler = scene->m_SkyLightCamEuler;
@@ -1117,17 +1114,10 @@ void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 	m_FogHeight = scene->m_FogHeight;
 	m_FogFalloff = scene->m_FogFalloff;
 	m_ActorList = scene->m_ActorList;
-	m_navMesh = scene->m_navMesh;
 
 	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
 		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
-	}
-
-	if (m_navMesh)
-	{
-		m_navQuery.reset(new dtNavMeshQuery());
-		m_navQuery->init(m_navMesh.get(), 2048);
 	}
 }

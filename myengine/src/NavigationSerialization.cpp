@@ -1,5 +1,7 @@
 #include "NavigationSerialization.h"
 #include "mySingleton.h"
+#include <DetourNavMesh.h>
+#include <boost/serialization/split_free.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -21,6 +23,8 @@ struct NavMeshTileHeader
 	dtTileRef tileRef;
 	int dataSize;
 };
+
+BOOST_SERIALIZATION_SPLIT_FREE(dtNavMesh);
 
 namespace boost {
 	namespace serialization {
@@ -94,3 +98,47 @@ namespace boost {
 
 	} // namespace serialization
 } // namespace boost
+
+Navigation::Navigation(void)
+{
+
+}
+
+Navigation::Navigation(const char* Name)
+	: Component(ComponentTypeNavigation, Name)
+{
+
+}
+
+Navigation::~Navigation(void)
+{
+
+}
+
+template<class Archive>
+void Navigation::save(Archive& ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
+}
+
+template<class Archive>
+void Navigation::load(Archive& ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
+
+	if (m_navMesh)
+	{
+		m_navQuery.reset(new dtNavMeshQuery);
+		m_navQuery->init(m_navMesh.get(), 1024);
+	}
+}
+
+void Navigation::CopyFrom(const Component& rhs)
+{
+
+}
+
+ComponentPtr Navigation::Clone(void) const
+{
+	return ComponentPtr();
+}

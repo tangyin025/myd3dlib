@@ -9,6 +9,7 @@
 #include "MainFrm.h"
 #include "Animation.h"
 #include "DetourDebugDraw.h"
+#include "NavigationSerialization.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -59,6 +60,7 @@ CChildView::CChildView()
 	, m_bCopyActors(FALSE)
 	, m_PaintEmitterCaptured(NULL)
 	, m_raychunkid(0, 0)
+	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
 	// TODO: add construction code here
 	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1f, 3000.0f);
@@ -176,15 +178,15 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
 		const my::Vector3 & TargetPos;
-		CMainFrame * pFrame;
+		CChildView * pView;
 		BOOL UpdateLod;
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame, BOOL _UpdateLod)
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CChildView * _pView, BOOL _UpdateLod)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
 			, TargetPos(_TargetPos)
-			, pFrame(_pFrame)
+			, pView(_pView)
 			, UpdateLod(_UpdateLod)
 		{
 		}
@@ -221,11 +223,24 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			if (actor->IsRequested())
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+
+				if (pView->m_bShowNavigation)
+				{
+					Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
+					for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+					{
+						if ((*cmp_iter)->m_Type == Component::ComponentTypeNavigation)
+						{
+							Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
+							duDebugDrawNavMeshWithClosedList(pView, *navi->m_navMesh, *navi->m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
+						}
+					}
+				}
 			}
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame,
+	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, this,
 		(pFrame->GetActiveView() == this && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
@@ -850,63 +865,46 @@ void CChildView::texture(bool state)
 
 void CChildView::begin(duDebugDrawPrimitives prim, float size)
 {
-	m_prim = prim;
-	m_verts.clear();
+	m_duDebugDrawPrimitives = prim;
 }
 
 #define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
 
 void CChildView::vertex(const float* pos, unsigned int color)
 {
-	Vertex v = { pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color), 0.0f, 0.0f };
-	m_verts.push_back(v);
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
 }
 
 void CChildView::vertex(const float x, const float y, const float z, unsigned int color)
 {
-	Vertex v = { x, y, z, DUCOLOR_TO_D3DCOLOR(color), 0.0f, 0.0f };
-	m_verts.push_back(v);
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
 }
 
 void CChildView::vertex(const float* pos, unsigned int color, const float* uv)
 {
-	Vertex v = { pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color), uv[0], uv[1] };
-	m_verts.push_back(v);
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+	}
 }
 
 void CChildView::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
 {
-	Vertex vert = { x, y, z, DUCOLOR_TO_D3DCOLOR(color), u, v };
-	m_verts.push_back(vert);
+	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+	{
+		PushVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+	}
 }
 
 void CChildView::end()
 {
-	if (m_verts.empty())
-	{
-		return;
-	}
-	V(theApp.m_d3dDevice->SetVertexShader(NULL));
-	V(theApp.m_d3dDevice->SetPixelShader(NULL));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
-	V(theApp.m_d3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-	if (m_prim == DU_DRAW_LINES)
-	{
-		ASSERT(m_verts.size() % 2 == 0);
-		V(theApp.m_d3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_verts.size() / 2, &m_verts[0], sizeof(Vertex)));
-	}
-	else if (m_prim == DU_DRAW_TRIS)
-	{
-		ASSERT(m_verts.size() % 3 == 0);
-		V(theApp.m_d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, m_verts.size() / 3, &m_verts[0], sizeof(Vertex)));
-	}
+	m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
 }
 
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
@@ -1002,7 +1000,7 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
 				DrawHelper::EndLine(theApp.m_d3dDevice);
 
-				//V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 				//if (m_bShowNavigation && pFrame->m_navMesh && pFrame->m_navQuery)
 				//{
 				//	duDebugDrawNavMeshWithClosedList(this, *pFrame->m_navMesh, *pFrame->m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);

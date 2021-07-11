@@ -22,6 +22,11 @@ void DrawHelper::EndLine(IDirect3DDevice9 * pd3dDevice)
 	}
 }
 
+void DrawHelper::PushVertex(float x, float y, float z, D3DCOLOR color)
+{
+	m_vertices.push_back(Vertex(x, y, z, color));
+}
+
 void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color)
 {
 	m_vertices.push_back(Vertex(v0, Color));
