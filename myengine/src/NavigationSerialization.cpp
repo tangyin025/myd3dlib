@@ -1,10 +1,22 @@
 #include "NavigationSerialization.h"
 #include "mySingleton.h"
 #include <DetourNavMesh.h>
+#include <DetourNavMeshQuery.h>
 #include <boost/serialization/split_free.hpp>
-#include <boost/archive/polymorphic_iarchive.hpp>
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/archive/polymorphic_text_iarchive.hpp>
+#include <boost/archive/polymorphic_text_oarchive.hpp>
+#include <boost/archive/polymorphic_binary_iarchive.hpp>
+#include <boost/archive/polymorphic_binary_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 
 static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
 
@@ -98,6 +110,8 @@ namespace boost {
 
 	} // namespace serialization
 } // namespace boost
+
+BOOST_CLASS_EXPORT(Navigation)
 
 Navigation::Navigation(void)
 {

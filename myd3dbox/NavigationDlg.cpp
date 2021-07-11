@@ -33,6 +33,7 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_dmesh(NULL)
 	, m_navMesh(NULL)
 	, m_navQuery(NULL)
+	, m_bindingBox(-100, 100)
 	, m_cellSize(0.3f)
 	, m_cellHeight(0.2f)
 	, m_agentHeight(2.0f)
@@ -51,9 +52,6 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_filterWalkableLowHeightSpans(TRUE)
 	, m_partitionType(SAMPLE_PARTITION_WATERSHED)
 {
-	memset(&m_cfg, 0, sizeof(m_cfg));
-	std::fill(&m_cfg.bmin[0], &m_cfg.bmin[3], -100.0f);
-	std::fill(&m_cfg.bmax[0], &m_cfg.bmax[3], 100.0f);
 }
 
 CNavigationDlg::~CNavigationDlg()
@@ -63,12 +61,12 @@ CNavigationDlg::~CNavigationDlg()
 void CNavigationDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT1, m_cfg.bmin[0]);
-	DDX_Text(pDX, IDC_EDIT2, m_cfg.bmin[1]);
-	DDX_Text(pDX, IDC_EDIT3, m_cfg.bmin[2]);
-	DDX_Text(pDX, IDC_EDIT4, m_cfg.bmax[0]);
-	DDX_Text(pDX, IDC_EDIT5, m_cfg.bmax[1]);
-	DDX_Text(pDX, IDC_EDIT6, m_cfg.bmax[2]);
+	DDX_Text(pDX, IDC_EDIT1, m_bindingBox.m_min.x);
+	DDX_Text(pDX, IDC_EDIT2, m_bindingBox.m_min.y);
+	DDX_Text(pDX, IDC_EDIT3, m_bindingBox.m_min.z);
+	DDX_Text(pDX, IDC_EDIT4, m_bindingBox.m_max.x);
+	DDX_Text(pDX, IDC_EDIT5, m_bindingBox.m_max.y);
+	DDX_Text(pDX, IDC_EDIT6, m_bindingBox.m_max.z);
 	DDX_Text(pDX, IDC_EDIT7, m_cellSize);
 	DDX_Text(pDX, IDC_EDIT8, m_cellHeight);
 	DDX_Text(pDX, IDC_EDIT9, m_agentHeight);
@@ -125,7 +123,7 @@ void CNavigationDlg::OnOK()
 	//
 
 	// Init build configuration from GUI
-	//memset(&m_cfg, 0, sizeof(m_cfg));
+	memset(&m_cfg, 0, sizeof(m_cfg));
 	m_cfg.cs = m_cellSize;
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
@@ -143,8 +141,8 @@ void CNavigationDlg::OnOK()
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by an user defined box, etc.
-	//rcVcopy(m_cfg.bmin, bmin);
-	//rcVcopy(m_cfg.bmax, bmax);
+	rcVcopy(m_cfg.bmin, &m_bindingBox.m_min.x);
+	rcVcopy(m_cfg.bmax, &m_bindingBox.m_max.x);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
@@ -199,8 +197,10 @@ void CNavigationDlg::OnOK()
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		CNavigationDlg * pDlg;
-		Callback(CNavigationDlg * _pDlg)
+		const float walkableThr;
+		Callback(CNavigationDlg * _pDlg, float _walkableThr)
 			: pDlg(_pDlg)
+			, walkableThr(_walkableThr)
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -211,7 +211,6 @@ void CNavigationDlg::OnOK()
 			{
 				return;
 			}
-			const float walkableThr = cosf(pDlg->m_cfg.walkableSlopeAngle / 180.0f*RC_PI);
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
@@ -282,37 +281,51 @@ void CNavigationDlg::OnOK()
 				}
 				case physx::PxGeometryType::eHEIGHTFIELD:
 				{
-					Terrain * terrain = dynamic_cast<Terrain*>(cmp_iter->get());
+					struct Callback : public my::OctNode::QueryCallback
+					{
+						CNavigationDlg* pDlg;
+						const float walkableThr;
+						TerrainStream tstr;
+						Callback(CNavigationDlg* _pDlg, float _walkableThr, Terrain * terrain)
+							: pDlg(_pDlg)
+							, walkableThr(_walkableThr)
+							, tstr(terrain)
+						{
+						}
+						virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+						{
+							TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
+							for (int m = 0; m < (int)tstr.m_terrain->m_ChunkSize; m++)
+							{
+								for (int n = 0; n < (int)tstr.m_terrain->m_ChunkSize; n++)
+								{
+									my::Vector3 v0 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 0, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 0).transformCoord(tstr.m_terrain->m_Actor->m_World);
+									my::Vector3 v1 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 1, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 0).transformCoord(tstr.m_terrain->m_Actor->m_World);
+									my::Vector3 v2 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 1, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 1).transformCoord(tstr.m_terrain->m_Actor->m_World);
+									my::Vector3 v3 = tstr.GetPos(chunk->m_Row * tstr.m_terrain->m_ChunkSize + m + 0, chunk->m_Col * tstr.m_terrain->m_ChunkSize + n + 1).transformCoord(tstr.m_terrain->m_Actor->m_World);
+									my::Vector3 Normal[2] = {
+										(v1 - v0).cross(v3 - v0).normalize(),
+										(v1 - v3).cross(v2 - v3).normalize()};
+									rcRasterizeTriangle(pDlg, &v0.x, &v1.x, &v3.x, Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
+									rcRasterizeTriangle(pDlg, &v3.x, &v1.x, &v2.x, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
+								}
+							}
+						}
+					};
+					Terrain* terrain = dynamic_cast<Terrain*>(cmp_iter->get());
 					if (!terrain)
 					{
 						pDlg->log(RC_LOG_ERROR, "buildNavigation: invalid terrain component");
 						continue;
 					}
-					TerrainStream tstr(terrain);
-					for (int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkSize; i++)
-					{
-						for (int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkSize; j++)
-						{
-							my::Vector3 v0 = tstr.GetPos(i + 0, j + 0).transformCoord(actor->m_World);
-							my::Vector3 v1 = tstr.GetPos(i + 1, j + 0).transformCoord(actor->m_World);
-							my::Vector3 v2 = tstr.GetPos(i + 1, j + 1).transformCoord(actor->m_World);
-							my::Vector3 v3 = tstr.GetPos(i + 0, j + 1).transformCoord(actor->m_World);
-							my::Vector3 Normal[2] = {
-								(v1 - v0).cross(v3 - v0).normalize(),
-								(v1 - v3).cross(v2 - v3).normalize()
-							};
-							rcRasterizeTriangle(pDlg, &v0.x, &v1.x, &v3.x, Normal[0].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
-							rcRasterizeTriangle(pDlg, &v3.x, &v1.x, &v2.x, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *pDlg->m_solid, pDlg->m_cfg.walkableClimb);
-						}
-					}
-					tstr.Release();
+					terrain->QueryEntity(pDlg->m_bindingBox.transform(terrain->m_Actor->m_World.inverse()), &Callback(pDlg, walkableThr, terrain));
 					break;
 				}
 				}
 			}
 		}
 	};
-	pFrame->QueryEntityAll(&Callback(this));
+	pFrame->QueryEntity(m_bindingBox, &Callback(this, cosf(m_cfg.walkableSlopeAngle / 180.0f * RC_PI)));
 
 	//if (!m_keepInterResults)
 	//{

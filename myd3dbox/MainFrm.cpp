@@ -1586,8 +1586,7 @@ void CMainFrame::OnCreateNavigation()
 	}
 
 	CNavigationDlg dlg;
-	rcVcopy(dlg.m_cfg.bmin, &(*actor_iter)->m_OctAabb->m_min.x);
-	rcVcopy(dlg.m_cfg.bmax, &(*actor_iter)->m_OctAabb->m_max.x);
+	dlg.m_bindingBox = *(*actor_iter)->m_OctAabb;
 	if (dlg.DoModal() != IDOK)
 	{
 		return;

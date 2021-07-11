@@ -80,6 +80,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	virtual void OnOK();
 public:
+	my::AABB m_bindingBox;
 	float m_cellSize;
 	float m_cellHeight;
 	float m_agentHeight;
