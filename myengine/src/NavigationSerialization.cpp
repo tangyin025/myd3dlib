@@ -118,12 +118,14 @@ Navigation::~Navigation(void)
 template<class Archive>
 void Navigation::save(Archive& ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
 }
 
 template<class Archive>
 void Navigation::load(Archive& ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
 
 	if (m_navMesh)

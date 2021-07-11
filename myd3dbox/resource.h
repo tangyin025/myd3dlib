@@ -95,7 +95,7 @@
 #define ID_PAINT_TERRAINCOLOR           32802
 #define ID_PAINT_EMITTERINSTANCE        32803
 #define ID_COMPONENT_ANIMATOR           32804
-#define ID_COMPONENT_NAVIGATION            32805
+#define ID_COMPONENT_NAVIGATION         32805
 
 // Next default values for new objects
 // 
