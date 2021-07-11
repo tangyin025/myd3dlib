@@ -700,8 +700,6 @@ void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
 	m_ActorList.clear();
-	m_navQuery.reset();
-	m_navMesh.reset();
 	m_selactors.clear();
 	LuaContext::Shutdown();
 	_ASSERT(theApp.m_NamedObjects.empty());
@@ -727,7 +725,6 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
-	*ia >> boost::serialization::make_nvp("navMesh", m_navMesh);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
@@ -735,11 +732,6 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 
-	if (m_navMesh)
-	{
-		m_navQuery.reset(new dtNavMeshQuery());
-		m_navQuery->init(m_navMesh.get(), 2048);
-	}
 	return TRUE;
 }
 
@@ -780,7 +772,6 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 
 	// ! save all actor in the scene, including lua context actor
 	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
-	*oa << boost::serialization::make_nvp("navMesh", m_navMesh);
 
 	return TRUE;
 }

@@ -45,8 +45,8 @@ public:
 	rcPolyMesh* m_pmesh;
 	rcConfig m_cfg;
 	rcPolyMeshDetail* m_dmesh;
-	//dtNavMesh* m_navMesh;
-	//dtNavMeshQuery* m_navQuery;
+	dtNavMesh* m_navMesh;
+	dtNavMeshQuery* m_navQuery;
 	//dtCrowd* m_crowd;
 
 protected:

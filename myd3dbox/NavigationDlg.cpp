@@ -24,6 +24,8 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_cset(NULL)
 	, m_pmesh(NULL)
 	, m_dmesh(NULL)
+	, m_navMesh(NULL)
+	, m_navQuery(NULL)
 {
 }
 
@@ -517,8 +519,8 @@ void CNavigationDlg::OnOK()
 			return;
 		}
 
-		pFrame->m_navMesh.reset(new dtNavMesh());
-		if (!pFrame->m_navMesh)
+		m_navMesh = dtAllocNavMesh();
+		if (!m_navMesh)
 		{
 			dtFree(navData);
 			this->log(RC_LOG_ERROR, "Could not create Detour navmesh");
@@ -527,7 +529,7 @@ void CNavigationDlg::OnOK()
 
 		dtStatus status;
 
-		status = pFrame->m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
+		status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
 		if (dtStatusFailed(status))
 		{
 			dtFree(navData);
@@ -535,8 +537,8 @@ void CNavigationDlg::OnOK()
 			return;
 		}
 
-		pFrame->m_navQuery.reset(new dtNavMeshQuery());
-		status = pFrame->m_navQuery->init(pFrame->m_navMesh.get(), 2048);
+		m_navQuery = dtAllocNavMeshQuery();
+		status = m_navQuery->init(m_navMesh, 2048);
 		if (dtStatusFailed(status))
 		{
 			this->log(RC_LOG_ERROR, "Could not init Detour navmesh query");
