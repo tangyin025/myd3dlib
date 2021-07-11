@@ -1281,6 +1281,10 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	ASSERT_VALID(pFrame);
 	if (m_PaintTerrainCaptured)
 	{
+		m_PaintTerrainCaptured->Release();
+		m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateAABB();
+		m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateOctNode();
+		pFrame->UpdateSelBox();
 		m_PaintTerrainCaptured.reset();
 		ReleaseCapture();
 		Invalidate();

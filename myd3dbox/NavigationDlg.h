@@ -79,4 +79,22 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 	virtual void OnOK();
+public:
+	float m_cellSize;
+	float m_cellHeight;
+	float m_agentHeight;
+	float m_agentRadius;
+	float m_agentMaxClimb;
+	float m_agentMaxSlope;
+	int m_regionMinSize;
+	int m_regionMergeSize;
+	float m_edgeMaxLen;
+	float m_edgeMaxError;
+	int m_vertsPerPoly;
+	float m_detailSampleDist;
+	float m_detailSampleMaxError;
+	BOOL m_filterLowHangingObstacles;
+	BOOL m_filterLedgeSpans;
+	BOOL m_filterWalkableLowHeightSpans;
+	int m_partitionType;
 };

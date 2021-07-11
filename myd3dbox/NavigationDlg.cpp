@@ -14,6 +14,13 @@
 
 // CNavigationDlg dialog
 
+enum SamplePartitionType
+{
+	SAMPLE_PARTITION_WATERSHED,
+	SAMPLE_PARTITION_MONOTONE,
+	SAMPLE_PARTITION_LAYERS,
+};
+
 IMPLEMENT_DYNAMIC(CNavigationDlg, CDialogEx)
 
 CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
@@ -26,7 +33,27 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_dmesh(NULL)
 	, m_navMesh(NULL)
 	, m_navQuery(NULL)
+	, m_cellSize(0.3f)
+	, m_cellHeight(0.2f)
+	, m_agentHeight(2.0f)
+	, m_agentRadius(0.6f)
+	, m_agentMaxClimb(0.9f)
+	, m_agentMaxSlope(45.0f)
+	, m_regionMinSize(8)
+	, m_regionMergeSize(20)
+	, m_edgeMaxLen(12.0f)
+	, m_edgeMaxError(1.3f)
+	, m_vertsPerPoly(6)
+	, m_detailSampleDist(6.0f)
+	, m_detailSampleMaxError(1.0f)
+	, m_filterLowHangingObstacles(TRUE)
+	, m_filterLedgeSpans(TRUE)
+	, m_filterWalkableLowHeightSpans(TRUE)
+	, m_partitionType(SAMPLE_PARTITION_WATERSHED)
 {
+	memset(&m_cfg, 0, sizeof(m_cfg));
+	std::fill(&m_cfg.bmin[0], &m_cfg.bmin[3], -100.0f);
+	std::fill(&m_cfg.bmax[0], &m_cfg.bmax[3], 100.0f);
 }
 
 CNavigationDlg::~CNavigationDlg()
@@ -36,6 +63,29 @@ CNavigationDlg::~CNavigationDlg()
 void CNavigationDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT1, m_cfg.bmin[0]);
+	DDX_Text(pDX, IDC_EDIT2, m_cfg.bmin[1]);
+	DDX_Text(pDX, IDC_EDIT3, m_cfg.bmin[2]);
+	DDX_Text(pDX, IDC_EDIT4, m_cfg.bmax[0]);
+	DDX_Text(pDX, IDC_EDIT5, m_cfg.bmax[1]);
+	DDX_Text(pDX, IDC_EDIT6, m_cfg.bmax[2]);
+	DDX_Text(pDX, IDC_EDIT7, m_cellSize);
+	DDX_Text(pDX, IDC_EDIT8, m_cellHeight);
+	DDX_Text(pDX, IDC_EDIT9, m_agentHeight);
+	DDX_Text(pDX, IDC_EDIT10, m_agentRadius);
+	DDX_Text(pDX, IDC_EDIT11, m_agentMaxClimb);
+	DDX_Text(pDX, IDC_EDIT12, m_agentMaxSlope);
+	DDX_Text(pDX, IDC_EDIT13, m_regionMinSize);
+	DDX_Text(pDX, IDC_EDIT14, m_regionMergeSize);
+	DDX_Text(pDX, IDC_EDIT15, m_edgeMaxLen);
+	DDX_Text(pDX, IDC_EDIT16, m_edgeMaxError);
+	DDX_Text(pDX, IDC_EDIT17, m_vertsPerPoly);
+	DDX_Text(pDX, IDC_EDIT18, m_detailSampleDist);
+	DDX_Text(pDX, IDC_EDIT19, m_detailSampleMaxError);
+	DDX_Check(pDX, IDC_CHECK1, m_filterLowHangingObstacles);
+	DDX_Check(pDX, IDC_CHECK2, m_filterLedgeSpans);
+	DDX_Check(pDX, IDC_CHECK3, m_filterWalkableLowHeightSpans);
+	DDX_Radio(pDX, IDC_RADIO1, m_partitionType);
 }
 
 
@@ -53,9 +103,18 @@ void CNavigationDlg::doLog(const rcLogCategory category, const char* msg, const 
 void CNavigationDlg::OnOK()
 {
 	// TODO: Add your specialized code here and/or call the base class
+	if (!UpdateData(TRUE))
+	{
+		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
+		// the UpdateData routine will set focus to correct item
+		return;
+	}
+
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 
+	//const float* bmin = m_geom->getNavMeshBoundsMin();
+	//const float* bmax = m_geom->getNavMeshBoundsMax();
 	//const float* verts = 0;// m_geom->getMesh()->getVerts();
 	//const int nverts = 100;// m_geom->getMesh()->getVertCount();
 	//const int* tris = 0;// m_geom->getMesh()->getTris();
@@ -66,26 +125,26 @@ void CNavigationDlg::OnOK()
 	//
 
 	// Init build configuration from GUI
-	memset(&m_cfg, 0, sizeof(m_cfg));
-	m_cfg.cs = 0.3f;// m_cellSize;
-	m_cfg.ch = 0.2f;// m_cellHeight;
-	m_cfg.walkableSlopeAngle = 45.0f;// m_agentMaxSlope;
-	m_cfg.walkableHeight = 10;// (int)ceilf(m_agentHeight / m_cfg.ch);
-	m_cfg.walkableClimb = 4;// (int)floorf(m_agentMaxClimb / m_cfg.ch);
-	m_cfg.walkableRadius = 2;// (int)ceilf(m_agentRadius / m_cfg.cs);
-	m_cfg.maxEdgeLen = 40;// (int)(m_edgeMaxLen / m_cellSize);
-	m_cfg.maxSimplificationError = 1.3f;// m_edgeMaxError;
-	m_cfg.minRegionArea = 64;// (int)rcSqr(m_regionMinSize);		// Note: area = size*size
-	m_cfg.mergeRegionArea = 400;// (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
-	m_cfg.maxVertsPerPoly = 6;// (int)m_vertsPerPoly;
-	m_cfg.detailSampleDist = 1.8f;// m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
-	m_cfg.detailSampleMaxError = 0.2f;// m_cellHeight * m_detailSampleMaxError;
+	//memset(&m_cfg, 0, sizeof(m_cfg));
+	m_cfg.cs = m_cellSize;
+	m_cfg.ch = m_cellHeight;
+	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
+	m_cfg.walkableHeight = (int)ceilf(m_agentHeight / m_cfg.ch);
+	m_cfg.walkableClimb = (int)floorf(m_agentMaxClimb / m_cfg.ch);
+	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
+	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
+	m_cfg.maxSimplificationError = m_edgeMaxError;
+	m_cfg.minRegionArea = (int)rcSqr(m_regionMinSize);		// Note: area = size*size
+	m_cfg.mergeRegionArea = (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
+	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
+	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
+	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 
-	//rcVcopy(m_cfg.bmin, &pFrame->m_min.x);
-	//rcVcopy(m_cfg.bmax, &pFrame->m_max.x);
-	my::AABB box(-100, 100);
-	rcVcopy(m_cfg.bmin, &box.m_min.x);
-	rcVcopy(m_cfg.bmax, &box.m_max.x);
+	// Set the area where the navigation will be build.
+	// Here the bounds of the input mesh are used, but the
+	// area could be specified by an user defined box, etc.
+	//rcVcopy(m_cfg.bmin, bmin);
+	//rcVcopy(m_cfg.bmax, bmax);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
@@ -261,10 +320,6 @@ void CNavigationDlg::OnOK()
 	//	m_triareas = 0;
 	//}
 
-	bool m_filterLowHangingObstacles = true;
-	bool m_filterLedgeSpans = true;
-	bool m_filterWalkableLowHeightSpans = true;
-
 	//
 	// Step 3. Filter walkables surfaces.
 	//
@@ -341,15 +396,6 @@ void CNavigationDlg::OnOK()
 	//   - can be slow and create a bit ugly tessellation (still better than monotone)
 	//     if you have large open areas with small obstacles (not a problem if you use tiles)
 	//   * good choice to use for tiled navmesh with medium and small sized tiles
-
-	enum SamplePartitionType
-	{
-		SAMPLE_PARTITION_WATERSHED,
-		SAMPLE_PARTITION_MONOTONE,
-		SAMPLE_PARTITION_LAYERS,
-	};
-
-	int m_partitionType = SAMPLE_PARTITION_WATERSHED;
 
 	if (m_partitionType == SAMPLE_PARTITION_WATERSHED)
 	{
