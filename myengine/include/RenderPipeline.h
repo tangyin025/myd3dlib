@@ -80,10 +80,6 @@ public:
 		ParticlePrimitiveColumnCount
 	};
 
-	static const UINT m_ParticleQuadNumVertices = 4;
-
-	static const UINT m_ParticleQuadPrimitiveCount = 2;
-
 	static const UINT m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][ParticlePrimitiveColumnCount];
 
 	my::VertexBuffer m_ParticleQuadVb;
