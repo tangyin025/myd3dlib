@@ -1075,7 +1075,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 	return Component::CalculateAABB();
 }
 
-void EmitterComponent::AddToPipelineImpl(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
+void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2)
 {
 	if (m_Material && (m_Material->m_PassMask & PassMask))
 	{
@@ -1155,7 +1155,7 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 
 	ParticleList::array_range array_two = m_ParticleList.array_two();
 
-	AddToPipelineImpl(pipeline, PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
+	AddParticlePairToPipeline(pipeline, PassMask, array_one.first, array_one.second, array_two.first, array_two.second);
 }
 
 template<class Archive>
@@ -1324,7 +1324,7 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 
-			cmp->AddToPipelineImpl(pipeline, PassMask, &cmp->m_ParticleList[chunk->m_Start], chunk->m_Count, NULL, 0);
+			cmp->AddParticlePairToPipeline(pipeline, PassMask, &cmp->m_ParticleList[chunk->m_Start], chunk->m_Count, NULL, 0);
 		}
 	};
 

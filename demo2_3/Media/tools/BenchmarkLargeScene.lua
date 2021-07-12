@@ -1,5 +1,5 @@
 acts={}
-local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),64,64,128,2,0.01)
+local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),128,128,64,2)
 terrain.ChunkPath="terrain/chunk_123456"
 local tstr=TerrainStream(terrain)
 tstr:GetPos(0,0)
@@ -9,7 +9,7 @@ terrain.Material.Shader="shader/mtl_BlinnPhong.fx"
 terrain.Material:ParseShaderParameters()
 local act=Actor(NamedObject.MakeUniqueName("editor_act"),Vector3(-4096,0,-4096),Quaternion.Identity(),Vector3(1,1,1),AABB(0,-4096,0,8192,4096,8192))
 act:AddComponent(terrain)
-act.LodFactor=1.5
+-- act.LodFactor=1.5
 act:UpdateWorld()
 theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
 table.insert(acts,act)

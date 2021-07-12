@@ -1793,7 +1793,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 								if (spawn_res.first)
 								{
 									emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
-										my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
+										my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
 								}
 							}
 						}
