@@ -155,7 +155,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 
 	CComPtr<ID3DXBuffer> err;
 	CComPtr<ID3DXEffectCompiler> compiler;
-	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
+	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), (UINT)source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
@@ -748,7 +748,7 @@ void RenderPipeline::RenderAllObjects(
 		{
 			DWORD AttribId = mesh_inst_iter->first.get<1>();
 			_ASSERT(AttribId < mesh_inst_iter->second.m_AttribTable.size());
-			const DWORD NumInstances = mesh_inst_iter->second.cmps.size();
+			const UINT NumInstances = (UINT)mesh_inst_iter->second.cmps.size();
 			_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
 			Matrix4* trans = (Matrix4*)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
@@ -808,16 +808,18 @@ void RenderPipeline::RenderAllObjects(
 					emitter_inst_iter->first.get<0>(),
 					emitter_inst_iter->first.get<1>(),
 					m_ParticleInstanceData.m_ptr,
-					emitter_inst_iter->first.get<2>(),
-					0, 0, emitter_inst_iter->first.get<3>(),
+					emitter_inst_iter->second.PrimitiveType,
+					0, emitter_inst_iter->first.get<2>(),
+					emitter_inst_iter->second.NumVertices,
 					m_ParticleVertStride,
-					0, emitter_inst_iter->first.get<4>(),
+					emitter_inst_iter->second.StartIndex,
+					emitter_inst_iter->second.PrimitiveCount,
 					NumTotalInstances,
 					m_ParticleInstanceStride,
-					emitter_inst_iter->first.get<6>(),
+					emitter_inst_iter->first.get<4>(),
 					emitter_inst_iter->second.cmps.front().get<0>(),
-					emitter_inst_iter->first.get<7>(),
-					emitter_inst_iter->first.get<8>());
+					emitter_inst_iter->first.get<5>(),
+					emitter_inst_iter->first.get<6>());
 				m_PassDrawCall[PassID]++;
 			}
 		}
@@ -1134,7 +1136,9 @@ void RenderPipeline::PushEmitter(
 	unsigned int PassID,
 	IDirect3DVertexBuffer9* pVB,
 	IDirect3DIndexBuffer9* pIB,
+	UINT MinVertexIndex,
 	UINT NumVertices,
+	UINT StartIndex,
 	UINT PrimitiveCount,
 	my::Emitter::Particle* particles,
 	unsigned int particle_num,
@@ -1143,16 +1147,30 @@ void RenderPipeline::PushEmitter(
 	Material* mtl,
 	LPARAM lparam)
 {
-#ifdef _DEBUG
-	HRESULT hr;
-	D3DVERTEXBUFFER_DESC desc;
-	V(pVB->GetDesc(&desc));
-	_ASSERT(desc.Size == NumVertices * m_ParticleVertStride);
-#endif
+//#ifdef _DEBUG
+//	HRESULT hr;
+//	D3DVERTEXBUFFER_DESC desc;
+//	V(pVB->GetDesc(&desc));
+//	_ASSERT(desc.Size == NumVertices * m_ParticleVertStride);
+//#endif
 
-	EmitterInstanceAtomKey key(pVB, pIB, D3DPT_TRIANGLELIST, NumVertices, PrimitiveCount,
+	EmitterInstanceAtomKey key(pVB, pIB, MinVertexIndex,
 		dynamic_cast<EmitterComponent *>(cmp)->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld ? &Matrix4::identity : &cmp->m_Actor->m_World, shader, mtl, lparam);
 	std::pair<EmitterInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_EmitterInstanceMap.insert(std::make_pair(key, EmitterInstanceAtom()));
-	_ASSERT(res.second || res.first->first.get<4>() == PrimitiveCount);
+	if (res.second)
+	{
+		res.first->second.PrimitiveType = D3DPT_TRIANGLELIST;
+		res.first->second.NumVertices = NumVertices;
+		res.first->second.StartIndex = StartIndex;
+		res.first->second.PrimitiveCount = PrimitiveCount;
+	}
+	else
+	{
+		_ASSERT(res.first->second.PrimitiveType == D3DPT_TRIANGLELIST);
+		_ASSERT(res.first->second.NumVertices == NumVertices);
+		_ASSERT(res.first->second.StartIndex == StartIndex);
+		_ASSERT(res.first->second.PrimitiveCount == PrimitiveCount);
+		_ASSERT(!res.first->second.cmps.empty());
+	}
 	res.first->second.cmps.push_back(boost::make_tuple(cmp, particles, particle_num));
 }

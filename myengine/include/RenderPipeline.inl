@@ -64,9 +64,10 @@ namespace boost
 		size_t seed = 0;
 		boost::hash_combine(seed, key.get<0>());
 		boost::hash_combine(seed, key.get<1>());
-		boost::hash_combine(seed, key.get<5>());
-		boost::hash_combine(seed, key.get<6>());
-		boost::hash_combine(seed, *key.get<7>());
+		boost::hash_combine(seed, key.get<2>());
+		boost::hash_combine(seed, key.get<3>());
+		boost::hash_combine(seed, key.get<4>());
+		boost::hash_combine(seed, *key.get<5>());
 		return seed;
 	}
 }

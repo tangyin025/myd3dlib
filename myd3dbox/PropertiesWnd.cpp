@@ -290,7 +290,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 		}
 		UpdateProperties(pActor->GetSubItem(PropId + i), i, actor->m_Cmps[i].get());
 	}
-	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
+	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + (int)actor->m_Cmps.size());
 	//m_wndPropList.AdjustLayout();
 }
 
@@ -433,7 +433,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMateri
 		}
 		UpdatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 	}
-	RemovePropertiesFrom(pParameterList, mtl->m_ParameterList.size());
+	RemovePropertiesFrom(pParameterList, (int)mtl->m_ParameterList.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param)
@@ -552,7 +552,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)g_EmitterFaceType[sphe_emit_cmp->m_EmitterFaceType]);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[sphe_emit_cmp->m_EmitterSpaceType]);
-	pParticleCapacity->SetValue((_variant_t)sphe_emit_cmp->m_ParticleList.capacity());
+	pParticleCapacity->SetValue((_variant_t)(unsigned int)sphe_emit_cmp->m_ParticleList.capacity());
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
 	pComponent->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
@@ -1127,7 +1127,7 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 		pEmitterSpaceType->AddOption(g_EmitterSpaceType[i], TRUE);
 	}
 	pComponent->AddSubItem(pEmitterSpaceType);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCapacity"), (_variant_t)sphe_emit_cmp->m_ParticleList.capacity(), NULL, PropertySphericalEmitterParticleCapacity);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCapacity"), (_variant_t)(unsigned int)sphe_emit_cmp->m_ParticleList.capacity(), NULL, PropertySphericalEmitterParticleCapacity);
 	pComponent->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pParticleLifeTime = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pParticleLifeTime);
@@ -1612,12 +1612,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	ASSERT(pProp);
-	DWORD PropertyId = pProp->GetData();
+	DWORD PropertyId = (DWORD)pProp->GetData();
 	switch (PropertyId)
 	{
 	case PropertyActorName:
 	{
-		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().pulVal;
 		std::string Name = ts2ms(pProp->GetValue().bstrVal);
 		if (theApp.GetNamedObject(Name.c_str()))
 		{
@@ -1651,7 +1651,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pAABB = pProp->GetParent();
 			break;
 		}
-		Actor * actor = (Actor *)pAABB->GetParent()->GetValue().ulVal;
+		Actor * actor = (Actor *)pAABB->GetParent()->GetValue().pulVal;
 		actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
 		actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
 		actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
@@ -1690,7 +1690,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pActor = pProp->GetParent()->GetParent();
 			break;
 		}
-		Actor * actor = (Actor *)pActor->GetValue().ulVal;
+		Actor * actor = (Actor *)pActor->GetValue().pulVal;
 		my::Vector3 pos(
 			pActor->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal,
 			pActor->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
@@ -1726,7 +1726,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyActorLodDist:
 	{
-		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().pulVal;
 		actor->m_LodDist = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1734,7 +1734,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyActorLodFactor:
 	{
-		Actor * actor = (Actor *)pProp->GetParent()->GetValue().ulVal;
+		Actor * actor = (Actor *)pProp->GetParent()->GetValue().pulVal;
 		actor->m_LodFactor = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1742,7 +1742,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyActorCullingDist:
 	{
-		Actor* actor = (Actor*)pProp->GetParent()->GetValue().ulVal;
+		Actor* actor = (Actor*)pProp->GetParent()->GetValue().pulVal;
 		actor->m_CullingDist = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -1750,7 +1750,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyActorRigidActorType:
 	{
-		Actor * actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Actor * actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
 		actor->ClearRigidActor();
@@ -1774,7 +1774,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyActorRigidActorKinematic:
 	{
-		Actor * actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Actor * actor = (Actor *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(actor->m_PxActor && actor->m_PxActor->is<physx::PxRigidBody>());
 		actor->m_PxActor->is<physx::PxRigidBody>()->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
@@ -1783,7 +1783,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyComponentName:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetValue().pulVal;
 		std::string Name = ts2ms(pProp->GetValue().bstrVal);
 		if (theApp.GetNamedObject(Name.c_str()))
 		{
@@ -1795,7 +1795,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyComponentLODMask:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_LodMaskDesc));
 		cmp->m_LodMask = (Component::LODMask)g_LodMaskDesc[i].mask;
@@ -1805,7 +1805,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeType:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
 		CShapeDlg dlg(pFrame, cmp, i);
@@ -1863,7 +1863,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pShape = pProp->GetParent()->GetParent();
 			break;
 		}
-		Component * cmp = (Component *)pShape->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pShape->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		physx::PxVec3 localPos(
 			pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal,
@@ -1880,7 +1880,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeSimulationFilterData:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		cmp->SetSimulationFilterWord0(pProp->GetValue().uintVal);
 		my::EventArg arg;
@@ -1889,7 +1889,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeQueryFilterData:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		cmp->SetQueryFilterWord0(pProp->GetValue().uintVal);
 		my::EventArg arg;
@@ -1898,7 +1898,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeSimulation:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
@@ -1907,7 +1907,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeSceneQuery:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
@@ -1916,7 +1916,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeTrigger:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
@@ -1925,7 +1925,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyShapeVisualization:
 	{
-		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		ASSERT(cmp->m_PxShape);
 		cmp->m_PxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
@@ -1954,7 +1954,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshColor:
 	case PropertyMeshAlpha:
 	{
-		MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetValue().ulVal);
+		MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetValue().pulVal);
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 3)))->GetColor();
 		mesh_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
@@ -1967,7 +1967,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMeshInstance:
 	{
-		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().pulVal);
 		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
 		// ! reset shader handles
 		mesh_cmp->handle_World = NULL;
@@ -1982,7 +1982,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialShader:
 	{
-		Material* material = (Material*)pProp->GetParent()->GetValue().ulVal;
+		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
 		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		if (path.empty())
 		{
@@ -2002,7 +2002,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialPassMask:
 	{
-		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_PassMaskDesc));
 		material->m_PassMask = g_PassMaskDesc[i].mask;
@@ -2012,7 +2012,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialCullMode:
 	{
-		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_CullModeDesc));
 		material->m_CullMode = i + 1;
@@ -2022,7 +2022,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialZEnable:
 	{
-		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
 		material->m_ZEnable = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2030,7 +2030,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialZWriteEnable:
 	{
-		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
 		material->m_ZWriteEnable = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2038,7 +2038,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialBlendMode:
 	{
-		Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+		Material * material = (Material *)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_BlendModeDesc));
 		material->m_BlendMode = i;
@@ -2048,7 +2048,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialParameterFloat:
 	{
-		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
 		boost::dynamic_pointer_cast<MaterialParameterFloat>(mtl->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
@@ -2080,7 +2080,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		ASSERT(pParameter);
-		Material * mtl = (Material *)pParameter->GetParent()->GetParent()->GetValue().ulVal;
+		Material * mtl = (Material *)pParameter->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pParameter);
 		switch (pParameter->GetData())
 		{
@@ -2106,7 +2106,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyMaterialParameterTexture:
 	{
-		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
 		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
@@ -2126,7 +2126,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyClothColor:
 	case PropertyClothAlpha:
 	{
-		ClothComponent* cloth_cmp = dynamic_cast<ClothComponent*>((Component*)pProp->GetParent()->GetValue().ulVal);
+		ClothComponent* cloth_cmp = dynamic_cast<ClothComponent*>((Component*)pProp->GetParent()->GetValue().pulVal);
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 0)))->GetColor();
 		cloth_cmp->m_MeshColor.x = GetRValue(color) / 255.0f;
@@ -2139,7 +2139,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyClothSceneCollision:
 	{
-		ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
+		ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().pulVal;
 		cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal != 0);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2147,7 +2147,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyEmitterFaceType:
 	{
-		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
+		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterFaceType));
 		emit_cmp->m_EmitterFaceType = (EmitterComponent::FaceType)i;
@@ -2159,7 +2159,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyEmitterSpaceType:
 	{
-		EmitterComponent* emit_cmp = (EmitterComponent*)pProp->GetParent()->GetValue().ulVal;
+		EmitterComponent* emit_cmp = (EmitterComponent*)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterSpaceType));
 		EmitterComponent::SpaceType old_space_type = emit_cmp->m_EmitterSpaceType;
@@ -2183,7 +2183,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyEmitterParticleCount:
 	{
-		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		Actor * actor = emit_cmp->m_Actor;
 		unsigned int new_size = pProp->GetValue().uintVal;
 		if (new_size < emit_cmp->m_ParticleList.size())
@@ -2242,8 +2242,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pParticle = pProp->GetParent();
 			break;
 		}
-		int NodeId = pParticle->GetData();
-		EmitterComponent * emit_cmp = (EmitterComponent *)pParticle->GetParent()->GetParent()->GetValue().ulVal;
+		int NodeId = (int)pParticle->GetData();
+		EmitterComponent * emit_cmp = (EmitterComponent *)pParticle->GetParent()->GetParent()->GetValue().pulVal;
 		my::Emitter::Particle & particle = emit_cmp->m_ParticleList[NodeId];
 		particle.m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
 		particle.m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
@@ -2273,7 +2273,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyStaticEmitterChunkStep:
 	{
-		StaticEmitterComponent * emit_cmp = (StaticEmitterComponent*)pProp->GetParent()->GetValue().ulVal;
+		StaticEmitterComponent * emit_cmp = (StaticEmitterComponent*)pProp->GetParent()->GetValue().pulVal;
 		emit_cmp->m_ChunkStep = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
 		if (!emit_cmp->m_Chunks.empty())
 		{
@@ -2285,7 +2285,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertySphericalEmitterParticleCapacity:
 	{
-		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().ulVal;
+		EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetValue().pulVal;
 		unsigned int new_size = pProp->GetValue().uintVal;
 		emit_cmp->m_ParticleList.set_capacity(new_size);
 		UpdatePropertiesSphericalEmitter(pProp->GetParent(), dynamic_cast<SphericalEmitterComponent *>(emit_cmp));
@@ -2314,7 +2314,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pComponent = pProp->GetParent();
 			break;
 		}
-		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
+		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().pulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 4)->GetValue().fltVal;
@@ -2346,7 +2346,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pSpline = pProp->GetParent()->GetParent();
 			break;
 		}
-		my::Spline * spline = (my::Spline *)pSpline->GetValue().ulVal;
+		my::Spline * spline = (my::Spline *)pSpline->GetValue().pulVal;
 		switch (PropertyId)
 		{
 		case PropertySplineNodeCount:
@@ -2359,7 +2359,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case PropertySplineNodeK:
 		{
 			CMFCPropertyGridProperty * pNode = pProp->GetParent();
-			int NodeId = pNode->GetData();
+			int NodeId = (int)pNode->GetData();
 			_ASSERT(NodeId < (int)spline->size());
 			my::SplineNode & node = (*spline)[NodeId];
 			node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
@@ -2376,7 +2376,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainHeightMap:
 	{
 		CMFCPropertyGridProperty * pComponent = pProp->GetParent();
-		Terrain * terrain = (Terrain *)pComponent->GetValue().ulVal;
+		Terrain * terrain = (Terrain *)pComponent->GetValue().pulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		ImportHeightDlg dlg;
 		dlg.m_AssetPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
@@ -2434,7 +2434,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyTerrainSplatMap:
 	{
-		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().pulVal;
 		CString strPath = pProp->GetValue().bstrVal;
 		if (!strPath.IsEmpty())
 		{
@@ -2466,7 +2466,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainChunkMaterial:
 	{
 		CMFCPropertyGridProperty* pComponent = pProp->GetParent();
-		Terrain* terrain = (Terrain*)pComponent->GetValue().ulVal;
+		Terrain* terrain = (Terrain*)pComponent->GetValue().pulVal;
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
 		if (pProp->GetValue().boolVal)
@@ -2542,7 +2542,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyPaintDensity:
 	{
-		pFrame->m_PaintDensity = pProp->GetValue().fltVal;
+		pFrame->m_PaintDensity = pProp->GetValue().intVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -2555,7 +2555,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		CMFCPropertyGridProperty * pAnimatioNode = pProp->GetParent();
 		ASSERT(pAnimatioNode->GetData() == PropertyAnimationNode);
-		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pAnimatioNode->GetValue().ulVal);
+		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pAnimatioNode->GetValue().pulVal);
 		ASSERT(node);
 		node->m_Name = ts2ms(pProp->GetValue().bstrVal);
 		my::EventArg arg;

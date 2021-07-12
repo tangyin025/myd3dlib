@@ -364,15 +364,17 @@ public:
 
 	struct EmitterInstanceAtom
 	{
-		std::vector<boost::tuple<Component *, my::Emitter::Particle *, unsigned int> > cmps;
+		D3DPRIMITIVETYPE PrimitiveType;
+		UINT NumVertices;
+		UINT StartIndex;
+		UINT PrimitiveCount;
+		std::vector<boost::tuple<Component*, my::Emitter::Particle*, unsigned int> > cmps;
 	};
 
 	class EmitterInstanceAtomKey : public boost::tuple<
 		IDirect3DVertexBuffer9 *,
 		IDirect3DIndexBuffer9 *,
-		D3DPRIMITIVETYPE,
-		DWORD,
-		DWORD,
+		UINT,
 		const my::Matrix4 *,
 		my::Effect *,
 		Material *,
@@ -382,14 +384,12 @@ public:
 		EmitterInstanceAtomKey(
 			IDirect3DVertexBuffer9 * pVB,
 			IDirect3DIndexBuffer9 * pIB,
-			D3DPRIMITIVETYPE PrimitiveType,
-			DWORD NumVertices,
-			DWORD PrimitiveCount,
+			UINT MinVertexIndex,
 			const my::Matrix4 * world,
 			my::Effect * shader,
-			Material * mtl,
+			Material* mtl,
 			LPARAM lparam)
-			: tuple(pVB, pIB, PrimitiveType, NumVertices, PrimitiveCount, world, shader, mtl, lparam)
+			: tuple(pVB, pIB, MinVertexIndex, world, shader, mtl, lparam)
 		{
 		}
 
@@ -397,9 +397,10 @@ public:
 		{
 			return get<0>() == rhs.get<0>()
 				&& get<1>() == rhs.get<1>()
-				&& get<5>() == rhs.get<5>()
-				&& get<6>() == rhs.get<6>()
-				&& *get<7>() == *rhs.get<7>();
+				&& get<2>() == rhs.get<2>()
+				&& get<3>() == rhs.get<3>()
+				&& get<4>() == rhs.get<4>()
+				&& *get<5>() == *rhs.get<5>();
 		}
 	};
 
@@ -589,7 +590,9 @@ public:
 		unsigned int PassID,
 		IDirect3DVertexBuffer9* pVB,
 		IDirect3DIndexBuffer9* pIB,
+		UINT MinVertexIndex,
 		UINT NumVertices,
+		UINT StartIndex,
 		UINT PrimitiveCount,
 		my::Emitter::Particle* particles,
 		unsigned int particle_num,
