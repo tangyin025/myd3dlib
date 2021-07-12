@@ -507,7 +507,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pChunkStep->SetValue((_variant_t)emit_cmp->m_ChunkStep);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 3), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 4);
-	pParticleList->GetSubItem(0)->SetValue((_variant_t)emit_cmp->m_ParticleList.size());
+	pParticleList->GetSubItem(0)->SetValue((_variant_t)(unsigned int)emit_cmp->m_ParticleList.size());
 	int NumParticles = my::Min(theApp.max_editable_particle_count, (int)emit_cmp->m_ParticleList.size());
 	for (int i = 0; i < NumParticles; i++)
 	{
@@ -575,7 +575,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
 {
 	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
-	pSpline->GetSubItem(0)->SetValue((_variant_t)spline->size());
+	pSpline->GetSubItem(0)->SetValue((_variant_t)(unsigned int)spline->size());
 	unsigned int i = 0;
 	for (; i < spline->size(); i++)
 	{
@@ -1058,7 +1058,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)emit_cmp->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)(unsigned int)emit_cmp->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
 	pParticleList->AddSubItem(pProp);
 	int NumParticles = my::Min(theApp.max_editable_particle_count, (int)emit_cmp->m_ParticleList.size());
 	for (int i = 0; i < NumParticles; i++)
@@ -1162,7 +1162,7 @@ void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentPr
 	CMFCPropertyGridProperty * pSpline = new CSimpleProp(lpszName, PropertyId, TRUE);
 	pParentProp->AddSubItem(pSpline);
 	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)spline->size(), NULL, PropertySplineNodeCount);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)(unsigned int)spline->size(), NULL, PropertySplineNodeCount);
 	pSpline->AddSubItem(pProp);
 	for (unsigned int i = 0; i < spline->size(); i++)
 	{
@@ -2359,9 +2359,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case PropertySplineNodeK:
 		{
 			CMFCPropertyGridProperty * pNode = pProp->GetParent();
-			int id = pNode->GetData();
-			_ASSERT(id < (int)spline->size());
-			my::SplineNode & node = (*spline)[id];
+			int NodeId = pNode->GetData();
+			_ASSERT(NodeId < (int)spline->size());
+			my::SplineNode & node = (*spline)[NodeId];
 			node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
 			node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
 			node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
