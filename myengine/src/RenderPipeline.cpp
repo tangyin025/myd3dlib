@@ -13,6 +13,11 @@
 
 using namespace my;
 
+const UINT RenderPipeline::m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][4] = {
+	{0,3,0,1},
+	{3,4,3,2},
+};
+
 RenderPipeline::RenderPipeline(void)
 	: SHADOW_MAP_SIZE(1024)
 	, SHADOW_EPSILON(0.001f)
@@ -391,27 +396,40 @@ HRESULT RenderPipeline::OnResetDevice(
 	V(pd3dDevice->CreateVertexDeclaration(&m_ParticleIEList[0], &m_ParticleIEDecl));
 		
 	_ASSERT(!m_ParticleQuadVb.m_ptr);
-	m_ParticleQuadVb.CreateVertexBuffer(m_ParticleVertStride * m_ParticleQuadNumVertices, 0, 0, D3DPOOL_MANAGED);
-	unsigned char * pVertices = (unsigned char *)m_ParticleQuadVb.Lock(0, m_ParticleVertStride * m_ParticleQuadNumVertices);
-	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 0, Vector3(0, 0.5f, 0.5f));
-	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 0, Vector2(0, 0));
-	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 1, Vector3(0, 0.5f, -0.5f));
-	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 1, Vector2(1, 0));
-	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 2, Vector3(0, -0.5f, -0.5f));
-	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 2, Vector2(1, 1));
-	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 3, Vector3(0, -0.5f, 0.5f));
-	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 3, Vector2(0, 1));
+	m_ParticleQuadVb.CreateVertexBuffer((m_ParticlePrimitiveInfo[ParticlePrimitiveTri][ParticlePrimitiveNumVertices]
+		+ m_ParticlePrimitiveInfo[ParticlePrimitiveQuad][ParticlePrimitiveNumVertices]) * m_ParticleVertStride, 0, 0, D3DPOOL_DEFAULT);
+	unsigned char * pVertices = (unsigned char *)m_ParticleQuadVb.Lock(0, 0, 0);
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 0, Vector3(0.0f, 1.0f, 0.0f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 0, Vector2(0.5f, 0.0f));
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 1, Vector3(0.0f, 0.0f, 0.5f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 1, Vector2(0.0f, 1.0f));
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 2, Vector3(0.0f, 0.0f, -0.5f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 2, Vector2(1.0f, 1.0f));
+
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 3, Vector3(0.0f, 0.5f, 0.5f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 3, Vector2(0.0f, 0.0f));
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 4, Vector3(0.0f, -0.5f, 0.5f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 4, Vector2(0.0f, 1.0f));
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 5, Vector3(0.0f, 0.5f, -0.5f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 5, Vector2(1.0f, 0.0f));
+	m_ParticleVertElems.SetPosition(pVertices + m_ParticleVertStride * 6, Vector3(0.0f, -0.5f, -0.5f));
+	m_ParticleVertElems.SetTexcoord(pVertices + m_ParticleVertStride * 6, Vector2(1.0f, 1.0f));
 	m_ParticleQuadVb.Unlock();
 
 	_ASSERT(!m_ParticleQuadIb.m_ptr);
-	m_ParticleQuadIb.CreateIndexBuffer(sizeof(WORD) * m_ParticleQuadPrimitiveCount * 3, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
-	WORD * pIndices = (WORD *)m_ParticleQuadIb.Lock(0, sizeof(WORD) * m_ParticleQuadPrimitiveCount * 3);
+	m_ParticleQuadIb.CreateIndexBuffer((m_ParticlePrimitiveInfo[ParticlePrimitiveTri][ParticlePrimitivePrimitiveCount]
+		+ m_ParticlePrimitiveInfo[ParticlePrimitiveTri][ParticlePrimitivePrimitiveCount]) * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
+	WORD * pIndices = (WORD *)m_ParticleQuadIb.Lock(0, 0, 0);
 	pIndices[0] = 0;
-	pIndices[1] = 3;
-	pIndices[2] = 1;
-	pIndices[3] = 1;
-	pIndices[4] = 3;
-	pIndices[5] = 2;
+	pIndices[1] = 1;
+	pIndices[2] = 2;
+
+	pIndices[3] = 3 + 0;
+	pIndices[4] = 3 + 1;
+	pIndices[5] = 3 + 2;
+	pIndices[6] = 3 + 2;
+	pIndices[7] = 3 + 1;
+	pIndices[8] = 3 + 3;
 	m_ParticleQuadIb.Unlock();
 
 	_ASSERT(!m_ParticleInstanceData.m_ptr);

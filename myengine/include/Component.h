@@ -403,6 +403,14 @@ public:
 
 	VelocityType m_EmitterVelType;
 
+	enum PrimitiveType
+	{
+		PrimitiveTypeTri = 0,
+		PrimitiveTypeQuad = 1,
+	};
+
+	PrimitiveType m_EmitterPrimitiveType;
+
 	D3DXHANDLE handle_World;
 
 protected:
@@ -411,17 +419,19 @@ protected:
 		, m_EmitterFaceType(FaceTypeX)
 		, m_EmitterSpaceType(SpaceTypeWorld)
 		, m_EmitterVelType(VelocityTypeNone)
+		, m_EmitterPrimitiveType(PrimitiveTypeQuad)
 		, handle_World(NULL)
 	{
 	}
 
 public:
-	EmitterComponent(ComponentType Type, const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType)
+	EmitterComponent(ComponentType Type, const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: Component(Type, Name)
 		, Emitter(Capacity)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterSpaceType(_SpaceTypeWorld)
 		, m_EmitterVelType(_VelocityType)
+		, m_EmitterPrimitiveType(_PrimitiveType)
 		, handle_World(NULL)
 	{
 	}
@@ -435,6 +445,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterFaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterSpaceType);
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterVelType);
+		ar & BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	}
 
 	void CopyFrom(const EmitterComponent & rhs);
@@ -506,8 +517,8 @@ protected:
 	}
 
 public:
-	StaticEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld)
-		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, VelocityTypeNone)
+	StaticEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, PrimitiveType _PrimitiveType)
+		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, VelocityTypeNone, _PrimitiveType)
 		, OctRoot(-1.0f, 1.0f)
 		, m_ChunkStep(1.0f)
 	{
@@ -591,8 +602,8 @@ protected:
 	}
 
 public:
-	SphericalEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, VelocityTypeVel)
+	SphericalEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, PrimitiveType _PrimitiveType)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, VelocityTypeVel, _PrimitiveType)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)

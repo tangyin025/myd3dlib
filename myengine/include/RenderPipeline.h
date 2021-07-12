@@ -64,9 +64,27 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_ParticleIEDecl;
 
+	enum ParticlePrimitiveType
+	{
+		ParticlePrimitiveTri,
+		ParticlePrimitiveQuad,
+		ParticlePrimitiveTypeCount
+	};
+
+	enum ParticlePrimitiveColumn
+	{
+		ParticlePrimitiveMinVertexIndex,
+		ParticlePrimitiveNumVertices,
+		ParticlePrimitiveStartIndex,
+		ParticlePrimitivePrimitiveCount,
+		ParticlePrimitiveColumnCount
+	};
+
 	static const UINT m_ParticleQuadNumVertices = 4;
 
 	static const UINT m_ParticleQuadPrimitiveCount = 2;
+
+	static const UINT m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][ParticlePrimitiveColumnCount];
 
 	my::VertexBuffer m_ParticleQuadVb;
 

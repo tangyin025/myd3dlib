@@ -147,6 +147,7 @@ public:
 		PropertyStaticEmitter,
 		PropertyEmitterFaceType,
 		PropertyEmitterSpaceType,
+		PropertyEmitterPrimitiveType,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
 		PropertyEmitterParticlePosition,

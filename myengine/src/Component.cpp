@@ -1127,13 +1127,21 @@ void EmitterComponent::AddToPipelineImpl(RenderPipeline* pipeline, unsigned int 
 					if (particle_num1 > 0)
 					{
 						pipeline->PushEmitter(PassID, pipeline->m_ParticleQuadVb.m_ptr, pipeline->m_ParticleQuadIb.m_ptr,
-							0, pipeline->m_ParticleQuadNumVertices, 0, pipeline->m_ParticleQuadPrimitiveCount, particles1, particle_num1, shader, this, m_Material.get(), 0);
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
+							particles1, particle_num1, shader, this, m_Material.get(), 0);
 					}
 
 					if (particle_num2 > 0)
 					{
 						pipeline->PushEmitter(PassID, pipeline->m_ParticleQuadVb.m_ptr, pipeline->m_ParticleQuadIb.m_ptr,
-							0, pipeline->m_ParticleQuadNumVertices, 0, pipeline->m_ParticleQuadPrimitiveCount, particles2, particle_num2, shader, this, m_Material.get(), 0);
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
+							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount],
+							particles2, particle_num2, shader, this, m_Material.get(), 0);
 					}
 				}
 			}
