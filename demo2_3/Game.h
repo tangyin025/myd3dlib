@@ -28,7 +28,6 @@ public:
 	float m_FogFalloff;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
-	boost::shared_ptr<dtNavMesh> m_navMesh;
 
 public:
 	SceneContext(void)
