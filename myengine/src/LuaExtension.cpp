@@ -1277,6 +1277,12 @@ void LuaContext::Init(void)
 				value("SpaceTypeLocal", EmitterComponent::SpaceTypeLocal)
 			]
 			.def_readwrite("EmitterSpaceType", &EmitterComponent::m_EmitterSpaceType)
+			.enum_("VelocityType")
+			[
+				value("VelocityTypeNone", EmitterComponent::VelocityTypeNone),
+				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel)
+			]
+			.def_readwrite("EmitterVelType", &EmitterComponent::m_EmitterVelType)
 			.enum_("PrimitiveType")
 			[
 				value("PrimitiveTypeTri", EmitterComponent::PrimitiveTypeTri),
@@ -1286,12 +1292,12 @@ void LuaContext::Init(void)
 			.def("Spawn", &EmitterComponent::Spawn)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
-			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::PrimitiveType>())
+			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readwrite("ChunkStep", &StaticEmitterComponent::m_ChunkStep)
 			.def("BuildChunks", &StaticEmitterComponent::BuildChunks)
 
 		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
-			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::PrimitiveType>())
+			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readwrite("ParticleLifeTime", &SphericalEmitterComponent::m_ParticleLifeTime)
 			.def_readwrite("SpawnInterval", &SphericalEmitterComponent::m_SpawnInterval)
 			.def_readwrite("HalfSpawnArea", &SphericalEmitterComponent::m_HalfSpawnArea)

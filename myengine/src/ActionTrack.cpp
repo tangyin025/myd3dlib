@@ -227,8 +227,8 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
-	m_WorldEmitterCmp.reset(new EmitterComponent(Component::ComponentTypeEmitter,
-		NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(), m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeWorld, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+	m_WorldEmitterCmp.reset(new SphericalEmitterComponent(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
+		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeWorld, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
 	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
 	//if (!m_Actor->m_Node)
