@@ -16,6 +16,8 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <boost/program_options.hpp>
 
 #ifdef _DEBUG
@@ -310,6 +312,21 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("FogStartDistance", scene->m_FogStartDistance);
 		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
 		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
+
+		ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
+		_ASSERT(pxar);
+		unsigned int StreamBuffSize;
+		*ia >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
+		scene->m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+		*ia >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(scene->m_SerializeBuff.get(), StreamBuffSize));
+		pxar->m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(scene->m_SerializeBuff.get(), *pxar->m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
+		const unsigned int numObjs = pxar->m_Collection->getNbObjects();
+		for (unsigned int i = 0; i < numObjs; i++)
+		{
+			boost::shared_ptr<physx::PxBase> obj(&pxar->m_Collection->getObject(i), PhysxDeleter<physx::PxBase>());
+			scene->m_CollectionObjs.insert(std::make_pair(pxar->m_Collection->getId(*obj), obj));
+		}
+
 		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
 	}
 }
@@ -1099,6 +1116,8 @@ void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 			RemoveEntity(actor_iter->get());
 		}
 		m_ActorList.clear();
+		m_CollectionObjs.clear(); // ! take care for script objs that have PxTriangleMesh, PxHeightField
+		m_SerializeBuff.reset();
 	}
 
 	m_SkyLightCam.m_Euler = scene->m_SkyLightCamEuler;
@@ -1113,6 +1132,8 @@ void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
 	m_FogStartDistance = scene->m_FogStartDistance;
 	m_FogHeight = scene->m_FogHeight;
 	m_FogFalloff = scene->m_FogFalloff;
+	m_CollectionObjs = scene->m_CollectionObjs;
+	m_SerializeBuff = scene->m_SerializeBuff;
 	m_ActorList = scene->m_ActorList;
 
 	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();

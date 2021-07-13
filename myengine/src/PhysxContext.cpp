@@ -77,6 +77,10 @@ bool PhysxSdk::Init(void)
 
 void PhysxSdk::Shutdown(void)
 {
+	m_CollectionObjs.clear();
+
+	m_SerializeBuff.reset();
+
 	if(m_sdk)
 	{
 		PxCloseExtensions();

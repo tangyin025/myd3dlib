@@ -188,8 +188,6 @@ public:
 
 	bool m_bInstance;
 
-	boost::shared_ptr<physx::PxBase> m_PxMesh;
-
 	D3DXHANDLE handle_Time;
 
 	D3DXHANDLE handle_World;

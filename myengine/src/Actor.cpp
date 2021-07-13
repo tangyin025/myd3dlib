@@ -82,30 +82,30 @@ void Actor::save(Archive & ar, const unsigned int version) const
 			{
 				collection->add(*m_Cmps[i]->m_PxMaterial, physx::PxConcreteType::eMATERIAL << 24 | i);
 				collection->add(*m_Cmps[i]->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
-				if (m_Cmps[i]->m_Type == Component::ComponentTypeMesh)
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_Cmps[i].get());
-					if (mesh_cmp->m_PxMesh)
-					{
-						_ASSERT(mesh_cmp->m_PxMesh->getConcreteType() == physx::PxConcreteType::eCONVEX_MESH
-							|| mesh_cmp->m_PxMesh->getConcreteType() == physx::PxConcreteType::eTRIANGLE_MESH_BVH33);
-						collection->add(*mesh_cmp->m_PxMesh, mesh_cmp->m_PxMesh->getConcreteType() << 24 | i);
-					}
-				}
-				else if (m_Cmps[i]->m_Type == Component::ComponentTypeTerrain)
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(m_Cmps[i].get());
-					if (terrain->m_PxHeightField)
-					{
-						_ASSERT(terrain->m_PxHeightField->getConcreteType() == physx::PxConcreteType::eHEIGHTFIELD);
-						collection->add(*terrain->m_PxHeightField, physx::PxConcreteType::eHEIGHTFIELD << 24 | i);
-					}
-				}
+				//if (m_Cmps[i]->m_Type == Component::ComponentTypeMesh)
+				//{
+				//	MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_Cmps[i].get());
+				//	if (mesh_cmp->m_PxMesh)
+				//	{
+				//		_ASSERT(mesh_cmp->m_PxMesh->getConcreteType() == physx::PxConcreteType::eCONVEX_MESH
+				//			|| mesh_cmp->m_PxMesh->getConcreteType() == physx::PxConcreteType::eTRIANGLE_MESH_BVH33);
+				//		collection->add(*mesh_cmp->m_PxMesh, mesh_cmp->m_PxMesh->getConcreteType() << 24 | i);
+				//	}
+				//}
+				//else if (m_Cmps[i]->m_Type == Component::ComponentTypeTerrain)
+				//{
+				//	Terrain * terrain = dynamic_cast<Terrain *>(m_Cmps[i].get());
+				//	if (terrain->m_PxHeightField)
+				//	{
+				//		_ASSERT(terrain->m_PxHeightField->getConcreteType() == physx::PxConcreteType::eHEIGHTFIELD);
+				//		collection->add(*terrain->m_PxHeightField, physx::PxConcreteType::eHEIGHTFIELD << 24 | i);
+				//	}
+				//}
 			}
 		}
-		physx::PxSerialization::complete(*collection, *pxar->m_Registry);
+		physx::PxSerialization::complete(*collection, *pxar->m_Registry, pxar->m_Collection.get());
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry);
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry, pxar->m_Collection.get());
 		unsigned int PxActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
 		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -141,7 +141,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
-		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry), PhysxDeleter<physx::PxCollection>());
+		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry, pxar->m_Collection.get()), PhysxDeleter<physx::PxCollection>());
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
@@ -152,14 +152,14 @@ void Actor::load(Archive & ar, const unsigned int version)
 			unsigned int index = id & 0x00ffffff;
 			switch (obj->getConcreteType())
 			{
-			case physx::PxConcreteType::eCONVEX_MESH:
-				_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeMesh);
-				boost::dynamic_pointer_cast<MeshComponent>(m_Cmps[index])->m_PxMesh.reset(obj->is<physx::PxConvexMesh>(), PhysxDeleter<physx::PxConvexMesh>());
-				break;
-			case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
-				_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeMesh);
-				boost::dynamic_pointer_cast<MeshComponent>(m_Cmps[index])->m_PxMesh.reset(obj->is<physx::PxTriangleMesh>(), PhysxDeleter<physx::PxTriangleMesh>());
-				break;
+			//case physx::PxConcreteType::eCONVEX_MESH:
+			//	_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeMesh);
+			//	boost::dynamic_pointer_cast<MeshComponent>(m_Cmps[index])->m_PxMesh.reset(obj->is<physx::PxConvexMesh>(), PhysxDeleter<physx::PxConvexMesh>());
+			//	break;
+			//case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
+			//	_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeMesh);
+			//	boost::dynamic_pointer_cast<MeshComponent>(m_Cmps[index])->m_PxMesh.reset(obj->is<physx::PxTriangleMesh>(), PhysxDeleter<physx::PxTriangleMesh>());
+			//	break;
 			case physx::PxConcreteType::eMATERIAL:
 				m_Cmps[index]->m_PxMaterial.reset(obj->is<physx::PxMaterial>(), PhysxDeleter<physx::PxMaterial>());
 				break;
@@ -177,10 +177,10 @@ void Actor::load(Archive & ar, const unsigned int version)
 				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>(), PhysxDeleter<physx::PxShape>());
 				m_Cmps[index]->m_PxShape->userData = m_Cmps[index].get();
 				break;
-			case physx::PxConcreteType::eHEIGHTFIELD:
-				_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeTerrain);
-				boost::dynamic_pointer_cast<Terrain>(m_Cmps[index])->m_PxHeightField.reset(obj->is<physx::PxHeightField>(), PhysxDeleter<physx::PxHeightField>());
-				break;
+			//case physx::PxConcreteType::eHEIGHTFIELD:
+			//	_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeTerrain);
+			//	boost::dynamic_pointer_cast<Terrain>(m_Cmps[index])->m_PxHeightField.reset(obj->is<physx::PxHeightField>(), PhysxDeleter<physx::PxHeightField>());
+			//	break;
 			default:
 				_ASSERT(false);
 				break;

@@ -26,6 +26,8 @@ class ActorSerializationContext
 public:
 	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
 
+	boost::shared_ptr<physx::PxCollection> m_Collection;
+
 	ActorSerializationContext(void);
 };
 

@@ -26,6 +26,8 @@ public:
 	float m_FogStartDistance;
 	float m_FogHeight;
 	float m_FogFalloff;
+	PhysxSdk::CollectionObjMap m_CollectionObjs;
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
 

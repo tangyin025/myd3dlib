@@ -15,6 +15,7 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/binary_object.hpp>
 #include <fstream>
 #include "NavigationSerialization.h"
 #include "NavigationDlg.h"
@@ -703,6 +704,8 @@ void CMainFrame::ClearFileContext()
 	m_ActorList.clear();
 	m_selactors.clear();
 	LuaContext::Shutdown();
+	theApp.m_CollectionObjs.clear();
+	theApp.m_SerializeBuff.reset();
 	_ASSERT(theApp.m_NamedObjects.empty());
 	my::NamedObject::ResetUniqueNameIndex();
 }
@@ -725,6 +728,21 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("FogStartDistance", theApp.m_FogStartDistance);
 	*ia >> boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
+
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
+	_ASSERT(pxar);
+	unsigned int StreamBuffSize;
+	*ia >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
+	theApp.m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+	*ia >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(theApp.m_SerializeBuff.get(), StreamBuffSize));
+	pxar->m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(theApp.m_SerializeBuff.get(), *pxar->m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
+	const unsigned int numObjs = pxar->m_Collection->getNbObjects();
+	for (unsigned int i = 0; i < numObjs; i++)
+	{
+		boost::shared_ptr<physx::PxBase> obj(&pxar->m_Collection->getObject(i), PhysxDeleter<physx::PxBase>());
+		theApp.m_CollectionObjs.insert(std::make_pair(pxar->m_Collection->getId(*obj), obj));
+	}
+
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
 
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
@@ -753,6 +771,20 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("FogStartDistance", theApp.m_FogStartDistance);
 	*oa << boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
+
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(oa.get());
+	_ASSERT(pxar);
+	pxar->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
+	PhysxSdk::CollectionObjMap::const_iterator collection_obj_iter = theApp.m_CollectionObjs.begin();
+	for (; collection_obj_iter != theApp.m_CollectionObjs.end(); collection_obj_iter++)
+	{
+		pxar->m_Collection->add(*collection_obj_iter->second, collection_obj_iter->first);
+	}
+	physx::PxDefaultMemoryOutputStream ostr;
+	physx::PxSerialization::serializeCollectionToBinary(ostr, *pxar->m_Collection, *pxar->m_Registry);
+	unsigned int StreamBuffSize = ostr.getSize();
+	*oa << BOOST_SERIALIZATION_NVP(StreamBuffSize);
+	*oa << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
 
 	struct Callback : public my::OctNode::QueryCallback
 	{

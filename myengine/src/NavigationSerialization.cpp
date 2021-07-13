@@ -22,6 +22,8 @@ static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'M
 
 static const int NAVMESHSET_VERSION = 1;
 
+BOOST_CLASS_EXPORT(Navigation)
+
 struct NavMeshSetHeader
 {
 	int magic;
@@ -110,8 +112,6 @@ namespace boost {
 
 	} // namespace serialization
 } // namespace boost
-
-BOOST_CLASS_EXPORT(Navigation)
 
 Navigation::Navigation(void)
 {

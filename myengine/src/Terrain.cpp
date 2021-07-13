@@ -807,32 +807,37 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	}
 
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
-	boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
-	TerrainStream tstr(this);
-	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
+	size_t ObjId = boost::hash_value(m_ChunkPath);
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(ObjId, boost::shared_ptr<physx::PxBase>()));
+	if (obj_res.second)
 	{
-		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
+		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
+		TerrainStream tstr(this);
+		for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
 		{
-			Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
-			Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
-			Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
+			for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
+			{
+				Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
+				Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
+				Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
+			}
 		}
-	}
-	tstr.Release();
+		tstr.Release();
 
-	physx::PxHeightFieldDesc hfDesc;
-	hfDesc.nbRows             = m_ColChunks * m_ChunkSize + 1;
-	hfDesc.nbColumns          = m_RowChunks * m_ChunkSize + 1;
-	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
-	hfDesc.samples.data       = Samples.data();
-	hfDesc.samples.stride     = sizeof(Samples[0][0]);
-	m_PxHeightField.reset(PhysxSdk::getSingleton().m_Cooking->createHeightField(
-		hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
+		physx::PxHeightFieldDesc hfDesc;
+		hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
+		hfDesc.nbColumns = m_RowChunks * m_ChunkSize + 1;
+		hfDesc.format = physx::PxHeightFieldFormat::eS16_TM;
+		hfDesc.samples.data = Samples.data();
+		hfDesc.samples.stride = sizeof(Samples[0][0]);
+		obj_res.first->second.reset(PhysxSdk::getSingleton().m_Cooking->createHeightField(
+			hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
+	}
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
+		physx::PxHeightFieldGeometry(obj_res.first->second->is<physx::PxHeightField>(), physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*m_PxMaterial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -846,8 +851,6 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 
 void Terrain::ClearShape(void)
 {
-	m_PxHeightField.reset();
-
 	Component::ClearShape();
 }
 
