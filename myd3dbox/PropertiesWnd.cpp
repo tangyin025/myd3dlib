@@ -118,6 +118,12 @@ static LPCTSTR g_EmitterSpaceType[EmitterComponent::SpaceTypeLocal + 1] =
 	_T("Local"),
 };
 
+static LPCTSTR g_EmitterVelType[EmitterComponent::VelocityTypeVel + 1] =
+{
+	_T("None"),
+	_T("Velocity"),
+};
+
 static LPCTSTR g_EmitterPrimitiveType[EmitterComponent::PrimitiveTypeQuad + 1] =
 {
 	_T("Triangle"),
@@ -501,7 +507,7 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitterComponent * emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pChunkStep = pComponent->GetSubItem(PropId + 3);
+	CMFCPropertyGridProperty * pChunkStep = pComponent->GetSubItem(PropId + 4);
 	if (!pChunkStep || pChunkStep->GetData() != PropertyStaticEmitterChunkStep)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
@@ -510,10 +516,11 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)g_EmitterFaceType[emit_cmp->m_EmitterFaceType]);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[emit_cmp->m_EmitterSpaceType]);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType]);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
 	pChunkStep->SetValue((_variant_t)emit_cmp->m_ChunkStep);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 4), emit_cmp->m_Material.get());
-	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 5);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), emit_cmp->m_Material.get());
+	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 6);
 	pParticleList->GetSubItem(0)->SetValue((_variant_t)(unsigned int)emit_cmp->m_ParticleList.size());
 	int NumParticles = my::Min(theApp.max_editable_particle_count, (int)emit_cmp->m_ParticleList.size());
 	for (int i = 0; i < NumParticles; i++)
@@ -550,7 +557,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pParticleCapacity = pComponent->GetSubItem(PropId + 3);
+	CMFCPropertyGridProperty * pParticleCapacity = pComponent->GetSubItem(PropId + 4);
 	if (!pParticleCapacity || pParticleCapacity->GetData() != PropertySphericalEmitterParticleCapacity)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
@@ -559,25 +566,26 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)g_EmitterFaceType[sphe_emit_cmp->m_EmitterFaceType]);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[sphe_emit_cmp->m_EmitterSpaceType]);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterPrimitiveType[sphe_emit_cmp->m_EmitterPrimitiveType]);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[sphe_emit_cmp->m_EmitterVelType]);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[sphe_emit_cmp->m_EmitterPrimitiveType]);
 	pParticleCapacity->SetValue((_variant_t)(unsigned int)sphe_emit_cmp->m_ParticleList.capacity());
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.y);
-	pComponent->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.z);
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnSpeed);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 8), &sphe_emit_cmp->m_SpawnInclination);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 9), &sphe_emit_cmp->m_SpawnAzimuth);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 10), &sphe_emit_cmp->m_SpawnColorR);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 11), &sphe_emit_cmp->m_SpawnColorG);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnColorB);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnColorA);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnSizeX);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 15), &sphe_emit_cmp->m_SpawnSizeY);
-	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 16), &sphe_emit_cmp->m_SpawnAngle);
-	pComponent->GetSubItem(PropId + 17)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnCycle);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 18), sphe_emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
+	pComponent->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
+	pComponent->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.y);
+	pComponent->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.z);
+	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnSpeed);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 9), &sphe_emit_cmp->m_SpawnInclination);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 10), &sphe_emit_cmp->m_SpawnAzimuth);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 11), &sphe_emit_cmp->m_SpawnColorR);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnColorG);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 13), &sphe_emit_cmp->m_SpawnColorB);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 14), &sphe_emit_cmp->m_SpawnColorA);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 15), &sphe_emit_cmp->m_SpawnSizeX);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 16), &sphe_emit_cmp->m_SpawnSizeY);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 17), &sphe_emit_cmp->m_SpawnAngle);
+	pComponent->GetSubItem(PropId + 18)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnCycle);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 19), sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -1061,6 +1069,12 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		pEmitterSpaceType->AddOption(g_EmitterSpaceType[i], TRUE);
 	}
 	pComponent->AddSubItem(pEmitterSpaceType);
+	CComboProp * pEmitterVelType = new CComboProp(_T("VelocityType"), (_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType], NULL, PropertyEmitterVelType);
+	for (unsigned int i = 0; i < _countof(g_EmitterVelType); i++)
+	{
+		pEmitterVelType->AddOption(g_EmitterVelType[i], TRUE);
+	}
+	pComponent->AddSubItem(pEmitterVelType);
 	CComboProp * pEmitterPrimitiveType = new CComboProp(_T("PrimitiveType"), (_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType], NULL, PropertyEmitterPrimitiveType);
 	for (unsigned int i = 0; i < _countof(g_EmitterPrimitiveType); i++)
 	{
@@ -1141,6 +1155,12 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 		pEmitterSpaceType->AddOption(g_EmitterSpaceType[i], TRUE);
 	}
 	pComponent->AddSubItem(pEmitterSpaceType);
+	CComboProp* pEmitterVelType = new CComboProp(_T("VelocityType"), (_variant_t)g_EmitterVelType[sphe_emit_cmp->m_EmitterVelType], NULL, PropertyEmitterVelType);
+	for (unsigned int i = 0; i < _countof(g_EmitterVelType); i++)
+	{
+		pEmitterVelType->AddOption(g_EmitterVelType[i], TRUE);
+	}
+	pComponent->AddSubItem(pEmitterVelType);
 	CComboProp* pEmitterPrimitiveType = new CComboProp(_T("PrimitiveType"), (_variant_t)g_EmitterPrimitiveType[sphe_emit_cmp->m_EmitterPrimitiveType], NULL, PropertyEmitterPrimitiveType);
 	for (unsigned int i = 0; i < _countof(g_EmitterPrimitiveType); i++)
 	{
@@ -1333,9 +1353,9 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 6;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 7;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 19;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 20;
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeAnimator:
@@ -2201,6 +2221,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyEmitterVelType:
+	{
+		EmitterComponent* emit_cmp = (EmitterComponent*)pProp->GetParent()->GetValue().pulVal;
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_EmitterVelType));
+		emit_cmp->m_EmitterVelType = (EmitterComponent::VelocityType)i;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyEmitterPrimitiveType:
 	{
 		EmitterComponent* emit_cmp = (EmitterComponent*)pProp->GetParent()->GetValue().pulVal;
@@ -2346,13 +2376,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().pulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 4)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 5)->GetValue().fltVal;
-		sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal;
-		sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal;
-		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 7)->GetValue().fltVal;
-		sphe_emit_cmp->m_SpawnCycle = pComponent->GetSubItem(PropId + 17)->GetValue().fltVal;
+		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 5)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 6)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().fltVal;
+		sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 8)->GetValue().fltVal;
+		sphe_emit_cmp->m_SpawnCycle = pComponent->GetSubItem(PropId + 18)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
