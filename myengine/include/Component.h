@@ -38,7 +38,6 @@ public:
 		ComponentTypeController,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
-		ComponentTypeEmitter,
 		ComponentTypeStaticEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,

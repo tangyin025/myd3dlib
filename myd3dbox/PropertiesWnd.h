@@ -211,6 +211,7 @@ public:
 		PropertyAnimationNode,
 		PropertyAnimationNodeType,
 		PropertyAnimationNodeSequenceName,
+		PropertyNavigation,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

@@ -1336,6 +1336,8 @@ CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
 		return PropertyTerrain;
 	case Component::ComponentTypeAnimator:
 		return PropertyAnimator;
+	case Component::ComponentTypeNavigation:
+		return PropertyNavigation;
 	}
 	return PropertyUnknown;
 }
@@ -1360,6 +1362,8 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeAnimator:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
+	case Component::ComponentTypeNavigation:
+		return GetComponentPropCount(Component::ComponentTypeComponent);
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
@@ -1388,6 +1392,8 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 		return _T("Script");
 	case Component::ComponentTypeAnimator:
 		return _T("Animator");
+	case Component::ComponentTypeNavigation:
+		return _T("Navigation");
 	}
 	return _T("Unknown");
 }

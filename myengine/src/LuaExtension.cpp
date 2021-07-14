@@ -1223,10 +1223,12 @@ void LuaContext::Init(void)
 				value("ComponentTypeController", Component::ComponentTypeController),
 				value("ComponentTypeMesh", Component::ComponentTypeMesh),
 				value("ComponentTypeCloth", Component::ComponentTypeCloth),
-				value("ComponentTypeEmitter", Component::ComponentTypeEmitter),
 				value("ComponentTypeStaticEmitter", Component::ComponentTypeStaticEmitter),
 				value("ComponentTypeSphericalEmitter", Component::ComponentTypeSphericalEmitter),
-				value("ComponentTypeTerrain", Component::ComponentTypeTerrain)
+				value("ComponentTypeTerrain", Component::ComponentTypeTerrain),
+				value("ComponentTypeScript", Component::ComponentTypeScript),
+				value("ComponentTypeAnimator", Component::ComponentTypeAnimator),
+				value("ComponentTypeNavigation", Component::ComponentTypeNavigation)
 			]
 			.def_readonly("Type", &Component::m_Type)
 			.enum_("LODMask")
