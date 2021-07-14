@@ -10,6 +10,7 @@
 #include "Animation.h"
 #include "DetourDebugDraw.h"
 #include "NavigationSerialization.h"
+#include "StaticEmitterComponent.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1320,15 +1321,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 				body->setLinearVelocity((physx::PxVec3&)my::Vector3(0, 0, 0));
 			}
 
-			Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
-			for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
-			{
-				if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
-					&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
-				{
-					dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->BuildChunks();
-				}
-			}
+			//Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
+			//for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
+			//{
+			//	if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
+			//		&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+			//	{
+			//		dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->BuildChunks();
+			//	}
+			//}
 		}
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
@@ -1805,5 +1806,5 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 
 	Callback cb(ray, pFrame, emit);
 	pFrame->QueryEntity(ray, &cb);
-	emit->BuildChunks();
+	//emit->BuildChunks();
 }

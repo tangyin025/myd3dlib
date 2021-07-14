@@ -24,6 +24,7 @@ extern "C"
 #include "Animation.h"
 #include "Actor.h"
 #include "Terrain.h"
+#include "StaticEmitterComponent.h"
 #include "Controller.h"
 #include "ActionTrack.h"
 #include "noise.h"
@@ -1314,7 +1315,7 @@ void LuaContext::Init(void)
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
 			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readwrite("ChunkStep", &StaticEmitterComponent::m_ChunkStep)
-			.def("BuildChunks", &StaticEmitterComponent::BuildChunks)
+			//.def("BuildChunks", &StaticEmitterComponent::BuildChunks)
 
 		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
 			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())

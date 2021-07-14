@@ -462,99 +462,10 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	//virtual my::AABB CalculateAABB(void) const;
-
 	void AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
-
-class StaticEmitterChunk
-	: public my::OctEntity
-{
-public:
-	unsigned int m_Start;
-
-	unsigned int m_Count;
-
-public:
-	StaticEmitterChunk(void)
-		: m_Start(0)
-		, m_Count(0)
-	{
-	}
-
-	virtual ~StaticEmitterChunk(void)
-	{
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_NVP(m_Start);
-		ar & BOOST_SERIALIZATION_NVP(m_Count);
-	}
-};
-
-typedef boost::shared_ptr<StaticEmitterChunk> StaticEmitterChunkPtr;
-
-class StaticEmitterComponent
-	: public EmitterComponent
-	, public my::OctRoot
-{
-public:
-	float m_ChunkStep;
-
-	typedef std::vector<StaticEmitterChunkPtr> StaticEmitterChunkPtrList;
-
-	StaticEmitterChunkPtrList m_Chunks;
-
-protected:
-	StaticEmitterComponent(void)
-	{
-	}
-
-public:
-	StaticEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
-		, OctRoot(-1.0f, 1.0f)
-		, m_ChunkStep(1.0f)
-	{
-	}
-
-	virtual ~StaticEmitterComponent(void)
-	{
-		ClearAllEntity();
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void save(Archive& ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive& ar, const unsigned int version);
-
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
-	{
-		boost::serialization::split_member(ar, *this, version);
-	}
-
-	void CopyFrom(const StaticEmitterComponent & rhs);
-
-	virtual ComponentPtr Clone(void) const;
-
-	virtual void Update(float fElapsedTime);
-
-	void BuildChunks(void);
-
-	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
-};
-
-typedef boost::shared_ptr<StaticEmitterComponent> StaticEmitterComponentPtr;
 
 class SphericalEmitterComponent
 	: public EmitterComponent

@@ -12,6 +12,8 @@
 
 class CMainDoc;
 
+class StaticEmitterComponent;
+
 class CChildView
 	: public CView
 	, public my::DialogMgr
