@@ -807,8 +807,7 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 	}
 
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
-	size_t ObjId = boost::hash_value(m_ChunkPath);
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(ObjId, boost::shared_ptr<physx::PxBase>()));
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(m_ChunkPath, boost::shared_ptr<physx::PxBase>()));
 	if (obj_res.second)
 	{
 		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);

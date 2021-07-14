@@ -48,7 +48,7 @@ public:
 
 	boost::shared_ptr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
-	typedef std::map<size_t, boost::shared_ptr<physx::PxBase> > CollectionObjMap;
+	typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > CollectionObjMap;
 
 	CollectionObjMap m_CollectionObjs;
 

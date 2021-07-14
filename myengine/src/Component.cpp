@@ -470,8 +470,8 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 	}
 
 	OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-	size_t ObjId = boost::hash_value(mesh->m_Key);
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(ObjId, boost::shared_ptr<physx::PxBase>()));
+	std::string Key = str_printf("%s %d PxTriangleMesh", mesh->m_Key, m_MeshSubMeshId);
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
 	if (obj_res.second)
 	{
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
@@ -533,8 +533,8 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 	}
 
 	OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-	size_t ObjId = boost::hash_value(mesh->m_Key);
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(ObjId, boost::shared_ptr<physx::PxBase>()));
+	std::string Key = str_printf("%s %d PxConvexMesh", mesh->m_Key, m_MeshSubMeshId);
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
 	if (obj_res.second)
 	{
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];

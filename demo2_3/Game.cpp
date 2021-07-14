@@ -17,7 +17,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
-#include <boost/serialization/export.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/program_options.hpp>
 
 #ifdef _DEBUG
@@ -323,8 +323,11 @@ void SceneContextRequest::LoadResource(void)
 		const unsigned int numObjs = pxar->m_Collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
-			boost::shared_ptr<physx::PxBase> obj(&pxar->m_Collection->getObject(i), PhysxDeleter<physx::PxBase>());
-			scene->m_CollectionObjs.insert(std::make_pair(pxar->m_Collection->getId(*obj), obj));
+			std::string Key;
+			*ia >> BOOST_SERIALIZATION_NVP(Key);
+			physx::PxSerialObjectId ObjId;
+			*ia >> BOOST_SERIALIZATION_NVP(ObjId);
+			scene->m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>(pxar->m_Collection->find(ObjId), PhysxDeleter<physx::PxBase>())));
 		}
 
 		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);

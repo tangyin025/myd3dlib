@@ -16,6 +16,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/string.hpp>
 #include <fstream>
 #include "NavigationSerialization.h"
 #include "NavigationDlg.h"
@@ -739,8 +740,11 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	const unsigned int numObjs = pxar->m_Collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
-		boost::shared_ptr<physx::PxBase> obj(&pxar->m_Collection->getObject(i), PhysxDeleter<physx::PxBase>());
-		theApp.m_CollectionObjs.insert(std::make_pair(pxar->m_Collection->getId(*obj), obj));
+		std::string Key;
+		*ia >> BOOST_SERIALIZATION_NVP(Key);
+		physx::PxSerialObjectId ObjId;
+		*ia >> BOOST_SERIALIZATION_NVP(ObjId);
+		theApp.m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>(pxar->m_Collection->find(ObjId), PhysxDeleter<physx::PxBase>())));
 	}
 
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
@@ -778,13 +782,22 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	PhysxSdk::CollectionObjMap::const_iterator collection_obj_iter = theApp.m_CollectionObjs.begin();
 	for (; collection_obj_iter != theApp.m_CollectionObjs.end(); collection_obj_iter++)
 	{
-		pxar->m_Collection->add(*collection_obj_iter->second, collection_obj_iter->first);
+		pxar->m_Collection->add(*collection_obj_iter->second);
 	}
+	physx::PxSerialization::createSerialObjectIds(*pxar->m_Collection, physx::PxSerialObjectId(1));
 	physx::PxDefaultMemoryOutputStream ostr;
 	physx::PxSerialization::serializeCollectionToBinary(ostr, *pxar->m_Collection, *pxar->m_Registry);
 	unsigned int StreamBuffSize = ostr.getSize();
 	*oa << BOOST_SERIALIZATION_NVP(StreamBuffSize);
 	*oa << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+	collection_obj_iter = theApp.m_CollectionObjs.begin();
+	for (; collection_obj_iter != theApp.m_CollectionObjs.end(); collection_obj_iter++)
+	{
+		std::string Key = collection_obj_iter->first;
+		*oa << BOOST_SERIALIZATION_NVP(Key);
+		physx::PxSerialObjectId ObjId = pxar->m_Collection->getId(*collection_obj_iter->second);
+		*oa << BOOST_SERIALIZATION_NVP(ObjId);
+	}
 
 	struct Callback : public my::OctNode::QueryCallback
 	{
