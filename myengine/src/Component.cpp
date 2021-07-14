@@ -129,6 +129,18 @@ MaterialPtr Component::GetMaterial(void) const
 	return m_Material;
 }
 
+physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution)
+{
+	// ! materialIndices[0] = Ps::to16((static_cast<NpMaterial*>(materials[0]))->getHandle());
+	std::string Key = str_printf("PxMaterial %f %f %f", staticFriction, dynamicFriction, restitution);
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
+	if (obj_res.second)
+	{
+		obj_res.first->second.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	}
+	return obj_res.first->second->is<physx::PxMaterial>();
+}
+
 void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0)
 {
 	_ASSERT(!m_PxShape);
@@ -139,10 +151,10 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 		return;
 	}
 
-	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxBoxGeometry(hx, hy, hz), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -165,10 +177,10 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 		return;
 	}
 
-	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxCapsuleGeometry(radius, halfHeight), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -197,10 +209,10 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 		return;
 	}
 
-	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxPlaneGeometry(), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxPlaneGeometry(), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -223,10 +235,10 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 		return;
 	}
 
-	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxSphereGeometry(radius), *m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxSphereGeometry(radius), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
@@ -502,11 +514,11 @@ void MeshComponent::CreateTriangleMeshShape(unsigned int filterWord0)
 		obj_res.first->second.reset(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
 	}
 
-	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(obj_res.first->second->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
-		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		*matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
@@ -559,11 +571,11 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, unsigned int filt
 		obj_res.first->second.reset(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
 	}
 
-	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(obj_res.first->second->is<physx::PxConvexMesh>(), mesh_scaling),
-		*m_PxMaterial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		*matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 

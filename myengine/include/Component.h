@@ -149,6 +149,8 @@ public:
 
 	MaterialPtr GetMaterial(void) const;
 
+	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution);
+
 	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
 
 	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0);
@@ -187,6 +189,8 @@ public:
 	my::Vector4 m_MeshColor;
 
 	bool m_bInstance;
+
+	boost::shared_ptr<physx::PxBase> m_PxMesh;
 
 	D3DXHANDLE handle_Time;
 

@@ -113,6 +113,8 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
+	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
+
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_TerrainSize;
