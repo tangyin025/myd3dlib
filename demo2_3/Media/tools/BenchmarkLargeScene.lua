@@ -11,7 +11,9 @@ local tbox=terrain:CalculateAABB()
 local act=Actor(NamedObject.MakeUniqueName("editor_act"),Vector3(-tbox:Center().x,0,-tbox:Center().z),Quaternion.Identity(),Vector3(1,1,1),tbox)
 act:AddComponent(terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
-terrain:CreateHeightFieldShape(1)
+terrain:CreateHeightFieldShape(true)
+terrain.SimulationFilterWord0=1
+terrain.QueryFilterWord0=1
 -- act.LodFactor=1.5
 act:UpdateWorld()
 theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
@@ -27,11 +29,12 @@ for i=1,300000,1 do
 	mesh_cmp.Material.Shader="shader/mtl_BlinnPhong.fx"
 	mesh_cmp.Material:ParseShaderParameters()
 	local act=Actor(NamedObject.MakeUniqueName("editor_act"),
-		Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-		-- Vector3(math.random(-4096,4096),math.random(0,100),math.random(-4096,4096)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+		Vector3(math.random(-4096,4096),math.random(0,100),math.random(-4096,4096)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 	act:AddComponent(mesh_cmp)
 	act:CreateRigidActor(Actor.eRIGID_STATIC)
-	mesh_cmp:CreateTriangleMeshShape(1)
+	mesh_cmp:CreateTriangleMeshShape(true)
+	mesh_cmp.SimulationFilterWord0=1
+	mesh_cmp.QueryFilterWord0=1
 	act.CullingDist=500
 	act:UpdateWorld()
 	theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)

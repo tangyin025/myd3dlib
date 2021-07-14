@@ -1299,16 +1299,16 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), 1, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
-	MaterialPtr mtl(new Material());
-	mtl->m_Shader = theApp.default_shader;
-	mtl->ParseShaderParameters();
-	emit_cmp->SetMaterial(mtl);
-	(*actor_iter)->AddComponent(emit_cmp);
-	emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
-	(*actor_iter)->UpdateAABB();
-	(*actor_iter)->UpdateOctNode();
-	UpdateSelBox();
+	//StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), 1, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+	//MaterialPtr mtl(new Material());
+	//mtl->m_Shader = theApp.default_shader;
+	//mtl->ParseShaderParameters();
+	//emit_cmp->SetMaterial(mtl);
+	//(*actor_iter)->AddComponent(emit_cmp);
+	//emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
+	//(*actor_iter)->UpdateAABB();
+	//(*actor_iter)->UpdateOctNode();
+	//UpdateSelBox();
 
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);

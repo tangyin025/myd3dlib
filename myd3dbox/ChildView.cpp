@@ -394,10 +394,10 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 		}
 		break;
 
-	case Component::ComponentTypeStaticEmitter:
+	//case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			EmitterComponent * emitter = dynamic_cast<EmitterComponent *>(cmp);
+			SphericalEmitterComponent * emitter = dynamic_cast<SphericalEmitterComponent*>(cmp);
 			if (emitter->m_ParticleList.empty())
 			{
 				return true;
@@ -614,10 +614,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 		}
 		break;
 
-	case Component::ComponentTypeStaticEmitter:
+	//case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			EmitterComponent * emitter = dynamic_cast<EmitterComponent *>(cmp);
+			SphericalEmitterComponent* emitter = dynamic_cast<SphericalEmitterComponent *>(cmp);
 			if (emitter->m_ParticleList.empty())
 			{
 				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.getColumn<2>().xyz));
@@ -1772,32 +1772,32 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 			{
 				if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
 				{
-					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
-					my::RayResult res = tstr.RayTest(local_ray);
-					if (res.first)
-					{
-						if (emit->m_ParticleList.full())
-						{
-							emit->m_ParticleList.set_capacity(emit->m_ParticleList.capacity() + 1024);
-						}
+					//TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
+					//my::RayResult res = tstr.RayTest(local_ray);
+					//if (res.first)
+					//{
+					//	if (emit->m_ParticleList.full())
+					//	{
+					//		emit->m_ParticleList.set_capacity(emit->m_ParticleList.capacity() + 1024);
+					//	}
 
-						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+					//	my::Vector3 pt = local_ray.p + local_ray.d * res.second;
 
-						for (int i = 0; i < pFrame->m_PaintDensity; i++)
-						{
-							if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
-							{
-								my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
-								my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
-								my::RayResult spawn_res = tstr.RayTest(spawn_ray);
-								if (spawn_res.first)
-								{
-									emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
-										my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
-								}
-							}
-						}
-					}
+					//	for (int i = 0; i < pFrame->m_PaintDensity; i++)
+					//	{
+					//		if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
+					//		{
+					//			my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
+					//			my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
+					//			my::RayResult spawn_res = tstr.RayTest(spawn_ray);
+					//			if (spawn_res.first)
+					//			{
+					//				emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
+					//					my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+					//			}
+					//		}
+					//	}
+					//}
 				}
 			}
 		}

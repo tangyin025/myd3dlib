@@ -1308,7 +1308,6 @@ void LuaContext::Init(void)
 				value("PrimitiveTypeQuad", EmitterComponent::PrimitiveTypeQuad)
 			]
 			.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
-			.def("Spawn", &EmitterComponent::Spawn)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
 			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
@@ -1331,6 +1330,7 @@ void LuaContext::Init(void)
 			.def_readwrite("SpawnSizeY", &SphericalEmitterComponent::m_SpawnSizeY)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnCycle", &SphericalEmitterComponent::m_SpawnCycle)
+			.def("Spawn", &SphericalEmitterComponent::Spawn)
 
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)

@@ -378,7 +378,6 @@ typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 
 class EmitterComponent
 	: public Component
-	, public my::Emitter
 {
 public:
 	enum FaceType
@@ -421,8 +420,7 @@ public:
 
 protected:
 	EmitterComponent(void)
-		: Emitter(1)
-		, m_EmitterFaceType(FaceTypeX)
+		: m_EmitterFaceType(FaceTypeX)
 		, m_EmitterSpaceType(SpaceTypeWorld)
 		, m_EmitterVelType(VelocityTypeNone)
 		, m_EmitterPrimitiveType(PrimitiveTypeQuad)
@@ -431,9 +429,8 @@ protected:
 	}
 
 public:
-	EmitterComponent(ComponentType Type, const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+	EmitterComponent(ComponentType Type, const char * Name, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: Component(Type, Name)
-		, Emitter(Capacity)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterSpaceType(_SpaceTypeWorld)
 		, m_EmitterVelType(_VelocityType)
@@ -466,11 +463,9 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	virtual my::AABB CalculateAABB(void) const;
+	//virtual my::AABB CalculateAABB(void) const;
 
 	void AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
-
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
@@ -524,7 +519,7 @@ protected:
 
 public:
 	StaticEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(ComponentTypeStaticEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 		, OctRoot(-1.0f, 1.0f)
 		, m_ChunkStep(1.0f)
 	{
@@ -564,6 +559,7 @@ typedef boost::shared_ptr<StaticEmitterComponent> StaticEmitterComponentPtr;
 
 class SphericalEmitterComponent
 	: public EmitterComponent
+	, public my::Emitter
 {
 public:
 	float m_ParticleLifeTime;
@@ -609,7 +605,8 @@ protected:
 
 public:
 	SphericalEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Name, Capacity, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		, Emitter(Capacity)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)
@@ -646,6 +643,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;
+
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
 typedef boost::shared_ptr<SphericalEmitterComponent> SphericalEmitterComponentPtr;
