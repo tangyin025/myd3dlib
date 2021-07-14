@@ -149,15 +149,15 @@ public:
 
 	MaterialPtr GetMaterial(void) const;
 
-	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution);
+	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection);
 
-	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, unsigned int filterWord0);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection);
 
-	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, unsigned int filterWord0);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection);
 
-	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, unsigned int filterWord0);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection);
 
-	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, unsigned int filterWord0);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection);
 
 	void SetSimulationFilterWord0(unsigned int filterWord0);
 
@@ -259,9 +259,13 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateTriangleMeshShape(unsigned int filterWord0);
+	physx::PxTriangleMesh * CreateTriangleMesh(bool ShareSerializeCollection);
 
-	void CreateConvexMeshShape(bool bInflateConvex, unsigned int filterWord0);
+	void CreateTriangleMeshShape(bool ShareSerializeCollection);
+
+	physx::PxConvexMesh * CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection);
+
+	void CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection);
 
 	virtual void ClearShape(void);
 };

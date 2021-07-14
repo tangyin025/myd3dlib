@@ -70,36 +70,50 @@ void CShapeDlg::OnOK()
 	switch (m_type)
 	{
 	case physx::PxGeometryType::eSPHERE:
-		m_cmp->CreateSphereShape(m_pos, rot, m_param.x, m_filterWord0);
+		m_cmp->CreateSphereShape(m_pos, rot, m_param.x, true);
+		m_cmp->SetSimulationFilterWord0(m_filterWord0);
+		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::ePLANE:
-		m_cmp->CreatePlaneShape(m_pos, rot, m_filterWord0);
+		m_cmp->CreatePlaneShape(m_pos, rot, true);
+		m_cmp->SetSimulationFilterWord0(m_filterWord0);
+		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::eCAPSULE:
-		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y, m_filterWord0);
+		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y, true);
+		m_cmp->SetSimulationFilterWord0(m_filterWord0);
+		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::eBOX:
-		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z, m_filterWord0);
+		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z, true);
+		m_cmp->SetSimulationFilterWord0(m_filterWord0);
+		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE, m_filterWord0);
+			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE, true);
+			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
+			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
 		if (m_cmp->m_Type == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateTriangleMeshShape(m_filterWord0);
+			mesh_cmp->CreateTriangleMeshShape(true);
+			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
+			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:
 		if (m_cmp->m_Type == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
-			terrain->CreateHeightFieldShape(m_filterWord0);
+			terrain->CreateHeightFieldShape(true);
+			terrain->SetSimulationFilterWord0(m_filterWord0);
+			terrain->SetQueryFilterWord0(m_filterWord0);
 		}
 		break;
 	}

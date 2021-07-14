@@ -783,7 +783,51 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
+physx::PxHeightField * Terrain::CreateHeightField(float HeightScale, bool ShareSerializeCollection)
+{
+	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res;
+	if (ShareSerializeCollection)
+	{
+		obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(m_ChunkPath, boost::shared_ptr<physx::PxBase>()));
+		if (!obj_res.second)
+		{
+			return obj_res.first->second->is<physx::PxHeightField>();
+		}
+	}
+
+	boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
+	TerrainStream tstr(this);
+	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
+	{
+		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
+		{
+			Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
+			Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
+			Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
+		}
+	}
+	tstr.Release();
+
+	physx::PxHeightFieldDesc hfDesc;
+	hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
+	hfDesc.nbColumns = m_RowChunks * m_ChunkSize + 1;
+	hfDesc.format = physx::PxHeightFieldFormat::eS16_TM;
+	hfDesc.samples.data = Samples.data();
+	hfDesc.samples.stride = sizeof(Samples[0][0]);
+
+	physx::PxHeightField * heightfield = PhysxSdk::getSingleton().m_Cooking->createHeightField(hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback());
+	if (ShareSerializeCollection)
+	{
+		obj_res.first->second.reset(heightfield, PhysxDeleter<physx::PxHeightField>());
+	}
+	else
+	{
+		m_PxHeightField.reset(heightfield, PhysxDeleter<physx::PxHeightField>());
+	}
+	return heightfield;
+}
+
+void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection)
 {
 	_ASSERT(!m_PxShape);
 
@@ -806,44 +850,16 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 		return;
 	}
 
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(m_ChunkPath, boost::shared_ptr<physx::PxBase>()));
-	if (obj_res.second)
-	{
-		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
-		TerrainStream tstr(this);
-		for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
-		{
-			for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
-			{
-				Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
-				Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
-				Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
-			}
-		}
-		tstr.Release();
-
-		physx::PxHeightFieldDesc hfDesc;
-		hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
-		hfDesc.nbColumns = m_RowChunks * m_ChunkSize + 1;
-		hfDesc.format = physx::PxHeightFieldFormat::eS16_TM;
-		hfDesc.samples.data = Samples.data();
-		hfDesc.samples.stride = sizeof(Samples[0][0]);
-		obj_res.first->second.reset(PhysxSdk::getSingleton().m_Cooking->createHeightField(
-			hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback()), PhysxDeleter<physx::PxHeightField>());
-	}
-
-	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f);
+	physx::PxHeightField * heightfield = CreateHeightField(HeightScale, ShareSerializeCollection);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(obj_res.first->second->is<physx::PxHeightField>(), physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
+		physx::PxHeightFieldGeometry(heightfield, physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*matertial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
-
-	SetSimulationFilterWord0(filterWord0);
-
-	SetQueryFilterWord0(filterWord0);
 
 	m_PxShape->userData = this;
 }
@@ -851,6 +867,8 @@ void Terrain::CreateHeightFieldShape(unsigned int filterWord0)
 void Terrain::ClearShape(void)
 {
 	Component::ClearShape();
+
+	m_PxHeightField.reset();
 }
 
 TerrainStream::TerrainStream(Terrain* terrain)
