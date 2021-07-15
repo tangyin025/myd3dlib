@@ -16,6 +16,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <fstream>
 
 BOOST_CLASS_EXPORT(StaticEmitterChunk)
 
@@ -164,83 +165,6 @@ void StaticEmitterComponent::Update(float fElapsedTime)
 {
 
 }
-//
-//void StaticEmitterComponent::BuildChunks(void)
-//{
-//	_ASSERT(m_ChunkStep > 0.0f);
-//
-//	ClearAllEntity();
-//
-//	m_Chunks.clear();
-//
-//	AABB aabb = CalculateAABB();
-//
-//	m_Half = aabb.Center();
-//
-//	const Vector3 extent = aabb.Extent();
-//
-//	const int HalfStage[3] = {
-//		(int)ceilf(extent.x / 2 / m_ChunkStep),
-//		(int)ceilf(extent.y / 2 / m_ChunkStep),
-//		(int)ceilf(extent.z / 2 / m_ChunkStep) };
-//
-//	const Vector3 HalfExtent(HalfStage[0] * m_ChunkStep, HalfStage[1] * m_ChunkStep, HalfStage[2] * m_ChunkStep);
-//
-//	_ASSERT(HalfExtent.magnitudeSq() > 0.0f);
-//
-//	m_min = m_Half - HalfExtent;
-//
-//	m_max = m_Half + HalfExtent;
-//
-//	boost::multi_array<std::vector<Particle>, 3> dim(boost::extents[HalfStage[0] * 2][HalfStage[1] * 2][HalfStage[2] * 2]);
-//	ParticleList::const_iterator particle_iter = m_ParticleList.begin();
-//	for (; particle_iter != m_ParticleList.end(); particle_iter++)
-//	{
-//		Vector3 local_part;
-//		if (m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
-//		{
-//			local_part = particle_iter->m_Position.transformCoord(m_Actor->m_World.inverse());
-//		}
-//		else
-//		{
-//			local_part = particle_iter->m_Position;
-//		}
-//		int i = (int)((local_part.x - m_min.x) / m_ChunkStep);
-//		int j = (int)((local_part.y - m_min.y) / m_ChunkStep);
-//		int k = (int)((local_part.z - m_min.z) / m_ChunkStep);
-//		dim[i][j][k].push_back(*particle_iter);
-//	}
-//
-//	m_ParticleList.clear();
-//
-//	int particle_i = 0;
-//	for (int i = 0; i < dim.shape()[0]; i++)
-//	{
-//		for (int j = 0; j < dim.shape()[1]; j++)
-//		{
-//			for (int k = 0; k < dim.shape()[2]; k++)
-//			{
-//				if (!dim[i][j][k].empty())
-//				{
-//					StaticEmitterChunkPtr chunk(new StaticEmitterChunk());
-//					chunk->m_Start = particle_i;
-//					chunk->m_Count = dim[i][j][k].size();
-//					m_ParticleList.insert(m_ParticleList.begin() + particle_i, dim[i][j][k].begin(), dim[i][j][k].end());
-//					particle_i += chunk->m_Count;
-//					_ASSERT(m_ParticleList.size() == particle_i);
-//
-//					AddEntity(chunk.get(), AABB(
-//						m_min.x + (i + 0) * m_ChunkStep, m_min.y + (j + 0) * m_ChunkStep, m_min.z + (k + 0) * m_ChunkStep,
-//						m_min.x + (i + 1) * m_ChunkStep, m_min.y + (j + 1) * m_ChunkStep, m_min.z + (k + 1) * m_ChunkStep), m_ChunkStep, 0.01f);
-//
-//					m_Chunks.push_back(chunk);
-//				}
-//			}
-//		}
-//	}
-//
-//	m_ParticleList.linearize();
-//}
 
 void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 {
@@ -283,17 +207,73 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 
 void StaticEmitterStream::Release(void)
 {
+	BufferMap::const_iterator buff_iter = m_buffs.begin();
+	for (; buff_iter != m_buffs.end(); buff_iter++)
+	{
+		StaticEmitterComponent::ChunkMap::iterator chunk_iter = m_emit->m_Chunks.find(buff_iter->first);
+		_ASSERT(chunk_iter != m_emit->m_Chunks.end());
+		_ASSERT(chunk_iter->second.m_OctAabb);
 
+		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, buff_iter->first.first, buff_iter->first.second);
+		std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+		std::fstream fstr(FullPath, std::ios::in | std::ios::out | std::ios::binary);
+		_ASSERT(fstr.is_open());
+
+		my::AABB chunk_box = *chunk_iter->second.m_OctAabb;
+		chunk_box.m_min.y = FLT_MAX;
+		chunk_box.m_max.y = FLT_MIN;
+		StaticEmitterChunkBuffer::const_iterator part_iter = buff_iter->second->begin();
+		for (; part_iter != buff_iter->second->end(); part_iter++)
+		{
+			chunk_box.unionYSelf(part_iter->m_Position.y);
+			fstr.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
+		}
+		m_emit->RemoveEntity(&chunk_iter->second);
+		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_ChunkStep, 0.1f);
+	}
 }
 
-void StaticEmitterStream::Spawn(const my::Vector3 & pos)
+StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 {
-	int k = (int)(pos.z / m_emit->m_ChunkStep), l = (int)(pos.x / m_emit->m_ChunkStep);
-
-	StaticEmitterChunkBufferPtr buff;
-
-	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk()));
-	if (chunk_res.second)
+	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk(k, l)));
+	if (chunk_res.first->second.m_buff)
 	{
+		return chunk_res.first->second.m_buff.get();
 	}
+
+	std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunkBufferPtr()));
+	if (!buff_res.second)
+	{
+		return buff_res.first->second.get();
+	}
+
+	if (!chunk_res.second)
+	{
+		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, k, l);
+		IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), k, l, INT_MAX));
+		my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&StaticEmitterStream::SetBuffer, this, k, l, boost::placeholders::_1));
+		_ASSERT(!buff_res.first->second);
+	}
+	else
+	{
+		m_emit->AddEntity(&chunk_res.first->second,
+			my::AABB(l * m_emit->m_ChunkStep, -4096.0f, k * m_emit->m_ChunkStep, (l + 1) * m_emit->m_ChunkStep, 4096.0f, (k + 1) * m_emit->m_ChunkStep), m_emit->m_ChunkStep, 0.1f);
+		buff_res.first->second.reset(new StaticEmitterChunkBuffer());
+	}
+
+	return buff_res.first->second.get();
+}
+
+void StaticEmitterStream::SetBuffer(int k, int l, my::DeviceResourceBasePtr res)
+{
+	m_buffs[std::make_pair(k, l)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
+}
+
+void StaticEmitterStream::Spawn(const my::Vector3 & Pos)
+{
+	int k = (int)(Pos.z / m_emit->m_ChunkStep), l = (int)(Pos.x / m_emit->m_ChunkStep);
+
+	StaticEmitterChunkBuffer * buff = GetBuffer(k, l);
+
+	buff->push_back(my::Emitter::Particle(Pos, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0, 0));
 }

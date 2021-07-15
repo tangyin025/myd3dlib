@@ -26,9 +26,17 @@ public:
 
 	StaticEmitterChunkBufferPtr m_buff;
 
-public:
+protected:
 	StaticEmitterChunk(void)
 		: m_Requested(false)
+	{
+	}
+
+public:
+	StaticEmitterChunk(int Row, int Col)
+		: m_Row(Row)
+		, m_Col(Col)
+		, m_Requested(false)
 	{
 	}
 
@@ -127,8 +135,6 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	//void BuildChunks(void);
-
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 };
 
@@ -143,13 +149,13 @@ public:
 
 	BufferMap m_buffs;
 
-	typedef std::map<std::pair<int, int>, bool> DirtyMap;
-
-	DirtyMap m_dirty;
-
 	void Release(void);
 
-	void Spawn(const my::Vector3 & pos);
+	StaticEmitterChunkBuffer * GetBuffer(int k, int l);
+
+	void SetBuffer(int k, int l, my::DeviceResourceBasePtr res);
+
+	void Spawn(const my::Vector3 & Pos);
 
 	StaticEmitterStream(StaticEmitterComponent* emit)
 		: m_emit(emit)
