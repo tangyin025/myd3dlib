@@ -2,15 +2,29 @@
 
 #include "Component.h"
 
+class StaticEmitterChunkBuffer
+	: public my::DeviceResourceBase
+	, public std::vector<my::Emitter::Particle>
+{
+public:
+	StaticEmitterChunkBuffer(void)
+	{
+	}
+};
+
+typedef boost::intrusive_ptr<StaticEmitterChunkBuffer> StaticEmitterChunkBufferPtr;
+
 class StaticEmitterChunk
 	: public my::OctEntity
 {
 public:
+	int m_Row;
+
+	int m_Col;
+
 	bool m_Requested;
 
-	std::shared_ptr<my::Emitter::Particle[]> m_buff;
-
-	int m_Num;
+	StaticEmitterChunkBufferPtr m_buff;
 
 public:
 	StaticEmitterChunk(void)
@@ -27,6 +41,8 @@ public:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
+		ar & BOOST_SERIALIZATION_NVP(m_Row);
+		ar & BOOST_SERIALIZATION_NVP(m_Col);
 	}
 
 	bool IsRequested(void) const
@@ -37,6 +53,10 @@ public:
 	void RequestResource(void);
 
 	void ReleaseResource(void);
+
+	static std::string MakeChunkPath(const std::string & ChunkPath, int Row, int Col);
+
+	void OnChunkBufferReady(my::DeviceResourceBasePtr res);
 };
 
 class StaticEmitterComponent
@@ -49,6 +69,8 @@ public:
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
+
+	std::string m_ChunkPath;
 
 	typedef boost::circular_buffer<boost::shared_ptr<StaticEmitterChunk> > ChunkCircular;
 
@@ -111,3 +133,31 @@ public:
 };
 
 typedef boost::shared_ptr<StaticEmitterComponent> StaticEmitterComponentPtr;
+
+class StaticEmitterStream
+{
+public:
+	StaticEmitterComponent * m_emit;
+
+	typedef std::map<std::pair<int, int>, StaticEmitterChunkBufferPtr> BufferMap;
+
+	BufferMap m_buffs;
+
+	typedef std::map<std::pair<int, int>, bool> DirtyMap;
+
+	DirtyMap m_dirty;
+
+	void Release(void);
+
+	void Spawn(const my::Vector3 & pos);
+
+	StaticEmitterStream(StaticEmitterComponent* emit)
+		: m_emit(emit)
+	{
+	}
+
+	~StaticEmitterStream(void)
+	{
+		Release();
+	}
+};

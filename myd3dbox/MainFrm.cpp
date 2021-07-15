@@ -1306,10 +1306,10 @@ void CMainFrame::OnComponentStaticEmitter()
 	mtl->ParseShaderParameters();
 	emit_cmp->SetMaterial(mtl);
 	(*actor_iter)->AddComponent(emit_cmp);
-	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = emit_cmp->m_Chunks.insert(std::make_pair(std::make_pair(0, 0), StaticEmitterChunk()));
-	chunk_res.first->second.m_buff.reset(new my::Emitter::Particle[1]);
-	chunk_res.first->second.m_Num = 1;
-	emit_cmp->AddEntity(&chunk_res.first->second, AABB(-1,1), 1.0f, 0.1f);
+	//std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = emit_cmp->m_Chunks.insert(std::make_pair(std::make_pair(0, 0), StaticEmitterChunk()));
+	//chunk_res.first->second.m_buff.reset(new my::Emitter::Particle[1]);
+	//chunk_res.first->second.m_Num = 1;
+	//emit_cmp->AddEntity(&chunk_res.first->second, AABB(-1,1), 1.0f, 0.1f);
 	//emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();

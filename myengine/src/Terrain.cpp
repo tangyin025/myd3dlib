@@ -134,11 +134,6 @@ void TerrainChunk::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
 
-void TerrainChunk::OnVertexBufferReady(my::DeviceResourceBasePtr res)
-{
-	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(res);
-}
-
 void TerrainChunk::RequestResource(void)
 {
 	m_Requested = true;
@@ -180,6 +175,11 @@ void TerrainChunk::ReleaseResource(void)
 	}
 
 	m_Requested = false;
+}
+
+void TerrainChunk::OnVertexBufferReady(my::DeviceResourceBasePtr res)
+{
+	m_Vb = boost::dynamic_pointer_cast<VertexBuffer>(res);
 }
 
 static unsigned int _FillVertexTable(Terrain::IndexTable & verts, int N, int hs, Terrain::IndexTable::element k)

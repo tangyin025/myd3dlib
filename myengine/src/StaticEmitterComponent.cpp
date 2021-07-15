@@ -1,5 +1,7 @@
 #include "StaticEmitterComponent.h"
 #include "Actor.h"
+#include "myResource.h"
+#include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -21,14 +23,82 @@ BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 using namespace my;
 
+class StaticEmitterChunkIORequest : public my::IORequest
+{
+protected:
+	std::string m_path;
+
+	int m_Row;
+
+	int m_Col;
+
+public:
+	StaticEmitterChunkIORequest(const char* path, int Row, int Col, int Priority)
+		: IORequest(Priority)
+		, m_path(path)
+		, m_Row(Row)
+		, m_Col(Col)
+	{
+		m_res.reset(new StaticEmitterChunkBuffer());
+	}
+
+	virtual void StaticEmitterChunkIORequest::LoadResource(void)
+	{
+		if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+		{
+			IStreamPtr istr = ResourceMgr::getSingleton().OpenIStream(m_path.c_str());
+			unsigned long BufferSize = istr->GetSize();
+			StaticEmitterChunkBufferPtr buff = boost::static_pointer_cast<StaticEmitterChunkBuffer>(m_res);
+			buff->resize(BufferSize / sizeof(my::Emitter::Particle));
+			BufferSize = buff->size() * sizeof(my::Emitter::Particle);
+			BOOST_VERIFY(istr->read(&(*buff)[0], BufferSize) == BufferSize);
+		}
+	}
+
+	virtual void StaticEmitterChunkIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+	}
+};
+
 void StaticEmitterChunk::RequestResource(void)
 {
 	m_Requested = true;
+
+	StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent*>(m_Node->GetTopNode());
+	if (!emit_cmp->m_ChunkPath.empty())
+	{
+		_ASSERT(!m_buff);
+
+		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
+		IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), m_Row, m_Col, 0));
+		my::ResourceMgr::getSingleton().LoadIORequestAsync(
+			path, request, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
+	}
 }
 
 void StaticEmitterChunk::ReleaseResource(void)
 {
+	StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent*>(m_Node->GetTopNode());
+	if (!emit_cmp->m_ChunkPath.empty())
+	{
+		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(
+			path, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
+
+		m_buff.reset();
+	}
+
 	m_Requested = false;
+}
+
+std::string StaticEmitterChunk::MakeChunkPath(const std::string& ChunkPath, int Row, int Col)
+{
+	return str_printf("%s_%d_%d", ChunkPath.c_str(), Row, Col);
+}
+
+void StaticEmitterChunk::OnChunkBufferReady(my::DeviceResourceBasePtr res)
+{
+	m_buff = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
 template<class Archive>
@@ -200,7 +270,7 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 
 			if (chunk->m_buff)
 			{
-				cmp->AddParticlePairToPipeline(pipeline, PassMask, chunk->m_buff.get(), chunk->m_Num, NULL, 0);
+				cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size(), NULL, 0);
 			}
 		}
 	};
@@ -209,4 +279,21 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 	Callback cb(pipeline, PassMask, LocalViewPos, this);
 	QueryEntity(LocalFrustum, &cb);
+}
+
+void StaticEmitterStream::Release(void)
+{
+
+}
+
+void StaticEmitterStream::Spawn(const my::Vector3 & pos)
+{
+	int k = (int)(pos.z / m_emit->m_ChunkStep), l = (int)(pos.x / m_emit->m_ChunkStep);
+
+	StaticEmitterChunkBufferPtr buff;
+
+	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk()));
+	if (chunk_res.second)
+	{
+	}
 }
