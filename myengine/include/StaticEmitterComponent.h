@@ -72,7 +72,9 @@ class StaticEmitterComponent
 	, public my::OctRoot
 {
 public:
-	float m_EmitterChunkSize;
+	int m_EmitterRowChunks;
+
+	int m_EmitterChunkSize;
 
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 
@@ -90,11 +92,7 @@ protected:
 	}
 
 public:
-	StaticEmitterComponent(const char* Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
-		, OctRoot(-1.0f, 1.0f)
-	{
-	}
+	StaticEmitterComponent(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType);
 
 	virtual ~StaticEmitterComponent(void)
 	{
@@ -119,6 +117,10 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
@@ -141,7 +143,7 @@ public:
 
 	void SetBuffer(int k, int l, my::DeviceResourceBasePtr res);
 
-	void Spawn(const my::Vector3 & Pos);
+	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
 	StaticEmitterStream(StaticEmitterComponent* emit)
 		: m_emit(emit)

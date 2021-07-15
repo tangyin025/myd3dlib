@@ -1063,21 +1063,6 @@ ComponentPtr EmitterComponent::Clone(void) const
 	return ret;
 }
 
-void EmitterComponent::RequestResource(void)
-{
-	Component::RequestResource();
-}
-
-void EmitterComponent::ReleaseResource(void)
-{
-	Component::ReleaseResource();
-}
-
-void EmitterComponent::Update(float fElapsedTime)
-{
-
-}
-
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	_ASSERT(m_Actor);
@@ -1230,6 +1215,11 @@ void SphericalEmitterComponent::RequestResource(void)
 	EmitterComponent::RequestResource();
 
 	m_SpawnTime = D3DContext::getSingleton().m_fTotalTime;
+}
+
+void SphericalEmitterComponent::ReleaseResource(void)
+{
+	EmitterComponent::ReleaseResource();
 }
 
 void SphericalEmitterComponent::Update(float fElapsedTime)

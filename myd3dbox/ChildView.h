@@ -8,11 +8,10 @@
 #include "RenderPipeline.h"
 #include "Actor.h"
 #include "Terrain.h"
+#include "StaticEmitterComponent.h"
 #include "DebugDraw.h"
 
 class CMainDoc;
-
-class StaticEmitterComponent;
 
 class CChildView
 	: public CView
@@ -44,7 +43,7 @@ public:
 	BOOL m_bShowNavigation;
 	BOOL m_bCopyActors;
 	boost::shared_ptr<TerrainStream> m_PaintTerrainCaptured;
-	StaticEmitterComponent* m_PaintEmitterCaptured;
+	boost::shared_ptr<StaticEmitterStream> m_PaintEmitterCaptured;
 protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
@@ -130,7 +129,7 @@ public:
 	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
 	void OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream & tstr);
 	void OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr);
-	void OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterComponent* emit);
+	void OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream& estr);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

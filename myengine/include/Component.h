@@ -454,12 +454,6 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
-	virtual void RequestResource(void);
-
-	virtual void ReleaseResource(void);
-
-	virtual void Update(float fElapsedTime);
-
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
 	void AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
@@ -549,6 +543,8 @@ public:
 	virtual ComponentPtr Clone(void) const;
 
 	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	virtual void Update(float fElapsedTime);
 

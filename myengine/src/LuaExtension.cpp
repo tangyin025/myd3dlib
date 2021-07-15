@@ -1313,7 +1313,7 @@ void LuaContext::Init(void)
 			.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
 
 		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
-			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
+			.def(constructor<const char *, unsigned int, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readwrite("EmitterChunkSize", &StaticEmitterComponent::m_EmitterChunkSize)
 
 		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")

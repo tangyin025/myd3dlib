@@ -59,7 +59,6 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
-	, m_PaintEmitterCaptured(NULL)
 	, m_raychunkid(0, 0)
 	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
@@ -1162,8 +1161,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	StaticEmitterComponent* emit = dynamic_cast<StaticEmitterComponent*>(pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter));
 	if (emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
-		m_PaintEmitterCaptured = emit;
-		OnPaintEmitterInstance(ray, emit);
+		m_PaintEmitterCaptured.reset(new StaticEmitterStream(emit));
+		OnPaintEmitterInstance(ray, *m_PaintEmitterCaptured);
 		SetCapture();
 		Invalidate();
 		return;
@@ -1296,10 +1295,11 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (m_PaintEmitterCaptured)
 	{
-		m_PaintEmitterCaptured->m_Actor->UpdateAABB();
-		m_PaintEmitterCaptured->m_Actor->UpdateOctNode();
+		m_PaintEmitterCaptured->Release();
+		m_PaintEmitterCaptured->m_emit->m_Actor->UpdateAABB();
+		m_PaintEmitterCaptured->m_emit->m_Actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
-		m_PaintEmitterCaptured = NULL;
+		m_PaintEmitterCaptured.reset();
 		ReleaseCapture();
 		Invalidate();
 		return;
@@ -1364,7 +1364,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	if (m_PaintEmitterCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		OnPaintEmitterInstance(ray, m_PaintEmitterCaptured);
+		OnPaintEmitterInstance(ray, *m_PaintEmitterCaptured);
 		Invalidate();
 		UpdateWindow();
 		return;
@@ -1745,7 +1745,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	}
 }
 
-void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterComponent* emit)
+void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream& estr)
 {
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -1755,11 +1755,11 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 	{
 		const my::Ray& ray;
 		CMainFrame* pFrame;
-		StaticEmitterComponent* emit;
-		Callback(const my::Ray& _ray, CMainFrame* _pFrame, StaticEmitterComponent* _emit)
+		StaticEmitterStream& estr;
+		Callback(const my::Ray& _ray, CMainFrame* _pFrame, StaticEmitterStream& _estr)
 			: ray(_ray)
 			, pFrame(_pFrame)
-			, emit(_emit)
+			, estr(_estr)
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
@@ -1767,44 +1767,38 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterCompone
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 			ASSERT(actor);
 			my::Ray local_ray = ray.transform(actor->m_World.inverse());
-			my::Matrix4 terrain2emit = actor->m_World * emit->m_Actor->m_World.inverse();
+			my::Matrix4 terrain2emit = actor->m_World * estr.m_emit->m_Actor->m_World.inverse();
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
 				if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
 				{
-					//TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
-					//my::RayResult res = tstr.RayTest(local_ray);
-					//if (res.first)
-					//{
-					//	if (emit->m_ParticleList.full())
-					//	{
-					//		emit->m_ParticleList.set_capacity(emit->m_ParticleList.capacity() + 1024);
-					//	}
+					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
+					my::RayResult res = tstr.RayTest(local_ray);
+					if (res.first)
+					{
+						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
 
-					//	my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-
-					//	for (int i = 0; i < pFrame->m_PaintDensity; i++)
-					//	{
-					//		if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
-					//		{
-					//			my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
-					//			my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
-					//			my::RayResult spawn_res = tstr.RayTest(spawn_ray);
-					//			if (spawn_res.first)
-					//			{
-					//				emit->Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
-					//					my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
-					//			}
-					//		}
-					//	}
-					//}
+						for (int i = 0; i < pFrame->m_PaintDensity; i++)
+						{
+							if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
+							{
+								my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
+								my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
+								my::RayResult spawn_res = tstr.RayTest(spawn_ray);
+								if (spawn_res.first)
+								{
+									estr.Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
+										my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	};
 
-	Callback cb(ray, pFrame, emit);
+	Callback cb(ray, pFrame, estr);
 	pFrame->QueryEntity(ray, &cb);
-	//emit->BuildChunks();
 }
