@@ -738,18 +738,18 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
 		if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
-			TerrainChunkSet::iterator viewed_chunk_iter = m_ViewedChunks.begin();
+			ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
 			int LastLod = _Quad(m_ChunkSize, m_MinLodChunkSize);
 			float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);
-			for (; viewed_chunk_iter != m_ViewedChunks.end(); )
+			for (; chunk_iter != m_ViewedChunks.end(); )
 			{
-				if (((*viewed_chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+				if (((*chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
 				{
-					(*viewed_chunk_iter)->ReleaseResource();
-					viewed_chunk_iter = m_ViewedChunks.erase(viewed_chunk_iter);
+					(*chunk_iter)->ReleaseResource();
+					chunk_iter = m_ViewedChunks.erase(chunk_iter);
 				}
 				else
-					viewed_chunk_iter++;
+					chunk_iter++;
 			}
 		}
 		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_rootIb.Lock(0, 0, 0));

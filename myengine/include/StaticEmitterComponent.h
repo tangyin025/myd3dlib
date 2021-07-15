@@ -80,22 +80,9 @@ public:
 
 	std::string m_ChunkPath;
 
-	typedef boost::circular_buffer<boost::shared_ptr<StaticEmitterChunk> > ChunkCircular;
+	typedef std::set<StaticEmitterChunk *> ChunkSet;
 
-	ChunkCircular m_ViewedChunks;
-
-	template<class T>
-	struct AutoReleaseResource
-	{
-		typedef void result_type;
-
-		typedef T * argument_type;
-
-		void operator()(T * x) const
-		{
-			_ASSERT(x->IsRequested()); x->ReleaseResource();
-		}
-	};
+	ChunkSet m_ViewedChunks;
 
 protected:
 	StaticEmitterComponent(void)
@@ -105,7 +92,6 @@ protected:
 public:
 	StaticEmitterComponent(const char* Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
-		, m_ViewedChunks(10)
 		, OctRoot(-1.0f, 1.0f)
 	{
 	}

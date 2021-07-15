@@ -1,6 +1,7 @@
 #include "StaticEmitterComponent.h"
 #include "Actor.h"
 #include "myResource.h"
+#include "RenderPipeline.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -185,11 +186,11 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 
-			if (!chunk->IsRequested())
+			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && cmp->m_ViewedChunks.insert(chunk).second)
 			{
-				chunk->RequestResource();
+				_ASSERT(!chunk->IsRequested());
 
-				cmp->m_ViewedChunks.push_back(boost::shared_ptr<StaticEmitterChunk>(chunk, AutoReleaseResource<StaticEmitterChunk>()));
+				chunk->RequestResource();
 			}
 
 			if (chunk->m_buff)
@@ -201,6 +202,21 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 
 	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+	{
+		ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
+		float CullingDistSq = powf(m_Actor->m_CullingDist, 2.0);
+		for (; chunk_iter != m_ViewedChunks.end(); )
+		{
+			if (((*chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+			{
+				(*chunk_iter)->ReleaseResource();
+				chunk_iter = m_ViewedChunks.erase(chunk_iter);
+			}
+			else
+				chunk_iter++;
+		}
+	}
 	Callback cb(pipeline, PassMask, LocalViewPos, this);
 	QueryEntity(LocalFrustum, &cb);
 }

@@ -99,9 +99,9 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef std::set<TerrainChunk*> TerrainChunkSet;
+	typedef std::set<TerrainChunk*> ChunkSet;
 
-	TerrainChunkSet m_ViewedChunks;
+	ChunkSet m_ViewedChunks;
 
 	my::VertexBuffer m_rootVb;
 
