@@ -94,44 +94,12 @@ public:
 	}
 };
 
-TerrainChunk::TerrainChunk(void)
-	: m_Row(0)
-	, m_Col(0)
-	, m_Requested(false)
-{
-	m_Lod[0] = UINT_MAX;
-}
-
-TerrainChunk::TerrainChunk(int Row, int Col, Terrain * terrain)
-	: m_Row(Row)
-	, m_Col(Col)
-	, m_Requested(false)
-{
-	m_Lod[0] = UINT_MAX;
-}
-
 TerrainChunk::~TerrainChunk(void)
 {
 	if (IsRequested())
 	{
 		_ASSERT(false); ReleaseResource();
 	}
-}
-
-template<class Archive>
-void TerrainChunk::save(Archive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(m_Row);
-	ar << BOOST_SERIALIZATION_NVP(m_Col);
-	ar << BOOST_SERIALIZATION_NVP(m_Material);
-}
-
-template<class Archive>
-void TerrainChunk::load(Archive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_NVP(m_Row);
-	ar >> BOOST_SERIALIZATION_NVP(m_Col);
-	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
 
 void TerrainChunk::RequestResource(void)
@@ -272,9 +240,10 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
-			m_Chunks[i][j].reset(new TerrainChunk(i, j, this));
+			m_Chunks[i][j].m_Row = i;
+			m_Chunks[i][j].m_Col = j;
 			AABB aabb(j * m_ChunkSize, -1, i * m_ChunkSize, (j + 1) * m_ChunkSize, 1, (i + 1) * m_ChunkSize);
-			AddEntity(m_Chunks[i][j].get(), aabb, MinBlock, Threshold);
+			AddEntity(&m_Chunks[i][j], aabb, MinBlock, Threshold);
 		}
 	}
 }
@@ -514,7 +483,7 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 		for (int j = 0; j < m_ColChunks; j++)
 		{
 			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d", i, j).c_str(), m_Chunks[i][j]);
-			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), *m_Chunks[i][j]->m_OctAabb);
+			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), *m_Chunks[i][j].m_OctAabb);
 		}
 	}
 }
@@ -553,7 +522,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 			AABB aabb;
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d", i, j).c_str(), m_Chunks[i][j]);
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), aabb);
-			AddEntity(m_Chunks[i][j].get(), aabb, MinBlock, Threshold);
+			AddEntity(&m_Chunks[i][j], aabb, MinBlock, Threshold);
 		}
 	}
 }
@@ -583,9 +552,9 @@ void Terrain::ReleaseResource(void)
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
-			if (m_Chunks[i][j]->IsRequested())
+			if (m_Chunks[i][j].IsRequested())
 			{
-				m_Chunks[i][j]->ReleaseResource();
+				m_Chunks[i][j].ReleaseResource();
 			}
 		}
 	}
@@ -618,7 +587,7 @@ my::AABB Terrain::CalculateAABB(void) const
 	{
 		for (int j = 0; j < m_ColChunks; j++)
 		{
-			ret.unionSelf(*m_Chunks[i][j]->m_OctAabb);
+			ret.unionSelf(*m_Chunks[i][j].m_OctAabb);
 		}
 	}
 	return ret;
@@ -904,7 +873,7 @@ void TerrainStream::Release(void)
 				{
 					aabb.shrinkSelf(0, -1.0f, 0);
 				}
-				TerrainChunk* chunk = m_terrain->m_Chunks[k][l].get();
+				TerrainChunk* chunk = &m_terrain->m_Chunks[k][l];
 				m_terrain->RemoveEntity(chunk);
 				m_terrain->AddEntity(chunk, aabb, Terrain::MinBlock, Terrain::Threshold);
 
@@ -975,9 +944,9 @@ void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int
 
 my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 {
-	if (m_terrain->m_Chunks[k][l]->m_Vb)
+	if (m_terrain->m_Chunks[k][l].m_Vb)
 	{
-		return m_terrain->m_Chunks[k][l]->m_Vb;
+		return m_terrain->m_Chunks[k][l].m_Vb;
 	}
 
 	if (!m_Vbs[k][l])

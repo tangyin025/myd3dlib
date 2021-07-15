@@ -25,26 +25,23 @@ public:
 
 	MaterialPtr m_Material;
 
-protected:
-	TerrainChunk(void);
-
 public:
-	TerrainChunk(int Row, int Col, Terrain * terrain);
+	TerrainChunk(void)
+		: m_Row(0)
+		, m_Col(0)
+		, m_Requested(false)
+	{
+		m_Lod[0] = UINT_MAX;
+	}
 
 	virtual ~TerrainChunk(void);
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		boost::serialization::split_member(ar, *this, version);
+		ar & BOOST_SERIALIZATION_NVP(m_Row);
+		ar & BOOST_SERIALIZATION_NVP(m_Col);
+		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
 	bool IsRequested(void) const
@@ -58,8 +55,6 @@ public:
 
 	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
 };
-
-typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
 class Terrain
 	: public Component
@@ -95,7 +90,7 @@ public:
 
 	std::string m_ChunkPath;
 
-	typedef boost::multi_array<TerrainChunkPtr, 2> ChunkArray2D;
+	typedef boost::multi_array<TerrainChunk, 2> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
 
@@ -123,7 +118,7 @@ public:
 
 	TerrainChunk * GetChunk(int i, int j)
 	{
-		TerrainChunk * ret = m_Chunks[i][j].get(); _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
+		TerrainChunk * ret = &m_Chunks[i][j]; _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
 	}
 
 	void CreateElements(void);

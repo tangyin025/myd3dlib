@@ -72,7 +72,7 @@ class StaticEmitterComponent
 	, public my::OctRoot
 {
 public:
-	float m_ChunkStep;
+	float m_EmitterChunkSize;
 
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 

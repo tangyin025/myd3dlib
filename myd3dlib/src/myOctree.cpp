@@ -59,6 +59,7 @@ OctNode * OctNode::GetTopNode(void)
 void OctNode::AddEntity(OctEntity * entity, const AABB & aabb, float minblock, float threshold)
 {
 	_ASSERT(!entity->m_Node);
+	_ASSERT(aabb.IsValid());
 	if (m_max.x - m_min.x > minblock + threshold || m_max.y - m_min.y > minblock + threshold || m_max.z - m_min.z > minblock + threshold)
 	{
 		if (aabb.m_min.x > m_Half.x - threshold && aabb.m_max.x < m_max.x + threshold)

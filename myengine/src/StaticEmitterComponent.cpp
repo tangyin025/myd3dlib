@@ -111,7 +111,7 @@ void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
 	//ParticleList::capacity_type buffer_capacity = m_ParticleList.capacity();
 	//ar << BOOST_SERIALIZATION_NVP(buffer_capacity);
 	//boost::serialization::stl::save_collection<Archive, ParticleList>(ar, m_ParticleList);
-	//ar << BOOST_SERIALIZATION_NVP(m_ChunkStep);
+	//ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
 	//DWORD ChunkSize = m_Chunks.size();
 	//ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	//for (int i = 0; i < (int)m_Chunks.size(); i++)
@@ -136,7 +136,7 @@ void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 	//ar >> BOOST_SERIALIZATION_NVP(item_version);
 	//m_ParticleList.resize(count);
 	//boost::serialization::stl::collection_load_impl<Archive, ParticleList>(ar, m_ParticleList, count, item_version);
-	//ar >> BOOST_SERIALIZATION_NVP(m_ChunkStep);
+	//ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
 	//DWORD ChunkSize;
 	//ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	//m_Chunks.resize(ChunkSize);
@@ -145,7 +145,7 @@ void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 	//	AABB aabb;
 	//	ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d", i).c_str(), m_Chunks[i]);
 	//	ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d_aabb", i).c_str(), aabb);
-	//	AddEntity(m_Chunks[i].get(), aabb, m_ChunkStep, 0.01f);
+	//	AddEntity(m_Chunks[i].get(), aabb, m_EmitterChunkSize, 0.01f);
 	//}
 }
 
@@ -174,19 +174,19 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 		RenderPipeline* pipeline;
 		unsigned int PassMask;
 		const Vector3& LocalViewPos;
-		StaticEmitterComponent* cmp;
-		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticEmitterComponent* _cmp)
+		StaticEmitterComponent* emit_cmp;
+		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticEmitterComponent* _emit_cmp)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
-			, cmp(_cmp)
+			, emit_cmp(_emit_cmp)
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 
-			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && cmp->m_ViewedChunks.insert(chunk).second)
+			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && emit_cmp->m_ViewedChunks.insert(chunk).second)
 			{
 				_ASSERT(!chunk->IsRequested());
 
@@ -195,7 +195,7 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 
 			if (chunk->m_buff)
 			{
-				cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size(), NULL, 0);
+				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size(), NULL, 0);
 			}
 		}
 	};
@@ -232,8 +232,8 @@ void StaticEmitterStream::Release(void)
 
 		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, buff_iter->first.first, buff_iter->first.second);
 		std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
-		std::fstream fstr(FullPath, std::ios::in | std::ios::out | std::ios::binary);
-		_ASSERT(fstr.is_open());
+		std::ofstream ofs(FullPath, std::ios::binary);
+		_ASSERT(ofs.is_open());
 
 		my::AABB chunk_box = *chunk_iter->second.m_OctAabb;
 		chunk_box.m_min.y = FLT_MAX;
@@ -242,10 +242,10 @@ void StaticEmitterStream::Release(void)
 		for (; part_iter != buff_iter->second->end(); part_iter++)
 		{
 			chunk_box.unionYSelf(part_iter->m_Position.y);
-			fstr.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
+			ofs.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
 		}
 		m_emit->RemoveEntity(&chunk_iter->second);
-		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_ChunkStep, 0.1f);
+		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_EmitterChunkSize, 0.1f);
 	}
 }
 
@@ -273,7 +273,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 	else
 	{
 		m_emit->AddEntity(&chunk_res.first->second,
-			my::AABB(l * m_emit->m_ChunkStep, -4096.0f, k * m_emit->m_ChunkStep, (l + 1) * m_emit->m_ChunkStep, 4096.0f, (k + 1) * m_emit->m_ChunkStep), m_emit->m_ChunkStep, 0.1f);
+			my::AABB(l * m_emit->m_EmitterChunkSize, m_emit->m_min.y, k * m_emit->m_EmitterChunkSize, (l + 1) * m_emit->m_EmitterChunkSize, m_emit->m_max.y, (k + 1) * m_emit->m_EmitterChunkSize), m_emit->m_EmitterChunkSize, 0.1f);
 		buff_res.first->second.reset(new StaticEmitterChunkBuffer());
 	}
 
@@ -287,7 +287,7 @@ void StaticEmitterStream::SetBuffer(int k, int l, my::DeviceResourceBasePtr res)
 
 void StaticEmitterStream::Spawn(const my::Vector3 & Pos)
 {
-	int k = (int)(Pos.z / m_emit->m_ChunkStep), l = (int)(Pos.x / m_emit->m_ChunkStep);
+	int k = (int)(Pos.z / m_emit->m_EmitterChunkSize), l = (int)(Pos.x / m_emit->m_EmitterChunkSize);
 
 	StaticEmitterChunkBuffer * buff = GetBuffer(k, l);
 

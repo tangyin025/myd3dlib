@@ -2965,9 +2965,9 @@ namespace my
 
 		bool IsValid(void) const
 		{
-			return m_min.x < m_max.x
-				&& m_min.y < m_max.y
-				&& m_min.z < m_max.z;
+			return m_min.x <= m_max.x
+				&& m_min.y <= m_max.y
+				&& m_min.z <= m_max.z;
 		}
 
 		AABB valid(void) const

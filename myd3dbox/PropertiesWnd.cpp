@@ -519,7 +519,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[emit_cmp->m_EmitterSpaceType]);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType]);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
-	pChunkStep->SetValue((_variant_t)emit_cmp->m_ChunkStep);
+	pChunkStep->SetValue((_variant_t)emit_cmp->m_EmitterChunkSize);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 6);
 	//pParticleList->GetSubItem(0)->SetValue((_variant_t)(unsigned int)emit_cmp->m_ParticleList.size());
@@ -635,7 +635,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material;
+	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material;
 	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
 
 	CString strTitle;
@@ -1082,7 +1082,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		pEmitterPrimitiveType->AddOption(g_EmitterPrimitiveType[i], TRUE);
 	}
 	pComponent->AddSubItem(pEmitterPrimitiveType);
-	CMFCPropertyGridProperty * pChunkStep = new CSimpleProp(_T("ChunkStep"), (_variant_t)emit_cmp->m_ChunkStep, NULL, PropertyStaticEmitterChunkStep);
+	CMFCPropertyGridProperty * pChunkStep = new CSimpleProp(_T("ChunkStep"), (_variant_t)emit_cmp->m_EmitterChunkSize, NULL, PropertyStaticEmitterChunkStep);
 	pComponent->AddSubItem(pChunkStep);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
@@ -1251,7 +1251,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	ASSERT_VALID(pFrame);
 	CString strTitle;
 	strTitle.Format(_T("Enable Chunk_%d_%d Material"), pFrame->m_selchunkid.x, pFrame->m_selchunkid.y);
-	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material;
+	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material;
 	pProp = new CCheckBoxProp(strTitle, mtl != NULL, NULL, PropertyTerrainChunkMaterial);
 	pComponent->AddSubItem(pProp);
 
@@ -2328,7 +2328,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyStaticEmitterChunkStep:
 	{
 		//StaticEmitterComponent * emit_cmp = (StaticEmitterComponent*)pProp->GetParent()->GetValue().pulVal;
-		//emit_cmp->m_ChunkStep = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
+		//emit_cmp->m_EmitterChunkSize = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
 		//if (!emit_cmp->m_Chunks.empty())
 		//{
 		//	emit_cmp->BuildChunks();
@@ -2525,24 +2525,24 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		ASSERT_VALID(pFrame);
 		if (pProp->GetValue().boolVal)
 		{
-			if (!terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material)
+			if (!terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material)
 			{
-				terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material = terrain->m_Material->Clone();
-				if (terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->IsRequested())
+				terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material = terrain->m_Material->Clone();
+				if (terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].IsRequested())
 				{
-					terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material->RequestResource();
+					terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material->RequestResource();
 				}
 			}
 		}
 		else
 		{
-			if (terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material)
+			if (terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material)
 			{
-				if (terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->IsRequested())
+				if (terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].IsRequested())
 				{
-					terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material->ReleaseResource();
+					terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material->ReleaseResource();
 				}
-				terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y]->m_Material.reset();
+				terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material.reset();
 			}
 		}
 		UpdatePropertiesTerrain(pComponent, terrain);
