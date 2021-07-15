@@ -21,6 +21,16 @@ BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 using namespace my;
 
+void StaticEmitterChunk::RequestResource(void)
+{
+	m_Requested = true;
+}
+
+void StaticEmitterChunk::ReleaseResource(void)
+{
+	m_Requested = false;
+}
+
 template<class Archive>
 void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
 {
@@ -179,18 +189,18 @@ void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPip
 		}
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
-			StaticEmitterNode* node = dynamic_cast<StaticEmitterNode*>(oct_entity);
+			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 
-			int k = node->i / cmp->m_ChunkSize;
-
-			int l = node->j / cmp->m_ChunkSize;
-
-			StaticEmitterComponent::ChunkMap::const_iterator chunk_iter = cmp->m_Chunks.find(std::make_pair(k, l));
-			_ASSERT(chunk_iter != cmp->m_Chunks.end());
-
-			if (chunk_iter->second.m_buff)
+			if (!chunk->IsRequested())
 			{
-				cmp->AddParticlePairToPipeline(pipeline, PassMask, chunk_iter->second.m_buff.get() + node->particle_begin, node->particle_num, NULL, 0);
+				chunk->RequestResource();
+
+				cmp->m_ViewedChunks.push_back(boost::shared_ptr<StaticEmitterChunk>(chunk, AutoReleaseResource<StaticEmitterChunk>()));
+			}
+
+			if (chunk->m_buff)
+			{
+				cmp->AddParticlePairToPipeline(pipeline, PassMask, chunk->m_buff.get(), chunk->m_Num, NULL, 0);
 			}
 		}
 	};

@@ -9,6 +9,7 @@
 #include "ShapeDlg.h"
 #include "Material.h"
 #include "Terrain.h"
+#include "StaticEmitterComponent.h"
 #include "Animation.h"
 #include <boost/scope_exit.hpp>
 #include <boost/algorithm/string/trim.hpp>

@@ -2,30 +2,19 @@
 
 #include "Component.h"
 
-class StaticEmitterNode
+class StaticEmitterChunk
 	: public my::OctEntity
 {
 public:
-	int i;
+	bool m_Requested;
 
-	int j;
-
-	unsigned int particle_begin;
-
-	unsigned int particle_num;
-};
-
-class StaticEmitterChunk
-{
-public:
 	std::shared_ptr<my::Emitter::Particle[]> m_buff;
 
-	typedef std::map<std::pair<int, int>, StaticEmitterNode> NodeMap;
-	
-	NodeMap m_node;
+	int m_Num;
 
 public:
 	StaticEmitterChunk(void)
+		: m_Requested(false)
 	{
 	}
 
@@ -39,6 +28,15 @@ public:
 	void serialize(Archive& ar, const unsigned int version)
 	{
 	}
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
+	void RequestResource(void);
+
+	void ReleaseResource(void);
 };
 
 class StaticEmitterComponent
@@ -48,13 +46,26 @@ class StaticEmitterComponent
 public:
 	float m_ChunkStep;
 
-	int m_ChunkSize;
-
-	int m_NodeSize;
-
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
+
+	typedef boost::circular_buffer<boost::shared_ptr<StaticEmitterChunk> > ChunkCircular;
+
+	ChunkCircular m_ViewedChunks;
+
+	template<class T>
+	struct AutoReleaseResource
+	{
+		typedef void result_type;
+
+		typedef T * argument_type;
+
+		void operator()(T * x) const
+		{
+			_ASSERT(x->IsRequested()); x->ReleaseResource();
+		}
+	};
 
 protected:
 	StaticEmitterComponent(void)
@@ -64,6 +75,7 @@ protected:
 public:
 	StaticEmitterComponent(const char* Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		, m_ViewedChunks(10)
 		, OctRoot(-1.0f, 1.0f)
 	{
 	}

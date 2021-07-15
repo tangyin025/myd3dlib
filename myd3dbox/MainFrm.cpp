@@ -1306,16 +1306,10 @@ void CMainFrame::OnComponentStaticEmitter()
 	mtl->ParseShaderParameters();
 	emit_cmp->SetMaterial(mtl);
 	(*actor_iter)->AddComponent(emit_cmp);
-	emit_cmp->m_ChunkSize = 8;
-	emit_cmp->m_NodeSize = 4;
 	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = emit_cmp->m_Chunks.insert(std::make_pair(std::make_pair(0, 0), StaticEmitterChunk()));
 	chunk_res.first->second.m_buff.reset(new my::Emitter::Particle[1]);
-	std::pair<StaticEmitterChunk::NodeMap::iterator, bool> node_res = chunk_res.first->second.m_node.insert(std::make_pair(std::make_pair(0, 0), StaticEmitterNode()));
-	node_res.first->second.i = 0;
-	node_res.first->second.j = 0;
-	node_res.first->second.particle_begin = 0;
-	node_res.first->second.particle_num = 1;
-	emit_cmp->AddEntity(&node_res.first->second, AABB(-1,1), 1.0f, 0.1f);
+	chunk_res.first->second.m_Num = 1;
+	emit_cmp->AddEntity(&chunk_res.first->second, AABB(-1,1), 1.0f, 0.1f);
 	//emit_cmp->Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
