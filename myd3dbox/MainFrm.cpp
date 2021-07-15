@@ -1306,7 +1306,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	mtl->ParseShaderParameters();
 	emit_cmp->SetMaterial(mtl);
 	(*actor_iter)->AddComponent(emit_cmp);
-	emit_cmp->m_ChunkPath = "terrain/editor_emitter0";
+	emit_cmp->m_EmitterChunkPath = "terrain/editor_emitter0";
 	StaticEmitterStream estr(emit_cmp.get());
 	estr.Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
 	estr.Release();

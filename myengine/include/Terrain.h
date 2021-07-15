@@ -34,7 +34,7 @@ public:
 		m_Lod[0] = UINT_MAX;
 	}
 
-	virtual ~TerrainChunk(void);
+	~TerrainChunk(void);
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)

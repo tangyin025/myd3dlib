@@ -18,8 +18,8 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <fstream>
-
-BOOST_CLASS_EXPORT(StaticEmitterChunk)
+//
+//BOOST_CLASS_EXPORT(StaticEmitterChunk)
 
 BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
@@ -62,16 +62,24 @@ public:
 	}
 };
 
+StaticEmitterChunk::~StaticEmitterChunk(void)
+{
+	if (IsRequested())
+	{
+		_ASSERT(false); ReleaseResource();
+	}
+}
+
 void StaticEmitterChunk::RequestResource(void)
 {
 	m_Requested = true;
 
 	StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent*>(m_Node->GetTopNode());
-	if (!emit_cmp->m_ChunkPath.empty())
+	if (!emit_cmp->m_EmitterChunkPath.empty())
 	{
 		_ASSERT(!m_buff);
 
-		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
+		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_EmitterChunkPath, m_Row, m_Col);
 		IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), m_Row, m_Col, 0));
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
 			path, request, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
@@ -81,9 +89,9 @@ void StaticEmitterChunk::RequestResource(void)
 void StaticEmitterChunk::ReleaseResource(void)
 {
 	StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent*>(m_Node->GetTopNode());
-	if (!emit_cmp->m_ChunkPath.empty())
+	if (!emit_cmp->m_EmitterChunkPath.empty())
 	{
-		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
+		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_EmitterChunkPath, m_Row, m_Col);
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(
 			path, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
 
@@ -114,47 +122,45 @@ StaticEmitterComponent::StaticEmitterComponent(const char* Name, int RowChunks, 
 template<class Archive>
 void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
 {
-	//ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
-	//ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
-	//ParticleList::capacity_type buffer_capacity = m_ParticleList.capacity();
-	//ar << BOOST_SERIALIZATION_NVP(buffer_capacity);
-	//boost::serialization::stl::save_collection<Archive, ParticleList>(ar, m_ParticleList);
-	//ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
-	//DWORD ChunkSize = m_Chunks.size();
-	//ar << BOOST_SERIALIZATION_NVP(ChunkSize);
-	//for (int i = 0; i < (int)m_Chunks.size(); i++)
-	//{
-	//	ar << boost::serialization::make_nvp(str_printf("m_chunk_%d", i).c_str(), m_Chunks[i]);
-	//	ar << boost::serialization::make_nvp(str_printf("m_chunk_%d_aabb", i).c_str(), m_Chunks[i]->m_OctAabb);
-	//}
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
+	ar << BOOST_SERIALIZATION_NVP(m_EmitterRowChunks);
+	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
+	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
+	DWORD ChunkSize = m_Chunks.size();
+	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		ar << boost::serialization::make_nvp("m_chunk_row", chunk_iter->first.first);
+		ar << boost::serialization::make_nvp("m_chunk_col", chunk_iter->first.second);
+		ar << boost::serialization::make_nvp("m_chunk", chunk_iter->second);
+		ar << boost::serialization::make_nvp("m_chunk_aabb", *chunk_iter->second.m_OctAabb);
+	}
 }
 
 template<class Archive>
 void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 {
-	//ClearAllEntity();
-	//ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
-	//ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
-	//ParticleList::capacity_type buffer_capacity;
-	//ar >> BOOST_SERIALIZATION_NVP(buffer_capacity);
-	//m_ParticleList.set_capacity(buffer_capacity);
-	//boost::serialization::item_version_type item_version(0);
-	//boost::serialization::collection_size_type count;
-	//ar >> BOOST_SERIALIZATION_NVP(count);
-	//ar >> BOOST_SERIALIZATION_NVP(item_version);
-	//m_ParticleList.resize(count);
-	//boost::serialization::stl::collection_load_impl<Archive, ParticleList>(ar, m_ParticleList, count, item_version);
-	//ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
-	//DWORD ChunkSize;
-	//ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
-	//m_Chunks.resize(ChunkSize);
-	//for (int i = 0; i < (int)ChunkSize; i++)
-	//{
-	//	AABB aabb;
-	//	ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d", i).c_str(), m_Chunks[i]);
-	//	ar >> boost::serialization::make_nvp(str_printf("m_chunk_%d_aabb", i).c_str(), aabb);
-	//	AddEntity(m_Chunks[i].get(), aabb, m_EmitterChunkSize, 0.01f);
-	//}
+	ClearAllEntity();
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
+	ar >> BOOST_SERIALIZATION_NVP(m_EmitterRowChunks);
+	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
+	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
+	DWORD ChunkSize;
+	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
+	for (int i = 0; i < (int)ChunkSize; i++)
+	{
+		int row, col; AABB aabb;
+		ar >> boost::serialization::make_nvp("m_chunk_row", row);
+		ar >> boost::serialization::make_nvp("m_chunk_col", col);
+		std::pair<ChunkMap::iterator, bool> chunk_res = m_Chunks.insert(std::make_pair(std::make_pair(row, col), StaticEmitterChunk(row, col)));
+		_ASSERT(chunk_res.second);
+		ar >> boost::serialization::make_nvp("m_chunk", chunk_res.first->second);
+		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
+		AddEntity(&chunk_res.first->second, aabb, m_EmitterChunkSize, 0.01f);
+	}
 }
 
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent& rhs)
@@ -179,14 +185,12 @@ void StaticEmitterComponent::ReleaseResource(void)
 {
 	EmitterComponent::ReleaseResource();
 
-	ChunkMap::iterator chunk_iter = m_Chunks.begin();
-	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
+	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
 	{
-		if (chunk_iter->second.IsRequested())
-		{
-			chunk_iter->second.ReleaseResource();
-		}
+		(*chunk_iter)->ReleaseResource();
 	}
+	m_ViewedChunks.clear();
 }
 
 void StaticEmitterComponent::Update(float fElapsedTime)
@@ -257,7 +261,7 @@ void StaticEmitterStream::Release(void)
 		_ASSERT(chunk_iter != m_emit->m_Chunks.end());
 		_ASSERT(chunk_iter->second.m_OctAabb);
 
-		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, buff_iter->first.first, buff_iter->first.second);
+		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, buff_iter->first.first, buff_iter->first.second);
 		std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 		std::ofstream ofs(FullPath, std::ios::binary);
 		_ASSERT(ofs.is_open());
@@ -280,19 +284,21 @@ void StaticEmitterStream::Release(void)
 
 StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 {
-	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk(k, l)));
-	if (chunk_res.first->second.m_buff)
-	{
-		return chunk_res.first->second.m_buff.get();
-	}
-
 	std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunkBufferPtr()));
 	if (!buff_res.second)
 	{
 		return buff_res.first->second.get();
 	}
 
-	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, k, l);
+	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk(k, l)));
+	if (chunk_res.first->second.m_buff)
+	{
+		buff_res.first->second = chunk_res.first->second.m_buff; // mask chunk buff as dirty
+
+		return buff_res.first->second.get();
+	}
+
+	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, k, l);
 
 	if (chunk_res.second)
 	{

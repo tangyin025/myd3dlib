@@ -27,8 +27,8 @@
 #include <boost/lambda/casts.hpp>
 
 using namespace my;
-
-BOOST_CLASS_EXPORT(TerrainChunk)
+//
+//BOOST_CLASS_EXPORT(TerrainChunk)
 
 BOOST_CLASS_EXPORT(Terrain)
 
@@ -548,16 +548,12 @@ void Terrain::ReleaseResource(void)
 
 	m_Fragment.clear();
 
-	for (int i = 0; i < m_RowChunks; i++)
+	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
+	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
 	{
-		for (int j = 0; j < m_ColChunks; j++)
-		{
-			if (m_Chunks[i][j].IsRequested())
-			{
-				m_Chunks[i][j].ReleaseResource();
-			}
-		}
+		(*chunk_iter)->ReleaseResource();
 	}
+	m_ViewedChunks.clear();
 
 	Component::ReleaseResource();
 }

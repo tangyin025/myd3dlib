@@ -26,12 +26,6 @@ public:
 
 	StaticEmitterChunkBufferPtr m_buff;
 
-protected:
-	StaticEmitterChunk(void)
-		: m_Requested(false)
-	{
-	}
-
 public:
 	StaticEmitterChunk(int Row, int Col)
 		: m_Row(Row)
@@ -40,11 +34,7 @@ public:
 	{
 	}
 
-	virtual ~StaticEmitterChunk(void)
-	{
-	}
-
-	friend class boost::serialization::access;
+	~StaticEmitterChunk(void);
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
@@ -76,11 +66,11 @@ public:
 
 	int m_EmitterChunkSize;
 
+	std::string m_EmitterChunkPath;
+
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 
 	ChunkMap m_Chunks;
-
-	std::string m_ChunkPath;
 
 	typedef std::set<StaticEmitterChunk *> ChunkSet;
 
