@@ -28,6 +28,16 @@ namespace my
 			float m_Time;
 
 		public:
+			Particle(void)
+				//: m_Position(0, 0, 0)
+				//, m_Velocity(0, 0, 0)
+				//, m_Color(1, 1, 1, 1)
+				//, m_Size(1, 1)
+				//, m_Angle(0)
+				//, m_Time(0)
+			{
+			}
+
 			Particle(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle, float Time)
 				: m_Position(Position)
 				, m_Velocity(Velocity)
@@ -35,16 +45,6 @@ namespace my
 				, m_Size(Size)
 				, m_Angle(Angle)
 				, m_Time(Time)
-			{
-			}
-
-			Particle(void)
-				: m_Position(0,0,0)
-				, m_Velocity(0,0,0)
-				, m_Color(1,1,1,1)
-				, m_Size(1,1)
-				, m_Angle(0)
-				, m_Time(0)
 			{
 			}
 

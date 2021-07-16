@@ -1300,7 +1300,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterPtr emit_cmp(new StaticEmitter(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), 3, 3, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+	StaticEmitterPtr emit_cmp(new StaticEmitter(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), (*actor_iter)->m_aabb, 3.0f, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();

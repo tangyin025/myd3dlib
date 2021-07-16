@@ -508,8 +508,8 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pChunkStep = pComponent->GetSubItem(PropId + 4);
-	if (!pChunkStep || pChunkStep->GetData() != PropertyStaticEmitterChunkStep)
+	CMFCPropertyGridProperty * pChunkWidth = pComponent->GetSubItem(PropId + 4);
+	if (!pChunkWidth || pChunkWidth->GetData() != PropertyStaticEmitterChunkWidth)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesStaticEmitter(pComponent, emit_cmp);
@@ -519,7 +519,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[emit_cmp->m_EmitterSpaceType]);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType]);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
-	pChunkStep->SetValue((_variant_t)emit_cmp->m_EmitterChunkWidth);
+	pChunkWidth->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 6);
 	//pParticleList->GetSubItem(0)->SetValue((_variant_t)(unsigned int)emit_cmp->m_ParticleList.size());
@@ -1082,8 +1082,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		pEmitterPrimitiveType->AddOption(g_EmitterPrimitiveType[i], TRUE);
 	}
 	pComponent->AddSubItem(pEmitterPrimitiveType);
-	CMFCPropertyGridProperty * pChunkStep = new CSimpleProp(_T("ChunkStep"), (_variant_t)emit_cmp->m_EmitterChunkWidth, NULL, PropertyStaticEmitterChunkStep);
-	pComponent->AddSubItem(pChunkStep);
+	CMFCPropertyGridProperty * pChunkWidth = new CSimpleProp(_T("ChunkWidth"), (_variant_t)emit_cmp->m_ChunkWidth, NULL, PropertyStaticEmitterChunkWidth);
+	pComponent->AddSubItem(pChunkWidth);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
@@ -2325,10 +2325,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyStaticEmitterChunkStep:
+	case PropertyStaticEmitterChunkWidth:
 	{
 		//StaticEmitter * emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
-		//emit_cmp->m_EmitterChunkWidth = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
+		//emit_cmp->m_ChunkWidth = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
 		//if (!emit_cmp->m_Chunks.empty())
 		//{
 		//	emit_cmp->BuildChunks();

@@ -3052,6 +3052,13 @@ namespace my
 		{
 			return m_max - m_min;
 		}
+		
+		bool PtInRect(const Vector3 & pt)
+		{
+			return pt.x >= m_min.x && pt.x < m_max.x
+				&& pt.y >= m_min.y && pt.y < m_max.y
+				&& pt.z >= m_min.z && pt.z < m_max.z;
+		}
 
 		template <UINT Quad>
 		AABB Slice(const Vector3 & cente);
@@ -3093,42 +3100,6 @@ namespace my
 			m_max.x = Min(m_max.x, rhs.m_max.x);
 			m_max.y = Min(m_max.y, rhs.m_max.y);
 			m_max.z = Min(m_max.z, rhs.m_max.z);
-			return *this;
-		}
-
-		AABB UnionX(float x) const
-		{
-			return AABB(Min(m_min.x, x), m_min.y, m_min.z, Max(m_max.x, x), m_max.y, m_max.z);
-		}
-
-		AABB & unionXSelf(float x)
-		{
-			m_min.x = Min(m_min.x, x);
-			m_max.x = Max(m_max.x, x);
-			return *this;
-		}
-
-		AABB UnionY(float y) const
-		{
-			return AABB(m_min.x, Min(m_min.y, y), m_min.z, m_max.x, Max(m_max.y, y), m_max.z);
-		}
-
-		AABB& unionYSelf(float y)
-		{
-			m_min.y = Min(m_min.y, y);
-			m_max.y = Max(m_max.y, y);
-			return *this;
-		}
-
-		AABB UnionZ(float z) const
-		{
-			return AABB(m_min.x, m_min.y, Min(m_min.z, z), m_max.x, m_max.y, Max(m_max.z, z));
-		}
-
-		AABB& unionZSelf(float z)
-		{
-			m_min.z = Min(m_min.z, z);
-			m_max.z = Max(m_max.z, z);
 			return *this;
 		}
 

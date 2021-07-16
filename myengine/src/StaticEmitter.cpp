@@ -111,11 +111,10 @@ void StaticEmitterChunk::OnChunkBufferReady(my::DeviceResourceBasePtr res)
 	m_buff = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
-StaticEmitter::StaticEmitter(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+StaticEmitter::StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 	: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
-	, m_EmitterRowChunks(RowChunks)
-	, m_EmitterChunkWidth(ChunkSize)
-	, OctRoot(0, RowChunks * ChunkSize)
+	, m_ChunkWidth(ChunkWidth)
+	, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 {
 }
 
@@ -124,8 +123,7 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
-	ar << BOOST_SERIALIZATION_NVP(m_EmitterRowChunks);
-	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkWidth);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
@@ -145,8 +143,7 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ClearAllEntity();
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
-	ar >> BOOST_SERIALIZATION_NVP(m_EmitterRowChunks);
-	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkWidth);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
@@ -159,7 +156,7 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 		_ASSERT(chunk_res.second);
 		ar >> boost::serialization::make_nvp("m_chunk", chunk_res.first->second);
 		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
-		AddEntity(&chunk_res.first->second, aabb, m_EmitterChunkWidth, 0.01f);
+		AddEntity(&chunk_res.first->second, aabb, m_ChunkWidth, 0.01f);
 	}
 }
 
@@ -272,11 +269,12 @@ void StaticEmitterStream::Release(void)
 		StaticEmitterChunkBuffer::const_iterator part_iter = buff_iter->second->begin();
 		for (; part_iter != buff_iter->second->end(); part_iter++)
 		{
-			chunk_box.unionYSelf(part_iter->m_Position.y);
+			chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y);
+			chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y);
 			ofs.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
 		}
 		m_emit->RemoveEntity(&chunk_iter->second);
-		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_EmitterChunkWidth, 0.1f);
+		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_ChunkWidth, 0.1f);
 	}
 
 	m_buffs.clear();
@@ -310,7 +308,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 		ofs.close();
 
 		m_emit->AddEntity(&chunk_res.first->second,
-			my::AABB(l * m_emit->m_EmitterChunkWidth, m_emit->m_min.y, k * m_emit->m_EmitterChunkWidth, (l + 1) * m_emit->m_EmitterChunkWidth, m_emit->m_max.y, (k + 1) * m_emit->m_EmitterChunkWidth), m_emit->m_EmitterChunkWidth, 0.1f);
+			my::AABB(l * m_emit->m_ChunkWidth, m_emit->m_min.y, k * m_emit->m_ChunkWidth, (l + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (k + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
 	}
 
 	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), k, l, INT_MAX));
@@ -332,10 +330,10 @@ void StaticEmitterStream::SetBuffer(int k, int l, my::DeviceResourceBasePtr res)
 
 void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
-	int k = (int)(Position.z / m_emit->m_EmitterChunkWidth), l = (int)(Position.x / m_emit->m_EmitterChunkWidth);
-
-	if (k >= 0 && k < m_emit->m_EmitterRowChunks && l >= 0 && l < m_emit->m_EmitterRowChunks)
+	if (m_emit->PtInRect(Position))
 	{
+		int k = (int)(Position.z / m_emit->m_ChunkWidth), l = (int)(Position.x / m_emit->m_ChunkWidth);
+
 		StaticEmitterChunkBuffer* buff = GetBuffer(k, l);
 
 		buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));

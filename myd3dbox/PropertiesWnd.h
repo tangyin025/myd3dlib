@@ -165,7 +165,7 @@ public:
 		PropertyEmitterParticleSizeX,
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
-		PropertyStaticEmitterChunkStep,
+		PropertyStaticEmitterChunkWidth,
 		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleCapacity,
 		PropertySphericalEmitterParticleLifeTime,

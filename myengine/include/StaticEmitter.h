@@ -62,9 +62,7 @@ class StaticEmitter
 	, public my::OctRoot
 {
 public:
-	int m_EmitterRowChunks;
-
-	int m_EmitterChunkWidth;
+	float m_ChunkWidth;
 
 	std::string m_EmitterChunkPath;
 
@@ -82,7 +80,7 @@ protected:
 	}
 
 public:
-	StaticEmitter(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType);
+	StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType);
 
 	virtual ~StaticEmitter(void)
 	{
