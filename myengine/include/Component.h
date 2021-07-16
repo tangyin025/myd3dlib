@@ -140,13 +140,18 @@ public:
 		return my::AABB::Invalid();
 	}
 
+	int CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const;
+
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 	{
 	}
 
 	void SetMaterial(MaterialPtr material);
 
-	MaterialPtr GetMaterial(void) const;
+	MaterialPtr GetMaterial(void) const
+	{
+		return m_Material;
+	}
 
 	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection);
 

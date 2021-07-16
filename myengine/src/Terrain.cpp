@@ -265,13 +265,10 @@ static int _Quad(int v, int min_v)
 	return 0;
 }
 
-unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos) const
+int Terrain::CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const
 {
-	float DistanceSq = Vector2(
-		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
-		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
-	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
-	return Clamp(Lod, 0, _Quad(m_ChunkSize, m_MinLodChunkSize));
+	int Lod = Component::CalculateLod(LocalAabb, LocalViewPos);
+	return Min(Lod, _Quad(m_ChunkSize, m_MinLodChunkSize));
 }
 
 void Terrain::CreateElements(void)
@@ -615,7 +612,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod[0] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
+				chunk->m_Lod[0] = terrain->CalculateLod(*chunk->m_OctAabb, LocalViewPos);
 			}
 
 			int LastLod = _Quad(terrain->m_ChunkSize, terrain->m_MinLodChunkSize);
@@ -664,10 +661,10 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod[1] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, LocalViewPos);
-				chunk->m_Lod[2] = terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, LocalViewPos);
-				chunk->m_Lod[3] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, LocalViewPos);
-				chunk->m_Lod[4] = terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, LocalViewPos);
+				chunk->m_Lod[1] = terrain->CalculateLod(*terrain->m_Chunks[chunk->m_Row][Max(chunk->m_Col - 1, 0)].m_OctAabb, LocalViewPos);
+				chunk->m_Lod[2] = terrain->CalculateLod(*terrain->m_Chunks[Max(chunk->m_Row - 1, 0)][chunk->m_Col].m_OctAabb, LocalViewPos);
+				chunk->m_Lod[3] = terrain->CalculateLod(*terrain->m_Chunks[chunk->m_Row][Min(chunk->m_Col + 1, (int)terrain->m_Chunks.shape()[1] - 1)].m_OctAabb, LocalViewPos);
+				chunk->m_Lod[4] = terrain->CalculateLod(*terrain->m_Chunks[Min(chunk->m_Row + 1, (int)terrain->m_Chunks.shape()[0] - 1)][chunk->m_Col].m_OctAabb, LocalViewPos);
 			}
 
 			const Fragment & frag = terrain->GetFragment(chunk->m_Lod[0], chunk->m_Lod[1], chunk->m_Lod[2], chunk->m_Lod[3], chunk->m_Lod[4]);

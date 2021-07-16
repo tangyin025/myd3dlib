@@ -793,11 +793,11 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					else
 					{
 						const Terrain::Fragment& frag = terrain->GetFragment(
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col, ViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, ViewPos),
-							terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
-							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
+							terrain->CalculateLod(*chunk->m_OctAabb, ViewPos),
+							terrain->CalculateLod(*terrain->m_Chunks[chunk->m_Row][my::Max(chunk->m_Col - 1, 0)].m_OctAabb, ViewPos),
+							terrain->CalculateLod(*terrain->m_Chunks[my::Max(chunk->m_Row - 1, 0)][chunk->m_Col].m_OctAabb, ViewPos),
+							terrain->CalculateLod(*terrain->m_Chunks[chunk->m_Row][my::Min(chunk->m_Col + 1, (int)terrain->m_Chunks.shape()[1] - 1)].m_OctAabb, ViewPos),
+							terrain->CalculateLod(*terrain->m_Chunks[my::Min(chunk->m_Row + 1, (int)terrain->m_Chunks.shape()[0] - 1)][chunk->m_Col].m_OctAabb, ViewPos));
 						result = my::Mesh::RayTest(
 							ray,
 							chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),

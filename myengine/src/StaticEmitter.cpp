@@ -210,13 +210,6 @@ my::AABB StaticEmitter::CalculateAABB(void) const
 	return ret;
 }
 
-unsigned int StaticEmitter::CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const
-{
-	float DistanceSq = (LocalAabb.Center() - LocalViewPos).magnitudeSq();
-	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
-	return Lod;
-}
-
 void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 {
 	struct Callback : public my::OctNode::QueryCallback
