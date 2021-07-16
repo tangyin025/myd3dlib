@@ -400,11 +400,11 @@ void MeshComponent::Update(float fElapsedTime)
 
 my::AABB MeshComponent::CalculateAABB(void) const
 {
-	if (m_Mesh)
+	if (!m_Mesh)
 	{
-		return m_Mesh->CalculateAABB(m_MeshSubMeshId);
+		return Component::CalculateAABB();
 	}
-	return Component::CalculateAABB();
+	return m_Mesh->CalculateAABB(m_MeshSubMeshId);
 }
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
@@ -897,19 +897,19 @@ void ClothComponent::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 
 my::AABB ClothComponent::CalculateAABB(void) const
 {
-	if (!m_VertexData.empty())
+	if (m_VertexData.empty())
 	{
-		AABB ret = AABB::Invalid();
-		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
-		const unsigned int NumVertices = m_VertexData.size() / m_VertexStride;
-		for (unsigned int i = 0; i < NumVertices; i++)
-		{
-			unsigned char * pVertex = pVertices + i * m_VertexStride;
-			ret.unionSelf(m_VertexElems.GetPosition(pVertex));
-		}
-		return ret;
+		return Component::CalculateAABB();
 	}
-	return Component::CalculateAABB();
+	AABB ret = AABB::Invalid();
+	unsigned char* pVertices = (unsigned char*)&m_VertexData[0];
+	const unsigned int NumVertices = m_VertexData.size() / m_VertexStride;
+	for (unsigned int i = 0; i < NumVertices; i++)
+	{
+		unsigned char* pVertex = pVertices + i * m_VertexStride;
+		ret.unionSelf(m_VertexElems.GetPosition(pVertex));
+	}
+	return ret;
 }
 
 void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)

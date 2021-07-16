@@ -195,6 +195,21 @@ void StaticEmitter::Update(float fElapsedTime)
 
 }
 
+my::AABB StaticEmitter::CalculateAABB(void) const
+{
+	if (m_Chunks.empty())
+	{
+		return Component::CalculateAABB();
+	}
+	AABB ret = AABB::Invalid();
+	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
+	for (; chunk_iter != m_Chunks.end(); chunk_iter++)
+	{
+		ret.unionSelf(*chunk_iter->second.m_OctAabb);
+	}
+	return ret;
+}
+
 void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 {
 	struct Callback : public my::OctNode::QueryCallback
@@ -269,8 +284,8 @@ void StaticEmitterStream::Release(void)
 		StaticEmitterChunkBuffer::const_iterator part_iter = buff_iter->second->begin();
 		for (; part_iter != buff_iter->second->end(); part_iter++)
 		{
-			chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y);
-			chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y);
+			chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y * 0.5f);
+			chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y * 0.5f);
 			ofs.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
 		}
 		m_emit->RemoveEntity(&chunk_iter->second);

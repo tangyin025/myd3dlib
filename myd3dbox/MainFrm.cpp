@@ -8,8 +8,7 @@
 #include "MainFrm.h"
 #include "ChildView.h"
 #include "TerrainDlg.h"
-#include "Terrain.h"
-#include "StaticEmitter.h"
+#include "StaticEmitterDlg.h"
 #include "Material.h"
 #include "Controller.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -1300,16 +1299,14 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterPtr emit_cmp(new StaticEmitter(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), (*actor_iter)->m_aabb, 3.0f, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
-	MaterialPtr mtl(new Material());
-	mtl->m_Shader = theApp.default_shader;
-	mtl->ParseShaderParameters();
-	emit_cmp->SetMaterial(mtl);
-	(*actor_iter)->AddComponent(emit_cmp);
-	emit_cmp->m_EmitterChunkPath = "terrain/editor_emitter0";
-	StaticEmitterStream estr(emit_cmp.get());
-	estr.Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
-	estr.Release();
+	CStaticEmitterDlg dlg;
+	dlg.m_BoundingBox = (*actor_iter)->m_aabb;
+	if (dlg.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	(*actor_iter)->AddComponent(dlg.m_emit_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();

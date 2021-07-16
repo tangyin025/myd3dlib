@@ -1,5 +1,6 @@
 #pragma once
 
+#include "StaticEmitter.h"
 
 // CStaticEmitterDlg dialog
 
@@ -16,8 +17,19 @@ public:
 	enum { IDD = IDD_DIALOG5 };
 #endif
 
+	StaticEmitterPtr m_emit_cmp;
+
+	std::string m_emit_cmp_name;
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+public:
+	CString m_AssetPath;
+	my::AABB m_BoundingBox;
+	float m_ChunkWidth;
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	afx_msg void OnChangeEdit1();
 };
