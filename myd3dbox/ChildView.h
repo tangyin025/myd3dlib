@@ -8,7 +8,7 @@
 #include "RenderPipeline.h"
 #include "Actor.h"
 #include "Terrain.h"
-#include "StaticEmitterComponent.h"
+#include "StaticEmitter.h"
 #include "DebugDraw.h"
 
 class CMainDoc;

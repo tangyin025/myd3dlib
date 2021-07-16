@@ -9,7 +9,7 @@
 #include "ShapeDlg.h"
 #include "Material.h"
 #include "Terrain.h"
-#include "StaticEmitterComponent.h"
+#include "StaticEmitter.h"
 #include "Animation.h"
 #include <boost/scope_exit.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -348,10 +348,10 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 		UpdatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
 		break;
 	case Component::ComponentTypeStaticEmitter:
-		UpdatePropertiesStaticEmitter(pComponent, dynamic_cast<StaticEmitterComponent *>(cmp));
+		UpdatePropertiesStaticEmitter(pComponent, dynamic_cast<StaticEmitter *>(cmp));
 		break;
 	case Component::ComponentTypeSphericalEmitter:
-		UpdatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
+		UpdatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitter *>(cmp));
 		break;
 	case Component::ComponentTypeTerrain:
 		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
@@ -505,7 +505,7 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 3), cloth_cmp->m_Material.get());
 }
 
-void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitterComponent * emit_cmp)
+void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pChunkStep = pComponent->GetSubItem(PropId + 4);
@@ -519,7 +519,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_EmitterSpaceType[emit_cmp->m_EmitterSpaceType]);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType]);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
-	pChunkStep->SetValue((_variant_t)emit_cmp->m_EmitterChunkSize);
+	pChunkStep->SetValue((_variant_t)emit_cmp->m_EmitterChunkWidth);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 5), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = pComponent->GetSubItem(PropId + 6);
 	//pParticleList->GetSubItem(0)->SetValue((_variant_t)(unsigned int)emit_cmp->m_ParticleList.size());
@@ -536,7 +536,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	//RemovePropertiesFrom(pParticleList, 1 + NumParticles);
 }
 
-void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitterComponent* emit_cmp)
+void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp)
 {
 	//CMFCPropertyGridProperty * pParticle = pParentProp->GetSubItem(NodeId + 1);
 	//_ASSERT(pParticle);
@@ -555,7 +555,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	//pProp = pParticle->GetSubItem(5); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)D3DXToDegree(particle.m_Angle));
 }
 
-void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
+void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pParticleCapacity = pComponent->GetSubItem(PropId + 4);
@@ -841,10 +841,10 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 		CreatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
 		break;
 	case Component::ComponentTypeStaticEmitter:
-		CreatePropertiesStaticEmitter(pComponent, dynamic_cast<StaticEmitterComponent *>(cmp));
+		CreatePropertiesStaticEmitter(pComponent, dynamic_cast<StaticEmitter *>(cmp));
 		break;
 	case Component::ComponentTypeSphericalEmitter:
-		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
+		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitter *>(cmp));
 		break;
 	case Component::ComponentTypeTerrain:
 		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
@@ -1054,7 +1054,7 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 	CreatePropertiesMaterial(pComponent, _T("Material"), cloth_cmp->m_Material.get());
 }
 
-void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitterComponent * emit_cmp)
+void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp)
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
@@ -1082,7 +1082,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		pEmitterPrimitiveType->AddOption(g_EmitterPrimitiveType[i], TRUE);
 	}
 	pComponent->AddSubItem(pEmitterPrimitiveType);
-	CMFCPropertyGridProperty * pChunkStep = new CSimpleProp(_T("ChunkStep"), (_variant_t)emit_cmp->m_EmitterChunkSize, NULL, PropertyStaticEmitterChunkStep);
+	CMFCPropertyGridProperty * pChunkStep = new CSimpleProp(_T("ChunkStep"), (_variant_t)emit_cmp->m_EmitterChunkWidth, NULL, PropertyStaticEmitterChunkStep);
 	pComponent->AddSubItem(pChunkStep);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
@@ -1096,7 +1096,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	//}
 }
 
-void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitterComponent* emit_cmp)
+void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp)
 {
 	//TCHAR buff[128];
 	//_stprintf_s(buff, _countof(buff), _T("Particle%d"), NodeId);
@@ -1140,7 +1140,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	//pParticle->AddSubItem(pProp);
 }
 
-void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
+void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp)
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
@@ -1761,9 +1761,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		//for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 		//{
 		//	if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
-		//		&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+		//		&& dynamic_cast<StaticEmitter*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 		//	{
-		//		dynamic_cast<StaticEmitterComponent *>(cmp_iter->get())->BuildChunks();
+		//		dynamic_cast<StaticEmitter *>(cmp_iter->get())->BuildChunks();
 		//	}
 		//}
 
@@ -2248,12 +2248,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		//{
 		//	emit_cmp->m_ParticleList.resize(new_size, my::Emitter::Particle(actor->m_Position, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0, 0));
 		//}
-		//dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildChunks();
+		//dynamic_cast<StaticEmitter*>(emit_cmp)->BuildChunks();
 		//actor->UpdateAABB();
 		//actor->UpdateOctNode();
 		//pFrame->UpdateSelBox();
 		//pFrame->UpdatePivotTransform();
-		//UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), dynamic_cast<StaticEmitterComponent*>(emit_cmp));
+		//UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), dynamic_cast<StaticEmitter*>(emit_cmp));
 		//m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2313,13 +2313,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		//particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		//particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		//particle.m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
-		//dynamic_cast<StaticEmitterComponent*>(emit_cmp)->BuildChunks();
+		//dynamic_cast<StaticEmitter*>(emit_cmp)->BuildChunks();
 		//Actor * actor = emit_cmp->m_Actor;
 		//actor->UpdateAABB();
 		//actor->UpdateOctNode();
 		//pFrame->UpdateSelBox();
 		//pFrame->UpdatePivotTransform();
-		//UpdatePropertiesStaticEmitter(pParticle->GetParent()->GetParent(), dynamic_cast<StaticEmitterComponent*>(emit_cmp));
+		//UpdatePropertiesStaticEmitter(pParticle->GetParent()->GetParent(), dynamic_cast<StaticEmitter*>(emit_cmp));
 		//m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2327,8 +2327,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyStaticEmitterChunkStep:
 	{
-		//StaticEmitterComponent * emit_cmp = (StaticEmitterComponent*)pProp->GetParent()->GetValue().pulVal;
-		//emit_cmp->m_EmitterChunkSize = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
+		//StaticEmitter * emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
+		//emit_cmp->m_EmitterChunkWidth = my::Max((float)EPSILON_E3, pProp->GetValue().fltVal);
 		//if (!emit_cmp->m_Chunks.empty())
 		//{
 		//	emit_cmp->BuildChunks();
@@ -2339,7 +2339,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertySphericalEmitterParticleCapacity:
 	{
-		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pProp->GetParent()->GetValue().pulVal;
+		SphericalEmitter * sphe_emit_cmp = (SphericalEmitter *)pProp->GetParent()->GetValue().pulVal;
 		unsigned int new_size = pProp->GetValue().uintVal;
 		sphe_emit_cmp->m_ParticleList.set_capacity(new_size);
 		UpdatePropertiesSphericalEmitter(pProp->GetParent(), sphe_emit_cmp);
@@ -2368,7 +2368,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pComponent = pProp->GetParent();
 			break;
 		}
-		SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().pulVal;
+		SphericalEmitter * sphe_emit_cmp = (SphericalEmitter *)pComponent->GetValue().pulVal;
 		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 		sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 5)->GetValue().fltVal;
 		sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 6)->GetValue().fltVal;

@@ -1,4 +1,4 @@
-#include "StaticEmitterComponent.h"
+#include "StaticEmitter.h"
 #include "Actor.h"
 #include "myResource.h"
 #include "RenderPipeline.h"
@@ -21,7 +21,7 @@
 //
 //BOOST_CLASS_EXPORT(StaticEmitterChunk)
 
-BOOST_CLASS_EXPORT(StaticEmitterComponent)
+BOOST_CLASS_EXPORT(StaticEmitter)
 
 using namespace my;
 
@@ -74,7 +74,7 @@ void StaticEmitterChunk::RequestResource(void)
 {
 	m_Requested = true;
 
-	StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent*>(m_Node->GetTopNode());
+	StaticEmitter * emit_cmp = dynamic_cast<StaticEmitter*>(m_Node->GetTopNode());
 	if (!emit_cmp->m_EmitterChunkPath.empty())
 	{
 		_ASSERT(!m_buff);
@@ -88,7 +88,7 @@ void StaticEmitterChunk::RequestResource(void)
 
 void StaticEmitterChunk::ReleaseResource(void)
 {
-	StaticEmitterComponent * emit_cmp = dynamic_cast<StaticEmitterComponent*>(m_Node->GetTopNode());
+	StaticEmitter * emit_cmp = dynamic_cast<StaticEmitter*>(m_Node->GetTopNode());
 	if (!emit_cmp->m_EmitterChunkPath.empty())
 	{
 		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_EmitterChunkPath, m_Row, m_Col);
@@ -111,21 +111,21 @@ void StaticEmitterChunk::OnChunkBufferReady(my::DeviceResourceBasePtr res)
 	m_buff = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
-StaticEmitterComponent::StaticEmitterComponent(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+StaticEmitter::StaticEmitter(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 	: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 	, m_EmitterRowChunks(RowChunks)
-	, m_EmitterChunkSize(ChunkSize)
+	, m_EmitterChunkWidth(ChunkSize)
 	, OctRoot(0, RowChunks * ChunkSize)
 {
 }
 
 template<class Archive>
-void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
+void StaticEmitter::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_EmitterRowChunks);
-	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
+	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
@@ -140,13 +140,13 @@ void StaticEmitterComponent::save(Archive& ar, const unsigned int version) const
 }
 
 template<class Archive>
-void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
+void StaticEmitter::load(Archive& ar, const unsigned int version)
 {
 	ClearAllEntity();
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_EmitterRowChunks);
-	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkSize);
+	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
@@ -159,29 +159,29 @@ void StaticEmitterComponent::load(Archive& ar, const unsigned int version)
 		_ASSERT(chunk_res.second);
 		ar >> boost::serialization::make_nvp("m_chunk", chunk_res.first->second);
 		ar >> boost::serialization::make_nvp("m_chunk_aabb", aabb);
-		AddEntity(&chunk_res.first->second, aabb, m_EmitterChunkSize, 0.01f);
+		AddEntity(&chunk_res.first->second, aabb, m_EmitterChunkWidth, 0.01f);
 	}
 }
 
-void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent& rhs)
+void StaticEmitter::CopyFrom(const StaticEmitter& rhs)
 {
 	EmitterComponent::CopyFrom(rhs);
 	// TODO:
 }
 
-ComponentPtr StaticEmitterComponent::Clone(void) const
+ComponentPtr StaticEmitter::Clone(void) const
 {
-	StaticEmitterComponentPtr ret(new StaticEmitterComponent());
+	StaticEmitterPtr ret(new StaticEmitter());
 	ret->CopyFrom(*this);
 	return ret;
 }
 
-void StaticEmitterComponent::RequestResource(void)
+void StaticEmitter::RequestResource(void)
 {
 	EmitterComponent::RequestResource();
 }
 
-void StaticEmitterComponent::ReleaseResource(void)
+void StaticEmitter::ReleaseResource(void)
 {
 	EmitterComponent::ReleaseResource();
 
@@ -193,20 +193,20 @@ void StaticEmitterComponent::ReleaseResource(void)
 	m_ViewedChunks.clear();
 }
 
-void StaticEmitterComponent::Update(float fElapsedTime)
+void StaticEmitter::Update(float fElapsedTime)
 {
 
 }
 
-void StaticEmitterComponent::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
+void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 {
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		RenderPipeline* pipeline;
 		unsigned int PassMask;
 		const Vector3& LocalViewPos;
-		StaticEmitterComponent* emit_cmp;
-		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticEmitterComponent* _emit_cmp)
+		StaticEmitter* emit_cmp;
+		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticEmitter* _emit_cmp)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
@@ -257,7 +257,7 @@ void StaticEmitterStream::Release(void)
 	BufferMap::const_iterator buff_iter = m_buffs.begin();
 	for (; buff_iter != m_buffs.end(); buff_iter++)
 	{
-		StaticEmitterComponent::ChunkMap::iterator chunk_iter = m_emit->m_Chunks.find(buff_iter->first);
+		StaticEmitter::ChunkMap::iterator chunk_iter = m_emit->m_Chunks.find(buff_iter->first);
 		_ASSERT(chunk_iter != m_emit->m_Chunks.end());
 		_ASSERT(chunk_iter->second.m_OctAabb);
 
@@ -276,7 +276,7 @@ void StaticEmitterStream::Release(void)
 			ofs.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
 		}
 		m_emit->RemoveEntity(&chunk_iter->second);
-		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_EmitterChunkSize, 0.1f);
+		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_EmitterChunkWidth, 0.1f);
 	}
 
 	m_buffs.clear();
@@ -290,7 +290,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 		return buff_res.first->second.get();
 	}
 
-	std::pair<StaticEmitterComponent::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk(k, l)));
+	std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk(k, l)));
 	if (chunk_res.first->second.m_buff)
 	{
 		buff_res.first->second = chunk_res.first->second.m_buff; // mask chunk buff as dirty
@@ -310,7 +310,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 		ofs.close();
 
 		m_emit->AddEntity(&chunk_res.first->second,
-			my::AABB(l * m_emit->m_EmitterChunkSize, m_emit->m_min.y, k * m_emit->m_EmitterChunkSize, (l + 1) * m_emit->m_EmitterChunkSize, m_emit->m_max.y, (k + 1) * m_emit->m_EmitterChunkSize), m_emit->m_EmitterChunkSize, 0.1f);
+			my::AABB(l * m_emit->m_EmitterChunkWidth, m_emit->m_min.y, k * m_emit->m_EmitterChunkWidth, (l + 1) * m_emit->m_EmitterChunkWidth, m_emit->m_max.y, (k + 1) * m_emit->m_EmitterChunkWidth), m_emit->m_EmitterChunkWidth, 0.1f);
 	}
 
 	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), k, l, INT_MAX));
@@ -332,7 +332,7 @@ void StaticEmitterStream::SetBuffer(int k, int l, my::DeviceResourceBasePtr res)
 
 void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
-	int k = (int)(Position.z / m_emit->m_EmitterChunkSize), l = (int)(Position.x / m_emit->m_EmitterChunkSize);
+	int k = (int)(Position.z / m_emit->m_EmitterChunkWidth), l = (int)(Position.x / m_emit->m_EmitterChunkWidth);
 
 	if (k >= 0 && k < m_emit->m_EmitterRowChunks && l >= 0 && l < m_emit->m_EmitterRowChunks)
 	{

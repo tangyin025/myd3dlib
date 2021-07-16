@@ -57,14 +57,14 @@ public:
 	void OnChunkBufferReady(my::DeviceResourceBasePtr res);
 };
 
-class StaticEmitterComponent
+class StaticEmitter
 	: public EmitterComponent
 	, public my::OctRoot
 {
 public:
 	int m_EmitterRowChunks;
 
-	int m_EmitterChunkSize;
+	int m_EmitterChunkWidth;
 
 	std::string m_EmitterChunkPath;
 
@@ -77,14 +77,14 @@ public:
 	ChunkSet m_ViewedChunks;
 
 protected:
-	StaticEmitterComponent(void)
+	StaticEmitter(void)
 	{
 	}
 
 public:
-	StaticEmitterComponent(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType);
+	StaticEmitter(const char* Name, int RowChunks, int ChunkSize, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType);
 
-	virtual ~StaticEmitterComponent(void)
+	virtual ~StaticEmitter(void)
 	{
 		ClearAllEntity();
 	}
@@ -103,7 +103,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void CopyFrom(const StaticEmitterComponent& rhs);
+	void CopyFrom(const StaticEmitter& rhs);
 
 	virtual ComponentPtr Clone(void) const;
 
@@ -116,12 +116,12 @@ public:
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 };
 
-typedef boost::shared_ptr<StaticEmitterComponent> StaticEmitterComponentPtr;
+typedef boost::shared_ptr<StaticEmitter> StaticEmitterPtr;
 
 class StaticEmitterStream
 {
 public:
-	StaticEmitterComponent * m_emit;
+	StaticEmitter * m_emit;
 
 	typedef std::map<std::pair<int, int>, StaticEmitterChunkBufferPtr> BufferMap;
 
@@ -135,7 +135,7 @@ public:
 
 	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
-	StaticEmitterStream(StaticEmitterComponent* emit)
+	StaticEmitterStream(StaticEmitter* emit)
 		: m_emit(emit)
 	{
 	}

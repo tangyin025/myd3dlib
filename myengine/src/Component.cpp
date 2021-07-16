@@ -33,7 +33,7 @@ BOOST_CLASS_EXPORT(ClothComponent)
 
 BOOST_CLASS_EXPORT(EmitterComponent)
 
-BOOST_CLASS_EXPORT(SphericalEmitterComponent)
+BOOST_CLASS_EXPORT(SphericalEmitter)
 
 Component::~Component(void)
 {
@@ -1152,7 +1152,7 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 }
 
 template<class Archive>
-void SphericalEmitterComponent::save(Archive & ar, const unsigned int version) const
+void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	Emitter::ParticleList::capacity_type Capacity;
@@ -1175,7 +1175,7 @@ void SphericalEmitterComponent::save(Archive & ar, const unsigned int version) c
 }
 
 template<class Archive>
-void SphericalEmitterComponent::load(Archive & ar, const unsigned int version)
+void SphericalEmitter::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	Emitter::ParticleList::capacity_type Capacity;
@@ -1197,32 +1197,32 @@ void SphericalEmitterComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCycle);
 }
 
-void SphericalEmitterComponent::CopyFrom(const SphericalEmitterComponent & rhs)
+void SphericalEmitter::CopyFrom(const SphericalEmitter & rhs)
 {
 	EmitterComponent::CopyFrom(rhs);
 	// TODO:
 }
 
-ComponentPtr SphericalEmitterComponent::Clone(void) const
+ComponentPtr SphericalEmitter::Clone(void) const
 {
-	SphericalEmitterComponentPtr ret(new SphericalEmitterComponent());
+	SphericalEmitterPtr ret(new SphericalEmitter());
 	ret->CopyFrom(*this);
 	return ret;
 }
 
-void SphericalEmitterComponent::RequestResource(void)
+void SphericalEmitter::RequestResource(void)
 {
 	EmitterComponent::RequestResource();
 
 	m_SpawnTime = D3DContext::getSingleton().m_fTotalTime;
 }
 
-void SphericalEmitterComponent::ReleaseResource(void)
+void SphericalEmitter::ReleaseResource(void)
 {
 	EmitterComponent::ReleaseResource();
 }
 
-void SphericalEmitterComponent::Update(float fElapsedTime)
+void SphericalEmitter::Update(float fElapsedTime)
 {
 	_ASSERT(m_SpawnInterval > 0);
 
@@ -1277,12 +1277,12 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 	}
 }
 
-my::AABB SphericalEmitterComponent::CalculateAABB(void) const
+my::AABB SphericalEmitter::CalculateAABB(void) const
 {
 	return Component::CalculateAABB();
 }
 
-void SphericalEmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void SphericalEmitter::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	ParticleList::array_range array_one = m_ParticleList.array_one();
 

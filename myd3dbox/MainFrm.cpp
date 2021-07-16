@@ -9,7 +9,7 @@
 #include "ChildView.h"
 #include "TerrainDlg.h"
 #include "Terrain.h"
-#include "StaticEmitterComponent.h"
+#include "StaticEmitter.h"
 #include "Material.h"
 #include "Controller.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -1300,7 +1300,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), 3, 3, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+	StaticEmitterPtr emit_cmp(new StaticEmitter(my::NamedObject::MakeUniqueName("editor_emit_cmp").c_str(), 3, 3, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
 	MaterialPtr mtl(new Material());
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
@@ -1333,7 +1333,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::NamedObject::MakeUniqueName("editor_sphe_emit_cmp").c_str(), 4096, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeVel, EmitterComponent::PrimitiveTypeQuad));
+	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName("editor_sphe_emit_cmp").c_str(), 4096, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeVel, EmitterComponent::PrimitiveTypeQuad));
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;
@@ -1552,7 +1552,7 @@ void CMainFrame::OnPaintEmitterinstance()
 void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	StaticEmitterComponent* emit = dynamic_cast<StaticEmitterComponent*>(GetSelComponent(Component::ComponentTypeStaticEmitter));
+	StaticEmitter* emit = dynamic_cast<StaticEmitter*>(GetSelComponent(Component::ComponentTypeStaticEmitter));
 	if (emit)
 	{
 		pCmdUI->Enable(TRUE);

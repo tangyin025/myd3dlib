@@ -24,7 +24,7 @@ extern "C"
 #include "Animation.h"
 #include "Actor.h"
 #include "Terrain.h"
-#include "StaticEmitterComponent.h"
+#include "StaticEmitter.h"
 #include "Controller.h"
 #include "ActionTrack.h"
 #include "noise.h"
@@ -1312,27 +1312,28 @@ void LuaContext::Init(void)
 			]
 			.def_readwrite("EmitterPrimitiveType", &EmitterComponent::m_EmitterPrimitiveType)
 
-		, class_<StaticEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitterComponent")
+		, class_<StaticEmitter, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitter")
 			.def(constructor<const char *, unsigned int, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
-			.def_readwrite("EmitterChunkSize", &StaticEmitterComponent::m_EmitterChunkSize)
+			.def_readonly("EmitterRowChunks", &StaticEmitter::m_EmitterRowChunks)
+			.def_readonly("EmitterChunkWidth", &StaticEmitter::m_EmitterChunkWidth)
 
-		, class_<SphericalEmitterComponent, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
+		, class_<SphericalEmitter, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitter")
 			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
-			.def_readwrite("ParticleLifeTime", &SphericalEmitterComponent::m_ParticleLifeTime)
-			.def_readwrite("SpawnInterval", &SphericalEmitterComponent::m_SpawnInterval)
-			.def_readwrite("HalfSpawnArea", &SphericalEmitterComponent::m_HalfSpawnArea)
-			.def_readwrite("SpawnSpeed", &SphericalEmitterComponent::m_SpawnSpeed)
-			.def_readwrite("SpawnInclination", &SphericalEmitterComponent::m_SpawnInclination)
-			.def_readwrite("SpawnAzimuth", &SphericalEmitterComponent::m_SpawnAzimuth)
-			.def_readwrite("SpawnColorR", &SphericalEmitterComponent::m_SpawnColorR)
-			.def_readwrite("SpawnColorG", &SphericalEmitterComponent::m_SpawnColorG)
-			.def_readwrite("SpawnColorB", &SphericalEmitterComponent::m_SpawnColorB)
-			.def_readwrite("SpawnColorA", &SphericalEmitterComponent::m_SpawnColorA)
-			.def_readwrite("SpawnSizeX", &SphericalEmitterComponent::m_SpawnSizeX)
-			.def_readwrite("SpawnSizeY", &SphericalEmitterComponent::m_SpawnSizeY)
-			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
-			.def_readwrite("SpawnCycle", &SphericalEmitterComponent::m_SpawnCycle)
-			.def("Spawn", &SphericalEmitterComponent::Spawn)
+			.def_readwrite("ParticleLifeTime", &SphericalEmitter::m_ParticleLifeTime)
+			.def_readwrite("SpawnInterval", &SphericalEmitter::m_SpawnInterval)
+			.def_readwrite("HalfSpawnArea", &SphericalEmitter::m_HalfSpawnArea)
+			.def_readwrite("SpawnSpeed", &SphericalEmitter::m_SpawnSpeed)
+			.def_readwrite("SpawnInclination", &SphericalEmitter::m_SpawnInclination)
+			.def_readwrite("SpawnAzimuth", &SphericalEmitter::m_SpawnAzimuth)
+			.def_readwrite("SpawnColorR", &SphericalEmitter::m_SpawnColorR)
+			.def_readwrite("SpawnColorG", &SphericalEmitter::m_SpawnColorG)
+			.def_readwrite("SpawnColorB", &SphericalEmitter::m_SpawnColorB)
+			.def_readwrite("SpawnColorA", &SphericalEmitter::m_SpawnColorA)
+			.def_readwrite("SpawnSizeX", &SphericalEmitter::m_SpawnSizeX)
+			.def_readwrite("SpawnSizeY", &SphericalEmitter::m_SpawnSizeY)
+			.def_readwrite("SpawnAngle", &SphericalEmitter::m_SpawnAngle)
+			.def_readwrite("SpawnCycle", &SphericalEmitter::m_SpawnCycle)
+			.def("Spawn", &SphericalEmitter::Spawn)
 
 		, class_<TerrainChunk, my::OctEntity>("TerrainChunk")
 			.def_readonly("Row", &TerrainChunk::m_Row)

@@ -147,7 +147,7 @@
     <ClInclude Include="include\NavigationSerialization.h" />
     <ClInclude Include="include\PhysxContext.h" />
     <ClInclude Include="include\RenderPipeline.h" />
-    <ClInclude Include="include\StaticEmitterComponent.h" />
+    <ClInclude Include="include\StaticEmitter.h" />
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
@@ -175,7 +175,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(PHYSX_DIR)Source\PhysXCharacterKinematic\src;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\extensions;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Include\characterkinematic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="src\RenderPipeline.cpp" />
-    <ClCompile Include="src\StaticEmitterComponent.cpp" />
+    <ClCompile Include="src\StaticEmitter.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>

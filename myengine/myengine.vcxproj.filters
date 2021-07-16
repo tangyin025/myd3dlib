@@ -51,7 +51,7 @@
     <ClInclude Include="include\Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\StaticEmitterComponent.h">
+    <ClInclude Include="include\StaticEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,7 +92,7 @@
     <ClCompile Include="src\Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\StaticEmitterComponent.cpp">
+    <ClCompile Include="src\StaticEmitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -10,7 +10,7 @@
 #include "Animation.h"
 #include "DetourDebugDraw.h"
 #include "NavigationSerialization.h"
-#include "StaticEmitterComponent.h"
+#include "StaticEmitter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -397,7 +397,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 	//case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			SphericalEmitterComponent * emitter = dynamic_cast<SphericalEmitterComponent*>(cmp);
+			SphericalEmitter * emitter = dynamic_cast<SphericalEmitter*>(cmp);
 			if (emitter->m_ParticleList.empty())
 			{
 				return true;
@@ -617,7 +617,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 	//case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			SphericalEmitterComponent* emitter = dynamic_cast<SphericalEmitterComponent *>(cmp);
+			SphericalEmitter* emitter = dynamic_cast<SphericalEmitter *>(cmp);
 			if (emitter->m_ParticleList.empty())
 			{
 				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.getColumn<2>().xyz));
@@ -1158,7 +1158,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	StaticEmitterComponent* emit = dynamic_cast<StaticEmitterComponent*>(pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter));
+	StaticEmitter* emit = dynamic_cast<StaticEmitter*>(pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter));
 	if (emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		m_PaintEmitterCaptured.reset(new StaticEmitterStream(emit));
@@ -1325,9 +1325,9 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			//for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
 			//{
 			//	if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
-			//		&& dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+			//		&& dynamic_cast<StaticEmitter*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 			//	{
-			//		dynamic_cast<StaticEmitterComponent*>(cmp_iter->get())->BuildChunks();
+			//		dynamic_cast<StaticEmitter*>(cmp_iter->get())->BuildChunks();
 			//	}
 			//}
 		}

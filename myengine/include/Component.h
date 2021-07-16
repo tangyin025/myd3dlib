@@ -461,7 +461,7 @@ public:
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
 
-class SphericalEmitterComponent
+class SphericalEmitter
 	: public EmitterComponent
 	, public my::Emitter
 {
@@ -497,7 +497,7 @@ public:
 	float m_SpawnTime;
 
 protected:
-	SphericalEmitterComponent(void)
+	SphericalEmitter(void)
 		: m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0, 0, 0)
@@ -508,7 +508,7 @@ protected:
 	}
 
 public:
-	SphericalEmitterComponent(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 		: EmitterComponent(ComponentTypeSphericalEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 		, Emitter(Capacity)
 		, m_ParticleLifeTime(FLT_MAX)
@@ -520,7 +520,7 @@ public:
 	{
 	}
 
-	virtual ~SphericalEmitterComponent(void)
+	virtual ~SphericalEmitter(void)
 	{
 	}
 
@@ -538,7 +538,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void CopyFrom(const SphericalEmitterComponent & rhs);
+	void CopyFrom(const SphericalEmitter & rhs);
 
 	virtual ComponentPtr Clone(void) const;
 
@@ -553,4 +553,4 @@ public:
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
-typedef boost::shared_ptr<SphericalEmitterComponent> SphericalEmitterComponentPtr;
+typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;
