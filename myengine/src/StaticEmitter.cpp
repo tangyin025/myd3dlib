@@ -210,11 +210,9 @@ my::AABB StaticEmitter::CalculateAABB(void) const
 	return ret;
 }
 
-unsigned int StaticEmitter::CalculateLod(int i, int j, const my::Vector3& LocalViewPos) const
+unsigned int StaticEmitter::CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const
 {
-	float DistanceSq = Vector2(
-		(j + 0.5f) * m_ChunkWidth - LocalViewPos.x,
-		(i + 0.5f) * m_ChunkWidth - LocalViewPos.z).magnitudeSq();
+	float DistanceSq = (LocalAabb.Center() - LocalViewPos).magnitudeSq();
 	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
 	return Lod;
 }
@@ -239,7 +237,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod = emit_cmp->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
+				chunk->m_Lod = emit_cmp->CalculateLod(*chunk->m_OctAabb, LocalViewPos);
 			}
 
 			if (chunk->m_Lod >= 1)

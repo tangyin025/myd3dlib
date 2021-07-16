@@ -1316,6 +1316,12 @@ void LuaContext::Init(void)
 		, class_<StaticEmitter, EmitterComponent, boost::shared_ptr<Component> >("StaticEmitter")
 			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
+			.def_readwrite("EmitterChunkPath", &StaticEmitter::m_EmitterChunkPath)
+
+		, class_<StaticEmitterStream>("StaticEmitterStream")
+			.def(constructor<StaticEmitter *>())
+			.def("Release", &StaticEmitterStream::Release)
+			.def("Spawn", &StaticEmitterStream::Spawn)
 
 		, class_<SphericalEmitter, EmitterComponent, boost::shared_ptr<Component> >("SphericalEmitter")
 			.def(constructor<const char *, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
