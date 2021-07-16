@@ -618,7 +618,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				chunk->m_Lod[0] = terrain->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
 			}
 
-			if (chunk->m_Lod[0] >= _Quad(terrain->m_ChunkSize, terrain->m_MinLodChunkSize))
+			int LastLod = _Quad(terrain->m_ChunkSize, terrain->m_MinLodChunkSize);
+			if (chunk->m_Lod[0] >= LastLod)
 			{
 				for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
 				{

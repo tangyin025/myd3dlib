@@ -24,6 +24,8 @@ public:
 
 	bool m_Requested;
 
+	int m_Lod;
+
 	StaticEmitterChunkBufferPtr m_buff;
 
 public:
@@ -31,6 +33,7 @@ public:
 		: m_Row(Row)
 		, m_Col(Col)
 		, m_Requested(false)
+		, m_Lod(INT_MAX)
 	{
 	}
 
@@ -113,6 +116,8 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
+	unsigned int CalculateLod(int i, int j, const my::Vector3& LocalViewPos) const;
+
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos);
 };
 
@@ -129,9 +134,9 @@ public:
 
 	void Release(void);
 
-	StaticEmitterChunkBuffer * GetBuffer(int k, int l);
+	StaticEmitterChunkBuffer * GetBuffer(int i, int j);
 
-	void SetBuffer(int k, int l, my::DeviceResourceBasePtr res);
+	void SetBuffer(int i, int j, my::DeviceResourceBasePtr res);
 
 	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 

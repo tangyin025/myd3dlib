@@ -210,6 +210,15 @@ my::AABB StaticEmitter::CalculateAABB(void) const
 	return ret;
 }
 
+unsigned int StaticEmitter::CalculateLod(int i, int j, const my::Vector3& LocalViewPos) const
+{
+	float DistanceSq = Vector2(
+		(j + 0.5f) * m_ChunkWidth - LocalViewPos.x,
+		(i + 0.5f) * m_ChunkWidth - LocalViewPos.z).magnitudeSq();
+	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
+	return Lod;
+}
+
 void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 {
 	struct Callback : public my::OctNode::QueryCallback
@@ -228,6 +237,15 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
+			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			{
+				chunk->m_Lod = emit_cmp->CalculateLod(chunk->m_Row, chunk->m_Col, LocalViewPos);
+			}
+
+			if (chunk->m_Lod >= 1)
+			{
+				return;
+			}
 
 			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && emit_cmp->m_ViewedChunks.insert(chunk).second)
 			{
@@ -248,7 +266,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
 		ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
-		float CullingDistSq = powf(m_Actor->m_CullingDist, 2.0);
+		float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1), 2.0);
 		for (; chunk_iter != m_ViewedChunks.end(); )
 		{
 			if (((*chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
@@ -295,15 +313,15 @@ void StaticEmitterStream::Release(void)
 	m_buffs.clear();
 }
 
-StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
+StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 {
-	std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunkBufferPtr()));
+	std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunkBufferPtr()));
 	if (!buff_res.second)
 	{
 		return buff_res.first->second.get();
 	}
 
-	std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(k, l), StaticEmitterChunk(k, l)));
+	std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunk(i, j)));
 	if (chunk_res.first->second.m_buff)
 	{
 		buff_res.first->second = chunk_res.first->second.m_buff; // mask chunk buff as dirty
@@ -311,7 +329,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 		return buff_res.first->second.get();
 	}
 
-	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, k, l);
+	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
 
 	if (chunk_res.second)
 	{
@@ -323,11 +341,11 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 		ofs.close();
 
 		m_emit->AddEntity(&chunk_res.first->second,
-			my::AABB(l * m_emit->m_ChunkWidth, m_emit->m_min.y, k * m_emit->m_ChunkWidth, (l + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (k + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
+			my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
 	}
 
-	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), k, l, INT_MAX));
-	my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&StaticEmitterStream::SetBuffer, this, k, l, boost::placeholders::_1));
+	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), i, j, INT_MAX));
+	my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&StaticEmitterStream::SetBuffer, this, i, j, boost::placeholders::_1));
 	_ASSERT(buff_res.first->second);
 
 	if (chunk_res.second)
@@ -338,18 +356,18 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int k, int l)
 	return buff_res.first->second.get();
 }
 
-void StaticEmitterStream::SetBuffer(int k, int l, my::DeviceResourceBasePtr res)
+void StaticEmitterStream::SetBuffer(int i, int j, my::DeviceResourceBasePtr res)
 {
-	m_buffs[std::make_pair(k, l)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
+	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
 void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
 	if (m_emit->PtInRect(Position))
 	{
-		int k = (int)(Position.z / m_emit->m_ChunkWidth), l = (int)(Position.x / m_emit->m_ChunkWidth);
+		int i = (int)(Position.z / m_emit->m_ChunkWidth), j = (int)(Position.x / m_emit->m_ChunkWidth);
 
-		StaticEmitterChunkBuffer* buff = GetBuffer(k, l);
+		StaticEmitterChunkBuffer* buff = GetBuffer(i, j);
 
 		buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));
 	}
