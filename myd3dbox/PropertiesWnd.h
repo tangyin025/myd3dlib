@@ -93,7 +93,6 @@ public:
 		PropertyActorScaleZ,
 		PropertyActorLodDist,
 		PropertyActorLodFactor,
-		PropertyActorCullingDist,
 		PropertyActorRigidActor,
 		PropertyActorRigidActorType,
 		PropertyActorRigidActorKinematic,

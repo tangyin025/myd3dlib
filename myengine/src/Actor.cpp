@@ -67,7 +67,6 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
-	ar << BOOST_SERIALIZATION_NVP(m_CullingDist);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
@@ -128,7 +127,6 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
-	ar >> BOOST_SERIALIZATION_NVP(m_CullingDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -316,7 +314,6 @@ void Actor::CopyFrom(const Actor & rhs)
 	m_World = rhs.m_World;
 	m_LodDist = rhs.m_LodDist;
 	m_LodFactor = rhs.m_LodFactor;
-	m_CullingDist = rhs.m_CullingDist;
 	m_Cmps.resize(rhs.m_Cmps.size());
 	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
 	{
@@ -607,7 +604,7 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 	}
 }
 
-int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos)
+int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const
 {
 	float DistanceSq = (Aabb.Center() - ViewPos).magnitudeSq();
 	int Lod = (int)(logf(sqrt(DistanceSq) / m_LodDist) / logf(m_LodFactor));

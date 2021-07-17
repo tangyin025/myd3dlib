@@ -54,13 +54,13 @@ public:
 		LOD0 = 1 << 0,
 		LOD1 = 1 << 1,
 		LOD2 = 1 << 2,
-		LODINF = 1 << LOD_MAX,
+		LOD3 = 1 << LOD_MAX,
 		LOD0_1 = LOD0 | LOD1,
 		LOD0_1_2 = LOD0 | LOD1 | LOD2,
-		LOD0_1_2_INF = LOD0 | LOD1 | LOD2 | LODINF,
+		LOD0_1_2_3 = LOD0 | LOD1 | LOD2 | LOD3,
 		LOD1_2 = LOD1 | LOD2,
-		LOD1_2_INF = LOD1 | LOD2 | LODINF,
-		LOD2_INF = LOD2 | LODINF,
+		LOD1_2_3 = LOD1 | LOD2 | LOD3,
+		LOD2_3 = LOD2 | LOD3,
 	};
 
 	LODMask m_LodMask;
@@ -78,7 +78,7 @@ public:
 protected:
 	Component(void)
 		: m_Type(ComponentTypeComponent)
-		, m_LodMask(LOD0_1_2_INF)
+		, m_LodMask(LOD0_1_2_3)
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{
@@ -87,7 +87,7 @@ protected:
 	Component(ComponentType Type, const char * Name)
 		: NamedObject(Name)
 		, m_Type(Type)
-		, m_LodMask(LOD0_1_2_INF)
+		, m_LodMask(LOD0_1_2_3)
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{

@@ -63,9 +63,13 @@ static const CPropertiesWnd::PassMaskDesc g_LodMaskDesc[] =
 	{ _T("LOD0"), Component::LOD0 },
 	{ _T("LOD1"), Component::LOD1 },
 	{ _T("LOD2"), Component::LOD2 },
+	{ _T("LOD3"), Component::LOD3 },
 	{ _T("LOD0_1"), Component::LOD0_1 },
-	{ _T("LOD1_2"), Component::LOD1_2 },
 	{ _T("LOD0_1_2"), Component::LOD0_1_2 },
+	{ _T("LOD0_1_2_3"), Component::LOD0_1_2_3 },
+	{ _T("LOD1_2"), Component::LOD1_2 },
+	{ _T("LOD1_2_3"), Component::LOD1_2_3 },
+	{ _T("LOD2_3"), Component::LOD2_3 },
 };
 
 static LPCTSTR GetLodMaskDesc(DWORD mask)
@@ -285,8 +289,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
 	pActor->GetSubItem(5)->SetValue((_variant_t)actor->m_LodDist);
 	pActor->GetSubItem(6)->SetValue((_variant_t)actor->m_LodFactor);
-	pActor->GetSubItem(7)->SetValue((_variant_t)actor->m_CullingDist);
-	UpdatePropertiesRigidActor(pActor->GetSubItem(8), actor);
+	UpdatePropertiesRigidActor(pActor->GetSubItem(7), actor);
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
 	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
 	{
@@ -772,8 +775,6 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pActor->AddSubItem(pLodDist);
 	CMFCPropertyGridProperty * pLodFactor = new CSimpleProp(_T("LodFactor"), (_variant_t)actor->m_LodFactor, NULL, PropertyActorLodFactor);
 	pActor->AddSubItem(pLodFactor);
-	CMFCPropertyGridProperty* pCullingDist = new CSimpleProp(_T("CullingDist"), (_variant_t)actor->m_CullingDist, NULL, PropertyActorCullingDist);
-	pActor->AddSubItem(pCullingDist);
 
 	CreatePropertiesRigidActor(pActor, actor);
 
@@ -1348,7 +1349,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 9;
+		return 8;
 	case Component::ComponentTypeController:
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
@@ -1783,14 +1784,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().pulVal;
 		actor->m_LodFactor = pProp->GetValue().fltVal;
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyActorCullingDist:
-	{
-		Actor* actor = (Actor*)pProp->GetParent()->GetValue().pulVal;
-		actor->m_CullingDist = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

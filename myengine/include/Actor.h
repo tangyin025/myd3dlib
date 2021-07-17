@@ -108,8 +108,6 @@ public:
 
 	float m_LodFactor;
 
-	float m_CullingDist;
-
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
@@ -149,7 +147,7 @@ protected:
 		, m_Lod(Component::LOD_MAX)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
-		, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
+		//, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
 		, m_Base(NULL)
 		, m_ActionTrackPoseInstRef(0)
 	{
@@ -167,7 +165,6 @@ public:
 		, m_Lod(Component::LOD_MAX)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
-		, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
 		, m_Base(NULL)
 		, m_ActionTrackPoseInstRef(0)
 	{
@@ -231,7 +228,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	int CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos);
+	int CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const;
 
 	void ClearRigidActor(void);
 
