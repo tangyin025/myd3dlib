@@ -59,6 +59,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
+	, m_raycmp(NULL)
 	, m_raychunkid(0, 0)
 	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
@@ -284,8 +285,26 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			}
 		}
 		break;
+
+	case Component::ComponentTypeStaticEmitter:
+		{
+			if (pFrame->m_selactors.size() > 1 || pFrame->m_selcmp != cmp)
+			{
+				return;
+			}
+			StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter *>(cmp);
+			StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
+			ASSERT(chunk_iter != static_emit_cmp->m_Chunks.end());
+			PushLineAABB(chunk_iter->second.m_OctAabb->transform(cmp->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
+		}
+		break;
+
 	case Component::ComponentTypeTerrain:
 		{
+			if (pFrame->m_selactors.size() > 1 || pFrame->m_selcmp != cmp)
+			{
+				return;
+			}
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			PushLineAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_OctAabb->transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
 		}
@@ -387,82 +406,56 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 		}
 		break;
 
-	//case Component::ComponentTypeStaticEmitter:
+	case Component::ComponentTypeStaticEmitter:
+		{
+			StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp);
+			struct Callback : public my::OctNode::QueryCallback
+			{
+				CChildView * pView;
+				const my::Frustum & frustum;
+				const my::Frustum & local_ftm;
+				EmitterComponent * emitter;
+				bool ret;
+				Callback(CChildView * _pView, const my::Frustum & _frustum, const my::Frustum & _local_ftm, EmitterComponent * _emitter)
+					: pView(_pView)
+					, frustum(_frustum)
+					, local_ftm(_local_ftm)
+					, emitter(_emitter)
+					, ret(false)
+				{
+				}
+				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				{
+					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
+					if (!ret && pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size()))
+					{
+						ret = true;
+					}
+				}
+			};
+			Callback cb(this, frustum, local_ftm, static_emit_cmp);
+			static_emit_cmp->QueryEntity(local_ftm, &cb);
+			return cb.ret;
+		}
+		break;
+
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			SphericalEmitter * emitter = dynamic_cast<SphericalEmitter*>(cmp);
-			if (emitter->m_ParticleList.empty())
+			SphericalEmitter * sphe_emit_cmp = dynamic_cast<SphericalEmitter*>(cmp);
+			if (sphe_emit_cmp->m_ParticleList.empty())
+			{
+				return false;
+			}
+			my::Emitter::ParticleList::array_range array_one = sphe_emit_cmp->m_ParticleList.array_one();
+			if (OverlapTestFrustumAndParticles(frustum, local_ftm, sphe_emit_cmp, array_one.first, array_one.second))
 			{
 				return true;
 			}
-			my::Matrix4 p2local;
-			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
-			void * pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
-			void * pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
-			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
-			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
+			my::Emitter::ParticleList::array_range array_two = sphe_emit_cmp->m_ParticleList.array_two();
+			if (OverlapTestFrustumAndParticles(frustum, local_ftm, sphe_emit_cmp, array_two.first, array_two.second))
 			{
-				switch (emitter->m_EmitterFaceType)
-				{
-				case EmitterComponent::FaceTypeX:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeY:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeZ:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeCamera:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeAngle:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeAngleCamera:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-						part_iter->m_Position);
-					break;
-				}
-				my::Frustum particle_ftm;
-				switch (emitter->m_EmitterSpaceType)
-				{
-				case EmitterComponent::SpaceTypeWorld:
-					particle_ftm = frustum.transform(p2local.transpose());
-					break;
-				case EmitterComponent::SpaceTypeLocal:
-					particle_ftm = local_ftm.transform(p2local.transpose());
-					break;
-				}
-				bool ret = my::Mesh::FrustumTest(particle_ftm, pvb, 0, theApp.m_ParticleVertStride,
-					(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
-					RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
-				if (ret)
-				{
-					theApp.m_ParticleQuadVb.Unlock();
-					theApp.m_ParticleQuadIb.Unlock();
-					return true;
-				}
+				return true;
 			}
-			theApp.m_ParticleQuadVb.Unlock();
-			theApp.m_ParticleQuadIb.Unlock();
 		}
 		break;
 
@@ -525,28 +518,109 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 	return false;
 }
 
+bool CChildView::OverlapTestFrustumAndParticles(const my::Frustum & frustum, const my::Frustum & local_ftm, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num)
+{
+	my::Matrix4 p2local;
+	my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
+	void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
+	void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
+	const my::Emitter::Particle* part_iter = part_start;
+	for (; part_iter != part_start + part_num; part_iter++)
+	{
+		switch (emitter->m_EmitterFaceType)
+		{
+		case EmitterComponent::FaceTypeX:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeY:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeZ:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeCamera:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeAngle:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeAngleCamera:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+				part_iter->m_Position);
+			break;
+		}
+		my::Frustum particle_ftm;
+		switch (emitter->m_EmitterSpaceType)
+		{
+		case EmitterComponent::SpaceTypeWorld:
+			particle_ftm = frustum.transform(p2local.transpose());
+			break;
+		case EmitterComponent::SpaceTypeLocal:
+			particle_ftm = local_ftm.transform(p2local.transpose());
+			break;
+		}
+		bool ret = my::Mesh::FrustumTest(particle_ftm, pvb, 0, theApp.m_ParticleVertStride,
+			(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
+			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
+		if (ret)
+		{
+			theApp.m_ParticleQuadVb.Unlock();
+			theApp.m_ParticleQuadIb.Unlock();
+			return true;
+		}
+	}
+	theApp.m_ParticleQuadVb.Unlock();
+	theApp.m_ParticleQuadIb.Unlock();
+	return false;
+}
+
 my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * actor)
 {
 	if (actor->m_Cmps.empty())
 	{
-		my::RayResult ret = my::IntersectionTests::rayAndAABB(ray.p, ray.d, *actor->m_OctAabb);
-		if (ret.first)
-		{
-			return ret;
-		}
+		m_raycmp = NULL;
+		return my::IntersectionTests::rayAndAABB(ray.p, ray.d, *actor->m_OctAabb);
 	}
+
+	my::RayResult ret(false, FLT_MAX);
+	m_raycmp = NULL;
+	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(actor->m_World.inverse());
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
-		my::RayResult ret = OverlapTestRayAndComponent(ray, local_ray, cmp_iter->get());
-		if (ret.first)
+		my::RayResult result = OverlapTestRayAndComponent(ray, local_ray, cmp_iter->get());
+		if (result.first && result.second < ret.second)
 		{
-			ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
-			return ret;
+			ret = result;
+			m_raycmp = cmp_iter->get();
+			raychunkid = m_raychunkid;
 		}
 	}
-	return my::RayResult(false, FLT_MAX);
+
+	if (ret.first)
+	{
+		ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
+		m_raychunkid = raychunkid;
+	}
+	return ret;
 }
 
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp)
@@ -607,83 +681,64 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 		}
 		break;
 
-	//case Component::ComponentTypeStaticEmitter:
+
+	case Component::ComponentTypeStaticEmitter:
+		{
+			StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp);
+			struct Callback : public my::OctNode::QueryCallback
+			{
+				CChildView * pView;
+				const my::Ray & ray;
+				const my::Ray & local_ray;
+				EmitterComponent * emitter;
+				my::RayResult ret;
+				Callback(CChildView * _pView, const my::Ray & _ray, const my::Ray & _local_ray, EmitterComponent * _emitter)
+					: pView(_pView)
+					, ray(_ray)
+					, local_ray(_local_ray)
+					, emitter(_emitter)
+					, ret(false, FLT_MAX)
+				{
+				}
+				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				{
+					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
+					my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size());
+					if (result.first && result.second < ret.second)
+					{
+						ret = result;
+						pView->m_raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+					}
+				}
+			};
+			Callback cb(this, ray, local_ray, static_emit_cmp);
+			static_emit_cmp->QueryEntity(local_ray, &cb);
+			if (cb.ret.first)
+			{
+				return cb.ret;
+			}
+		}
+		break;
 	case Component::ComponentTypeSphericalEmitter:
 		{
-			SphericalEmitter* emitter = dynamic_cast<SphericalEmitter *>(cmp);
-			if (emitter->m_ParticleList.empty())
+			SphericalEmitter* sphe_emit_cmp = dynamic_cast<SphericalEmitter *>(cmp);
+			if (sphe_emit_cmp->m_ParticleList.empty())
 			{
-				return my::RayResult(true, local_ray.p.dot(m_Camera->m_View.getColumn<2>().xyz));
+				return my::RayResult(false, FLT_MAX);
 			}
-			my::Matrix4 p2local;
-			my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
-			void * pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
-			void * pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
-			my::Emitter::ParticleList::const_iterator part_iter = emitter->m_ParticleList.begin();
-			for (; part_iter != emitter->m_ParticleList.end(); part_iter++)
+			my::Emitter::ParticleList::array_range array_one = sphe_emit_cmp->m_ParticleList.array_one();
+			my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_one.first, array_one.second);
+			if (ret.first)
 			{
-				switch (emitter->m_EmitterFaceType)
-				{
-				case EmitterComponent::FaceTypeX:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeY:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeZ:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeCamera:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeAngle:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
-						part_iter->m_Position);
-					break;
-				case EmitterComponent::FaceTypeAngleCamera:
-					p2local = my::Matrix4::Compose(
-						my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-						my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-						part_iter->m_Position);
-					break;
-				}
-				my::Ray particle_ray;
-				switch (emitter->m_EmitterSpaceType)
-				{
-				case EmitterComponent::SpaceTypeWorld:
-					particle_ray = ray.transform(p2local.inverse());
-					break;
-				case EmitterComponent::SpaceTypeLocal:
-					particle_ray = local_ray.transform(p2local.inverse());
-					break;
-				}
-				my::RayResult ret = my::Mesh::RayTest(particle_ray, pvb, 0, theApp.m_ParticleVertStride,
-					(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
-					RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
-				if (ret.first)
-				{
-					theApp.m_ParticleQuadVb.Unlock();
-					theApp.m_ParticleQuadIb.Unlock();
-					return ret;
-				}
+				return ret;
 			}
-			theApp.m_ParticleQuadVb.Unlock();
-			theApp.m_ParticleQuadIb.Unlock();
-		}
+			my::Emitter::ParticleList::array_range array_two = sphe_emit_cmp->m_ParticleList.array_two();
+			ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_two.first, array_two.second);
+			if (ret.first)
+			{
+				return ret;
+			}
+	}
 		break;
 
 	case Component::ComponentTypeCloth:
@@ -822,6 +877,79 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 		}
 		break;
 	}
+	return my::RayResult(false, FLT_MAX);
+}
+
+my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num)
+{
+	my::Matrix4 p2local;
+	my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
+	void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
+	void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
+	const my::Emitter::Particle* part_iter = part_start;
+	for (; part_iter != part_start + part_num; part_iter++)
+	{
+		switch (emitter->m_EmitterFaceType)
+		{
+		case EmitterComponent::FaceTypeX:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeY:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeZ:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeCamera:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeAngle:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
+				part_iter->m_Position);
+			break;
+		case EmitterComponent::FaceTypeAngleCamera:
+			p2local = my::Matrix4::Compose(
+				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
+				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+				part_iter->m_Position);
+			break;
+		}
+		my::Ray particle_ray;
+		switch (emitter->m_EmitterSpaceType)
+		{
+		case EmitterComponent::SpaceTypeWorld:
+			particle_ray = ray.transform(p2local.inverse());
+			break;
+		case EmitterComponent::SpaceTypeLocal:
+			particle_ray = local_ray.transform(p2local.inverse());
+			break;
+		}
+		my::RayResult ret = my::Mesh::RayTest(particle_ray, pvb, 0, theApp.m_ParticleVertStride,
+			(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
+			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
+		if (ret.first)
+		{
+			theApp.m_ParticleQuadVb.Unlock();
+			theApp.m_ParticleQuadIb.Unlock();
+			return ret;
+		}
+	}
+	theApp.m_ParticleQuadVb.Unlock();
+	theApp.m_ParticleQuadIb.Unlock();
 	return my::RayResult(false, FLT_MAX);
 }
 
@@ -1227,12 +1355,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			const my::Ray & ray;
 			CChildView * pView;
 			Actor * selact;
+			Component * selcmp;
 			float seldist;
 			CPoint selchunkid;
 			Callback(const my::Ray & _ray, CChildView * _pView)
 				: ray(_ray)
 				, pView(_pView)
 				, selact(NULL)
+				, selcmp(NULL)
 				, seldist(FLT_MAX)
 				, selchunkid(0, 0)
 			{
@@ -1245,6 +1375,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				if (ret.first && ret.second < seldist)
 				{
 					selact = actor;
+					selcmp = pView->m_raycmp;
 					seldist = ret.second;
 					selchunkid = pView->m_raychunkid;
 				}
@@ -1262,6 +1393,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			else
 			{
 				pFrame->m_selactors.push_back(cb.selact);
+				pFrame->m_selcmp = cb.selcmp;
 				pFrame->m_selchunkid = cb.selchunkid;
 			}
 		}
@@ -1498,10 +1630,24 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors.front()->m_Cmps.begin();
 					for (; cmp_iter != pFrame->m_selactors.front()->m_Cmps.end(); cmp_iter++)
 					{
-						if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+						if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain && cmp_iter->get() == pFrame->m_selcmp)
 						{
 							Terrain * terrain = dynamic_cast<Terrain *>(cmp_iter->get());
 							my::AABB chunk_box = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_OctAabb->transform(terrain->m_Actor->m_World);
+							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
+							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
+								|| fabs(model_view_camera->m_Distance - chunk_radius / asin(model_view_camera->m_Fov * 0.5f)) > EPSILON_E6)
+							{
+								focus_box = chunk_box;
+							}
+							break;
+						}
+						else if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter && cmp_iter->get() == pFrame->m_selcmp)
+						{
+							StaticEmitter* static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp_iter->get());
+							StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
+							ASSERT(chunk_iter != static_emit_cmp->m_Chunks.end());
+							my::AABB chunk_box = chunk_iter->second.m_OctAabb->transform(static_emit_cmp->m_Actor->m_World);
 							float chunk_radius = chunk_box.Extent().magnitude() * 0.5f;
 							if ((model_view_camera->m_LookAt - chunk_box.Center()).magnitudeSq() > EPSILON_E6 * EPSILON_E6
 								|| fabs(model_view_camera->m_Distance - chunk_radius / asin(model_view_camera->m_Fov * 0.5f)) > EPSILON_E6)

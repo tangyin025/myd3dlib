@@ -634,11 +634,12 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material;
+	CPoint selchunkid = pFrame->m_selcmp == terrain ? pFrame->m_selchunkid : CPoint(0, 0);
+	MaterialPtr mtl = terrain->m_Chunks[selchunkid.x][selchunkid.y].m_Material;
 	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
 
 	CString strTitle;
-	strTitle.Format(_T("Chunk_%d_%d Material"), pFrame->m_selchunkid.x, pFrame->m_selchunkid.y);
+	strTitle.Format(_T("Chunk_%d_%d Material"), selchunkid.x, selchunkid.y);
 	if (mtl)
 	{
 		if (pComponent->GetSubItem(PropId + 8)->GetSubItemsCount() <= 0)
@@ -1246,13 +1247,14 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	CPoint selchunkid = pFrame->m_selcmp == terrain ? pFrame->m_selchunkid : CPoint(0, 0);
 	CString strTitle;
-	strTitle.Format(_T("Enable Chunk_%d_%d Material"), pFrame->m_selchunkid.x, pFrame->m_selchunkid.y);
-	MaterialPtr mtl = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material;
+	strTitle.Format(_T("Enable Chunk_%d_%d Material"), selchunkid.x, selchunkid.y);
+	MaterialPtr mtl = terrain->m_Chunks[selchunkid.x][selchunkid.y].m_Material;
 	pProp = new CCheckBoxProp(strTitle, mtl != NULL, NULL, PropertyTerrainChunkMaterial);
 	pComponent->AddSubItem(pProp);
 
-	strTitle.Format(_T("Chunk_%d_%d Material"), pFrame->m_selchunkid.x, pFrame->m_selchunkid.y);
+	strTitle.Format(_T("Chunk_%d_%d Material"), selchunkid.x, selchunkid.y);
 	if (mtl)
 	{
 		CreatePropertiesMaterial(pComponent, strTitle, mtl.get());
@@ -2512,6 +2514,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Terrain* terrain = (Terrain*)pComponent->GetValue().pulVal;
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
+		if (pFrame->m_selcmp != terrain)
+		{
+			MessageBox(_T("no terrain chunk selected"));
+			return 0;
+		}
 		if (pProp->GetValue().boolVal)
 		{
 			if (!terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_Material)

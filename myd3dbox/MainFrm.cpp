@@ -248,6 +248,7 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 	: OctRoot(-4096, 4096)
 	, m_bEatAltUp(FALSE)
+	, m_selcmp(NULL)
 	, m_selchunkid(0, 0)
 	, m_selbox(-1, 1)
 	, m_PaintType(PaintTypeNone)

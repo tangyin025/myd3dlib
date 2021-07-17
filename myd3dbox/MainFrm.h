@@ -37,11 +37,12 @@ public:
 	COutputWnd        m_wndOutput;
 	CScriptWnd		  m_wndScript;
 	CString m_strPathName;
+	typedef std::vector<ActorPtr> ActorPtrSet;
+	ActorPtrSet m_ActorList;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
 	SelActorList m_selactors;
-	typedef std::vector<ActorPtr> ActorPtrSet;
-	ActorPtrSet m_ActorList;
+	Component * m_selcmp;
 	CPoint m_selchunkid;
 	my::AABB m_selbox;
 	enum PaintType
