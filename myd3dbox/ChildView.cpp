@@ -178,16 +178,16 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
 		const my::Vector3 & TargetPos;
+		CMainFrame * pFrame;
 		CChildView * pView;
-		BOOL UpdateLod;
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CChildView * _pView, BOOL _UpdateLod)
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame, CChildView * _pView)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
 			, TargetPos(_TargetPos)
+			, pFrame(_pFrame)
 			, pView(_pView)
-			, UpdateLod(_UpdateLod)
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -196,25 +196,19 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
-			if (UpdateLod)
+			if (pFrame->GetActiveView() == pView && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
-				const unsigned int Lod = actor->CalculateLod(ViewPos, TargetPos);
-
-				if (Lod < Component::LOD_CULLING)
+				if ((aabb.Center() - TargetPos).magnitudeSq() < 1000 * 1000)
 				{
 					if (!actor->IsRequested())
 					{
 						actor->RequestResource();
 					}
-
-					actor->SetLod(Lod);
 				}
 				else
 				{
 					if (actor->IsRequested())
 					{
-						actor->SetLod(Component::LOD_CULLING);
-
 						actor->ReleaseResource();
 					}
 				}
@@ -240,8 +234,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		}
 	};
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, this,
-		(pFrame->GetActiveView() == this && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))));
+	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame, this));
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 

@@ -769,8 +769,6 @@ void Game::OnFrameTick(
 		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + 10.0f));
 		if (intersect_type != IntersectionTests::IntersectionTypeOutside)
 		{
-			actor->SetLod(actor->CalculateLod(m_Camera->m_Eye, m_ViewedCenter));
-
 			if (!actor->m_Base)
 			{
 				// ! Actor::Update may change other actor's life time
@@ -784,8 +782,6 @@ void Game::OnFrameTick(
 		}
 		else
 		{
-			actor->SetLod(Component::LOD_CULLING);
-
 			_ASSERT(actor->IsRequested());
 			{
 				actor->ReleaseResource();

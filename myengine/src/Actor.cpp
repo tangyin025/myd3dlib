@@ -348,6 +348,8 @@ void Actor::RequestResource(void)
 
 void Actor::ReleaseResource(void)
 {
+	m_Requested = false;
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -357,7 +359,7 @@ void Actor::ReleaseResource(void)
 		}
 	}
 
-	m_Requested = false;
+	m_Lod = Component::LOD_MAX;
 
 	if (m_PxActor)
 	{
@@ -394,7 +396,7 @@ void Actor::Update(float fElapsedTime)
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		if ((*cmp_iter)->m_LodMask & m_Lod)
+		if ((*cmp_iter)->m_LodMask & 1 << m_Lod)
 		{
 			(*cmp_iter)->Update(fElapsedTime);
 		}
@@ -552,13 +554,46 @@ void Actor::UpdateOctNode(void)
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	for (unsigned int lod = m_Lod; lod < Component::LOD_CULLING; lod <<= 1)
+	_ASSERT(IsRequested());
+
+	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+	{
+		int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), (int)Component::LOD_MAX);
+		if (m_Lod != Lod)
+		{
+			m_Lod = Lod;
+
+			// ! Component::RequestResource may change other cmp's life time
+			ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
+
+			ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
+			for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+			{
+				if ((*cmp_iter)->m_LodMask >= 1 << Lod)
+				{
+					if (!(*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->RequestResource();
+					}
+				}
+				else
+				{
+					if ((*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->ReleaseResource();
+					}
+				}
+			}
+		}
+	}
+
+	for (int Lod = m_Lod; Lod <= Component::LOD_MAX; Lod++)
 	{
 		bool lodRequested = false;
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
-			if (((*cmp_iter)->m_LodMask & lod) && (*cmp_iter)->IsRequested())
+			if (((*cmp_iter)->m_LodMask & 1 << Lod) && (*cmp_iter)->IsRequested())
 			{
 				(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 				lodRequested = true;
@@ -572,57 +607,11 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 	}
 }
 
-Component::LODMask Actor::CalculateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos)
 {
-	_ASSERT(m_OctAabb);
-
-	float DistanceSq = (m_OctAabb->Center() - ViewPos).magnitudeSq();
-
-	if (DistanceSq >= m_CullingDist * m_CullingDist)
-	{
-		return Component::LOD_CULLING;
-	}
-	else if (DistanceSq < m_LodDist * m_LodDist)
-	{
-		return Component::LOD0;
-	}
-	else if (DistanceSq < powf(m_LodDist * powf(m_LodFactor, 2.0f), 2.0f))
-	{
-		return Component::LOD1;
-	}
-	return Component::LOD2;
-}
-
-void Actor::SetLod(unsigned int lod)
-{
-	_ASSERT(IsRequested());
-
-	if (m_Lod != lod)
-	{
-		m_Lod = lod;
-
-		// ! Component::RequestResource may change other cmp's life time
-		ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
-
-		ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
-		for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
-		{
-			if ((*cmp_iter)->m_LodMask >= lod)
-			{
-				if (!(*cmp_iter)->IsRequested())
-				{
-					(*cmp_iter)->RequestResource();
-				}
-			}
-			else
-			{
-				if ((*cmp_iter)->IsRequested())
-				{
-					(*cmp_iter)->ReleaseResource();
-				}
-			}
-		}
-	}
+	float DistanceSq = (Aabb.Center() - ViewPos).magnitudeSq();
+	int Lod = (int)(logf(sqrt(DistanceSq) / m_LodDist) / logf(m_LodFactor));
+	return Max(Lod, 0);
 }
 
 void Actor::ClearRigidActor(void)
@@ -684,7 +673,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 	m_Cmps.push_back(cmp);
 	cmp->m_Actor = this;
 
-	if (IsRequested() && (cmp->m_LodMask & m_Lod))
+	if (IsRequested() && (cmp->m_LodMask & 1 << m_Lod))
 	{
 		_ASSERT(m_Node);
 

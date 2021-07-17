@@ -102,7 +102,7 @@ public:
 
 	bool m_Requested;
 
-	unsigned int m_Lod;
+	int m_Lod;
 
 	float m_LodDist;
 
@@ -146,7 +146,7 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_Lod(Component::LOD_CULLING)
+		, m_Lod(Component::LOD_MAX)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
@@ -164,7 +164,7 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_Lod(Component::LOD_CULLING)
+		, m_Lod(Component::LOD_MAX)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
@@ -231,9 +231,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	Component::LODMask CalculateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
-
-	void SetLod(unsigned int lod);
+	int CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos);
 
 	void ClearRigidActor(void);
 
