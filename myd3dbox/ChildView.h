@@ -68,7 +68,7 @@ protected:
 	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, const my::Frustum & local_ftm, Component * cmp);
 	bool OverlapTestFrustumAndParticles(const my::Frustum & frustum, const my::Frustum & local_ftm, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num);
 	my::RayResult OverlapTestRayAndActor(const my::Ray & ray, Actor * actor);
-	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp);
+	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid);
 	my::RayResult OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num);
 	void OnSelectionChanged(my::EventArg * arg);
 	void OnSelectionPlaying(my::EventArg * arg);

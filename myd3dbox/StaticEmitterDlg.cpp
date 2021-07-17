@@ -14,7 +14,7 @@ IMPLEMENT_DYNAMIC(CStaticEmitterDlg, CDialogEx)
 CStaticEmitterDlg::CStaticEmitterDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG5, pParent)
 	, m_emit_cmp_name(my::NamedObject::MakeUniqueName("editor_emitter"))
-	, m_ChunkWidth(3.0f)
+	, m_ChunkWidth(4.0f)
 {
 	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name.c_str()).c_str());
 }

@@ -606,24 +606,23 @@ my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * ac
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
-		my::RayResult result = OverlapTestRayAndComponent(ray, local_ray, cmp_iter->get());
+		my::RayResult result = OverlapTestRayAndComponent(ray, local_ray, cmp_iter->get(), raychunkid);
 		if (result.first && result.second < ret.second)
 		{
 			ret = result;
 			m_raycmp = cmp_iter->get();
-			raychunkid = m_raychunkid;
+			m_raychunkid = raychunkid;
 		}
 	}
 
 	if (ret.first)
 	{
 		ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
-		m_raychunkid = raychunkid;
 	}
 	return ret;
 }
 
-my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp)
+my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint& raychunkid)
 {
 	switch (cmp->m_Type)
 	{
@@ -676,6 +675,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			if (ret.first)
 			{
+				raychunkid.SetPoint(0, 0);
 				return ret;
 			}
 		}
@@ -692,6 +692,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				const my::Ray & local_ray;
 				EmitterComponent * emitter;
 				my::RayResult ret;
+				CPoint raychunkid;
 				Callback(CChildView * _pView, const my::Ray & _ray, const my::Ray & _local_ray, EmitterComponent * _emitter)
 					: pView(_pView)
 					, ray(_ray)
@@ -707,7 +708,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					if (result.first && result.second < ret.second)
 					{
 						ret = result;
-						pView->m_raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+						raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
 					}
 				}
 			};
@@ -715,10 +716,12 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			static_emit_cmp->QueryEntity(local_ray, &cb);
 			if (cb.ret.first)
 			{
+				raychunkid = cb.raychunkid;
 				return cb.ret;
 			}
 		}
 		break;
+
 	case Component::ComponentTypeSphericalEmitter:
 		{
 			SphericalEmitter* sphe_emit_cmp = dynamic_cast<SphericalEmitter *>(cmp);
@@ -730,15 +733,17 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_one.first, array_one.second);
 			if (ret.first)
 			{
+				raychunkid.SetPoint(0, 0);
 				return ret;
 			}
 			my::Emitter::ParticleList::array_range array_two = sphe_emit_cmp->m_ParticleList.array_two();
 			ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_two.first, array_two.second);
 			if (ret.first)
 			{
+				raychunkid.SetPoint(0, 0);
 				return ret;
 			}
-	}
+		}
 		break;
 
 	case Component::ComponentTypeCloth:
@@ -786,6 +791,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			}
 			if (ret.first)
 			{
+				raychunkid.SetPoint(0, 0);
 				return ret;
 			}
 		}
@@ -800,6 +806,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				CChildView * pView;
 				Terrain * terrain;
 				my::RayResult ret;
+				CPoint raychunkid;
 				Callback(const my::Ray & _ray, const my::Vector3 & _ViewPos, CChildView * _pView, Terrain * _terrain)
 					: ray(_ray)
 					, pView(_pView)
@@ -861,7 +868,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					if (result.first && result.second < ret.second)
 					{
 						ret = result;
-						pView->m_raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+						raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
 					}
 				}
 			};
@@ -872,6 +879,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			terrain->QueryEntity(local_ray, &cb);
 			if (cb.ret.first)
 			{
+				raychunkid = cb.raychunkid;
 				return cb.ret;
 			}
 		}
@@ -1347,6 +1355,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		pFrame->QueryEntity(ftm, &Callback(pFrame->m_selactors, ftm, this));
+		pFrame->m_selcmp = NULL;
+		pFrame->m_selchunkid.SetPoint(0, 0);
 	}
 	else
 	{
@@ -1389,6 +1399,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
+				pFrame->m_selcmp = NULL;
+				pFrame->m_selchunkid.SetPoint(0, 0);
 			}
 			else
 			{
@@ -1511,6 +1523,8 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				new_selactors.push_back(new_actor.get());
 			}
 			pFrame->m_selactors.swap(new_selactors);
+			pFrame->m_selcmp = NULL;
+			pFrame->m_selchunkid.SetPoint(0, 0);
 		}
 		StartPerformanceCount();
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
@@ -1819,8 +1833,9 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain);
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid);
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
@@ -1857,8 +1872,9 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain);
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid);
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
