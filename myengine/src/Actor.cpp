@@ -356,7 +356,7 @@ void Actor::ReleaseResource(void)
 		}
 	}
 
-	m_Lod = Component::LOD_MAX;
+	m_Lod = Component::LOD_INFINITE;
 
 	if (m_PxActor)
 	{
@@ -555,7 +555,7 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 
 	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), (int)Component::LOD_MAX);
+		int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), Component::LOD_INFINITE - 1);
 		if (m_Lod != Lod)
 		{
 			m_Lod = Lod;
@@ -584,7 +584,7 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 		}
 	}
 
-	for (int Lod = m_Lod; Lod <= Component::LOD_MAX; Lod++)
+	for (int Lod = m_Lod; Lod < Component::LOD_INFINITE; Lod++)
 	{
 		bool lodRequested = false;
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

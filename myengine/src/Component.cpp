@@ -105,13 +105,6 @@ void Component::ReleaseResource(void)
 	}
 }
 
-int Component::CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const
-{
-	float DistanceSq = (LocalAabb.Center() - LocalViewPos).magnitudeSq();
-	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
-	return Max(Lod, 0);
-}
-
 void Component::SetMaterial(MaterialPtr material)
 {
 	if (IsRequested() && m_Material)

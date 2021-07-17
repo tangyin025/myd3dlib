@@ -50,17 +50,13 @@ public:
 
 	enum LODMask
 	{
-		LOD_MAX = 3,
+		LOD_INFINITE = 3,
 		LOD0 = 1 << 0,
 		LOD1 = 1 << 1,
 		LOD2 = 1 << 2,
-		LOD3 = 1 << LOD_MAX,
 		LOD0_1 = LOD0 | LOD1,
-		LOD0_1_2 = LOD0 | LOD1 | LOD2,
-		LOD0_1_2_3 = LOD0 | LOD1 | LOD2 | LOD3,
 		LOD1_2 = LOD1 | LOD2,
-		LOD1_2_3 = LOD1 | LOD2 | LOD3,
-		LOD2_3 = LOD2 | LOD3,
+		LOD0_1_2 = LOD0 | LOD1 | LOD2,
 	};
 
 	LODMask m_LodMask;
@@ -78,7 +74,7 @@ public:
 protected:
 	Component(void)
 		: m_Type(ComponentTypeComponent)
-		, m_LodMask(LOD0_1_2_3)
+		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{
@@ -87,7 +83,7 @@ protected:
 	Component(ComponentType Type, const char * Name)
 		: NamedObject(Name)
 		, m_Type(Type)
-		, m_LodMask(LOD0_1_2_3)
+		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{
@@ -143,8 +139,6 @@ public:
 	{
 		return my::AABB::Invalid();
 	}
-
-	int CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const;
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 	{

@@ -63,13 +63,9 @@ static const CPropertiesWnd::PassMaskDesc g_LodMaskDesc[] =
 	{ _T("LOD0"), Component::LOD0 },
 	{ _T("LOD1"), Component::LOD1 },
 	{ _T("LOD2"), Component::LOD2 },
-	{ _T("LOD3"), Component::LOD3 },
 	{ _T("LOD0_1"), Component::LOD0_1 },
-	{ _T("LOD0_1_2"), Component::LOD0_1_2 },
-	{ _T("LOD0_1_2_3"), Component::LOD0_1_2_3 },
 	{ _T("LOD1_2"), Component::LOD1_2 },
-	{ _T("LOD1_2_3"), Component::LOD1_2_3 },
-	{ _T("LOD2_3"), Component::LOD2_3 },
+	{ _T("LOD0_1_2"), Component::LOD0_1_2 },
 };
 
 static LPCTSTR GetLodMaskDesc(DWORD mask)

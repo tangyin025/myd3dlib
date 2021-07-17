@@ -267,7 +267,7 @@ static int _Quad(int v, int min_v)
 
 int Terrain::CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const
 {
-	int Lod = Component::CalculateLod(LocalAabb, LocalViewPos);
+	int Lod = m_Actor->CalculateLod(LocalAabb, LocalViewPos);
 	return Min(Lod, _Quad(m_ChunkSize, m_MinLodChunkSize));
 }
 
