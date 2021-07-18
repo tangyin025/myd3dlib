@@ -148,23 +148,24 @@ public:
 		PropertyEmitterSpaceType,
 		PropertyEmitterVelType,
 		PropertyEmitterPrimitiveType,
-		PropertyEmitterParticleList,
-		PropertyEmitterParticleCount,
-		PropertyEmitterParticlePosition,
-		PropertyEmitterParticlePositionX,
-		PropertyEmitterParticlePositionY,
-		PropertyEmitterParticlePositionZ,
-		PropertyEmitterParticleVelocity,
-		PropertyEmitterParticleVelocityX,
-		PropertyEmitterParticleVelocityY,
-		PropertyEmitterParticleVelocityZ,
-		PropertyEmitterParticleColor,
-		PropertyEmitterParticleColorAlpha,
-		PropertyEmitterParticleSize,
-		PropertyEmitterParticleSizeX,
-		PropertyEmitterParticleSizeY,
-		PropertyEmitterParticleAngle,
+		//PropertyEmitterParticleList,
+		//PropertyEmitterParticleCount,
+		//PropertyEmitterParticlePosition,
+		//PropertyEmitterParticlePositionX,
+		//PropertyEmitterParticlePositionY,
+		//PropertyEmitterParticlePositionZ,
+		//PropertyEmitterParticleVelocity,
+		//PropertyEmitterParticleVelocityX,
+		//PropertyEmitterParticleVelocityY,
+		//PropertyEmitterParticleVelocityZ,
+		//PropertyEmitterParticleColor,
+		//PropertyEmitterParticleColorAlpha,
+		//PropertyEmitterParticleSize,
+		//PropertyEmitterParticleSizeX,
+		//PropertyEmitterParticleSizeY,
+		//PropertyEmitterParticleAngle,
 		PropertyStaticEmitterChunkWidth,
+		PropertyStaticEmitterChunkPath,
 		PropertySphericalEmitter,
 		PropertySphericalEmitterParticleCapacity,
 		PropertySphericalEmitterParticleLifeTime,
@@ -227,7 +228,7 @@ public:
 	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter* emit_cmp);
-	void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp);
+	//void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp);
 	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
 	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
@@ -245,7 +246,7 @@ public:
 	static void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);
-	void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp);
+	//void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp);
 	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
