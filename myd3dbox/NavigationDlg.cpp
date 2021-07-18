@@ -222,10 +222,46 @@ void CNavigationDlg::OnOK()
 				switch (cmp->m_PxShape->getGeometryType())
 				{
 				case physx::PxGeometryType::eSPHERE:
-				case physx::PxGeometryType::ePLANE:
 				case physx::PxGeometryType::eCAPSULE:
+				{
 					pDlg->log(RC_LOG_PROGRESS, "buildNavigation: unsupported collision shape"); // ! rcAddSpan
 					continue;
+				}
+				case physx::PxGeometryType::ePLANE:
+				{
+					physx::PxPlaneGeometry plane_geom;
+					VERIFY(cmp->m_PxShape->getPlaneGeometry(plane_geom));
+					physx::PxTransform localPose = cmp->m_PxShape->getLocalPose();
+					my::Matrix4 World = my::Matrix4::Compose(
+						my::Vector3::one, (my::Quaternion&)localPose.q, (my::Vector3&)localPose.p) * my::Matrix4::Compose(my::Vector3::one, actor->m_Rotation, actor->m_Position);
+					my::Plane plane = my::Plane(1, 0, 0, 0).transform(World.inverse().transpose());
+					if (D3DXToDegree(acos(my::Vector3::CosTheta(plane.normal, my::Vector3::unitY))) > pDlg->m_agentMaxSlope)
+					{
+						continue;
+					}
+					const float ics = 1.0f / pDlg->m_cfg.cs;
+					const float ich = 1.0f / pDlg->m_cfg.ch;
+					int x1 = (int)((pDlg->m_cfg.bmax[0] - pDlg->m_cfg.bmin[0]) * ics);
+					int z1 = (int)((pDlg->m_cfg.bmax[2] - pDlg->m_cfg.bmin[2]) * ics);
+					for (int x = 0; x < x1; x++)
+					{
+						for (int z = 0; z < z1; z++)
+						{
+							float sx = pDlg->m_cfg.bmin[0] + (x + 0.5f) * pDlg->m_cfg.cs;
+							float sz = pDlg->m_cfg.bmin[2] + (z + 0.5f) * pDlg->m_cfg.cs;
+							float sy = -(plane.a * sx + plane.c * sz + plane.d) / plane.b;
+							if (sy < pDlg->m_cfg.bmin[1] || sy >= pDlg->m_cfg.bmax[1])
+							{
+								continue;
+							}
+							float sh = my::Max(fabs(plane.normal.x * pDlg->m_cfg.cs / plane.normal.y), fabs(plane.normal.z * pDlg->m_cfg.cs / plane.normal.y));
+							unsigned short smin = my::Clamp((int)floorf((sy - sh - pDlg->m_cfg.bmin[1]) * ich), 0, RC_SPAN_MAX_HEIGHT);
+							unsigned short smax = my::Max((int)ceilf((sy - pDlg->m_cfg.bmin[1]) * ich), smin + 1);
+							rcAddSpan(pDlg, *pDlg->m_solid, x, z, smin, smax, plane.normal.y > walkableThr ? RC_WALKABLE_AREA : 0, pDlg->m_cfg.walkableClimb);
+						}
+					}
+					break;
+				}
 				case physx::PxGeometryType::eBOX:
 				{
 					physx::PxBoxGeometry geom;

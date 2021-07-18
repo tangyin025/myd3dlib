@@ -26,6 +26,7 @@ extern "C"
 #include "Terrain.h"
 #include "StaticEmitter.h"
 #include "Controller.h"
+#include "NavigationSerialization.h"
 #include "ActionTrack.h"
 #include "noise.h"
 
@@ -1377,6 +1378,9 @@ void LuaContext::Init(void)
 			.def(constructor<const char*, float, float, float, unsigned int>())
 			.def_readwrite("filterWord0", &Controller::m_filterWord0)
 			.def("Move", &Controller::Move)
+
+		, class_<Navigation, Component, boost::shared_ptr<Navigation> >("Navigation")
+			.def(constructor<const char*>())
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)
