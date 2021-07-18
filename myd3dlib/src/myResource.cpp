@@ -395,6 +395,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 
 			EnterDeviceSection();
 
+			// ! discarded request may also destroy d3d object in no-main thread
 			priority_req.reset();
 
 			LeaveDeviceSection();

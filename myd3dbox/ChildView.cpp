@@ -427,9 +427,12 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
-					if (!ret && pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size()))
+					if (chunk->m_buff)
 					{
-						ret = true;
+						if (!ret && pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size()))
+						{
+							ret = true;
+						}
 					}
 				}
 			};
@@ -704,11 +707,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
-					my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size());
-					if (result.first && result.second < ret.second)
+					if (chunk->m_buff)
 					{
-						ret = result;
-						raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+						my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size());
+						if (result.first && result.second < ret.second)
+						{
+							ret = result;
+							raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+						}
 					}
 				}
 			};
