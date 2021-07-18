@@ -324,12 +324,9 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 
 	if (chunk_res.second)
 	{
-		std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
-		std::ofstream ofs(FullPath, std::ios::binary);
-		_ASSERT(ofs.is_open());
-		my::Emitter::Particle tmp(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
-		ofs.write((char*)&tmp, sizeof(tmp));
-		ofs.close();
+		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
+
+		my::ResourceMgr::getSingleton().AddResource(path, DeviceResourceBasePtr(new StaticEmitterChunkBuffer()));
 
 		m_emit->AddEntity(&chunk_res.first->second,
 			my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
@@ -338,11 +335,6 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), i, j, INT_MAX));
 	my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&StaticEmitterStream::SetBuffer, this, i, j, boost::placeholders::_1));
 	_ASSERT(buff_res.first->second);
-
-	if (chunk_res.second)
-	{
-		buff_res.first->second->clear();
-	}
 
 	return buff_res.first->second.get();
 }
