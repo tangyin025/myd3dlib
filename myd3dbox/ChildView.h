@@ -55,6 +55,7 @@ protected:
 	LARGE_INTEGER m_qwTime[2];
 	Component * m_raycmp;
 	CPoint m_raychunkid;
+	int m_rayinstid;
 	DWORD m_duDebugDrawPrimitives;
 
 	BOOL ResetD3DSwapChain(void);
@@ -64,12 +65,13 @@ protected:
 	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
+	static my::Matrix4 GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & View);
 	bool OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor);
 	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, const my::Frustum & local_ftm, Component * cmp);
 	bool OverlapTestFrustumAndParticles(const my::Frustum & frustum, const my::Frustum & local_ftm, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num);
 	my::RayResult OverlapTestRayAndActor(const my::Ray & ray, Actor * actor);
-	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid);
-	my::RayResult OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num);
+	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid, int & rayinstid);
+	my::RayResult OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num, int & part_id);
 	void OnSelectionChanged(my::EventArg * arg);
 	void OnSelectionPlaying(my::EventArg * arg);
 	void OnPivotModeChanged(my::EventArg * arg);

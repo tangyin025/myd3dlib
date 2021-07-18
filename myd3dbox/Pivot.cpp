@@ -361,7 +361,7 @@ bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 
 bool Pivot::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
 {
-	Matrix4 trans = Matrix4::Compose(Scale, m_DragRot, m_Pos).inverse();
+	Matrix4 trans = Matrix4::Compose(Vector3(Scale), m_DragRot, m_Pos).inverse();
 	Ray local_ray = ray.transform(trans);
     RayResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
     Vector3 k;

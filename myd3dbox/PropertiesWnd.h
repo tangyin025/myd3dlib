@@ -148,22 +148,20 @@ public:
 		PropertyEmitterSpaceType,
 		PropertyEmitterVelType,
 		PropertyEmitterPrimitiveType,
-		//PropertyEmitterParticleList,
-		//PropertyEmitterParticleCount,
-		//PropertyEmitterParticlePosition,
-		//PropertyEmitterParticlePositionX,
-		//PropertyEmitterParticlePositionY,
-		//PropertyEmitterParticlePositionZ,
-		//PropertyEmitterParticleVelocity,
-		//PropertyEmitterParticleVelocityX,
-		//PropertyEmitterParticleVelocityY,
-		//PropertyEmitterParticleVelocityZ,
-		//PropertyEmitterParticleColor,
-		//PropertyEmitterParticleColorAlpha,
-		//PropertyEmitterParticleSize,
-		//PropertyEmitterParticleSizeX,
-		//PropertyEmitterParticleSizeY,
-		//PropertyEmitterParticleAngle,
+		PropertyEmitterParticlePosition,
+		PropertyEmitterParticlePositionX,
+		PropertyEmitterParticlePositionY,
+		PropertyEmitterParticlePositionZ,
+		PropertyEmitterParticleVelocity,
+		PropertyEmitterParticleVelocityX,
+		PropertyEmitterParticleVelocityY,
+		PropertyEmitterParticleVelocityZ,
+		PropertyEmitterParticleColor,
+		PropertyEmitterParticleColorAlpha,
+		PropertyEmitterParticleSize,
+		PropertyEmitterParticleSizeX,
+		PropertyEmitterParticleSizeY,
+		PropertyEmitterParticleAngle,
 		PropertyStaticEmitterChunkWidth,
 		PropertyStaticEmitterChunkPath,
 		PropertySphericalEmitter,
@@ -227,15 +225,15 @@ public:
 	static void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl);
 	static void UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
-	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter* emit_cmp);
-	//void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp);
+	void UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);
+	void UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParticle, const CPoint & chunkid, int instid, my::Emitter::Particle * particle);
 	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
 	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
 	void UpdatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 	void UpdatePropertiesAnimationNode(CMFCPropertyGridProperty * pAnimationNode, AnimationNode * node);
-	void UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty* pAnimationNode, AnimationNodeSequence* seq);
+	void UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -246,7 +244,7 @@ public:
 	static void CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param);
 	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, StaticEmitter * emit_cmp);
-	//void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, int NodeId, StaticEmitter* emit_cmp);
+	void CreatePropertiesStaticEmitterParticle(CMFCPropertyGridProperty * pParentProp, const CPoint & chunkid, int instid, my::Emitter::Particle * particle);
 	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitter * sphe_emit_cmp);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);

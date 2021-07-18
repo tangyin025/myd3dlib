@@ -250,6 +250,7 @@ CMainFrame::CMainFrame()
 	, m_bEatAltUp(FALSE)
 	, m_selcmp(NULL)
 	, m_selchunkid(0, 0)
+	, m_selinstid(0)
 	, m_selbox(-1, 1)
 	, m_PaintType(PaintTypeNone)
 	, m_PaintShape(PaintShapeCircle)
@@ -1089,6 +1090,9 @@ void CMainFrame::OnCreateActor()
 
 	m_selactors.clear();
 	m_selactors.push_back(actor.get());
+	m_selcmp = NULL;
+	m_selchunkid.SetPoint(0, 0);
+	m_selinstid = 0;
 	OnSelChanged();
 }
 
@@ -1398,7 +1402,6 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
 	UpdatePivotTransform();
-	m_selchunkid.SetPoint(0, 0);
 
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);

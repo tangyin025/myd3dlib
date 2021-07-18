@@ -111,7 +111,7 @@ namespace my
 		{
 		}
 
-		Vector2(float _v)
+		explicit Vector2(float _v)
 			: x(_v)
 			, y(_v)
 		{
@@ -370,7 +370,7 @@ namespace my
 		{
 		}
 
-		Vector3(float _v)
+		explicit Vector3(float _v)
 			: x(_v)
 			, y(_v)
 			, z(_v)
@@ -695,7 +695,7 @@ namespace my
 		{
 		}
 
-		Vector4(float _v)
+		explicit Vector4(float _v)
 			: x(_v)
 			, y(_v)
 			, z(_v)
@@ -1767,7 +1767,7 @@ namespace my
 		{
 		}
 
-		Matrix4(float _v)
+		explicit Matrix4(float _v)
 			: _11(_v), _12(_v), _13(_v), _14(_v)
 			, _21(_v), _22(_v), _23(_v), _24(_v)
 			, _31(_v), _32(_v), _33(_v), _34(_v)

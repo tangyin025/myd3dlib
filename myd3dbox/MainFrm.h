@@ -44,6 +44,7 @@ public:
 	SelActorList m_selactors;
 	Component * m_selcmp;
 	CPoint m_selchunkid;
+	int m_selinstid;
 	my::AABB m_selbox;
 	enum PaintType
 	{

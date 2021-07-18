@@ -61,6 +61,7 @@ CChildView::CChildView()
 	, m_bCopyActors(FALSE)
 	, m_raycmp(NULL)
 	, m_raychunkid(0, 0)
+	, m_rayinstid(0)
 	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
 	// TODO: add construction code here
@@ -296,6 +297,31 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
 			ASSERT(chunk_iter != static_emit_cmp->m_Chunks.end());
 			PushLineAABB(chunk_iter->second.m_OctAabb->transform(cmp->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
+			if (chunk_iter->second.m_buff && pFrame->m_selinstid < chunk_iter->second.m_buff->size())
+			{
+				my::Matrix4 p2World = GetParticleTransform(static_emit_cmp->m_EmitterFaceType, (*chunk_iter->second.m_buff)[pFrame->m_selinstid], m_Camera->m_View);
+				if (static_emit_cmp->m_EmitterSpaceType != EmitterComponent::SpaceTypeWorld)
+				{
+					p2World *= cmp->m_Actor->m_World;
+				}
+				void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
+				void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
+				for (int i = 0; i < RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount]; i++)
+				{
+					unsigned short* pi = (unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex] + i * 3;
+					unsigned char* pv0 = (unsigned char*)pvb + *(pi + 0) * theApp.m_ParticleVertStride;
+					unsigned char* pv1 = (unsigned char*)pvb + *(pi + 1) * theApp.m_ParticleVertStride;
+					unsigned char* pv2 = (unsigned char*)pvb + *(pi + 2) * theApp.m_ParticleVertStride;
+					my::Vector3 v0 = theApp.m_ParticleVertElems.GetPosition(pv0).transformCoord(p2World);
+					my::Vector3 v1 = theApp.m_ParticleVertElems.GetPosition(pv1).transformCoord(p2World);
+					my::Vector3 v2 = theApp.m_ParticleVertElems.GetPosition(pv2).transformCoord(p2World);
+					PushLine(v0, v1, D3DCOLOR_ARGB(255, 0, 255, 0));
+					PushLine(v1, v2, D3DCOLOR_ARGB(255, 0, 255, 0));
+					PushLine(v2, v0, D3DCOLOR_ARGB(255, 0, 255, 0));
+				}
+				theApp.m_ParticleQuadVb.Unlock();
+				theApp.m_ParticleQuadIb.Unlock();
+			}
 		}
 		break;
 
@@ -321,6 +347,45 @@ double CChildView::EndPerformanceCount(void)
 {
 	QueryPerformanceCounter(&m_qwTime[1]);
 	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
+}
+
+my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & View)
+{
+	my::Vector3 sph = View.getColumn<2>().xyz.cartesianToSpherical();
+	switch (EmitterFaceType)
+	{
+	case EmitterComponent::FaceTypeX:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle),
+			particle.m_Position);
+	case EmitterComponent::FaceTypeY:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
+			particle.m_Position);
+	case EmitterComponent::FaceTypeZ:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
+			particle.m_Position);
+	case EmitterComponent::FaceTypeCamera:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+			particle.m_Position);
+	case EmitterComponent::FaceTypeAngle:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitY, particle.m_Angle),
+			particle.m_Position);
+	case EmitterComponent::FaceTypeAngleCamera:
+		return my::Matrix4::Compose(
+			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
+			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+			particle.m_Position);
+	}
+	return my::Matrix4::Identity();
 }
 
 bool CChildView::OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor * actor)
@@ -523,52 +588,12 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 
 bool CChildView::OverlapTestFrustumAndParticles(const my::Frustum & frustum, const my::Frustum & local_ftm, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num)
 {
-	my::Matrix4 p2local;
-	my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
 	void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
 	void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
 	const my::Emitter::Particle* part_iter = part_start;
 	for (; part_iter != part_start + part_num; part_iter++)
 	{
-		switch (emitter->m_EmitterFaceType)
-		{
-		case EmitterComponent::FaceTypeX:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeY:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeZ:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeCamera:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeAngle:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeAngleCamera:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-				part_iter->m_Position);
-			break;
-		}
+		my::Matrix4 p2local = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, m_Camera->m_View);
 		my::Frustum particle_ftm;
 		switch (emitter->m_EmitterSpaceType)
 		{
@@ -605,16 +630,18 @@ my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * ac
 	my::RayResult ret(false, FLT_MAX);
 	m_raycmp = NULL;
 	CPoint raychunkid;
+	int rayinstid;
 	my::Ray local_ray = ray.transform(actor->m_World.inverse());
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
-		my::RayResult result = OverlapTestRayAndComponent(ray, local_ray, cmp_iter->get(), raychunkid);
+		my::RayResult result = OverlapTestRayAndComponent(ray, local_ray, cmp_iter->get(), raychunkid, rayinstid);
 		if (result.first && result.second < ret.second)
 		{
 			ret = result;
 			m_raycmp = cmp_iter->get();
 			m_raychunkid = raychunkid;
+			m_rayinstid = rayinstid;
 		}
 	}
 
@@ -625,7 +652,7 @@ my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * ac
 	return ret;
 }
 
-my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint& raychunkid)
+my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid, int & rayinstid)
 {
 	switch (cmp->m_Type)
 	{
@@ -679,6 +706,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);
+				rayinstid = 0;
 				return ret;
 			}
 		}
@@ -696,12 +724,15 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				EmitterComponent * emitter;
 				my::RayResult ret;
 				CPoint raychunkid;
+				int rayinstid;
 				Callback(CChildView * _pView, const my::Ray & _ray, const my::Ray & _local_ray, EmitterComponent * _emitter)
 					: pView(_pView)
 					, ray(_ray)
 					, local_ray(_local_ray)
 					, emitter(_emitter)
 					, ret(false, FLT_MAX)
+					, raychunkid(0, 0)
+					, rayinstid(0)
 				{
 				}
 				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -709,11 +740,13 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 					if (chunk->m_buff)
 					{
-						my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size());
+						int part_id;
+						my::RayResult result = pView->OverlapTestRayAndParticles(ray, local_ray, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size(), part_id);
 						if (result.first && result.second < ret.second)
 						{
 							ret = result;
 							raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+							rayinstid = part_id;
 						}
 					}
 				}
@@ -723,6 +756,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			if (cb.ret.first)
 			{
 				raychunkid = cb.raychunkid;
+				rayinstid = cb.rayinstid;
 				return cb.ret;
 			}
 		}
@@ -735,18 +769,21 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
+			int part_id;
 			my::Emitter::ParticleList::array_range array_one = sphe_emit_cmp->m_ParticleList.array_one();
-			my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_one.first, array_one.second);
+			my::RayResult ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_one.first, array_one.second, part_id);
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);
+				rayinstid = part_id;
 				return ret;
 			}
 			my::Emitter::ParticleList::array_range array_two = sphe_emit_cmp->m_ParticleList.array_two();
-			ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_two.first, array_two.second);
+			ret = OverlapTestRayAndParticles(ray, local_ray, sphe_emit_cmp, array_two.first, array_two.second, part_id);
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);
+				rayinstid = part_id;
 				return ret;
 			}
 		}
@@ -798,6 +835,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			if (ret.first)
 			{
 				raychunkid.SetPoint(0, 0);
+				rayinstid = 0;
 				return ret;
 			}
 		}
@@ -819,6 +857,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, ViewPos(_ViewPos)
 					, terrain(_terrain)
 					, ret(false, FLT_MAX)
+					, raychunkid(0, 0)
 				{
 				}
 				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -886,6 +925,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			if (cb.ret.first)
 			{
 				raychunkid = cb.raychunkid;
+				rayinstid = 0;
 				return cb.ret;
 			}
 		}
@@ -894,54 +934,15 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 	return my::RayResult(false, FLT_MAX);
 }
 
-my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num)
+my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num, int & part_id)
 {
-	my::Matrix4 p2local;
-	my::Vector3 sph = m_Camera->m_View.getColumn<2>().xyz.cartesianToSpherical();
+	my::RayResult ret(false, FLT_MAX);
 	void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
 	void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
 	const my::Emitter::Particle* part_iter = part_start;
 	for (; part_iter != part_start + part_num; part_iter++)
 	{
-		switch (emitter->m_EmitterFaceType)
-		{
-		case EmitterComponent::FaceTypeX:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeY:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeZ:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeCamera:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeAngle:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitY, part_iter->m_Angle),
-				part_iter->m_Position);
-			break;
-		case EmitterComponent::FaceTypeAngleCamera:
-			p2local = my::Matrix4::Compose(
-				my::Vector3(part_iter->m_Size.x, part_iter->m_Size.y, part_iter->m_Size.x),
-				my::Quaternion::RotationAxis(my::Vector3::unitX, part_iter->m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
-				part_iter->m_Position);
-			break;
-		}
+		my::Matrix4 p2local = GetParticleTransform(emitter->m_EmitterFaceType, *part_iter, m_Camera->m_View);
 		my::Ray particle_ray;
 		switch (emitter->m_EmitterSpaceType)
 		{
@@ -952,19 +953,18 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 			particle_ray = local_ray.transform(p2local.inverse());
 			break;
 		}
-		my::RayResult ret = my::Mesh::RayTest(particle_ray, pvb, 0, theApp.m_ParticleVertStride,
+		my::RayResult result = my::Mesh::RayTest(particle_ray, pvb, 0, theApp.m_ParticleVertStride,
 			(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
 			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
-		if (ret.first)
+		if (result.first && result.second < ret.second)
 		{
-			theApp.m_ParticleQuadVb.Unlock();
-			theApp.m_ParticleQuadIb.Unlock();
-			return ret;
+			ret = result;
+			part_id = (int)std::distance(part_start, part_iter);
 		}
 	}
 	theApp.m_ParticleQuadVb.Unlock();
 	theApp.m_ParticleQuadIb.Unlock();
-	return my::RayResult(false, FLT_MAX);
+	return ret;
 }
 
 void CChildView::OnSelectionChanged(my::EventArg * arg)
@@ -1363,6 +1363,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		pFrame->QueryEntity(ftm, &Callback(pFrame->m_selactors, ftm, this));
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
+		pFrame->m_selinstid = 0;
 	}
 	else
 	{
@@ -1374,6 +1375,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			Component * selcmp;
 			float seldist;
 			CPoint selchunkid;
+			int selinstid;
 			Callback(const my::Ray & _ray, CChildView * _pView)
 				: ray(_ray)
 				, pView(_pView)
@@ -1381,6 +1383,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, selcmp(NULL)
 				, seldist(FLT_MAX)
 				, selchunkid(0, 0)
+				, selinstid(0)
 			{
 			}
 			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -1394,6 +1397,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 					selcmp = pView->m_raycmp;
 					seldist = ret.second;
 					selchunkid = pView->m_raychunkid;
+					selinstid = pView->m_rayinstid;
 				}
 			}
 		};
@@ -1407,12 +1411,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selactors.erase(sel_iter);
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
+				pFrame->m_selinstid = 0;
 			}
 			else
 			{
 				pFrame->m_selactors.push_back(cb.selact);
 				pFrame->m_selcmp = cb.selcmp;
 				pFrame->m_selchunkid = cb.selchunkid;
+				pFrame->m_selinstid = cb.selinstid;
 			}
 		}
 	}
@@ -1839,9 +1845,9 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint raychunkid;
+	CPoint raychunkid; int rayinstid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid);
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
@@ -1878,9 +1884,9 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint raychunkid;
+	CPoint raychunkid; int rayinstid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid);
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
