@@ -669,16 +669,17 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		{
 			_ASSERT(D3DContext::getSingleton().m_DeviceObjectsCreated);
 
-			EnterDeviceSection();
-
+			CriticalSectionLock lock(D3DContext::getSingleton().m_d3dDeviceSec);
 			request->CreateResource(D3DContext::getSingleton().m_d3dDevice);
+			lock.Unlock();
 
 			if (request->m_res && D3DContext::getSingleton().m_DeviceObjectsReset)
 			{
-				request->m_res->OnResetDevice();
-			}
 
-			LeaveDeviceSection();
+				CriticalSectionLock lock(D3DContext::getSingleton().m_d3dDeviceSec);
+				request->m_res->OnResetDevice();
+				lock.Unlock();
+			}
 
 			AddResource(key, request->m_res);
 		}

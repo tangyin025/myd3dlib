@@ -34,10 +34,22 @@ namespace my
 	protected:
 		CriticalSection & m_cs;
 
+		bool m_locked;
+
 	public:
-		CriticalSectionLock(CriticalSection & cs);
+		CriticalSectionLock(CriticalSection & cs, bool init_lock = true);
 
 		~CriticalSectionLock(void);
+
+		void Lock(void)
+		{
+			_ASSERT(!m_locked); m_cs.Enter(); m_locked = true;
+		}
+
+		void Unlock(void)
+		{
+			_ASSERT(m_locked); m_cs.Leave(); m_locked = false;
+		}
 	};
 
 	class SynchronizationObj

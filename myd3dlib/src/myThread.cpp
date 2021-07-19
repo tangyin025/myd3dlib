@@ -29,15 +29,22 @@ BOOL CriticalSection::TryEnter(void)
 	return ::TryEnterCriticalSection(&m_section);
 }
 
-CriticalSectionLock::CriticalSectionLock(CriticalSection & cs)
+CriticalSectionLock::CriticalSectionLock(CriticalSection& cs, bool init_lock)
 	: m_cs(cs)
+	, m_locked(false)
 {
-	m_cs.Enter();
+	if (init_lock)
+	{
+		Lock();
+	}
 }
 
 CriticalSectionLock::~CriticalSectionLock(void)
 {
-	m_cs.Leave();
+	if (m_locked)
+	{
+		Unlock();
+	}
 }
 
 SynchronizationObj::SynchronizationObj(HANDLE handle)
@@ -811,7 +818,7 @@ std::basic_string<TCHAR> Application::GetModuleFileName(void)
 {
 	std::basic_string<TCHAR> ret;
 	ret.resize(MAX_PATH);
-	ret.resize(::GetModuleFileName(NULL, &ret[0], ret.size()));
+	ret.resize(::GetModuleFileName(NULL, &ret[0], (DWORD)ret.size()));
 
 	return ret;
 }
