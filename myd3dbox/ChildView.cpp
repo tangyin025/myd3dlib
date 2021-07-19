@@ -956,14 +956,22 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 		my::RayResult result = my::Mesh::RayTest(particle_ray, pvb, 0, theApp.m_ParticleVertStride,
 			(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
 			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
-		if (result.first && result.second < ret.second)
+		if (result.first)
 		{
-			ret = result;
-			part_id = (int)std::distance(part_start, part_iter);
+			result.second = (particle_ray.d * result.second).transformNormal(p2local).magnitude();
+			if (result.second < ret.second)
+			{
+				ret = result;
+				part_id = (int)std::distance(part_start, part_iter);
+			}
 		}
 	}
 	theApp.m_ParticleQuadVb.Unlock();
 	theApp.m_ParticleQuadIb.Unlock();
+	if (ret.first && emitter->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+	{
+		ret.second = (ray.d * ret.second).transformNormal(emitter->m_Actor->m_World.inverse()).magnitude();
+	}
 	return ret;
 }
 
