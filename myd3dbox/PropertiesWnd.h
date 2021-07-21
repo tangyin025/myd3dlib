@@ -209,7 +209,7 @@ public:
 		PropertyPaintHeight,
 		PropertyPaintColor,
 		PropertyPaintSpline,
-		PropertyPaintEmitterDensity,
+		PropertyPaintParticleMinDist,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

@@ -1468,7 +1468,7 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(void)
 	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pPaint->GetSubItem(4)))->SetColor(color);
 	UpdatePropertiesSpline(pPaint->GetSubItem(5), &pFrame->m_PaintSpline);
-	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintEmitterDensity);
+	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintParticleMinDist);
 }
 
 void CPropertiesWnd::CreatePropertiesPaintTool(void)
@@ -1503,7 +1503,7 @@ void CPropertiesWnd::CreatePropertiesPaintTool(void)
 	pPaint->AddSubItem(pPaintColor);
 
 	CreatePropertiesSpline(pPaint, _T("Spline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
-	pProp = new CSimpleProp(_T("EmitterDensity"), (_variant_t)pFrame->m_PaintEmitterDensity, NULL, PropertyPaintEmitterDensity);
+	pProp = new CSimpleProp(_T("EmitterDensity"), (_variant_t)pFrame->m_PaintParticleMinDist, NULL, PropertyPaintParticleMinDist);
 	pPaint->AddSubItem(pProp);
 }
 
@@ -2602,9 +2602,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyPaintEmitterDensity:
+	case PropertyPaintParticleMinDist:
 	{
-		pFrame->m_PaintEmitterDensity = pProp->GetValue().intVal;
+		pFrame->m_PaintParticleMinDist = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

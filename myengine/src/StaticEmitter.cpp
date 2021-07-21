@@ -350,7 +350,7 @@ void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 
 	{
 		int i = (int)(Position.z / m_emit->m_ChunkWidth), j = (int)(Position.x / m_emit->m_ChunkWidth);
 
-		StaticEmitterChunkBuffer* buff = GetBuffer(i, j);
+		StaticEmitterChunkBuffer * buff = GetBuffer(i, j);
 		if (!buff)
 		{
 			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
@@ -370,4 +370,42 @@ void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 
 
 		buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));
 	}
+}
+
+my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float z, float max_dist)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		StaticEmitterStream & estr;
+		Vector3 center;
+		float nearest_dist;
+		my::Emitter::Particle * nearest_particle;
+		Callback(StaticEmitterStream & _estr, float x, float z, float _max_dist)
+			: estr(_estr)
+			, center(x, 0, z)
+			, nearest_dist(_max_dist)
+			, nearest_particle(NULL)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		{
+			StaticEmitterChunk * chunk = dynamic_cast<StaticEmitterChunk *>(oct_entity);
+			StaticEmitterChunkBuffer * buff = estr.GetBuffer(chunk->m_Row, chunk->m_Col);
+			_ASSERT(buff);
+			StaticEmitterChunkBuffer::iterator part_iter = buff->begin();
+			for (; part_iter != buff->end(); part_iter++)
+			{
+				float dist = (part_iter->m_Position - center).magnitude2D();
+				if (dist < nearest_dist)
+				{
+					nearest_dist = dist;
+					nearest_particle = &(*part_iter);
+				}
+			}
+		}
+	};
+
+	Callback cb(*this, x, z, max_dist);
+	m_emit->QueryEntity(AABB(x - max_dist, m_emit->m_min.y, z - max_dist, x + max_dist, m_emit->m_max.y, z + max_dist), &cb);
+	return cb.nearest_particle;
 }

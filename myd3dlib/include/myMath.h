@@ -559,6 +559,16 @@ namespace my
 			return x * x + y * y + z * z;
 		}
 
+		float magnitude2D(void) const
+		{
+			return sqrtf(magnitudeSq2D());
+		}
+
+		float magnitudeSq2D(void) const
+		{
+			return x * x + z * z;
+		}
+
 		Vector3 lerp(const Vector3 & rhs, float s) const
 		{
 			return Vector3(

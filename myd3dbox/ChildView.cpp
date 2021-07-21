@@ -1942,7 +1942,8 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 			ASSERT(actor);
 			my::Ray local_ray = ray.transform(actor->m_World.inverse());
-			my::Matrix4 terrain2emit = actor->m_World * estr.m_emit->m_Actor->m_World.inverse();
+			my::Matrix4 local2emit = actor->m_World * estr.m_emit->m_Actor->m_World.inverse();
+			my::Matrix4 emit2local = local2emit.inverse();
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
@@ -1953,21 +1954,46 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 					if (res.first)
 					{
 						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-
-						for (int i = 0; i < pFrame->m_PaintEmitterDensity; i++)
+						my::Vector3 emit_pt = pt.transformCoord(local2emit);
+						std::list<my::Vector2> candidate;
+						my::Emitter::Particle * particle = estr.GetNearestParticle2D(emit_pt.x, emit_pt.z, pFrame->m_PaintParticleMinDist);
+						if (!particle)
 						{
-							if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
+							estr.Spawn(emit_pt, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+
+							candidate.push_back(my::Vector2(emit_pt.x, emit_pt.z));
+						}
+						else
+						{
+							candidate.push_back(my::Vector2(particle->m_Position.x, particle->m_Position.z));
+						}
+
+						do 
+						{
+							const my::Vector2 & pos = candidate.front();
+							for (int i = 0; i < 30; i++)
 							{
-								my::Vector2 rand_circle = (pFrame->m_PaintEmitterDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
-								my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
-								my::RayResult spawn_res = tstr.RayTest(spawn_ray);
-								if (spawn_res.first)
+								my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * pFrame->m_PaintParticleMinDist;
+								if (rand_pos.x >= estr.m_emit->m_min.x && rand_pos.x < estr.m_emit->m_max.x
+									&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
+									&& (rand_pos - my::Vector2(emit_pt.x, emit_pt.z)).magnitudeSq() < pFrame->m_PaintRadius * pFrame->m_PaintRadius)
 								{
-									estr.Spawn((spawn_ray.p + spawn_ray.d * spawn_res.second).transformCoord(terrain2emit),
-										my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+									if (!estr.GetNearestParticle2D(rand_pos.x, rand_pos.y, pFrame->m_PaintParticleMinDist))
+									{
+										my::Ray local_ray = my::Ray(my::Vector3(rand_pos.x, estr.m_emit->m_max.y, rand_pos.y), my::Vector3(0, -1, 0)).transform(emit2local);
+										my::RayResult res = tstr.RayTest(local_ray);
+										if (res.first)
+										{
+											my::Vector3 emit_pos = (local_ray.p + local_ray.d * res.second).transformCoord(local2emit);
+											estr.Spawn(emit_pos, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+										}
+										candidate.push_back(rand_pos);
+									}
 								}
 							}
+							candidate.pop_front();
 						}
+						while (!candidate.empty());
 					}
 				}
 			}

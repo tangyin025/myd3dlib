@@ -258,7 +258,7 @@ CMainFrame::CMainFrame()
 	, m_PaintRadius(5.0f)
 	, m_PaintHeight(5.0f)
 	, m_PaintColor(1.0f, 0.0f, 0.0f, 0.0f)
-	, m_PaintEmitterDensity(1)
+	, m_PaintParticleMinDist(1.0f)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);

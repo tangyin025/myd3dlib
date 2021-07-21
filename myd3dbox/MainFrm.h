@@ -68,7 +68,7 @@ public:
 	float m_PaintHeight;
 	my::Spline m_PaintSpline;
 	D3DXCOLOR m_PaintColor;
-	int m_PaintEmitterDensity;
+	float m_PaintParticleMinDist;
 	//EmitterComponentPtr m_emitter;
 	my::EventSignal m_EventSelectionChanged;
 	my::EventSignal m_EventSelectionPlaying;
