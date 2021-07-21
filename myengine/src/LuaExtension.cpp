@@ -510,7 +510,7 @@ void LuaContext::Init(void)
 
 	module(m_State)[
 		class_<D3DLOCKED_RECT>("D3DLOCKED_RECT")
-			.def_readonly("Format", &D3DLOCKED_RECT::Pitch)
+			.def_readonly("Pitch", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
 		, class_<my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("DeviceResourceBase")
