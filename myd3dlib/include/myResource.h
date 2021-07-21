@@ -387,7 +387,7 @@ namespace my
 
 		DeviceResourceBasePtr GetResource(const std::string & key);
 
-		void AddResource(const std::string & key, DeviceResourceBasePtr res);
+		DeviceResourceBasePtr AddResource(const std::string & key, DeviceResourceBasePtr res);
 
 		template <typename T>
 		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request, const T & callback)

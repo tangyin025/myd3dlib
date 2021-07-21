@@ -586,7 +586,7 @@ DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 	return DeviceResourceBasePtr();
 }
 
-void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res)
+DeviceResourceBasePtr ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res)
 {
 	_ASSERT(IsMainThread());
 
@@ -601,6 +601,8 @@ void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res
 	std::string logs("Loaded: ");
 	logs.append(res->m_Key);
 	D3DContext::getSingleton().m_EventLog(logs.c_str());
+
+	return result.first->second;
 }
 
 bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
