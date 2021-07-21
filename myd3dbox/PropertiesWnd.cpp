@@ -1468,7 +1468,7 @@ void CPropertiesWnd::UpdatePropertiesPaintTool(void)
 	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pPaint->GetSubItem(4)))->SetColor(color);
 	UpdatePropertiesSpline(pPaint->GetSubItem(5), &pFrame->m_PaintSpline);
-	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintDensity);
+	pPaint->GetSubItem(6)->SetValue((_variant_t)pFrame->m_PaintEmitterDensity);
 }
 
 void CPropertiesWnd::CreatePropertiesPaintTool(void)
@@ -1478,32 +1478,32 @@ void CPropertiesWnd::CreatePropertiesPaintTool(void)
 	CMFCPropertyGridProperty* pPaint = new CSimpleProp(g_PaintType[pFrame->m_PaintType], PropertyPaint, FALSE);
 	m_wndPropList.AddProperty(pPaint, FALSE, FALSE);
 
-	CMFCPropertyGridProperty* pProp = new CComboProp(_T("PaintShape"), g_PaintShape[pFrame->m_PaintShape], NULL, PropertyPaintShape);
+	CMFCPropertyGridProperty* pProp = new CComboProp(_T("Shape"), g_PaintShape[pFrame->m_PaintShape], NULL, PropertyPaintShape);
 	for (unsigned int i = 0; i < _countof(g_PaintShape); i++)
 	{
 		pProp->AddOption(g_PaintShape[i], TRUE);
 	}
 	pPaint->AddSubItem(pProp);
 
-	pProp = new CComboProp(_T("PaintMode"), g_PaintMode[pFrame->m_PaintMode], NULL, PropertyPaintMode);
+	pProp = new CComboProp(_T("Mode"), g_PaintMode[pFrame->m_PaintMode], NULL, PropertyPaintMode);
 	for (unsigned int i = 0; i < _countof(g_PaintMode); i++)
 	{
 		pProp->AddOption(g_PaintMode[i], TRUE);
 	}
 	pPaint->AddSubItem(pProp);
 
-	pProp = new CSimpleProp(_T("PaintRadius"), pFrame->m_PaintRadius, NULL, PropertyPaintRadius);
+	pProp = new CSimpleProp(_T("Radius"), pFrame->m_PaintRadius, NULL, PropertyPaintRadius);
 	pPaint->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("PaintHeight"), pFrame->m_PaintHeight, NULL, PropertyPaintHeight);
+	pProp = new CSimpleProp(_T("Height"), pFrame->m_PaintHeight, NULL, PropertyPaintHeight);
 	pPaint->AddSubItem(pProp);
 
 	COLORREF color = RGB(pFrame->m_PaintColor.r * 255, pFrame->m_PaintColor.g * 255, pFrame->m_PaintColor.b * 255);
-	CColorProp* pPaintColor = new CColorProp(_T("PaintColor"), color, NULL, NULL, PropertyPaintColor);
+	CColorProp* pPaintColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyPaintColor);
 	pPaintColor->EnableOtherButton(_T("Other..."));
 	pPaint->AddSubItem(pPaintColor);
 
-	CreatePropertiesSpline(pPaint, _T("PaintSpline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
-	pProp = new CSimpleProp(_T("PaintDensity"), (_variant_t)pFrame->m_PaintDensity, NULL, PropertyPaintDensity);
+	CreatePropertiesSpline(pPaint, _T("Spline"), PropertyPaintSpline, &pFrame->m_PaintSpline);
+	pProp = new CSimpleProp(_T("EmitterDensity"), (_variant_t)pFrame->m_PaintEmitterDensity, NULL, PropertyPaintEmitterDensity);
 	pPaint->AddSubItem(pProp);
 }
 
@@ -2544,6 +2544,21 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyAnimatorSkeletonPath:
+	{
+		break;
+	}
+	case PropertyAnimationNodeSequenceName:
+	{
+		CMFCPropertyGridProperty* pAnimatioNode = pProp->GetParent();
+		ASSERT(pAnimatioNode->GetData() == PropertyAnimationNode);
+		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pAnimatioNode->GetValue().pulVal);
+		ASSERT(node);
+		node->m_Name = ts2ms(pProp->GetValue().bstrVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyPaintShape:
 	{
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
@@ -2587,24 +2602,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyPaintDensity:
+	case PropertyPaintEmitterDensity:
 	{
-		pFrame->m_PaintDensity = pProp->GetValue().intVal;
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyAnimatorSkeletonPath:
-	{
-		break;
-	}
-	case PropertyAnimationNodeSequenceName:
-	{
-		CMFCPropertyGridProperty * pAnimatioNode = pProp->GetParent();
-		ASSERT(pAnimatioNode->GetData() == PropertyAnimationNode);
-		AnimationNodeSequence* node = dynamic_cast<AnimationNodeSequence*>((AnimationNode*)pAnimatioNode->GetValue().pulVal);
-		ASSERT(node);
-		node->m_Name = ts2ms(pProp->GetValue().bstrVal);
+		pFrame->m_PaintEmitterDensity = pProp->GetValue().intVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

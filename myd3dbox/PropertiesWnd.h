@@ -196,6 +196,12 @@ public:
 		PropertyTerrainHeightMap,
 		PropertyTerrainSplatMap,
 		PropertyTerrainChunkMaterial,
+		PropertyAnimator,
+		PropertyAnimatorSkeletonPath,
+		PropertyAnimationNode,
+		PropertyAnimationNodeType,
+		PropertyAnimationNodeSequenceName,
+		PropertyNavigation,
 		PropertyPaint,
 		PropertyPaintShape,
 		PropertyPaintMode,
@@ -203,13 +209,7 @@ public:
 		PropertyPaintHeight,
 		PropertyPaintColor,
 		PropertyPaintSpline,
-		PropertyPaintDensity,
-		PropertyAnimator,
-		PropertyAnimatorSkeletonPath,
-		PropertyAnimationNode,
-		PropertyAnimationNodeType,
-		PropertyAnimationNodeSequenceName,
-		PropertyNavigation,
+		PropertyPaintEmitterDensity,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

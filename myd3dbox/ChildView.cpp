@@ -1954,11 +1954,11 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 					{
 						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
 
-						for (int i = 0; i < pFrame->m_PaintDensity; i++)
+						for (int i = 0; i < pFrame->m_PaintEmitterDensity; i++)
 						{
 							if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 							{
-								my::Vector2 rand_circle = (pFrame->m_PaintDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
+								my::Vector2 rand_circle = (pFrame->m_PaintEmitterDensity > 1 ? my::Vector2::RandomUnitCircle() * pFrame->m_PaintRadius : my::Vector2::zero);
 								my::Ray spawn_ray(my::Vector3(pt.x + rand_circle.x, pt.y + 1000, pt.z + rand_circle.y), my::Vector3(0, -1, 0));
 								my::RayResult spawn_res = tstr.RayTest(spawn_ray);
 								if (spawn_res.first)
