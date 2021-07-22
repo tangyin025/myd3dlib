@@ -82,9 +82,9 @@ public:
 
 	static const UINT m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][ParticlePrimitiveColumnCount];
 
-	my::VertexBuffer m_ParticleQuadVb;
+	my::VertexBuffer m_ParticleVb;
 
-	my::IndexBuffer m_ParticleQuadIb;
+	my::IndexBuffer m_ParticleIb;
 
 	my::VertexBuffer m_ParticleInstanceData;
 

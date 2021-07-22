@@ -1123,7 +1123,7 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 
 					if (particle_num1 > 0)
 					{
-						pipeline->PushEmitter(PassID, pipeline->m_ParticleQuadVb.m_ptr, pipeline->m_ParticleQuadIb.m_ptr,
+						pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr,
 							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
 							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
 							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],
@@ -1133,7 +1133,7 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 
 					if (particle_num2 > 0)
 					{
-						pipeline->PushEmitter(PassID, pipeline->m_ParticleQuadVb.m_ptr, pipeline->m_ParticleQuadIb.m_ptr,
+						pipeline->PushEmitter(PassID, pipeline->m_ParticleVb.m_ptr, pipeline->m_ParticleIb.m_ptr,
 							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveMinVertexIndex],
 							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveNumVertices],
 							RenderPipeline::m_ParticlePrimitiveInfo[m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex],

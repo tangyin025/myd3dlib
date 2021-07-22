@@ -304,8 +304,8 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				{
 					p2World *= cmp->m_Actor->m_World;
 				}
-				void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
-				void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
+				void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
+				void* pib = theApp.m_ParticleIb.Lock(0, 0, D3DLOCK_READONLY);
 				for (int i = 0; i < RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount]; i++)
 				{
 					unsigned short* pi = (unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[static_emit_cmp->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex] + i * 3;
@@ -319,8 +319,8 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 					PushLine(v1, v2, D3DCOLOR_ARGB(255, 0, 255, 0));
 					PushLine(v2, v0, D3DCOLOR_ARGB(255, 0, 255, 0));
 				}
-				theApp.m_ParticleQuadVb.Unlock();
-				theApp.m_ParticleQuadIb.Unlock();
+				theApp.m_ParticleVb.Unlock();
+				theApp.m_ParticleIb.Unlock();
 			}
 		}
 		break;
@@ -357,22 +357,22 @@ my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Em
 	case EmitterComponent::FaceTypeX:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
-			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle),
+			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90)),
 			particle.m_Position);
 	case EmitterComponent::FaceTypeY:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
-			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, D3DXToRadian(90)),
+			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, D3DXToRadian(-90)),
 			particle.m_Position);
 	case EmitterComponent::FaceTypeZ:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
-			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(-90)),
+			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle),
 			particle.m_Position);
 	case EmitterComponent::FaceTypeCamera:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
-			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitZ, sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - sph.z),
 			particle.m_Position);
 	case EmitterComponent::FaceTypeAngle:
 		return my::Matrix4::Compose(
@@ -382,7 +382,7 @@ my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Em
 	case EmitterComponent::FaceTypeAngleCamera:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
-			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, -sph.z),
+			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - sph.z),
 			particle.m_Position);
 	}
 	return my::Matrix4::Identity();
@@ -588,8 +588,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 
 bool CChildView::OverlapTestFrustumAndParticles(const my::Frustum & frustum, const my::Frustum & local_ftm, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num)
 {
-	void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
-	void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
+	void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
+	void* pib = theApp.m_ParticleIb.Lock(0, 0, D3DLOCK_READONLY);
 	const my::Emitter::Particle* part_iter = part_start;
 	for (; part_iter != part_start + part_num; part_iter++)
 	{
@@ -609,13 +609,13 @@ bool CChildView::OverlapTestFrustumAndParticles(const my::Frustum & frustum, con
 			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
 		if (ret)
 		{
-			theApp.m_ParticleQuadVb.Unlock();
-			theApp.m_ParticleQuadIb.Unlock();
+			theApp.m_ParticleVb.Unlock();
+			theApp.m_ParticleIb.Unlock();
 			return true;
 		}
 	}
-	theApp.m_ParticleQuadVb.Unlock();
-	theApp.m_ParticleQuadIb.Unlock();
+	theApp.m_ParticleVb.Unlock();
+	theApp.m_ParticleIb.Unlock();
 	return false;
 }
 
@@ -937,8 +937,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num, int & part_id)
 {
 	my::RayResult ret(false, FLT_MAX);
-	void* pvb = theApp.m_ParticleQuadVb.Lock(0, 0, D3DLOCK_READONLY);
-	void* pib = theApp.m_ParticleQuadIb.Lock(0, 0, D3DLOCK_READONLY);
+	void* pvb = theApp.m_ParticleVb.Lock(0, 0, D3DLOCK_READONLY);
+	void* pib = theApp.m_ParticleIb.Lock(0, 0, D3DLOCK_READONLY);
 	const my::Emitter::Particle* part_iter = part_start;
 	for (; part_iter != part_start + part_num; part_iter++)
 	{
@@ -966,8 +966,8 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 			}
 		}
 	}
-	theApp.m_ParticleQuadVb.Unlock();
-	theApp.m_ParticleQuadIb.Unlock();
+	theApp.m_ParticleVb.Unlock();
+	theApp.m_ParticleIb.Unlock();
 	if (ret.first && emitter->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 	{
 		ret.second = (ray.d * ret.second).transformNormal(emitter->m_Actor->m_World.inverse()).magnitude();

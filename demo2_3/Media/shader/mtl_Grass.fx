@@ -1,145 +1,162 @@
 
-texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-texture g_NormalTexture:MaterialParameter<string Initialize="texture/Normal.dds";>;
-texture g_SpecularTexture:MaterialParameter<string Initialize="texture/White.dds";>;
-float g_SpecularExp:MaterialParameter = 25;
-float g_AlphaMask:MaterialParameter = 0.5;
+texture _BaseColorTexture:MaterialParameter<string Initialize="texture/InstancedIndirectGrassVertexColor.jpg";>;
 
-sampler DiffuseTextureSampler = sampler_state
+sampler _BaseColorTextureSampler = sampler_state
 {
-    Texture = <g_DiffuseTexture>;
+    Texture = <_BaseColorTexture>;
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
-    ADDRESSU = WRAP;
-    ADDRESSV = WRAP;
 };
 
-sampler NormalTextureSampler = sampler_state
-{
-	Texture = <g_NormalTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-    ADDRESSU = WRAP;
-    ADDRESSV = WRAP;
-};
-
-sampler SpecularTextureSampler = sampler_state
-{
-	Texture = <g_SpecularTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-    ADDRESSU = WRAP;
-    ADDRESSV = WRAP;
-};
-
-struct SHADOW_VS_OUTPUT
-{
-	float4 Pos				: POSITION;
-	float2 Tex0				: TEXCOORD0;
-	float2 Tex1				: TEXCOORD1;
-};
-
-SHADOW_VS_OUTPUT ShadowVS( VS_INPUT In )
-{
-    SHADOW_VS_OUTPUT Output;
-	Output.Pos = TransformPosShadow(In);
-	Output.Tex0 = Output.Pos.zw;
-	Output.Tex1 = TransformUV(In);
-    return Output;    
-}
-
-float4 ShadowPS( SHADOW_VS_OUTPUT In ) : COLOR0
-{ 
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex1);
-	clip(Diffuse.a - g_AlphaMask);
-    return In.Tex0.x / In.Tex0.y;
-}
-
-struct NORMAL_VS_OUTPUT
-{
-	float4 Pos				: POSITION;
-	float2 Tex0				: TEXCOORD0;
-	float3 Normal			: NORMAL;
-	float3 Tangent			: TANGENT;
-	float3 Binormal			: BINORMAL;
-	float3 ViewPos			: TEXCOORD1;
-};
-
-NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
-{
-	NORMAL_VS_OUTPUT Output;
-	float4 PosWS = TransformPosWS(In);
-	Output.Pos = mul(PosWS, g_ViewProj);
-	Output.Tex0 = TransformUV(In);
-	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
-	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
-	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.ViewPos = mul(PosWS, g_View).xyz;
-	return Output;
-}
-
-void NormalPS( 	NORMAL_VS_OUTPUT In,
-				out float4 oNormal : COLOR0,
-				out float4 oPos : COLOR1 )
-{
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
-	clip(Diffuse.a - g_AlphaMask);
-	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
-	float3 NormalTS = tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1;
-	oNormal = float4(mul(NormalTS, m), 1.0);
-	oPos = float4(In.ViewPos, 1.0);
-}
+float _GrassWidth:MaterialParameter = 1;
+float _GrassHeight:MaterialParameter = 1;
+float _WindAIntensity:MaterialParameter = 1.77;
+float _WindAFrequency:MaterialParameter = 4;
+float3 _WindATiling:MaterialParameter = {0.1,0.1,0};
+float3 _WindAWrap:MaterialParameter = {0.5,0.5,0};
+float _WindBIntensity:MaterialParameter = 0.25;
+float _WindBFrequency:MaterialParameter = 7.7;
+float3 _WindBTiling:MaterialParameter = {0.37,3,0};
+float3 _WindBWrap:MaterialParameter = {0.5,0.5,0};
+float _WindCIntensity:MaterialParameter = 0.125;
+float _WindCFrequency:MaterialParameter = 11.7;
+float3 _WindCTiling:MaterialParameter = {0.77,3,0};
+float3 _WindCWrap:MaterialParameter = {0.5,0.5,0};
+float4 _PivotPosWS:MaterialParameter = {0,0,0,0};
+float3 _BoundSize:MaterialParameter = {1,1,0};
 
 struct COLOR_VS_OUTPUT
 {
 	float4 Pos				: SV_Position;
-	float2 Tex0				: TEXCOORD0;
-	float4 ShadowPos		: TEXCOORD3;
-	float3 ViewDir			: TEXCOORD4;
+	float4 Color			: COLOR0;
 };
 
 COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 {
-    COLOR_VS_OUTPUT Output;
-	float4 PosWS = TransformPosWS(In);
-	Output.Pos = mul(PosWS, g_ViewProj);
-	Output.Tex0 = TransformUV(In);
-	Output.ShadowPos = mul(PosWS, g_SkyLightViewProj);
-	Output.ViewDir = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
-    return Output;    
+	COLOR_VS_OUTPUT OUT;
+
+	float3 perGrassPivotPosWS = mul(In.Pos, g_World).xyz;//we pre-transform to posWS in C# now
+
+	float perGrassHeight = lerp(2,5,(sin(perGrassPivotPosWS.x*23.4643 + perGrassPivotPosWS.z) * 0.45 + 0.55)) * _GrassHeight;
+
+	// //get "is grass stepped" data(bending) from RT
+	// float2 grassBendingUV = ((perGrassPivotPosWS.xz - _PivotPosWS.xz) / _BoundSize) * 0.5 + 0.5;//claculate where is this grass inside bound (can optimize to 2 MAD)
+	// float stepped = tex2Dlod(_GrassBendingRT, float4(grassBendingUV, 0, 0)).x;
+
+	//rotation(make grass LookAt() camera just like a billboard)
+	//=========================================
+	float3 cameraTransformRightWS = float3(g_View[0][0],g_View[1][0],g_View[2][0]);//UNITY_MATRIX_V[0].xyz == world space camera Right unit vector
+	float3 cameraTransformUpWS = float3(g_View[0][1],g_View[1][1],g_View[2][1]);//UNITY_MATRIX_V[1].xyz == world space camera Up unit vector
+	float3 cameraTransformForwardWS = float3(g_View[0][2],g_View[1][2],g_View[2][2]);//UNITY_MATRIX_V[2].xyz == -1 * world space camera Forward unit vector
+
+	//Expand Billboard (billboard Left+right)
+	float3 positionOS = In.Pos0.x * cameraTransformRightWS * _GrassWidth * (sin(perGrassPivotPosWS.x*95.4643 + perGrassPivotPosWS.z) * 0.45 + 0.55);//random width from posXZ, min 0.1
+
+	//Expand Billboard (billboard Up)
+	positionOS += In.Pos0.y * cameraTransformUpWS;         
+	//=========================================
+
+
+	//bending by RT (hard code)
+	float3 bendDir = cameraTransformForwardWS;
+	bendDir.xz *= 0.5; //make grass shorter when bending, looks better
+	bendDir.y = min(-0.5,bendDir.y);//prevent grass become too long if camera forward is / near parallel to ground
+	// positionOS = lerp(positionOS.xyz + bendDir * positionOS.y / -bendDir.y, positionOS.xyz, stepped * 0.95 + 0.05);//don't fully bend, will produce ZFighting
+
+	//per grass height scale
+	positionOS.y *= perGrassHeight;
+
+	//camera distance scale (make grass width larger if grass is far away to camera, to hide smaller than pixel size triangle flicker)        
+	float3 viewWS = g_Eye - perGrassPivotPosWS;
+	float ViewWSLength = length(viewWS);
+	positionOS += cameraTransformRightWS * In.Pos0.x * max(0, ViewWSLength * 0.0225);
+
+
+	//move grass posOS -> posWS
+	float3 positionWS = positionOS + perGrassPivotPosWS;
+
+	//wind animation (biilboard Left Right direction only sin wave)            
+	float wind = 0;
+	wind += (sin(g_Time * _WindAFrequency + perGrassPivotPosWS.x * _WindATiling.x + perGrassPivotPosWS.z * _WindATiling.y)*_WindAWrap.x+_WindAWrap.y) * _WindAIntensity; //windA
+	wind += (sin(g_Time * _WindBFrequency + perGrassPivotPosWS.x * _WindBTiling.x + perGrassPivotPosWS.z * _WindBTiling.y)*_WindBWrap.x+_WindBWrap.y) * _WindBIntensity; //windB
+	wind += (sin(g_Time * _WindCFrequency + perGrassPivotPosWS.x * _WindCTiling.x + perGrassPivotPosWS.z * _WindCTiling.y)*_WindCWrap.x+_WindCWrap.y) * _WindCIntensity; //windC
+	wind *= In.Pos0.y; //wind only affect top region, don't affect root region
+	float3 windOffset = cameraTransformRightWS * wind; //swing using billboard left right direction
+	positionWS.xyz += windOffset;
+
+	//vertex position logic done, complete posWS -> posCS
+	//OUT.positionCS = TransformWorldToHClip(positionWS);
+	OUT.Pos = mul(float4(positionWS,1), g_ViewProj);
+
+	// /////////////////////////////////////////////////////////////////////
+	// //lighting & color
+	// /////////////////////////////////////////////////////////////////////
+
+	// //lighting data
+	// Light mainLight;
+	// #if _MAIN_LIGHT_SHADOWS
+	// mainLight = GetMainLight(TransformWorldToShadowCoord(positionWS));
+	// #else
+	// mainLight = GetMainLight();
+	// #endif
+	// half3 randomAddToN = (_RandomNormal* sin(perGrassPivotPosWS.x * 82.32523 + perGrassPivotPosWS.z) + wind * -0.25) * cameraTransformRightWS;//random normal per grass 
+	// //default grass's normal is pointing 100% upward in world space, it is an important but simple grass normal trick
+	// //-apply random to normal else lighting is too uniform
+	// //-apply cameraTransformForwardWS to normal because grass is billboard
+	// half3 N = normalize(half3(0,1,0) + randomAddToN - cameraTransformForwardWS*0.5);
+
+	// half3 V = viewWS / ViewWSLength;
+
+	half3 baseColor = tex2Dlod(_BaseColorTextureSampler, float4(perGrassPivotPosWS.xz*float2(0.02,0.02)+float2(-0.43,-1.87),0,0));//sample mip 0 only
+	// half3 albedo = lerp(_GroundColor,baseColor, IN.positionOS.y);
+
+	// //indirect
+	// half3 lightingResult = SampleSH(0) * albedo;
+
+	// //main direct light
+	// lightingResult += ApplySingleDirectLight(mainLight, N, V, albedo, positionOS.y);
+
+	// // Additional lights loop
+	// #if _ADDITIONAL_LIGHTS
+
+	// // Returns the amount of lights affecting the object being renderer.
+	// // These lights are culled per-object in the forward renderer
+	// int additionalLightsCount = GetAdditionalLightsCount();
+	// for (int i = 0; i < additionalLightsCount; ++i)
+	// {
+		// // Similar to GetMainLight, but it takes a for-loop index. This figures out the
+		// // per-object light index and samples the light buffer accordingly to initialized the
+		// // Light struct. If _ADDITIONAL_LIGHT_SHADOWS is defined it will also compute shadows.
+		// Light light = GetAdditionalLight(i, positionWS);
+
+		// // Same functions used to shade the main light.
+		// lightingResult += ApplySingleDirectLight(light, N, V, albedo, positionOS.y);
+	// }
+	// #endif
+
+	// //fog
+	// float fogFactor = ComputeFogFactor(OUT.positionCS.z);
+	// // Mix the pixel color with fogColor. You can optionaly use MixFogColor to override the fogColor
+	// // with a custom one.
+	// OUT.color = MixFog(lightingResult, fogFactor);
+	OUT.Color = float4(baseColor,1);
+
+	return OUT;
 }
 
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
-	float4 Diffuse = tex2D(DiffuseTextureSampler, In.Tex0);
-	clip(Diffuse.a - g_AlphaMask);
-	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
-	float3 ViewSkyLightDir = mul(SkyLightDir, (float3x3)g_View);
-	float LightAmount = GetLigthAmount(In.ShadowPos);
-	float3 Normal = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 SkyDiffuse = saturate(dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
-	float3 Ref = Reflection(Normal, In.ViewDir);
-	float SkySpecular = pow(saturate(dot(Ref, ViewSkyLightDir) * LightAmount), g_SpecularExp) * g_SkyLightColor.w;
-	float3 Specular = tex2D(SpecularTextureSampler, In.Tex0).xyz;
-	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
-    return float4(Final, 1);
+	return In.Color;
 }
 
 technique RenderScene
 {
     pass PassTypeShadow
     {          
-        VertexShader = compile vs_3_0 ShadowVS();
-        PixelShader  = compile ps_3_0 ShadowPS(); 
     }
     pass PassTypeNormal
     {          
-        VertexShader = compile vs_3_0 NormalVS();
-        PixelShader  = compile ps_3_0 NormalPS(); 
     }
     pass PassTypeLight
     {          
@@ -149,10 +166,10 @@ technique RenderScene
 	}
     pass PassTypeOpaque
     {          
-        VertexShader = compile vs_3_0 OpaqueVS();
-        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
     pass PassTypeTransparent
     {          
+        VertexShader = compile vs_3_0 OpaqueVS();
+        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
 }
