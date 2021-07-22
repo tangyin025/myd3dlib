@@ -119,7 +119,7 @@ float3 TransformTangent(VS_INPUT In)
 
 float4 TransformLightWS(VS_INPUT In)
 {
-	return float4(In.Pos.xyz, In.SizeAngleTime.x * 0.5);
+	return float4(mul(In.Pos, g_World).xyz, In.SizeAngleTime.x * 0.5);
 }
 
 float4 TransformColor(VS_INPUT In)
