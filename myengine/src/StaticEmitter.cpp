@@ -346,30 +346,27 @@ void StaticEmitterStream::SetBuffer(int i, int j, my::DeviceResourceBasePtr res)
 
 void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
-	if (m_emit->PtInRect(Position))
+	int i = (int)(Position.z / m_emit->m_ChunkWidth), j = (int)(Position.x / m_emit->m_ChunkWidth);
+
+	StaticEmitterChunkBuffer* buff = GetBuffer(i, j);
+	if (!buff)
 	{
-		int i = (int)(Position.z / m_emit->m_ChunkWidth), j = (int)(Position.x / m_emit->m_ChunkWidth);
+		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
 
-		StaticEmitterChunkBuffer * buff = GetBuffer(i, j);
-		if (!buff)
-		{
-			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
+		std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(i, j),
+			boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(my::ResourceMgr::getSingleton().AddResource(path, DeviceResourceBasePtr(new StaticEmitterChunkBuffer())))));
+		_ASSERT(buff_res.second);
 
-			std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(i, j),
-				boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(my::ResourceMgr::getSingleton().AddResource(path, DeviceResourceBasePtr(new StaticEmitterChunkBuffer())))));
-			_ASSERT(buff_res.second);
+		std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunk(i, j)));
+		_ASSERT(chunk_res.second);
 
-			std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunk(i, j)));
-			_ASSERT(chunk_res.second);
+		m_emit->AddEntity(&chunk_res.first->second,
+			my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
 
-			m_emit->AddEntity(&chunk_res.first->second,
-				my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
-
-			buff = buff_res.first->second.get();
-		}
-
-		buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));
+		buff = buff_res.first->second.get();
 	}
+
+	buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));
 }
 
 my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float z, float max_dist)

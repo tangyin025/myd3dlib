@@ -1955,12 +1955,15 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 					{
 						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
 						my::Vector3 emit_pt = pt.transformCoord(local2emit);
+						if (!estr.m_emit->PtInRect(emit_pt))
+						{
+							continue;
+						}
 						std::list<my::Vector2> candidate;
 						my::Emitter::Particle * particle = estr.GetNearestParticle2D(emit_pt.x, emit_pt.z, pFrame->m_PaintParticleMinDist);
 						if (!particle)
 						{
 							estr.Spawn(emit_pt, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
-
 							candidate.push_back(my::Vector2(emit_pt.x, emit_pt.z));
 						}
 						else
@@ -1985,9 +1988,12 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 										if (res.first)
 										{
 											my::Vector3 emit_pos = (local_ray.p + local_ray.d * res.second).transformCoord(local2emit);
-											estr.Spawn(emit_pos, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+											if (estr.m_emit->PtInRect(emit_pos))
+											{
+												estr.Spawn(emit_pos, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+												candidate.push_back(rand_pos);
+											}
 										}
-										candidate.push_back(rand_pos);
 									}
 								}
 							}
