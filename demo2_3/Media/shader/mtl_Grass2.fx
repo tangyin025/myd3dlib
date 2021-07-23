@@ -32,7 +32,7 @@ struct NORMAL_VS_OUTPUT
 {
 	float4 Pos				: SV_Position;
 	float3 Normal			: NORMAL;
-	float3 ViewPos			: TEXCOORD0;
+	float3 PosVS			: TEXCOORD0;
 };
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
@@ -91,7 +91,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	//vertex position logic done, complete posWS -> posCS
 	//Output.positionCS = TransformWorldToHClip(positionWS);
 	Output.Pos = mul(float4(positionWS,1), g_ViewProj);
-	Output.ViewPos = mul(float4(positionWS,1), g_View);
+	Output.PosVS = mul(float4(positionWS,1), g_View);
 
 	half3 randomAddToN = (_RandomNormal* sin(perGrassPivotPosWS.x * 82.32523 + perGrassPivotPosWS.z) + wind * -0.25) * cameraTransformRightWS;//random normal per grass 
 	//default grass's normal is pointing 100% upward in world space, it is an important but simple grass normal trick
@@ -107,20 +107,20 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oPos : COLOR1 )
 {
 	oNormal = float4(In.Normal, g_Shininess);
-	oPos = float4(In.ViewPos, 1.0);
+	oPos = float4(In.PosVS, 1.0);
 }
 
-struct COLOR_VS_OUTPUT
+struct OPAQUE_VS_OUTPUT
 {
 	float4 Pos				: SV_Position;
 	float4 Color			: COLOR0;
-	float4 ShadowPos		: TEXCOORD1;
-	float3 ViewDir			: TEXCOORD2;
+	float4 ShadowCoord		: TEXCOORD1;
+	float3 ViewVS			: TEXCOORD2;
 };
 
-COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
+OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 {
-	COLOR_VS_OUTPUT Output;
+	OPAQUE_VS_OUTPUT Output;
 
 	float3 perGrassPivotPosWS = mul(In.Pos, g_World).xyz;//we pre-transform to posWS in C# now
 
@@ -174,8 +174,8 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	//vertex position logic done, complete posWS -> posCS
 	//Output.positionCS = TransformWorldToHClip(positionWS);
 	Output.Pos = mul(float4(positionWS,1), g_ViewProj);
-	Output.ShadowPos = mul(float4(positionWS,1), g_SkyLightViewProj);
-	Output.ViewDir = mul(g_Eye - positionWS, (float3x3)g_View);
+	Output.ShadowCoord = mul(float4(positionWS,1), g_SkyLightViewProj);
+	Output.ViewVS = mul(g_Eye - positionWS, (float3x3)g_View);
 
 	// /////////////////////////////////////////////////////////////////////
 	// //lighting & color
@@ -233,14 +233,14 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	return Output;
 }
 
-float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
+float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
-	float LightAmount = GetLigthAmount(In.ShadowPos);
-	float3 Normal = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 SkyDiffuse = saturate(dot(Normal, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
-	float3 Ref = Reflection(Normal, In.ViewDir);
+	float LightAmount = GetLigthAmount(In.ShadowCoord);
+	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+	float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
+	float3 Ref = Reflection(NormalVS, In.ViewVS);
 	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + In.Color.a * (ScreenLight.w + SkySpecular);

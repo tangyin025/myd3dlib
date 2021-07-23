@@ -98,18 +98,18 @@ float3 RotateAngleAxis(float3 v, float a, float3 N)
 	return mul(v, mRotation);
 }
 
-float GetLigthAmount(float4 PosShadow)
+float GetLigthAmount(float4 ShadowCoord)
 {
-	float2 ShadowTexC = PosShadow.xy / PosShadow.w * 0.5 + 0.5;
-	ShadowTexC.y = 1.0 - ShadowTexC.y;
-	if (ShadowTexC.x < 0 || ShadowTexC.x > 1 || ShadowTexC.y < 0 || ShadowTexC.y > 1)
+	float2 ShadowTex = ShadowCoord.xy / ShadowCoord.w * 0.5 + 0.5;
+	ShadowTex.y = 1.0 - ShadowTex.y;
+	if (ShadowTex.x < 0 || ShadowTex.x > 1 || ShadowTex.y < 0 || ShadowTex.y > 1)
 		return 1.0;
 	
 	float LightAmount = 0;
 	float x, y;
 	for(x = -0.0; x <= 1.0; x += 1.0)
 		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / g_ShadowMapSize).x + g_ShadowEpsilon < PosShadow.z / PosShadow.w ? 0.0 : 1.0;
+			LightAmount += tex2D(ShadowRTSampler, ShadowTex + float2(x, y) / g_ShadowMapSize).x + g_ShadowEpsilon < ShadowCoord.z / ShadowCoord.w ? 0.0 : 1.0;
 			
 	return LightAmount / 4;
 }

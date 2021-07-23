@@ -22,12 +22,12 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
 	float4 Normal = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float4 ViewPos = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 LightVec = In.Light.xyz - ViewPos.xyz;
+	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
+	float3 LightVec = In.Light.xyz - PosVS.xyz;
 	float LightDist = length(LightVec);
 	LightVec = LightVec / LightDist;
 	float diffuse = saturate(dot(Normal.xyz, LightVec));
-	float3 View = In.Eye - ViewPos.xyz;
+	float3 View = In.Eye - PosVS.xyz;
 	float3 Ref = Reflection(Normal.xyz, View);
 	float Specular = pow(saturate(dot(Ref, LightVec)), Normal.w);
 	return float4(In.Color.xyz * diffuse, In.Color.w * Specular) * saturate(1 - LightDist / In.Light.w);

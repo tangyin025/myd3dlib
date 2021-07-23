@@ -32,28 +32,28 @@ struct TRANSPARENT_VS_OUTPUT
 
 TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 {
-	TRANSPARENT_VS_OUTPUT Out;
-	Out.PosWS = TransformPosWS(In);
+	TRANSPARENT_VS_OUTPUT Output;
+	Output.PosWS = TransformPosWS(In);
 	float2 Tex0 = TransformUV(In);
-	Out.texCoord0 = Tex0 /2.0 + g_Time * 0.02;
-	Out.texCoord1 = Tex0 /2.0 + g_Time * -0.02;
-	Out.texCoord2 = Tex0 /4.0 + g_Time * 0.01;
-	Out.Normal = TransformNormal(In);
-	Out.Tangent = TransformTangent(In);
-	Out.Binormal = cross(Out.Tangent, Out.Normal); // ! left handed water_bump.dds
-	Out.ViewWS = g_Eye - Out.PosWS.xyz; // ! dont normalize here
+	Output.texCoord0 = Tex0 /2.0 + g_Time * 0.02;
+	Output.texCoord1 = Tex0 /2.0 + g_Time * -0.02;
+	Output.texCoord2 = Tex0 /4.0 + g_Time * 0.01;
+	Output.Normal = TransformNormal(In);
+	Output.Tangent = TransformTangent(In);
+	Output.Binormal = cross(Output.Tangent, Output.Normal); // ! left handed water_bump.dds
+	Output.ViewWS = g_Eye - Output.PosWS.xyz; // ! dont normalize here
 	
-	float3x3 m = float3x3(Out.Tangent,Out.Binormal,Out.Normal);
-	float4 nt0 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord0,0,0));
-	float4 nt1 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord1,0,0));
-	float4 nt2 = tex2Dlod(NormalTextureSampler, float4(Out.texCoord2,0,0));
+	float3x3 m = float3x3(Output.Tangent,Output.Binormal,Output.Normal);
+	float4 nt0 = tex2Dlod(NormalTextureSampler, float4(Output.texCoord0,0,0));
+	float4 nt1 = tex2Dlod(NormalTextureSampler, float4(Output.texCoord1,0,0));
+	float4 nt2 = tex2Dlod(NormalTextureSampler, float4(Output.texCoord2,0,0));
 	float3 nt = normalize(2.0 * (nt0.xyz + nt1.xyz + nt2.xyz) - 3.0);
 	float3 n = mul(nt,m);
-	Out.PosWS.y += (nt0.w + nt1.w + nt2.w) - 1.5;
-	Out.PosWS.xz -= n.xz*0.5;
-	Out.Pos = mul(Out.PosWS, g_ViewProj);
+	Output.PosWS.y += (nt0.w + nt1.w + nt2.w) - 1.5;
+	Output.PosWS.xz -= n.xz*0.5;
+	Output.Pos = mul(Output.PosWS, g_ViewProj);
 	
-	return Out;
+	return Output;
 }
 
 float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR

@@ -17,10 +17,10 @@ struct VS_OUTPUT
 
 float4 HeightFogPS( VS_OUTPUT In ) : COLOR0
 {
-	float4 ViewPos = tex2D(PositionRTSampler, In.TextureUV);
-	float Depth = -ViewPos.z - g_StartDistance;
+	float4 PosVS = tex2D(PositionRTSampler, In.TextureUV);
+	float Depth = -PosVS.z - g_StartDistance;
 	clip(Depth);
-	float Height = g_FogHeight - (ViewPos.x * g_View._21 + ViewPos.y * g_View._22 + ViewPos.z * g_View._23 + g_Eye.y);
+	float Height = g_FogHeight - (PosVS.x * g_View._21 + PosVS.y * g_View._22 + PosVS.z * g_View._23 + g_Eye.y);
 	float ExpFogFactor = saturate(exp2(Height / g_FogHeight * 7) / 128 * Depth * g_Falloff);
     return float4( g_FogColor.xyz, ExpFogFactor );
 }

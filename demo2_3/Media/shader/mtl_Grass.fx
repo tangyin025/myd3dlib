@@ -27,15 +27,15 @@ float _RandomNormal:MaterialParameter = 0.15;
 float4 _PivotPosWS:MaterialParameter = {0,0,0,0};
 float3 _BoundSize:MaterialParameter = {1,1,0};
 
-struct COLOR_VS_OUTPUT
+struct OPAQUE_VS_OUTPUT
 {
 	float4 Pos				: SV_Position;
 	float4 Color			: COLOR0;
 };
 
-COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
+OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 {
-	COLOR_VS_OUTPUT OUT;
+	OPAQUE_VS_OUTPUT OUT;
 
 	float3 perGrassPivotPosWS = mul(In.Pos, g_World).xyz;//we pre-transform to posWS in C# now
 
@@ -114,27 +114,10 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 
 	// //indirect
 	// half3 lightingResult = SampleSH(0) * albedo;
+	half3 lightingResult = g_AmbientColor.xyz * baseColor;
 
 	// //main direct light
 	// lightingResult += ApplySingleDirectLight(mainLight, N, V, albedo, positionOS.y);
-
-	// // Additional lights loop
-	// #if _ADDITIONAL_LIGHTS
-
-	// // Returns the amount of lights affecting the object being renderer.
-	// // These lights are culled per-object in the forward renderer
-	// int additionalLightsCount = GetAdditionalLightsCount();
-	// for (int i = 0; i < additionalLightsCount; ++i)
-	// {
-		// // Similar to GetMainLight, but it takes a for-loop index. This figures out the
-		// // per-object light index and samples the light buffer accordingly to initialized the
-		// // Light struct. If _ADDITIONAL_LIGHT_SHADOWS is defined it will also compute shadows.
-		// Light light = GetAdditionalLight(i, positionWS);
-
-		// // Same functions used to shade the main light.
-		// lightingResult += ApplySingleDirectLight(light, N, V, albedo, positionOS.y);
-	// }
-	// #endif
 
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	half3 H = normalize(SkyLightDir + V);
@@ -154,19 +137,37 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	directSpecular *= 0.1 * positionOS.y;//only apply directSpecular to grass's top area, to simulate grass AO
 
 	half3 lighting = g_SkyLightColor.xyz;// * (light.shadowAttenuation * light.distanceAttenuation);
-	half3 result = (baseColor * directDiffuse + directSpecular) * lighting;
+	lightingResult += (baseColor * directDiffuse + directSpecular) * lighting;
+
+	// // Additional lights loop
+	// #if _ADDITIONAL_LIGHTS
+
+	// // Returns the amount of lights affecting the object being renderer.
+	// // These lights are culled per-object in the forward renderer
+	// int additionalLightsCount = GetAdditionalLightsCount();
+	// for (int i = 0; i < additionalLightsCount; ++i)
+	// {
+		// // Similar to GetMainLight, but it takes a for-loop index. This figures out the
+		// // per-object light index and samples the light buffer accordingly to initialized the
+		// // Light struct. If _ADDITIONAL_LIGHT_SHADOWS is defined it will also compute shadows.
+		// Light light = GetAdditionalLight(i, positionWS);
+
+		// // Same functions used to shade the main light.
+		// lightingResult += ApplySingleDirectLight(light, N, V, albedo, positionOS.y);
+	// }
+	// #endif
 
 	// //fog
 	// float fogFactor = ComputeFogFactor(OUT.positionCS.z);
 	// // Mix the pixel color with fogColor. You can optionaly use MixFogColor to override the fogColor
 	// // with a custom one.
 	// OUT.color = MixFog(lightingResult, fogFactor);
-	OUT.Color = float4(result,1);
+	OUT.Color = float4(lightingResult,1);
 
 	return OUT;
 }
 
-float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
+float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
 	return In.Color;
 }

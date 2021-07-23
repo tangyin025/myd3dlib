@@ -51,7 +51,7 @@ struct TRANSPARENT_VS_OUTPUT
 
 TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 {
-	TRANSPARENT_VS_OUTPUT Out;
+	TRANSPARENT_VS_OUTPUT Output;
 	float4 PosWS = TransformPosWS(In);
 	PosWS.y = g_World[3].y + g_WaterHeight;
 	float2 Tex0 = TransformUV(In);
@@ -83,15 +83,15 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 		// Normal.z -= g_WaveDir[i].z * WA * C;
 	// }
 
-	Out.pos = mul(PosWS, g_ViewProj);
-	Out.texCoord0 = Tex0 + g_Time * 0.02;
-	Out.texCoord1 = Tex0 * 2.0 + g_Time * -0.02;
-	Out.texCoord2 = Tex0 / 2.0 + g_Time * 0.01;
-	Out.Normal = float3(0,1,0);//TransformNormal(In);
-	Out.Tangent = float3(1,0,0);//TransformTangent(In);
-	Out.Binormal = cross(Out.Normal, Out.Tangent);
-	Out.ViewWS = g_Eye - PosWS.xyz; // ! dont normalize here
-	return Out;
+	Output.pos = mul(PosWS, g_ViewProj);
+	Output.texCoord0 = Tex0 + g_Time * 0.02;
+	Output.texCoord1 = Tex0 * 2.0 + g_Time * -0.02;
+	Output.texCoord2 = Tex0 / 2.0 + g_Time * 0.01;
+	Output.Normal = float3(0,1,0);//TransformNormal(In);
+	Output.Tangent = float3(1,0,0);//TransformTangent(In);
+	Output.Binormal = cross(Output.Normal, Output.Tangent);
+	Output.ViewWS = g_Eye - PosWS.xyz; // ! dont normalize here
+	return Output;
 }
 
 float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
