@@ -162,12 +162,12 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
-	float3 ViewSkyLightDir = mul(SkyLightDir, (float3x3)g_View);
+	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
 	float LightAmount = GetLigthAmount(In.ShadowPos);
 	float3 Normal = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
-	float3 SkyDiffuse = saturate(dot(Normal, ViewSkyLightDir) * LightAmount) * g_SkyLightColor.xyz;
+	float3 SkyDiffuse = saturate(dot(Normal, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(Normal, In.ViewDir);
-	float SkySpecular = pow(saturate(dot(Ref, ViewSkyLightDir) * LightAmount), g_Shininess) * g_SkyLightColor.w;
+	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
 	float4 Diffuse = float4(0,0,0,0);
 	if (In.Color.r >= 0.004)
 		Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.r;
