@@ -200,7 +200,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			if (pFrame->GetActiveView() == pView && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
-				if ((aabb.Center() - TargetPos).magnitudeSq() < 1000 * 1000)
+				if (my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, 1000.0f)) != my::IntersectionTests::IntersectionTypeOutside)
 				{
 					if (!actor->IsRequested())
 					{
