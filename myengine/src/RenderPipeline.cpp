@@ -247,6 +247,7 @@ const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
 	case PassTypeShadow: return "PassTypeShadow";
 	case PassTypeNormal: return "PassTypeNormal";
 	case PassTypeLight: return "PassTypeLight";
+	case PassTypeBackground: return "PassTypeBackground";
 	case PassTypeOpaque: return "PassTypeOpaque";
 	case PassTypeTransparent: return "PassTypeTransparent";
 	}
