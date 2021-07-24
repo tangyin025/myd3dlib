@@ -188,7 +188,7 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	// // Mix the pixel color with fogColor. You can optionaly use MixFogColor to override the fogColor
 	// // with a custom one.
 	// Output.color = MixFog(lightingResult, fogFactor);
-	Output.Color = float4(baseColor,positionOS.y*0.1);
+	Output.Color = float4(baseColor,In.Pos0.y*0.3);
 
 	return Output;
 }

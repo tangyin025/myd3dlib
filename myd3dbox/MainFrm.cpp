@@ -706,6 +706,9 @@ void CMainFrame::ClearFileContext()
 	OctRoot::ClearAllEntity();
 	m_ActorList.clear();
 	m_selactors.clear();
+	m_selcmp = NULL;
+	m_selchunkid.SetPoint(0, 0);
+	m_selinstid = 0;
 	LuaContext::Shutdown();
 	theApp.m_CollectionObjs.clear();
 	theApp.m_SerializeBuff.reset();
@@ -1005,7 +1008,9 @@ void CMainFrame::OnFileNew()
 
 	//m_selactors.clear();
 	//m_selactors.push_back(actor.get());
+	//m_selcmp = NULL;
 	//m_selchunkid.SetPoint(0, 0);
+	//m_selinstid = 0;
 	//OnSelChanged();
 }
 
@@ -1401,7 +1406,10 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
-	UpdatePivotTransform();
+	if (dlg.m_AlignToCenter)
+	{
+		UpdatePivotTransform();
+	}
 
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
@@ -1430,6 +1438,9 @@ void CMainFrame::OnEditDelete()
 		}
 	}
 
+	m_selcmp = NULL;
+	m_selchunkid.SetPoint(0, 0);
+	m_selinstid = 0;
 	OnSelChanged();
 }
 
@@ -1646,9 +1657,8 @@ void CMainFrame::OnCreateNavigation()
 	navi_cmp->m_navMesh.reset(dlg.m_navMesh);
 	navi_cmp->m_navQuery.reset(dlg.m_navQuery);
 	(*actor_iter)->AddComponent(navi_cmp);
-
 	UpdateSelBox();
-	UpdatePivotTransform();
+
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }

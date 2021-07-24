@@ -1337,6 +1337,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (!(nFlags & MK_SHIFT) && !pFrame->m_selactors.empty())
 	{
 		pFrame->m_selactors.clear();
+		pFrame->m_selcmp = NULL;
+		pFrame->m_selchunkid.SetPoint(0, 0);
+		pFrame->m_selinstid = 0;
 	}
 
 	if (!tracker.m_rect.IsRectEmpty())
