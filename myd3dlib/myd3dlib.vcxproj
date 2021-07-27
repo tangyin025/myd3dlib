@@ -138,6 +138,7 @@
     <ClCompile Include="src\myEmitter.cpp" />
     <ClCompile Include="src\myException.cpp" />
     <ClCompile Include="src\myFont.cpp" />
+    <ClCompile Include="src\myFsm.cpp" />
     <ClCompile Include="src\myInput.cpp" />
     <ClCompile Include="src\myMath.cpp" />
     <ClCompile Include="src\myMesh.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="include\myEmitter.h" />
     <ClInclude Include="include\myException.h" />
     <ClInclude Include="include\myFont.h" />
+    <ClInclude Include="include\myFsm.h" />
     <ClInclude Include="include\myInput.h" />
     <ClInclude Include="include\myMath.h" />
     <ClInclude Include="include\myMesh.h" />

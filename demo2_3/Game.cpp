@@ -348,6 +348,57 @@ std::string SceneContextRequest::BuildKey(const char* path)
 	return path;
 }
 
+struct GameStateScript : GameState, luabind::wrap_base
+{
+	GameStateScript(void)
+	{
+	}
+
+	virtual ~GameStateScript(void)
+	{
+	}
+
+	virtual void OnAdd(void)
+	{
+		luabind::wrap_base::call<void>("OnAdd");
+	}
+
+	static void default_OnAdd(GameState * state)
+	{
+		state->OnAdd();
+	}
+
+	virtual void OnEnter(void)
+	{
+		luabind::wrap_base::call<void>("OnEnter");
+	}
+
+	static void default_OnEnter(GameState * state)
+	{
+		state->OnEnter();
+	}
+
+	virtual void OnExit(void)
+	{
+		luabind::wrap_base::call<void>("OnExit");
+	}
+
+	static void default_OnExit(GameState * state)
+	{
+		state->OnExit();
+	}
+
+	virtual void OnTick(float fElapsedTime)
+	{
+		luabind::wrap_base::call<void>("OnTick", fElapsedTime);
+	}
+
+	static void default_OnTick(GameState * state, float fElapsedTime)
+	{
+		state->OnTick(fElapsedTime);
+	}
+};
+
 Game::Game(void)
 	: OctRoot(-4096, 4096)
 	, m_UIRender(new EffectUIRender())
@@ -532,6 +583,13 @@ HRESULT Game::OnCreateDevice(
 
 		, luabind::class_<SceneContext, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("SceneContext")
 
+		, luabind::class_<GameState, GameStateScript, boost::shared_ptr<GameState> >("GameState")
+			.def(luabind::constructor<>())
+			.def("OnAdd", &GameState::OnAdd, &GameStateScript::default_OnAdd)
+			.def("OnEnter", &GameState::OnEnter, &GameStateScript::default_OnEnter)
+			.def("OnExit", &GameState::OnExit, &GameStateScript::default_OnExit)
+			.def("OnTick", &GameState::OnTick, &GameStateScript::default_OnTick)
+
 		, luabind::class_<Game, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
 			.def_readwrite("Camera", &Game::m_Camera)
@@ -558,6 +616,10 @@ HRESULT Game::OnCreateDevice(
 			.def("AddEntity", &Game::AddEntity)
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
+			.def("AddState", &Game::AddState)
+			.def("AddTransition", &Game::AddTransition)
+			.def("SetState", &Game::SetState)
+			.def("ProcessEvent", &Game::ProcessEvent)
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
 			.def("SetScene", &Game::SetScene)
@@ -671,6 +733,8 @@ void Game::OnDestroyDevice(void)
 
 	m_ActorList.clear();
 
+	ClearAllState();
+
 	RemoveAllDlg();
 
 	RemoveAllTimer();
@@ -724,6 +788,11 @@ void Game::OnFrameTick(
 	}
 
 	TimerMgr::Update(fTime, fElapsedTime);
+
+	if (Fsm::m_current)
+	{
+		Fsm::m_current->OnTick(fElapsedTime);
+	}
 
 	struct Callback : public OctNode::QueryCallback
 	{
