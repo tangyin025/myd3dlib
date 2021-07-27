@@ -671,8 +671,6 @@ void Game::OnDestroyDevice(void)
 
 	m_ActorList.clear();
 
-	m_Console.reset();
-
 	RemoveAllDlg();
 
 	RemoveAllTimer();

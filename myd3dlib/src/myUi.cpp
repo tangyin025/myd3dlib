@@ -2665,7 +2665,7 @@ Dialog::~Dialog(void)
 {
 	if (m_Parent)
 	{
-		m_Parent->RemoveDlg(this);
+		_ASSERT(false); m_Parent->RemoveDlg(this);
 	}
 }
 

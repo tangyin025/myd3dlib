@@ -38,7 +38,7 @@ Actor::~Actor(void)
 {
 	if (m_Node)
 	{
-		m_Node->GetTopNode()->RemoveEntity(this);
+		_ASSERT(false); m_Node->GetTopNode()->RemoveEntity(this);
 	}
 
 	_ASSERT(m_ActionInstList.empty());
