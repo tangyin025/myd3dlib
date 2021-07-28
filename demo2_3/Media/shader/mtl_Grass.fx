@@ -102,7 +102,7 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	//vertex position logic done, complete posWS -> posCS
 	//Output.positionCS = TransformWorldToHClip(positionWS);
 	Output.Pos = mul(float4(positionWS,1), g_ViewProj);
-	Output.PosVS = mul(float4(positionWS,1), g_View);
+	Output.PosVS = mul(float4(positionWS,1), g_View).xyz;
 	Output.Normal = mul(N, (float3x3)g_View);
 	return Output;
 }
@@ -156,7 +156,7 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 
 	// half3 V = viewWS / ViewWSLength;
 
-	half3 baseColor = tex2Dlod(_BaseColorTextureSampler, float4(perGrassPivotPosWS.xz*float2(0.02,0.02)+float2(-0.43,-1.87),0,0));//sample mip 0 only
+	float3 baseColor = tex2Dlod(_BaseColorTextureSampler, float4(perGrassPivotPosWS.xz*float2(0.02,0.02)+float2(-0.43,-1.87),0,0)).rgb;//sample mip 0 only
 	// half3 albedo = lerp(_GroundColor,baseColor, IN.positionOS.y);
 
 	// //indirect

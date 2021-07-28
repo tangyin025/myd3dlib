@@ -141,10 +141,6 @@ public:
 
 	SceneContext::ActorPtrSet m_ActorList;
 
-	boost::shared_ptr<dtNavMesh> m_navMesh;
-
-	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
-
 	bool m_Activated;
 
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;
