@@ -71,6 +71,12 @@ namespace my
 				m_states.insert(std::make_pair(state, EventStateMap()));
 				state->m_parent = this;
 				state->OnAdd();
+
+				if ((!m_parent || m_parent->m_current == this) && !m_current)
+				{
+					_ASSERT(m_states.size() == 1);
+					SetState(state);
+				}
 			}
 		}
 
@@ -122,12 +128,12 @@ namespace my
 			m_current = state_iter->first;
 			if (m_current)
 			{
+				m_current->OnEnter();
+
 				if (!m_current->m_states.empty())
 				{
 					m_current->SetState(m_current->m_states.begin()->first);
 				}
-
-				m_current->OnEnter();
 			}
 		}
 
