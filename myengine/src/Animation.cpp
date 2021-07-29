@@ -238,7 +238,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 			Weight = seq_iter->m_TargetWeight;
 			seq_iter->m_BlendTime = 0;
 		}
-		else
+		else if (seq_iter->m_BlendTime > 0)
 		{
 			float WeightDelta = seq_iter->m_TargetWeight - seq_iter->m_Weight;
 			Weight = seq_iter->m_Weight + WeightDelta * fElapsedTime / seq_iter->m_BlendTime;
@@ -508,9 +508,12 @@ void Animator::Update(float fElapsedTime)
 {
 	if (m_Skeleton)
 	{
-		Tick(fElapsedTime, 1.0f);
+		if (fElapsedTime > 0.0f)
+		{
+			Tick(fElapsedTime, 1.0f);
 
-		UpdateSequenceGroup();
+			UpdateSequenceGroup();
+		}
 
 		GetPose(anim_pose);
 
