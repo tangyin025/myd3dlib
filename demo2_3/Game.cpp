@@ -616,7 +616,8 @@ HRESULT Game::OnCreateDevice(
 			.def("AddEntity", &Game::AddEntity)
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
-			.def("AddState", &Game::AddState)
+			.def("AddState", (void(my::Fsm<GameState, std::string>::*)(GameState *))&Game::AddState)
+			.def("AddState", (void(Game::*)(GameState *, GameState *))&Game::AddState)
 			.def("AddTransition", &Game::AddTransition)
 			.def("SetState", &Game::SetState)
 			.def("ProcessEvent", &Game::ProcessEvent)
@@ -789,9 +790,10 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
-	if (Fsm::m_current)
+	GameState * curr_iter = m_current;
+	for (; curr_iter != NULL; curr_iter = curr_iter->m_current)
 	{
-		Fsm::m_current->OnTick(fElapsedTime);
+		curr_iter->OnTick(fElapsedTime);
 	}
 
 	struct Callback : public OctNode::QueryCallback

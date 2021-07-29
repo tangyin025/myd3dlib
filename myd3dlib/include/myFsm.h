@@ -16,40 +16,72 @@ namespace my
 
 		StateType * m_current;
 
+		Fsm<StateType, EventType> * m_parent;
+
 	public:
 		Fsm(void)
 			: m_current(NULL)
+			, m_parent(NULL)
 		{
 		}
 
-		void AddState(StateType * state)
+		virtual ~Fsm(void)
 		{
-			StateMap::const_iterator state_iter = m_states.find(state);
-			if (state_iter != m_states.end())
+			_ASSERT(NULL == m_parent);
+		}
+
+		typename StateMap::value_type * FindState(StateType * state)
+		{
+			StateMap::iterator state_iter = m_states.begin();
+			for (; state_iter != m_states.end(); state_iter++)
+			{
+				StateMap::value_type * res = state_iter->first->FindState(state);
+				if (res)
+				{
+					return res;
+				}
+
+				if (state_iter->first == state)
+				{
+					return &(*state_iter);
+				}
+			}
+			return NULL;
+		}
+
+		void AddState(StateType * state, StateType * parent = NULL)
+		{
+			_ASSERT(NULL == state->m_parent);
+
+			StateMap::value_type * state_iter = FindState(state);
+			if (state_iter)
 			{
 				_ASSERT(false);
 				return;
 			}
+
+			if (parent)
+			{
+				StateMap::value_type * parent_iter = FindState(parent);
+				_ASSERT(NULL != parent_iter);
+				parent_iter->first->AddState(state);
+			}
 			else
 			{
-				_ASSERT(NULL == state->m_Owner);
 				m_states.insert(std::make_pair(state, EventStateMap()));
-				state->m_Owner = this;
+				state->m_parent = this;
 				state->OnAdd();
 			}
 		}
 
 		void AddTransition(StateType * src, const EventType & _event, StateType * dest)
 		{
-			StateMap::iterator src_iter = m_states.find(src);
-			if (src_iter == m_states.end())
-			{
-				_ASSERT(false);
-				return;
-			}
+			StateMap::value_type * src_iter = FindState(src);
+			_ASSERT(NULL != src_iter);
+			_ASSERT(NULL != src_iter->first->m_parent);
 
-			StateMap::const_iterator dest_iter = m_states.find(dest);
-			if (dest_iter == m_states.end())
+			StateMap::const_iterator dest_iter = src_iter->first->m_parent->m_states.find(dest);
+			if (dest_iter == src_iter->first->m_parent->m_states.end())
 			{
 				_ASSERT(false);
 				return;
@@ -69,6 +101,8 @@ namespace my
 		{
 			if (m_current)
 			{
+				m_current->SetState(NULL);
+
 				m_current->OnExit();
 			}
 
@@ -88,23 +122,35 @@ namespace my
 			m_current = state_iter->first;
 			if (m_current)
 			{
+				if (!m_current->m_states.empty())
+				{
+					m_current->SetState(m_current->m_states.begin()->first);
+				}
+
 				m_current->OnEnter();
 			}
 		}
 
 		void ProcessEvent(const EventType & _event)
 		{
-			StateMap::const_iterator src_iter = m_states.find(m_current);
-			if (src_iter == m_states.end())
+			if (m_current)
 			{
-				_ASSERT(false);
-				return;
-			}
+				StateMap::const_iterator src_iter = m_states.find(m_current);
+				if (src_iter == m_states.end())
+				{
+					_ASSERT(false);
+					return;
+				}
 
-			EventStateMap::const_iterator event_iter = src_iter->second.find(_event);
-			if (event_iter != src_iter->second.end())
-			{
-				SetState(event_iter->second);
+				EventStateMap::const_iterator event_iter = src_iter->second.find(_event);
+				if (event_iter != src_iter->second.end())
+				{
+					SetState(event_iter->second);
+				}
+				else
+				{
+					src_iter->first->ProcessEvent(_event);
+				}
 			}
 		}
 
@@ -114,15 +160,11 @@ namespace my
 			StateMap::iterator state_iter = m_states.begin();
 			for (; state_iter != m_states.end(); state_iter++)
 			{
-				_ASSERT(this == state_iter->first->m_Owner);
-				state_iter->first->m_Owner = NULL;
+				_ASSERT(this == state_iter->first->m_parent);
+				state_iter->first->ClearAllState();
+				state_iter->first->m_parent = NULL;
 			}
 			m_states.clear();
-		}
-
-		size_t StatesCount(void)
-		{
-			return m_states.size();
 		}
 	};
 }

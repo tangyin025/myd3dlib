@@ -55,20 +55,12 @@ public:
 	static std::string SceneContextRequest::BuildKey(const char* path);
 };
 
-class GameState : public boost::noncopyable
+class GameState
+	: public my::Fsm<GameState, std::string>
 {
 public:
-	const my::Fsm<GameState, std::string> * m_Owner;
-
-public:
 	GameState(void)
-		: m_Owner(NULL)
 	{
-	}
-
-	virtual ~GameState(void)
-	{
-		_ASSERT(NULL == m_Owner);
 	}
 
 	virtual void OnAdd(void)
