@@ -618,11 +618,11 @@ HRESULT Game::OnCreateDevice(
 			.def("AddEntity", &Game::AddEntity)
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
-			.def("AddState", (void(my::Fsm<GameState, std::string>::*)(GameState *))&Game::AddState)
+			.def("AddState", (void(my::StateChart<GameState, std::string>::*)(GameState *))&Game::AddState)
 			.def("AddState", (void(Game::*)(GameState *, GameState *))&Game::AddState)
 			.def("AddTransition", &Game::AddTransition)
-			.def("SetState", &Game::SetState)
 			.def("ProcessEvent", &Game::ProcessEvent)
+			.def("ClearAllState", &Game::ClearAllState)
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
 			.def("SetScene", &Game::SetScene)
@@ -792,8 +792,8 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime * m_TimeScale);
 
-	GameState * curr_iter = m_current;
-	for (; curr_iter != NULL; curr_iter = curr_iter->m_current)
+	GameState * curr_iter = m_Current;
+	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
 		curr_iter->OnTick(fElapsedTime * m_TimeScale);
 	}

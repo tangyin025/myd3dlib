@@ -6,7 +6,7 @@
 #include "Actor.h"
 #include "PhysxContext.h"
 #include "FModContext.h"
-#include "myFsm.h"
+#include "myStateChart.h"
 
 class dtNavMesh;
 
@@ -56,7 +56,7 @@ public:
 };
 
 class GameState
-	: public my::Fsm<GameState, std::string>
+	: public my::StateChart<GameState, std::string>
 {
 public:
 	GameState(void)
@@ -92,7 +92,7 @@ class Game
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 	, public my::OctRoot
-	, public my::Fsm<GameState, std::string>
+	, public my::StateChart<GameState, std::string>
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext

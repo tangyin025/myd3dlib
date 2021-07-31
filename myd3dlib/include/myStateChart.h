@@ -5,35 +5,35 @@
 namespace my
 {
 	template <typename StateType, typename EventType>
-	class Fsm
+	class StateChart
 	{
 	public:
 		typedef std::map<EventType, StateType *> EventStateMap;
 
 		typedef std::map<StateType *, EventStateMap> StateMap;
 
-		StateMap m_states;
+		StateMap m_States;
 
-		StateType * m_current;
+		StateType * m_Current;
 
-		Fsm<StateType, EventType> * m_parent;
+		StateChart<StateType, EventType> * m_Parent;
 
 	public:
-		Fsm(void)
-			: m_current(NULL)
-			, m_parent(NULL)
+		StateChart(void)
+			: m_Current(NULL)
+			, m_Parent(NULL)
 		{
 		}
 
-		virtual ~Fsm(void)
+		virtual ~StateChart(void)
 		{
-			_ASSERT(NULL == m_parent);
+			_ASSERT(NULL == m_Parent);
 		}
 
 		typename StateMap::value_type * FindState(StateType * state)
 		{
-			StateMap::iterator state_iter = m_states.begin();
-			for (; state_iter != m_states.end(); state_iter++)
+			StateMap::iterator state_iter = m_States.begin();
+			for (; state_iter != m_States.end(); state_iter++)
 			{
 				StateMap::value_type * res = state_iter->first->FindState(state);
 				if (res)
@@ -51,7 +51,7 @@ namespace my
 
 		void AddState(StateType * state, StateType * parent = NULL)
 		{
-			_ASSERT(NULL == state->m_parent);
+			_ASSERT(NULL == state->m_Parent);
 
 			StateMap::value_type * state_iter = FindState(state);
 			if (state_iter)
@@ -68,13 +68,13 @@ namespace my
 			}
 			else
 			{
-				m_states.insert(std::make_pair(state, EventStateMap()));
-				state->m_parent = this;
+				m_States.insert(std::make_pair(state, EventStateMap()));
+				state->m_Parent = this;
 				state->OnAdd();
 
-				if ((!m_parent || m_parent->m_current == this) && !m_current)
+				if ((!m_Parent || m_Parent->m_Current == this) && !m_Current)
 				{
-					_ASSERT(m_states.size() == 1);
+					_ASSERT(m_States.size() == 1);
 					SetState(state);
 				}
 			}
@@ -84,10 +84,10 @@ namespace my
 		{
 			StateMap::value_type * src_iter = FindState(src);
 			_ASSERT(NULL != src_iter);
-			_ASSERT(NULL != src_iter->first->m_parent);
+			_ASSERT(NULL != src_iter->first->m_Parent);
 
-			StateMap::const_iterator dest_iter = src_iter->first->m_parent->m_states.find(dest);
-			if (dest_iter == src_iter->first->m_parent->m_states.end())
+			StateMap::const_iterator dest_iter = src_iter->first->m_Parent->m_States.find(dest);
+			if (dest_iter == src_iter->first->m_Parent->m_States.end())
 			{
 				_ASSERT(false);
 				return;
@@ -105,44 +105,44 @@ namespace my
 
 		void SetState(StateType * state)
 		{
-			if (m_current)
+			if (m_Current)
 			{
-				m_current->SetState(NULL);
+				m_Current->SetState(NULL);
 
-				m_current->OnExit();
+				m_Current->OnExit();
 			}
 
 			if (!state)
 			{
-				m_current = NULL;
+				m_Current = NULL;
 				return;
 			}
 
-			StateMap::const_iterator state_iter = m_states.find(state);
-			if (state_iter == m_states.end())
+			StateMap::const_iterator state_iter = m_States.find(state);
+			if (state_iter == m_States.end())
 			{
 				_ASSERT(false);
 				return;
 			}
 
-			m_current = state_iter->first;
-			if (m_current)
+			m_Current = state_iter->first;
+			if (m_Current)
 			{
-				m_current->OnEnter();
+				m_Current->OnEnter();
 
-				if (!m_current->m_states.empty())
+				if (!m_Current->m_States.empty())
 				{
-					m_current->SetState(m_current->m_states.begin()->first);
+					m_Current->SetState(m_Current->m_States.begin()->first);
 				}
 			}
 		}
 
 		void ProcessEvent(const EventType & _event)
 		{
-			if (m_current)
+			if (m_Current)
 			{
-				StateMap::const_iterator src_iter = m_states.find(m_current);
-				if (src_iter == m_states.end())
+				StateMap::const_iterator src_iter = m_States.find(m_Current);
+				if (src_iter == m_States.end())
 				{
 					_ASSERT(false);
 					return;
@@ -163,14 +163,14 @@ namespace my
 		void ClearAllState(void)
 		{
 			SetState(NULL);
-			StateMap::iterator state_iter = m_states.begin();
-			for (; state_iter != m_states.end(); state_iter++)
+			StateMap::iterator state_iter = m_States.begin();
+			for (; state_iter != m_States.end(); state_iter++)
 			{
-				_ASSERT(this == state_iter->first->m_parent);
+				_ASSERT(this == state_iter->first->m_Parent);
 				state_iter->first->ClearAllState();
-				state_iter->first->m_parent = NULL;
+				state_iter->first->m_Parent = NULL;
 			}
-			m_states.clear();
+			m_States.clear();
 		}
 	};
 }

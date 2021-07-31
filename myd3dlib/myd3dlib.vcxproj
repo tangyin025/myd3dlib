@@ -138,7 +138,6 @@
     <ClCompile Include="src\myEmitter.cpp" />
     <ClCompile Include="src\myException.cpp" />
     <ClCompile Include="src\myFont.cpp" />
-    <ClCompile Include="src\myFsm.cpp" />
     <ClCompile Include="src\myInput.cpp" />
     <ClCompile Include="src\myMath.cpp" />
     <ClCompile Include="src\myMesh.cpp" />
@@ -150,6 +149,7 @@
     <ClCompile Include="src\mySkeleton.cpp" />
     <ClCompile Include="src\mySound.cpp" />
     <ClCompile Include="src\mySpline.cpp" />
+    <ClCompile Include="src\myStateChart.cpp" />
     <ClCompile Include="src\myTask.cpp" />
     <ClCompile Include="src\myTexture.cpp" />
     <ClCompile Include="src\myThread.cpp" />
@@ -169,7 +169,6 @@
     <ClInclude Include="include\myEmitter.h" />
     <ClInclude Include="include\myException.h" />
     <ClInclude Include="include\myFont.h" />
-    <ClInclude Include="include\myFsm.h" />
     <ClInclude Include="include\myInput.h" />
     <ClInclude Include="include\myMath.h" />
     <ClInclude Include="include\myMesh.h" />
@@ -181,6 +180,7 @@
     <ClInclude Include="include\mySkeleton.h" />
     <ClInclude Include="include\mySound.h" />
     <ClInclude Include="include\mySpline.h" />
+    <ClInclude Include="include\myStateChart.h" />
     <ClInclude Include="include\myTask.h" />
     <ClInclude Include="include\myTexture.h" />
     <ClInclude Include="include\myThread.h" />
