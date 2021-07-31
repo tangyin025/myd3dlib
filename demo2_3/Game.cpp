@@ -404,6 +404,7 @@ Game::Game(void)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_ViewedDist(1000.0f)
+	, m_TimeScale(1.0f)
 	, m_Activated(false)
 {
 	boost::program_options::options_description desc("Options");
@@ -606,6 +607,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("ViewedCenter", &Game::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Game::m_ViewedDist)
+			.def_readwrite("TimeScale", &Game::m_TimeScale)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -788,12 +790,12 @@ void Game::OnFrameTick(
 		// TODO: lost user input
 	}
 
-	TimerMgr::Update(fTime, fElapsedTime);
+	TimerMgr::Update(fTime, fElapsedTime * m_TimeScale);
 
 	GameState * curr_iter = m_current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_current)
 	{
-		curr_iter->OnTick(fElapsedTime);
+		curr_iter->OnTick(fElapsedTime * m_TimeScale);
 	}
 
 	struct Callback : public OctNode::QueryCallback
@@ -842,9 +844,9 @@ void Game::OnFrameTick(
 			{
 				// ! Actor::Update may change other actor's life time
 				// ! Actor::Update may invalid the main camera's properties
-				actor->Update(fElapsedTime);
+				actor->Update(fElapsedTime * m_TimeScale);
 
-				actor->UpdateAttaches(fElapsedTime);
+				actor->UpdateAttaches(fElapsedTime * m_TimeScale);
 			}
 
 			actor_iter++;
@@ -864,7 +866,7 @@ void Game::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	PhysxScene::TickPreRender(fElapsedTime);
+	PhysxScene::TickPreRender(fElapsedTime * m_TimeScale);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
@@ -895,7 +897,7 @@ void Game::OnFrameTick(
 
 	LeaveDeviceSection();
 
-	PhysxScene::TickPostRender(fElapsedTime);
+	PhysxScene::TickPostRender(fElapsedTime * m_TimeScale);
 
 	TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
 	for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
