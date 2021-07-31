@@ -404,7 +404,6 @@ Game::Game(void)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_ViewedDist(1000.0f)
-	, m_TimeScale(1.0f)
 	, m_Activated(false)
 {
 	boost::program_options::options_description desc("Options");
@@ -607,7 +606,6 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("ViewedCenter", &Game::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Game::m_ViewedDist)
-			.def_readwrite("TimeScale", &Game::m_TimeScale)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -790,12 +788,12 @@ void Game::OnFrameTick(
 		// TODO: lost user input
 	}
 
-	TimerMgr::Update(fTime, fElapsedTime * m_TimeScale);
+	TimerMgr::Update(fTime, fElapsedTime);
 
 	GameState * curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
-		curr_iter->OnTick(fElapsedTime * m_TimeScale);
+		curr_iter->OnTick(fElapsedTime);
 	}
 
 	struct Callback : public OctNode::QueryCallback
@@ -844,9 +842,9 @@ void Game::OnFrameTick(
 			{
 				// ! Actor::Update may change other actor's life time
 				// ! Actor::Update may invalid the main camera's properties
-				actor->Update(fElapsedTime * m_TimeScale);
+				actor->Update(fElapsedTime);
 
-				actor->UpdateAttaches(fElapsedTime * m_TimeScale);
+				actor->UpdateAttaches(fElapsedTime);
 			}
 
 			actor_iter++;
@@ -866,7 +864,7 @@ void Game::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	PhysxScene::TickPreRender(fElapsedTime * m_TimeScale);
+	PhysxScene::TickPreRender(fElapsedTime);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
@@ -897,7 +895,7 @@ void Game::OnFrameTick(
 
 	LeaveDeviceSection();
 
-	PhysxScene::TickPostRender(fElapsedTime * m_TimeScale);
+	PhysxScene::TickPostRender(fElapsedTime);
 
 	TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
 	for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
@@ -972,7 +970,7 @@ void Game::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogMgr::Draw(ui_render, fTime, fElapsedTime);
+	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fAbsoluteElapsedTime);
 	_ASSERT(m_Font);
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 	for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)

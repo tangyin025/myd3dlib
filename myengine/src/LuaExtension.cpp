@@ -951,6 +951,8 @@ void LuaContext::Init(void)
 
 		, class_<my::Clock>("Clock")
 			.def_readonly("AbsoluteTime", &my::Clock::m_fAbsoluteTime)
+			.def_readonly("AbsoluteElapsedTime", &my::Clock::m_fAbsoluteElapsedTime)
+			.def_readwrite("TimeScale", &my::Clock::m_fTimeScale)
 			.def_readonly("ElapsedTime", &my::Clock::m_fElapsedTime)
 			.def_readonly("TotalTime", &my::Clock::m_fTotalTime)
 

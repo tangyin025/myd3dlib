@@ -133,8 +133,6 @@ public:
 
 	SceneContext::ActorPtrSet m_ActorList;
 
-	float m_TimeScale;
-
 	bool m_Activated;
 
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;
