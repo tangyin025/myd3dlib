@@ -105,11 +105,8 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 }
 
 Clock::Clock(void)
-	: m_bTimerStopped(false)
-	, m_llStopTime(0)
-	, m_llQPFTicksPerSec(0)
+	: m_llQPFTicksPerSec(0)
 	, m_llLastElapsedTime(0)
-	, m_llBaseTime(0)
 	, m_fAbsoluteTime(0)
 	, m_fElapsedTime(0)
 	, m_fTotalTime(0)
@@ -118,74 +115,25 @@ Clock::Clock(void)
 	QueryPerformanceFrequency(&qwTicksPerSec);
 	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
 
-	Reset();
-}
-
-void Clock::Reset(void)
-{
-	LARGE_INTEGER qwTime = GetAdjustedCurrentTime();
-
-	m_llBaseTime = qwTime.QuadPart;
-	m_llLastElapsedTime = qwTime.QuadPart;
-	m_llStopTime = 0;
-	m_bTimerStopped = FALSE;
-}
-
-void Clock::Start(void)
-{
-    LARGE_INTEGER qwTime = { 0 };
-    QueryPerformanceCounter( &qwTime );
-
-    if( m_bTimerStopped )
-        m_llBaseTime += qwTime.QuadPart - m_llStopTime;
-    m_llStopTime = 0;
-    m_llLastElapsedTime = qwTime.QuadPart;
-    m_bTimerStopped = false;
-}
-
-void Clock::Stop(void)
-{
-    if( !m_bTimerStopped )
-    {
-        LARGE_INTEGER qwTime = { 0 };
-        QueryPerformanceCounter( &qwTime );
-        m_llStopTime = qwTime.QuadPart;
-        m_llLastElapsedTime = qwTime.QuadPart;
-        m_bTimerStopped = TRUE;
-    }
-}
-
-LARGE_INTEGER Clock::GetAdjustedCurrentTime(void)
-{
 	LARGE_INTEGER qwTime;
-	if (m_llStopTime != 0)
-		qwTime.QuadPart = m_llStopTime;
-	else
-		QueryPerformanceCounter(&qwTime);
-	return qwTime;
+	QueryPerformanceCounter(&qwTime);
+	m_llLastElapsedTime = qwTime.QuadPart;
+
+	UpdateClock();
 }
 
 void Clock::UpdateClock(void)
 {
-    LARGE_INTEGER qwTime = GetAdjustedCurrentTime();
-
-    float fElapsedTime = ( float )( ( double )( qwTime.QuadPart - m_llLastElapsedTime ) / ( double )
-                                    m_llQPFTicksPerSec );
-    m_llLastElapsedTime = qwTime.QuadPart;
-
-    // Clamp the timer to non-negative values to ensure the timer is accurate.
-    // fElapsedTime can be outside this range if processor goes into a 
-    // power save mode or we somehow get shuffled to another processor.  
-    // However, the main thread should call SetThreadAffinityMask to ensure that 
-    // we don't get shuffled to another processor.  Other worker threads should NOT call 
-    // SetThreadAffinityMask, but use a shared copy of the timer data gathered from 
-    // the main thread.
-    if( fElapsedTime < 0.0f )
-        fElapsedTime = 0.0f;
+	LARGE_INTEGER qwTime;
+	QueryPerformanceCounter(&qwTime);
 
 	m_fAbsoluteTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
-	m_fTotalTime = (qwTime.QuadPart - m_llBaseTime) / (double)m_llQPFTicksPerSec;
-	m_fElapsedTime = fElapsedTime;
+
+	m_fElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
+
+	m_fTotalTime += m_fElapsedTime;
+
+	m_llLastElapsedTime = qwTime.QuadPart;
 }
 
 HRESULT D3DContext::OnCreateDevice(

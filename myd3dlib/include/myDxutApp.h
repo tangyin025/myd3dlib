@@ -35,15 +35,9 @@ namespace my
 	class Clock
 	{
 	public:
-		bool m_bTimerStopped;
-
-		LONGLONG m_llStopTime;
-
 		LONGLONG m_llQPFTicksPerSec;
 
 		LONGLONG m_llLastElapsedTime;
-
-		LONGLONG m_llBaseTime;
 
 		double m_fAbsoluteTime;
 
@@ -52,14 +46,6 @@ namespace my
 		float m_fTotalTime;
 
 		Clock(void);
-
-		void Reset(void);
-
-		void Start(void);
-
-		void Stop(void);
-
-		LARGE_INTEGER GetAdjustedCurrentTime(void);
 
 		void UpdateClock(void);
 	};
