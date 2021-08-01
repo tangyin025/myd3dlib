@@ -820,6 +820,8 @@ namespace my
 
 		friend class ComboBox;
 
+		friend class ListBox;
+
 		friend class boost::serialization::access;
 
 		template<class Archive>
@@ -996,7 +998,6 @@ namespace my
 			, m_iSelected(-1)
 			, m_BlendColor(0, 0, 0, 0)
 		{
-			OnLayout();
 		}
 
 	public:
@@ -1086,6 +1087,119 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
+
+	class ListBoxSkin : public ControlSkin
+	{
+	public:
+		ControlImagePtr m_ScrollBarUpBtnNormalImage;
+
+		ControlImagePtr m_ScrollBarUpBtnDisabledImage;
+
+		ControlImagePtr m_ScrollBarDownBtnNormalImage;
+
+		ControlImagePtr m_ScrollBarDownBtnDisabledImage;
+
+		ControlImagePtr m_ScrollBarThumbBtnNormalImage;
+
+		ControlImagePtr m_ScrollBarImage;
+
+	public:
+		ListBoxSkin(void)
+		{
+		}
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnDisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnDisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarThumbBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarImage);
+		}
+	};
+
+	typedef boost::shared_ptr<ListBoxSkin> ListBoxSkinPtr;
+
+	struct ListBoxItem
+	{
+		std::wstring strText;
+
+		void * pData;
+
+		RECT rcActive;
+
+		bool bSelected;
+	};
+
+	typedef boost::shared_ptr<ListBoxItem> ListBoxItemPtr;
+
+	class ListBox : public Control
+	{
+	public:
+		ScrollBar m_ScrollBar;
+
+		float m_ScrollbarWidth;
+
+		float m_ScrollbarUpDownBtnHeight;
+
+		typedef std::vector<ListBoxItemPtr> ListBoxItemPtrList;
+
+		ListBoxItemPtrList m_Items;
+
+		Vector2 m_ItemSize;
+
+	protected:
+		ListBox(void)
+			: m_ScrollbarWidth(20)
+			, m_ScrollbarUpDownBtnHeight(20)
+			, m_ItemSize(50, 50)
+		{
+		}
+
+	public:
+		ListBox(const char * Name)
+			: Control(Name)
+			, m_ScrollBar(NULL)
+			, m_ScrollbarWidth(20)
+			, m_ScrollbarUpDownBtnHeight(20)
+			, m_ItemSize(50, 50)
+		{
+			OnLayout();
+		}
+
+		~ListBox(void)
+		{
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive& ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive& ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
+		}
+
+		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wParam, LPARAM lParam);
+
+		virtual void OnLayout(void);
+	};
+
+	typedef boost::shared_ptr<ListBox> ListBoxPtr;
 
 	class DialogSkin : public ControlSkin
 	{

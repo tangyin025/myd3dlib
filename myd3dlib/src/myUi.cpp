@@ -54,6 +54,8 @@ BOOST_CLASS_EXPORT(ComboBoxSkin)
 
 BOOST_CLASS_EXPORT(ComboBox)
 
+BOOST_CLASS_EXPORT(ListBox)
+
 BOOST_CLASS_EXPORT(Dialog)
 
 UIRender::UIRender(void)
@@ -2659,6 +2661,65 @@ void ComboBox::SetItemData(int index, unsigned int uData)
 UINT ComboBox::GetNumItems(void)
 {
 	return m_Items.size();
+}
+
+template<class Archive>
+void ListBox::save(Archive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+}
+
+template<class Archive>
+void ListBox::load(Archive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	OnLayout();
+}
+
+void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
+{
+	//Control::Draw(ui_render, fElapsedTime, Offset, Size);
+
+	if (m_bVisible)
+	{
+		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
+
+		if (m_Skin)
+		{
+			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
+			_ASSERT(Skin);
+		}
+	}
+}
+
+bool ListBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+void ListBox::OnLayout(void)
+{
+	m_ScrollBar.m_x = UDim(0, m_Rect.Width() - m_ScrollbarWidth);
+
+	m_ScrollBar.m_y = UDim(0, 0);
+
+	m_ScrollBar.m_Width = UDim(0, m_ScrollbarWidth);
+
+	m_ScrollBar.m_Height = UDim(0, m_Rect.Height());
+
+	m_ScrollBar.m_nPageSize = (int)(m_ScrollBar.m_Height.offset / m_ItemSize.y);
+
+	m_ScrollBar.m_Parent = this;
 }
 
 Dialog::~Dialog(void)
