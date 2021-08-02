@@ -2603,7 +2603,7 @@ void ComboBox::RemoveAllItems(void)
 {
 	m_Items.clear();
 
-	m_ScrollBar.m_nEnd = m_Items.size();
+	m_ScrollBar.m_nEnd = 0;
 
 	m_iSelected = -1;
 }
@@ -2717,6 +2717,27 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
+
+			int i = m_ScrollBar.m_nPosition;
+			float y = m_Rect.t;
+			for (; i < m_ScrollBar.m_nEnd && y <= m_Rect.b - m_ItemSize.y; i++, y += m_ItemSize.y)
+			{
+				float x = m_Rect.l;
+				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
+				{
+					int idx = i * m_ItemColumn + j;
+					if (idx >= m_Items.size())
+					{
+						break;
+					}
+
+					Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
+
+					ListBoxItem * item = m_Items[idx].get();
+
+					Skin->DrawString(ui_render, item->strText.c_str(), ItemRect, D3DCOLOR_ARGB(255, 255, 0, 0), Font::AlignCenterMiddle);
+				}
+			}
 		}
 	}
 }
@@ -2749,6 +2770,28 @@ void ListBox::OnLayout(void)
 	m_ScrollBar.m_nPageSize = (int)(m_ScrollBar.m_Height.offset / m_ItemSize.y);
 
 	m_ScrollBar.m_Parent = this;
+
+	m_ItemColumn = Max(1, (int)(m_Rect.Width() / m_ItemSize.x));
+}
+
+void ListBox::AddItem(const std::wstring & strText)
+{
+	_ASSERT(!strText.empty());
+
+	ListBoxItemPtr item(new ListBoxItem());
+
+	item->strText = strText;
+
+	m_Items.push_back(item);
+
+	m_ScrollBar.m_nEnd = (int)floorf(m_Items.size() / (float)m_ItemColumn);
+}
+
+void ListBox::RemoveAllItems(void)
+{
+	m_Items.clear();
+
+	m_ScrollBar.m_nEnd = 0;
 }
 
 Dialog::~Dialog(void)

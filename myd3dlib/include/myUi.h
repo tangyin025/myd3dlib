@@ -1151,11 +1151,14 @@ namespace my
 
 		Vector2 m_ItemSize;
 
+		int m_ItemColumn;
+
 	protected:
 		ListBox(void)
 			: m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_ItemSize(50, 50)
+			, m_ItemColumn(1)
 		{
 		}
 
@@ -1166,6 +1169,7 @@ namespace my
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_ItemSize(50, 50)
+			, m_ItemColumn(1)
 		{
 			OnLayout();
 		}
@@ -1198,6 +1202,10 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wParam, LPARAM lParam);
 
 		virtual void OnLayout(void);
+
+		void AddItem(const std::wstring& strText);
+
+		void RemoveAllItems(void);
 	};
 
 	typedef boost::shared_ptr<ListBox> ListBoxPtr;
