@@ -2760,11 +2760,13 @@ bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYDOWN:
 			if (wParam == VK_UP)
 			{
-				if (!m_Items.empty() && m_iFocused.x > 0)
+				if (!m_Items.empty())
 				{
-					m_ScrollBar.ScrollTo(--m_iFocused.x);
+					m_iFocused.x = Clamp((int)--m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
 
-					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)m_iFocused.y));
+					m_iFocused.y = Clamp((int)m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
+
+					m_ScrollBar.ScrollTo(m_iFocused.x);
 				}
 				return true;
 			}
@@ -2772,28 +2774,30 @@ bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (!m_Items.empty() && m_iFocused.x + 1 < m_ScrollBar.m_nEnd)
 				{
-					m_ScrollBar.ScrollTo(++m_iFocused.x);
+					m_iFocused.x = Clamp((int)++m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
 
-					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)m_iFocused.y));
+					m_iFocused.y = Clamp((int)m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
+
+					m_ScrollBar.ScrollTo(m_iFocused.x);
 				}
 				return true;
 			}
 			else if (wParam == VK_LEFT)
 			{
-				if (!m_Items.empty() && m_iFocused.y > 0)
+				if (!m_Items.empty())
 				{
-					m_iFocused.x = Max(0, Min(m_ScrollBar.m_nEnd - 1, (int)m_iFocused.x));
+					m_iFocused.x = Clamp((int)m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
 
-					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)--m_iFocused.y));
+					m_iFocused.y = Clamp((int)--m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
 				}
 			}
 			else if (wParam == VK_RIGHT)
 			{
 				if (!m_Items.empty())
 				{
-					m_iFocused.x = Max(0, Min(m_ScrollBar.m_nEnd - 1, (int)m_iFocused.x));
+					m_iFocused.x = Clamp((int)m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
 
-					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)++m_iFocused.y));
+					m_iFocused.y = Clamp((int)++m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
 				}
 			}
 		}
@@ -2835,7 +2839,6 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 						}
 					}
 				}
-				m_iFocused.SetPoint(-1, -1);
 				return true;
 			}
 			break;

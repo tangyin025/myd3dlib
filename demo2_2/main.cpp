@@ -315,7 +315,7 @@ public:
 		skin->m_ScrollBarImage = image2;
 
 		ListBoxPtr listBox(new ListBox(NamedObject::MakeUniqueName("listbox").c_str()));
-		listBox->m_Width.offset = 150;
+		listBox->m_Width.offset = 200;
 		listBox->OnLayout();
 		listBox->m_Skin = skin;
 		listBox->AddItem(L"aaa");
@@ -323,6 +323,11 @@ public:
 		listBox->AddItem(L"ccc");
 		listBox->AddItem(L"ddd");
 		listBox->AddItem(L"eee");
+		listBox->AddItem(L"fff");
+		listBox->AddItem(L"ggg");
+		listBox->AddItem(L"hhh");
+		listBox->AddItem(L"iii");
+		listBox->AddItem(L"jjj");
 		m_Dlg->InsertControl(listBox);
 
 		return S_OK;
