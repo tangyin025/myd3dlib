@@ -1091,6 +1091,8 @@ namespace my
 	class ListBoxSkin : public ControlSkin
 	{
 	public:
+		ControlImagePtr m_MouseOverImage;
+
 		ControlImagePtr m_ScrollBarUpBtnNormalImage;
 
 		ControlImagePtr m_ScrollBarUpBtnDisabledImage;
@@ -1112,6 +1114,7 @@ namespace my
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseOverImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnNormalImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnDisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnNormalImage);
@@ -1153,12 +1156,15 @@ namespace my
 
 		int m_ItemColumn;
 
+		CPoint m_iFocused;
+
 	protected:
 		ListBox(void)
 			: m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_ItemSize(50, 50)
 			, m_ItemColumn(1)
+			, m_iFocused(-1, -1)
 		{
 		}
 
@@ -1170,6 +1176,7 @@ namespace my
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_ItemSize(50, 50)
 			, m_ItemColumn(1)
+			, m_iFocused(-1, -1)
 		{
 			OnLayout();
 		}
@@ -1200,6 +1207,8 @@ namespace my
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wParam, LPARAM lParam);
+
+		virtual bool CanHaveFocus(void);
 
 		virtual void OnLayout(void);
 

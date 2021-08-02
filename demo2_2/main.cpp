@@ -304,7 +304,9 @@ public:
 		ListBoxSkinPtr skin(new ListBoxSkin());
 		skin->m_Font = LoadFont("font/wqy-microhei.ttc", 13, 0);
 		skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 0, 0);
-		skin->m_TextAlign = my::Font::AlignLeftMiddle;
+		skin->m_TextAlign = my::Font::AlignCenterMiddle;
+		skin->m_Image = image2;
+		skin->m_MouseOverImage = image;
 		skin->m_ScrollBarUpBtnNormalImage = image;
 		skin->m_ScrollBarUpBtnDisabledImage = image2;
 		skin->m_ScrollBarDownBtnNormalImage = image;
@@ -313,6 +315,8 @@ public:
 		skin->m_ScrollBarImage = image2;
 
 		ListBoxPtr listBox(new ListBox(NamedObject::MakeUniqueName("listbox").c_str()));
+		listBox->m_Width.offset = 150;
+		listBox->OnLayout();
 		listBox->m_Skin = skin;
 		listBox->AddItem(L"aaa");
 		listBox->AddItem(L"bbb");

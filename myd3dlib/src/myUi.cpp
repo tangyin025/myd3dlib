@@ -2687,6 +2687,31 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
+			int i = m_ScrollBar.m_nPosition;
+			float y = m_Rect.t;
+			for (; i < m_ScrollBar.m_nEnd && y < m_Rect.b - m_ItemSize.y * 0.5f; i++, y += m_ItemSize.y)
+			{
+				float x = m_Rect.l;
+				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
+				{
+					int idx = i * m_ItemColumn + j;
+					if (idx < m_Items.size())
+					{
+						Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
+
+						Skin->DrawImage(ui_render, Skin->m_Image, ItemRect, Skin->m_Color);
+
+						if (m_iFocused == CPoint(i, j))
+						{
+							Skin->DrawImage(ui_render, Skin->m_MouseOverImage, ItemRect, Skin->m_Color);
+						}
+
+						ListBoxItem * item = m_Items[idx].get();
+						Skin->DrawString(ui_render, item->strText.c_str(), ItemRect, Skin->m_TextColor, Skin->m_TextAlign);
+					}
+				}
+			}
+
 			m_ScrollBar.SimulateRepeatedScroll();
 
 			m_ScrollBar.m_Rect = Rectangle::RightTop(m_Rect.l + m_Rect.Width(), m_Rect.t, m_ScrollbarWidth, m_Rect.Height());
@@ -2717,27 +2742,6 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
-
-			int i = m_ScrollBar.m_nPosition;
-			float y = m_Rect.t;
-			for (; i < m_ScrollBar.m_nEnd && y <= m_Rect.b - m_ItemSize.y; i++, y += m_ItemSize.y)
-			{
-				float x = m_Rect.l;
-				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
-				{
-					int idx = i * m_ItemColumn + j;
-					if (idx >= m_Items.size())
-					{
-						break;
-					}
-
-					Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
-
-					ListBoxItem * item = m_Items[idx].get();
-
-					Skin->DrawString(ui_render, item->strText.c_str(), ItemRect, Skin->m_TextColor, Skin->m_TextAlign);
-				}
-			}
 		}
 	}
 }
@@ -2749,17 +2753,118 @@ bool ListBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_KEYDOWN:
+			if (wParam == VK_UP)
+			{
+				if (!m_Items.empty() && m_iFocused.x > 0)
+				{
+					m_ScrollBar.ScrollTo(--m_iFocused.x);
+
+					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)m_iFocused.y));
+				}
+				return true;
+			}
+			else if (wParam == VK_DOWN)
+			{
+				if (!m_Items.empty() && m_iFocused.x + 1 < m_ScrollBar.m_nEnd)
+				{
+					m_ScrollBar.ScrollTo(++m_iFocused.x);
+
+					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)m_iFocused.y));
+				}
+				return true;
+			}
+			else if (wParam == VK_LEFT)
+			{
+				if (!m_Items.empty() && m_iFocused.y > 0)
+				{
+					m_iFocused.x = Max(0, Min(m_ScrollBar.m_nEnd - 1, (int)m_iFocused.x));
+
+					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)--m_iFocused.y));
+				}
+			}
+			else if (wParam == VK_RIGHT)
+			{
+				if (!m_Items.empty())
+				{
+					m_iFocused.x = Max(0, Min(m_ScrollBar.m_nEnd - 1, (int)m_iFocused.x));
+
+					m_iFocused.y = Max(0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1, (int)++m_iFocused.y));
+				}
+			}
+		}
+	}
 	return false;
 }
 
 bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		if (m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
+		{
+			return true;
+		}
+
+		switch (uMsg)
+		{
+		case WM_MOUSEMOVE:
+			if (m_Rect.PtInRect(pt))
+			{
+				int i = m_ScrollBar.m_nPosition;
+				float y = m_Rect.t;
+				for (; i < m_ScrollBar.m_nEnd && y < m_Rect.b - m_ItemSize.y * 0.5f; i++, y += m_ItemSize.y)
+				{
+					float x = m_Rect.l;
+					for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
+					{
+						int idx = i * m_ItemColumn + j;
+						if (idx < m_Items.size())
+						{
+							Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
+
+							if (ItemRect.PtInRect(pt))
+							{
+								m_iFocused.SetPoint(i, j);
+								return true;
+							}
+						}
+					}
+				}
+				m_iFocused.SetPoint(-1, -1);
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			break;
+
+		case WM_LBUTTONUP:
+			if (m_bPressed)
+			{
+				m_bPressed = false;
+				SetCaptureControl(NULL);
+				return true;
+			}
+			break;
+		}
+	}
 	return false;
+}
+
+bool ListBox::CanHaveFocus(void)
+{
+	return m_bVisible && m_bEnabled;
 }
 
 void ListBox::OnLayout(void)
 {
-	m_ScrollBar.m_x = UDim(0, m_Rect.Width() - m_ScrollbarWidth);
+	m_ScrollBar.m_x = UDim(0, 0);
 
 	m_ScrollBar.m_y = UDim(0, 0);
 
@@ -2771,7 +2876,7 @@ void ListBox::OnLayout(void)
 
 	m_ScrollBar.m_Parent = this;
 
-	m_ItemColumn = Max(1, (int)(m_Rect.Width() / m_ItemSize.x));
+	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
 }
 
 void ListBox::AddItem(const std::wstring & strText)
