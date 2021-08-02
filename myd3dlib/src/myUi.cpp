@@ -2735,7 +2735,7 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 					ListBoxItem * item = m_Items[idx].get();
 
-					Skin->DrawString(ui_render, item->strText.c_str(), ItemRect, D3DCOLOR_ARGB(255, 255, 0, 0), Font::AlignCenterMiddle);
+					Skin->DrawString(ui_render, item->strText.c_str(), ItemRect, Skin->m_TextColor, Skin->m_TextAlign);
 				}
 			}
 		}
@@ -2784,7 +2784,7 @@ void ListBox::AddItem(const std::wstring & strText)
 
 	m_Items.push_back(item);
 
-	m_ScrollBar.m_nEnd = (int)floorf(m_Items.size() / (float)m_ItemColumn);
+	m_ScrollBar.m_nEnd = (int)ceilf(m_Items.size() / (float)m_ItemColumn);
 }
 
 void ListBox::RemoveAllItems(void)

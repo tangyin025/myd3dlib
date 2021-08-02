@@ -136,6 +136,7 @@ public:
 
 class Demo
 	: public DxutApp
+	, public FontLibrary
 	, public ResourceMgr
 	, public DialogMgr
 {
@@ -301,6 +302,9 @@ public:
 		image2->m_Border = Vector4(7, 7, 7, 7);
 
 		ListBoxSkinPtr skin(new ListBoxSkin());
+		skin->m_Font = LoadFont("font/wqy-microhei.ttc", 13, 0);
+		skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 0, 0);
+		skin->m_TextAlign = my::Font::AlignLeftMiddle;
 		skin->m_ScrollBarUpBtnNormalImage = image;
 		skin->m_ScrollBarUpBtnDisabledImage = image2;
 		skin->m_ScrollBarDownBtnNormalImage = image;
@@ -310,6 +314,11 @@ public:
 
 		ListBoxPtr listBox(new ListBox(NamedObject::MakeUniqueName("listbox").c_str()));
 		listBox->m_Skin = skin;
+		listBox->AddItem(L"aaa");
+		listBox->AddItem(L"bbb");
+		listBox->AddItem(L"ccc");
+		listBox->AddItem(L"ddd");
+		listBox->AddItem(L"eee");
 		m_Dlg->InsertControl(listBox);
 
 		return S_OK;
