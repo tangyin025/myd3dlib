@@ -1172,6 +1172,7 @@ namespace my
 
 		~ListBox(void)
 		{
+			m_ScrollBar.m_Parent = NULL;
 		}
 
 		friend class boost::serialization::access;

@@ -2678,8 +2678,6 @@ void ListBox::load(Archive & ar, const unsigned int version)
 
 void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
-	//Control::Draw(ui_render, fElapsedTime, Offset, Size);
-
 	if (m_bVisible)
 	{
 		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
@@ -2688,6 +2686,37 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 		{
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
+
+			m_ScrollBar.SimulateRepeatedScroll();
+
+			m_ScrollBar.m_Rect = Rectangle::RightTop(m_Rect.l + m_Rect.Width(), m_Rect.t, m_ScrollbarWidth, m_Rect.Height());
+
+			Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar.m_Rect, m_Skin->m_Color);
+
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar.m_Rect.l, m_ScrollBar.m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
+
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar.m_Rect.r, m_ScrollBar.m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
+
+			if (m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
+			{
+				Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
+
+				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
+
+				float fTrackHeight = m_ScrollBar.m_Rect.Height() - m_ScrollbarUpDownBtnHeight * 2;
+				float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
+				int nMaxPosition = m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart - m_ScrollBar.m_nPageSize;
+				float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+				Rectangle ThumbButtonRect(m_ScrollBar.m_Rect.l, fThumbTop, m_ScrollBar.m_Rect.r, fThumbTop + fThumbHeight);
+
+				Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
+			}
+			else
+			{
+				Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
+
+				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
+			}
 		}
 	}
 }
