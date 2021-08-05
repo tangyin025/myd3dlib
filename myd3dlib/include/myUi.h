@@ -1055,6 +1055,14 @@ namespace my
 
 		const Vector2 & GetDropdownSize(void) const;
 
+		void SetScrollbarWidth(float Width);
+
+		float GetScrollbarWidth(void) const;
+
+		void SetScrollbarUpDownBtnHeight(float Height);
+
+		float GetScrollbarUpDownBtnHeight(void) const;
+
 		void SetBorder(const Vector4 & Border);
 
 		const Vector4 & GetBorder(void) const;
@@ -1211,6 +1219,18 @@ namespace my
 		virtual bool CanHaveFocus(void);
 
 		virtual void OnLayout(void);
+
+		void SetScrollbarWidth(float Width);
+
+		float GetScrollbarWidth(void) const;
+
+		void SetScrollbarUpDownBtnHeight(float Height);
+
+		float GetScrollbarUpDownBtnHeight(void) const;
+
+		void SetItemSize(const my::Vector2 & ItemSize);
+
+		const my::Vector2 & GetItemSize(void) const;
 
 		void AddItem(const std::wstring& strText);
 

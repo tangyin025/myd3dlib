@@ -54,6 +54,8 @@ BOOST_CLASS_EXPORT(ComboBoxSkin)
 
 BOOST_CLASS_EXPORT(ComboBox)
 
+BOOST_CLASS_EXPORT(ListBoxSkin)
+
 BOOST_CLASS_EXPORT(ListBox)
 
 BOOST_CLASS_EXPORT(Dialog)
@@ -2546,6 +2548,30 @@ const Vector2 & ComboBox::GetDropdownSize(void) const
 	return m_DropdownSize;
 }
 
+void ComboBox::SetScrollbarWidth(float Width)
+{
+	m_ScrollbarWidth = Width;
+
+	OnLayout();
+}
+
+float ComboBox::GetScrollbarWidth(void) const
+{
+	return m_ScrollbarWidth;
+}
+
+void ComboBox::SetScrollbarUpDownBtnHeight(float Height)
+{
+	m_ScrollbarUpDownBtnHeight = Height;
+
+	OnLayout();
+}
+
+float ComboBox::GetScrollbarUpDownBtnHeight(void) const
+{
+	return m_ScrollbarUpDownBtnHeight;
+}
+
 void ComboBox::SetBorder(const Vector4 & Border)
 {
 	m_Border = Border;
@@ -2880,6 +2906,42 @@ void ListBox::OnLayout(void)
 	m_ScrollBar.m_Parent = this;
 
 	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
+}
+
+void ListBox::SetScrollbarWidth(float Width)
+{
+	m_ScrollbarWidth = Width;
+
+	OnLayout();
+}
+
+float ListBox::GetScrollbarWidth(void) const
+{
+	return m_ScrollbarWidth;
+}
+
+void ListBox::SetScrollbarUpDownBtnHeight(float Height)
+{
+	m_ScrollbarUpDownBtnHeight = Height;
+
+	OnLayout();
+}
+
+float ListBox::GetScrollbarUpDownBtnHeight(void) const
+{
+	return m_ScrollbarUpDownBtnHeight;
+}
+
+void ListBox::SetItemSize(const my::Vector2 & ItemSize)
+{
+	m_ItemSize = ItemSize;
+
+	OnLayout();
+}
+
+const my::Vector2 & ListBox::GetItemSize(void) const
+{
+	return m_ItemSize;
 }
 
 void ListBox::AddItem(const std::wstring & strText)
