@@ -1245,6 +1245,9 @@ void LuaContext::Init(void)
 			.def("SetParameter", &Material::SetParameter<my::Vector4>)
 			.def("SetParameter", &Material::SetParameter<std::string>)
 
+		, class_<CollectionObjMap>("CollectionObjMap")
+			.def(constructor<>())
+
 		, class_<Component, ComponentScript, my::NamedObject, boost::shared_ptr<Component> >("Component")
 			.def(constructor<const char *>())
 			.enum_("ComponentType")

@@ -120,14 +120,14 @@ void Component::SetMaterial(MaterialPtr material)
 	}
 }
 
-physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection)
+physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	// ! materialIndices[0] = Ps::to16((static_cast<NpMaterial*>(materials[0]))->getHandle());
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res;
+	std::pair<CollectionObjMap::iterator, bool> obj_res;
 	if (ShareSerializeCollection)
 	{
 		std::string Key = str_printf("PxMaterial %f %f %f", staticFriction, dynamicFriction, restitution);
-		obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
+		obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
 		if (!obj_res.second)
 		{
 			return obj_res.first->second->is<physx::PxMaterial>();
@@ -146,7 +146,7 @@ physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float d
 	return material;
 }
 
-void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection)
+void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -156,7 +156,7 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 		return;
 	}
 
-	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -168,7 +168,7 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	m_PxShape->userData = this;
 }
 
-void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection)
+void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -178,7 +178,7 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 		return;
 	}
 
-	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -190,7 +190,7 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	m_PxShape->userData = this;
 }
 
-void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection)
+void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -206,7 +206,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 		return;
 	}
 
-	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -218,7 +218,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	m_PxShape->userData = this;
 }
 
-void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection)
+void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -228,7 +228,7 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 		return;
 	}
 
-	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -456,14 +456,14 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-physx::PxTriangleMesh * MeshComponent::CreateTriangleMesh(bool ShareSerializeCollection)
+physx::PxTriangleMesh * MeshComponent::CreateTriangleMesh(bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res;
+	std::pair<CollectionObjMap::iterator, bool> obj_res;
 	if (ShareSerializeCollection)
 	{
 		std::string Key = str_printf("%s %d PxTriangleMesh", mesh->m_Key, m_MeshSubMeshId);
-		obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
+		obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
 		if (!obj_res.second)
 		{
 			return obj_res.first->second->is<physx::PxTriangleMesh>();
@@ -507,7 +507,7 @@ physx::PxTriangleMesh * MeshComponent::CreateTriangleMesh(bool ShareSerializeCol
 	return tri_mesh;
 }
 
-void MeshComponent::CreateTriangleMeshShape(bool ShareSerializeCollection)
+void MeshComponent::CreateTriangleMeshShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -522,9 +522,9 @@ void MeshComponent::CreateTriangleMeshShape(bool ShareSerializeCollection)
 		return;
 	}
 
-	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
-	physx::PxTriangleMesh * tri_mesh = CreateTriangleMesh(ShareSerializeCollection);
+	physx::PxTriangleMesh * tri_mesh = CreateTriangleMesh(ShareSerializeCollection, collectionObjs);
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(tri_mesh, mesh_scaling, physx::PxMeshGeometryFlags()),
@@ -535,14 +535,14 @@ void MeshComponent::CreateTriangleMeshShape(bool ShareSerializeCollection)
 	m_PxShape->userData = this;
 }
 
-physx::PxConvexMesh * MeshComponent::CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection)
+physx::PxConvexMesh * MeshComponent::CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res;
+	std::pair<CollectionObjMap::iterator, bool> obj_res;
 	if (ShareSerializeCollection)
 	{
 		std::string Key = str_printf("%s %d PxConvexMesh", mesh->m_Key, m_MeshSubMeshId);
-		obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
+		obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
 		if (!obj_res.second)
 		{
 			return obj_res.first->second->is<physx::PxConvexMesh>();
@@ -580,7 +580,7 @@ physx::PxConvexMesh * MeshComponent::CreateConvexMesh(bool bInflateConvex, bool 
 	return cvx_mesh;
 }
 
-void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection)
+void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -595,9 +595,9 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSeriali
 		return;
 	}
 
-	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
-	physx::PxConvexMesh * cvx_mesh = CreateConvexMesh(bInflateConvex, ShareSerializeCollection);
+	physx::PxConvexMesh * cvx_mesh = CreateConvexMesh(bInflateConvex, ShareSerializeCollection, collectionObjs);
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(cvx_mesh, mesh_scaling),

@@ -734,6 +734,10 @@ void Game::OnDestroyDevice(void)
 
 	m_ActorList.clear();
 
+	m_CollectionObjs.clear();
+
+	m_SerializeBuff.reset();
+
 	ClearAllState();
 
 	RemoveAllDlg();

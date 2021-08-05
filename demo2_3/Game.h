@@ -27,7 +27,7 @@ public:
 	float m_FogStartDistance;
 	float m_FogHeight;
 	float m_FogFalloff;
-	PhysxSdk::CollectionObjMap m_CollectionObjs;
+	CollectionObjMap m_CollectionObjs;
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
@@ -130,6 +130,10 @@ public:
 	typedef std::set<Actor *> ViewedActorSet;
 
 	ViewedActorSet m_ViewedActors;
+
+	CollectionObjMap m_CollectionObjs;
+
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	SceneContext::ActorPtrSet m_ActorList;
 

@@ -26,6 +26,8 @@ class Component;
 
 typedef boost::shared_ptr<Component> ComponentPtr;
 
+typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > CollectionObjMap;
+
 class Component
 	: public my::NamedObject
 	, public boost::enable_shared_from_this<Component>
@@ -151,15 +153,15 @@ public:
 		return m_Material;
 	}
 
-	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection);
+	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
 	void SetSimulationFilterWord0(unsigned int filterWord0);
 
@@ -261,13 +263,13 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	physx::PxTriangleMesh * CreateTriangleMesh(bool ShareSerializeCollection);
+	physx::PxTriangleMesh * CreateTriangleMesh(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateTriangleMeshShape(bool ShareSerializeCollection);
+	void CreateTriangleMeshShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	physx::PxConvexMesh * CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection);
+	physx::PxConvexMesh * CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection);
+	void CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
 	virtual void ClearShape(void);
 };

@@ -40,6 +40,8 @@ public:
 	CString m_strPathName;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
+	CollectionObjMap m_CollectionObjs;
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
 	SelActorList m_selactors;

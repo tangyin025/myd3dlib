@@ -159,9 +159,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	physx::PxHeightField * CreateHeightField(float HeightScale, bool ShareSerializeCollection);
+	physx::PxHeightField * CreateHeightField(float HeightScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateHeightFieldShape(bool ShareSerializeCollection);
+	void CreateHeightFieldShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
 	virtual void ClearShape(void);
 };

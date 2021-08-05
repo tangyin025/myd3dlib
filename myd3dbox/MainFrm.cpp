@@ -714,8 +714,8 @@ void CMainFrame::ClearFileContext()
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
 	LuaContext::Shutdown();
-	theApp.m_CollectionObjs.clear();
-	theApp.m_SerializeBuff.reset();
+	m_CollectionObjs.clear();
+	m_SerializeBuff.reset();
 	_ASSERT(theApp.m_NamedObjects.empty());
 	my::NamedObject::ResetUniqueNameIndex();
 }
@@ -743,9 +743,9 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	_ASSERT(pxar);
 	unsigned int StreamBuffSize;
 	*ia >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
-	theApp.m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	*ia >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(theApp.m_SerializeBuff.get(), StreamBuffSize));
-	pxar->m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(theApp.m_SerializeBuff.get(), *pxar->m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
+	m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+	*ia >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
+	pxar->m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
 	const unsigned int numObjs = pxar->m_Collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{
@@ -753,7 +753,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 		*ia >> BOOST_SERIALIZATION_NVP(Key);
 		physx::PxSerialObjectId ObjId;
 		*ia >> BOOST_SERIALIZATION_NVP(ObjId);
-		theApp.m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>(pxar->m_Collection->find(ObjId), PhysxDeleter<physx::PxBase>())));
+		m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>(pxar->m_Collection->find(ObjId), PhysxDeleter<physx::PxBase>())));
 	}
 
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
@@ -788,8 +788,8 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(oa.get());
 	_ASSERT(pxar);
 	pxar->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
-	PhysxSdk::CollectionObjMap::const_iterator collection_obj_iter = theApp.m_CollectionObjs.begin();
-	for (; collection_obj_iter != theApp.m_CollectionObjs.end(); collection_obj_iter++)
+	CollectionObjMap::const_iterator collection_obj_iter = m_CollectionObjs.begin();
+	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
 	{
 		pxar->m_Collection->add(*collection_obj_iter->second);
 	}
@@ -799,8 +799,8 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	unsigned int StreamBuffSize = ostr.getSize();
 	*oa << BOOST_SERIALIZATION_NVP(StreamBuffSize);
 	*oa << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	collection_obj_iter = theApp.m_CollectionObjs.begin();
-	for (; collection_obj_iter != theApp.m_CollectionObjs.end(); collection_obj_iter++)
+	collection_obj_iter = m_CollectionObjs.begin();
+	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
 	{
 		std::string Key = collection_obj_iter->first;
 		*oa << BOOST_SERIALIZATION_NVP(Key);

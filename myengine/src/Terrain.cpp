@@ -746,12 +746,12 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-physx::PxHeightField * Terrain::CreateHeightField(float HeightScale, bool ShareSerializeCollection)
+physx::PxHeightField * Terrain::CreateHeightField(float HeightScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
-	std::pair<PhysxSdk::CollectionObjMap::iterator, bool> obj_res;
+	std::pair<CollectionObjMap::iterator, bool> obj_res;
 	if (ShareSerializeCollection)
 	{
-		obj_res = PhysxSdk::getSingleton().m_CollectionObjs.insert(std::make_pair(m_ChunkPath, boost::shared_ptr<physx::PxBase>()));
+		obj_res = collectionObjs.insert(std::make_pair(m_ChunkPath, boost::shared_ptr<physx::PxBase>()));
 		if (!obj_res.second)
 		{
 			return obj_res.first->second->is<physx::PxHeightField>();
@@ -790,7 +790,7 @@ physx::PxHeightField * Terrain::CreateHeightField(float HeightScale, bool ShareS
 	return heightfield;
 }
 
-void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection)
+void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -813,10 +813,10 @@ void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection)
 		return;
 	}
 
-	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection);
+	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
-	physx::PxHeightField * heightfield = CreateHeightField(HeightScale, ShareSerializeCollection);
+	physx::PxHeightField * heightfield = CreateHeightField(HeightScale, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(heightfield, physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
