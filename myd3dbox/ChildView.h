@@ -15,7 +15,6 @@ class CMainDoc;
 
 class CChildView
 	: public CView
-	, public my::DialogMgr
 	, public RenderPipeline::IRenderContext
 	, public my::DrawHelper
 	, public duDebugDraw
@@ -46,6 +45,7 @@ public:
 	boost::shared_ptr<StaticEmitterStream> m_PaintEmitterCaptured;
 protected:
 
+	my::PerspectiveCamera m_UICamera;
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 	my::SurfacePtr m_SwapChainBuffer;
 	D3DSURFACE_DESC m_SwapChainBufferDesc;

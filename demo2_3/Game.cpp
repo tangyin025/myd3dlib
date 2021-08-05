@@ -972,6 +972,7 @@ void Game::OnUIRender(
 {
 	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fAbsoluteElapsedTime);
 	_ASSERT(m_Font);
+	ui_render->SetWorld(Matrix4::identity);
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 	for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)
 	{

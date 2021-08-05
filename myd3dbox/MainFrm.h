@@ -18,9 +18,10 @@ class dtNavMesh;
 class dtNavMeshQuery;
 
 class CMainFrame : public CFrameWndEx
-	, public PhysxScene
+	, public my::DialogMgr
 	, public my::OctRoot
 	, public LuaContext
+	, public PhysxScene
 {
 	
 public: // create from serialization only

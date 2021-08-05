@@ -59,6 +59,7 @@ CChildView::CChildView()
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
 	, m_bCopyActors(FALSE)
+	, m_UICamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1, 3000.0f)
 	, m_raycmp(NULL)
 	, m_raychunkid(0, 0)
 	, m_rayinstid(0)
@@ -1186,8 +1187,8 @@ void CChildView::OnPaint()
 				}
 
 				theApp.m_UIRender->Begin();
-				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f, 0.5f, 0)));
+				theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);
+				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 				if (m_bShowGrid)
 				{
 					my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
@@ -1202,6 +1203,16 @@ void CChildView::OnPaint()
 						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 					}
 				}
+				my::DialogMgr::DialogList::iterator dlg_iter = pFrame->m_DlgList.begin();
+				for (; dlg_iter != pFrame->m_DlgList.end(); dlg_iter++)
+				{
+					theApp.m_UIRender->SetWorld((*dlg_iter)->m_World);
+
+					(*dlg_iter)->Draw(theApp.m_UIRender.get(), theApp.m_fAbsoluteElapsedTime);
+
+					theApp.m_UIRender->Flush();
+				}
+				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 				for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 				{
@@ -1246,7 +1257,12 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 		_ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
 		m_Camera->UpdateViewProj();
-		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(theApp.default_fov));
+
+		m_UICamera.m_Fov = D3DXToRadian(theApp.default_fov);
+		m_UICamera.m_Euler.x = -D3DX_PI;
+		m_UICamera.m_Eye = my::Vector3(cx * 0.5f - 0.5f, cy * 0.5f - 0.5f, -cy * 0.5f * cotf(m_UICamera.m_Fov * 0.5f));
+		m_UICamera.OnViewportChanged(my::Vector2((float)cx, (float)cy));
+		m_UICamera.UpdateViewProj();
 	}
 }
 

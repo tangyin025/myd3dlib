@@ -122,6 +122,9 @@ void CScriptEdit::OnScriptExecute()
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
 		pFrame->ExecuteCode(tstou8((LPCTSTR)ret).c_str());
+
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 	}
 }
 

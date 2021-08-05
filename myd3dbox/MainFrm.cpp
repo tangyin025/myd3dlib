@@ -685,6 +685,9 @@ void CMainFrame::InitFileContext()
 		luabind::class_<CWnd> ("CWnd")
 
 		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxScene> >("MainFrame")
+			.def("InsertDlg", &CMainFrame::InsertDlg)
+			.def("RemoveDlg", &CMainFrame::RemoveDlg)
+			.def("RemoveAllDlg", &CMainFrame::RemoveAllDlg)
 			.def("AddEntity", &CMainFrame::AddEntity)
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
@@ -704,6 +707,7 @@ void CMainFrame::InitFileContext()
 void CMainFrame::ClearFileContext()
 {
 	OctRoot::ClearAllEntity();
+	DialogMgr::RemoveAllDlg();
 	m_ActorList.clear();
 	m_selactors.clear();
 	m_selcmp = NULL;
