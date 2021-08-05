@@ -104,13 +104,14 @@
 #define ID_PAINT_EMITTERINSTANCE        32802
 #define ID_COMPONENT_ANIMATOR           32803
 #define ID_COMPONENT_NAVIGATION         32804
+#define ID_CREATE_DIALOG                32805
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32805
+#define _APS_NEXT_COMMAND_VALUE         32806
 #define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

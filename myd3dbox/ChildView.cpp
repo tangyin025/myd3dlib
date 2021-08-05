@@ -1203,8 +1203,8 @@ void CChildView::OnPaint()
 						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 					}
 				}
-				my::DialogMgr::DialogList::iterator dlg_iter = pFrame->m_DlgList.begin();
-				for (; dlg_iter != pFrame->m_DlgList.end(); dlg_iter++)
+				my::DialogMgr::DialogList::iterator dlg_iter = ((my::DialogMgr*)pFrame)->m_DlgList.begin();
+				for (; dlg_iter != ((my::DialogMgr*)pFrame)->m_DlgList.end(); dlg_iter++)
 				{
 					theApp.m_UIRender->SetWorld((*dlg_iter)->m_World);
 

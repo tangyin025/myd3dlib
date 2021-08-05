@@ -233,6 +233,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_ANIMATOR, &CMainFrame::OnUpdateComponentAnimator)
 	ON_COMMAND(ID_COMPONENT_NAVIGATION, &CMainFrame::OnCreateNavigation)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_NAVIGATION, &CMainFrame::OnUpdateCreateNavigation)
+	ON_COMMAND(ID_CREATE_DIALOG, &CMainFrame::OnCreateDialog)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -709,6 +710,7 @@ void CMainFrame::ClearFileContext()
 	OctRoot::ClearAllEntity();
 	DialogMgr::RemoveAllDlg();
 	m_ActorList.clear();
+	m_DlgList.clear();
 	m_selactors.clear();
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
@@ -1672,4 +1674,18 @@ void CMainFrame::OnUpdateCreateNavigation(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selactors.empty());
+}
+
+
+void CMainFrame::OnCreateDialog()
+{
+	// TODO: Add your command handler code here
+	my::DialogSkinPtr skin(new my::DialogSkin());
+	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("editor_dialog").c_str()));
+	dlg->m_Skin = skin;
+	InsertDlg(dlg.get());
+	m_DlgList.push_back(dlg);
+
+	my::EventArg arg;
+	m_EventAttributeChanged(&arg);
 }

@@ -1253,6 +1253,8 @@ namespace my
 		}
 	};
 
+	typedef boost::shared_ptr<DialogSkin> DialogSkinPtr;
+
 	class Dialog;
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;

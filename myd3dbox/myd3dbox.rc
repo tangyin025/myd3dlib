@@ -405,6 +405,9 @@ BEGIN
         MENUITEM "Controller",                  ID_COMPONENT_CONTROLLER
         MENUITEM "Animator...",                 ID_COMPONENT_ANIMATOR
         MENUITEM "Navigation...",               ID_COMPONENT_NAVIGATION
+        MENUITEM SEPARATOR
+        MENUITEM "Dialog",                      ID_CREATE_DIALOG
+        MENUITEM SEPARATOR
     END
     POPUP "&Tools"
     BEGIN

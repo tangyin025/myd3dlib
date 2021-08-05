@@ -42,6 +42,8 @@ public:
 	ActorPtrSet m_ActorList;
 	CollectionObjMap m_CollectionObjs;
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
+	typedef std::vector<my::DialogPtr> DialogPtrSet;
+	DialogPtrSet m_DlgList;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
 	SelActorList m_selactors;
@@ -162,6 +164,7 @@ public:
 	afx_msg void OnUpdateComponentAnimator(CCmdUI* pCmdUI);
 	afx_msg void OnCreateNavigation();
 	afx_msg void OnUpdateCreateNavigation(CCmdUI* pCmdUI);
+	afx_msg void OnCreateDialog();
 };
 
 
