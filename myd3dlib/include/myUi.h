@@ -81,37 +81,57 @@ namespace my
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
 
+	class ControlImage;
+
+	typedef boost::shared_ptr<ControlImage> ControlImagePtr;
+
 	class ControlImage
 	{
 	public:
+		std::string m_TexturePath;
+
 		BaseTexturePtr m_Texture;
 
 		Rectangle m_Rect;
 
 		Vector4 m_Border;
 
+		bool m_Requested;
+
 		ControlImage(void)
 			: m_Rect(0,0,100,100)
 			, m_Border(0,0,0,0)
+			, m_Requested(false)
 		{
 		}
 
-		friend class boost::serialization::access;
-
-		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
+		~ControlImage(void);
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			boost::serialization::split_member(ar, *this, version);
+			ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
+			ar & BOOST_SERIALIZATION_NVP(m_Rect);
+			ar & BOOST_SERIALIZATION_NVP(m_Border);
 		}
+
+		bool IsRequested(void) const
+		{
+			return m_Requested;
+		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void OnImageReady(my::DeviceResourceBasePtr res);
+
+		virtual ControlImagePtr Clone(void) const;
 	};
 
-	typedef boost::shared_ptr<ControlImage> ControlImagePtr;
+	class ControlSkin;
+
+	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
 	class ControlSkin
 	{
@@ -119,6 +139,12 @@ namespace my
 		D3DCOLOR m_Color;
 
 		ControlImagePtr m_Image;
+
+		std::string m_FontPath;
+
+		int m_FontHeight;
+
+		int m_FontFaceIndex;
 
 		FontPtr m_Font;
 
@@ -136,36 +162,57 @@ namespace my
 
 		std::string m_MouseClickSound;
 
+		bool m_Requested;
+
 	public:
 		ControlSkin(void)
 			: m_Color(D3DCOLOR_ARGB(255, 255, 255, 255))
+			, m_FontHeight(13)
+			, m_FontFaceIndex(0)
 			, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
 			, m_TextAlign(Font::AlignLeftTop)
+			, m_Requested(false)
 		{
 		}
 
 		virtual ~ControlSkin(void);
 
-		friend class boost::serialization::access;
-
-		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
-
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			boost::serialization::split_member(ar, *this, version);
+			ar & BOOST_SERIALIZATION_NVP(m_Color);
+			ar & BOOST_SERIALIZATION_NVP(m_Image);
+			ar & BOOST_SERIALIZATION_NVP(m_FontPath);
+			ar & BOOST_SERIALIZATION_NVP(m_FontHeight);
+			ar & BOOST_SERIALIZATION_NVP(m_FontFaceIndex);
+			ar & BOOST_SERIALIZATION_NVP(m_TextColor);
+			ar & BOOST_SERIALIZATION_NVP(m_TextAlign);
+			ar & BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
+			ar & BOOST_SERIALIZATION_NVP(m_VisibleHideSound);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseClickSound);
 		}
 
-		void DrawImage(UIRender * ui_render, ControlImagePtr Image, const Rectangle & rect, DWORD color);
+		bool IsRequested(void) const
+		{
+			return m_Requested;
+		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void OnFontReady(my::DeviceResourceBasePtr res);
+
+		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color);
 
 		void DrawString(UIRender * ui_render, LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
-	};
 
-	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
+		void CopyFrom(const ControlSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
+	};
 
 	class Control;
 
@@ -242,6 +289,8 @@ namespace my
 
 		static Control * s_MouseOverControl;
 
+		bool m_Requested;
+
 		bool m_bEnabled;
 
 		bool m_bVisible;
@@ -276,7 +325,8 @@ namespace my
 
 	protected:
 		Control(void)
-			: m_bEnabled(true)
+			: m_Requested(false)
+			, m_bEnabled(true)
 			, m_bVisible(true)
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
@@ -294,6 +344,7 @@ namespace my
 	public:
 		Control(const char * Name)
 			: NamedObject(Name)
+			, m_Requested(false)
 			, m_bEnabled(true)
 			, m_bVisible(true)
 			, m_bMouseOver(false)
@@ -324,6 +375,15 @@ namespace my
 		{
 			boost::serialization::split_member(ar, *this, version);
 		}
+
+		bool IsRequested(void) const
+		{
+			return m_Requested;
+		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
 
 		virtual ControlType GetControlType(void) const
 		{
@@ -445,6 +505,14 @@ namespace my
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
 			ar & BOOST_SERIALIZATION_NVP(m_ForegroundImage);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const ProgressBarSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ProgressBarSkin> ProgressBarSkinPtr;
@@ -514,6 +582,14 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_MouseOverImage);
 			ar & BOOST_SERIALIZATION_NVP(m_PressedOffset);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const ButtonSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
@@ -593,6 +669,14 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_CaretColor);
 			ar & BOOST_SERIALIZATION_NVP(m_CaretImage);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const EditBoxSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<EditBoxSkin> EditBoxSkinPtr;
@@ -798,6 +882,14 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_DownBtnDisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ThumbBtnNormalImage);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const ScrollBarSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ScrollBarSkin> ScrollBarSkinPtr;
@@ -991,6 +1083,14 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarThumbBtnNormalImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarImage);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const ComboBoxSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ComboBoxSkin> ComboBoxSkinPtr;
@@ -1192,6 +1292,14 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarThumbBtnNormalImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarImage);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const ListBoxSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ListBoxSkin> ListBoxSkinPtr;
@@ -1318,6 +1426,14 @@ namespace my
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
 		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void CopyFrom(const DialogSkin & rhs);
+
+		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<DialogSkin> DialogSkinPtr;

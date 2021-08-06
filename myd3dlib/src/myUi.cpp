@@ -236,79 +236,102 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 	PushWindowSimple(vertex_list, start, rect, color, WindowRect, WindowBorder, TextureSize);
 }
 
-template<class Archive>
-void ControlImage::save(Archive & ar, const unsigned int version) const
+ControlImage::~ControlImage(void)
 {
-	std::string TexturePath(m_Texture->m_Key);
-	ar << BOOST_SERIALIZATION_NVP(TexturePath);
-	ar << BOOST_SERIALIZATION_NVP(m_Rect);
-	ar << BOOST_SERIALIZATION_NVP(m_Border);
+	if (IsRequested())
+	{
+		_ASSERT(false); ReleaseResource();
+	}
 }
 
-template<class Archive>
-void ControlImage::load(Archive & ar, const unsigned int version)
+void ControlImage::RequestResource(void)
 {
-	std::string TexturePath;
-	ar >> BOOST_SERIALIZATION_NVP(TexturePath);
-	if (!TexturePath.empty())
+	m_Requested = true;
+
+	if (!m_TexturePath.empty())
 	{
-		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(TexturePath.c_str());
+		_ASSERT(!m_Texture);
+
+		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), boost::bind(&ControlImage::OnImageReady, this, boost::placeholders::_1), INT_MAX);
 	}
-	ar >> BOOST_SERIALIZATION_NVP(m_Rect);
-	ar >> BOOST_SERIALIZATION_NVP(m_Border);
+}
+
+void ControlImage::ReleaseResource(void)
+{
+	m_Requested = false;
+
+	if (!m_TexturePath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath.c_str(), boost::bind(&ControlImage::OnImageReady, this, boost::placeholders::_1));
+
+		m_Texture.reset();
+	}
+}
+
+void ControlImage::OnImageReady(my::DeviceResourceBasePtr res)
+{
+	m_Texture = boost::dynamic_pointer_cast<BaseTexture>(res);
+}
+
+ControlImagePtr ControlImage::Clone(void) const
+{
+	ControlImagePtr ret(new ControlImage());
+	ret->m_TexturePath = m_TexturePath;
+	ret->m_Rect = m_Rect;
+	ret->m_Border = m_Border;
+	return ret;
 }
 
 ControlSkin::~ControlSkin(void)
 {
-}
-
-template<class Archive>
-void ControlSkin::save(Archive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_NVP(m_Color);
-	ar << BOOST_SERIALIZATION_NVP(m_Image);
-	std::vector<std::string> FontSeq;
-	boost::algorithm::split(FontSeq, m_Font->m_Key, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-	std::string FontPath = FontSeq.size() > 0 ? FontSeq[0] : std::string();
-	int FontHeight = FontSeq.size() > 1 ? boost::lexical_cast<int>(FontSeq[1]) : 13;
-	int FontFaceIndex = FontSeq.size() > 2 ? boost::lexical_cast<int>(FontSeq[2]) : 0;
-	ar << BOOST_SERIALIZATION_NVP(FontPath);
-	ar << BOOST_SERIALIZATION_NVP(FontHeight);
-	ar << BOOST_SERIALIZATION_NVP(FontFaceIndex);
-	ar << BOOST_SERIALIZATION_NVP(m_TextColor);
-	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
-	ar << BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
-	ar << BOOST_SERIALIZATION_NVP(m_VisibleHideSound);
-	ar << BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
-	ar << BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
-	ar << BOOST_SERIALIZATION_NVP(m_MouseClickSound);
-}
-
-template<class Archive>
-void ControlSkin::load(Archive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_NVP(m_Color);
-	ar >> BOOST_SERIALIZATION_NVP(m_Image);
-	std::string FontPath;
-	ar >> BOOST_SERIALIZATION_NVP(FontPath);
-	int FontHeight;
-	ar >> BOOST_SERIALIZATION_NVP(FontHeight);
-	int FontFaceIndex;
-	ar >> BOOST_SERIALIZATION_NVP(FontFaceIndex);
-	if (!FontPath.empty())
+	if (IsRequested())
 	{
-		m_Font = my::ResourceMgr::getSingleton().LoadFont(FontPath.c_str(), FontHeight, FontFaceIndex);
+		_ASSERT(false); ReleaseResource();
 	}
-	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
-	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);
-	ar >> BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
-	ar >> BOOST_SERIALIZATION_NVP(m_VisibleHideSound);
-	ar >> BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
-	ar >> BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
-	ar >> BOOST_SERIALIZATION_NVP(m_MouseClickSound);
 }
 
-void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
+void ControlSkin::RequestResource(void)
+{
+	m_Requested = true;
+
+	if (m_Image)
+	{
+		m_Image->RequestResource();
+	}
+
+	if (!m_FontPath.empty())
+	{
+		_ASSERT(!m_Font);
+
+		my::ResourceMgr::getSingleton().LoadFontAsync(m_FontPath.c_str(), m_FontHeight, m_FontFaceIndex, boost::bind(&ControlSkin::OnFontReady, this, boost::placeholders::_1), INT_MAX);
+	}
+}
+
+void ControlSkin::ReleaseResource(void)
+{
+	m_Requested = false;
+
+	if (m_Image)
+	{
+		m_Image->ReleaseResource();
+	}
+
+	if (!m_FontPath.empty())
+	{
+		std::string Key = my::FontIORequest::BuildKey(m_FontPath.c_str(), m_FontHeight, m_FontFaceIndex);
+
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(Key.c_str(), boost::bind(&ControlSkin::OnFontReady, this, boost::placeholders::_1));
+
+		m_Font.reset();
+	}
+}
+
+void ControlSkin::OnFontReady(my::DeviceResourceBasePtr res)
+{
+	m_Font = boost::dynamic_pointer_cast<Font>(res);
+}
+
+void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const my::Rectangle & rect, DWORD color)
 {
 	if(Image && Image->m_Texture)
 	{
@@ -335,6 +358,32 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 	{
 		m_Font->PushString(ui_render, pString, rect, TextColor, TextAlign);
 	}
+}
+
+void ControlSkin::CopyFrom(const ControlSkin & rhs)
+{
+	m_Color = rhs.m_Color;
+	if (rhs.m_Image)
+	{
+		m_Image = rhs.m_Image->Clone();
+	}
+	m_FontPath = rhs.m_FontPath;
+	m_FontHeight = rhs.m_FontHeight;
+	m_FontFaceIndex = rhs.m_FontFaceIndex;
+	m_TextColor = rhs.m_TextColor;
+	m_TextAlign = rhs.m_TextAlign;
+	m_VisibleShowSound = rhs.m_VisibleShowSound;
+	m_VisibleHideSound = rhs.m_VisibleHideSound;
+	m_MouseEnterSound = rhs.m_MouseEnterSound;
+	m_MouseLeaveSound = rhs.m_MouseLeaveSound;
+	m_MouseClickSound = rhs.m_MouseClickSound;
+}
+
+ControlSkinPtr ControlSkin::Clone(void) const
+{
+	ControlSkinPtr ret(new ControlSkin());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 Control * Control::s_FocusControl = NULL;
@@ -403,6 +452,46 @@ void Control::load(Archive & ar, const unsigned int version)
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
 		(*ctrl_iter)->m_Parent = this;
+	}
+}
+
+void Control::RequestResource(void)
+{
+	m_Requested = true;
+
+	if (m_Skin)
+	{
+		_ASSERT(!m_Skin->IsRequested());
+
+		m_Skin->RequestResource();
+	}
+
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		_ASSERT(!(*ctrl_iter)->IsRequested());
+
+		(*ctrl_iter)->RequestResource();
+	}
+}
+
+void Control::ReleaseResource(void)
+{
+	m_Requested = false;
+
+	if (m_Skin)
+	{
+		_ASSERT(m_Skin->IsRequested());
+
+		m_Skin->ReleaseResource();
+	}
+
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		_ASSERT((*ctrl_iter)->IsRequested());
+
+		(*ctrl_iter)->ReleaseResource();
 	}
 }
 
@@ -628,6 +717,11 @@ void Control::InsertControl(ControlPtr control)
 	m_Childs.push_back(control);
 
 	control->m_Parent = this;
+
+	if (IsRequested() && !control->IsRequested())
+	{
+		control->RequestResource();
+	}
 }
 
 void Control::RemoveControl(ControlPtr control)
@@ -638,6 +732,11 @@ void Control::RemoveControl(ControlPtr control)
 		_ASSERT((*ctrl_iter)->m_Parent == this);
 
 		(*ctrl_iter)->m_Parent = NULL;
+
+		if ((*ctrl_iter)->IsRequested())
+		{
+			(*ctrl_iter)->ReleaseResource();
+		}
 
 		m_Childs.erase(ctrl_iter);
 	}
@@ -805,6 +904,40 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	}
 }
 
+void ProgressBarSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+	if (m_ForegroundImage)
+	{
+		m_ForegroundImage->RequestResource();
+	}
+}
+
+void ProgressBarSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+	if (m_ForegroundImage)
+	{
+		m_ForegroundImage->ReleaseResource();
+	}
+}
+
+void ProgressBarSkin::CopyFrom(const ProgressBarSkin & rhs)
+{
+	ControlSkin::CopyFrom(rhs);
+	if (rhs.m_ForegroundImage)
+	{
+		m_ForegroundImage = rhs.m_ForegroundImage->Clone();
+	}
+}
+
+ControlSkinPtr ProgressBarSkin::Clone(void) const
+{
+	ProgressBarSkinPtr ret(new ProgressBarSkin());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
@@ -829,6 +962,65 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
+}
+
+void ButtonSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+	if (m_DisabledImage)
+	{
+		m_DisabledImage->RequestResource();
+	}
+	if (m_PressedImage)
+	{
+		m_PressedImage->RequestResource();
+	}
+	if (m_MouseOverImage)
+	{
+		m_MouseOverImage->RequestResource();
+	}
+}
+
+void ButtonSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+	if (m_DisabledImage)
+	{
+		m_DisabledImage->ReleaseResource();
+	}
+	if (m_PressedImage)
+	{
+		m_PressedImage->ReleaseResource();
+	}
+	if (m_MouseOverImage)
+	{
+		m_MouseOverImage->ReleaseResource();
+	}
+}
+
+void ButtonSkin::CopyFrom(const ButtonSkin & rhs)
+{
+	ControlSkin::CopyFrom(rhs);
+	if (rhs.m_DisabledImage)
+	{
+		m_DisabledImage = rhs.m_DisabledImage->Clone();
+	}
+	if (rhs.m_PressedImage)
+	{
+		m_PressedImage = rhs.m_PressedImage->Clone();
+	}
+	if (rhs.m_MouseOverImage)
+	{
+		m_MouseOverImage = rhs.m_MouseOverImage->Clone();
+	}
+	m_PressedOffset = rhs.m_PressedOffset;
+}
+
+ControlSkinPtr ButtonSkin::Clone(void) const
+{
+	ButtonSkinPtr ret(new ButtonSkin());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
@@ -996,6 +1188,66 @@ void Button::OnHotkey(void)
 bool Button::HitTest(const Vector2 & pt)
 {
 	return Control::HitTest(pt);
+}
+
+void EditBoxSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+	if (m_DisabledImage)
+	{
+		m_DisabledImage->RequestResource();
+	}
+	if (m_FocusedImage)
+	{
+		m_FocusedImage->RequestResource();
+	}
+	if (m_CaretImage)
+	{
+		m_CaretImage->RequestResource();
+	}
+}
+
+void EditBoxSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+	if (m_DisabledImage)
+	{
+		m_DisabledImage->ReleaseResource();
+	}
+	if (m_FocusedImage)
+	{
+		m_FocusedImage->ReleaseResource();
+	}
+	if (m_CaretImage)
+	{
+		m_CaretImage->ReleaseResource();
+	}
+}
+
+void EditBoxSkin::CopyFrom(const EditBoxSkin & rhs)
+{
+	ControlSkin::CopyFrom(rhs);
+	if (rhs.m_DisabledImage)
+	{
+		m_DisabledImage = rhs.m_DisabledImage->Clone();
+	}
+	if (rhs.m_FocusedImage)
+	{
+		m_FocusedImage = rhs.m_FocusedImage->Clone();
+	}
+	m_SelBkColor = rhs.m_SelBkColor;
+	m_CaretColor = rhs.m_CaretColor;
+	if (rhs.m_CaretImage)
+	{
+		m_CaretImage = rhs.m_CaretImage->Clone();
+	}
+}
+
+ControlSkinPtr EditBoxSkin::Clone(void) const
+{
+	EditBoxSkinPtr ret(new EditBoxSkin());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
@@ -1843,6 +2095,88 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 	}
 }
 
+void ScrollBarSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+	if (m_UpBtnNormalImage)
+	{
+		m_UpBtnNormalImage->RequestResource();
+	}
+	if (m_UpBtnDisabledImage)
+	{
+		m_UpBtnDisabledImage->RequestResource();
+	}
+	if (m_DownBtnNormalImage)
+	{
+		m_DownBtnNormalImage->RequestResource();
+	}
+	if (m_DownBtnDisabledImage)
+	{
+		m_DownBtnDisabledImage->RequestResource();
+	}
+	if (m_ThumbBtnNormalImage)
+	{
+		m_ThumbBtnNormalImage->RequestResource();
+	}
+}
+
+void ScrollBarSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+	if (m_UpBtnNormalImage)
+	{
+		m_UpBtnNormalImage->ReleaseResource();
+	}
+	if (m_UpBtnDisabledImage)
+	{
+		m_UpBtnDisabledImage->ReleaseResource();
+	}
+	if (m_DownBtnNormalImage)
+	{
+		m_DownBtnNormalImage->ReleaseResource();
+	}
+	if (m_DownBtnDisabledImage)
+	{
+		m_DownBtnDisabledImage->ReleaseResource();
+	}
+	if (m_ThumbBtnNormalImage)
+	{
+		m_ThumbBtnNormalImage->ReleaseResource();
+	}
+}
+
+void ScrollBarSkin::CopyFrom(const ScrollBarSkin & rhs)
+{
+	ControlSkin::CopyFrom(rhs);
+	if (rhs.m_UpBtnNormalImage)
+	{
+		m_UpBtnNormalImage = rhs.m_UpBtnNormalImage->Clone();
+	}
+	if (rhs.m_UpBtnDisabledImage)
+	{
+		m_UpBtnDisabledImage = rhs.m_UpBtnDisabledImage->Clone();
+	}
+	if (rhs.m_DownBtnNormalImage)
+	{
+		m_DownBtnNormalImage = rhs.m_DownBtnNormalImage->Clone();
+	}
+	if (rhs.m_DownBtnDisabledImage)
+	{
+		m_DownBtnDisabledImage = rhs.m_DownBtnDisabledImage->Clone();
+	}
+	if (rhs.m_ThumbBtnNormalImage)
+	{
+		m_ThumbBtnNormalImage = rhs.m_ThumbBtnNormalImage->Clone();
+	}
+}
+
+ControlSkinPtr ScrollBarSkin::Clone(void) const
+{
+	ScrollBarSkinPtr ret(new ScrollBarSkin());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	SimulateRepeatedScroll();
@@ -2212,6 +2546,126 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		}
 	}
 	return false;
+}
+
+void ComboBoxSkin::RequestResource(void)
+{
+	ButtonSkin::RequestResource();
+	if (m_DropdownImage)
+	{
+		m_DropdownImage->RequestResource();
+	}
+	if (m_DropdownItemMouseOverImage)
+	{
+		m_DropdownItemMouseOverImage->RequestResource();
+	}
+	if (m_ScrollBarUpBtnNormalImage)
+	{
+		m_ScrollBarUpBtnNormalImage->RequestResource();
+	}
+	if (m_ScrollBarUpBtnDisabledImage)
+	{
+		m_ScrollBarUpBtnDisabledImage->RequestResource();
+	}
+	if (m_ScrollBarDownBtnNormalImage)
+	{
+		m_ScrollBarDownBtnNormalImage->RequestResource();
+	}
+	if (m_ScrollBarDownBtnDisabledImage)
+	{
+		m_ScrollBarDownBtnDisabledImage->RequestResource();
+	}
+	if (m_ScrollBarThumbBtnNormalImage)
+	{
+		m_ScrollBarThumbBtnNormalImage->RequestResource();
+	}
+	if (m_ScrollBarImage)
+	{
+		m_ScrollBarImage->RequestResource();
+	}
+}
+
+void ComboBoxSkin::ReleaseResource(void)
+{
+	ButtonSkin::ReleaseResource();
+	if (m_DropdownImage)
+	{
+		m_DropdownImage->ReleaseResource();
+	}
+	if (m_DropdownItemMouseOverImage)
+	{
+		m_DropdownItemMouseOverImage->ReleaseResource();
+	}
+	if (m_ScrollBarUpBtnNormalImage)
+	{
+		m_ScrollBarUpBtnNormalImage->ReleaseResource();
+	}
+	if (m_ScrollBarUpBtnDisabledImage)
+	{
+		m_ScrollBarUpBtnDisabledImage->ReleaseResource();
+	}
+	if (m_ScrollBarDownBtnNormalImage)
+	{
+		m_ScrollBarDownBtnNormalImage->ReleaseResource();
+	}
+	if (m_ScrollBarDownBtnDisabledImage)
+	{
+		m_ScrollBarDownBtnDisabledImage->ReleaseResource();
+	}
+	if (m_ScrollBarThumbBtnNormalImage)
+	{
+		m_ScrollBarThumbBtnNormalImage->ReleaseResource();
+	}
+	if (m_ScrollBarImage)
+	{
+		m_ScrollBarImage->ReleaseResource();
+	}
+}
+
+void ComboBoxSkin::CopyFrom(const ComboBoxSkin & rhs)
+{
+	ButtonSkin::CopyFrom(rhs);
+	if (rhs.m_DropdownImage)
+	{
+		m_DropdownImage = rhs.m_DropdownImage->Clone();
+	}
+	m_DropdownItemTextColor = rhs.m_DropdownItemTextColor;
+	m_DropdownItemTextAlign = rhs.m_DropdownItemTextAlign;
+	if (rhs.m_DropdownItemMouseOverImage)
+	{
+		m_DropdownItemMouseOverImage = rhs.m_DropdownItemMouseOverImage->Clone();
+	}
+	if (rhs.m_ScrollBarUpBtnNormalImage)
+	{
+		m_ScrollBarUpBtnNormalImage = rhs.m_ScrollBarUpBtnNormalImage->Clone();
+	}
+	if (rhs.m_ScrollBarUpBtnDisabledImage)
+	{
+		m_ScrollBarUpBtnDisabledImage = rhs.m_ScrollBarUpBtnDisabledImage->Clone();
+	}
+	if (rhs.m_ScrollBarDownBtnNormalImage)
+	{
+		m_ScrollBarDownBtnNormalImage = rhs.m_ScrollBarDownBtnNormalImage->Clone();
+	}
+	if (rhs.m_ScrollBarDownBtnDisabledImage)
+	{
+		m_ScrollBarDownBtnDisabledImage = rhs.m_ScrollBarDownBtnDisabledImage->Clone();
+	}
+	if (rhs.m_ScrollBarThumbBtnNormalImage)
+	{
+		m_ScrollBarThumbBtnNormalImage = rhs.m_ScrollBarThumbBtnNormalImage->Clone();
+	}
+	if (rhs.m_ScrollBarImage)
+	{
+		m_ScrollBarImage = rhs.m_ScrollBarImage->Clone();
+	}
+}
+
+ControlSkinPtr ComboBoxSkin::Clone(void) const
+{
+	ComboBoxSkinPtr ret(new ComboBoxSkin());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 template<class Archive>
@@ -2698,6 +3152,112 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
+void ListBoxSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+	if (m_MouseOverImage)
+	{
+		m_MouseOverImage->RequestResource();
+	}
+	if (m_ScrollBarUpBtnNormalImage)
+	{
+		m_ScrollBarUpBtnNormalImage->RequestResource();
+	}
+	if (m_ScrollBarUpBtnDisabledImage)
+	{
+		m_ScrollBarUpBtnDisabledImage->RequestResource();
+	}
+	if (m_ScrollBarDownBtnNormalImage)
+	{
+		m_ScrollBarDownBtnNormalImage->RequestResource();
+	}
+	if (m_ScrollBarDownBtnDisabledImage)
+	{
+		m_ScrollBarDownBtnDisabledImage->RequestResource();
+	}
+	if (m_ScrollBarThumbBtnNormalImage)
+	{
+		m_ScrollBarThumbBtnNormalImage->RequestResource();
+	}
+	if (m_ScrollBarImage)
+	{
+		m_ScrollBarImage->RequestResource();
+	}
+}
+
+void ListBoxSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+	if (m_MouseOverImage)
+	{
+		m_MouseOverImage->ReleaseResource();
+	}
+	if (m_ScrollBarUpBtnNormalImage)
+	{
+		m_ScrollBarUpBtnNormalImage->ReleaseResource();
+	}
+	if (m_ScrollBarUpBtnDisabledImage)
+	{
+		m_ScrollBarUpBtnDisabledImage->ReleaseResource();
+	}
+	if (m_ScrollBarDownBtnNormalImage)
+	{
+		m_ScrollBarDownBtnNormalImage->ReleaseResource();
+	}
+	if (m_ScrollBarDownBtnDisabledImage)
+	{
+		m_ScrollBarDownBtnDisabledImage->ReleaseResource();
+	}
+	if (m_ScrollBarThumbBtnNormalImage)
+	{
+		m_ScrollBarThumbBtnNormalImage->ReleaseResource();
+	}
+	if (m_ScrollBarImage)
+	{
+		m_ScrollBarImage->ReleaseResource();
+	}
+}
+
+void ListBoxSkin::CopyFrom(const ListBoxSkin & rhs)
+{
+	ControlSkin::CopyFrom(rhs);
+	if (rhs.m_MouseOverImage)
+	{
+		m_MouseOverImage = rhs.m_MouseOverImage->Clone();
+	}
+	if (rhs.m_ScrollBarUpBtnNormalImage)
+	{
+		m_ScrollBarUpBtnNormalImage = rhs.m_ScrollBarUpBtnNormalImage->Clone();
+	}
+	if (rhs.m_ScrollBarUpBtnDisabledImage)
+	{
+		m_ScrollBarUpBtnDisabledImage = rhs.m_ScrollBarUpBtnDisabledImage->Clone();
+	}
+	if (rhs.m_ScrollBarDownBtnNormalImage)
+	{
+		m_ScrollBarDownBtnNormalImage = rhs.m_ScrollBarDownBtnNormalImage->Clone();
+	}
+	if (rhs.m_ScrollBarDownBtnDisabledImage)
+	{
+		m_ScrollBarDownBtnDisabledImage = rhs.m_ScrollBarDownBtnDisabledImage->Clone();
+	}
+	if (rhs.m_ScrollBarThumbBtnNormalImage)
+	{
+		m_ScrollBarThumbBtnNormalImage = rhs.m_ScrollBarThumbBtnNormalImage->Clone();
+	}
+	if (rhs.m_ScrollBarImage)
+	{
+		m_ScrollBarImage = rhs.m_ScrollBarImage->Clone();
+	}
+}
+
+ControlSkinPtr ListBoxSkin::Clone(void) const
+{
+	ListBoxSkinPtr ret(new ListBoxSkin());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 template<class Archive>
 void ListBox::save(Archive & ar, const unsigned int version) const
 {
@@ -2971,6 +3531,28 @@ void ListBox::RemoveAllItems(void)
 	m_Items.clear();
 
 	m_ScrollBar.m_nEnd = 0;
+}
+
+void DialogSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+}
+
+void DialogSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+}
+
+void DialogSkin::CopyFrom(const DialogSkin & rhs)
+{
+	ControlSkin::CopyFrom(rhs);
+}
+
+ControlSkinPtr DialogSkin::Clone(void) const
+{
+	DialogSkinPtr ret(new DialogSkin());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 Dialog::~Dialog(void)
@@ -3401,6 +3983,11 @@ void DialogMgr::InsertDlg(Dialog * dlg)
 
 	dlg->m_Parent = this;
 
+	if (!dlg->IsRequested())
+	{
+		dlg->RequestResource();
+	}
+
 	if(dlg->m_EventAlign)
 	{
 		ControlEventArg arg(dlg);
@@ -3421,6 +4008,11 @@ void DialogMgr::RemoveDlg(Dialog * dlg)
 		}
 
 		(*dlg_iter)->m_Parent = NULL;
+
+		if ((*dlg_iter)->IsRequested())
+		{
+			(*dlg_iter)->ReleaseResource();
+		}
 
 		m_DlgList.erase(dlg_iter);
 	}

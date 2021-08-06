@@ -1223,6 +1223,7 @@ void CChildView::OnPaint()
 					{
 						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 					}
+					theApp.m_UIRender->Flush();
 				}
 				my::DialogMgr::DialogList::iterator dlg_iter = ((my::DialogMgr*)pFrame)->m_DlgList.begin();
 				for (; dlg_iter != ((my::DialogMgr*)pFrame)->m_DlgList.end(); dlg_iter++)

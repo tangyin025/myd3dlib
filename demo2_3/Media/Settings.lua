@@ -6,7 +6,7 @@ dlg.x=UDim(0.5,-320)
 dlg.y=UDim(0.5,-240)
 dlg.Width=UDim(0,640)
 dlg.Height=UDim(0,480)
-dlg.Skin=CommonUI.com_dlg_skin
+dlg.Skin=CommonUI.com_dlg_skin:Clone()
 
 local lbl_title=Control(NamedObject.MakeUniqueName("control"))
 lbl_title.x=UDim(0,17)
@@ -15,7 +15,7 @@ lbl_title.Width=UDim(0,256)
 lbl_title.Height=UDim(0,42)
 lbl_title.Skin=ControlSkin()
 lbl_title.Skin.Image=ControlImage()
-lbl_title.Skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")
+lbl_title.Skin.Image.TexturePath="texture/CommonUI.png"
 lbl_title.Skin.Image.Rect=Rectangle.LeftTop(0,0,256,42)
 lbl_title.Skin.Image.Border=Vector4(0,0,0,0)
 dlg:InsertControl(lbl_title)
@@ -26,7 +26,7 @@ btn_ok.y=UDim(0,439)
 btn_ok.Width=UDim(0,80)
 btn_ok.Height=UDim(0,32)
 btn_ok.Text="OK"
-btn_ok.Skin=CommonUI.com_btn_skin
+btn_ok.Skin=CommonUI.com_btn_skin:Clone()
 dlg:InsertControl(btn_ok)
 
 local btn_cancel=Button("btn_cancel")
@@ -35,7 +35,7 @@ btn_cancel.y=UDim(0,439)
 btn_cancel.Width=UDim(0,80)
 btn_cancel.Height=UDim(0,32)
 btn_cancel.Text="Cancel"
-btn_cancel.Skin=CommonUI.com_btn_skin
+btn_cancel.Skin=CommonUI.com_btn_skin:Clone()
 dlg:InsertControl(btn_cancel)
 
 local item_y=390
@@ -46,7 +46,7 @@ lbl_vertical_sync.y=UDim(0,item_y)
 lbl_vertical_sync.Width=UDim(0,190)
 lbl_vertical_sync.Height=UDim(0,22)
 lbl_vertical_sync.Text="Vertical Sync"
-lbl_vertical_sync.Skin=CommonUI.com_lbl_skin
+lbl_vertical_sync.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_vertical_sync.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_vertical_sync)
 
@@ -59,7 +59,7 @@ cbx_vertical_sync.ScrollbarWidth=20
 cbx_vertical_sync.DropdownSize=Vector2(304-20,130)
 cbx_vertical_sync.Border=Vector4(20,0,20,0)
 cbx_vertical_sync.ItemHeight=22
-cbx_vertical_sync.Skin=CommonUI.com_cbx_skin
+cbx_vertical_sync.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_vertical_sync)
 
 item_y=item_y-item_height
@@ -69,7 +69,7 @@ lbl_vertex_processing.y=UDim(0,item_y)
 lbl_vertex_processing.Width=UDim(0,190)
 lbl_vertex_processing.Height=UDim(0,22)
 lbl_vertex_processing.Text="Vertex Processing"
-lbl_vertex_processing.Skin=CommonUI.com_lbl_skin
+lbl_vertex_processing.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_vertex_processing.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_vertex_processing)
 
@@ -82,7 +82,7 @@ cbx_vertex_processing.ScrollbarWidth=20
 cbx_vertex_processing.DropdownSize=Vector2(304-20,130)
 cbx_vertex_processing.Border=Vector4(20,0,20,0)
 cbx_vertex_processing.ItemHeight=22
-cbx_vertex_processing.Skin=CommonUI.com_cbx_skin
+cbx_vertex_processing.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_vertex_processing)
 
 item_y=item_y-item_height
@@ -92,7 +92,7 @@ lbl_multisample_quality.y=UDim(0,item_y)
 lbl_multisample_quality.Width=UDim(0,190)
 lbl_multisample_quality.Height=UDim(0,22)
 lbl_multisample_quality.Text="Multisample Quality"
-lbl_multisample_quality.Skin=CommonUI.com_lbl_skin
+lbl_multisample_quality.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_multisample_quality.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_multisample_quality)
 
@@ -105,7 +105,7 @@ cbx_multisample_quality.ScrollbarWidth=20
 cbx_multisample_quality.DropdownSize=Vector2(304-20,130)
 cbx_multisample_quality.Border=Vector4(20,0,20,0)
 cbx_multisample_quality.ItemHeight=22
-cbx_multisample_quality.Skin=CommonUI.com_cbx_skin
+cbx_multisample_quality.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_multisample_quality)
 
 item_y=item_y-item_height
@@ -115,7 +115,7 @@ lbl_multisample_type.y=UDim(0,item_y)
 lbl_multisample_type.Width=UDim(0,190)
 lbl_multisample_type.Height=UDim(0,22)
 lbl_multisample_type.Text="Multisample Type"
-lbl_multisample_type.Skin=CommonUI.com_lbl_skin
+lbl_multisample_type.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_multisample_type.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_multisample_type)
 
@@ -128,7 +128,7 @@ cbx_multisample_type.ScrollbarWidth=20
 cbx_multisample_type.DropdownSize=Vector2(304-20,130)
 cbx_multisample_type.Border=Vector4(20,0,20,0)
 cbx_multisample_type.ItemHeight=22
-cbx_multisample_type.Skin=CommonUI.com_cbx_skin
+cbx_multisample_type.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_multisample_type)
 
 item_y=item_y-item_height
@@ -138,7 +138,7 @@ lbl_depth_stencil_format.y=UDim(0,item_y)
 lbl_depth_stencil_format.Width=UDim(0,190)
 lbl_depth_stencil_format.Height=UDim(0,22)
 lbl_depth_stencil_format.Text="Depth/Stencil Format"
-lbl_depth_stencil_format.Skin=CommonUI.com_lbl_skin
+lbl_depth_stencil_format.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_depth_stencil_format.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_depth_stencil_format)
 
@@ -151,7 +151,7 @@ cbx_depth_stencil_format.ScrollbarWidth=20
 cbx_depth_stencil_format.DropdownSize=Vector2(304-20,130)
 cbx_depth_stencil_format.Border=Vector4(20,0,20,0)
 cbx_depth_stencil_format.ItemHeight=22
-cbx_depth_stencil_format.Skin=CommonUI.com_cbx_skin
+cbx_depth_stencil_format.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_depth_stencil_format)
 
 item_y=item_y-item_height
@@ -161,7 +161,7 @@ lbl_back_buffer_format.y=UDim(0,item_y)
 lbl_back_buffer_format.Width=UDim(0,190)
 lbl_back_buffer_format.Height=UDim(0,22)
 lbl_back_buffer_format.Text="Back Buffer Format"
-lbl_back_buffer_format.Skin=CommonUI.com_lbl_skin
+lbl_back_buffer_format.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_back_buffer_format.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_back_buffer_format)
 
@@ -174,7 +174,7 @@ cbx_back_buffer_format.ScrollbarWidth=20
 cbx_back_buffer_format.DropdownSize=Vector2(304-20,130)
 cbx_back_buffer_format.Border=Vector4(20,0,20,0)
 cbx_back_buffer_format.ItemHeight=22
-cbx_back_buffer_format.Skin=CommonUI.com_cbx_skin
+cbx_back_buffer_format.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_back_buffer_format)
 
 item_y=item_y-item_height
@@ -184,7 +184,7 @@ lbl_refresh_rate.y=UDim(0,item_y)
 lbl_refresh_rate.Width=UDim(0,190)
 lbl_refresh_rate.Height=UDim(0,22)
 lbl_refresh_rate.Text="Refresh Rate"
-lbl_refresh_rate.Skin=CommonUI.com_lbl_skin
+lbl_refresh_rate.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_refresh_rate.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_refresh_rate)
 
@@ -197,7 +197,7 @@ cbx_refresh_rate.ScrollbarWidth=20
 cbx_refresh_rate.DropdownSize=Vector2(304-20,130)
 cbx_refresh_rate.Border=Vector4(20,0,20,0)
 cbx_refresh_rate.ItemHeight=22
-cbx_refresh_rate.Skin=CommonUI.com_cbx_skin
+cbx_refresh_rate.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_refresh_rate)
 
 item_y=item_y-item_height
@@ -207,7 +207,7 @@ lbl_resolution.y=UDim(0,item_y)
 lbl_resolution.Width=UDim(0,190)
 lbl_resolution.Height=UDim(0,22)
 lbl_resolution.Text="Resolution"
-lbl_resolution.Skin=CommonUI.com_lbl_skin
+lbl_resolution.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_resolution.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_resolution)
 
@@ -220,7 +220,7 @@ cbx_resolution.ScrollbarWidth=20
 cbx_resolution.DropdownSize=Vector2(304-20,130)
 cbx_resolution.Border=Vector4(20,0,20,0)
 cbx_resolution.ItemHeight=22
-cbx_resolution.Skin=CommonUI.com_cbx_skin
+cbx_resolution.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_resolution)
 
 item_y=item_y-item_height
@@ -230,7 +230,7 @@ lbl_adapter_format.y=UDim(0,item_y)
 lbl_adapter_format.Width=UDim(0,190)
 lbl_adapter_format.Height=UDim(0,22)
 lbl_adapter_format.Text="Adapter Format"
-lbl_adapter_format.Skin=CommonUI.com_lbl_skin
+lbl_adapter_format.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_adapter_format.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_adapter_format)
 
@@ -243,7 +243,7 @@ cbx_adapter_format.ScrollbarWidth=20
 cbx_adapter_format.DropdownSize=Vector2(304-20,130)
 cbx_adapter_format.Border=Vector4(20,0,20,0)
 cbx_adapter_format.ItemHeight=22
-cbx_adapter_format.Skin=CommonUI.com_cbx_skin
+cbx_adapter_format.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_adapter_format)
 
 item_y=item_y-item_height
@@ -253,7 +253,7 @@ chx_windowed.y=UDim(0,item_y)
 chx_windowed.Width=UDim(0,120)
 chx_windowed.Height=UDim(0,22)
 chx_windowed.Text="Windowed"
-chx_windowed.Skin=CommonUI.com_chx_skin
+chx_windowed.Skin=CommonUI.com_chx_skin:Clone()
 dlg:InsertControl(chx_windowed)
 
 local chx_full_screen=CheckBox("chx_full_screen")
@@ -262,7 +262,7 @@ chx_full_screen.y=UDim(0,item_y)
 chx_full_screen.Width=UDim(0,120)
 chx_full_screen.Height=UDim(0,22)
 chx_full_screen.Text="Full Screen"
-chx_full_screen.Skin=CommonUI.com_chx_skin
+chx_full_screen.Skin=CommonUI.com_chx_skin:Clone()
 dlg:InsertControl(chx_full_screen)
 
 item_y=item_y-item_height
@@ -272,7 +272,7 @@ lbl_render_device.y=UDim(0,item_y)
 lbl_render_device.Width=UDim(0,190)
 lbl_render_device.Height=UDim(0,22)
 lbl_render_device.Text="Render Device"
-lbl_render_device.Skin=CommonUI.com_lbl_skin
+lbl_render_device.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_render_device.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_render_device)
 
@@ -285,7 +285,7 @@ cbx_render_device.ScrollbarWidth=20
 cbx_render_device.DropdownSize=Vector2(304-20,130)
 cbx_render_device.Border=Vector4(20,0,20,0)
 cbx_render_device.ItemHeight=22
-cbx_render_device.Skin=CommonUI.com_cbx_skin
+cbx_render_device.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_render_device)
 
 item_y=item_y-item_height
@@ -295,7 +295,7 @@ lbl_display_adapter.y=UDim(0,item_y)
 lbl_display_adapter.Width=UDim(0,190)
 lbl_display_adapter.Height=UDim(0,22)
 lbl_display_adapter.Text="Display Adapter"
-lbl_display_adapter.Skin=CommonUI.com_lbl_skin
+lbl_display_adapter.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_display_adapter.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_display_adapter)
 
@@ -308,7 +308,7 @@ cbx_display_adapter.ScrollbarWidth=20
 cbx_display_adapter.DropdownSize=Vector2(304-20,130)
 cbx_display_adapter.Border=Vector4(20,0,20,0)
 cbx_display_adapter.ItemHeight=22
-cbx_display_adapter.Skin=CommonUI.com_cbx_skin
+cbx_display_adapter.Skin=CommonUI.com_cbx_skin:Clone()
 dlg:InsertControl(cbx_display_adapter)
 -- game:SaveDialog(dlg, "ui/Settings.ui.xml")
 -- dlg=game:LoadDialog("ui/Settings.ui.xml")
