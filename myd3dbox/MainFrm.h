@@ -68,6 +68,7 @@ public:
 	};
 	ControlHandleType m_ctlhandle;
 	my::Vector2 m_ctlhandleoff;
+	my::Vector2 m_ctlhandlesz;
 	enum PaintType
 	{
 		PaintTypeNone,
