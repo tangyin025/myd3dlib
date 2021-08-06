@@ -49,7 +49,6 @@ template<class Archive>
 void Component::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
-	ar << BOOST_SERIALIZATION_NVP(m_Type);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
 }
@@ -58,7 +57,6 @@ template<class Archive>
 void Component::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
-	ar >> BOOST_SERIALIZATION_NVP(m_Type);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 }
@@ -70,7 +68,6 @@ void Component::CopyFrom(const Component & rhs)
 		SetName(NamedObject::MakeUniqueName(rhs.m_Name).c_str());
 	}
 
-	m_Type = rhs.m_Type;
 	m_LodMask = rhs.m_LodMask;
 	if (rhs.m_Material)
 	{

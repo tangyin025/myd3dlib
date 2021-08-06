@@ -226,7 +226,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
 					for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 					{
-						if ((*cmp_iter)->m_Type == Component::ComponentTypeNavigation)
+						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
 						{
 							Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
 							duDebugDrawNavMeshWithClosedList(pView, *navi->m_navMesh, *navi->m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
@@ -255,7 +255,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	switch (cmp->m_Type)
+	switch (cmp->GetComponentType())
 	{
 	case Component::ComponentTypeMesh:
 		{
@@ -413,7 +413,7 @@ bool CChildView::OverlapTestFrustumAndActor(const my::Frustum & frustum, Actor *
 
 bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, const my::Frustum & local_ftm, Component * cmp)
 {
-	switch (cmp->m_Type)
+	switch (cmp->GetComponentType())
 	{
 	case Component::ComponentTypeMesh:
 		{
@@ -655,7 +655,7 @@ my::RayResult CChildView::OverlapTestRayAndActor(const my::Ray & ray, Actor * ac
 
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid, int & rayinstid)
 {
-	switch (cmp->m_Type)
+	switch (cmp->GetComponentType())
 	{
 	case Component::ComponentTypeMesh:
 		{
@@ -1500,7 +1500,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			//Actor::ComponentPtrList::iterator cmp_iter = (*sel_iter)->m_Cmps.begin();
 			//for (; cmp_iter != (*sel_iter)->m_Cmps.end(); cmp_iter++)
 			//{
-			//	if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
+			//	if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeStaticEmitter
 			//		&& dynamic_cast<StaticEmitter*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 			//	{
 			//		dynamic_cast<StaticEmitter*>(cmp_iter->get())->BuildChunks();
@@ -1683,7 +1683,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Actor::ComponentPtrList::iterator cmp_iter = pFrame->m_selactors.front()->m_Cmps.begin();
 					for (; cmp_iter != pFrame->m_selactors.front()->m_Cmps.end(); cmp_iter++)
 					{
-						if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain && cmp_iter->get() == pFrame->m_selcmp)
+						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeTerrain && cmp_iter->get() == pFrame->m_selcmp)
 						{
 							Terrain * terrain = dynamic_cast<Terrain *>(cmp_iter->get());
 							my::AABB chunk_box = terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_OctAabb->transform(terrain->m_Actor->m_World);
@@ -1695,7 +1695,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 							}
 							break;
 						}
-						else if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter && cmp_iter->get() == pFrame->m_selcmp)
+						else if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeStaticEmitter && cmp_iter->get() == pFrame->m_selcmp)
 						{
 							StaticEmitter* static_emit_cmp = dynamic_cast<StaticEmitter*>(cmp_iter->get());
 							StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
@@ -1966,7 +1966,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
-				if ((*cmp_iter)->m_Type == Component::ComponentTypeTerrain)
+				if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeTerrain)
 				{
 					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
 					my::RayResult res = tstr.RayTest(local_ray);

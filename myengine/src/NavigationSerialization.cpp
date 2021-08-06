@@ -119,7 +119,7 @@ Navigation::Navigation(void)
 }
 
 Navigation::Navigation(const char* Name)
-	: Component(ComponentTypeNavigation, Name)
+	: Component(Name)
 {
 
 }

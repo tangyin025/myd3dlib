@@ -35,6 +35,11 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeNavigation;
+	}
+
 	bool IsRequested(void) const
 	{
 		return m_Requested;

@@ -294,7 +294,7 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 			CreateProperties(pActor, actor->m_Cmps[i].get());
 			continue;
 		}
-		if (pActor->GetSubItem(PropId + i)->GetData() != GetComponentProp(actor->m_Cmps[i]->m_Type))
+		if (pActor->GetSubItem(PropId + i)->GetData() != GetComponentProp(actor->m_Cmps[i]->GetComponentType()))
 		{
 			RemovePropertiesFrom(pActor, PropId + i);
 			CreateProperties(pActor, actor->m_Cmps[i].get());
@@ -330,7 +330,7 @@ void CPropertiesWnd::UpdatePropertiesRigidActor(CMFCPropertyGridProperty * pRigi
 
 void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int i, Component * cmp)
 {
-	//pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
+	//pComponent->SetName(GetComponentTypeName(cmp->GetComponentType()), FALSE);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	pComponent->GetSubItem(0)->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
 	pComponent->GetSubItem(1)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
@@ -338,7 +338,7 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	switch (cmp->m_Type)
+	switch (cmp->GetComponentType())
 	{
 	case Component::ComponentTypeMesh:
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
@@ -822,7 +822,7 @@ void CPropertiesWnd::CreatePropertiesRigidActor(CMFCPropertyGridProperty * pPare
 
 void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
 {
-	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), GetComponentProp(cmp->m_Type), FALSE);
+	CMFCPropertyGridProperty * pComponent = new CSimpleProp(GetComponentTypeName(cmp->GetComponentType()), GetComponentProp(cmp->GetComponentType()), FALSE);
 	pParentCtrl->AddSubItem(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 
@@ -840,7 +840,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	switch (cmp->m_Type)
+	switch (cmp->GetComponentType())
 	{
 	case Component::ComponentTypeMesh:
 		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
@@ -1776,7 +1776,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		//Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 		//for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 		//{
-		//	if ((*cmp_iter)->m_Type == Component::ComponentTypeStaticEmitter
+		//	if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeStaticEmitter
 		//		&& dynamic_cast<StaticEmitter*>(cmp_iter->get())->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 		//	{
 		//		dynamic_cast<StaticEmitter *>(cmp_iter->get())->BuildChunks();

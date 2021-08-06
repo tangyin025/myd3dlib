@@ -41,8 +41,8 @@
 <StreamBuff>
 U0VCRAABBAMAAAAAvMBnAVdfNjQBAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAJ
 AM3NUAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAzc3NzQAAAAAAAAAAAAAAAAEA
-AACAnIgKAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2NWO1P4HAAAJAAMAzc3NzQAAAAAAAAAAsNaO
-1P4HAAADAAAAzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AAAAzICciAoAAAAAAAAAAM3Nzc0=
+AABQN68KAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2NXf6f4HAAAJAAMAzc3NzQAAAAAAAAAAsNbf
+6f4HAAADAAAAzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AAAAAFA3rwoAAAAAAAAAAM3Nzc0=
 </StreamBuff>
 <Key>PxMaterial 0.500000 0.500000 0.500000</Key>
 <ObjId>1</ObjId>
@@ -85,7 +85,7 @@ AACAnIgKAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2NWO1P4HAAAJAAMAzc3NzQAAAAAAAAAAsNaO
 			<m_LodDist>3.300000000e+01</m_LodDist>
 			<m_LodFactor>2.000000000e+00</m_LodFactor>
 			<m_Cmps class_id="8" tracking_level="0" version="0">
-				<count>8</count>
+				<count>7</count>
 				<item_version>1</item_version>
 				<item class_id="9" tracking_level="0" version="1">
 					<px class_id="11" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
@@ -93,7 +93,6 @@ AACAnIgKAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2NWO1P4HAAAJAAMAzc3NzQAAAAAAAAAAsNaO
 							<NamedObject object_id="_4">
 								<Name>editor_terrain0</Name>
 							</NamedObject>
-							<m_Type>7</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material class_id="12" tracking_level="0" version="1">
 								<px class_id="13" tracking_level="1" version="0" object_id="_5">
@@ -261,7 +260,6 @@ QgAAAP9//38A
 							<NamedObject object_id="_28">
 								<Name>editor_sky_cmp1</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
 								<px class_id_reference="13" object_id="_29">
@@ -305,7 +303,6 @@ QgAAAP9//38A
 							<NamedObject object_id="_34">
 								<Name>editor_sky_cmp2</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
 								<px class_id_reference="13" object_id="_35">
@@ -349,7 +346,6 @@ QgAAAP9//38A
 							<NamedObject object_id="_40">
 								<Name>editor_sky_cmp3</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
 								<px class_id_reference="13" object_id="_41">
@@ -393,7 +389,6 @@ QgAAAP9//38A
 							<NamedObject object_id="_46">
 								<Name>editor_sky_cmp4</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
 								<px class_id_reference="13" object_id="_47">
@@ -437,7 +432,6 @@ QgAAAP9//38A
 							<NamedObject object_id="_52">
 								<Name>editor_sky_cmp5</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
 								<px class_id_reference="13" object_id="_53">
@@ -481,7 +475,6 @@ QgAAAP9//38A
 							<NamedObject object_id="_58">
 								<Name>editor_sky_cmp6</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
 								<px class_id_reference="13" object_id="_59">
@@ -519,104 +512,29 @@ QgAAAP9//38A
 						<m_bInstance>0</m_bInstance>
 					</px>
 				</item>
-				<item>
-					<px class_id="24" class_name="Navigation" tracking_level="1" version="0" object_id="_62">
-						<Component object_id="_63">
-							<NamedObject object_id="_64">
-								<Name>editor_navigation6</Name>
-							</NamedObject>
-							<m_Type>10</m_Type>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id="-1"></px>
-							</m_Material>
-						</Component>
-						<m_navMesh class_id="25" tracking_level="0" version="1">
-							<px class_id="26" tracking_level="1" version="0" object_id="_65">
-								<header.magic>1297302868</header.magic>
-								<header.version>1</header.version>
-								<header.numTiles>1</header.numTiles>
-								<header.params>
-AAAAwgAAgL8AAADCAACAQgAAgEIBAAAAEQAAAA==
-								</header.params>
-								<tileHeader.tileRef>32</tileHeader.tileRef>
-								<tileHeader.dataSize>2664</tileHeader.dataSize>
-								<tile.data>
-VkFORAcAAAAAAAAAAAAAAAAAAAAAAAAAEQAAACAAAABAAAAAEQAAAAAAAAAeAAAAIgAAAAAAAAAR
-AAAAAAAAQJqZGT9mZmY/AAAAwgAAgL8AAADCAAAAQgAAQEAAAABCVVVVQM3M+MHQzEw+zcz4wc3M
-+MHQzEw+zMy8wc3M+MHQzEw+zMx8wc3M+MHQzEw+AAAAwc3M+MHQzEw+gMxMvs3M+MHQzEw+ODPz
-QM3M+MHQzEw+aGZ2Qc3M+MHQzEw+mpm5Qc3M+MHQzEw+AgD4QczMvMHQzEw+AgD4QczMfMHQzEw+
-AgD4QQAAAMHQzEw+AgD4QYDMTL7QzEw+AgD4QTgz80DQzEw+AgD4QWhmdkHQzEw+AgD4QZqZuUHQ
-zEw+AgD4QQIA+EHQzEw+AgD4QQIA+EHQzEw+mpm5QQIA+EHQzEw+aGZ2QQIA+EHQzEw+ODPzQAIA
-+EHQzEw+gMxMvgIA+EHQzEw+AAAAwQIA+EHQzEw+zMx8wQIA+EHQzEw+zMy8wQIA+EHQzEw+zcz4
-wZqZuUHQzEw+zcz4wWhmdkHQzEw+zcz4wTgz80DQzEw+zcz4wYDMTL7QzEw+zcz4wQAAAMHQzEw+
-zcz4wczMfMHQzEw+zcz4wczMvMHQzEw+zcz4wQAAAAAfAAAAAQAAAAAAAAAAAAAABQAAAAAAAAAB
-AAMAAQAAAAcACAAJAAAAAAAAAAAAAAAGAAAAAAAAAAEAAwACAAAAFwAYABkAAAAAAAAAAAAAAAcA
-AAAAAAAAAQADAAMAAAAPABAAEQAAAAAAAAAAAAAACAAAAAAAAAABAAMABQAAAB4AHwABAAIAAAAA
-AAAAAQAAAA0AAAAAAAEABAAHAAAABwAJAAoAAAAAAAAAAgAAAAoAAAAAAAAAAQADAAkAAAAWABcA
-GQAaAAAAAAAAAAMAAAAPAAAAAAABAAQACwAAAA4ADwARAAAAAAAAAAAABAAMAAAAAAAAAAEAAwAN
-AAAABQAGAAsADAAAAAAAAAAKAAAAEQAAAAAAAQAEAA8AAAAGAAcACgALAAAAAAAAAAYAAAAJAAAA
-AAABAAQAEQAAABQAFQAbABwAAAAAAAAADwAAABEAAAAAAAEABAATAAAADgARABIADQAAAAAACAAA
-AA4AAAAAAAAAAQAEABUAAAAdAB4AAgADAAAAAAAAAAUAAAAQAAAAAAABAAQAFwAAAA0AEgATAAwA
-AAAAAAwAAAARAAAAAAAAAAEABAAZAAAAFQAWABoAGwAAAAAAAAAHAAAACwAAAAAAAQAEABsAAAAc
-AB0AAwAEAAAAAAAAAA0AAAARAAAAAAABAAQAHwAAAAQABQAMABMAFAAcAAAACQAOAAAACwAQAAEA
-BgAkAAAA/////wL/AAAlAAAA/////wL/AAAmAAAA/////wL/AAAnAAAA/////wL/AAAsAAAA////
-/wP/AAAgAAAABAAAAAH/AAApAAAA/////wL/AAAhAAAABgAAAAD/AAAuAAAA/////wP/AAAiAAAA
-CAAAAAH/AAArAAAA/////wL/AAAjAAAACgAAAAH/AAAwAAAA/////wP/AAApAAAADAAAAAH/AAAo
-AAAA/////wP/AAAlAAAADgAAAAH/AAAwAAAA/////wP/AAAuAAAAEAAAAAH/AAAtAAAA/////wL/
-AAAnAAAAEgAAAAD/AAAvAAAA/////wP/AAAkAAAAFAAAAAH/AAAwAAAA/////wL/AAArAAAAFgAA
-AAD/AAAqAAAA/////wP/AAAmAAAAGAAAAAH/AAAwAAAA/////wP/AAAsAAAAGgAAAAH/AAAvAAAA
-/////wX/AAAqAAAAHAAAAAT/AAAtAAAAHQAAAAL/AAAoAAAAHgAAAAH/AAAAAAAAIQAAAAAAAAAA
-AAAAIgAAAAAAAAAAAAAAIwAAAAAAAAAAAAAAJAAAAAAAAAAAAAAAJQAAAAAAAAAAAAAAJgAAAAAA
-AAAAAAAAJwAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAKQAAAAAAAAAAAAAAKgAAAAAAAAAAAAAAKwAA
-AAAAAAAAAAAALAAAAAAAAAAAAAAALQAAAAAAAAAAAAAALgAAAAAAAAAAAAAALwAAAAAAAAAAAAAA
-MAAAAAAAAAAAAAAAMQAAAAAAAAAAAAAAMgAAAAAAAAAAAAAAMwAAAAAAAAAAAAAANAAAAAAAAAAA
-AAAANQAAAAAAAAAAAAAANgAAAAAAAAAAAAAANwAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAOQAAAAAA
-AAAAAAAAOgAAAAAAAAAAAAAAOwAAAAAAAAAAAAAAPAAAAAAAAAAAAAAAPQAAAAAAAAAAAAAAPgAA
-AAAAAAAAAAAAPwAAAAAAAAAAAAAA/////wAAAAAAAAAAAAAAAAABAAAAAAAAAQAAAAABAAAAAAAA
-AgAAAAABAAAAAAAAAwAAAAABAAAAAAAABAAAAAACAAAAAAAABgAAAAABAAAAAAAABwAAAAACAAAA
-AAAACQAAAAABAAAAAAAACgAAAAACAAAAAAAADAAAAAACAAAAAAAADgAAAAACAAAAAAAAEAAAAAAC
-AAAAAAAAEgAAAAACAAAAAAAAFAAAAAACAAAAAAAAFgAAAAACAAAAAAAAGAAAAAACAAAAAAAAGgAA
-AAAEAAACAAEVAgABFQIAARUCAAEVAwACEQABAgUCAAEVAwACEQABAgUCAAEVAwACEQABAgUDAAIR
-AAECBQMAAhEAAQIFAwACEQABAgUDAAIRAAECBQMAAhEAAQIFAwACEQABAgUDAAIRAAECBQUABBEA
-AwQEAAEDAQECAwUCAAQAAgDSAAQA0gDf////AgAEAAIAagAEANIA8f///wIABAACAGoABABqAPn/
-//8CAAQAAgBqAAQAagD9////AgAEAAIAUAAEAFAADAAAAAIABAACAGoABABqAA8AAAACAAQAAgA2
-AAQANgD9////AgAEAAIANgAEADYABAAAAAIABAACABwABAAcAAAAAAACAAQAhABqAAQA0gD5////
-AgAEAJ4AUAAEANIA/f///wIABAC4ADYABADSAAUAAAACAAQAngBQAAQA0gAJAAAAAgAEAIQAagAE
-ANIA/f///wIABACEAGoABADSAAgAAAACAAQAuAAcAAQA0gABAAAAAgAEAAIA0gAEANIA7////wIA
-BAACANIABADSAPn///8CAAQAAgDSAAQA0gD9////AgAEAAIA0gAEANIAEAAAAGoABAACANIABABq
-AAoAAABqAAQAhADSAAQA0gD9////agAEAIQA0gAEANIADQAAAIQABACeANIABADSAAsAAACEAAQA
-AgDSAAQA0gD3////ngAEAAIA0gAEADYA/f///54ABAACANIABAA2AAYAAAC4AAQAAgDSAAQAHAAC
-AAAAhAAEAAIA0gAEANIA+////4QABAACANIABABQAA4AAACeAAQAuADSAAQA0gD9////ngAEALgA
-0gAEANIABwAAALgABAC4ANIABADSAAMAAAAAAAAAAAAAAAAAAAAAAAAA
-								</tile.data>
-							</px>
-						</m_navMesh>
-					</px>
-				</item>
 			</m_Cmps>
 			<ActorType>0</ActorType>
 			<PxActorSize>692</PxActorSize>
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfNjQBAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAI
 AM3NEAEAAAcAzc3AAQAAAAAAAAAAAAABAAAAAQAAAAAAAAAJAM3Nzc3NzQAAAAAAAAAAAAAAAAIA
-AAAAAAAIAAAAAAAAAADNzc3NAAAABwAAAAABAAAAzc3NzQAAAAAAAAAAAAAAAAIAAACgyRoGAAAA
-AAAAAIABAAAAcAd9CgAAAAAAAACAAAAAAAEAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAACAoI/U
-/gcAAAgAAwDNzc3NMO0QBgAAAAD4oY/U/gcAAAMAAADNzc3NoMkaBgAAAABwZfYFAAAAAAAAAIHN
+AAAAAAAIAAAAAAAAAADNzc3NAAAABwAAAAABAAAAzc3NzQAAAAAAAAAAAAAAAAIAAABAW60KAAAA
+AAAAAIABAAAA4AeiCgAAAAAAAACAAAAAAAEAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAACAoODp
+/gcAAAgAAwDNzc3NsNJ/BQAAAAD4oeDp/gcAAAMAAADNzc3NQFutCgAAAACQX2EFAAAAAAAAAIHN
 zc3NAAAAAAAAAADNzc3Nzc3NzQEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAD0BDU/9AQ1PwAAAAAAAAAAAAAAAArXozwLAQAAzc3NzQEAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
 zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAAAAAABAACAzc3Nzcguj9T+BwAABwADAM3Nzc2w
-OeUDAAAAAAAAAAAAAAAAAAAAAAAAAABwB30KAAAAAAEAAQHNzc3NAAAAAAAAAAABAAEBzc3NzQAA
-AAAAAAAAAAAAAM3Nzc3Nzc3Nzc3NzXBl9gUAAAAAAAAAhc3Nzc0AAAAAAAAAAM3Nzc3Nzc3NmLX2
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAAAAAABAACAzc3Nzcgu4On+BwAABwADAM3Nzc1g
+5k4FAAAAAAAAAAAAAAAAAAAAAAAAAADgB6IKAAAAAAEAAQHNzc3NAAAAAAAAAAABAAEBzc3NzQAA
+AAAAAAAAAAAAAM3Nzc3Nzc3Nzc3NzZBfYQUAAAAAAAAAhc3Nzc0AAAAAAAAAAM3Nzc3Nzc3NGP5Q
 BQAAAAD///8AAQAAAAAAAAAAAAAAAAAAAAAAgD8AAADCAAAAAAAAAMIAAM3NAAAAAAAAAAAAAAAA
 AAAAAAAAAAA=
 			</m_PxActor>
 		</px>
 	</item>
 	<item>
-		<px class_id_reference="4" object_id="_66">
-			<NamedObject object_id="_67">
+		<px class_id_reference="4" object_id="_62">
+			<NamedObject object_id="_63">
 				<Name>editor_actor1</Name>
 			</NamedObject>
 			<m_aabb>
@@ -653,15 +571,14 @@ AAAAAAAAAAA=
 				<count>1</count>
 				<item_version>1</item_version>
 				<item>
-					<px class_id_reference="23" object_id="_68">
-						<Component object_id="_69">
-							<NamedObject object_id="_70">
+					<px class_id_reference="23" object_id="_64">
+						<Component object_id="_65">
+							<NamedObject object_id="_66">
 								<Name>editor_mesh_cmp1</Name>
 							</NamedObject>
-							<m_Type>3</m_Type>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
-								<px class_id_reference="13" object_id="_71">
+								<px class_id_reference="13" object_id="_67">
 									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
 									<m_PassMask>19</m_PassMask>
 									<m_CullMode>2</m_CullMode>
@@ -672,8 +589,8 @@ AAAAAAAAAAA=
 										<count>4</count>
 										<item_version>1</item_version>
 										<item>
-											<px class_id_reference="17" object_id="_72">
-												<MaterialParameter object_id="_73">
+											<px class_id_reference="17" object_id="_68">
+												<MaterialParameter object_id="_69">
 													<m_Type>5</m_Type>
 													<m_Name>g_DiffuseTexture</m_Name>
 												</MaterialParameter>
@@ -681,8 +598,8 @@ AAAAAAAAAAA=
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="17" object_id="_74">
-												<MaterialParameter object_id="_75">
+											<px class_id_reference="17" object_id="_70">
+												<MaterialParameter object_id="_71">
 													<m_Type>5</m_Type>
 													<m_Name>g_NormalTexture</m_Name>
 												</MaterialParameter>
@@ -690,8 +607,8 @@ AAAAAAAAAAA=
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="17" object_id="_76">
-												<MaterialParameter object_id="_77">
+											<px class_id_reference="17" object_id="_72">
+												<MaterialParameter object_id="_73">
 													<m_Type>5</m_Type>
 													<m_Name>g_SpecularTexture</m_Name>
 												</MaterialParameter>
@@ -699,8 +616,8 @@ AAAAAAAAAAA=
 											</px>
 										</item>
 										<item>
-											<px class_id_reference="18" object_id="_78">
-												<MaterialParameter object_id="_79">
+											<px class_id_reference="18" object_id="_74">
+												<MaterialParameter object_id="_75">
 													<m_Type>1</m_Type>
 													<m_Name>g_Shininess</m_Name>
 												</MaterialParameter>
@@ -729,19 +646,19 @@ AAAAAAAAAAA=
 			<m_PxActor>
 U0VCRAABBAMAAAAAvMBnAVdfNjQBAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAI
 AM3NEAEAAAYAzc2QAgAAAAAAAAAAAAABAAAAAQAAAAAAAAAJAM3Nzc3NzQAAAAAAAAAAAAAAAAIA
-AAAAAAAIAAAAAAAAAADNzc3NAAAABgAAAAABAAAAzc3NzQAAAAAAAAAAAAAAAAIAAAAgKH0KAAAA
-AAAAAIABAAAAgAh9CgAAAAAAAACAAAAAAAEAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAACAoI/U
-/gcAAAgAAwDNzc3NELqDCgAAAAD4oY/U/gcAAAMAAADNzc3NICh9CgAAAABwZfYFAAAAAAAAAIHN
+AAAAAAAIAAAAAAAAAADNzc3NAAAABgAAAAABAAAAzc3NzQAAAAAAAAAAAAAAAAIAAADwCKIKAAAA
+AAAAAIAAAAAAQAqjCgAAAAAAAACAAQAAAAEAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAACAoODp
+/gcAAAgAAwDNzc3NoAisCgAAAAD4oeDp/gcAAAMAAADNzc3NQAqjCgAAAACQX2EFAAAAAAAAAIHN
 zc3NAAAAAAAAAADNzc3Nzc3NzQEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAACAPwAAAAAAAAAAAAAAAArXozwLAQAAzc3NzQMAAAAAAIA/AACAPwAAgD/Nzc3Nzc3N
 zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAAAAAABAACAzc3NzegAj9T+BwAABgADAM3Nzc3Q
-PeUDAAAAAAAAAAAAAAAAAAAAAAAAAACACH0KAAAAAAEAAQHNzc3NAQAAAAAAAAABAAEBzc3NzQAA
-AAAAAAAAAQAAAM3Nzc3Nzc3Nzc3NzXBl9gUAAAAAAAAAg83Nzc0AAAAAAAAAAM3Nzc3Nzc3NMB/m
+zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAAAAAABAACAzc3NzegA4On+BwAABgADAM3Nzc2A
+6k4FAAAAAAAAAAAAAAAAAAAAAAAAAADwCKIKAAAAAAEAAQHNzc3NAQAAAAAAAAABAAEBzc3NzQAA
+AAAAAAAAAQAAAM3Nzc3Nzc3Nzc3NzZBfYQUAAAAAAAAAg83Nzc0AAAAAAAAAAM3Nzc3Nzc3NIBRR
 BQAAAAD///8AAQEAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAABAQQBAAAAAAAAAAAAAAAA
 AACAPwAAAAAAAAAAAAAAAJqZGT4AAAAAAAAAAAAAAACuxZ30AAAAAAAAAAAAAAAA//9/fwAAREL/
 /39/AAAAAM3MTD0AAIA/AACAPwAAgD8AAIA/rsWddArXozsK1yM7AAAAAM3Nzc0AAAAAAAAAAAAA
-AABAKXMKAAAAAM3Nzc3Nzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AADAEXwFAAAAAM3Nzc3Nzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 			</m_PxActor>
 		</px>

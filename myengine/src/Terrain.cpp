@@ -209,7 +209,7 @@ Terrain::Terrain(void)
 }
 
 Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, int MinLodChunkSize)
-	: Component(ComponentTypeTerrain, Name)
+	: Component(Name)
 	, OctRoot(0, -1.0f, 0, (float)ChunkSize * ColChunks, 1.0f, (float)ChunkSize * RowChunks)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)

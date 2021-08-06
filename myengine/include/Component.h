@@ -48,8 +48,6 @@ public:
 		ComponentTypeNavigation,
 	};
 
-	ComponentType m_Type;
-
 	enum LODMask
 	{
 		LOD_INFINITE = 3,
@@ -75,16 +73,14 @@ public:
 
 protected:
 	Component(void)
-		: m_Type(ComponentTypeComponent)
-		, m_LodMask(LOD0_1_2)
+		: m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
 	{
 	}
 
-	Component(ComponentType Type, const char * Name)
+	Component(const char * Name)
 		: NamedObject(Name)
-		, m_Type(Type)
 		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
@@ -106,6 +102,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeComponent;
 	}
 
 	bool IsRequested(void) const
@@ -218,7 +219,7 @@ protected:
 
 public:
 	MeshComponent(const char * Name)
-		: Component(ComponentTypeMesh, Name)
+		: Component(Name)
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
@@ -243,6 +244,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeMesh;
 	}
 
 	void CopyFrom(const MeshComponent & rhs);
@@ -328,7 +334,7 @@ protected:
 
 public:
 	ClothComponent(const char * Name)
-		: Component(ComponentTypeCloth, Name)
+		: Component(Name)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, handle_Time(NULL)
 		, handle_World(NULL)
@@ -351,6 +357,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeCloth;
 	}
 
 	void CopyFrom(const ClothComponent & rhs);
@@ -433,8 +444,8 @@ protected:
 	}
 
 public:
-	EmitterComponent(ComponentType Type, const char * Name, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: Component(Type, Name)
+	EmitterComponent(const char * Name, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+		: Component(Name)
 		, m_EmitterFaceType(_FaceType)
 		, m_EmitterSpaceType(_SpaceTypeWorld)
 		, m_EmitterVelType(_VelocityType)
@@ -514,7 +525,7 @@ protected:
 
 public:
 	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(ComponentTypeSphericalEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 		, Emitter(Capacity)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
@@ -541,6 +552,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeSphericalEmitter;
 	}
 
 	void CopyFrom(const SphericalEmitter & rhs);

@@ -117,7 +117,7 @@ void StaticEmitterChunk::OnChunkBufferReady(my::DeviceResourceBasePtr res)
 }
 
 StaticEmitter::StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-	: EmitterComponent(ComponentTypeStaticEmitter, Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+	: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 	, m_ChunkWidth(ChunkWidth)
 	, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 {

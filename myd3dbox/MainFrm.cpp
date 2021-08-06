@@ -913,7 +913,7 @@ Component* CMainFrame::GetSelComponent(Component::ComponentType Type)
 		Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
 		for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
 		{
-			if ((*cmp_iter)->m_Type == Type)
+			if ((*cmp_iter)->GetComponentType() == Type)
 			{
 				return cmp_iter->get();
 			}

@@ -147,6 +147,11 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeTerrain;
+	}
+
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);

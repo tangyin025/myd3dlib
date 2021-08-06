@@ -34,7 +34,7 @@ protected:
 
 public:
 	Controller(const char * Name, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
-		: Component(ComponentTypeController, Name)
+		: Component(Name)
 		, m_Height(Height)
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
@@ -57,6 +57,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeController;
 	}
 
 	virtual void RequestResource(void);

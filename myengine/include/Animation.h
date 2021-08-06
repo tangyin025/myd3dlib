@@ -361,7 +361,7 @@ protected:
 
 public:
 	Animator(const char* Name)
-		: Component(ComponentTypeAnimator, Name)
+		: Component(Name)
 	{
 	}
 
@@ -379,6 +379,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeAnimator;
 	}
 
 	void OnSkeletonReady(my::DeviceResourceBasePtr res);

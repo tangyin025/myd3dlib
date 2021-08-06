@@ -93,7 +93,7 @@ void CShapeDlg::OnOK()
 		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
-		if (m_cmp->m_Type == Component::ComponentTypeMesh)
+		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE, true, pFrame->m_CollectionObjs);
@@ -102,7 +102,7 @@ void CShapeDlg::OnOK()
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
-		if (m_cmp->m_Type == Component::ComponentTypeMesh)
+		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->CreateTriangleMeshShape(true, pFrame->m_CollectionObjs);
@@ -111,7 +111,7 @@ void CShapeDlg::OnOK()
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:
-		if (m_cmp->m_Type == Component::ComponentTypeTerrain)
+		if (m_cmp->GetComponentType() == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
 			terrain->CreateHeightFieldShape(true, pFrame->m_CollectionObjs);

@@ -104,6 +104,11 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeStaticEmitter;
+	}
+
 	void CopyFrom(const StaticEmitter& rhs);
 
 	virtual ComponentPtr Clone(void) const;

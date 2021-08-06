@@ -63,7 +63,7 @@ static DWORD ARGB(int a, int r, int g, int b)
 struct ComponentScript : Component, luabind::wrap_base
 {
 	ComponentScript(const char* Name)
-		: Component(Component::ComponentTypeScript, Name)
+		: Component(Name)
 	{
 		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::AddComponent
 	}
@@ -71,6 +71,11 @@ struct ComponentScript : Component, luabind::wrap_base
 	virtual ~ComponentScript(void)
 	{
 		_ASSERT(!IsRequested());
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeScript;
 	}
 
 	virtual void RequestResource(void)
@@ -1264,7 +1269,7 @@ void LuaContext::Init(void)
 				value("ComponentTypeAnimator", Component::ComponentTypeAnimator),
 				value("ComponentTypeNavigation", Component::ComponentTypeNavigation)
 			]
-			.def_readonly("Type", &Component::m_Type)
+			.property("ComponentType", &Component::GetComponentType)
 			.enum_("LODMask")
 			[
 				value("LOD0", Component::LOD0),
