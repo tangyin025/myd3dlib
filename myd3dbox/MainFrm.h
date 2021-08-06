@@ -52,6 +52,21 @@ public:
 	int m_selinstid;
 	my::AABB m_selbox;
 	my::Control * m_selctl;
+	enum ControlHandleType
+	{
+		ControlHandleNone = 0,
+		ControlHandleLeftTop,
+		ControlHandleCenterTop,
+		ControlHandleRightTop,
+		ControlHandleLeftMiddle,
+		ControlHandleCenterMiddle,
+		ControlHandleRightMiddle,
+		ControlHandleLeftBottom,
+		ControlHandleCenterBottom,
+		ControlHandleRightBottom,
+		ControlHandleCount
+	};
+	ControlHandleType m_selctlhandle;
 	enum PaintType
 	{
 		PaintTypeNone,

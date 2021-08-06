@@ -1370,6 +1370,31 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
+	{
+		my::Ray ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		my::DialogMgr::DialogList::reverse_iterator dlg_iter = ((my::DialogMgr *)pFrame)->m_DlgList.rbegin();
+		for (; dlg_iter != ((my::DialogMgr *)pFrame)->m_DlgList.rend(); dlg_iter++)
+		{
+			my::Vector2 pt;
+			if ((*dlg_iter)->RayToWorld(ray, pt))
+			{
+				my::Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
+				if (ControlPtd)
+				{
+					pFrame->m_selactors.clear();
+					pFrame->m_selcmp = NULL;
+					pFrame->m_selchunkid.SetPoint(0, 0);
+					pFrame->m_selinstid = 0;
+					pFrame->m_selctl = ControlPtd;
+					pFrame->m_selctlhandle = CMainFrame::ControlHandleCenterMiddle;
+					SetCapture();
+					Invalidate();
+					return;
+				}
+			}
+		}
+	}
+
 	CRectTracker tracker;
 	tracker.TrackRubberBand(this, point, TRUE);
 	tracker.m_rect.NormalizeRect();
@@ -1381,6 +1406,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
+		pFrame->m_selctl = NULL;
 	}
 
 	if (!tracker.m_rect.IsRectEmpty())
@@ -1416,6 +1442,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
+		pFrame->m_selctl = NULL;
 	}
 	else
 	{
@@ -1464,6 +1491,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
+				pFrame->m_selctl = NULL;
 			}
 			else
 			{
@@ -1471,6 +1499,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selcmp = cb.selcmp;
 				pFrame->m_selchunkid = cb.selchunkid;
 				pFrame->m_selinstid = cb.selinstid;
+				pFrame->m_selctl = NULL;
 			}
 		}
 	}
@@ -1501,6 +1530,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_PaintEmitterCaptured->m_emit->m_Actor->UpdateOctNode();
 		pFrame->UpdateSelBox();
 		m_PaintEmitterCaptured.reset();
+		ReleaseCapture();
+		Invalidate();
+		return;
+	}
+
+	if (pFrame->m_selctlhandle != CMainFrame::ControlHandleNone)
+	{
+		_ASSERT(pFrame->m_selctl);
+		pFrame->m_selctlhandle = CMainFrame::ControlHandleNone;
 		ReleaseCapture();
 		Invalidate();
 		return;
@@ -1589,6 +1627,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			pFrame->m_selactors.swap(new_selactors);
 			pFrame->m_selcmp = NULL;
 			pFrame->m_selchunkid.SetPoint(0, 0);
+			pFrame->m_selctl = NULL;
 		}
 		StartPerformanceCount();
 		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
