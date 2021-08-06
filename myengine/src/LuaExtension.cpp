@@ -719,6 +719,21 @@ void LuaContext::Init(void)
 
 		, class_<my::Control, my::NamedObject, boost::shared_ptr<my::Control> >("Control")
 			.def(constructor<const char *>())
+			.enum_("ControlType")
+			[
+				value("ControlTypeNone", my::Control::ControlTypeNone),
+				value("ControlTypeStatic", my::Control::ControlTypeStatic),
+				value("ControlTypeProgressBar", my::Control::ControlTypeProgressBar),
+				value("ControlTypeButton", my::Control::ControlTypeButton),
+				value("ControlTypeEditBox", my::Control::ControlTypeEditBox),
+				value("ControlTypeImeEditBox", my::Control::ControlTypeImeEditBox),
+				value("ControlTypeScrollBar", my::Control::ControlTypeScrollBar),
+				value("ControlTypeCheckBox", my::Control::ControlTypeCheckBox),
+				value("ControlTypeComboBox", my::Control::ControlTypeComboBox),
+				value("ControlTypeListBox", my::Control::ControlTypeListBox),
+				value("ControlTypeDialog", my::Control::ControlTypeDialog)
+			]
+			.property("ControlType", &my::Control::GetControlType)
 			.scope
 			[
 				def("GetFocusControl", &my::Control::GetFocusControl)

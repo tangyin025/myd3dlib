@@ -215,6 +215,21 @@ namespace my
 		, public boost::enable_shared_from_this<Control>
 	{
 	public:
+		enum ControlType
+		{
+			ControlTypeNone = 0,
+			ControlTypeStatic,
+			ControlTypeProgressBar,
+			ControlTypeButton,
+			ControlTypeEditBox,
+			ControlTypeImeEditBox,
+			ControlTypeScrollBar,
+			ControlTypeCheckBox,
+			ControlTypeComboBox,
+			ControlTypeListBox,
+			ControlTypeDialog,
+		};
+
 		typedef std::list<ControlPtr> ControlPtrList;
 
 		ControlPtrList m_Childs;
@@ -310,6 +325,11 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeNone;
+		}
+
 		static Control * GetFocusControl(void)
 		{
 			return s_FocusControl;
@@ -397,6 +417,11 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Text);
 		}
 
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeStatic;
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 	};
 
@@ -451,6 +476,11 @@ namespace my
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
 			ar & BOOST_SERIALIZATION_NVP(m_Progress);
+		}
+
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeProgressBar;
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
@@ -509,6 +539,11 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
+		}
+
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeButton;
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
@@ -623,6 +658,11 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Border);
 		}
 
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeEditBox;
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -692,6 +732,11 @@ namespace my
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EditBox);
 			ar & BOOST_SERIALIZATION_NVP(m_CompWinColor);
 			ar & BOOST_SERIALIZATION_NVP(m_CandidateWinColor);
+		}
+
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeImeEditBox;
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
@@ -831,6 +876,11 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_nPageSize);
 		}
 
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeScrollBar;
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -880,6 +930,11 @@ namespace my
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 			ar & BOOST_SERIALIZATION_NVP(m_CheckBtnSize);
 			ar & BOOST_SERIALIZATION_NVP(m_Checked);
+		}
+
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeCheckBox;
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
@@ -1035,6 +1090,11 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			boost::serialization::split_member(ar, *this, version);
+		}
+
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeComboBox;
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
@@ -1208,6 +1268,11 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeListBox;
+		}
+
 		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -1311,6 +1376,11 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			boost::serialization::split_member(ar, *this, version);
+		}
+
+		virtual ControlType GetControlType(void) const
+		{
+			return ControlTypeDialog;
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime);
