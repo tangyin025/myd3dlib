@@ -1688,6 +1688,12 @@ void CMainFrame::OnCreateDialog()
 {
 	// TODO: Add your command handler code here
 	my::DialogSkinPtr skin(new my::DialogSkin());
+	skin->m_Color = D3DCOLOR_ARGB(150, 0, 0, 0);
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = theApp.default_dlg_img;
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(theApp.default_dlg_img_rect.x, theApp.default_dlg_img_rect.y, theApp.default_dlg_img_rect.z, theApp.default_dlg_img_rect.w);
+	skin->m_Image->m_Border = theApp.default_dlg_img_border;
+
 	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("editor_dialog").c_str()));
 	dlg->m_Skin = skin;
 	InsertDlg(dlg.get());
