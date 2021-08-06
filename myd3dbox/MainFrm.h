@@ -66,7 +66,8 @@ public:
 		ControlHandleRightBottom,
 		ControlHandleCount
 	};
-	ControlHandleType m_selctlhandle;
+	ControlHandleType m_ctlhandle;
+	my::Vector2 m_ctlhandleoff;
 	enum PaintType
 	{
 		PaintTypeNone,

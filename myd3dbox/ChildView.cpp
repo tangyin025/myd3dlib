@@ -1386,7 +1386,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 					pFrame->m_selchunkid.SetPoint(0, 0);
 					pFrame->m_selinstid = 0;
 					pFrame->m_selctl = ControlPtd;
-					pFrame->m_selctlhandle = CMainFrame::ControlHandleCenterMiddle;
+					pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterMiddle;
+					pFrame->m_ctlhandleoff.x = pt.x - ControlPtd->m_x.offset;
+					pFrame->m_ctlhandleoff.y = pt.y - ControlPtd->m_y.offset;
 					SetCapture();
 					Invalidate();
 					return;
@@ -1535,10 +1537,10 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (pFrame->m_selctlhandle != CMainFrame::ControlHandleNone)
+	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
 	{
 		_ASSERT(pFrame->m_selctl);
-		pFrame->m_selctlhandle = CMainFrame::ControlHandleNone;
+		pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 		ReleaseCapture();
 		Invalidate();
 		return;
@@ -1604,6 +1606,21 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		OnPaintEmitterInstance(ray, *m_PaintEmitterCaptured);
+		Invalidate();
+		UpdateWindow();
+		return;
+	}
+
+	if (pFrame->m_ctlhandle == CMainFrame::ControlHandleCenterMiddle)
+	{
+		_ASSERT(pFrame->m_selctl);
+		my::Ray ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		my::Vector2 pt;
+		if (pFrame->m_selctl->RayToWorld(ray, pt))
+		{
+			pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
+			pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
+		}
 		Invalidate();
 		UpdateWindow();
 		return;
