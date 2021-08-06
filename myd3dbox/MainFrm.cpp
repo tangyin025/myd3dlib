@@ -253,6 +253,7 @@ CMainFrame::CMainFrame()
 	, m_selchunkid(0, 0)
 	, m_selinstid(0)
 	, m_selbox(-1, 1)
+	, m_selctl(NULL)
 	, m_PaintType(PaintTypeNone)
 	, m_PaintShape(PaintShapeCircle)
 	, m_PaintMode(PaintModeGreater)
@@ -715,6 +716,7 @@ void CMainFrame::ClearFileContext()
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
+	m_selctl = NULL;
 	LuaContext::Shutdown();
 	m_CollectionObjs.clear();
 	m_SerializeBuff.reset();
@@ -1017,6 +1019,7 @@ void CMainFrame::OnFileNew()
 	//m_selcmp = NULL;
 	//m_selchunkid.SetPoint(0, 0);
 	//m_selinstid = 0;
+	//m_selctl = NULL;
 	//OnSelChanged();
 }
 
@@ -1104,6 +1107,7 @@ void CMainFrame::OnCreateActor()
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
+	m_selctl = NULL;
 	OnSelChanged();
 }
 
@@ -1686,6 +1690,10 @@ void CMainFrame::OnCreateDialog()
 	InsertDlg(dlg.get());
 	m_DlgList.push_back(dlg);
 
-	my::EventArg arg;
-	m_EventAttributeChanged(&arg);
+	m_selactors.clear();
+	m_selcmp = NULL;
+	m_selchunkid.SetPoint(0, 0);
+	m_selinstid = 0;
+	m_selctl = dlg.get();
+	OnSelChanged();
 }

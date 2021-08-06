@@ -383,6 +383,8 @@ namespace my
 
 		Control * GetChildAtPoint(const Vector2 & pt);
 
+		Control * GetTopControl(void);
+
 		bool SetFocusRecursive(void);
 
 		void GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist);

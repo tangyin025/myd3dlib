@@ -51,6 +51,7 @@ public:
 	CPoint m_selchunkid;
 	int m_selinstid;
 	my::AABB m_selbox;
+	my::Control * m_selctl;
 	enum PaintType
 	{
 		PaintTypeNone,

@@ -339,6 +339,27 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	}
 }
 
+void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl)
+{
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
+	my::Dialog * dlg = dynamic_cast<my::Dialog *>(ctl->GetTopControl());
+	ASSERT(dlg);
+
+	Vertex v[5] = {
+		{ctl->m_Rect.l, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)}
+	};
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&dlg->m_World));
+	V(pd3dDevice->SetTexture(0, NULL));
+	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, 4, v, sizeof(v[0])));
+}
+
 void CChildView::StartPerformanceCount(void)
 {
 	QueryPerformanceCounter(&m_qwTime[0]);
@@ -1211,6 +1232,10 @@ void CChildView::OnPaint()
 					(*dlg_iter)->Draw(theApp.m_UIRender.get(), theApp.m_fAbsoluteElapsedTime);
 
 					theApp.m_UIRender->Flush();
+				}
+				if (pFrame->m_selctl)
+				{
+					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctl);
 				}
 				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();

@@ -696,6 +696,15 @@ Control * Control::GetChildAtPoint(const Vector2 & pt)
 	return NULL;
 }
 
+Control * Control::GetTopControl(void)
+{
+	if (m_Parent)
+	{
+		return m_Parent->GetTopControl();
+	}
+	return this;
+}
+
 bool Control::SetFocusRecursive(void)
 {
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
