@@ -39,9 +39,9 @@ BOOST_CLASS_EXPORT(Material)
 
 bool MaterialParameter::operator == (const MaterialParameter & rhs) const
 {
-	if (m_Type == rhs.m_Type && m_Name == rhs.m_Name)
+	if (GetParameterType() == rhs.GetParameterType() && m_Name == rhs.m_Name)
 	{
-		switch (m_Type)
+		switch (GetParameterType())
 		{
 		case ParameterTypeNone:
 			return true;
@@ -466,7 +466,7 @@ template <>
 void Material::SetParameter<float>(const char* Name, const float& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat)
+	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have float param: %s", Name).c_str());
 		return;
@@ -478,7 +478,7 @@ template <>
 void Material::SetParameter<my::Vector2>(const char* Name, const my::Vector2& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat2)
+	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat2)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector2 param: %s", Name).c_str());
 		return;
@@ -490,7 +490,7 @@ template <>
 void Material::SetParameter<my::Vector3>(const char* Name, const my::Vector3& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat3)
+	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat3)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector3 param: %s", Name).c_str());
 		return;
@@ -502,7 +502,7 @@ template <>
 void Material::SetParameter<my::Vector4>(const char* Name, const my::Vector4& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->m_Type != MaterialParameter::ParameterTypeFloat4)
+	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeFloat4)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Vector4 param: %s", Name).c_str());
 		return;
@@ -514,7 +514,7 @@ template <>
 void Material::SetParameter<std::string>(const char* Name, const std::string& Value)
 {
 	MaterialParameterPtr param = GetParameter(Name);
-	if (!param || param->m_Type != MaterialParameter::ParameterTypeTexture)
+	if (!param || param->GetParameterType() != MaterialParameter::ParameterTypeTexture)
 	{
 		my::D3DContext::getSingleton().m_EventLog(str_printf("dose not have Texture param: %s", Name).c_str());
 		return;

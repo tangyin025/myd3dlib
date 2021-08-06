@@ -4,9 +4,8 @@ namespace boost
 	static size_t hash_value(const MaterialParameter & key)
 	{
 		size_t seed = 0;
-		boost::hash_combine(seed, key.m_Type);
 		boost::hash_combine(seed, key.m_Name);
-		switch (key.m_Type)
+		switch (key.GetParameterType())
 		{
 		case MaterialParameter::ParameterTypeFloat:
 			boost::hash_combine(seed, static_cast<const MaterialParameterFloat &>(key).m_Value);

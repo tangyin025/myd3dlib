@@ -28,23 +28,19 @@ public:
 		ParameterTypeTexture,
 	};
 
-	ParameterType m_Type;
-
 	std::string m_Name;
 
 	D3DXHANDLE m_Handle;
 
 protected:
 	MaterialParameter(void)
-		: m_Type(ParameterTypeNone)
-		, m_Name()
+		: m_Name()
 		, m_Handle(NULL)
 	{
 	}
 
-	MaterialParameter(ParameterType Type, const std::string & Name)
-		: m_Type(Type)
-		, m_Name(Name)
+	MaterialParameter(const std::string & Name)
+		: m_Name(Name)
 		, m_Handle(NULL)
 	{
 	}
@@ -59,8 +55,12 @@ public:
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_Type);
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeNone;
 	}
 
 	bool operator == (const MaterialParameter & rhs) const;
@@ -79,10 +79,7 @@ public:
 	{
 	}
 
-	virtual MaterialParameterPtr Clone(void) const
-	{
-		return MaterialParameterPtr(new MaterialParameter(m_Type, m_Name));
-	}
+	virtual MaterialParameterPtr Clone(void) const = 0;
 };
 
 class MaterialParameterFloat : public MaterialParameter
@@ -98,7 +95,7 @@ protected:
 
 public:
 	MaterialParameterFloat(const std::string & Name, float Value)
-		: MaterialParameter(ParameterTypeFloat, Name)
+		: MaterialParameter(Name)
 		, m_Value(Value)
 	{
 	}
@@ -110,6 +107,11 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
 		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeFloat;
 	}
 
 	virtual void Set(my::Effect * shader);
@@ -130,7 +132,7 @@ protected:
 
 public:
 	MaterialParameterFloat2(const std::string & Name, const my::Vector2 & Value)
-		: MaterialParameter(ParameterTypeFloat2, Name)
+		: MaterialParameter(Name)
 		, m_Value(Value)
 	{
 	}
@@ -142,6 +144,11 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
 		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeFloat2;
 	}
 
 	virtual void Set(my::Effect * shader);
@@ -162,7 +169,7 @@ protected:
 
 public:
 	MaterialParameterFloat3(const std::string & Name, const my::Vector3 & Value)
-		: MaterialParameter(ParameterTypeFloat3, Name)
+		: MaterialParameter(Name)
 		, m_Value(Value)
 	{
 	}
@@ -174,6 +181,11 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
 		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeFloat3;
 	}
 
 	virtual void Set(my::Effect * shader);
@@ -194,7 +206,7 @@ protected:
 
 public:
 	MaterialParameterFloat4(const std::string & Name, const my::Vector4 & Value)
-		: MaterialParameter(ParameterTypeFloat4, Name)
+		: MaterialParameter(Name)
 		, m_Value(Value)
 	{
 	}
@@ -206,6 +218,11 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
 		ar & BOOST_SERIALIZATION_NVP(m_Value);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeFloat4;
 	}
 
 	virtual void Set(my::Effect * shader);
@@ -229,7 +246,7 @@ protected:
 
 public:
 	MaterialParameterTexture(const std::string & Name, const std::string & Path)
-		: MaterialParameter(ParameterTypeTexture, Name)
+		: MaterialParameter(Name)
 		, m_TexturePath(Path)
 	{
 	}
@@ -243,6 +260,11 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
 		ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeTexture;
 	}
 
 	void OnTextureReady(my::DeviceResourceBasePtr res);

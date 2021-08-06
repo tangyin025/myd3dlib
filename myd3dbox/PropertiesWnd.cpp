@@ -437,7 +437,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMateri
 			CreatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
 			continue;
 		}
-		if (pParameterList->GetSubItem(i)->GetData() != GetMaterialParameterTypeProp(mtl->m_ParameterList[i]->m_Type))
+		if (pParameterList->GetSubItem(i)->GetData() != GetMaterialParameterTypeProp(mtl->m_ParameterList[i]->GetParameterType()))
 		{
 			RemovePropertiesFrom(pParameterList, i);
 			CreatePropertiesMaterialParameter(pParameterList, i, mtl->m_ParameterList[i].get());
@@ -450,7 +450,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMateri
 
 void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param)
 {
-	switch (mtl_param->m_Type)
+	switch (mtl_param->GetParameterType())
 	{
 	case MaterialParameter::ParameterTypeFloat:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
@@ -992,7 +992,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	CMFCPropertyGridProperty * pProp = NULL;
 	std::basic_string<TCHAR> name = ms2ts(mtl_param->m_Name.c_str());
 	boost::trim_left_if(name, boost::is_any_of(_T("g_")));
-	switch (mtl_param->m_Type)
+	switch (mtl_param->GetParameterType())
 	{
 	case MaterialParameter::ParameterTypeFloat:
 		pProp = new CSimpleProp(name.c_str(), (_variant_t)dynamic_cast<MaterialParameterFloat *>(mtl_param)->m_Value, NULL, PropertyMaterialParameterFloat);
@@ -2105,7 +2105,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
-		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat);
+		ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeFloat);
 		boost::dynamic_pointer_cast<MaterialParameterFloat>(mtl->m_ParameterList[i])->m_Value = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2140,17 +2140,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		switch (pParameter->GetData())
 		{
 		case PropertyMaterialParameterFloat2:
-			ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat2);
+			ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeFloat2);
 			boost::dynamic_pointer_cast<MaterialParameterFloat2>(mtl->m_ParameterList[i])->m_Value = my::Vector2(
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal);
 			break;
 		case PropertyMaterialParameterFloat3:
-			ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat3);
+			ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeFloat3);
 			boost::dynamic_pointer_cast<MaterialParameterFloat3>(mtl->m_ParameterList[i])->m_Value = my::Vector3(
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal);
 			break;
 		case PropertyMaterialParameterFloat4:
-			ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeFloat4);
+			ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeFloat4);
 			boost::dynamic_pointer_cast<MaterialParameterFloat4>(mtl->m_ParameterList[i])->m_Value = my::Vector4(
 				pParameter->GetSubItem(0)->GetValue().fltVal, pParameter->GetSubItem(1)->GetValue().fltVal, pParameter->GetSubItem(2)->GetValue().fltVal, pParameter->GetSubItem(3)->GetValue().fltVal);
 			break;
@@ -2163,7 +2163,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
-		ASSERT(mtl->m_ParameterList[i]->m_Type == MaterialParameter::ParameterTypeTexture);
+		ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeTexture);
 		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
 		if (path.empty())
 		{
