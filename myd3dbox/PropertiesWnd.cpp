@@ -233,8 +233,11 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 	}
 	else if (pFrame->m_selctl)
 	{
-		UpdatePropertiesControl(pFrame->m_selctl);
-		m_wndPropList.AdjustLayout();
+		if (!m_IsOnPropertyChanged)
+		{
+			UpdatePropertiesControl(pFrame->m_selctl);
+			m_wndPropList.AdjustLayout();
+		}
 	}
 	else
 	{
