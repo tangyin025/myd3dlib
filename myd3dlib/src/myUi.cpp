@@ -3580,11 +3580,11 @@ void Dialog::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_EnableDrag);
 }
 
-void Dialog::Draw(UIRender * ui_render, float fElapsedTime)
+void Dialog::Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size)
 {
 	_ASSERT(m_Parent);
 
-	Control::Draw(ui_render, fElapsedTime, Vector2(0, 0), m_Parent->GetDlgViewport());
+	Control::Draw(ui_render, fElapsedTime, Offset, Size);
 }
 
 bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -3844,7 +3844,7 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 	{
 		ui_render->SetWorld((*dlg_iter)->m_World);
 
-		(*dlg_iter)->Draw(ui_render, fElapsedTime);
+		(*dlg_iter)->Draw(ui_render, fElapsedTime, Vector2(0, 0), GetDlgViewport());
 
 		ui_render->Flush();
 	}

@@ -1501,7 +1501,7 @@ namespace my
 			return ControlTypeDialog;
 		}
 
-		virtual void Draw(UIRender * ui_render, float fElapsedTime);
+		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

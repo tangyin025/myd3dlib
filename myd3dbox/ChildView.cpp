@@ -1269,7 +1269,7 @@ void CChildView::OnPaint()
 				{
 					theApp.m_UIRender->SetWorld((*dlg_iter)->m_World);
 
-					(*dlg_iter)->Draw(theApp.m_UIRender.get(), theApp.m_fAbsoluteElapsedTime);
+					(*dlg_iter)->Draw(theApp.m_UIRender.get(), theApp.m_fAbsoluteElapsedTime, my::Vector2(0, 0), my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
 
 					theApp.m_UIRender->Flush();
 				}
@@ -1600,8 +1600,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 					pFrame->m_ctlhandleoff.y = pt.y - ControlPtd->m_y.offset;
 					pFrame->m_ctlhandlesz.x = pt.x - ControlPtd->m_Width.offset;
 					pFrame->m_ctlhandlesz.y = pt.y - ControlPtd->m_Height.offset;
-					SetCapture();
-					Invalidate();
+					pFrame->OnSelChanged();
 					return;
 				}
 			}
@@ -1753,7 +1752,8 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		_ASSERT(pFrame->m_selctl);
 		pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 		ReleaseCapture();
-		Invalidate();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		return;
 	}
 

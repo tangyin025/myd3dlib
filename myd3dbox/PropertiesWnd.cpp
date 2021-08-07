@@ -231,6 +231,11 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 			}
 		}
 	}
+	else if (pFrame->m_selctl)
+	{
+		UpdatePropertiesControl(pFrame->m_selctl);
+		m_wndPropList.AdjustLayout();
+	}
 	else
 	{
 		m_wndPropList.RemoveAll();
@@ -723,6 +728,31 @@ void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
 		}
 	}
+}
+
+void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
+{
+	CMFCPropertyGridProperty * pControl = NULL;
+	if (m_wndPropList.GetPropertyCount() >= 1)
+	{
+		pControl = m_wndPropList.GetProperty(0);
+	}
+	if (!pControl || pControl->GetData() != PropertyControl)
+	{
+		m_wndPropList.RemoveAll();
+		CreatePropertiesControl(control);
+		return;
+	}
+
+	pControl->SetValue((_variant_t)(DWORD_PTR)control);
+	pControl->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)control->m_x.scale);
+	pControl->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)control->m_x.offset);
+	pControl->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)control->m_y.scale);
+	pControl->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)control->m_y.offset);
+	pControl->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)control->m_Width.scale);
+	pControl->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)control->m_Width.offset);
+	pControl->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
+	pControl->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1333,6 +1363,41 @@ void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 	}
 }
 
+void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
+{
+	CMFCPropertyGridProperty* pControl = new CSimpleProp(GetControlTypeName(control->GetControlType()), PropertyControl, FALSE);
+	m_wndPropList.AddProperty(pControl, FALSE, FALSE);
+	pControl->SetValue((_variant_t)(DWORD_PTR)control);
+
+	CMFCPropertyGridProperty* pX = new CSimpleProp(_T("x"), PropertyControlX, TRUE);
+	pControl->AddSubItem(pX);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("scale"), (_variant_t)control->m_x.scale, NULL, PropertyControlXScale);
+	pX->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("offset"), (_variant_t)control->m_x.offset, NULL, PropertyControlXOffset);
+	pX->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pY = new CSimpleProp(_T("y"), PropertyControlY, TRUE);
+	pControl->AddSubItem(pY);
+	pProp = new CSimpleProp(_T("scale"), (_variant_t)control->m_y.scale, NULL, PropertyControlYScale);
+	pY->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("offset"), (_variant_t)control->m_y.offset, NULL, PropertyControlYOffset);
+	pY->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pWidth = new CSimpleProp(_T("Width"), PropertyControlWidth, TRUE);
+	pControl->AddSubItem(pWidth);
+	pProp = new CSimpleProp(_T("scale"), (_variant_t)control->m_Width.scale, NULL, PropertyControlWidthScale);
+	pWidth->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("offset"), (_variant_t)control->m_Width.offset, NULL, PropertyControlWidthOffset);
+	pWidth->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pHeight = new CSimpleProp(_T("Height"), PropertyControlHeight, TRUE);
+	pControl->AddSubItem(pHeight);
+	pProp = new CSimpleProp(_T("scale"), (_variant_t)control->m_Height.scale, NULL, PropertyControlHeightScale);
+	pHeight->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("offset"), (_variant_t)control->m_Height.offset, NULL, PropertyControlHeightOffset);
+	pHeight->AddSubItem(pProp);
+}
+
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
 {
 	switch (type)
@@ -1412,7 +1477,7 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 	case Component::ComponentTypeNavigation:
 		return _T("Navigation");
 	}
-	return _T("Unknown");
+	return _T("Unknown Component");
 }
 
 TerrainChunk * CPropertiesWnd::GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid)
@@ -1442,6 +1507,34 @@ CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(DWORD type
 	}
 	ASSERT(FALSE);
 	return PropertyUnknown;
+}
+
+LPCTSTR CPropertiesWnd::GetControlTypeName(DWORD type)
+{
+	switch (type)
+	{
+	case my::Control::ControlTypeStatic:
+		return _T("Static");
+	case my::Control::ControlTypeProgressBar:
+		return _T("ProgressBar");
+	case my::Control::ControlTypeButton:
+		return _T("Button");
+	case my::Control::ControlTypeEditBox:
+		return _T("EditBox");
+	case my::Control::ControlTypeImeEditBox:
+		return _T("ImeEditBox");
+	case my::Control::ControlTypeScrollBar:
+		return _T("ScrollBar");
+	case my::Control::ControlTypeCheckBox:
+		return _T("CheckBox");
+	case my::Control::ControlTypeComboBox:
+		return _T("ComboBox");
+	case my::Control::ControlTypeListBox:
+		return _T("ListBox");
+	case my::Control::ControlTypeDialog:
+		return _T("Dialog");
+	}
+	return _T("Unknown Control");
 }
 
 void CPropertiesWnd::UpdatePropertiesPaintTool(void)
@@ -2605,6 +2698,52 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyPaintParticleMinDist:
 	{
 		pFrame->m_PaintParticleMinDist = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyControlX:
+	case PropertyControlXScale:
+	case PropertyControlXOffset:
+	case PropertyControlY:
+	case PropertyControlYScale:
+	case PropertyControlYOffset:
+	case PropertyControlWidth:
+	case PropertyControlWidthScale:
+	case PropertyControlWidthOffset:
+	case PropertyControlHeight:
+	case PropertyControlHeightScale:
+	case PropertyControlHeightOffset:
+	{
+		CMFCPropertyGridProperty * pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyControlXScale:
+		case PropertyControlXOffset:
+		case PropertyControlYScale:
+		case PropertyControlYOffset:
+		case PropertyControlWidthScale:
+		case PropertyControlWidthOffset:
+		case PropertyControlHeightScale:
+		case PropertyControlHeightOffset:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyControlX:
+		case PropertyControlY:
+		case PropertyControlWidth:
+		case PropertyControlHeight:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::Control * control = (my::Control *)pControl->GetValue().pulVal;
+		control->m_x.scale = pControl->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
+		control->m_x.offset = pControl->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
+		control->m_y.scale = pControl->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
+		control->m_y.offset = pControl->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Width.scale = pControl->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Width.offset = pControl->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Height.scale = pControl->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Height.offset = pControl->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
