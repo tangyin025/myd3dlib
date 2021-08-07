@@ -223,6 +223,22 @@ public:
 		PropertyControlHeight,
 		PropertyControlHeightScale,
 		PropertyControlHeightOffset,
+		PropertyControlColor,
+		PropertyControlColorAlpha,
+		PropertyControlImagePath,
+		PropertyControlImageRect,
+		PropertyControlImageRectLeft,
+		PropertyControlImageRectTop,
+		PropertyControlImageRectWidth,
+		PropertyControlImageRectHeight,
+		PropertyControlImageBorder,
+		PropertyControlImageBorderX,
+		PropertyControlImageBorderY,
+		PropertyControlImageBorderZ,
+		PropertyControlImageBorderW,
+		PropertyControlFontPath,
+		PropertyControlFontHeight,
+		PropertyControlFontFaceIndex,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
