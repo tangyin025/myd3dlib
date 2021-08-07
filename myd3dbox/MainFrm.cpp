@@ -1437,6 +1437,32 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
+	if (m_selctl)
+	{
+		if (m_selctl->GetControlType() == my::Control::ControlTypeDialog)
+		{
+			my::DialogPtr dlg = boost::dynamic_pointer_cast<my::Dialog>(m_selctl->shared_from_this());
+			ASSERT(dlg);
+
+			RemoveDlg(dlg.get());
+
+			DialogPtrSet::iterator dlg_iter = std::find(m_DlgList.begin(), m_DlgList.end(), dlg);
+			if (dlg_iter != m_DlgList.end())
+			{
+				m_DlgList.erase(dlg_iter);
+			}
+		}
+		else
+		{
+			ASSERT(m_selctl->m_Parent);
+
+			m_selctl->m_Parent->RemoveControl(m_selctl->shared_from_this());
+		}
+		m_selctl = NULL;
+		OnSelChanged();
+		return;
+	}
+
 	SelActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter = m_selactors.begin())
 	{

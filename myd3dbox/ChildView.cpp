@@ -1613,7 +1613,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
-	if (!(nFlags & MK_SHIFT) && !pFrame->m_selactors.empty())
+	if (!(nFlags & MK_SHIFT) && (!pFrame->m_selactors.empty() || pFrame->m_selctl))
 	{
 		pFrame->m_selactors.clear();
 		pFrame->m_selcmp = NULL;
@@ -2059,7 +2059,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		return;
 	case VK_DELETE:
-		if (!pFrame->m_selactors.empty())
+		if (!pFrame->m_selactors.empty() || pFrame->m_selctl)
 		{
 			pFrame->OnCmdMsg(ID_EDIT_DELETE, 0, NULL, NULL);
 		}
