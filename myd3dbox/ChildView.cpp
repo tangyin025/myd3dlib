@@ -16,6 +16,7 @@
 #define new DEBUG_NEW
 #endif
 
+static const float ctl_handle_size = 3;
 
 // CChildView
 
@@ -347,17 +348,55 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	my::Dialog * dlg = dynamic_cast<my::Dialog *>(ctl->GetTopControl());
 	ASSERT(dlg);
 
-	Vertex v[5] = {
-		{ctl->m_Rect.l, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)}
+	Vertex v[] = {
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
 	};
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&dlg->m_World));
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, 4, v, sizeof(v[0])));
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0])));
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -1378,12 +1417,11 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		my::Vector2 pt;
 		if (dlg->RayToWorld(ui_ray, pt))
 		{
-			const float BORDER_SIZE = 2;
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.l + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t + BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.l - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1400,10 +1438,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.r - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t + BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1420,10 +1458,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.r - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.r + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t + BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1440,10 +1478,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.l + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b - BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.l - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b - ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1460,10 +1498,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.r - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.t + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.r + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b - BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b - ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1480,10 +1518,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.l + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b + BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.l - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1500,10 +1538,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.r - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b + BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1520,10 +1558,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.r - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b - BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.r + BORDER_SIZE,
-				pFrame->m_selctl->m_Rect.b + BORDER_SIZE).PtInRect(pt))
+				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
