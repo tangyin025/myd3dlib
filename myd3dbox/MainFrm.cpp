@@ -234,6 +234,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_COMPONENT_NAVIGATION, &CMainFrame::OnCreateNavigation)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_NAVIGATION, &CMainFrame::OnUpdateCreateNavigation)
 	ON_COMMAND(ID_CREATE_DIALOG, &CMainFrame::OnCreateDialog)
+	ON_COMMAND(ID_CONTROL_STATIC, &CMainFrame::OnControlStatic)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_STATIC, &CMainFrame::OnUpdateControlStatic)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1731,4 +1733,38 @@ void CMainFrame::OnCreateDialog()
 	m_selinstid = 0;
 	m_selctl = dlg.get();
 	OnSelChanged();
+}
+
+
+void CMainFrame::OnControlStatic()
+{
+	// TODO: Add your command handler code here
+	if (!m_selctl)
+	{
+		return;
+	}
+
+	my::ControlSkinPtr skin(new my::ControlSkin());
+	skin->m_Color = D3DCOLOR_ARGB(0, 0, 0, 0);
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+
+	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("editor_static").c_str()));
+	static_ctl->m_Skin = skin;
+	static_ctl->m_Text = ms2ws(static_ctl->GetName());
+	static_ctl->m_x.offset = 10;
+	static_ctl->m_y.offset = 10;
+
+	m_selctl->InsertControl(static_ctl);
+	m_selctl = static_ctl.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlStatic(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
 }

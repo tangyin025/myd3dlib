@@ -725,7 +725,7 @@ void LuaContext::Init(void)
 			.def(constructor<const char *>())
 			.enum_("ControlType")
 			[
-				value("ControlTypeNone", my::Control::ControlTypeNone),
+				value("ControlTypeControl", my::Control::ControlTypeControl),
 				value("ControlTypeStatic", my::Control::ControlTypeStatic),
 				value("ControlTypeProgressBar", my::Control::ControlTypeProgressBar),
 				value("ControlTypeButton", my::Control::ControlTypeButton),

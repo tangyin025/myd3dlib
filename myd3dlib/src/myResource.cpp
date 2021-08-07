@@ -273,6 +273,11 @@ bool StreamDirMgr::CheckPath(const char * path)
 
 std::string StreamDirMgr::GetFullPath(const char * path)
 {
+	if (path[0] == '\0')
+	{
+		return std::string();
+	}
+
 	if(!PathIsRelativeA(path))
 	{
 		return path;

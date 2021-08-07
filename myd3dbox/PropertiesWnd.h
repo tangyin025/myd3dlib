@@ -239,6 +239,10 @@ public:
 		PropertyControlFontPath,
 		PropertyControlFontHeight,
 		PropertyControlFontFaceIndex,
+		PropertyControlTextColor,
+		PropertyControlTextColorAlpha,
+		PropertyControlTextAlign,
+		PropertyStaticText,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -264,6 +268,7 @@ public:
 	void UpdatePropertiesAnimationNode(CMFCPropertyGridProperty * pAnimationNode, AnimationNode * node);
 	void UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
 	void UpdatePropertiesControl(my::Control * control);
+	void UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -283,12 +288,14 @@ public:
 	void CreatePropertiesAnimationNode(CMFCPropertyGridProperty * pParentCtrl, AnimationNode * node);
 	void CreatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
 	void CreatePropertiesControl(my::Control * control);
+	void CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);
 	static LPCTSTR GetComponentTypeName(DWORD type);
 	static TerrainChunk * GetTerrainChunkSafe(Terrain * terrain, const CPoint & chunkid);
 	static Property GetMaterialParameterTypeProp(DWORD type);
+	static unsigned int GetControlPropCount(DWORD type);
 	static LPCTSTR GetControlTypeName(DWORD type);
 
 	void UpdatePropertiesPaintTool(void);

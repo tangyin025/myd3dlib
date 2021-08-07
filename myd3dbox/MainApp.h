@@ -33,7 +33,7 @@ public:
 	// cfg
 	float default_fov;
 	bool default_load_shader_cache;
-	std::string default_font;
+	std::string default_font_path;
 	int default_font_height;
 	int default_font_face_index;
 	std::string default_texture;

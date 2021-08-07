@@ -264,7 +264,7 @@ namespace my
 	public:
 		enum ControlType
 		{
-			ControlTypeNone = 0,
+			ControlTypeControl = 0,
 			ControlTypeStatic,
 			ControlTypeProgressBar,
 			ControlTypeButton,
@@ -387,7 +387,7 @@ namespace my
 
 		virtual ControlType GetControlType(void) const
 		{
-			return ControlTypeNone;
+			return ControlTypeControl;
 		}
 
 		static Control * GetFocusControl(void)

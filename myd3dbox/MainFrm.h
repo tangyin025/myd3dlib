@@ -183,6 +183,8 @@ public:
 	afx_msg void OnCreateNavigation();
 	afx_msg void OnUpdateCreateNavigation(CCmdUI* pCmdUI);
 	afx_msg void OnCreateDialog();
+	afx_msg void OnControlStatic();
+	afx_msg void OnUpdateControlStatic(CCmdUI* pCmdUI);
 };
 
 
