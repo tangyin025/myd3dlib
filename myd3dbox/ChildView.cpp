@@ -1836,19 +1836,23 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterTop:
 				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightTop:
 				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftMiddle:
 				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterMiddle:
 				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
@@ -1856,21 +1860,24 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				break;
 			case CMainFrame::ControlHandleRightMiddle:
 				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftBottom:
 				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
 				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterBottom:
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				pFrame->m_selctl->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightBottom:
 				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				pFrame->m_selctl->OnLayout();
 				break;
 			}
-			pFrame->m_selctl->OnLayout();
 		}
 		Invalidate();
 		UpdateWindow();
