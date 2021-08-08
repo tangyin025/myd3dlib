@@ -1870,6 +1870,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
 				break;
 			}
+			pFrame->m_selctl->OnLayout();
 		}
 		Invalidate();
 		UpdateWindow();

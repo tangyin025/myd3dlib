@@ -649,6 +649,10 @@ bool Control::HitTest(const Vector2 & pt)
 	return m_Rect.PtInRect(pt);
 }
 
+void Control::OnLayout(void)
+{
+}
+
 void Control::SetEnabled(bool bEnabled)
 {
 	m_bEnabled = bEnabled;
@@ -3483,6 +3487,8 @@ void ListBox::OnLayout(void)
 	m_ScrollBar.m_Parent = this;
 
 	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
+
+	m_ScrollBar.m_nEnd = (int)ceilf(m_Items.size() / (float)m_ItemColumn);
 }
 
 void ListBox::SetScrollbarWidth(float Width)

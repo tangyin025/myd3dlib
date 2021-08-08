@@ -423,6 +423,8 @@ namespace my
 
 		virtual bool HitTest(const Vector2 & pt);
 
+		virtual void OnLayout(void);
+
 		virtual void SetEnabled(bool bEnabled);
 
 		virtual bool GetEnabled(void);
