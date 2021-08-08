@@ -3339,6 +3339,12 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
+
+			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+			for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+			{
+				(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
+			}
 		}
 	}
 }

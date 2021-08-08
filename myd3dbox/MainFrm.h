@@ -187,6 +187,18 @@ public:
 	afx_msg void OnUpdateControlStatic(CCmdUI* pCmdUI);
 	afx_msg void OnControlProgressbar();
 	afx_msg void OnUpdateControlProgressbar(CCmdUI* pCmdUI);
+	afx_msg void OnControlButton();
+	afx_msg void OnUpdateControlButton(CCmdUI* pCmdUI);
+	afx_msg void OnControlEditbox();
+	afx_msg void OnUpdateControlEditbox(CCmdUI* pCmdUI);
+	afx_msg void OnControlImeeditbox();
+	afx_msg void OnUpdateControlImeeditbox(CCmdUI* pCmdUI);
+	afx_msg void OnControlCheckbox();
+	afx_msg void OnUpdateControlCheckbox(CCmdUI* pCmdUI);
+	afx_msg void OnControlCombobox();
+	afx_msg void OnUpdateControlCombobox(CCmdUI* pCmdUI);
+	afx_msg void OnControlListbox();
+	afx_msg void OnUpdateControlListbox(CCmdUI* pCmdUI);
 };
 
 

@@ -107,13 +107,19 @@
 #define ID_CREATE_DIALOG                32805
 #define ID_CONTROL_STATIC               32806
 #define ID_CONTROL_PROGRESSBAR          32807
+#define ID_CONTROL_BUTTON               32808
+#define ID_CONTROL_EDITBOX              32809
+#define ID_CONTROL_IMEEDITBOX           32810
+#define ID_CONTROL_CHECKBOX             32811
+#define ID_CONTROL_COMBOBOX             32812
+#define ID_CONTROL_LISTBOX              32813
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32808
+#define _APS_NEXT_COMMAND_VALUE         32814
 #define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

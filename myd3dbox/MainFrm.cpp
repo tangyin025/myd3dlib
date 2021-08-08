@@ -238,6 +238,18 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_STATIC, &CMainFrame::OnUpdateControlStatic)
 	ON_COMMAND(ID_CONTROL_PROGRESSBAR, &CMainFrame::OnControlProgressbar)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_PROGRESSBAR, &CMainFrame::OnUpdateControlProgressbar)
+	ON_COMMAND(ID_CONTROL_BUTTON, &CMainFrame::OnControlButton)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_BUTTON, &CMainFrame::OnUpdateControlButton)
+	ON_COMMAND(ID_CONTROL_EDITBOX, &CMainFrame::OnControlEditbox)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_EDITBOX, &CMainFrame::OnUpdateControlEditbox)
+	ON_COMMAND(ID_CONTROL_IMEEDITBOX, &CMainFrame::OnControlImeeditbox)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_IMEEDITBOX, &CMainFrame::OnUpdateControlImeeditbox)
+	ON_COMMAND(ID_CONTROL_CHECKBOX, &CMainFrame::OnControlCheckbox)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_CHECKBOX, &CMainFrame::OnUpdateControlCheckbox)
+	ON_COMMAND(ID_CONTROL_COMBOBOX, &CMainFrame::OnControlCombobox)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_COMBOBOX, &CMainFrame::OnUpdateControlCombobox)
+	ON_COMMAND(ID_CONTROL_LISTBOX, &CMainFrame::OnControlListbox)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_LISTBOX, &CMainFrame::OnUpdateControlListbox)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1753,7 +1765,7 @@ void CMainFrame::OnControlStatic()
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
 	skin->m_TextColor = theApp.default_text_color;
-	skin->m_TextAlign = my::Font::AlignLeftMiddle;
+	skin->m_TextAlign = my::Font::AlignLeftTop;
 
 	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("editor_static").c_str()));
 	static_ctl->m_Skin = skin;
@@ -1811,6 +1823,326 @@ void CMainFrame::OnControlProgressbar()
 
 
 void CMainFrame::OnUpdateControlProgressbar(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlButton()
+{
+	// TODO: Add your command handler code here
+	my::ButtonSkinPtr skin(new my::ButtonSkin());
+	skin->m_Color = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_Image->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextAlign = my::Font::AlignCenterMiddle;
+	skin->m_PressedOffset = my::Vector2(1, 2);
+	skin->m_DisabledImage.reset(new my::ControlImage());
+	skin->m_DisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_DisabledImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_PressedImage.reset(new my::ControlImage());
+	skin->m_PressedImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_PressedImage->m_Rect = my::Rectangle::LeftTop(18, 43, 16, 16);
+	skin->m_PressedImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_MouseOverImage.reset(new my::ControlImage());
+	skin->m_MouseOverImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
+	skin->m_MouseOverImage->m_Border = my::Vector4(7, 7, 7, 7);
+
+	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName("editor_button").c_str()));
+	btn->m_Skin = skin;
+	btn->m_Text = ms2ws(btn->GetName());
+	btn->m_x.offset = 10;
+	btn->m_y.offset = 10;
+
+	m_selctl->InsertControl(btn);
+	m_selctl = btn.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlButton(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlEditbox()
+{
+	// TODO: Add your command handler code here
+	my::EditBoxSkinPtr skin(new my::EditBoxSkin());
+	skin->m_Color = D3DCOLOR_ARGB(15, 255, 255, 255);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 63, 188, 239);
+	skin->m_TextAlign = my::Font::AlignLeftMiddle;
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	skin->m_Image->m_Rect = my::Rectangle(154, 43, 156, 45);
+	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_SelBkColor = D3DCOLOR_ARGB(255, 255, 128, 0);
+	skin->m_CaretImage.reset(new my::ControlImage());
+	skin->m_CaretImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	skin->m_CaretImage->m_Rect = my::Rectangle(154, 43, 156, 45);
+	skin->m_CaretImage->m_Border = my::Vector4(0, 0, 0, 0);
+
+	my::EditBoxPtr edit(new my::EditBox(my::NamedObject::MakeUniqueName("editor_editbox").c_str()));
+	edit->m_Skin = skin;
+	edit->m_x.offset = 10;
+	edit->m_y.offset = 10;
+
+	m_selctl->InsertControl(edit);
+	m_selctl = edit.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlEditbox(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlImeeditbox()
+{
+	// TODO: Add your command handler code here
+	my::EditBoxSkinPtr skin(new my::EditBoxSkin());
+	skin->m_Color = D3DCOLOR_ARGB(15, 255, 255, 255);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 63, 188, 239);
+	skin->m_TextAlign = my::Font::AlignLeftMiddle;
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	skin->m_Image->m_Rect = my::Rectangle(154, 43, 156, 45);
+	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_SelBkColor = D3DCOLOR_ARGB(255, 255, 128, 0);
+	skin->m_CaretImage.reset(new my::ControlImage());
+	skin->m_CaretImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	skin->m_CaretImage->m_Rect = my::Rectangle(154, 43, 156, 45);
+	skin->m_CaretImage->m_Border = my::Vector4(0, 0, 0, 0);
+
+	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName("editor_imeeditbox").c_str()));
+	edit->m_Skin = skin;
+	edit->m_x.offset = 10;
+	edit->m_y.offset = 10;
+
+	m_selctl->InsertControl(edit);
+	m_selctl = edit.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlImeeditbox(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlCheckbox()
+{
+	// TODO: Add your command handler code here
+	my::ButtonSkinPtr skin(new my::ButtonSkin());
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(132, 43, 20, 20);
+	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_TextAlign = my::Font::AlignLeftMiddle;
+	skin->m_PressedOffset = my::Vector2(1, 2);
+	skin->m_DisabledImage.reset(new my::ControlImage());
+	skin->m_DisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(69, 43, 20, 20);
+	skin->m_DisabledImage->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_PressedImage.reset(new my::ControlImage());
+	skin->m_PressedImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_PressedImage->m_Rect = my::Rectangle::LeftTop(90, 43, 20, 20);
+	skin->m_PressedImage->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_MouseOverImage.reset(new my::ControlImage());
+	skin->m_MouseOverImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(111, 43, 20, 20);
+	skin->m_MouseOverImage->m_Border = my::Vector4(0, 0, 0, 0);
+
+	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName("editor_checkbox").c_str()));
+	checkbox->m_Skin = skin;
+	checkbox->m_x.offset = 10;
+	checkbox->m_y.offset = 10;
+
+	m_selctl->InsertControl(checkbox);
+	m_selctl = checkbox.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlCheckbox(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlCombobox()
+{
+	// TODO: Add your command handler code here
+	my::ComboBoxSkinPtr skin(new my::ComboBoxSkin());
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_Image->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_TextAlign = my::Font::AlignCenterMiddle;
+	skin->m_PressedOffset = my::Vector2(1, 2);
+	skin->m_DisabledImage.reset(new my::ControlImage());
+	skin->m_DisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_DisabledImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_PressedImage.reset(new my::ControlImage());
+	skin->m_PressedImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_PressedImage->m_Rect = my::Rectangle::LeftTop(18, 43, 16, 16);
+	skin->m_PressedImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_MouseOverImage.reset(new my::ControlImage());
+	skin->m_MouseOverImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
+	skin->m_MouseOverImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_DropdownImage.reset(new my::ControlImage());
+	skin->m_DropdownImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_DropdownImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_DropdownImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_DropdownItemTextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_DropdownItemTextAlign = my::Font::AlignCenterMiddle;
+	skin->m_DropdownItemMouseOverImage.reset(new my::ControlImage());
+	skin->m_DropdownItemMouseOverImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_DropdownItemMouseOverImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
+	skin->m_DropdownItemMouseOverImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarUpBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ScrollBarUpBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarUpBtnNormalImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_ScrollBarUpBtnNormalImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarUpBtnDisabledImage.reset(new my::ControlImage());
+	skin->m_ScrollBarUpBtnDisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarUpBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_ScrollBarUpBtnDisabledImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarDownBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ScrollBarDownBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarDownBtnNormalImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_ScrollBarDownBtnNormalImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarDownBtnDisabledImage.reset(new my::ControlImage());
+	skin->m_ScrollBarDownBtnDisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarDownBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_ScrollBarDownBtnDisabledImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarThumbBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ScrollBarThumbBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_ScrollBarThumbBtnNormalImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarImage.reset(new my::ControlImage());
+	skin->m_ScrollBarImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_ScrollBarImage->m_Border = my::Vector4(7, 7, 7, 7);
+
+	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName("editor_combobox").c_str()));
+	combobox->m_Skin = skin;
+	combobox->m_x.offset = 10;
+	combobox->m_y.offset = 10;
+
+	m_selctl->InsertControl(combobox);
+	m_selctl = combobox.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlCombobox(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlListbox()
+{
+	// TODO: Add your command handler code here
+	my::ListBoxSkinPtr skin(new my::ListBoxSkin());
+	skin->m_Color = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 0, 0);
+	skin->m_TextAlign = my::Font::AlignCenterMiddle;
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_Image->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_MouseOverImage.reset(new my::ControlImage());
+	skin->m_MouseOverImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_MouseOverImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarUpBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ScrollBarUpBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarUpBtnNormalImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_ScrollBarUpBtnNormalImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarUpBtnDisabledImage.reset(new my::ControlImage());
+	skin->m_ScrollBarUpBtnDisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarUpBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_ScrollBarUpBtnDisabledImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarDownBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ScrollBarDownBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarDownBtnNormalImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_ScrollBarDownBtnNormalImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarDownBtnDisabledImage.reset(new my::ControlImage());
+	skin->m_ScrollBarDownBtnDisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarDownBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_ScrollBarDownBtnDisabledImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarThumbBtnNormalImage.reset(new my::ControlImage());
+	skin->m_ScrollBarThumbBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_ScrollBarThumbBtnNormalImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ScrollBarImage.reset(new my::ControlImage());
+	skin->m_ScrollBarImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ScrollBarImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_ScrollBarImage->m_Border = my::Vector4(7, 7, 7, 7);
+
+	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName("listbox").c_str()));
+	//listBox->m_Width.offset = 200;
+	//listBox->OnLayout();
+	listBox->m_Skin = skin;
+	listBox->AddItem(L"aaa");
+	listBox->AddItem(L"bbb");
+	listBox->AddItem(L"ccc");
+	listBox->AddItem(L"ddd");
+	listBox->AddItem(L"eee");
+	listBox->AddItem(L"fff");
+	listBox->AddItem(L"ggg");
+	listBox->AddItem(L"hhh");
+	listBox->AddItem(L"iii");
+	listBox->AddItem(L"jjj");
+	listBox->m_x.offset = 10;
+	listBox->m_y.offset = 10;
+
+	m_selctl->InsertControl(listBox);
+	m_selctl = listBox.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlListbox(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(m_selctl != NULL);
