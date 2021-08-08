@@ -16,7 +16,7 @@ CStaticEmitterDlg::CStaticEmitterDlg(CWnd* pParent /*=nullptr*/)
 	, m_emit_cmp_name(my::NamedObject::MakeUniqueName("editor_emitter"))
 	, m_ChunkWidth(4.0f)
 {
-	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name.c_str()).c_str());
+	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name).c_str());
 }
 
 CStaticEmitterDlg::~CStaticEmitterDlg()
@@ -77,7 +77,7 @@ void CStaticEmitterDlg::OnOK()
 			return;
 		}
 
-		std::string FullPath = theApp.GetFullPath(ts2ms(m_AssetPath).c_str()) + "_*";
+		std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()) + "_*";
 		FullPath.append(2, '\0');
 		SHFILEOPSTRUCTA shfo;
 		ZeroMemory(&shfo, sizeof(shfo));
@@ -95,7 +95,7 @@ void CStaticEmitterDlg::OnOK()
 	m_emit_cmp.reset(new StaticEmitter(m_emit_cmp_name.c_str(), m_BoundingBox, m_ChunkWidth,
 		EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
 
-	m_emit_cmp->m_EmitterChunkPath = ts2ms(m_AssetPath);
+	m_emit_cmp->m_EmitterChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 
 	StaticEmitterStream estr(m_emit_cmp.get());
 	estr.Spawn(my::Vector3(0, 0, 0), my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
@@ -122,7 +122,7 @@ void CStaticEmitterDlg::OnChangeEdit1()
 	// TODO:  Add your control notification handler code here
 	CString strText;
 	GetDlgItemText(IDC_EDIT1, strText);
-	std::string FullPath = theApp.GetFullPath(ts2ms(strText).c_str()) + "_*";
+	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()) + "_*";
 	WIN32_FIND_DATAA data;
 	HANDLE h = FindFirstFileA(FullPath.c_str(), &data);
 	if (h == INVALID_HANDLE_VALUE)

@@ -18,7 +18,7 @@ namespace luabind
 
 		void to(lua_State* L, std::wstring const& value)
 		{
-			std::string str = wstou8(value.c_str());
+			std::string str = wstou8(value);
 			lua_pushlstring(L, str.data(), str.size());
 		}
 	};

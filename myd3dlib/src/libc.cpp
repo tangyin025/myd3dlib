@@ -122,46 +122,46 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 	return ret;
 }
 
-std::basic_string<wchar_t> ms2ws(const char * str)
+std::basic_string<wchar_t> ms2ws(const std::basic_string<char> & str)
 {
 	std::basic_string<wchar_t> ret;
-	ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, NULL, 0));
+	ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str.c_str(), -1, NULL, 0));
 	if(!ret.empty())
 	{
-		ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, &ret[0], ret.size()) - 1);
+		ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str.c_str(), -1, &ret[0], ret.size()) - 1);
 	}
 	return ret;
 }
 
-std::basic_string<char> ws2ms(const wchar_t * str)
+std::basic_string<char> ws2ms(const std::basic_string<wchar_t> & str)
 {
 	std::basic_string<char> ret;
-	ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, NULL, 0, NULL, NULL));
+	ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str.c_str(), -1, NULL, 0, NULL, NULL));
 	if(!ret.empty())
 	{
-		ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
+		ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str.c_str(), -1, &ret[0], ret.size(), NULL, NULL) - 1);
 	}
 	return ret;
 }
 
-std::basic_string<wchar_t> u8tows(const char * str)
+std::basic_string<wchar_t> u8tows(const std::basic_string<char> & str)
 {
 	std::basic_string<wchar_t> ret;
-	ret.resize(MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0));
+	ret.resize(MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0));
 	if(!ret.empty())
 	{
-		ret.resize(MultiByteToWideChar(CP_UTF8, 0, str, -1, &ret[0], ret.size()) - 1);
+		ret.resize(MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &ret[0], ret.size()) - 1);
 	}
 	return ret;
 }
 
-std::basic_string<char> wstou8(const wchar_t * str)
+std::basic_string<char> wstou8(const std::basic_string<wchar_t> & str)
 {
 	std::basic_string<char> ret;
-	ret.resize(WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL));
+	ret.resize(WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, NULL, 0, NULL, NULL));
 	if(!ret.empty())
 	{
-		ret.resize(WideCharToMultiByte(CP_UTF8, 0, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
+		ret.resize(WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, &ret[0], ret.size(), NULL, NULL) - 1);
 	}
 	return ret;
 }

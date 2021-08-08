@@ -276,7 +276,7 @@ void Console::OnEventEnter(EventArg * arg)
 		m_strIter = m_strList.end();
 		m_Edit->SetText(L"");
 		m_Panel->AddLine(code, m_Edit->m_Skin->m_TextColor);
-		Game::getSingleton().ExecuteCode(wstou8(code.c_str()).c_str());
+		Game::getSingleton().ExecuteCode(wstou8(code).c_str());
 	}
 }
 

@@ -236,7 +236,7 @@ IStreamPtr FileIStreamDir::OpenIStream(const char * path)
 		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path));
 	}
 
-	return FileIStream::Open(ms2ts(fullPath.c_str()).c_str());
+	return FileIStream::Open(ms2ts(fullPath).c_str());
 }
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)

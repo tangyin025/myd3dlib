@@ -442,8 +442,8 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 		CreatePropertiesMesh(pComponent, mesh_cmp);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str()).c_str()).c_str());
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str())).c_str());
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName).c_str());
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)mesh_cmp->m_MeshSubMeshId);
 	COLORREF color = RGB(mesh_cmp->m_MeshColor.x * 255, mesh_cmp->m_MeshColor.y * 255, mesh_cmp->m_MeshColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pComponent->GetSubItem(PropId + 3)))->SetColor(color);
@@ -455,7 +455,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pMaterial, Material * mtl)
 {
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
-	pMaterial->GetSubItem(0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mtl->m_Shader.c_str()).c_str()).c_str());
+	pMaterial->GetSubItem(0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(mtl->m_Shader.c_str())).c_str());
 	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mtl->m_PassMask));
 	pMaterial->GetSubItem(2)->SetValue((_variant_t)g_CullModeDesc[mtl->m_CullMode - 1]);
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)(VARIANT_BOOL)mtl->m_ZEnable);
@@ -515,7 +515,7 @@ void CPropertiesWnd::UpdatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 	}
 	case MaterialParameter::ParameterTypeTexture:
 		pParentCtrl->GetSubItem(NodeId)->SetValue((_variant_t)
-			ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str()).c_str());
+			ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str())).c_str());
 		break;
 	}
 }
@@ -552,7 +552,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType]);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
 	pChunkWidth->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_EmitterChunkPath.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_EmitterChunkPath).c_str());
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -670,7 +670,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->m_RowChunks);
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ColChunks);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(terrain->m_ChunkPath.c_str()).c_str());
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(terrain->m_ChunkPath).c_str());
 	pComponent->GetSubItem(PropId + 4);
 	pComponent->GetSubItem(PropId + 5);
 	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_Material.get());
@@ -719,7 +719,7 @@ void CPropertiesWnd::UpdatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str());
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str())).c_str());
 
 	UpdatePropertiesAnimationNode(pComponent->GetSubItem(PropId + 1), animator->m_Childs[0].get());
 }
@@ -744,7 +744,7 @@ void CPropertiesWnd::UpdatePropertiesAnimationNode(CMFCPropertyGridProperty* pAn
 
 void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq)
 {
-	pAnimationNode->GetSubItem(1)->SetValue((_variant_t)ms2ts(seq->m_Name.c_str()).c_str());
+	pAnimationNode->GetSubItem(1)->SetValue((_variant_t)ms2ts(seq->m_Name).c_str());
 
 	pAnimationNode->GetSubItem(1)->RemoveAllOptions();
 	Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
@@ -753,7 +753,7 @@ void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 		my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
 		for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
 		{
-			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
+			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first).c_str(), TRUE);
 		}
 	}
 }
@@ -785,7 +785,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
 	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(4)))->SetColor(color);
 	pControl->GetSubItem(5)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
-	pControl->GetSubItem(6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
 	pControl->GetSubItem(7)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
 	pControl->GetSubItem(7)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
 	pControl->GetSubItem(7)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
@@ -794,7 +794,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
 	pControl->GetSubItem(8)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
 	pControl->GetSubItem(8)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
-	pControl->GetSubItem(9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str()).c_str()).c_str());
+	pControl->GetSubItem(9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str());
 	pControl->GetSubItem(10)->SetValue((_variant_t)(long)control->m_Skin->m_FontHeight);
 	pControl->GetSubItem(11)->SetValue((_variant_t)(long)control->m_Skin->m_FontFaceIndex);
 
@@ -834,7 +834,7 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 		CreatePropertiesStatic(pControl, static_ctl);
 		return;
 	}
-	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)static_ctl->m_Text.c_str());
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(static_ctl->m_Text).c_str());
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1036,11 +1036,11 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("MeshPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mesh_cmp->m_MeshPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
-	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName.c_str()).c_str(), NULL, PropertyMeshSubMeshName);
+	pProp = new CSimpleProp(_T("MeshSubMeshName"), (_variant_t)ms2ts(mesh_cmp->m_MeshSubMeshName).c_str(), NULL, PropertyMeshSubMeshName);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
@@ -1066,7 +1066,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(lpszName, PropertyMaterial, FALSE);
 	pParentCtrl->AddSubItem(pMaterial);
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mtl);
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mtl->m_Shader.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("Shader"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(mtl->m_Shader.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialShader);
 	pMaterial->AddSubItem(pProp);
 	CComboProp * pPassMask = new CComboProp(_T("PassMask"), (_variant_t)GetPassMaskDesc(mtl->m_PassMask), NULL, PropertyMaterialPassMask);
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
@@ -1102,7 +1102,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty * pParentCtrl, int NodeId, MaterialParameter * mtl_param)
 {
 	CMFCPropertyGridProperty * pProp = NULL;
-	std::basic_string<TCHAR> name = ms2ts(mtl_param->m_Name.c_str());
+	std::basic_string<TCHAR> name = ms2ts(mtl_param->m_Name);
 	boost::trim_left_if(name, boost::is_any_of(_T("g_")));
 	switch (mtl_param->GetParameterType())
 	{
@@ -1150,7 +1150,7 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 		break;
 	}
 	case MaterialParameter::ParameterTypeTexture:
-		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
+		pProp = new CFileProp(name.c_str(), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(dynamic_cast<MaterialParameterTexture *>(mtl_param)->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialParameterTexture);
 		pParentCtrl->AddSubItem(pProp);
 		break;
 	}
@@ -1205,7 +1205,7 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	CMFCPropertyGridProperty * pChunkWidth = new CSimpleProp(_T("ChunkWidth"), (_variant_t)emit_cmp->m_ChunkWidth, NULL, PropertyStaticEmitterChunkWidth);
 	pChunkWidth->Enable(FALSE);
 	pComponent->AddSubItem(pChunkWidth);
-	CMFCPropertyGridProperty * pEmitterChunkPath = new CSimpleProp(_T("EmitterChunkPath"), (_variant_t)ms2ts(emit_cmp->m_EmitterChunkPath.c_str()).c_str(), NULL, PropertyStaticEmitterChunkPath);
+	CMFCPropertyGridProperty * pEmitterChunkPath = new CSimpleProp(_T("EmitterChunkPath"), (_variant_t)ms2ts(emit_cmp->m_EmitterChunkPath).c_str(), NULL, PropertyStaticEmitterChunkPath);
 	pEmitterChunkPath->Enable(FALSE);
 	pComponent->AddSubItem(pEmitterChunkPath);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
@@ -1365,7 +1365,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pProp = new CSimpleProp(_T("ChunkSize"), (_variant_t)terrain->m_ChunkSize, NULL, PropertyTerrainChunkSize);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(terrain->m_ChunkPath.c_str()).c_str(), NULL, PropertyTerrainChunkPath);
+	pProp = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(terrain->m_ChunkPath).c_str(), NULL, PropertyTerrainChunkPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
@@ -1399,7 +1399,7 @@ void CPropertiesWnd::CreatePropertiesAnimator(CMFCPropertyGridProperty* pCompone
 {
 	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
 
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("SkeletonPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(animator->m_SkeletonPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyAnimatorSkeletonPath);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 
@@ -1431,7 +1431,7 @@ void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 {
 	ASSERT(pAnimationNode->GetSubItemsCount() == 1);
 
-	CMFCPropertyGridProperty* pProp = new CComboProp(_T("Name"), (_variant_t)ms2ts(seq->m_Name.c_str()).c_str(), NULL, PropertyAnimationNodeSequenceName);
+	CMFCPropertyGridProperty* pProp = new CComboProp(_T("Name"), (_variant_t)ms2ts(seq->m_Name).c_str(), NULL, PropertyAnimationNodeSequenceName);
 	pAnimationNode->AddSubItem(pProp);
 
 	Animator* animator = dynamic_cast<Animator*>(seq->GetTopNode());
@@ -1440,7 +1440,7 @@ void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 		my::OgreSkeletonAnimation::OgreAnimationMap::const_iterator anim_iter = animator->m_Skeleton->m_animationMap.begin();
 		for (; anim_iter != animator->m_Skeleton->m_animationMap.end(); anim_iter++)
 		{
-			pProp->AddOption(ms2ts(anim_iter->first.c_str()).c_str(), TRUE);
+			pProp->AddOption(ms2ts(anim_iter->first).c_str(), TRUE);
 		}
 	}
 }
@@ -1486,7 +1486,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("Alpha"), (long)LOBYTE(control->m_Skin->m_Color >> 24), NULL, PropertyControlColorAlpha);
 	pControl->AddSubItem(pAlpha);
 
-	CMFCPropertyGridProperty* pImagePath = new CFileProp(_T("ImagePath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
+	CMFCPropertyGridProperty* pImagePath = new CFileProp(_T("ImagePath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
 	pControl->AddSubItem(pImagePath);
 
 	CMFCPropertyGridProperty* pImageRect = new CSimpleProp(_T("ImageRect"), PropertyControlImageRect, TRUE);
@@ -1511,7 +1511,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pProp = new CSimpleProp(_T("w"), (_variant_t)control->m_Skin->m_Image->m_Border.w, NULL, PropertyControlImageBorderW);
 	pImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str()).c_str()).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlFontPath);
+	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlFontPath);
 	pControl->AddSubItem(pFontPath);
 	CMFCPropertyGridProperty* pFontHeight = new CSimpleProp(_T("FontHeight"), (_variant_t)(long)control->m_Skin->m_FontHeight, NULL, PropertyControlFontHeight);
 	pControl->AddSubItem(pFontHeight);
@@ -1537,7 +1537,7 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 {
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
 
-	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)static_ctl->m_Text.c_str(), NULL, PropertyStaticText);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(static_ctl->m_Text).c_str(), NULL, PropertyStaticText);
 	pControl->AddSubItem(pProp);
 }
 
@@ -3048,7 +3048,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyStaticText:
 	{
 		my::Static* static_ctl = dynamic_cast<my::Static*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		static_ctl->m_Text = pProp->GetValue().bstrVal;
+		static_ctl->m_Text = ts2ws(pProp->GetValue().bstrVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

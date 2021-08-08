@@ -22,7 +22,7 @@ CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	, m_AlignToCenter(TRUE)
 	, m_MinLodChunkSize(2)
 {
-	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name.c_str()).c_str());
+	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name).c_str());
 }
 
 CTerrainDlg::~CTerrainDlg()
@@ -80,7 +80,7 @@ void CTerrainDlg::OnOK()
 			return;
 		}
 
-		std::string FullPath = theApp.GetFullPath(ts2ms(m_AssetPath).c_str());
+		std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
 		FullPath.append(2, '\0');
 		SHFILEOPSTRUCTA shfo;
 		ZeroMemory(&shfo, sizeof(shfo));
@@ -97,7 +97,7 @@ void CTerrainDlg::OnOK()
 
 	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, m_MinLodChunkSize));
 
-	m_terrain->m_ChunkPath = ts2ms(m_AssetPath);
+	m_terrain->m_ChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 
 	TerrainStream tstr(m_terrain.get());
 	tstr.GetPos(0, 0);
@@ -124,7 +124,7 @@ void CTerrainDlg::OnChangeEdit4()
 	// TODO:  Add your control notification handler code here
 	CString strText;
 	GetDlgItemText(IDC_EDIT4, strText);
-	if (my::ResourceMgr::getSingleton().CheckPath(theApp.GetFullPath(ts2ms(strText).c_str()).c_str()))
+	if (my::ResourceMgr::getSingleton().CheckPath(theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()).c_str()))
 	{
 		SetDlgItemText(IDC_STATIC5, _T("Existed !"));
 	}
