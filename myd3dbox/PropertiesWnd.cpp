@@ -807,9 +807,9 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	switch (control->GetControlType())
 	{
 	case my::Control::ControlTypeStatic:
-		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static *>(control));
-		break;
 	case my::Control::ControlTypeProgressBar:
+		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
 	case my::Control::ControlTypeButton:
 	case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
@@ -818,6 +818,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeComboBox:
 	case my::Control::ControlTypeListBox:
 	case my::Control::ControlTypeDialog:
+	default:
 		if (pControl->GetSubItemsCount() > GetControlPropCount(my::Control::ControlTypeControl))
 		{
 			RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));

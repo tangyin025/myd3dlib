@@ -1254,13 +1254,13 @@ void CChildView::OnPaint()
 					my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
-						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"x", my::Rectangle(pt.xy, pt.xy), theApp.default_text_color, my::Font::AlignCenterMiddle);
 					}
 
 					pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
-						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), theApp.default_text_color, my::Font::AlignCenterMiddle);
 					}
 					theApp.m_UIRender->Flush();
 				}

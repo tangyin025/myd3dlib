@@ -1752,6 +1752,8 @@ void CMainFrame::OnControlStatic()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextAlign = my::Font::AlignLeftMiddle;
 
 	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("editor_static").c_str()));
 	static_ctl->m_Skin = skin;
@@ -1789,7 +1791,7 @@ void CMainFrame::OnControlProgressbar()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_TextColor = theApp.default_text_color;
 	skin->m_TextAlign = my::Font::AlignLeftMiddle;
 	skin->m_ForegroundImage.reset(new my::ControlImage());
 	skin->m_ForegroundImage->m_TexturePath = "texture/CommonUI.png";

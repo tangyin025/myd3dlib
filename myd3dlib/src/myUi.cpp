@@ -954,6 +954,8 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 			m_BlendProgress = Lerp(m_BlendProgress, m_Progress, 1.0f - powf(0.8f, 30 * fElapsedTime));
 			Rectangle ProgressRect(m_Rect.l, m_Rect.t, Lerp(m_Rect.l, m_Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress))), m_Rect.b);
 			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, ProgressRect, m_Skin->m_Color);
+
+			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();

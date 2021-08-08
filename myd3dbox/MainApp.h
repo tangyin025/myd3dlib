@@ -36,6 +36,7 @@ public:
 	std::string default_font_path;
 	int default_font_height;
 	int default_font_face_index;
+	DWORD default_text_color;
 	std::string default_texture;
 	std::string default_normal_texture;
 	std::string default_specular_texture;

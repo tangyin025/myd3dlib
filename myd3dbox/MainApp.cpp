@@ -27,8 +27,6 @@ END_MESSAGE_MAP()
 
 CMainApp::CMainApp()
 {
-	default_font_height = 13;
-	default_font_face_index = 0;
 	max_editable_particle_count = 10;
 	technique_RenderSceneColor = NULL;
 	handle_MeshColor = NULL;
@@ -209,6 +207,7 @@ BOOL CMainApp::InitInstance()
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/wqy-microhei.ttc"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
 		("default_font_face_index", boost::program_options::value(&default_font_face_index)->default_value(0), "Default font face index")
+		("default_text_color", boost::program_options::value(&default_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default text color")
 		("default_texture", boost::program_options::value(&default_texture)->default_value("texture/Checker.bmp"), "Default texture")
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
