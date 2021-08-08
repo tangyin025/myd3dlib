@@ -3290,7 +3290,7 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 			int i = m_ScrollBar.m_nPosition;
 			float y = m_Rect.t;
-			for (; i < m_ScrollBar.m_nEnd && y < m_Rect.b - m_ItemSize.y * 0.5f; i++, y += m_ItemSize.y)
+			for (; i < m_ScrollBar.m_nEnd && i < m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize; i++, y += m_ItemSize.y)
 			{
 				float x = m_Rect.l;
 				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
