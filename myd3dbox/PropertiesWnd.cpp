@@ -772,6 +772,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 		return;
 	}
 
+	pControl->SetName(GetControlTypeName(control->GetControlType()), FALSE);
 	pControl->SetValue((_variant_t)(DWORD_PTR)control);
 	pControl->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)control->m_x.scale);
 	pControl->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)control->m_x.offset);

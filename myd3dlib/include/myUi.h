@@ -556,6 +556,8 @@ namespace my
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 	};
 
+	typedef boost::shared_ptr<ProgressBar> ProgressBarPtr;
+
 	class ButtonSkin : public ControlSkin
 	{
 	public:

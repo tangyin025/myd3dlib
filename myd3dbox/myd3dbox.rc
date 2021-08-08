@@ -409,6 +409,7 @@ BEGIN
         MENUITEM "Dialog",                      ID_CREATE_DIALOG
         MENUITEM SEPARATOR
         MENUITEM "Static",                      ID_CONTROL_STATIC
+        MENUITEM "ProgressBar",                 ID_CONTROL_PROGRESSBAR
     END
     POPUP "&Tools"
     BEGIN
@@ -572,6 +573,7 @@ BEGIN
     BUTTON      ID_CREATE_DIALOG
     SEPARATOR
     BUTTON      ID_CONTROL_STATIC
+    BUTTON      ID_CONTROL_PROGRESSBAR
     SEPARATOR
     BUTTON      ID_PIVOT_MOVE
     BUTTON      ID_PIVOT_ROTATE

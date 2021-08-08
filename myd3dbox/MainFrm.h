@@ -185,6 +185,8 @@ public:
 	afx_msg void OnCreateDialog();
 	afx_msg void OnControlStatic();
 	afx_msg void OnUpdateControlStatic(CCmdUI* pCmdUI);
+	afx_msg void OnControlProgressbar();
+	afx_msg void OnUpdateControlProgressbar(CCmdUI* pCmdUI);
 };
 
 

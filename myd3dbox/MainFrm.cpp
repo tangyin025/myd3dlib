@@ -236,6 +236,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_CREATE_DIALOG, &CMainFrame::OnCreateDialog)
 	ON_COMMAND(ID_CONTROL_STATIC, &CMainFrame::OnControlStatic)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_STATIC, &CMainFrame::OnUpdateControlStatic)
+	ON_COMMAND(ID_CONTROL_PROGRESSBAR, &CMainFrame::OnControlProgressbar)
+	ON_UPDATE_COMMAND_UI(ID_CONTROL_PROGRESSBAR, &CMainFrame::OnUpdateControlProgressbar)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -1718,9 +1720,9 @@ void CMainFrame::OnCreateDialog()
 	my::DialogSkinPtr skin(new my::DialogSkin());
 	skin->m_Color = D3DCOLOR_ARGB(150, 0, 0, 0);
 	skin->m_Image.reset(new my::ControlImage());
-	skin->m_Image->m_TexturePath = theApp.default_dlg_img;
-	skin->m_Image->m_Rect = my::Rectangle::LeftTop(theApp.default_dlg_img_rect.x, theApp.default_dlg_img_rect.y, theApp.default_dlg_img_rect.z, theApp.default_dlg_img_rect.w);
-	skin->m_Image->m_Border = theApp.default_dlg_img_border;
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(154, 43, 2, 2);
+	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
 
 	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("editor_dialog").c_str()));
 	dlg->m_Skin = skin;
@@ -1764,6 +1766,49 @@ void CMainFrame::OnControlStatic()
 
 
 void CMainFrame::OnUpdateControlStatic(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_selctl != NULL);
+}
+
+
+void CMainFrame::OnControlProgressbar()
+{
+	// TODO: Add your command handler code here
+	if (!m_selctl)
+	{
+		return;
+	}
+
+	my::ProgressBarSkinPtr skin(new my::ProgressBarSkin());
+	skin->m_Color = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_Image.reset(new my::ControlImage());
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_Image->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_FontPath = theApp.default_font_path;
+	skin->m_FontHeight = theApp.default_font_height;
+	skin->m_FontFaceIndex = theApp.default_font_face_index;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_TextAlign = my::Font::AlignLeftMiddle;
+	skin->m_ForegroundImage.reset(new my::ControlImage());
+	skin->m_ForegroundImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_ForegroundImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
+	skin->m_ForegroundImage->m_Border = my::Vector4(7, 7, 7, 7);
+
+	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName("editor_progressbar").c_str()));
+	pgs->m_Skin = skin;
+	pgs->m_Progress = 0.5f;
+	pgs->m_x.offset = 10;
+	pgs->m_y.offset = 10;
+
+	m_selctl->InsertControl(pgs);
+	m_selctl = pgs.get();
+	OnSelChanged();
+}
+
+
+void CMainFrame::OnUpdateControlProgressbar(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(m_selctl != NULL);

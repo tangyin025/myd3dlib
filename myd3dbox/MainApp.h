@@ -41,9 +41,6 @@ public:
 	std::string default_specular_texture;
 	std::string default_shader;
 	std::string default_terrain_shader;
-	std::string default_dlg_img;
-	my::Vector4 default_dlg_img_rect;
-	my::Vector4 default_dlg_img_border;
 	int max_editable_particle_count;
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;

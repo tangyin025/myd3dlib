@@ -106,13 +106,14 @@
 #define ID_COMPONENT_NAVIGATION         32804
 #define ID_CREATE_DIALOG                32805
 #define ID_CONTROL_STATIC               32806
+#define ID_CONTROL_PROGRESSBAR          32807
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32807
+#define _APS_NEXT_COMMAND_VALUE         32808
 #define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
