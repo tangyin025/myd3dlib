@@ -1963,7 +1963,7 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_TextColor = theApp.default_text_color;
 	skin->m_TextAlign = my::Font::AlignLeftMiddle;
 	skin->m_PressedOffset = my::Vector2(1, 2);
 	skin->m_DisabledImage.reset(new my::ControlImage());
@@ -2008,7 +2008,7 @@ void CMainFrame::OnControlCombobox()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+	skin->m_TextColor = theApp.default_text_color;
 	skin->m_TextAlign = my::Font::AlignCenterMiddle;
 	skin->m_PressedOffset = my::Vector2(1, 2);
 	skin->m_DisabledImage.reset(new my::ControlImage());
@@ -2084,7 +2084,7 @@ void CMainFrame::OnControlListbox()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 0, 0);
+	skin->m_TextColor = theApp.default_text_color;
 	skin->m_TextAlign = my::Font::AlignCenterMiddle;
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
