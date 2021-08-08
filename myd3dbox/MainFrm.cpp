@@ -1981,6 +1981,7 @@ void CMainFrame::OnControlCheckbox()
 
 	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName("editor_checkbox").c_str()));
 	checkbox->m_Skin = skin;
+	checkbox->m_Text = ms2ws(checkbox->GetName());
 	checkbox->m_x.offset = 10;
 	checkbox->m_y.offset = 10;
 
