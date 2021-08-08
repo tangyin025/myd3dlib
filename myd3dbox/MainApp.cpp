@@ -472,7 +472,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 
 	EnterDeviceSection();
 
-	if (!pFrame->m_selactors.empty())
+	if (!pFrame->m_selactors.empty() || pFrame->m_selctl)
 	{
 		pFrame->OnFrameTick(m_fElapsedTime);
 
