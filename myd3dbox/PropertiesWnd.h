@@ -244,6 +244,7 @@ public:
 		PropertyControlTextColorAlpha,
 		PropertyControlTextAlign,
 		PropertyStaticText,
+		PropertyProgressBarProgress,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -270,6 +271,7 @@ public:
 	void UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
 	void UpdatePropertiesControl(my::Control * control);
 	void UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
+	void UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -290,6 +292,7 @@ public:
 	void CreatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
 	void CreatePropertiesControl(my::Control * control);
 	void CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
+	void CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);

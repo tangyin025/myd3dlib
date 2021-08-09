@@ -809,28 +809,18 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	{
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
+		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
 	case my::Control::ControlTypeButton:
 	case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
-		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
-		break;
 	case my::Control::ControlTypeScrollBar:
-		if (pControl->GetSubItemsCount() > GetControlPropCount(my::Control::ControlTypeControl))
-		{
-			RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));
-		}
-		break;
 	case my::Control::ControlTypeCheckBox:
 	case my::Control::ControlTypeComboBox:
-		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
-		break;
 	case my::Control::ControlTypeListBox:
 	case my::Control::ControlTypeDialog:
 	default:
-		if (pControl->GetSubItemsCount() > GetControlPropCount(my::Control::ControlTypeControl))
-		{
-			RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));
-		}
+		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));
 		break;
 	}
 }
@@ -845,6 +835,28 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 		return;
 	}
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(static_ctl->m_Text).c_str());
+
+	switch (static_ctl->GetControlType())
+	{
+	case my::Control::ControlTypeProgressBar:
+		UpdatePropertiesProgressBar(pControl, dynamic_cast<my::ProgressBar *>(static_ctl));
+		break;
+	default:
+		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeStatic));
+		break;
+	}
+}
+
+void CPropertiesWnd::UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyProgressBarProgress)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesProgressBar(pControl, progressbar);
+		return;
+	}
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)progressbar->m_Progress);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1544,6 +1556,25 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 		pTextAlign->AddOption(g_FontAlignDesc[i].desc, TRUE);
 	}
 	pControl->AddSubItem(pTextAlign);
+
+	switch (control->GetControlType())
+	{
+	case my::Control::ControlTypeStatic:
+	case my::Control::ControlTypeProgressBar:
+		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
+	case my::Control::ControlTypeButton:
+	case my::Control::ControlTypeEditBox:
+	case my::Control::ControlTypeImeEditBox:
+	case my::Control::ControlTypeScrollBar:
+	case my::Control::ControlTypeCheckBox:
+	case my::Control::ControlTypeComboBox:
+	case my::Control::ControlTypeListBox:
+	case my::Control::ControlTypeDialog:
+	default:
+		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));
+		break;
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl)
@@ -1551,6 +1582,21 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
 
 	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(static_ctl->m_Text).c_str(), NULL, PropertyStaticText);
+	pControl->AddSubItem(pProp);
+
+	switch (static_ctl->GetControlType())
+	{
+	case my::Control::ControlTypeProgressBar:
+		CreatePropertiesProgressBar(pControl, dynamic_cast<my::ProgressBar*>(static_ctl));
+		break;
+	}
+}
+
+void CPropertiesWnd::CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeStatic));
+
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Progress"), (_variant_t)progressbar->m_Progress, NULL, PropertyProgressBarProgress);
 	pControl->AddSubItem(pProp);
 }
 
@@ -1671,6 +1717,8 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	{
 	case my::Control::ControlTypeControl:
 		return 16;
+	case my::Control::ControlTypeStatic:
+		return GetControlPropCount(my::Control::ControlTypeControl) + 1;
 	}
 	ASSERT(false);
 	return UINT_MAX;
@@ -3075,6 +3123,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::Static* static_ctl = dynamic_cast<my::Static*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		static_ctl->m_Text = ts2ws(pProp->GetValue().bstrVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyProgressBarProgress:
+	{
+		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		progressbar->m_Progress = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
