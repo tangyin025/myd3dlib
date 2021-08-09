@@ -1600,6 +1600,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 					pFrame->m_ctlhandleoff.y = pt.y - ControlPtd->m_y.offset;
 					pFrame->m_ctlhandlesz.x = pt.x - ControlPtd->m_Width.offset;
 					pFrame->m_ctlhandlesz.y = pt.y - ControlPtd->m_Height.offset;
+					SetCapture();
 					pFrame->OnSelChanged();
 					return;
 				}
