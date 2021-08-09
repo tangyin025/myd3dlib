@@ -27,8 +27,8 @@ public:
 	float m_FogStartDistance;
 	float m_FogHeight;
 	float m_FogFalloff;
-	CollectionObjMap m_CollectionObjs;
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
+	CollectionObjMap m_CollectionObjs;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
 	typedef std::vector<my::DialogPtr> DialogPtrSet;
@@ -133,12 +133,6 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
-	CollectionObjMap m_CollectionObjs;
-
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
-	SceneContext::ActorPtrSet m_ActorList;
-
 	bool m_Activated;
 
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;
@@ -225,6 +219,4 @@ public:
 		IORequestPtr request(new SceneContextRequest(path, Priority));
 		LoadIORequestAsync(key, request, callback);
 	}
-
-	void SetScene(boost::intrusive_ptr<SceneContext> scene);
 };

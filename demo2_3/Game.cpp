@@ -583,6 +583,20 @@ HRESULT Game::OnCreateDevice(
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
 		, luabind::class_<SceneContext, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("SceneContext")
+			.def_readonly("SkyLightCamEuler", &SceneContext::m_SkyLightCamEuler)
+			.def_readonly("SkyLightColor", &SceneContext::m_SkyLightColor)
+			.def_readonly("AmbientColor", &SceneContext::m_AmbientColor)
+			.def_readonly("DofParams", &SceneContext::m_DofParams)
+			.def_readonly("SsaoBias", &SceneContext::m_SsaoBias)
+			.def_readonly("SsaoIntensity", &SceneContext::m_SsaoIntensity)
+			.def_readonly("SsaoRadius", &SceneContext::m_SsaoRadius)
+			.def_readonly("SsaoScale", &SceneContext::m_SsaoScale)
+			.def_readonly("FogColor", &SceneContext::m_FogColor)
+			.def_readonly("FogStartDistance", &SceneContext::m_FogStartDistance)
+			.def_readonly("FogHeight", &SceneContext::m_FogHeight)
+			.def_readonly("FogFalloff", &SceneContext::m_FogFalloff)
+			.def_readonly("ActorList", &SceneContext::m_ActorList, luabind::return_stl_iterator)
+			.def_readonly("DialogList", &SceneContext::m_DialogList, luabind::return_stl_iterator)
 
 		, luabind::class_<GameState, GameStateScript, boost::shared_ptr<GameState> >("GameState")
 			.def(luabind::constructor<>())
@@ -597,6 +611,14 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)
 			.def_readwrite("SkyLightColor", &Game::m_SkyLightColor)
 			.def_readwrite("AmbientColor", &Game::m_AmbientColor)
+			.def_readwrite("SsaoBias", &Game::m_SsaoBias)
+			.def_readwrite("SsaoIntensity", &Game::m_SsaoIntensity)
+			.def_readwrite("SsaoRadius", &Game::m_SsaoRadius)
+			.def_readwrite("SsaoScale", &Game::m_SsaoScale)
+			.def_readwrite("FogColor", &Game::m_FogColor)
+			.def_readwrite("FogStartDistance", &Game::m_FogStartDistance)
+			.def_readwrite("FogHeight", &Game::m_FogHeight)
+			.def_readwrite("FogFalloff", &Game::m_FogFalloff)
 			.def_readwrite("WireFrame", &Game::m_WireFrame)
 			.def_readwrite("DofEnable", &Game::m_DofEnable)
 			.def_readwrite("DofParams", &Game::m_DofParams)
@@ -624,7 +646,6 @@ HRESULT Game::OnCreateDevice(
 			.def("ClearAllState", &Game::ClearAllState)
 			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
-			.def("SetScene", &Game::SetScene)
 
 		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -733,27 +754,21 @@ void Game::OnDestroyDevice(void)
 
 	ClearAllEntity();
 
-	m_ActorList.clear();
-
-	m_CollectionObjs.clear();
-
-	m_SerializeBuff.reset();
-
-	ClearAllState();
-
 	RemoveAllDlg();
 
 	RemoveAllTimer();
 
-	LuaContext::Shutdown();
-
-	_ASSERT(m_NamedObjects.empty());
+	ClearAllState();
 
 	m_SimpleSample.reset();
 
 	m_UIRender->OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();
+
+	LuaContext::Shutdown();
+
+	_ASSERT(m_NamedObjects.empty());
 
 	ImeEditBox::Uninitialize();
 
@@ -1177,42 +1192,5 @@ void Game::OnControlFocus(bool bFocus)
 		CRect rc(pci.ptScreenPos, CSize(1, 1));
 		::ClipCursor(&rc);
 		::ShowCursor(FALSE);
-	}
-}
-
-void Game::SetScene(boost::intrusive_ptr<SceneContext> scene)
-{
-	if (!m_ActorList.empty())
-	{
-		SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-		for (; actor_iter != m_ActorList.end(); actor_iter++)
-		{
-			RemoveEntity(actor_iter->get());
-		}
-		m_ActorList.clear();
-		m_CollectionObjs.clear(); // ! take care for script objs that have PxTriangleMesh, PxHeightField
-		m_SerializeBuff.reset();
-	}
-
-	m_SkyLightCam.m_Euler = scene->m_SkyLightCamEuler;
-	m_SkyLightColor = scene->m_SkyLightColor;
-	m_AmbientColor = scene->m_AmbientColor;
-	m_DofParams = scene->m_DofParams;
-	m_SsaoBias = scene->m_SsaoBias;
-	m_SsaoIntensity = scene->m_SsaoIntensity;
-	m_SsaoRadius = scene->m_SsaoRadius;
-	m_SsaoScale = scene->m_SsaoScale;
-	m_FogColor = scene->m_FogColor;
-	m_FogStartDistance = scene->m_FogStartDistance;
-	m_FogHeight = scene->m_FogHeight;
-	m_FogFalloff = scene->m_FogFalloff;
-	m_CollectionObjs = scene->m_CollectionObjs;
-	m_SerializeBuff = scene->m_SerializeBuff;
-	m_ActorList = scene->m_ActorList;
-
-	SceneContext::ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
-	{
-		OctNode::AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 }

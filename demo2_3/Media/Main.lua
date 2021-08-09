@@ -73,8 +73,24 @@ actor5.EventLeaveTrigger=function(arg)
 end
 
 -- 加载场景资源
+scene01=nil
 game:LoadSceneAsync("scene01.xml", function(res)
-	game:SetScene(res2scene(res))
+	scene01=res2scene(res)
+	game.SkyLightCam.Euler = scene01.SkyLightCamEuler;
+	game.SkyLightColor = scene01.SkyLightColor;
+	game.AmbientColor = scene01.AmbientColor;
+	game.DofParams = scene01.DofParams;
+	game.SsaoBias = scene01.SsaoBias;
+	game.SsaoIntensity = scene01.SsaoIntensity;
+	game.SsaoRadius = scene01.SsaoRadius;
+	game.SsaoScale = scene01.SsaoScale;
+	game.FogColor = scene01.FogColor;
+	game.FogStartDistance = scene01.FogStartDistance;
+	game.FogHeight = scene01.FogHeight;
+	game.FogFalloff = scene01.FogFalloff;
+	for act in scene01.ActorList do
+		game:AddEntity(act, act.aabb:transform(act.World), 0.1, 0.1)
+	end
 
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
 	game:AddEntity(act2entity(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
