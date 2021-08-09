@@ -211,6 +211,7 @@ public:
 		PropertyPaintSpline,
 		PropertyPaintParticleMinDist,
 		PropertyControl,
+		PropertyControlName,
 		PropertyControlX,
 		PropertyControlXScale,
 		PropertyControlXOffset,

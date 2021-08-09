@@ -774,35 +774,36 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 
 	pControl->SetName(GetControlTypeName(control->GetControlType()), FALSE);
 	pControl->SetValue((_variant_t)(DWORD_PTR)control);
-	pControl->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)control->m_x.scale);
-	pControl->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)control->m_x.offset);
-	pControl->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)control->m_y.scale);
-	pControl->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)control->m_y.offset);
-	pControl->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)control->m_Width.scale);
-	pControl->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)control->m_Width.offset);
-	pControl->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
-	pControl->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
+	pControl->GetSubItem(0)->SetValue((_variant_t)ms2ts(control->GetName()).c_str());
+	pControl->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)control->m_x.scale);
+	pControl->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)control->m_x.offset);
+	pControl->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)control->m_y.scale);
+	pControl->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)control->m_y.offset);
+	pControl->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)control->m_Width.scale);
+	pControl->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)control->m_Width.offset);
+	pControl->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
+	pControl->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(4)))->SetColor(color);
-	pControl->GetSubItem(5)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
-	pControl->GetSubItem(6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(7)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
-	pControl->GetSubItem(7)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
-	pControl->GetSubItem(7)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
-	pControl->GetSubItem(7)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
-	pControl->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.x);
-	pControl->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
-	pControl->GetSubItem(8)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
-	pControl->GetSubItem(8)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
-	pControl->GetSubItem(9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str());
-	pControl->GetSubItem(10)->SetValue((_variant_t)(long)control->m_Skin->m_FontHeight);
-	pControl->GetSubItem(11)->SetValue((_variant_t)(long)control->m_Skin->m_FontFaceIndex);
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(5)))->SetColor(color);
+	pControl->GetSubItem(6)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
+	pControl->GetSubItem(7)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
+	pControl->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
+	pControl->GetSubItem(8)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
+	pControl->GetSubItem(8)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
+	pControl->GetSubItem(9)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.x);
+	pControl->GetSubItem(9)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
+	pControl->GetSubItem(9)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
+	pControl->GetSubItem(9)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
+	pControl->GetSubItem(10)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str());
+	pControl->GetSubItem(11)->SetValue((_variant_t)(long)control->m_Skin->m_FontHeight);
+	pControl->GetSubItem(12)->SetValue((_variant_t)(long)control->m_Skin->m_FontFaceIndex);
 
 	color = RGB(LOBYTE(control->m_Skin->m_TextColor >> 16), LOBYTE(control->m_Skin->m_TextColor >> 8), LOBYTE(control->m_Skin->m_TextColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(12)))->SetColor(color);
-	pControl->GetSubItem(13)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextColor >> 24));
-	pControl->GetSubItem(14)->SetValue(GetFontAlignDesc(control->m_Skin->m_TextAlign));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(13)))->SetColor(color);
+	pControl->GetSubItem(14)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextColor >> 24));
+	pControl->GetSubItem(15)->SetValue(GetFontAlignDesc(control->m_Skin->m_TextAlign));
 
 	switch (control->GetControlType())
 	{
@@ -1460,6 +1461,9 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	m_wndPropList.AddProperty(pControl, FALSE, FALSE);
 	pControl->SetValue((_variant_t)(DWORD_PTR)control);
 
+	CMFCPropertyGridProperty* pName = new CSimpleProp(_T("Name"), (_variant_t)ms2ts(control->GetName()).c_str(), NULL, PropertyControlName);
+	pControl->AddSubItem(pName);
+
 	CMFCPropertyGridProperty* pX = new CSimpleProp(_T("x"), PropertyControlX, TRUE);
 	pControl->AddSubItem(pX);
 	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("scale"), (_variant_t)control->m_x.scale, NULL, PropertyControlXScale);
@@ -1666,7 +1670,7 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	switch (type)
 	{
 	case my::Control::ControlTypeControl:
-		return 15;
+		return 16;
 	}
 	ASSERT(false);
 	return UINT_MAX;
@@ -2865,6 +2869,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyControlName:
+	{
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
+		std::string Name = ts2ms(pProp->GetValue().bstrVal);
+		if (theApp.GetNamedObject(Name.c_str()))
+		{
+			MessageBox(str_printf(_T("%s already existed"), pProp->GetValue().bstrVal).c_str());
+			pProp->SetValue((_variant_t)ms2ts(control->GetName()).c_str());
+			return 0;
+		}
+		control->SetName(Name.c_str());
+		break;
+	}
 	case PropertyControlX:
 	case PropertyControlXScale:
 	case PropertyControlXOffset:
@@ -2899,14 +2916,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		my::Control* control = (my::Control*)pControl->GetValue().pulVal;
-		control->m_x.scale = pControl->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
-		control->m_x.offset = pControl->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
-		control->m_y.scale = pControl->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
-		control->m_y.offset = pControl->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
-		control->m_Width.scale = pControl->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
-		control->m_Width.offset = pControl->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
-		control->m_Height.scale = pControl->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
-		control->m_Height.offset = pControl->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
+		control->m_x.scale = pControl->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
+		control->m_x.offset = pControl->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
+		control->m_y.scale = pControl->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
+		control->m_y.offset = pControl->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Width.scale = pControl->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Width.offset = pControl->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Height.scale = pControl->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Height.offset = pControl->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -2924,8 +2941,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 			break;
 		}
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(4)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(5)->GetValue().lVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(5)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(6)->GetValue().lVal;
 		control->m_Skin->m_Color = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -2982,14 +2999,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		my::Control* control = (my::Control *)pControl->GetValue().pulVal;
 		control->m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(7)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(7)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(7)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(7)->GetSubItem(3)->GetValue().fltVal);
-		control->m_Skin->m_Image->m_Border.x = pControl->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.y = pControl->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.z = pControl->GetSubItem(8)->GetSubItem(2)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.w = pControl->GetSubItem(8)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(8)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(8)->GetSubItem(3)->GetValue().fltVal);
+		control->m_Skin->m_Image->m_Border.x = pControl->GetSubItem(9)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.y = pControl->GetSubItem(9)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.z = pControl->GetSubItem(9)->GetSubItem(2)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.w = pControl->GetSubItem(9)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3013,9 +3030,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		my::Control* control = (my::Control*)pControl->GetValue().pulVal;
 		control->m_Skin->ReleaseResource();
-		control->m_Skin->m_FontPath = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(9)->GetValue().bstrVal).c_str());
-		control->m_Skin->m_FontHeight = pControl->GetSubItem(10)->GetValue().lVal;
-		control->m_Skin->m_FontFaceIndex = pControl->GetSubItem(11)->GetValue().lVal;
+		control->m_Skin->m_FontPath = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(10)->GetValue().bstrVal).c_str());
+		control->m_Skin->m_FontHeight = pControl->GetSubItem(11)->GetValue().lVal;
+		control->m_Skin->m_FontFaceIndex = pControl->GetSubItem(12)->GetValue().lVal;
 		if (control->IsRequested())
 		{
 			control->m_Skin->RequestResource();
@@ -3037,8 +3054,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 			break;
 		}
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(12)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(13)->GetValue().lVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(13)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(14)->GetValue().lVal;
 		control->m_Skin->m_TextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
