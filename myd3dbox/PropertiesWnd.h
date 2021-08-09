@@ -245,6 +245,17 @@ public:
 		PropertyControlTextAlign,
 		PropertyStaticText,
 		PropertyProgressBarProgress,
+		PropertyButtonDisabledImagePath,
+		PropertyButtonDisabledImageRect,
+		PropertyButtonDisabledImageRectLeft,
+		PropertyButtonDisabledImageRectTop,
+		PropertyButtonDisabledImageRectWidth,
+		PropertyButtonDisabledImageRectHeight,
+		PropertyButtonDisabledImageBorder,
+		PropertyButtonDisabledImageBorderX,
+		PropertyButtonDisabledImageBorderY,
+		PropertyButtonDisabledImageBorderZ,
+		PropertyButtonDisabledImageBorderW,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -272,6 +283,7 @@ public:
 	void UpdatePropertiesControl(my::Control * control);
 	void UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 	void UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
+	void UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -293,6 +305,7 @@ public:
 	void CreatePropertiesControl(my::Control * control);
 	void CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 	void CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
+	void CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);

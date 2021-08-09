@@ -809,9 +809,9 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	{
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
+	case my::Control::ControlTypeButton:
 		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	case my::Control::ControlTypeButton:
 	case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
 	case my::Control::ControlTypeScrollBar:
@@ -839,7 +839,10 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	switch (static_ctl->GetControlType())
 	{
 	case my::Control::ControlTypeProgressBar:
-		UpdatePropertiesProgressBar(pControl, dynamic_cast<my::ProgressBar *>(static_ctl));
+		UpdatePropertiesProgressBar(pControl, dynamic_cast<my::ProgressBar*>(static_ctl));
+		break;
+	case my::Control::ControlTypeButton:
+		UpdatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
 	default:
 		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeStatic));
@@ -857,6 +860,27 @@ void CPropertiesWnd::UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 		return;
 	}
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)progressbar->m_Progress);
+}
+
+void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyButtonDisabledImagePath)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesButton(pControl, button);
+		return;
+	}
+	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 1)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1511,7 +1535,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	CMFCPropertyGridProperty* pAlpha = new CSliderProp(_T("Alpha"), (long)LOBYTE(control->m_Skin->m_Color >> 24), NULL, PropertyControlColorAlpha);
 	pControl->AddSubItem(pAlpha);
 
-	CMFCPropertyGridProperty* pImagePath = new CFileProp(_T("ImagePath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
+	CMFCPropertyGridProperty* pImagePath = new CFileProp(_T("Image"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
 	pControl->AddSubItem(pImagePath);
 
 	CMFCPropertyGridProperty* pImageRect = new CSimpleProp(_T("ImageRect"), PropertyControlImageRect, TRUE);
@@ -1561,9 +1585,9 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	{
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
+	case my::Control::ControlTypeButton:
 		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	case my::Control::ControlTypeButton:
 	case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
 	case my::Control::ControlTypeScrollBar:
@@ -1589,6 +1613,9 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	case my::Control::ControlTypeProgressBar:
 		CreatePropertiesProgressBar(pControl, dynamic_cast<my::ProgressBar*>(static_ctl));
 		break;
+	case my::Control::ControlTypeButton:
+		CreatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
+		break;
 	}
 }
 
@@ -1598,6 +1625,38 @@ void CPropertiesWnd::CreatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 
 	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Progress"), (_variant_t)progressbar->m_Progress, NULL, PropertyProgressBarProgress);
 	pControl->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeStatic));
+
+	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+
+	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
+	pControl->AddSubItem(pDisabledImagePath);
+
+	CMFCPropertyGridProperty* pDisabledImageRect = new CSimpleProp(_T("DisabledImageRect"), PropertyButtonDisabledImageRect, TRUE);
+	pControl->AddSubItem(pDisabledImageRect);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_DisabledImage->m_Rect.l, NULL, PropertyButtonDisabledImageRectLeft);
+	pDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DisabledImage->m_Rect.t, NULL, PropertyButtonDisabledImageRectTop);
+	pDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DisabledImage->m_Rect.Width(), NULL, PropertyButtonDisabledImageRectWidth);
+	pDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DisabledImage->m_Rect.Height(), NULL, PropertyButtonDisabledImageRectHeight);
+	pDisabledImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pDisabledImageBorder = new CSimpleProp(_T("DisabledImageBorder"), PropertyButtonDisabledImageBorder, TRUE);
+	pControl->AddSubItem(pDisabledImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_DisabledImage->m_Border.x, NULL, PropertyButtonDisabledImageBorderX);
+	pDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_DisabledImage->m_Border.y, NULL, PropertyButtonDisabledImageBorderY);
+	pDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_DisabledImage->m_Border.z, NULL, PropertyButtonDisabledImageBorderZ);
+	pDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DisabledImage->m_Border.w, NULL, PropertyButtonDisabledImageBorderW);
+	pDisabledImageBorder->AddSubItem(pProp);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3131,6 +3190,72 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		progressbar->m_Progress = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonDisabledImagePath:
+	{
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(button);
+			return 0;
+		}
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		skin->m_DisabledImage->ReleaseResource();
+		skin->m_DisabledImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_DisabledImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonDisabledImageRect:
+	case PropertyButtonDisabledImageRectLeft:
+	case PropertyButtonDisabledImageRectTop:
+	case PropertyButtonDisabledImageRectWidth:
+	case PropertyButtonDisabledImageRectHeight:
+	case PropertyButtonDisabledImageBorder:
+	case PropertyButtonDisabledImageBorderX:
+	case PropertyButtonDisabledImageBorderY:
+	case PropertyButtonDisabledImageBorderZ:
+	case PropertyButtonDisabledImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyControlImageRectLeft:
+		case PropertyControlImageRectTop:
+		case PropertyControlImageRectWidth:
+		case PropertyControlImageRectHeight:
+		case PropertyControlImageBorderX:
+		case PropertyControlImageBorderY:
+		case PropertyControlImageBorderZ:
+		case PropertyControlImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyControlImageRect:
+		case PropertyControlImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 1)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 1)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 1)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 1)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_DisabledImage->m_Border.x = pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.y = pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.z = pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.w = pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
