@@ -730,7 +730,7 @@ void CMainFrame::ClearFileContext()
 	OctRoot::ClearAllEntity();
 	DialogMgr::RemoveAllDlg();
 	m_ActorList.clear();
-	m_DlgList.clear();
+	m_DialogList.clear();
 	m_selactors.clear();
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
@@ -785,6 +785,14 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
 		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+
+	*ia >> boost::serialization::make_nvp("DialogList", m_DialogList);
+
+	DialogPtrSet::const_iterator dlg_iter = m_DialogList.begin();
+	for (; dlg_iter != m_DialogList.end(); dlg_iter++)
+	{
+		InsertDlg(dlg_iter->get());
 	}
 
 	return TRUE;
@@ -850,6 +858,15 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 
 	// ! save all actor in the scene, including lua context actor
 	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
+
+	DialogPtrSet dlgList;
+	DialogList::iterator dlg_iter = m_DlgList.begin();
+	for (; dlg_iter != m_DlgList.end(); dlg_iter++)
+	{
+		dlgList.push_back(boost::dynamic_pointer_cast<my::Dialog>((*dlg_iter)->shared_from_this()));
+	}
+
+	*oa << boost::serialization::make_nvp("DialogList", dlgList);
 
 	return TRUE;
 }
@@ -1462,10 +1479,10 @@ void CMainFrame::OnEditDelete()
 
 			RemoveDlg(dlg.get());
 
-			DialogPtrSet::iterator dlg_iter = std::find(m_DlgList.begin(), m_DlgList.end(), dlg);
-			if (dlg_iter != m_DlgList.end())
+			DialogPtrSet::iterator dlg_iter = std::find(m_DialogList.begin(), m_DialogList.end(), dlg);
+			if (dlg_iter != m_DialogList.end())
 			{
-				m_DlgList.erase(dlg_iter);
+				m_DialogList.erase(dlg_iter);
 			}
 		}
 		else
@@ -1739,7 +1756,7 @@ void CMainFrame::OnCreateDialog()
 	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("editor_dialog").c_str()));
 	dlg->m_Skin = skin;
 	InsertDlg(dlg.get());
-	m_DlgList.push_back(dlg);
+	m_DialogList.push_back(dlg);
 
 	m_selactors.clear();
 	m_selcmp = NULL;

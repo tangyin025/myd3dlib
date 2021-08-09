@@ -1264,8 +1264,8 @@ void CChildView::OnPaint()
 					}
 					theApp.m_UIRender->Flush();
 				}
-				my::DialogMgr::DialogList::iterator dlg_iter = ((my::DialogMgr*)pFrame)->m_DlgList.begin();
-				for (; dlg_iter != ((my::DialogMgr*)pFrame)->m_DlgList.end(); dlg_iter++)
+				my::DialogMgr::DialogList::iterator dlg_iter = pFrame->m_DlgList.begin();
+				for (; dlg_iter != pFrame->m_DlgList.end(); dlg_iter++)
 				{
 					theApp.m_UIRender->SetWorld((*dlg_iter)->m_World);
 
@@ -1581,8 +1581,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	{
 		my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		my::DialogMgr::DialogList::reverse_iterator dlg_iter = ((my::DialogMgr *)pFrame)->m_DlgList.rbegin();
-		for (; dlg_iter != ((my::DialogMgr *)pFrame)->m_DlgList.rend(); dlg_iter++)
+		my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
+		for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
 		{
 			my::Vector2 pt;
 			if ((*dlg_iter)->RayToWorld(ui_ray, pt))

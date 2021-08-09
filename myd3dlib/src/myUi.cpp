@@ -58,6 +58,8 @@ BOOST_CLASS_EXPORT(ListBoxSkin)
 
 BOOST_CLASS_EXPORT(ListBox)
 
+BOOST_CLASS_EXPORT(DialogSkin)
+
 BOOST_CLASS_EXPORT(Dialog)
 
 UIRender::UIRender(void)
@@ -3769,49 +3771,6 @@ bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 		return true;
 	}
 	return false;
-}
-
-DialogPtr Dialog::LoadFromFile(const char * path)
-{
-	IStreamBuff buff(my::ResourceMgr::getSingleton().OpenIStream(path));
-	std::istream istr(&buff);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_xml_iarchive(istr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		ia.reset(new boost::archive::polymorphic_text_iarchive(istr));
-	}
-	else
-	{
-		ia.reset(new boost::archive::polymorphic_binary_iarchive(istr));
-	}
-	DialogPtr ret;
-	*ia >> boost::serialization::make_nvp("Dialog", ret);
-	return ret;
-}
-
-void Dialog::SaveToFile(const char * path) const
-{
-	std::ofstream ostr(my::ResourceMgr::getSingleton().GetFullPath(path), std::ios::binary);
-	LPCSTR Ext = PathFindExtensionA(path);
-	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa;
-	if (_stricmp(Ext, ".xml") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_xml_oarchive(ostr));
-	}
-	else if (_stricmp(Ext, ".txt") == 0)
-	{
-		oa.reset(new boost::archive::polymorphic_text_oarchive(ostr));
-	}
-	else
-	{
-		oa.reset(new boost::archive::polymorphic_binary_oarchive(ostr));
-	}
-	*oa << boost::serialization::make_nvp("Dialog", boost::dynamic_pointer_cast<const Dialog>(shared_from_this()));
 }
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)

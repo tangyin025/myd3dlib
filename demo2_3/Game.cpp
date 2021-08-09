@@ -331,6 +331,7 @@ void SceneContextRequest::LoadResource(void)
 		}
 
 		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
+		*ia >> boost::serialization::make_nvp("DialogList", scene->m_DialogList);
 	}
 }
 

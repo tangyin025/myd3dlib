@@ -1518,10 +1518,6 @@ namespace my
 		virtual void SetVisible(bool bVisible);
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
-
-		static DialogPtr LoadFromFile(const char * path);
-
-		void SaveToFile(const char * path) const;
 	};
 
 	class DialogMgr

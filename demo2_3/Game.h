@@ -31,6 +31,8 @@ public:
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
+	typedef std::vector<my::DialogPtr> DialogPtrSet;
+	DialogPtrSet m_DialogList;
 
 public:
 	SceneContext(void)

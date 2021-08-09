@@ -43,7 +43,7 @@ public:
 	CollectionObjMap m_CollectionObjs;
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 	typedef std::vector<my::DialogPtr> DialogPtrSet;
-	DialogPtrSet m_DlgList;
+	DialogPtrSet m_DialogList;
 	Pivot m_Pivot;
 	typedef std::vector<Actor *> SelActorList;
 	SelActorList m_selactors;
