@@ -151,6 +151,17 @@ namespace my
 
 	typedef boost::shared_ptr<IStream> IStreamPtr;
 
+	class NamedObjectSerializationContext
+	{
+	public:
+		std::string prefix;
+
+		NamedObjectSerializationContext(const char * _prefix)
+			: prefix(_prefix)
+		{
+		}
+	};
+
 	class NamedObject
 	{
 	protected:

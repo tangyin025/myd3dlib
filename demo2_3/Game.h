@@ -47,8 +47,10 @@ class SceneContextRequest : public my::IORequest
 protected:
 	std::string m_path;
 
+	std::string m_prefix;
+
 public:
-	SceneContextRequest(const char* path, int Priority);
+	SceneContextRequest(const char* path, const char* prefix, int Priority);
 
 	virtual void SceneContextRequest::LoadResource(void);
 
@@ -213,10 +215,10 @@ public:
 	virtual void OnControlFocus(bool bFocus);
 
 	template <typename T>
-	void LoadSceneAsync(const char* path, const T& callback, int Priority = 0)
+	void LoadSceneAsync(const char* path, const char* prefix, const T& callback, int Priority = 0)
 	{
 		std::string key = SceneContextRequest::BuildKey(path);
-		IORequestPtr request(new SceneContextRequest(path, Priority));
+		IORequestPtr request(new SceneContextRequest(path, prefix, Priority));
 		LoadIORequestAsync(key, request, callback);
 	}
 };

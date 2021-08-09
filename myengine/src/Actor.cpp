@@ -211,21 +211,23 @@ void Actor::load<boost::archive::polymorphic_text_iarchive>(boost::archive::poly
 template
 void Actor::load<boost::archive::polymorphic_binary_iarchive>(boost::archive::polymorphic_binary_iarchive& ar, const unsigned int version);
 
-boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::istream& istr, const char* ext)
+boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::istream& istr, const char* ext, const char* prefix)
 {
 	if (_stricmp(ext, ".xml") == 0)
 	{
 		class Archive
 			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::xml_iarchive>
 			, public ActorSerializationContext
+			, public my::NamedObjectSerializationContext
 		{
 		public:
-			Archive(std::istream& is, unsigned int flags = 0)
+			Archive(std::istream& is, unsigned int flags, const char* prefix)
 				: polymorphic_iarchive_route(is, flags)
+				, NamedObjectSerializationContext(prefix)
 			{
 			}
 		};
-		return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr));
+		return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr, 0, prefix));
 	}
 
 	if (_stricmp(ext, ".txt") == 0)
@@ -233,27 +235,31 @@ boost::shared_ptr<boost::archive::polymorphic_iarchive> Actor::GetIArchive(std::
 		class Archive
 			: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::text_iarchive>
 			, public ActorSerializationContext
+			, public my::NamedObjectSerializationContext
 		{
 		public:
-			Archive(std::istream& is, unsigned int flags = 0)
+			Archive(std::istream& is, unsigned int flags, const char* prefix)
 				: polymorphic_iarchive_route(is, flags)
+				, NamedObjectSerializationContext(prefix)
 			{
 			}
 		};
-		return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr));
+		return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr, 0, prefix));
 	}
 
 	class Archive
 		: public boost::archive::detail::polymorphic_iarchive_route<boost::archive::binary_iarchive>
 		, public ActorSerializationContext
+		, public my::NamedObjectSerializationContext
 	{
 	public:
-		Archive(std::istream& is, unsigned int flags = 0)
+		Archive(std::istream& is, unsigned int flags, const char* prefix)
 			: polymorphic_iarchive_route(is, flags)
+			, NamedObjectSerializationContext(prefix)
 		{
 		}
 	};
-	return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr));
+	return boost::shared_ptr<boost::archive::polymorphic_iarchive>(new Archive(istr, 0, prefix));
 }
 
 boost::shared_ptr<boost::archive::polymorphic_oarchive> Actor::GetOArchive(std::ostream& ostr, const char* ext)

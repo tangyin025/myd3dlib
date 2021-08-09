@@ -113,6 +113,9 @@ void NamedObject::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(Name);
 	if (!Name.empty())
 	{
-		SetName(Name.c_str());
+		NamedObjectSerializationContext * pxar = dynamic_cast<NamedObjectSerializationContext *>(&ar);
+		_ASSERT(pxar);
+
+		SetName((pxar->prefix + Name).c_str());
 	}
 }

@@ -748,7 +748,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	my::IStreamBuff buff(my::FileIStream::Open(lpszFileName));
 	std::istream ifs(&buff);
 	LPCTSTR Ext = PathFindExtension(lpszFileName);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str());
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str(), "");
 	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
 	*ia >> boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*ia >> boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
@@ -1040,10 +1040,10 @@ void CMainFrame::OnFileNew()
 	//my::OgreSkeletonAnimationPtr skel = theApp.LoadSkeleton(animator->m_SkeletonPath.c_str());
 	//animator->AddJiggleBone(skel->GetBoneIndex("joint2"), skel->m_boneHierarchy, 0.1, 0.001, -10);
 
-	////TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("editor_terrain").c_str(), 2, 2, 32, 1.0f));
+	////TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("terrain").c_str(), 2, 2, 32, 1.0f));
 	////terrain->AddMaterial(mtl);
 
-	////ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	////ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
 	////actor->AddComponent(terrain);
 	////actor->UpdateAABB();
 	////actor->UpdateWorld();
@@ -1133,7 +1133,7 @@ void CMainFrame::OnCreateActor()
 	{
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
-	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("editor_actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
 	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
 	m_ActorList.push_back(actor);
@@ -1156,7 +1156,7 @@ void CMainFrame::OnCreateController()
 		return;
 	}
 
-	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName("editor_controller_cmp").c_str(), 1.0f, 1.0f, 0.1f, 1));
+	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName("controller_cmp").c_str(), 1.0f, 1.0f, 0.1f, 1));
 	(*actor_iter)->AddComponent(controller_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
@@ -1217,7 +1217,7 @@ void CMainFrame::OnComponentMesh()
 		int submesh_i = 0;
 		for (; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("mesh_cmp").c_str()));
 			mesh_cmp->m_MeshPath = path;
 			mesh_cmp->m_MeshSubMeshId = submesh_i;
 			MaterialPtr mtl(new Material());
@@ -1237,7 +1237,7 @@ void CMainFrame::OnComponentMesh()
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(name, submeshname);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(index, submeshname);
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("editor_mesh_cmp").c_str()));
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::NamedObject::MakeUniqueName("mesh_cmp").c_str()));
 			mesh_cmp->m_MeshPath = path;
 			mesh_cmp->m_MeshSubMeshName = attr_name->value();
 			MaterialPtr mtl(new Material());
@@ -1301,7 +1301,7 @@ void CMainFrame::OnComponentCloth()
 		std::vector<D3DXATTRIBUTERANGE>::iterator att_iter = mesh->m_AttribTable.begin();
 		for (; att_iter != mesh->m_AttribTable.end(); att_iter++)
 		{
-			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
+			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("cloth_cmp").c_str()));
 			cloth_cmp->CreateClothFromMesh(mesh, std::distance(mesh->m_AttribTable.begin(), att_iter));
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
@@ -1322,7 +1322,7 @@ void CMainFrame::OnComponentCloth()
 			rapidxml::xml_node<char>* node_boneassignments = node_submesh->first_node("boneassignments");
 			my::OgreMeshPtr mesh(new my::OgreMesh());
 			mesh->CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false);
-			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("editor_cloth_cmp").c_str()));
+			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName("cloth_cmp").c_str()));
 			cloth_cmp->CreateClothFromMesh(mesh, 0);
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
@@ -1386,7 +1386,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName("editor_sphe_emit_cmp").c_str(), 4096, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeVel, EmitterComponent::PrimitiveTypeQuad));
+	SphericalEmitterPtr sphe_emit_cmp(new SphericalEmitter(my::NamedObject::MakeUniqueName("sphe_emit_cmp").c_str(), 4096, EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeVel, EmitterComponent::PrimitiveTypeQuad));
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
 	sphe_emit_cmp->m_SpawnSpeed=5;
@@ -1691,7 +1691,7 @@ void CMainFrame::OnComponentAnimator()
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
 		AnimationNodeSequencePtr seq(new AnimationNodeSequence());
 		seq->m_Name = attr_name->value();
-		AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName("editor_animator_cmp").c_str()));
+		AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName("animator_cmp").c_str()));
 		animator->SetChild<0>(seq);
 		animator->ReloadSequenceGroup();
 		animator->m_SkeletonPath = path;
@@ -1725,7 +1725,7 @@ void CMainFrame::OnCreateNavigation()
 		return;
 	}
 
-	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName("editor_navigation").c_str()));
+	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName("navigation_cmp").c_str()));
 	navi_cmp->m_navMesh.reset(dlg.m_navMesh);
 	navi_cmp->m_navQuery.reset(dlg.m_navQuery);
 	(*actor_iter)->AddComponent(navi_cmp);
@@ -1753,7 +1753,7 @@ void CMainFrame::OnCreateDialog()
 	skin->m_Image->m_Rect = my::Rectangle::LeftTop(154, 43, 2, 2);
 	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
 
-	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("editor_dialog").c_str()));
+	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("dialog").c_str()));
 	dlg->m_Skin = skin;
 	InsertDlg(dlg.get());
 	m_DialogList.push_back(dlg);
@@ -1784,7 +1784,7 @@ void CMainFrame::OnControlStatic()
 	skin->m_TextColor = theApp.default_text_color;
 	skin->m_TextAlign = my::Font::AlignLeftTop;
 
-	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("editor_static").c_str()));
+	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("static").c_str()));
 	static_ctl->m_Skin = skin;
 	static_ctl->m_Text = ms2ws(static_ctl->GetName());
 	static_ctl->m_x.offset = 10;
@@ -1827,7 +1827,7 @@ void CMainFrame::OnControlProgressbar()
 	skin->m_ForegroundImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
 	skin->m_ForegroundImage->m_Border = my::Vector4(7, 7, 7, 7);
 
-	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName("editor_progressbar").c_str()));
+	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName("progressbar").c_str()));
 	pgs->m_Skin = skin;
 	pgs->m_Progress = 0.5f;
 	pgs->m_x.offset = 10;
@@ -1874,7 +1874,7 @@ void CMainFrame::OnControlButton()
 	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
 	skin->m_MouseOverImage->m_Border = my::Vector4(7, 7, 7, 7);
 
-	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName("editor_button").c_str()));
+	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName("button").c_str()));
 	btn->m_Skin = skin;
 	btn->m_Text = ms2ws(btn->GetName());
 	btn->m_x.offset = 10;
@@ -1913,7 +1913,7 @@ void CMainFrame::OnControlEditbox()
 	skin->m_CaretImage->m_Rect = my::Rectangle(154, 43, 156, 45);
 	skin->m_CaretImage->m_Border = my::Vector4(0, 0, 0, 0);
 
-	my::EditBoxPtr edit(new my::EditBox(my::NamedObject::MakeUniqueName("editor_editbox").c_str()));
+	my::EditBoxPtr edit(new my::EditBox(my::NamedObject::MakeUniqueName("editbox").c_str()));
 	edit->m_Skin = skin;
 	edit->m_x.offset = 10;
 	edit->m_y.offset = 10;
@@ -1951,7 +1951,7 @@ void CMainFrame::OnControlImeeditbox()
 	skin->m_CaretImage->m_Rect = my::Rectangle(154, 43, 156, 45);
 	skin->m_CaretImage->m_Border = my::Vector4(0, 0, 0, 0);
 
-	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName("editor_imeeditbox").c_str()));
+	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName("imeeditbox").c_str()));
 	edit->m_Skin = skin;
 	edit->m_x.offset = 10;
 	edit->m_y.offset = 10;
@@ -1996,7 +1996,7 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(111, 43, 20, 20);
 	skin->m_MouseOverImage->m_Border = my::Vector4(0, 0, 0, 0);
 
-	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName("editor_checkbox").c_str()));
+	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName("checkbox").c_str()));
 	checkbox->m_Skin = skin;
 	checkbox->m_Text = ms2ws(checkbox->GetName());
 	checkbox->m_x.offset = 10;
@@ -2076,8 +2076,9 @@ void CMainFrame::OnControlCombobox()
 	skin->m_ScrollBarImage->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
 	skin->m_ScrollBarImage->m_Border = my::Vector4(7, 7, 7, 7);
 
-	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName("editor_combobox").c_str()));
+	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName("combobox").c_str()));
 	combobox->m_Skin = skin;
+	combobox->m_Text = ms2ws(combobox->GetName());
 	combobox->m_x.offset = 10;
 	combobox->m_y.offset = 10;
 

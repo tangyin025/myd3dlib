@@ -284,9 +284,10 @@ static int os_exit(lua_State * L)
 	return 0;
 }
 
-SceneContextRequest::SceneContextRequest(const char* path, int Priority)
+SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
 	: IORequest(Priority)
 	, m_path(path)
+	, m_prefix(prefix)
 {
 	m_res.reset(new SceneContext());
 }
@@ -298,7 +299,7 @@ void SceneContextRequest::LoadResource(void)
 		my::IStreamBuff buff(ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
 		std::istream ifs(&buff);
 		LPCSTR Ext = PathFindExtensionA(m_path.c_str());
-		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
+		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext, m_prefix.c_str());
 		SceneContextPtr scene = boost::dynamic_pointer_cast<SceneContext>(m_res);
 		*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", scene->m_SkyLightCamEuler);
 		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);

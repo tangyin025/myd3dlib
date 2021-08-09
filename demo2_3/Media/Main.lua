@@ -74,7 +74,7 @@ end
 
 -- 加载场景资源
 scene01=nil
-game:LoadSceneAsync("scene01.xml", function(res)
+game:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	scene01=res2scene(res)
 	game.SkyLightCam.Euler = scene01.SkyLightCamEuler;
 	game.SkyLightColor = scene01.SkyLightColor;
@@ -119,7 +119,7 @@ game:LoadSceneAsync("scene01.xml", function(res)
 
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
-	local actor6 = game:GetNamedObject("editor_actor1")
+	local actor6 = game:GetNamedObject("scene01_actor1")
 	class 'Actor6Behavior'(Component)
 	function Actor6Behavior:__init(name)
 		Component.__init(self,name)

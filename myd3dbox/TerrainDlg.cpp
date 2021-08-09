@@ -15,7 +15,7 @@ IMPLEMENT_DYNAMIC(CTerrainDlg, CDialogEx)
 
 CTerrainDlg::CTerrainDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTerrainDlg::IDD, pParent)
-	, m_terrain_name(my::NamedObject::MakeUniqueName("editor_terrain"))
+	, m_terrain_name(my::NamedObject::MakeUniqueName("terrain_cmp"))
 	, m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(64)
