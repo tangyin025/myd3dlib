@@ -902,6 +902,7 @@ void Static::save(Archive & ar, const unsigned int version) const
 template<class Archive>
 void Static::load(Archive & ar, const unsigned int version)
 {
+	// ! https://www.boost.org/doc/libs/1_74_0/libs/serialization/doc/implementation.html#charencoding 
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	std::string text_u8;
 	ar >> boost::serialization::make_nvp("m_Text", text_u8);
