@@ -225,6 +225,7 @@ public:
 		PropertyControlHeightScale,
 		PropertyControlHeightOffset,
 		PropertyControlEnabled,
+		PropertyControlFocused,
 		PropertyControlColor,
 		PropertyControlColorAlpha,
 		PropertyControlImagePath,
