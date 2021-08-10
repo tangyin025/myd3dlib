@@ -811,10 +811,10 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
 	case my::Control::ControlTypeButton:
-		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
-		break;
 	case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
+		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
 	case my::Control::ControlTypeScrollBar:
 	case my::Control::ControlTypeCheckBox:
 	case my::Control::ControlTypeComboBox:
@@ -844,6 +844,10 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 		break;
 	case my::Control::ControlTypeButton:
 		UpdatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
+		break;
+	case my::Control::ControlTypeEditBox:
+	case my::Control::ControlTypeImeEditBox:
+		UpdatePropertiesEditBox(pControl, dynamic_cast<my::EditBox*>(static_ctl));
 		break;
 	default:
 		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeStatic));
@@ -907,6 +911,21 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 
 	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
 	pControl->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
+}
+
+void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyButtonDisabledImagePath)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesEditBox(pControl, editbox);
+		return;
+	}
+	pControl->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)editbox->m_Border.x);
+	pControl->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)editbox->m_Border.y);
+	pControl->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)editbox->m_Border.z);
+	pControl->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)editbox->m_Border.w);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1615,10 +1634,10 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
 	case my::Control::ControlTypeButton:
-		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
-		break;
 	case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
+		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
 	case my::Control::ControlTypeScrollBar:
 	case my::Control::ControlTypeCheckBox:
 	case my::Control::ControlTypeComboBox:
@@ -1645,6 +1664,10 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	case my::Control::ControlTypeButton:
 		CreatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
+	case my::Control::ControlTypeEditBox:
+	case my::Control::ControlTypeImeEditBox:
+		CreatePropertiesEditBox(pControl, dynamic_cast<my::EditBox*>(static_ctl));
+		break;
 	}
 }
 
@@ -1660,13 +1683,13 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 {
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeStatic));
 
-	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
-
 	CMFCPropertyGridProperty* pPressed = new CCheckBoxProp(_T("Pressed"), button->m_bPressed, NULL, PropertyButtonPressed);
 	pControl->AddSubItem(pPressed);
 
 	CMFCPropertyGridProperty* pMouseOver = new CCheckBoxProp(_T("MouseOver"), button->m_bMouseOver, NULL, PropertyButtonMouseOver);
 	pControl->AddSubItem(pMouseOver);
+
+	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 
 	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonDisabledImagePath);
 	pControl->AddSubItem(pDisabledImagePath);
@@ -1743,12 +1766,30 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_MouseOverImage->m_Border.w, NULL, PropertyButtonMouseOverImageBorderW);
 	pMouseOverImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pPressedOffset = new CSimpleProp(_T("PressedOffset"), PropertyButtonPressedOffset);
+	CMFCPropertyGridProperty* pPressedOffset = new CSimpleProp(_T("PressedOffset"), PropertyButtonPressedOffset, TRUE);
 	pControl->AddSubItem(pPressedOffset);
 	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_PressedOffset.x, NULL, PropertyButtonPressedOffsetX);
 	pPressedOffset->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_PressedOffset.y, NULL, PropertyButtonPressedOffsetY);
 	pPressedOffset->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeStatic));
+
+	CMFCPropertyGridProperty* pBorder = new CSimpleProp(_T("Border"), PropertyEditBoxBorder, TRUE);
+	pControl->AddSubItem(pBorder);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("x"), (_variant_t)editbox->m_Border.x, NULL, PropertyEditBoxBorderX);
+	pBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)editbox->m_Border.y, NULL, PropertyEditBoxBorderY);
+	pBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)editbox->m_Border.z, NULL, PropertyEditBoxBorderZ);
+	pBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)editbox->m_Border.w, NULL, PropertyEditBoxBorderW);
+	pBorder->AddSubItem(pProp);
+
+	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3528,6 +3569,35 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
 		skin->m_PressedOffset.x = pControl->GetSubItem(PropId + 11)->GetSubItem(0)->GetValue().fltVal;
 		skin->m_PressedOffset.y = pControl->GetSubItem(PropId + 11)->GetSubItem(1)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyEditBoxBorder:
+	case PropertyEditBoxBorderX:
+	case PropertyEditBoxBorderY:
+	case PropertyEditBoxBorderZ:
+	case PropertyEditBoxBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyEditBoxBorder:
+			pControl = pProp->GetParent();
+			break;
+		case PropertyEditBoxBorderX:
+		case PropertyEditBoxBorderY:
+		case PropertyEditBoxBorderZ:
+		case PropertyEditBoxBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		}
+		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pControl->GetValue().pulVal);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		editbox->m_Border.x = pControl->GetSubItem(PropId + 0)->GetSubItem(0)->GetValue().fltVal;
+		editbox->m_Border.y = pControl->GetSubItem(PropId + 0)->GetSubItem(1)->GetValue().fltVal;
+		editbox->m_Border.z = pControl->GetSubItem(PropId + 0)->GetSubItem(2)->GetValue().fltVal;
+		editbox->m_Border.w = pControl->GetSubItem(PropId + 0)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

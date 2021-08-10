@@ -284,6 +284,11 @@ public:
 		PropertyButtonPressedOffset,
 		PropertyButtonPressedOffsetX,
 		PropertyButtonPressedOffsetY,
+		PropertyEditBoxBorder,
+		PropertyEditBoxBorderX,
+		PropertyEditBoxBorderY,
+		PropertyEditBoxBorderZ,
+		PropertyEditBoxBorderW,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -312,6 +317,7 @@ public:
 	void UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 	void UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 	void UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
+	void UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -334,6 +340,7 @@ public:
 	void CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 	void CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 	void CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
+	void CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);
