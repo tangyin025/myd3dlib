@@ -311,6 +311,8 @@ public:
 		PropertyEditBoxFocusedImageBorderY,
 		PropertyEditBoxFocusedImageBorderZ,
 		PropertyEditBoxFocusedImageBorderW,
+		PropertyEditBoxSelBkColor,
+		PropertyEditBoxSelBkColorAlpha,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

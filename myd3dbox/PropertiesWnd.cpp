@@ -947,6 +947,10 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.y);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.z);
 	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.w);
+
+	COLORREF color = RGB(LOBYTE(skin->m_SelBkColor >> 16), LOBYTE(skin->m_SelBkColor >> 8), LOBYTE(skin->m_SelBkColor));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 6)))->SetColor(color);
+	pControl->GetSubItem(PropId + 7)->SetValue((_variant_t)(long)LOBYTE(skin->m_SelBkColor >> 24));
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1860,6 +1864,13 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pFocusedImageBorder->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_FocusedImage->m_Border.w, NULL, PropertyEditBoxFocusedImageBorderW);
 	pFocusedImageBorder->AddSubItem(pProp);
+
+	COLORREF color = RGB(LOBYTE(skin->m_SelBkColor >> 16), LOBYTE(skin->m_SelBkColor >> 8), LOBYTE(skin->m_SelBkColor));
+	CColorProp* pTextColor = new CColorProp(_T("SelBkColor"), color, NULL, NULL, PropertyControlTextColor);
+	pTextColor->EnableOtherButton(_T("Other..."));
+	pControl->AddSubItem(pTextColor);
+	CMFCPropertyGridProperty* pTextColorAlpha = new CSliderProp(_T("SelBkAlpha"), (long)LOBYTE(skin->m_SelBkColor >> 24), NULL, PropertyControlTextColorAlpha);
+	pControl->AddSubItem(pTextColorAlpha);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3800,6 +3811,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		skin->m_FocusedImage->m_Border.y = pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal;
 		skin->m_FocusedImage->m_Border.z = pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
 		skin->m_FocusedImage->m_Border.w = pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyEditBoxSelBkColor:
+	case PropertyEditBoxSelBkColorAlpha:
+	{
+		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(6)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(7)->GetValue().lVal;
+		skin->m_SelBkColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
