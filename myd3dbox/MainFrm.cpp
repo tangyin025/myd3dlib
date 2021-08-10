@@ -240,8 +240,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_PROGRESSBAR, &CMainFrame::OnUpdateControlProgressbar)
 	ON_COMMAND(ID_CONTROL_BUTTON, &CMainFrame::OnControlButton)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_BUTTON, &CMainFrame::OnUpdateControlButton)
-	ON_COMMAND(ID_CONTROL_EDITBOX, &CMainFrame::OnControlEditbox)
-	ON_UPDATE_COMMAND_UI(ID_CONTROL_EDITBOX, &CMainFrame::OnUpdateControlEditbox)
 	ON_COMMAND(ID_CONTROL_IMEEDITBOX, &CMainFrame::OnControlImeeditbox)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_IMEEDITBOX, &CMainFrame::OnUpdateControlImeeditbox)
 	ON_COMMAND(ID_CONTROL_CHECKBOX, &CMainFrame::OnControlCheckbox)
@@ -1887,44 +1885,6 @@ void CMainFrame::OnControlButton()
 
 
 void CMainFrame::OnUpdateControlButton(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
-}
-
-
-void CMainFrame::OnControlEditbox()
-{
-	// TODO: Add your command handler code here
-	my::EditBoxSkinPtr skin(new my::EditBoxSkin());
-	skin->m_Color = D3DCOLOR_ARGB(15, 255, 255, 255);
-	skin->m_FontPath = theApp.default_font_path;
-	skin->m_FontHeight = theApp.default_font_height;
-	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 63, 188, 239);
-	skin->m_TextAlign = my::Font::AlignLeftMiddle;
-	skin->m_Image.reset(new my::ControlImage());
-	skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	skin->m_Image->m_Rect = my::Rectangle(154, 43, 156, 45);
-	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
-	skin->m_SelBkColor = D3DCOLOR_ARGB(255, 255, 128, 0);
-	skin->m_CaretImage.reset(new my::ControlImage());
-	skin->m_CaretImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	skin->m_CaretImage->m_Rect = my::Rectangle(154, 43, 156, 45);
-	skin->m_CaretImage->m_Border = my::Vector4(0, 0, 0, 0);
-
-	my::EditBoxPtr edit(new my::EditBox(my::NamedObject::MakeUniqueName("editbox").c_str()));
-	edit->m_Skin = skin;
-	edit->m_x.offset = 10;
-	edit->m_y.offset = 10;
-
-	m_selctl->InsertControl(edit);
-	m_selctl = edit.get();
-	OnSelChanged();
-}
-
-
-void CMainFrame::OnUpdateControlEditbox(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(m_selctl != NULL);

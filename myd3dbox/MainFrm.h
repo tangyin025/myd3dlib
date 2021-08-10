@@ -189,8 +189,6 @@ public:
 	afx_msg void OnUpdateControlProgressbar(CCmdUI* pCmdUI);
 	afx_msg void OnControlButton();
 	afx_msg void OnUpdateControlButton(CCmdUI* pCmdUI);
-	afx_msg void OnControlEditbox();
-	afx_msg void OnUpdateControlEditbox(CCmdUI* pCmdUI);
 	afx_msg void OnControlImeeditbox();
 	afx_msg void OnUpdateControlImeeditbox(CCmdUI* pCmdUI);
 	afx_msg void OnControlCheckbox();

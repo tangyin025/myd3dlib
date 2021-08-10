@@ -411,7 +411,6 @@ BEGIN
         MENUITEM "Static",                      ID_CONTROL_STATIC
         MENUITEM "ProgressBar",                 ID_CONTROL_PROGRESSBAR
         MENUITEM "Button",                      ID_CONTROL_BUTTON
-        MENUITEM "EditBox",                     ID_CONTROL_EDITBOX
         MENUITEM "ImeEditBox",                  ID_CONTROL_IMEEDITBOX
         MENUITEM "CheckBox",                    ID_CONTROL_CHECKBOX
         MENUITEM "ComboBox",                    ID_CONTROL_COMBOBOX
@@ -581,7 +580,6 @@ BEGIN
     BUTTON      ID_CONTROL_STATIC
     BUTTON      ID_CONTROL_PROGRESSBAR
     BUTTON      ID_CONTROL_BUTTON
-    BUTTON      ID_CONTROL_EDITBOX
     BUTTON      ID_CONTROL_IMEEDITBOX
     BUTTON      ID_CONTROL_CHECKBOX
     BUTTON      ID_CONTROL_COMBOBOX
