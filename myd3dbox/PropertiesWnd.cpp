@@ -928,29 +928,29 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)editbox->m_Border.w);
 
 	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
-	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 1)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.x);
-	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
-	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
-	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 4)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.x);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.y);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.z);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.w);
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.x);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.y);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.z);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.w);
 
 	COLORREF color = RGB(LOBYTE(skin->m_SelBkColor >> 16), LOBYTE(skin->m_SelBkColor >> 8), LOBYTE(skin->m_SelBkColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 6)))->SetColor(color);
-	pControl->GetSubItem(PropId + 7)->SetValue((_variant_t)(long)LOBYTE(skin->m_SelBkColor >> 24));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 7)))->SetColor(color);
+	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)(long)LOBYTE(skin->m_SelBkColor >> 24));
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1815,7 +1815,8 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pBorder->AddSubItem(pProp);
 
 	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
-	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxDisabledImagePath);
+
+	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxDisabledImagePath);
 	pControl->AddSubItem(pDisabledImagePath);
 
 	CMFCPropertyGridProperty* pDisabledImageRect = new CSimpleProp(_T("DisabledImageRect"), PropertyEditBoxDisabledImageRect, TRUE);
@@ -1866,11 +1867,11 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pFocusedImageBorder->AddSubItem(pProp);
 
 	COLORREF color = RGB(LOBYTE(skin->m_SelBkColor >> 16), LOBYTE(skin->m_SelBkColor >> 8), LOBYTE(skin->m_SelBkColor));
-	CColorProp* pTextColor = new CColorProp(_T("SelBkColor"), color, NULL, NULL, PropertyControlTextColor);
-	pTextColor->EnableOtherButton(_T("Other..."));
-	pControl->AddSubItem(pTextColor);
-	CMFCPropertyGridProperty* pTextColorAlpha = new CSliderProp(_T("SelBkAlpha"), (long)LOBYTE(skin->m_SelBkColor >> 24), NULL, PropertyControlTextColorAlpha);
-	pControl->AddSubItem(pTextColorAlpha);
+	CColorProp* pSelBkColor = new CColorProp(_T("SelBkColor"), color, NULL, NULL, PropertyEditBoxSelBkColor);
+	pSelBkColor->EnableOtherButton(_T("Other..."));
+	pControl->AddSubItem(pSelBkColor);
+	CMFCPropertyGridProperty* pSelBkColorAlpha = new CSliderProp(_T("SelBkAlpha"), (long)LOBYTE(skin->m_SelBkColor >> 24), NULL, PropertyEditBoxSelBkColorAlpha);
+	pControl->AddSubItem(pSelBkColorAlpha);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3821,8 +3822,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(6)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(7)->GetValue().lVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 7)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(PropId + 8)->GetValue().lVal;
 		skin->m_SelBkColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
