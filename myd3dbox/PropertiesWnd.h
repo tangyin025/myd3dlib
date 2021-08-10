@@ -316,6 +316,17 @@ public:
 		PropertyEditBoxSelBkColorAlpha,
 		PropertyEditBoxCaretColor,
 		PropertyEditBoxCaretColorAlpha,
+		PropertyEditBoxCaretImagePath,
+		PropertyEditBoxCaretImageRect,
+		PropertyEditBoxCaretImageRectLeft,
+		PropertyEditBoxCaretImageRectTop,
+		PropertyEditBoxCaretImageRectWidth,
+		PropertyEditBoxCaretImageRectHeight,
+		PropertyEditBoxCaretImageBorder,
+		PropertyEditBoxCaretImageBorderX,
+		PropertyEditBoxCaretImageBorderY,
+		PropertyEditBoxCaretImageBorderZ,
+		PropertyEditBoxCaretImageBorderW,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
