@@ -1774,7 +1774,6 @@ void CMainFrame::OnControlStatic()
 	}
 
 	my::ControlSkinPtr skin(new my::ControlSkin());
-	skin->m_Color = D3DCOLOR_ARGB(0, 0, 0, 0);
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
@@ -1810,7 +1809,6 @@ void CMainFrame::OnControlProgressbar()
 	}
 
 	my::ProgressBarSkinPtr skin(new my::ProgressBarSkin());
-	skin->m_Color = D3DCOLOR_ARGB(255, 255, 255, 255);
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
 	skin->m_Image->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
@@ -1848,7 +1846,6 @@ void CMainFrame::OnControlButton()
 {
 	// TODO: Add your command handler code here
 	my::ButtonSkinPtr skin(new my::ButtonSkin());
-	skin->m_Color = D3DCOLOR_ARGB(255, 255, 255, 255);
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
 	skin->m_Image->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);

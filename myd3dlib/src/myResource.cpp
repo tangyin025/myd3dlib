@@ -306,6 +306,11 @@ std::string StreamDirMgr::GetFullPath(const char * path)
 
 std::string StreamDirMgr::GetRelativePath(const char * path)
 {
+	if (path[0] == '\0')
+	{
+		return std::string();
+	}
+
 	if (PathIsRelativeA(path))
 	{
 		char canonicalizedPath[MAX_PATH];

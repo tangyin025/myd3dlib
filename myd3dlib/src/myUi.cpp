@@ -335,22 +335,25 @@ void ControlSkin::OnFontReady(my::DeviceResourceBasePtr res)
 
 void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const my::Rectangle & rect, DWORD color)
 {
-	if(Image && Image->m_Texture)
+	if(Image)
 	{
-		D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
-		if (Image->m_Border.x == 0 && Image->m_Border.y == 0 && Image->m_Border.z == 0 && Image->m_Border.w == 0)
+		if (Image->m_Texture)
 		{
-			Rectangle UvRect(Image->m_Rect.l / desc.Width,  Image->m_Rect.t / desc.Height, Image->m_Rect.r / desc.Width, Image->m_Rect.b / desc.Height);
-			ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture);
+			D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
+			if (Image->m_Border.x == 0 && Image->m_Border.y == 0 && Image->m_Border.z == 0 && Image->m_Border.w == 0)
+			{
+				Rectangle UvRect(Image->m_Rect.l / desc.Width, Image->m_Rect.t / desc.Height, Image->m_Rect.r / desc.Width, Image->m_Rect.b / desc.Height);
+				ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture);
+			}
+			else
+			{
+				ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
+			}
 		}
-		else
+		else if (!Image->m_TexturePath.empty() && Image->IsRequested())
 		{
-			ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
+			ui_render->PushRectangle(rect, Rectangle(0, 0, 1, 1), color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
 		}
-	}
-	else
-	{
-		ui_render->PushRectangle(rect, Rectangle(0, 0, 1, 1), color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
 	}
 }
 
@@ -917,6 +920,8 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 		if(m_Skin)
 		{
+			m_Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
+
 			m_Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 

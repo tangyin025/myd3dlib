@@ -2624,10 +2624,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshSubMeshId:
 	{
 		//MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-		//std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		//if (path.empty())
+		//std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		//std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		//if (path.empty() && !ori_path.empty())
 		//{
-		//	MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+		//	MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 		//	UpdatePropertiesMesh(pProp->GetParent(), mesh_cmp);
 		//	return 0;
 		//}
@@ -2670,10 +2671,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialShader:
 	{
 		Material* material = (Material*)pProp->GetParent()->GetValue().pulVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesMaterial(pProp->GetParent(), material);
 			return 0;
 		}
@@ -2796,10 +2798,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Material * mtl = (Material *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		INT i = CSimpleProp::GetSubIndexInParent(pProp);
 		ASSERT(mtl->m_ParameterList[i]->GetParameterType() == MaterialParameter::ParameterTypeTexture);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesMaterialParameter(pProp->GetParent(), i, mtl->m_ParameterList[i].get());
 			return 0;
 		}
@@ -3337,10 +3340,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlImagePath:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(control);
 			return 0;
 		}
@@ -3415,8 +3419,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		my::Control* control = (my::Control*)pControl->GetValue().pulVal;
+		std::basic_string<TCHAR> ori_path(pControl->GetSubItem(12)->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
+			UpdatePropertiesControl(control);
+			return 0;
+		}
 		control->m_Skin->ReleaseResource();
-		control->m_Skin->m_FontPath = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(12)->GetValue().bstrVal).c_str());
+		control->m_Skin->m_FontPath = path;
 		control->m_Skin->m_FontHeight = pControl->GetSubItem(13)->GetValue().lVal;
 		control->m_Skin->m_FontFaceIndex = pControl->GetSubItem(14)->GetValue().lVal;
 		if (control->IsRequested())
@@ -3483,10 +3495,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonDisabledImagePath:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(button);
 			return 0;
 		}
@@ -3549,10 +3562,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonPressedImagePath:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(button);
 			return 0;
 		}
@@ -3615,10 +3629,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonMouseOverImagePath:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(button);
 			return 0;
 		}
@@ -3734,10 +3749,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEditBoxDisabledImagePath:
 	{
 		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(button);
 			return 0;
 		}
@@ -3800,10 +3816,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEditBoxFocusedImagePath:
 	{
 		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(editbox);
 			return 0;
 		}
@@ -3892,10 +3909,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEditBoxCaretImagePath:
 	{
 		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty())
+		std::basic_string<TCHAR> ori_path(pProp->GetValue().bstrVal);
+		std::string path = theApp.GetRelativePath(ts2ms(ori_path).c_str());
+		if (path.empty() && !ori_path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), ori_path.c_str()).c_str());
 			UpdatePropertiesControl(button);
 			return 0;
 		}
