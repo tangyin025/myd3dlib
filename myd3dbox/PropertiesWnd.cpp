@@ -3261,16 +3261,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlColor:
 	case PropertyControlColorAlpha:
 	{
-		my::Control* control = NULL;
-		switch (PropertyId)
-		{
-		case PropertyControlColor:
-			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-			break;
-		case PropertyControlColorAlpha:
-			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-			break;
-		}
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(6)))->GetColor();
 		BYTE alpha = pProp->GetParent()->GetSubItem(7)->GetValue().lVal;
 		control->m_Skin->m_Color = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
@@ -3374,16 +3365,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlTextColor:
 	case PropertyControlTextColorAlpha:
 	{
-		my::Control* control = NULL;
-		switch (PropertyId)
-		{
-		case PropertyControlTextColor:
-			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-			break;
-		case PropertyControlTextColorAlpha:
-			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-			break;
-		}
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(14)))->GetColor();
 		BYTE alpha = pProp->GetParent()->GetSubItem(15)->GetValue().lVal;
 		control->m_Skin->m_TextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
