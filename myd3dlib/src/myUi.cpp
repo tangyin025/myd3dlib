@@ -891,6 +891,23 @@ UINT Control::GetHotkey(void)
 	return m_nHotkey;
 }
 
+template<class Archive>
+void Static::save(Archive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	std::string text_u8 = wstou8(m_Text);
+	ar << boost::serialization::make_nvp("m_Text", text_u8);
+}
+
+template<class Archive>
+void Static::load(Archive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	std::string text_u8;
+	ar >> boost::serialization::make_nvp("m_Text", text_u8);
+	m_Text = u8tows(text_u8);
+}
+
 void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
