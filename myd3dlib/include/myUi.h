@@ -626,6 +626,8 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
+			ar & BOOST_SERIALIZATION_NVP(m_bPressed);
+			ar & BOOST_SERIALIZATION_NVP(m_bMouseOver);
 		}
 
 		virtual ControlType GetControlType(void) const
