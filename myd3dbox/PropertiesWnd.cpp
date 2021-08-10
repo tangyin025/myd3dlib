@@ -881,6 +881,29 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 4)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Border.x);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Border.y);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Border.z);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.x);
+	pControl->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.y);
+	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.z);
+	pControl->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1633,7 +1656,7 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 
 	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 
-	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlImagePath);
+	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonDisabledImagePath);
 	pControl->AddSubItem(pDisabledImagePath);
 
 	CMFCPropertyGridProperty* pDisabledImageRect = new CSimpleProp(_T("DisabledImageRect"), PropertyButtonDisabledImageRect, TRUE);
@@ -1657,6 +1680,63 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pDisabledImageBorder->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DisabledImage->m_Border.w, NULL, PropertyButtonDisabledImageBorderW);
 	pDisabledImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pPressedImagePath = new CFileProp(_T("PressedImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonPressedImagePath);
+	pControl->AddSubItem(pPressedImagePath);
+
+	CMFCPropertyGridProperty* pPressedImageRect = new CSimpleProp(_T("PressedImageRect"), PropertyButtonPressedImageRect, TRUE);
+	pControl->AddSubItem(pPressedImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_PressedImage->m_Rect.l, NULL, PropertyButtonPressedImageRectLeft);
+	pPressedImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_PressedImage->m_Rect.t, NULL, PropertyButtonPressedImageRectTop);
+	pPressedImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_PressedImage->m_Rect.Width(), NULL, PropertyButtonPressedImageRectWidth);
+	pPressedImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_PressedImage->m_Rect.Height(), NULL, PropertyButtonPressedImageRectHeight);
+	pPressedImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pPressedImageBorder = new CSimpleProp(_T("PressedImageBorder"), PropertyButtonPressedImageBorder, TRUE);
+	pControl->AddSubItem(pPressedImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_PressedImage->m_Border.x, NULL, PropertyButtonPressedImageBorderX);
+	pPressedImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_PressedImage->m_Border.y, NULL, PropertyButtonPressedImageBorderY);
+	pPressedImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_PressedImage->m_Border.z, NULL, PropertyButtonPressedImageBorderZ);
+	pPressedImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_PressedImage->m_Border.w, NULL, PropertyButtonPressedImageBorderW);
+	pPressedImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pMouseOverImagePath = new CFileProp(_T("MouseOverImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyButtonMouseOverImagePath);
+	pControl->AddSubItem(pMouseOverImagePath);
+
+	CMFCPropertyGridProperty* pMouseOverImageRect = new CSimpleProp(_T("MouseOverImageRect"), PropertyButtonMouseOverImageRect, TRUE);
+	pControl->AddSubItem(pMouseOverImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_MouseOverImage->m_Rect.l, NULL, PropertyButtonMouseOverImageRectLeft);
+	pMouseOverImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_MouseOverImage->m_Rect.t, NULL, PropertyButtonMouseOverImageRectTop);
+	pMouseOverImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_MouseOverImage->m_Rect.Width(), NULL, PropertyButtonMouseOverImageRectWidth);
+	pMouseOverImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_MouseOverImage->m_Rect.Height(), NULL, PropertyButtonMouseOverImageRectHeight);
+	pMouseOverImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pMouseOverImageBorder = new CSimpleProp(_T("MouseOverImageBorder"), PropertyButtonMouseOverImageBorder, TRUE);
+	pControl->AddSubItem(pMouseOverImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_MouseOverImage->m_Border.x, NULL, PropertyButtonMouseOverImageBorderX);
+	pMouseOverImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_MouseOverImage->m_Border.y, NULL, PropertyButtonMouseOverImageBorderY);
+	pMouseOverImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_MouseOverImage->m_Border.z, NULL, PropertyButtonMouseOverImageBorderZ);
+	pMouseOverImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_MouseOverImage->m_Border.w, NULL, PropertyButtonMouseOverImageBorderW);
+	pMouseOverImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pPressedOffset = new CSimpleProp(_T("PressedOffset"), PropertyButtonPressedOffset);
+	pControl->AddSubItem(pPressedOffset);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_PressedOffset.x, NULL, PropertyButtonPressedOffsetX);
+	pPressedOffset->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_PressedOffset.y, NULL, PropertyButtonPressedOffsetY);
+	pPressedOffset->AddSubItem(pProp);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3229,18 +3309,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		CMFCPropertyGridProperty* pControl = NULL;
 		switch (PropertyId)
 		{
-		case PropertyControlImageRectLeft:
-		case PropertyControlImageRectTop:
-		case PropertyControlImageRectWidth:
-		case PropertyControlImageRectHeight:
-		case PropertyControlImageBorderX:
-		case PropertyControlImageBorderY:
-		case PropertyControlImageBorderZ:
-		case PropertyControlImageBorderW:
+		case PropertyButtonDisabledImageRectLeft:
+		case PropertyButtonDisabledImageRectTop:
+		case PropertyButtonDisabledImageRectWidth:
+		case PropertyButtonDisabledImageRectHeight:
+		case PropertyButtonDisabledImageBorderX:
+		case PropertyButtonDisabledImageBorderY:
+		case PropertyButtonDisabledImageBorderZ:
+		case PropertyButtonDisabledImageBorderW:
 			pControl = pProp->GetParent()->GetParent();
 			break;
-		case PropertyControlImageRect:
-		case PropertyControlImageBorder:
+		case PropertyButtonDisabledImageRect:
+		case PropertyButtonDisabledImageBorder:
 			pControl = pProp->GetParent();
 			break;
 		}
@@ -3256,6 +3336,162 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		skin->m_DisabledImage->m_Border.y = pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
 		skin->m_DisabledImage->m_Border.z = pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
 		skin->m_DisabledImage->m_Border.w = pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonPressedImagePath:
+	{
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(button);
+			return 0;
+		}
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		skin->m_PressedImage->ReleaseResource();
+		skin->m_PressedImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_PressedImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonPressedImageRect:
+	case PropertyButtonPressedImageRectLeft:
+	case PropertyButtonPressedImageRectTop:
+	case PropertyButtonPressedImageRectWidth:
+	case PropertyButtonPressedImageRectHeight:
+	case PropertyButtonPressedImageBorder:
+	case PropertyButtonPressedImageBorderX:
+	case PropertyButtonPressedImageBorderY:
+	case PropertyButtonPressedImageBorderZ:
+	case PropertyButtonPressedImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyButtonPressedImageRectLeft:
+		case PropertyButtonPressedImageRectTop:
+		case PropertyButtonPressedImageRectWidth:
+		case PropertyButtonPressedImageRectHeight:
+		case PropertyButtonPressedImageBorderX:
+		case PropertyButtonPressedImageBorderY:
+		case PropertyButtonPressedImageBorderZ:
+		case PropertyButtonPressedImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyButtonPressedImageRect:
+		case PropertyButtonPressedImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_PressedImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 4)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 4)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 4)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 4)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_PressedImage->m_Border.x = pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_PressedImage->m_Border.y = pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_PressedImage->m_Border.z = pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_PressedImage->m_Border.w = pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonMouseOverImagePath:
+	{
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(button);
+			return 0;
+		}
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		skin->m_MouseOverImage->ReleaseResource();
+		skin->m_MouseOverImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_MouseOverImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonMouseOverImageRect:
+	case PropertyButtonMouseOverImageRectLeft:
+	case PropertyButtonMouseOverImageRectTop:
+	case PropertyButtonMouseOverImageRectWidth:
+	case PropertyButtonMouseOverImageRectHeight:
+	case PropertyButtonMouseOverImageBorder:
+	case PropertyButtonMouseOverImageBorderX:
+	case PropertyButtonMouseOverImageBorderY:
+	case PropertyButtonMouseOverImageBorderZ:
+	case PropertyButtonMouseOverImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyButtonMouseOverImageRectLeft:
+		case PropertyButtonMouseOverImageRectTop:
+		case PropertyButtonMouseOverImageRectWidth:
+		case PropertyButtonMouseOverImageRectHeight:
+		case PropertyButtonMouseOverImageBorderX:
+		case PropertyButtonMouseOverImageBorderY:
+		case PropertyButtonMouseOverImageBorderZ:
+		case PropertyButtonMouseOverImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyButtonMouseOverImageRect:
+		case PropertyButtonMouseOverImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_MouseOverImage->m_Border.x = pControl->GetSubItem(PropId + 8)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_MouseOverImage->m_Border.y = pControl->GetSubItem(PropId + 8)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_MouseOverImage->m_Border.z = pControl->GetSubItem(PropId + 8)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_MouseOverImage->m_Border.w = pControl->GetSubItem(PropId + 8)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyButtonPressedOffset:
+	case PropertyButtonPressedOffsetX:
+	case PropertyButtonPressedOffsetY:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyButtonPressedOffset:
+			pControl = pProp->GetParent();
+			break;
+		case PropertyButtonPressedOffsetX:
+		case PropertyButtonPressedOffsetY:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		}
+		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
+		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_PressedOffset.x = pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_PressedOffset.y = pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
