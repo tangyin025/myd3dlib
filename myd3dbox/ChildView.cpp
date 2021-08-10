@@ -1587,7 +1587,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			my::Vector2 pt;
 			if ((*dlg_iter)->RayToWorld(ui_ray, pt))
 			{
-				my::Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
+				my::Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
 				if (ControlPtd)
 				{
 					pFrame->m_selactors.clear();

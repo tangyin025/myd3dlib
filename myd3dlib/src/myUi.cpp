@@ -779,14 +779,14 @@ bool Control::ContainsControl(Control * control)
 	return false;
 }
 
-Control * Control::GetChildAtPoint(const Vector2 & pt)
+Control * Control::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 {
-	if (m_bEnabled && m_bVisible)
+	if (bIgnoreVisible || m_bEnabled && m_bVisible)
 	{
 		ControlPtrList::const_reverse_iterator ctrl_iter = m_Childs.rbegin();
 		for (; ctrl_iter != m_Childs.rend(); ctrl_iter++)
 		{
-			Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
+			Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt, bIgnoreVisible);
 			if (ctrl)
 			{
 				return ctrl;
@@ -3933,7 +3933,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					Vector2 pt;
 					if ((*dlg_iter)->RayToWorld(ray, pt))
 					{
-						Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
+						Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, false);
 						if (!bFindMouseOver && ControlPtd)
 						{
 							Control::SetMouseOverControl(ControlPtd, pt);

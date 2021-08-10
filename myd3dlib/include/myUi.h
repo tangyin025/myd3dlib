@@ -443,7 +443,7 @@ namespace my
 
 		bool ContainsControl(Control * control);
 
-		Control * GetChildAtPoint(const Vector2 & pt);
+		Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 
 		Control * GetTopControl(void);
 

@@ -783,27 +783,28 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)control->m_Width.offset);
 	pControl->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
 	pControl->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
+	pControl->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)control->m_bEnabled);
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(5)))->SetColor(color);
-	pControl->GetSubItem(6)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
-	pControl->GetSubItem(7)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(8)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
-	pControl->GetSubItem(8)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
-	pControl->GetSubItem(8)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
-	pControl->GetSubItem(8)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
-	pControl->GetSubItem(9)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.x);
-	pControl->GetSubItem(9)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
-	pControl->GetSubItem(9)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
-	pControl->GetSubItem(9)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
-	pControl->GetSubItem(10)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str());
-	pControl->GetSubItem(11)->SetValue((_variant_t)(long)control->m_Skin->m_FontHeight);
-	pControl->GetSubItem(12)->SetValue((_variant_t)(long)control->m_Skin->m_FontFaceIndex);
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(6)))->SetColor(color);
+	pControl->GetSubItem(7)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
+	pControl->GetSubItem(8)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(9)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
+	pControl->GetSubItem(9)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
+	pControl->GetSubItem(9)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
+	pControl->GetSubItem(9)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
+	pControl->GetSubItem(10)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.x);
+	pControl->GetSubItem(10)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
+	pControl->GetSubItem(10)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
+	pControl->GetSubItem(10)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
+	pControl->GetSubItem(11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str());
+	pControl->GetSubItem(12)->SetValue((_variant_t)(long)control->m_Skin->m_FontHeight);
+	pControl->GetSubItem(13)->SetValue((_variant_t)(long)control->m_Skin->m_FontFaceIndex);
 
 	color = RGB(LOBYTE(control->m_Skin->m_TextColor >> 16), LOBYTE(control->m_Skin->m_TextColor >> 8), LOBYTE(control->m_Skin->m_TextColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(13)))->SetColor(color);
-	pControl->GetSubItem(14)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextColor >> 24));
-	pControl->GetSubItem(15)->SetValue(GetFontAlignDesc(control->m_Skin->m_TextAlign));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(14)))->SetColor(color);
+	pControl->GetSubItem(15)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextColor >> 24));
+	pControl->GetSubItem(16)->SetValue(GetFontAlignDesc(control->m_Skin->m_TextAlign));
 
 	switch (control->GetControlType())
 	{
@@ -871,42 +872,41 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 		CreatePropertiesButton(pControl, button);
 		return;
 	}
-	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bEnabled);
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bPressed);
-	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bMouseOver);
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bPressed);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bMouseOver);
 	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
-	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 4)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.x);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
+	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 6)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Border.x);
-	pControl->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Border.y);
-	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Border.z);
-	pControl->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Border.w);
+	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_PressedImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedImage->m_Border.x);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedImage->m_Border.y);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_PressedImage->m_Border.z);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)skin->m_PressedImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 10)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.x);
-	pControl->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.y);
-	pControl->GetSubItem(PropId + 11)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.z);
-	pControl->GetSubItem(PropId + 11)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.w);
+	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.x);
+	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.y);
+	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.z);
+	pControl->GetSubItem(PropId + 10)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
-	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
+	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
+	pControl->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1554,6 +1554,9 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pProp = new CSimpleProp(_T("offset"), (_variant_t)control->m_Height.offset, NULL, PropertyControlHeightOffset);
 	pHeight->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty* pEnabled = new CCheckBoxProp(_T("Enabled"), control->m_bEnabled, NULL, PropertyControlEnabled);
+	pControl->AddSubItem(pEnabled);
+
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
 	CColorProp* pColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyControlColor);
 	pColor->EnableOtherButton(_T("Other..."));
@@ -1658,9 +1661,6 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeStatic));
 
 	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
-
-	CMFCPropertyGridProperty* pEnabled = new CCheckBoxProp(_T("Enabled"), button->m_bEnabled, NULL, PropertyButtonEnabled);
-	pControl->AddSubItem(pEnabled);
 
 	CMFCPropertyGridProperty* pPressed = new CCheckBoxProp(_T("Pressed"), button->m_bPressed, NULL, PropertyButtonPressed);
 	pControl->AddSubItem(pPressed);
@@ -1867,7 +1867,7 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	switch (type)
 	{
 	case my::Control::ControlTypeControl:
-		return 16;
+		return 17;
 	case my::Control::ControlTypeStatic:
 		return GetControlPropCount(my::Control::ControlTypeControl) + 1;
 	}
@@ -3127,6 +3127,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyControlEnabled:
+	{
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
+		control->m_bEnabled = pProp->GetValue().boolVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyControlColor:
 	case PropertyControlColorAlpha:
 	{
@@ -3140,8 +3148,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 			break;
 		}
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(5)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(6)->GetValue().lVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(6)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(7)->GetValue().lVal;
 		control->m_Skin->m_Color = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -3198,14 +3206,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		my::Control* control = (my::Control *)pControl->GetValue().pulVal;
 		control->m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(8)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(8)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(8)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(8)->GetSubItem(3)->GetValue().fltVal);
-		control->m_Skin->m_Image->m_Border.x = pControl->GetSubItem(9)->GetSubItem(0)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.y = pControl->GetSubItem(9)->GetSubItem(1)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.z = pControl->GetSubItem(9)->GetSubItem(2)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.w = pControl->GetSubItem(9)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(9)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(9)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(9)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(9)->GetSubItem(3)->GetValue().fltVal);
+		control->m_Skin->m_Image->m_Border.x = pControl->GetSubItem(10)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.y = pControl->GetSubItem(10)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.z = pControl->GetSubItem(10)->GetSubItem(2)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.w = pControl->GetSubItem(10)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3229,9 +3237,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		my::Control* control = (my::Control*)pControl->GetValue().pulVal;
 		control->m_Skin->ReleaseResource();
-		control->m_Skin->m_FontPath = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(10)->GetValue().bstrVal).c_str());
-		control->m_Skin->m_FontHeight = pControl->GetSubItem(11)->GetValue().lVal;
-		control->m_Skin->m_FontFaceIndex = pControl->GetSubItem(12)->GetValue().lVal;
+		control->m_Skin->m_FontPath = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(11)->GetValue().bstrVal).c_str());
+		control->m_Skin->m_FontHeight = pControl->GetSubItem(12)->GetValue().lVal;
+		control->m_Skin->m_FontFaceIndex = pControl->GetSubItem(13)->GetValue().lVal;
 		if (control->IsRequested())
 		{
 			control->m_Skin->RequestResource();
@@ -3253,8 +3261,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 			break;
 		}
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(13)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(14)->GetValue().lVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(14)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(15)->GetValue().lVal;
 		control->m_Skin->m_TextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -3282,14 +3290,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		progressbar->m_Progress = pProp->GetValue().fltVal;
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyButtonEnabled:
-	{
-		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		control->m_bEnabled = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3364,14 +3364,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
 		skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 4)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 4)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 4)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 4)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_DisabledImage->m_Border.x = pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_DisabledImage->m_Border.y = pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_DisabledImage->m_Border.z = pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_DisabledImage->m_Border.w = pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 3)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_DisabledImage->m_Border.x = pControl->GetSubItem(PropId + 4)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.y = pControl->GetSubItem(PropId + 4)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.z = pControl->GetSubItem(PropId + 4)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.w = pControl->GetSubItem(PropId + 4)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3430,14 +3430,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
 		skin->m_PressedImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_PressedImage->m_Border.x = pControl->GetSubItem(PropId + 8)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_PressedImage->m_Border.y = pControl->GetSubItem(PropId + 8)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_PressedImage->m_Border.z = pControl->GetSubItem(PropId + 8)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_PressedImage->m_Border.w = pControl->GetSubItem(PropId + 8)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_PressedImage->m_Border.x = pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_PressedImage->m_Border.y = pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_PressedImage->m_Border.z = pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_PressedImage->m_Border.w = pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3496,14 +3496,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
 		skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 10)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 10)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 10)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 10)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_MouseOverImage->m_Border.x = pControl->GetSubItem(PropId + 11)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_MouseOverImage->m_Border.y = pControl->GetSubItem(PropId + 11)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_MouseOverImage->m_Border.z = pControl->GetSubItem(PropId + 11)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_MouseOverImage->m_Border.w = pControl->GetSubItem(PropId + 11)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_MouseOverImage->m_Border.x = pControl->GetSubItem(PropId + 10)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_MouseOverImage->m_Border.y = pControl->GetSubItem(PropId + 10)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_MouseOverImage->m_Border.z = pControl->GetSubItem(PropId + 10)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_MouseOverImage->m_Border.w = pControl->GetSubItem(PropId + 10)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -3526,8 +3526,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pControl->GetValue().pulVal);
 		my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-		skin->m_PressedOffset.x = pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_PressedOffset.y = pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_PressedOffset.x = pControl->GetSubItem(PropId + 11)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_PressedOffset.y = pControl->GetSubItem(PropId + 11)->GetSubItem(1)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
