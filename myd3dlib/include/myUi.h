@@ -665,7 +665,7 @@ namespace my
 
 	public:
 		EditBoxSkin(void)
-			: m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
+			: m_SelBkColor(D3DCOLOR_ARGB(255,255,128,0))
 			, m_CaretColor(D3DCOLOR_ARGB(255,255,255,255))
 		{
 		}

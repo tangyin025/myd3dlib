@@ -926,6 +926,17 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)editbox->m_Border.y);
 	pControl->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)editbox->m_Border.z);
 	pControl->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)editbox->m_Border.w);
+
+	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 1)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1790,6 +1801,30 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pBorder->AddSubItem(pProp);
 
 	my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
+	CMFCPropertyGridProperty* pDisabledImagePath = new CFileProp(_T("DisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxDisabledImagePath);
+	pControl->AddSubItem(pDisabledImagePath);
+
+	CMFCPropertyGridProperty* pDisabledImageRect = new CSimpleProp(_T("DisabledImageRect"), PropertyEditBoxDisabledImageRect, TRUE);
+	pControl->AddSubItem(pDisabledImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_DisabledImage->m_Rect.l, NULL, PropertyEditBoxDisabledImageRectLeft);
+	pDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DisabledImage->m_Rect.t, NULL, PropertyEditBoxDisabledImageRectTop);
+	pDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DisabledImage->m_Rect.Width(), NULL, PropertyEditBoxDisabledImageRectWidth);
+	pDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DisabledImage->m_Rect.Height(), NULL, PropertyEditBoxDisabledImageRectHeight);
+	pDisabledImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pDisabledImageBorder = new CSimpleProp(_T("DisabledImageBorder"), PropertyEditBoxDisabledImageBorder, TRUE);
+	pControl->AddSubItem(pDisabledImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_DisabledImage->m_Border.x, NULL, PropertyEditBoxDisabledImageBorderX);
+	pDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_DisabledImage->m_Border.y, NULL, PropertyEditBoxDisabledImageBorderY);
+	pDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_DisabledImage->m_Border.z, NULL, PropertyEditBoxDisabledImageBorderZ);
+	pDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DisabledImage->m_Border.w, NULL, PropertyEditBoxDisabledImageBorderW);
+	pDisabledImageBorder->AddSubItem(pProp);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3598,6 +3633,72 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		editbox->m_Border.y = pControl->GetSubItem(PropId + 0)->GetSubItem(1)->GetValue().fltVal;
 		editbox->m_Border.z = pControl->GetSubItem(PropId + 0)->GetSubItem(2)->GetValue().fltVal;
 		editbox->m_Border.w = pControl->GetSubItem(PropId + 0)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyEditBoxDisabledImagePath:
+	{
+		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(button);
+			return 0;
+		}
+		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(button->m_Skin);
+		skin->m_DisabledImage->ReleaseResource();
+		skin->m_DisabledImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_DisabledImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyEditBoxDisabledImageRect:
+	case PropertyEditBoxDisabledImageRectLeft:
+	case PropertyEditBoxDisabledImageRectTop:
+	case PropertyEditBoxDisabledImageRectWidth:
+	case PropertyEditBoxDisabledImageRectHeight:
+	case PropertyEditBoxDisabledImageBorder:
+	case PropertyEditBoxDisabledImageBorderX:
+	case PropertyEditBoxDisabledImageBorderY:
+	case PropertyEditBoxDisabledImageBorderZ:
+	case PropertyEditBoxDisabledImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyEditBoxDisabledImageRectLeft:
+		case PropertyEditBoxDisabledImageRectTop:
+		case PropertyEditBoxDisabledImageRectWidth:
+		case PropertyEditBoxDisabledImageRectHeight:
+		case PropertyEditBoxDisabledImageBorderX:
+		case PropertyEditBoxDisabledImageBorderY:
+		case PropertyEditBoxDisabledImageBorderZ:
+		case PropertyEditBoxDisabledImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyEditBoxDisabledImageRect:
+		case PropertyEditBoxDisabledImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::EditBox* button = dynamic_cast<my::EditBox*>((my::Control*)pControl->GetValue().pulVal);
+		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(button->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 1)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 1)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 1)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 1)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_DisabledImage->m_Border.x = pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.y = pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.z = pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_DisabledImage->m_Border.w = pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

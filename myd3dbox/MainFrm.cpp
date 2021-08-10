@@ -1902,12 +1902,20 @@ void CMainFrame::OnControlImeeditbox()
 	skin->m_TextColor = D3DCOLOR_ARGB(255, 63, 188, 239);
 	skin->m_TextAlign = my::Font::AlignLeftMiddle;
 	skin->m_Image.reset(new my::ControlImage());
-	skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
 	skin->m_Image->m_Rect = my::Rectangle(154, 43, 156, 45);
 	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_DisabledImage.reset(new my::ControlImage());
+	skin->m_DisabledImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_DisabledImage->m_Rect = my::Rectangle(154, 43, 156, 45);
+	skin->m_DisabledImage->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_FocusedImage.reset(new my::ControlImage());
+	skin->m_FocusedImage->m_TexturePath = "texture/CommonUI.png";
+	skin->m_FocusedImage->m_Rect = my::Rectangle(154, 43, 156, 45);
+	skin->m_FocusedImage->m_Border = my::Vector4(0, 0, 0, 0);
 	skin->m_SelBkColor = D3DCOLOR_ARGB(255, 255, 128, 0);
 	skin->m_CaretImage.reset(new my::ControlImage());
-	skin->m_CaretImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	skin->m_CaretImage->m_TexturePath = "texture/CommonUI.png";
 	skin->m_CaretImage->m_Rect = my::Rectangle(154, 43, 156, 45);
 	skin->m_CaretImage->m_Border = my::Vector4(0, 0, 0, 0);
 
