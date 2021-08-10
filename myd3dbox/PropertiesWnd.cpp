@@ -937,6 +937,16 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.y);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.z);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_DisabledImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 4)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 4)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 4)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.x);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.y);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.z);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_FocusedImage->m_Border.w);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1825,6 +1835,31 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pDisabledImageBorder->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DisabledImage->m_Border.w, NULL, PropertyEditBoxDisabledImageBorderW);
 	pDisabledImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pFocusedImagePath = new CFileProp(_T("FocusedImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_FocusedImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyEditBoxFocusedImagePath);
+	pControl->AddSubItem(pFocusedImagePath);
+
+	CMFCPropertyGridProperty* pFocusedImageRect = new CSimpleProp(_T("FocusedImageRect"), PropertyEditBoxFocusedImageRect, TRUE);
+	pControl->AddSubItem(pFocusedImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_FocusedImage->m_Rect.l, NULL, PropertyEditBoxFocusedImageRectLeft);
+	pFocusedImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_FocusedImage->m_Rect.t, NULL, PropertyEditBoxFocusedImageRectTop);
+	pFocusedImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_FocusedImage->m_Rect.Width(), NULL, PropertyEditBoxFocusedImageRectWidth);
+	pFocusedImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_FocusedImage->m_Rect.Height(), NULL, PropertyEditBoxFocusedImageRectHeight);
+	pFocusedImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pFocusedImageBorder = new CSimpleProp(_T("FocusedImageBorder"), PropertyEditBoxFocusedImageBorder, TRUE);
+	pControl->AddSubItem(pFocusedImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_FocusedImage->m_Border.x, NULL, PropertyEditBoxFocusedImageBorderX);
+	pFocusedImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_FocusedImage->m_Border.y, NULL, PropertyEditBoxFocusedImageBorderY);
+	pFocusedImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_FocusedImage->m_Border.z, NULL, PropertyEditBoxFocusedImageBorderZ);
+	pFocusedImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_FocusedImage->m_Border.w, NULL, PropertyEditBoxFocusedImageBorderW);
+	pFocusedImageBorder->AddSubItem(pProp);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -3699,6 +3734,72 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		skin->m_DisabledImage->m_Border.y = pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
 		skin->m_DisabledImage->m_Border.z = pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
 		skin->m_DisabledImage->m_Border.w = pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyEditBoxFocusedImagePath:
+	{
+		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty())
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(editbox);
+			return 0;
+		}
+		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
+		skin->m_FocusedImage->ReleaseResource();
+		skin->m_FocusedImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_FocusedImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyEditBoxFocusedImageRect:
+	case PropertyEditBoxFocusedImageRectLeft:
+	case PropertyEditBoxFocusedImageRectTop:
+	case PropertyEditBoxFocusedImageRectWidth:
+	case PropertyEditBoxFocusedImageRectHeight:
+	case PropertyEditBoxFocusedImageBorder:
+	case PropertyEditBoxFocusedImageBorderX:
+	case PropertyEditBoxFocusedImageBorderY:
+	case PropertyEditBoxFocusedImageBorderZ:
+	case PropertyEditBoxFocusedImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyEditBoxFocusedImageRectLeft:
+		case PropertyEditBoxFocusedImageRectTop:
+		case PropertyEditBoxFocusedImageRectWidth:
+		case PropertyEditBoxFocusedImageRectHeight:
+		case PropertyEditBoxFocusedImageBorderX:
+		case PropertyEditBoxFocusedImageBorderY:
+		case PropertyEditBoxFocusedImageBorderZ:
+		case PropertyEditBoxFocusedImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyEditBoxFocusedImageRect:
+		case PropertyEditBoxFocusedImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::EditBox* editbox = dynamic_cast<my::EditBox*>((my::Control*)pControl->GetValue().pulVal);
+		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(editbox->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_FocusedImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 4)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 4)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 4)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 4)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_FocusedImage->m_Border.x = pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_FocusedImage->m_Border.y = pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_FocusedImage->m_Border.z = pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_FocusedImage->m_Border.w = pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

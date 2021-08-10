@@ -300,6 +300,17 @@ public:
 		PropertyEditBoxDisabledImageBorderY,
 		PropertyEditBoxDisabledImageBorderZ,
 		PropertyEditBoxDisabledImageBorderW,
+		PropertyEditBoxFocusedImagePath,
+		PropertyEditBoxFocusedImageRect,
+		PropertyEditBoxFocusedImageRectLeft,
+		PropertyEditBoxFocusedImageRectTop,
+		PropertyEditBoxFocusedImageRectWidth,
+		PropertyEditBoxFocusedImageRectHeight,
+		PropertyEditBoxFocusedImageBorder,
+		PropertyEditBoxFocusedImageBorderX,
+		PropertyEditBoxFocusedImageBorderY,
+		PropertyEditBoxFocusedImageBorderZ,
+		PropertyEditBoxFocusedImageBorderW,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
