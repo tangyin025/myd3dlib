@@ -327,6 +327,7 @@ public:
 		PropertyEditBoxCaretImageBorderY,
 		PropertyEditBoxCaretImageBorderZ,
 		PropertyEditBoxCaretImageBorderW,
+		PropertyCheckBoxChecked,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -356,6 +357,7 @@ public:
 	void UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 	void UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 	void UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
+	void UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -379,6 +381,7 @@ public:
 	void CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 	void CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 	void CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
+	void CreatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);

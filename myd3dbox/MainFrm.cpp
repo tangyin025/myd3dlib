@@ -1941,7 +1941,7 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
 	skin->m_Image->m_Rect = my::Rectangle::LeftTop(132, 43, 20, 20);
-	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_Image->m_Border = my::Vector4(20, 20, 0, 0);
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
@@ -1951,15 +1951,15 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_DisabledImage.reset(new my::ControlImage());
 	skin->m_DisabledImage->m_TexturePath = "texture/CommonUI.png";
 	skin->m_DisabledImage->m_Rect = my::Rectangle::LeftTop(69, 43, 20, 20);
-	skin->m_DisabledImage->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_DisabledImage->m_Border = my::Vector4(20, 20, 0, 0);
 	skin->m_PressedImage.reset(new my::ControlImage());
 	skin->m_PressedImage->m_TexturePath = "texture/CommonUI.png";
 	skin->m_PressedImage->m_Rect = my::Rectangle::LeftTop(90, 43, 20, 20);
-	skin->m_PressedImage->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_PressedImage->m_Border = my::Vector4(20, 20, 0, 0);
 	skin->m_MouseOverImage.reset(new my::ControlImage());
 	skin->m_MouseOverImage->m_TexturePath = "texture/CommonUI.png";
 	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(111, 43, 20, 20);
-	skin->m_MouseOverImage->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_MouseOverImage->m_Border = my::Vector4(20, 20, 0, 0);
 
 	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName("checkbox").c_str()));
 	checkbox->m_Skin = skin;

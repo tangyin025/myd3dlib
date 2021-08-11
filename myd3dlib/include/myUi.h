@@ -1008,21 +1008,17 @@ namespace my
 	class CheckBox : public Button
 	{
 	public:
-		Vector2 m_CheckBtnSize;
-
 		bool m_Checked;
 
 	protected:
 		CheckBox(void)
-			: m_CheckBtnSize(20,20)
-			, m_Checked(false)
+			: m_Checked(false)
 		{
 		}
 
 	public:
 		CheckBox(const char * Name)
 			: Button(Name)
-			, m_CheckBtnSize(20,20)
 			, m_Checked(false)
 		{
 		}
@@ -1033,7 +1029,6 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
-			ar & BOOST_SERIALIZATION_NVP(m_CheckBtnSize);
 			ar & BOOST_SERIALIZATION_NVP(m_Checked);
 		}
 

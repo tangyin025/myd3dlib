@@ -812,12 +812,14 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
 	case my::Control::ControlTypeButton:
-	case my::Control::ControlTypeEditBox:
+	//case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
 		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	case my::Control::ControlTypeScrollBar:
+	//case my::Control::ControlTypeScrollBar:
 	case my::Control::ControlTypeCheckBox:
+		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
 	case my::Control::ControlTypeComboBox:
 	case my::Control::ControlTypeListBox:
 	case my::Control::ControlTypeDialog:
@@ -846,9 +848,12 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	case my::Control::ControlTypeButton:
 		UpdatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
-	case my::Control::ControlTypeEditBox:
+	//case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
 		UpdatePropertiesEditBox(pControl, dynamic_cast<my::EditBox*>(static_ctl));
+		break;
+	case my::Control::ControlTypeCheckBox:
+		UpdatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
 	default:
 		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeStatic));
@@ -912,6 +917,16 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 
 	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_PressedOffset.x);
 	pControl->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)skin->m_PressedOffset.y);
+
+	switch (button->GetControlType())
+	{
+	case my::Control::ControlTypeCheckBox:
+		UpdatePropertiesCheckBox(pControl, dynamic_cast<my::CheckBox*>(button));
+		break;
+	default:
+		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeButton));
+		break;
+	}
 }
 
 void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox)
@@ -966,6 +981,18 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_CaretImage->m_Border.y);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)skin->m_CaretImage->m_Border.z);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(3)->SetValue((_variant_t)skin->m_CaretImage->m_Border.w);
+}
+
+void CPropertiesWnd::UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyCheckBoxChecked)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesCheckBox(pControl, checkbox);
+		return;
+	}
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)checkbox->m_Checked);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1677,17 +1704,18 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeStatic:
 	case my::Control::ControlTypeProgressBar:
 	case my::Control::ControlTypeButton:
-	case my::Control::ControlTypeEditBox:
+	//case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
 		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	case my::Control::ControlTypeScrollBar:
+	//case my::Control::ControlTypeScrollBar:
 	case my::Control::ControlTypeCheckBox:
+		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
+		break;
 	case my::Control::ControlTypeComboBox:
 	case my::Control::ControlTypeListBox:
 	case my::Control::ControlTypeDialog:
 	default:
-		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));
 		break;
 	}
 }
@@ -1707,9 +1735,12 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	case my::Control::ControlTypeButton:
 		CreatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
-	case my::Control::ControlTypeEditBox:
+	//case my::Control::ControlTypeEditBox:
 	case my::Control::ControlTypeImeEditBox:
 		CreatePropertiesEditBox(pControl, dynamic_cast<my::EditBox*>(static_ctl));
+		break;
+	case my::Control::ControlTypeCheckBox:
+		CreatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
 	}
 }
@@ -1815,6 +1846,13 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	pPressedOffset->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_PressedOffset.y, NULL, PropertyButtonPressedOffsetY);
 	pPressedOffset->AddSubItem(pProp);
+
+	switch (button->GetControlType())
+	{
+	case my::Control::ControlTypeCheckBox:
+		CreatePropertiesCheckBox(pControl, dynamic_cast<my::CheckBox*>(button));
+		break;
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox)
@@ -1922,6 +1960,14 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pCaretImageBorder->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_CaretImage->m_Border.w, NULL, PropertyEditBoxCaretImageBorderW);
 	pCaretImageBorder->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeButton));
+
+	CMFCPropertyGridProperty* pChecked = new CCheckBoxProp(_T("Checked"), checkbox->m_Checked, NULL, PropertyCheckBoxChecked);
+	pControl->AddSubItem(pChecked);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -2043,6 +2089,8 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 		return 18;
 	case my::Control::ControlTypeStatic:
 		return GetControlPropCount(my::Control::ControlTypeControl) + 1;
+	case my::Control::ControlTypeButton:
+		return GetControlPropCount(my::Control::ControlTypeStatic) + 12;
 	}
 	ASSERT(false);
 	return UINT_MAX;
@@ -3958,6 +4006,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		skin->m_CaretImage->m_Border.y = pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().fltVal;
 		skin->m_CaretImage->m_Border.z = pControl->GetSubItem(PropId + 13)->GetSubItem(2)->GetValue().fltVal;
 		skin->m_CaretImage->m_Border.w = pControl->GetSubItem(PropId + 13)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyCheckBoxChecked:
+	{
+		my::CheckBox* checkbox = dynamic_cast<my::CheckBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		checkbox->m_Checked = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
