@@ -2049,6 +2049,10 @@ void CMainFrame::OnControlCombobox()
 	combobox->m_Text = ms2ws(combobox->GetName());
 	combobox->m_x.offset = 10;
 	combobox->m_y.offset = 10;
+	for (int i = 0; i < 3; i++)
+	{
+		combobox->AddItem(str_printf(L"item%d", i));
+	}
 
 	m_selctl->InsertControl(combobox);
 	m_selctl = combobox.get();
@@ -2110,18 +2114,12 @@ void CMainFrame::OnControlListbox()
 	//listBox->m_Width.offset = 200;
 	//listBox->OnLayout();
 	listBox->m_Skin = skin;
-	listBox->AddItem(L"aaa");
-	listBox->AddItem(L"bbb");
-	listBox->AddItem(L"ccc");
-	listBox->AddItem(L"ddd");
-	listBox->AddItem(L"eee");
-	listBox->AddItem(L"fff");
-	listBox->AddItem(L"ggg");
-	listBox->AddItem(L"hhh");
-	listBox->AddItem(L"iii");
-	listBox->AddItem(L"jjj");
 	listBox->m_x.offset = 10;
 	listBox->m_y.offset = 10;
+	for (int i = 0; i < 3; i++)
+	{
+		listBox->AddItem(str_printf(L"item%d", i));
+	}
 
 	m_selctl->InsertControl(listBox);
 	m_selctl = listBox.get();

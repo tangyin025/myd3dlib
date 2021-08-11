@@ -339,6 +339,7 @@ public:
 		PropertyComboBoxBorderZ,
 		PropertyComboBoxBorderW,
 		PropertyComboBoxItemHeight,
+		PropertyComboBoxItemCount,
 		PropertyComboBoxDropdownImagePath,
 		PropertyComboBoxDropdownImageRect,
 		PropertyComboBoxDropdownImageRectLeft,
