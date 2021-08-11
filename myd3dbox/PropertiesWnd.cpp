@@ -818,9 +818,9 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 		break;
 	//case my::Control::ControlTypeScrollBar:
 	case my::Control::ControlTypeCheckBox:
+	case my::Control::ControlTypeComboBox:
 		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	case my::Control::ControlTypeComboBox:
 	case my::Control::ControlTypeListBox:
 	case my::Control::ControlTypeDialog:
 	default:
@@ -853,6 +853,7 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 		UpdatePropertiesEditBox(pControl, dynamic_cast<my::EditBox*>(static_ctl));
 		break;
 	case my::Control::ControlTypeCheckBox:
+	case my::Control::ControlTypeComboBox:
 		UpdatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
 	default:
@@ -922,6 +923,9 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	{
 	case my::Control::ControlTypeCheckBox:
 		UpdatePropertiesCheckBox(pControl, dynamic_cast<my::CheckBox*>(button));
+		break;
+	case my::Control::ControlTypeComboBox:
+		UpdatePropertiesComboBox(pControl, dynamic_cast<my::ComboBox*>(button));
 		break;
 	default:
 		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeButton));
@@ -993,6 +997,31 @@ void CPropertiesWnd::UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pContro
 		return;
 	}
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)checkbox->m_Checked);
+}
+
+void CPropertiesWnd::UpdatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyComboBoxDropdownSize)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesComboBox(pControl, combobox);
+		return;
+	}
+	pControl->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)combobox->m_DropdownSize.x);
+	pControl->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)combobox->m_DropdownSize.y);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)combobox->m_ScrollbarWidth);
+	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)combobox->m_ScrollbarUpDownBtnHeight);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)combobox->m_Border.x);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)combobox->m_Border.y);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)combobox->m_Border.z);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)combobox->m_Border.w);
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)combobox->m_ItemHeight);
+}
+
+void CPropertiesWnd::UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox)
+{
+
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1710,9 +1739,9 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 		break;
 	//case my::Control::ControlTypeScrollBar:
 	case my::Control::ControlTypeCheckBox:
+	case my::Control::ControlTypeComboBox:
 		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	case my::Control::ControlTypeComboBox:
 	case my::Control::ControlTypeListBox:
 	case my::Control::ControlTypeDialog:
 	default:
@@ -1740,6 +1769,7 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 		CreatePropertiesEditBox(pControl, dynamic_cast<my::EditBox*>(static_ctl));
 		break;
 	case my::Control::ControlTypeCheckBox:
+	case my::Control::ControlTypeComboBox:
 		CreatePropertiesButton(pControl, dynamic_cast<my::Button*>(static_ctl));
 		break;
 	}
@@ -1851,6 +1881,9 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	{
 	case my::Control::ControlTypeCheckBox:
 		CreatePropertiesCheckBox(pControl, dynamic_cast<my::CheckBox*>(button));
+		break;
+	case my::Control::ControlTypeComboBox:
+		CreatePropertiesComboBox(pControl, dynamic_cast<my::ComboBox*>(button));
 		break;
 	}
 }
@@ -1968,6 +2001,43 @@ void CPropertiesWnd::CreatePropertiesCheckBox(CMFCPropertyGridProperty * pContro
 
 	CMFCPropertyGridProperty* pChecked = new CCheckBoxProp(_T("Checked"), checkbox->m_Checked, NULL, PropertyCheckBoxChecked);
 	pControl->AddSubItem(pChecked);
+}
+
+void CPropertiesWnd::CreatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeButton));
+
+	CMFCPropertyGridProperty* pDropdownSize = new CSimpleProp(_T("DropdownSize"), PropertyComboBoxDropdownSize, TRUE);
+	pControl->AddSubItem(pDropdownSize);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("x"), (_variant_t)combobox->m_DropdownSize.x, NULL, PropertyComboBoxDropdownSizeX);
+	pDropdownSize->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)combobox->m_DropdownSize.y, NULL, PropertyComboBoxDropdownSizeY);
+	pDropdownSize->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollbarWidth = new CSimpleProp(_T("ScrollbarWidth"), (_variant_t)combobox->m_ScrollbarWidth, NULL, PropertyComboBoxScrollbarWidth);
+	pControl->AddSubItem(pScrollbarWidth);
+
+	CMFCPropertyGridProperty* pScrollbarUpDownBtnHeight = new CSimpleProp(_T("ScrollbarUpDownBtnHeight"), (_variant_t)combobox->m_ScrollbarUpDownBtnHeight, NULL, PropertyComboBoxScrollbarUpDownBtnHeight);
+	pControl->AddSubItem(pScrollbarUpDownBtnHeight);
+
+	CMFCPropertyGridProperty* pBorder = new CSimpleProp(_T("Border"), PropertyComboBoxBorder, TRUE);
+	pControl->AddSubItem(pBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)combobox->m_Border.x, NULL, PropertyComboBoxBorderX);
+	pBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)combobox->m_Border.y, NULL, PropertyComboBoxBorderY);
+	pBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)combobox->m_Border.z, NULL, PropertyComboBoxBorderZ);
+	pBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)combobox->m_Border.w, NULL, PropertyComboBoxBorderW);
+	pBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pItemHeight = new CSimpleProp(_T("ItemHeight"), (_variant_t)combobox->m_ItemHeight, NULL, PropertyComboBoxItemHeight);
+	pControl->AddSubItem(pItemHeight);
+}
+
+void CPropertiesWnd::CreatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox)
+{
+
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -4014,6 +4084,53 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::CheckBox* checkbox = dynamic_cast<my::CheckBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		checkbox->m_Checked = pProp->GetValue().boolVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComboBoxDropdownSize:
+	case PropertyComboBoxDropdownSizeX:
+	case PropertyComboBoxDropdownSizeY:
+	case PropertyComboBoxScrollbarWidth:
+	case PropertyComboBoxScrollbarUpDownBtnHeight:
+	case PropertyComboBoxBorder:
+	case PropertyComboBoxBorderX:
+	case PropertyComboBoxBorderY:
+	case PropertyComboBoxBorderZ:
+	case PropertyComboBoxBorderW:
+	case PropertyComboBoxItemHeight:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyComboBoxDropdownSizeX:
+		case PropertyComboBoxDropdownSizeY:
+		case PropertyComboBoxBorderX:
+		case PropertyComboBoxBorderY:
+		case PropertyComboBoxBorderZ:
+		case PropertyComboBoxBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyComboBoxDropdownSize:
+		case PropertyComboBoxScrollbarWidth:
+		case PropertyComboBoxScrollbarUpDownBtnHeight:
+		case PropertyComboBoxBorder:
+		case PropertyComboBoxItemHeight:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pControl->GetValue().pulVal);
+		my::EditBoxSkinPtr skin = boost::dynamic_pointer_cast<my::EditBoxSkin>(combobox->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
+		combobox->m_DropdownSize.x = pControl->GetSubItem(PropId + 0)->GetSubItem(0)->GetValue().fltVal;
+		combobox->m_DropdownSize.y = pControl->GetSubItem(PropId + 0)->GetSubItem(1)->GetValue().fltVal;
+		combobox->m_ScrollbarWidth = pControl->GetSubItem(PropId + 1)->GetValue().fltVal;
+		combobox->m_ScrollbarUpDownBtnHeight = pControl->GetSubItem(PropId + 2)->GetValue().fltVal;
+		combobox->m_Border.x = pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().fltVal;
+		combobox->m_Border.y = pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().fltVal;
+		combobox->m_Border.z = pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().fltVal;
+		combobox->m_Border.w = pControl->GetSubItem(PropId + 3)->GetSubItem(3)->GetValue().fltVal;
+		combobox->m_ItemHeight = pControl->GetSubItem(PropId + 4)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

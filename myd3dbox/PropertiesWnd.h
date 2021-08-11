@@ -328,6 +328,17 @@ public:
 		PropertyEditBoxCaretImageBorderZ,
 		PropertyEditBoxCaretImageBorderW,
 		PropertyCheckBoxChecked,
+		PropertyComboBoxDropdownSize,
+		PropertyComboBoxDropdownSizeX,
+		PropertyComboBoxDropdownSizeY,
+		PropertyComboBoxScrollbarWidth,
+		PropertyComboBoxScrollbarUpDownBtnHeight,
+		PropertyComboBoxBorder,
+		PropertyComboBoxBorderX,
+		PropertyComboBoxBorderY,
+		PropertyComboBoxBorderZ,
+		PropertyComboBoxBorderW,
+		PropertyComboBoxItemHeight,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -358,6 +369,8 @@ public:
 	void UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 	void UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
 	void UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
+	void UpdatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox);
+	void UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -382,6 +395,8 @@ public:
 	void CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 	void CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
 	void CreatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
+	void CreatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox);
+	void CreatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);
