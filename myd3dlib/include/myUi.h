@@ -397,6 +397,11 @@ namespace my
 
 		static void SetFocusControl(Control * control);
 
+		static Control * GetCaptureControl(void)
+		{
+			return s_CaptureControl;
+		}
+
 		static void SetCaptureControl(Control * control);
 
 		static void SetMouseOverControl(Control * control, const Vector2 & pt);
@@ -1132,8 +1137,6 @@ namespace my
 
 		Vector4 m_Border;
 
-		bool m_bOpened;
-
 		typedef std::vector<ComboBoxItemPtr> ComboBoxItemPtrList;
 
 		ComboBoxItemPtrList m_Items;
@@ -1155,7 +1158,6 @@ namespace my
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_Border(0, 0, 0, 0)
-			, m_bOpened(false)
 			, m_ItemHeight(15)
 			, m_iFocused(0)
 			, m_iSelected(-1)
@@ -1172,7 +1174,6 @@ namespace my
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_Border(0, 0, 0, 0)
-			, m_bOpened(false)
 			, m_ItemHeight(15)
 			, m_iFocused(0)
 			, m_iSelected(-1)

@@ -2737,7 +2737,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 			}
 			else
 			{
-				if(m_bOpened)
+				if(m_bPressed)
 				{
 					ui_render->Flush();
 
@@ -2839,9 +2839,9 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYDOWN:
 			if (wParam == VK_RETURN)
 			{
-				if (!m_bOpened)
+				if (!m_bPressed)
 				{
-					m_bOpened = true;
+					m_bPressed = true;
 					m_iFocused = m_iSelected;
 					m_ScrollBar.ScrollTo(m_iFocused);
 					return true;
@@ -2858,13 +2858,13 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							m_EventSelectionChanged(&arg);
 						}
 					}
-					m_bOpened = false;
+					m_bPressed = false;
 					return true;
 				}
 			}
 			else if (wParam == VK_UP)
 			{
-				if (m_bOpened)
+				if (m_bPressed)
 				{
 					if (m_iFocused > 0)
 					{
@@ -2875,7 +2875,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == VK_DOWN)
 			{
-				if (m_bOpened)
+				if (m_bPressed)
 				{
 					if (m_iFocused + 1 < (int)m_Items.size())
 					{
@@ -2886,9 +2886,9 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == VK_ESCAPE)
 			{
-				if (m_bOpened)
+				if (m_bPressed)
 				{
-					m_bOpened = false;
+					m_bPressed = false;
 					return true;
 				}
 			}
@@ -2902,7 +2902,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if(m_bHasFocus && m_bOpened && !m_bPressed)
+		if(m_bHasFocus && m_bPressed)
 		{
 			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 			{
@@ -2913,7 +2913,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		switch(uMsg)
 		{
 		case WM_MOUSEMOVE:
-			if(m_bHasFocus && m_bOpened)
+			if(m_bHasFocus && m_bPressed)
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
@@ -2938,8 +2938,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		case WM_LBUTTONDBLCLK:
 			if(m_Rect.PtInRect(pt))
 			{
-				m_bPressed = true;
-				m_bOpened = !m_bOpened;
+				m_bPressed = !m_bPressed;
 				m_iFocused = m_iSelected;
 				m_ScrollBar.ScrollTo(m_iFocused);
 				SetFocusControl(this);
@@ -2947,7 +2946,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				return true;
 			}
 
-			if(m_bHasFocus && m_bOpened)
+			if(m_bHasFocus && m_bPressed)
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
@@ -2969,7 +2968,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 									m_EventSelectionChanged(&arg);
 								}
 							}
-							m_bOpened = false;
+							m_bPressed = false;
 							break;
 						}
 					}
@@ -2977,14 +2976,13 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					return true;
 				}
 			}
-			m_bOpened = false;
+			m_bPressed = false;
 			OnMouseLeave(pt);
 			break;
 
 		case WM_LBUTTONUP:
-			if(m_bPressed)
+			if (GetCaptureControl() == this)
 			{
-				m_bPressed = false;
 				SetCaptureControl(NULL);
 				return true;
 			}
@@ -2996,14 +2994,14 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 void ComboBox::OnFocusOut(void)
 {
-	m_bOpened = false;
+	m_bPressed = false;
 
 	Control::OnFocusOut();
 }
 
 bool ComboBox::HitTest(const Vector2 & pt)
 {
-	if (m_bHasFocus && m_bOpened)
+	if (m_bHasFocus && m_bPressed)
 	{
 		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar.m_Rect.PtInRect(pt);
 	}
