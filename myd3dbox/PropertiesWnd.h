@@ -436,6 +436,7 @@ public:
 		PropertyListBoxItemSize,
 		PropertyListBoxItemSizeX,
 		PropertyListBoxItemSizeY,
+		PropertyListBoxItemCount,
 		PropertyListBoxMouseOverImagePath,
 		PropertyListBoxMouseOverImageRect,
 		PropertyListBoxMouseOverImageRectLeft,

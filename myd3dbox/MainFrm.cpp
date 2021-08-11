@@ -2079,11 +2079,11 @@ void CMainFrame::OnControlListbox()
 	skin->m_TextAlign = my::Font::AlignCenterMiddle;
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
-	skin->m_Image->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
+	skin->m_Image->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
 	skin->m_Image->m_Border = my::Vector4(7, 7, 7, 7);
 	skin->m_MouseOverImage.reset(new my::ControlImage());
 	skin->m_MouseOverImage->m_TexturePath = "texture/CommonUI.png";
-	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(52, 43, 16, 16);
+	skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
 	skin->m_MouseOverImage->m_Border = my::Vector4(7, 7, 7, 7);
 	skin->m_ScrollBarUpBtnNormalImage.reset(new my::ControlImage());
 	skin->m_ScrollBarUpBtnNormalImage->m_TexturePath = "texture/CommonUI.png";
@@ -2111,8 +2111,6 @@ void CMainFrame::OnControlListbox()
 	skin->m_ScrollBarImage->m_Border = my::Vector4(7, 7, 7, 7);
 
 	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName("listbox").c_str()));
-	//listBox->m_Width.offset = 200;
-	//listBox->OnLayout();
 	listBox->m_Skin = skin;
 	listBox->m_x.offset = 10;
 	listBox->m_y.offset = 10;
