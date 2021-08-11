@@ -1825,7 +1825,7 @@ void CMainFrame::OnControlProgressbar()
 
 	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName("progressbar").c_str()));
 	pgs->m_Skin = skin;
-	pgs->m_Progress = 0.5f;
+	pgs->m_BlendProgress = pgs->m_Progress = 0.6f;
 	pgs->m_x.offset = 10;
 	pgs->m_y.offset = 10;
 
