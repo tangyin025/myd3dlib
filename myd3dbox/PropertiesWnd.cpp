@@ -1017,6 +1017,22 @@ void CPropertiesWnd::UpdatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)combobox->m_Border.z);
 	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)combobox->m_Border.w);
 	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)combobox->m_ItemHeight);
+
+	my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
+	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_DropdownImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.x);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.y);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.z);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)skin->m_DropdownImage->m_Border.w);
+
+	COLORREF color = RGB(LOBYTE(skin->m_DropdownItemTextColor >> 16), LOBYTE(skin->m_DropdownItemTextColor >> 8), LOBYTE(skin->m_DropdownItemTextColor));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 8)))->SetColor(color);
+	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)(long)LOBYTE(skin->m_DropdownItemTextColor >> 24));
+	pControl->GetSubItem(PropId + 10)->SetValue(GetFontAlignDesc(skin->m_DropdownItemTextAlign));
 }
 
 void CPropertiesWnd::UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox)
@@ -2033,6 +2049,47 @@ void CPropertiesWnd::CreatePropertiesComboBox(CMFCPropertyGridProperty * pContro
 
 	CMFCPropertyGridProperty* pItemHeight = new CSimpleProp(_T("ItemHeight"), (_variant_t)combobox->m_ItemHeight, NULL, PropertyComboBoxItemHeight);
 	pControl->AddSubItem(pItemHeight);
+
+	my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
+
+	CMFCPropertyGridProperty* pDropdownImagePath = new CFileProp(_T("DropdownImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DropdownImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyComboBoxDropdownImagePath);
+	pControl->AddSubItem(pDropdownImagePath);
+
+	CMFCPropertyGridProperty* pDropdownImageRect = new CSimpleProp(_T("DropdownImageRect"), PropertyComboBoxDropdownImageRect, TRUE);
+	pControl->AddSubItem(pDropdownImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_DropdownImage->m_Rect.l, NULL, PropertyComboBoxDropdownImageRectLeft);
+	pDropdownImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DropdownImage->m_Rect.t, NULL, PropertyComboBoxDropdownImageRectTop);
+	pDropdownImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DropdownImage->m_Rect.Width(), NULL, PropertyComboBoxDropdownImageRectWidth);
+	pDropdownImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DropdownImage->m_Rect.Height(), NULL, PropertyComboBoxDropdownImageRectHeight);
+	pDropdownImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pDropdownImageBorder = new CSimpleProp(_T("DropdownImageBorder"), PropertyComboBoxDropdownImageBorder, TRUE);
+	pControl->AddSubItem(pDropdownImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_DropdownImage->m_Border.x, NULL, PropertyComboBoxDropdownImageBorderX);
+	pDropdownImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_DropdownImage->m_Border.y, NULL, PropertyComboBoxDropdownImageBorderY);
+	pDropdownImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_DropdownImage->m_Border.z, NULL, PropertyComboBoxDropdownImageBorderZ);
+	pDropdownImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DropdownImage->m_Border.w, NULL, PropertyComboBoxDropdownImageBorderW);
+	pDropdownImageBorder->AddSubItem(pProp);
+
+	COLORREF color = RGB(LOBYTE(skin->m_DropdownItemTextColor >> 16), LOBYTE(skin->m_DropdownItemTextColor >> 8), LOBYTE(skin->m_DropdownItemTextColor));
+	CColorProp* pDropdownItemTextColor = new CColorProp(_T("DropdownItemTextColor"), color, NULL, NULL, PropertyComboBoxDropdownItemTextColor);
+	pDropdownItemTextColor->EnableOtherButton(_T("Other..."));
+	pControl->AddSubItem(pDropdownItemTextColor);
+	CMFCPropertyGridProperty* pDropdownItemTextColorAlpha = new CSliderProp(_T("DropdownItemTextAlpha"), (long)LOBYTE(skin->m_DropdownItemTextColor >> 24), NULL, PropertyComboBoxDropdownItemTextColorAlpha);
+	pControl->AddSubItem(pDropdownItemTextColorAlpha);
+
+	CMFCPropertyGridProperty* pDropdownItemTextAlign = new CComboProp(_T("DropdownItemTextAlign"), GetFontAlignDesc(skin->m_DropdownItemTextAlign), NULL, PropertyComboBoxDropdownItemTextAlign);
+	for (unsigned int i = 0; i < _countof(g_FontAlignDesc); i++)
+	{
+		pDropdownItemTextAlign->AddOption(g_FontAlignDesc[i].desc, TRUE);
+	}
+	pControl->AddSubItem(pDropdownItemTextAlign);
 }
 
 void CPropertiesWnd::CreatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox)
@@ -4131,6 +4188,96 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		combobox->m_Border.z = pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().fltVal;
 		combobox->m_Border.w = pControl->GetSubItem(PropId + 3)->GetSubItem(3)->GetValue().fltVal;
 		combobox->m_ItemHeight = pControl->GetSubItem(PropId + 4)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComboBoxDropdownImagePath:
+	{
+		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(combobox);
+			return 0;
+		}
+		my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
+		skin->m_DropdownImage->ReleaseResource();
+		skin->m_DropdownImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_DropdownImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComboBoxDropdownImageRect:
+	case PropertyComboBoxDropdownImageRectLeft:
+	case PropertyComboBoxDropdownImageRectTop:
+	case PropertyComboBoxDropdownImageRectWidth:
+	case PropertyComboBoxDropdownImageRectHeight:
+	case PropertyComboBoxDropdownImageBorder:
+	case PropertyComboBoxDropdownImageBorderX:
+	case PropertyComboBoxDropdownImageBorderY:
+	case PropertyComboBoxDropdownImageBorderZ:
+	case PropertyComboBoxDropdownImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyComboBoxDropdownImageRectLeft:
+		case PropertyComboBoxDropdownImageRectTop:
+		case PropertyComboBoxDropdownImageRectWidth:
+		case PropertyComboBoxDropdownImageRectHeight:
+		case PropertyComboBoxDropdownImageBorderX:
+		case PropertyComboBoxDropdownImageBorderY:
+		case PropertyComboBoxDropdownImageBorderZ:
+		case PropertyComboBoxDropdownImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyComboBoxDropdownImageRect:
+		case PropertyComboBoxDropdownImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pControl->GetValue().pulVal);
+		my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
+		skin->m_DropdownImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_DropdownImage->m_Border.x = pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_DropdownImage->m_Border.y = pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_DropdownImage->m_Border.z = pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_DropdownImage->m_Border.w = pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComboBoxDropdownItemTextColor:
+	case PropertyComboBoxDropdownItemTextColorAlpha:
+	{
+		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeButton);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 8)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(PropId + 9)->GetValue().lVal;
+		skin->m_DropdownItemTextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComboBoxDropdownItemTextAlign:
+	{
+		my::ComboBox* combobox = dynamic_cast<my::ComboBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		my::ComboBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ComboBoxSkin>(combobox->m_Skin);
+		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+		ASSERT(i >= 0 && i < _countof(g_FontAlignDesc));
+		skin->m_DropdownItemTextAlign = (my::Font::Align)g_FontAlignDesc[i].mask;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

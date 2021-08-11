@@ -339,6 +339,20 @@ public:
 		PropertyComboBoxBorderZ,
 		PropertyComboBoxBorderW,
 		PropertyComboBoxItemHeight,
+		PropertyComboBoxDropdownImagePath,
+		PropertyComboBoxDropdownImageRect,
+		PropertyComboBoxDropdownImageRectLeft,
+		PropertyComboBoxDropdownImageRectTop,
+		PropertyComboBoxDropdownImageRectWidth,
+		PropertyComboBoxDropdownImageRectHeight,
+		PropertyComboBoxDropdownImageBorder,
+		PropertyComboBoxDropdownImageBorderX,
+		PropertyComboBoxDropdownImageBorderY,
+		PropertyComboBoxDropdownImageBorderZ,
+		PropertyComboBoxDropdownImageBorderW,
+		PropertyComboBoxDropdownItemTextColor,
+		PropertyComboBoxDropdownItemTextColorAlpha,
+		PropertyComboBoxDropdownItemTextAlign,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
