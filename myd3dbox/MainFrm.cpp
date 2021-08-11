@@ -1482,14 +1482,17 @@ void CMainFrame::OnEditDelete()
 			{
 				m_DialogList.erase(dlg_iter);
 			}
+
+			m_selctl = NULL;
 		}
 		else
 		{
-			ASSERT(m_selctl->m_Parent);
+			my::ControlPtr control = m_selctl->shared_from_this();
 
-			m_selctl->m_Parent->RemoveControl(m_selctl->shared_from_this());
+			VERIFY(m_selctl = control->m_Parent);
+
+			control->m_Parent->RemoveControl(control);
 		}
-		m_selctl = NULL;
 		OnSelChanged();
 		return;
 	}
