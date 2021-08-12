@@ -45,6 +45,7 @@ public:
 	my::Rectangle default_dialog_img_rect;
 	my::Vector4 default_dialog_img_border;
 	D3DCOLOR default_static_text_color;
+	my::Font::Align default_static_text_align;
 	std::string default_progressbar_img;
 	my::Rectangle default_progressbar_img_rect;
 	my::Vector4 default_progressbar_img_border;

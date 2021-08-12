@@ -9,6 +9,7 @@
 #include "ChildView.h"
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -236,6 +237,50 @@ namespace boost
 				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
 			}
 		}
+
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
+			my::Font::Align*, int)
+		{
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			// Do regex match and convert the interesting part to
+			// int.
+			if (boost::iequals(s, "lefttop")) {
+				v = my::Font::AlignLeftTop;
+			}
+			else if (boost::iequals(s, "centertop")) {
+				v = my::Font::AlignCenterTop;
+			}
+			else if (boost::iequals(s, "righttop")) {
+				v = my::Font::AlignRightTop;
+			}
+			else if (boost::iequals(s, "leftmiddle")) {
+				v = my::Font::AlignLeftMiddle;
+			}
+			else if (boost::iequals(s, "centermiddle")) {
+				v = my::Font::AlignCenterMiddle;
+			}
+			else if (boost::iequals(s, "rightmiddle")) {
+				v = my::Font::AlignRightMiddle;
+			}
+			else if (boost::iequals(s, "leftbottom")) {
+				v = my::Font::AlignLeftBottom;
+			}
+			else if (boost::iequals(s, "centerbottom")) {
+				v = my::Font::AlignCenterBottom;
+			}
+			else if (boost::iequals(s, "rightbottom")) {
+				v = my::Font::AlignRightBottom;
+			}
+			else {
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
+		}
 	};
 };
 
@@ -304,6 +349,7 @@ BOOL CMainApp::InitInstance()
 		("default_dialog_img_rect", boost::program_options::value<my::Rectangle>(&default_dialog_img_rect)->default_value(my::Rectangle::LeftTop(154, 43, 2, 2), "154,43,2,2"), "Default dialog img rect")
 		("default_dialog_img_border", boost::program_options::value<my::Vector4>(&default_dialog_img_border)->default_value(my::Vector4(0, 0, 0, 0), "0,0,0,0"), "Default dialog img border")
 		("default_static_text_color", boost::program_options::value<D3DCOLOR>(&default_static_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default static text color")
+		("default_static_text_align", boost::program_options::value<my::Font::Align>(&default_static_text_align)->default_value(my::Font::AlignLeftTop), "Default static text align")
 		("default_progressbar_img", boost::program_options::value(&default_progressbar_img)->default_value("texture/CommonUI.png"), "Default progressbar img")
 		("default_progressbar_img_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_img_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), "1,43,16,16"), "Default progressbar img rect")
 		("default_progressbar_img_border", boost::program_options::value<my::Vector4>(&default_progressbar_img_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default progressbar img border")

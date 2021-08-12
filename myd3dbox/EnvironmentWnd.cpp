@@ -13,19 +13,6 @@
 
 IMPLEMENT_DYNAMIC(CEnvironmentWnd, CDockablePane)
 
-static const struct
-{
-	const TCHAR * name;
-	DWORD tex_id;
-} sky_prop_info[6] = {
-	{ _T("Front"),	4 },
-	{ _T("Back"),	5 },
-	{ _T("Left"),	1 },
-	{ _T("Right"),	0 },
-	{ _T("Up"),		2 },
-	{ _T("Down"),	3 }
-};
-
 CEnvironmentWnd::CEnvironmentWnd()
 {
 
