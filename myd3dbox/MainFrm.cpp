@@ -1819,12 +1819,12 @@ void CMainFrame::OnControlProgressbar()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
-	skin->m_TextAlign = my::Font::AlignLeftMiddle;
+	skin->m_TextColor = theApp.default_progressbar_text_color;
+	skin->m_TextAlign = theApp.default_progressbar_text_align;
 	skin->m_ForegroundImage.reset(new my::ControlImage());
-	skin->m_ForegroundImage->m_TexturePath = "texture/CommonUI.png";
-	skin->m_ForegroundImage->m_Rect = my::Rectangle::LeftTop(35, 43, 16, 16);
-	skin->m_ForegroundImage->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_ForegroundImage->m_TexturePath = theApp.default_progressbar_foregroundimg;
+	skin->m_ForegroundImage->m_Rect = theApp.default_progressbar_foregroundimg_rect;
+	skin->m_ForegroundImage->m_Border = theApp.default_progressbar_foregroundimg_border;
 
 	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName("progressbar").c_str()));
 	pgs->m_Skin = skin;

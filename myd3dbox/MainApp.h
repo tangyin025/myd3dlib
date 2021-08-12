@@ -49,6 +49,11 @@ public:
 	std::string default_progressbar_img;
 	my::Rectangle default_progressbar_img_rect;
 	my::Vector4 default_progressbar_img_border;
+	D3DCOLOR default_progressbar_text_color;
+	my::Font::Align default_progressbar_text_align;
+	std::string default_progressbar_foregroundimg;
+	my::Rectangle default_progressbar_foregroundimg_rect;
+	my::Vector4 default_progressbar_foregroundimg_border;
 	int max_editable_particle_count;
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;

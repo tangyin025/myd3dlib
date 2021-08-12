@@ -353,6 +353,11 @@ BOOL CMainApp::InitInstance()
 		("default_progressbar_img", boost::program_options::value(&default_progressbar_img)->default_value("texture/CommonUI.png"), "Default progressbar img")
 		("default_progressbar_img_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_img_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), "1,43,16,16"), "Default progressbar img rect")
 		("default_progressbar_img_border", boost::program_options::value<my::Vector4>(&default_progressbar_img_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default progressbar img border")
+		("default_progressbar_text_color", boost::program_options::value<D3DCOLOR>(&default_progressbar_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default progressbar text color")
+		("default_progressbar_text_align", boost::program_options::value<my::Font::Align>(&default_progressbar_text_align)->default_value(my::Font::AlignLeftMiddle), "Default progressbar text align")
+		("default_progressbar_foregroundimg", boost::program_options::value(&default_progressbar_foregroundimg)->default_value("texture/CommonUI.png"), "Default progressbar foregroundimg")
+		("default_progressbar_foregroundimg_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_foregroundimg_rect)->default_value(my::Rectangle::LeftTop(35, 43, 16, 16), "1,43,16,16"), "Default progressbar foregroundimg rect")
+		("default_progressbar_foregroundimg_border", boost::program_options::value<my::Vector4>(&default_progressbar_foregroundimg_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default progressbar foregroundimg border")
 		("max_editable_particle_count", boost::program_options::value(&max_editable_particle_count)->default_value(10), "Max editable particle count")
 		;
 	boost::program_options::variables_map vm;
