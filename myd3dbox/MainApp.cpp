@@ -209,6 +209,33 @@ namespace boost
 				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
 			}
 		}
+
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
+			D3DCOLOR*, int)
+		{
+			static boost::regex r("([0-9]+),([0-9]+),([0-9]+),([0-9]+)");
+
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			// Do regex match and convert the interesting part to
+			// int.
+			boost::smatch match;
+			if (boost::regex_match(s, match, r)) {
+				v = boost::any(D3DCOLOR_ARGB(
+					boost::lexical_cast<int>(match[1]),
+					boost::lexical_cast<int>(match[2]),
+					boost::lexical_cast<int>(match[3]),
+					boost::lexical_cast<int>(match[4])));
+			}
+			else {
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
+		}
 	};
 };
 
@@ -276,6 +303,7 @@ BOOL CMainApp::InitInstance()
 		("default_dialog_img", boost::program_options::value(&default_dialog_img)->default_value("texture/CommonUI.png"), "Default dialog img")
 		("default_dialog_img_rect", boost::program_options::value<my::Rectangle>(&default_dialog_img_rect)->default_value(my::Rectangle::LeftTop(154, 43, 2, 2), "154,43,2,2"), "Default dialog img rect")
 		("default_dialog_img_border", boost::program_options::value<my::Vector4>(&default_dialog_img_border)->default_value(my::Vector4(0, 0, 0, 0), "0,0,0,0"), "Default dialog img border")
+		("default_static_text_color", boost::program_options::value<D3DCOLOR>(&default_static_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default static text color")
 		("default_progressbar_img", boost::program_options::value(&default_progressbar_img)->default_value("texture/CommonUI.png"), "Default progressbar img")
 		("default_progressbar_img_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_img_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), "1,43,16,16"), "Default progressbar img rect")
 		("default_progressbar_img_border", boost::program_options::value<my::Vector4>(&default_progressbar_img_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default progressbar img border")

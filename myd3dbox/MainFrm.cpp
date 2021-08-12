@@ -1781,7 +1781,7 @@ void CMainFrame::OnControlStatic()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
+	skin->m_TextColor = theApp.default_static_text_color;
 	skin->m_TextAlign = my::Font::AlignLeftTop;
 
 	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("static").c_str()));
