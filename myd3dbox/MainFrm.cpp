@@ -1750,9 +1750,9 @@ void CMainFrame::OnCreateDialog()
 	my::DialogSkinPtr skin(new my::DialogSkin());
 	skin->m_Color = D3DCOLOR_ARGB(150, 0, 0, 0);
 	skin->m_Image.reset(new my::ControlImage());
-	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
-	skin->m_Image->m_Rect = my::Rectangle::LeftTop(154, 43, 2, 2);
-	skin->m_Image->m_Border = my::Vector4(0, 0, 0, 0);
+	skin->m_Image->m_TexturePath = theApp.default_dialog_img;
+	skin->m_Image->m_Rect = theApp.default_dialog_img_rect;
+	skin->m_Image->m_Border = theApp.default_dialog_img_border;
 
 	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("dialog").c_str()));
 	dlg->m_Skin = skin;
@@ -1781,7 +1781,7 @@ void CMainFrame::OnControlStatic()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
 	skin->m_TextAlign = my::Font::AlignLeftTop;
 
 	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName("static").c_str()));
@@ -1813,13 +1813,13 @@ void CMainFrame::OnControlProgressbar()
 
 	my::ProgressBarSkinPtr skin(new my::ProgressBarSkin());
 	skin->m_Image.reset(new my::ControlImage());
-	skin->m_Image->m_TexturePath = "texture/CommonUI.png";
-	skin->m_Image->m_Rect = my::Rectangle::LeftTop(1, 43, 16, 16);
-	skin->m_Image->m_Border = my::Vector4(7, 7, 7, 7);
+	skin->m_Image->m_TexturePath = theApp.default_progressbar_img;
+	skin->m_Image->m_Rect = theApp.default_progressbar_img_rect;
+	skin->m_Image->m_Border = theApp.default_progressbar_img_border;
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
 	skin->m_TextAlign = my::Font::AlignLeftMiddle;
 	skin->m_ForegroundImage.reset(new my::ControlImage());
 	skin->m_ForegroundImage->m_TexturePath = "texture/CommonUI.png";
@@ -1856,7 +1856,7 @@ void CMainFrame::OnControlButton()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
 	skin->m_TextAlign = my::Font::AlignCenterMiddle;
 	skin->m_PressedOffset = my::Vector2(1, 2);
 	skin->m_DisabledImage.reset(new my::ControlImage());
@@ -1948,7 +1948,7 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
 	skin->m_TextAlign = my::Font::AlignLeftMiddle;
 	skin->m_PressedOffset = my::Vector2(1, 2);
 	skin->m_DisabledImage.reset(new my::ControlImage());
@@ -1994,7 +1994,7 @@ void CMainFrame::OnControlCombobox()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
 	skin->m_TextAlign = my::Font::AlignCenterMiddle;
 	skin->m_PressedOffset = my::Vector2(1, 2);
 	skin->m_DisabledImage.reset(new my::ControlImage());
@@ -2075,7 +2075,7 @@ void CMainFrame::OnControlListbox()
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_text_color;
+	skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 255, 0);
 	skin->m_TextAlign = my::Font::AlignCenterMiddle;
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_Image->m_TexturePath = "texture/CommonUI.png";

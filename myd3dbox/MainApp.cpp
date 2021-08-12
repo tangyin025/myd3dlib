@@ -8,6 +8,7 @@
 #include "MainFrm.h"
 #include "ChildView.h"
 #include <boost/program_options.hpp>
+#include <boost/regex.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -151,6 +152,66 @@ void CMainApp::DestroyD3DDevice(void)
 	}
 }
 
+namespace boost
+{
+	namespace program_options
+	{
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
+			my::Rectangle* , int)
+		{
+			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			// Do regex match and convert the interesting part to
+			// int.
+			boost::smatch match;
+			if (boost::regex_match(s, match, r)) {
+				v = boost::any(my::Rectangle::LeftTop(
+					boost::lexical_cast<float>(match[1]),
+					boost::lexical_cast<float>(match[3]),
+					boost::lexical_cast<float>(match[5]),
+					boost::lexical_cast<float>(match[7])));
+			}
+			else {
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
+		}
+
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
+			my::Vector4*, int)
+		{
+			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			// Do regex match and convert the interesting part to
+			// int.
+			boost::smatch match;
+			if (boost::regex_match(s, match, r)) {
+				v = boost::any(my::Vector4(
+					boost::lexical_cast<float>(match[1]),
+					boost::lexical_cast<float>(match[3]),
+					boost::lexical_cast<float>(match[5]),
+					boost::lexical_cast<float>(match[7])));
+			}
+			else {
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
+		}
+	};
+};
+
 // CMainApp initialization
 
 BOOL CMainApp::InitInstance()
@@ -207,12 +268,17 @@ BOOL CMainApp::InitInstance()
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/wqy-microhei.ttc"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
 		("default_font_face_index", boost::program_options::value(&default_font_face_index)->default_value(0), "Default font face index")
-		("default_text_color", boost::program_options::value(&default_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default text color")
 		("default_texture", boost::program_options::value(&default_texture)->default_value("texture/Checker.bmp"), "Default texture")
 		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
 		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
 		("default_shader", boost::program_options::value(&default_shader)->default_value("shader/mtl_BlinnPhong.fx"), "Default shader")
 		("default_terrain_shader", boost::program_options::value(&default_terrain_shader)->default_value("shader/mtl_Splatmap.fx"), "Default terrain shader")
+		("default_dialog_img", boost::program_options::value(&default_dialog_img)->default_value("texture/CommonUI.png"), "Default dialog img")
+		("default_dialog_img_rect", boost::program_options::value<my::Rectangle>(&default_dialog_img_rect)->default_value(my::Rectangle::LeftTop(154, 43, 2, 2), "154,43,2,2"), "Default dialog img rect")
+		("default_dialog_img_border", boost::program_options::value<my::Vector4>(&default_dialog_img_border)->default_value(my::Vector4(0, 0, 0, 0), "0,0,0,0"), "Default dialog img border")
+		("default_progressbar_img", boost::program_options::value(&default_progressbar_img)->default_value("texture/CommonUI.png"), "Default progressbar img")
+		("default_progressbar_img_rect", boost::program_options::value<my::Rectangle>(&default_progressbar_img_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), "1,43,16,16"), "Default progressbar img rect")
+		("default_progressbar_img_border", boost::program_options::value<my::Vector4>(&default_progressbar_img_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default progressbar img border")
 		("max_editable_particle_count", boost::program_options::value(&max_editable_particle_count)->default_value(10), "Max editable particle count")
 		;
 	boost::program_options::variables_map vm;

@@ -36,12 +36,17 @@ public:
 	std::string default_font_path;
 	int default_font_height;
 	int default_font_face_index;
-	DWORD default_text_color;
 	std::string default_texture;
 	std::string default_normal_texture;
 	std::string default_specular_texture;
 	std::string default_shader;
 	std::string default_terrain_shader;
+	std::string default_dialog_img;
+	my::Rectangle default_dialog_img_rect;
+	my::Vector4 default_dialog_img_border;
+	std::string default_progressbar_img;
+	my::Rectangle default_progressbar_img_rect;
+	my::Vector4 default_progressbar_img_border;
 	int max_editable_particle_count;
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;
