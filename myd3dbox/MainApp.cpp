@@ -186,6 +186,31 @@ namespace boost
 
 		void validate(boost::any& v,
 			const std::vector<std::string>& values,
+			my::Vector2*, int)
+		{
+			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			// Do regex match and convert the interesting part to
+			// int.
+			boost::smatch match;
+			if (boost::regex_match(s, match, r)) {
+				v = boost::any(my::Vector2(
+					boost::lexical_cast<float>(match[1]),
+					boost::lexical_cast<float>(match[3])));
+			}
+			else {
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
+		}
+
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
 			my::Vector4*, int)
 		{
 			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
@@ -363,6 +388,7 @@ BOOL CMainApp::InitInstance()
 		("default_button_img_border", boost::program_options::value<my::Vector4>(&default_button_img_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default button img border")
 		("default_button_text_color", boost::program_options::value<D3DCOLOR>(&default_button_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default button text color")
 		("default_button_text_align", boost::program_options::value<my::Font::Align>(&default_button_text_align)->default_value(my::Font::AlignCenterMiddle), "Default button text align")
+		("default_button_pressed_offset", boost::program_options::value<my::Vector2>(&default_button_pressed_offset)->default_value(my::Vector2(1, 2), "1,2"), "Default button pressed offset")
 		("default_button_disabledimg", boost::program_options::value(&default_button_disabledimg)->default_value("texture/CommonUI.png"), "Default button disabledimg")
 		("default_button_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_button_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), "1,43,16,16"), "Default button disabledimg rect")
 		("default_button_disabledimg_border", boost::program_options::value<my::Vector4>(&default_button_disabledimg_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default button disabledimg border")
@@ -393,6 +419,7 @@ BOOL CMainApp::InitInstance()
 		("default_checkbox_img_border", boost::program_options::value<my::Vector4>(&default_checkbox_img_border)->default_value(my::Vector4(20, 20, 0, 0), "20,20,0,0"), "Default checkbox img border")
 		("default_checkbox_text_color", boost::program_options::value<D3DCOLOR>(&default_checkbox_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default checkbox text color")
 		("default_checkbox_text_align", boost::program_options::value<my::Font::Align>(&default_checkbox_text_align)->default_value(my::Font::AlignLeftMiddle), "Default checkbox text align")
+		("default_checkbox_pressed_offset", boost::program_options::value<my::Vector2>(&default_checkbox_pressed_offset)->default_value(my::Vector2(1, 2), "1,2"), "Default checkbox pressed offset")
 		("default_checkbox_disabledimg", boost::program_options::value(&default_checkbox_disabledimg)->default_value("texture/CommonUI.png"), "Default checkbox disabledimg")
 		("default_checkbox_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_checkbox_disabledimg_rect)->default_value(my::Rectangle::LeftTop(69, 43, 20, 20), "69,43,20,20"), "Default checkbox disabledimg rect")
 		("default_checkbox_disabledimg_border", boost::program_options::value<my::Vector4>(&default_checkbox_disabledimg_border)->default_value(my::Vector4(20, 20, 0, 0), "20,20,0,0"), "Default checkbox disabledimg border")
@@ -407,6 +434,7 @@ BOOL CMainApp::InitInstance()
 		("default_combobox_img_border", boost::program_options::value<my::Vector4>(&default_combobox_img_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default combobox img border")
 		("default_combobox_text_color", boost::program_options::value<D3DCOLOR>(&default_combobox_text_color)->default_value(D3DCOLOR_ARGB(255, 255, 255, 0)), "Default combobox text color")
 		("default_combobox_text_align", boost::program_options::value<my::Font::Align>(&default_combobox_text_align)->default_value(my::Font::AlignCenterMiddle), "Default combobox text align")
+		("default_combobox_pressed_offset", boost::program_options::value<my::Vector2>(&default_combobox_pressed_offset)->default_value(my::Vector2(1, 2), "1,2"), "Default combobox pressed offset")
 		("default_combobox_disabledimg", boost::program_options::value(&default_combobox_disabledimg)->default_value("texture/CommonUI.png"), "Default combobox disabledimg")
 		("default_combobox_disabledimg_rect", boost::program_options::value<my::Rectangle>(&default_combobox_disabledimg_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), "1,43,16,16"), "Default combobox disabledimg rect")
 		("default_combobox_disabledimg_border", boost::program_options::value<my::Vector4>(&default_combobox_disabledimg_border)->default_value(my::Vector4(7, 7, 7, 7), "7,7,7,7"), "Default combobox disabledimg border")

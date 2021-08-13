@@ -1858,7 +1858,7 @@ void CMainFrame::OnControlButton()
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
 	skin->m_TextColor = theApp.default_button_text_color;
 	skin->m_TextAlign = theApp.default_button_text_align;
-	skin->m_PressedOffset = my::Vector2(1, 2);
+	skin->m_PressedOffset = theApp.default_button_pressed_offset;
 	skin->m_DisabledImage.reset(new my::ControlImage());
 	skin->m_DisabledImage->m_TexturePath = theApp.default_button_disabledimg;
 	skin->m_DisabledImage->m_Rect = theApp.default_button_disabledimg_rect;
@@ -1951,7 +1951,7 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
 	skin->m_TextColor = theApp.default_checkbox_text_color;
 	skin->m_TextAlign = theApp.default_checkbox_text_align;
-	skin->m_PressedOffset = my::Vector2(1, 2);
+	skin->m_PressedOffset = theApp.default_checkbox_pressed_offset;
 	skin->m_DisabledImage.reset(new my::ControlImage());
 	skin->m_DisabledImage->m_TexturePath = theApp.default_checkbox_disabledimg;
 	skin->m_DisabledImage->m_Rect = theApp.default_checkbox_disabledimg_rect;
@@ -1997,7 +1997,7 @@ void CMainFrame::OnControlCombobox()
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
 	skin->m_TextColor = theApp.default_combobox_text_color;
 	skin->m_TextAlign = theApp.default_combobox_text_align;
-	skin->m_PressedOffset = my::Vector2(1, 2);
+	skin->m_PressedOffset = theApp.default_combobox_pressed_offset;
 	skin->m_DisabledImage.reset(new my::ControlImage());
 	skin->m_DisabledImage->m_TexturePath = theApp.default_combobox_disabledimg;
 	skin->m_DisabledImage->m_Rect = theApp.default_combobox_disabledimg_rect;

@@ -59,6 +59,7 @@ public:
 	my::Vector4 default_button_img_border;
 	D3DCOLOR default_button_text_color;
 	my::Font::Align default_button_text_align;
+	my::Vector2 default_button_pressed_offset;
 	std::string default_button_disabledimg;
 	my::Rectangle default_button_disabledimg_rect;
 	my::Vector4 default_button_disabledimg_border;
@@ -89,6 +90,7 @@ public:
 	my::Vector4 default_checkbox_img_border;
 	D3DCOLOR default_checkbox_text_color;
 	my::Font::Align default_checkbox_text_align;
+	my::Vector2 default_checkbox_pressed_offset;
 	std::string default_checkbox_disabledimg;
 	my::Rectangle default_checkbox_disabledimg_rect;
 	my::Vector4 default_checkbox_disabledimg_border;
@@ -103,6 +105,7 @@ public:
 	my::Vector4 default_combobox_img_border;
 	D3DCOLOR default_combobox_text_color;
 	my::Font::Align default_combobox_text_align;
+	my::Vector2 default_combobox_pressed_offset;
 	std::string default_combobox_disabledimg;
 	my::Rectangle default_combobox_disabledimg_rect;
 	my::Vector4 default_combobox_disabledimg_border;
