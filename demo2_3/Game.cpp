@@ -19,6 +19,7 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/program_options.hpp>
+#include <boost/assign/list_of.hpp>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -411,7 +412,7 @@ Game::Game(void)
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
 	desc.add_options()
-		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
+		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("Media")("..\\demo2_3\\Media"), ""), "Path")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
 		("fov", boost::program_options::value(&m_InitFov)->default_value(75.0f), "Fov")
@@ -426,11 +427,7 @@ Game::Game(void)
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
 	boost::program_options::notify(vm);
-	if (path_list.empty())
-	{
-		path_list.push_back("Media");
-		path_list.push_back("..\\demo2_3\\Media");
-	}
+
 	std::vector<std::string>::const_iterator path_iter = path_list.begin();
 	for (; path_iter != path_list.end(); path_iter++)
 	{
