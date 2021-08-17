@@ -193,7 +193,7 @@ void D3DContext::OnDestroyDevice(void)
 	}
 }
 
-const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
+void D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 {
 	//_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
 
@@ -207,9 +207,11 @@ const char * D3DContext::RegisterNamedObject(const char * Name, NamedObject * Ob
 
 	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjects.insert(NamedObjectMap::value_type(Name, Object));
 
-	_ASSERT(result.second);
+	_ASSERT(result.second && !Object->m_Name);
 
-	return result.first->first.c_str();
+	Object->m_Name = result.first->first.c_str();
+
+	OnNamedObjectAdded(result.first->second);
 }
 
 void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
@@ -221,8 +223,13 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 	NamedObjectMap::iterator obj_iter = m_NamedObjects.find(Name);
 	if (obj_iter != m_NamedObjects.end())
 	{
-		_ASSERT(Object == obj_iter->second);
+		_ASSERT(Object == obj_iter->second && Object->m_Name == obj_iter->first.c_str());
+
+		OnNamedObjectRemoved(obj_iter->second);
+
 		m_NamedObjects.erase(obj_iter);
+
+		Object->m_Name = NULL;
 	}
 }
 

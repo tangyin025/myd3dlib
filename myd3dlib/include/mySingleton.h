@@ -167,6 +167,8 @@ namespace my
 	protected:
 		static unsigned int UniqueNameIndex;
 
+		friend class D3DContext;
+
 		const char * m_Name;
 
 		NamedObject(void)

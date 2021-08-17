@@ -805,3 +805,15 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	}
 	return NULL;
 }
+
+void CMainApp::OnNamedObjectAdded(my::NamedObject* Object)
+{
+	NamedObjectEventArgs arg(Object);
+	m_EventNamedObjectAdded(&arg);
+}
+
+void CMainApp::OnNamedObjectRemoved(my::NamedObject* Object)
+{
+	NamedObjectEventArgs arg(Object);
+	m_EventNamedObjectRemoved(&arg);
+}

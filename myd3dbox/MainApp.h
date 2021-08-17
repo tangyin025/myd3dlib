@@ -171,6 +171,19 @@ public:
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;
 	BOOL m_bNeedDraw;
+	my::EventSignal m_EventNamedObjectAdded;
+	my::EventSignal m_EventNamedObjectRemoved;
+
+	struct NamedObjectEventArgs : public my::EventArg
+	{
+	public:
+		my::NamedObject* pObj;
+
+		NamedObjectEventArgs(my::NamedObject* _pObj)
+			: pObj(_pObj)
+		{
+		}
+	};
 
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
@@ -201,6 +214,8 @@ public:
 	virtual BOOL OnIdle(LONG lCount);
 	virtual int ExitInstance();
 	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
+	virtual void OnNamedObjectAdded(my::NamedObject* Object);
+	virtual void OnNamedObjectRemoved(my::NamedObject* Object);
 };
 
 extern CMainApp theApp;

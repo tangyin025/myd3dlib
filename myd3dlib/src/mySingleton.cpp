@@ -90,12 +90,15 @@ void NamedObject::SetName(const char * Name)
 	if (m_Name)
 	{
 		D3DContext::getSingleton().UnregisterNamedObject(m_Name, this);
-		m_Name = NULL;
+
+		_ASSERT(!m_Name);
 	}
 
 	if (Name && Name[0] != '\0')
 	{
-		m_Name = D3DContext::getSingleton().RegisterNamedObject(Name, this);
+		D3DContext::getSingleton().RegisterNamedObject(Name, this);
+
+		_ASSERT(m_Name);
 	}
 }
 

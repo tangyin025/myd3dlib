@@ -1063,6 +1063,15 @@ void CMainFrame::OnFileNew()
 	//m_selinstid = 0;
 	//m_selctl = NULL;
 	//OnSelChanged();
+
+	//for (int i = 0; i < 300000; i++)
+	//{
+	//	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(my::Random(-3000.0f, 3000.0f), 0, my::Random(-3000.0f, 3000.0f)), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	//	actor->UpdateAABB();
+	//	actor->UpdateWorld();
+	//	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), 0.1f, 0.1f);
+	//	m_ActorList.push_back(actor);
+	//}
 }
 
 void CMainFrame::OnFileOpen()

@@ -117,11 +117,19 @@ namespace my
 
 		virtual void OnDestroyDevice(void);
 
-		const char * RegisterNamedObject(const char * Name, NamedObject * Object);
+		void RegisterNamedObject(const char * Name, NamedObject * Object);
 
 		void UnregisterNamedObject(const char * Name, NamedObject * Object);
 
 		NamedObject * GetNamedObject(const char * Name);
+
+		virtual void OnNamedObjectAdded(NamedObject * Object)
+		{
+		}
+
+		virtual void OnNamedObjectRemoved(NamedObject * Object)
+		{
+		}
 
 		virtual void OnControlSound(const char * name)
 		{
