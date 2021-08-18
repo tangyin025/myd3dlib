@@ -24,8 +24,7 @@ public:
         }
     };
 
-    typedef boost::multi_index_container<ListItem,
-        boost::multi_index::indexed_by<
+    typedef boost::multi_index_container<ListItem, boost::multi_index::indexed_by<
         boost::multi_index::random_access<>,
         boost::multi_index::hashed_unique<BOOST_MULTI_INDEX_MEMBER(ListItem, std::basic_string<TCHAR>, name) > > > ListItemSet;
 
@@ -49,5 +48,6 @@ public:
     afx_msg void OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLvnOdcachehintList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
