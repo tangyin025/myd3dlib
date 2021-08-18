@@ -28,6 +28,7 @@
 #include <luabind/iterator_policy.hpp>
 #include "LuaExtension.inl"
 #include "myException.h"
+#include <boost/scope_exit.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -733,6 +734,13 @@ void CMainFrame::InitFileContext()
 
 void CMainFrame::ClearFileContext()
 {
+	m_wndOutliner.m_IgnoreNamedObjectRemoved = TRUE;
+	BOOST_SCOPE_EXIT(&m_wndOutliner)
+	{
+		m_wndOutliner.m_IgnoreNamedObjectRemoved = FALSE;
+	}
+	BOOST_SCOPE_EXIT_END
+
 	OctRoot::ClearAllEntity();
 	DialogMgr::RemoveAllDlg();
 	m_ActorList.clear();
@@ -746,6 +754,7 @@ void CMainFrame::ClearFileContext()
 	m_CollectionObjs.clear();
 	m_SerializeBuff.reset();
 	_ASSERT(theApp.m_NamedObjects.empty());
+	m_wndOutliner.m_Items.clear();
 	my::NamedObject::ResetUniqueNameIndex();
 }
 
@@ -1773,6 +1782,14 @@ void CMainFrame::OnCreateDialog()
 
 	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("dialog").c_str()));
 	dlg->m_Skin = skin;
+	if (m_selctl && m_selctl->GetControlType() == my::Control::ControlTypeDialog)
+	{
+		dlg->m_x.scale = m_selctl->m_x.scale;
+		dlg->m_x.offset = m_selctl->m_x.offset + 10;
+		dlg->m_y.scale = m_selctl->m_y.scale;
+		dlg->m_y.offset = m_selctl->m_y.offset + 10;
+	}
+
 	InsertDlg(dlg.get());
 	m_DialogList.push_back(dlg);
 
