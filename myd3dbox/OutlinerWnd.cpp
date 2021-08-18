@@ -143,13 +143,25 @@ void COutlinerWnd::OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
 		return;
 	}
 
-	ListItemSet::nth_index<1>::type& name_index = m_Items.get<1>();
-	ListItemSet::nth_index<1>::type::const_iterator obj_iter = name_index.find(pFindInfo->lvfi.psz);
-	if (obj_iter == name_index.end())
+	size_t len = _tcslen(pFindInfo->lvfi.psz);
+	int i = pFindInfo->iStart;
+	for (; i < m_Items.size(); i++)
 	{
-		*pResult = -1;
-		return;
+		if (m_Items[i].name.compare(0, len, pFindInfo->lvfi.psz) == 0)
+		{
+			*pResult = i;
+			return;
+		}
 	}
 
-	*pResult = std::distance(name_index.begin(), obj_iter);
+	for (i = 0; i < pFindInfo->iStart; i++)
+	{
+		if (m_Items[i].name.compare(0, len, pFindInfo->lvfi.psz) == 0)
+		{
+			*pResult = i;
+			return;
+		}
+	}
+
+	*pResult = -1;
 }
