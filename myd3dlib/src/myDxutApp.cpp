@@ -210,8 +210,6 @@ void D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 	_ASSERT(result.second && !Object->m_Name);
 
 	Object->m_Name = result.first->first.c_str();
-
-	OnNamedObjectAdded(result.first->second);
 }
 
 void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
@@ -224,8 +222,6 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 	if (obj_iter != m_NamedObjects.end())
 	{
 		_ASSERT(Object == obj_iter->second && Object->m_Name == obj_iter->first.c_str());
-
-		OnNamedObjectRemoved(obj_iter->second);
 
 		m_NamedObjects.erase(obj_iter);
 

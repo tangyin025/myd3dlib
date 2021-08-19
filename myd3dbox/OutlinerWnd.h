@@ -2,9 +2,8 @@
 #include <afxdockablepane.h>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/random_access_index.hpp>
-#include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/identity.hpp>
 class COutlinerWnd :
     public CDockablePane
 {
@@ -13,22 +12,11 @@ public:
 
     virtual ~COutlinerWnd();
 
-    struct ListItem
-    {
-        my::NamedObject* obj;
-        std::basic_string<TCHAR> name;
-        ListItem(my::NamedObject* _obj, const std::basic_string<TCHAR>& _name)
-            : obj(_obj)
-            , name(_name)
-        {
-        }
-    };
-
-    typedef boost::multi_index_container<ListItem, boost::multi_index::indexed_by<
+    typedef boost::multi_index_container<my::NamedObject *, boost::multi_index::indexed_by<
         boost::multi_index::random_access<>,
-        boost::multi_index::hashed_unique<BOOST_MULTI_INDEX_MEMBER(ListItem, std::basic_string<TCHAR>, name) > > > ListItemSet;
+        boost::multi_index::hashed_unique<boost::multi_index::identity<my::NamedObject *> > > > ItemSet;
 
-    ListItemSet m_Items;
+    ItemSet m_Items;
 
     BOOL m_IgnoreNamedObjectRemoved;
 
@@ -45,6 +33,7 @@ public:
     void OnNamedObjectAdded(my::EventArg* arg);
     void OnNamedObjectRemoved(my::EventArg* arg);
     void OnSelectionChanged(my::EventArg* arg);
+    void OnAttributeChanged(my::EventArg* arg);
     afx_msg void OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLvnOdcachehintList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult);

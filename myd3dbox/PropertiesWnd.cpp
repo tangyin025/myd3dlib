@@ -3956,6 +3956,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		control->SetName(Name.c_str());
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyControlX:

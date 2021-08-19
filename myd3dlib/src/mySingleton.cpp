@@ -43,10 +43,14 @@ NamedObject::NamedObject(const char * Name)
 	: m_Name(NULL)
 {
 	SetName(Name);
+
+	D3DContext::getSingleton().OnNamedObjectAdded(this);
 }
 
 NamedObject::~NamedObject(void)
 {
+	D3DContext::getSingleton().OnNamedObjectRemoved(this);
+
 	SetName(NULL);
 }
 

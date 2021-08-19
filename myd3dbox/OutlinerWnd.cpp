@@ -32,7 +32,7 @@ COutlinerWnd::~COutlinerWnd()
 int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (!m_listCtrl.CreateEx(WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR,
-		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_OWNERDATA, CRect(0, 0, 100, 100), this, 1))
+		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | LVS_REPORT /*| LVS_SINGLESEL*/ | LVS_SHOWSELALWAYS | LVS_OWNERDATA, CRect(0, 0, 100, 100), this, 1))
 	{
 		TRACE0("Failed to create outliner windows\n");
 		return -1;
@@ -40,7 +40,7 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_listCtrl.SetFont(&afxGlobalData.fontRegular);
-
+	m_listCtrl.SetCallbackMask(LVIS_SELECTED | LVIS_OVERLAYMASK | LVIS_STATEIMAGEMASK);
 	m_listCtrl.InsertColumn(0, _T("Name"), 0, 100);
 	m_listCtrl.InsertColumn(1, _T("Type"), 0, 30);
 
@@ -49,6 +49,7 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_EventSelectionChanged.connect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, _1));
+	pFrame->m_EventAttributeChanged.connect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, _1));
 
 	return 0;
 }
@@ -71,13 +72,14 @@ void COutlinerWnd::OnDestroy()
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_EventSelectionChanged.disconnect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, _1));
+	pFrame->m_EventAttributeChanged.disconnect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, _1));
 }
 
 void COutlinerWnd::OnNamedObjectAdded(my::EventArg* arg)
 {
 	CMainApp::NamedObjectEventArgs* named_obj_arg = dynamic_cast<CMainApp::NamedObjectEventArgs*>(arg);
 	ASSERT(named_obj_arg);
-	m_Items.push_back(ListItem(named_obj_arg->pObj, ms2ts(named_obj_arg->pObj->GetName())));
+	m_Items.push_back(named_obj_arg->pObj);
 }
 
 void COutlinerWnd::OnNamedObjectRemoved(my::EventArg* arg)
@@ -89,61 +91,34 @@ void COutlinerWnd::OnNamedObjectRemoved(my::EventArg* arg)
 
 	CMainApp::NamedObjectEventArgs* named_obj_arg = dynamic_cast<CMainApp::NamedObjectEventArgs*>(arg);
 	ASSERT(named_obj_arg);
-	std::basic_string<TCHAR> name = ms2ts(named_obj_arg->pObj->GetName());
-	ListItemSet::nth_index<1>::type& name_index = m_Items.get<1>();
-	ListItemSet::nth_index<1>::type::iterator obj_iter = name_index.find(name);
-	ASSERT(obj_iter != name_index.end());
-	int iItem = (int)std::distance(m_Items.begin(), m_Items.project<0>(obj_iter));
-	m_listCtrl.DeleteItem(iItem);
-	name_index.erase(obj_iter);
+	ItemSet::nth_index<1>::type& object_index = m_Items.get<1>();
+	ItemSet::nth_index<1>::type::iterator obj_iter = object_index.find(named_obj_arg->pObj);
+	ASSERT(obj_iter != object_index.end());
+	object_index.erase(obj_iter);
 }
 
 void COutlinerWnd::OnSelectionChanged(my::EventArg* arg)
 {
 	if (m_Items.size() != m_listCtrl.GetItemCount())
 	{
-		m_listCtrl.SetItemCountEx((int)m_Items.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+		m_listCtrl.SetItemCountEx((int)m_Items.size(), /*LVSICF_NOINVALIDATEALL |*/ LVSICF_NOSCROLL);
 	}
+	else
+	{
+		m_listCtrl.Invalidate();
+	}
+}
 
-	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (pFrame->m_selctl)
-	{
-		ListItemSet::nth_index<1>::type& name_index = m_Items.get<1>();
-		ListItemSet::nth_index<1>::type::iterator obj_iter = name_index.find(ms2ts(pFrame->m_selctl->GetName()));
-		ASSERT(obj_iter != name_index.end());
-		int iItem = (int)std::distance(m_Items.begin(), m_Items.project<0>(obj_iter));
-		m_listCtrl.SetItemState(iItem, LVIS_SELECTED, LVIS_SELECTED);
-	}
-	else if (pFrame->m_selcmp)
-	{
-		ListItemSet::nth_index<1>::type& name_index = m_Items.get<1>();
-		ListItemSet::nth_index<1>::type::iterator obj_iter = name_index.find(ms2ts(pFrame->m_selcmp->GetName()));
-		ASSERT(obj_iter != name_index.end());
-		int iItem = (int)std::distance(m_Items.begin(), m_Items.project<0>(obj_iter));
-		m_listCtrl.SetItemState(iItem, LVIS_SELECTED, LVIS_SELECTED);
-	}
-	else if (!pFrame->m_selactors.empty())
-	{
-		ListItemSet::nth_index<1>::type& name_index = m_Items.get<1>();
-		ListItemSet::nth_index<1>::type::iterator obj_iter = name_index.find(ms2ts(pFrame->m_selactors.front()->GetName()));
-		ASSERT(obj_iter != name_index.end());
-		int iItem = (int)std::distance(m_Items.begin(), m_Items.project<0>(obj_iter));
-		m_listCtrl.SetItemState(iItem, LVIS_SELECTED, LVIS_SELECTED);
-	}
-	else if (m_listCtrl.GetSelectedCount() > 0)
-	{
-		POSITION pos = m_listCtrl.GetFirstSelectedItemPosition();
-		while (pos)
-		{
-			int iItem = m_listCtrl.GetNextSelectedItem(pos);
-			m_listCtrl.SetItemState(iItem, 0, LVIS_SELECTED);
-		}
-	}
+void COutlinerWnd::OnAttributeChanged(my::EventArg* arg)
+{
+	m_listCtrl.Invalidate();
 }
 
 void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 {
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
 	NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem = &(pDispInfo)->item;
 
@@ -154,10 +129,55 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 		switch (pItem->iSubItem)
 		{
 		case 0: //fill in main text
-			//_tcscpy_s(pItem->pszText, pItem->cchTextMax,
-			//	m_Items[iItem].name.c_str());
-			pItem->pszText = const_cast<TCHAR*>(m_Items[iItem].name.c_str());
+#ifdef UNICODE
+			MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, m_Items[iItem]->GetName(), -1, pItem->pszText, pItem->cchTextMax);
+#else
+			_tcscpy_s(pItem->pszText, pItem->cchTextMax, m_Items[iItem]->GetName());
+#endif
 			break;
+		}
+	}
+
+	if (pItem->mask & LVIF_STATE)
+	{
+		my::NamedObject* obj = m_Items[pItem->iItem];
+		my::Control* control = dynamic_cast<my::Control*>(obj);
+		if (control)
+		{
+			if (control == pFrame->m_selctl)
+			{
+				pItem->state = (pItem->state | LVIS_SELECTED);
+			}
+			else
+			{
+				pItem->state = (pItem->state & ~LVIS_SELECTED);
+			}
+		}
+
+		Actor* actor = dynamic_cast<Actor*>(obj);
+		if (actor)
+		{
+			if (pFrame->m_selactors.end() != std::find(pFrame->m_selactors.begin(), pFrame->m_selactors.end(), actor))
+			{
+				pItem->state = (pItem->state | LVIS_SELECTED);
+			}
+			else
+			{
+				pItem->state = (pItem->state & ~LVIS_SELECTED);
+			}
+		}
+
+		Component* cmp = dynamic_cast<Component*>(obj);
+		if (cmp)
+		{
+			if (cmp == pFrame->m_selcmp)
+			{
+				pItem->state = (pItem->state | LVIS_SELECTED);
+			}
+			else
+			{
+				pItem->state = (pItem->state & ~LVIS_SELECTED);
+			}
 		}
 	}
 }
@@ -182,11 +202,11 @@ void COutlinerWnd::OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
 		return;
 	}
 
-	size_t len = _tcslen(pFindInfo->lvfi.psz);
+	std::string psz = ts2ms(pFindInfo->lvfi.psz);
 	int i = pFindInfo->iStart;
 	for (; i < m_Items.size(); i++)
 	{
-		if (m_Items[i].name.compare(0, len, pFindInfo->lvfi.psz) == 0)
+		if (_strnicmp(m_Items[i]->GetName(), psz.c_str(), psz.length()) == 0)
 		{
 			*pResult = i;
 			return;
@@ -195,7 +215,7 @@ void COutlinerWnd::OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
 
 	for (i = 0; i < pFindInfo->iStart; i++)
 	{
-		if (m_Items[i].name.compare(0, len, pFindInfo->lvfi.psz) == 0)
+		if (_strnicmp(m_Items[i]->GetName(), psz.c_str(), psz.length()) == 0)
 		{
 			*pResult = i;
 			return;
@@ -207,12 +227,23 @@ void COutlinerWnd::OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult)
 
 void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	NMITEMACTIVATE* pItemActivate = reinterpret_cast<NMITEMACTIVATE*>(pNMHDR);
-
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 
-	my::NamedObject* obj = m_Items[pItemActivate->iItem].obj;
+	NMITEMACTIVATE* pItemActivate = reinterpret_cast<NMITEMACTIVATE*>(pNMHDR);
+	if (pItemActivate->iItem < 0 || pItemActivate->iItem >= m_Items.size())
+	{
+		pFrame->m_selactors.clear();
+		pFrame->m_selcmp = NULL;
+		pFrame->m_selchunkid.SetPoint(0, 0);
+		pFrame->m_selinstid = 0;
+		pFrame->m_selctl = NULL;
+		pFrame->OnSelChanged();
+		*pResult = 0;
+		return;
+	}
+
+	my::NamedObject* obj = m_Items[pItemActivate->iItem];
 	my::Control* control = dynamic_cast<my::Control*>(obj);
 	if (control)
 	{
