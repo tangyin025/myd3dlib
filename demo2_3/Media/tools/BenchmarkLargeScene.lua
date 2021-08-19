@@ -1,6 +1,6 @@
 collectionObjs=CollectionObjMap()
 acts={}
-local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),1,1,32,2)
+local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),128,128,64,2)
 terrain.ChunkPath="terrain/chunk_123456"
 local tstr=TerrainStream(terrain)
 tstr:GetPos(0,0)
