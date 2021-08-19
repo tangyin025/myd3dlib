@@ -190,7 +190,7 @@ void StaticEmitter::ReleaseResource(void)
 	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
 	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
 	{
-		(*chunk_iter)->ReleaseResource();
+		chunk_iter->ReleaseResource();
 	}
 	m_ViewedChunks.clear();
 }
@@ -223,11 +223,13 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 		unsigned int PassMask;
 		const Vector3& LocalViewPos;
 		StaticEmitter* emit_cmp;
+		ChunkSet::iterator insert_chunk_iter;
 		Callback(RenderPipeline* _pipeline, unsigned int _PassMask, const Vector3& _LocalViewPos, StaticEmitter* _emit_cmp)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, LocalViewPos(_LocalViewPos)
 			, emit_cmp(_emit_cmp)
+			, insert_chunk_iter(_emit_cmp->m_ViewedChunks.begin())
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
@@ -243,11 +245,32 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 				return;
 			}
 
-			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && emit_cmp->m_ViewedChunks.insert(chunk).second)
+			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				_ASSERT(!chunk->IsRequested());
+				if (!chunk->is_linked())
+				{
+					_ASSERT(!chunk->IsRequested());
 
-				chunk->RequestResource();
+					chunk->RequestResource();
+
+					emit_cmp->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+				}
+				else
+				{
+					ChunkSet::iterator chunk_iter = emit_cmp->m_ViewedChunks.iterator_to(*chunk);
+					if (chunk_iter != insert_chunk_iter)
+					{
+						emit_cmp->m_ViewedChunks.erase(chunk_iter);
+
+						emit_cmp->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+					}
+					else
+					{
+						_ASSERT(insert_chunk_iter != emit_cmp->m_ViewedChunks.end());
+
+						insert_chunk_iter++;
+					}
+				}
 			}
 
 			if (chunk->m_buff)
@@ -259,23 +282,25 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 	Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 	Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+	Callback cb(pipeline, PassMask, LocalViewPos, this);
+	QueryEntity(LocalFrustum, &cb);
+
 	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
-		float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1), 2.0);
+		const float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1), 2.0);
+		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 		for (; chunk_iter != m_ViewedChunks.end(); )
 		{
-			if (((*chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+			if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
 			{
-				(*chunk_iter)->ReleaseResource();
+				chunk_iter->ReleaseResource();
+
 				chunk_iter = m_ViewedChunks.erase(chunk_iter);
 			}
 			else
 				chunk_iter++;
 		}
 	}
-	Callback cb(pipeline, PassMask, LocalViewPos, this);
-	QueryEntity(LocalFrustum, &cb);
 }
 
 void StaticEmitterStream::Release(void)

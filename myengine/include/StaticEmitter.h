@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include <boost/intrusive/list.hpp>
 
 class StaticEmitterChunkBuffer
 	: public my::DeviceResourceBase
@@ -16,6 +17,7 @@ typedef boost::intrusive_ptr<StaticEmitterChunkBuffer> StaticEmitterChunkBufferP
 
 class StaticEmitterChunk
 	: public my::OctEntity
+	, public boost::intrusive::list_base_hook<>
 {
 public:
 	int m_Row;
@@ -73,7 +75,7 @@ public:
 
 	ChunkMap m_Chunks;
 
-	typedef std::set<StaticEmitterChunk *> ChunkSet;
+	typedef boost::intrusive::list<StaticEmitterChunk> ChunkSet;
 
 	ChunkSet m_ViewedChunks;
 
