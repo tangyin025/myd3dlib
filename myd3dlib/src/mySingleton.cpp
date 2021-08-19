@@ -39,6 +39,12 @@ DeviceResourceBase::~DeviceResourceBase(void)
 
 unsigned int NamedObject::UniqueNameIndex = 0;
 
+NamedObject::NamedObject(void)
+	: m_Name(NULL)
+{
+	D3DContext::getSingleton().OnNamedObjectAdded(this);
+}
+
 NamedObject::NamedObject(const char * Name)
 	: m_Name(NULL)
 {

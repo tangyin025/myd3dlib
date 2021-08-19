@@ -171,10 +171,7 @@ namespace my
 
 		const char * m_Name;
 
-		NamedObject(void)
-			: m_Name(NULL)
-		{
-		}
+		NamedObject(void);
 
 	public:
 		NamedObject(const char * Name);
