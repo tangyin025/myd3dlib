@@ -4,13 +4,14 @@
 #include "Component.h"
 #include <boost/multi_array.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/shared_container_iterator.hpp>
+#include <boost/intrusive/list.hpp>
 #include <fstream>
 
 class Terrain;
 
 class TerrainChunk
 	: public my::OctEntity
+	, public boost::intrusive::list_base_hook<>
 {
 public:
 	int m_Row;
@@ -94,7 +95,7 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef std::set<TerrainChunk*> ChunkSet;
+	typedef boost::intrusive::list<TerrainChunk> ChunkSet;
 
 	ChunkSet m_ViewedChunks;
 

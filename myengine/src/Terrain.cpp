@@ -548,7 +548,7 @@ void Terrain::ReleaseResource(void)
 	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
 	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
 	{
-		(*chunk_iter)->ReleaseResource();
+		chunk_iter->ReleaseResource();
 	}
 	m_ViewedChunks.clear();
 
@@ -598,6 +598,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		Terrain * terrain;
 		IndexTable::element * pIndices;
 		unsigned int RootPrimitiveCount;
+		ChunkSet::iterator insert_chunk_iter;
 		Callback(RenderPipeline * _pipeline, unsigned int _PassMask, const Vector3 & _LocalViewPos, Terrain * _terrain, IndexTable::element * _pIndices)
 			: pipeline(_pipeline)
 			, PassMask(_PassMask)
@@ -605,6 +606,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, terrain(_terrain)
 			, pIndices(_pIndices)
 			, RootPrimitiveCount(0)
+			, insert_chunk_iter(_terrain->m_ViewedChunks.begin())
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -634,11 +636,32 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				return;
 			}
 
-			if ((PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)) && terrain->m_ViewedChunks.insert(chunk).second)
+			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				_ASSERT(!chunk->IsRequested());
+				if (!chunk->is_linked())
+				{
+					_ASSERT(!chunk->IsRequested());
 
-				chunk->RequestResource();
+					chunk->RequestResource();
+
+					terrain->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+				}
+				else
+				{
+					ChunkSet::iterator chunk_iter = terrain->m_ViewedChunks.iterator_to(*chunk);
+					if (chunk_iter != insert_chunk_iter)
+					{
+						terrain->m_ViewedChunks.erase(chunk_iter);
+
+						terrain->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
+					}
+					else
+					{
+						_ASSERT(insert_chunk_iter != terrain->m_ViewedChunks.end());
+
+						insert_chunk_iter++;
+					}
+				}
 			}
 
 			if (!chunk->m_Vb)
@@ -699,25 +722,28 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		// ! do not use m_World for level offset
 		Frustum LocalFrustum = frustum.transform(m_Actor->m_World.transpose());
 		Vector3 LocalViewPos = TargetPos.transformCoord(m_Actor->m_World.inverse());
+		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_rootIb.Lock(0, 0, 0));
+		QueryEntity(LocalFrustum, &cb);
+		m_rootIb.Unlock();
+
 		if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
-			ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
 			int LastLod = _Quad(m_ChunkSize, m_MinLodChunkSize);
 			float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);
+			ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 			for (; chunk_iter != m_ViewedChunks.end(); )
 			{
-				if (((*chunk_iter)->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+				if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
 				{
-					(*chunk_iter)->ReleaseResource();
+					chunk_iter->ReleaseResource();
+
 					chunk_iter = m_ViewedChunks.erase(chunk_iter);
 				}
 				else
 					chunk_iter++;
 			}
 		}
-		Callback cb(pipeline, PassMask, LocalViewPos, this, (IndexTable::element *)m_rootIb.Lock(0, 0, 0));
-		QueryEntity(LocalFrustum, &cb);
-		m_rootIb.Unlock();
+
 		if (cb.RootPrimitiveCount > 0)
 		{
 			if (m_Material && (m_Material->m_PassMask & PassMask))
