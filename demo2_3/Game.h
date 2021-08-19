@@ -7,6 +7,7 @@
 #include "PhysxContext.h"
 #include "FModContext.h"
 #include "myStateChart.h"
+#include <boost/intrusive/list.hpp>
 
 class dtNavMesh;
 
@@ -131,7 +132,7 @@ public:
 
 	float m_ViewedDist;
 
-	typedef std::set<Actor *> ViewedActorSet;
+	typedef boost::intrusive::list<Actor> ViewedActorSet;
 
 	ViewedActorSet m_ViewedActors;
 

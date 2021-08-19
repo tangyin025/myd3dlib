@@ -816,16 +816,16 @@ void Game::OnFrameTick(
 
 	struct Callback : public OctNode::QueryCallback
 	{
-		ViewedActorSet& m_ViewedActors;
-
 		Game* m_game;
 
 		AABB m_aabb;
 
-		Callback(ViewedActorSet& ViewedActors, Game* game, const AABB& aabb)
-			: m_ViewedActors(ViewedActors)
-			, m_game(game)
+		ViewedActorSet::iterator insert_actor_iter;
+
+		Callback(Game* game, const AABB& aabb)
+			: m_game(game)
 			, m_aabb(aabb)
+			, insert_actor_iter(game->m_ViewedActors.begin())
 		{
 		}
 
@@ -833,49 +833,64 @@ void Game::OnFrameTick(
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (m_ViewedActors.insert(actor).second)
+			if (!actor->is_linked())
 			{
 				_ASSERT(!actor->IsRequested());
+
+				actor->RequestResource();
+
+				m_game->m_ViewedActors.insert(insert_actor_iter, *actor);
+			}
+			else
+			{
+				ViewedActorSet::iterator actor_iter = m_game->m_ViewedActors.iterator_to(*actor);
+				if (actor_iter != insert_actor_iter)
 				{
-					actor->RequestResource();
+					m_game->m_ViewedActors.erase(actor_iter);
+
+					m_game->m_ViewedActors.insert(insert_actor_iter, *actor);
+				}
+				else
+				{
+					_ASSERT(insert_actor_iter != m_game->m_ViewedActors.end());
+
+					insert_actor_iter++;
 				}
 			}
 		}
 	};
 
-	Callback cb(m_ViewedActors, this, AABB(m_ViewedCenter, m_ViewedDist));
+	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
 
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
+	{
+		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
+
+		if (!actor_iter->m_Base)
+		{
+			// ! Actor::Update may change other actor's life time
+			// ! Actor::Update may invalid the main camera's properties
+			actor_iter->Update(fElapsedTime);
+
+			actor_iter->UpdateAttaches(fElapsedTime);
+		}
+	}
+
 	for (; actor_iter != m_ViewedActors.end(); )
 	{
-		Actor* actor = (*actor_iter);
+		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		_ASSERT(OctNode::HaveNode(actor->m_Node));
-
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + 10.0f));
-		if (intersect_type != IntersectionTests::IntersectionTypeOutside)
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor_iter->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + 10.0f));
+		if (intersect_type == IntersectionTests::IntersectionTypeOutside)
 		{
-			if (!actor->m_Base)
-			{
-				// ! Actor::Update may change other actor's life time
-				// ! Actor::Update may invalid the main camera's properties
-				actor->Update(fElapsedTime);
-
-				actor->UpdateAttaches(fElapsedTime);
-			}
-
-			actor_iter++;
-		}
-		else
-		{
-			_ASSERT(actor->IsRequested());
-			{
-				actor->ReleaseResource();
-			}
+			actor_iter->ReleaseResource();
 
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
+		else
+			actor_iter++;
 	}
 
 	m_SkyLightCam.UpdateViewProj();
@@ -1159,10 +1174,9 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 		actor->ReleaseResource();
 	}
 
-	ViewedActorSet::iterator actor_iter = m_ViewedActors.find(actor);
-	if (actor_iter != m_ViewedActors.end())
+	if (actor->is_linked())
 	{
-		m_ViewedActors.erase(actor_iter);
+		m_ViewedActors.erase(m_ViewedActors.iterator_to(*actor));
 	}
 
 	return OctNode::RemoveEntity(entity);

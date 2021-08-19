@@ -2,6 +2,7 @@
 
 #include "myOctree.h"
 #include "Component.h"
+#include <boost/intrusive/list_hook.hpp>
 
 class Animator;
 
@@ -83,6 +84,7 @@ public:
 class Actor
 	: public my::NamedObject
 	, public my::OctEntity
+	, public boost::intrusive::list_base_hook<>
 	, public boost::enable_shared_from_this<Actor>
 {
 public:
