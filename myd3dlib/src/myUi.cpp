@@ -2695,11 +2695,28 @@ ControlSkinPtr ComboBoxSkin::Clone(void) const
 	return ret;
 }
 
+ComboBox::ComboBox(const char* Name)
+	: Button(Name)
+	, m_DropdownSize(100, 100)
+	, m_DropdownRect(0, 0, 100, 100)
+	, m_ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str())
+	, m_ScrollbarWidth(20)
+	, m_ScrollbarUpDownBtnHeight(20)
+	, m_Border(0, 0, 0, 0)
+	, m_ItemHeight(15)
+	, m_iFocused(0)
+	, m_iSelected(-1)
+	, m_BlendColor(0, 0, 0, 0)
+{
+	OnLayout();
+}
+
 template<class Archive>
 void ComboBox::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 	ar << BOOST_SERIALIZATION_NVP(m_DropdownSize);
+	ar << boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_Border);
@@ -2711,6 +2728,7 @@ void ComboBox::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 	ar >> BOOST_SERIALIZATION_NVP(m_DropdownSize);
+	ar >> boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border);
@@ -3283,16 +3301,30 @@ ControlSkinPtr ListBoxSkin::Clone(void) const
 	return ret;
 }
 
+ListBox::ListBox(const char* Name)
+	: Control(Name)
+	, m_ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str())
+	, m_ScrollbarWidth(20)
+	, m_ScrollbarUpDownBtnHeight(20)
+	, m_ItemSize(50, 50)
+	, m_ItemColumn(1)
+	, m_iFocused(-1, -1)
+{
+	OnLayout();
+}
+
 template<class Archive>
 void ListBox::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	ar << boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
 }
 
 template<class Archive>
 void ListBox::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	ar >> boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
 	OnLayout();
 }
 

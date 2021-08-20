@@ -1166,21 +1166,7 @@ namespace my
 		}
 
 	public:
-		ComboBox(const char * Name, const char * ScrollBarName)
-			: Button(Name)
-			, m_DropdownSize(100, 100)
-			, m_DropdownRect(0, 0, 100, 100)
-			, m_ScrollBar(ScrollBarName)
-			, m_ScrollbarWidth(20)
-			, m_ScrollbarUpDownBtnHeight(20)
-			, m_Border(0, 0, 0, 0)
-			, m_ItemHeight(15)
-			, m_iFocused(0)
-			, m_iSelected(-1)
-			, m_BlendColor(0, 0, 0, 0)
-		{
-			OnLayout();
-		}
+		ComboBox(const char * Name);
 
 		~ComboBox(void)
 		{
@@ -1354,17 +1340,7 @@ namespace my
 		}
 
 	public:
-		ListBox(const char * Name, const char * ScrollBarName)
-			: Control(Name)
-			, m_ScrollBar(ScrollBarName)
-			, m_ScrollbarWidth(20)
-			, m_ScrollbarUpDownBtnHeight(20)
-			, m_ItemSize(50, 50)
-			, m_ItemColumn(1)
-			, m_iFocused(-1, -1)
-		{
-			OnLayout();
-		}
+		ListBox(const char* Name);
 
 		~ListBox(void)
 		{

@@ -9,7 +9,7 @@ class CStaticEmitterDlg : public CDialogEx
 	DECLARE_DYNAMIC(CStaticEmitterDlg)
 
 public:
-	CStaticEmitterDlg(CWnd* pParent = nullptr);   // standard constructor
+	CStaticEmitterDlg(const char* StaticEmitterName, CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CStaticEmitterDlg();
 
 // Dialog Data

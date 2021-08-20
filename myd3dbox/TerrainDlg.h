@@ -9,7 +9,7 @@ class CTerrainDlg : public CDialogEx
 	DECLARE_DYNAMIC(CTerrainDlg)
 
 public:
-	CTerrainDlg(CWnd* pParent = NULL);   // standard constructor
+	CTerrainDlg(const char * TerrainComponentName, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CTerrainDlg();
 
 // Dialog Data

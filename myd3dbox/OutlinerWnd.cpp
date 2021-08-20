@@ -127,7 +127,7 @@ void COutlinerWnd::OnSelectionChanged(my::EventArg* arg)
 
 void COutlinerWnd::OnAttributeChanged(my::EventArg* arg)
 {
-
+	m_listCtrl.Invalidate();
 }
 
 void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)

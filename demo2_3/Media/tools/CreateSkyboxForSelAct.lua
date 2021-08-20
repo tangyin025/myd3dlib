@@ -10,7 +10,7 @@ for act in theApp.MainWnd.selactors do
 	print(os.date("%c"),"add sky box for "..act.Name)
 	for i=0,5,1 do
 		-- print(i)
-		local mesh_cmp=MeshComponent(NamedObject.MakeUniqueName("editor_sky_cmp"))
+		local mesh_cmp=MeshComponent(NamedObject.MakeUniqueName(act.Name.."_sky"))
 		mesh_cmp.MeshPath="mesh/Cube6Plane.mesh.xml"
 		mesh_cmp.MeshSubMeshId=i
 		mesh_cmp.Material=Material()
