@@ -123,6 +123,14 @@ namespace my
 
 		NamedObject * GetNamedObject(const char * Name);
 
+		virtual void OnNamedObjectCreate(NamedObject* obj)
+		{
+		}
+
+		virtual void OnNamedObjectDestroy(NamedObject* obj)
+		{
+		}
+
 		virtual void OnControlSound(const char * name)
 		{
 		}

@@ -42,16 +42,21 @@ unsigned int NamedObject::UniqueNameIndex = 0;
 NamedObject::NamedObject(void)
 	: m_Name(NULL)
 {
+	D3DContext::getSingleton().OnNamedObjectCreate(this);
 }
 
 NamedObject::NamedObject(const char * Name)
 	: m_Name(NULL)
 {
 	SetName(Name);
+
+	D3DContext::getSingleton().OnNamedObjectCreate(this);
 }
 
 NamedObject::~NamedObject(void)
 {
+	D3DContext::getSingleton().OnNamedObjectDestroy(this);
+
 	SetName(NULL);
 }
 

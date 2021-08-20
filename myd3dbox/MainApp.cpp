@@ -806,14 +806,14 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	return NULL;
 }
 
-void CMainApp::OnNamedObjectAdded(my::NamedObject* Object)
+void CMainApp::OnNamedObjectCreate(my::NamedObject* Object)
 {
 	NamedObjectEventArgs arg(Object);
-	m_EventNamedObjectAdded(&arg);
+	m_EventNamedObjectCreate(&arg);
 }
 
-void CMainApp::OnNamedObjectRemoved(my::NamedObject* Object)
+void CMainApp::OnNamedObjectDestroy(my::NamedObject* Object)
 {
 	NamedObjectEventArgs arg(Object);
-	m_EventNamedObjectRemoved(&arg);
+	m_EventNamedObjectDestroy(&arg);
 }
