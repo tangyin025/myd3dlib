@@ -76,7 +76,7 @@ void CEnvironmentWnd::SetPropListFont(void)
 void CEnvironmentWnd::InitPropList()
 {
 	m_wndPropList.EnableHeaderCtrl(FALSE);
-	m_wndPropList.EnableDescriptionArea();
+	m_wndPropList.EnableDescriptionArea(FALSE);
 	m_wndPropList.SetVSDotNetLook();
 	m_wndPropList.MarkModifiedProperties();
 
