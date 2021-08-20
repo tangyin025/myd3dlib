@@ -202,6 +202,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_ACTIVATE()
 	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
+	ON_COMMAND(ID_FILE_CLOSE, &CMainFrame::OnFileClose)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_FILE_SAVE_AS, &CMainFrame::OnFileSaveAs)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
@@ -349,7 +350,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
 	if (!m_wndProperties.Create(_T("Properties"), this, CRect(0, 0, 200, 200), TRUE, 3001,
-		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
 	{
 		TRACE0("Failed to create Properties window\n");
 		return FALSE; // failed to create
@@ -376,6 +377,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
+	if (!m_wndOutliner.Create(_T("Outliner"), this, CRect(0, 0, 200, 200), TRUE, 3005,
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
+	{
+		TRACE0("Failed to create Outliner window\n");
+		return -1;
+	}
+
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -383,15 +391,17 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndEnvironment.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndScript.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndOutliner.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
+	DockPane(&m_wndOutliner);
 	DockPane(&m_wndProperties);
 	DockPane(&m_wndEnvironment);
 	DockPane(&m_wndOutput);
 	DockPane(&m_wndScript);
 	CDockablePane* pTabbedBar = NULL;
-	//m_wndEnvironment.AttachToTabWnd(&m_wndProperties, DM_SHOW, FALSE, &pTabbedBar);
+	m_wndEnvironment.AttachToTabWnd(&m_wndProperties, DM_SHOW, FALSE, &pTabbedBar);
 	m_wndScript.AttachToTabWnd(&m_wndOutput, DM_SHOW, FALSE, &pTabbedBar);
 
 
@@ -447,6 +457,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//m_emitter->m_Material->ParseShaderParameters();
 	//m_emitter->RequestResource();
 	////m_emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
+
+	m_wndOutliner.OnInitItemList();
 	return 0;
 }
 
@@ -961,6 +973,7 @@ Component* CMainFrame::GetSelComponent(Component::ComponentType Type)
 
 void CMainFrame::OnDestroy()
 {
+	m_wndOutliner.OnDestroyItemList();
 	CFrameWndEx::OnDestroy();
 
 	// TODO: Add your message handler code here
@@ -997,8 +1010,10 @@ void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
 	m_strPathName.Empty();
+	m_wndOutliner.OnDestroyItemList();
 	ClearFileContext();
 	InitFileContext();
+	m_wndOutliner.OnInitItemList();
 	InitialUpdateFrame(NULL, TRUE);
 	theApp.m_SkyLightCam.m_Euler = my::Vector3(D3DXToRadian(-45), 0, 0);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1084,9 +1099,11 @@ void CMainFrame::OnFileOpen()
 	theApp.AddToRecentFileList(strPathName);
 
 	CWaitCursor wait;
+	m_wndOutliner.OnDestroyItemList();
 	ClearFileContext();
 	InitFileContext();
 	OpenFileContext(strPathName);
+	m_wndOutliner.OnInitItemList();
 
 	OnSelChanged();
 
@@ -1094,6 +1111,11 @@ void CMainFrame::OnFileOpen()
 	ASSERT_VALID(pView);
 	CEnvironmentWnd::CameraPropEventArgs arg(pView);
 	m_EventCameraPropChanged(&arg);
+}
+
+void CMainFrame::OnFileClose()
+{
+	// TODO: Add your command handler code here
 }
 
 void CMainFrame::OnFileSave()
@@ -2147,3 +2169,4 @@ void CMainFrame::OnUpdateControlListbox(CCmdUI* pCmdUI)
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(m_selctl != NULL);
 }
+

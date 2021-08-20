@@ -44,8 +44,6 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_listCtrl.InsertColumn(0, _T("Name"), 0, 100);
 	m_listCtrl.InsertColumn(1, _T("Type"), 0, 30);
 
-	theApp.m_EventNamedObjectAdded.connect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, _1));
-	theApp.m_EventNamedObjectRemoved.connect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, _1));
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_EventSelectionChanged.connect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, _1));
@@ -67,12 +65,30 @@ void COutlinerWnd::OnDestroy()
 	CDockablePane::OnDestroy();
 
 	// TODO: Add your message handler code here
-	theApp.m_EventNamedObjectAdded.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, _1));
-	theApp.m_EventNamedObjectRemoved.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, _1));
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_EventSelectionChanged.disconnect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, _1));
 	pFrame->m_EventAttributeChanged.disconnect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, _1));
+}
+
+void COutlinerWnd::OnInitItemList()
+{
+	CMainApp::NamedObjectMap::const_iterator named_obj_iter = theApp.m_NamedObjects.begin();
+	for (; named_obj_iter != theApp.m_NamedObjects.end(); named_obj_iter++)
+	{
+		m_Items.push_back(named_obj_iter->second);
+	}
+	m_listCtrl.SetItemCountEx(m_Items.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	theApp.m_EventNamedObjectCreate.connect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, _1));
+	theApp.m_EventNamedObjectDestroy.connect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, _1));
+}
+
+void COutlinerWnd::OnDestroyItemList()
+{
+	theApp.m_EventNamedObjectCreate.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, _1));
+	theApp.m_EventNamedObjectDestroy.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, _1));
+	m_listCtrl.DeleteAllItems();
+	m_Items.clear();
 }
 
 void COutlinerWnd::OnNamedObjectAdded(my::EventArg* arg)
@@ -80,38 +96,29 @@ void COutlinerWnd::OnNamedObjectAdded(my::EventArg* arg)
 	CMainApp::NamedObjectEventArgs* named_obj_arg = dynamic_cast<CMainApp::NamedObjectEventArgs*>(arg);
 	ASSERT(named_obj_arg);
 	m_Items.push_back(named_obj_arg->pObj);
+	m_listCtrl.InsertItem(m_Items.size() - 1, LVIF_TEXT, LPSTR_TEXTCALLBACK, 0, 0, 0, 0);
 }
 
 void COutlinerWnd::OnNamedObjectRemoved(my::EventArg* arg)
 {
-	if (m_IgnoreNamedObjectRemoved)
-	{
-		return;
-	}
-
 	CMainApp::NamedObjectEventArgs* named_obj_arg = dynamic_cast<CMainApp::NamedObjectEventArgs*>(arg);
 	ASSERT(named_obj_arg);
 	ItemSet::nth_index<1>::type& object_index = m_Items.get<1>();
 	ItemSet::nth_index<1>::type::iterator obj_iter = object_index.find(named_obj_arg->pObj);
 	ASSERT(obj_iter != object_index.end());
+	int nItem = (int)std::distance(m_Items.begin(), m_Items.project<0>(obj_iter));
 	object_index.erase(obj_iter);
+	m_listCtrl.DeleteItem(nItem);
 }
 
 void COutlinerWnd::OnSelectionChanged(my::EventArg* arg)
 {
-	if (m_Items.size() != m_listCtrl.GetItemCount())
-	{
-		m_listCtrl.SetItemCountEx((int)m_Items.size(), /*LVSICF_NOINVALIDATEALL |*/ LVSICF_NOSCROLL);
-	}
-	else
-	{
-		m_listCtrl.Invalidate();
-	}
+	m_listCtrl.Invalidate();
 }
 
 void COutlinerWnd::OnAttributeChanged(my::EventArg* arg)
 {
-	m_listCtrl.Invalidate();
+
 }
 
 void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)

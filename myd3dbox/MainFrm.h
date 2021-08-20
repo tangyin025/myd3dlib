@@ -8,6 +8,7 @@
 #include "EnvironmentWnd.h"
 #include "OutputWnd.h"
 #include "ScriptWnd.h"
+#include "OutlinerWnd.h"
 #include "Actor.h"
 #include "PhysxContext.h"
 #include "LuaExtension.h"
@@ -37,6 +38,7 @@ public:
 	CEnvironmentWnd		m_wndEnvironment;
 	COutputWnd        m_wndOutput;
 	CScriptWnd		  m_wndScript;
+	COutlinerWnd      m_wndOutliner;
 	CString m_strPathName;
 	typedef std::vector<ActorPtr> ActorPtrSet;
 	ActorPtrSet m_ActorList;
@@ -149,6 +151,7 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileNew();
 	afx_msg void OnFileOpen();
+	afx_msg void OnFileClose();
 	afx_msg void OnFileSave();
 	afx_msg void OnFileSaveAs();
 	afx_msg void OnCreateActor();

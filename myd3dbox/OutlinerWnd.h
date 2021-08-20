@@ -30,6 +30,8 @@ protected:
     DECLARE_MESSAGE_MAP()
 public:
     afx_msg void OnDestroy();
+    void OnInitItemList();
+    void OnDestroyItemList();
     void OnNamedObjectAdded(my::EventArg* arg);
     void OnNamedObjectRemoved(my::EventArg* arg);
     void OnSelectionChanged(my::EventArg* arg);
