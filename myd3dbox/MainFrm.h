@@ -13,6 +13,7 @@
 #include "PhysxContext.h"
 #include "LuaExtension.h"
 #include "Pivot.h"
+#include <boost/intrusive/list.hpp>
 
 class dtNavMesh;
 
@@ -54,6 +55,8 @@ public:
 	int m_selinstid;
 	my::AABB m_selbox;
 	my::Control * m_selctl;
+	typedef boost::intrusive::list<Actor> ViewedActorSet;
+	ViewedActorSet m_ViewedActors;
 	enum ControlHandleType
 	{
 		ControlHandleNone = 0,

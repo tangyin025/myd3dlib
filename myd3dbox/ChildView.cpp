@@ -174,7 +174,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
+
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		const my::Frustum & frustum;
@@ -184,6 +184,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		const my::Vector3 & TargetPos;
 		CMainFrame * pFrame;
 		CChildView * pView;
+		CMainFrame::ViewedActorSet::iterator insert_actor_iter;
 		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame, CChildView * _pView)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
@@ -192,6 +193,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, TargetPos(_TargetPos)
 			, pFrame(_pFrame)
 			, pView(_pView)
+			, insert_actor_iter(pFrame->m_ViewedActors.begin())
 		{
 		}
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -200,20 +202,31 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
-			if (pFrame->GetActiveView() == pView && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
+			if (pFrame->GetActiveView() == pView && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+				&& my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, 1000.0f)) != my::IntersectionTests::IntersectionTypeOutside)
 			{
-				if (my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, 1000.0f)) != my::IntersectionTests::IntersectionTypeOutside)
+				if (!actor->is_linked())
 				{
-					if (!actor->IsRequested())
-					{
-						actor->RequestResource();
-					}
+					_ASSERT(!actor->IsRequested());
+
+					actor->RequestResource();
+
+					pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
 				}
 				else
 				{
-					if (actor->IsRequested())
+					CMainFrame::ViewedActorSet::iterator actor_iter = pFrame->m_ViewedActors.iterator_to(*actor);
+					if (actor_iter != insert_actor_iter)
 					{
-						actor->ReleaseResource();
+						pFrame->m_ViewedActors.erase(actor_iter);
+
+						pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
+					}
+					else
+					{
+						_ASSERT(insert_actor_iter != pFrame->m_ViewedActors.end());
+
+						insert_actor_iter++;
 					}
 				}
 			}
@@ -237,9 +250,25 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			}
 		}
 	};
+
+	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
 	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-	pFrame->QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame, this));
+	Callback cb(frustum, pipeline, PassMask, m_Camera->m_Eye, model_view_camera->m_LookAt, pFrame, this);
+	pFrame->QueryEntity(frustum, &cb);
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
+
+	if (pFrame->GetActiveView() == this && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
+	{
+		CMainFrame::ViewedActorSet::iterator actor_iter = cb.insert_actor_iter;
+		for (; actor_iter != pFrame->m_ViewedActors.end(); )
+		{
+			ASSERT(actor_iter->IsRequested());
+
+			actor_iter->ReleaseResource();
+
+			actor_iter = pFrame->m_ViewedActors.erase(actor_iter);
+		}
+	}
 }
 
 void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor)

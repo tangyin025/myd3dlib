@@ -741,11 +741,12 @@ void CMainFrame::ClearFileContext()
 	DialogMgr::RemoveAllDlg();
 	m_ActorList.clear();
 	m_DialogList.clear();
-	m_selactors.clear();
+	ASSERT(m_selactors.empty());
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
 	m_selctl = NULL;
+	ASSERT(m_ViewedActors.empty());
 	LuaContext::Shutdown();
 	m_CollectionObjs.clear();
 	m_SerializeBuff.reset();
@@ -919,6 +920,11 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 	if (actor->IsRequested())
 	{
 		actor->ReleaseResource();
+	}
+
+	if (actor->is_linked())
+	{
+		m_ViewedActors.erase(m_ViewedActors.iterator_to(*actor));
 	}
 
 	SelActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
