@@ -789,6 +789,7 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	ASSERT_VALID(pFrame);
 	pFrame->m_strPathName = lpszFileName;
 	//theApp.AddToRecentFileList(lpszFileName);
+	pFrame->m_wndOutliner.OnDestroyItemList();
 	CWaitCursor wait;
 	pFrame->ClearFileContext();
 	pFrame->InitFileContext();
@@ -803,6 +804,7 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 		CEnvironmentWnd::CameraPropEventArgs arg(pView);
 		pFrame->m_EventCameraPropChanged(&arg);
 	}
+	pFrame->m_wndOutliner.OnInitItemList();
 	return NULL;
 }
 

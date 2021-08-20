@@ -2,6 +2,7 @@
 #include "OutlinerWnd.h"
 #include "MainApp.h"
 #include "MainFrm.h"
+#include "ChildView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -17,6 +18,7 @@ BEGIN_MESSAGE_MAP(COutlinerWnd, CDockablePane)
 	ON_NOTIFY(LVN_ODCACHEHINT, 1, &COutlinerWnd::OnLvnOdcachehintList)
 	ON_NOTIFY(LVN_ODFINDITEM, 1, &COutlinerWnd::OnLvnOdfinditemList)
 	ON_NOTIFY(NM_CLICK, 1, &COutlinerWnd::OnNotifyClick)
+	ON_NOTIFY(NM_DBLCLK, 1, &COutlinerWnd::OnNotifyDblclk)
 END_MESSAGE_MAP()
 
 COutlinerWnd::COutlinerWnd() noexcept
@@ -291,4 +293,13 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		*pResult = 0;
 		return;
 	}
+}
+
+void COutlinerWnd::OnNotifyDblclk(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
+	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+	pView->SendMessage(WM_KEYDOWN, 'F', MAKEWORD(1, 0));
 }

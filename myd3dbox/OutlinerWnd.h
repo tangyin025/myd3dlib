@@ -40,5 +40,6 @@ public:
     afx_msg void OnLvnOdcachehintList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnNotifyDblclk(NMHDR* pNMHDR, LRESULT* pResult);
 };
 
