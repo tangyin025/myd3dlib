@@ -3590,9 +3590,9 @@ ControlSkinPtr DialogSkin::Clone(void) const
 
 Dialog::~Dialog(void)
 {
-	if (m_Parent)
+	if (m_Manager)
 	{
-		_ASSERT(false); m_Parent->RemoveDlg(this);
+		_ASSERT(false); m_Manager->RemoveDlg(this);
 	}
 }
 
@@ -3615,7 +3615,7 @@ void Dialog::load(Archive & ar, const unsigned int version)
 
 void Dialog::Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size)
 {
-	_ASSERT(m_Parent);
+	_ASSERT(m_Manager);
 
 	Control::Draw(ui_render, fElapsedTime, Offset, Size);
 }
@@ -3760,10 +3760,10 @@ void Dialog::SetVisible(bool bVisible)
 		}
 		else
 		{
-			if (m_Parent && !s_FocusControl)
+			if (m_Manager && !s_FocusControl)
 			{
-				DialogMgr::DialogList::reverse_iterator dlg_iter = m_Parent->m_DlgList.rbegin();
-				for (; dlg_iter != m_Parent->m_DlgList.rend(); dlg_iter++)
+				DialogMgr::DialogList::reverse_iterator dlg_iter = m_Manager->m_DlgList.rbegin();
+				for (; dlg_iter != m_Manager->m_DlgList.rend(); dlg_iter++)
 				{
 					if ((*dlg_iter)->CanHaveFocus())
 					{
@@ -3967,11 +3967,11 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void DialogMgr::InsertDlg(Dialog * dlg)
 {
-	_ASSERT(!dlg->m_Parent);
+	_ASSERT(!dlg->m_Manager);
 
 	m_DlgList.push_back(dlg);
 
-	dlg->m_Parent = this;
+	dlg->m_Manager = this;
 
 	if (!dlg->IsRequested())
 	{
@@ -3990,14 +3990,14 @@ void DialogMgr::RemoveDlg(Dialog * dlg)
 	DialogList::iterator dlg_iter = std::find(m_DlgList.begin(), m_DlgList.end(), dlg);
 	if(dlg_iter != m_DlgList.end())
 	{
-		_ASSERT((*dlg_iter)->m_Parent == this);
+		_ASSERT((*dlg_iter)->m_Manager == this);
 
 		if (Control::s_FocusControl && (*dlg_iter)->ContainsControl(Control::s_FocusControl))
 		{
 			Control::SetFocusControl(NULL);
 		}
 
-		(*dlg_iter)->m_Parent = NULL;
+		(*dlg_iter)->m_Manager = NULL;
 
 		if ((*dlg_iter)->IsRequested())
 		{

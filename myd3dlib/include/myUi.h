@@ -1454,7 +1454,7 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		DialogMgr * m_Parent;
+		DialogMgr * m_Manager;
 
 		Matrix4 m_World;
 
@@ -1468,7 +1468,7 @@ namespace my
 
 	protected:
 		Dialog(void)
-			: m_Parent(NULL)
+			: m_Manager(NULL)
 			, m_World(Matrix4::identity)
 			, m_EnableDrag(true)
 			, m_bMouseDrag(false)
@@ -1479,7 +1479,7 @@ namespace my
 	public:
 		Dialog(const char * Name)
 			: Control(Name)
-			, m_Parent(NULL)
+			, m_Manager(NULL)
 			, m_World(Matrix4::identity)
 			, m_EnableDrag(true)
 			, m_bMouseDrag(false)
