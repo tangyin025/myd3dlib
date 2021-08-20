@@ -154,7 +154,7 @@ void UIRender::Flush(void)
 	UILayerList::iterator layer_iter = m_Layer.begin();
 	for (; layer_iter != m_Layer.end(); layer_iter++)
 	{
-		if (layer_iter->first && layer_iter->first->m_ptr && !layer_iter->second.empty())
+		if (!layer_iter->second.empty() && layer_iter->first && layer_iter->first->m_ptr)
 		{
 			V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
 			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
