@@ -19,6 +19,7 @@ BEGIN_MESSAGE_MAP(COutlinerWnd, CDockablePane)
 	ON_NOTIFY(LVN_ODFINDITEM, 1, &COutlinerWnd::OnLvnOdfinditemList)
 	ON_NOTIFY(NM_CLICK, 1, &COutlinerWnd::OnNotifyClick)
 	ON_NOTIFY(NM_DBLCLK, 1, &COutlinerWnd::OnNotifyDblclk)
+	ON_NOTIFY(LVN_COLUMNCLICK, 1, &COutlinerWnd::OnLvnColumnClickList)
 END_MESSAGE_MAP()
 
 COutlinerWnd::COutlinerWnd() noexcept
@@ -36,15 +37,21 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!m_listCtrl.CreateEx(WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR,
 		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | LVS_REPORT /*| LVS_SINGLESEL*/ | LVS_SHOWSELALWAYS | LVS_OWNERDATA, CRect(0, 0, 100, 100), this, 1))
 	{
-		TRACE0("Failed to create outliner windows\n");
+		TRACE0("Failed to create list control\n");
 		return -1;
 	}
 
+	if (!m_listImage.Create(IDR_MAINFRAME_256, 16, 30, RGB(192, 192, 192)))
+	{
+		TRACE0("Failed to create list image\n");
+		return -1;
+	}
+
+	m_listCtrl.SetImageList(&m_listImage, LVSIL_SMALL);
 	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 	m_listCtrl.SetFont(&afxGlobalData.fontRegular);
 	m_listCtrl.SetCallbackMask(LVIS_SELECTED | LVIS_OVERLAYMASK | LVIS_STATEIMAGEMASK);
-	m_listCtrl.InsertColumn(0, _T("Name"), 0, 100);
-	m_listCtrl.InsertColumn(1, _T("Type"), 0, 30);
+	m_listCtrl.InsertColumn(0, _T("Name"), 0, 150);
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -189,6 +196,86 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 			}
 		}
 	}
+
+	if (pItem->mask & LVIF_IMAGE)
+	{
+		my::NamedObject* obj = m_Items[pItem->iItem];
+		my::Control* control = dynamic_cast<my::Control*>(obj);
+		if (control)
+		{
+			switch (control->GetControlType())
+			{
+			case my::Control::ControlTypeStatic:
+				pItem->iImage = 16;
+				break;
+			case my::Control::ControlTypeProgressBar:
+				pItem->iImage = 17;
+				break;
+			case my::Control::ControlTypeButton:
+				pItem->iImage = 18;
+				break;
+			case my::Control::ControlTypeEditBox:
+				pItem->iImage = 19;
+				break;
+			case my::Control::ControlTypeImeEditBox:
+				pItem->iImage = 19;
+				break;
+			case my::Control::ControlTypeScrollBar:
+				pItem->iImage = 22;
+				break;
+			case my::Control::ControlTypeCheckBox:
+				pItem->iImage = 20;
+				break;
+			case my::Control::ControlTypeComboBox:
+				pItem->iImage = 21;
+				break;
+			case my::Control::ControlTypeListBox:
+				pItem->iImage = 22;
+				break;
+			case my::Control::ControlTypeDialog:
+				pItem->iImage = 15;
+				break;
+			}
+		}
+
+		Actor* actor = dynamic_cast<Actor*>(obj);
+		if (actor)
+		{
+			pItem->iImage = 6;
+		}
+
+		Component* cmp = dynamic_cast<Component*>(obj);
+		if (cmp)
+		{
+			switch (cmp->GetComponentType())
+			{
+			case Component::ComponentTypeController:
+				pItem->iImage = 12;
+				break;
+			case Component::ComponentTypeMesh:
+				pItem->iImage = 7;
+				break;
+			case Component::ComponentTypeCloth:
+				pItem->iImage = 8;
+				break;
+			case Component::ComponentTypeStaticEmitter:
+				pItem->iImage = 9;
+				break;
+			case Component::ComponentTypeSphericalEmitter:
+				pItem->iImage = 10;
+				break;
+			case Component::ComponentTypeTerrain:
+				pItem->iImage = 11;
+				break;
+			case Component::ComponentTypeAnimator:
+				pItem->iImage = 13;
+				break;
+			case Component::ComponentTypeNavigation:
+				pItem->iImage = 14;
+				break;
+			}
+		}
+	}
 }
 
 void COutlinerWnd::OnLvnOdcachehintList(NMHDR* pNMHDR, LRESULT* pResult)
@@ -260,7 +347,10 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		pFrame->m_selctl = control;
+		if (control->GetControlType() == my::Control::ControlTypeScrollBar)
+			pFrame->m_selctl = control->m_Parent;
+		else
+			pFrame->m_selctl = control;
 		pFrame->OnSelChanged();
 		*pResult = 0;
 		return;
@@ -302,4 +392,29 @@ void COutlinerWnd::OnNotifyDblclk(NMHDR* pNMHDR, LRESULT* pResult)
 
 	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	pView->SendMessage(WM_KEYDOWN, 'F', MAKEWORD(1, 0));
+}
+
+void COutlinerWnd::OnLvnColumnClickList(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	NMLISTVIEW* pListView = reinterpret_cast<NMLISTVIEW*>(pNMHDR);
+	if (pListView->iSubItem == 0)
+	{
+		std::vector<boost::reference_wrapper<const ItemSet::value_type> > v;
+		ItemSet::iterator item_iter = m_Items.begin();
+		for (; item_iter != m_Items.end(); item_iter++)
+		{
+			v.push_back(boost::cref(*item_iter));
+		}
+
+		struct ItemCompare
+		{
+			bool operator() (my::NamedObject* lhs, my::NamedObject* rhs)
+			{
+				return stricmp(lhs->GetName(), rhs->GetName()) < 0;
+			}
+		};
+		std::sort(v.begin(), v.end(), ItemCompare());
+		m_Items.rearrange(v.begin());
+		m_listCtrl.Invalidate();
+	}
 }

@@ -50,7 +50,7 @@ lbl_vertical_sync.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_vertical_sync.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_vertical_sync)
 
-local cbx_vertical_sync=ComboBox("cbx_vertical_sync")
+local cbx_vertical_sync=ComboBox("cbx_vertical_sync", "cbx_vertical_sync_scrollbar")
 cbx_vertical_sync.x=UDim(0,201)
 cbx_vertical_sync.y=UDim(0,item_y)
 cbx_vertical_sync.Width=UDim(0,304)
@@ -73,7 +73,7 @@ lbl_vertex_processing.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_vertex_processing.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_vertex_processing)
 
-local cbx_vertex_processing=ComboBox("cbx_vertex_processing")
+local cbx_vertex_processing=ComboBox("cbx_vertex_processing", "cbx_vertex_processing_scrollbar")
 cbx_vertex_processing.x=UDim(0,201)
 cbx_vertex_processing.y=UDim(0,item_y)
 cbx_vertex_processing.Width=UDim(0,304)
@@ -96,7 +96,7 @@ lbl_multisample_quality.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_multisample_quality.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_multisample_quality)
 
-local cbx_multisample_quality=ComboBox("cbx_multisample_quality")
+local cbx_multisample_quality=ComboBox("cbx_multisample_quality", "cbx_multisample_quality_scrollbar")
 cbx_multisample_quality.x=UDim(0,201)
 cbx_multisample_quality.y=UDim(0,item_y)
 cbx_multisample_quality.Width=UDim(0,304)
@@ -119,7 +119,7 @@ lbl_multisample_type.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_multisample_type.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_multisample_type)
 
-local cbx_multisample_type=ComboBox("cbx_multisample_type")
+local cbx_multisample_type=ComboBox("cbx_multisample_type", "cbx_multisample_type_scrollbar")
 cbx_multisample_type.x=UDim(0,201)
 cbx_multisample_type.y=UDim(0,item_y)
 cbx_multisample_type.Width=UDim(0,304)
@@ -142,7 +142,7 @@ lbl_depth_stencil_format.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_depth_stencil_format.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_depth_stencil_format)
 
-local cbx_depth_stencil_format=ComboBox("cbx_depth_stencil_format")
+local cbx_depth_stencil_format=ComboBox("cbx_depth_stencil_format", "cbx_depth_stencil_format_scrollbar")
 cbx_depth_stencil_format.x=UDim(0,201)
 cbx_depth_stencil_format.y=UDim(0,item_y)
 cbx_depth_stencil_format.Width=UDim(0,304)
@@ -165,7 +165,7 @@ lbl_back_buffer_format.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_back_buffer_format.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_back_buffer_format)
 
-local cbx_back_buffer_format=ComboBox("cbx_back_buffer_format")
+local cbx_back_buffer_format=ComboBox("cbx_back_buffer_format", "cbx_back_buffer_format_scrollbar")
 cbx_back_buffer_format.x=UDim(0,201)
 cbx_back_buffer_format.y=UDim(0,item_y)
 cbx_back_buffer_format.Width=UDim(0,304)
@@ -188,7 +188,7 @@ lbl_refresh_rate.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_refresh_rate.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_refresh_rate)
 
-local cbx_refresh_rate=ComboBox("cbx_refresh_rate")
+local cbx_refresh_rate=ComboBox("cbx_refresh_rate", "cbx_refresh_rate_scrollbar")
 cbx_refresh_rate.x=UDim(0,201)
 cbx_refresh_rate.y=UDim(0,item_y)
 cbx_refresh_rate.Width=UDim(0,304)
@@ -211,7 +211,7 @@ lbl_resolution.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_resolution.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_resolution)
 
-local cbx_resolution=ComboBox("cbx_resolution")
+local cbx_resolution=ComboBox("cbx_resolution", "cbx_resolution_scrollbar")
 cbx_resolution.x=UDim(0,201)
 cbx_resolution.y=UDim(0,item_y)
 cbx_resolution.Width=UDim(0,304)
@@ -234,7 +234,7 @@ lbl_adapter_format.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_adapter_format.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_adapter_format)
 
-local cbx_adapter_format=ComboBox("cbx_adapter_format")
+local cbx_adapter_format=ComboBox("cbx_adapter_format", "cbx_adapter_format_scrollbar")
 cbx_adapter_format.x=UDim(0,201)
 cbx_adapter_format.y=UDim(0,item_y)
 cbx_adapter_format.Width=UDim(0,304)
@@ -276,7 +276,7 @@ lbl_render_device.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_render_device.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_render_device)
 
-local cbx_render_device=ComboBox("cbx_render_device")
+local cbx_render_device=ComboBox("cbx_render_device", "cbx_render_device_scrollbar")
 cbx_render_device.x=UDim(0,201)
 cbx_render_device.y=UDim(0,item_y)
 cbx_render_device.Width=UDim(0,304)
@@ -299,7 +299,7 @@ lbl_display_adapter.Skin=CommonUI.com_lbl_skin:Clone()
 lbl_display_adapter.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_display_adapter)
 
-local cbx_display_adapter=ComboBox("cbx_display_adapter")
+local cbx_display_adapter=ComboBox("cbx_display_adapter", "cbx_display_adapter_scrollbar")
 cbx_display_adapter.x=UDim(0,201)
 cbx_display_adapter.y=UDim(0,item_y)
 cbx_display_adapter.Width=UDim(0,304)

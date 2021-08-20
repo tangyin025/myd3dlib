@@ -23,6 +23,8 @@ public:
 protected:
     CListCtrl m_listCtrl;
 
+    CImageList m_listImage;
+
 protected:
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -41,5 +43,6 @@ public:
     afx_msg void OnLvnOdfinditemList(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnNotifyDblclk(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnLvnColumnClickList(NMHDR* pNMHDR, LRESULT* pResult);
 };
 

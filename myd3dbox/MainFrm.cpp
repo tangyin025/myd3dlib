@@ -2084,7 +2084,7 @@ void CMainFrame::OnControlCombobox()
 	skin->m_ScrollBarImage->m_Rect = theApp.default_combobox_scrollbar_img_rect;
 	skin->m_ScrollBarImage->m_Border = theApp.default_combobox_scrollbar_img_border;
 
-	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName("combobox").c_str()));
+	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName("combobox").c_str(), my::NamedObject::MakeUniqueName("combobox_scrollbar").c_str()));
 	combobox->m_Skin = skin;
 	combobox->m_Text = ms2ws(combobox->GetName());
 	combobox->m_x.offset = 10;
@@ -2149,7 +2149,7 @@ void CMainFrame::OnControlListbox()
 	skin->m_ScrollBarImage->m_Rect = theApp.default_listbox_scrollbar_img_rect;
 	skin->m_ScrollBarImage->m_Border = theApp.default_listbox_scrollbar_img_border;
 
-	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName("listbox").c_str()));
+	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName("listbox").c_str(), my::NamedObject::MakeUniqueName("listbox_scrollbar").c_str()));
 	listBox->m_Skin = skin;
 	listBox->m_x.offset = 10;
 	listBox->m_y.offset = 10;

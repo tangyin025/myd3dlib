@@ -314,7 +314,7 @@ public:
 		skin->m_ScrollBarThumbBtnNormalImage = image;
 		skin->m_ScrollBarImage = image2;
 
-		ListBoxPtr listBox(new ListBox(NamedObject::MakeUniqueName("listbox").c_str()));
+		ListBoxPtr listBox(new ListBox(NamedObject::MakeUniqueName("listbox").c_str(), my::NamedObject::MakeUniqueName("listbox_scrollbar").c_str()));
 		listBox->m_Width.offset = 200;
 		listBox->OnLayout();
 		listBox->m_Skin = skin;

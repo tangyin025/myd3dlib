@@ -1166,11 +1166,11 @@ namespace my
 		}
 
 	public:
-		ComboBox(const char * Name)
+		ComboBox(const char * Name, const char * ScrollBarName)
 			: Button(Name)
 			, m_DropdownSize(100, 100)
 			, m_DropdownRect(0, 0, 100, 100)
-			, m_ScrollBar(NULL)
+			, m_ScrollBar(ScrollBarName)
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_Border(0, 0, 0, 0)
@@ -1354,9 +1354,9 @@ namespace my
 		}
 
 	public:
-		ListBox(const char * Name)
+		ListBox(const char * Name, const char * ScrollBarName)
 			: Control(Name)
-			, m_ScrollBar(NULL)
+			, m_ScrollBar(ScrollBarName)
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_ItemSize(50, 50)
