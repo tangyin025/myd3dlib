@@ -1825,7 +1825,8 @@ void CMainFrame::OnControlStatic()
 
 	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_static").c_str()).c_str()));
 	static_ctl->m_Skin = skin;
-	static_ctl->m_Text = ms2ws(static_ctl->GetName());
+	std::string text(static_ctl->GetName());
+	static_ctl->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	static_ctl->m_x.offset = 10;
 	static_ctl->m_y.offset = 10;
 
@@ -1913,7 +1914,8 @@ void CMainFrame::OnControlButton()
 
 	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_button").c_str()).c_str()));
 	btn->m_Skin = skin;
-	btn->m_Text = ms2ws(btn->GetName());
+	std::string text(btn->GetName());
+	btn->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	btn->m_x.offset = 10;
 	btn->m_y.offset = 10;
 
@@ -2006,7 +2008,8 @@ void CMainFrame::OnControlCheckbox()
 
 	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_checkbox").c_str()).c_str()));
 	checkbox->m_Skin = skin;
-	checkbox->m_Text = ms2ws(checkbox->GetName());
+	std::string text(checkbox->GetName());
+	checkbox->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	checkbox->m_x.offset = 10;
 	checkbox->m_y.offset = 10;
 
@@ -2086,7 +2089,8 @@ void CMainFrame::OnControlCombobox()
 
 	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_combobox").c_str()).c_str()));
 	combobox->m_Skin = skin;
-	combobox->m_Text = ms2ws(combobox->GetName());
+	std::string text(combobox->GetName());
+	combobox->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	combobox->m_x.offset = 10;
 	combobox->m_y.offset = 10;
 	for (int i = 0; i < 3; i++)
