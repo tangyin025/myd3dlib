@@ -699,6 +699,7 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		}
 
 		(*cmp_iter)->m_Actor = NULL;
+
 		m_Cmps.erase(cmp_iter);
 	}
 	else

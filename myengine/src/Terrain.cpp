@@ -197,6 +197,15 @@ const float Terrain::MinBlock = 1.0f;
 
 const float Terrain::Threshold = 0.1f;
 
+static int _Quad(int v, int min_v)
+{
+	if (v > min_v)
+	{
+		return _Quad(v / 2, min_v) + 1;
+	}
+	return 0;
+}
+
 Terrain::Terrain(void)
 	: m_RowChunks(1)
 	, m_ColChunks(1)
@@ -242,6 +251,7 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 		{
 			m_Chunks[i][j].m_Row = i;
 			m_Chunks[i][j].m_Col = j;
+			std::fill_n(m_Chunks[i][j].m_Lod, _countof(m_Chunks[i][j].m_Lod), _Quad(m_ChunkSize, m_MinLodChunkSize));
 			AABB aabb(j * m_ChunkSize, -1, i * m_ChunkSize, (j + 1) * m_ChunkSize, 1, (i + 1) * m_ChunkSize);
 			AddEntity(&m_Chunks[i][j], aabb, MinBlock, Threshold);
 		}
@@ -254,15 +264,6 @@ Terrain::~Terrain(void)
 	m_rootVb.OnDestroyDevice();
 	m_rootIb.OnDestroyDevice();
 	ClearAllEntity();
-}
-
-static int _Quad(int v, int min_v)
-{
-	if (v > min_v)
-	{
-		return _Quad(v / 2, min_v) + 1;
-	}
-	return 0;
 }
 
 int Terrain::CalculateLod(const my::AABB & LocalAabb, const my::Vector3 & LocalViewPos) const
@@ -519,6 +520,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 			AABB aabb;
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d", i, j).c_str(), m_Chunks[i][j]);
 			ar >> boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), aabb);
+			std::fill_n(m_Chunks[i][j].m_Lod, _countof(m_Chunks[i][j].m_Lod), _Quad(m_ChunkSize, m_MinLodChunkSize));
 			AddEntity(&m_Chunks[i][j], aabb, MinBlock, Threshold);
 		}
 	}
