@@ -559,7 +559,7 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 {
 	_ASSERT(IsRequested());
 
-	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
 		int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), Component::LOD_INFINITE - 1);
 		if (m_Lod != Lod)
