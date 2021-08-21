@@ -32,6 +32,7 @@ public:
 
 	// cfg
 	float default_fov;
+	float default_viewed_dist;
 	bool default_load_shader_cache;
 	std::string default_font_path;
 	int default_font_height;
@@ -167,7 +168,6 @@ public:
 	std::string default_listbox_scrollbar_img;
 	my::Rectangle default_listbox_scrollbar_img_rect;
 	my::Vector4 default_listbox_scrollbar_img_border;
-	int max_editable_particle_count;
 	D3DXHANDLE technique_RenderSceneColor;
 	D3DXHANDLE handle_MeshColor;
 	BOOL m_bNeedDraw;

@@ -37,6 +37,7 @@ public:
 
 	float m_PivotScale;
 	float m_CameraDiagonal;
+	float m_ViewedDist;
 	BOOL m_bShowGrid;
 	BOOL m_bShowCmpHandle;
 	BOOL m_bShowNavigation;

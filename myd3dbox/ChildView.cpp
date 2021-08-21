@@ -56,6 +56,7 @@ END_MESSAGE_MAP()
 CChildView::CChildView()
 	: m_PivotScale(1.0f)
 	, m_CameraDiagonal(30.0f)
+	, m_ViewedDist(theApp.default_viewed_dist)
 	, m_bShowGrid(TRUE)
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
@@ -202,8 +203,13 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
-			if (pFrame->GetActiveView() == pView && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
-				&& my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, 1000.0f)) != my::IntersectionTests::IntersectionTypeOutside)
+			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+				&& my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, pView->m_ViewedDist)) == my::IntersectionTests::IntersectionTypeOutside)
+			{
+				return;
+			}
+
+			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
 				if (!actor->is_linked())
 				{
@@ -257,7 +263,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	pFrame->QueryEntity(frustum, &cb);
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 
-	if (pFrame->GetActiveView() == this && (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
+	if (pFrame->GetActiveView() == this && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 	{
 		CMainFrame::ViewedActorSet::iterator actor_iter = cb.insert_actor_iter;
 		for (; actor_iter != pFrame->m_ViewedActors.end(); )

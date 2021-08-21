@@ -24,6 +24,9 @@ class CEnvironmentWnd : public CDockablePane
 		CameraPropertyFov,
 		CameraPropertyLookAt,
 		CameraPropertyEuler,
+		CameraPropertyNearZ,
+		CameraPropertyFarZ,
+		CameraPropertyViewedDist,
 	};
 
 	enum SkyBoxProperty

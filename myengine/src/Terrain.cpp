@@ -612,7 +612,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
-			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
 				chunk->m_Lod[0] = terrain->CalculateLod(*chunk->m_OctAabb, LocalViewPos);
 			}
@@ -636,7 +636,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				return;
 			}
 
-			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
 				if (!chunk->is_linked())
 				{
@@ -682,7 +682,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				return;
 			}
 
-			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
 				chunk->m_Lod[1] = terrain->CalculateLod(*terrain->m_Chunks[chunk->m_Row][Max(chunk->m_Col - 1, 0)].m_OctAabb, LocalViewPos);
 				chunk->m_Lod[2] = terrain->CalculateLod(*terrain->m_Chunks[Max(chunk->m_Row - 1, 0)][chunk->m_Col].m_OctAabb, LocalViewPos);
@@ -726,7 +726,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		QueryEntity(LocalFrustum, &cb);
 		m_rootIb.Unlock();
 
-		if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
 			int LastLod = _Quad(m_ChunkSize, m_MinLodChunkSize);
 			float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod), 2.0);

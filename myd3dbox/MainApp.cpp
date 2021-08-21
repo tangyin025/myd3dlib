@@ -30,7 +30,6 @@ END_MESSAGE_MAP()
 
 CMainApp::CMainApp()
 {
-	max_editable_particle_count = 10;
 	technique_RenderSceneColor = NULL;
 	handle_MeshColor = NULL;
 	m_bNeedDraw = FALSE;
@@ -362,6 +361,7 @@ BOOL CMainApp::InitInstance()
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("..\\demo2_3\\Media")("Media"), ""), "Path")
 		("default_fov", boost::program_options::value(&default_fov)->default_value(75.0f), "Default fov")
+		("default_viewed_dist", boost::program_options::value(&default_viewed_dist)->default_value(1000.0f), "Default viewed dist")
 		("default_load_shader_cache", boost::program_options::value(&default_load_shader_cache)->default_value(true), "Default load shader cache")
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/wqy-microhei.ttc"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
@@ -497,7 +497,6 @@ BOOL CMainApp::InitInstance()
 		("default_listbox_scrollbar_img", boost::program_options::value(&default_listbox_scrollbar_img)->default_value("texture/CommonUI.png"), "Default listbox scrollbar img")
 		("default_listbox_scrollbar_img_rect", boost::program_options::value<my::Rectangle>(&default_listbox_scrollbar_img_rect)->default_value(my::Rectangle::LeftTop(1, 43, 16, 16), ""), "Default listbox scrollbar img rect")
 		("default_listbox_scrollbar_img_border", boost::program_options::value<my::Vector4>(&default_listbox_scrollbar_img_border)->default_value(my::Vector4(7, 7, 7, 7), ""), "Default listbox scrollbar img border")
-		("max_editable_particle_count", boost::program_options::value(&max_editable_particle_count)->default_value(10), "Max editable particle count")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);

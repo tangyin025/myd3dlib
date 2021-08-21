@@ -1,6 +1,6 @@
 collectionObjs=CollectionObjMap()
 acts={}
-local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),128,128,64,2)
+local terrain=Terrain(NamedObject.MakeUniqueName("editor_terrain"),1,1,64,2)
 terrain.ChunkPath="terrain/chunk_123456"
 local tstr=TerrainStream(terrain)
 tstr:GetPos(0,0)
@@ -36,7 +36,8 @@ theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
 
 table.insert(acts,act)
 local cache=theApp:LoadMesh("mesh/Gear.mesh.xml","")
-for i=1,300000,1 do
+-- for i=1,300000,1 do
+for i=1,300,1 do
 	local mesh_cmp=MeshComponent(NamedObject.MakeUniqueName("editor_mesh_cmp"))
 	mesh_cmp.MeshPath="mesh/Gear.mesh.xml"
 	mesh_cmp.MeshSubMeshId=0
@@ -44,9 +45,9 @@ for i=1,300000,1 do
 	mesh_cmp.Material.Shader="shader/mtl_BlinnPhong.fx"
 	mesh_cmp.Material:ParseShaderParameters()
 	local act=Actor(NamedObject.MakeUniqueName("editor_act"),Vector3(
-		math.random(act.OctAabb.min.x,act.OctAabb.max.x),
+		math.random(-4000,4000),
 		math.random(0,100),
-		math.random(act.OctAabb.min.x,act.OctAabb.max.x)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+		math.random(-4000,4000)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 	act:AddComponent(mesh_cmp)
 	-- act:CreateRigidActor(Actor.eRIGID_STATIC)
 	-- mesh_cmp:CreateTriangleMeshShape(false,collectionObjs)

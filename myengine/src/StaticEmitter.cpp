@@ -235,7 +235,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
-			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
 				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(*chunk->m_OctAabb, LocalViewPos);
 			}
@@ -245,7 +245,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 				return;
 			}
 
-			if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
 				if (!chunk->is_linked())
 				{
@@ -285,7 +285,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 	Callback cb(pipeline, PassMask, LocalViewPos, this);
 	QueryEntity(LocalFrustum, &cb);
 
-	if (PassMask | RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
 		const float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1), 2.0);
 		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;

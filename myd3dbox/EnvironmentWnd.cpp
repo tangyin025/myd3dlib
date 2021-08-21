@@ -76,7 +76,7 @@ void CEnvironmentWnd::SetPropListFont(void)
 void CEnvironmentWnd::InitPropList()
 {
 	m_wndPropList.EnableHeaderCtrl(FALSE);
-	m_wndPropList.EnableDescriptionArea(FALSE);
+	m_wndPropList.EnableDescriptionArea(TRUE);
 	m_wndPropList.SetVSDotNetLook();
 	m_wndPropList.MarkModifiedProperties();
 
@@ -102,6 +102,13 @@ void CEnvironmentWnd::InitPropList()
 	pEuler->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEuler->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pNearZ = new CSimpleProp(_T("NearZ"), (_variant_t)0.0f, NULL, CameraPropertyNearZ);
+	pCamera->AddSubItem(pNearZ);
+	CMFCPropertyGridProperty* pFarZ = new CSimpleProp(_T("FarZ"), (_variant_t)0.0f, NULL, CameraPropertyFarZ);
+	pCamera->AddSubItem(pFarZ);
+	CMFCPropertyGridProperty* pViewedDist = new CSimpleProp(_T("ViewedDist"), (_variant_t)0.0f, NULL, CameraPropertyViewedDist);
+	pCamera->AddSubItem(pViewedDist);
 
 	CMFCPropertyGridProperty * pSkyLight = new CSimpleProp(_T("SkyLight"), PropertySkyLight, FALSE);
 	m_wndPropList.AddProperty(pSkyLight, FALSE, FALSE);
@@ -192,6 +199,10 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.x));
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.y));
 	pCamera->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Euler.z));
+
+	pCamera->GetSubItem(CameraPropertyNearZ)->SetValue((_variant_t)camera_prop_arg->pView->m_Camera->m_Nz);
+	pCamera->GetSubItem(CameraPropertyFarZ)->SetValue((_variant_t)camera_prop_arg->pView->m_Camera->m_Fz);
+	pCamera->GetSubItem(CameraPropertyViewedDist)->SetValue((_variant_t)camera_prop_arg->pView->m_ViewedDist);
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
 	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.x));
@@ -325,6 +336,9 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+			pView->m_Camera->m_Nz = pTopProp->GetSubItem(CameraPropertyNearZ)->GetValue().fltVal;
+			pView->m_Camera->m_Fz = pTopProp->GetSubItem(CameraPropertyFarZ)->GetValue().fltVal;
+			pView->m_ViewedDist = pTopProp->GetSubItem(CameraPropertyViewedDist)->GetValue().fltVal;
 			pView->m_Camera->UpdateViewProj();
 		}
 		break;
