@@ -406,7 +406,6 @@ Game::Game(void)
 	: OctRoot(-4096, 4096)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
-	, m_ViewedDist(1000.0f)
 	, m_Activated(false)
 {
 	boost::program_options::options_description desc("Options");
@@ -423,6 +422,8 @@ Game::Game(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
+		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
+		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
@@ -627,6 +628,7 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("ViewedCenter", &Game::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Game::m_ViewedDist)
+			.def_readwrite("ViewedDistDiff", &Game::m_ViewedDistDiff)
 			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -882,7 +884,7 @@ void Game::OnFrameTick(
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor_iter->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + 10.0f));
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor_iter->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + m_ViewedDistDiff));
 		if (intersect_type == IntersectionTests::IntersectionTypeOutside)
 		{
 			actor_iter->ReleaseResource();

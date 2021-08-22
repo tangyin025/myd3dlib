@@ -132,6 +132,8 @@ public:
 
 	float m_ViewedDist;
 
+	float m_ViewedDistDiff;
+
 	typedef boost::intrusive::list<Actor> ViewedActorSet;
 
 	ViewedActorSet m_ViewedActors;
