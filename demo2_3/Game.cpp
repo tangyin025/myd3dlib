@@ -339,7 +339,8 @@ void SceneContextRequest::LoadResource(void)
 
 void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if (boost::dynamic_pointer_cast<SceneContext>(m_res)->m_ActorList.empty())
+	if (boost::dynamic_pointer_cast<SceneContext>(m_res)->m_ActorList.empty()
+		&& boost::dynamic_pointer_cast<SceneContext>(m_res)->m_DialogList.empty())
 	{
 		m_res.reset();
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
@@ -351,22 +352,29 @@ std::string SceneContextRequest::BuildKey(const char* path)
 	return path;
 }
 
-struct GameStateScript : GameState, luabind::wrap_base
+struct StateBaseScript : StateBase, luabind::wrap_base
 {
-	GameStateScript(void)
+	StateBaseScript(void)
 	{
 	}
 
-	virtual ~GameStateScript(void)
+	virtual ~StateBaseScript(void)
 	{
 	}
 
 	virtual void OnAdd(void)
 	{
-		luabind::wrap_base::call<void>("OnAdd");
+		try
+		{
+			luabind::wrap_base::call<void>("OnAdd");
+		}
+		catch (luabind::error & e)
+		{
+			Game::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
-	static void default_OnAdd(GameState * state)
+	static void default_OnAdd(StateBase * state)
 	{
 		state->OnAdd();
 	}
@@ -376,7 +384,7 @@ struct GameStateScript : GameState, luabind::wrap_base
 		luabind::wrap_base::call<void>("OnEnter");
 	}
 
-	static void default_OnEnter(GameState * state)
+	static void default_OnEnter(StateBase * state)
 	{
 		state->OnEnter();
 	}
@@ -386,7 +394,7 @@ struct GameStateScript : GameState, luabind::wrap_base
 		luabind::wrap_base::call<void>("OnExit");
 	}
 
-	static void default_OnExit(GameState * state)
+	static void default_OnExit(StateBase * state)
 	{
 		state->OnExit();
 	}
@@ -396,7 +404,7 @@ struct GameStateScript : GameState, luabind::wrap_base
 		luabind::wrap_base::call<void>("OnTick", fElapsedTime);
 	}
 
-	static void default_OnTick(GameState * state, float fElapsedTime)
+	static void default_OnTick(StateBase * state, float fElapsedTime)
 	{
 		state->OnTick(fElapsedTime);
 	}
@@ -451,7 +459,7 @@ Game::Game(void)
 		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
 
-	::ShowCursor(FALSE);
+	//::ShowCursor(FALSE);
 }
 
 Game::~Game(void)
@@ -597,12 +605,12 @@ HRESULT Game::OnCreateDevice(
 			.def_readonly("ActorList", &SceneContext::m_ActorList, luabind::return_stl_iterator)
 			.def_readonly("DialogList", &SceneContext::m_DialogList, luabind::return_stl_iterator)
 
-		, luabind::class_<GameState, GameStateScript, boost::shared_ptr<GameState> >("GameState")
+		, luabind::class_<StateBase, StateBaseScript, boost::shared_ptr<StateBase> >("StateBase")
 			.def(luabind::constructor<>())
-			.def("OnAdd", &GameState::OnAdd, &GameStateScript::default_OnAdd)
-			.def("OnEnter", &GameState::OnEnter, &GameStateScript::default_OnEnter)
-			.def("OnExit", &GameState::OnExit, &GameStateScript::default_OnExit)
-			.def("OnTick", &GameState::OnTick, &GameStateScript::default_OnTick)
+			.def("OnAdd", &StateBase::OnAdd, &StateBaseScript::default_OnAdd)
+			.def("OnEnter", &StateBase::OnEnter, &StateBaseScript::default_OnEnter)
+			.def("OnExit", &StateBase::OnExit, &StateBaseScript::default_OnExit)
+			.def("OnTick", &StateBase::OnTick, &StateBaseScript::default_OnTick)
 
 		, luabind::class_<Game, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Game")
 			.def_readonly("wnd", &Game::m_wnd)
@@ -639,13 +647,14 @@ HRESULT Game::OnCreateDevice(
 			.def("AddEntity", &Game::AddEntity)
 			.def("RemoveEntity", &Game::RemoveEntity)
 			.def("ClearAllEntity", &Game::ClearAllEntity)
-			.def("AddState", (void(my::StateChart<GameState, std::string>::*)(GameState *))&Game::AddState)
-			.def("AddState", (void(Game::*)(GameState *, GameState *))&Game::AddState)
+			.def("AddState", (void(my::StateChart<StateBase, std::string>::*)(StateBase *))&Game::AddState)
+			.def("AddState", (void(Game::*)(StateBase *, StateBase *))&Game::AddState)
 			.def("AddTransition", &Game::AddTransition)
 			.def("ProcessEvent", &Game::ProcessEvent)
 			.def("ClearAllState", &Game::ClearAllState)
-			.def("OnControlSound", &Game::OnControlSound)
 			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
+			.def("LoadScene", &Game::LoadScene)
+			.def("OnControlSound", &Game::OnControlSound)
 
 		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -752,13 +761,13 @@ void Game::OnDestroyDevice(void)
 
 	ParallelTaskManager::StopParallelThread();
 
+	ClearAllState();
+
 	ClearAllEntity();
 
 	RemoveAllDlg();
 
 	RemoveAllTimer();
-
-	ClearAllState();
 
 	m_SimpleSample.reset();
 
@@ -782,7 +791,7 @@ void Game::OnDestroyDevice(void)
 
 	InputMgr::Destroy();
 
-	::ClipCursor(NULL);
+	//::ClipCursor(NULL);
 
 	DxutApp::OnDestroyDevice();
 }
@@ -810,7 +819,7 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
-	GameState * curr_iter = m_Current;
+	StateBase * curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
 		curr_iter->OnTick(fElapsedTime);
@@ -1045,18 +1054,18 @@ LRESULT Game::MsgProc(
 		{
 			m_Activated = true;
 
-			CURSORINFO pci;
-			pci.cbSize = sizeof(CURSORINFO);
-			::GetCursorInfo(&pci);
-			if (Control::s_FocusControl)
-			{
-				::ClipCursor(NULL);
-			}
-			else
-			{
-				CRect rc(pci.ptScreenPos, CSize(1, 1));
-				::ClipCursor(&rc);
-			}
+			//CURSORINFO pci;
+			//pci.cbSize = sizeof(CURSORINFO);
+			//::GetCursorInfo(&pci);
+			//if (Control::s_FocusControl)
+			//{
+			//	::ClipCursor(NULL);
+			//}
+			//else
+			//{
+			//	CRect rc(pci.ptScreenPos, CSize(1, 1));
+			//	::ClipCursor(&rc);
+			//}
 		}
 		else
 		{
@@ -1193,18 +1202,38 @@ void Game::OnControlSound(const char * name)
 
 void Game::OnControlFocus(bool bFocus)
 {
-	CURSORINFO pci;
-	pci.cbSize = sizeof(CURSORINFO);
-	::GetCursorInfo(&pci);
-	if (Control::s_FocusControl)
+	//CURSORINFO pci;
+	//pci.cbSize = sizeof(CURSORINFO);
+	//::GetCursorInfo(&pci);
+	//if (Control::s_FocusControl)
+	//{
+	//	::ClipCursor(NULL);
+	//	::ShowCursor(TRUE);
+	//}
+	//else
+	//{
+	//	CRect rc(pci.ptScreenPos, CSize(1, 1));
+	//	::ClipCursor(&rc);
+	//	::ShowCursor(FALSE);
+	//}
+}
+
+class SimpleResourceCallback
+{
+public:
+	DeviceResourceBasePtr m_res;
+
+	void OnResourceReady(DeviceResourceBasePtr res)
 	{
-		::ClipCursor(NULL);
-		::ShowCursor(TRUE);
+		m_res = res;
 	}
-	else
-	{
-		CRect rc(pci.ptScreenPos, CSize(1, 1));
-		::ClipCursor(&rc);
-		::ShowCursor(FALSE);
-	}
+};
+
+boost::intrusive_ptr<SceneContext> Game::LoadScene(const char * path, const char * prefix)
+{
+	std::string key = SceneContextRequest::BuildKey(path);
+	SimpleResourceCallback cb;
+	IORequestPtr request(new SceneContextRequest(path, prefix, INT_MAX));
+	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
+	return boost::dynamic_pointer_cast<SceneContext>(cb.m_res);
 }

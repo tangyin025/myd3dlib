@@ -60,11 +60,11 @@ public:
 	static std::string SceneContextRequest::BuildKey(const char* path);
 };
 
-class GameState
-	: public my::StateChart<GameState, std::string>
+class StateBase
+	: public my::StateChart<StateBase, std::string>
 {
 public:
-	GameState(void)
+	StateBase(void)
 	{
 	}
 
@@ -85,7 +85,7 @@ public:
 	}
 };
 
-typedef boost::shared_ptr<GameState> GameStatePtr;
+typedef boost::shared_ptr<StateBase> StateBasePtr;
 
 class Game
 	: public my::DxutApp
@@ -97,7 +97,7 @@ class Game
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 	, public my::OctRoot
-	, public my::StateChart<GameState, std::string>
+	, public my::StateChart<StateBase, std::string>
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
@@ -218,10 +218,12 @@ public:
 	virtual void OnControlFocus(bool bFocus);
 
 	template <typename T>
-	void LoadSceneAsync(const char* path, const char* prefix, const T& callback, int Priority = 0)
+	void LoadSceneAsync(const char * path, const char * prefix, const T & callback, int Priority = 0)
 	{
 		std::string key = SceneContextRequest::BuildKey(path);
 		IORequestPtr request(new SceneContextRequest(path, prefix, Priority));
 		LoadIORequestAsync(key, request, callback);
 	}
+
+	boost::intrusive_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 };
