@@ -1533,6 +1533,43 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 
 			if (my::Rectangle(
+				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
+				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
+				pFrame->m_selctl->m_Rect.b - ctl_handle_size).PtInRect(pt))
+			{
+				my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+				my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
+				for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
+				{
+					my::Vector2 pt;
+					if ((*dlg_iter)->RayToWorld(ui_ray, pt))
+					{
+						my::Control* ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
+						if (ControlPtd)
+						{
+							if (ControlPtd != pFrame->m_selctl)
+								goto ctrl_handle_end;
+							break;
+						}
+					}
+				}
+
+				pFrame->m_selactors.clear();
+				pFrame->m_selcmp = NULL;
+				pFrame->m_selchunkid.SetPoint(0, 0);
+				pFrame->m_selinstid = 0;
+				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterMiddle;
+				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
+				pFrame->m_ctlhandlesz.x = pt.x - pFrame->m_selctl->m_Width.offset;
+				pFrame->m_ctlhandlesz.y = pt.y - pFrame->m_selctl->m_Height.offset;
+				SetCapture();
+				Invalidate();
+				return;
+			}
+
+			if (my::Rectangle(
 				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
 				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
 				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
@@ -1613,35 +1650,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		}
 	}
-
-	{
-		my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
-		for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
-		{
-			my::Vector2 pt;
-			if ((*dlg_iter)->RayToWorld(ui_ray, pt))
-			{
-				my::Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
-				if (ControlPtd)
-				{
-					pFrame->m_selactors.clear();
-					pFrame->m_selcmp = NULL;
-					pFrame->m_selchunkid.SetPoint(0, 0);
-					pFrame->m_selinstid = 0;
-					pFrame->m_selctl = ControlPtd;
-					pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterMiddle;
-					pFrame->m_ctlhandleoff.x = pt.x - ControlPtd->m_x.offset;
-					pFrame->m_ctlhandleoff.y = pt.y - ControlPtd->m_y.offset;
-					pFrame->m_ctlhandlesz.x = pt.x - ControlPtd->m_Width.offset;
-					pFrame->m_ctlhandlesz.y = pt.y - ControlPtd->m_Height.offset;
-					SetCapture();
-					pFrame->OnSelChanged();
-					return;
-				}
-			}
-		}
-	}
+ctrl_handle_end:
 
 	CRectTracker tracker;
 	tracker.TrackRubberBand(this, point, TRUE);
@@ -1694,6 +1703,28 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
+		my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
+		for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
+		{
+			my::Vector2 pt;
+			if ((*dlg_iter)->RayToWorld(ui_ray, pt))
+			{
+				my::Control* ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
+				if (ControlPtd)
+				{
+					pFrame->m_selactors.clear();
+					pFrame->m_selcmp = NULL;
+					pFrame->m_selchunkid.SetPoint(0, 0);
+					pFrame->m_selinstid = 0;
+					pFrame->m_selctl = ControlPtd;
+					pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
+					pFrame->OnSelChanged();
+					return;
+				}
+			}
+		}
+
 		struct Callback : public my::OctNode::QueryCallback
 		{
 			const my::Ray & ray;
