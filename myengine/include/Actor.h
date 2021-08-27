@@ -4,8 +4,6 @@
 #include "Component.h"
 #include <boost/intrusive/list_hook.hpp>
 
-class Animator;
-
 class Actor;
 
 typedef boost::shared_ptr<Actor> ActorPtr;
@@ -256,5 +254,13 @@ public:
 
 	void StopAllAction(void);
 
-	Animator* GetAnimator(void);
+	Component * GetFirstComponent(Component::ComponentType Type);
+
+	template <typename ComponentType>
+	ComponentType * GetFirstComponent(void);
 };
+
+class Animator;
+
+template <>
+Animator * Actor::GetFirstComponent<Animator>(void);

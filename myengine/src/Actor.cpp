@@ -408,7 +408,7 @@ void Actor::Update(float fElapsedTime)
 
 void Actor::UpdateAttaches(float fElapsedTime)
 {
-	Animator* animator = GetAnimator();
+	Animator* animator = GetFirstComponent<Animator>();
 	AttachPairList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
@@ -770,15 +770,21 @@ void Actor::StopAllAction(void)
 	m_ActionInstList.clear();
 }
 
-Animator* Actor::GetAnimator(void)
+Component * Actor::GetFirstComponent(Component::ComponentType Type)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeAnimator)
+		if ((*cmp_iter)->GetComponentType() == Type)
 		{
-			return dynamic_cast<Animator*>(cmp_iter->get());
+			return cmp_iter->get();
 		}
 	}
 	return NULL;
+}
+
+template <>
+Animator * Actor::GetFirstComponent<Animator>(void)
+{
+	return dynamic_cast<Animator*>(GetFirstComponent(Component::ComponentTypeAnimator));
 }

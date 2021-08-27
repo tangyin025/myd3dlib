@@ -885,7 +885,10 @@ void Client::OnFrameTick(
 			// ! Actor::Update may invalid the main camera's properties
 			actor_iter->Update(fElapsedTime);
 
-			actor_iter->UpdateAttaches(fElapsedTime);
+			if (!actor_iter->m_Attaches.empty())
+			{
+				actor_iter->UpdateAttaches(fElapsedTime);
+			}
 		}
 	}
 

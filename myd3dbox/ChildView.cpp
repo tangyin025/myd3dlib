@@ -299,7 +299,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			if (mesh_cmp->m_Mesh)
 			{
 				D3DXMACRO macro[3] = { {0} };
-				Animator* animator = cmp->m_Actor->GetAnimator();
+				Animator* animator = cmp->m_Actor->GetFirstComponent<Animator>();
 				int j = 0;
 				if (animator && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 				{
@@ -517,7 +517,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			Animator* animator = mesh_cmp->m_Actor->GetAnimator();
+			Animator* animator = mesh_cmp->m_Actor->GetFirstComponent<Animator>();
 			if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
@@ -630,7 +630,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 			{
 				return false;
 			}
-			Animator* animator = cloth_cmp->m_Actor->GetAnimator();
+			Animator* animator = cloth_cmp->m_Actor->GetFirstComponent<Animator>();
 			if (animator && !animator->m_DualQuats.empty() && cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
@@ -760,7 +760,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			Animator* animator = mesh_cmp->m_Actor->GetAnimator();
+			Animator* animator = mesh_cmp->m_Actor->GetFirstComponent<Animator>();
 			if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(mesh_cmp->m_Mesh->GetNumVertices());
@@ -893,7 +893,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			Animator* animator = cloth_cmp->m_Actor->GetAnimator();
+			Animator* animator = cloth_cmp->m_Actor->GetFirstComponent<Animator>();
 			if (animator && !animator->m_DualQuats.empty() && cloth_cmp->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);

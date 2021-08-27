@@ -84,7 +84,7 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 
 	_ASSERT(m_Actor);
 
-	Animator* animator = m_Actor->GetAnimator();
+	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
 	{
 		ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
@@ -108,7 +108,7 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 
 void ActionTrackAnimationInst::Stop(void)
 {
-	Animator* animator = m_Actor->GetAnimator();
+	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
 	{
 		animator->Stop((DWORD_PTR)this);
@@ -244,7 +244,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 
 	m_Actor->AddComponent(m_WorldEmitterCmp);
 
-	Animator* animator = m_Actor->GetAnimator();
+	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
 	{
 		OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = animator->m_Skeleton->m_boneNameMap.find(m_Template->m_AttachBoneName);
@@ -282,7 +282,7 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
-	Animator* animator = m_Actor->GetAnimator();
+	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
