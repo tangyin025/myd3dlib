@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Console.h"
-#include "Game.h"
+#include "Client.h"
 #include <boost/algorithm/string.hpp>
 
 using namespace my;
@@ -186,7 +186,7 @@ Console::Console(void)
 	m_Height = UDim(0, 410);
 	m_Skin.reset(new ControlSkin());
 	m_Skin->m_Color = D3DCOLOR_ARGB(197,0,0,0);
-	m_Skin->m_Font = Game::getSingleton().m_Font;
+	m_Skin->m_Font = Client::getSingleton().m_Font;
 	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
 	m_Skin->m_TextAlign = Font::AlignLeftTop;
 	m_Skin->m_Image.reset(new ControlImage());
@@ -204,7 +204,7 @@ Console::Console(void)
 	m_Edit->m_Border = Vector4(0,0,0,0);
 	m_Edit->m_Skin.reset(new EditBoxSkin());
 	m_Edit->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-	m_Edit->m_Skin->m_Font = Game::getSingleton().m_Font;
+	m_Edit->m_Skin->m_Font = Client::getSingleton().m_Font;
 	m_Edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
 	m_Edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
 	m_Edit->m_Skin->m_Image.reset(new ControlImage());
@@ -230,7 +230,7 @@ Console::Console(void)
 	m_Panel->m_y = UDim(0, Border.y);
 	m_Panel->m_Skin.reset(new ControlSkin());
 	m_Panel->m_Skin->m_Color = D3DCOLOR_ARGB(0,0,0,0);
-	m_Panel->m_Skin->m_Font = Game::getSingleton().m_Font;
+	m_Panel->m_Skin->m_Font = Client::getSingleton().m_Font;
 	m_Panel->m_scrollbar->m_Width = UDim(0, 20);
 	m_Panel->m_scrollbar->m_Height = UDim(0, m_Panel->m_Height.offset);
 	m_Panel->m_scrollbar->m_x = UDim(0, m_Panel->m_Width.offset - m_Panel->m_scrollbar->m_Width.offset);
@@ -257,12 +257,12 @@ Console::Console(void)
 	InsertControl(m_Panel);
 
 	m_strIter = m_strList.end();
-	Game::getSingleton().m_EventLog.connect(boost::bind(&Console::OnEventLog, this, _1));
+	Client::getSingleton().m_EventLog.connect(boost::bind(&Console::OnEventLog, this, _1));
 }
 
 Console::~Console(void)
 {
-	Game::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
+	Client::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
 }
 
 void Console::OnEventEnter(EventArg * arg)
@@ -276,7 +276,7 @@ void Console::OnEventEnter(EventArg * arg)
 		m_strIter = m_strList.end();
 		m_Edit->SetText(L"");
 		m_Panel->AddLine(code, m_Edit->m_Skin->m_TextColor);
-		Game::getSingleton().ExecuteCode(wstou8(code).c_str());
+		Client::getSingleton().ExecuteCode(wstou8(code).c_str());
 	}
 }
 

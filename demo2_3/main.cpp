@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Game.h"
+#include "Client.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -15,7 +15,7 @@ using namespace my;
 // ------------------------------------------------------------------------------------------
 
 class Demo
-	: public Game
+	: public Client
 {
 public:
 	Demo::Demo(void)
@@ -26,7 +26,7 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		if(FAILED(hr = Game::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+		if(FAILED(hr = Client::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;
 		}
@@ -153,7 +153,7 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		if(FAILED(hr = Game::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+		if(FAILED(hr = Client::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;
 		}
@@ -162,12 +162,12 @@ public:
 
 	virtual void OnLostDevice(void)
 	{
-		Game::OnLostDevice();
+		Client::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
-		Game::OnDestroyDevice();
+		Client::OnDestroyDevice();
 	}
 
 	virtual void OnRender(
@@ -187,7 +187,7 @@ public:
 			swprintf_s(&m_ScrInfo[1+PassID][0], m_ScrInfo[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), m_PassDrawCall[PassID]);
 		}
 
-		Game::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
+		Client::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
 	}
 
 	virtual void OnUIRender(
@@ -208,7 +208,7 @@ public:
 		//	m_Font->PushString(ui_render, L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
 		//}
 
-		Game::OnUIRender(ui_render, fTime, fElapsedTime);
+		Client::OnUIRender(ui_render, fTime, fElapsedTime);
 	}
 
 	virtual LRESULT MsgProc(
@@ -219,7 +219,7 @@ public:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT lr;
-		if(lr = Game::MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+		if(lr = Client::MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 		{
 			return lr;
 		}

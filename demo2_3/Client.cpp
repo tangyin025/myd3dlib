@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Game.h"
+#include "Client.h"
 #include "Material.h"
 #include "resource.h"
 #include "NavigationSerialization.h"
@@ -56,7 +56,7 @@ public:
 			return hr;
 		}
 
-		m_UIEffect = my::ResourceMgr::getSingleton().LoadEffect(Game::getSingleton().m_InitUIEffect.c_str(), "");
+		m_UIEffect = my::ResourceMgr::getSingleton().LoadEffect(Client::getSingleton().m_InitUIEffect.c_str(), "");
 		if (!m_UIEffect)
 		{
 			return S_FALSE;
@@ -153,10 +153,10 @@ static int lua_print(lua_State * L)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "
 			LUA_QL("print"));
 		if (i>1)
-			Game::getSingleton().puts(L"\t");
+			Client::getSingleton().puts(L"\t");
 		else
-			Game::getSingleton().puts(L"\n");
-		Game::getSingleton().puts(u8tows(s));
+			Client::getSingleton().puts(L"\n");
+		Client::getSingleton().puts(u8tows(s));
 		lua_pop(L, 1);  /* pop result */
 	}
 	return 0;
@@ -222,7 +222,7 @@ static int luaL_loadfile (lua_State *L, const char *filename)
 	//ungetc(c, lf.f);
 	try
 	{
-		lf.stream = Game::getSingleton().OpenIStream(filename);
+		lf.stream = Client::getSingleton().OpenIStream(filename);
 	}
 	catch(const my::Exception & e)
 	{
@@ -281,7 +281,7 @@ static int loader_Lua (lua_State *L) {
 
 static int os_exit(lua_State * L)
 {
-	Game::getSingleton().m_wnd->SendMessage(WM_CLOSE);
+	Client::getSingleton().m_wnd->SendMessage(WM_CLOSE);
 	return 0;
 }
 
@@ -370,7 +370,7 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 		}
 		catch (luabind::error & e)
 		{
-			Game::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			Client::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 		}
 	}
 
@@ -410,7 +410,7 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 	}
 };
 
-Game::Game(void)
+Client::Client(void)
 	: OctRoot(-4096, 4096)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
@@ -462,13 +462,13 @@ Game::Game(void)
 	//::ShowCursor(FALSE);
 }
 
-Game::~Game(void)
+Client::~Client(void)
 {
 	//// ! Must manually call destructors at specific order
 	//OnDestroyDevice();
 }
 
-bool Game::IsDeviceAcceptable(
+bool Client::IsDeviceAcceptable(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,
 	D3DFORMAT BackBufferFormat,
@@ -485,7 +485,7 @@ bool Game::IsDeviceAcceptable(
 	return true;
 }
 
-bool Game::ModifyDeviceSettings(
+bool Client::ModifyDeviceSettings(
 	DXUTD3D9DeviceSettings * pDeviceSettings)
 {
 	D3DCAPS9 caps;
@@ -508,7 +508,7 @@ bool Game::ModifyDeviceSettings(
 	return true;
 }
 
-HRESULT Game::OnCreateDevice(
+HRESULT Client::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
@@ -612,53 +612,53 @@ HRESULT Game::OnCreateDevice(
 			.def("OnExit", &StateBase::OnExit, &StateBaseScript::default_OnExit)
 			.def("OnTick", &StateBase::OnTick, &StateBaseScript::default_OnTick)
 
-		, luabind::class_<Game, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Game")
-			.def_readonly("wnd", &Game::m_wnd)
-			.def_readwrite("Camera", &Game::m_Camera)
-			.def_readonly("SkyLightCam", &Game::m_SkyLightCam)
-			.def_readwrite("SkyLightColor", &Game::m_SkyLightColor)
-			.def_readwrite("AmbientColor", &Game::m_AmbientColor)
-			.def_readwrite("SsaoBias", &Game::m_SsaoBias)
-			.def_readwrite("SsaoIntensity", &Game::m_SsaoIntensity)
-			.def_readwrite("SsaoRadius", &Game::m_SsaoRadius)
-			.def_readwrite("SsaoScale", &Game::m_SsaoScale)
-			.def_readwrite("FogColor", &Game::m_FogColor)
-			.def_readwrite("FogStartDistance", &Game::m_FogStartDistance)
-			.def_readwrite("FogHeight", &Game::m_FogHeight)
-			.def_readwrite("FogFalloff", &Game::m_FogFalloff)
-			.def_readwrite("WireFrame", &Game::m_WireFrame)
-			.def_readwrite("DofEnable", &Game::m_DofEnable)
-			.def_readwrite("DofParams", &Game::m_DofParams)
-			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
-			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
-			.def_readwrite("FogEnable", &Game::m_FogEnable)
-			.def_readonly("Font", &Game::m_Font)
-			.def_readonly("Console", &Game::m_Console)
-			.def_readwrite("ViewedCenter", &Game::m_ViewedCenter)
-			.def_readwrite("ViewedDist", &Game::m_ViewedDist)
-			.def_readwrite("ViewedDistDiff", &Game::m_ViewedDistDiff)
-			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
-			.def("InsertTimer", &Game::InsertTimer)
-			.def("RemoveTimer", &Game::RemoveTimer)
-			.def("RemoveAllTimer", &Game::RemoveAllTimer)
-			.def("InsertDlg", &Game::InsertDlg)
-			.def("RemoveDlg", &Game::RemoveDlg)
-			.def("RemoveAllDlg", &Game::RemoveAllDlg)
-			.def("AddEntity", &Game::AddEntity)
-			.def("RemoveEntity", &Game::RemoveEntity)
-			.def("ClearAllEntity", &Game::ClearAllEntity)
-			.def("AddState", (void(my::StateChart<StateBase, std::string>::*)(StateBase *))&Game::AddState)
-			.def("AddState", (void(Game::*)(StateBase *, StateBase *))&Game::AddState)
-			.def("AddTransition", &Game::AddTransition)
-			.def("ProcessEvent", &Game::ProcessEvent)
-			.def("ClearAllState", &Game::ClearAllState)
-			.def("LoadSceneAsync", &Game::LoadSceneAsync<luabind::object>)
-			.def("LoadScene", &Game::LoadScene)
-			.def("OnControlSound", &Game::OnControlSound)
+		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Client")
+			.def_readonly("wnd", &Client::m_wnd)
+			.def_readwrite("Camera", &Client::m_Camera)
+			.def_readonly("SkyLightCam", &Client::m_SkyLightCam)
+			.def_readwrite("SkyLightColor", &Client::m_SkyLightColor)
+			.def_readwrite("AmbientColor", &Client::m_AmbientColor)
+			.def_readwrite("SsaoBias", &Client::m_SsaoBias)
+			.def_readwrite("SsaoIntensity", &Client::m_SsaoIntensity)
+			.def_readwrite("SsaoRadius", &Client::m_SsaoRadius)
+			.def_readwrite("SsaoScale", &Client::m_SsaoScale)
+			.def_readwrite("FogColor", &Client::m_FogColor)
+			.def_readwrite("FogStartDistance", &Client::m_FogStartDistance)
+			.def_readwrite("FogHeight", &Client::m_FogHeight)
+			.def_readwrite("FogFalloff", &Client::m_FogFalloff)
+			.def_readwrite("WireFrame", &Client::m_WireFrame)
+			.def_readwrite("DofEnable", &Client::m_DofEnable)
+			.def_readwrite("DofParams", &Client::m_DofParams)
+			.def_readwrite("FxaaEnable", &Client::m_FxaaEnable)
+			.def_readwrite("SsaoEnable", &Client::m_SsaoEnable)
+			.def_readwrite("FogEnable", &Client::m_FogEnable)
+			.def_readonly("Font", &Client::m_Font)
+			.def_readonly("Console", &Client::m_Console)
+			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
+			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
+			.def_readwrite("ViewedDistDiff", &Client::m_ViewedDistDiff)
+			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
+			.def("InsertTimer", &Client::InsertTimer)
+			.def("RemoveTimer", &Client::RemoveTimer)
+			.def("RemoveAllTimer", &Client::RemoveAllTimer)
+			.def("InsertDlg", &Client::InsertDlg)
+			.def("RemoveDlg", &Client::RemoveDlg)
+			.def("RemoveAllDlg", &Client::RemoveAllDlg)
+			.def("AddEntity", &Client::AddEntity)
+			.def("RemoveEntity", &Client::RemoveEntity)
+			.def("ClearAllEntity", &Client::ClearAllEntity)
+			.def("AddState", (void(my::StateChart<StateBase, std::string>::*)(StateBase *))&Client::AddState)
+			.def("AddState", (void(Client::*)(StateBase *, StateBase *))&Client::AddState)
+			.def("AddTransition", &Client::AddTransition)
+			.def("ProcessEvent", &Client::ProcessEvent)
+			.def("ClearAllState", &Client::ClearAllState)
+			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
+			.def("LoadScene", &Client::LoadScene)
+			.def("OnControlSound", &Client::OnControlSound)
 
 		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
-	luabind::globals(m_State)["game"] = this;
+	luabind::globals(m_State)["client"] = this;
 
 	m_Console->SetVisible(!ExecuteCode(m_InitScript.c_str()));
 
@@ -669,16 +669,16 @@ HRESULT Game::OnCreateDevice(
 		m_Console->SetFocusRecursive();
 	}
 
-	m_EventLog("Game::OnCreateDevice");
+	m_EventLog("Client::OnCreateDevice");
 
 	return S_OK;
 }
 
-HRESULT Game::OnResetDevice(
+HRESULT Client::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_EventLog("Game::OnResetDevice");
+	m_EventLog("Client::OnResetDevice");
 
 	m_Camera->m_Aspect = (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height;
 
@@ -729,9 +729,9 @@ HRESULT Game::OnResetDevice(
 	return S_OK;
 }
 
-void Game::OnLostDevice(void)
+void Client::OnLostDevice(void)
 {
-	m_EventLog("Game::OnLostDevice");
+	m_EventLog("Client::OnLostDevice");
 
 	m_NormalRT->OnDestroyDevice();
 
@@ -755,9 +755,9 @@ void Game::OnLostDevice(void)
 	DxutApp::OnLostDevice();
 }
 
-void Game::OnDestroyDevice(void)
+void Client::OnDestroyDevice(void)
 {
-	m_EventLog("Game::OnDestroyDevice");
+	m_EventLog("Client::OnDestroyDevice");
 
 	ParallelTaskManager::StopParallelThread();
 
@@ -796,7 +796,7 @@ void Game::OnDestroyDevice(void)
 	DxutApp::OnDestroyDevice();
 }
 
-void Game::OnFrameTick(
+void Client::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
@@ -827,16 +827,16 @@ void Game::OnFrameTick(
 
 	struct Callback : public OctNode::QueryCallback
 	{
-		Game* m_game;
+		Client* m_client;
 
 		AABB m_aabb;
 
 		ViewedActorSet::iterator insert_actor_iter;
 
-		Callback(Game* game, const AABB& aabb)
-			: m_game(game)
+		Callback(Client* client, const AABB& aabb)
+			: m_client(client)
 			, m_aabb(aabb)
-			, insert_actor_iter(game->m_ViewedActors.begin())
+			, insert_actor_iter(client->m_ViewedActors.begin())
 		{
 		}
 
@@ -850,20 +850,20 @@ void Game::OnFrameTick(
 
 				actor->RequestResource();
 
-				m_game->m_ViewedActors.insert(insert_actor_iter, *actor);
+				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
 			else
 			{
-				ViewedActorSet::iterator actor_iter = m_game->m_ViewedActors.iterator_to(*actor);
+				ViewedActorSet::iterator actor_iter = m_client->m_ViewedActors.iterator_to(*actor);
 				if (actor_iter != insert_actor_iter)
 				{
-					m_game->m_ViewedActors.erase(actor_iter);
+					m_client->m_ViewedActors.erase(actor_iter);
 
-					m_game->m_ViewedActors.insert(insert_actor_iter, *actor);
+					m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 				}
 				else
 				{
-					_ASSERT(insert_actor_iter != m_game->m_ViewedActors.end());
+					_ASSERT(insert_actor_iter != m_client->m_ViewedActors.end());
 
 					insert_actor_iter++;
 				}
@@ -999,7 +999,7 @@ void Game::OnFrameTick(
 	EnterDeviceSection();
 }
 
-void Game::OnRender(
+void Client::OnRender(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 	IRenderContext * pRC,
@@ -1009,7 +1009,7 @@ void Game::OnRender(
 	RenderPipeline::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
 }
 
-void Game::OnUIRender(
+void Client::OnUIRender(
 	my::UIRender * ui_render,
 	double fTime,
 	float fElapsedTime)
@@ -1025,7 +1025,7 @@ void Game::OnUIRender(
 	ui_render->Flush();
 }
 
-LRESULT Game::MsgProc(
+LRESULT Client::MsgProc(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,
@@ -1101,7 +1101,7 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-void Game::puts(const std::wstring & str)
+void Client::puts(const std::wstring & str)
 {
 	if (m_Console)
 	{
@@ -1109,9 +1109,9 @@ void Game::puts(const std::wstring & str)
 	}
 }
 
-bool Game::ExecuteCode(const char * code) throw()
+bool Client::ExecuteCode(const char * code) throw()
 {
-	if(dostring(code, "Game::ExecuteCode") && !lua_isnil(m_State, -1))
+	if(dostring(code, "Client::ExecuteCode") && !lua_isnil(m_State, -1))
 	{
 		std::string msg = lua_tostring(m_State, -1);
 		if(msg.empty())
@@ -1125,7 +1125,7 @@ bool Game::ExecuteCode(const char * code) throw()
 	return true;
 }
 
-void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -1162,12 +1162,12 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, m_ViewedActors));
 }
 
-void Game::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)
+void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)
 {
 	OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
-bool Game::RemoveEntity(my::OctEntity * entity)
+bool Client::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
@@ -1193,14 +1193,14 @@ bool Game::RemoveEntity(my::OctEntity * entity)
 	return OctNode::RemoveEntity(entity);
 }
 
-void Game::OnControlSound(const char * name)
+void Client::OnControlSound(const char * name)
 {
 	FMOD::Event       *event;
 	ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
 	ERRCHECK(result = event->start());
 }
 
-void Game::OnControlFocus(bool bFocus)
+void Client::OnControlFocus(bool bFocus)
 {
 	//CURSORINFO pci;
 	//pci.cbSize = sizeof(CURSORINFO);
@@ -1229,7 +1229,7 @@ public:
 	}
 };
 
-boost::intrusive_ptr<SceneContext> Game::LoadScene(const char * path, const char * prefix)
+boost::intrusive_ptr<SceneContext> Client::LoadScene(const char * path, const char * prefix)
 {
 	std::string key = SceneContextRequest::BuildKey(path);
 	SimpleResourceCallback cb;

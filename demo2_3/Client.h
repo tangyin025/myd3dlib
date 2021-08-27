@@ -87,7 +87,7 @@ public:
 
 typedef boost::shared_ptr<StateBase> StateBasePtr;
 
-class Game
+class Client
 	: public my::DxutApp
 	, public my::TimerMgr
 	, public my::FontLibrary
@@ -145,18 +145,18 @@ public:
 	ActivateEvent m_ActivateEvent;
 
 public:
-	Game(void);
+	Client(void);
 
-	virtual ~Game(void);
+	virtual ~Client(void);
 
-	static Game & getSingleton(void)
+	static Client & getSingleton(void)
 	{
 		return *getSingletonPtr();
 	}
 
-	static Game * getSingletonPtr(void)
+	static Client * getSingletonPtr(void)
 	{
-		return static_cast<Game *>(DxutApp::getSingletonPtr());
+		return static_cast<Client *>(DxutApp::getSingletonPtr());
 	}
 
 	virtual bool IsDeviceAcceptable(
