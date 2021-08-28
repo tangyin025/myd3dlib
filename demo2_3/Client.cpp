@@ -364,14 +364,7 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 
 	virtual void OnAdd(void)
 	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnAdd");
-		}
-		catch (luabind::error & e)
-		{
-			Client::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
+		luabind::wrap_base::call<void>("OnAdd");
 	}
 
 	static void default_OnAdd(StateBase * state)

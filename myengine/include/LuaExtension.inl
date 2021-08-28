@@ -62,8 +62,7 @@ namespace luabind
 					}
 					catch (const luabind::error & e)
 					{
-						const char * p = lua_tostring(e.state(), -1);
-						my::D3DContext::getSingleton().m_EventLog(p);
+						my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 					}
 				}
 			};
