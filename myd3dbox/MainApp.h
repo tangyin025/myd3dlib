@@ -42,6 +42,7 @@ public:
 	std::string default_specular_texture;
 	std::string default_shader;
 	std::string default_terrain_shader;
+	D3DCOLOR default_dialog_color;
 	std::string default_dialog_img;
 	my::Rectangle default_dialog_img_rect;
 	my::Vector4 default_dialog_img_border;
@@ -70,6 +71,7 @@ public:
 	std::string default_button_mouseoverimg;
 	my::Rectangle default_button_mouseoverimg_rect;
 	my::Vector4 default_button_mouseoverimg_border;
+	D3DCOLOR default_editbox_color;
 	D3DCOLOR default_editbox_text_color;
 	my::Font::Align default_editbox_text_align;
 	std::string default_editbox_img;
