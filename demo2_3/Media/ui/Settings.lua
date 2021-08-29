@@ -1,4 +1,3 @@
-require "CommonUI.lua"
 module("Settings",package.seeall)
 
 dlg=Dialog("Settings")
@@ -6,7 +5,13 @@ dlg.x=UDim(0.5,-320)
 dlg.y=UDim(0.5,-240)
 dlg.Width=UDim(0,640)
 dlg.Height=UDim(0,480)
-dlg.Skin=CommonUI.com_dlg_skin:Clone()
+dlg.Skin=DialogSkin()
+dlg.Skin.Color=ARGB(150,0,0,0)
+dlg.Skin.VisibleShowSound="demo2_3/untitled/15"
+dlg.Skin.Image=ControlImage()
+dlg.Skin.Image.TexturePath="texture/CommonUI.png"
+dlg.Skin.Image.Rect=Rectangle.LeftTop(158,43,2,2)
+dlg.Skin.Image.Border=Vector4(0,0,0,0)
 
 local lbl_title=Control(NamedObject.MakeUniqueName("control"))
 lbl_title.x=UDim(0,17)
@@ -26,7 +31,29 @@ btn_ok.y=UDim(0,439)
 btn_ok.Width=UDim(0,80)
 btn_ok.Height=UDim(0,32)
 btn_ok.Text="OK"
-btn_ok.Skin=CommonUI.com_btn_skin:Clone()
+btn_ok.Skin=ButtonSkin()
+btn_ok.Skin.Image=ControlImage()
+btn_ok.Skin.Image.TexturePath="texture/CommonUI.png"
+btn_ok.Skin.Image.Rect=Rectangle.LeftTop(52,43,16,16)
+btn_ok.Skin.Image.Border=Vector4(7,7,7,7)
+btn_ok.Skin.FontPath="font/wqy-microhei.ttc"
+btn_ok.Skin.FontHeight=13
+btn_ok.Skin.FontFaceIndex=0
+btn_ok.Skin.TextColor=ARGB(255,255,255,255)
+btn_ok.Skin.TextAlign=Font.AlignCenterMiddle
+btn_ok.Skin.PressedOffset=Vector2(1,2)
+btn_ok.Skin.DisabledImage=ControlImage()
+btn_ok.Skin.DisabledImage.TexturePath="texture/CommonUI.png"
+btn_ok.Skin.DisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
+btn_ok.Skin.DisabledImage.Border=Vector4(7,7,7,7)
+btn_ok.Skin.PressedImage=ControlImage()
+btn_ok.Skin.PressedImage.TexturePath="texture/CommonUI.png"
+btn_ok.Skin.PressedImage.Rect=Rectangle.LeftTop(18,43,16,16)
+btn_ok.Skin.PressedImage.Border=Vector4(7,7,7,7)
+btn_ok.Skin.MouseOverImage=ControlImage()
+btn_ok.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
+btn_ok.Skin.MouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)
+btn_ok.Skin.MouseOverImage.Border=Vector4(7,7,7,7)
 dlg:InsertControl(btn_ok)
 
 local btn_cancel=Button("btn_cancel")
@@ -35,7 +62,7 @@ btn_cancel.y=UDim(0,439)
 btn_cancel.Width=UDim(0,80)
 btn_cancel.Height=UDim(0,32)
 btn_cancel.Text="Cancel"
-btn_cancel.Skin=CommonUI.com_btn_skin:Clone()
+btn_cancel.Skin=btn_ok.Skin:Clone()
 dlg:InsertControl(btn_cancel)
 
 local item_y=390
@@ -46,7 +73,11 @@ lbl_vertical_sync.y=UDim(0,item_y)
 lbl_vertical_sync.Width=UDim(0,190)
 lbl_vertical_sync.Height=UDim(0,22)
 lbl_vertical_sync.Text="Vertical Sync"
-lbl_vertical_sync.Skin=CommonUI.com_lbl_skin:Clone()
+lbl_vertical_sync.Skin=ControlSkin()
+lbl_vertical_sync.Skin.FontPath="font/wqy-microhei.ttc"
+lbl_vertical_sync.Skin.FontHeight=13
+lbl_vertical_sync.Skin.FontFaceIndex=0
+lbl_vertical_sync.Skin.TextColor=ARGB(255,255,255,255)
 lbl_vertical_sync.Skin.TextAlign=Font.AlignRightMiddle
 dlg:InsertControl(lbl_vertical_sync)
 
@@ -59,7 +90,63 @@ cbx_vertical_sync.ScrollbarWidth=20
 cbx_vertical_sync.DropdownSize=Vector2(304-20,130)
 cbx_vertical_sync.Border=Vector4(20,0,20,0)
 cbx_vertical_sync.ItemHeight=22
-cbx_vertical_sync.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_vertical_sync.Skin=ComboBoxSkin()
+cbx_vertical_sync.Skin.Image=ControlImage()
+cbx_vertical_sync.Skin.Image.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.Image.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.Skin.Image.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.FontPath="font/wqy-microhei.ttc"
+cbx_vertical_sync.Skin.FontHeight=13
+cbx_vertical_sync.Skin.FontFaceIndex=0
+cbx_vertical_sync.Skin.TextColor=ARGB(255,255,255,255)
+cbx_vertical_sync.Skin.TextAlign=Font.AlignCenterMiddle
+cbx_vertical_sync.Skin.PressedOffset=Vector2(1,2)
+cbx_vertical_sync.Skin.DisabledImage=ControlImage()
+cbx_vertical_sync.Skin.DisabledImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.DisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.Skin.DisabledImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.PressedImage=ControlImage()
+cbx_vertical_sync.Skin.PressedImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.PressedImage.Rect=Rectangle.LeftTop(18,43,16,16)
+cbx_vertical_sync.Skin.PressedImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.MouseOverImage=ControlImage()
+cbx_vertical_sync.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.MouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)
+cbx_vertical_sync.Skin.MouseOverImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.DropdownImage=ControlImage()
+cbx_vertical_sync.Skin.DropdownImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.DropdownImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.Skin.DropdownImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.DropdownItemTextColor=ARGB(255,255,255,255)
+cbx_vertical_sync.Skin.DropdownItemTextAlign=Font.AlignCenterMiddle
+cbx_vertical_sync.Skin.DropdownItemMouseOverImage=ControlImage()
+cbx_vertical_sync.Skin.DropdownItemMouseOverImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.DropdownItemMouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)
+cbx_vertical_sync.Skin.DropdownItemMouseOverImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage=ControlImage()
+cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage=ControlImage()
+cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage=ControlImage()
+cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage=ControlImage()
+cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage=ControlImage()
+cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.Skin.ScrollBarImage=ControlImage()
+cbx_vertical_sync.Skin.ScrollBarImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.Skin.ScrollBarImage.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.Skin.ScrollBarImage.Border=Vector4(7,7,7,7)
 dlg:InsertControl(cbx_vertical_sync)
 
 item_y=item_y-item_height
@@ -69,8 +156,7 @@ lbl_vertex_processing.y=UDim(0,item_y)
 lbl_vertex_processing.Width=UDim(0,190)
 lbl_vertex_processing.Height=UDim(0,22)
 lbl_vertex_processing.Text="Vertex Processing"
-lbl_vertex_processing.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_vertex_processing.Skin.TextAlign=Font.AlignRightMiddle
+lbl_vertex_processing.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_vertex_processing)
 
 local cbx_vertex_processing=ComboBox("cbx_vertex_processing")
@@ -82,7 +168,7 @@ cbx_vertex_processing.ScrollbarWidth=20
 cbx_vertex_processing.DropdownSize=Vector2(304-20,130)
 cbx_vertex_processing.Border=Vector4(20,0,20,0)
 cbx_vertex_processing.ItemHeight=22
-cbx_vertex_processing.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_vertex_processing.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_vertex_processing)
 
 item_y=item_y-item_height
@@ -92,8 +178,7 @@ lbl_multisample_quality.y=UDim(0,item_y)
 lbl_multisample_quality.Width=UDim(0,190)
 lbl_multisample_quality.Height=UDim(0,22)
 lbl_multisample_quality.Text="Multisample Quality"
-lbl_multisample_quality.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_multisample_quality.Skin.TextAlign=Font.AlignRightMiddle
+lbl_multisample_quality.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_multisample_quality)
 
 local cbx_multisample_quality=ComboBox("cbx_multisample_quality")
@@ -105,7 +190,7 @@ cbx_multisample_quality.ScrollbarWidth=20
 cbx_multisample_quality.DropdownSize=Vector2(304-20,130)
 cbx_multisample_quality.Border=Vector4(20,0,20,0)
 cbx_multisample_quality.ItemHeight=22
-cbx_multisample_quality.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_multisample_quality.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_multisample_quality)
 
 item_y=item_y-item_height
@@ -115,8 +200,7 @@ lbl_multisample_type.y=UDim(0,item_y)
 lbl_multisample_type.Width=UDim(0,190)
 lbl_multisample_type.Height=UDim(0,22)
 lbl_multisample_type.Text="Multisample Type"
-lbl_multisample_type.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_multisample_type.Skin.TextAlign=Font.AlignRightMiddle
+lbl_multisample_type.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_multisample_type)
 
 local cbx_multisample_type=ComboBox("cbx_multisample_type")
@@ -128,7 +212,7 @@ cbx_multisample_type.ScrollbarWidth=20
 cbx_multisample_type.DropdownSize=Vector2(304-20,130)
 cbx_multisample_type.Border=Vector4(20,0,20,0)
 cbx_multisample_type.ItemHeight=22
-cbx_multisample_type.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_multisample_type.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_multisample_type)
 
 item_y=item_y-item_height
@@ -138,8 +222,7 @@ lbl_depth_stencil_format.y=UDim(0,item_y)
 lbl_depth_stencil_format.Width=UDim(0,190)
 lbl_depth_stencil_format.Height=UDim(0,22)
 lbl_depth_stencil_format.Text="Depth/Stencil Format"
-lbl_depth_stencil_format.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_depth_stencil_format.Skin.TextAlign=Font.AlignRightMiddle
+lbl_depth_stencil_format.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_depth_stencil_format)
 
 local cbx_depth_stencil_format=ComboBox("cbx_depth_stencil_format")
@@ -151,7 +234,7 @@ cbx_depth_stencil_format.ScrollbarWidth=20
 cbx_depth_stencil_format.DropdownSize=Vector2(304-20,130)
 cbx_depth_stencil_format.Border=Vector4(20,0,20,0)
 cbx_depth_stencil_format.ItemHeight=22
-cbx_depth_stencil_format.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_depth_stencil_format.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_depth_stencil_format)
 
 item_y=item_y-item_height
@@ -161,8 +244,7 @@ lbl_back_buffer_format.y=UDim(0,item_y)
 lbl_back_buffer_format.Width=UDim(0,190)
 lbl_back_buffer_format.Height=UDim(0,22)
 lbl_back_buffer_format.Text="Back Buffer Format"
-lbl_back_buffer_format.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_back_buffer_format.Skin.TextAlign=Font.AlignRightMiddle
+lbl_back_buffer_format.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_back_buffer_format)
 
 local cbx_back_buffer_format=ComboBox("cbx_back_buffer_format")
@@ -174,7 +256,7 @@ cbx_back_buffer_format.ScrollbarWidth=20
 cbx_back_buffer_format.DropdownSize=Vector2(304-20,130)
 cbx_back_buffer_format.Border=Vector4(20,0,20,0)
 cbx_back_buffer_format.ItemHeight=22
-cbx_back_buffer_format.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_back_buffer_format.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_back_buffer_format)
 
 item_y=item_y-item_height
@@ -184,8 +266,7 @@ lbl_refresh_rate.y=UDim(0,item_y)
 lbl_refresh_rate.Width=UDim(0,190)
 lbl_refresh_rate.Height=UDim(0,22)
 lbl_refresh_rate.Text="Refresh Rate"
-lbl_refresh_rate.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_refresh_rate.Skin.TextAlign=Font.AlignRightMiddle
+lbl_refresh_rate.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_refresh_rate)
 
 local cbx_refresh_rate=ComboBox("cbx_refresh_rate")
@@ -197,7 +278,7 @@ cbx_refresh_rate.ScrollbarWidth=20
 cbx_refresh_rate.DropdownSize=Vector2(304-20,130)
 cbx_refresh_rate.Border=Vector4(20,0,20,0)
 cbx_refresh_rate.ItemHeight=22
-cbx_refresh_rate.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_refresh_rate.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_refresh_rate)
 
 item_y=item_y-item_height
@@ -207,8 +288,7 @@ lbl_resolution.y=UDim(0,item_y)
 lbl_resolution.Width=UDim(0,190)
 lbl_resolution.Height=UDim(0,22)
 lbl_resolution.Text="Resolution"
-lbl_resolution.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_resolution.Skin.TextAlign=Font.AlignRightMiddle
+lbl_resolution.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_resolution)
 
 local cbx_resolution=ComboBox("cbx_resolution")
@@ -220,7 +300,7 @@ cbx_resolution.ScrollbarWidth=20
 cbx_resolution.DropdownSize=Vector2(304-20,130)
 cbx_resolution.Border=Vector4(20,0,20,0)
 cbx_resolution.ItemHeight=22
-cbx_resolution.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_resolution.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_resolution)
 
 item_y=item_y-item_height
@@ -230,8 +310,7 @@ lbl_adapter_format.y=UDim(0,item_y)
 lbl_adapter_format.Width=UDim(0,190)
 lbl_adapter_format.Height=UDim(0,22)
 lbl_adapter_format.Text="Adapter Format"
-lbl_adapter_format.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_adapter_format.Skin.TextAlign=Font.AlignRightMiddle
+lbl_adapter_format.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_adapter_format)
 
 local cbx_adapter_format=ComboBox("cbx_adapter_format")
@@ -243,26 +322,48 @@ cbx_adapter_format.ScrollbarWidth=20
 cbx_adapter_format.DropdownSize=Vector2(304-20,130)
 cbx_adapter_format.Border=Vector4(20,0,20,0)
 cbx_adapter_format.ItemHeight=22
-cbx_adapter_format.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_adapter_format.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_adapter_format)
 
 item_y=item_y-item_height
 local chx_windowed=CheckBox("chx_windowed")
-chx_windowed.x=UDim(0,239)
+chx_windowed.x=UDim(0,235)
 chx_windowed.y=UDim(0,item_y)
 chx_windowed.Width=UDim(0,120)
 chx_windowed.Height=UDim(0,22)
-chx_windowed.Text="Windowed"
-chx_windowed.Skin=CommonUI.com_chx_skin:Clone()
+chx_windowed.Text="        Windowed"
+chx_windowed.Skin=ButtonSkin()
+chx_windowed.Skin.Image=ControlImage()
+chx_windowed.Skin.Image.TexturePath="texture/CommonUI.png"
+chx_windowed.Skin.Image.Rect=Rectangle.LeftTop(135,43,21,21)
+chx_windowed.Skin.Image.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.FontPath="font/wqy-microhei.ttc"
+chx_windowed.Skin.FontHeight=13
+chx_windowed.Skin.FontFaceIndex=0
+chx_windowed.Skin.TextColor=ARGB(255,255,255,255)
+chx_windowed.Skin.TextAlign=Font.AlignLeftMiddle
+chx_windowed.Skin.PressedOffset=Vector2(1,2)
+chx_windowed.Skin.DisabledImage=ControlImage()
+chx_windowed.Skin.DisabledImage.TexturePath="texture/CommonUI.png"
+chx_windowed.Skin.DisabledImage.Rect=Rectangle.LeftTop(69,43,21,21)
+chx_windowed.Skin.DisabledImage.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.PressedImage=ControlImage()
+chx_windowed.Skin.PressedImage.TexturePath="texture/CommonUI.png"
+chx_windowed.Skin.PressedImage.Rect=Rectangle.LeftTop(91,43,21,21)
+chx_windowed.Skin.PressedImage.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.MouseOverImage=ControlImage()
+chx_windowed.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
+chx_windowed.Skin.MouseOverImage.Rect=Rectangle.LeftTop(113,43,21,21)
+chx_windowed.Skin.MouseOverImage.Border=Vector4(20,20,0,0)
 dlg:InsertControl(chx_windowed)
 
 local chx_full_screen=CheckBox("chx_full_screen")
-chx_full_screen.x=UDim(0,357)
+chx_full_screen.x=UDim(0,360)
 chx_full_screen.y=UDim(0,item_y)
 chx_full_screen.Width=UDim(0,120)
 chx_full_screen.Height=UDim(0,22)
-chx_full_screen.Text="Full Screen"
-chx_full_screen.Skin=CommonUI.com_chx_skin:Clone()
+chx_full_screen.Text="        Full Screen"
+chx_full_screen.Skin=chx_windowed.Skin:Clone()
 dlg:InsertControl(chx_full_screen)
 
 item_y=item_y-item_height
@@ -272,8 +373,7 @@ lbl_render_device.y=UDim(0,item_y)
 lbl_render_device.Width=UDim(0,190)
 lbl_render_device.Height=UDim(0,22)
 lbl_render_device.Text="Render Device"
-lbl_render_device.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_render_device.Skin.TextAlign=Font.AlignRightMiddle
+lbl_render_device.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_render_device)
 
 local cbx_render_device=ComboBox("cbx_render_device")
@@ -285,7 +385,7 @@ cbx_render_device.ScrollbarWidth=20
 cbx_render_device.DropdownSize=Vector2(304-20,130)
 cbx_render_device.Border=Vector4(20,0,20,0)
 cbx_render_device.ItemHeight=22
-cbx_render_device.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_render_device.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_render_device)
 
 item_y=item_y-item_height
@@ -295,8 +395,7 @@ lbl_display_adapter.y=UDim(0,item_y)
 lbl_display_adapter.Width=UDim(0,190)
 lbl_display_adapter.Height=UDim(0,22)
 lbl_display_adapter.Text="Display Adapter"
-lbl_display_adapter.Skin=CommonUI.com_lbl_skin:Clone()
-lbl_display_adapter.Skin.TextAlign=Font.AlignRightMiddle
+lbl_display_adapter.Skin=lbl_vertical_sync.Skin:Clone()
 dlg:InsertControl(lbl_display_adapter)
 
 local cbx_display_adapter=ComboBox("cbx_display_adapter")
@@ -308,15 +407,11 @@ cbx_display_adapter.ScrollbarWidth=20
 cbx_display_adapter.DropdownSize=Vector2(304-20,130)
 cbx_display_adapter.Border=Vector4(20,0,20,0)
 cbx_display_adapter.ItemHeight=22
-cbx_display_adapter.Skin=CommonUI.com_cbx_skin:Clone()
+cbx_display_adapter.Skin=cbx_vertical_sync.Skin:Clone()
 dlg:InsertControl(cbx_display_adapter)
--- game:SaveDialog(dlg, "ui/Settings.ui.xml")
--- dlg=game:LoadDialog("ui/Settings.ui.xml")
 
-game:InsertDlg(dlg)
-dlg.Visible=false
 dlg.EventAlign=function(arg)
-	-- dlg.Location=(game.DlgViewport-dlg.Size)*0.5
+	-- dlg.Location=(client.DlgViewport-dlg.Size)*0.5
 end
 dlg.EventVisibleChanged=function(arg)
 	if arg.Visible then
@@ -326,68 +421,68 @@ end
 
 local local_device_settings=nil
 
-local btn_ok=game:GetNamedObject("btn_ok")
+local btn_ok=client:GetNamedObject("btn_ok")
 btn_ok.EventMouseClick=function(arg)
 	-- print("Settings.btn_ok.EventMouseClick")
 	assert(local_device_settings)
-	game:ChangeDevice(local_device_settings)
+	client:ChangeDevice(local_device_settings)
 	dlg.Visible=false
 end
 
-local btn_cancel=game:GetNamedObject("btn_cancel")
+local btn_cancel=client:GetNamedObject("btn_cancel")
 btn_cancel.EventMouseClick=function(arg)
 	-- print("Settings.OnCancelBtnClicked")
 	assert(local_device_settings)
 	dlg.Visible=false
 end
 
-local cbx_vertical_sync=game:GetNamedObject("cbx_vertical_sync")
+local cbx_vertical_sync=client:GetNamedObject("cbx_vertical_sync")
 cbx_vertical_sync.EventSelectionChanged=function(arg)
 	OnPresentIntervalChanged()
 end
 
-local cbx_vertex_processing=game:GetNamedObject("cbx_vertex_processing")
+local cbx_vertex_processing=client:GetNamedObject("cbx_vertex_processing")
 cbx_vertex_processing.EventSelectionChanged=function(arg)
 	OnVertexProcessingChanged()
 end
 
-local cbx_multisample_quality=game:GetNamedObject("cbx_multisample_quality")
+local cbx_multisample_quality=client:GetNamedObject("cbx_multisample_quality")
 cbx_multisample_quality.EventSelectionChanged=function(arg)
 	OnMultisampleQualityChanged()
 end
 
-local cbx_multisample_type=game:GetNamedObject("cbx_multisample_type")
+local cbx_multisample_type=client:GetNamedObject("cbx_multisample_type")
 cbx_multisample_type.EventSelectionChanged=function(arg)
 	OnMultisampleTypeChanged()
 end
 
-local cbx_depth_stencil_format=game:GetNamedObject("cbx_depth_stencil_format")
+local cbx_depth_stencil_format=client:GetNamedObject("cbx_depth_stencil_format")
 cbx_depth_stencil_format.EventSelectionChanged=function(arg)
 	OnDepthStencilBufferFormatChanged()
 end
 
-local cbx_back_buffer_format=game:GetNamedObject("cbx_back_buffer_format")
+local cbx_back_buffer_format=client:GetNamedObject("cbx_back_buffer_format")
 cbx_back_buffer_format.EventSelectionChanged=function(arg)
 	OnBackBufferFormatChanged()
 end
 
-local cbx_refresh_rate=game:GetNamedObject("cbx_refresh_rate")
+local cbx_refresh_rate=client:GetNamedObject("cbx_refresh_rate")
 cbx_refresh_rate.EventSelectionChanged=function(arg)
 	OnRefreshRateChanged()
 end
 
-local cbx_resolution=game:GetNamedObject("cbx_resolution")
+local cbx_resolution=client:GetNamedObject("cbx_resolution")
 cbx_resolution.EventSelectionChanged=function(arg)
 	OnResolutionChanged()
 end
 
-local cbx_adapter_format=game:GetNamedObject("cbx_adapter_format")
+local cbx_adapter_format=client:GetNamedObject("cbx_adapter_format")
 cbx_adapter_format.EventSelectionChanged=function(arg)
 	OnAdapterFormatChanged()
 end
 
-local chx_windowed=game:GetNamedObject("chx_windowed")
-local chx_full_screen=game:GetNamedObject("chx_full_screen")
+local chx_windowed=client:GetNamedObject("chx_windowed")
+local chx_full_screen=client:GetNamedObject("chx_full_screen")
 chx_windowed.EventMouseClick=function(arg)
 	chx_full_screen.Checked=not chx_windowed.Checked
 	OnWindowedFullScreenChanged()
@@ -397,19 +492,19 @@ chx_full_screen.EventMouseClick=function(arg)
 	OnWindowedFullScreenChanged()
 end
 
-local cbx_render_device=game:GetNamedObject("cbx_render_device")
+local cbx_render_device=client:GetNamedObject("cbx_render_device")
 cbx_render_device.EventSelectionChanged=function(arg)
 	OnDeviceTypeChanged()
 end
 
-local cbx_display_adapter=game:GetNamedObject("cbx_display_adapter")
+local cbx_display_adapter=client:GetNamedObject("cbx_display_adapter")
 cbx_display_adapter.EventSelectionChanged=function(arg)
 	OnAdapterChanged()
 end
 
 function RefreshDisplayAdapter()
-	local_device_settings=game.DeviceSettings
-	local adapter_info_list=game.AdapterInfoList
+	local_device_settings=client.DeviceSettings
+	local adapter_info_list=client.AdapterInfoList
 	cbx_display_adapter:RemoveAllItems()
 	for i=0,adapter_info_list.Size-1 do
 		local adapter_info=adapter_info_list:GetAt(i)
@@ -422,16 +517,16 @@ function RefreshDisplayAdapter()
 	OnAdapterChanged()
 	
 	local vpt_table={}
-	if game.SoftwareVP then
+	if client.SoftwareVP then
 		table.insert(vpt_table, DXUTD3D9DeviceSettings.D3DCREATE_SOFTWARE_VERTEXPROCESSING)
 	end
-	if game.HardwareVP then
+	if client.HardwareVP then
 		table.insert(vpt_table, DXUTD3D9DeviceSettings.D3DCREATE_HARDWARE_VERTEXPROCESSING)
 	end
-	if game.PureHardwareVP then
+	if client.PureHardwareVP then
 		table.insert(vpt_table, DXUTD3D9DeviceSettings.D3DCREATE_PUREDEVICE)
 	end
-	if game.MixedVP then
+	if client.MixedVP then
 		table.insert(vpt_table, DXUTD3D9DeviceSettings.D3DCREATE_MIXED_VERTEXPROCESSING)
 	end
 	
@@ -476,7 +571,7 @@ function OnAdapterChanged()
 		assert(local_device_settings)
 		local_device_settings.AdapterOrdinal=GetComboBoxSelectedData(cbx_display_adapter)
 		
-		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
+		local adapter_info=client:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_render_device:RemoveAllItems()
 		for i=0,adapter_info.deviceInfoList.Size-1 do
 			local device_info=adapter_info.deviceInfoList:GetAt(i)
@@ -498,7 +593,7 @@ function OnDeviceTypeChanged()
 		
 		local adapter_original=GetComboBoxSelectedData(cbx_display_adapter)
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
-		local device_info=game:GetDeviceInfo(adapter_original,device_type)
+		local device_info=client:GetDeviceInfo(adapter_original,device_type)
 		chx_windowed.Enable=false
 		chx_full_screen.Enable=false
 		for i=0,device_info.deviceSettingsComboList.Size-1 do
@@ -535,7 +630,7 @@ function OnWindowedFullScreenChanged()
 		
 		local adapter_original=GetComboBoxSelectedData(cbx_display_adapter)
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
-		local device_info=game:GetDeviceInfo(adapter_original,device_type)
+		local device_info=client:GetDeviceInfo(adapter_original,device_type)
 		cbx_adapter_format:RemoveAllItems()
 		for i=0,device_info.deviceSettingsComboList.Size-1 do
 			local device_settings_combo=device_info.deviceSettingsComboList:GetAt(i)
@@ -575,7 +670,7 @@ function OnAdapterFormatChanged()
 		assert(local_device_settings)
 		local_device_settings.AdapterFormat=GetComboBoxSelectedData(cbx_adapter_format)
 		
-		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
+		local adapter_info=client:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_resolution:RemoveAllItems()
 		for i=0,adapter_info.displayModeList.Size-1 do
 			local display_mode=adapter_info.displayModeList:GetAt(i)
@@ -596,7 +691,7 @@ function OnAdapterFormatChanged()
 		
 		local adapter_original=GetComboBoxSelectedData(cbx_display_adapter)
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
-		local device_info=game:GetDeviceInfo(adapter_original,device_type)
+		local device_info=client:GetDeviceInfo(adapter_original,device_type)
 		cbx_back_buffer_format:RemoveAllItems()
 		for i=0,device_info.deviceSettingsComboList.Size-1 do
 			local device_settings_combo=device_info.deviceSettingsComboList:GetAt(i)
@@ -629,7 +724,7 @@ function OnResolutionChanged()
 			cbx_refresh_rate.Text="Default Rate"
 			cbx_refresh_rate.Enabled=false
 		else
-			local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
+			local adapter_info=client:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 			local width=LOWORD(GetComboBoxSelectedData(cbx_resolution))
 			local height=HIWORD(GetComboBoxSelectedData(cbx_resolution))
 			for i=0,adapter_info.displayModeList.Size-1 do
@@ -674,7 +769,7 @@ function OnBackBufferFormatChanged()
 		assert(local_device_settings)
 		local_device_settings.pp.BackBufferFormat=GetComboBoxSelectedData(cbx_back_buffer_format)
 		
-		local device_settings_combo = game:GetDeviceSettingsCombo(
+		local device_settings_combo = client:GetDeviceSettingsCombo(
 			GetComboBoxSelectedData(cbx_display_adapter),
 			GetComboBoxSelectedData(cbx_render_device),
 			GetComboBoxSelectedData(cbx_adapter_format),
@@ -707,7 +802,7 @@ function OnDepthStencilBufferFormatChanged()
 		assert(local_device_settings)
 		local_device_settings.pp.AutoDepthStencilFormat=GetComboBoxSelectedData(cbx_depth_stencil_format)
 		
-		local device_settings_combo = game:GetDeviceSettingsCombo(
+		local device_settings_combo = client:GetDeviceSettingsCombo(
 			GetComboBoxSelectedData(cbx_display_adapter),
 			GetComboBoxSelectedData(cbx_render_device),
 			GetComboBoxSelectedData(cbx_adapter_format),
@@ -736,7 +831,7 @@ function OnMultisampleTypeChanged()
 		assert(local_device_settings)
 		local_device_settings.pp.MultiSampleType=GetComboBoxSelectedData(cbx_multisample_type)
 		
-		local device_settings_combo = game:GetDeviceSettingsCombo(
+		local device_settings_combo = client:GetDeviceSettingsCombo(
 			GetComboBoxSelectedData(cbx_display_adapter),
 			GetComboBoxSelectedData(cbx_render_device),
 			GetComboBoxSelectedData(cbx_adapter_format),
@@ -797,3 +892,6 @@ function OnPresentIntervalChanged()
 		local_device_settings.pp.PresentationInterval=GetComboBoxSelectedData(cbx_vertical_sync)
 	end
 end
+
+client:InsertDlg(dlg)
+dlg.Visible=false

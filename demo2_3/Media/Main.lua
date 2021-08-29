@@ -1,6 +1,6 @@
 require "ui/zhCN.lua"
-require "Hud.lua"
-require "Settings.lua"
+require "ui/Hud.lua"
+require "ui/Settings.lua"
 require "Player.lua"
 require "Action.lua"
 
@@ -74,33 +74,33 @@ end
 
 -- 加载场景资源
 scene01=nil
-game:LoadSceneAsync("scene01.xml", "scene01_", function(res)
+client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	scene01=res2scene(res)
-	game.SkyLightCam.Euler = scene01.SkyLightCamEuler;
-	game.SkyLightColor = scene01.SkyLightColor;
-	game.AmbientColor = scene01.AmbientColor;
-	game.DofParams = scene01.DofParams;
-	game.SsaoBias = scene01.SsaoBias;
-	game.SsaoIntensity = scene01.SsaoIntensity;
-	game.SsaoRadius = scene01.SsaoRadius;
-	game.SsaoScale = scene01.SsaoScale;
-	game.FogColor = scene01.FogColor;
-	game.FogStartDistance = scene01.FogStartDistance;
-	game.FogHeight = scene01.FogHeight;
-	game.FogFalloff = scene01.FogFalloff;
+	client.SkyLightCam.Euler = scene01.SkyLightCamEuler;
+	client.SkyLightColor = scene01.SkyLightColor;
+	client.AmbientColor = scene01.AmbientColor;
+	client.DofParams = scene01.DofParams;
+	client.SsaoBias = scene01.SsaoBias;
+	client.SsaoIntensity = scene01.SsaoIntensity;
+	client.SsaoRadius = scene01.SsaoRadius;
+	client.SsaoScale = scene01.SsaoScale;
+	client.FogColor = scene01.FogColor;
+	client.FogStartDistance = scene01.FogStartDistance;
+	client.FogHeight = scene01.FogHeight;
+	client.FogFalloff = scene01.FogFalloff;
 	for act in scene01.ActorList do
-		game:AddEntity(act, act.aabb:transform(act.World), 0.1, 0.1)
+		client:AddEntity(act, act.aabb:transform(act.World), 0.1, 0.1)
 	end
 
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-	game:AddEntity(act2entity(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
+	client:AddEntity(act2entity(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
 
 	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor3.Cmps do
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	game:AddEntity(act2entity(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
+	client:AddEntity(act2entity(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
 	SPlayer.player:Attach(actor3, 10)
 
 	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -108,18 +108,18 @@ game:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	game:AddEntity(act2entity(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
+	client:AddEntity(act2entity(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
 	SPlayer.player:Attach(actor4, 29)
 
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	game:AddEntity(act2entity(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
+	client:AddEntity(act2entity(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
 
 	actor5:UpdateWorld()
-	game:AddEntity(act2entity(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
+	client:AddEntity(act2entity(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
 
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
-	local actor6 = game:GetNamedObject("scene01_actor1")
+	local actor6 = client:GetNamedObject("scene01_actor1")
 	class 'Actor6Behavior'(Component)
 	function Actor6Behavior:__init(name)
 		Component.__init(self,name)
@@ -137,9 +137,9 @@ game:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 end, 0)
 	
 -- -- 特殊渲染选项
--- game.SsaoEnable=true
--- game:SetVisualizationParameter(PhysxScene.eSCALE,1)
--- game:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
--- game:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
--- game:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
--- game:SetControllerDebugRenderingFlags(PhysxScene.eALL)
+-- client.SsaoEnable=true
+-- client:SetVisualizationParameter(PhysxScene.eSCALE,1)
+-- client:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
+-- client:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
+-- client:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
+-- client:SetControllerDebugRenderingFlags(PhysxScene.eALL)

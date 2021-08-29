@@ -2,11 +2,11 @@ require "Action.lua"
 module("SPlayer", package.seeall)
 
 -- 修正不规范资源
--- mesh=game:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
+-- mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
 -- mesh:Transform(Matrix4.Compose(
 	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
-skel=game:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
+skel=client:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
@@ -14,7 +14,7 @@ skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward
 -- skel:Transform(Matrix4.Compose(
 	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly_full.skeleton.xml")
-mesh2=game:LoadMesh("mesh/Cylinder.mesh.xml","")
+mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
 mesh2:Transform(Matrix4.Compose(
 	Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
@@ -68,7 +68,7 @@ local anim=Animator(NamedObject.MakeUniqueName("anim_cmp"))
 anim.Child0=node_run
 anim:ReloadSequenceGroup()
 anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-game:LoadSkeletonAsync(anim.SkeletonPath, function(res)
+client:LoadSkeletonAsync(anim.SkeletonPath, function(res)
 	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
 	anim:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
 	anim:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
@@ -85,7 +85,7 @@ end
 function PlayerBehavior:RequestResource()
 	Component.RequestResource(self)
 	self.Actor:PlayAction(SAction.act_tuowei)
-	game.Camera.Euler=Vector3(0,0,0)
+	client.Camera.Euler=Vector3(0,0,0)
 end
 function PlayerBehavior:Update(elapsedTime)
 	self.velocity.y=self.velocity.y-9.81*elapsedTime
@@ -93,28 +93,28 @@ function PlayerBehavior:Update(elapsedTime)
 	local direction=Vector3(0,0,0)
 	if not Control.GetFocusControl() then
 		-- 键盘按下事件
-		if game.keyboard:IsKeyPress(57) then
+		if client.keyboard:IsKeyPress(57) then
 			self.velocity.y=5.0
 			self.Actor:PlayAction(SAction.act_jump)
 		end
 		
-		if game.keyboard:IsKeyDown(17) then
+		if client.keyboard:IsKeyDown(17) then
 			direction.z=1
-		elseif game.keyboard:IsKeyDown(31) then
+		elseif client.keyboard:IsKeyDown(31) then
 			direction.z=-1
 		else
 			direction.z=0
 		end
 		
-		if game.keyboard:IsKeyDown(30) then
+		if client.keyboard:IsKeyDown(30) then
 			direction.x=1
-		elseif game.keyboard:IsKeyDown(32) then
+		elseif client.keyboard:IsKeyDown(32) then
 			direction.x=-1
 		else
 			direction.x=0
 		end
 		
-		if game.keyboard:IsKeyDown(42) then
+		if client.keyboard:IsKeyDown(42) then
 			speed=10
 			node_run:SetActiveChild(1,0.1)
 			rate_run.Rate=speed/7
@@ -123,15 +123,15 @@ function PlayerBehavior:Update(elapsedTime)
 		end
 		
 		-- 鼠标移动事件
-		game.Camera.Euler.y=game.Camera.Euler.y-math.rad(game.mouse.X)
-		game.Camera.Euler.x=game.Camera.Euler.x-math.rad(game.mouse.Y)
-		self.LookDist=self.LookDist-game.mouse.Z/480.0
+		client.Camera.Euler.y=client.Camera.Euler.y-math.rad(client.mouse.X)
+		client.Camera.Euler.x=client.Camera.Euler.x-math.rad(client.mouse.Y)
+		self.LookDist=self.LookDist-client.mouse.Z/480.0
 	end
 	
 	local lengthsq=direction:magnitudeSq()
 	if lengthsq > 0.000001 then
 		direction=direction*(1/math.sqrt(lengthsq))
-		local angle=math.atan2(direction.x,direction.z)+game.Camera.Euler.y+math.pi
+		local angle=math.atan2(direction.x,direction.z)+client.Camera.Euler.y+math.pi
 		local localAngle=self.Actor.Rotation:toEulerAngles().y
 		local delta=Wrap(angle-localAngle,-math.pi,math.pi)
 		localAngle=localAngle+delta*(1.0-math.pow(0.8,30*elapsedTime))
@@ -147,10 +147,10 @@ function PlayerBehavior:Update(elapsedTime)
 		node_walk:SetActiveChild(0,0.1)
 	end
 	
-	local LookMatrix=Matrix4.RotationYawPitchRoll(game.Camera.Euler.y,game.Camera.Euler.x,game.Camera.Euler.z)
-	game.Camera.Eye=self.Actor.Position+Vector3(0,1.75,0)+LookMatrix.row2.xyz*self.LookDist
-	game.SkyLightCam.Eye=self.Actor.Position
-	game.ViewedCenter=self.Actor.Position
+	local LookMatrix=Matrix4.RotationYawPitchRoll(client.Camera.Euler.y,client.Camera.Euler.x,client.Camera.Euler.z)
+	client.Camera.Eye=self.Actor.Position+Vector3(0,1.75,0)+LookMatrix.row2.xyz*self.LookDist
+	client.SkyLightCam.Eye=self.Actor.Position
+	client.ViewedCenter=self.Actor.Position
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
 	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime)

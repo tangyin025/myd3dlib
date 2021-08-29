@@ -350,10 +350,10 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 				ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
 			}
 		}
-		else if (!Image->m_TexturePath.empty() && Image->IsRequested())
-		{
-			ui_render->PushRectangle(rect, Rectangle(0, 0, 1, 1), color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
-		}
+		//else if (!Image->m_TexturePath.empty() && Image->IsRequested())
+		//{
+		//	ui_render->PushRectangle(rect, Rectangle(0, 0, 1, 1), color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
+		//}
 	}
 }
 
