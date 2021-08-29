@@ -336,7 +336,7 @@ chx_windowed.Skin=ButtonSkin()
 chx_windowed.Skin.Image=ControlImage()
 chx_windowed.Skin.Image.TexturePath="texture/CommonUI.png"
 chx_windowed.Skin.Image.Rect=Rectangle.LeftTop(135,43,21,21)
-chx_windowed.Skin.Image.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.Image.Border=Vector4(21,21,0,0)
 chx_windowed.Skin.FontPath="font/wqy-microhei.ttc"
 chx_windowed.Skin.FontHeight=13
 chx_windowed.Skin.FontFaceIndex=0
@@ -346,15 +346,15 @@ chx_windowed.Skin.PressedOffset=Vector2(1,2)
 chx_windowed.Skin.DisabledImage=ControlImage()
 chx_windowed.Skin.DisabledImage.TexturePath="texture/CommonUI.png"
 chx_windowed.Skin.DisabledImage.Rect=Rectangle.LeftTop(69,43,21,21)
-chx_windowed.Skin.DisabledImage.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.DisabledImage.Border=Vector4(21,21,0,0)
 chx_windowed.Skin.PressedImage=ControlImage()
 chx_windowed.Skin.PressedImage.TexturePath="texture/CommonUI.png"
 chx_windowed.Skin.PressedImage.Rect=Rectangle.LeftTop(91,43,21,21)
-chx_windowed.Skin.PressedImage.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.PressedImage.Border=Vector4(21,21,0,0)
 chx_windowed.Skin.MouseOverImage=ControlImage()
 chx_windowed.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
 chx_windowed.Skin.MouseOverImage.Rect=Rectangle.LeftTop(113,43,21,21)
-chx_windowed.Skin.MouseOverImage.Border=Vector4(20,20,0,0)
+chx_windowed.Skin.MouseOverImage.Border=Vector4(21,21,0,0)
 dlg:InsertControl(chx_windowed)
 
 local chx_full_screen=CheckBox("chx_full_screen")
