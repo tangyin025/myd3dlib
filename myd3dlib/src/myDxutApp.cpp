@@ -1,6 +1,13 @@
 #include "myDxutApp.h"
 #include "myResource.h"
 #include "libc.h"
+extern "C"
+{
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
+#include <luabind/luabind.hpp> // only for luabind::error exception
 
 using namespace my;
 
@@ -326,6 +333,10 @@ int DxutApp::Run(void)
 	catch(const my::Exception & e)
 	{
 		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+	}
+	catch(const luabind::error & e)
+	{
+		MessageBox(m_wnd->m_hWnd, ms2ts(lua_tostring(e.state(), -1)).c_str(), NULL, MB_OK);
 	}
 	catch(const std::exception & e)
 	{
