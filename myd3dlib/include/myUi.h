@@ -1086,6 +1086,8 @@ namespace my
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ButtonSkin);
 			ar & BOOST_SERIALIZATION_NVP(m_DropdownImage);
+			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemTextColor);
+			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemTextAlign);
 			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemMouseOverImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnNormalImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnDisabledImage);
