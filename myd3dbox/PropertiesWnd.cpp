@@ -4002,6 +4002,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		control->m_Width.offset = pControl->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
 		control->m_Height.scale = pControl->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		control->m_Height.offset = pControl->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
+		control->OnLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
