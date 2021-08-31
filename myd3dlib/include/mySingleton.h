@@ -165,8 +165,6 @@ namespace my
 	class NamedObject
 	{
 	protected:
-		static unsigned int UniqueNameIndex;
-
 		friend class D3DContext;
 
 		const char * m_Name;
@@ -179,8 +177,6 @@ namespace my
 		virtual ~NamedObject(void);
 
 		static std::string MakeUniqueName(const char * Prefix);
-
-		static void ResetUniqueNameIndex(void);
 
 		void SetName(const char * Name);
 

@@ -751,7 +751,6 @@ void CMainFrame::ClearFileContext()
 	m_CollectionObjs.clear();
 	m_SerializeBuff.reset();
 	_ASSERT(theApp.m_NamedObjects.empty());
-	my::NamedObject::ResetUniqueNameIndex();
 }
 
 BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)

@@ -37,8 +37,6 @@ DeviceResourceBase::~DeviceResourceBase(void)
 	D3DContext::getSingleton().m_DeviceObjects.erase(this);
 }
 
-unsigned int NamedObject::UniqueNameIndex = 0;
-
 NamedObject::NamedObject(void)
 	: m_Name(NULL)
 {
@@ -66,21 +64,22 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 
 	_ASSERT(Prefix);
 
+	int postfix_i = 0;
+	std::string name_without_postfix;
 	boost::regex reg("(\\d+)$");
 	boost::match_results<const char *> what;
 	if (boost::regex_search(Prefix, what, reg, boost::match_default) && what[1].matched)
 	{
-		UniqueNameIndex = Max(UniqueNameIndex, boost::lexical_cast<unsigned int>(what[1]) + 1);
-		std::string remove_postfix(Prefix, what[0].first);
-		if (!remove_postfix.empty())
-		{
-			return MakeUniqueName(remove_postfix.c_str());
-		}
+		postfix_i = boost::lexical_cast<unsigned int>(what[1]);
+		name_without_postfix.assign(Prefix, what[0].first);
 	}
+	else
+		name_without_postfix.assign(Prefix);
 
-	for (; ; UniqueNameIndex++)
+	std::string ret(Max((size_t)128, name_without_postfix.length() + 16), '\0');
+	for (; ; postfix_i++)
 	{
-		std::string ret = str_printf("%s%u", Prefix, UniqueNameIndex);
+		_snprintf(&ret[0], ret.size(), "%s%u", name_without_postfix.c_str(), postfix_i);
 		if (!D3DContext::getSingleton().GetNamedObject(ret.c_str()))
 		{
 			return ret;
@@ -88,11 +87,6 @@ std::string NamedObject::MakeUniqueName(const char * Prefix)
 	}
 
 	THROW_CUSEXCEPTION("MakeUniqueName failed");
-}
-
-void NamedObject::ResetUniqueNameIndex(void)
-{
-	UniqueNameIndex = 0;
 }
 
 void NamedObject::SetName(const char * Name)
