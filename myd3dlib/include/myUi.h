@@ -1395,6 +1395,8 @@ namespace my
 		void AddItem(const std::wstring& strText);
 
 		void RemoveAllItems(void);
+
+		UINT GetNumItems(void);
 	};
 
 	typedef boost::shared_ptr<ListBox> ListBoxPtr;

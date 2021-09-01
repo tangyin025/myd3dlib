@@ -866,6 +866,7 @@ void LuaContext::Init(void)
 			.property("ItemSize", &my::ListBox::GetItemSize, &my::ListBox::SetItemSize)
 			.def("AddItem", &my::ListBox::AddItem)
 			.def("RemoveAllItems", &my::ListBox::RemoveAllItems)
+			.property("NumItems", &my::ListBox::GetNumItems)
 
 		, class_<my::DialogSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("DialogSkin")
 			.def(constructor<>())

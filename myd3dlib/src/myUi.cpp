@@ -3318,6 +3318,8 @@ void ListBox::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar << boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
+	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
+	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 }
 
 template<class Archive>
@@ -3325,6 +3327,8 @@ void ListBox::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar >> boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
+	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
+	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	OnLayout();
 }
 
@@ -3531,7 +3535,7 @@ void ListBox::OnLayout(void)
 
 	m_ScrollBar.m_Width = UDim(0, m_ScrollbarWidth);
 
-	m_ScrollBar.m_Height = UDim(0, m_Rect.Height());
+	m_ScrollBar.m_Height = UDim(0, m_Height.offset);
 
 	m_ScrollBar.m_nPageSize = (int)(m_ScrollBar.m_Height.offset / m_ItemSize.y);
 
@@ -3596,6 +3600,11 @@ void ListBox::RemoveAllItems(void)
 	m_Items.clear();
 
 	m_ScrollBar.m_nEnd = 0;
+}
+
+UINT ListBox::GetNumItems(void)
+{
+	return m_Items.size();
 }
 
 void DialogSkin::RequestResource(void)
