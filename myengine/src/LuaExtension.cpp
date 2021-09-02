@@ -738,6 +738,8 @@ void LuaContext::Init(void)
 				value("ControlTypeDialog", my::Control::ControlTypeDialog)
 			]
 			.property("ControlType", &my::Control::GetControlType)
+			.def_readonly("Childs", &my::Control::m_Childs, luabind::return_stl_iterator)
+			.def_readonly("Parent", &my::Control::m_Parent)
 			.scope
 			[
 				def("GetFocusControl", &my::Control::GetFocusControl)
