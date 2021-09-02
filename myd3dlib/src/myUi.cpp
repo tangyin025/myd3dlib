@@ -3452,6 +3452,7 @@ bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					m_iFocused.y = Clamp((int)--m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
 				}
+				return true;
 			}
 			else if (wParam == VK_RIGHT)
 			{
@@ -3461,6 +3462,7 @@ bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					m_iFocused.y = Clamp((int)++m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
 				}
+				return true;
 			}
 		}
 	}
