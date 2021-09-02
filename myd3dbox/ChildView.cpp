@@ -2283,27 +2283,28 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
 	if (res.first)
 	{
+		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-		for (int i = my::Max(0, (int)roundf(pt.z - pFrame->m_PaintRadius));
-			i <= my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.z + pFrame->m_PaintRadius)); i++)
+		for (int i = my::Max(0, (int)roundf(pt.z - LocalPaintRadius));
+			i <= my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.z + LocalPaintRadius)); i++)
 		{
-			for (int j = my::Max(0, (int)roundf(pt.x - pFrame->m_PaintRadius));
-				j <= my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.x + pFrame->m_PaintRadius)); j++)
+			for (int j = my::Max(0, (int)roundf(pt.x - LocalPaintRadius));
+				j <= my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.x + LocalPaintRadius)); j++)
 			{
 				if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 				{
 					my::Vector2 offset(j - pt.x, i - pt.z);
-					float dist = offset.magnitude() / pFrame->m_PaintRadius;
+					float dist = offset.magnitude() / LocalPaintRadius;
 					if (dist <= 1)
 					{
-						float height = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - dist, 1);
+						float LocalHeight = pFrame->m_PaintHeight * pFrame->m_PaintSpline.Interpolate(1 - dist, 1) / tstr.m_terrain->m_Actor->m_Scale.y;
 						switch (pFrame->m_PaintMode)
 						{
 						case CMainFrame::PaintModeGreater:
-							height = my::Max(height, tstr.GetPos(i, j).y);
+							LocalHeight = my::Max(LocalHeight, tstr.GetPos(i, j).y);
 							break;
 						}
-						tstr.SetPos(my::Vector3(j, height, i), i, j, true);
+						tstr.SetPos(my::Vector3(j, LocalHeight, i), i, j, true);
 					}
 				}
 			}
@@ -2322,17 +2323,18 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
 	if (res.first)
 	{
+		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-		for (int i = my::Max(0, (int)roundf(pt.z - pFrame->m_PaintRadius));
-			i <= my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.z + pFrame->m_PaintRadius)); i++)
+		for (int i = my::Max(0, (int)roundf(pt.z - LocalPaintRadius));
+			i <= my::Min(tstr.m_terrain->m_RowChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.z + LocalPaintRadius)); i++)
 		{
-			for (int j = my::Max(0, (int)roundf(pt.x - pFrame->m_PaintRadius));
-				j <= my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.x + pFrame->m_PaintRadius)); j++)
+			for (int j = my::Max(0, (int)roundf(pt.x - LocalPaintRadius));
+				j <= my::Min(tstr.m_terrain->m_ColChunks * tstr.m_terrain->m_ChunkSize, (int)roundf(pt.x + LocalPaintRadius)); j++)
 			{
 				if (pFrame->m_PaintShape == CMainFrame::PaintShapeCircle)
 				{
 					my::Vector2 offset(j - pt.x, i - pt.z);
-					float dist = offset.magnitude() / pFrame->m_PaintRadius;
+					float dist = offset.magnitude() / LocalPaintRadius;
 					if (dist <= 1)
 					{
 						D3DXCOLOR color;
@@ -2398,15 +2400,17 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 
 						do 
 						{
+							float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
+							float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
 							const my::Vector2 & pos = candidate.front();
 							for (int i = 0; i < 30; i++)
 							{
-								my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * pFrame->m_PaintParticleMinDist;
+								my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * LocalPaintParticleMinDist;
 								if (rand_pos.x >= estr.m_emit->m_min.x && rand_pos.x < estr.m_emit->m_max.x
 									&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
-									&& (rand_pos - my::Vector2(emit_pt.x, emit_pt.z)).magnitudeSq() < pFrame->m_PaintRadius * pFrame->m_PaintRadius)
+									&& (rand_pos - my::Vector2(emit_pt.x, emit_pt.z)).magnitudeSq() < LocalPaintRadius * LocalPaintRadius)
 								{
-									if (!estr.GetNearestParticle2D(rand_pos.x, rand_pos.y, pFrame->m_PaintParticleMinDist))
+									if (!estr.GetNearestParticle2D(rand_pos.x, rand_pos.y, LocalPaintParticleMinDist))
 									{
 										my::Ray local_ray = my::Ray(my::Vector3(rand_pos.x, estr.m_emit->m_max.y, rand_pos.y), my::Vector3(0, -1, 0)).transform(emit2local);
 										my::RayResult res = tstr.RayTest(local_ray);
