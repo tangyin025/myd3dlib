@@ -271,7 +271,7 @@ int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos) const
 	float DistanceSq = Vector2(
 		(j + 0.5f) * m_ChunkSize - LocalViewPos.x,
 		(i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitudeSq();
-	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist) / logf(m_Actor->m_LodFactor));
+	int Lod = (int)(logf(sqrt(DistanceSq) / m_Actor->m_LodDist * m_Actor->m_Scale.x) / logf(m_Actor->m_LodFactor));
 	return Max(0, Min(Lod, _Quad(m_ChunkSize, m_MinLodChunkSize)));
 }
 

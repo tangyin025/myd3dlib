@@ -3774,7 +3774,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				{
 					unsigned short r16;
 					istr->read(&r16, sizeof(r16));
-					tstr.SetPos(my::Vector3(j, (float)r16 / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel, i), i, j, false);
+					tstr.SetPos(my::Vector3(j, ((float)r16 / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i), i, j, false);
 				}
 			}
 			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); i++)
