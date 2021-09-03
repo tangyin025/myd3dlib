@@ -809,7 +809,15 @@ physx::PxHeightField * Terrain::CreateHeightField(float HeightScale, bool ShareS
 	hfDesc.samples.data = Samples.data();
 	hfDesc.samples.stride = sizeof(Samples[0][0]);
 
-	physx::PxHeightField * heightfield = PhysxSdk::getSingleton().m_Cooking->createHeightField(hfDesc, PhysxSdk::getSingleton().m_sdk->getPhysicsInsertionCallback());
+	physx::PxDefaultMemoryOutputStream writeBuffer;
+	bool status = PhysxSdk::getSingleton().m_Cooking->cookHeightField(hfDesc, writeBuffer);
+	if (!status)
+	{
+		return NULL;
+	}
+
+	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	physx::PxHeightField * heightfield = PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer);
 	if (ShareSerializeCollection)
 	{
 		obj_res.first->second.reset(heightfield, PhysxDeleter<physx::PxHeightField>());
