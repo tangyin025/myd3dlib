@@ -109,8 +109,8 @@ void CShapeDlg::OnOK()
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE, true, pFrame->m_CollectionObjs);
-			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
-			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
+			//mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
+			//mesh_cmp->SetQueryFilterWord0(m_filterWord0);
 		}
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
@@ -118,9 +118,9 @@ void CShapeDlg::OnOK()
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
 			mesh_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
-			mesh_cmp->CreateTriangleMeshShape(true, pFrame->m_CollectionObjs);
-			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
-			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
+			mesh_cmp->CreateTriangleMeshShape("mesh/aaa.triangle_mesh", true, pFrame->m_CollectionObjs);
+			//mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
+			//mesh_cmp->SetQueryFilterWord0(m_filterWord0);
 		}
 		break;
 	case physx::PxGeometryType::eHEIGHTFIELD:

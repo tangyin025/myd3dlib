@@ -31,6 +31,38 @@ struct PhysxDeleter
 	}
 };
 
+class PhysxInputData : public physx::PxInputData
+{
+protected:
+	my::IStreamPtr m_istr;
+
+public:
+	PhysxInputData(my::IStreamPtr istr)
+		: m_istr(istr)
+	{
+	}
+
+	virtual uint32_t read(void* dest, uint32_t count)
+	{
+		return m_istr->read(dest, count);
+	}
+
+	virtual uint32_t getLength() const
+	{
+		return m_istr->GetSize();
+	}
+
+	virtual void seek(uint32_t offset)
+	{
+		m_istr->seek(offset);
+	}
+
+	virtual uint32_t tell() const
+	{
+		return m_istr->tell();
+	}
+};
+
 class PhysxSdk
 	: public my::SingleInstance<PhysxSdk>
 	, public physx::PxErrorCallback

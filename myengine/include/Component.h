@@ -69,9 +69,9 @@ public:
 
 	physx::PxGeometryType::Enum m_PxShapeGeometryType;
 
-	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
-
 	boost::shared_ptr<physx::PxShape> m_PxShape;
+
+	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 protected:
 	Component(void)
@@ -199,7 +199,11 @@ public:
 
 	bool m_bInstance;
 
-	boost::shared_ptr<physx::PxBase> m_PxMesh;
+	std::string m_PxMeshPath;
+
+	my::DeviceResourceBasePtr m_PxMesh;
+
+	physx::PxMaterial * m_PxMaterialTmp;
 
 	D3DXHANDLE handle_Time;
 
@@ -214,6 +218,7 @@ protected:
 		: m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
+		, m_PxMaterialTmp(NULL)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -227,6 +232,7 @@ public:
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
+		, m_PxMaterialTmp(NULL)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -261,6 +267,8 @@ public:
 
 	void OnMeshReady(my::DeviceResourceBasePtr res);
 
+	void OnPxMeshReady(my::DeviceResourceBasePtr res);
+
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
@@ -273,11 +281,11 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	physx::PxTriangleMesh * CreateTriangleMesh(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	//physx::PxTriangleMesh * CreateTriangleMesh(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	void CreateTriangleMeshShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateTriangleMeshShape(const char * TriangleMeshPath, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
-	physx::PxConvexMesh * CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	//physx::PxConvexMesh * CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
 	void CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
