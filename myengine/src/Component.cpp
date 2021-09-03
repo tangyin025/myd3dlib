@@ -51,12 +51,12 @@ void Component::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	physx::PxGeometryType::Enum ShapeGeometryType = m_PxShape ? m_PxShape->getGeometryType() : physx::PxGeometryType::eINVALID;
-	ar << BOOST_SERIALIZATION_NVP(ShapeGeometryType);
-	switch (ShapeGeometryType)
+	ar << BOOST_SERIALIZATION_NVP(m_PxShapeGeometryType);
+	switch (m_PxShapeGeometryType)
 	{
 	case physx::PxGeometryType::eSPHERE:
 	{
+		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -69,6 +69,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	}
 	case physx::PxGeometryType::ePLANE:
 	{
+		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -77,6 +78,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	}
 	case physx::PxGeometryType::eCAPSULE:
 	{
+		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -91,6 +93,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	}
 	case physx::PxGeometryType::eBOX:
 	{
+		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -117,9 +120,8 @@ void Component::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	physx::PxGeometryType::Enum ShapeGeometryType;
-	ar >> BOOST_SERIALIZATION_NVP(ShapeGeometryType);
-	switch (ShapeGeometryType)
+	ar >> BOOST_SERIALIZATION_NVP(m_PxShapeGeometryType);
+	switch (m_PxShapeGeometryType)
 	{
 	case physx::PxGeometryType::eSPHERE:
 	{
@@ -596,16 +598,11 @@ void MeshComponent::CreateTriangleMeshShape(bool ShareSerializeCollection, Colle
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
-	{
-		return;
-	}
-
-	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	{
-		return;
-	}
+	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	//{
+	//	return;
+	//}
 
 	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
@@ -614,8 +611,6 @@ void MeshComponent::CreateTriangleMeshShape(bool ShareSerializeCollection, Colle
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(tri_mesh, mesh_scaling, physx::PxMeshGeometryFlags()),
 		*matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
 	m_PxShape->userData = this;
 }
@@ -669,16 +664,11 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSeriali
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
-	{
-		return;
-	}
-
-	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	{
-		return;
-	}
+	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	//{
+	//	return;
+	//}
 
 	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
@@ -687,8 +677,6 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSeriali
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(cvx_mesh, mesh_scaling),
 		*matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
 	m_PxShape->userData = this;
 }

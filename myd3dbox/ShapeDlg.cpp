@@ -80,21 +80,25 @@ void CShapeDlg::OnOK()
 	switch (m_type)
 	{
 	case physx::PxGeometryType::eSPHERE:
+		m_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 		m_cmp->CreateSphereShape(m_pos, rot, m_param.x, true, pFrame->m_CollectionObjs);
 		m_cmp->SetSimulationFilterWord0(m_filterWord0);
 		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::ePLANE:
+		m_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 		m_cmp->CreatePlaneShape(m_pos, rot, true, pFrame->m_CollectionObjs);
 		m_cmp->SetSimulationFilterWord0(m_filterWord0);
 		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::eCAPSULE:
+		m_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 		m_cmp->CreateCapsuleShape(m_pos, rot, m_param.x, m_param.y, true, pFrame->m_CollectionObjs);
 		m_cmp->SetSimulationFilterWord0(m_filterWord0);
 		m_cmp->SetQueryFilterWord0(m_filterWord0);
 		break;
 	case physx::PxGeometryType::eBOX:
+		m_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 		m_cmp->CreateBoxShape(m_pos, rot, m_param.x, m_param.y, m_param.z, true, pFrame->m_CollectionObjs);
 		m_cmp->SetSimulationFilterWord0(m_filterWord0);
 		m_cmp->SetQueryFilterWord0(m_filterWord0);
@@ -103,6 +107,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
+			mesh_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 			mesh_cmp->CreateConvexMeshShape(m_InflateConvex != FALSE, true, pFrame->m_CollectionObjs);
 			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
 			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
@@ -112,6 +117,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
+			mesh_cmp->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 			mesh_cmp->CreateTriangleMeshShape(true, pFrame->m_CollectionObjs);
 			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
 			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
@@ -121,6 +127,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
+			terrain->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
 			terrain->CreateHeightFieldShape(true, pFrame->m_CollectionObjs);
 			terrain->SetSimulationFilterWord0(m_filterWord0);
 			terrain->SetQueryFilterWord0(m_filterWord0);

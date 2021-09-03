@@ -825,18 +825,11 @@ void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection, CollectionOb
 {
 	_ASSERT(!m_PxShape);
 
-	_ASSERT(m_Actor);
-
-	if (!m_Actor->m_PxActor)
-	{
-		return;
-	}
-
-	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	{
-		return;
-	}
+	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	//{
+	//	return;
+	//}
 
 	AABB aabb = CalculateAABB();
 	if (!aabb.IsValid())
@@ -852,8 +845,6 @@ void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection, CollectionOb
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(heightfield, physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
 		*matertial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
 	m_PxShape->userData = this;
 }

@@ -67,6 +67,8 @@ public:
 
 	MaterialPtr m_Material;
 
+	physx::PxGeometryType::Enum m_PxShapeGeometryType;
+
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
 
 	boost::shared_ptr<physx::PxShape> m_PxShape;
@@ -76,6 +78,7 @@ protected:
 		: m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
+		, m_PxShapeGeometryType(physx::PxGeometryType::eINVALID)
 	{
 	}
 
@@ -84,6 +87,7 @@ protected:
 		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
+		, m_PxShapeGeometryType(physx::PxGeometryType::eINVALID)
 	{
 	}
 
