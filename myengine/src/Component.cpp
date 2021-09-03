@@ -51,14 +51,125 @@ void Component::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
+	physx::PxGeometryType::Enum ShapeGeometryType = m_PxShape ? m_PxShape->getGeometryType() : physx::PxGeometryType::eINVALID;
+	ar << BOOST_SERIALIZATION_NVP(ShapeGeometryType);
+	switch (ShapeGeometryType)
+	{
+	case physx::PxGeometryType::eSPHERE:
+	{
+		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
+		ar << BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
+		ar << BOOST_SERIALIZATION_NVP(ShapeRot);
+		physx::PxSphereGeometry sphere;
+		BOOST_VERIFY(m_PxShape->getSphereGeometry(sphere));
+		float SphereRadius = sphere.radius;
+		ar << BOOST_SERIALIZATION_NVP(SphereRadius);
+		break;
+	}
+	case physx::PxGeometryType::ePLANE:
+	{
+		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
+		ar << BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
+		ar << BOOST_SERIALIZATION_NVP(ShapeRot);
+		break;
+	}
+	case physx::PxGeometryType::eCAPSULE:
+	{
+		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
+		ar << BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
+		ar << BOOST_SERIALIZATION_NVP(ShapeRot);
+		physx::PxCapsuleGeometry capsule;
+		BOOST_VERIFY(m_PxShape->getCapsuleGeometry(capsule));
+		float CapsuleRadius = capsule.radius;
+		ar << BOOST_SERIALIZATION_NVP(CapsuleRadius);
+		float CapsuleHalfHeight = capsule.halfHeight;
+		ar << BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
+		break;
+	}
+	case physx::PxGeometryType::eBOX:
+	{
+		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
+		ar << BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
+		ar << BOOST_SERIALIZATION_NVP(ShapeRot);
+		physx::PxBoxGeometry box;
+		BOOST_VERIFY(m_PxShape->getBoxGeometry(box));
+		my::Vector3 BoxHalfExtents = (my::Vector3&)box.halfExtents;
+		ar << BOOST_SERIALIZATION_NVP(BoxHalfExtents);
+		break;
+	}
+	case physx::PxGeometryType::eCONVEXMESH:
+	case physx::PxGeometryType::eTRIANGLEMESH:
+	case physx::PxGeometryType::eHEIGHTFIELD:
+		break;
+	}
 }
 
 template<class Archive>
 void Component::load(Archive & ar, const unsigned int version)
 {
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
+	_ASSERT(pxar);
+
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
+	physx::PxGeometryType::Enum ShapeGeometryType;
+	ar >> BOOST_SERIALIZATION_NVP(ShapeGeometryType);
+	switch (ShapeGeometryType)
+	{
+	case physx::PxGeometryType::eSPHERE:
+	{
+		my::Vector3 ShapePos;
+		ar >> BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
+		float SphereRadius;
+		ar >> BOOST_SERIALIZATION_NVP(SphereRadius);
+		CreateSphereShape(ShapePos, ShapeRot, SphereRadius, true, pxar->m_CollectionObjs);
+		break;
+	}
+	case physx::PxGeometryType::ePLANE:
+	{
+		my::Vector3 ShapePos;
+		ar >> BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
+		CreatePlaneShape(ShapePos, ShapeRot, true, pxar->m_CollectionObjs);
+		break;
+	}
+	case physx::PxGeometryType::eCAPSULE:
+	{
+		my::Vector3 ShapePos;
+		ar >> BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
+		float CapsuleRadius;
+		ar >> BOOST_SERIALIZATION_NVP(CapsuleRadius);
+		float CapsuleHalfHeight;
+		ar >> BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
+		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight, true, pxar->m_CollectionObjs);
+		break;
+	}
+	case physx::PxGeometryType::eBOX:
+	{
+		my::Vector3 ShapePos;
+		ar >> BOOST_SERIALIZATION_NVP(ShapePos);
+		my::Quaternion ShapeRot;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
+		my::Vector3 BoxHalfExtents;
+		ar >> BOOST_SERIALIZATION_NVP(BoxHalfExtents);
+		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z, true, pxar->m_CollectionObjs);
+		break;
+	}
+	case physx::PxGeometryType::eCONVEXMESH:
+	case physx::PxGeometryType::eTRIANGLEMESH:
+	case physx::PxGeometryType::eHEIGHTFIELD:
+		break;
+	}
 }
 
 void Component::CopyFrom(const Component & rhs)
@@ -90,6 +201,13 @@ void Component::RequestResource(void)
 	{
 		m_Material->RequestResource();
 	}
+
+	if (m_PxShape)
+	{
+		_ASSERT(m_Actor && m_Actor->m_PxActor);
+
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
 }
 
 void Component::ReleaseResource(void)
@@ -99,6 +217,13 @@ void Component::ReleaseResource(void)
 	if (m_Material)
 	{
 		m_Material->ReleaseResource();
+	}
+
+	if (m_PxShape)
+	{
+		_ASSERT(m_Actor && m_Actor->m_PxActor);
+
+		m_Actor->m_PxActor->detachShape(*m_PxShape);
 	}
 }
 
@@ -147,20 +272,12 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
-	{
-		DxutApp::getSingleton().m_EventLog("Component::CreateBoxShape failed: !m_Actor || !m_Actor->m_PxActor");
-		return;
-	}
-
 	physx::PxMaterial * matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
-
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
 	m_PxShape->userData = this;
 }
@@ -169,20 +286,12 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
-	{
-		DxutApp::getSingleton().m_EventLog("Component::CreateCapsuleShape failed: !m_Actor || !m_Actor->m_PxActor");
-		return;
-	}
-
 	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
-
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
 	m_PxShape->userData = this;
 }
@@ -191,17 +300,11 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
-	{
-		DxutApp::getSingleton().m_EventLog("Component::CreatePlaneShape failed: !m_Actor || !m_Actor->m_PxActor");
-		return;
-	}
-
-	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-		&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	{
-		return;
-	}
+	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	//{
+	//	return;
+	//}
 
 	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
@@ -210,8 +313,6 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
-
 	m_PxShape->userData = this;
 }
 
@@ -219,20 +320,12 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 {
 	_ASSERT(!m_PxShape);
 
-	if (!m_Actor || !m_Actor->m_PxActor)
-	{
-		DxutApp::getSingleton().m_EventLog("Component::CreateSphereShape failed: !m_Actor || !m_Actor->m_PxActor");
-		return;
-	}
-
 	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *matertial, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
-
-	m_Actor->m_PxActor->attachShape(*m_PxShape);
 
 	m_PxShape->userData = this;
 }
@@ -279,19 +372,14 @@ unsigned int Component::GetQueryFilterWord0(void) const
 
 void Component::ClearShape(void)
 {
-	if (!m_PxShape)
+	if (m_PxShape)
 	{
-		return;
+		_ASSERT(!m_PxShape->getActor());
+
+		m_PxShape.reset();
+
+		m_PxMaterial.reset();
 	}
-
-	if (m_Actor && m_Actor->m_PxActor)
-	{
-		m_Actor->m_PxActor->detachShape(*m_PxShape, true);
-	}
-
-	m_PxShape.reset();
-
-	m_PxMaterial.reset();
 }
 
 MeshComponent::~MeshComponent(void)
@@ -670,9 +758,9 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 
 	boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
 	collection->add(*m_Cloth);
-	physx::PxSerialization::complete(*collection, *pxar->m_Registry, pxar->m_Collection.get());
+	physx::PxSerialization::complete(*collection, *pxar->m_Registry/*, pxar->m_Collection.get()*/);
 	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry, pxar->m_Collection.get());
+	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry/*, pxar->m_Collection.get()*/);
 	unsigned int ClothSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(ClothSize);
 	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -704,7 +792,7 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry, pxar->m_Collection.get()), PhysxDeleter<physx::PxCollection>());
+	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry/*, pxar->m_Collection.get()*/), PhysxDeleter<physx::PxCollection>());
 	const unsigned int numObjs = collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)
 	{

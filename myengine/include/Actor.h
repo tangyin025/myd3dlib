@@ -25,7 +25,7 @@ class ActorSerializationContext
 public:
 	boost::shared_ptr<physx::PxSerializationRegistry> m_Registry;
 
-	boost::shared_ptr<physx::PxCollection> m_Collection;
+	CollectionObjMap m_CollectionObjs;
 
 	ActorSerializationContext(void);
 };
@@ -147,7 +147,6 @@ protected:
 		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
-		//, m_CullingDist(powf(m_LodDist* powf(m_LodFactor, 3), 2.0))
 		, m_Base(NULL)
 		, m_ActionTrackPoseInstRef(0)
 	{

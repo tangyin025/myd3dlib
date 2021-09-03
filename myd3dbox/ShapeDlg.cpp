@@ -68,6 +68,13 @@ void CShapeDlg::OnOK()
 	// ! physx attached shape is not writable
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT(pFrame);
+	BOOL NeedRequest = FALSE;
+	if (m_cmp->IsRequested())
+	{
+		m_cmp->ReleaseResource();
+		NeedRequest = TRUE;
+	}
+
 	m_cmp->ClearShape();
 	my::Quaternion rot(my::Quaternion::RotationEulerAngles(D3DXToRadian(m_angle.x), D3DXToRadian(m_angle.y), D3DXToRadian(m_angle.z)));
 	switch (m_type)
@@ -120,5 +127,11 @@ void CShapeDlg::OnOK()
 		}
 		break;
 	}
+
+	if (NeedRequest)
+	{
+		m_cmp->RequestResource();
+	}
+
 	EndDialog(IDOK);
 }

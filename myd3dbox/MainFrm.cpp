@@ -749,7 +749,6 @@ void CMainFrame::ClearFileContext()
 	ASSERT(m_ViewedActors.empty());
 	LuaContext::Shutdown();
 	m_CollectionObjs.clear();
-	m_SerializeBuff.reset();
 	_ASSERT(theApp.m_NamedObjects.empty());
 }
 
@@ -772,25 +771,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
-	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
-	_ASSERT(pxar);
-	unsigned int StreamBuffSize;
-	*ia >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
-	m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	*ia >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
-	pxar->m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
-	const unsigned int numObjs = pxar->m_Collection->getNbObjects();
-	for (unsigned int i = 0; i < numObjs; i++)
-	{
-		std::string Key;
-		*ia >> BOOST_SERIALIZATION_NVP(Key);
-		physx::PxSerialObjectId ObjId;
-		*ia >> BOOST_SERIALIZATION_NVP(ObjId);
-		m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>(pxar->m_Collection->find(ObjId), PhysxDeleter<physx::PxBase>())));
-	}
-
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
-
 	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
@@ -798,12 +779,15 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	}
 
 	*ia >> boost::serialization::make_nvp("DialogList", m_DialogList);
-
 	DialogPtrSet::const_iterator dlg_iter = m_DialogList.begin();
 	for (; dlg_iter != m_DialogList.end(); dlg_iter++)
 	{
 		InsertDlg(dlg_iter->get());
 	}
+
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
+	_ASSERT(pxar);
+	m_CollectionObjs.insert(pxar->m_CollectionObjs.begin(), pxar->m_CollectionObjs.end());
 
 	return TRUE;
 }
@@ -826,29 +810,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
-	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(oa.get());
-	_ASSERT(pxar);
-	pxar->m_Collection.reset(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
-	CollectionObjMap::const_iterator collection_obj_iter = m_CollectionObjs.begin();
-	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
-	{
-		pxar->m_Collection->add(*collection_obj_iter->second);
-	}
-	physx::PxSerialization::createSerialObjectIds(*pxar->m_Collection, physx::PxSerialObjectId(1));
-	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *pxar->m_Collection, *pxar->m_Registry);
-	unsigned int StreamBuffSize = ostr.getSize();
-	*oa << BOOST_SERIALIZATION_NVP(StreamBuffSize);
-	*oa << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	collection_obj_iter = m_CollectionObjs.begin();
-	for (; collection_obj_iter != m_CollectionObjs.end(); collection_obj_iter++)
-	{
-		std::string Key = collection_obj_iter->first;
-		*oa << BOOST_SERIALIZATION_NVP(Key);
-		physx::PxSerialObjectId ObjId = pxar->m_Collection->getId(*collection_obj_iter->second);
-		*oa << BOOST_SERIALIZATION_NVP(ObjId);
-	}
-
+	// ! save all actor in the scene, including lua context actor
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		CMainFrame * pFrame;
@@ -865,8 +827,6 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		}
 	} cb(this);
 	QueryEntityAll(&cb);
-
-	// ! save all actor in the scene, including lua context actor
 	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
 
 	DialogPtrSet dlgList;
@@ -875,7 +835,6 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	{
 		dlgList.push_back(boost::dynamic_pointer_cast<my::Dialog>((*dlg_iter)->shared_from_this()));
 	}
-
 	*oa << boost::serialization::make_nvp("DialogList", dlgList);
 
 	return TRUE;

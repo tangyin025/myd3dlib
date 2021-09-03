@@ -67,51 +67,9 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
-	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
-
-	if (m_PxActor)
-	{
-		boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
-		collection->add(*m_PxActor, m_PxActor->getConcreteType() << 24 | 0);
-		for (unsigned int i = 0; i < m_Cmps.size(); i++)
-		{
-			if (m_Cmps[i]->m_PxShape)
-			{
-				collection->add(*m_Cmps[i]->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
-				if (m_Cmps[i]->m_PxMaterial)
-				{
-					collection->add(*m_Cmps[i]->m_PxMaterial, physx::PxConcreteType::eMATERIAL << 24 | i);
-				}
-				if (m_Cmps[i]->GetComponentType() == Component::ComponentTypeMesh)
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_Cmps[i].get());
-					if (mesh_cmp->m_PxMesh)
-					{
-						_ASSERT(mesh_cmp->m_PxMesh->getConcreteType() == physx::PxConcreteType::eCONVEX_MESH
-							|| mesh_cmp->m_PxMesh->getConcreteType() == physx::PxConcreteType::eTRIANGLE_MESH_BVH33);
-						collection->add(*mesh_cmp->m_PxMesh, mesh_cmp->m_PxMesh->getConcreteType() << 24 | i);
-					}
-				}
-				else if (m_Cmps[i]->GetComponentType() == Component::ComponentTypeTerrain)
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(m_Cmps[i].get());
-					if (terrain->m_PxHeightField)
-					{
-						_ASSERT(terrain->m_PxHeightField->getConcreteType() == physx::PxConcreteType::eHEIGHTFIELD);
-						collection->add(*terrain->m_PxHeightField, physx::PxConcreteType::eHEIGHTFIELD << 24 | i);
-					}
-				}
-			}
-		}
-		physx::PxSerialization::complete(*collection, *pxar->m_Registry, pxar->m_Collection.get());
-		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry, pxar->m_Collection.get());
-		unsigned int PxActorSize = ostr.getSize();
-		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
-		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	}
+	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 }
 
 template<class Archive>
@@ -127,67 +85,14 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
+	physx::PxActorType::Enum ActorType;
+	ar >> BOOST_SERIALIZATION_NVP(ActorType);
+	CreateRigidActor(ActorType);
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->m_Actor = this;
-	}
-	physx::PxActorType::Enum ActorType;
-	ar >> BOOST_SERIALIZATION_NVP(ActorType);
-
-	if (ActorType == physx::PxActorType::eRIGID_STATIC || ActorType == physx::PxActorType::eRIGID_DYNAMIC)
-	{
-		unsigned int PxActorSize;
-		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
-		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
-		boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry, pxar->m_Collection.get()), PhysxDeleter<physx::PxCollection>());
-		const unsigned int numObjs = collection->getNbObjects();
-		for (unsigned int i = 0; i < numObjs; i++)
-		{
-			physx::PxBase * obj = &collection->getObject(i);
-			physx::PxSerialObjectId id = collection->getId(*obj);
-			physx::PxConcreteType::Enum type = physx::PxConcreteType::Enum((id & 0xff000000) >> 24);
-			_ASSERT(obj->getConcreteType() == type);
-			unsigned int index = id & 0x00ffffff;
-			switch (obj->getConcreteType())
-			{
-			case physx::PxConcreteType::eCONVEX_MESH:
-				_ASSERT(m_Cmps[index]->GetComponentType() == Component::ComponentTypeMesh && !pxar->m_Collection->contains(*obj));
-				boost::dynamic_pointer_cast<MeshComponent>(m_Cmps[index])->m_PxMesh.reset(obj->is<physx::PxConvexMesh>(), PhysxDeleter<physx::PxConvexMesh>());
-				break;
-			case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
-				_ASSERT(m_Cmps[index]->GetComponentType() == Component::ComponentTypeMesh && !pxar->m_Collection->contains(*obj));
-				boost::dynamic_pointer_cast<MeshComponent>(m_Cmps[index])->m_PxMesh.reset(obj->is<physx::PxTriangleMesh>(), PhysxDeleter<physx::PxTriangleMesh>());
-				break;
-			case physx::PxConcreteType::eMATERIAL:
-				_ASSERT(!pxar->m_Collection->contains(*obj));
-				m_Cmps[index]->m_PxMaterial.reset(obj->is<physx::PxMaterial>(), PhysxDeleter<physx::PxMaterial>());
-				break;
-			case physx::PxConcreteType::eRIGID_STATIC:
-				_ASSERT(!m_PxActor);
-				m_PxActor.reset(obj->is<physx::PxRigidStatic>(), PhysxDeleter<physx::PxRigidActor>());
-				m_PxActor->userData = this;
-				break;
-			case physx::PxConcreteType::eRIGID_DYNAMIC:
-				_ASSERT(!m_PxActor);
-				m_PxActor.reset(obj->is<physx::PxRigidDynamic>(), PhysxDeleter<physx::PxRigidActor>());
-				m_PxActor->userData = this;
-				break;
-			case physx::PxConcreteType::eSHAPE:
-				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>(), PhysxDeleter<physx::PxShape>());
-				m_Cmps[index]->m_PxShape->userData = m_Cmps[index].get();
-				break;
-			case physx::PxConcreteType::eHEIGHTFIELD:
-				_ASSERT(m_Cmps[index]->GetComponentType() == Component::ComponentTypeTerrain && !pxar->m_Collection->contains(*obj));
-				boost::dynamic_pointer_cast<Terrain>(m_Cmps[index])->m_PxHeightField.reset(obj->is<physx::PxHeightField>(), PhysxDeleter<physx::PxHeightField>());
-				break;
-			default:
-				_ASSERT(false);
-				break;
-			}
-		}
 	}
 
 	UpdateWorld();
