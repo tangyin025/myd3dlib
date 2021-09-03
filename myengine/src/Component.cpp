@@ -413,6 +413,11 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(m_PxMeshPath);
 		break;
 	}
+	case physx::PxGeometryType::eCONVEXMESH:
+	{
+		ar << BOOST_SERIALIZATION_NVP(m_PxMeshPath);
+		break;
+	}
 	}
 }
 
@@ -435,6 +440,13 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
 		CreateTriangleMeshShape(PxMeshPath.c_str(), true, pxar->m_CollectionObjs);
+		break;
+	}
+	case physx::PxGeometryType::eCONVEXMESH:
+	{
+		std::string PxMeshPath;
+		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
+		CreateConvexMeshShape(PxMeshPath.c_str(), true, true, pxar->m_CollectionObjs);
 		break;
 	}
 	}
@@ -462,17 +474,17 @@ void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
 	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
 }
 
-class PhysxTriangleMesh : public my::DeviceResourceBase
+class PhysxBaseResource : public my::DeviceResourceBase
 {
 public:
-	physx::PxTriangleMesh* m_ptr;
+	physx::PxBase* m_ptr;
 
-	PhysxTriangleMesh(void)
+	PhysxBaseResource(void)
 		: m_ptr(NULL)
 	{
 	}
 
-	virtual ~PhysxTriangleMesh(void)
+	virtual ~PhysxBaseResource(void)
 	{
 		if (m_ptr)
 		{
@@ -480,7 +492,7 @@ public:
 		}
 	}
 
-	void Create(physx::PxTriangleMesh* ptr)
+	void Create(physx::PxBase* ptr)
 	{
 		_ASSERT(NULL == m_ptr);
 
@@ -488,7 +500,7 @@ public:
 	}
 };
 
-typedef boost::intrusive_ptr<PhysxTriangleMesh> PhysxTriangleMeshPtr;
+typedef boost::intrusive_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
 
 class PhysxTriangleMeshIORequest : public my::IORequest
 {
@@ -507,7 +519,7 @@ public:
 		if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 		{
 			PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
-			PhysxTriangleMeshPtr res(new PhysxTriangleMesh());
+			PhysxBaseResourcePtr res(new PhysxBaseResource());
 			res->Create(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer));
 			m_res = res;
 		}
@@ -522,7 +534,39 @@ public:
 	}
 };
 
-void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res)
+class PhysxConvexMeshIORequest : public my::IORequest
+{
+protected:
+	std::string m_path;
+
+public:
+	PhysxConvexMeshIORequest(const char* path, int Priority)
+		: IORequest(Priority)
+		, m_path(path)
+	{
+	}
+
+	virtual void PhysxConvexMeshIORequest::LoadResource(void)
+	{
+		if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+		{
+			PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+			PhysxBaseResourcePtr res(new PhysxBaseResource());
+			res->Create(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer));
+			m_res = res;
+		}
+	}
+
+	virtual void PhysxConvexMeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if (!m_res)
+		{
+			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
+		}
+	}
+};
+
+void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeometryType::Enum type)
 {
 	m_PxMesh = res;
 
@@ -530,9 +574,27 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res)
 
 	_ASSERT(m_PxMaterialTmp);
 
-	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(boost::dynamic_pointer_cast<PhysxTriangleMesh>(m_PxMesh)->m_ptr, mesh_scaling, physx::PxMeshGeometryFlags()),
-		*m_PxMaterialTmp, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+	switch (type)
+	{
+	case physx::PxGeometryType::eTRIANGLEMESH:
+	{
+		physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
+		m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(
+			boost::dynamic_pointer_cast<PhysxBaseResource>(m_PxMesh)->m_ptr->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
+			*m_PxMaterialTmp, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		break;
+	}
+	case physx::PxGeometryType::eCONVEXMESH:
+	{
+		physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
+		m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(
+			boost::dynamic_pointer_cast<PhysxBaseResource>(m_PxMesh)->m_ptr->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()),
+			*m_PxMaterialTmp, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		break;
+	}
+	default:
+		THROW_CUSEXCEPTION("error");
+	}
 
 	m_PxShape->userData = this;
 
@@ -554,16 +616,23 @@ void MeshComponent::RequestResource(void)
 	{
 		_ASSERT(!m_PxMesh && !m_PxShape);
 
-		IORequestPtr request;
 		switch (m_PxShapeGeometryType)
 		{
 		case physx::PxGeometryType::eTRIANGLEMESH:
-			request.reset(new PhysxTriangleMeshIORequest(m_PxMeshPath.c_str(), INT_MAX));
+		{
+			IORequestPtr request(new PhysxTriangleMeshIORequest(m_PxMeshPath.c_str(), INT_MAX));
+			my::ResourceMgr::getSingleton().LoadIORequestAsync(m_PxMeshPath, request, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, physx::PxGeometryType::eTRIANGLEMESH));
 			break;
+		}
+		case physx::PxGeometryType::eCONVEXMESH:
+		{
+			IORequestPtr request(new PhysxConvexMeshIORequest(m_PxMeshPath.c_str(), INT_MAX));
+			my::ResourceMgr::getSingleton().LoadIORequestAsync(m_PxMeshPath, request, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, physx::PxGeometryType::eCONVEXMESH));
+			break;
+		}
 		default:
 			THROW_CUSEXCEPTION("error");
 		}
-		my::ResourceMgr::getSingleton().LoadIORequestAsync(m_PxMeshPath, request, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1));
 	}
 }
 
@@ -578,7 +647,7 @@ void MeshComponent::ReleaseResource(void)
 
 	if (!m_PxMeshPath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_PxMeshPath, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_PxMeshPath, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, m_PxShapeGeometryType));
 
 		m_PxMesh.reset();
 	}
@@ -673,57 +742,6 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 		}
 	}
 }
-//
-//physx::PxTriangleMesh * MeshComponent::CreateTriangleMesh(bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
-//{
-//	OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-//	std::pair<CollectionObjMap::iterator, bool> obj_res;
-//	if (ShareSerializeCollection)
-//	{
-//		std::string Key = str_printf("%s %d PxTriangleMesh", mesh->m_Key, m_MeshSubMeshId);
-//		obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
-//		if (!obj_res.second)
-//		{
-//			return obj_res.first->second->is<physx::PxTriangleMesh>();
-//		}
-//	}
-//
-//	const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
-//	physx::PxTriangleMeshDesc desc;
-//	desc.points.count = att.VertexCount;
-//	desc.points.stride = mesh->GetNumBytesPerVertex();
-//	desc.points.data = (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
-//	desc.triangles.count = att.FaceCount;
-//	if (mesh->GetOptions() & D3DXMESH_32BIT)
-//	{
-//		desc.triangles.stride = 3 * sizeof(DWORD);
-//	}
-//	else
-//	{
-//		desc.triangles.stride = 3 * sizeof(WORD);
-//		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-//	}
-//	desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
-//	physx::PxDefaultMemoryOutputStream writeBuffer;
-//	bool status = PhysxSdk::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
-//	mesh->UnlockIndexBuffer();
-//	mesh->UnlockVertexBuffer();
-//	if (!status)
-//	{
-//		return NULL;
-//	}
-//	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-//	physx::PxTriangleMesh * tri_mesh = PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer);
-//	if (ShareSerializeCollection)
-//	{
-//		obj_res.first->second.reset(tri_mesh, PhysxDeleter<physx::PxTriangleMesh>());
-//	}
-//	else
-//	{
-//		m_PxMesh.reset(tri_mesh, PhysxDeleter<physx::PxTriangleMesh>());
-//	}
-//	return tri_mesh;
-//}
 
 void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
@@ -736,14 +754,6 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool 
 	//}
 
 	m_PxMaterialTmp = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
-
-	//physx::PxTriangleMesh * tri_mesh = CreateTriangleMesh(ShareSerializeCollection, collectionObjs);
-
-	//physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-	//m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(tri_mesh, mesh_scaling, physx::PxMeshGeometryFlags()),
-	//	*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
-
-	//m_PxShape->userData = this;
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(TriangleMeshPath))
 	{
@@ -779,53 +789,8 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool 
 
 	m_PxMeshPath.assign(TriangleMeshPath);
 }
-//
-//physx::PxConvexMesh * MeshComponent::CreateConvexMesh(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
-//{
-//	OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-//	std::pair<CollectionObjMap::iterator, bool> obj_res;
-//	if (ShareSerializeCollection)
-//	{
-//		std::string Key = str_printf("%s %d PxConvexMesh", mesh->m_Key, m_MeshSubMeshId);
-//		obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
-//		if (!obj_res.second)
-//		{
-//			return obj_res.first->second->is<physx::PxConvexMesh>();
-//		}
-//	}
-//
-//	const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
-//	physx::PxConvexMeshDesc desc;
-//	desc.points.count = att.VertexCount;
-//	desc.points.stride = mesh->GetNumBytesPerVertex();
-//	desc.points.data = (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
-//	desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
-//	if (bInflateConvex)
-//	{
-//		desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
-//	}
-//	desc.vertexLimit = 256;
-//	physx::PxDefaultMemoryOutputStream writeBuffer;
-//	bool status = PhysxSdk::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
-//	mesh->UnlockVertexBuffer();
-//	if (!status)
-//	{
-//		return NULL;
-//	}
-//	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-//	physx::PxConvexMesh * cvx_mesh = PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer);
-//	if (ShareSerializeCollection)
-//	{
-//		obj_res.first->second.reset(cvx_mesh, PhysxDeleter<physx::PxConvexMesh>());
-//	}
-//	else
-//	{
-//		m_PxMesh.reset(cvx_mesh, PhysxDeleter<physx::PxConvexMesh>());
-//	}
-//	return cvx_mesh;
-//}
 
-void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -835,15 +800,35 @@ void MeshComponent::CreateConvexMeshShape(bool bInflateConvex, bool ShareSeriali
 	//	return;
 	//}
 
-	physx::PxMaterial * material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	m_PxMaterialTmp = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
 
-	//physx::PxConvexMesh * cvx_mesh = CreateConvexMesh(bInflateConvex, ShareSerializeCollection, collectionObjs);
+	if (!my::ResourceMgr::getSingleton().CheckPath(ConvexMeshPath))
+	{
+		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
+		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
+		physx::PxConvexMeshDesc desc;
+		desc.points.count = att.VertexCount;
+		desc.points.stride = mesh->GetNumBytesPerVertex();
+		desc.points.data = (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
+		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
+		if (bInflateConvex)
+		{
+			desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
+		}
+		desc.vertexLimit = 256;
 
-	//physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-	//m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxConvexMeshGeometry(cvx_mesh, mesh_scaling),
-	//	*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ConvexMeshPath).c_str());
+		bool status = PhysxSdk::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
+		mesh->UnlockVertexBuffer();
+		if (!status)
+		{
+			THROW_CUSEXCEPTION("cookConvexMesh failed");
+		}
+	}
 
-	//m_PxShape->userData = this;
+	_ASSERT(m_PxMeshPath.empty());
+
+	m_PxMeshPath.assign(ConvexMeshPath);
 }
 
 void MeshComponent::ClearShape(void)
