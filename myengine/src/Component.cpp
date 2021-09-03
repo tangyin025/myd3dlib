@@ -833,11 +833,13 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 
 void MeshComponent::ClearShape(void)
 {
+	Component::ClearShape();
+
 	m_PxMesh.reset();
 
-	m_PxMaterialTmp = NULL; // ! dont release
+	m_PxMeshPath.clear();
 
-	Component::ClearShape();
+	m_PxMaterialTmp = NULL; // ! dont release
 }
 
 ClothComponent::~ClothComponent(void)

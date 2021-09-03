@@ -109,6 +109,8 @@ public:
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
+	std::string m_PxHeightFieldPath;
+
 	boost::shared_ptr<physx::PxHeightField> m_PxHeightField;
 
 	D3DXHANDLE handle_World;
@@ -165,9 +167,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	physx::PxHeightField * CreateHeightField(float HeightScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
-
-	void CreateHeightFieldShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
 
 	virtual void ClearShape(void);
 };

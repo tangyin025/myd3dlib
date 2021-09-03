@@ -487,12 +487,27 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), *m_Chunks[i][j].m_OctAabb);
 		}
 	}
+	switch (m_PxShapeGeometryType)
+	{
+	case physx::PxGeometryType::eHEIGHTFIELD:
+	{
+		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
+		ar << BOOST_SERIALIZATION_NVP(m_PxHeightFieldPath);
+		_ASSERT(m_Actor);
+		ar << boost::serialization::make_nvp("ActorScale", m_Actor->m_Scale);
+		break;
+	}
+	}
 }
 
 template<class Archive>
 void Terrain::load(Archive & ar, const unsigned int version)
 {
 	ClearAllEntity();
+
+	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(&ar);
+	_ASSERT(pxar);
+
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowChunks);
@@ -526,6 +541,18 @@ void Terrain::load(Archive & ar, const unsigned int version)
 			std::fill_n(m_Chunks[i][j].m_Lod, _countof(m_Chunks[i][j].m_Lod), _Quad(m_ChunkSize, m_MinLodChunkSize));
 			AddEntity(&m_Chunks[i][j], aabb, MinBlock, Threshold);
 		}
+	}
+	switch (m_PxShapeGeometryType)
+	{
+	case physx::PxGeometryType::eHEIGHTFIELD:
+	{
+		std::string PxHeightFieldPath;
+		ar >> boost::serialization::make_nvp("m_PxHeightFieldPath", PxHeightFieldPath);
+		my::Vector3 ActorScale;
+		ar >> BOOST_SERIALIZATION_NVP(ActorScale);
+		CreateHeightFieldShape(PxHeightFieldPath.c_str(), ActorScale, true, pxar->m_CollectionObjs);
+		break;
+	}
 	}
 }
 
@@ -777,67 +804,9 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-physx::PxHeightField * Terrain::CreateHeightField(float HeightScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
-{
-	std::pair<CollectionObjMap::iterator, bool> obj_res;
-	if (ShareSerializeCollection)
-	{
-		obj_res = collectionObjs.insert(std::make_pair(m_ChunkPath, boost::shared_ptr<physx::PxBase>()));
-		if (!obj_res.second)
-		{
-			return obj_res.first->second->is<physx::PxHeightField>();
-		}
-	}
-
-	boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
-	TerrainStream tstr(this);
-	for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
-	{
-		for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
-		{
-			Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
-			Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
-			Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
-		}
-	}
-	tstr.Release();
-
-	physx::PxHeightFieldDesc hfDesc;
-	hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
-	hfDesc.nbColumns = m_RowChunks * m_ChunkSize + 1;
-	hfDesc.format = physx::PxHeightFieldFormat::eS16_TM;
-	hfDesc.samples.data = Samples.data();
-	hfDesc.samples.stride = sizeof(Samples[0][0]);
-
-	physx::PxDefaultMemoryOutputStream writeBuffer;
-	bool status = PhysxSdk::getSingleton().m_Cooking->cookHeightField(hfDesc, writeBuffer);
-	if (!status)
-	{
-		return NULL;
-	}
-
-	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	physx::PxHeightField * heightfield = PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer);
-	if (ShareSerializeCollection)
-	{
-		obj_res.first->second.reset(heightfield, PhysxDeleter<physx::PxHeightField>());
-	}
-	else
-	{
-		m_PxHeightField.reset(heightfield, PhysxDeleter<physx::PxHeightField>());
-	}
-	return heightfield;
-}
-
-void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
-
-	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	//{
-	//	return;
-	//}
 
 	AABB aabb = CalculateAABB();
 	if (!aabb.IsValid())
@@ -845,16 +814,56 @@ void Terrain::CreateHeightFieldShape(bool ShareSerializeCollection, CollectionOb
 		return;
 	}
 
-	physx::PxMaterial* matertial = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
-
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
-	physx::PxHeightField * heightfield = CreateHeightField(HeightScale, ShareSerializeCollection, collectionObjs);
+
+	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	//{
+	//	return;
+	//}
+
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+
+	if (!my::ResourceMgr::getSingleton().CheckPath(HeightFieldPath))
+	{
+		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
+		TerrainStream tstr(this);
+		for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
+		{
+			for (int j = 0; j < m_ColChunks * m_ChunkSize + 1; j++)
+			{
+				Samples[j][i].height = (short)Clamp<int>((int)roundf(tstr.GetPos(i, j).y / HeightScale), SHRT_MIN, SHRT_MAX);
+				Samples[j][i].materialIndex0 = physx::PxBitAndByte(0, false);
+				Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
+			}
+		}
+		tstr.Release();
+
+		physx::PxHeightFieldDesc hfDesc;
+		hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
+		hfDesc.nbColumns = m_RowChunks * m_ChunkSize + 1;
+		hfDesc.format = physx::PxHeightFieldFormat::eS16_TM;
+		hfDesc.samples.data = Samples.data();
+		hfDesc.samples.stride = sizeof(Samples[0][0]);
+
+		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(HeightFieldPath).c_str());
+		bool status = PhysxSdk::getSingleton().m_Cooking->cookHeightField(hfDesc, writeBuffer);
+		if (!status)
+		{
+			THROW_CUSEXCEPTION("cookHeightField failed");
+		}
+	}
+
+	PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(HeightFieldPath));
+	physx::PxHeightField * heightfield = PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(heightfield, physx::PxMeshGeometryFlags(), HeightScale * m_Actor->m_Scale.y, m_Actor->m_Scale.x, m_Actor->m_Scale.z),
-		*matertial, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		physx::PxHeightFieldGeometry(heightfield, physx::PxMeshGeometryFlags(), HeightScale * ActorScale.y, ActorScale.x, ActorScale.z),
+		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
+
+	m_PxHeightFieldPath.assign(HeightFieldPath);
 }
 
 void Terrain::ClearShape(void)
@@ -862,6 +871,8 @@ void Terrain::ClearShape(void)
 	Component::ClearShape();
 
 	m_PxHeightField.reset();
+
+	m_PxHeightFieldPath.clear();
 }
 
 TerrainStream::TerrainStream(Terrain* terrain)

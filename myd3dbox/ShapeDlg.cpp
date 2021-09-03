@@ -128,7 +128,7 @@ void CShapeDlg::OnOK()
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
 			terrain->m_PxShapeGeometryType = (physx::PxGeometryType::Enum)m_type;
-			terrain->CreateHeightFieldShape(true, pFrame->m_CollectionObjs);
+			terrain->CreateHeightFieldShape("terrain/ccc.heightfiled", terrain->m_Actor->m_Scale, true, pFrame->m_CollectionObjs);
 			terrain->SetSimulationFilterWord0(m_filterWord0);
 			terrain->SetQueryFilterWord0(m_filterWord0);
 		}
