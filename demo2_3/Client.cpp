@@ -314,26 +314,12 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("FogStartDistance", scene->m_FogStartDistance);
 		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
 		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
+		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
+		*ia >> boost::serialization::make_nvp("DialogList", scene->m_DialogList);
 
 		ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
 		_ASSERT(pxar);
-		unsigned int StreamBuffSize;
-		*ia >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
-		scene->m_SerializeBuff.reset((unsigned char*)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-		*ia >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(scene->m_SerializeBuff.get(), StreamBuffSize));
-		pxar->m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(scene->m_SerializeBuff.get(), *pxar->m_Registry, NULL), PhysxDeleter<physx::PxCollection>());
-		const unsigned int numObjs = pxar->m_Collection->getNbObjects();
-		for (unsigned int i = 0; i < numObjs; i++)
-		{
-			std::string Key;
-			*ia >> BOOST_SERIALIZATION_NVP(Key);
-			physx::PxSerialObjectId ObjId;
-			*ia >> BOOST_SERIALIZATION_NVP(ObjId);
-			scene->m_CollectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>(pxar->m_Collection->find(ObjId), PhysxDeleter<physx::PxBase>())));
-		}
-
-		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
-		*ia >> boost::serialization::make_nvp("DialogList", scene->m_DialogList);
+		scene->m_CollectionObjs.insert(pxar->m_CollectionObjs.begin(), pxar->m_CollectionObjs.end());
 	}
 }
 

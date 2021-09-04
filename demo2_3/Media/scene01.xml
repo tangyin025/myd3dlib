@@ -37,15 +37,6 @@
 <FogStartDistance>1.000000000e+01</FogStartDistance>
 <FogHeight>5.000000000e+01</FogHeight>
 <FogFalloff>9.999999776e-03</FogFalloff>
-<StreamBuffSize>224</StreamBuffSize>
-<StreamBuff>
-U0VCRAABBAMAAAAAvMBnAVdfNjQBAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAJ
-AM3NUAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAzc3NzQAAAAAAAAAAAAAAAAEA
-AAAQVdkHAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2OUg0/4HAAAJAAMAzc3NzQAAAAAAAAAAsOYg
-0/4HAAADAAAAzc3Nzc3Nzc3Nzc3NAAAAPwAAAD8AAAA/AAAAABBV2QcAAAAAAAAAAM3Nzc0=
-</StreamBuff>
-<Key>PxMaterial 0.500000 0.500000 0.500000</Key>
-<ObjId>1</ObjId>
 <ActorList class_id="2" tracking_level="0" version="0">
 	<count>2</count>
 	<item_version>1</item_version>
@@ -84,6 +75,7 @@ AAAQVdkHAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2OUg0/4HAAAJAAMAzc3NzQAAAAAAAAAAsOYg
 			</m_Scale>
 			<m_LodDist>3.300000000e+01</m_LodDist>
 			<m_LodFactor>2.000000000e+00</m_LodFactor>
+			<ActorType>0</ActorType>
 			<m_Cmps class_id="8" tracking_level="0" version="0">
 				<count>7</count>
 				<item_version>1</item_version>
@@ -191,6 +183,18 @@ AAAQVdkHAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA2OUg0/4HAAAJAAMAzc3NzQAAAAAAAAAAsOYg
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>1</m_PxShapeGeometryType>
+							<ShapePos>
+								<x>0.000000000e+00</x>
+								<y>0.000000000e+00</y>
+								<z>0.000000000e+00</z>
+							</ShapePos>
+							<ShapeRot>
+								<x>0.000000000e+00</x>
+								<y>0.000000000e+00</y>
+								<z>7.071068287e-01</z>
+								<w>7.071068287e-01</w>
+							</ShapeRot>
 						</Component>
 						<OctRoot class_id="21" tracking_level="0" version="0">
 							<AABB>
@@ -248,7 +252,7 @@ QgAAAP9//38A
 					<px class_id="23" class_name="MeshComponent" tracking_level="1" version="0" object_id="_16">
 						<Component object_id="_17">
 							<NamedObject object_id="_18">
-								<Name>actor0_sky1</Name>
+								<Name>actor0_sky0</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -273,6 +277,7 @@ QgAAAP9//38A
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
 						</Component>
 						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -290,7 +295,7 @@ QgAAAP9//38A
 					<px class_id_reference="23" object_id="_21">
 						<Component object_id="_22">
 							<NamedObject object_id="_23">
-								<Name>actor0_sky2</Name>
+								<Name>actor0_sky1</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -315,6 +320,7 @@ QgAAAP9//38A
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
 						</Component>
 						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -332,7 +338,7 @@ QgAAAP9//38A
 					<px class_id_reference="23" object_id="_26">
 						<Component object_id="_27">
 							<NamedObject object_id="_28">
-								<Name>actor0_sky3</Name>
+								<Name>actor0_sky2</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -357,6 +363,7 @@ QgAAAP9//38A
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
 						</Component>
 						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -374,7 +381,7 @@ QgAAAP9//38A
 					<px class_id_reference="23" object_id="_31">
 						<Component object_id="_32">
 							<NamedObject object_id="_33">
-								<Name>actor0_sky4</Name>
+								<Name>actor0_sky3</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -399,6 +406,7 @@ QgAAAP9//38A
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
 						</Component>
 						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -416,7 +424,7 @@ QgAAAP9//38A
 					<px class_id_reference="23" object_id="_36">
 						<Component object_id="_37">
 							<NamedObject object_id="_38">
-								<Name>actor0_sky5</Name>
+								<Name>actor0_sky4</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -441,6 +449,7 @@ QgAAAP9//38A
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
 						</Component>
 						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -458,7 +467,7 @@ QgAAAP9//38A
 					<px class_id_reference="23" object_id="_41">
 						<Component object_id="_42">
 							<NamedObject object_id="_43">
-								<Name>actor0_sky6</Name>
+								<Name>actor0_sky5</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -483,6 +492,7 @@ QgAAAP9//38A
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
 						</Component>
 						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -497,23 +507,6 @@ QgAAAP9//38A
 					</px>
 				</item>
 			</m_Cmps>
-			<ActorType>0</ActorType>
-			<PxActorSize>692</PxActorSize>
-			<m_PxActor>
-U0VCRAABBAMAAAAAvMBnAVdfNjQBAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAI
-AM3NEAEAAAcAzc3AAQAAAAAAAAAAAAABAAAAAQAAAAAAAAAJAM3Nzc3NzQAAAAAAAAAAAAAAAAIA
-AAAAAAAIAAAAAAAAAADNzc3NAAAABwAAAAABAAAAzc3NzQAAAAAAAAAAAAAAAAIAAACQqtEFAAAA
-AAAAAIABAAAAYJvXBQAAAAAAAACAAAAAAAEAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAACAsCHT
-/gcAAAgAAwDNzc3N4E1cAgAAAAD4sSHT/gcAAAMAAADNzc3NkKrRBQAAAACQNa8FAAAAAAAAAIHN
-zc3NAAAAAAAAAADNzc3Nzc3NzQEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAD0BDU/9AQ1PwAAAAAAAAAAAAAAAArXozwLAQAAzc3NzQEAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAAAAAABAACAzc3Nzcg+IdP+BwAABwADAM3Nzc3Q
-BboFAAAAAAAAAAAAAAAAAAAAAAAAAABgm9cFAAAAAAEAAQHNzc3NAAAAAAAAAAABAAEBzc3NzQAA
-AAAAAAAAAAAAAM3Nzc3Nzc3Nzc3NzZA1rwUAAAAAAAAAhc3Nzc0AAAAAAAAAAM3Nzc3Nzc3NWM2v
-BQAAAAD///8AAQAAAAAAAAAAAAAAAAAAAAAAgD8AAADCAAAAAAAAAMIAAM3NAAAAAAAAAAAAAAAA
-AAAAAAAAAAA=
-			</m_PxActor>
 		</px>
 	</item>
 	<item>
@@ -551,6 +544,8 @@ AAAAAAAAAAA=
 			</m_Scale>
 			<m_LodDist>3.300000000e+01</m_LodDist>
 			<m_LodFactor>2.000000000e+00</m_LodFactor>
+			<ActorType>1</ActorType>
+			<RigidBodyFlags>1</RigidBodyFlags>
 			<m_Cmps>
 				<count>1</count>
 				<item_version>1</item_version>
@@ -558,7 +553,7 @@ AAAAAAAAAAA=
 					<px class_id_reference="23" object_id="_48">
 						<Component object_id="_49">
 							<NamedObject object_id="_50">
-								<Name>actor1_mesh1</Name>
+								<Name>actor1_mesh0</Name>
 							</NamedObject>
 							<m_LodMask>7</m_LodMask>
 							<m_Material>
@@ -607,6 +602,23 @@ AAAAAAAAAAA=
 									</m_ParameterList>
 								</px>
 							</m_Material>
+							<m_PxShapeGeometryType>3</m_PxShapeGeometryType>
+							<ShapePos>
+								<x>0.000000000e+00</x>
+								<y>0.000000000e+00</y>
+								<z>0.000000000e+00</z>
+							</ShapePos>
+							<ShapeRot>
+								<x>0.000000000e+00</x>
+								<y>0.000000000e+00</y>
+								<z>0.000000000e+00</z>
+								<w>1.000000000e+00</w>
+							</ShapeRot>
+							<BoxHalfExtents>
+								<x>1.000000000e+00</x>
+								<y>1.000000000e+00</y>
+								<z>1.000000000e+00</z>
+							</BoxHalfExtents>
 						</Component>
 						<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
@@ -621,26 +633,6 @@ AAAAAAAAAAA=
 					</px>
 				</item>
 			</m_Cmps>
-			<ActorType>1</ActorType>
-			<PxActorSize>900</PxActorSize>
-			<m_PxActor>
-U0VCRAABBAMAAAAAvMBnAVdfNjQBAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAI
-AM3NEAEAAAYAzc2QAgAAAAAAAAAAAAABAAAAAQAAAAAAAAAJAM3Nzc3NzQAAAAAAAAAAAAAAAAIA
-AAAAAAAIAAAAAAAAAADNzc3NAAAABgAAAAABAAAAzc3NzQAAAAAAAAAAAAAAAAIAAAAAH6cHAAAA
-AAAAAIABAAAAcJzXBQAAAAAAAACAAAAAAAEAAAAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAACAsCHT
-/gcAAAgAAwDNzc3NgBG8BwAAAAD4sSHT/gcAAAMAAADNzc3NAB+nBwAAAACQNa8FAAAAAAAAAIHN
-zc3NAAAAAAAAAADNzc3Nzc3NzQEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAACAPwAAAAAAAAAAAAAAAArXozwLAQAAzc3NzQMAAAAAAIA/AACAPwAAgD/Nzc3Nzc3N
-zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAzc3Nzc3Nzc3Nzc3NAAAAAAAAAAABAACAzc3NzegQIdP+BwAABgADAM3Nzc3Q
-yNcFAAAAAAAAAAAAAAAAAAAAAAAAAABwnNcFAAAAAAEAAQHNzc3NAQAAAAAAAAABAAEBzc3NzQAA
-AAAAAAAAAQAAAM3Nzc3Nzc3Nzc3NzZA1rwUAAAAAAAAAg83Nzc0AAAAAAAAAAM3Nzc3Nzc3NYOOv
-BQAAAAD///8AAQEAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAABAQQBAAAAAAAAAAAAAAAA
-AACAPwAAAAAAAAAAAAAAAJqZGT4AAAAAAAAAAAAAAACuxZ30AAAAAAAAAAAAAAAA//9/fwAAREL/
-/39/AAAAAM3MTD0AAIA/AACAPwAAgD8AAIA/rsWddArXozsK1yM7AAAAAM3Nzc0AAAAAAAAAAAAA
-AAAQTLUHAAAAAM3Nzc3Nzc3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-			</m_PxActor>
 		</px>
 	</item>
 </ActorList>

@@ -67,8 +67,24 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
+
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
+	switch (ActorType)
+	{
+	case physx::PxActorType::eRIGID_DYNAMIC:
+	{
+		physx::PxRigidBody* body = m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidBodyFlags::InternalType RigidBodyFlags = (physx::PxRigidBodyFlags::InternalType)body->getRigidBodyFlags();
+		ar << BOOST_SERIALIZATION_NVP(RigidBodyFlags);
+		break;
+	}
+	case physx::PxActorType::eRIGID_STATIC:
+	{
+		break;
+	}
+	}
+
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 }
 
@@ -85,9 +101,27 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
+
 	physx::PxActorType::Enum ActorType;
 	ar >> BOOST_SERIALIZATION_NVP(ActorType);
-	CreateRigidActor(ActorType);
+	switch (ActorType)
+	{
+	case physx::PxActorType::eRIGID_DYNAMIC:
+	{
+		CreateRigidActor(physx::PxActorType::eRIGID_DYNAMIC);
+		physx::PxRigidBody* body = m_PxActor->is<physx::PxRigidBody>();
+		physx::PxRigidBodyFlags::InternalType RigidBodyFlags;
+		ar >> BOOST_SERIALIZATION_NVP(RigidBodyFlags);
+		body->setRigidBodyFlags(physx::PxRigidBodyFlags(RigidBodyFlags));
+		break;
+	}
+	case physx::PxActorType::eRIGID_STATIC:
+	{
+		CreateRigidActor(physx::PxActorType::eRIGID_STATIC);
+		break;
+	}
+	}
+
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
