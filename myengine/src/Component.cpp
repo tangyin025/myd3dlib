@@ -71,6 +71,8 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::ePLANE:
@@ -84,6 +86,8 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
@@ -103,6 +107,8 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::eBOX:
@@ -120,6 +126,8 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -156,6 +164,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	case physx::PxGeometryType::ePLANE:
@@ -171,6 +182,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
@@ -190,6 +204,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	case physx::PxGeometryType::eBOX:
@@ -207,6 +224,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -457,6 +477,8 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -466,6 +488,8 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	}
@@ -496,6 +520,9 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -509,6 +536,9 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	}

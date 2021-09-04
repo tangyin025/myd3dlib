@@ -499,6 +499,8 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
 	}
@@ -561,6 +563,9 @@ void Terrain::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
+		physx::PxShapeFlags::InternalType ShapeFlags;
+		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
+		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
 	}

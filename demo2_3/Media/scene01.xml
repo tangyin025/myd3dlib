@@ -197,6 +197,7 @@
 							</ShapeRot>
 							<SimulationFilterWord0>1</SimulationFilterWord0>
 							<QueryFilterWord0>1</QueryFilterWord0>
+							<ShapeFlags>11</ShapeFlags>
 						</Component>
 						<OctRoot class_id="21" tracking_level="0" version="0">
 							<AABB>
@@ -623,6 +624,7 @@ QgAAAP9//38A
 							</BoxHalfExtents>
 							<SimulationFilterWord0>1</SimulationFilterWord0>
 							<QueryFilterWord0>1</QueryFilterWord0>
+							<ShapeFlags>11</ShapeFlags>
 						</Component>
 						<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
 						<m_MeshSubMeshName></m_MeshSubMeshName>
