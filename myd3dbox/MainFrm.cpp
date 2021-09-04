@@ -724,6 +724,8 @@ void CMainFrame::InitFileContext()
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("allactors", &CMainFrame::m_ActorList, luabind::return_stl_iterator)
+			.def_readonly("alldialogs", &CMainFrame::m_DialogList, luabind::return_stl_iterator)
+			.def_readonly("CollectionObjs", &CMainFrame::m_CollectionObjs)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
 			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)

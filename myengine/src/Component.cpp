@@ -130,10 +130,6 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
-	case physx::PxGeometryType::eCONVEXMESH:
-	case physx::PxGeometryType::eTRIANGLEMESH:
-	case physx::PxGeometryType::eHEIGHTFIELD:
-		break;
 	}
 }
 
@@ -157,7 +153,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
 		float SphereRadius;
 		ar >> BOOST_SERIALIZATION_NVP(SphereRadius);
-		CreateSphereShape(ShapePos, ShapeRot, SphereRadius, true, pxar->m_CollectionObjs);
+		CreateSphereShape(ShapePos, ShapeRot, SphereRadius, pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -175,7 +171,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
-		CreatePlaneShape(ShapePos, ShapeRot, true, pxar->m_CollectionObjs);
+		CreatePlaneShape(ShapePos, ShapeRot, pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -197,7 +193,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(CapsuleRadius);
 		float CapsuleHalfHeight;
 		ar >> BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
-		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight, true, pxar->m_CollectionObjs);
+		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight, pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -217,7 +213,7 @@ void Component::load(Archive & ar, const unsigned int version)
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
 		my::Vector3 BoxHalfExtents;
 		ar >> BOOST_SERIALIZATION_NVP(BoxHalfExtents);
-		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z, true, pxar->m_CollectionObjs);
+		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z, pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -229,10 +225,6 @@ void Component::load(Archive & ar, const unsigned int version)
 		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
 	}
-	case physx::PxGeometryType::eCONVEXMESH:
-	case physx::PxGeometryType::eTRIANGLEMESH:
-	case physx::PxGeometryType::eHEIGHTFIELD:
-		break;
 	}
 }
 
@@ -306,37 +298,24 @@ void Component::SetMaterial(MaterialPtr material)
 	}
 }
 
-physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+physx::PxMaterial * Component::CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, CollectionObjMap & collectionObjs)
 {
 	// ! materialIndices[0] = Ps::to16((static_cast<NpMaterial*>(materials[0]))->getHandle());
-	std::pair<CollectionObjMap::iterator, bool> obj_res;
-	if (ShareSerializeCollection)
+	std::string Key = str_printf("physx material %f %f %f", staticFriction, dynamicFriction, restitution);
+	std::pair<CollectionObjMap::iterator, bool> obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
+	if (obj_res.second)
 	{
-		std::string Key = str_printf("PxMaterial %f %f %f", staticFriction, dynamicFriction, restitution);
-		obj_res = collectionObjs.insert(std::make_pair(Key, boost::shared_ptr<physx::PxBase>()));
-		if (!obj_res.second)
-		{
-			return obj_res.first->second->is<physx::PxMaterial>();
-		}
+		obj_res.first->second.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(staticFriction, dynamicFriction, restitution), PhysxDeleter<physx::PxMaterial>());
 	}
 
-	physx::PxMaterial * material = PhysxSdk::getSingleton().m_sdk->createMaterial(staticFriction, dynamicFriction, restitution);
-	if (ShareSerializeCollection)
-	{
-		obj_res.first->second.reset(material, PhysxDeleter<physx::PxMaterial>());
-	}
-	else
-	{
-		m_PxMaterial.reset(material, PhysxDeleter<physx::PxMaterial>());
-	}
-	return material;
+	return obj_res.first->second->is<physx::PxMaterial>();
 }
 
-void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial * material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial * material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -344,13 +323,15 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
+
+	m_PxShapeGeometryType = physx::PxGeometryType::eBOX;
 }
 
-void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -358,9 +339,11 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
+
+	m_PxShapeGeometryType = physx::PxGeometryType::eCAPSULE;
 }
 
-void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -370,7 +353,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	//	return;
 	//}
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -378,13 +361,15 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
+
+	m_PxShapeGeometryType = physx::PxGeometryType::ePLANE;
 }
 
-void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
@@ -392,6 +377,8 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
 
 	m_PxShape->userData = this;
+
+	m_PxShapeGeometryType = physx::PxGeometryType::eSPHERE;
 }
 
 void Component::SetSimulationFilterWord0(unsigned int filterWord0)
@@ -441,11 +428,6 @@ void Component::ClearShape(void)
 		_ASSERT(!m_PxShape->getActor());
 
 		m_PxShape.reset();
-	}
-
-	if (m_PxMaterial)
-	{
-		m_PxMaterial.reset();
 	}
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eINVALID;
@@ -513,7 +495,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	{
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
-		CreateTriangleMeshShape(PxMeshPath.c_str(), true, pxar->m_CollectionObjs);
+		CreateTriangleMeshShape(PxMeshPath.c_str(), pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -529,7 +511,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	{
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
-		CreateConvexMeshShape(PxMeshPath.c_str(), true, true, pxar->m_CollectionObjs);
+		CreateConvexMeshShape(PxMeshPath.c_str(), true, pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -592,6 +574,9 @@ public:
 				_ASSERT(static_cast<physx::Gu::ConvexMesh*>(m_ptr)->getRefCount() == 1);
 				break;
 			}
+			default:
+				_ASSERT(false);
+				break;
 			}
 
 			m_ptr->release();
@@ -863,7 +848,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	}
 }
 
-void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -873,7 +858,7 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool 
 	//	return;
 	//}
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(TriangleMeshPath))
 	{
@@ -935,9 +920,11 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool 
 	m_PxShape->userData = this;
 
 	m_PxMeshTmp = obj_res.first->second.get();
+
+	m_PxShapeGeometryType = physx::PxGeometryType::eTRIANGLEMESH;
 }
 
-void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -947,7 +934,7 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 	//	return;
 	//}
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(ConvexMeshPath))
 	{
@@ -1000,6 +987,8 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 	m_PxShape->userData = this;
 
 	m_PxMeshTmp = obj_res.first->second.get();
+
+	m_PxShapeGeometryType = physx::PxGeometryType::eCONVEXMESH;
 }
 
 void MeshComponent::ClearShape(void)

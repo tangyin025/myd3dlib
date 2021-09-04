@@ -71,8 +71,6 @@ public:
 
 	boost::shared_ptr<physx::PxShape> m_PxShape;
 
-	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
-
 protected:
 	Component(void)
 		: m_LodMask(LOD0_1_2)
@@ -158,15 +156,15 @@ public:
 		return m_Material;
 	}
 
-	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, CollectionObjMap & collectionObjs);
 
-	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, CollectionObjMap & collectionObjs);
 
-	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, CollectionObjMap & collectionObjs);
 
-	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, CollectionObjMap & collectionObjs);
 
-	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, CollectionObjMap & collectionObjs);
 
 	void SetSimulationFilterWord0(unsigned int filterWord0);
 
@@ -281,9 +279,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateTriangleMeshShape(const char * TriangleMeshPath, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateTriangleMeshShape(const char * TriangleMeshPath, CollectionObjMap & collectionObjs);
 
-	void CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs);
+	void CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, CollectionObjMap & collectionObjs);
 
 	virtual void ClearShape(void);
 };

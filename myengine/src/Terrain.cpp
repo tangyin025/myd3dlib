@@ -556,7 +556,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 		ar >> boost::serialization::make_nvp("m_PxHeightFieldPath", PxHeightFieldPath);
 		my::Vector3 ActorScale;
 		ar >> BOOST_SERIALIZATION_NVP(ActorScale);
-		CreateHeightFieldShape(PxHeightFieldPath.c_str(), ActorScale, true, pxar->m_CollectionObjs);
+		CreateHeightFieldShape(PxHeightFieldPath.c_str(), ActorScale, pxar->m_CollectionObjs);
 		unsigned int SimulationFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		SetSimulationFilterWord0(SimulationFilterWord0);
@@ -819,7 +819,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
+void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
 
@@ -837,7 +837,7 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 	//	return;
 	//}
 
-	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, ShareSerializeCollection, collectionObjs);
+	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(HeightFieldPath))
 	{
@@ -880,6 +880,8 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
+
+	m_PxShapeGeometryType = physx::PxGeometryType::eHEIGHTFIELD;
 }
 
 void Terrain::ClearShape(void)
