@@ -495,6 +495,10 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(m_PxHeightFieldPath);
 		_ASSERT(m_Actor);
 		ar << boost::serialization::make_nvp("ActorScale", m_Actor->m_Scale);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	}
@@ -551,6 +555,12 @@ void Terrain::load(Archive & ar, const unsigned int version)
 		my::Vector3 ActorScale;
 		ar >> BOOST_SERIALIZATION_NVP(ActorScale);
 		CreateHeightFieldShape(PxHeightFieldPath.c_str(), ActorScale, true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	}

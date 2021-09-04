@@ -67,6 +67,10 @@ void Component::save(Archive & ar, const unsigned int version) const
 		BOOST_VERIFY(m_PxShape->getSphereGeometry(sphere));
 		float SphereRadius = sphere.radius;
 		ar << BOOST_SERIALIZATION_NVP(SphereRadius);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::ePLANE:
@@ -76,6 +80,10 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
 		ar << BOOST_SERIALIZATION_NVP(ShapeRot);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
@@ -91,6 +99,10 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(CapsuleRadius);
 		float CapsuleHalfHeight = capsule.halfHeight;
 		ar << BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eBOX:
@@ -104,6 +116,10 @@ void Component::save(Archive & ar, const unsigned int version) const
 		BOOST_VERIFY(m_PxShape->getBoxGeometry(box));
 		my::Vector3 BoxHalfExtents = (my::Vector3&)box.halfExtents;
 		ar << BOOST_SERIALIZATION_NVP(BoxHalfExtents);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -134,6 +150,12 @@ void Component::load(Archive & ar, const unsigned int version)
 		float SphereRadius;
 		ar >> BOOST_SERIALIZATION_NVP(SphereRadius);
 		CreateSphereShape(ShapePos, ShapeRot, SphereRadius, true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::ePLANE:
@@ -143,6 +165,12 @@ void Component::load(Archive & ar, const unsigned int version)
 		my::Quaternion ShapeRot;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeRot);
 		CreatePlaneShape(ShapePos, ShapeRot, true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
@@ -156,6 +184,12 @@ void Component::load(Archive & ar, const unsigned int version)
 		float CapsuleHalfHeight;
 		ar >> BOOST_SERIALIZATION_NVP(CapsuleHalfHeight);
 		CreateCapsuleShape(ShapePos, ShapeRot, CapsuleRadius, CapsuleHalfHeight, true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eBOX:
@@ -167,6 +201,12 @@ void Component::load(Archive & ar, const unsigned int version)
 		my::Vector3 BoxHalfExtents;
 		ar >> BOOST_SERIALIZATION_NVP(BoxHalfExtents);
 		CreateBoxShape(ShapePos, ShapeRot, BoxHalfExtents.x, BoxHalfExtents.y, BoxHalfExtents.z, true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -413,11 +453,19 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	case physx::PxGeometryType::eTRIANGLEMESH:
 	{
 		ar << BOOST_SERIALIZATION_NVP(m_PxMeshPath);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
 	{
 		ar << BOOST_SERIALIZATION_NVP(m_PxMeshPath);
+		unsigned int SimulationFilterWord0 = GetSimulationFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
+		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		break;
 	}
 	}
@@ -442,6 +490,12 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
 		CreateTriangleMeshShape(PxMeshPath.c_str(), true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
@@ -449,6 +503,12 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		std::string PxMeshPath;
 		ar >> boost::serialization::make_nvp("m_PxMeshPath", PxMeshPath);
 		CreateConvexMeshShape(PxMeshPath.c_str(), true, true, pxar->m_CollectionObjs);
+		unsigned int SimulationFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
+		SetSimulationFilterWord0(SimulationFilterWord0);
+		unsigned int QueryFilterWord0;
+		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
+		SetQueryFilterWord0(QueryFilterWord0);
 		break;
 	}
 	}
