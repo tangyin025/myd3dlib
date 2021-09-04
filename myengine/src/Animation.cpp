@@ -494,14 +494,14 @@ void Animator::RequestResource(void)
 
 void Animator::ReleaseResource(void)
 {
+	Component::ReleaseResource();
+
 	if (!m_SkeletonPath.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
 
 		m_Skeleton.reset();
 	}
-
-	Component::ReleaseResource();
 }
 
 void Animator::Update(float fElapsedTime)

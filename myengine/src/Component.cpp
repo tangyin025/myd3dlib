@@ -22,6 +22,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include "mesh\GuTriangleMesh.h"
+#include "convex\GuConvexMesh.h"
 
 using namespace my;
 
@@ -488,6 +490,20 @@ public:
 	{
 		if (m_ptr)
 		{
+			switch (m_ptr->getConcreteType())
+			{
+			case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
+			{
+				_ASSERT(static_cast<physx::Gu::TriangleMesh*>(m_ptr)->getRefCount() == 1);
+				break;
+			}
+			case physx::PxConcreteType::eCONVEX_MESH:
+			{
+				_ASSERT(static_cast<physx::Gu::ConvexMesh*>(m_ptr)->getRefCount() == 1);
+				break;
+			}
+			}
+
 			m_ptr->release();
 		}
 	}
@@ -634,6 +650,8 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
+	Component::ReleaseResource();
+
 	if (!m_MeshPath.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
@@ -645,10 +663,31 @@ void MeshComponent::ReleaseResource(void)
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_PxMeshPath, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, m_PxShapeGeometryType));
 
-		m_PxMesh.reset();
-	}
+		if (m_PxMesh)
+		{
+			_ASSERT(m_PxMeshTmp);
 
-	Component::ReleaseResource();
+			switch (m_PxShapeGeometryType)
+			{
+			case physx::PxGeometryType::eTRIANGLEMESH:
+			{
+				physx::PxMeshScale mesh_scaling((physx::PxVec3&)my::Vector3(1, 1, 1), physx::PxQuat(physx::PxIdentity));
+				m_PxShape->setGeometry(physx::PxTriangleMeshGeometry(
+					m_PxMeshTmp->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()));
+				break;
+			}
+			case physx::PxGeometryType::eCONVEXMESH:
+			{
+				physx::PxMeshScale mesh_scaling((physx::PxVec3&)my::Vector3(1, 1, 1), physx::PxQuat(physx::PxIdentity));
+				m_PxShape->setGeometry(physx::PxConvexMeshGeometry(
+					m_PxMeshTmp->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()));
+				break;
+			}
+			}
+
+			m_PxMesh.reset();
+		}
+	}
 }
 
 void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -804,6 +843,8 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, bool 
 		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
+
+	m_PxMeshTmp = obj_res.first->second.get();
 }
 
 void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, bool ShareSerializeCollection, CollectionObjMap & collectionObjs)
@@ -867,6 +908,8 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
+
+	m_PxMeshTmp = obj_res.first->second.get();
 }
 
 void MeshComponent::ClearShape(void)
@@ -876,6 +919,8 @@ void MeshComponent::ClearShape(void)
 	m_PxMesh.reset();
 
 	m_PxMeshPath.clear();
+
+	m_PxMeshTmp = NULL; // ! dont release
 }
 
 ClothComponent::~ClothComponent(void)
@@ -1109,6 +1154,8 @@ void ClothComponent::RequestResource(void)
 
 void ClothComponent::ReleaseResource(void)
 {
+	Component::ReleaseResource();
+
 	m_Decl.Release();
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
@@ -1123,8 +1170,6 @@ void ClothComponent::ReleaseResource(void)
 
 		scene->removeRenderActorsFromPhysicsActor(m_Cloth.get());
 	}
-
-	Component::ReleaseResource();
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)

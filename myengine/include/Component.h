@@ -203,6 +203,8 @@ public:
 
 	my::DeviceResourceBasePtr m_PxMesh;
 
+	physx::PxBase * m_PxMeshTmp;
+
 	D3DXHANDLE handle_Time;
 
 	D3DXHANDLE handle_World;
@@ -216,6 +218,7 @@ protected:
 		: m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
+		, m_PxMeshTmp(NULL)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -229,6 +232,7 @@ public:
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
+		, m_PxMeshTmp(NULL)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)

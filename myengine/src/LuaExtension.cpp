@@ -101,13 +101,13 @@ struct ComponentScript : Component, luabind::wrap_base
 
 	static void default_ReleaseResource(Component* ptr)
 	{
+		ptr->Component::ReleaseResource();
+
 		_ASSERT(ptr->m_Actor);
 
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(ptr->m_Actor->m_Node->GetTopNode());
 
 		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
-
-		ptr->Component::ReleaseResource();
 	}
 
 	virtual void Update(float fElapsedTime)

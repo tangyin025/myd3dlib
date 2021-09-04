@@ -573,6 +573,8 @@ void Terrain::RequestResource(void)
 
 void Terrain::ReleaseResource(void)
 {
+	Component::ReleaseResource();
+
 	m_Decl.Release();
 
 	m_Fragment.clear();
@@ -583,8 +585,6 @@ void Terrain::ReleaseResource(void)
 		chunk_iter->ReleaseResource();
 	}
 	m_ViewedChunks.clear();
-
-	Component::ReleaseResource();
 }
 
 void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -854,16 +854,17 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 		}
 	}
 
-	PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(HeightFieldPath));
-	physx::PxHeightField * heightfield = PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer);
+	_ASSERT(m_PxHeightFieldPath.empty());
 
-	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
-		physx::PxHeightFieldGeometry(heightfield, physx::PxMeshGeometryFlags(), HeightScale * ActorScale.y, ActorScale.x, ActorScale.z),
+	m_PxHeightFieldPath.assign(HeightFieldPath);
+
+	PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(HeightFieldPath));
+	m_PxHeightField.reset(PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer), PhysxDeleter<physx::PxHeightField>());
+
+	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), HeightScale * ActorScale.y, ActorScale.x, ActorScale.z),
 		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
-
-	m_PxHeightFieldPath.assign(HeightFieldPath);
 }
 
 void Terrain::ClearShape(void)

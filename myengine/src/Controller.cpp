@@ -68,6 +68,8 @@ void Controller::RequestResource(void)
 
 void Controller::ReleaseResource(void)
 {
+	Component::ReleaseResource();
+
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
 	_ASSERT(!m_PxController || m_PxController->getActor()->getScene() == scene->m_PxScene.get());
@@ -80,8 +82,6 @@ void Controller::ReleaseResource(void)
 	m_PxController.reset();
 
 	m_PxMaterial.reset();
-
-	Component::ReleaseResource();
 }
 
 void Controller::Update(float fElapsedTime)
