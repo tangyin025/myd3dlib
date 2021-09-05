@@ -306,9 +306,9 @@ public:
 
 	std::vector<physx::PxClothParticle> m_particles;
 
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
+	std::string m_ClothFabricPath;
 
-	boost::shared_ptr<physx::PxClothFabric> m_Fabric;
+	boost::shared_ptr<physx::PxClothFabric> m_ClothFabric;
 
 	boost::shared_ptr<physx::PxCloth> m_Cloth;
 
@@ -374,7 +374,7 @@ public:
 
 	virtual ComponentPtr Clone(void) const;
 
-	void CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId);
+	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId);
 
 	virtual void RequestResource(void);
 

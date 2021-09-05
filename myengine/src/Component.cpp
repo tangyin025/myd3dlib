@@ -1057,16 +1057,7 @@ void ClothComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
-
-	boost::shared_ptr<physx::PxCollection> collection(PxCreateCollection(), PhysxDeleter<physx::PxCollection>());
-	collection->add(*m_Cloth);
-	physx::PxSerialization::complete(*collection, *pxar->m_Registry/*, pxar->m_Collection.get()*/);
-	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *pxar->m_Registry/*, pxar->m_Collection.get()*/);
-	unsigned int ClothSize = ostr.getSize();
-	ar << BOOST_SERIALIZATION_NVP(ClothSize);
-	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-
+	ar << BOOST_SERIALIZATION_NVP(m_ClothFabricPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
@@ -1090,25 +1081,9 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 
-	unsigned int ClothSize;
-	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
-	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	boost::shared_ptr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *pxar->m_Registry/*, pxar->m_Collection.get()*/), PhysxDeleter<physx::PxCollection>());
-	const unsigned int numObjs = collection->getNbObjects();
-	for (unsigned int i = 0; i < numObjs; i++)
-	{
-		physx::PxBase * obj = &collection->getObject(i);
-		switch (obj->getConcreteType())
-		{
-		case physx::PxConcreteType::eCLOTH_FABRIC:
-			m_Fabric.reset(obj->is<physx::PxClothFabric>(), PhysxDeleter<physx::PxClothFabric>());
-			break;
-		case physx::PxConcreteType::eCLOTH:
-			m_Cloth.reset(obj->is<physx::PxCloth>(), PhysxDeleter<physx::PxCloth>());
-			break;
-		}
-	}
+	std::string ClothFabricPath;
+	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
+	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0);
 
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
@@ -1126,14 +1101,14 @@ ComponentPtr ClothComponent::Clone(void) const
 	return ret;
 }
 
-void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId)
+void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId)
 {
 	if (m_VertexData.empty())
 	{
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[AttribId];
 		m_VertexStride = mesh->GetNumBytesPerVertex();
 		m_VertexData.resize(att.VertexCount * m_VertexStride);
-		memcpy(&m_VertexData[0], (unsigned char *)mesh->LockVertexBuffer() + att.VertexStart * m_VertexStride, m_VertexData.size());
+		memcpy(&m_VertexData[0], (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * m_VertexStride, m_VertexData.size());
 		mesh->UnlockVertexBuffer();
 
 		m_IndexData.resize(att.FaceCount * 3);
@@ -1141,21 +1116,21 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId)
 		{
 			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %u", m_IndexData.size()));
 		}
-		VOID * pIndices = mesh->LockIndexBuffer();
+		VOID* pIndices = mesh->LockIndexBuffer();
 		for (unsigned int face_i = 0; face_i < att.FaceCount; face_i++)
 		{
 			// ! take care of att.VertexStart
-			if(mesh->GetOptions() & D3DXMESH_32BIT)
+			if (mesh->GetOptions() & D3DXMESH_32BIT)
 			{
-				m_IndexData[face_i * 3 + 0] = (WORD)*((DWORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
-				m_IndexData[face_i * 3 + 1] = (WORD)*((DWORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
-				m_IndexData[face_i * 3 + 2] = (WORD)*((DWORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
+				m_IndexData[face_i * 3 + 0] = (WORD) * ((DWORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = (WORD) * ((DWORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = (WORD) * ((DWORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
 			}
 			else
 			{
-				m_IndexData[face_i * 3 + 0] = *((WORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
-				m_IndexData[face_i * 3 + 1] = *((WORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
-				m_IndexData[face_i * 3 + 2] = *((WORD *)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
+				m_IndexData[face_i * 3 + 0] = *((WORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = *((WORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = *((WORD*)pIndices + att.FaceStart * 3 + face_i * 3 + 2);
 			}
 		}
 		mesh->UnlockIndexBuffer();
@@ -1175,10 +1150,10 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId)
 		}
 
 		m_particles.resize(att.VertexCount);
-		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
-		for(unsigned int i = 0; i < m_particles.size(); i++) {
-			unsigned char * pVertex = pVertices + i * m_VertexStride;
-			m_particles[i].pos = (physx::PxVec3 &)m_VertexElems.GetPosition(pVertex);
+		unsigned char* pVertices = (unsigned char*)&m_VertexData[0];
+		for (unsigned int i = 0; i < m_particles.size(); i++) {
+			unsigned char* pVertex = pVertices + i * m_VertexStride;
+			m_particles[i].pos = (physx::PxVec3&)m_VertexElems.GetPosition(pVertex);
 			D3DXCOLOR Weight(m_VertexElems.GetColor(pVertex));
 			if (Weight.r > EPSILON_E6)
 			{
@@ -1189,20 +1164,35 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, DWORD AttribId)
 				m_particles[i].invWeight = 0;
 			}
 		}
+	}
+
+	if (!my::ResourceMgr::getSingleton().CheckPath(ClothFabricPath))
+	{
+		_ASSERT(!m_VertexData.empty());
 
 		physx::PxClothMeshDesc desc;
 		desc.points.data = &m_VertexData[0] + m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
-		desc.points.count = att.VertexCount;
+		desc.points.count = m_VertexData.size() / m_VertexStride;
 		desc.points.stride = m_VertexStride;
 		desc.triangles.data = &m_IndexData[0];
-		desc.triangles.count = att.FaceCount;
+		desc.triangles.count = m_IndexData.size() / 3;
 		desc.triangles.stride = 3 * sizeof(unsigned short);
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-		boost::shared_ptr<physx::PxClothFabric> fabric(PxClothFabricCreate(
-			*PhysxSdk::getSingleton().m_sdk, desc, (physx::PxVec3&)my::Vector3::Gravity, true), PhysxDeleter<physx::PxClothFabric>());
-		m_Cloth.reset(PhysxSdk::getSingleton().m_sdk->createCloth(
-			physx::PxTransform(physx::PxIdentity), *fabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
+
+		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ClothFabricPath).c_str());
+		physx::PxClothFabricCooker cooker(desc, (physx::PxVec3&)my::Vector3::Gravity, true);
+		cooker.save(writeBuffer, true);
 	}
+
+	_ASSERT(m_ClothFabricPath.empty());
+
+	m_ClothFabricPath.assign(ClothFabricPath);
+
+	PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(ClothFabricPath));
+	m_ClothFabric.reset(PhysxSdk::getSingleton().m_sdk->createClothFabric(readBuffer), PhysxDeleter<physx::PxClothFabric>());
+
+	m_Cloth.reset(PhysxSdk::getSingleton().m_sdk->createCloth(
+		physx::PxTransform(physx::PxIdentity), *m_ClothFabric, &m_particles[0], physx::PxClothFlags()), PhysxDeleter<physx::PxCloth>());
 }
 
 void ClothComponent::RequestResource(void)

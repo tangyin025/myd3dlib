@@ -29,6 +29,7 @@
 #include "LuaExtension.inl"
 #include "myException.h"
 #include <boost/scope_exit.hpp>
+#include <boost/lexical_cast.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1270,6 +1271,13 @@ void CMainFrame::OnComponentCloth()
 		return;
 	}
 
+	std::string MeshPath = theApp.GetRelativePath(ts2ms((LPCTSTR)dlg.GetPathName()).c_str());
+	if (MeshPath.empty())
+	{
+		MessageBox(str_printf(_T("cannot relative path: %s"), (LPCTSTR)dlg.GetPathName()).c_str());
+		return;
+	}
+
 	my::CachePtr cache = my::FileIStream::Open(dlg.GetPathName())->GetWholeCache();
 	cache->push_back(0);
 	rapidxml::xml_document<char> doc;
@@ -1296,8 +1304,13 @@ void CMainFrame::OnComponentCloth()
 		std::vector<D3DXATTRIBUTERANGE>::iterator att_iter = mesh->m_AttribTable.begin();
 		for (; att_iter != mesh->m_AttribTable.end(); att_iter++)
 		{
+			std::string ClothFabricPath = MeshPath + ".pxclothfabric";
+			if (att_iter != mesh->m_AttribTable.begin())
+			{
+				ClothFabricPath += "_" + boost::lexical_cast<std::string>(std::distance(mesh->m_AttribTable.begin(), att_iter));
+			}
 			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-			cloth_cmp->CreateClothFromMesh(mesh, std::distance(mesh->m_AttribTable.begin(), att_iter));
+			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, std::distance(mesh->m_AttribTable.begin(), att_iter));
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
@@ -1317,8 +1330,13 @@ void CMainFrame::OnComponentCloth()
 			rapidxml::xml_node<char>* node_boneassignments = node_submesh->first_node("boneassignments");
 			my::OgreMeshPtr mesh(new my::OgreMesh());
 			mesh->CreateMeshFromOgreXmlNodes(node_geometry, node_boneassignments, node_submesh, false);
+			std::string ClothFabricPath = MeshPath + ".pxclothfabric";
+			if (attr_name->value())
+			{
+				ClothFabricPath += std::string("_") + attr_name->value();
+			}
 			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-			cloth_cmp->CreateClothFromMesh(mesh, 0);
+			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, 0);
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
