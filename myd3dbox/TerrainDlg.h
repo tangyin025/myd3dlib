@@ -34,4 +34,5 @@ public:
 	virtual void OnOK();
 	afx_msg void OnChangeEdit4();
 	int m_MinLodChunkSize;
+	afx_msg void OnClickedButton1();
 };
