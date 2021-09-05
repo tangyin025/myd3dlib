@@ -11,7 +11,7 @@ local tbox=terrain:CalculateAABB()
 local act=Actor(NamedObject.MakeUniqueName("editor_act"),Vector3(-tbox:Center().x,0,-tbox:Center().z),Quaternion.Identity(),Vector3(1,1,1),tbox)
 act:AddComponent(terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
-terrain:CreateHeightFieldShape("terrain/chunk_123456.heightfield",act.Scale,theApp.MainWnd.CollectionObjs)
+terrain:CreateHeightFieldShape("terrain/chunk_123456.pxheightfield",act.Scale,theApp.MainWnd.CollectionObjs)
 terrain.SimulationFilterWord0=1
 terrain.QueryFilterWord0=1
 act:UpdateWorld()
@@ -49,7 +49,7 @@ for i=1,300,1 do
 		math.random(-4000,4000)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 	act:AddComponent(mesh_cmp)
 	act:CreateRigidActor(Actor.eRIGID_STATIC)
-	mesh_cmp:CreateTriangleMeshShape("mesh/Gear.trianglemesh",theApp.MainWnd.CollectionObjs)
+	mesh_cmp:CreateTriangleMeshShape("mesh/Gear.pxtrianglemesh",theApp.MainWnd.CollectionObjs)
 	mesh_cmp.SimulationFilterWord0=1
 	mesh_cmp.QueryFilterWord0=1
 	act.CullingDist=500

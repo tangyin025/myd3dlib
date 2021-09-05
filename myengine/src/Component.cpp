@@ -661,14 +661,13 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 {
 	m_PxMesh = res;
 
-	_ASSERT(m_Actor && m_Actor->m_PxActor && m_PxShape);
+	_ASSERT(m_Actor && m_Actor->m_PxActor && m_PxShape && !m_PxShape->getActor());
 
 	switch (type)
 	{
 	case physx::PxGeometryType::eTRIANGLEMESH:
 	{
 		physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-		m_Actor->m_PxActor->detachShape(*m_PxShape);
 		m_PxShape->setGeometry(physx::PxTriangleMeshGeometry(
 			boost::dynamic_pointer_cast<PhysxBaseResource>(m_PxMesh)->m_ptr->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()));
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -677,7 +676,6 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 	case physx::PxGeometryType::eCONVEXMESH:
 	{
 		physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-		m_Actor->m_PxActor->detachShape(*m_PxShape);
 		m_PxShape->setGeometry(physx::PxConvexMeshGeometry(
 			boost::dynamic_pointer_cast<PhysxBaseResource>(m_PxMesh)->m_ptr->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()));
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
@@ -690,7 +688,14 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 
 void MeshComponent::RequestResource(void)
 {
-	Component::RequestResource();
+	//Component::RequestResource();
+
+	m_Requested = true;
+
+	if (m_Material)
+	{
+		m_Material->RequestResource();
+	}
 
 	if (!m_MeshPath.empty())
 	{
@@ -725,7 +730,14 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	Component::ReleaseResource();
+	//Component::ReleaseResource();
+
+	m_Requested = false;
+
+	if (m_Material)
+	{
+		m_Material->ReleaseResource();
+	}
 
 	if (!m_MeshPath.empty())
 	{
@@ -741,6 +753,10 @@ void MeshComponent::ReleaseResource(void)
 		if (m_PxMesh)
 		{
 			_ASSERT(m_PxMeshTmp);
+
+			_ASSERT(m_PxShape->getActor());
+
+			m_Actor->m_PxActor->detachShape(*m_PxShape);
 
 			switch (m_PxShapeGeometryType)
 			{
