@@ -22,6 +22,7 @@ CShapeDlg::CShapeDlg(CWnd* pParent, Component * m_cmp, int type)
 	, m_param(1,1,1)
 	, m_filterWord0(1)
 	, m_InflateConvex(FALSE)
+	, m_AssetPath(_T(""))
 {
 
 }
@@ -45,14 +46,29 @@ void CShapeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT9, m_param.z);
 	DDX_Text(pDX, IDC_EDIT10, m_filterWord0);
 	DDX_Check(pDX, IDC_CHECK1, m_InflateConvex);
+	DDX_Text(pDX, IDC_EDIT11, m_AssetPath);
 }
 
 
 BEGIN_MESSAGE_MAP(CShapeDlg, CDialogEx)
+	ON_EN_CHANGE(IDC_EDIT11, &CShapeDlg::OnChangeEdit11)
+	ON_BN_CLICKED(IDC_BUTTON4, &CShapeDlg::OnClickedButton4)
 END_MESSAGE_MAP()
 
 
 // CShapeDlg message handlers
+
+
+BOOL CShapeDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  Add extra initialization here
+	OnChangeEdit11();
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // EXCEPTION: OCX Property Pages should return FALSE
+}
 
 
 void CShapeDlg::OnOK()
@@ -62,6 +78,15 @@ void CShapeDlg::OnOK()
 	{
 		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
 		// the UpdateData routine will set focus to correct item
+		return;
+	}
+
+	if ((m_type == physx::PxGeometryType::eCONVEXMESH
+		|| m_type == physx::PxGeometryType::eTRIANGLEMESH
+		|| m_type == physx::PxGeometryType::eHEIGHTFIELD)
+		&& m_AssetPath.IsEmpty())
+	{
+		MessageBox(_T("Asset path cannot be empty!"), NULL, MB_OK);
 		return;
 	}
 
@@ -103,7 +128,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateConvexMeshShape("mesh/bbb.convex_mesh", m_InflateConvex != FALSE, pFrame->m_CollectionObjs);
+			mesh_cmp->CreateConvexMeshShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), m_InflateConvex != FALSE, pFrame->m_CollectionObjs);
 			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
 			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
 		}
@@ -112,7 +137,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeMesh)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_cmp);
-			mesh_cmp->CreateTriangleMeshShape("mesh/aaa.triangle_mesh", pFrame->m_CollectionObjs);
+			mesh_cmp->CreateTriangleMeshShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), pFrame->m_CollectionObjs);
 			mesh_cmp->SetSimulationFilterWord0(m_filterWord0);
 			mesh_cmp->SetQueryFilterWord0(m_filterWord0);
 		}
@@ -121,7 +146,7 @@ void CShapeDlg::OnOK()
 		if (m_cmp->GetComponentType() == Component::ComponentTypeTerrain)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(m_cmp);
-			terrain->CreateHeightFieldShape("terrain/ccc.heightfiled", terrain->m_Actor->m_Scale, pFrame->m_CollectionObjs);
+			terrain->CreateHeightFieldShape(ts2ms((LPCTSTR)m_AssetPath).c_str(), terrain->m_Actor->m_Scale, pFrame->m_CollectionObjs);
 			terrain->SetSimulationFilterWord0(m_filterWord0);
 			terrain->SetQueryFilterWord0(m_filterWord0);
 		}
@@ -134,4 +159,55 @@ void CShapeDlg::OnOK()
 	}
 
 	EndDialog(IDOK);
+}
+
+
+void CShapeDlg::OnChangeEdit11()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialogEx::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+	if (m_type != physx::PxGeometryType::eCONVEXMESH
+		&& m_type != physx::PxGeometryType::eTRIANGLEMESH
+		&& m_type != physx::PxGeometryType::eHEIGHTFIELD
+		&& GetDlgItem(IDC_BUTTON4)->IsWindowEnabled())
+	{
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
+		return;
+	}
+
+	CString strText;
+	GetDlgItemText(IDC_EDIT11, strText);
+	if (my::ResourceMgr::getSingleton().CheckPath(theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()).c_str()))
+	{
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
+	}
+}
+
+
+void CShapeDlg::OnClickedButton4()
+{
+	// TODO: Add your control notification handler code here
+	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
+	FullPath.append(2, '\0');
+	SHFILEOPSTRUCTA shfo;
+	ZeroMemory(&shfo, sizeof(shfo));
+	shfo.hwnd = AfxGetMainWnd()->m_hWnd;
+	shfo.wFunc = FO_DELETE;
+	shfo.pFrom = FullPath.c_str();
+	shfo.fFlags = FOF_ALLOWUNDO | FOF_FILESONLY | FOF_NOCONFIRMATION | FOF_NORECURSION;
+	int res = SHFileOperationA(&shfo);
+	if (res != 0)
+	{
+		MessageBox(str_printf(_T("delete %s failed"), ms2ts(FullPath).c_str()).c_str(), NULL, MB_OK);
+	}
+
+	OnChangeEdit11();
 }

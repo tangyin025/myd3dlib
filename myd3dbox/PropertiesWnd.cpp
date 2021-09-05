@@ -3197,6 +3197,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyShapeType:
 	{
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
+		if (!cmp->m_Actor || !cmp->m_Actor->m_PxActor)
+		{
+			MessageBox(_T("!cmp->m_Actor->m_PxActor"));
+			return 0;
+		}
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
 		CShapeDlg dlg(pFrame, cmp, i);
@@ -3206,17 +3211,40 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case physx::PxGeometryType::ePLANE:
 		case physx::PxGeometryType::eCAPSULE:
 		case physx::PxGeometryType::eBOX:
-		case physx::PxGeometryType::eCONVEXMESH:
-		case physx::PxGeometryType::eTRIANGLEMESH:
-		case physx::PxGeometryType::eHEIGHTFIELD:
-			if (dlg.DoModal() == IDOK)
-			{
-				UpdatePropertiesShape(pProp->GetParent(), cmp);
-				m_wndPropList.AdjustLayout();
-				my::EventArg arg;
-				pFrame->m_EventAttributeChanged(&arg);
-			}
 			break;
+		case physx::PxGeometryType::eCONVEXMESH:
+		{
+			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
+			if (!mesh_cmp || mesh_cmp->m_MeshPath.empty())
+			{
+				MessageBox(_T("mesh_cmp->m_MeshPath.empty()"));
+				return 0;
+			}
+			dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh").c_str();
+			break;
+		}
+		case physx::PxGeometryType::eTRIANGLEMESH:
+		{
+			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
+			if (!mesh_cmp || mesh_cmp->m_MeshPath.empty())
+			{
+				MessageBox(_T("mesh_cmp->m_MeshPath.empty()"));
+				return 0;
+			}
+			dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh").c_str();
+			break;
+		}
+		case physx::PxGeometryType::eHEIGHTFIELD:
+		{
+			Terrain* terrain = dynamic_cast<Terrain*>(cmp);
+			if (!terrain || terrain->m_ChunkPath.empty())
+			{
+				MessageBox(_T("terrain->m_ChunkPath.empty()"));
+				return 0;
+			}
+			dlg.m_AssetPath = ms2ts(terrain->m_ChunkPath + ".pxheightfield").c_str();
+			break;
+		}
 		default:
 		{
 			cmp->ClearShape();
@@ -3224,9 +3252,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			m_wndPropList.AdjustLayout();
 			my::EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
-			break;
+			return 0;
 		}
 		}
+		if (dlg.DoModal() != IDOK)
+		{
+			return 0;
+		}
+		UpdatePropertiesShape(pProp->GetParent(), cmp);
+		m_wndPropList.AdjustLayout();
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyShapeLocalPos:

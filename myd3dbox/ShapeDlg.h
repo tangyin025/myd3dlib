@@ -25,7 +25,11 @@ protected:
 	my::Vector3 m_angle;
 	my::Vector3 m_param;
 	unsigned int m_filterWord0;
+	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 public:
 	BOOL m_InflateConvex;
+	CString m_AssetPath;
+	afx_msg void OnChangeEdit11();
+	afx_msg void OnClickedButton4();
 };
