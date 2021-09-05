@@ -93,11 +93,10 @@ void CShapeDlg::OnOK()
 	// ! physx attached shape is not writable
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT(pFrame);
-	BOOL NeedRequest = FALSE;
-	if (m_cmp->IsRequested())
+	if (m_cmp->m_Actor->IsRequested())
 	{
+		ASSERT(m_cmp->IsRequested());
 		m_cmp->ReleaseResource();
-		NeedRequest = TRUE;
 	}
 
 	m_cmp->ClearShape();
@@ -153,8 +152,9 @@ void CShapeDlg::OnOK()
 		break;
 	}
 
-	if (NeedRequest)
+	if (m_cmp->m_Actor->IsRequested())
 	{
+		ASSERT(!m_cmp->IsRequested());
 		m_cmp->RequestResource();
 	}
 

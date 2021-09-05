@@ -13,6 +13,7 @@
 #include "Animation.h"
 #include <boost/scope_exit.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/lexical_cast.hpp>
 #include "ImportHeightDlg.h"
 
 #ifdef _DEBUG
@@ -3220,7 +3221,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
-			dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh").c_str();
+			if (!mesh_cmp->m_MeshSubMeshName.empty())
+			{
+				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh_" + mesh_cmp->m_MeshSubMeshName).c_str();
+			}
+			else if (mesh_cmp->m_MeshSubMeshId > 0)
+			{
+				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh_" + boost::lexical_cast<std::string>(mesh_cmp->m_MeshSubMeshId)).c_str();
+			}
+			else
+			{
+				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxconvexmesh").c_str();
+			}
 			break;
 		}
 		case physx::PxGeometryType::eTRIANGLEMESH:
@@ -3231,7 +3243,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
-			dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh").c_str();
+			if (!mesh_cmp->m_MeshSubMeshName.empty())
+			{
+				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh_" + mesh_cmp->m_MeshSubMeshName).c_str();
+			}
+			else if (mesh_cmp->m_MeshSubMeshId > 0)
+			{
+				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh_" + boost::lexical_cast<std::string>(mesh_cmp->m_MeshSubMeshId)).c_str();
+			}
+			else
+			{
+				dlg.m_AssetPath = ms2ts(mesh_cmp->m_MeshPath + ".pxtrianglemesh").c_str();
+			}
 			break;
 		}
 		case physx::PxGeometryType::eHEIGHTFIELD:
@@ -3247,7 +3270,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		default:
 		{
+			if (cmp->m_Actor->IsRequested())
+			{
+				cmp->ReleaseResource();
+			}
 			cmp->ClearShape();
+			if (cmp->m_Actor->IsRequested())
+			{
+				cmp->RequestResource();
+			}
 			UpdatePropertiesShape(pProp->GetParent(), cmp);
 			m_wndPropList.AdjustLayout();
 			my::EventArg arg;
