@@ -419,7 +419,7 @@ HRESULT RenderPipeline::OnResetDevice(
 
 	_ASSERT(!m_ParticleIb.m_ptr);
 	m_ParticleIb.CreateIndexBuffer((m_ParticlePrimitiveInfo[ParticlePrimitiveTri][ParticlePrimitivePrimitiveCount]
-		+ m_ParticlePrimitiveInfo[ParticlePrimitiveTri][ParticlePrimitivePrimitiveCount]) * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
+		+ m_ParticlePrimitiveInfo[ParticlePrimitiveQuad][ParticlePrimitivePrimitiveCount]) * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
 	WORD * pIndices = (WORD *)m_ParticleIb.Lock(0, 0, 0);
 	pIndices[0] = 0;
 	pIndices[1] = 1;
