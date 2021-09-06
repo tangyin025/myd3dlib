@@ -858,10 +858,10 @@ void Client::OnFrameTick(
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
+		actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
+
 		if (!actor_iter->m_Base)
 		{
-			actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
-
 			// ! Actor::Update may change other actor's life time
 			// ! Actor::Update may invalid the main camera's properties
 			actor_iter->Update(fElapsedTime);
