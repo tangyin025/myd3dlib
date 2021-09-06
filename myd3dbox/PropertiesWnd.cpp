@@ -3200,7 +3200,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Component * cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().pulVal;
 		if (!cmp->m_Actor || !cmp->m_Actor->m_PxActor)
 		{
-			MessageBox(_T("!cmp->m_Actor->m_PxActor"));
+			MessageBox(_T("!cmp->m_Actor || !cmp->m_Actor->m_PxActor"));
 			return 0;
 		}
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
@@ -3218,7 +3218,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
 			if (!mesh_cmp || mesh_cmp->m_MeshPath.empty())
 			{
-				MessageBox(_T("mesh_cmp->m_MeshPath.empty()"));
+				MessageBox(_T("!mesh_cmp || mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
 			if (!mesh_cmp->m_MeshSubMeshName.empty())
@@ -3240,7 +3240,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
 			if (!mesh_cmp || mesh_cmp->m_MeshPath.empty())
 			{
-				MessageBox(_T("mesh_cmp->m_MeshPath.empty()"));
+				MessageBox(_T("!mesh_cmp || mesh_cmp->m_MeshPath.empty()"));
 				return 0;
 			}
 			if (!mesh_cmp->m_MeshSubMeshName.empty())
@@ -3262,7 +3262,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Terrain* terrain = dynamic_cast<Terrain*>(cmp);
 			if (!terrain || terrain->m_ChunkPath.empty())
 			{
-				MessageBox(_T("terrain->m_ChunkPath.empty()"));
+				MessageBox(_T("!terrain || terrain->m_ChunkPath.empty()"));
 				return 0;
 			}
 			dlg.m_AssetPath = ms2ts(terrain->m_ChunkPath + ".pxheightfield").c_str();
@@ -3688,7 +3688,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		StaticEmitter::ChunkMap::iterator chunk_iter = emit_cmp->m_Chunks.find(std::make_pair(chunkid.x, chunkid.y));
 		if (chunk_iter == emit_cmp->m_Chunks.end())
 		{
-			MessageBox(_T("cannot indexed specified particle"));
+			MessageBox(_T("chunk_iter == emit_cmp->m_Chunks.end()"));
 			return 0;
 		}
 		int instid = pParticle->GetValue().intVal;
@@ -3696,7 +3696,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		StaticEmitterChunkBuffer * buff = estr.GetBuffer(chunkid.x, chunkid.y);
 		if (instid >= buff->size())
 		{
-			MessageBox(_T("cannot indexed specified particle"));
+			MessageBox(_T("instid >= buff->size()"));
 			return 0;
 		}
 		my::Emitter::Particle * particle = &(*buff)[instid];
@@ -3889,7 +3889,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			D3DSURFACE_DESC desc = tex.GetLevelDesc();
 			if (desc.Format != D3DFMT_A8R8G8B8 && desc.Format != D3DFMT_X8R8G8B8)
 			{
-				MessageBox(_T("unsupported splatmap format"));
+				MessageBox(_T("desc.Format != D3DFMT_A8R8G8B8 && desc.Format != D3DFMT_X8R8G8B8"));
 				return 0;
 			}
 			D3DLOCKED_RECT lrc = tex.LockRect(NULL, D3DLOCK_READONLY, 0);
@@ -3916,7 +3916,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		ASSERT_VALID(pFrame);
 		if (pFrame->m_selcmp != terrain)
 		{
-			MessageBox(_T("no terrain chunk selected"));
+			MessageBox(_T("pFrame->m_selcmp != terrain"));
 			return 0;
 		}
 		if (pProp->GetValue().boolVal)

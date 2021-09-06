@@ -332,15 +332,15 @@ int DxutApp::Run(void)
 	}
 	catch(const my::Exception & e)
 	{
-		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+		::MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
 	}
 	catch(const luabind::error & e)
 	{
-		MessageBox(m_wnd->m_hWnd, ms2ts(lua_tostring(e.state(), -1)).c_str(), NULL, MB_OK);
+		::MessageBox(m_wnd->m_hWnd, ms2ts(lua_tostring(e.state(), -1)).c_str(), NULL, MB_OK);
 	}
 	catch(const std::exception & e)
 	{
-		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+		::MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
 	}
 
 	return (int)msg.wParam;
@@ -1888,7 +1888,7 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 		if(FAILED(hr = Create3DEnvironment(deviceSettings)))
 		{
 			m_wnd->DestroyWindow();
-			MessageBox(NULL, ms2ts(my::D3DException::Translate(hr)).c_str(), NULL, MB_OK);
+			::MessageBox(NULL, ms2ts(my::D3DException::Translate(hr)).c_str(), NULL, MB_OK);
 		}
 	}
 
@@ -2029,7 +2029,7 @@ void DxutApp::Cleanup3DEnvironment(void)
 		{
 			TCHAR msg[256];
 			_stprintf_s(msg, _countof(msg), _T("no zero reference count: %u"), references);
-			MessageBox(m_wnd->m_hWnd, msg, NULL, MB_OK);
+			::MessageBox(NULL, msg, NULL, MB_OK);
 		}
 	}
 }

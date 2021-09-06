@@ -86,7 +86,7 @@ void CShapeDlg::OnOK()
 		|| m_type == physx::PxGeometryType::eHEIGHTFIELD)
 		&& m_AssetPath.IsEmpty())
 	{
-		MessageBox(_T("Asset path cannot be empty!"), NULL, MB_OK);
+		MessageBox(_T("m_AssetPath.IsEmpty()"));
 		return;
 	}
 
@@ -206,7 +206,7 @@ void CShapeDlg::OnClickedButton4()
 	int res = SHFileOperationA(&shfo);
 	if (res != 0)
 	{
-		MessageBox(str_printf(_T("delete %s failed"), ms2ts(FullPath).c_str()).c_str(), NULL, MB_OK);
+		MessageBox(str_printf(_T("SHFileOperation failed: %s"), ms2ts(FullPath).c_str()).c_str());
 	}
 
 	OnChangeEdit11();
