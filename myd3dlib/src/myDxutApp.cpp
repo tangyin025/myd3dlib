@@ -206,15 +206,13 @@ void D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 
 	CriticalSectionLock lock(m_NamedObjectsSec);
 
-	NamedObjectMap::const_iterator obj_iter = m_NamedObjects.find(Name);
-	if (obj_iter != m_NamedObjects.end())
+	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjects.insert(NamedObjectMap::value_type(Name, Object));
+	if (!result.second)
 	{
 		THROW_CUSEXCEPTION(str_printf("%s already existed", Name));
 	}
 
-	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjects.insert(NamedObjectMap::value_type(Name, Object));
-
-	_ASSERT(result.second && !Object->m_Name);
+	_ASSERT(!Object->m_Name);
 
 	Object->m_Name = result.first->first.c_str();
 }
