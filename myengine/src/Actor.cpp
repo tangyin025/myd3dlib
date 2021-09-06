@@ -494,41 +494,48 @@ void Actor::UpdateOctNode(void)
 	}
 }
 
-void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const
+{
+	float DistanceSq = (Aabb.Center() - ViewPos).magnitudeSq();
+	int Lod = (int)(logf(sqrt(DistanceSq) / m_LodDist) / logf(m_LodFactor));
+	return Max(Lod, 0);
+}
+
+void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(IsRequested());
 
-	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+	int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), Component::LOD_INFINITE - 1);
+	if (m_Lod != Lod)
 	{
-		int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), Component::LOD_INFINITE - 1);
-		if (m_Lod != Lod)
+		m_Lod = Lod;
+
+		// ! Component::RequestResource may change other cmp's life time
+		ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
+
+		ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
+		for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
 		{
-			m_Lod = Lod;
-
-			// ! Component::RequestResource may change other cmp's life time
-			ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
-
-			ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
-			for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+			if ((*cmp_iter)->m_LodMask >= 1 << Lod)
 			{
-				if ((*cmp_iter)->m_LodMask >= 1 << Lod)
+				if (!(*cmp_iter)->IsRequested())
 				{
-					if (!(*cmp_iter)->IsRequested())
-					{
-						(*cmp_iter)->RequestResource();
-					}
+					(*cmp_iter)->RequestResource();
 				}
-				else
+			}
+			else
+			{
+				if ((*cmp_iter)->IsRequested())
 				{
-					if ((*cmp_iter)->IsRequested())
-					{
-						(*cmp_iter)->ReleaseResource();
-					}
+					(*cmp_iter)->ReleaseResource();
 				}
 			}
 		}
 	}
+}
 
+void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+{
 	for (int Lod = m_Lod; Lod < Component::LOD_INFINITE; Lod++)
 	{
 		bool lodRequested = false;
@@ -547,13 +554,6 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 			break;
 		}
 	}
-}
-
-int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const
-{
-	float DistanceSq = (Aabb.Center() - ViewPos).magnitudeSq();
-	int Lod = (int)(logf(sqrt(DistanceSq) / m_LodDist) / logf(m_LodFactor));
-	return Max(Lod, 0);
 }
 
 void Actor::ClearRigidActor(void)

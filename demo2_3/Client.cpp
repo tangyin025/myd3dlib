@@ -860,6 +860,8 @@ void Client::OnFrameTick(
 
 		if (!actor_iter->m_Base)
 		{
+			actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
+
 			// ! Actor::Update may change other actor's life time
 			// ! Actor::Update may invalid the main camera's properties
 			actor_iter->Update(fElapsedTime);
