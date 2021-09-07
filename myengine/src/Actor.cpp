@@ -278,19 +278,27 @@ void Actor::RequestResource(void)
 {
 	m_Requested = true;
 
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
 	if (m_PxActor)
 	{
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
 		_ASSERT(!m_PxActor->getScene());
 
 		scene->m_PxScene->addActor(*m_PxActor);
+	}
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->EnterPhysxScene(scene);
 	}
 }
 
 void Actor::ReleaseResource(void)
 {
 	m_Requested = false;
+
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -299,14 +307,14 @@ void Actor::ReleaseResource(void)
 		{
 			(*cmp_iter)->ReleaseResource();
 		}
+
+		(*cmp_iter)->LeavePhysxScene(scene);
 	}
 
 	m_Lod = Component::LOD_INFINITE;
 
 	if (m_PxActor)
 	{
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
 		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
 
 		scene->m_PxScene->removeActor(*m_PxActor, false);
@@ -501,41 +509,41 @@ int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) cons
 	return Max(Lod, 0);
 }
 
-void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
+void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(IsRequested());
 
-	int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), Component::LOD_INFINITE - 1);
-	if (m_Lod != Lod)
+	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		m_Lod = Lod;
-
-		// ! Component::RequestResource may change other cmp's life time
-		ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
-
-		ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
-		for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+		int Lod = Min(CalculateLod(*m_OctAabb, ViewPos), Component::LOD_INFINITE - 1);
+		if (m_Lod != Lod)
 		{
-			if ((*cmp_iter)->m_LodMask >= 1 << Lod)
+			m_Lod = Lod;
+
+			// ! Component::RequestResource may change other cmp's life time
+			ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
+
+			ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
+			for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
 			{
-				if (!(*cmp_iter)->IsRequested())
+				if ((*cmp_iter)->m_LodMask >= 1 << Lod)
 				{
-					(*cmp_iter)->RequestResource();
+					if (!(*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->RequestResource();
+					}
 				}
-			}
-			else
-			{
-				if ((*cmp_iter)->IsRequested())
+				else
 				{
-					(*cmp_iter)->ReleaseResource();
+					if ((*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->ReleaseResource();
+					}
 				}
 			}
 		}
 	}
-}
 
-void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
-{
 	for (int Lod = m_Lod; Lod < Component::LOD_INFINITE; Lod++)
 	{
 		bool lodRequested = false;
@@ -612,14 +620,23 @@ bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 void Actor::AddComponent(ComponentPtr cmp)
 {
 	_ASSERT(!cmp->m_Actor);
+
 	m_Cmps.push_back(cmp);
+
 	cmp->m_Actor = this;
 
-	if (IsRequested() && (cmp->m_LodMask & 1 << m_Lod))
+	if (IsRequested())
 	{
 		_ASSERT(m_Node);
 
-		cmp->RequestResource();
+		if (cmp->m_LodMask & 1 << m_Lod)
+		{
+			cmp->RequestResource();
+		}
+
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		cmp->EnterPhysxScene(scene);
 	}
 }
 
@@ -630,11 +647,18 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 	{
 		_ASSERT((*cmp_iter)->m_Actor == this);
 
-		if (IsRequested() && cmp->IsRequested())
+		if (IsRequested())
 		{
 			_ASSERT(m_Node);
 
-			cmp->ReleaseResource();
+			if (cmp->IsRequested())
+			{
+				cmp->ReleaseResource();
+			}
+
+			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+			cmp->LeavePhysxScene(scene);
 		}
 
 		(*cmp_iter)->m_Actor = NULL;

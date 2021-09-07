@@ -257,13 +257,6 @@ void Component::RequestResource(void)
 	{
 		m_Material->RequestResource();
 	}
-
-	if (m_PxShape)
-	{
-		_ASSERT(m_Actor && m_Actor->m_PxActor);
-
-		m_Actor->m_PxActor->attachShape(*m_PxShape);
-	}
 }
 
 void Component::ReleaseResource(void)
@@ -274,10 +267,27 @@ void Component::ReleaseResource(void)
 	{
 		m_Material->ReleaseResource();
 	}
+}
 
-	if (m_PxShape)
+void Component::EnterPhysxScene(PhysxScene * scene)
+{
+	_ASSERT(m_Actor);
+
+	if (m_PxShape && m_Actor->m_PxActor)
 	{
-		_ASSERT(m_Actor && m_Actor->m_PxActor);
+		_ASSERT(!m_PxShape->getActor());
+
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
+}
+
+void Component::LeavePhysxScene(PhysxScene * scene)
+{
+	_ASSERT(m_Actor);
+
+	if (m_PxShape && m_Actor->m_PxActor)
+	{
+		_ASSERT(m_PxShape->getActor() == m_Actor->m_PxActor.get());
 
 		m_Actor->m_PxActor->detachShape(*m_PxShape);
 	}
@@ -659,6 +669,8 @@ public:
 
 void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeometryType::Enum type)
 {
+	_ASSERT(!m_PxMesh);
+
 	m_PxMesh = res;
 
 	_ASSERT(m_Actor && m_Actor->m_PxActor && m_PxShape && !m_PxShape->getActor());
@@ -688,14 +700,7 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 
 void MeshComponent::RequestResource(void)
 {
-	//Component::RequestResource();
-
-	m_Requested = true;
-
-	if (m_Material)
-	{
-		m_Material->RequestResource();
-	}
+	Component::RequestResource();
 
 	if (!m_MeshPath.empty())
 	{
@@ -703,8 +708,25 @@ void MeshComponent::RequestResource(void)
 
 		my::ResourceMgr::getSingleton().LoadMeshAsync(m_MeshPath.c_str(), m_MeshSubMeshName.c_str(), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
 	}
+}
 
-	if (!m_PxMeshPath.empty())
+void MeshComponent::ReleaseResource(void)
+{
+	Component::ReleaseResource();
+
+	if (!m_MeshPath.empty())
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
+
+		m_Mesh.reset();
+	}
+}
+
+void MeshComponent::EnterPhysxScene(PhysxScene * scene)
+{
+	_ASSERT(m_Actor);
+
+	if (!m_PxMeshPath.empty() && m_Actor->m_PxActor)
 	{
 		_ASSERT(!m_PxMesh);
 
@@ -726,34 +748,22 @@ void MeshComponent::RequestResource(void)
 			THROW_CUSEXCEPTION("error");
 		}
 	}
+	else
+	{
+		Component::EnterPhysxScene(scene);
+	}
 }
 
-void MeshComponent::ReleaseResource(void)
+void MeshComponent::LeavePhysxScene(PhysxScene * scene)
 {
-	//Component::ReleaseResource();
+	_ASSERT(m_Actor);
 
-	m_Requested = false;
-
-	if (m_Material)
-	{
-		m_Material->ReleaseResource();
-	}
-
-	if (!m_MeshPath.empty())
-	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(MeshIORequest::BuildKey(m_MeshPath.c_str(), m_MeshSubMeshName.c_str()), boost::bind(&MeshComponent::OnMeshReady, this, boost::placeholders::_1));
-
-		m_Mesh.reset();
-	}
-
-	if (!m_PxMeshPath.empty())
+	if (!m_PxMeshPath.empty() && m_Actor->m_PxActor)
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_PxMeshPath, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, m_PxShapeGeometryType));
 
 		if (m_PxMesh)
 		{
-			_ASSERT(m_PxMeshTmp);
-
 			_ASSERT(m_PxShape->getActor());
 
 			m_Actor->m_PxActor->detachShape(*m_PxShape);
@@ -762,6 +772,7 @@ void MeshComponent::ReleaseResource(void)
 			{
 			case physx::PxGeometryType::eTRIANGLEMESH:
 			{
+				_ASSERT(m_PxMeshTmp);
 				physx::PxMeshScale mesh_scaling((physx::PxVec3&)my::Vector3(1, 1, 1), physx::PxQuat(physx::PxIdentity));
 				m_PxShape->setGeometry(physx::PxTriangleMeshGeometry(
 					m_PxMeshTmp->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()));
@@ -769,6 +780,7 @@ void MeshComponent::ReleaseResource(void)
 			}
 			case physx::PxGeometryType::eCONVEXMESH:
 			{
+				_ASSERT(m_PxMeshTmp);
 				physx::PxMeshScale mesh_scaling((physx::PxVec3&)my::Vector3(1, 1, 1), physx::PxQuat(physx::PxIdentity));
 				m_PxShape->setGeometry(physx::PxConvexMeshGeometry(
 					m_PxMeshTmp->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()));
@@ -778,6 +790,10 @@ void MeshComponent::ReleaseResource(void)
 
 			m_PxMesh.reset();
 		}
+	}
+	else
+	{
+		Component::LeavePhysxScene(scene);
 	}
 }
 
@@ -1226,15 +1242,6 @@ void ClothComponent::RequestResource(void)
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
-
-	if (m_Cloth)
-	{
-		scene->m_PxScene->addActor(*m_Cloth);
-	}
-
-	scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 }
 
 void ClothComponent::ReleaseResource(void)
@@ -1242,18 +1249,35 @@ void ClothComponent::ReleaseResource(void)
 	Component::ReleaseResource();
 
 	m_Decl.Release();
+}
 
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
-
-	_ASSERT(!m_Cloth || m_Cloth->getScene() == scene->m_PxScene.get());
-
-	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
+void ClothComponent::EnterPhysxScene(PhysxScene * scene)
+{
+	Component::EnterPhysxScene(scene);
 
 	if (m_Cloth)
 	{
+		_ASSERT(!m_Cloth->getScene());
+
+		scene->m_PxScene->addActor(*m_Cloth);
+
+		scene->m_EventPxThreadSubstep.connect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
+	}
+}
+
+void ClothComponent::LeavePhysxScene(PhysxScene * scene)
+{
+	Component::LeavePhysxScene(scene);
+
+	if (m_Cloth)
+	{
+		_ASSERT(m_Cloth->getScene() == scene->m_PxScene.get());
+
 		scene->m_PxScene->removeActor(*m_Cloth);
 
 		scene->removeRenderActorsFromPhysicsActor(m_Cloth.get());
+
+		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 	}
 }
 

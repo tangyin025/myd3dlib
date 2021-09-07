@@ -3272,12 +3272,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			if (cmp->m_Actor->IsRequested())
 			{
-				cmp->ReleaseResource();
+				cmp->LeavePhysxScene(pFrame);
 			}
 			cmp->ClearShape();
 			if (cmp->m_Actor->IsRequested())
 			{
-				cmp->RequestResource();
+				cmp->EnterPhysxScene(pFrame);
 			}
 			UpdatePropertiesShape(pProp->GetParent(), cmp);
 			m_wndPropList.AdjustLayout();

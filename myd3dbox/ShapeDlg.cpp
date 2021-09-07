@@ -95,8 +95,7 @@ void CShapeDlg::OnOK()
 	ASSERT(pFrame);
 	if (m_cmp->m_Actor->IsRequested())
 	{
-		ASSERT(m_cmp->IsRequested());
-		m_cmp->ReleaseResource();
+		m_cmp->LeavePhysxScene(pFrame);
 	}
 
 	m_cmp->ClearShape();
@@ -154,8 +153,7 @@ void CShapeDlg::OnOK()
 
 	if (m_cmp->m_Actor->IsRequested())
 	{
-		ASSERT(!m_cmp->IsRequested());
-		m_cmp->RequestResource();
+		m_cmp->EnterPhysxScene(pFrame);
 	}
 
 	EndDialog(IDOK);
