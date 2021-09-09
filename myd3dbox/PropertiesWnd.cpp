@@ -3102,6 +3102,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal));
 		actor->m_Rotation = rot;
 		actor->m_Scale.x = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+		if (PropertyId == PropertyActorScaleX)
+		{
+			pActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.x);
+			pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.x);
+			m_wndPropList.InvalidateRect(pActor->GetSubItem(4)->GetSubItem(1)->GetRect());
+			m_wndPropList.InvalidateRect(pActor->GetSubItem(4)->GetSubItem(2)->GetRect());
+		}
 		actor->m_Scale.y = pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 		actor->UpdateWorld();
