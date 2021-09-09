@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_WM_DESTROY()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
+	ON_WM_LBUTTONDBLCLK()
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
 	ON_COMMAND(ID_SHOW_GRID, &CChildView::OnShowGrid)
@@ -1856,6 +1857,20 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		pFrame->m_EventAttributeChanged(&arg);
 		return;
 	}
+}
+
+void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_selctl)
+	{
+		OnLButtonDown(nFlags, point);
+		return;
+	}
+
+	__super::OnLButtonDblClk(nFlags, point);
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
