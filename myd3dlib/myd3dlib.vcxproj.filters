@@ -90,13 +90,13 @@
     <ClCompile Include="src\PrintCallStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\myNavigation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Win32InputBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\myStateChart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\myAStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -185,13 +185,13 @@
     <ClInclude Include="include\rapidxml_print.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\myNavigation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Win32InputBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\myStateChart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\myAStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

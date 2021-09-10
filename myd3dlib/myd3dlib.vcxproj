@@ -132,6 +132,7 @@
     <ClCompile Include="src\DXUTenum.cpp" />
     <ClCompile Include="src\ImeUi.cpp" />
     <ClCompile Include="src\libc.cpp" />
+    <ClCompile Include="src\myAStar.cpp" />
     <ClCompile Include="src\myCollision.cpp" />
     <ClCompile Include="src\myDxutApp.cpp" />
     <ClCompile Include="src\myEffect.cpp" />
@@ -141,7 +142,6 @@
     <ClCompile Include="src\myInput.cpp" />
     <ClCompile Include="src\myMath.cpp" />
     <ClCompile Include="src\myMesh.cpp" />
-    <ClCompile Include="src\myNavigation.cpp" />
     <ClCompile Include="src\myOctree.cpp" />
     <ClCompile Include="src\myPhysics.cpp" />
     <ClCompile Include="src\myResource.cpp" />
@@ -162,6 +162,7 @@
     <ClInclude Include="include\DXUTenum.h" />
     <ClInclude Include="include\ImeUi.h" />
     <ClInclude Include="include\libc.h" />
+    <ClInclude Include="include\myAStar.h" />
     <ClInclude Include="include\myCollision.h" />
     <ClInclude Include="include\myD3dLib.h" />
     <ClInclude Include="include\myDxutApp.h" />
@@ -172,7 +173,6 @@
     <ClInclude Include="include\myInput.h" />
     <ClInclude Include="include\myMath.h" />
     <ClInclude Include="include\myMesh.h" />
-    <ClInclude Include="include\myNavigation.h" />
     <ClInclude Include="include\myOctree.h" />
     <ClInclude Include="include\myPhysics.h" />
     <ClInclude Include="include\myResource.h" />
