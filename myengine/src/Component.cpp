@@ -947,7 +947,7 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, Colle
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Vector3(1, 1, 1), physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(obj_res.first->second->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
-		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		*material, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
 

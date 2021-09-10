@@ -877,7 +877,7 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 	m_PxHeightField.reset(PhysxSdk::getSingleton().m_sdk->createHeightField(readBuffer), PhysxDeleter<physx::PxHeightField>());
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), HeightScale * ActorScale.y, ActorScale.x, ActorScale.z),
-		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		*material, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
 
