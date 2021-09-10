@@ -3167,6 +3167,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pFrame->m_PxScene->addActor(*actor->m_PxActor);
 			}
 		}
+		UpdatePropertiesRigidActor(pProp->GetParent(), actor);
+		m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
