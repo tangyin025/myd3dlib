@@ -1243,7 +1243,7 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 
 	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyActorScale, TRUE);
 	pActor->AddSubItem(pScale);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)actor->m_Scale.x, NULL, PropertyActorScaleX);
+	pProp = new CSimpleProp(_T("x, y, z"), (_variant_t)actor->m_Scale.x, NULL, PropertyActorScaleX);
 	pScale->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)actor->m_Scale.y, NULL, PropertyActorScaleY);
 	pScale->AddSubItem(pProp);
