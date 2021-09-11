@@ -307,7 +307,7 @@ int DxutApp::Run(void)
 		CRect clientRect;
 		m_wnd->GetClientRect(&clientRect);
 
-		CreateDevice(true, clientRect.Width(), clientRect.Height());
+		CreateDevice(m_WindowedModeAtFirstCreate, clientRect.Width(), clientRect.Height());
 
 		m_wnd->ShowWindow(SW_SHOW);
 		m_wnd->UpdateWindow();
@@ -1707,7 +1707,7 @@ void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHe
 
 	DXUTD3D9DeviceSettings deviceSettings;
 	ZeroMemory(&deviceSettings, sizeof(deviceSettings));
-	deviceSettings.pp.Windowed = true;
+	deviceSettings.pp.Windowed = bWindowed;
 	deviceSettings.pp.BackBufferWidth = nSuggestedWidth;
 	deviceSettings.pp.BackBufferHeight = nSuggestedHeight;
 	deviceSettings.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;

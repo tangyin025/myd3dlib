@@ -502,6 +502,7 @@ BOOL CMainApp::InitInstance()
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
+	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
 	boost::program_options::notify(vm);
 
 	std::vector<std::string>::const_iterator path_iter = path_list.begin();

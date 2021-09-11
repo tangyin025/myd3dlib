@@ -158,6 +158,8 @@ namespace my
 
 		UINT m_WindowBackBufferHeightAtModeChange;
 
+		bool m_WindowedModeAtFirstCreate;
+
 		DWORD m_WindowedStyleAtModeChange;
 
 		WINDOWPLACEMENT m_WindowedPlacement;
@@ -178,6 +180,7 @@ namespace my
 			, m_FullScreenBackBufferHeightAtModeChange(0)
 			, m_WindowBackBufferWidthAtModeChange(800)
 			, m_WindowBackBufferHeightAtModeChange(600)
+			, m_WindowedModeAtFirstCreate(true)
 			, m_IgnoreSizeChange(false)
 			, m_DeviceLost(false)
 			, m_dwFrames(0)

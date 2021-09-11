@@ -395,12 +395,17 @@ Client::Client(void)
 	, m_ViewedCenter(0, 0, 0)
 	, m_Activated(false)
 {
+	char buff[MAX_PATH];
+	GetModuleFileNameA(NULL, buff, _countof(buff));
+	std::string cfg_file(PathFindFileNameA(buff), PathFindExtensionA(buff));
+
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
 	desc.add_options()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("Media")("..\\demo2_3\\Media"), ""), "Path")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
+		("windowed", boost::program_options::value(&m_WindowedModeAtFirstCreate)->default_value(true), "Windowed")
 		("fov", boost::program_options::value(&m_InitFov)->default_value(75.0f), "Fov")
 		("loadshadercache", boost::program_options::value(&m_InitLoadShaderCache)->default_value(true), "Load Shader Cache")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
@@ -413,6 +418,7 @@ Client::Client(void)
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
 	boost::program_options::variables_map vm;
+	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
 	boost::program_options::notify(vm);
 
