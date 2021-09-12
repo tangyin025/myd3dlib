@@ -144,6 +144,15 @@ public:
 
 	ActivateEvent m_ActivateEvent;
 
+	enum Key
+	{
+		KeyHorizontal,
+		KeyVertical,
+		KeyConfirm,
+		KeyCancel,
+		KeyCount,
+	};
+
 public:
 	Client(void);
 

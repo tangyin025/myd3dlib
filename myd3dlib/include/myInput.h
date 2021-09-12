@@ -462,15 +462,6 @@ namespace my
 
 		JoystickPtr m_joystick;
 
-		enum Key
-		{
-			Horizontal,
-			Vertical,
-			Confirm,
-			Cancel,
-			ClientKeyStart,
-		};
-
 		enum Type
 		{
 			KeyboardButton,
@@ -501,16 +492,16 @@ namespace my
 
 		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
 
-		void AddKey(Key key, Type type, int id);
+		void AddKey(DWORD Key, Type type, int id);
 
-		void RemoveKey(Key key, Type type, int id);
+		void RemoveKey(DWORD Key, Type type, int id);
 
-		LONG GetAxisRow(Key key) const;
+		LONG GetKeyAxisRow(DWORD Key) const;
 
-		bool IsButtonDown(Key key) const;
+		bool IsKeyDown(DWORD Key) const;
 
-		bool IsButtonPress(Key key) const;
+		bool IsKeyPress(DWORD Key) const;
 
-		bool IsButtonRelease(Key key) const;
+		bool IsKeyRelease(DWORD Key) const;
 	};
 }
