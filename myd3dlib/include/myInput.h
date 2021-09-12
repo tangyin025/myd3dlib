@@ -336,13 +336,13 @@ namespace my
 	{
 		JP_None			= 0xFFFF,
 		JP_North		= 0,
-		JP_NorthEast	= 4500,
-		JP_East			= 9000,
-		JP_SouthEast	= 13500,
-		JP_South		= 18000,
-		JP_SouthWest	= 22500,
-		JP_West			= 27000,
-		JP_NorthWest	= 31500,
+		JP_NorthEast	= 45 * DI_DEGREES,
+		JP_East			= 90 * DI_DEGREES,
+		JP_SouthEast	= 135 * DI_DEGREES,
+		JP_South		= 180 * DI_DEGREES,
+		JP_SouthWest	= 225 * DI_DEGREES,
+		JP_West			= 270 * DI_DEGREES,
+		JP_NorthWest	= 315 * DI_DEGREES,
 	};
 
 	class Joystick : public InputDevice
@@ -437,6 +437,7 @@ namespace my
 	typedef boost::shared_ptr<Joystick> JoystickPtr;
 
 	class InputMgr
+		: public my::SingleInstance<InputMgr>
 	{
 	public:
 		struct JoystickEnumDesc
@@ -461,8 +462,32 @@ namespace my
 
 		JoystickPtr m_joystick;
 
+		enum Key
+		{
+			Horizontal,
+			Vertical,
+			Confirm,
+			Cancel,
+			ClientKeyStart,
+		};
+
+		enum Type
+		{
+			KeyboardButton,
+			MouseMove,
+			MouseButton,
+			JoystickAxis,
+			JoystickPov,
+			JoystickButton,
+		};
+
+		typedef std::vector<std::vector<std::pair<Type, int> > > KeyMap;
+
+		KeyMap m_KeyMap;
+
 	public:
-		InputMgr(void)
+		InputMgr(size_t KeyTypeCount)
+			: m_KeyMap(KeyTypeCount)
 		{
 		}
 
@@ -475,5 +500,17 @@ namespace my
 		//bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
+
+		void AddKey(Key key, Type type, int id);
+
+		void RemoveKey(Key key, Type type, int id);
+
+		LONG GetAxisRow(Key key) const;
+
+		bool IsButtonDown(Key key) const;
+
+		bool IsButtonPress(Key key) const;
+
+		bool IsButtonRelease(Key key) const;
 	};
 }

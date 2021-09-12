@@ -723,9 +723,46 @@ void Joystick::CreateJoystick(
 	ZeroMemory(&m_State, sizeof(m_State));
 }
 
+static LONG _subsection(LONG lastval, LONG val)
+{
+	switch (lastval)
+	{
+	case 0:
+		if (val < 21845)
+			return 0;
+		else if (val < 54612)
+			return 32767;
+		else
+			return 65535;
+	case 32767:
+		if (val < 10922)
+			return 0;
+		else if (val < 54612)
+			return 32767;
+		else
+			return 65535;
+	case 65535:
+		if (val < 10922)
+			return 0;
+		else if (val < 43690)
+			return 32767;
+		else
+			return 65535;
+	}
+	return 32767;
+}
+
 bool Joystick::Capture(void)
 {
-	memcpy(&m_LastFrameState, &m_State, sizeof(m_LastFrameState));
+	m_LastFrameState.lX = _subsection(m_LastFrameState.lX, m_State.lX);
+	m_LastFrameState.lY = _subsection(m_LastFrameState.lY, m_State.lY);
+	m_LastFrameState.lZ = _subsection(m_LastFrameState.lZ, m_State.lZ);
+	m_LastFrameState.lRx = _subsection(m_LastFrameState.lRx, m_State.lRx);
+	m_LastFrameState.lRy = _subsection(m_LastFrameState.lRy, m_State.lRy);
+	m_LastFrameState.lRz = _subsection(m_LastFrameState.lRz, m_State.lRz);
+	memcpy(&m_LastFrameState.rglSlider, &m_State.rglSlider, sizeof(m_LastFrameState.rglSlider));
+	memcpy(&m_LastFrameState.rgdwPOV, &m_State.rgdwPOV, sizeof(m_LastFrameState.rgdwPOV));
+	memcpy(&m_LastFrameState.rgbButtons, &m_State.rgbButtons, sizeof(m_LastFrameState.rgbButtons));
 
 	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
 	{
@@ -925,4 +962,298 @@ BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID
 	}
 
 	return DIENUM_CONTINUE;
+}
+
+void InputMgr::AddKey(Key key, Type type, int id)
+{
+	_ASSERT(key < m_KeyMap.size());
+	KeyMap::value_type::value_type value = std::make_pair(type, id);
+	_ASSERT(std::find(m_KeyMap[key].begin(), m_KeyMap[key].end(), value) == m_KeyMap[key].end());
+	m_KeyMap[key].push_back(value);
+}
+
+void InputMgr::RemoveKey(Key key, Type type, int id)
+{
+	_ASSERT(key < m_KeyMap.size());
+	KeyMap::value_type::iterator value_iter = std::find(m_KeyMap[key].begin(), m_KeyMap[key].end(), std::make_pair(type, id));
+	_ASSERT(value_iter != m_KeyMap[key].end());
+	m_KeyMap[key].erase(value_iter);
+}
+
+LONG InputMgr::GetAxisRow(Key key) const
+{
+	_ASSERT(key < m_KeyMap.size());
+	KeyMap::value_type::const_iterator value_iter = m_KeyMap[key].begin();
+	for (; value_iter != m_KeyMap[key].end(); value_iter++)
+	{
+		switch (value_iter->first)
+		{
+		case KeyboardButton:
+			if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+			{
+				if (m_keyboard->IsKeyDown(value_iter->second))
+					return 65536;
+			}
+			break;
+		case MouseMove:
+			switch (value_iter->second)
+			{
+			case 0:
+				if (m_mouse->GetX() != 0)
+					return 32767 + m_mouse->GetX();
+				break;
+			case 1:
+				if (m_mouse->GetY() != 0)
+					return 32767 + m_mouse->GetY();
+				break;
+			case 2:
+				if (m_mouse->GetZ() != 0)
+					return 32767 + m_mouse->GetZ();
+				break;
+			}
+			break;
+		case MouseButton:
+			if (value_iter->second >= 0 && value_iter->second < _countof(m_mouse->m_State.rgbButtons))
+			{
+				if (m_mouse->IsButtonDown(value_iter->second))
+					return 65535;
+			}
+			break;
+		case JoystickAxis:
+			if (m_joystick)
+			{
+				switch (value_iter->second)
+				{
+				case 0:
+					if (m_joystick->GetX() != 32767)
+						return m_joystick->GetX();
+					break;
+				case 1:
+					if (m_joystick->GetY() != 32767)
+						return m_joystick->GetY();
+					break;
+				case 2:
+					if (m_joystick->GetZ() != 32767)
+						return m_joystick->GetZ();
+					break;
+				case 3:
+					if (m_joystick->GetRx() != 32767)
+						return m_joystick->GetRx();
+					break;
+				case 4:
+					if (m_joystick->GetRy() != 32767)
+						return m_joystick->GetRy();
+					break;
+				case 5:
+					if (m_joystick->GetRz() != 32767)
+						return m_joystick->GetRz();
+					break;
+				}
+			}
+			break;
+		case JoystickPov:
+			if (m_joystick)
+			{
+				switch (value_iter->second)
+				{
+				case 0: // Horizontal
+					switch (m_joystick->m_State.rgdwPOV[0])
+					{
+					case JP_North:
+						return 32767;
+					case JP_NorthEast:
+						return 54612;
+					case JP_East:
+						return 65535;
+					case JP_SouthEast:
+						return 54612;
+					case JP_South:
+						return 32767;
+					case JP_SouthWest:
+						return 10922;
+					case JP_West:
+						return 0;
+					case JP_NorthWest:
+						return 10922;
+					}
+					break;
+				case 1: // Vertical
+					switch (m_joystick->m_State.rgdwPOV[0])
+					{
+					case JP_North:
+						return 0;
+					case JP_NorthEast:
+						return 10922;
+					case JP_East:
+						return 32767;
+					case JP_SouthEast:
+						return 54612;
+					case JP_South:
+						return 65535;
+					case JP_SouthWest:
+						return 54612;
+					case JP_West:
+						return 32767;
+					case JP_NorthWest:
+						return 10922;
+					}
+					break;
+				}
+			}
+			break;
+		case JoystickButton:
+			if (m_joystick && value_iter->second >= 0 && value_iter->second < _countof(m_joystick->m_State.rgbButtons))
+			{
+				if (m_joystick->IsButtonDown(value_iter->second))
+					return 65535;
+			}
+			break;
+		}
+	}
+	return 32767;
+}
+
+bool InputMgr::IsButtonDown(Key key) const
+{
+	_ASSERT(key < m_KeyMap.size());
+	KeyMap::value_type::const_iterator value_iter = m_KeyMap[key].begin();
+	for (; value_iter != m_KeyMap[key].end(); value_iter++)
+	{
+		switch (value_iter->first)
+		{
+		case KeyboardButton:
+			if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+			{
+				if (m_keyboard->IsKeyDown(value_iter->second))
+					return true;
+			}
+			break;
+		case MouseMove:
+			switch (value_iter->second)
+			{
+			case 0:
+				if (m_mouse->GetX() != 0)
+					return true;
+				break;
+			case 1:
+				if (m_mouse->GetY() != 0)
+					return true;
+				break;
+			case 2:
+				if (m_mouse->GetZ() != 0)
+					return true;
+				break;
+			}
+			break;
+		case MouseButton:
+			if (value_iter->second >= 0 && value_iter->second < _countof(m_mouse->m_State.rgbButtons))
+			{
+				if (m_mouse->IsButtonDown(value_iter->second))
+					return true;
+			}
+			break;
+		case JoystickAxis:
+			if (m_joystick)
+			{
+				switch (value_iter->second)
+				{
+				case 0:
+					if (m_joystick->GetX() != 32767)
+						return true;
+					break;
+				case 1:
+					if (m_joystick->GetY() != 32767)
+						return true;
+					break;
+				case 2:
+					if (m_joystick->GetZ() != 32767)
+						return true;
+					break;
+				case 3:
+					if (m_joystick->GetRx() != 32767)
+						return true;
+					break;
+				case 4:
+					if (m_joystick->GetRy() != 32767)
+						return true;
+					break;
+				case 5:
+					if (m_joystick->GetRz() != 32767)
+						return true;
+					break;
+				}
+			}
+			break;
+		case JoystickPov:
+			if (m_joystick)
+			{
+				switch (value_iter->second)
+				{
+				case 0: // Horizontal
+					switch (m_joystick->m_State.rgdwPOV[0])
+					{
+					case JP_North:
+						return false;
+					case JP_NorthEast:
+						return true;
+					case JP_East:
+						return true;
+					case JP_SouthEast:
+						return true;
+					case JP_South:
+						return false;
+					case JP_SouthWest:
+						return true;
+					case JP_West:
+						return true;
+					case JP_NorthWest:
+						return true;
+					}
+					break;
+				case 1: // Vertical
+					switch (m_joystick->m_State.rgdwPOV[0])
+					{
+					case JP_North:
+						return true;
+					case JP_NorthEast:
+						return true;
+					case JP_East:
+						return false;
+					case JP_SouthEast:
+						return true;
+					case JP_South:
+						return true;
+					case JP_SouthWest:
+						return true;
+					case JP_West:
+						return false;
+					case JP_NorthWest:
+						return true;
+					}
+					break;
+				}
+			}
+			break;
+		case JoystickButton:
+			if (m_joystick && value_iter->second >= 0 && value_iter->second < _countof(m_joystick->m_State.rgbButtons))
+			{
+				if (m_joystick->IsButtonDown(value_iter->second))
+					return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+
+bool InputMgr::IsButtonPress(Key key) const
+{
+	_ASSERT(key < m_KeyMap.size());
+	return false;
+}
+
+bool InputMgr::IsButtonRelease(Key key) const
+{
+	_ASSERT(key < m_KeyMap.size());
+	return false;
 }

@@ -391,6 +391,7 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 
 Client::Client(void)
 	: OctRoot(-4096, 4096)
+	, InputMgr(InputMgr::ClientKeyStart)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_Activated(false)
