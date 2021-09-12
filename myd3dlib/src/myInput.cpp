@@ -760,8 +760,18 @@ bool Joystick::Capture(void)
 	m_LastFrameState.lRx = _subsection(m_LastFrameState.lRx, m_State.lRx);
 	m_LastFrameState.lRy = _subsection(m_LastFrameState.lRy, m_State.lRy);
 	m_LastFrameState.lRz = _subsection(m_LastFrameState.lRz, m_State.lRz);
+
 	memcpy(&m_LastFrameState.rglSlider, &m_State.rglSlider, sizeof(m_LastFrameState.rglSlider));
-	memcpy(&m_LastFrameState.rgdwPOV, &m_State.rgdwPOV, sizeof(m_LastFrameState.rgdwPOV));
+
+	for (int i = 0; i < _countof(m_LastFrameState.rgdwPOV); i++)
+	{
+		if (LOWORD(m_LastFrameState.rgdwPOV[i]) != 0xFFFF && LOWORD(m_State.rgdwPOV[i]) == 0xFFFF
+			|| LOWORD(m_LastFrameState.rgdwPOV[i]) == 0xFFFF && LOWORD(m_State.rgdwPOV[i]) != 0xFFFF)
+		{
+			m_LastFrameState.rgdwPOV[i] = m_State.rgdwPOV[i];
+		}
+	}
+
 	memcpy(&m_LastFrameState.rgbButtons, &m_State.rgbButtons, sizeof(m_LastFrameState.rgbButtons));
 
 	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
@@ -964,7 +974,7 @@ BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID
 	return DIENUM_CONTINUE;
 }
 
-void InputMgr::AddKey(DWORD Key, Type type, int id)
+void InputMgr::BindKey(DWORD Key, Type type, int id)
 {
 	if (Key < m_KeyMap.size())
 	{
@@ -974,7 +984,7 @@ void InputMgr::AddKey(DWORD Key, Type type, int id)
 	}
 }
 
-void InputMgr::RemoveKey(DWORD Key, Type type, int id)
+void InputMgr::UnbindKey(DWORD Key, Type type, int id)
 {
 	if (Key < m_KeyMap.size())
 	{
@@ -1254,11 +1264,165 @@ bool InputMgr::IsKeyDown(DWORD Key) const
 	return false;
 }
 
+static bool _isaxispress(LONG lastval, LONG val)
+{
+	if (lastval == 32767 && (val < 10922 || val > 54612))
+	{
+		return true;
+	}
+	return false;
+}
+
+static bool _isaxisrelease(LONG lastval, LONG val)
+{
+	if (lastval == 0 && val > 21845)
+	{
+		return true;
+	}
+	else if (lastval == 65535 && val < 43690)
+	{
+		return true;
+	}
+	return false;
+}
+
 bool InputMgr::IsKeyPress(DWORD Key) const
 {
 	if (Key < m_KeyMap.size())
 	{
-
+		KeyMap::value_type::const_iterator value_iter = m_KeyMap[Key].begin();
+		for (; value_iter != m_KeyMap[Key].end(); value_iter++)
+		{
+			switch (value_iter->first)
+			{
+			case KeyboardButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+				{
+					if (m_keyboard->IsKeyPress(value_iter->second))
+						return true;
+				}
+				break;
+			case MouseMove:
+				switch (value_iter->second)
+				{
+				case 0:
+					if (m_mouse->m_LastFrameState.lX == 0 && m_mouse->GetX() != 0)
+						return true;
+					break;
+				case 1:
+					if (m_mouse->m_LastFrameState.lY == 0 && m_mouse->GetY() != 0)
+						return true;
+					break;
+				case 2:
+					if (m_mouse->m_LastFrameState.lZ == 0 && m_mouse->GetZ() != 0)
+						return true;
+					break;
+				}
+				break;
+			case MouseButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_mouse->m_State.rgbButtons))
+				{
+					if (m_mouse->IsButtonPress(value_iter->second))
+						return true;
+				}
+				break;
+			case JoystickAxis:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0:
+						if (_isaxispress(m_joystick->m_LastFrameState.lX, m_joystick->GetX()))
+							return true;
+						break;
+					case 1:
+						if (_isaxispress(m_joystick->m_LastFrameState.lY, m_joystick->GetY()))
+							return true;
+						break;
+					case 2:
+						if (_isaxispress(m_joystick->m_LastFrameState.lZ, m_joystick->GetZ()))
+							return true;
+						break;
+					case 3:
+						if (_isaxispress(m_joystick->m_LastFrameState.lRx, m_joystick->GetRx()))
+							return true;
+						break;
+					case 4:
+						if (_isaxispress(m_joystick->m_LastFrameState.lRy, m_joystick->GetRy()))
+							return true;
+						break;
+					case 5:
+						if (_isaxispress(m_joystick->m_LastFrameState.lRz, m_joystick->GetRz()))
+							return true;
+						break;
+					}
+				}
+				break;
+			case JoystickPov:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0: // Horizontal
+						if (LOWORD(m_joystick->m_LastFrameState.rgdwPOV[0]) == 0xFFFF)
+						{
+							switch (m_joystick->m_State.rgdwPOV[0])
+							{
+							case JP_North:
+								return false;
+							case JP_NorthEast:
+								return true;
+							case JP_East:
+								return true;
+							case JP_SouthEast:
+								return true;
+							case JP_South:
+								return false;
+							case JP_SouthWest:
+								return true;
+							case JP_West:
+								return true;
+							case JP_NorthWest:
+								return true;
+							}
+						}
+						break;
+					case 1: // Vertical
+						if (LOWORD(m_joystick->m_LastFrameState.rgdwPOV[0]) == 0xFFFF)
+						{
+							switch (m_joystick->m_State.rgdwPOV[0])
+							{
+							case JP_North:
+								return true;
+							case JP_NorthEast:
+								return true;
+							case JP_East:
+								return false;
+							case JP_SouthEast:
+								return true;
+							case JP_South:
+								return true;
+							case JP_SouthWest:
+								return true;
+							case JP_West:
+								return false;
+							case JP_NorthWest:
+								return true;
+							}
+						}
+						break;
+					}
+				}
+				break;
+			case JoystickButton:
+				if (m_joystick && value_iter->second >= 0 && value_iter->second < _countof(m_joystick->m_State.rgbButtons))
+				{
+					if (m_joystick->IsButtonPress(value_iter->second))
+						return true;
+				}
+				break;
+			}
+		}
 	}
 	return false;
 }
@@ -1267,7 +1431,139 @@ bool InputMgr::IsKeyRelease(DWORD Key) const
 {
 	if (Key < m_KeyMap.size())
 	{
-
+		KeyMap::value_type::const_iterator value_iter = m_KeyMap[Key].begin();
+		for (; value_iter != m_KeyMap[Key].end(); value_iter++)
+		{
+			switch (value_iter->first)
+			{
+			case KeyboardButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+				{
+					if (m_keyboard->IsKeyRelease(value_iter->second))
+						return true;
+				}
+				break;
+			case MouseMove:
+				switch (value_iter->second)
+				{
+				case 0:
+					if (m_mouse->m_LastFrameState.lX != 0 && m_mouse->GetX() == 0)
+						return true;
+					break;
+				case 1:
+					if (m_mouse->m_LastFrameState.lY != 0 && m_mouse->GetY() == 0)
+						return true;
+					break;
+				case 2:
+					if (m_mouse->m_LastFrameState.lZ != 0 && m_mouse->GetZ() == 0)
+						return true;
+					break;
+				}
+				break;
+			case MouseButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_mouse->m_State.rgbButtons))
+				{
+					if (m_mouse->IsButtonRelease(value_iter->second))
+						return true;
+				}
+				break;
+			case JoystickAxis:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0:
+						if (_isaxisrelease(m_joystick->m_LastFrameState.lX, m_joystick->GetX()))
+							return true;
+						break;
+					case 1:
+						if (_isaxisrelease(m_joystick->m_LastFrameState.lY, m_joystick->GetY()))
+							return true;
+						break;
+					case 2:
+						if (_isaxisrelease(m_joystick->m_LastFrameState.lZ, m_joystick->GetZ()))
+							return true;
+						break;
+					case 3:
+						if (_isaxisrelease(m_joystick->m_LastFrameState.lRx, m_joystick->GetRx()))
+							return true;
+						break;
+					case 4:
+						if (_isaxisrelease(m_joystick->m_LastFrameState.lRy, m_joystick->GetRy()))
+							return true;
+						break;
+					case 5:
+						if (_isaxisrelease(m_joystick->m_LastFrameState.lRz, m_joystick->GetRz()))
+							return true;
+						break;
+					}
+				}
+				break;
+			case JoystickPov:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0: // Horizontal
+						if (LOWORD(m_joystick->m_State.rgdwPOV[0]) == 0xFFFF)
+						{
+							switch (m_joystick->m_LastFrameState.rgdwPOV[0])
+							{
+							case JP_North:
+								return false;
+							case JP_NorthEast:
+								return true;
+							case JP_East:
+								return true;
+							case JP_SouthEast:
+								return true;
+							case JP_South:
+								return false;
+							case JP_SouthWest:
+								return true;
+							case JP_West:
+								return true;
+							case JP_NorthWest:
+								return true;
+							}
+						}
+						break;
+					case 1: // Vertical
+						if (LOWORD(m_joystick->m_State.rgdwPOV[0]) == 0xFFFF)
+						{
+							switch (m_joystick->m_LastFrameState.rgdwPOV[0])
+							{
+							case JP_North:
+								return true;
+							case JP_NorthEast:
+								return true;
+							case JP_East:
+								return false;
+							case JP_SouthEast:
+								return true;
+							case JP_South:
+								return true;
+							case JP_SouthWest:
+								return true;
+							case JP_West:
+								return false;
+							case JP_NorthWest:
+								return true;
+							}
+						}
+						break;
+					}
+				}
+				break;
+			case JoystickButton:
+				if (m_joystick && value_iter->second >= 0 && value_iter->second < _countof(m_joystick->m_State.rgbButtons))
+				{
+					if (m_joystick->IsButtonRelease(value_iter->second))
+						return true;
+				}
+				break;
+			}
+		}
 	}
 	return false;
 }

@@ -492,9 +492,9 @@ namespace my
 
 		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
 
-		void AddKey(DWORD Key, Type type, int id);
+		void BindKey(DWORD Key, Type type, int id);
 
-		void RemoveKey(DWORD Key, Type type, int id);
+		void UnbindKey(DWORD Key, Type type, int id);
 
 		LONG GetKeyAxisRow(DWORD Key) const;
 

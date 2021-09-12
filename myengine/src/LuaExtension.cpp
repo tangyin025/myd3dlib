@@ -1209,6 +1209,21 @@ void LuaContext::Init(void)
 			.def_readonly("keyboard", &my::InputMgr::m_keyboard)
 			.def_readonly("mouse", &my::InputMgr::m_mouse)
 			.def_readonly("joystick", &my::InputMgr::m_joystick)
+			.enum_("Type")
+			[
+				value("KeyboardButton", my::InputMgr::KeyboardButton),
+				value("MouseMove", my::InputMgr::MouseMove),
+				value("MouseButton", my::InputMgr::MouseButton),
+				value("JoystickAxis", my::InputMgr::JoystickAxis),
+				value("JoystickPov", my::InputMgr::JoystickPov),
+				value("JoystickButton", my::InputMgr::JoystickButton)
+			]
+			.def("BindKey", &my::InputMgr::BindKey)
+			.def("UnbindKey", &my::InputMgr::UnbindKey)
+			.def("GetKeyAxisRow", &my::InputMgr::GetKeyAxisRow)
+			.def("IsKeyDown", &my::InputMgr::IsKeyDown)
+			.def("IsKeyPress", &my::InputMgr::IsKeyPress)
+			.def("IsKeyRelease", &my::InputMgr::IsKeyRelease)
 
 		, class_<my::TimerEventArg, my::EventArg>("TimerEventArg")
 			.def_readonly("Interval", &my::TimerEventArg::m_Interval)

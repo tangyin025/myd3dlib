@@ -623,6 +623,14 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
 			.def_readwrite("ViewedDistDiff", &Client::m_ViewedDistDiff)
+			.enum_("Key")
+			[
+				luabind::value("KeyHorizontal", Client::KeyHorizontal),
+				luabind::value("KeyVertical", Client::KeyVertical),
+				luabind::value("KeyConfirm", Client::KeyConfirm),
+				luabind::value("KeyCancel", Client::KeyCancel),
+				luabind::value("KeyCount", Client::KeyCount)
+			]
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
 			.def("InsertTimer", &Client::InsertTimer)
 			.def("RemoveTimer", &Client::RemoveTimer)
