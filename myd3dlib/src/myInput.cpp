@@ -1010,6 +1010,13 @@ LONG InputMgr::GetKeyAxisRow(DWORD Key) const
 						return 65536;
 				}
 				break;
+			case KeyboardNegativeButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+				{
+					if (m_keyboard->IsKeyDown(value_iter->second))
+						return 0;
+				}
+				break;
 			case MouseMove:
 				switch (value_iter->second)
 				{
@@ -1139,6 +1146,13 @@ bool InputMgr::IsKeyDown(DWORD Key) const
 			switch (value_iter->first)
 			{
 			case KeyboardButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+				{
+					if (m_keyboard->IsKeyDown(value_iter->second))
+						return true;
+				}
+				break;
+			case KeyboardNegativeButton:
 				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
 				{
 					if (m_keyboard->IsKeyDown(value_iter->second))
@@ -1302,6 +1316,13 @@ bool InputMgr::IsKeyPress(DWORD Key) const
 						return true;
 				}
 				break;
+			case KeyboardNegativeButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+				{
+					if (m_keyboard->IsKeyPress(value_iter->second))
+						return true;
+				}
+				break;
 			case MouseMove:
 				switch (value_iter->second)
 				{
@@ -1437,6 +1458,13 @@ bool InputMgr::IsKeyRelease(DWORD Key) const
 			switch (value_iter->first)
 			{
 			case KeyboardButton:
+				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
+				{
+					if (m_keyboard->IsKeyRelease(value_iter->second))
+						return true;
+				}
+				break;
+			case KeyboardNegativeButton:
 				if (value_iter->second >= 0 && value_iter->second < _countof(m_keyboard->m_State))
 				{
 					if (m_keyboard->IsKeyRelease(value_iter->second))

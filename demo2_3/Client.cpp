@@ -448,7 +448,16 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
-		("keyhorizontal", boost::program_options::value(&m_HotKeys[KeyHorizontal])->default_value(boost::assign::list_of(std::make_pair(my::InputMgr::KeyboardButton, (int)KC_A)), ""), "Key Horizontal")
+		("keyhorizontal", boost::program_options::value(&m_HotKeys[KeyHorizontal])->default_value(boost::assign::list_of(
+			std::make_pair(my::InputMgr::KeyboardNegativeButton, (int)KC_A))(
+				std::make_pair(my::InputMgr::KeyboardButton, (int)KC_D))(
+					std::make_pair(my::InputMgr::JoystickPov, 0))(
+						std::make_pair(my::InputMgr::JoystickAxis, 0)), ""), "Key Horizontal")
+		("keyvertical", boost::program_options::value(&m_HotKeys[KeyVertical])->default_value(boost::assign::list_of(
+			std::make_pair(my::InputMgr::KeyboardNegativeButton, (int)KC_W))(
+				std::make_pair(my::InputMgr::KeyboardButton, (int)KC_S))(
+					std::make_pair(my::InputMgr::JoystickPov, 1))(
+						std::make_pair(my::InputMgr::JoystickAxis, 1)), ""), "Key Vertical")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;

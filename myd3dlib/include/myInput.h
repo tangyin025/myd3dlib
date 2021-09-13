@@ -465,6 +465,7 @@ namespace my
 		enum Type
 		{
 			KeyboardButton,
+			KeyboardNegativeButton,
 			MouseMove,
 			MouseButton,
 			JoystickAxis,
