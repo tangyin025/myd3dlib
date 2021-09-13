@@ -448,16 +448,14 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
-		("keyhorizontal", boost::program_options::value(&m_InitBindKeys[KeyHorizontal])->default_value(boost::assign::list_of(
-			std::make_pair(InputMgr::KeyboardNegativeButton, (int)KC_A))(
-				std::make_pair(InputMgr::KeyboardButton, (int)KC_D))(
-					std::make_pair(InputMgr::JoystickPov, 0))(
-						std::make_pair(InputMgr::JoystickAxis, 0)), ""), "Key Horizontal")
-		("keyvertical", boost::program_options::value(&m_InitBindKeys[KeyVertical])->default_value(boost::assign::list_of(
-			std::make_pair(InputMgr::KeyboardNegativeButton, (int)KC_W))(
-				std::make_pair(InputMgr::KeyboardButton, (int)KC_S))(
-					std::make_pair(InputMgr::JoystickPov, 1))(
-						std::make_pair(InputMgr::JoystickAxis, 1)), ""), "Key Vertical")
+		("keyuihorizontal", boost::program_options::value(&m_InitBindKeys[KeyUIHorizontal])->default_value(boost::assign::list_of(
+			std::make_pair(InputMgr::JoystickPov, 0))(std::make_pair(InputMgr::JoystickAxis, 0)), ""), "Key UI Horizontal")
+		("keyuivertical", boost::program_options::value(&m_InitBindKeys[KeyUIVertical])->default_value(boost::assign::list_of(
+			std::make_pair(InputMgr::JoystickPov, 1))(std::make_pair(InputMgr::JoystickAxis, 1)), ""), "Key UI Vertical")
+		("keyuiconfirm", boost::program_options::value(&m_InitBindKeys[KeyUIConfirm])->default_value(boost::assign::list_of(
+			std::make_pair(InputMgr::JoystickButton, 0)), ""), "Key UI Confirm")
+		("keyuicancel", boost::program_options::value(&m_InitBindKeys[KeyUICancel])->default_value(boost::assign::list_of(
+			std::make_pair(InputMgr::JoystickButton, 1)), ""), "Key UI Cancel")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
@@ -473,7 +471,7 @@ Client::Client(void)
 		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
 	}
 
-	for (int Key = KeyHorizontal; Key < KeyCount; Key++)
+	for (int Key = KeyUIHorizontal; Key < KeyCount; Key++)
 	{
 		InputMgr::KeyPairList::const_iterator value_iter = m_InitBindKeys[Key].begin();
 		for (; value_iter != m_InitBindKeys[Key].end(); value_iter++)
@@ -677,10 +675,10 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("ViewedDistDiff", &Client::m_ViewedDistDiff)
 			.enum_("Key")
 			[
-				luabind::value("KeyHorizontal", Client::KeyHorizontal),
-				luabind::value("KeyVertical", Client::KeyVertical),
-				luabind::value("KeyConfirm", Client::KeyConfirm),
-				luabind::value("KeyCancel", Client::KeyCancel),
+				luabind::value("KeyUIHorizontal", Client::KeyUIHorizontal),
+				luabind::value("KeyUIVertical", Client::KeyUIVertical),
+				luabind::value("KeyUIConfirm", Client::KeyUIConfirm),
+				luabind::value("KeyUICancel", Client::KeyUICancel),
 				luabind::value("KeyCount", Client::KeyCount)
 			]
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)

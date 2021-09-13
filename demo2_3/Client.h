@@ -130,10 +130,10 @@ public:
 
 	enum Key
 	{
-		KeyHorizontal,
-		KeyVertical,
-		KeyConfirm,
-		KeyCancel,
+		KeyUIHorizontal,
+		KeyUIVertical,
+		KeyUIConfirm,
+		KeyUICancel,
 		KeyCount,
 	};
 
