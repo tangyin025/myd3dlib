@@ -462,7 +462,7 @@ namespace my
 
 		JoystickPtr m_joystick;
 
-		enum Type
+		enum KeyType
 		{
 			KeyboardButton,
 			KeyboardNegativeButton,
@@ -473,13 +473,15 @@ namespace my
 			JoystickButton,
 		};
 
-		typedef std::vector<std::vector<std::pair<Type, int> > > KeyMap;
+		typedef std::vector<std::pair<KeyType, int> > KeyPairList;
 
-		KeyMap m_KeyMap;
+		typedef std::vector<KeyPairList> KeyPairListList;
+
+		KeyPairListList m_BindKeys;
 
 	public:
-		InputMgr(size_t KeyTypeCount)
-			: m_KeyMap(KeyTypeCount)
+		InputMgr(size_t KeyCount)
+			: m_BindKeys(KeyCount)
 		{
 		}
 
@@ -493,9 +495,9 @@ namespace my
 
 		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
 
-		void BindKey(DWORD Key, Type type, int id);
+		void BindKey(DWORD Key, KeyType type, int id);
 
-		void UnbindKey(DWORD Key, Type type, int id);
+		void UnbindKey(DWORD Key, KeyType type, int id);
 
 		LONG GetKeyAxisRow(DWORD Key) const;
 

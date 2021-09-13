@@ -974,32 +974,32 @@ BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID
 	return DIENUM_CONTINUE;
 }
 
-void InputMgr::BindKey(DWORD Key, Type type, int id)
+void InputMgr::BindKey(DWORD Key, KeyType type, int id)
 {
-	if (Key < m_KeyMap.size())
+	if (Key < m_BindKeys.size())
 	{
-		KeyMap::value_type::value_type value = std::make_pair(type, id);
-		_ASSERT(std::find(m_KeyMap[Key].begin(), m_KeyMap[Key].end(), value) == m_KeyMap[Key].end());
-		m_KeyMap[Key].push_back(value);
+		KeyPairListList::value_type::value_type value = std::make_pair(type, id);
+		_ASSERT(std::find(m_BindKeys[Key].begin(), m_BindKeys[Key].end(), value) == m_BindKeys[Key].end());
+		m_BindKeys[Key].push_back(value);
 	}
 }
 
-void InputMgr::UnbindKey(DWORD Key, Type type, int id)
+void InputMgr::UnbindKey(DWORD Key, KeyType type, int id)
 {
-	if (Key < m_KeyMap.size())
+	if (Key < m_BindKeys.size())
 	{
-		KeyMap::value_type::iterator value_iter = std::find(m_KeyMap[Key].begin(), m_KeyMap[Key].end(), std::make_pair(type, id));
-		_ASSERT(value_iter != m_KeyMap[Key].end());
-		m_KeyMap[Key].erase(value_iter);
+		KeyPairListList::value_type::iterator value_iter = std::find(m_BindKeys[Key].begin(), m_BindKeys[Key].end(), std::make_pair(type, id));
+		_ASSERT(value_iter != m_BindKeys[Key].end());
+		m_BindKeys[Key].erase(value_iter);
 	}
 }
 
 LONG InputMgr::GetKeyAxisRow(DWORD Key) const
 {
-	if (Key < m_KeyMap.size())
+	if (Key < m_BindKeys.size())
 	{
-		KeyMap::value_type::const_iterator value_iter = m_KeyMap[Key].begin();
-		for (; value_iter != m_KeyMap[Key].end(); value_iter++)
+		KeyPairListList::value_type::const_iterator value_iter = m_BindKeys[Key].begin();
+		for (; value_iter != m_BindKeys[Key].end(); value_iter++)
 		{
 			switch (value_iter->first)
 			{
@@ -1138,10 +1138,10 @@ LONG InputMgr::GetKeyAxisRow(DWORD Key) const
 
 bool InputMgr::IsKeyDown(DWORD Key) const
 {
-	if (Key < m_KeyMap.size())
+	if (Key < m_BindKeys.size())
 	{
-		KeyMap::value_type::const_iterator value_iter = m_KeyMap[Key].begin();
-		for (; value_iter != m_KeyMap[Key].end(); value_iter++)
+		KeyPairListList::value_type::const_iterator value_iter = m_BindKeys[Key].begin();
+		for (; value_iter != m_BindKeys[Key].end(); value_iter++)
 		{
 			switch (value_iter->first)
 			{
@@ -1302,10 +1302,10 @@ static bool _isaxisrelease(LONG lastval, LONG val)
 
 bool InputMgr::IsKeyPress(DWORD Key) const
 {
-	if (Key < m_KeyMap.size())
+	if (Key < m_BindKeys.size())
 	{
-		KeyMap::value_type::const_iterator value_iter = m_KeyMap[Key].begin();
-		for (; value_iter != m_KeyMap[Key].end(); value_iter++)
+		KeyPairListList::value_type::const_iterator value_iter = m_BindKeys[Key].begin();
+		for (; value_iter != m_BindKeys[Key].end(); value_iter++)
 		{
 			switch (value_iter->first)
 			{
@@ -1450,10 +1450,10 @@ bool InputMgr::IsKeyPress(DWORD Key) const
 
 bool InputMgr::IsKeyRelease(DWORD Key) const
 {
-	if (Key < m_KeyMap.size())
+	if (Key < m_BindKeys.size())
 	{
-		KeyMap::value_type::const_iterator value_iter = m_KeyMap[Key].begin();
-		for (; value_iter != m_KeyMap[Key].end(); value_iter++)
+		KeyPairListList::value_type::const_iterator value_iter = m_BindKeys[Key].begin();
+		for (; value_iter != m_BindKeys[Key].end(); value_iter++)
 		{
 			switch (value_iter->first)
 			{

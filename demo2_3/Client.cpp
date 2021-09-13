@@ -395,7 +395,7 @@ namespace boost
 	{
 		void validate(boost::any& v,
 			const std::vector<std::string>& values,
-			std::vector<std::pair<my::InputMgr::Type, int> >*, int)
+			std::vector<std::pair<InputMgr::KeyType, int> >*, int)
 		{
 			//static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
 
@@ -448,16 +448,16 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
-		("keyhorizontal", boost::program_options::value(&m_HotKeys[KeyHorizontal])->default_value(boost::assign::list_of(
-			std::make_pair(my::InputMgr::KeyboardNegativeButton, (int)KC_A))(
-				std::make_pair(my::InputMgr::KeyboardButton, (int)KC_D))(
-					std::make_pair(my::InputMgr::JoystickPov, 0))(
-						std::make_pair(my::InputMgr::JoystickAxis, 0)), ""), "Key Horizontal")
-		("keyvertical", boost::program_options::value(&m_HotKeys[KeyVertical])->default_value(boost::assign::list_of(
-			std::make_pair(my::InputMgr::KeyboardNegativeButton, (int)KC_W))(
-				std::make_pair(my::InputMgr::KeyboardButton, (int)KC_S))(
-					std::make_pair(my::InputMgr::JoystickPov, 1))(
-						std::make_pair(my::InputMgr::JoystickAxis, 1)), ""), "Key Vertical")
+		("keyhorizontal", boost::program_options::value(&m_InitBindKeys[KeyHorizontal])->default_value(boost::assign::list_of(
+			std::make_pair(InputMgr::KeyboardNegativeButton, (int)KC_A))(
+				std::make_pair(InputMgr::KeyboardButton, (int)KC_D))(
+					std::make_pair(InputMgr::JoystickPov, 0))(
+						std::make_pair(InputMgr::JoystickAxis, 0)), ""), "Key Horizontal")
+		("keyvertical", boost::program_options::value(&m_InitBindKeys[KeyVertical])->default_value(boost::assign::list_of(
+			std::make_pair(InputMgr::KeyboardNegativeButton, (int)KC_W))(
+				std::make_pair(InputMgr::KeyboardButton, (int)KC_S))(
+					std::make_pair(InputMgr::JoystickPov, 1))(
+						std::make_pair(InputMgr::JoystickAxis, 1)), ""), "Key Vertical")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
@@ -475,8 +475,8 @@ Client::Client(void)
 
 	for (int Key = KeyHorizontal; Key < KeyCount; Key++)
 	{
-		std::vector<std::pair<my::InputMgr::Type, int> >::const_iterator value_iter = m_HotKeys[Key].begin();
-		for (; value_iter != m_HotKeys[Key].end(); value_iter++)
+		InputMgr::KeyPairList::const_iterator value_iter = m_InitBindKeys[Key].begin();
+		for (; value_iter != m_InitBindKeys[Key].end(); value_iter++)
 		{
 			InputMgr::BindKey(Key, value_iter->first, value_iter->second);
 		}

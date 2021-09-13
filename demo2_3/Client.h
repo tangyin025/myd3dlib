@@ -137,7 +137,7 @@ public:
 		KeyCount,
 	};
 
-	boost::array<std::vector<std::pair<my::InputMgr::Type, int> >, KeyCount> m_HotKeys;
+	boost::array<InputMgr::KeyPairList, KeyCount> m_InitBindKeys;
 
 	my::Vector3 m_ViewedCenter;
 
