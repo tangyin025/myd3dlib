@@ -389,6 +389,39 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 	}
 };
 
+namespace boost
+{
+	namespace program_options
+	{
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
+			std::vector<std::pair<my::InputMgr::Type, int> >*, int)
+		{
+			//static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+
+			//// Make sure no previous assignment to 'a' was made.
+			//boost::program_options::validators::check_first_occurrence(v);
+			//// Extract the first string from 'values'. If there is more than
+			//// one string, it's an error, and exception will be thrown.
+			//const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			//// Do regex match and convert the interesting part to
+			//// int.
+			//boost::smatch match;
+			//if (boost::regex_match(s, match, r)) {
+			//	v = boost::any(my::Rectangle::LeftTop(
+			//		boost::lexical_cast<float>(match[1]),
+			//		boost::lexical_cast<float>(match[3]),
+			//		boost::lexical_cast<float>(match[5]),
+			//		boost::lexical_cast<float>(match[7])));
+			//}
+			//else {
+			//	throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			//}
+		}
+	}
+}
+
 Client::Client(void)
 	: OctRoot(-4096, 4096)
 	, InputMgr(KeyCount)
@@ -415,6 +448,7 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
+		("keyhorizontal", boost::program_options::value(&m_HotKeys[KeyHorizontal])->default_value(boost::assign::list_of(std::make_pair(my::InputMgr::KeyboardButton, (int)KC_A)), ""), "Key Horizontal")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
@@ -428,6 +462,15 @@ Client::Client(void)
 	{
 		ResourceMgr::RegisterFileDir(*path_iter);
 		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
+	}
+
+	for (int Key = KeyHorizontal; Key < KeyCount; Key++)
+	{
+		std::vector<std::pair<my::InputMgr::Type, int> >::const_iterator value_iter = m_HotKeys[Key].begin();
+		for (; value_iter != m_HotKeys[Key].end(); value_iter++)
+		{
+			InputMgr::BindKey(Key, value_iter->first, value_iter->second);
+		}
 	}
 
 	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(m_InitFov), 1.333333f, 0.1f, 3000.0f));

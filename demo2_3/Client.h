@@ -128,6 +128,17 @@ public:
 
 	std::string m_InitScript;
 
+	enum Key
+	{
+		KeyHorizontal,
+		KeyVertical,
+		KeyConfirm,
+		KeyCancel,
+		KeyCount,
+	};
+
+	boost::array<std::vector<std::pair<my::InputMgr::Type, int> >, KeyCount> m_HotKeys;
+
 	my::Vector3 m_ViewedCenter;
 
 	float m_ViewedDist;
@@ -143,15 +154,6 @@ public:
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;
 
 	ActivateEvent m_ActivateEvent;
-
-	enum Key
-	{
-		KeyHorizontal,
-		KeyVertical,
-		KeyConfirm,
-		KeyCancel,
-		KeyCount,
-	};
 
 public:
 	Client(void);
