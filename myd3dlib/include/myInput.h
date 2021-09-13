@@ -479,9 +479,12 @@ namespace my
 
 		KeyPairListList m_BindKeys;
 
+		LONG m_JoystickAxisDeadZone;
+
 	public:
 		InputMgr(size_t KeyCount)
 			: m_BindKeys(KeyCount)
+			, m_JoystickAxisDeadZone(3276)
 		{
 		}
 

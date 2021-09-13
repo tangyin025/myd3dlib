@@ -856,9 +856,51 @@ void Client::OnFrameTick(
 
 	EnterDeviceSection();
 
-	if (!InputMgr::Capture(fTime, fElapsedTime))
+	if (InputMgr::Capture(fTime, fElapsedTime))
 	{
-		// TODO: lost user input
+		if (IsKeyPress(KeyUIHorizontal))
+		{
+			LONG LeftRight = GetKeyAxisRow(KeyUIHorizontal);
+			if (LeftRight < 32767 - m_JoystickAxisDeadZone)
+			{
+				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_LEFT, 0);
+			}
+			else if (LeftRight > 32767 + m_JoystickAxisDeadZone)
+			{
+				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RIGHT, 0);
+			}
+		}
+
+		if (IsKeyPress(KeyUIVertical))
+		{
+			LONG UpDown = GetKeyAxisRow(KeyUIVertical);
+			if (UpDown < 32767 - m_JoystickAxisDeadZone)
+			{
+				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_UP, 0);
+			}
+			else if (UpDown > 32767 + m_JoystickAxisDeadZone)
+			{
+				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_DOWN, 0);
+			}
+		}
+
+		if (IsKeyPress(KeyUIConfirm))
+		{
+			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RETURN, 0);
+		}
+		else if (IsKeyRelease(KeyUIConfirm))
+		{
+			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_RETURN, 0);
+		}
+		
+		if (IsKeyPress(KeyUICancel))
+		{
+			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_ESCAPE, 0);
+		}
+		else if (IsKeyRelease(KeyUICancel))
+		{
+			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_ESCAPE, 0);
+		}
 	}
 
 	TimerMgr::Update(fTime, fElapsedTime);
