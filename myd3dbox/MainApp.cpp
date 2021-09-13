@@ -161,7 +161,7 @@ namespace boost
 			const std::vector<std::string>& values,
 			my::Rectangle* , int)
 		{
-			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
 
 			// Make sure no previous assignment to 'a' was made.
 			boost::program_options::validators::check_first_occurrence(v);
@@ -188,7 +188,7 @@ namespace boost
 			const std::vector<std::string>& values,
 			my::Vector2*, int)
 		{
-			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
 
 			// Make sure no previous assignment to 'a' was made.
 			boost::program_options::validators::check_first_occurrence(v);
@@ -213,7 +213,7 @@ namespace boost
 			const std::vector<std::string>& values,
 			my::Vector4*, int)
 		{
-			static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
 
 			// Make sure no previous assignment to 'a' was made.
 			boost::program_options::validators::check_first_occurrence(v);
@@ -240,7 +240,7 @@ namespace boost
 			const std::vector<std::string>& values,
 			D3DCOLOR*, int)
 		{
-			static boost::regex r("([0-9]+),([0-9]+),([0-9]+),([0-9]+)");
+			static boost::regex r("(\\d+),(\\d+),(\\d+),(\\d+)");
 
 			// Make sure no previous assignment to 'a' was made.
 			boost::program_options::validators::check_first_occurrence(v);

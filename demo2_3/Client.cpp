@@ -19,6 +19,7 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/program_options.hpp>
+#include <boost/regex.hpp>
 #include <boost/assign/list_of.hpp>
 
 #ifdef _DEBUG
@@ -395,29 +396,56 @@ namespace boost
 	{
 		void validate(boost::any& v,
 			const std::vector<std::string>& values,
-			std::vector<std::pair<InputMgr::KeyType, int> >*, int)
+			my::InputMgr::KeyPairList*, int)
 		{
-			//static boost::regex r("([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+),([+-]?([0-9]*[.])?[0-9]+)");
+			//                      2                3                        4           5             6              7             8                9
+			static boost::regex r("((KeyboardButton)|(KeyboardNegativeButton)|(MouseMove)|(MouseButton)|(JoystickAxis)|(JoystickPov)|(JoystickButton))(\\d+)");
 
-			//// Make sure no previous assignment to 'a' was made.
-			//boost::program_options::validators::check_first_occurrence(v);
-			//// Extract the first string from 'values'. If there is more than
-			//// one string, it's an error, and exception will be thrown.
-			//const std::string& s = boost::program_options::validators::get_single_string(values);
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
 
-			//// Do regex match and convert the interesting part to
-			//// int.
-			//boost::smatch match;
-			//if (boost::regex_match(s, match, r)) {
-			//	v = boost::any(my::Rectangle::LeftTop(
-			//		boost::lexical_cast<float>(match[1]),
-			//		boost::lexical_cast<float>(match[3]),
-			//		boost::lexical_cast<float>(match[5]),
-			//		boost::lexical_cast<float>(match[7])));
-			//}
-			//else {
-			//	throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
-			//}
+			// Do regex match and convert the interesting part to
+			// int.
+			std::string::const_iterator s_iter = s.begin();
+			boost::smatch match;
+			my::InputMgr::KeyPairList res;
+			while (boost::regex_search(s_iter, s.end(), match, r, boost::match_default))
+			{
+				_ASSERT(match[9].matched);
+				if (match[2].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::KeyboardButton, boost::lexical_cast<int>(match[9])));
+				}
+				else if (match[3].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::KeyboardNegativeButton, boost::lexical_cast<int>(match[9])));
+				}
+				else if (match[4].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::MouseMove, boost::lexical_cast<int>(match[9])));
+				}
+				else if (match[5].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::MouseButton, boost::lexical_cast<int>(match[9])));
+				}
+				else if (match[6].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::JoystickAxis, boost::lexical_cast<int>(match[9])));
+				}
+				else if (match[7].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::JoystickPov, boost::lexical_cast<int>(match[9])));
+				}
+				else if (match[8].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::JoystickButton, boost::lexical_cast<int>(match[9])));
+				}
+				s_iter = match[0].second;
+			}
+			v = boost::any(res);
 		}
 	}
 }
@@ -448,14 +476,10 @@ Client::Client(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
-		("keyuihorizontal", boost::program_options::value(&m_InitBindKeys[KeyUIHorizontal])->default_value(boost::assign::list_of(
-			std::make_pair(InputMgr::JoystickPov, 0))(std::make_pair(InputMgr::JoystickAxis, 0)), ""), "Key UI Horizontal")
-		("keyuivertical", boost::program_options::value(&m_InitBindKeys[KeyUIVertical])->default_value(boost::assign::list_of(
-			std::make_pair(InputMgr::JoystickPov, 1))(std::make_pair(InputMgr::JoystickAxis, 1)), ""), "Key UI Vertical")
-		("keyuiconfirm", boost::program_options::value(&m_InitBindKeys[KeyUIConfirm])->default_value(boost::assign::list_of(
-			std::make_pair(InputMgr::JoystickButton, 0)), ""), "Key UI Confirm")
-		("keyuicancel", boost::program_options::value(&m_InitBindKeys[KeyUICancel])->default_value(boost::assign::list_of(
-			std::make_pair(InputMgr::JoystickButton, 1)), ""), "Key UI Cancel")
+		("keyuihorizontal", boost::program_options::value(&m_InitBindKeys[KeyUIHorizontal])->default_value(InputMgr::KeyPairList(), ""), "Key UI Horizontal")
+		("keyuivertical", boost::program_options::value(&m_InitBindKeys[KeyUIVertical])->default_value(InputMgr::KeyPairList(), ""), "Key UI Vertical")
+		("keyuiconfirm", boost::program_options::value(&m_InitBindKeys[KeyUIConfirm])->default_value(InputMgr::KeyPairList(), ""), "Key UI Confirm")
+		("keyuicancel", boost::program_options::value(&m_InitBindKeys[KeyUICancel])->default_value(InputMgr::KeyPairList(), ""), "Key UI Cancel")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
