@@ -445,6 +445,10 @@ namespace boost
 				}
 				s_iter = match[0].second;
 			}
+			if (s_iter != s.end())
+			{
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
 			v = boost::any(res);
 		}
 	}

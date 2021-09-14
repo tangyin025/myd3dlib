@@ -1189,27 +1189,27 @@ bool InputMgr::IsKeyDown(DWORD Key) const
 					switch (value_iter->second)
 					{
 					case 0:
-						if (m_joystick->GetX() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetX() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetX() < 21845 || m_joystick->GetX() > 43690)
 							return true;
 						break;
 					case 1:
-						if (m_joystick->GetY() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetY() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetY() < 21845 || m_joystick->GetY() > 43690)
 							return true;
 						break;
 					case 2:
-						if (m_joystick->GetZ() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetZ() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetZ() < 21845 || m_joystick->GetZ() > 43690)
 							return true;
 						break;
 					case 3:
-						if (m_joystick->GetRx() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRx() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRx() < 21845 || m_joystick->GetRx() > 43690)
 							return true;
 						break;
 					case 4:
-						if (m_joystick->GetRy() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRy() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRy() < 21845 || m_joystick->GetRy() > 43690)
 							return true;
 						break;
 					case 5:
-						if (m_joystick->GetRz() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRz() > 32767 + m_JoystickAxisDeadZone)
+						if (m_joystick->GetRz() < 21845 || m_joystick->GetRz() > 43690)
 							return true;
 						break;
 					}
