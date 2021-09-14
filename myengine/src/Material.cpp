@@ -290,18 +290,18 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	boost::regex reg("^\\s*(float\\d?|texture)\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
+	//                     12       3        4        5        6             7                               8             9
+	boost::regex reg("^\\s*((float)|(float2)|(float3)|(float4)|(texture))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
 	m_ParameterList.clear();
 	while (boost::regex_search(start, end, what, reg, boost::match_default))
 	{
-		std::string Type = what[1];
-		std::string Name = what[2];
-		std::string Annotations = what[3];
-		std::string Initialize = what[4];
-		if (Type == "float")
+		std::string Name = what[7];
+		std::string Annotations = what[8];
+		std::string Initialize = what[9];
+		if (what[2].matched)
 		{
 			float Value = 0.0f;
 			boost::regex reg_value("-?\\d+(\\.\\d+)?");
@@ -312,7 +312,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (Type == "float2")
+		else if (what[3].matched)
 		{
 			Vector2 Value(0, 0);
 			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
@@ -324,7 +324,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (Type == "float3")
+		else if (what[4].matched)
 		{
 			Vector3 Value(0, 0, 0);
 			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
@@ -337,7 +337,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (Type == "float4")
+		else if (what[5].matched)
 		{
 			Vector4 Value(0, 0, 0, 1);
 			boost::regex reg_value("(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)\\s*,\\s*(-?\\d+(\\.\\d+)?)");
@@ -351,7 +351,7 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Value);
 		}
-		else if (Type == "texture")
+		else if (what[6].matched)
 		{
 			std::string Path;
 			boost::regex reg_value("string\\s+Initialize\\s*=\\s*\\\"([^\"]+)\\\"");
@@ -365,50 +365,50 @@ void Material::ParseShaderParameters(void)
 		start = what[0].second;
 	}
 
-	boost::regex reg_pass("pass\\s+(\\w+)(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
+	//                             12                3                4               5                    6                7                     8                      9
+	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
 	start = (const char *)&(*cache)[0];
 	end = (const char *)&(*cache)[cache->size() - 1];
 	m_PassMask = 0;
 	while (boost::regex_search(start, end, what, reg_pass, boost::match_default))
 	{
-		std::string Pass = what[1];
-		std::string assignment = what[3];
-		if (Pass == "PassTypeShadow")
+		std::string assignment = what[9];
+		if (what[2].matched)
 		{
 			if (!assignment.empty())
 			{
 				m_PassMask |= 1 << RenderPipeline::PassTypeShadow;
 			}
 		}
-		else if (Pass == "PassTypeNormal")
+		else if (what[3].matched)
 		{
 			if (!assignment.empty())
 			{
 				m_PassMask |= 1 << RenderPipeline::PassTypeNormal;
 			}
 		}
-		else if (Pass == "PassTypeLight")
+		else if (what[4].matched)
 		{
 			if (!assignment.empty())
 			{
 				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
 			}
 		}
-		else if (Pass == "PassTypeBackground")
+		else if (what[5].matched)
 		{
 			if (!assignment.empty())
 			{
 				m_PassMask |= 1 << RenderPipeline::PassTypeBackground;
 			}
 		}
-		else if (Pass == "PassTypeOpaque")
+		else if (what[6].matched)
 		{
 			if (!assignment.empty())
 			{
 				m_PassMask |= 1 << RenderPipeline::PassTypeOpaque;
 			}
 		}
-		else if (Pass == "PassTypeTransparent")
+		else if (what[7].matched)
 		{
 			if (!assignment.empty())
 			{
