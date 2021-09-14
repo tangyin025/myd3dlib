@@ -1220,8 +1220,9 @@ void LuaContext::Init(void)
 			]
 			.def("BindKey", &my::InputMgr::BindKey)
 			.def("UnbindKey", &my::InputMgr::UnbindKey)
-			.def("GetKeyAxisRow", &my::InputMgr::GetKeyAxisRow)
+			.def("GetKeyAxisRaw", &my::InputMgr::GetKeyAxisRaw)
 			.def("IsKeyDown", &my::InputMgr::IsKeyDown)
+			.def("IsKeyPressRaw", &my::InputMgr::IsKeyPressRaw)
 			.def("IsKeyPress", &my::InputMgr::IsKeyPress)
 			.def("IsKeyRelease", &my::InputMgr::IsKeyRelease)
 

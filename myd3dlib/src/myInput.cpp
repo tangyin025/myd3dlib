@@ -994,7 +994,7 @@ void InputMgr::UnbindKey(DWORD Key, KeyType type, int id)
 	}
 }
 
-LONG InputMgr::GetKeyAxisRow(DWORD Key) const
+LONG InputMgr::GetKeyAxisRaw(DWORD Key) const
 {
 	if (Key < m_BindKeys.size())
 	{
@@ -1300,7 +1300,7 @@ static bool _isaxisrelease(LONG lastval, LONG val)
 	return false;
 }
 
-bool InputMgr::IsKeyPress(DWORD Key) const
+bool InputMgr::IsKeyPressRaw(DWORD Key) const
 {
 	if (Key < m_BindKeys.size())
 	{
@@ -1442,6 +1442,41 @@ bool InputMgr::IsKeyPress(DWORD Key) const
 						return true;
 				}
 				break;
+			}
+		}
+	}
+	return false;
+}
+
+bool InputMgr::IsKeyPress(DWORD Key)
+{
+	if (IsKeyPressRaw(Key))
+	{
+		m_LastPressKey = Key;
+		m_LastPressTime = timeGetTime();
+		m_LastPressCount = 1;
+		return true;
+	}
+	else if (m_LastPressKey == Key && IsKeyDown(Key))
+	{
+		if (m_LastPressCount <= 1)
+		{
+			DWORD dwAbsoluteTime = timeGetTime();
+			if (330 < dwAbsoluteTime - m_LastPressTime)
+			{
+				m_LastPressTime = dwAbsoluteTime;
+				m_LastPressCount++;
+				return true;
+			}
+		}
+		else
+		{
+			DWORD dwAbsoluteTime = timeGetTime();
+			if (50 < dwAbsoluteTime - m_LastPressTime)
+			{
+				m_LastPressTime = dwAbsoluteTime;
+				m_LastPressCount++;
+				return true;
 			}
 		}
 	}

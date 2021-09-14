@@ -481,10 +481,19 @@ namespace my
 
 		LONG m_JoystickAxisDeadZone;
 
+		DWORD m_LastPressKey;
+
+		DWORD m_LastPressTime;
+
+		int m_LastPressCount;
+
 	public:
 		InputMgr(size_t KeyCount)
 			: m_BindKeys(KeyCount)
 			, m_JoystickAxisDeadZone(3276)
+			, m_LastPressKey(UINT32_MAX)
+			, m_LastPressTime(0)
+			, m_LastPressCount(0)
 		{
 		}
 
@@ -502,11 +511,13 @@ namespace my
 
 		void UnbindKey(DWORD Key, KeyType type, int id);
 
-		LONG GetKeyAxisRow(DWORD Key) const;
+		LONG GetKeyAxisRaw(DWORD Key) const;
 
 		bool IsKeyDown(DWORD Key) const;
 
-		bool IsKeyPress(DWORD Key) const;
+		bool IsKeyPressRaw(DWORD Key) const;
+
+		bool IsKeyPress(DWORD Key);
 
 		bool IsKeyRelease(DWORD Key) const;
 	};

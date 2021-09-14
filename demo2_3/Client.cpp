@@ -884,7 +884,7 @@ void Client::OnFrameTick(
 	{
 		if (IsKeyPress(KeyUIHorizontal))
 		{
-			LONG LeftRight = GetKeyAxisRow(KeyUIHorizontal);
+			LONG LeftRight = GetKeyAxisRaw(KeyUIHorizontal);
 			if (LeftRight < 32767 - m_JoystickAxisDeadZone)
 			{
 				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_LEFT, 0);
@@ -897,7 +897,7 @@ void Client::OnFrameTick(
 
 		if (IsKeyPress(KeyUIVertical))
 		{
-			LONG UpDown = GetKeyAxisRow(KeyUIVertical);
+			LONG UpDown = GetKeyAxisRaw(KeyUIVertical);
 			if (UpDown < 32767 - m_JoystickAxisDeadZone)
 			{
 				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_UP, 0);
