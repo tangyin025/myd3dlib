@@ -238,7 +238,7 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 {
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMainFrame::SelActorList::iterator actor_iter = pFrame->m_selactors.begin();
+	CMainFrame::ActorList::iterator actor_iter = pFrame->m_selactors.begin();
 	if (actor_iter != pFrame->m_selactors.end())
 	{
 		if (!m_IsOnPropertyChanged)

@@ -1240,7 +1240,7 @@ void CChildView::OnPaint()
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_View, m_Camera->m_View);
 					theApp.m_SimpleSample->SetMatrix(theApp.handle_ViewProj, m_Camera->m_ViewProj);
 					PushLineAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-					CMainFrame::SelActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
+					CMainFrame::ActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 					{
 						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter);
@@ -1431,7 +1431,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (!pFrame->m_selactors.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
-		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
+		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			physx::PxRigidBody * body = NULL;
@@ -1677,10 +1677,10 @@ ctrl_handle_end:
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{
-			CMainFrame::SelActorList & selacts;
+			CMainFrame::ActorList & selacts;
 			const my::Frustum & ftm;
 			CChildView * pView;
-			Callback(CMainFrame::SelActorList & _selacts, const my::Frustum & _ftm, CChildView * _pView)
+			Callback(CMainFrame::ActorList & _selacts, const my::Frustum & _ftm, CChildView * _pView)
 				: selacts(_selacts)
 				, ftm(_ftm)
 				, pView(_pView)
@@ -1764,7 +1764,7 @@ ctrl_handle_end:
 		pFrame->QueryEntity(ray, &cb);
 		if (cb.selact)
 		{
-			CMainFrame::SelActorList::iterator sel_iter = std::find(pFrame->m_selactors.begin(), pFrame->m_selactors.end(), cb.selact);
+			CMainFrame::ActorList::iterator sel_iter = std::find(pFrame->m_selactors.begin(), pFrame->m_selactors.end(), cb.selact);
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
@@ -1829,7 +1829,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
-		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
+		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			(*sel_iter)->UpdateOctNode();
@@ -1972,8 +1972,8 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		if (m_bCopyActors)
 		{
 			m_bCopyActors = FALSE;
-			CMainFrame::SelActorList new_selactors;
-			CMainFrame::SelActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
+			CMainFrame::ActorList new_selactors;
+			CMainFrame::ActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = (*sel_iter)->Clone();
@@ -1987,7 +1987,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			pFrame->m_selctl = NULL;
 		}
 		StartPerformanceCount();
-		CMainFrame::SelActorList::iterator sel_iter = pFrame->m_selactors.begin();
+		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			my::Matrix4 trans = my::Matrix4::Identity();

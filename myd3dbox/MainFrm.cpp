@@ -627,7 +627,7 @@ void CMainFrame::UpdateSelBox(void)
 	if (!m_selactors.empty())
 	{
 		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-		SelActorList::const_iterator actor_iter = m_selactors.begin();
+		ActorList::const_iterator actor_iter = m_selactors.begin();
 		for (; actor_iter != m_selactors.end(); actor_iter++)
 		{
 			m_selbox.unionSelf((*actor_iter)->m_aabb.transform((*actor_iter)->m_World));
@@ -651,7 +651,7 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::OnFrameTick(float fElapsedTime)
 {
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
@@ -775,14 +775,14 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
 	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
-	ActorPtrSet::const_iterator actor_iter = m_ActorList.begin();
+	ActorPtrList::const_iterator actor_iter = m_ActorList.begin();
 	for (; actor_iter != m_ActorList.end(); actor_iter++)
 	{
 		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 
 	*ia >> boost::serialization::make_nvp("DialogList", m_DialogList);
-	DialogPtrSet::const_iterator dlg_iter = m_DialogList.begin();
+	DialogPtrList::const_iterator dlg_iter = m_DialogList.begin();
 	for (; dlg_iter != m_DialogList.end(); dlg_iter++)
 	{
 		InsertDlg(dlg_iter->get());
@@ -817,7 +817,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		CMainFrame * pFrame;
-		CMainFrame::ActorPtrSet m_ActorList;
+		CMainFrame::ActorPtrList m_ActorList;
 		Callback(CMainFrame * _pFrame)
 			: pFrame(_pFrame)
 		{
@@ -832,7 +832,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	QueryEntityAll(&cb);
 	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
 
-	DialogPtrSet dlgList;
+	DialogPtrList dlgList;
 	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for (; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
@@ -888,7 +888,7 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 		m_ViewedActors.erase(m_ViewedActors.iterator_to(*actor));
 	}
 
-	SelActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
+	ActorList::iterator actor_iter = std::find(m_selactors.begin(), m_selactors.end(), actor);
 	if (actor_iter != m_selactors.end())
 	{
 		m_selactors.erase(actor_iter);
@@ -1146,7 +1146,7 @@ void CMainFrame::OnCreateActor()
 void CMainFrame::OnCreateController()
 {
 	//// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1171,7 +1171,7 @@ void CMainFrame::OnUpdateCreateController(CCmdUI* pCmdUI)
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1259,7 +1259,7 @@ void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentCloth()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1362,7 +1362,7 @@ void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentStaticEmitter()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1393,7 +1393,7 @@ void CMainFrame::OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentSphericalemitter()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1441,7 +1441,7 @@ void CMainFrame::OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentTerrain()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1492,7 +1492,7 @@ void CMainFrame::OnEditDelete()
 
 			RemoveDlg(dlg.get());
 
-			DialogPtrSet::iterator dlg_iter = std::find(m_DialogList.begin(), m_DialogList.end(), dlg);
+			DialogPtrList::iterator dlg_iter = std::find(m_DialogList.begin(), m_DialogList.end(), dlg);
 			if (dlg_iter != m_DialogList.end())
 			{
 				m_DialogList.erase(dlg_iter);
@@ -1512,14 +1512,14 @@ void CMainFrame::OnEditDelete()
 		return;
 	}
 
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter = m_selactors.begin())
 	{
 		ActorPtr actor = (*actor_iter)->shared_from_this();
 
 		VERIFY(RemoveEntity(actor.get()));
 
-		ActorPtrSet::iterator actor_iter = std::find(m_ActorList.begin(), m_ActorList.end(), actor);
+		ActorPtrList::iterator actor_iter = std::find(m_ActorList.begin(), m_ActorList.end(), actor);
 		if (actor_iter != m_ActorList.end())
 		{
 			m_ActorList.erase(actor_iter);
@@ -1666,7 +1666,7 @@ void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 void CMainFrame::OnComponentAnimator()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
@@ -1728,7 +1728,7 @@ void CMainFrame::OnUpdateComponentAnimator(CCmdUI* pCmdUI)
 void CMainFrame::OnCreateNavigation()
 {
 	// TODO: Add your command handler code here
-	SelActorList::iterator actor_iter = m_selactors.begin();
+	ActorList::iterator actor_iter = m_selactors.begin();
 	if (actor_iter == m_selactors.end())
 	{
 		return;
