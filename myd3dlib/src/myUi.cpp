@@ -164,25 +164,293 @@ void UIRender::Flush(void)
 	}
 }
 
-void UIRender::PushVertexSimple(VertexList & vertex_list, unsigned int start, float x, float y, float z, float u, float v, D3DCOLOR color)
+void UIRender::PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2)
 {
-	CUSTOMVERTEX & vtx = vertex_list[start];
-	vtx.x = x;
-	vtx.y = y;
-	vtx.z = z;
-	vtx.u = u;
-	vtx.v = v;
-	vtx.color = color;
+	vertex_list.push_back(v0);
+	vertex_list.push_back(v1);
+	vertex_list.push_back(v2);
 }
 
-void UIRender::PushRectangleSimple(VertexList & vertex_list, unsigned int start, const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
+static void _PushTriangleClipX_1_2(UIRender::VertexList & vertex_list, const UIRender::CUSTOMVERTEX & v0, const UIRender::CUSTOMVERTEX & v1, const UIRender::CUSTOMVERTEX & v2, float x, const my::Rectangle & clip, DWORD clipmask)
 {
-	PushVertexSimple(vertex_list, start++, rect.l, rect.t, 0, UvRect.l, UvRect.t, color);
-	PushVertexSimple(vertex_list, start++, rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
-	PushVertexSimple(vertex_list, start++, rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
-	PushVertexSimple(vertex_list, start++, rect.r, rect.b, 0, UvRect.r, UvRect.b, color);
-	PushVertexSimple(vertex_list, start++, rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
-	PushVertexSimple(vertex_list, start++, rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
+	float alpha0 = (x - v0.x) / (v1.x - v0.x);
+	float alpha1 = (x - v0.x) / (v2.x - v0.x);
+	UIRender::CUSTOMVERTEX v3 = { x, Lerp(v0.y, v1.y, alpha0), Lerp(v0.z, v1.z, alpha0), v0.color, Lerp(v0.u, v1.u, alpha0), Lerp(v0.v, v1.v, alpha0) };
+	UIRender::CUSTOMVERTEX v4 = { x, Lerp(v0.y, v2.y, alpha1), Lerp(v0.z, v2.z, alpha1), v0.color, Lerp(v0.u, v2.u, alpha1), Lerp(v0.v, v2.v, alpha1) };
+	UIRender::PushTriangleSimple(vertex_list, v3, v1, v2, clip, clipmask);
+	UIRender::PushTriangleSimple(vertex_list, v3, v2, v4, clip, clipmask);
+}
+
+static void _PushTriangleClipX_2_1(UIRender::VertexList & vertex_list, const UIRender::CUSTOMVERTEX & v0, const UIRender::CUSTOMVERTEX & v1, const UIRender::CUSTOMVERTEX & v2, float x, const my::Rectangle & clip, DWORD clipmask)
+{
+	float alpha0 = (x - v0.x) / (v2.x - v0.x);
+	float alpha1 = (x - v1.x) / (v2.x - v1.x);
+	UIRender::CUSTOMVERTEX v3 = { x, Lerp(v0.y, v2.y, alpha0), Lerp(v0.z, v2.z, alpha0), v0.color, Lerp(v0.u, v2.u, alpha0), Lerp(v0.v, v2.v, alpha0) };
+	UIRender::CUSTOMVERTEX v4 = { x, Lerp(v1.y, v2.y, alpha1), Lerp(v1.z, v2.z, alpha1), v1.color, Lerp(v1.u, v2.u, alpha1), Lerp(v1.v, v2.v, alpha1) };
+	UIRender::PushTriangleSimple(vertex_list, v3, v2, v4, clip, clipmask);
+}
+
+static void _PushTriangleClipY_1_2(UIRender::VertexList & vertex_list, const UIRender::CUSTOMVERTEX & v0, const UIRender::CUSTOMVERTEX & v1, const UIRender::CUSTOMVERTEX & v2, float y, const my::Rectangle & clip, DWORD clipmask)
+{
+	float alpha0 = (y - v0.y) / (v1.y - v0.y);
+	float alpha1 = (y - v0.y) / (v2.y - v0.y);
+	UIRender::CUSTOMVERTEX v3 = { Lerp(v0.x, v1.x, alpha0), y, Lerp(v0.z, v1.z, alpha0), v0.color, Lerp(v0.u, v1.u, alpha0), Lerp(v0.v, v1.v, alpha0) };
+	UIRender::CUSTOMVERTEX v4 = { Lerp(v0.x, v2.x, alpha1), y, Lerp(v0.z, v2.z, alpha1), v0.color, Lerp(v0.u, v2.u, alpha1), Lerp(v0.v, v2.v, alpha1) };
+	UIRender::PushTriangleSimple(vertex_list, v3, v1, v2, clip, clipmask);
+	UIRender::PushTriangleSimple(vertex_list, v3, v2, v4, clip, clipmask);
+}
+
+static void _PushTriangleClipY_2_1(UIRender::VertexList & vertex_list, const UIRender::CUSTOMVERTEX & v0, const UIRender::CUSTOMVERTEX & v1, const UIRender::CUSTOMVERTEX & v2, float y, const my::Rectangle & clip, DWORD clipmask)
+{
+	float alpha0 = (y - v0.y) / (v2.y - v0.y);
+	float alpha1 = (y - v1.y) / (v2.y - v1.y);
+	UIRender::CUSTOMVERTEX v3 = { Lerp(v0.x, v2.x, alpha0), y, Lerp(v0.z, v2.z, alpha0), v0.color, Lerp(v0.u, v2.u, alpha0), Lerp(v0.v, v2.v, alpha0) };
+	UIRender::CUSTOMVERTEX v4 = { Lerp(v1.x, v2.x, alpha1), y, Lerp(v1.z, v2.z, alpha1), v1.color, Lerp(v1.u, v2.u, alpha1), Lerp(v1.v, v2.v, alpha1) };
+	UIRender::PushTriangleSimple(vertex_list, v3, v2, v4, clip, clipmask);
+}
+
+void UIRender::PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2, const Rectangle & clip, DWORD clipmask)
+{
+	if (clipmask & ClipLeft)
+	{
+		if (v0.x < clip.l)
+		{
+			if (v1.x < clip.l)
+			{
+				if (v2.x < clip.l)
+				{
+					return;
+				}
+				else
+				{
+					_PushTriangleClipX_2_1(vertex_list, v0, v1, v2, clip.l, clip, clipmask & ~ClipLeft);
+				}
+			}
+			else
+			{
+				if (v2.x < clip.l)
+				{
+					_PushTriangleClipX_2_1(vertex_list, v2, v0, v1, clip.l, clip, clipmask & ~ClipLeft);
+				}
+				else
+				{
+					_PushTriangleClipX_1_2(vertex_list, v0, v1, v2, clip.l, clip, clipmask & ~ClipLeft);
+				}
+			}
+		}
+		else
+		{
+			if (v1.x < clip.l)
+			{
+				if (v2.x < clip.l)
+				{
+					_PushTriangleClipX_2_1(vertex_list, v1, v2, v0, clip.l, clip, clipmask & ~ClipLeft);
+				}
+				else
+				{
+					_PushTriangleClipX_1_2(vertex_list, v1, v2, v0, clip.l, clip, clipmask & ~ClipLeft);
+				}
+			}
+			else
+			{
+				if (v2.x < clip.l)
+				{
+					_PushTriangleClipX_1_2(vertex_list, v2, v0, v1, clip.l, clip, clipmask & ~ClipLeft);
+				}
+				else
+				{
+					PushTriangleSimple(vertex_list, v0, v1, v2, clip, clipmask & ~ClipLeft);
+				}
+			}
+		}
+	}
+	else if (clipmask & ClipTop)
+	{
+		if (v0.y < clip.t)
+		{
+			if (v1.y < clip.t)
+			{
+				if (v2.y < clip.t)
+				{
+					return;
+				}
+				else
+				{
+					_PushTriangleClipY_2_1(vertex_list, v0, v1, v2, clip.t, clip, clipmask & ~ClipTop);
+				}
+			}
+			else
+			{
+				if (v2.y < clip.t)
+				{
+					_PushTriangleClipY_2_1(vertex_list, v2, v0, v1, clip.t, clip, clipmask & ~ClipTop);
+				}
+				else
+				{
+					_PushTriangleClipY_1_2(vertex_list, v0, v1, v2, clip.t, clip, clipmask & ~ClipTop);
+				}
+			}
+		}
+		else
+		{
+			if (v1.y < clip.t)
+			{
+				if (v2.y < clip.t)
+				{
+					_PushTriangleClipY_2_1(vertex_list, v1, v2, v0, clip.t, clip, clipmask & ~ClipTop);
+				}
+				else
+				{
+					_PushTriangleClipY_1_2(vertex_list, v1, v2, v0, clip.t, clip, clipmask & ~ClipTop);
+				}
+			}
+			else
+			{
+				if (v2.y < clip.t)
+				{
+					_PushTriangleClipY_1_2(vertex_list, v2, v0, v1, clip.t, clip, clipmask & ~ClipTop);
+				}
+				else
+				{
+					PushTriangleSimple(vertex_list, v0, v1, v2, clip, clipmask & ~ClipTop);
+				}
+			}
+		}
+	}
+	else if (clipmask & ClipRight)
+	{
+		if (v0.x > clip.r)
+		{
+			if (v1.x > clip.r)
+			{
+				if (v2.x > clip.r)
+				{
+					return;
+				}
+				else
+				{
+					_PushTriangleClipX_2_1(vertex_list, v0, v1, v2, clip.r, clip, clipmask & ~ClipRight);
+				}
+			}
+			else
+			{
+				if (v2.x > clip.r)
+				{
+					_PushTriangleClipX_2_1(vertex_list, v2, v0, v1, clip.r, clip, clipmask & ~ClipRight);
+				}
+				else
+				{
+					_PushTriangleClipX_1_2(vertex_list, v0, v1, v2, clip.r, clip, clipmask & ~ClipRight);
+				}
+			}
+		}
+		else
+		{
+			if (v1.x > clip.r)
+			{
+				if (v2.x > clip.r)
+				{
+					_PushTriangleClipX_2_1(vertex_list, v1, v2, v0, clip.r, clip, clipmask & ~ClipRight);
+				}
+				else
+				{
+					_PushTriangleClipX_1_2(vertex_list, v1, v2, v0, clip.r, clip, clipmask & ~ClipRight);
+				}
+			}
+			else
+			{
+				if (v2.x > clip.r)
+				{
+					_PushTriangleClipX_1_2(vertex_list, v2, v0, v1, clip.r, clip, clipmask & ~ClipRight);
+				}
+				else
+				{
+					PushTriangleSimple(vertex_list, v0, v1, v2, clip, clipmask & ~ClipRight);
+				}
+			}
+		}
+	}
+	else if (clipmask & ClipBottom)
+	{
+		if (v0.y > clip.b)
+		{
+			if (v1.y > clip.b)
+			{
+				if (v2.y > clip.b)
+				{
+					return;
+				}
+				else
+				{
+					_PushTriangleClipY_2_1(vertex_list, v0, v1, v2, clip.b, clip, clipmask & ~ClipBottom);
+				}
+			}
+			else
+			{
+				if (v2.y > clip.b)
+				{
+					_PushTriangleClipY_2_1(vertex_list, v2, v0, v1, clip.b, clip, clipmask & ~ClipBottom);
+				}
+				else
+				{
+					_PushTriangleClipY_1_2(vertex_list, v0, v1, v2, clip.b, clip, clipmask & ~ClipBottom);
+				}
+			}
+		}
+		else
+		{
+			if (v1.y > clip.b)
+			{
+				if (v2.y > clip.b)
+				{
+					_PushTriangleClipY_2_1(vertex_list, v1, v2, v0, clip.b, clip, clipmask & ~ClipBottom);
+				}
+				else
+				{
+					_PushTriangleClipY_1_2(vertex_list, v1, v2, v0, clip.b, clip, clipmask & ~ClipBottom);
+				}
+			}
+			else
+			{
+				if (v2.y > clip.b)
+				{
+					_PushTriangleClipY_1_2(vertex_list, v2, v0, v1, clip.b, clip, clipmask & ~ClipBottom);
+				}
+				else
+				{
+					PushTriangleSimple(vertex_list, v0, v1, v2, clip, clipmask & ~ClipBottom);
+				}
+			}
+		}
+	}
+	else
+		PushTriangleSimple(vertex_list, v0, v1, v2);
+}
+
+void UIRender::PushRectangleSimple(VertexList & vertex_list, const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
+{
+	PushTriangleSimple(vertex_list,
+		CUSTOMVERTEX(rect.l, rect.t, 0, color, UvRect.l, UvRect.t),
+		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t),
+		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b));
+
+	PushTriangleSimple(vertex_list,
+		CUSTOMVERTEX(rect.r, rect.b, 0, color, UvRect.r, UvRect.b),
+		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b),
+		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t));
+}
+
+void UIRender::PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip)
+{
+	PushTriangleSimple(vertex_list,
+		CUSTOMVERTEX(rect.l, rect.t, 0, color, UvRect.l, UvRect.t),
+		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t),
+		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b), clip);
+
+	PushTriangleSimple(vertex_list,
+		CUSTOMVERTEX(rect.r, rect.b, 0, color, UvRect.r, UvRect.b),
+		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b),
+		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t), clip);
 }
 
 void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
@@ -193,35 +461,50 @@ void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & U
 		Flush();
 		m_Layer[type].first = texture;
 	}
-	VertexList & vertex_list = m_Layer[type].second;
-	unsigned int start = vertex_list.size();
-	vertex_list.resize(start + 6);
-	PushRectangleSimple(vertex_list, start, rect, UvRect, color);
+	PushRectangleSimple(m_Layer[type].second, rect, UvRect, color);
 }
 
-void UIRender::PushWindowSimple(VertexList & vertex_list, unsigned int start, const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize)
+void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type, const Rectangle & clip)
+{
+	_ASSERT(texture);
+	if (m_Layer[type].first != texture)
+	{
+		Flush();
+		m_Layer[type].first = texture;
+	}
+	PushRectangleSimple(m_Layer[type].second, rect, UvRect, color, clip);
+}
+
+void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize)
 {
 	Rectangle OutUvRect(WindowRect.l / TextureSize.cx,  WindowRect.t / TextureSize.cy, WindowRect.r / TextureSize.cx, WindowRect.b / TextureSize.cy);
 	Rectangle InRect(rect.l + WindowBorder.x, rect.t + WindowBorder.y, rect.r - WindowBorder.z, rect.b - WindowBorder.w);
 	Rectangle InUvRect((WindowRect.l + WindowBorder.x) / TextureSize.cx, (WindowRect.t + WindowBorder.y) / TextureSize.cy, (WindowRect.r - WindowBorder.z) / TextureSize.cx, (WindowRect.b - WindowBorder.w) / TextureSize.cy);
-	PushRectangleSimple(vertex_list, start, Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(OutUvRect.l, InUvRect.t, InUvRect.l, InUvRect.b), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, OutUvRect.r, InUvRect.b), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(OutUvRect.l, InUvRect.b, InUvRect.l, OutUvRect.b), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color);
-	start += 6;
-	PushRectangleSimple(vertex_list, start, Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
-	start += 6;
+	PushRectangleSimple(vertex_list, Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color);
+	PushRectangleSimple(vertex_list, Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(OutUvRect.l, InUvRect.t, InUvRect.l, InUvRect.b), color);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, OutUvRect.r, InUvRect.b), color);
+	PushRectangleSimple(vertex_list, Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(OutUvRect.l, InUvRect.b, InUvRect.l, OutUvRect.b), color);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
+}
+
+void UIRender::PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, const Rectangle & clip)
+{
+	Rectangle OutUvRect(WindowRect.l / TextureSize.cx,  WindowRect.t / TextureSize.cy, WindowRect.r / TextureSize.cx, WindowRect.b / TextureSize.cy);
+	Rectangle InRect(rect.l + WindowBorder.x, rect.t + WindowBorder.y, rect.r - WindowBorder.z, rect.b - WindowBorder.w);
+	Rectangle InUvRect((WindowRect.l + WindowBorder.x) / TextureSize.cx, (WindowRect.t + WindowBorder.y) / TextureSize.cy, (WindowRect.r - WindowBorder.z) / TextureSize.cx, (WindowRect.b - WindowBorder.w) / TextureSize.cy);
+	PushRectangleSimple(vertex_list, Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(OutUvRect.l, InUvRect.t, InUvRect.l, InUvRect.b), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, OutUvRect.r, InUvRect.b), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(OutUvRect.l, InUvRect.b, InUvRect.l, OutUvRect.b), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color, clip);
+	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color, clip);
 }
 
 void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
@@ -232,10 +515,18 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 		Flush();
 		m_Layer[type].first = texture;
 	}
-	VertexList & vertex_list = m_Layer[type].second;
-	unsigned int start = vertex_list.size();
-	vertex_list.resize(start + 6 * 9);
-	PushWindowSimple(vertex_list, start, rect, color, WindowRect, WindowBorder, TextureSize);
+	PushWindowSimple(m_Layer[type].second, rect, color, WindowRect, WindowBorder, TextureSize);
+}
+
+void UIRender::PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type, const Rectangle & clip)
+{
+	_ASSERT(texture);
+	if (m_Layer[type].first != texture)
+	{
+		Flush();
+		m_Layer[type].first = texture;
+	}
+	PushWindowSimple(m_Layer[type].second, rect, color, WindowRect, WindowBorder, TextureSize, clip);
 }
 
 ControlImage::~ControlImage(void)
@@ -350,10 +641,26 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 				ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
 			}
 		}
-		//else if (!Image->m_TexturePath.empty() && Image->IsRequested())
-		//{
-		//	ui_render->PushRectangle(rect, Rectangle(0, 0, 1, 1), color, ui_render->m_WhiteTex.get(), UIRender::UILayerTexture);
-		//}
+	}
+}
+
+void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip)
+{
+	if (Image)
+	{
+		if (Image->m_Texture)
+		{
+			D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
+			if (Image->m_Border.x == 0 && Image->m_Border.y == 0 && Image->m_Border.z == 0 && Image->m_Border.w == 0)
+			{
+				Rectangle UvRect(Image->m_Rect.l / desc.Width, Image->m_Rect.t / desc.Height, Image->m_Rect.r / desc.Width, Image->m_Rect.b / desc.Height);
+				ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture, clip);
+			}
+			else
+			{
+				ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture, clip);
+			}
+		}
 	}
 }
 

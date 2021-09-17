@@ -16,9 +16,21 @@ namespace my
 			FLOAT x, y, z;
 			DWORD color;
 			FLOAT u, v;
+			CUSTOMVERTEX(FLOAT _x, FLOAT _y, FLOAT _z, DWORD _color, FLOAT _u, FLOAT _v)
+				: x(_x), y(_y), z(_z), color(_color), u(_u), v(_v)
+			{
+			}
 		};
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+
+		enum ClipType
+		{
+			ClipLeft	= 0x01,
+			ClipTop		= 0x02,
+			ClipRight	= 0x04,
+			ClipBottom	= 0x08,
+		};
 
 		HRESULT hr;
 
@@ -68,15 +80,25 @@ namespace my
 
 		virtual void Flush(void);
 
-		void PushVertexSimple(VertexList & vertex_list, unsigned int start, float x, float y, float z, float u, float v, D3DCOLOR color);
+		static void PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2);
 
-		void PushRectangleSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
+		static void PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2, const Rectangle & clip, DWORD clipmask = 0x0F);
+
+		static void PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
+
+		static void PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip);
 
 		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushWindowSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type, const Rectangle & clip);
+
+		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize);
+
+		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, const Rectangle & clip);
 
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
+
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type, const Rectangle & clip);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
@@ -206,6 +228,8 @@ namespace my
 		void OnFontReady(my::DeviceResourceBasePtr res);
 
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color);
+
+		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip);
 
 		void DrawString(UIRender * ui_render, LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
 
