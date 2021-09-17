@@ -82,7 +82,7 @@ namespace my
 
 		static void PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2);
 
-		static void PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2, const Rectangle & clip, DWORD clipmask = 0x0F);
+		static void PushTriangleSimple(VertexList & vertex_list, const CUSTOMVERTEX & v0, const CUSTOMVERTEX & v1, const CUSTOMVERTEX & v2, const Rectangle & clip, DWORD clipmask);
 
 		static void PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
 

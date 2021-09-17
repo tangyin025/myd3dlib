@@ -442,15 +442,17 @@ void UIRender::PushRectangleSimple(VertexList & vertex_list, const my::Rectangle
 
 void UIRender::PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip)
 {
+	DWORD clipmask = (rect.l < clip.l ? ClipLeft : 0) | (rect.t < clip.t ? ClipTop : 0) | (rect.r > clip.r ? ClipRight : 0) | (rect.b > clip.b ? ClipBottom : 0);
+
 	PushTriangleSimple(vertex_list,
 		CUSTOMVERTEX(rect.l, rect.t, 0, color, UvRect.l, UvRect.t),
 		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t),
-		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b), clip);
+		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b), clip, clipmask);
 
 	PushTriangleSimple(vertex_list,
 		CUSTOMVERTEX(rect.r, rect.b, 0, color, UvRect.r, UvRect.b),
 		CUSTOMVERTEX(rect.l, rect.b, 0, color, UvRect.l, UvRect.b),
-		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t), clip);
+		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t), clip, clipmask);
 }
 
 void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
