@@ -409,7 +409,7 @@ namespace my
 
 		virtual void ReleaseResource(void);
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeControl;
 		}
@@ -515,7 +515,7 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeStatic;
 		}
@@ -584,7 +584,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Progress);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeProgressBar;
 		}
@@ -659,7 +659,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_bMouseOver);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeButton;
 		}
@@ -784,7 +784,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Border);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeEditBox;
 		}
@@ -860,7 +860,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_CandidateWinColor);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeImeEditBox;
 		}
@@ -1010,7 +1010,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_nPageSize);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeScrollBar;
 		}
@@ -1061,7 +1061,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_Checked);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeCheckBox;
 		}
@@ -1213,7 +1213,7 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeComboBox;
 		}
@@ -1387,7 +1387,7 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeListBox;
 		}
@@ -1507,7 +1507,7 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
-		virtual ControlType GetControlType(void) const
+		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeDialog;
 		}
