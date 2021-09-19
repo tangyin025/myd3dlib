@@ -3,6 +3,8 @@
 
 MapControl::MapControl(const char* Name)
 	: Control(Name)
+	, m_bMouseDrag(false)
+	, m_MouseOffset(0, 0)
 {
 	m_Textures.resize(boost::extents[2][2]);
 
@@ -28,15 +30,19 @@ void MapControl::Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vec
 
 		const my::Vector2 WidthHeight(m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
+		m_Rect = my::Rectangle::LeftTop(LeftTop, WidthHeight);
+
 		const my::Vector2 ChunkSize(WidthHeight.x / m_Textures.shape()[0], WidthHeight.y / m_Textures.shape()[1]);
 
-		const int ibegin = my::Max(0, (int)floorf((Offset.x - LeftTop.x) / ChunkSize.x));
+		const my::Rectangle Clip = my::Rectangle::LeftTop(Offset, Size);
 
-		const int jbegin = my::Max(0, (int)floorf((Offset.y - LeftTop.y) / ChunkSize.y));
+		const int ibegin = my::Max(0, (int)floorf((Clip.l - LeftTop.x) / ChunkSize.x));
 
-		const int iend = my::Min((int)m_Textures.shape()[0], (int)ceilf((Offset.x + Size.x - LeftTop.x) / ChunkSize.x));
+		const int jbegin = my::Max(0, (int)floorf((Clip.t - LeftTop.y) / ChunkSize.y));
 
-		const int jend = my::Min((int)m_Textures.shape()[0], (int)ceilf((Offset.y + Size.y - LeftTop.y) / ChunkSize.y));
+		const int iend = my::Min((int)m_Textures.shape()[0], (int)ceilf((Clip.r - LeftTop.x) / ChunkSize.x));
+
+		const int jend = my::Min((int)m_Textures.shape()[0], (int)ceilf((Clip.b - LeftTop.y) / ChunkSize.y));
 
 		for (int i = ibegin; i < iend; i++)
 		{
@@ -44,9 +50,9 @@ void MapControl::Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vec
 			{
 				if (m_Textures[i][j])
 				{
-					my::Rectangle Rect(i * ChunkSize.x + LeftTop.x, j * ChunkSize.y + LeftTop.y, (i + 1) * ChunkSize.x + LeftTop.x, (j + 1) * ChunkSize.y + LeftTop.y);
+					my::Rectangle Rect(LeftTop.x + i * ChunkSize.x, LeftTop.y + j * ChunkSize.y, LeftTop.x + (i + 1) * ChunkSize.x, LeftTop.y + (j + 1) * ChunkSize.y);
 
-					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), m_Skin->m_Color, m_Textures[i][j].get(), my::UIRender::UILayerTexture);
+					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), m_Skin->m_Color, m_Textures[i][j].get(), my::UIRender::UILayerTexture, Clip);
 				}
 				else if (!m_IsRequested[i][j])
 				{
@@ -58,4 +64,73 @@ void MapControl::Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vec
 			}
 		}
 	}
+}
+
+bool MapControl::HandleMouse(UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
+{
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if (HitTest(pt))
+			{
+				m_bPressed = true;
+				m_MouseOffset.x = pt.x - m_x.offset;
+				m_MouseOffset.y = pt.y - m_y.offset;
+				if (!s_FocusControl || !ContainsControl(s_FocusControl))
+				{
+					SetFocusRecursive();
+				}
+				SetCaptureControl(this);
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if (m_bPressed)
+			{
+				SetCaptureControl(NULL);
+				m_bPressed = false;
+
+				if (m_bMouseDrag)
+				{
+					m_bMouseDrag = false;
+				}
+				else
+				{
+					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					{
+						my::D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+					}
+
+					if (m_EventMouseClick)
+					{
+						my::MouseEventArg arg(this, pt);
+						m_EventMouseClick(&arg);
+					}
+				}
+				return true;
+			}
+			break;
+
+		case WM_MOUSEMOVE:
+			if (m_bPressed)
+			{
+				if (!m_bMouseDrag)
+				{
+					m_bMouseDrag = true;
+				}
+
+				if (m_bMouseDrag)
+				{
+					m_x.offset = pt.x - m_MouseOffset.x;
+					m_y.offset = pt.y - m_MouseOffset.y;
+				}
+			}
+			break;
+		}
+	}
+	return false;
 }
