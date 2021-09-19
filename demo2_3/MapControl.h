@@ -1,18 +1,23 @@
 #pragma once
 #include <myUi.h>
+#include <boost/multi_array.hpp>
 class MapControl :
 	public my::Control
 {
 public:
-	MapControl(const char* Name)
-		: Control(Name)
-	{
-	}
+	boost::multi_array<my::Texture2DPtr, 2> m_Textures;
+
+	boost::multi_array<bool, 2> m_IsRequested;
+
+public:
+	MapControl(const char* Name);
 
 	virtual DWORD GetControlType(void) const
 	{
 		return ControlTypeStatic;
 	}
+
+	void OnTextureReady(my::DeviceResourceBasePtr res, int i, int j);
 
 	virtual void Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size);
 };
