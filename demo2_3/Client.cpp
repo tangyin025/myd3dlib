@@ -6,6 +6,7 @@
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "MapControl.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -652,6 +653,9 @@ HRESULT Client::OnCreateDevice(
 	luabind::module(m_State)
 	[
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
+
+		, luabind::class_<MapControl, my::Control, boost::shared_ptr<my::Control> >("MapControl")
+			.def(luabind::constructor<const char*>())
 
 		, luabind::class_<SceneContext, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("SceneContext")
 			.def_readonly("SkyLightCamEuler", &SceneContext::m_SkyLightCamEuler)

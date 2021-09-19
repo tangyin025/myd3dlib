@@ -972,7 +972,7 @@ void Control::SetEnabled(bool bEnabled)
 	m_bEnabled = bEnabled;
 }
 
-bool Control::GetEnabled(void)
+bool Control::GetEnabled(void) const
 {
 	return m_bEnabled;
 }
@@ -1014,9 +1014,26 @@ void Control::SetVisible(bool bVisible)
 	}
 }
 
-bool Control::GetVisible(void)
+bool Control::GetVisible(void) const
 {
 	return m_bVisible;
+}
+
+void Control::SetFocused(bool bFocused)
+{
+	if (bFocused)
+	{
+		Control::SetFocusControl(this);
+	}
+	else if (GetFocused())
+	{
+		Control::SetFocusControl(NULL);
+	}
+}
+
+bool Control::GetFocused(void) const
+{
+	return Control::GetFocusControl() == this;
 }
 
 bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld)

@@ -746,6 +746,7 @@ void LuaContext::Init(void)
 			]
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
+			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
 			.def_readwrite("x", &my::Control::m_x)
 			.def_readwrite("y", &my::Control::m_y)
 			.def_readwrite("Width", &my::Control::m_Width)

@@ -456,11 +456,15 @@ namespace my
 
 		virtual void SetEnabled(bool bEnabled);
 
-		virtual bool GetEnabled(void);
+		virtual bool GetEnabled(void) const;
 
 		virtual void SetVisible(bool bVisible);
 
-		virtual bool GetVisible(void);
+		virtual bool GetVisible(void) const;
+
+		virtual void SetFocused(bool bFocused);
+
+		virtual bool GetFocused(void) const;
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
 
