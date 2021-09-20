@@ -1,52 +1,75 @@
 #include "stdafx.h"
 #include "MapControl.h"
 
+LargeImageChunk::~LargeImageChunk(void)
+{
+	//_ASSERT(!m_Requested);
+}
+
 LargeImage::LargeImage(void)
 {
-	m_Textures.resize(boost::extents[2][2]);
+	m_Chunks.resize(boost::extents[2][2]);
+}
 
-	m_IsRequested.resize(boost::extents[2][2]);
+void LargeImage::RequestResource(void)
+{
 
-	std::fill_n(m_IsRequested.data(), m_IsRequested.num_elements(), false);
+}
+
+void LargeImage::ReleaseResource(void)
+{
+	for (int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			if (m_Chunks[i][j].m_Requested)
+			{
+				char buff[256];
+				sprintf_s(buff, _countof(buff), "texture/New Project Bitmap Output-256_x%d_y%d.png", i, j);
+				my::ResourceMgr::getSingleton().RemoveIORequestCallback(buff, boost::bind(&LargeImage::OnTextureReady, this, boost::placeholders::_1, i, j));
+				m_Chunks[i][j].m_Requested = false;
+			}
+		}
+	}
 }
 
 void LargeImage::OnTextureReady(my::DeviceResourceBasePtr res, int i, int j)
 {
-	_ASSERT(i >= 0 && i < m_Textures.shape()[0] && j >= 0 && j < m_Textures.shape()[1]);
+	_ASSERT(i >= 0 && i < m_Chunks.shape()[0] && j >= 0 && j < m_Chunks.shape()[1]);
 
-	_ASSERT(!m_Textures[i][j]);
+	_ASSERT(!m_Chunks[i][j].m_Texture);
 
-	m_Textures[i][j] = boost::dynamic_pointer_cast<my::Texture2D>(res);
+	m_Chunks[i][j].m_Texture = boost::dynamic_pointer_cast<my::Texture2D>(res);
 }
 
 void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD color, const my::Rectangle& clip)
 {
-	const my::Vector2 ChunkSize(rect.Width() / m_Textures.shape()[0], rect.Height() / m_Textures.shape()[1]);
+	const my::Vector2 ChunkSize(rect.Width() / m_Chunks.shape()[0], rect.Height() / m_Chunks.shape()[1]);
 
 	const int ibegin = my::Max(0, (int)floorf((clip.l - rect.l) / ChunkSize.x));
 
 	const int jbegin = my::Max(0, (int)floorf((clip.t - rect.t) / ChunkSize.y));
 
-	const int iend = my::Min((int)m_Textures.shape()[0], (int)ceilf((clip.r - rect.l) / ChunkSize.x));
+	const int iend = my::Min((int)m_Chunks.shape()[0], (int)ceilf((clip.r - rect.l) / ChunkSize.x));
 
-	const int jend = my::Min((int)m_Textures.shape()[0], (int)ceilf((clip.b - rect.t) / ChunkSize.y));
+	const int jend = my::Min((int)m_Chunks.shape()[0], (int)ceilf((clip.b - rect.t) / ChunkSize.y));
 
 	for (int i = ibegin; i < iend; i++)
 	{
 		for (int j = jbegin; j < jend; j++)
 		{
-			if (m_Textures[i][j])
+			if (m_Chunks[i][j].m_Texture)
 			{
 				my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
 
-				ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, m_Textures[i][j].get(), my::UIRender::UILayerTexture, clip);
+				ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, m_Chunks[i][j].m_Texture.get(), my::UIRender::UILayerTexture, clip);
 			}
-			else if (!m_IsRequested[i][j])
+			else if (!m_Chunks[i][j].m_Requested)
 			{
 				char buff[256];
 				sprintf_s(buff, _countof(buff), "texture/New Project Bitmap Output-256_x%d_y%d.png", i, j);
 				my::ResourceMgr::getSingleton().LoadTextureAsync(buff, boost::bind(&LargeImage::OnTextureReady, this, boost::placeholders::_1, i, j));
-				m_IsRequested[i][j] = true;
+				m_Chunks[i][j].m_Requested = true;
 			}
 		}
 	}

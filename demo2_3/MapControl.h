@@ -1,16 +1,38 @@
 #pragma once
 #include <myUi.h>
 #include <boost/multi_array.hpp>
+#include <boost/intrusive/list.hpp>
+
+class LargeImageChunk
+	: public boost::intrusive::list_base_hook<>
+{
+public:
+	bool m_Requested;
+
+	my::Texture2DPtr m_Texture;
+
+public:
+	LargeImageChunk(void)
+		: m_Requested(false)
+	{
+	}
+
+	virtual ~LargeImageChunk(void);
+};
 
 class LargeImage
 {
 public:
-	boost::multi_array<my::Texture2DPtr, 2> m_Textures;
+	typedef boost::multi_array<LargeImageChunk, 2> ChunkArray2D;
 
-	boost::multi_array<bool, 2> m_IsRequested;
+	ChunkArray2D m_Chunks;
 
 public:
 	LargeImage(void);
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	void OnTextureReady(my::DeviceResourceBasePtr res, int i, int j);
 
