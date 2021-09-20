@@ -60,15 +60,15 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
-struct ComponentScript : Component, luabind::wrap_base
+struct ScriptComponent : Component, luabind::wrap_base
 {
-	ComponentScript(const char* Name)
+	ScriptComponent(const char* Name)
 		: Component(Name)
 	{
 		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::AddComponent
 	}
 
-	virtual ~ComponentScript(void)
+	virtual ~ScriptComponent(void)
 	{
 		_ASSERT(!IsRequested());
 	}
@@ -1288,7 +1288,7 @@ void LuaContext::Init(void)
 		, class_<CollectionObjMap>("CollectionObjMap")
 			.def(constructor<>())
 
-		, class_<Component, ComponentScript, my::NamedObject, boost::shared_ptr<Component> >("Component")
+		, class_<Component, ScriptComponent, my::NamedObject, boost::shared_ptr<Component> >("Component")
 			.def(constructor<const char *>())
 			.enum_("ComponentType")
 			[
@@ -1318,10 +1318,10 @@ void LuaContext::Init(void)
 			.def_readonly("Actor", &Component::m_Actor)
 			.def("IsRequested", &Component::IsRequested)
 			.def("Clone", &Component::Clone)
-			.def("RequestResource", &Component::RequestResource, &ComponentScript::default_RequestResource)
-			.def("ReleaseResource", &Component::ReleaseResource, &ComponentScript::default_ReleaseResource)
-			.def("Update", &Component::Update, &ComponentScript::default_Update)
-			.def("OnPxThreadSubstep", &Component::OnPxThreadSubstep, &ComponentScript::default_OnPxThreadSubstep)
+			.def("RequestResource", &Component::RequestResource, &ScriptComponent::default_RequestResource)
+			.def("ReleaseResource", &Component::ReleaseResource, &ScriptComponent::default_ReleaseResource)
+			.def("Update", &Component::Update, &ScriptComponent::default_Update)
+			.def("OnPxThreadSubstep", &Component::OnPxThreadSubstep, &ScriptComponent::default_OnPxThreadSubstep)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
