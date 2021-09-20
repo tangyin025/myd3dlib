@@ -6,7 +6,7 @@
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include "MapControl.h"
+#include "LargeImage.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>

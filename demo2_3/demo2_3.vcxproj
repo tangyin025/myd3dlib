@@ -180,8 +180,8 @@
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Console.cpp" />
+    <ClCompile Include="LargeImage.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapControl.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -194,7 +194,7 @@
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Console.h" />
-    <ClInclude Include="MapControl.h" />
+    <ClInclude Include="LargeImage.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Net\Socket.h" />

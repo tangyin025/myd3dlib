@@ -1,14 +1,52 @@
 #include "stdafx.h"
-#include "MapControl.h"
+#include "LargeImage.h"
 
 LargeImageChunk::~LargeImageChunk(void)
 {
-	//_ASSERT(!m_Requested);
+	if (IsRequested())
+	{
+		/*_ASSERT(false);*/ ReleaseResource();
+	}
+}
+
+void LargeImageChunk::RequestResource(void)
+{
+	_ASSERT(m_Owner);
+	m_Requested = true;
+	char path[MAX_PATH];
+	sprintf_s(path, _countof(path), "texture/New Project Bitmap Output-256_x%d_y%d.png", m_Row, m_Col);
+	my::ResourceMgr::getSingleton().LoadTextureAsync(path,
+		boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
+}
+
+void LargeImageChunk::ReleaseResource(void)
+{
+	_ASSERT(m_Owner);
+	m_Requested = false;
+	char path[MAX_PATH];
+	sprintf_s(path, _countof(path), "texture/New Project Bitmap Output-256_x%d_y%d.png", m_Row, m_Col);
+	my::ResourceMgr::getSingleton().RemoveIORequestCallback(path,
+		boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
+	m_Texture.reset();
+}
+
+void LargeImageChunk::OnTextureReady(my::DeviceResourceBasePtr res)
+{
+	m_Texture = boost::dynamic_pointer_cast<my::Texture2D>(res);
 }
 
 LargeImage::LargeImage(void)
 {
 	m_Chunks.resize(boost::extents[2][2]);
+	for (int i = 0; i < m_Chunks.shape()[0]; i++)
+	{
+		for (int j = 0; j < m_Chunks.shape()[1]; j++)
+		{
+			m_Chunks[i][j].m_Owner = this;
+			m_Chunks[i][j].m_Row = i;
+			m_Chunks[i][j].m_Col = j;
+		}
+	}
 }
 
 void LargeImage::RequestResource(void)
@@ -18,28 +56,12 @@ void LargeImage::RequestResource(void)
 
 void LargeImage::ReleaseResource(void)
 {
-	for (int i = 0; i < m_Chunks.shape()[0]; i++)
+	ChunkSet::iterator chunk_iter = m_ViewedChunks.begin();
+	for (; chunk_iter != m_ViewedChunks.end(); chunk_iter++)
 	{
-		for (int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			if (m_Chunks[i][j].m_Requested)
-			{
-				char buff[256];
-				sprintf_s(buff, _countof(buff), "texture/New Project Bitmap Output-256_x%d_y%d.png", i, j);
-				my::ResourceMgr::getSingleton().RemoveIORequestCallback(buff, boost::bind(&LargeImage::OnTextureReady, this, boost::placeholders::_1, i, j));
-				m_Chunks[i][j].m_Requested = false;
-			}
-		}
+		chunk_iter->ReleaseResource();
 	}
-}
-
-void LargeImage::OnTextureReady(my::DeviceResourceBasePtr res, int i, int j)
-{
-	_ASSERT(i >= 0 && i < m_Chunks.shape()[0] && j >= 0 && j < m_Chunks.shape()[1]);
-
-	_ASSERT(!m_Chunks[i][j].m_Texture);
-
-	m_Chunks[i][j].m_Texture = boost::dynamic_pointer_cast<my::Texture2D>(res);
+	m_ViewedChunks.clear();
 }
 
 void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD color, const my::Rectangle& clip)
@@ -54,24 +76,51 @@ void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD 
 
 	const int jend = my::Min((int)m_Chunks.shape()[0], (int)ceilf((clip.b - rect.t) / ChunkSize.y));
 
+	ChunkSet::iterator insert_chunk_iter = m_ViewedChunks.begin();
 	for (int i = ibegin; i < iend; i++)
 	{
 		for (int j = jbegin; j < jend; j++)
 		{
-			if (m_Chunks[i][j].m_Texture)
+			if (!m_Chunks[i][j].is_linked())
 			{
-				my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
+				_ASSERT(!m_Chunks[i][j].IsRequested());
 
-				ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, m_Chunks[i][j].m_Texture.get(), my::UIRender::UILayerTexture, clip);
+				m_Chunks[i][j].RequestResource();
+
+				m_ViewedChunks.insert(insert_chunk_iter, m_Chunks[i][j]);
 			}
-			else if (!m_Chunks[i][j].m_Requested)
+			else
 			{
-				char buff[256];
-				sprintf_s(buff, _countof(buff), "texture/New Project Bitmap Output-256_x%d_y%d.png", i, j);
-				my::ResourceMgr::getSingleton().LoadTextureAsync(buff, boost::bind(&LargeImage::OnTextureReady, this, boost::placeholders::_1, i, j));
-				m_Chunks[i][j].m_Requested = true;
+				ChunkSet::iterator chunk_iter = m_ViewedChunks.iterator_to(m_Chunks[i][j]);
+				if (chunk_iter != insert_chunk_iter)
+				{
+					m_ViewedChunks.erase(chunk_iter);
+
+					m_ViewedChunks.insert(insert_chunk_iter, m_Chunks[i][j]);
+				}
+				else
+				{
+					_ASSERT(insert_chunk_iter != m_ViewedChunks.end());
+
+					insert_chunk_iter++;
+				}
+
+				if (m_Chunks[i][j].m_Texture)
+				{
+					my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
+
+					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, m_Chunks[i][j].m_Texture.get(), my::UIRender::UILayerTexture, clip);
+				}
 			}
 		}
+	}
+
+	ChunkSet::iterator chunk_iter = insert_chunk_iter;
+	for (; chunk_iter != m_ViewedChunks.end(); )
+	{
+		chunk_iter->ReleaseResource();
+
+		chunk_iter = m_ViewedChunks.erase(chunk_iter);
 	}
 }
 

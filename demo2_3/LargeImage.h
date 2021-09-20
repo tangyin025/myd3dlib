@@ -3,21 +3,43 @@
 #include <boost/multi_array.hpp>
 #include <boost/intrusive/list.hpp>
 
+class LargeImage;
+
 class LargeImageChunk
 	: public boost::intrusive::list_base_hook<>
 {
 public:
+	LargeImage* m_Owner;
+
+	int m_Row;
+
+	int m_Col;
+
 	bool m_Requested;
 
 	my::Texture2DPtr m_Texture;
 
 public:
 	LargeImageChunk(void)
-		: m_Requested(false)
+		: m_Owner(NULL)
+		, m_Row(0)
+		, m_Col(0)
+		, m_Requested(false)
 	{
 	}
 
 	virtual ~LargeImageChunk(void);
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	void OnTextureReady(my::DeviceResourceBasePtr res);
 };
 
 class LargeImage
@@ -27,14 +49,16 @@ public:
 
 	ChunkArray2D m_Chunks;
 
+	typedef boost::intrusive::list<LargeImageChunk> ChunkSet;
+
+	ChunkSet m_ViewedChunks;
+
 public:
 	LargeImage(void);
 
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
-
-	void OnTextureReady(my::DeviceResourceBasePtr res, int i, int j);
 
 	virtual void Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD color, const my::Rectangle& clip);
 };
