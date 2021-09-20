@@ -149,6 +149,10 @@ namespace my
 		void OnImageReady(my::DeviceResourceBasePtr res);
 
 		virtual ControlImagePtr Clone(void) const;
+
+		virtual void Draw(UIRender * ui_render, const Rectangle & rect, DWORD color);
+
+		virtual void Draw(UIRender * ui_render, const Rectangle & rect, DWORD color, const Rectangle & clip);
 	};
 
 	class ControlSkin;

@@ -577,6 +577,40 @@ ControlImagePtr ControlImage::Clone(void) const
 	return ret;
 }
 
+void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD color)
+{
+	if (m_Texture)
+	{
+		D3DSURFACE_DESC desc = m_Texture->GetLevelDesc();
+		if (m_Border.x == 0 && m_Border.y == 0 && m_Border.z == 0 && m_Border.w == 0)
+		{
+			Rectangle UvRect(m_Rect.l / desc.Width, m_Rect.t / desc.Height, m_Rect.r / desc.Width, m_Rect.b / desc.Height);
+			ui_render->PushRectangle(rect, UvRect, color, m_Texture.get(), UIRender::UILayerTexture);
+		}
+		else
+		{
+			ui_render->PushWindow(rect, color, m_Rect, m_Border, CSize(desc.Width, desc.Height), m_Texture.get(), UIRender::UILayerTexture);
+		}
+	}
+}
+
+void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD color, const Rectangle & clip)
+{
+	if (m_Texture)
+	{
+		D3DSURFACE_DESC desc = m_Texture->GetLevelDesc();
+		if (m_Border.x == 0 && m_Border.y == 0 && m_Border.z == 0 && m_Border.w == 0)
+		{
+			Rectangle UvRect(m_Rect.l / desc.Width, m_Rect.t / desc.Height, m_Rect.r / desc.Width, m_Rect.b / desc.Height);
+			ui_render->PushRectangle(rect, UvRect, color, m_Texture.get(), UIRender::UILayerTexture, clip);
+		}
+		else
+		{
+			ui_render->PushWindow(rect, color, m_Rect, m_Border, CSize(desc.Width, desc.Height), m_Texture.get(), UIRender::UILayerTexture, clip);
+		}
+	}
+}
+
 ControlSkin::~ControlSkin(void)
 {
 	if (IsRequested())
@@ -630,19 +664,7 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 {
 	if(Image)
 	{
-		if (Image->m_Texture)
-		{
-			D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
-			if (Image->m_Border.x == 0 && Image->m_Border.y == 0 && Image->m_Border.z == 0 && Image->m_Border.w == 0)
-			{
-				Rectangle UvRect(Image->m_Rect.l / desc.Width, Image->m_Rect.t / desc.Height, Image->m_Rect.r / desc.Width, Image->m_Rect.b / desc.Height);
-				ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture);
-			}
-			else
-			{
-				ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
-			}
-		}
+		Image->Draw(ui_render, rect, color);
 	}
 }
 
@@ -650,19 +672,7 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 {
 	if (Image)
 	{
-		if (Image->m_Texture)
-		{
-			D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
-			if (Image->m_Border.x == 0 && Image->m_Border.y == 0 && Image->m_Border.z == 0 && Image->m_Border.w == 0)
-			{
-				Rectangle UvRect(Image->m_Rect.l / desc.Width, Image->m_Rect.t / desc.Height, Image->m_Rect.r / desc.Width, Image->m_Rect.b / desc.Height);
-				ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture, clip);
-			}
-			else
-			{
-				ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture, clip);
-			}
-		}
+		Image->Draw(ui_render, rect, color, clip);
 	}
 }
 
