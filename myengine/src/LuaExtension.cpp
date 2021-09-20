@@ -60,6 +60,85 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
+struct ScriptControl : my::Control, luabind::wrap_base
+{
+	ScriptControl(const char* Name)
+		: my::Control(Name)
+	{
+		// ! make sure the ownership of lua part when using shared_ptr pass to Dialog::InsertControl
+	}
+
+	virtual ~ScriptControl(void)
+	{
+		_ASSERT(!IsRequested());
+	}
+
+	virtual DWORD GetControlType(void) const
+	{
+		return ControlTypeScript;
+	}
+
+	virtual void RequestResource(void)
+	{
+		luabind::wrap_base::call<void>("RequestResource");
+	}
+
+	static void default_RequestResource(my::Control* ptr)
+	{
+		ptr->Control::RequestResource();
+	}
+
+	virtual void ReleaseResource(void)
+	{
+		luabind::wrap_base::call<void>("ReleaseResource");
+	}
+
+	static void default_ReleaseResource(my::Control* ptr)
+	{
+		ptr->Control::ReleaseResource();
+	}
+
+	virtual void Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
+	{
+		luabind::wrap_base::call<void>("Draw");
+	}
+
+	static void default_Draw(my::Control* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
+	{
+		ptr->Control::Draw(ui_render, fElapsedTime, Offset, Size);
+	}
+
+	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		return luabind::wrap_base::call<bool>("MsgProc");
+	}
+
+	static bool default_MsgProc(my::Control* ptr, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		return ptr->Control::MsgProc(hWnd, uMsg, wParam, lParam);
+	}
+
+	virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		return luabind::wrap_base::call<bool>("HandleKeyboard");
+	}
+
+	static bool default_HandleKeyboard(my::Control* ptr, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		return ptr->Control::HandleKeyboard(uMsg, wParam, lParam);
+	}
+
+	virtual bool HandleMouse(UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
+	{
+		return luabind::wrap_base::call<bool>("HandleMouse");
+	}
+
+	static bool default_HandleMouse(my::Control* ptr, UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
+	{
+		return ptr->Control::HandleMouse(uMsg, pt, wParam, lParam);
+	}
+};
+
 struct ScriptComponent : Component, luabind::wrap_base
 {
 	ScriptComponent(const char* Name)
@@ -721,7 +800,7 @@ void LuaContext::Init(void)
 			.def_readwrite("MouseClickSound", &my::ControlSkin::m_MouseClickSound)
 			.def("Clone", &my::ControlSkin::Clone)
 
-		, class_<my::Control, my::NamedObject, boost::shared_ptr<my::Control> >("Control")
+		, class_<my::Control, ScriptControl, my::NamedObject, boost::shared_ptr<my::Control> >("Control")
 			.def(constructor<const char *>())
 			.enum_("ControlType")
 			[
@@ -735,33 +814,45 @@ void LuaContext::Init(void)
 				value("ControlTypeCheckBox", my::Control::ControlTypeCheckBox),
 				value("ControlTypeComboBox", my::Control::ControlTypeComboBox),
 				value("ControlTypeListBox", my::Control::ControlTypeListBox),
-				value("ControlTypeDialog", my::Control::ControlTypeDialog)
+				value("ControlTypeDialog", my::Control::ControlTypeDialog),
+				value("ControlTypeScript", my::Control::ControlTypeScript)
 			]
 			.property("ControlType", &my::Control::GetControlType)
 			.def_readonly("Childs", &my::Control::m_Childs, luabind::return_stl_iterator)
 			.def_readonly("Parent", &my::Control::m_Parent)
-			.scope
-			[
-				def("GetFocusControl", &my::Control::GetFocusControl)
-			]
-			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
-			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
-			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
 			.def_readwrite("x", &my::Control::m_x)
 			.def_readwrite("y", &my::Control::m_y)
 			.def_readwrite("Width", &my::Control::m_Width)
 			.def_readwrite("Height", &my::Control::m_Height)
 			.def_readonly("Rect", &my::Control::m_Rect)
 			.def_readwrite("Skin", &my::Control::m_Skin)
+			.def_readwrite("EventVisibleChanged", &my::Control::m_EventVisibleChanged)
+			.def_readwrite("EventMouseEnter", &my::Control::m_EventMouseEnter)
+			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
+			.def_readwrite("EventMouseClick", &my::Control::m_EventMouseClick)
+			.property("Requested", &my::Control::IsRequested)
+			.scope
+			[
+				def("GetFocusControl", &my::Control::GetFocusControl),
+				def("SetFocusControl", &my::Control::SetFocusControl),
+				def("GetCaptureControl", &my::Control::GetCaptureControl),
+				def("SetCaptureControl", &my::Control::SetCaptureControl)
+			]
+			.def("RequestResource", &my::Control::RequestResource, &ScriptControl::default_RequestResource)
+			.def("ReleaseResource", &my::Control::ReleaseResource, &ScriptControl::default_ReleaseResource)
+			.def("Draw", &my::Control::Draw, &ScriptControl::default_Draw)
+			.def("MsgProc", &my::Control::MsgProc, &ScriptControl::default_MsgProc)
+			.def("HandleKeyboard", &my::Control::HandleKeyboard, &ScriptControl::default_HandleKeyboard)
+			.def("HandleMouse", &my::Control::HandleMouse, &ScriptControl::default_HandleMouse)
+			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
+			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
+			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
+			.property("Captured", &my::Control::GetCaptured, &my::Control::SetCaptured)
 			.def("InsertControl", &my::Control::InsertControl)
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
 			.def("SetFocusRecursive", &my::Control::SetFocusRecursive)
-			.def_readwrite("EventVisibleChanged", &my::Control::m_EventVisibleChanged)
-			.def_readwrite("EventMouseEnter", &my::Control::m_EventMouseEnter)
-			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
-			.def_readwrite("EventMouseClick", &my::Control::m_EventMouseClick)
 
 		, class_<my::Static, my::Control, boost::shared_ptr<my::Control> >("Static")
 			.def(constructor<const char *>())
@@ -1316,7 +1407,7 @@ void LuaContext::Init(void)
 			]
 			.def_readwrite("LodMask", &Component::m_LodMask)
 			.def_readonly("Actor", &Component::m_Actor)
-			.def("IsRequested", &Component::IsRequested)
+			.property("Requested", &Component::IsRequested)
 			.def("Clone", &Component::Clone)
 			.def("RequestResource", &Component::RequestResource, &ScriptComponent::default_RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource, &ScriptComponent::default_ReleaseResource)
@@ -1483,7 +1574,7 @@ void LuaContext::Init(void)
 			.def_readwrite("EventLeaveTrigger", &Actor::m_EventLeaveTrigger)
 			.def_readwrite("EventShapeHit", &Actor::m_EventShapeHit)
 			.def(self == other<const Actor&>())
-			.def("IsRequested", &Actor::IsRequested)
+			.property("Requested", &Actor::IsRequested)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)
 			.def("ReleaseResource", &Actor::ReleaseResource)

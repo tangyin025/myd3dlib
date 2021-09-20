@@ -303,6 +303,7 @@ namespace my
 			ControlTypeComboBox,
 			ControlTypeListBox,
 			ControlTypeDialog,
+			ControlTypeScript,
 		};
 
 		typedef std::list<ControlPtr> ControlPtrList;
@@ -469,6 +470,10 @@ namespace my
 		virtual void SetFocused(bool bFocused);
 
 		virtual bool GetFocused(void) const;
+
+		virtual void SetCaptured(bool bCaptured);
+
+		virtual bool GetCaptured(void) const;
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
 

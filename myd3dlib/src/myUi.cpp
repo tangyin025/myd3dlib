@@ -1046,6 +1046,23 @@ bool Control::GetFocused(void) const
 	return Control::GetFocusControl() == this;
 }
 
+void Control::SetCaptured(bool bCaptured)
+{
+	if (bCaptured)
+	{
+		Control::SetCaptureControl(this);
+	}
+	else if (GetCaptured())
+	{
+		Control::SetCaptureControl(NULL);
+	}
+}
+
+bool Control::GetCaptured(void) const
+{
+	return Control::GetCaptureControl() == this;
+}
+
 bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 {
 	if (m_Parent)
