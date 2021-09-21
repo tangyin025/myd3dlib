@@ -100,7 +100,9 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual void Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
 	{
-		luabind::wrap_base::call<void>("Draw");
+		m_Rect = my::Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
+
+		luabind::wrap_base::call<void>("Draw", ui_render, fElapsedTime, Offset, Size);
 	}
 
 	static void default_Draw(my::Control* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
@@ -110,7 +112,7 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		return luabind::wrap_base::call<bool>("MsgProc");
+		return luabind::wrap_base::call<bool>("MsgProc", hWnd, uMsg, wParam, lParam);
 	}
 
 	static bool default_MsgProc(my::Control* ptr, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -120,7 +122,7 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		return luabind::wrap_base::call<bool>("HandleKeyboard");
+		return luabind::wrap_base::call<bool>("HandleKeyboard", uMsg, wParam, lParam);
 	}
 
 	static bool default_HandleKeyboard(my::Control* ptr, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -130,7 +132,7 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual bool HandleMouse(UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
 	{
-		return luabind::wrap_base::call<bool>("HandleMouse");
+		return luabind::wrap_base::call<bool>("HandleMouse", uMsg, pt, wParam, lParam);
 	}
 
 	static bool default_HandleMouse(my::Control* ptr, UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
@@ -756,6 +758,10 @@ void LuaContext::Init(void)
 	module(m_State)[
 		def("ARGB", &ARGB)
 
+		, class_<WPARAM>("WPARAM")
+
+		, class_<LPARAM>("LPARAM")
+
 		, class_<my::NamedObject>("NamedObject")
 			.scope
 			[
@@ -777,12 +783,18 @@ void LuaContext::Init(void)
 		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")
 			.def_readonly("pt", &my::MouseEventArg::pt)
 
+		, class_<my::UIRender>("UIRender")
+
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
 			.def_readwrite("TexturePath", &my::ControlImage::m_TexturePath)
 			.def_readwrite("Rect", &my::ControlImage::m_Rect)
 			.def_readwrite("Border", &my::ControlImage::m_Border)
 			.def("Clone", &my::ControlImage::Clone)
+			.def("RequestResource", &my::ControlImage::RequestResource)
+			.def("ReleaseResource", &my::ControlImage::ReleaseResource)
+			.def("Draw", (void (my::ControlImage::*)(my::UIRender*, const my::Rectangle&, DWORD))&my::ControlImage::Draw)
+			.def("Draw", (void (my::ControlImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&))& my::ControlImage::Draw)
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())
@@ -826,6 +838,7 @@ void LuaContext::Init(void)
 			.def_readwrite("Height", &my::Control::m_Height)
 			.def_readonly("Rect", &my::Control::m_Rect)
 			.def_readwrite("Skin", &my::Control::m_Skin)
+			.def_readwrite("Pressed", &my::Control::m_bPressed)
 			.def_readwrite("EventVisibleChanged", &my::Control::m_EventVisibleChanged)
 			.def_readwrite("EventMouseEnter", &my::Control::m_EventMouseEnter)
 			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
@@ -844,6 +857,7 @@ void LuaContext::Init(void)
 			.def("MsgProc", &my::Control::MsgProc, &ScriptControl::default_MsgProc)
 			.def("HandleKeyboard", &my::Control::HandleKeyboard, &ScriptControl::default_HandleKeyboard)
 			.def("HandleMouse", &my::Control::HandleMouse, &ScriptControl::default_HandleMouse)
+			.def("HitTest", &my::Control::HitTest)
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
 			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
@@ -973,7 +987,9 @@ void LuaContext::Init(void)
 	];
 
 	module(m_State)[
-		class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
+		class_<HWND>("HWND")
+
+		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
 			.def_readwrite("Type", &D3DSURFACE_DESC::Type)
 			.def_readwrite("Usage", &D3DSURFACE_DESC::Usage)
@@ -1081,6 +1097,32 @@ void LuaContext::Init(void)
 			.def("GetDeviceSettingsCombo", (CD3D9EnumDeviceSettingsCombo *(CD3D9Enumeration::*)(UINT, D3DDEVTYPE, D3DFORMAT, D3DFORMAT, BOOL))&CD3D9Enumeration::GetDeviceSettingsCombo)
 
 		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
+			.enum_("MessageCode")
+			[
+				value("WM_MOUSEFIRST", WM_MOUSEFIRST),
+				value("WM_MOUSEMOVE", WM_MOUSEMOVE),
+				value("WM_LBUTTONDOWN", WM_LBUTTONDOWN),
+				value("WM_LBUTTONUP", WM_LBUTTONUP),
+				value("WM_LBUTTONDBLCLK", WM_LBUTTONDBLCLK),
+				value("WM_RBUTTONDOWN", WM_RBUTTONDOWN),
+				value("WM_RBUTTONUP", WM_RBUTTONUP),
+				value("WM_RBUTTONDBLCLK", WM_RBUTTONDBLCLK),
+				value("WM_MBUTTONDOWN", WM_MBUTTONDOWN),
+				value("WM_MBUTTONUP", WM_MBUTTONUP),
+				value("WM_MBUTTONDBLCLK", WM_MBUTTONDBLCLK),
+#if (_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)
+				value("WM_MOUSEWHEEL", WM_MOUSEWHEEL),
+#endif
+#if (_WIN32_WINNT >= 0x0500)
+				value("WM_XBUTTONDOWN", WM_XBUTTONDOWN),
+				value("WM_XBUTTONUP", WM_XBUTTONUP),
+				value("WM_XBUTTONDBLCLK", WM_XBUTTONDBLCLK),
+#endif
+#if (_WIN32_WINNT >= 0x0600)
+				value("WM_MOUSEHWHEEL", WM_MOUSEHWHEEL),
+#endif
+				value("WM_USER", WM_USER)
+			]
 			.def("PostMessage", &my::DxutWindow::PostMessage)
 
 		, class_<my::Clock>("Clock")

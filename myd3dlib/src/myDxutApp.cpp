@@ -336,6 +336,13 @@ int DxutApp::Run(void)
 	{
 		::MessageBox(m_wnd->m_hWnd, ms2ts(lua_tostring(e.state(), -1)).c_str(), NULL, MB_OK);
 	}
+	catch (const luabind::cast_failed & e)
+	{
+		std::string msg(e.what());
+		msg.append(": ");
+		msg.append(e.info().name());
+		::MessageBox(m_wnd->m_hWnd, ms2ts(msg).c_str(), NULL, MB_OK);
+	}
 	catch(const std::exception & e)
 	{
 		::MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
