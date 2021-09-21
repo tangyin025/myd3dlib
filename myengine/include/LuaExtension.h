@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mySingleton.h"
+#include "myThread.h"
 
 struct lua_State;
 
@@ -9,6 +10,8 @@ class LuaContext
 {
 public:
 	lua_State * m_State;
+
+	my::CriticalSection m_StateSec;
 
 public:
 	LuaContext(void);

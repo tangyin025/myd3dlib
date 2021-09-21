@@ -5,7 +5,7 @@ LargeImageChunk::~LargeImageChunk(void)
 {
 	if (IsRequested())
 	{
-		/*_ASSERT(false);*/ ReleaseResource();
+		_ASSERT(false); ReleaseResource();
 	}
 }
 

@@ -100,6 +100,8 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual void Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
 	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
 		m_Rect = my::Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
 		luabind::wrap_base::call<void>("Draw", ui_render, fElapsedTime, Offset, Size);
@@ -203,6 +205,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadSubstep(float dtime)
 	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
 		luabind::wrap_base::call<void>("OnPxThreadSubstep", dtime);
 	}
 

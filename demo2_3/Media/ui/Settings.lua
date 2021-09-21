@@ -13,7 +13,7 @@ dlg.Skin.Image.TexturePath="texture/CommonUI.png"
 dlg.Skin.Image.Rect=Rectangle.LeftTop(158,43,2,2)
 dlg.Skin.Image.Border=Vector4(0,0,0,0)
 
-local lbl_title=Control(NamedObject.MakeUniqueName("control"))
+local lbl_title=Static(NamedObject.MakeUniqueName("static"))
 lbl_title.x=UDim(0,17)
 lbl_title.y=UDim(0,13)
 lbl_title.Width=UDim(0,256)
