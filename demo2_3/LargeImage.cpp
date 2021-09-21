@@ -11,23 +11,36 @@ LargeImageChunk::~LargeImageChunk(void)
 
 void LargeImageChunk::RequestResource(void)
 {
-	_ASSERT(m_Owner);
 	m_Requested = true;
-	char path[MAX_PATH];
-	sprintf_s(path, _countof(path), "texture/New Project Bitmap Output-256_x%d_y%d.png", m_Row, m_Col);
-	my::ResourceMgr::getSingleton().LoadTextureAsync(path,
-		boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
+
+	_ASSERT(m_Owner);
+
+	if (!m_Owner->m_TexturePath.empty())
+	{
+		_ASSERT(!m_Texture);
+
+		char path[MAX_PATH];
+		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Row, m_Col);
+		my::ResourceMgr::getSingleton().LoadTextureAsync(path,
+			boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
+	}
 }
 
 void LargeImageChunk::ReleaseResource(void)
 {
-	_ASSERT(m_Owner);
 	m_Requested = false;
-	char path[MAX_PATH];
-	sprintf_s(path, _countof(path), "texture/New Project Bitmap Output-256_x%d_y%d.png", m_Row, m_Col);
-	my::ResourceMgr::getSingleton().RemoveIORequestCallback(path,
-		boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
-	m_Texture.reset();
+
+	_ASSERT(m_Owner);
+
+	if (!m_Owner->m_TexturePath.empty())
+	{
+		char path[MAX_PATH];
+		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Row, m_Col);
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(path,
+			boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
+
+		m_Texture.reset();
+	}
 }
 
 void LargeImageChunk::OnTextureReady(my::DeviceResourceBasePtr res)
@@ -122,92 +135,4 @@ void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD 
 
 		chunk_iter = m_ViewedChunks.erase(chunk_iter);
 	}
-}
-
-MapControl::MapControl(const char* Name)
-	: Control(Name)
-	, m_bMouseDrag(false)
-	, m_MouseOffset(0, 0)
-{
-}
-
-void MapControl::Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
-{
-	if (m_Skin)
-	{
-		m_Rect = my::Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
-
-		my::Rectangle Clip = my::Rectangle::LeftTop(Offset, Size);
-
-		m_largeImg.Draw(ui_render, m_Rect, m_Skin->m_Color, Clip);
-	}
-}
-
-bool MapControl::HandleMouse(UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
-{
-	if (m_bEnabled && m_bVisible)
-	{
-		switch (uMsg)
-		{
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONDBLCLK:
-			if (HitTest(pt))
-			{
-				m_bPressed = true;
-				m_MouseOffset.x = pt.x - m_x.offset;
-				m_MouseOffset.y = pt.y - m_y.offset;
-				if (!s_FocusControl || !ContainsControl(s_FocusControl))
-				{
-					SetFocusRecursive();
-				}
-				SetCaptureControl(this);
-				return true;
-			}
-			break;
-
-		case WM_LBUTTONUP:
-			if (m_bPressed)
-			{
-				SetCaptureControl(NULL);
-				m_bPressed = false;
-
-				if (m_bMouseDrag)
-				{
-					m_bMouseDrag = false;
-				}
-				else
-				{
-					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
-					{
-						my::D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
-					}
-
-					if (m_EventMouseClick)
-					{
-						my::MouseEventArg arg(this, pt);
-						m_EventMouseClick(&arg);
-					}
-				}
-				return true;
-			}
-			break;
-
-		case WM_MOUSEMOVE:
-			if (m_bPressed)
-			{
-				if (!m_bMouseDrag)
-				{
-					m_bMouseDrag = true;
-				}
-
-				if (m_bMouseDrag)
-				{
-					m_x.offset = pt.x - m_MouseOffset.x;
-					m_y.offset = pt.y - m_MouseOffset.y;
-				}
-			}
-			break;
-		}
-	}
-	return false;
 }

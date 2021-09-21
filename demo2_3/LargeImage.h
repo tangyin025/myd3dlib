@@ -45,6 +45,8 @@ public:
 class LargeImage
 {
 public:
+	std::string m_TexturePath;
+
 	typedef boost::multi_array<LargeImageChunk, 2> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
@@ -62,27 +64,3 @@ public:
 
 	virtual void Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD color, const my::Rectangle& clip);
 };
-
-class MapControl :
-	public my::Control
-{
-public:
-	LargeImage m_largeImg;
-
-	bool m_bMouseDrag;
-
-	my::Vector2 m_MouseOffset;
-
-public:
-	MapControl(const char* Name);
-
-	virtual DWORD GetControlType(void) const
-	{
-		return ControlTypeStatic;
-	}
-
-	virtual void Draw(my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size);
-
-	virtual bool HandleMouse(UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam);
-};
-

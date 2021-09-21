@@ -656,6 +656,7 @@ HRESULT Client::OnCreateDevice(
 
 		, luabind::class_<LargeImage/*, my::ControlImage*/, boost::shared_ptr<LargeImage> >("LargeImage")
 			.def(luabind::constructor<>())
+			.def_readwrite("TexturePath", &LargeImage::m_TexturePath)
 			.def("RequestResource", &LargeImage::RequestResource)
 			.def("ReleaseResource", &LargeImage::ReleaseResource)
 			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD)) & LargeImage::Draw)

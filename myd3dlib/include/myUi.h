@@ -127,7 +127,7 @@ namespace my
 		{
 		}
 
-		~ControlImage(void);
+		virtual ~ControlImage(void);
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
