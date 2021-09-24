@@ -875,6 +875,16 @@ void CPropertiesWnd::UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 		return;
 	}
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)progressbar->m_Progress);
+	my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 2)->GetSubItem(3)->SetValue((_variant_t)skin->m_ForegroundImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.x);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(1)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.y);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(2)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.z);
+	pControl->GetSubItem(PropId + 3)->GetSubItem(3)->SetValue((_variant_t)skin->m_ForegroundImage->m_Border.w);
 }
 
 void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button)
@@ -1956,6 +1966,33 @@ void CPropertiesWnd::CreatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 
 	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Progress"), (_variant_t)progressbar->m_Progress, NULL, PropertyProgressBarProgress);
 	pControl->AddSubItem(pProp);
+
+	my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
+
+	CMFCPropertyGridProperty* pForegroundImagePath = new CFileProp(_T("ForegroundImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_ForegroundImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyProgressBarForegroundImagePath);
+	pControl->AddSubItem(pForegroundImagePath);
+
+	CMFCPropertyGridProperty* pForegroundImageRect = new CSimpleProp(_T("ForegroundImageRect"), PropertyProgressBarForegroundImageRect, TRUE);
+	pControl->AddSubItem(pForegroundImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_ForegroundImage->m_Rect.l, NULL, PropertyProgressBarForegroundImageRectLeft);
+	pForegroundImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_ForegroundImage->m_Rect.t, NULL, PropertyProgressBarForegroundImageRectTop);
+	pForegroundImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_ForegroundImage->m_Rect.Width(), NULL, PropertyProgressBarForegroundImageRectWidth);
+	pForegroundImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_ForegroundImage->m_Rect.Height(), NULL, PropertyProgressBarForegroundImageRectHeight);
+	pForegroundImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pForegroundImageBorder = new CSimpleProp(_T("ForegroundImageBorder"), PropertyProgressBarForegroundImageBorder, TRUE);
+	pControl->AddSubItem(pForegroundImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_ForegroundImage->m_Border.x, NULL, PropertyProgressBarForegroundImageBorderX);
+	pForegroundImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_ForegroundImage->m_Border.y, NULL, PropertyProgressBarForegroundImageBorderY);
+	pForegroundImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_ForegroundImage->m_Border.z, NULL, PropertyProgressBarForegroundImageBorderZ);
+	pForegroundImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_ForegroundImage->m_Border.w, NULL, PropertyProgressBarForegroundImageBorderW);
+	pForegroundImageBorder->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button)
@@ -4250,6 +4287,72 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
 		progressbar->m_Progress = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyProgressBarForegroundImagePath:
+	{
+		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(progressbar);
+			return 0;
+		}
+		my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
+		skin->m_ForegroundImage->ReleaseResource();
+		skin->m_ForegroundImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_ForegroundImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyProgressBarForegroundImageRect:
+	case PropertyProgressBarForegroundImageRectLeft:
+	case PropertyProgressBarForegroundImageRectTop:
+	case PropertyProgressBarForegroundImageRectWidth:
+	case PropertyProgressBarForegroundImageRectHeight:
+	case PropertyProgressBarForegroundImageBorder:
+	case PropertyProgressBarForegroundImageBorderX:
+	case PropertyProgressBarForegroundImageBorderY:
+	case PropertyProgressBarForegroundImageBorderZ:
+	case PropertyProgressBarForegroundImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyProgressBarForegroundImageRectLeft:
+		case PropertyProgressBarForegroundImageRectTop:
+		case PropertyProgressBarForegroundImageRectWidth:
+		case PropertyProgressBarForegroundImageRectHeight:
+		case PropertyProgressBarForegroundImageBorderX:
+		case PropertyProgressBarForegroundImageBorderY:
+		case PropertyProgressBarForegroundImageBorderZ:
+		case PropertyProgressBarForegroundImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyProgressBarForegroundImageRect:
+		case PropertyProgressBarForegroundImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ProgressBar* progressbar = dynamic_cast<my::ProgressBar*>((my::Control*)pControl->GetValue().pulVal);
+		my::ProgressBarSkinPtr skin = boost::dynamic_pointer_cast<my::ProgressBarSkin>(progressbar->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
+		skin->m_ForegroundImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 2)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ForegroundImage->m_Border.x = pControl->GetSubItem(PropId + 3)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ForegroundImage->m_Border.y = pControl->GetSubItem(PropId + 3)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ForegroundImage->m_Border.z = pControl->GetSubItem(PropId + 3)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ForegroundImage->m_Border.w = pControl->GetSubItem(PropId + 3)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
