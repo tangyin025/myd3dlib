@@ -466,7 +466,7 @@ void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & U
 	PushRectangleSimple(m_Layer[type].second, rect, UvRect, color);
 }
 
-void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type, const Rectangle & clip)
+void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip, UILayerType type)
 {
 	_ASSERT(texture);
 	if (m_Layer[type].first != texture)
@@ -475,6 +475,44 @@ void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D
 		m_Layer[type].first = texture;
 	}
 	PushRectangleSimple(m_Layer[type].second, rect, UvRect, color, clip);
+}
+
+void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, UILayerType type)
+{
+	_ASSERT(texture);
+	if (m_Layer[type].first != texture)
+	{
+		Flush();
+		m_Layer[type].first = texture;
+	}
+	const CUSTOMVERTEX v[] = {
+		{ rect.l, rect.t, 0, color, UvRect.l, UvRect.t },
+		{ rect.r, rect.t, 0, color, UvRect.r, UvRect.t },
+		{ rect.r, rect.b, 0, color, UvRect.r, UvRect.b },
+		{ rect.l, rect.b, 0, color, UvRect.l, UvRect.b },
+	};
+	D3DXVec3TransformCoordArray((D3DXVECTOR3*)v, sizeof(v[0]), (D3DXVECTOR3*)v, sizeof(v[0]), (D3DXMATRIX*)&transform, _countof(v));
+	PushTriangleSimple(m_Layer[type].second, v[0], v[1], v[3]);
+	PushTriangleSimple(m_Layer[type].second, v[2], v[3], v[1]);
+}
+
+void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip, UILayerType type)
+{
+	_ASSERT(texture);
+	if (m_Layer[type].first != texture)
+	{
+		Flush();
+		m_Layer[type].first = texture;
+	}
+	const CUSTOMVERTEX v[] = {
+		{ rect.l, rect.t, 0, color, UvRect.l, UvRect.t },
+		{ rect.r, rect.t, 0, color, UvRect.r, UvRect.t },
+		{ rect.r, rect.b, 0, color, UvRect.r, UvRect.b },
+		{ rect.l, rect.b, 0, color, UvRect.l, UvRect.b },
+	};
+	D3DXVec3TransformCoordArray((D3DXVECTOR3*)v, sizeof(v[0]), (D3DXVECTOR3*)v, sizeof(v[0]), (D3DXMATRIX*)&transform, _countof(v));
+	PushTriangleSimple(m_Layer[type].second, v[0], v[1], v[3], clip, 0xFF);
+	PushTriangleSimple(m_Layer[type].second, v[2], v[3], v[1], clip, 0xFF);
 }
 
 void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize)
@@ -520,7 +558,7 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 	PushWindowSimple(m_Layer[type].second, rect, color, WindowRect, WindowBorder, TextureSize);
 }
 
-void UIRender::PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type, const Rectangle & clip)
+void UIRender::PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip, UILayerType type)
 {
 	_ASSERT(texture);
 	if (m_Layer[type].first != texture)
@@ -602,11 +640,11 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 		if (m_Border.x == 0 && m_Border.y == 0 && m_Border.z == 0 && m_Border.w == 0)
 		{
 			Rectangle UvRect(m_Rect.l / desc.Width, m_Rect.t / desc.Height, m_Rect.r / desc.Width, m_Rect.b / desc.Height);
-			ui_render->PushRectangle(rect, UvRect, color, m_Texture.get(), UIRender::UILayerTexture, clip);
+			ui_render->PushRectangle(rect, UvRect, color, m_Texture.get(), clip, UIRender::UILayerTexture);
 		}
 		else
 		{
-			ui_render->PushWindow(rect, color, m_Rect, m_Border, CSize(desc.Width, desc.Height), m_Texture.get(), UIRender::UILayerTexture, clip);
+			ui_render->PushWindow(rect, color, m_Rect, m_Border, CSize(desc.Width, desc.Height), m_Texture.get(), clip, UIRender::UILayerTexture);
 		}
 	}
 }

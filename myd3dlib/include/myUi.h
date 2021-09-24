@@ -13,7 +13,18 @@ namespace my
 	public:
 		struct CUSTOMVERTEX
 		{
-			FLOAT x, y, z;
+			union
+			{
+				struct
+				{
+					FLOAT x, y, z;
+				};
+
+				struct
+				{
+					Vector3 xyz;
+				};
+			};
 			DWORD color;
 			FLOAT u, v;
 			CUSTOMVERTEX(FLOAT _x, FLOAT _y, FLOAT _z, DWORD _color, FLOAT _u, FLOAT _v)
@@ -90,7 +101,11 @@ namespace my
 
 		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip, UILayerType type);
+
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, UILayerType type);
+
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip, UILayerType type);
 
 		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize);
 
@@ -98,7 +113,7 @@ namespace my
 
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type, const Rectangle & clip);
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip, UILayerType type);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
