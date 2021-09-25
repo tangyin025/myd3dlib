@@ -343,8 +343,11 @@ void Actor::Update(float fElapsedTime)
 		}
 	}
 
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	// ! Component::Update may change other cmp's life time
+	ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
+
+	ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
+	for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
 	{
 		if ((*cmp_iter)->m_LodMask & 1 << m_Lod)
 		{
