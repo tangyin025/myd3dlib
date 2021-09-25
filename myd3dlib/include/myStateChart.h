@@ -49,35 +49,28 @@ namespace my
 			return NULL;
 		}
 
-		void AddState(StateType * state, StateType * parent)
+		void AddState(StateType * state)
 		{
 			_ASSERT(NULL == state->m_Parent);
 
-			StateMap::value_type * state_iter = FindState(state);
-			if (state_iter)
-			{
-				_ASSERT(false);
-				return;
-			}
+			_ASSERT(!FindState(state));
 
-			if (parent)
-			{
-				StateMap::value_type * parent_iter = FindState(parent);
-				_ASSERT(NULL != parent_iter);
-				parent_iter->first->AddState(state, NULL);
-			}
-			else
-			{
-				m_States.insert(std::make_pair(state, EventStateMap()));
-				state->m_Parent = this;
-				state->OnAdd();
+			m_States.insert(std::make_pair(state, EventStateMap()));
+			state->m_Parent = this;
+			state->OnAdd();
 
-				if ((!m_Parent || m_Parent->m_Current == this) && !m_Current)
-				{
-					_ASSERT(m_States.size() == 1);
-					SetState(state);
-				}
+			if ((!m_Parent || m_Parent->m_Current == this) && !m_Current)
+			{
+				_ASSERT(m_States.size() == 1);
+				SetState(state);
 			}
+		}
+
+		void AddState(StateType * state, StateType * parent)
+		{
+			StateMap::value_type * parent_iter = FindState(parent);
+			_ASSERT(NULL != parent_iter);
+			parent_iter->first->AddState(state);
 		}
 
 		void AddTransition(StateType * src, const EventType & _event, StateType * dest)
