@@ -149,6 +149,10 @@ public:
 
 	ViewedActorSet m_ViewedActors;
 
+	ViewedActorSet::iterator insert_actor_iter;
+
+	ViewedActorSet::iterator update_actor_iter;
+
 	bool m_Activated;
 
 	typedef boost::signals2::signal<void(bool)> ActivateEvent;

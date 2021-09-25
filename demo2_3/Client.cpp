@@ -954,13 +954,11 @@ void Client::OnFrameTick(
 
 		AABB m_aabb;
 
-		ViewedActorSet::iterator insert_actor_iter;
-
 		Callback(Client* client, const AABB& aabb)
 			: m_client(client)
 			, m_aabb(aabb)
-			, insert_actor_iter(client->m_ViewedActors.begin())
 		{
+			m_client->insert_actor_iter = m_client->m_ViewedActors.begin();
 		}
 
 		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
@@ -973,22 +971,22 @@ void Client::OnFrameTick(
 
 				actor->RequestResource();
 
-				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
+				m_client->m_ViewedActors.insert(m_client->insert_actor_iter, *actor);
 			}
 			else
 			{
 				ViewedActorSet::iterator actor_iter = m_client->m_ViewedActors.iterator_to(*actor);
-				if (actor_iter != insert_actor_iter)
+				if (actor_iter != m_client->insert_actor_iter)
 				{
 					m_client->m_ViewedActors.erase(actor_iter);
 
-					m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
+					m_client->m_ViewedActors.insert(m_client->insert_actor_iter, *actor);
 				}
 				else
 				{
-					_ASSERT(insert_actor_iter != m_client->m_ViewedActors.end());
+					_ASSERT(m_client->insert_actor_iter != m_client->m_ViewedActors.end());
 
-					insert_actor_iter++;
+					m_client->insert_actor_iter++;
 				}
 			}
 		}
@@ -997,37 +995,36 @@ void Client::OnFrameTick(
 	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
 
-	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
+	// ! Actor::Update may change other actor's life time
+	update_actor_iter = m_ViewedActors.begin();
+	for (; update_actor_iter != insert_actor_iter; update_actor_iter++)
 	{
-		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
+		_ASSERT(OctNode::HaveNode(update_actor_iter->m_Node));
 
-		if (!actor_iter->m_Base)
+		if (!update_actor_iter->m_Base)
 		{
-			// ! Actor::Update may change other actor's life time
-			// ! Actor::Update may invalid the main camera's properties
-			actor_iter->Update(fElapsedTime);
+			update_actor_iter->Update(fElapsedTime);
 
-			if (!actor_iter->m_Attaches.empty())
+			if (!update_actor_iter->m_Attaches.empty())
 			{
-				actor_iter->UpdateAttaches(fElapsedTime);
+				update_actor_iter->UpdateAttaches(fElapsedTime);
 			}
 		}
 	}
 
-	for (; actor_iter != m_ViewedActors.end(); )
+	for (; update_actor_iter != m_ViewedActors.end(); )
 	{
-		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
+		_ASSERT(OctNode::HaveNode(update_actor_iter->m_Node));
 
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor_iter->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + m_ViewedDistDiff));
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*update_actor_iter->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + m_ViewedDistDiff));
 		if (intersect_type == IntersectionTests::IntersectionTypeOutside)
 		{
-			actor_iter->ReleaseResource();
+			update_actor_iter->ReleaseResource();
 
-			actor_iter = m_ViewedActors.erase(actor_iter);
+			update_actor_iter = m_ViewedActors.erase(update_actor_iter);
 		}
 		else
-			actor_iter++;
+			update_actor_iter++;
 	}
 
 	m_SkyLightCam.UpdateViewProj();
@@ -1313,7 +1310,20 @@ bool Client::RemoveEntity(my::OctEntity * entity)
 
 	if (actor->is_linked())
 	{
-		m_ViewedActors.erase(m_ViewedActors.iterator_to(*actor));
+		ViewedActorSet::iterator remove_actor_iter = m_ViewedActors.iterator_to(*actor);
+		_ASSERT(remove_actor_iter != m_ViewedActors.end());
+
+		if (remove_actor_iter == update_actor_iter)
+		{
+			THROW_CUSEXCEPTION("remove_actor_iter == update_actor_iter"); // ! Actor should not remove self when Actor::Update
+		}
+
+		if (remove_actor_iter == insert_actor_iter)
+		{
+			insert_actor_iter++;
+		}
+
+		m_ViewedActors.erase(remove_actor_iter);
 	}
 
 	return OctNode::RemoveEntity(entity);
