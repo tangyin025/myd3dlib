@@ -228,6 +228,16 @@ public:
 
 	bool RemoveEntity(my::OctEntity * entity);
 
+	void AddState(StateBase * state, StateBase * parent)
+	{
+		my::StateChart<StateBase, std::string>::AddState(state, parent);
+	}
+
+	void AddState(StateBase * state)
+	{
+		my::StateChart<StateBase, std::string>::AddState(state, NULL); // ! luabind::class_::def does not support default arguments (Release build.)
+	}
+
 	virtual void OnControlSound(const char * name);
 
 	virtual void OnControlFocus(bool bFocus);

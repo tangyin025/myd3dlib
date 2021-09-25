@@ -49,7 +49,7 @@ namespace my
 			return NULL;
 		}
 
-		void AddState(StateType * state, StateType * parent = NULL)
+		void AddState(StateType * state, StateType * parent)
 		{
 			_ASSERT(NULL == state->m_Parent);
 
@@ -64,7 +64,7 @@ namespace my
 			{
 				StateMap::value_type * parent_iter = FindState(parent);
 				_ASSERT(NULL != parent_iter);
-				parent_iter->first->AddState(state);
+				parent_iter->first->AddState(state, NULL);
 			}
 			else
 			{
