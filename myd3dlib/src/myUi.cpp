@@ -949,7 +949,7 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 	return false;
 }
 
-bool Control::CanHaveFocus(void)
+bool Control::CanHaveFocus(void) const
 {
 	return false;
 }
@@ -1006,7 +1006,7 @@ void Control::OnHotkey(void)
 {
 }
 
-bool Control::HitTest(const Vector2 & pt)
+bool Control::HitTest(const Vector2 & pt) const
 {
 	return m_Rect.PtInRect(pt);
 }
@@ -1101,7 +1101,7 @@ bool Control::GetCaptured(void) const
 	return Control::GetCaptureControl() == this;
 }
 
-bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld)
+bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld) const
 {
 	if (m_Parent)
 	{
@@ -1583,7 +1583,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 	return false;
 }
 
-bool Button::CanHaveFocus(void)
+bool Button::CanHaveFocus(void) const
 {
 	return m_bVisible && m_bEnabled;
 }
@@ -1605,7 +1605,7 @@ void Button::OnHotkey(void)
 	}
 }
 
-bool Button::HitTest(const Vector2 & pt)
+bool Button::HitTest(const Vector2 & pt) const
 {
 	return Control::HitTest(pt);
 }
@@ -2095,7 +2095,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 	return false;
 }
 
-bool EditBox::CanHaveFocus(void)
+bool EditBox::CanHaveFocus(void) const
 {
 	return m_bVisible && m_bEnabled;
 }
@@ -2107,7 +2107,7 @@ void EditBox::OnFocusIn(void)
 	ResetCaretBlink();
 }
 
-bool EditBox::HitTest(const Vector2 & pt)
+bool EditBox::HitTest(const Vector2 & pt) const
 {
 	return Control::HitTest(pt);
 }
@@ -2769,7 +2769,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	return false;
 }
 
-bool ScrollBar::CanHaveFocus(void)
+bool ScrollBar::CanHaveFocus(void) const
 {
 	return m_bVisible && m_bEnabled;
 }
@@ -3408,7 +3408,7 @@ void ComboBox::OnFocusOut(void)
 	Control::OnFocusOut();
 }
 
-bool ComboBox::HitTest(const Vector2 & pt)
+bool ComboBox::HitTest(const Vector2 & pt) const
 {
 	if (m_bHasFocus && m_bPressed)
 	{
@@ -3915,7 +3915,7 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 	return false;
 }
 
-bool ListBox::CanHaveFocus(void)
+bool ListBox::CanHaveFocus(void) const
 {
 	return m_bVisible && m_bEnabled;
 }
@@ -4174,7 +4174,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 	return false;
 }
 
-bool Dialog::CanHaveFocus(void)
+bool Dialog::CanHaveFocus(void) const
 {
 	return m_bVisible && m_bEnabled && m_Skin;
 }
@@ -4210,7 +4210,7 @@ void Dialog::SetVisible(bool bVisible)
 	}
 }
 
-bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
+bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld) const
 {
 	Vector3 dialogNormal = m_World[2].xyz.normalize();
 	float dialogDist = m_World[3].xyz.dot(dialogNormal);
@@ -4222,6 +4222,16 @@ bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 		return true;
 	}
 	return false;
+}
+
+void Dialog::MoveToFront(void) const
+{
+	if (m_Manager)
+	{
+		DialogMgr::DialogList::const_iterator self_iter = std::find(m_Manager->m_DlgList.begin(), m_Manager->m_DlgList.end(), this);
+		_ASSERT(self_iter != m_Manager->m_DlgList.end());
+		m_Manager->m_DlgList.splice(m_Manager->m_DlgList.end(), m_Manager->m_DlgList, self_iter, std::next(self_iter, 1));
+	}
 }
 
 void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)

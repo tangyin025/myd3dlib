@@ -458,7 +458,7 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void);
+		virtual bool CanHaveFocus(void) const;
 
 		virtual void OnFocusIn(void);
 
@@ -470,7 +470,7 @@ namespace my
 
 		virtual void OnHotkey(void);
 
-		virtual bool HitTest(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt) const;
 
 		virtual void OnLayout(void);
 
@@ -490,7 +490,7 @@ namespace my
 
 		virtual bool GetCaptured(void) const;
 
-		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
+		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld) const;
 
 		void InsertControl(ControlPtr control);
 
@@ -698,11 +698,11 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void);
+		virtual bool CanHaveFocus(void) const;
 
 		virtual void OnHotkey(void);
 
-		virtual bool HitTest(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt) const;
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
@@ -825,11 +825,11 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void);
+		virtual bool CanHaveFocus(void) const;
 
 		virtual void OnFocusIn(void);
 
-		virtual bool HitTest(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt) const;
 
 		virtual void SetText(const std::wstring & Text);
 
@@ -1051,7 +1051,7 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void);
+		virtual bool CanHaveFocus(void) const;
 
 		void SimulateRepeatedScroll(void);
 
@@ -1256,7 +1256,7 @@ namespace my
 
 		virtual void OnFocusOut(void);
 
-		virtual bool HitTest(const Vector2 & pt);
+		virtual bool HitTest(const Vector2 & pt) const;
 
 		virtual void OnLayout(void);
 
@@ -1426,9 +1426,9 @@ namespace my
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		virtual bool HandleMouse(UINT uMsg, const Vector2& pt, WPARAM wParam, LPARAM lParam);
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void);
+		virtual bool CanHaveFocus(void) const;
 
 		virtual void OnLayout(void);
 
@@ -1548,11 +1548,13 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void);
+		virtual bool CanHaveFocus(void) const;
 
 		virtual void SetVisible(bool bVisible);
 
-		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
+		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld) const;
+
+		virtual void MoveToFront(void) const;
 	};
 
 	class DialogMgr

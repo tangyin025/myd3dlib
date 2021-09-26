@@ -999,6 +999,7 @@ void LuaContext::Init(void)
 			.def_readwrite("World", &my::Dialog::m_World)
 			.def_readwrite("EnableDrag", &my::Dialog::m_EnableDrag)
 			.def_readwrite("EventAlign", &my::Dialog::m_EventAlign)
+			.def("MoveToFront", &my::Dialog::MoveToFront)
 	];
 
 	module(m_State)[

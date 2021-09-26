@@ -1233,7 +1233,7 @@ namespace my
 			return Vector2(Width(), Height());
 		}
 
-		bool PtInRect(const Vector2 & pt)
+		bool PtInRect(const Vector2 & pt) const
 		{
 			return pt.x >= l && pt.x < r && pt.y >= t && pt.y < b;
 		}

@@ -1166,6 +1166,10 @@ LRESULT Client::MsgProc(
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
 		m_Console->SetVisible(!m_Console->GetVisible());
+		if (m_Console->GetVisible())
+		{
+			m_Console->MoveToFront();
+		}
 		*pbNoFurtherProcessing = true;
 		return 0;
 	}
