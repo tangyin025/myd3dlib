@@ -498,7 +498,7 @@ namespace my
 
 		void ClearAllControl(void);
 
-		bool ContainsControl(Control * control);
+		bool ContainsControl(Control * control) const;
 
 		Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 

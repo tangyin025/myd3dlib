@@ -1081,7 +1081,7 @@ void Control::SetFocused(bool bFocused)
 
 bool Control::GetFocused(void) const
 {
-	return Control::GetFocusControl() == this;
+	return ContainsControl(Control::GetFocusControl());
 }
 
 void Control::SetCaptured(bool bCaptured)
@@ -1155,14 +1155,14 @@ void Control::ClearAllControl(void)
 	}
 }
 
-bool Control::ContainsControl(Control * control)
+bool Control::ContainsControl(Control * control) const
 {
 	if (this == control)
 	{
 		return true;
 	}
 
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
 		if ((*ctrl_iter)->ContainsControl(control))
