@@ -300,15 +300,21 @@ void Actor::ReleaseResource(void)
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		if ((*cmp_iter)->IsRequested())
-		{
-			(*cmp_iter)->ReleaseResource();
-		}
+	// ! Component::ReleaseResource may change other cmp's life time
+	ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
 
-		(*cmp_iter)->LeavePhysxScene(scene);
+	ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
+	for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->m_Actor)
+		{
+			if ((*cmp_iter)->IsRequested())
+			{
+				(*cmp_iter)->ReleaseResource();
+			}
+
+			(*cmp_iter)->LeavePhysxScene(scene);
+		}
 	}
 
 	m_Lod = Component::LOD_INFINITE;
@@ -654,7 +660,10 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 	ComponentPtrList::iterator cmp_iter = std::find(m_Cmps.begin(), m_Cmps.end(), cmp);
 	if (cmp_iter != m_Cmps.end())
 	{
-		_ASSERT((*cmp_iter)->m_Actor == this);
+		_ASSERT(cmp->m_Actor == this);
+
+		// ! Component::ReleaseResource may change other cmp's life time
+		m_Cmps.erase(cmp_iter);
 
 		if (IsRequested())
 		{
@@ -670,9 +679,7 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 			cmp->LeavePhysxScene(scene);
 		}
 
-		(*cmp_iter)->m_Actor = NULL;
-
-		m_Cmps.erase(cmp_iter);
+		cmp->m_Actor = NULL;
 	}
 	else
 	{
