@@ -996,6 +996,8 @@ void Client::OnFrameTick(
 	QueryEntity(cb.m_aabb, &cb);
 
 	// ! Actor::Update may change other actor's life time
+	//std::vector<Actor*> enable_reentrant_dummy;
+	//boost::range::transform(boost::make_iterator_range(m_ViewedActors.begin(), insert_actor_iter), std::back_inserter(enable_reentrant_dummy), &boost::lambda::_1);
 	update_actor_iter = m_ViewedActors.begin();
 	for (; update_actor_iter != insert_actor_iter; update_actor_iter++)
 	{
