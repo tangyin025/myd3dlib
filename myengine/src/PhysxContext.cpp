@@ -179,6 +179,8 @@ void PhysxScene::TickPreRender(float dtime)
 	mTriggerPairs.clear();
 
 	m_WaitForResults = Advance(dtime);
+
+	m_RenderTickMuted = true;
 }
 
 void PhysxScene::TickPostRender(float dtime)
@@ -207,6 +209,8 @@ void PhysxScene::TickPostRender(float dtime)
 		}
 		mDeletedActors.clear();
 	}
+
+	m_RenderTickMuted = false;
 }
 
 bool PhysxScene::Advance(float dtime)
