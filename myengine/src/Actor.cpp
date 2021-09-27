@@ -349,9 +349,12 @@ void Actor::Update(float fElapsedTime)
 	ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
 	for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
 	{
-		if ((*cmp_iter)->m_LodMask & 1 << m_Lod)
+		if ((*cmp_iter)->m_Actor)
 		{
-			(*cmp_iter)->Update(fElapsedTime);
+			if ((*cmp_iter)->m_LodMask & 1 << m_Lod)
+			{
+				(*cmp_iter)->Update(fElapsedTime);
+			}
 		}
 	}
 }
@@ -529,18 +532,21 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 			ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
 			for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
 			{
-				if ((*cmp_iter)->m_LodMask >= 1 << Lod)
+				if ((*cmp_iter)->m_Actor)
 				{
-					if (!(*cmp_iter)->IsRequested())
+					if ((*cmp_iter)->m_LodMask >= 1 << Lod)
 					{
-						(*cmp_iter)->RequestResource();
+						if (!(*cmp_iter)->IsRequested())
+						{
+							(*cmp_iter)->RequestResource();
+						}
 					}
-				}
-				else
-				{
-					if ((*cmp_iter)->IsRequested())
+					else
 					{
-						(*cmp_iter)->ReleaseResource();
+						if ((*cmp_iter)->IsRequested())
+						{
+							(*cmp_iter)->ReleaseResource();
+						}
 					}
 				}
 			}
