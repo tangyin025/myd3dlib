@@ -108,7 +108,7 @@ public:
 
 	float m_LodFactor;
 
-	typedef std::vector<ComponentPtr> ComponentPtrList;
+	typedef std::list<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
 

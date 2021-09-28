@@ -15,7 +15,7 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/list.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -259,11 +259,10 @@ void Actor::CopyFrom(const Actor & rhs)
 	m_World = rhs.m_World;
 	m_LodDist = rhs.m_LodDist;
 	m_LodFactor = rhs.m_LodFactor;
-	m_Cmps.resize(rhs.m_Cmps.size());
-	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
+	ComponentPtrList::const_iterator rhs_cmp_iter = rhs.m_Cmps.begin();
+	for (; rhs_cmp_iter != rhs.m_Cmps.end(); rhs_cmp_iter++)
 	{
-		m_Cmps[i] = rhs.m_Cmps[i]->Clone();
-		m_Cmps[i]->m_Actor = this;
+		m_Cmps.push_back((*rhs_cmp_iter)->Clone());
 	}
 }
 
@@ -296,8 +295,6 @@ void Actor::RequestResource(void)
 
 void Actor::ReleaseResource(void)
 {
-	m_Requested = false;
-
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 	// ! Component::ReleaseResource may change other cmp's life time
@@ -314,6 +311,8 @@ void Actor::ReleaseResource(void)
 			(*cmp_iter)->LeavePhysxScene(scene);
 		}
 	}
+
+	m_Requested = false;
 
 	m_Lod = Component::LOD_INFINITE;
 
@@ -630,6 +629,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 {
 	_ASSERT(!cmp->m_Actor);
 
+	// ! Component::RequestResource may change other cmp's life time
 	m_Cmps.push_back(cmp);
 
 	cmp->m_Actor = this;
@@ -657,6 +657,8 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		_ASSERT(cmp->m_Actor == this);
 
 		// ! Component::ReleaseResource may change other cmp's life time
+		m_Cmps.erase(cmp_iter);
+
 		if (IsRequested())
 		{
 			_ASSERT(m_Node);
@@ -672,8 +674,6 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		}
 
 		cmp->m_Actor = NULL;
-
-		m_Cmps.erase(cmp_iter);
 	}
 	else
 	{

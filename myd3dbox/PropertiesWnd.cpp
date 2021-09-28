@@ -321,20 +321,21 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(6)->SetValue((_variant_t)actor->m_LodFactor);
 	UpdatePropertiesRigidActor(pActor->GetSubItem(7), actor);
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
-	for (unsigned int i = 0; i < actor->m_Cmps.size(); i++)
+	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+	for (unsigned int i = 0; cmp_iter != actor->m_Cmps.end(); cmp_iter++, i++)
 	{
 		if ((unsigned int)pActor->GetSubItemsCount() <= PropId + i)
 		{
-			CreateProperties(pActor, actor->m_Cmps[i].get());
+			CreateProperties(pActor, cmp_iter->get());
 			continue;
 		}
-		if (pActor->GetSubItem(PropId + i)->GetData() != GetComponentProp(actor->m_Cmps[i]->GetComponentType()))
+		if (pActor->GetSubItem(PropId + i)->GetData() != GetComponentProp((*cmp_iter)->GetComponentType()))
 		{
 			RemovePropertiesFrom(pActor, PropId + i);
-			CreateProperties(pActor, actor->m_Cmps[i].get());
+			CreateProperties(pActor, cmp_iter->get());
 			continue;
 		}
-		UpdateProperties(pActor->GetSubItem(PropId + i), i, actor->m_Cmps[i].get());
+		UpdateProperties(pActor->GetSubItem(PropId + i), i, cmp_iter->get());
 	}
 	RemovePropertiesFrom(pActor, GetComponentPropCount(Component::ComponentTypeActor) + (int)actor->m_Cmps.size());
 	//m_wndPropList.AdjustLayout();
