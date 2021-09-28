@@ -301,10 +301,8 @@ void Actor::ReleaseResource(void)
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 	// ! Component::ReleaseResource may change other cmp's life time
-	ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
-
-	ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
-	for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		if ((*cmp_iter)->m_Actor)
 		{
@@ -350,10 +348,8 @@ void Actor::Update(float fElapsedTime)
 	}
 
 	// ! Component::Update may change other cmp's life time
-	ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
-
-	ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
-	for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		if ((*cmp_iter)->m_Actor)
 		{
@@ -533,10 +529,8 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 			m_Lod = Lod;
 
 			// ! Component::RequestResource may change other cmp's life time
-			ComponentPtrList enable_reentrant_dummy(m_Cmps.begin(), m_Cmps.end());
-
-			ComponentPtrList::iterator cmp_iter = enable_reentrant_dummy.begin();
-			for (; cmp_iter != enable_reentrant_dummy.end(); cmp_iter++)
+			ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+			for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 			{
 				if ((*cmp_iter)->m_Actor)
 				{
@@ -663,8 +657,6 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		_ASSERT(cmp->m_Actor == this);
 
 		// ! Component::ReleaseResource may change other cmp's life time
-		m_Cmps.erase(cmp_iter);
-
 		if (IsRequested())
 		{
 			_ASSERT(m_Node);
@@ -680,6 +672,8 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 		}
 
 		cmp->m_Actor = NULL;
+
+		m_Cmps.erase(cmp_iter);
 	}
 	else
 	{
