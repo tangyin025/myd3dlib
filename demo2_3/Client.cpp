@@ -998,6 +998,7 @@ void Client::OnFrameTick(
 	QueryEntity(cb.m_aabb, &cb);
 
 	// ! Actor::UpdateLod, Actor::Update may change other actor's life time
+	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1)));
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
 	{
@@ -1030,6 +1031,7 @@ void Client::OnFrameTick(
 		else
 			actor_iter++;
 	}
+	DelayRemover<ActorPtr>::getSingleton().Leave();
 
 	m_SkyLightCam.UpdateViewProj();
 
@@ -1298,9 +1300,15 @@ void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minb
 	OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
-bool Client::RemoveEntity(my::OctEntity * entity)
+void Client::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
+
+	if (DelayRemover<ActorPtr>::getSingleton().IsDelay())
+	{
+		DelayRemover<ActorPtr>::getSingleton().push_back(actor->shared_from_this());
+		return;
+	}
 
 	actor->StopAllAction();
 
@@ -1323,7 +1331,9 @@ bool Client::RemoveEntity(my::OctEntity * entity)
 		m_ViewedActors.erase(remove_actor_iter);
 	}
 
-	return OctNode::RemoveEntity(entity);
+	_ASSERT(HaveNode(entity->m_Node));
+
+	OctNode::RemoveEntity(entity);
 }
 
 void Client::OnControlSound(const char * name)

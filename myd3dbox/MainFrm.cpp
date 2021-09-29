@@ -865,7 +865,7 @@ void CMainFrame::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float 
 	OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
-bool CMainFrame::RemoveEntity(my::OctEntity * entity)
+void CMainFrame::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
@@ -894,7 +894,9 @@ bool CMainFrame::RemoveEntity(my::OctEntity * entity)
 		m_selactors.erase(actor_iter);
 	}
 
-	return OctNode::RemoveEntity(entity);
+	ASSERT(HaveNode(entity->m_Node));
+
+	OctNode::RemoveEntity(entity);
 }
 
 void CMainFrame::OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak_ptr<MeshComponent> mesh_cmp_weak_ptr)
@@ -1517,7 +1519,7 @@ void CMainFrame::OnEditDelete()
 	{
 		ActorPtr actor = (*actor_iter)->shared_from_this();
 
-		VERIFY(RemoveEntity(actor.get()));
+		RemoveEntity(actor.get());
 
 		ActorPtrList::iterator actor_iter = std::find(m_ActorList.begin(), m_ActorList.end(), actor);
 		if (actor_iter != m_ActorList.end())

@@ -246,7 +246,7 @@ void OctNode::QueryEntityAll(QueryCallback * callback) const
 	}
 }
 
-bool OctNode::RemoveEntity(OctEntity * entity)
+void OctNode::RemoveEntity(OctEntity * entity)
 {
 	if (entity->m_Node)
 	{
@@ -257,10 +257,8 @@ bool OctNode::RemoveEntity(OctEntity * entity)
 			entity->m_Node->m_Entities.erase(entity_iter);
 			entity->m_Node = NULL;
 			entity->m_OctAabb = NULL;
-			return true;
 		}
 	}
-	return false;
 }
 
 void OctNode::ClearAllEntity(void)

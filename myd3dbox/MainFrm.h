@@ -121,7 +121,7 @@ public:
 	BOOL SaveFileContext(LPCTSTR lpszPathName);
 	bool ExecuteCode(const char * code);
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
-	bool RemoveEntity(my::OctEntity * entity);
+	void RemoveEntity(my::OctEntity * entity);
 	void OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak_ptr<MeshComponent> mesh_cmp_weak_ptr);
 	Component* GetSelComponent(Component::ComponentType Type);
 

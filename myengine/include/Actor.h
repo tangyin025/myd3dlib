@@ -79,6 +79,55 @@ public:
 	}
 };
 
+template <typename ElementType>
+class DelayRemover
+	: public my::Singleton<DelayRemover<ElementType> >
+	, public std::vector<ElementType>
+{
+protected:
+	typedef boost::function<void(ElementType)> RemoveFuncType;
+	
+	RemoveFuncType m_RemoveFunc;
+
+public:
+	DelayRemover(void)
+	{
+	}
+
+	bool IsDelay(void) const
+	{
+		return m_RemoveFunc;
+	}
+
+	void Enter(RemoveFuncType func)
+	{
+		_ASSERT(!IsDelay());
+
+		m_RemoveFunc = func;
+	}
+
+	void push_back(ElementType elem)
+	{
+		_ASSERT(IsDelay());
+
+		vector::push_back(elem);
+	}
+
+	void Leave(void)
+	{
+		RemoveFuncType func;
+
+		m_RemoveFunc.swap(func);
+
+		iterator iter = begin();
+		for (; iter != end(); iter++)
+		{
+			func(*iter);
+		}
+		clear();
+	}
+};
+
 class Actor
 	: public my::NamedObject
 	, public my::OctEntity

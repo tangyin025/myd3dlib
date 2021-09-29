@@ -298,6 +298,7 @@ void Actor::ReleaseResource(void)
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 	// ! Component::ReleaseResource may change other cmp's life time
+	DelayRemover<ComponentPtr>::getSingleton().Enter(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1));
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -311,6 +312,7 @@ void Actor::ReleaseResource(void)
 			(*cmp_iter)->LeavePhysxScene(scene);
 		}
 	}
+	DelayRemover<ComponentPtr>::getSingleton().Leave();
 
 	m_Requested = false;
 
@@ -347,6 +349,7 @@ void Actor::Update(float fElapsedTime)
 	}
 
 	// ! Component::Update may change other cmp's life time
+	DelayRemover<ComponentPtr>::getSingleton().Enter(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1));
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -358,6 +361,7 @@ void Actor::Update(float fElapsedTime)
 			}
 		}
 	}
+	DelayRemover<ComponentPtr>::getSingleton().Leave();
 }
 
 void Actor::UpdateAttaches(float fElapsedTime)
@@ -526,6 +530,7 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 		m_Lod = Lod;
 
 		// ! Component::RequestResource may change other cmp's life time
+		DelayRemover<ComponentPtr>::getSingleton().Enter(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1));
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 		{
@@ -544,6 +549,7 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 				}
 			}
 		}
+		DelayRemover<ComponentPtr>::getSingleton().Leave();
 	}
 }
 
@@ -635,10 +641,10 @@ void Actor::AddComponent(ComponentPtr cmp)
 	{
 		_ASSERT(m_Node);
 
-		//if (cmp->m_LodMask & 1 << m_Lod)
-		//{
-		//	cmp->RequestResource();
-		//}
+		if (cmp->m_LodMask & 1 << m_Lod)
+		{
+			cmp->RequestResource();
+		}
 
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
@@ -648,6 +654,12 @@ void Actor::AddComponent(ComponentPtr cmp)
 
 void Actor::RemoveComponent(ComponentPtr cmp)
 {
+	if (DelayRemover<ComponentPtr>::getSingleton().IsDelay())
+	{
+		DelayRemover<ComponentPtr>::getSingleton().push_back(cmp);
+		return;
+	}
+
 	ComponentPtrList::iterator cmp_iter = std::find(m_Cmps.begin(), m_Cmps.end(), cmp);
 	if (cmp_iter != m_Cmps.end())
 	{

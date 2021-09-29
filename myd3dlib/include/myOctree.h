@@ -107,7 +107,7 @@ namespace my
 
 		void QueryEntityAll(QueryCallback * callback) const;
 
-		virtual bool RemoveEntity(OctEntity * entity);
+		virtual void RemoveEntity(OctEntity * entity);
 
 		void ClearAllEntity(void);
 
