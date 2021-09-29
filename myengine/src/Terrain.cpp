@@ -685,15 +685,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				if (!chunk->is_linked())
-				{
-					_ASSERT(!chunk->IsRequested());
-
-					chunk->RequestResource();
-
-					terrain->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
-				}
-				else
+				if (chunk->is_linked())
 				{
 					ChunkSet::iterator chunk_iter = terrain->m_ViewedChunks.iterator_to(*chunk);
 					if (chunk_iter != insert_chunk_iter)
@@ -708,6 +700,14 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 						insert_chunk_iter++;
 					}
+				}
+				else
+				{
+					_ASSERT(!chunk->IsRequested());
+
+					chunk->RequestResource();
+
+					terrain->m_ViewedChunks.insert(insert_chunk_iter, *chunk);
 				}
 			}
 

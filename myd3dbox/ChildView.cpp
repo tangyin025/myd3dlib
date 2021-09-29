@@ -212,15 +212,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
-				if (!actor->is_linked())
-				{
-					_ASSERT(!actor->IsRequested());
-
-					actor->RequestResource();
-
-					pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
-				}
-				else
+				if (actor->is_linked())
 				{
 					CMainFrame::ViewedActorSet::iterator actor_iter = pFrame->m_ViewedActors.iterator_to(*actor);
 					if (actor_iter != insert_actor_iter)
@@ -235,6 +227,14 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 						insert_actor_iter++;
 					}
+				}
+				else
+				{
+					_ASSERT(!actor->IsRequested());
+
+					actor->RequestResource();
+
+					pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
 				}
 			}
 

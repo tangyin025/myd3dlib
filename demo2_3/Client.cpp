@@ -967,15 +967,7 @@ void Client::OnFrameTick(
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (!actor->is_linked())
-			{
-				_ASSERT(!actor->IsRequested());
-
-				actor->RequestResource();
-
-				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
-			}
-			else
+			if (actor->is_linked())
 			{
 				ViewedActorSet::iterator actor_iter = m_client->m_ViewedActors.iterator_to(*actor);
 				if (actor_iter != insert_actor_iter)
@@ -991,17 +983,26 @@ void Client::OnFrameTick(
 					insert_actor_iter++;
 				}
 			}
+			else
+			{
+				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
+			}
 		}
 	};
 
 	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
 
-	// ! Actor::Update may change other actor's life time
+	// ! Actor::RequestResource, Actor::Update may change other actor's life time
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
+
+		if (!actor_iter->IsRequested())
+		{
+			actor_iter->RequestResource();
+		}
 
 		if (!actor_iter->m_Base)
 		{

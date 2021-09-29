@@ -94,15 +94,7 @@ void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD 
 	{
 		for (int j = jbegin; j < jend; j++)
 		{
-			if (!m_Chunks[i][j].is_linked())
-			{
-				_ASSERT(!m_Chunks[i][j].IsRequested());
-
-				m_Chunks[i][j].RequestResource();
-
-				m_ViewedChunks.insert(insert_chunk_iter, m_Chunks[i][j]);
-			}
-			else
+			if (m_Chunks[i][j].is_linked())
 			{
 				ChunkSet::iterator chunk_iter = m_ViewedChunks.iterator_to(m_Chunks[i][j]);
 				if (chunk_iter != insert_chunk_iter)
@@ -124,6 +116,14 @@ void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD 
 
 					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, m_Chunks[i][j].m_Texture.get(), clip, my::UIRender::UILayerTexture);
 				}
+			}
+			else
+			{
+				_ASSERT(!m_Chunks[i][j].IsRequested());
+
+				m_Chunks[i][j].RequestResource();
+
+				m_ViewedChunks.insert(insert_chunk_iter, m_Chunks[i][j]);
 			}
 		}
 	}
