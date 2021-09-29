@@ -985,6 +985,10 @@ void Client::OnFrameTick(
 			}
 			else
 			{
+				_ASSERT(!actor->IsRequested());
+
+				actor->RequestResource();
+
 				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
 		}
@@ -993,16 +997,13 @@ void Client::OnFrameTick(
 	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
 
-	// ! Actor::RequestResource, Actor::Update may change other actor's life time
+	// ! Actor::UpdateLod, Actor::Update may change other actor's life time
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		if (!actor_iter->IsRequested())
-		{
-			actor_iter->RequestResource();
-		}
+		actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
 
 		if (!actor_iter->m_Base)
 		{

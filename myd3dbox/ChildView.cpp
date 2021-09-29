@@ -240,6 +240,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			if (actor->IsRequested())
 			{
+				actor->UpdateLod(ViewPos, TargetPos);
+
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 
 				if (pView->m_bShowNavigation)

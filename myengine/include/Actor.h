@@ -226,6 +226,8 @@ public:
 	void UpdateOctNode(void);
 
 	int CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const;
+	
+	void UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
