@@ -89,18 +89,18 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	client.FogHeight = scene01.FogHeight;
 	client.FogFalloff = scene01.FogFalloff;
 	for act in scene01.ActorList do
-		client:AddEntity(act, act.aabb:transform(act.World), 0.1, 0.1)
+		client:AddEntity(act)
 	end
 
 	SPlayer.player:SetPose(Vector3(0,3,0),Quaternion.Identity())
-	client:AddEntity(act2entity(SPlayer.player),SPlayer.player.aabb:transform(SPlayer.player.World),1.0,0.1)
+	client:AddEntity(SPlayer.player)
 
 	actor3:SetRigidBodyFlag(Actor.eKINEMATIC,true)
 	for cmp in actor3.Cmps do
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	client:AddEntity(act2entity(actor3),actor3.aabb:transform(actor3.World),1.0,0.1)
+	client:AddEntity(actor3)
 	SPlayer.player:Attach(actor3, 10)
 
 	actor4:SetRigidBodyFlag(Actor.eKINEMATIC,true)
@@ -108,14 +108,14 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 		cmp.SimulationFilterWord0 = 2
 		cmp.QueryFilterWord0 = 2
 	end
-	client:AddEntity(act2entity(actor4),actor4.aabb:transform(actor4.World),1.0,0.1)
+	client:AddEntity(actor4)
 	SPlayer.player:Attach(actor4, 29)
 
 	actor2:SetPose(Vector3(0,1,-5),Quaternion.Identity())
-	client:AddEntity(act2entity(actor2),actor2.aabb:transform(actor2.World),1.0,0.1)
+	client:AddEntity(actor2)
 
 	actor5:UpdateWorld()
-	client:AddEntity(act2entity(actor5),actor5.aabb:transform(actor5.World),1.0,0.1)
+	client:AddEntity(actor5)
 
 	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
 	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)

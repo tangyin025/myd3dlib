@@ -8,7 +8,7 @@ terrain.Material=Material()
 terrain.Material.Shader="shader/mtl_Splatmap.fx"
 terrain.Material:ParseShaderParameters()
 local tbox=terrain:CalculateAABB()
-local act=Actor(NamedObject.MakeUniqueName("terrain_actor"),Vector3(-tbox:Center().x*8,0,-tbox:Center().z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
+local act=Actor("actor0",Vector3(-tbox:Center().x*8,0,-tbox:Center().z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
 act:AddComponent(terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
 terrain:CreateHeightFieldShape("terrain/chunk_123456.pxheightfield",act.Scale,theApp.MainWnd.CollectionObjs)
@@ -32,7 +32,7 @@ act:UpdateWorld()
 
 act.LodDist=256
 act.LodFactor=1.7
-theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
+theApp.MainWnd:AddEntity(act,act.aabb:transform(act.World),1.0,0.1)
 
 table.insert(acts,act)
 local cache=theApp:LoadMesh("mesh/Gear.mesh.xml","")
@@ -54,7 +54,7 @@ for i=1,300000,1 do
 	mesh_cmp.QueryFilterWord0=1
 	act.CullingDist=500
 	act:UpdateWorld()
-	theApp.MainWnd:AddEntity(act2entity(act),act.aabb:transform(act.World),1.0,0.1)
+	theApp.MainWnd:AddEntity(act,act.aabb:transform(act.World),1.0,0.1)
 	table.insert(acts,act)
 	print("add: "..act.Name)
 end

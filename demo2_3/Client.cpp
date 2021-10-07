@@ -725,7 +725,8 @@ HRESULT Client::OnCreateDevice(
 			.def("InsertDlg", &Client::InsertDlg)
 			.def("RemoveDlg", &Client::RemoveDlg)
 			.def("RemoveAllDlg", &Client::RemoveAllDlg)
-			.def("AddEntity", &Client::AddEntity)
+			.def("AddEntity", (void(Client::*)(my::OctEntity *, const my::AABB &, float, float))&Client::AddEntity)
+			.def("AddEntity", (void(Client::*)(my::OctEntity *))&Client::AddEntity)
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
 			.def("AddState", (void(Client::*)(StateBase *))&Client::AddState) 
@@ -1298,6 +1299,13 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)
 {
 	OctNode::AddEntity(entity, aabb, minblock, threshold);
+}
+
+void Client::AddEntity(my::OctEntity* entity)
+{
+	Actor * actor = dynamic_cast<Actor *>(entity);
+
+	AddEntity(actor, actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
 }
 
 void Client::RemoveEntity(my::OctEntity * entity)
