@@ -80,7 +80,14 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual void RequestResource(void)
 	{
-		luabind::wrap_base::call<void>("RequestResource");
+		try
+		{
+			luabind::wrap_base::call<void>("RequestResource");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_RequestResource(my::Control* ptr)
@@ -90,7 +97,14 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual void ReleaseResource(void)
 	{
-		luabind::wrap_base::call<void>("ReleaseResource");
+		try
+		{
+			luabind::wrap_base::call<void>("ReleaseResource");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_ReleaseResource(my::Control* ptr)
@@ -104,7 +118,14 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
-		luabind::wrap_base::call<void>("Draw", ui_render, fElapsedTime, Offset, Size);
+		try
+		{
+			luabind::wrap_base::call<void>("Draw", ui_render, fElapsedTime, Offset, Size);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_Draw(my::Control* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2& Offset, const my::Vector2& Size)
@@ -114,7 +135,15 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		return luabind::wrap_base::call<bool>("MsgProc", hWnd, uMsg, wParam, lParam);
+		try
+		{
+			return luabind::wrap_base::call<bool>("MsgProc", hWnd, uMsg, wParam, lParam);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+		return 0;
 	}
 
 	static bool default_MsgProc(my::Control* ptr, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -124,7 +153,15 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		return luabind::wrap_base::call<bool>("HandleKeyboard", uMsg, wParam, lParam);
+		try
+		{
+			return luabind::wrap_base::call<bool>("HandleKeyboard", uMsg, wParam, lParam);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+		return 0;
 	}
 
 	static bool default_HandleKeyboard(my::Control* ptr, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -134,7 +171,15 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 	virtual bool HandleMouse(UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
 	{
-		return luabind::wrap_base::call<bool>("HandleMouse", uMsg, pt, wParam, lParam);
+		try
+		{
+			return luabind::wrap_base::call<bool>("HandleMouse", uMsg, pt, wParam, lParam);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+		return 0;
 	}
 
 	static bool default_HandleMouse(my::Control* ptr, UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
@@ -163,7 +208,14 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void RequestResource(void)
 	{
-		luabind::wrap_base::call<void>("RequestResource");
+		try
+		{
+			luabind::wrap_base::call<void>("RequestResource");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_RequestResource(Component * ptr)
@@ -179,7 +231,14 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void ReleaseResource(void)
 	{
-		luabind::wrap_base::call<void>("ReleaseResource");
+		try
+		{
+			luabind::wrap_base::call<void>("ReleaseResource");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_ReleaseResource(Component* ptr)
@@ -195,7 +254,14 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void Update(float fElapsedTime)
 	{
-		luabind::wrap_base::call<void>("Update", fElapsedTime);
+		try
+		{
+			luabind::wrap_base::call<void>("Update", fElapsedTime);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_Update(Component* ptr, float fElapsedTime)
@@ -207,7 +273,14 @@ struct ScriptComponent : Component, luabind::wrap_base
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
-		luabind::wrap_base::call<void>("OnPxThreadSubstep", dtime);
+		try
+		{
+			luabind::wrap_base::call<void>("OnPxThreadSubstep", dtime);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_OnPxThreadSubstep(Component* ptr, float dtime)
