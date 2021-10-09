@@ -34,24 +34,24 @@ actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
 actor2:AddComponent(actor2_behavior)
 
 -- 在角色手部绑定物体
-actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(25,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(10,25,10),AABB(-1,1))
 local cmp3=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3.Material=lambert2:Clone()
 actor3:AddComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp3:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,collectionObjs)
+cmp3:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,collectionObjs)
 cmp3.SimulationFilterWord0=1
 cmp3.QueryFilterWord0=1
 
 -- 在角色手部绑定物体
-actor4=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
+actor4=Actor(NamedObject.MakeUniqueName("actor"),Vector3(25,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(10,25,10),AABB(-1,1))
 local cmp4=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
 cmp4.Material=lambert2:Clone()
 actor4:AddComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp4:CreateCapsuleShape(Vector3(0.25,0,0),Quaternion.Identity(),0.1,0.25,collectionObjs)
+cmp4:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,collectionObjs)
 cmp4.SimulationFilterWord0=1
 cmp4.QueryFilterWord0=1
 
@@ -131,7 +131,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
 	actor6:AddComponent(actor6_behavior)	
 
-	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
+	-- SPlayer.player:Detach(actor3);actor3.Scale=Vector3(0.1,0.25,0.1);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4.Scale=Vector3(0.1,0.25,0.1);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 	-- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
 
 end, 0)

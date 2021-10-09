@@ -203,7 +203,10 @@ void PhysxScene::TickPostRender(float dtime)
 				if (mBufferedActiveTransforms[i].userData)
 				{
 					Actor* actor = (Actor*)mBufferedActiveTransforms[i].userData;
-					actor->OnPxTransformChanged(mBufferedActiveTransforms[i].actor2World);
+					if (!actor->m_Base)
+					{
+						actor->SetPose((my::Vector3&)mBufferedActiveTransforms[i].actor2World.p, (my::Quaternion&)mBufferedActiveTransforms[i].actor2World.q);
+					}
 				}
 			}
 		}

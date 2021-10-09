@@ -92,9 +92,7 @@ void Controller::Update(float fElapsedTime)
 {
 	if (m_PxController)
 	{
-		physx::PxTransform pose(physx::toVec3(m_PxController->getFootPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
-
-		m_Actor->OnPxTransformChanged(pose);
+		m_Actor->SetPose((my::Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
 	}
 }
 

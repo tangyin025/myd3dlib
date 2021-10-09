@@ -667,7 +667,11 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		if (activeTransforms[i].userData)
 		{
 			Actor* actor = (Actor*)activeTransforms[i].userData;
-			actor->OnPxTransformChanged(activeTransforms[i].actor2World);
+			if (!actor->m_Base)
+			{
+				actor->SetPose((my::Vector3&)activeTransforms[i].actor2World.p, (my::Quaternion&)activeTransforms[i].actor2World.q);
+			}
+
 			if (!haveSelActors && m_selactors.end() != std::find(m_selactors.begin(), m_selactors.end(), actor))
 			{
 				haveSelActors = true;

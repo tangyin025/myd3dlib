@@ -264,8 +264,6 @@ public:
 
 	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose);
 
-	virtual void OnPxTransformChanged(const physx::PxTransform& trans);
-
 	virtual my::AABB CalculateAABB(void) const;
 
 	void UpdateAABB(void);

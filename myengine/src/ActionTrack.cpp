@@ -375,7 +375,22 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 				my::Lerp(m_StartPos.x, m_EndPos.x, m_Template->m_InterpolateX.Interpolate(key_inst_iter->m_Time, 0)),
 				my::Lerp(m_StartPos.y, m_EndPos.y, m_Template->m_InterpolateY.Interpolate(key_inst_iter->m_Time, 0)),
 				my::Lerp(m_StartPos.z, m_EndPos.z, m_Template->m_InterpolateZ.Interpolate(key_inst_iter->m_Time, 0)));
-			m_Actor->SetPose(Pos, m_Actor->m_Rotation);
+			if (m_Actor->m_PxActor)
+			{
+				physx::PxRigidDynamic* rigidDynamic = m_Actor->m_PxActor->is<physx::PxRigidDynamic>();
+				if (rigidDynamic && rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+				{
+					m_Actor->SetPose(Pos, m_Actor->m_Rotation);
+					m_Actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)m_Actor->m_Rotation));
+				}
+				else
+					m_Actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)m_Actor->m_Rotation));
+			}
+			else
+			{
+				m_Actor->SetPose(Pos, m_Actor->m_Rotation);
+				m_Actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)m_Actor->m_Rotation));
+			}
 		}
 		else
 		{

@@ -1,7 +1,7 @@
 require "Action.lua"
 module("SPlayer", package.seeall)
 
--- ä¿®æ­£ä¸è§„èŒƒèµ„æº
+-- ĞŞÕı²»¹æ·¶×ÊÔ´
 -- mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
 -- mesh:Transform(Matrix4.Compose(
 	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
@@ -14,17 +14,17 @@ skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward
 -- skel:Transform(Matrix4.Compose(
 	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly_full.skeleton.xml")
-mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
-mesh2:Transform(Matrix4.Compose(
-	Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
+-- mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
+-- mesh2:Transform(Matrix4.Compose(
+	-- Vector3(0.1,0.25,0.1), Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.25,0,0)))
 -- mesh2:SaveOgreMesh("Media/mesh/Cylinder.mesh.xml")
 
--- åˆ›å»ºPlayerä¸»ä½“
+-- ´´½¨PlayerÖ÷Ìå
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
 local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,1)
 player:AddComponent(controller_cmp)
 
--- æ¨¡å‹æè´¨
+-- Ä£ĞÍ²ÄÖÊ
 local lambert1=Material()
 lambert1.Shader="shader/mtl_BlinnPhong.fx"
 lambert1.PassMask=Material.PassMaskShadowNormalOpaque
@@ -32,14 +32,14 @@ lambert1:AddParameter("g_DiffuseTexture", "character/casual19_m_35.jpg")
 lambert1:AddParameter("g_NormalTexture", "character/casual19_m_35_normal.png")
 lambert1:AddParameter("g_SpecularTexture", "character/casual19_m_35_spec.png")
 
--- æ¨¡å‹
+-- Ä£ĞÍ
 local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshSubMeshName=""
 cmp.Material=lambert1
 player:AddComponent(cmp)
 
--- æ„å»ºåŠ¨ç”»æ ‘
+-- ¹¹½¨¶¯»­Ê÷
 local seq_idle=AnimationNodeSequence()
 seq_idle.Name="idle1"
 local seq_walk=AnimationNodeSequence()
@@ -63,7 +63,7 @@ node_run.Speed0=5.0
 node_run.Child0=node_walk
 node_run.Child1=rate_run
 
--- åŠ è½½åŠ¨ç”»èµ„æº
+-- ¼ÓÔØ¶¯»­×ÊÔ´
 local anim=Animator(NamedObject.MakeUniqueName("anim_cmp"))
 anim.Child0=node_run
 anim:ReloadSequenceGroup()
@@ -75,7 +75,7 @@ client:LoadSkeletonAsync(anim.SkeletonPath, function(res)
 end, 0)
 player:AddComponent(anim)
 
--- è§’è‰²è¡Œä¸º
+-- ½ÇÉ«ĞĞÎª
 class 'PlayerBehavior'(Component)
 function PlayerBehavior:__init(name)
 	Component.__init(self,name)
@@ -92,7 +92,7 @@ function PlayerBehavior:Update(elapsedTime)
 	local speed=2
 	local direction=Vector3(0,0,0)
 	if not Control.GetFocusControl() then
-		-- é”®ç›˜æŒ‰ä¸‹äº‹ä»¶
+		-- ¼üÅÌ°´ÏÂÊÂ¼ş
 		if client.keyboard:IsKeyPress(57) then
 			self.velocity.y=5.0
 			self.Actor:PlayAction(SAction.act_jump)
@@ -122,7 +122,7 @@ function PlayerBehavior:Update(elapsedTime)
 			node_run:SetActiveChild(0,0.1)
 		end
 		
-		-- é¼ æ ‡ç§»åŠ¨äº‹ä»¶
+		-- Êó±êÒÆ¶¯ÊÂ¼ş
 		client.Camera.Euler.y=client.Camera.Euler.y-math.rad(client.mouse.X)
 		client.Camera.Euler.x=client.Camera.Euler.x-math.rad(client.mouse.Y)
 		self.LookDist=self.LookDist-client.mouse.Z/480.0
@@ -161,7 +161,7 @@ end
 player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
 player:AddComponent(player_behavior)
 
--- å¤„ç†ç¢°æ’äº‹ä»¶
+-- ´¦ÀíÅö×²ÊÂ¼ş
 player.EventShapeHit=function(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
 end

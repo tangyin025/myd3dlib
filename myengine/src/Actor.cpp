@@ -373,13 +373,27 @@ void Actor::UpdateAttaches(float fElapsedTime)
 		if (animator && att_iter->second >= 0 && att_iter->second < (int)animator->anim_pose_hier.size())
 		{
 			const Bone & bone = animator->anim_pose_hier[att_iter->second];
-			att_iter->first->SetPose(
-				bone.m_position.transformCoord(m_World), bone.m_rotation * m_Rotation);
+
+			my::Matrix4 Local = my::Matrix4::Compose(
+				att_iter->first->m_Scale,
+				att_iter->first->m_Rotation * bone.m_rotation,
+				bone.m_rotation * att_iter->first->m_Position + bone.m_position);
+
+			att_iter->first->m_World = Local * m_World;
 		}
 		else
 		{
-			att_iter->first->SetPose(m_Position, m_Rotation);
+			my::Matrix4 Local = my::Matrix4::Compose(
+				att_iter->first->m_Scale, att_iter->first->m_Rotation, att_iter->first->m_Position);
+
+			att_iter->first->m_World = Local * m_World;
 		}
+
+		att_iter->first->UpdateOctNode();
+
+		my::Vector3 Scale, Pos; my::Quaternion Rot;
+		att_iter->first->m_World.Decompose(Scale, Rot, Pos);
+		att_iter->first->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 
 		att_iter->first->Update(fElapsedTime);
 	}
@@ -387,35 +401,6 @@ void Actor::UpdateAttaches(float fElapsedTime)
 
 void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
-	if (m_PxActor)
-	{
-		physx::PxRigidDynamic* rigidDynamic = m_PxActor->is<physx::PxRigidDynamic>();
-		if (rigidDynamic)
-		{
-			if (rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-			{
-				rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
-				if (m_Base)
-				{
-					// ! attached Actor update render pose immediately
-				}
-				else
-				{
-					return;
-				}
-			}
-			else
-			{
-				m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
-				return;
-			}
-		}
-		else
-		{
-			m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
-		}
-	}
-
 	m_Position = Pos;
 
 	m_Rotation = Rot;
@@ -423,12 +408,6 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateWorld();
 
 	UpdateOctNode();
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
-	}
 }
 
 void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
@@ -460,22 +439,6 @@ void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 	}
 }
 
-void Actor::OnPxTransformChanged(const physx::PxTransform& trans)
-{
-	//_ASSERT(m_PxActor);
-
-	if (!m_Base)
-	{
-		m_Position = (my::Vector3&)trans.p;
-
-		m_Rotation = (my::Quaternion&)trans.q;
-
-		UpdateWorld();
-
-		UpdateOctNode();
-	}
-}
-
 my::AABB Actor::CalculateAABB(void) const
 {
 	AABB ret = AABB::Invalid();
@@ -500,6 +463,8 @@ void Actor::UpdateAABB(void)
 
 void Actor::UpdateWorld(void)
 {
+	_ASSERT(!m_Base);
+
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 }
 
