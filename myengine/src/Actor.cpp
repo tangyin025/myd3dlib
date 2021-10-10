@@ -625,7 +625,7 @@ void Actor::AddComponent(ComponentPtr cmp)
 
 void Actor::RemoveComponent(ComponentPtr cmp)
 {
-	if (DelayRemover<ComponentPtr>::getSingleton().IsDelay())
+	if (DelayRemover<ComponentPtr>::getSingleton().IsDelay(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1)))
 	{
 		DelayRemover<ComponentPtr>::getSingleton().push_back(cmp);
 		return;

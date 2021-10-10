@@ -1307,7 +1307,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
-	if (DelayRemover<ActorPtr>::getSingleton().IsDelay())
+	if (DelayRemover<ActorPtr>::getSingleton().IsDelay(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1))))
 	{
 		DelayRemover<ActorPtr>::getSingleton().push_back(actor->shared_from_this());
 		return;

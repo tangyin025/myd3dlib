@@ -2,6 +2,7 @@
 
 #include "myOctree.h"
 #include "Component.h"
+#include <deque>
 #include <boost/intrusive/list_hook.hpp>
 
 class Actor;
@@ -82,49 +83,52 @@ public:
 template <typename ElementType>
 class DelayRemover
 	: public my::Singleton<DelayRemover<ElementType> >
-	, public std::vector<ElementType>
+	, protected std::deque<std::pair<boost::function<void(ElementType)>, std::list<ElementType> > >
 {
-protected:
-	typedef boost::function<void(ElementType)> RemoveFuncType;
-	
-	RemoveFuncType m_RemoveFunc;
-
 public:
 	DelayRemover(void)
 	{
 	}
 
-	bool IsDelay(void) const
+	~DelayRemover(void)
 	{
-		return m_RemoveFunc;
+		_ASSERT(empty());
 	}
 
-	void Enter(RemoveFuncType func)
+	template <typename RemoveFuncType>
+	bool IsDelay(const RemoveFuncType & func) const
 	{
-		_ASSERT(!IsDelay());
+		return !empty() && back().first == func;
+	}
 
-		m_RemoveFunc = func;
+	template <typename RemoveFuncType>
+	void Enter(const RemoveFuncType & func)
+	{
+		_ASSERT(!IsDelay(func));
+
+		deque::push_back(value_type(func, std::list<ElementType>()));
 	}
 
 	void push_back(ElementType elem)
 	{
-		_ASSERT(IsDelay());
+		_ASSERT(!empty());
 
-		vector::push_back(elem);
+		back().second.insert(back().second.end(), elem);
 	}
 
 	void Leave(void)
 	{
-		RemoveFuncType func;
+		_ASSERT(!empty());
 
-		m_RemoveFunc.swap(func);
+		value_type back_dummy = back();
 
-		iterator iter = begin();
-		for (; iter != end(); iter++)
+		pop_back();
+
+		std::list<ElementType>::iterator iter = back_dummy.second.begin();
+		for (; iter != back_dummy.second.end(); iter++)
 		{
-			func(*iter);
+			back_dummy.first(*iter);
 		}
-		clear();
 	}
 };
 
