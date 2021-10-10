@@ -138,8 +138,8 @@ end, 0)
 	
 -- -- 特殊渲染选项
 -- client.SsaoEnable=true
--- client:SetVisualizationParameter(PhysxScene.eSCALE,1)
--- client:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
--- client:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
--- client:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
--- client:SetControllerDebugRenderingFlags(PhysxScene.eALL)
+client:SetVisualizationParameter(PhysxScene.eSCALE,1)
+client:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
+client:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
+client:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
+client:SetControllerDebugRenderingFlags(PhysxScene.eALL)

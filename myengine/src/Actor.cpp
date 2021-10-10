@@ -362,6 +362,8 @@ void Actor::Update(float fElapsedTime)
 		}
 	}
 	DelayRemover<ComponentPtr>::getSingleton().Leave();
+
+	UpdateAttaches(fElapsedTime);
 }
 
 void Actor::UpdateAttaches(float fElapsedTime)

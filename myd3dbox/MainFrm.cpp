@@ -654,7 +654,10 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		(*actor_iter)->Update(fElapsedTime);
+		if (!(*actor_iter)->m_Base)
+		{
+			(*actor_iter)->Update(fElapsedTime);
+		}
 	}
 
 	PhysxScene::AdvanceSync(fElapsedTime);

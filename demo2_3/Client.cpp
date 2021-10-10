@@ -1010,11 +1010,6 @@ void Client::OnFrameTick(
 		if (!actor_iter->m_Base)
 		{
 			actor_iter->Update(fElapsedTime);
-
-			if (!actor_iter->m_Attaches.empty())
-			{
-				actor_iter->UpdateAttaches(fElapsedTime);
-			}
 		}
 	}
 
