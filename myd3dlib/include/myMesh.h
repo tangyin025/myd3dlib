@@ -336,7 +336,8 @@ namespace my
 			void * pSrcVertices,
 			DWORD SrcVertexStride,
 			const D3DVertexElementSet & SrcVertexElems,
-			const TransformList & dualQuaternionList);
+			const Matrix4 * DualQuaternions,
+			DWORD DualQuaternionSize);
 
 		static void ComputeNormalFrame(
 			void * pVertices,

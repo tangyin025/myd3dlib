@@ -5,6 +5,50 @@
 
 using namespace my;
 
+Matrix4 TransformList::BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, DWORD DualQuaternionSize, DWORD indices, const Vector4 & weights)
+{
+	_ASSERT(((unsigned char*)&indices)[0] < DualQuaternionSize);
+	Matrix4 m = DualQuaternions[((unsigned char*)&indices)[0]];
+	Vector4 dq0 = m[0];
+	Matrix4 dual = m * weights.x;
+
+	_ASSERT(((unsigned char*)&indices)[1] < DualQuaternionSize);
+	m = DualQuaternions[((unsigned char*)&indices)[1]];
+	Vector4 dq = m[0];
+	if (dq0.dot(dq) < 0)
+		dual -= m * weights.y;
+	else
+		dual += m * weights.y;
+
+	_ASSERT(((unsigned char*)&indices)[2] < DualQuaternionSize);
+	m = DualQuaternions[((unsigned char*)&indices)[2]];
+	dq = m[0];
+	if (dq0.dot(dq) < 0)
+		dual -= m * weights.z;
+	else
+		dual += m * weights.z;
+
+	_ASSERT(((unsigned char*)&indices)[3] < DualQuaternionSize);
+	m = DualQuaternions[((unsigned char*)&indices)[3]];
+	dq = m[0];
+	if (dq0.dot(dq) < 0)
+		dual -= m * weights.w;
+	else
+		dual += m * weights.w;
+
+	float length = dual[0].magnitude();
+	dual = dual / length;
+	return dual;
+}
+
+Vector3 TransformList::TransformVertexWithDualQuaternion(const Vector3 & position, const Matrix4 & dual)
+{
+	Vector3 outPosition = position + dual[0].xyz.cross(dual[0].xyz.cross(position) + position * dual[0].w) * 2;
+	Vector3 translation = (dual[1].xyz * dual[0].w - dual[0].xyz * dual[1].w + dual[0].xyz.cross(dual[1].xyz)) * 2;
+	outPosition += translation;
+	return outPosition;
+}
+
 void BoneHierarchy::InsertSibling(int root_i, int sibling_i)
 {
 	_ASSERT(root_i >= 0 && root_i < (int)size());

@@ -27,6 +27,20 @@ namespace my
 
 	typedef std::set<int> BoneIndexSet;
 
+	class TransformList
+		: public std::vector<Matrix4>
+	{
+	public:
+		static Matrix4 BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, DWORD DualQuaternionSize, DWORD indices, const Vector4 & weights);
+
+		static Vector3 TransformVertexWithDualQuaternion(const Vector3 & position, const Matrix4 & dual);
+
+		Vector3 TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const
+		{
+			return TransformVertexWithDualQuaternion(position, BuildSkinnedDualQuaternion(data(), size(), indices, weights));
+		}
+	};
+
 	class BoneHierarchy
 		: public std::vector<BoneHierarchyNode>
 	{

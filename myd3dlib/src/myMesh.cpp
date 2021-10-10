@@ -1,4 +1,5 @@
 #include "myMesh.h"
+#include "mySkeleton.h"
 #include "myCollision.h"
 #include "myResource.h"
 #include "myDxutApp.h"
@@ -692,17 +693,16 @@ void Mesh::ComputeDualQuaternionSkinnedVertices(
 	void * pSrcVertices,
 	DWORD SrcVertexStride,
 	const D3DVertexElementSet & SrcVertexElems,
-	const TransformList & dualQuaternionList)
+	const Matrix4 * DualQuaternions,
+	DWORD DualQuaternionSize)
 {
 	for (unsigned int i = 0; i < NumVerts; i++)
 	{
 		unsigned char * pDstVertex = (unsigned char *)pDstVertices + i * DstVertexStride;
 		unsigned char * pSrcVertex = (unsigned char *)pSrcVertices + i * SrcVertexStride;
-		DstVertexElems.SetPosition(pDstVertex,
-			dualQuaternionList.TransformVertexWithDualQuaternionList(
-				SrcVertexElems.GetPosition(pSrcVertex),
-				SrcVertexElems.GetBlendIndices(pSrcVertex),
-				SrcVertexElems.GetBlendWeight(pSrcVertex)));
+		DstVertexElems.SetPosition(pDstVertex, TransformList::TransformVertexWithDualQuaternion(
+			SrcVertexElems.GetPosition(pSrcVertex), TransformList::BuildSkinnedDualQuaternion(
+				DualQuaternions, DualQuaternionSize, SrcVertexElems.GetBlendIndices(pSrcVertex), SrcVertexElems.GetBlendWeight(pSrcVertex))));
 	}
 }
 

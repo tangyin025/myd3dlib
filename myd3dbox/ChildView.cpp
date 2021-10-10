@@ -534,7 +534,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
-					animator->m_DualQuats);
+					animator->m_DualQuats.data(),
+					animator->m_DualQuats.size());
 				bool ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -647,7 +648,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
-					animator->m_DualQuats);
+					animator->m_DualQuats.data(),
+					animator->m_DualQuats.size());
 				bool ret = my::Mesh::FrustumTest(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -777,7 +779,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					mesh_cmp->m_Mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->m_VertexElems,
-					animator->m_DualQuats);
+					animator->m_DualQuats.data(),
+					animator->m_DualQuats.size());
 				ret = my::Mesh::RayTest(local_ray,
 					&vertices[0],
 					vertices.size(),
@@ -910,7 +913,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					&cloth_cmp->m_VertexData[0],
 					cloth_cmp->m_VertexStride,
 					cloth_cmp->m_VertexElems,
-					animator->m_DualQuats);
+					animator->m_DualQuats.data(),
+					animator->m_DualQuats.size());
 				ret = my::Mesh::RayTest(local_ray,
 					&vertices[0],
 					vertices.size(),

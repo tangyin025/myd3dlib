@@ -2744,17 +2744,6 @@ namespace my
 		static const Matrix4 identity;
 	};
 
-	class TransformList
-		: public std::vector<Matrix4>
-	{
-	public:
-		Matrix4 BuildSkinnedDualQuaternion(DWORD indices, const Vector4 & weights) const;
-
-		static Vector3 TransformVertexWithDualQuaternion(const Vector3 & position, const Matrix4 & dual);
-
-		Vector3 TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const;
-	};
-
 	class Plane
 	{
 	public:
