@@ -376,26 +376,30 @@ void Actor::UpdateAttaches(float fElapsedTime)
 		{
 			const Bone & bone = animator->anim_pose_hier[att_iter->second];
 
-			my::Matrix4 Local = my::Matrix4::Compose(
-				att_iter->first->m_Scale,
-				att_iter->first->m_Rotation * bone.m_rotation,
-				bone.m_rotation * att_iter->first->m_Position + bone.m_position);
+			const Matrix4 World = Matrix4::Compose(
+				Vector3(1, 1, 1), att_iter->first->m_Rotation * bone.m_rotation, bone.m_rotation * att_iter->first->m_Position + bone.m_position) * m_World;
 
-			att_iter->first->m_World = Local * m_World;
+			Vector3 Scale, Pos; Quaternion Rot;
+			World.Decompose(Scale, Rot, Pos);
+
+			att_iter->first->m_World = Matrix4::Compose(att_iter->first->m_Scale, Rot, Pos);
+
+			att_iter->first->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 		}
 		else
 		{
-			my::Matrix4 Local = my::Matrix4::Compose(
-				att_iter->first->m_Scale, att_iter->first->m_Rotation, att_iter->first->m_Position);
+			const Matrix4 World = Matrix4::Compose(
+				att_iter->first->m_Scale, att_iter->first->m_Rotation, att_iter->first->m_Position) * m_World;
 
-			att_iter->first->m_World = Local * m_World;
+			Vector3 Scale, Pos; Quaternion Rot;
+			World.Decompose(Scale, Rot, Pos);
+
+			att_iter->first->m_World = Matrix4::Compose(att_iter->first->m_Scale, Rot, Pos);
+
+			att_iter->first->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 		}
 
 		att_iter->first->UpdateOctNode();
-
-		my::Vector3 Scale, Pos; my::Quaternion Rot;
-		att_iter->first->m_World.Decompose(Scale, Rot, Pos);
-		att_iter->first->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 
 		att_iter->first->Update(fElapsedTime);
 	}
