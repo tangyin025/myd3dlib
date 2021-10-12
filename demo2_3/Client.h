@@ -134,6 +134,8 @@ public:
 		KeyUIVertical,
 		KeyUIConfirm,
 		KeyUICancel,
+		KeyHorizontal,
+		KeyVertical,
 		KeyCount,
 	};
 

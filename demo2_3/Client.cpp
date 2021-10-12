@@ -485,6 +485,8 @@ Client::Client(void)
 		("keyuivertical", boost::program_options::value(&m_InitBindKeys[KeyUIVertical])->default_value(InputMgr::KeyPairList(), ""), "Key UI Vertical")
 		("keyuiconfirm", boost::program_options::value(&m_InitBindKeys[KeyUIConfirm])->default_value(InputMgr::KeyPairList(), ""), "Key UI Confirm")
 		("keyuicancel", boost::program_options::value(&m_InitBindKeys[KeyUICancel])->default_value(InputMgr::KeyPairList(), ""), "Key UI Cancel")
+		("keyhorizontal", boost::program_options::value(&m_InitBindKeys[KeyHorizontal])->default_value(InputMgr::KeyPairList(), ""), "Key Horizontal")
+		("keyvertical", boost::program_options::value(&m_InitBindKeys[KeyVertical])->default_value(InputMgr::KeyPairList(), ""), "Key Vertical")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
@@ -716,6 +718,8 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyUIVertical", Client::KeyUIVertical),
 				luabind::value("KeyUIConfirm", Client::KeyUIConfirm),
 				luabind::value("KeyUICancel", Client::KeyUICancel),
+				luabind::value("KeyHorizontal", Client::KeyHorizontal),
+				luabind::value("KeyVertical", Client::KeyVertical),
 				luabind::value("KeyCount", Client::KeyCount)
 			]
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
