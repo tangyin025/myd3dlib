@@ -65,7 +65,7 @@ public:
 		node->m_Parent = this;
 	}
 
-	void RemoveChild(unsigned int i);
+	void RemoveChild(int i);
 
 	const AnimationNode * GetTopNode(void) const;
 

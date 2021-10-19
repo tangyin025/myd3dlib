@@ -60,7 +60,7 @@ void AnimationNode::load(Archive & ar, const unsigned int version)
 	}
 }
 
-void AnimationNode::RemoveChild(unsigned int i)
+void AnimationNode::RemoveChild(int i)
 {
 	if (m_Childs[i])
 	{

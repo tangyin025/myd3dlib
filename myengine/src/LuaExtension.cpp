@@ -1742,6 +1742,7 @@ void LuaContext::Init(void)
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
 			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
 			.property("Child1", &AnimationNode::GetChild<1>, &AnimationNode::SetChild<1>)
+			.def("RemoveChild", &AnimationNode::RemoveChild)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<>())
@@ -1767,10 +1768,8 @@ void LuaContext::Init(void)
 		, class_<AnimationEventArg, my::EventArg>("AnimationEventArg")
 			.def_readonly("self", &AnimationEventArg::self)
 
-		, class_<Animator, Component/*, AnimationNodeSlot*/, boost::shared_ptr<Component> >("Animator") // ! lost properties from AnimationNodeSlot for boost::shared_ptr<AnimationNode>
+		, class_<Animator, luabind::bases<Component, AnimationNodeSlot>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
 			.def(constructor<const char*>())
-			.property("Child0", &Animator::GetChild<0>, &Animator::SetChild<0>)
-			.property("Child1", &Animator::GetChild<1>, &Animator::SetChild<1>)
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
