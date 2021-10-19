@@ -307,7 +307,7 @@ int DxutApp::Run(void)
 		CRect clientRect;
 		m_wnd->GetClientRect(&clientRect);
 
-		CreateDevice(m_WindowedModeAtFirstCreate, clientRect.Width(), clientRect.Height());
+		CreateDevice(m_WindowedModeAtFirstCreate, clientRect.Width(), clientRect.Height(), m_PresentIntervalAtFirstCreate);
 
 		m_wnd->ShowWindow(SW_SHOW);
 		m_wnd->UpdateWindow();
@@ -1693,7 +1693,7 @@ DXUTD3D9DeviceSettings DxutApp::FindValidDeviceSettings(const DXUTD3D9DeviceSett
 	return validDeviceSettings;
 }
 
-void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
+void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight, UINT nPresentInterval)
 {
 	DXUTMatchOptions matchOptions;
 	matchOptions.eAdapterOrdinal = DXUTMT_IGNORE_INPUT;
@@ -1717,7 +1717,7 @@ void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHe
 	deviceSettings.pp.Windowed = bWindowed;
 	deviceSettings.pp.BackBufferWidth = nSuggestedWidth;
 	deviceSettings.pp.BackBufferHeight = nSuggestedHeight;
-	deviceSettings.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	deviceSettings.pp.PresentationInterval = nPresentInterval;
 
 	ChangeDevice(FindValidDeviceSettings(deviceSettings, matchOptions));
 }

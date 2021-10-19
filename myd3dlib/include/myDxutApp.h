@@ -160,6 +160,8 @@ namespace my
 
 		bool m_WindowedModeAtFirstCreate;
 
+		UINT m_PresentIntervalAtFirstCreate;
+
 		DWORD m_WindowedStyleAtModeChange;
 
 		WINDOWPLACEMENT m_WindowedPlacement;
@@ -181,6 +183,7 @@ namespace my
 			, m_WindowBackBufferWidthAtModeChange(800)
 			, m_WindowBackBufferHeightAtModeChange(600)
 			, m_WindowedModeAtFirstCreate(true)
+			, m_PresentIntervalAtFirstCreate(D3DPRESENT_INTERVAL_IMMEDIATE)
 			, m_IgnoreSizeChange(false)
 			, m_DeviceLost(false)
 			, m_dwFrames(0)
@@ -303,7 +306,7 @@ namespace my
 
 		DXUTD3D9DeviceSettings FindValidDeviceSettings(const DXUTD3D9DeviceSettings & deviceSettings, const DXUTMatchOptions & matchOptions);
 
-		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
+		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight, UINT nPresentInterval);
 
 		void CheckForWindowSizeChange(void);
 
