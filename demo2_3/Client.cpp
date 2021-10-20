@@ -488,6 +488,12 @@ Client::Client(void)
 		("keyuicancel", boost::program_options::value(&m_InitBindKeys[KeyUICancel])->default_value(InputMgr::KeyPairList(), ""), "Key UI Cancel")
 		("keyhorizontal", boost::program_options::value(&m_InitBindKeys[KeyHorizontal])->default_value(InputMgr::KeyPairList(), ""), "Key Horizontal")
 		("keyvertical", boost::program_options::value(&m_InitBindKeys[KeyVertical])->default_value(InputMgr::KeyPairList(), ""), "Key Vertical")
+		("keymousex", boost::program_options::value(&m_InitBindKeys[KeyMouseX])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse X")
+		("keymousey", boost::program_options::value(&m_InitBindKeys[KeyMouseY])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse Y")
+		("keyjump", boost::program_options::value(&m_InitBindKeys[KeyJump])->default_value(InputMgr::KeyPairList(), ""), "Key Jump")
+		("keyfire1", boost::program_options::value(&m_InitBindKeys[KeyFire1])->default_value(InputMgr::KeyPairList(), ""), "Key Fire1")
+		("keyfire2", boost::program_options::value(&m_InitBindKeys[KeyFire2])->default_value(InputMgr::KeyPairList(), ""), "Key Fire2")
+		("keyfire3", boost::program_options::value(&m_InitBindKeys[KeyFire3])->default_value(InputMgr::KeyPairList(), ""), "Key Fire3")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
@@ -721,6 +727,12 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyUICancel", Client::KeyUICancel),
 				luabind::value("KeyHorizontal", Client::KeyHorizontal),
 				luabind::value("KeyVertical", Client::KeyVertical),
+				luabind::value("KeyMouseX", Client::KeyMouseX),
+				luabind::value("KeyMouseY", Client::KeyMouseY),
+				luabind::value("KeyJump", Client::KeyJump),
+				luabind::value("KeyFire1", Client::KeyFire1),
+				luabind::value("KeyFire2", Client::KeyFire2),
+				luabind::value("KeyFire3", Client::KeyFire3),
 				luabind::value("KeyCount", Client::KeyCount)
 			]
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)

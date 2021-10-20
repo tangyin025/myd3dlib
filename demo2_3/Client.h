@@ -136,6 +136,12 @@ public:
 		KeyUICancel,
 		KeyHorizontal,
 		KeyVertical,
+		KeyMouseX,
+		KeyMouseY,
+		KeyJump,
+		KeyFire1,
+		KeyFire2,
+		KeyFire3,
 		KeyCount,
 	};
 

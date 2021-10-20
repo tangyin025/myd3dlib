@@ -1022,11 +1022,11 @@ LONG InputMgr::GetKeyAxisRaw(DWORD Key) const
 				{
 				case 0:
 					if (m_mouse->GetX() != 0)
-						return 32767 + m_mouse->GetX();
+						return 32767 + m_mouse->GetX() * m_MouseMoveToAxisRaw;
 					break;
 				case 1:
 					if (m_mouse->GetY() != 0)
-						return 32767 + m_mouse->GetY();
+						return 32767 + m_mouse->GetY() * m_MouseMoveToAxisRaw;
 					break;
 				case 2:
 					if (m_mouse->GetZ() != 0)
