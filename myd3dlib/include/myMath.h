@@ -549,6 +549,11 @@ namespace my
 			return x * rhs.x + y * rhs.y + z * rhs.z;
 		}
 
+		float dot2D(const Vector3& rhs) const
+		{
+			return x * rhs.x + z * rhs.z;
+		}
+
 		float magnitude(void) const
 		{
 			return sqrtf(magnitudeSq());
