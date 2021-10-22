@@ -83,6 +83,14 @@ public:
 	virtual void OnTick(float fElapsedTime)
 	{
 	}
+
+	virtual void OnActorRequestResource(Actor * actor)
+	{
+	}
+
+	virtual void OnActorReleaseResource(Actor * actor)
+	{
+	}
 };
 
 typedef boost::shared_ptr<StateBase> StateBasePtr;

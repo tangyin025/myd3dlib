@@ -340,19 +340,26 @@ std::string SceneContextRequest::BuildKey(const char* path)
 	return path;
 }
 
-struct StateBaseScript : StateBase, luabind::wrap_base
+struct ScriptStateBase : StateBase, luabind::wrap_base
 {
-	StateBaseScript(void)
+	ScriptStateBase(void)
 	{
 	}
 
-	virtual ~StateBaseScript(void)
+	virtual ~ScriptStateBase(void)
 	{
 	}
 
 	virtual void OnAdd(void)
 	{
-		luabind::wrap_base::call<void>("OnAdd");
+		try
+		{
+			luabind::wrap_base::call<void>("OnAdd");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_OnAdd(StateBase * state)
@@ -362,7 +369,14 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 
 	virtual void OnEnter(void)
 	{
-		luabind::wrap_base::call<void>("OnEnter");
+		try
+		{
+			luabind::wrap_base::call<void>("OnEnter");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_OnEnter(StateBase * state)
@@ -372,7 +386,14 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 
 	virtual void OnExit(void)
 	{
-		luabind::wrap_base::call<void>("OnExit");
+		try
+		{
+			luabind::wrap_base::call<void>("OnExit");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_OnExit(StateBase * state)
@@ -382,12 +403,53 @@ struct StateBaseScript : StateBase, luabind::wrap_base
 
 	virtual void OnTick(float fElapsedTime)
 	{
-		luabind::wrap_base::call<void>("OnTick", fElapsedTime);
+		try
+		{
+			luabind::wrap_base::call<void>("OnTick", fElapsedTime);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 
 	static void default_OnTick(StateBase * state, float fElapsedTime)
 	{
 		state->OnTick(fElapsedTime);
+	}
+
+	virtual void OnActorRequestResource(Actor * actor)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnActorRequestResource", actor);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnActorRequestResource(StateBase * state, Actor * actor)
+	{
+		state->OnActorRequestResource(actor);
+	}
+
+	virtual void OnActorReleaseResource(Actor * actor)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnActorReleaseResource", actor);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnActorReleaseResource(StateBase * state, Actor * actor)
+	{
+		state->OnActorReleaseResource(actor);
 	}
 };
 
@@ -687,12 +749,14 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("ActorList", &SceneContext::m_ActorList, luabind::return_stl_iterator)
 			.def_readonly("DialogList", &SceneContext::m_DialogList, luabind::return_stl_iterator)
 
-		, luabind::class_<StateBase, StateBaseScript, boost::shared_ptr<StateBase> >("StateBase")
+		, luabind::class_<StateBase, ScriptStateBase, boost::shared_ptr<StateBase> >("StateBase")
 			.def(luabind::constructor<>())
-			.def("OnAdd", &StateBase::OnAdd, &StateBaseScript::default_OnAdd)
-			.def("OnEnter", &StateBase::OnEnter, &StateBaseScript::default_OnEnter)
-			.def("OnExit", &StateBase::OnExit, &StateBaseScript::default_OnExit)
-			.def("OnTick", &StateBase::OnTick, &StateBaseScript::default_OnTick)
+			.def("OnAdd", &StateBase::OnAdd, &ScriptStateBase::default_OnAdd)
+			.def("OnEnter", &StateBase::OnEnter, &ScriptStateBase::default_OnEnter)
+			.def("OnExit", &StateBase::OnExit, &ScriptStateBase::default_OnExit)
+			.def("OnTick", &StateBase::OnTick, &ScriptStateBase::default_OnTick)
+			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
+			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
@@ -1007,16 +1071,23 @@ void Client::OnFrameTick(
 
 				actor->RequestResource();
 
+				StateBase* curr_iter = m_client->m_Current;
+				for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
+				{
+					curr_iter->OnActorRequestResource(actor);
+				}
+
 				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
 			}
 		}
 	};
 
+	// ! StateBase::OnActorRequestResource, Actor::UpdateLod, Update may change other actor's life time
+	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1)));
+
 	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
 
-	// ! Actor::UpdateLod, Actor::Update may change other actor's life time
-	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1)));
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
 	{
@@ -1039,11 +1110,18 @@ void Client::OnFrameTick(
 		{
 			actor_iter->ReleaseResource();
 
+			StateBase* curr_iter = m_Current;
+			for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
+			{
+				curr_iter->OnActorReleaseResource(&*actor_iter);
+			}
+
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
 		else
 			actor_iter++;
 	}
+
 	DelayRemover<ActorPtr>::getSingleton().Leave();
 
 	m_SkyLightCam.UpdateViewProj();
@@ -1342,6 +1420,12 @@ void Client::RemoveEntity(my::OctEntity * entity)
 	if (actor->IsRequested())
 	{
 		actor->ReleaseResource();
+
+		StateBase* curr_iter = m_Current;
+		for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
+		{
+			curr_iter->OnActorReleaseResource(actor);
+		}
 	}
 
 	if (actor->is_linked())
