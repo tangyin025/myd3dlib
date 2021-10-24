@@ -46,6 +46,8 @@ typedef boost::intrusive_ptr<SceneContext> SceneContextPtr;
 class SceneContextRequest : public my::IORequest
 {
 protected:
+	friend class Client;
+
 	std::string m_path;
 
 	std::string m_prefix;
@@ -259,4 +261,6 @@ public:
 	}
 
 	boost::intrusive_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
+
+	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
 };

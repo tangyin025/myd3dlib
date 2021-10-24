@@ -12,6 +12,7 @@
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
+#include <luabind/out_value_policy.hpp>
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -322,7 +323,7 @@ void SceneContextRequest::LoadResource(void)
 		DWORD ActorListSize;
 		*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);
 		scene->m_ActorList.resize(ActorListSize);
-		for (int i = 0; i < ActorListSize; i = InterlockedIncrement(&m_ActorProgress))
+		for (int i = 0; i < ActorListSize; i++, InterlockedExchange(&m_ActorProgress, i))
 		{
 			*ia >> boost::serialization::make_nvp(str_printf("Actor%d", i).c_str(), scene->m_ActorList[i]);
 		}
@@ -330,7 +331,7 @@ void SceneContextRequest::LoadResource(void)
 		DWORD DialogListSize;
 		*ia >> BOOST_SERIALIZATION_NVP(DialogListSize);
 		scene->m_DialogList.resize(DialogListSize);
-		for (int i = 0; i < DialogListSize; i = InterlockedIncrement(&m_DialogProgress))
+		for (int i = 0; i < DialogListSize; i++, InterlockedExchange(&m_DialogProgress, i))
 		{
 			*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), scene->m_DialogList[i]);
 		}
@@ -831,9 +832,10 @@ HRESULT Client::OnCreateDevice(
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)
+			.def("OnControlSound", &Client::OnControlSound)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
-			.def("OnControlSound", &Client::OnControlSound)
+			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))
 
 		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -1499,4 +1501,39 @@ boost::intrusive_ptr<SceneContext> Client::LoadScene(const char * path, const ch
 	IORequestPtr request(new SceneContextRequest(path, prefix, INT_MAX));
 	LoadIORequestAndWait(key, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 	return boost::dynamic_pointer_cast<SceneContext>(cb.m_res);
+}
+
+void Client::GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress)
+{
+	_ASSERT(IsMainThread());
+
+	std::string key = SceneContextRequest::BuildKey(path);
+
+	boost::shared_ptr<MutexLock> lock(new MutexLock(m_IORequestListMutex));
+
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.find(key);
+	if (req_iter != m_IORequestList.end())
+	{
+		SceneContextRequest* request = dynamic_cast<SceneContextRequest*>(req_iter->second.get());
+		if (request)
+		{
+			ActorProgress = request->m_ActorProgress;
+			DialogProgress = request->m_DialogProgress;
+			return;
+		}
+	}
+
+	lock.reset();
+
+	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.find(key);
+	if (res_iter != m_ResourceSet.end())
+	{
+		SceneContext* scene = dynamic_cast<SceneContext*>(res_iter->second.get());
+		ActorProgress = scene->m_ActorList.size();
+		DialogProgress = scene->m_DialogList.size();
+		return;
+	}
+
+	ActorProgress = 0;
+	DialogProgress = 0;
 }
