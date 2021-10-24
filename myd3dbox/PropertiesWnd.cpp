@@ -1474,7 +1474,6 @@ void CPropertiesWnd::CreatePropertiesMaterialParameter(CMFCPropertyGridProperty 
 {
 	CMFCPropertyGridProperty * pProp = NULL;
 	std::basic_string<TCHAR> name = ms2ts(mtl_param->m_Name);
-	boost::trim_left_if(name, boost::is_any_of(_T("g_")));
 	switch (mtl_param->GetParameterType())
 	{
 	case MaterialParameter::ParameterTypeFloat:
