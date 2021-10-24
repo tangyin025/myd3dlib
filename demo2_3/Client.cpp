@@ -291,6 +291,8 @@ SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, i
 	: IORequest(Priority)
 	, m_path(path)
 	, m_prefix(prefix)
+	, m_ActorProgress(0)
+	, m_DialogProgress(0)
 {
 	m_res.reset(new SceneContext());
 }
@@ -316,8 +318,22 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("FogStartDistance", scene->m_FogStartDistance);
 		*ia >> boost::serialization::make_nvp("FogHeight", scene->m_FogHeight);
 		*ia >> boost::serialization::make_nvp("FogFalloff", scene->m_FogFalloff);
-		*ia >> boost::serialization::make_nvp("ActorList", scene->m_ActorList);
-		*ia >> boost::serialization::make_nvp("DialogList", scene->m_DialogList);
+
+		DWORD ActorListSize;
+		*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);
+		scene->m_ActorList.resize(ActorListSize);
+		for (int i = 0; i < ActorListSize; i = InterlockedIncrement(&m_ActorProgress))
+		{
+			*ia >> boost::serialization::make_nvp(str_printf("Actor%d", i).c_str(), scene->m_ActorList[i]);
+		}
+
+		DWORD DialogListSize;
+		*ia >> BOOST_SERIALIZATION_NVP(DialogListSize);
+		scene->m_DialogList.resize(DialogListSize);
+		for (int i = 0; i < DialogListSize; i = InterlockedIncrement(&m_DialogProgress))
+		{
+			*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), scene->m_DialogList[i]);
+		}
 
 		ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
 		_ASSERT(pxar);

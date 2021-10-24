@@ -1154,7 +1154,7 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		m_IndexData.resize(att.FaceCount * 3);
 		if (mesh->GetNumVertices() > USHRT_MAX)
 		{
-			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %u", m_IndexData.size()));
+			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %Iu", m_IndexData.size()));
 		}
 		VOID* pIndices = mesh->LockIndexBuffer();
 		for (unsigned int face_i = 0; face_i < att.FaceCount; face_i++)

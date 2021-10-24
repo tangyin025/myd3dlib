@@ -50,6 +50,10 @@ protected:
 
 	std::string m_prefix;
 
+	volatile LONG m_ActorProgress;
+
+	volatile LONG m_DialogProgress;
+
 public:
 	SceneContextRequest(const char* path, const char* prefix, int Priority);
 

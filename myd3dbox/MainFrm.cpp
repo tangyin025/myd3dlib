@@ -781,23 +781,29 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("FogHeight", theApp.m_FogHeight);
 	*ia >> boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
-	*ia >> boost::serialization::make_nvp("ActorList", m_ActorList);
-	ActorPtrList::const_iterator actor_iter = m_ActorList.begin();
-	for (; actor_iter != m_ActorList.end(); actor_iter++)
+	DWORD ActorListSize;
+	*ia >> BOOST_SERIALIZATION_NVP(ActorListSize);
+	m_ActorList.resize(ActorListSize);
+	for (int i = 0; i < ActorListSize; i++)
 	{
-		AddEntity(actor_iter->get(), (*actor_iter)->m_aabb.transform((*actor_iter)->m_World), Actor::MinBlock, Actor::Threshold);
+		*ia >> boost::serialization::make_nvp(str_printf("Actor%d", i).c_str(), m_ActorList[i]);
+		AddEntity(m_ActorList[i].get(), m_ActorList[i]->m_aabb.transform(m_ActorList[i]->m_World), Actor::MinBlock, Actor::Threshold);
 	}
 
-	*ia >> boost::serialization::make_nvp("DialogList", m_DialogList);
-	DialogPtrList::const_iterator dlg_iter = m_DialogList.begin();
-	for (; dlg_iter != m_DialogList.end(); dlg_iter++)
+	DWORD DialogListSize;
+	*ia >> BOOST_SERIALIZATION_NVP(DialogListSize);
+	m_DialogList.resize(DialogListSize);
+	for (int i = 0; i < DialogListSize; i++)
 	{
-		InsertDlg(dlg_iter->get());
+		*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), m_DialogList[i]);
+		InsertDlg(m_DialogList[i].get());
 	}
 
 	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
 	_ASSERT(pxar);
 	m_CollectionObjs.insert(pxar->m_CollectionObjs.begin(), pxar->m_CollectionObjs.end());
+
+	theApp.m_EventLog(str_printf("CMainFrame::OpenFileContext: %Iu actors, %Iu dialogs", m_ActorList.size(), m_DialogList.size()).c_str());
 
 	return TRUE;
 }
@@ -821,31 +827,38 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
 	// ! save all actor in the scene, including lua context actor
+	DWORD ActorListSize = QueryEntityAllNum();
+	*oa << BOOST_SERIALIZATION_NVP(ActorListSize);
 	struct Callback : public my::OctNode::QueryCallback
 	{
-		CMainFrame * pFrame;
-		CMainFrame::ActorPtrList m_ActorList;
-		Callback(CMainFrame * _pFrame)
-			: pFrame(_pFrame)
+		boost::shared_ptr<boost::archive::polymorphic_oarchive> & oa;
+		int i;
+		Callback(boost::shared_ptr<boost::archive::polymorphic_oarchive> & _oa)
+			: oa(_oa)
+			, i(0)
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
-			ASSERT(dynamic_cast<Actor *>(oct_entity));
-			Actor * actor = static_cast<Actor *>(oct_entity);
-			m_ActorList.push_back(actor->shared_from_this());
+			ActorPtr actor_ptr = dynamic_cast<Actor*>(oct_entity)->shared_from_this();
+			*oa << boost::serialization::make_nvp(str_printf("Actor%d", i++).c_str(), actor_ptr);
 		}
-	} cb(this);
+	} cb(oa);
 	QueryEntityAll(&cb);
-	*oa << boost::serialization::make_nvp("ActorList", cb.m_ActorList);
+	_ASSERT(ActorListSize == cb.i);
 
-	DialogPtrList dlgList;
+	DWORD DialogListSize = m_DlgList.size();
+	*oa << BOOST_SERIALIZATION_NVP(DialogListSize);
+	int i = 0;
 	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for (; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
-		dlgList.push_back(boost::dynamic_pointer_cast<my::Dialog>((*dlg_iter)->shared_from_this()));
+		my::DialogPtr dlg_ptr = boost::dynamic_pointer_cast<my::Dialog>((*dlg_iter)->shared_from_this());
+		*oa << boost::serialization::make_nvp(str_printf("Dialog%d", i++).c_str(), dlg_ptr);
 	}
-	*oa << boost::serialization::make_nvp("DialogList", dlgList);
+	_ASSERT(DialogListSize == i);
+
+	theApp.m_EventLog(str_printf("CMainFrame::SaveFileContext: %d actors, %d dialogs", cb.i, i).c_str());
 
 	return TRUE;
 }

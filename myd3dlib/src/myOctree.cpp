@@ -246,6 +246,23 @@ void OctNode::QueryEntityAll(QueryCallback * callback) const
 	}
 }
 
+size_t OctNode::QueryEntityAllNum(void) const
+{
+	size_t ret = 0;
+	ret += m_Entities.size();
+
+	ChildArray::const_iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			ret += (*node_iter)->QueryEntityAllNum();
+		}
+	}
+
+	return ret;
+}
+
 void OctNode::RemoveEntity(OctEntity * entity)
 {
 	if (entity->m_Node)
