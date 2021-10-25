@@ -177,6 +177,8 @@ public:
 
 	ActivateEvent m_ActivateEvent;
 
+	int m_ShowCursorCount;
+
 public:
 	Client(void);
 

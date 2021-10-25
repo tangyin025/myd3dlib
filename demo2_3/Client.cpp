@@ -540,6 +540,7 @@ Client::Client(void)
 	, m_UIRender(new EffectUIRender())
 	, m_ViewedCenter(0, 0, 0)
 	, m_Activated(false)
+	, m_ShowCursorCount(0)
 {
 	char buff[MAX_PATH];
 	GetModuleFileNameA(NULL, buff, _countof(buff));
@@ -614,8 +615,6 @@ Client::Client(void)
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
-
-	::ShowCursor(FALSE);
 }
 
 Client::~Client(void)
@@ -1299,17 +1298,9 @@ LRESULT Client::MsgProc(
 		{
 			m_Activated = true;
 
-			CURSORINFO pci;
-			pci.cbSize = sizeof(CURSORINFO);
-			::GetCursorInfo(&pci);
-			if (Control::s_FocusControl)
+			if (m_DeviceObjectsCreated)
 			{
-				::ClipCursor(NULL);
-			}
-			else
-			{
-				CRect rc(pci.ptScreenPos, CSize(1, 1));
-				::ClipCursor(&rc);
+				OnControlFocus(Control::s_FocusControl);
 			}
 		}
 		else
@@ -1470,19 +1461,25 @@ void Client::OnControlSound(const char * name)
 
 void Client::OnControlFocus(bool bFocus)
 {
-	CURSORINFO pci;
-	pci.cbSize = sizeof(CURSORINFO);
-	::GetCursorInfo(&pci);
-	if (Control::s_FocusControl)
+	if (bFocus)
 	{
 		::ClipCursor(NULL);
-		::ShowCursor(TRUE);
+		while (m_ShowCursorCount < 0)
+		{
+			m_ShowCursorCount = ::ShowCursor(TRUE);
+		}
 	}
 	else
 	{
+		CURSORINFO pci;
+		pci.cbSize = sizeof(CURSORINFO);
+		::GetCursorInfo(&pci);
 		CRect rc(pci.ptScreenPos, CSize(1, 1));
 		::ClipCursor(&rc);
-		::ShowCursor(FALSE);
+		while (m_ShowCursorCount >= 0)
+		{
+			m_ShowCursorCount = ::ShowCursor(FALSE);
+		}
 	}
 }
 
