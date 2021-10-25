@@ -64,7 +64,7 @@ namespace my
 	class Timer
 	{
 	public:
-		const float m_Interval;
+		float m_Interval;
 
 		float m_RemainingTime;
 
