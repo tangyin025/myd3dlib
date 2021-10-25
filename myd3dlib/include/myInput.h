@@ -487,7 +487,7 @@ namespace my
 
 		int m_LastPressCount;
 
-		LONG m_MouseMoveToAxisRaw;
+		LONG m_MouseMoveAxisCoef;
 
 	public:
 		InputMgr(size_t KeyCount)
@@ -496,7 +496,7 @@ namespace my
 			, m_LastPressKey(UINT32_MAX)
 			, m_LastPressTime(0)
 			, m_LastPressCount(0)
-			, m_MouseMoveToAxisRaw(5000)
+			, m_MouseMoveAxisCoef(5000)
 		{
 		}
 
