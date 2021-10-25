@@ -1512,7 +1512,7 @@ void Client::GetLoadSceneProgress(const char * path, int & ActorProgress, int & 
 
 	std::string key = SceneContextRequest::BuildKey(path);
 
-	boost::shared_ptr<MutexLock> lock(new MutexLock(m_IORequestListMutex));
+	MutexLock lock(m_IORequestListMutex);
 
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.find(key);
 	if (req_iter != m_IORequestList.end())
@@ -1526,7 +1526,7 @@ void Client::GetLoadSceneProgress(const char * path, int & ActorProgress, int & 
 		}
 	}
 
-	lock.reset();
+	lock.Unlock();
 
 	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.find(key);
 	if (res_iter != m_ResourceSet.end())

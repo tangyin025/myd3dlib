@@ -29,24 +29,6 @@ BOOL CriticalSection::TryEnter(void)
 	return ::TryEnterCriticalSection(&m_section);
 }
 
-CriticalSectionLock::CriticalSectionLock(CriticalSection& cs, bool init_lock)
-	: m_cs(cs)
-	, m_locked(false)
-{
-	if (init_lock)
-	{
-		Lock();
-	}
-}
-
-CriticalSectionLock::~CriticalSectionLock(void)
-{
-	if (m_locked)
-	{
-		Unlock();
-	}
-}
-
 SynchronizationObj::SynchronizationObj(HANDLE handle)
 	: m_handle(handle)
 {
@@ -85,17 +67,6 @@ Mutex::Mutex(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCTST
 void Mutex::Release(void)
 {
 	::ReleaseMutex(m_handle);
-}
-
-MutexLock::MutexLock(Mutex & mutex)
-	: m_mutex(mutex)
-{
-	m_mutex.Wait(INFINITE);
-}
-
-MutexLock::~MutexLock(void)
-{
-	m_mutex.Release();
 }
 
 Semaphore::Semaphore(LONG lInitialCount, LONG lMaximumCount, LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, LPCTSTR lpName)

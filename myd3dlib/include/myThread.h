@@ -37,9 +37,23 @@ namespace my
 		bool m_locked;
 
 	public:
-		CriticalSectionLock(CriticalSection & cs, bool init_lock = true);
+		CriticalSectionLock(CriticalSection & cs, bool init_lock = true)
+			: m_cs(cs)
+			, m_locked(false)
+		{
+			if (init_lock)
+			{
+				Lock();
+			}
+		}
 
-		~CriticalSectionLock(void);
+		~CriticalSectionLock(void)
+		{
+			if (m_locked)
+			{
+				Unlock();
+			}
+		}
 
 		void Lock(void)
 		{
@@ -88,10 +102,36 @@ namespace my
 	protected:
 		Mutex & m_mutex;
 
-	public:
-		MutexLock(Mutex & mutex);
+		bool m_locked;
 
-		~MutexLock(void);
+	public:
+		MutexLock(Mutex & mutex, bool init_lock = true)
+			: m_mutex(mutex)
+			, m_locked(false)
+		{
+			if (init_lock)
+			{
+				Lock();
+			}
+		}
+
+		~MutexLock(void)
+		{
+			if (m_locked)
+			{
+				Unlock();
+			}
+		}
+
+		void Lock(void)
+		{
+			_ASSERT(!m_locked); m_mutex.Wait(INFINITE); m_locked = true;
+		}
+
+		void Unlock(void)
+		{
+			_ASSERT(m_locked); m_mutex.Release(); m_locked = false;
+		}
 	};
 
 	class Semaphore : public SynchronizationObj

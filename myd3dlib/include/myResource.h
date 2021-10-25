@@ -231,21 +231,22 @@ namespace my
 
 			_ASSERT(request->m_callbacks.empty());
 
-			m_IORequestListMutex.Wait(INFINITE);
+			MutexLock lock(m_IORequestListMutex);
 
 			std::pair<IORequestPtrPairList::iterator, bool> res = m_IORequestList.insert(std::make_pair(key, request));
 			if (!res.second)
 			{
 				_ASSERT(std::find(res.first->second->m_callbacks.begin(), res.first->second->m_callbacks.end(), callback) == res.first->second->m_callbacks.end());
 				res.first->second->m_callbacks.push_back(callback);
-				m_IORequestListMutex.Release();
 				return res.first;
 			}
 
 			_ASSERT(std::find(res.first->second->m_callbacks.begin(), res.first->second->m_callbacks.end(), callback) == res.first->second->m_callbacks.end());
 			res.first->second->m_callbacks.push_back(callback);
-			m_IORequestListMutex.Release();
+			lock.Unlock();
+
 			m_IORequestListCondition.Wake(1);
+
 			return res.first;
 		}
 
@@ -254,7 +255,7 @@ namespace my
 		{
 			_ASSERT(IsMainThread());
 
-			m_IORequestListMutex.Wait(INFINITE);
+			MutexLock lock(m_IORequestListMutex);
 
 			IORequestPtrPairList::iterator req_iter = m_IORequestList.find(key);
 			if (req_iter != m_IORequestList.end())
@@ -269,8 +270,6 @@ namespace my
 					}
 				}
 			}
-
-			m_IORequestListMutex.Release();
 		}
 
 		//void RemoveAllIORequest(void);
