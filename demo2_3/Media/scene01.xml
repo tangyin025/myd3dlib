@@ -37,207 +37,168 @@
 <FogStartDistance>1.000000000e+01</FogStartDistance>
 <FogHeight>5.000000000e+01</FogHeight>
 <FogFalloff>9.999999776e-03</FogFalloff>
-<ActorList class_id="2" tracking_level="0" version="0">
-	<count>2</count>
-	<item_version>1</item_version>
-	<item class_id="3" tracking_level="0" version="1">
-		<px class_id="4" tracking_level="1" version="0" object_id="_0">
-			<NamedObject class_id="5" tracking_level="1" version="0" object_id="_1">
-				<Name>actor0</Name>
-			</NamedObject>
-			<m_aabb class_id="6" tracking_level="0" version="0">
-				<m_min>
-					<x>0.000000000e+00</x>
-					<y>-1.000000000e+00</y>
-					<z>0.000000000e+00</z>
-				</m_min>
-				<m_max>
-					<x>6.400000000e+01</x>
-					<y>1.000000000e+00</y>
-					<z>6.400000000e+01</z>
-				</m_max>
-			</m_aabb>
-			<m_Position>
-				<x>-3.200000000e+01</x>
-				<y>0.000000000e+00</y>
-				<z>-3.200000000e+01</z>
-			</m_Position>
-			<m_Rotation class_id="7" tracking_level="0" version="0">
+<ActorListSize>2</ActorListSize>
+<Actor0 class_id="2" tracking_level="0" version="1">
+	<px class_id="3" tracking_level="1" version="0" object_id="_0">
+		<NamedObject class_id="4" tracking_level="1" version="0" object_id="_1">
+			<Name>actor0</Name>
+		</NamedObject>
+		<m_aabb class_id="5" tracking_level="0" version="0">
+			<m_min>
 				<x>0.000000000e+00</x>
-				<y>0.000000000e+00</y>
+				<y>-1.000000000e+00</y>
 				<z>0.000000000e+00</z>
-				<w>1.000000000e+00</w>
-			</m_Rotation>
-			<m_Scale>
-				<x>1.000000000e+00</x>
+			</m_min>
+			<m_max>
+				<x>6.400000000e+01</x>
 				<y>1.000000000e+00</y>
-				<z>1.000000000e+00</z>
-			</m_Scale>
-			<m_LodDist>3.300000000e+01</m_LodDist>
-			<m_LodFactor>2.000000000e+00</m_LodFactor>
-			<ActorType>0</ActorType>
-			<m_Cmps class_id="8" tracking_level="0" version="0">
-				<count>7</count>
-				<item_version>1</item_version>
-				<item class_id="9" tracking_level="0" version="1">
-					<px class_id="11" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
-						<Component class_id="10" tracking_level="1" version="0" object_id="_3">
-							<NamedObject object_id="_4">
-								<Name>actor0_terrain0</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material class_id="12" tracking_level="0" version="1">
-								<px class_id="13" tracking_level="1" version="0" object_id="_5">
-									<m_Shader>shader/mtl_Splatmap.fx</m_Shader>
-									<m_PassMask>19</m_PassMask>
-									<m_CullMode>2</m_CullMode>
-									<m_ZEnable>1</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList class_id="14" tracking_level="0" version="0">
-										<count>10</count>
-										<item_version>1</item_version>
-										<item class_id="15" tracking_level="0" version="1">
-											<px class_id="16" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
-												<MaterialParameter class_id="17" tracking_level="0" version="0">
-													<m_Name>g_DiffuseTexture0</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Red.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_7">
-												<MaterialParameter>
-													<m_Name>g_NormalTexture0</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_8">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture1</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Green.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_9">
-												<MaterialParameter>
-													<m_Name>g_NormalTexture1</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_10">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture2</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Blue.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_11">
-												<MaterialParameter>
-													<m_Name>g_NormalTexture2</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_12">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture3</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Checker.bmp</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_13">
-												<MaterialParameter>
-													<m_Name>g_NormalTexture3</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id="18" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_14">
-												<MaterialParameter>
-													<m_Name>g_Shininess</m_Name>
-												</MaterialParameter>
-												<m_Value>2.500000000e+01</m_Value>
-											</px>
-										</item>
-										<item>
-											<px class_id="19" class_name="MaterialParameterFloat2" tracking_level="1" version="0" object_id="_15">
-												<MaterialParameter>
-													<m_Name>g_TextureScale</m_Name>
-												</MaterialParameter>
-												<m_Value class_id="20" tracking_level="0" version="0">
-													<x>1.000000000e+00</x>
-													<y>1.000000000e+00</y>
-												</m_Value>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>1</m_PxShapeGeometryType>
-							<ShapePos>
-								<x>0.000000000e+00</x>
-								<y>0.000000000e+00</y>
-								<z>0.000000000e+00</z>
-							</ShapePos>
-							<ShapeRot>
-								<x>0.000000000e+00</x>
-								<y>0.000000000e+00</y>
-								<z>7.071068287e-01</z>
-								<w>7.071068287e-01</w>
-							</ShapeRot>
-							<SimulationFilterWord0>1</SimulationFilterWord0>
-							<QueryFilterWord0>1</QueryFilterWord0>
-							<ShapeFlags>11</ShapeFlags>
-						</Component>
-						<OctRoot class_id="21" tracking_level="0" version="0">
-							<AABB>
-								<m_min>
-									<x>0.000000000e+00</x>
-									<y>-1.000000000e+00</y>
-									<z>0.000000000e+00</z>
-								</m_min>
-								<m_max>
-									<x>6.400000000e+01</x>
-									<y>1.000000000e+00</y>
-									<z>6.400000000e+01</z>
-								</m_max>
-							</AABB>
-							<m_Half>
-								<x>3.200000000e+01</x>
-								<y>0.000000000e+00</y>
-								<z>3.200000000e+01</z>
-							</m_Half>
-						</OctRoot>
-						<m_RowChunks>1</m_RowChunks>
-						<m_ColChunks>1</m_ColChunks>
-						<m_ChunkSize>64</m_ChunkSize>
-						<m_MinLodChunkSize>2</m_MinLodChunkSize>
-						<m_ChunkPath>terrain/actor0_terrain0</m_ChunkPath>
-						<BufferSize>180</BufferSize>
-						<VertexBuffer>
-AAAAAAAAAAAAAAAAAAAA/3//fwAAAABCAAAAAAAAAAAAAAD/f/9/AAAAgEIAAAAAAAAAAAAAAP9/
-/38AAAAAAAAAAAAAAABCAAAA/3//fwAAAABCAAAAAAAAAEIAAAD/f/9/AAAAgEIAAAAAAAAAQgAA
-AP9//38AAAAAAAAAAAAAAIBCAAAA/3//fwAAAABCAAAAAAAAgEIAAAD/f/9/AAAAgEIAAAAAAACA
-QgAAAP9//38A
-						</VertexBuffer>
-						<m_Chunk_0_0 class_id="22" tracking_level="0" version="0">
-							<m_Row>0</m_Row>
-							<m_Col>0</m_Col>
-							<m_Material>
-								<px class_id="-1"></px>
-							</m_Material>
-						</m_Chunk_0_0>
-						<m_Chunk_0_0_aabb>
+				<z>6.400000000e+01</z>
+			</m_max>
+		</m_aabb>
+		<m_Position>
+			<x>-3.200000000e+01</x>
+			<y>0.000000000e+00</y>
+			<z>-3.200000000e+01</z>
+		</m_Position>
+		<m_Rotation class_id="6" tracking_level="0" version="0">
+			<x>0.000000000e+00</x>
+			<y>0.000000000e+00</y>
+			<z>0.000000000e+00</z>
+			<w>1.000000000e+00</w>
+		</m_Rotation>
+		<m_Scale>
+			<x>1.000000000e+00</x>
+			<y>1.000000000e+00</y>
+			<z>1.000000000e+00</z>
+		</m_Scale>
+		<m_LodDist>3.300000000e+01</m_LodDist>
+		<m_LodFactor>2.000000000e+00</m_LodFactor>
+		<ActorType>0</ActorType>
+		<m_Cmps class_id="7" tracking_level="0" version="0">
+			<count>7</count>
+			<item_version>1</item_version>
+			<item class_id="8" tracking_level="0" version="1">
+				<px class_id="10" class_name="Terrain" tracking_level="1" version="0" object_id="_2">
+					<Component class_id="9" tracking_level="1" version="0" object_id="_3">
+						<NamedObject object_id="_4">
+							<Name>actor0_terrain0</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material class_id="11" tracking_level="0" version="1">
+							<px class_id="12" tracking_level="1" version="0" object_id="_5">
+								<m_Shader>shader/mtl_Splatmap.fx</m_Shader>
+								<m_PassMask>19</m_PassMask>
+								<m_CullMode>2</m_CullMode>
+								<m_ZEnable>1</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList class_id="13" tracking_level="0" version="0">
+									<count>10</count>
+									<item_version>1</item_version>
+									<item class_id="14" tracking_level="0" version="1">
+										<px class_id="15" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
+											<MaterialParameter class_id="16" tracking_level="0" version="0">
+												<m_Name>g_DiffuseTexture0</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Red.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_7">
+											<MaterialParameter>
+												<m_Name>g_NormalTexture0</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Normal.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_8">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture1</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Green.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_9">
+											<MaterialParameter>
+												<m_Name>g_NormalTexture1</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Normal.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_10">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture2</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Blue.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_11">
+											<MaterialParameter>
+												<m_Name>g_NormalTexture2</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Normal.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_12">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture3</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_13">
+											<MaterialParameter>
+												<m_Name>g_NormalTexture3</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Normal.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id="17" class_name="MaterialParameterFloat" tracking_level="1" version="0" object_id="_14">
+											<MaterialParameter>
+												<m_Name>g_Shininess</m_Name>
+											</MaterialParameter>
+											<m_Value>2.500000000e+01</m_Value>
+										</px>
+									</item>
+									<item>
+										<px class_id="18" class_name="MaterialParameterFloat2" tracking_level="1" version="0" object_id="_15">
+											<MaterialParameter>
+												<m_Name>g_TextureScale</m_Name>
+											</MaterialParameter>
+											<m_Value class_id="19" tracking_level="0" version="0">
+												<x>1.600000000e+01</x>
+												<y>1.600000000e+01</y>
+											</m_Value>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>1</m_PxShapeGeometryType>
+						<ShapePos>
+							<x>0.000000000e+00</x>
+							<y>0.000000000e+00</y>
+							<z>0.000000000e+00</z>
+						</ShapePos>
+						<ShapeRot>
+							<x>0.000000000e+00</x>
+							<y>0.000000000e+00</y>
+							<z>7.071068287e-01</z>
+							<w>7.071068287e-01</w>
+						</ShapeRot>
+						<SimulationFilterWord0>1</SimulationFilterWord0>
+						<QueryFilterWord0>1</QueryFilterWord0>
+						<ShapeFlags>11</ShapeFlags>
+					</Component>
+					<OctRoot class_id="20" tracking_level="0" version="0">
+						<AABB>
 							<m_min>
 								<x>0.000000000e+00</x>
 								<y>-1.000000000e+00</y>
@@ -248,403 +209,436 @@ QgAAAP9//38A
 								<y>1.000000000e+00</y>
 								<z>6.400000000e+01</z>
 							</m_max>
-						</m_Chunk_0_0_aabb>
-					</px>
-				</item>
-				<item>
-					<px class_id="23" class_name="MeshComponent" tracking_level="1" version="0" object_id="_16">
-						<Component object_id="_17">
-							<NamedObject object_id="_18">
-								<Name>actor0_sky0</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_19">
-									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-									<m_PassMask>8</m_PassMask>
-									<m_CullMode>3</m_CullMode>
-									<m_ZEnable>0</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>1</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_20">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/cloudy_noon_FR.jpg</m_TexturePath>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
-						</Component>
-						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>0</m_MeshSubMeshId>
-						<m_MeshColor>
+						</AABB>
+						<m_Half>
+							<x>3.200000000e+01</x>
+							<y>0.000000000e+00</y>
+							<z>3.200000000e+01</z>
+						</m_Half>
+					</OctRoot>
+					<m_RowChunks>1</m_RowChunks>
+					<m_ColChunks>1</m_ColChunks>
+					<m_ChunkSize>64</m_ChunkSize>
+					<m_MinLodChunkSize>2</m_MinLodChunkSize>
+					<m_ChunkPath>terrain/actor0_terrain0</m_ChunkPath>
+					<BufferSize>180</BufferSize>
+					<VertexBuffer>
+AAAAAAAAAAAAAAAAAAAA/3//fwAAAABCAAAAAAAAAAAAAAD/f/9/AAAAgEIAAAAAAAAAAAAAAP9/
+/38AAAAAAAAAAAAAAABCAAAA/3//fwAAAABCAAAAAAAAAEIAAAD/f/9/AAAAgEIAAAAAAAAAQgAA
+AP9//38AAAAAAAAAAAAAAIBCAAAA/3//fwAAAABCAAAAAAAAgEIAAAD/f/9/AAAAgEIAAAAAAACA
+QgAAAP9//38A
+					</VertexBuffer>
+					<m_Chunk_0_0 class_id="21" tracking_level="0" version="0">
+						<m_Row>0</m_Row>
+						<m_Col>0</m_Col>
+						<m_Material>
+							<px class_id="-1"></px>
+						</m_Material>
+					</m_Chunk_0_0>
+					<m_Chunk_0_0_aabb>
+						<m_min>
+							<x>0.000000000e+00</x>
+							<y>-1.000000000e+00</y>
+							<z>0.000000000e+00</z>
+						</m_min>
+						<m_max>
+							<x>6.400000000e+01</x>
+							<y>1.000000000e+00</y>
+							<z>6.400000000e+01</z>
+						</m_max>
+					</m_Chunk_0_0_aabb>
+				</px>
+			</item>
+			<item>
+				<px class_id="22" class_name="MeshComponent" tracking_level="1" version="0" object_id="_16">
+					<Component object_id="_17">
+						<NamedObject object_id="_18">
+							<Name>actor0_sky0</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_19">
+								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
+								<m_PassMask>8</m_PassMask>
+								<m_CullMode>3</m_CullMode>
+								<m_ZEnable>0</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>1</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_20">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/cloudy_noon_FR.jpg</m_TexturePath>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
+					</Component>
+					<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>0</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+			<item>
+				<px class_id_reference="22" object_id="_21">
+					<Component object_id="_22">
+						<NamedObject object_id="_23">
+							<Name>actor0_sky1</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_24">
+								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
+								<m_PassMask>8</m_PassMask>
+								<m_CullMode>3</m_CullMode>
+								<m_ZEnable>0</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>1</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_25">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/cloudy_noon_UP.jpg</m_TexturePath>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
+					</Component>
+					<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>1</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+			<item>
+				<px class_id_reference="22" object_id="_26">
+					<Component object_id="_27">
+						<NamedObject object_id="_28">
+							<Name>actor0_sky2</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_29">
+								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
+								<m_PassMask>8</m_PassMask>
+								<m_CullMode>3</m_CullMode>
+								<m_ZEnable>0</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>1</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_30">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/cloudy_noon_BK.jpg</m_TexturePath>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
+					</Component>
+					<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>2</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+			<item>
+				<px class_id_reference="22" object_id="_31">
+					<Component object_id="_32">
+						<NamedObject object_id="_33">
+							<Name>actor0_sky3</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_34">
+								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
+								<m_PassMask>8</m_PassMask>
+								<m_CullMode>3</m_CullMode>
+								<m_ZEnable>0</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>1</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_35">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/cloudy_noon_DN.jpg</m_TexturePath>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
+					</Component>
+					<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>3</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+			<item>
+				<px class_id_reference="22" object_id="_36">
+					<Component object_id="_37">
+						<NamedObject object_id="_38">
+							<Name>actor0_sky4</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_39">
+								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
+								<m_PassMask>8</m_PassMask>
+								<m_CullMode>3</m_CullMode>
+								<m_ZEnable>0</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>1</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_40">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/cloudy_noon_RT.jpg</m_TexturePath>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
+					</Component>
+					<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>4</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+			<item>
+				<px class_id_reference="22" object_id="_41">
+					<Component object_id="_42">
+						<NamedObject object_id="_43">
+							<Name>actor0_sky5</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_44">
+								<m_Shader>shader/mtl_Skybox.fx</m_Shader>
+								<m_PassMask>8</m_PassMask>
+								<m_CullMode>3</m_CullMode>
+								<m_ZEnable>0</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>1</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_45">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/cloudy_noon_LF.jpg</m_TexturePath>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
+					</Component>
+					<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>5</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+		</m_Cmps>
+	</px>
+</Actor0>
+<Actor1>
+	<px class_id_reference="3" object_id="_46">
+		<NamedObject object_id="_47">
+			<Name>actor1</Name>
+		</NamedObject>
+		<m_aabb>
+			<m_min>
+				<x>-5.000000000e-01</x>
+				<y>-5.000000000e-01</y>
+				<z>-5.000000000e-01</z>
+			</m_min>
+			<m_max>
+				<x>5.000000000e-01</x>
+				<y>5.000000000e-01</y>
+				<z>5.000000000e-01</z>
+			</m_max>
+		</m_aabb>
+		<m_Position>
+			<x>0.000000000e+00</x>
+			<y>0.000000000e+00</y>
+			<z>0.000000000e+00</z>
+		</m_Position>
+		<m_Rotation>
+			<x>0.000000000e+00</x>
+			<y>0.000000000e+00</y>
+			<z>0.000000000e+00</z>
+			<w>1.000000000e+00</w>
+		</m_Rotation>
+		<m_Scale>
+			<x>2.000000000e+00</x>
+			<y>2.000000000e+00</y>
+			<z>2.000000000e+00</z>
+		</m_Scale>
+		<m_LodDist>3.300000000e+01</m_LodDist>
+		<m_LodFactor>2.000000000e+00</m_LodFactor>
+		<ActorType>1</ActorType>
+		<RigidBodyFlags>1</RigidBodyFlags>
+		<m_Cmps>
+			<count>1</count>
+			<item_version>1</item_version>
+			<item>
+				<px class_id_reference="22" object_id="_48">
+					<Component object_id="_49">
+						<NamedObject object_id="_50">
+							<Name>actor1_mesh0</Name>
+						</NamedObject>
+						<m_LodMask>7</m_LodMask>
+						<m_Material>
+							<px class_id_reference="12" object_id="_51">
+								<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
+								<m_PassMask>19</m_PassMask>
+								<m_CullMode>2</m_CullMode>
+								<m_ZEnable>1</m_ZEnable>
+								<m_ZWriteEnable>1</m_ZWriteEnable>
+								<m_BlendMode>0</m_BlendMode>
+								<m_ParameterList>
+									<count>4</count>
+									<item_version>1</item_version>
+									<item>
+										<px class_id_reference="15" object_id="_52">
+											<MaterialParameter>
+												<m_Name>g_DiffuseTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Checker.bmp</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_53">
+											<MaterialParameter>
+												<m_Name>g_NormalTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/Normal.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="15" object_id="_54">
+											<MaterialParameter>
+												<m_Name>g_SpecularTexture</m_Name>
+											</MaterialParameter>
+											<m_TexturePath>texture/White.dds</m_TexturePath>
+										</px>
+									</item>
+									<item>
+										<px class_id_reference="17" object_id="_55">
+											<MaterialParameter>
+												<m_Name>g_Shininess</m_Name>
+											</MaterialParameter>
+											<m_Value>2.500000000e+01</m_Value>
+										</px>
+									</item>
+								</m_ParameterList>
+							</px>
+						</m_Material>
+						<m_PxShapeGeometryType>3</m_PxShapeGeometryType>
+						<ShapePos>
+							<x>0.000000000e+00</x>
+							<y>0.000000000e+00</y>
+							<z>0.000000000e+00</z>
+						</ShapePos>
+						<ShapeRot>
+							<x>0.000000000e+00</x>
+							<y>0.000000000e+00</y>
+							<z>0.000000000e+00</z>
+							<w>1.000000000e+00</w>
+						</ShapeRot>
+						<BoxHalfExtents>
 							<x>1.000000000e+00</x>
 							<y>1.000000000e+00</y>
 							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-				<item>
-					<px class_id_reference="23" object_id="_21">
-						<Component object_id="_22">
-							<NamedObject object_id="_23">
-								<Name>actor0_sky1</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_24">
-									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-									<m_PassMask>8</m_PassMask>
-									<m_CullMode>3</m_CullMode>
-									<m_ZEnable>0</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>1</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_25">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/cloudy_noon_UP.jpg</m_TexturePath>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
-						</Component>
-						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>1</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-				<item>
-					<px class_id_reference="23" object_id="_26">
-						<Component object_id="_27">
-							<NamedObject object_id="_28">
-								<Name>actor0_sky2</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_29">
-									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-									<m_PassMask>8</m_PassMask>
-									<m_CullMode>3</m_CullMode>
-									<m_ZEnable>0</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>1</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_30">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/cloudy_noon_BK.jpg</m_TexturePath>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
-						</Component>
-						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>2</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-				<item>
-					<px class_id_reference="23" object_id="_31">
-						<Component object_id="_32">
-							<NamedObject object_id="_33">
-								<Name>actor0_sky3</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_34">
-									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-									<m_PassMask>8</m_PassMask>
-									<m_CullMode>3</m_CullMode>
-									<m_ZEnable>0</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>1</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_35">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/cloudy_noon_DN.jpg</m_TexturePath>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
-						</Component>
-						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>3</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-				<item>
-					<px class_id_reference="23" object_id="_36">
-						<Component object_id="_37">
-							<NamedObject object_id="_38">
-								<Name>actor0_sky4</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_39">
-									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-									<m_PassMask>8</m_PassMask>
-									<m_CullMode>3</m_CullMode>
-									<m_ZEnable>0</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>1</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_40">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/cloudy_noon_RT.jpg</m_TexturePath>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
-						</Component>
-						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>4</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-				<item>
-					<px class_id_reference="23" object_id="_41">
-						<Component object_id="_42">
-							<NamedObject object_id="_43">
-								<Name>actor0_sky5</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_44">
-									<m_Shader>shader/mtl_Skybox.fx</m_Shader>
-									<m_PassMask>8</m_PassMask>
-									<m_CullMode>3</m_CullMode>
-									<m_ZEnable>0</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>1</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_45">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/cloudy_noon_LF.jpg</m_TexturePath>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>-1</m_PxShapeGeometryType>
-						</Component>
-						<m_MeshPath>mesh/Cube6Plane.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>5</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-			</m_Cmps>
-		</px>
-	</item>
-	<item>
-		<px class_id_reference="4" object_id="_46">
-			<NamedObject object_id="_47">
-				<Name>actor1</Name>
-			</NamedObject>
-			<m_aabb>
-				<m_min>
-					<x>-5.000000000e-01</x>
-					<y>-5.000000000e-01</y>
-					<z>-5.000000000e-01</z>
-				</m_min>
-				<m_max>
-					<x>5.000000000e-01</x>
-					<y>5.000000000e-01</y>
-					<z>5.000000000e-01</z>
-				</m_max>
-			</m_aabb>
-			<m_Position>
-				<x>0.000000000e+00</x>
-				<y>0.000000000e+00</y>
-				<z>0.000000000e+00</z>
-			</m_Position>
-			<m_Rotation>
-				<x>0.000000000e+00</x>
-				<y>0.000000000e+00</y>
-				<z>0.000000000e+00</z>
-				<w>1.000000000e+00</w>
-			</m_Rotation>
-			<m_Scale>
-				<x>2.000000000e+00</x>
-				<y>2.000000000e+00</y>
-				<z>2.000000000e+00</z>
-			</m_Scale>
-			<m_LodDist>3.300000000e+01</m_LodDist>
-			<m_LodFactor>2.000000000e+00</m_LodFactor>
-			<ActorType>1</ActorType>
-			<RigidBodyFlags>1</RigidBodyFlags>
-			<m_Cmps>
-				<count>1</count>
-				<item_version>1</item_version>
-				<item>
-					<px class_id_reference="23" object_id="_48">
-						<Component object_id="_49">
-							<NamedObject object_id="_50">
-								<Name>actor1_mesh0</Name>
-							</NamedObject>
-							<m_LodMask>7</m_LodMask>
-							<m_Material>
-								<px class_id_reference="13" object_id="_51">
-									<m_Shader>shader/mtl_BlinnPhong.fx</m_Shader>
-									<m_PassMask>19</m_PassMask>
-									<m_CullMode>2</m_CullMode>
-									<m_ZEnable>1</m_ZEnable>
-									<m_ZWriteEnable>1</m_ZWriteEnable>
-									<m_BlendMode>0</m_BlendMode>
-									<m_ParameterList>
-										<count>4</count>
-										<item_version>1</item_version>
-										<item>
-											<px class_id_reference="16" object_id="_52">
-												<MaterialParameter>
-													<m_Name>g_DiffuseTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Checker.bmp</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_53">
-												<MaterialParameter>
-													<m_Name>g_NormalTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/Normal.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="16" object_id="_54">
-												<MaterialParameter>
-													<m_Name>g_SpecularTexture</m_Name>
-												</MaterialParameter>
-												<m_TexturePath>texture/White.dds</m_TexturePath>
-											</px>
-										</item>
-										<item>
-											<px class_id_reference="18" object_id="_55">
-												<MaterialParameter>
-													<m_Name>g_Shininess</m_Name>
-												</MaterialParameter>
-												<m_Value>2.500000000e+01</m_Value>
-											</px>
-										</item>
-									</m_ParameterList>
-								</px>
-							</m_Material>
-							<m_PxShapeGeometryType>3</m_PxShapeGeometryType>
-							<ShapePos>
-								<x>0.000000000e+00</x>
-								<y>0.000000000e+00</y>
-								<z>0.000000000e+00</z>
-							</ShapePos>
-							<ShapeRot>
-								<x>0.000000000e+00</x>
-								<y>0.000000000e+00</y>
-								<z>0.000000000e+00</z>
-								<w>1.000000000e+00</w>
-							</ShapeRot>
-							<BoxHalfExtents>
-								<x>1.000000000e+00</x>
-								<y>1.000000000e+00</y>
-								<z>1.000000000e+00</z>
-							</BoxHalfExtents>
-							<SimulationFilterWord0>1</SimulationFilterWord0>
-							<QueryFilterWord0>1</QueryFilterWord0>
-							<ShapeFlags>11</ShapeFlags>
-						</Component>
-						<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
-						<m_MeshSubMeshName></m_MeshSubMeshName>
-						<m_MeshSubMeshId>0</m_MeshSubMeshId>
-						<m_MeshColor>
-							<x>1.000000000e+00</x>
-							<y>1.000000000e+00</y>
-							<z>1.000000000e+00</z>
-							<w>1.000000000e+00</w>
-						</m_MeshColor>
-						<m_bInstance>0</m_bInstance>
-					</px>
-				</item>
-			</m_Cmps>
-		</px>
-	</item>
-</ActorList>
-<DialogList class_id="24" tracking_level="0" version="0">
-	<count>0</count>
-	<item_version>1</item_version>
-</DialogList>
+						</BoxHalfExtents>
+						<SimulationFilterWord0>1</SimulationFilterWord0>
+						<QueryFilterWord0>1</QueryFilterWord0>
+						<ShapeFlags>11</ShapeFlags>
+					</Component>
+					<m_MeshPath>mesh\Cube.mesh.xml</m_MeshPath>
+					<m_MeshSubMeshName></m_MeshSubMeshName>
+					<m_MeshSubMeshId>0</m_MeshSubMeshId>
+					<m_MeshColor>
+						<x>1.000000000e+00</x>
+						<y>1.000000000e+00</y>
+						<z>1.000000000e+00</z>
+						<w>1.000000000e+00</w>
+					</m_MeshColor>
+					<m_bInstance>0</m_bInstance>
+				</px>
+			</item>
+		</m_Cmps>
+	</px>
+</Actor1>
+<DialogListSize>0</DialogListSize>
 </boost_serialization>
 

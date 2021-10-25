@@ -7,6 +7,7 @@ tstr:Release()
 terrain.Material=Material()
 terrain.Material.Shader="shader/mtl_Splatmap.fx"
 terrain.Material:ParseShaderParameters()
+terrain.Material:SetParameter("g_TextureScale",Vector2(2048,2048))
 local tbox=terrain:CalculateAABB()
 local act=Actor("actor0",Vector3(-tbox:Center().x*8,0,-tbox:Center().z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
 act:AddComponent(terrain)
