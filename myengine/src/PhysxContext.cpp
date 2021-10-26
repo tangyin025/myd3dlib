@@ -166,7 +166,8 @@ void PhysxScene::SetControllerDebugRenderingFlags(physx::PxU32 flags)
 
 void PhysxScene::Shutdown(void)
 {
-	m_EventPxThreadSubstep.disconnect_all_slots();
+	//m_EventPxThreadSubstep.disconnect_all_slots();
+	_ASSERT(m_EventPxThreadSubstep.empty());
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 	m_ControllerMgr.reset();
 	m_PxScene.reset();
@@ -211,6 +212,46 @@ void PhysxScene::TickPostRender(float dtime)
 			}
 		}
 		mDeletedActors.clear();
+
+		TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
+		for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
+		{
+			switch (trigger_iter->status)
+			{
+			case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
+			{
+				if (trigger_iter->triggerActor->userData)
+				{
+					Actor* self = (Actor*)trigger_iter->triggerActor->userData;
+					if (trigger_iter->otherActor->userData)
+					{
+						Component* self_cmp = (Component*)trigger_iter->triggerShape->userData;
+						Actor* other = (Actor*)trigger_iter->otherActor->userData;
+						Component* other_cmp = (Component*)trigger_iter->otherShape->userData;
+						TriggerEventArg arg(self, self_cmp, other, other_cmp);
+						self->m_EventEnterTrigger(&arg);
+					}
+				}
+				break;
+			}
+			case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
+			{
+				if (trigger_iter->triggerActor->userData)
+				{
+					Actor* self = (Actor*)trigger_iter->triggerActor->userData;
+					if (trigger_iter->otherActor->userData)
+					{
+						Component* self_cmp = (Component*)trigger_iter->triggerShape->userData;
+						Actor* other = (Actor*)trigger_iter->otherActor->userData;
+						Component* other_cmp = (Component*)trigger_iter->otherShape->userData;
+						TriggerEventArg arg(self, self_cmp, other, other_cmp);
+						self->m_EventLeaveTrigger(&arg);
+					}
+				}
+				break;
+			}
+			}
+		}
 	}
 
 	m_RenderTickMuted = false;

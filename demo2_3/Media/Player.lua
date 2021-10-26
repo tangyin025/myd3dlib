@@ -158,10 +158,8 @@ function PlayerBehavior:OnPxThreadSubstep(dtime)
 		self.velocity.y=0
 	end
 end
-player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
-player:AddComponent(player_behavior)
-
--- 处理碰撞事件
-player.EventShapeHit=function(arg)
+function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
 end
+player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
+player:AddComponent(player_behavior)

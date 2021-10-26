@@ -227,6 +227,12 @@ struct ScriptComponent : Component, luabind::wrap_base
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(ptr->m_Actor->m_Node->GetTopNode());
 
 		scene->m_EventPxThreadSubstep.connect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventEnterTrigger.connect(boost::bind(&Component::OnEnterTrigger, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventLeaveTrigger.connect(boost::bind(&Component::OnLeaveTrigger, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
 	}
 
 	virtual void ReleaseResource(void)
@@ -250,6 +256,12 @@ struct ScriptComponent : Component, luabind::wrap_base
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(ptr->m_Actor->m_Node->GetTopNode());
 
 		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Component::OnPxThreadSubstep, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventEnterTrigger.disconnect(boost::bind(&Component::OnEnterTrigger, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventLeaveTrigger.disconnect(boost::bind(&Component::OnLeaveTrigger, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -286,6 +298,59 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnPxThreadSubstep(Component* ptr, float dtime)
 	{
 		ptr->Component::OnPxThreadSubstep(dtime);
+	}
+
+	virtual void OnEnterTrigger(my::EventArg* arg)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnEnterTrigger", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnEnterTrigger(Component* ptr, my::EventArg* arg)
+	{
+		ptr->OnEnterTrigger(arg);
+	}
+
+	virtual void OnLeaveTrigger(my::EventArg* arg)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnLeaveTrigger", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnLeaveTrigger(Component* ptr, my::EventArg* arg)
+	{
+		ptr->OnLeaveTrigger(arg);
+	}
+
+	virtual void OnPxThreadShapeHit(my::EventArg* arg)
+	{
+		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		try
+		{
+			luabind::wrap_base::call<void>("OnPxThreadShapeHit", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnPxThreadShapeHit(Component* ptr, my::EventArg* arg)
+	{
+		ptr->OnPxThreadShapeHit(arg);
 	}
 };
 
@@ -1545,6 +1610,9 @@ void LuaContext::Init(void)
 			.def("ReleaseResource", &Component::ReleaseResource, &ScriptComponent::default_ReleaseResource)
 			.def("Update", &Component::Update, &ScriptComponent::default_Update)
 			.def("OnPxThreadSubstep", &Component::OnPxThreadSubstep, &ScriptComponent::default_OnPxThreadSubstep)
+			.def("OnEnterTrigger", &Component::OnEnterTrigger, &ScriptComponent::default_OnEnterTrigger)
+			.def("OnLeaveTrigger", &Component::OnLeaveTrigger, &ScriptComponent::default_OnLeaveTrigger)
+			.def("OnPxThreadShapeHit", &Component::OnPxThreadShapeHit, &ScriptComponent::default_OnPxThreadShapeHit)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
@@ -1680,7 +1748,9 @@ void LuaContext::Init(void)
 			.def_readonly("self", &ActorEventArg::self)
 
 		, class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
+			.def_readonly("self_cmp", &TriggerEventArg::self_cmp)
 			.def_readonly("other", &TriggerEventArg::other)
+			.def_readonly("other_cmp", &TriggerEventArg::other_cmp)
 
 		, class_<ShapeHitEventArg, ActorEventArg>("ShapeHitEventArg")
 			.def_readonly("self_cmp", &ShapeHitEventArg::self_cmp)
@@ -1702,9 +1772,9 @@ void LuaContext::Init(void)
 			.def_readwrite("LodDist", &Actor::m_LodDist)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
-			.def_readwrite("EventEnterTrigger", &Actor::m_EventEnterTrigger)
-			.def_readwrite("EventLeaveTrigger", &Actor::m_EventLeaveTrigger)
-			.def_readwrite("EventShapeHit", &Actor::m_EventShapeHit)
+			//.def_readwrite("EventEnterTrigger", &Actor::m_EventEnterTrigger)
+			//.def_readwrite("EventLeaveTrigger", &Actor::m_EventLeaveTrigger)
+			//.def_readwrite("EventPxThreadShapeHit", &Actor::m_EventPxThreadShapeHit)
 			.def(self == other<const Actor&>())
 			.property("Requested", &Actor::IsRequested)
 			.def("Clone", &Actor::Clone)

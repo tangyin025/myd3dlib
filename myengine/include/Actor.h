@@ -45,11 +45,17 @@ public:
 struct TriggerEventArg : public ActorEventArg
 {
 public:
+	Component* self_cmp;
+
 	Actor* other;
 
-	TriggerEventArg(Actor* _self, Actor* _other)
+	Component* other_cmp;
+
+	TriggerEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
 		: ActorEventArg(_self)
+		, self_cmp(_self_cmp)
 		, other(_other)
+		, other_cmp(_other_cmp)
 	{
 	}
 };
@@ -183,11 +189,11 @@ public:
 
 	int m_ActionTrackPoseInstRef;
 
-	my::EventFunction m_EventEnterTrigger;
+	my::EventSignal m_EventEnterTrigger;
 
-	my::EventFunction m_EventLeaveTrigger;
+	my::EventSignal m_EventLeaveTrigger;
 
-	my::EventFunction m_EventShapeHit;
+	my::EventSignal m_EventPxThreadShapeHit;
 
 protected:
 	Actor(void)

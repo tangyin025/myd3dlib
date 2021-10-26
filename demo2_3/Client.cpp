@@ -1181,42 +1181,6 @@ void Client::OnFrameTick(
 
 	PhysxScene::TickPostRender(fElapsedTime);
 
-	TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
-	for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
-	{
-		switch (trigger_iter->status)
-		{
-		case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
-		{
-			if (trigger_iter->triggerActor->userData)
-			{
-				Actor* self = (Actor*)trigger_iter->triggerActor->userData;
-				if (self->m_EventEnterTrigger && trigger_iter->otherActor->userData)
-				{
-					Actor* other = (Actor*)trigger_iter->otherActor->userData;
-					TriggerEventArg arg(self, other);
-					self->m_EventEnterTrigger(&arg);
-				}
-			}
-			break;
-		}
-		case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
-		{
-			if (trigger_iter->triggerActor->userData)
-			{
-				Actor* self = (Actor*)trigger_iter->triggerActor->userData;
-				if (self->m_EventLeaveTrigger && trigger_iter->otherActor->userData)
-				{
-					Actor* other = (Actor*)trigger_iter->otherActor->userData;
-					TriggerEventArg arg(self, other);
-					self->m_EventLeaveTrigger(&arg);
-				}
-			}
-			break;
-		}
-		}
-	}
-
 	//if (player && player->m_Node)
 	//{
 	//	m_EventSystem->set3DListenerAttributes(0,

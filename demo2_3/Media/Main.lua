@@ -65,12 +65,6 @@ cmp5.SimulationFilterWord0=2
 cmp5.QueryFilterWord0=2
 cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
 cmp5:SetShapeFlag(Component.eTRIGGER_SHAPE,true)
-actor5.EventEnterTrigger=function(arg)
-	print("enter trigger: "..arg.other.Name)
-end
-actor5.EventLeaveTrigger=function(arg)
-	print("leave trigger: "..arg.other.Name)
-end
 
 -- 加载场景资源
 scene01=nil

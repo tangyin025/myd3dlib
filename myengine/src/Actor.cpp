@@ -45,6 +45,12 @@ Actor::~Actor(void)
 
 	ClearAllComponent();
 
+	_ASSERT(m_EventEnterTrigger.empty());
+
+	_ASSERT(m_EventLeaveTrigger.empty());
+
+	_ASSERT(m_EventPxThreadShapeHit.empty());
+
 	_ASSERT(m_Attaches.empty());
 
 	_ASSERT(!m_Base);

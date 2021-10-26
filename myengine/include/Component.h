@@ -132,7 +132,7 @@ public:
 	{
 	}
 
-	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
+	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
 	{
 	}
 
@@ -141,6 +141,18 @@ public:
 	}
 
 	virtual void OnPxThreadSubstep(float dtime)
+	{
+	}
+
+	virtual void OnEnterTrigger(my::EventArg * arg)
+	{
+	}
+
+	virtual void OnLeaveTrigger(my::EventArg * arg)
+	{
+	}
+
+	virtual void OnPxThreadShapeHit(my::EventArg * arg)
 	{
 	}
 

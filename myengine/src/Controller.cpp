@@ -139,20 +139,17 @@ unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elap
 
 void Controller::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
-	//_ASSERT(m_Actor);
+	_ASSERT(m_Actor);
 
-	//if (m_Actor->m_EventShapeHit)
-	//{
-	//	ShapeHitEventArg arg(m_Actor, this, (Actor *)hit.actor->userData, (Component *)hit.shape->userData);
-	//	_ASSERT(arg.other);
-	//	_ASSERT(arg.other_cmp);
-	//	arg.worldPos = (Vector3 &)hit.worldPos;
-	//	arg.worldNormal = (Vector3 &)hit.worldNormal;
-	//	arg.dir = (Vector3 &)hit.dir;
-	//	arg.length = hit.length;
-	//	arg.triangleIndex = hit.triangleIndex;
-	//	m_Actor->m_EventShapeHit(&arg);
-	//}
+	ShapeHitEventArg arg(m_Actor, this, (Actor*)hit.actor->userData, (Component*)hit.shape->userData);
+	_ASSERT(arg.other);
+	_ASSERT(arg.other_cmp);
+	arg.worldPos = (Vector3&)hit.worldPos;
+	arg.worldNormal = (Vector3&)hit.worldNormal;
+	arg.dir = (Vector3&)hit.dir;
+	arg.length = hit.length;
+	arg.triangleIndex = hit.triangleIndex;
+	m_Actor->m_EventPxThreadShapeHit(&arg);
 }
 
 void Controller::onControllerHit(const physx::PxControllersHit& hit)
