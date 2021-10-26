@@ -185,7 +185,7 @@ static LPCTSTR GetFontAlignDesc(DWORD mask)
 // CResourceViewBar
 
 CPropertiesWnd::CPropertiesWnd()
-	: m_IsOnPropertyChanged(FALSE)
+	: m_OnPropertyChangeMuted(FALSE)
 {
 	memset(&m_pProp, 0, sizeof(m_pProp));
 }
@@ -241,7 +241,7 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 	CMainFrame::ActorList::iterator actor_iter = pFrame->m_selactors.begin();
 	if (actor_iter != pFrame->m_selactors.end())
 	{
-		if (!m_IsOnPropertyChanged)
+		if (!m_OnPropertyChangeMuted)
 		{
 			if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField
 				|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
@@ -259,7 +259,7 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 	}
 	else if (pFrame->m_selctl)
 	{
-		if (!m_IsOnPropertyChanged)
+		if (!m_OnPropertyChangeMuted)
 		{
 			UpdatePropertiesControl(pFrame->m_selctl);
 			m_wndPropList.AdjustLayout();
@@ -3032,10 +3032,10 @@ void CPropertiesWnd::SetPropListFont()
 
 afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
-	m_IsOnPropertyChanged = TRUE;
-	BOOST_SCOPE_EXIT(&m_IsOnPropertyChanged)
+	m_OnPropertyChangeMuted = TRUE;
+	BOOST_SCOPE_EXIT(&m_OnPropertyChangeMuted)
 	{
-		m_IsOnPropertyChanged = FALSE;
+		m_OnPropertyChangeMuted = FALSE;
 	}
 	BOOST_SCOPE_EXIT_END
 

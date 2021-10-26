@@ -102,7 +102,7 @@ void Controller::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, L
 
 void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 {
-	if (m_muted)
+	if (m_PxControllerMoveMuted)
 	{
 		return;
 	}
@@ -124,10 +124,10 @@ unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elap
 		physx::PxTransform pose(physx::toVec3(m_PxController->getFootPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
 
 		// ! recursively call Controller::SetPxPoseOrbyPxThread
-		m_muted = true;
-		BOOST_SCOPE_EXIT(&m_muted)
+		m_PxControllerMoveMuted = true;
+		BOOST_SCOPE_EXIT(&m_PxControllerMoveMuted)
 		{
-			m_muted = false;
+			m_PxControllerMoveMuted = false;
 		}
 		BOOST_SCOPE_EXIT_END
 

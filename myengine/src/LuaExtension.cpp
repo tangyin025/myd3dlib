@@ -29,6 +29,7 @@ extern "C"
 #include "NavigationSerialization.h"
 #include "ActionTrack.h"
 #include "noise.h"
+#include <boost/scope_exit.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -190,8 +191,15 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 struct ScriptComponent : Component, luabind::wrap_base
 {
+#ifdef _DEBUG
+	bool m_OnPxThreadSubstepMuted;
+#endif
+
 	ScriptComponent(const char* Name)
 		: Component(Name)
+#ifdef _DEBUG
+		, m_OnPxThreadSubstepMuted(false)
+#endif
 	{
 		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::AddComponent
 	}
@@ -285,6 +293,15 @@ struct ScriptComponent : Component, luabind::wrap_base
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
+#ifdef _DEBUG
+		m_OnPxThreadSubstepMuted = true;
+		BOOST_SCOPE_EXIT(&m_OnPxThreadSubstepMuted)
+		{
+			m_OnPxThreadSubstepMuted = false;
+		}
+		BOOST_SCOPE_EXIT_END
+#endif
+
 		try
 		{
 			luabind::wrap_base::call<void>("OnPxThreadSubstep", dtime);
@@ -337,6 +354,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
 	{
 		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		_ASSERT(m_OnPxThreadSubstepMuted);
 
 		try
 		{
