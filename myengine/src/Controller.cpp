@@ -64,12 +64,17 @@ void Controller::EnterPhysxScene(PhysxScene * scene)
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
-	desc.userData = this;
+	desc.userData = NULL;
 	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysxDeleter<physx::PxController>());
 
-	//// ! recursively call Actor::OnPxTransformChanged
-	//physx::PxActor * actor = m_PxController->getActor();
+	//// ! recursively call Actor::SetPose by PhysxScene::TickPostRender
+	physx::PxRigidDynamic * actor = m_PxController->getActor()->is<physx::PxRigidDynamic>();
+	_ASSERT(actor);
 	//actor->userData = m_Actor;
+	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
+	actor->getShapes(shapes.data(), shapes.size());
+	_ASSERT(!shapes.empty());
+	shapes.front()->userData = this;
 }
 
 void Controller::LeavePhysxScene(PhysxScene * scene)
@@ -90,10 +95,7 @@ void Controller::LeavePhysxScene(PhysxScene * scene)
 
 void Controller::Update(float fElapsedTime)
 {
-	if (m_PxController)
-	{
-		m_Actor->SetPose((my::Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
-	}
+	m_Actor->SetPose((my::Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
 }
 
 void Controller::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
@@ -141,15 +143,18 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit& hit)
 {
 	_ASSERT(m_Actor);
 
-	ShapeHitEventArg arg(m_Actor, this, (Actor*)hit.actor->userData, (Component*)hit.shape->userData);
-	_ASSERT(arg.other);
-	_ASSERT(arg.other_cmp);
-	arg.worldPos = (Vector3&)hit.worldPos;
-	arg.worldNormal = (Vector3&)hit.worldNormal;
-	arg.dir = (Vector3&)hit.dir;
-	arg.length = hit.length;
-	arg.triangleIndex = hit.triangleIndex;
-	m_Actor->m_EventPxThreadShapeHit(&arg);
+	if (hit.shape->userData)
+	{
+		// ! PxControllerShapeHit::actor may not have userData for Controller objs
+		Component* other_cmp = (Component*)hit.shape->userData;
+		ShapeHitEventArg arg(m_Actor, this, other_cmp->m_Actor, other_cmp);
+		arg.worldPos = (Vector3&)hit.worldPos;
+		arg.worldNormal = (Vector3&)hit.worldNormal;
+		arg.dir = (Vector3&)hit.dir;
+		arg.length = hit.length;
+		arg.triangleIndex = hit.triangleIndex;
+		m_Actor->m_EventPxThreadShapeHit(&arg);
+	}
 }
 
 void Controller::onControllerHit(const physx::PxControllersHit& hit)
