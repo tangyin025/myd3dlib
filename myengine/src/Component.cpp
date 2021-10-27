@@ -1307,7 +1307,7 @@ void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * sha
 	}
 }
 
-void ClothComponent::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
+void ClothComponent::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
 {
 	if (m_Cloth)
 	{

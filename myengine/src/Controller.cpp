@@ -98,11 +98,11 @@ void Controller::Update(float fElapsedTime)
 	m_Actor->SetPose((my::Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
 }
 
-void Controller::OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam)
+void Controller::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 }
 
-void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
+void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
 {
 	if (m_PxControllerMoveMuted)
 	{
@@ -115,7 +115,7 @@ void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
 	}
 }
 
-unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elapsedTime)
+unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime)
 {
 	physx::PxControllerCollisionFlags moveFlags;
 
@@ -139,7 +139,7 @@ unsigned int Controller::Move(const my::Vector3& disp, float minDist, float elap
 	return moveFlags;
 }
 
-void Controller::onShapeHit(const physx::PxControllerShapeHit& hit)
+void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 {
 	_ASSERT(m_Actor);
 
@@ -157,27 +157,27 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit& hit)
 	}
 }
 
-void Controller::onControllerHit(const physx::PxControllersHit& hit)
+void Controller::onControllerHit(const physx::PxControllersHit & hit)
 {
 
 }
 
-void Controller::onObstacleHit(const physx::PxControllerObstacleHit& hit)
+void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 {
 
 }
 
-physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor)
-{
-	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
-}
-
-physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxController& controller)
+physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxShape & shape, const physx::PxActor & actor)
 {
 	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }
 
-physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle& obstacle)
+physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxController & controller)
+{
+	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
+}
+
+physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle & obstacle)
 {
 	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
 }

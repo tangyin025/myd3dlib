@@ -422,7 +422,7 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateOctNode();
 }
 
-void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform& pose)
+void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
 {
 	if (m_PxActor)
 	{

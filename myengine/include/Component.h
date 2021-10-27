@@ -406,7 +406,7 @@ public:
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose);
+	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform & pose);
 
 	virtual my::AABB CalculateAABB(void) const;
 

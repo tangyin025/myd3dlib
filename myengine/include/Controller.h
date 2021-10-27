@@ -72,25 +72,25 @@ public:
 
 	virtual void LeavePhysxScene(PhysxScene * scene);
 
-	virtual void OnSetShader(IDirect3DDevice9* pd3dDevice, my::Effect* shader, LPARAM lparam);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
-	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform& pose);
+	virtual void SetPxPoseOrbyPxThread(const physx::PxTransform & pose);
 
 	virtual void Update(float fElapsedTime);
 
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime);
 
-	virtual void onShapeHit(const physx::PxControllerShapeHit& hit);
+	virtual void onShapeHit(const physx::PxControllerShapeHit & hit);
 
-	virtual void onControllerHit(const physx::PxControllersHit& hit);
+	virtual void onControllerHit(const physx::PxControllersHit & hit);
 
-	virtual void onObstacleHit(const physx::PxControllerObstacleHit& hit);
+	virtual void onObstacleHit(const physx::PxControllerObstacleHit & hit);
 
-	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor);
+	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxShape & shape, const physx::PxActor & actor);
 
-	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxController& controller);
+	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxController & controller);
 
-	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxObstacle& obstacle);
+	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxObstacle & obstacle);
 };
 
 typedef boost::shared_ptr<Controller> ControllerPtr;
