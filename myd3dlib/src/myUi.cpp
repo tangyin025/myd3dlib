@@ -1223,54 +1223,63 @@ bool Control::SetFocusRecursive(void)
 	return false;
 }
 
+static float _GetNearestDist(const my::Rectangle & rcSrc, const my::Rectangle & rcDst, DWORD dir)
+{
+	float dist = FLT_MAX;
+	switch (dir)
+	{
+	case VK_UP:
+		if (rcDst.Center().y < rcSrc.t)
+		{
+			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+		}
+		break;
+	case VK_DOWN:
+		if (rcDst.Center().y > rcSrc.b)
+		{
+			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+		}
+		break;
+	case VK_LEFT:
+		if (rcDst.Center().x < rcSrc.l)
+		{
+			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+		}
+		break;
+	case VK_RIGHT:
+		if (rcDst.Center().x > rcSrc.r)
+		{
+			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+		}
+		break;
+	}
+	return dist;
+}
+
 void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist)
 {
-	Control * local_nearest_ctrl = NULL;
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	if (m_bVisible)
 	{
-		(*ctrl_iter)->GetNearestControl(rect, dir, &local_nearest_ctrl, nearest_ctrl_dist);
-	}
-
-	if (local_nearest_ctrl)
-	{
-		*nearest_ctrl = local_nearest_ctrl;
-		return;
-	}
-	else if (CanHaveFocus())
-	{
-		float dist = FLT_MAX;
-		switch (dir)
+		Control* local_nearest_ctrl = NULL;
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-		case VK_UP:
-			if (m_Rect.b < rect.t)
-			{
-				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
-			}
-			break;
-		case VK_DOWN:
-			if (m_Rect.t > rect.b)
-			{
-				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
-			}
-			break;
-		case VK_LEFT:
-			if (m_Rect.r < rect.l)
-			{
-				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
-			}
-			break;
-		case VK_RIGHT:
-			if (m_Rect.l > rect.r)
-			{
-				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
-			}
-			break;
+			(*ctrl_iter)->GetNearestControl(rect, dir, &local_nearest_ctrl, nearest_ctrl_dist);
 		}
-		if (dist > 0 && dist < nearest_ctrl_dist)
+
+		if (local_nearest_ctrl)
 		{
-			*nearest_ctrl = this;
-			nearest_ctrl_dist = dist;
+			*nearest_ctrl = local_nearest_ctrl;
+			return;
+		}
+		else if (CanHaveFocus())
+		{
+			float dist = _GetNearestDist(rect, m_Rect, dir);
+			if (dist > 0 && dist < nearest_ctrl_dist)
+			{
+				*nearest_ctrl = this;
+				nearest_ctrl_dist = dist;
+			}
 		}
 	}
 }
@@ -3863,7 +3872,7 @@ Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 				int idx = i * m_ItemColumn + j;
 				if (idx < m_Childs.size())
 				{
-					Control* ctrl = m_Childs[i]->GetChildAtPoint(pt, bIgnoreVisible);
+					Control* ctrl = m_Childs[idx]->GetChildAtPoint(pt, bIgnoreVisible);
 					if (ctrl)
 					{
 						return ctrl;
@@ -3878,6 +3887,52 @@ Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 		}
 	}
 	return NULL;
+}
+
+void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist)
+{
+	if (m_bVisible)
+	{
+		Vector2 cent = rect.Center();
+		int ibegin, iend;
+		float y;
+		if (cent.y < m_Rect.t)
+		{
+			ibegin = 0;
+			iend = 1;
+			y = m_Rect.t;
+		}
+		else if (cent.y > m_Rect.b)
+		{
+			ibegin = m_ScrollBar.m_nEnd - 1;
+			iend = m_ScrollBar.m_nEnd;
+			y = m_Rect.t + (m_ScrollBar.m_nPageSize - 1) * m_ItemSize.y;
+		}
+		else
+		{
+			ibegin = m_ScrollBar.m_nPosition;
+			iend = m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize;
+			y = m_Rect.t;
+		}
+		for (int i = ibegin; i < iend; i++, y += m_ItemSize.y)
+		{
+			float x = m_Rect.l;
+			for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
+			{
+				int idx = i * m_ItemColumn + j;
+				if (idx < m_Childs.size())
+				{
+					Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
+					float dist = _GetNearestDist(rect, ItemRect, dir);
+					if (dist > 0 && dist < nearest_ctrl_dist)
+					{
+						*nearest_ctrl = m_Childs[idx].get();
+						nearest_ctrl_dist = dist;
+					}
+				}
+			}
+		}
+	}
 }
 
 void ListBox::SetScrollbarWidth(float Width)
@@ -4092,7 +4147,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 bool Dialog::CanHaveFocus(void) const
 {
-	return m_bVisible && m_bEnabled && m_Skin;
+	return false;
 }
 
 void Dialog::SetVisible(bool bVisible)

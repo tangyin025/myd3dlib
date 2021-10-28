@@ -506,7 +506,7 @@ namespace my
 
 		bool SetFocusRecursive(void);
 
-		void GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist);
+		virtual void GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist);
 
 		void SetHotkey(UINT nHotkey);
 
@@ -1416,6 +1416,8 @@ namespace my
 		virtual void ClearAllControl(void);
 
 		virtual Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
+
+		virtual void GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist);
 
 		void SetScrollbarWidth(float Width);
 
