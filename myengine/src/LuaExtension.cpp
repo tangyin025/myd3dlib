@@ -1183,7 +1183,6 @@ void LuaContext::Init(void)
 
 		, class_<my::ListBoxSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ListBoxSkin")
 			.def(constructor<>())
-			.def_readwrite("MouseOverImage", &my::ListBoxSkin::m_MouseOverImage)
 			.def_readwrite("ScrollBarUpBtnNormalImage", &my::ListBoxSkin::m_ScrollBarUpBtnNormalImage)
 			.def_readwrite("ScrollBarUpBtnDisabledImage", &my::ListBoxSkin::m_ScrollBarUpBtnDisabledImage)
 			.def_readwrite("ScrollBarDownBtnNormalImage", &my::ListBoxSkin::m_ScrollBarDownBtnNormalImage)

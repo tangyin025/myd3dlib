@@ -2130,10 +2130,6 @@ void CMainFrame::OnControlListbox()
 	skin->m_FontFaceIndex = theApp.default_font_face_index;
 	skin->m_TextColor = theApp.default_listbox_text_color;
 	skin->m_TextAlign = theApp.default_listbox_text_align;
-	skin->m_MouseOverImage.reset(new my::ControlImage());
-	skin->m_MouseOverImage->m_TexturePath = theApp.default_listbox_mouseoverimg;
-	skin->m_MouseOverImage->m_Rect = theApp.default_listbox_mouseoverimg_rect;
-	skin->m_MouseOverImage->m_Border = theApp.default_listbox_mouseoverimg_border;
 	skin->m_ScrollBarUpBtnNormalImage.reset(new my::ControlImage());
 	skin->m_ScrollBarUpBtnNormalImage->m_TexturePath = theApp.default_listbox_scrollbarupbtn_normalimg;
 	skin->m_ScrollBarUpBtnNormalImage->m_Rect = theApp.default_listbox_scrollbarupbtn_normalimg_rect;

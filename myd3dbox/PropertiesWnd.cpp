@@ -1137,75 +1137,65 @@ void CPropertiesWnd::UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)listbox->m_Childs.size());
 
 	my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
-	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.x);
-	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.y);
-	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.z);
-	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_MouseOverImage->m_Border.w);
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarUpBtnNormalImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 5)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 5)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.x);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.y);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.z);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 7)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarUpBtnNormalImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.x);
-	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.y);
-	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.z);
-	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnNormalImage->m_Border.w);
+	pControl->GetSubItem(PropId + 7)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarUpBtnDisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 8)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 8)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 8)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 8)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 10)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarUpBtnDisabledImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 11)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 11)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.x);
-	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.y);
-	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.z);
-	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarUpBtnDisabledImage->m_Border.w);
+	pControl->GetSubItem(PropId + 10)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarDownBtnNormalImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 11)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 11)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 11)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 11)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.x);
+	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.y);
+	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.z);
+	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 13)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarDownBtnNormalImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 14)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 14)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 14)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 14)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 15)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.x);
-	pControl->GetSubItem(PropId + 15)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.y);
-	pControl->GetSubItem(PropId + 15)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.z);
-	pControl->GetSubItem(PropId + 15)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnNormalImage->m_Border.w);
+	pControl->GetSubItem(PropId + 13)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarDownBtnDisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 14)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 14)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 14)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 14)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 15)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 15)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 15)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 15)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 16)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarDownBtnDisabledImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 17)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 17)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 17)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 17)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 18)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.x);
-	pControl->GetSubItem(PropId + 18)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.y);
-	pControl->GetSubItem(PropId + 18)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.z);
-	pControl->GetSubItem(PropId + 18)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarDownBtnDisabledImage->m_Border.w);
+	pControl->GetSubItem(PropId + 16)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarThumbBtnNormalImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 17)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 17)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 17)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 17)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 18)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.x);
+	pControl->GetSubItem(PropId + 18)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.y);
+	pControl->GetSubItem(PropId + 18)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.z);
+	pControl->GetSubItem(PropId + 18)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.w);
 
-	pControl->GetSubItem(PropId + 19)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarThumbBtnNormalImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 20)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 20)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 20)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 20)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 21)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.x);
-	pControl->GetSubItem(PropId + 21)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.y);
-	pControl->GetSubItem(PropId + 21)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.z);
-	pControl->GetSubItem(PropId + 21)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarThumbBtnNormalImage->m_Border.w);
-
-	pControl->GetSubItem(PropId + 22)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarImage->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 23)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.l);
-	pControl->GetSubItem(PropId + 23)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.t);
-	pControl->GetSubItem(PropId + 23)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.Width());
-	pControl->GetSubItem(PropId + 23)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.Height());
-	pControl->GetSubItem(PropId + 24)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.x);
-	pControl->GetSubItem(PropId + 24)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.y);
-	pControl->GetSubItem(PropId + 24)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.z);
-	pControl->GetSubItem(PropId + 24)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.w);
+	pControl->GetSubItem(PropId + 19)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 20)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 20)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 20)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 20)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 21)->GetSubItem(0)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.x);
+	pControl->GetSubItem(PropId + 21)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.y);
+	pControl->GetSubItem(PropId + 21)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.z);
+	pControl->GetSubItem(PropId + 21)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.w);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -2487,31 +2477,6 @@ void CPropertiesWnd::CreatePropertiesListBox(CMFCPropertyGridProperty * pControl
 	pControl->AddSubItem(pItemCount);
 
 	my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
-
-	CMFCPropertyGridProperty* pMouseOverImagePath = new CFileProp(_T("MouseOverImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyListBoxMouseOverImagePath);
-	pControl->AddSubItem(pMouseOverImagePath);
-
-	CMFCPropertyGridProperty* pMouseOverImageRect = new CSimpleProp(_T("MouseOverImageRect"), PropertyListBoxMouseOverImageRect, TRUE);
-	pControl->AddSubItem(pMouseOverImageRect);
-	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_MouseOverImage->m_Rect.l, NULL, PropertyListBoxMouseOverImageRectLeft);
-	pMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_MouseOverImage->m_Rect.t, NULL, PropertyListBoxMouseOverImageRectTop);
-	pMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_MouseOverImage->m_Rect.Width(), NULL, PropertyListBoxMouseOverImageRectWidth);
-	pMouseOverImageRect->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_MouseOverImage->m_Rect.Height(), NULL, PropertyListBoxMouseOverImageRectHeight);
-	pMouseOverImageRect->AddSubItem(pProp);
-
-	CMFCPropertyGridProperty* pMouseOverImageBorder = new CSimpleProp(_T("MouseOverImageBorder"), PropertyListBoxMouseOverImageBorder, TRUE);
-	pControl->AddSubItem(pMouseOverImageBorder);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_MouseOverImage->m_Border.x, NULL, PropertyListBoxMouseOverImageBorderX);
-	pMouseOverImageBorder->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_MouseOverImage->m_Border.y, NULL, PropertyListBoxMouseOverImageBorderY);
-	pMouseOverImageBorder->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_MouseOverImage->m_Border.z, NULL, PropertyListBoxMouseOverImageBorderZ);
-	pMouseOverImageBorder->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_MouseOverImage->m_Border.w, NULL, PropertyListBoxMouseOverImageBorderW);
-	pMouseOverImageBorder->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImagePath = new CFileProp(_T("ScrollBarUpBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_ScrollBarUpBtnNormalImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyListBoxScrollBarUpBtnNormalImagePath);
 	pControl->AddSubItem(pScrollBarUpBtnNormalImagePath);
@@ -5502,72 +5467,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyListBoxMouseOverImagePath:
-	{
-		my::ListBox* listbox = dynamic_cast<my::ListBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
-		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
-		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
-			UpdatePropertiesControl(listbox);
-			return 0;
-		}
-		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
-		skin->m_MouseOverImage->ReleaseResource();
-		skin->m_MouseOverImage->m_TexturePath = path;
-		if (skin->IsRequested())
-		{
-			skin->m_MouseOverImage->RequestResource();
-		}
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyListBoxMouseOverImageRect:
-	case PropertyListBoxMouseOverImageRectLeft:
-	case PropertyListBoxMouseOverImageRectTop:
-	case PropertyListBoxMouseOverImageRectWidth:
-	case PropertyListBoxMouseOverImageRectHeight:
-	case PropertyListBoxMouseOverImageBorder:
-	case PropertyListBoxMouseOverImageBorderX:
-	case PropertyListBoxMouseOverImageBorderY:
-	case PropertyListBoxMouseOverImageBorderZ:
-	case PropertyListBoxMouseOverImageBorderW:
-	{
-		CMFCPropertyGridProperty* pControl = NULL;
-		switch (PropertyId)
-		{
-		case PropertyListBoxMouseOverImageRectLeft:
-		case PropertyListBoxMouseOverImageRectTop:
-		case PropertyListBoxMouseOverImageRectWidth:
-		case PropertyListBoxMouseOverImageRectHeight:
-		case PropertyListBoxMouseOverImageBorderX:
-		case PropertyListBoxMouseOverImageBorderY:
-		case PropertyListBoxMouseOverImageBorderZ:
-		case PropertyListBoxMouseOverImageBorderW:
-			pControl = pProp->GetParent()->GetParent();
-			break;
-		case PropertyListBoxMouseOverImageRect:
-		case PropertyListBoxMouseOverImageBorder:
-			pControl = pProp->GetParent();
-			break;
-		}
-		my::ListBox* listbox = dynamic_cast<my::ListBox*>((my::Control*)pControl->GetValue().pulVal);
-		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
-		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-		skin->m_MouseOverImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_MouseOverImage->m_Border.x = pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_MouseOverImage->m_Border.y = pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_MouseOverImage->m_Border.z = pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_MouseOverImage->m_Border.w = pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().fltVal;
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
 	case PropertyListBoxScrollBarUpBtnNormalImagePath:
 	{
 		my::ListBox* listbox = dynamic_cast<my::ListBox*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
@@ -5622,14 +5521,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
 		skin->m_ScrollBarUpBtnNormalImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 8)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 8)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 8)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 8)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_ScrollBarUpBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_ScrollBarUpBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_ScrollBarUpBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_ScrollBarUpBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 5)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 5)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 5)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 5)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ScrollBarUpBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ScrollBarUpBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ScrollBarUpBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ScrollBarUpBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -5688,14 +5587,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
 		skin->m_ScrollBarUpBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 11)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 11)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 11)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 11)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_ScrollBarUpBtnDisabledImage->m_Border.x = pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_ScrollBarUpBtnDisabledImage->m_Border.y = pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_ScrollBarUpBtnDisabledImage->m_Border.z = pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_ScrollBarUpBtnDisabledImage->m_Border.w = pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 8)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 8)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 8)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 8)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ScrollBarUpBtnDisabledImage->m_Border.x = pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ScrollBarUpBtnDisabledImage->m_Border.y = pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ScrollBarUpBtnDisabledImage->m_Border.z = pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ScrollBarUpBtnDisabledImage->m_Border.w = pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -5754,14 +5653,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
 		skin->m_ScrollBarDownBtnNormalImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 14)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 14)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 14)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 14)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_ScrollBarDownBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 15)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_ScrollBarDownBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 15)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_ScrollBarDownBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 15)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_ScrollBarDownBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 15)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 11)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 11)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 11)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 11)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ScrollBarDownBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ScrollBarDownBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ScrollBarDownBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ScrollBarDownBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -5820,14 +5719,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
 		skin->m_ScrollBarDownBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 17)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 17)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 17)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 17)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_ScrollBarDownBtnDisabledImage->m_Border.x = pControl->GetSubItem(PropId + 18)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_ScrollBarDownBtnDisabledImage->m_Border.y = pControl->GetSubItem(PropId + 18)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_ScrollBarDownBtnDisabledImage->m_Border.z = pControl->GetSubItem(PropId + 18)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_ScrollBarDownBtnDisabledImage->m_Border.w = pControl->GetSubItem(PropId + 18)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 14)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 14)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 14)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 14)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ScrollBarDownBtnDisabledImage->m_Border.x = pControl->GetSubItem(PropId + 15)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ScrollBarDownBtnDisabledImage->m_Border.y = pControl->GetSubItem(PropId + 15)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ScrollBarDownBtnDisabledImage->m_Border.z = pControl->GetSubItem(PropId + 15)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ScrollBarDownBtnDisabledImage->m_Border.w = pControl->GetSubItem(PropId + 15)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -5886,14 +5785,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
 		skin->m_ScrollBarThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 20)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 20)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 20)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 20)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_ScrollBarThumbBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 21)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_ScrollBarThumbBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 21)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_ScrollBarThumbBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 21)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_ScrollBarThumbBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 21)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 17)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 17)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 17)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 17)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ScrollBarThumbBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 18)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ScrollBarThumbBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 18)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ScrollBarThumbBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 18)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ScrollBarThumbBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 18)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -5952,14 +5851,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
 		skin->m_ScrollBarImage->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(PropId + 23)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 23)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 23)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(PropId + 23)->GetSubItem(3)->GetValue().fltVal);
-		skin->m_ScrollBarImage->m_Border.x = pControl->GetSubItem(PropId + 24)->GetSubItem(0)->GetValue().fltVal;
-		skin->m_ScrollBarImage->m_Border.y = pControl->GetSubItem(PropId + 24)->GetSubItem(1)->GetValue().fltVal;
-		skin->m_ScrollBarImage->m_Border.z = pControl->GetSubItem(PropId + 24)->GetSubItem(2)->GetValue().fltVal;
-		skin->m_ScrollBarImage->m_Border.w = pControl->GetSubItem(PropId + 24)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(PropId + 20)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 20)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 20)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 20)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ScrollBarImage->m_Border.x = pControl->GetSubItem(PropId + 21)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ScrollBarImage->m_Border.y = pControl->GetSubItem(PropId + 21)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ScrollBarImage->m_Border.z = pControl->GetSubItem(PropId + 21)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ScrollBarImage->m_Border.w = pControl->GetSubItem(PropId + 21)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

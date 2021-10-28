@@ -1308,8 +1308,6 @@ namespace my
 	class ListBoxSkin : public ControlSkin
 	{
 	public:
-		ControlImagePtr m_MouseOverImage;
-
 		ControlImagePtr m_ScrollBarUpBtnNormalImage;
 
 		ControlImagePtr m_ScrollBarUpBtnDisabledImage;
@@ -1331,7 +1329,6 @@ namespace my
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
-			ar & BOOST_SERIALIZATION_NVP(m_MouseOverImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnNormalImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnDisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnNormalImage);

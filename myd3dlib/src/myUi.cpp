@@ -3589,10 +3589,6 @@ UINT ComboBox::GetNumItems(void)
 void ListBoxSkin::RequestResource(void)
 {
 	ControlSkin::RequestResource();
-	if (m_MouseOverImage)
-	{
-		m_MouseOverImage->RequestResource();
-	}
 	if (m_ScrollBarUpBtnNormalImage)
 	{
 		m_ScrollBarUpBtnNormalImage->RequestResource();
@@ -3622,10 +3618,6 @@ void ListBoxSkin::RequestResource(void)
 void ListBoxSkin::ReleaseResource(void)
 {
 	ControlSkin::ReleaseResource();
-	if (m_MouseOverImage)
-	{
-		m_MouseOverImage->ReleaseResource();
-	}
 	if (m_ScrollBarUpBtnNormalImage)
 	{
 		m_ScrollBarUpBtnNormalImage->ReleaseResource();
@@ -3655,10 +3647,6 @@ void ListBoxSkin::ReleaseResource(void)
 void ListBoxSkin::CopyFrom(const ListBoxSkin & rhs)
 {
 	ControlSkin::CopyFrom(rhs);
-	if (rhs.m_MouseOverImage)
-	{
-		m_MouseOverImage = rhs.m_MouseOverImage->Clone();
-	}
 	if (rhs.m_ScrollBarUpBtnNormalImage)
 	{
 		m_ScrollBarUpBtnNormalImage = rhs.m_ScrollBarUpBtnNormalImage->Clone();

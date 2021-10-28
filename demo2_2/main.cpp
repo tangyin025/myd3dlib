@@ -306,7 +306,6 @@ public:
 		skin->m_TextColor = D3DCOLOR_ARGB(255, 255, 0, 0);
 		skin->m_TextAlign = my::Font::AlignCenterMiddle;
 		skin->m_Image = image2;
-		skin->m_MouseOverImage = image;
 		skin->m_ScrollBarUpBtnNormalImage = image;
 		skin->m_ScrollBarUpBtnDisabledImage = image2;
 		skin->m_ScrollBarDownBtnNormalImage = image;
