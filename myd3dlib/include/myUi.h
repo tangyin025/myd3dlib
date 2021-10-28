@@ -500,7 +500,7 @@ namespace my
 
 		bool ContainsControl(Control * control) const;
 
-		Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
+		virtual Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 
 		Control * GetTopControl(void);
 
@@ -1361,15 +1361,12 @@ namespace my
 
 		int m_ItemColumn;
 
-		CPoint m_iFocused;
-
 	protected:
 		ListBox(void)
 			: m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_ItemSize(50, 50)
 			, m_ItemColumn(1)
-			, m_iFocused(-1, -1)
 		{
 		}
 
@@ -1417,6 +1414,8 @@ namespace my
 		virtual void RemoveControl(ControlPtr control);
 
 		virtual void ClearAllControl(void);
+
+		virtual Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 
 		void SetScrollbarWidth(float Width);
 

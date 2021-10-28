@@ -3687,7 +3687,6 @@ ListBox::ListBox(const char* Name)
 	, m_ScrollbarUpDownBtnHeight(20)
 	, m_ItemSize(50, 50)
 	, m_ItemColumn(1)
-	, m_iFocused(-1, -1)
 {
 	OnLayout();
 }
@@ -3724,9 +3723,8 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			int i = m_ScrollBar.m_nPosition;
 			float y = m_Rect.t;
-			for (; i < m_ScrollBar.m_nEnd && i < m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize; i++, y += m_ItemSize.y)
+			for (int i = m_ScrollBar.m_nPosition; i < m_ScrollBar.m_nEnd && i < m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize; i++, y += m_ItemSize.y)
 			{
 				float x = m_Rect.l;
 				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
@@ -3852,6 +3850,34 @@ void ListBox::ClearAllControl(void)
 	Control::ClearAllControl();
 
 	m_ScrollBar.m_nEnd = 0;
+}
+
+Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
+{
+	if (bIgnoreVisible || m_bEnabled && m_bVisible)
+	{
+		for (int i = m_ScrollBar.m_nPosition; i < m_ScrollBar.m_nEnd && i < m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize; i++)
+		{
+			for (int j = 0; j < m_ItemColumn; j++)
+			{
+				int idx = i * m_ItemColumn + j;
+				if (idx < m_Childs.size())
+				{
+					Control* ctrl = m_Childs[i]->GetChildAtPoint(pt, bIgnoreVisible);
+					if (ctrl)
+					{
+						return ctrl;
+					}
+				}
+			}
+		}
+
+		if (HitTest(pt))
+		{
+			return this;
+		}
+	}
+	return NULL;
 }
 
 void ListBox::SetScrollbarWidth(float Width)
