@@ -1243,27 +1243,27 @@ void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control *
 		switch (dir)
 		{
 		case VK_UP:
-			if (m_Rect.l < rect.r && m_Rect.r > rect.l)
+			if (m_Rect.b < rect.t)
 			{
-				dist = rect.b - m_Rect.b;
+				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
 			}
 			break;
 		case VK_DOWN:
-			if (m_Rect.l < rect.r && m_Rect.r > rect.l)
+			if (m_Rect.t > rect.b)
 			{
-				dist = m_Rect.t - rect.t;
+				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
 			}
 			break;
 		case VK_LEFT:
-			if (m_Rect.t < rect.b && m_Rect.b > rect.t)
+			if (m_Rect.r < rect.l)
 			{
-				dist = rect.r - m_Rect.r;
+				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
 			}
 			break;
 		case VK_RIGHT:
-			if (m_Rect.t < rect.b && m_Rect.b > rect.t)
+			if (m_Rect.l > rect.r)
 			{
-				dist = m_Rect.l - rect.l;
+				dist = (rect.Center() - m_Rect.Center()).magnitudeSq();
 			}
 			break;
 		}
