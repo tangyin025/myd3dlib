@@ -318,16 +318,16 @@ public:
 		listBox->m_Width.offset = 200;
 		listBox->OnLayout();
 		listBox->m_Skin = skin;
-		listBox->AddItem(L"aaa");
-		listBox->AddItem(L"bbb");
-		listBox->AddItem(L"ccc");
-		listBox->AddItem(L"ddd");
-		listBox->AddItem(L"eee");
-		listBox->AddItem(L"fff");
-		listBox->AddItem(L"ggg");
-		listBox->AddItem(L"hhh");
-		listBox->AddItem(L"iii");
-		listBox->AddItem(L"jjj");
+		//listBox->AddItem(L"aaa");
+		//listBox->AddItem(L"bbb");
+		//listBox->AddItem(L"ccc");
+		//listBox->AddItem(L"ddd");
+		//listBox->AddItem(L"eee");
+		//listBox->AddItem(L"fff");
+		//listBox->AddItem(L"ggg");
+		//listBox->AddItem(L"hhh");
+		//listBox->AddItem(L"iii");
+		//listBox->AddItem(L"jjj");
 		m_Dlg->InsertControl(listBox);
 
 		return S_OK;

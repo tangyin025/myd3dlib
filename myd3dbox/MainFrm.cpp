@@ -2163,10 +2163,10 @@ void CMainFrame::OnControlListbox()
 	listBox->m_Skin = skin;
 	listBox->m_x.offset = 10;
 	listBox->m_y.offset = 10;
-	for (int i = 0; i < 3; i++)
-	{
-		listBox->AddItem(str_printf(L"item%d", i));
-	}
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	listBox->AddItem(str_printf(L"item%d", i));
+	//}
 
 	m_selctl->InsertControl(listBox);
 	m_selctl = listBox.get();

@@ -321,7 +321,7 @@ namespace my
 			ControlTypeScript,
 		};
 
-		typedef std::list<ControlPtr> ControlPtrList;
+		typedef std::vector<ControlPtr> ControlPtrList;
 
 		ControlPtrList m_Childs;
 
@@ -492,11 +492,11 @@ namespace my
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld) const;
 
-		void InsertControl(ControlPtr control);
+		virtual void InsertControl(ControlPtr control);
 
-		void RemoveControl(ControlPtr control);
+		virtual void RemoveControl(ControlPtr control);
 
-		void ClearAllControl(void);
+		virtual void ClearAllControl(void);
 
 		bool ContainsControl(Control * control) const;
 
@@ -1351,19 +1351,6 @@ namespace my
 
 	typedef boost::shared_ptr<ListBoxSkin> ListBoxSkinPtr;
 
-	struct ListBoxItem
-	{
-		std::wstring strText;
-
-		void * pData;
-
-		RECT rcActive;
-
-		bool bSelected;
-	};
-
-	typedef boost::shared_ptr<ListBoxItem> ListBoxItemPtr;
-
 	class ListBox : public Control
 	{
 	public:
@@ -1372,10 +1359,6 @@ namespace my
 		float m_ScrollbarWidth;
 
 		float m_ScrollbarUpDownBtnHeight;
-
-		typedef std::vector<ListBoxItemPtr> ListBoxItemPtrList;
-
-		ListBoxItemPtrList m_Items;
 
 		Vector2 m_ItemSize;
 
@@ -1432,6 +1415,12 @@ namespace my
 
 		virtual void OnLayout(void);
 
+		virtual void InsertControl(ControlPtr control);
+
+		virtual void RemoveControl(ControlPtr control);
+
+		virtual void ClearAllControl(void);
+
 		void SetScrollbarWidth(float Width);
 
 		float GetScrollbarWidth(void) const;
@@ -1443,12 +1432,6 @@ namespace my
 		void SetItemSize(const my::Vector2 & ItemSize);
 
 		const my::Vector2 & GetItemSize(void) const;
-
-		void AddItem(const std::wstring& strText);
-
-		void RemoveAllItems(void);
-
-		UINT GetNumItems(void);
 	};
 
 	typedef boost::shared_ptr<ListBox> ListBoxPtr;

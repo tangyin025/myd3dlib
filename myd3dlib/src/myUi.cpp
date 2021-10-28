@@ -14,7 +14,7 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/list.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -3711,6 +3711,7 @@ void ListBox::save(Archive & ar, const unsigned int version) const
 	ar << boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
+	ar << BOOST_SERIALIZATION_NVP(m_ItemSize);
 }
 
 template<class Archive>
@@ -3720,6 +3721,7 @@ void ListBox::load(Archive & ar, const unsigned int version)
 	ar >> boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
+	ar >> BOOST_SERIALIZATION_NVP(m_ItemSize);
 	OnLayout();
 }
 
@@ -3742,19 +3744,11 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
 				{
 					int idx = i * m_ItemColumn + j;
-					if (idx < m_Items.size())
+					if (idx < m_Childs.size())
 					{
 						Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
 
-						Skin->DrawImage(ui_render, Skin->m_Image, ItemRect, Skin->m_Color);
-
-						if (m_iFocused == CPoint(i, j))
-						{
-							Skin->DrawImage(ui_render, Skin->m_MouseOverImage, ItemRect, Skin->m_Color);
-						}
-
-						ListBoxItem * item = m_Items[idx].get();
-						Skin->DrawString(ui_render, item->strText.c_str(), ItemRect, Skin->m_TextColor, Skin->m_TextAlign);
+						m_Childs[idx]->Draw(ui_render, fElapsedTime, ItemRect.LeftTop(), ItemRect.Extent());
 					}
 				}
 			}
@@ -3789,12 +3783,6 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
-
-			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-			for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
-			{
-				(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
-			}
 		}
 	}
 }
@@ -3806,57 +3794,6 @@ bool ListBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool ListBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (m_bEnabled && m_bVisible)
-	{
-		switch (uMsg)
-		{
-		case WM_KEYDOWN:
-			if (wParam == VK_UP)
-			{
-				if (!m_Items.empty())
-				{
-					m_iFocused.x = Clamp((int)--m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
-
-					m_iFocused.y = Clamp((int)m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
-
-					m_ScrollBar.ScrollTo(m_iFocused.x);
-				}
-				return true;
-			}
-			else if (wParam == VK_DOWN)
-			{
-				if (!m_Items.empty() && m_iFocused.x + 1 < m_ScrollBar.m_nEnd)
-				{
-					m_iFocused.x = Clamp((int)++m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
-
-					m_iFocused.y = Clamp((int)m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
-
-					m_ScrollBar.ScrollTo(m_iFocused.x);
-				}
-				return true;
-			}
-			else if (wParam == VK_LEFT)
-			{
-				if (!m_Items.empty())
-				{
-					m_iFocused.x = Clamp((int)m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
-
-					m_iFocused.y = Clamp((int)--m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
-				}
-				return true;
-			}
-			else if (wParam == VK_RIGHT)
-			{
-				if (!m_Items.empty())
-				{
-					m_iFocused.x = Clamp((int)m_iFocused.x, 0, m_ScrollBar.m_nEnd - 1);
-
-					m_iFocused.y = Clamp((int)++m_iFocused.y, 0, Min((int)m_Items.size() - (int)m_iFocused.x * m_ItemColumn - 1, m_ItemColumn - 1));
-				}
-				return true;
-			}
-		}
-	}
 	return false;
 }
 
@@ -3867,49 +3804,6 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 		if (m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 		{
 			return true;
-		}
-
-		switch (uMsg)
-		{
-		case WM_MOUSEMOVE:
-			if (m_Rect.PtInRect(pt))
-			{
-				int i = m_ScrollBar.m_nPosition;
-				float y = m_Rect.t;
-				for (; i < m_ScrollBar.m_nEnd && y < m_Rect.b - m_ItemSize.y * 0.5f; i++, y += m_ItemSize.y)
-				{
-					float x = m_Rect.l;
-					for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
-					{
-						int idx = i * m_ItemColumn + j;
-						if (idx < m_Items.size())
-						{
-							Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
-
-							if (ItemRect.PtInRect(pt))
-							{
-								m_iFocused.SetPoint(i, j);
-								return true;
-							}
-						}
-					}
-				}
-				return true;
-			}
-			break;
-
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONDBLCLK:
-			break;
-
-		case WM_LBUTTONUP:
-			if (m_bPressed)
-			{
-				m_bPressed = false;
-				SetCaptureControl(NULL);
-				return true;
-			}
-			break;
 		}
 	}
 	return false;
@@ -3936,7 +3830,40 @@ void ListBox::OnLayout(void)
 
 	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
 
-	m_ScrollBar.m_nEnd = (int)ceilf(m_Items.size() / (float)m_ItemColumn);
+	m_ScrollBar.m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
+
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->m_x = UDim(0, 0);
+
+		(*ctrl_iter)->m_y = UDim(0, 0);
+
+		(*ctrl_iter)->m_Width = UDim(0, m_ItemSize.x);
+
+		(*ctrl_iter)->m_Height = UDim(0, m_ItemSize.y);
+	}
+}
+
+void ListBox::InsertControl(ControlPtr control)
+{
+	Control::InsertControl(control);
+
+	m_ScrollBar.m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
+}
+
+void ListBox::RemoveControl(ControlPtr control)
+{
+	Control::RemoveControl(control);
+
+	m_ScrollBar.m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
+}
+
+void ListBox::ClearAllControl(void)
+{
+	Control::ClearAllControl();
+
+	m_ScrollBar.m_nEnd = 0;
 }
 
 void ListBox::SetScrollbarWidth(float Width)
@@ -3973,31 +3900,6 @@ void ListBox::SetItemSize(const my::Vector2 & ItemSize)
 const my::Vector2 & ListBox::GetItemSize(void) const
 {
 	return m_ItemSize;
-}
-
-void ListBox::AddItem(const std::wstring & strText)
-{
-	_ASSERT(!strText.empty());
-
-	ListBoxItemPtr item(new ListBoxItem());
-
-	item->strText = strText;
-
-	m_Items.push_back(item);
-
-	m_ScrollBar.m_nEnd = (int)ceilf(m_Items.size() / (float)m_ItemColumn);
-}
-
-void ListBox::RemoveAllItems(void)
-{
-	m_Items.clear();
-
-	m_ScrollBar.m_nEnd = 0;
-}
-
-UINT ListBox::GetNumItems(void)
-{
-	return m_Items.size();
 }
 
 void DialogSkin::RequestResource(void)

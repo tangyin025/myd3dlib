@@ -1134,7 +1134,7 @@ void CPropertiesWnd::UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)listbox->m_ScrollbarUpDownBtnHeight);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)listbox->m_ItemSize.x);
 	pControl->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)listbox->m_ItemSize.y);
-	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)listbox->m_Items.size());
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)listbox->m_Childs.size());
 
 	my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
 	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_MouseOverImage->m_TexturePath.c_str())).c_str());
@@ -2483,7 +2483,7 @@ void CPropertiesWnd::CreatePropertiesListBox(CMFCPropertyGridProperty * pControl
 	pProp = new CSimpleProp(_T("y"), (_variant_t)listbox->m_ItemSize.y, NULL, PropertyListBoxItemSizeY);
 	pItemSize->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pItemCount = new CSimpleProp(_T("ItemCount"), (_variant_t)(long)listbox->m_Items.size(), NULL, PropertyListBoxItemCount);
+	CMFCPropertyGridProperty* pItemCount = new CSimpleProp(_T("ItemCount"), (_variant_t)(long)listbox->m_Childs.size(), NULL, PropertyListBoxItemCount);
 	pControl->AddSubItem(pItemCount);
 
 	my::ListBoxSkinPtr skin = boost::dynamic_pointer_cast<my::ListBoxSkin>(listbox->m_Skin);
@@ -5492,11 +5492,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		listbox->m_ItemSize.x = pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
 		listbox->m_ItemSize.y = pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
 		int ItemCount = pControl->GetSubItem(PropId + 3)->GetValue().lVal;
-		for (int i = listbox->m_Items.size(); i < ItemCount; i++)
-		{
-			listbox->AddItem(str_printf(L"item%d", i));
-		}
-		listbox->m_Items.resize(ItemCount);
+		//for (int i = listbox->m_Items.size(); i < ItemCount; i++)
+		//{
+		//	listbox->AddItem(str_printf(L"item%d", i));
+		//}
+		//listbox->m_Items.resize(ItemCount);
 		listbox->OnLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
