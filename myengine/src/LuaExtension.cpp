@@ -949,6 +949,7 @@ void LuaContext::Init(void)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
 		, class_<my::ResourceMgr>("ResourceMgr")
+			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
 			.def("LoadTextureAsync", &my::ResourceMgr::LoadTextureAsync<luabind::object>)
 			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
