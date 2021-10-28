@@ -60,7 +60,7 @@ public:
 	}
 };
 
-struct ShapeHitEventArg : public ActorEventArg
+struct ControllerEventArg : public ActorEventArg
 {
 public:
 	Component* self_cmp;
@@ -68,20 +68,53 @@ public:
 	my::Vector3 worldNormal;	//!< Contact normal in world space
 	my::Vector3 dir;			//!< Motion direction
 	float length;				//!< Motion length
-	Actor* other;				//!< Touched actor
-	Component* other_cmp;			//!< Touched shape
-	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
 
-	ShapeHitEventArg::ShapeHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+	ControllerEventArg::ControllerEventArg(Actor* _self, Component* _self_cmp)
 		: ActorEventArg(_self)
 		, self_cmp(_self_cmp)
 		, worldPos(0, 0, 0)
 		, worldNormal(1, 0, 0)
 		, dir(1, 0, 0)
 		, length(0)
+	{
+	}
+};
+
+struct ShapeHitEventArg : public ControllerEventArg
+{
+public:
+	Actor* other;				//!< Touched actor
+	Component* other_cmp;		//!< Touched shape
+	unsigned int triangleIndex;	//!< touched triangle index (only for meshes/heightfields)
+
+	ShapeHitEventArg::ShapeHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+		: ControllerEventArg(_self, _self_cmp)
 		, other(_other)
 		, other_cmp(_other_cmp)
 		, triangleIndex(0)
+	{
+	}
+};
+
+struct ControllerHitEventArg : public ControllerEventArg
+{
+public:
+	Actor* other;				//!< Touched actor
+	Component* other_cmp;		//!< Touched shape
+
+	ControllerHitEventArg::ControllerHitEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+		: ControllerEventArg(_self, _self_cmp)
+		, other(_other)
+		, other_cmp(_other_cmp)
+	{
+	}
+};
+
+struct ObstacleHitEventArg : public ControllerEventArg
+{
+public:
+	ObstacleHitEventArg::ObstacleHitEventArg(Actor* _self, Component* _self_cmp)
+		: ControllerEventArg(_self, _self_cmp)
 	{
 	}
 };
@@ -194,6 +227,10 @@ public:
 	my::EventSignal m_EventLeaveTrigger;
 
 	my::EventSignal m_EventPxThreadShapeHit;
+
+	my::EventSignal m_EventPxThreadControllerHit;
+
+	my::EventSignal m_EventPxThreadObstacleHit;
 
 protected:
 	Actor(void)

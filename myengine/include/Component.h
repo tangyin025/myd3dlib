@@ -156,6 +156,14 @@ public:
 	{
 	}
 
+	virtual void OnPxThreadControllerHit(my::EventArg* arg)
+	{
+	}
+
+	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
+	{
+	}
+
 	virtual my::AABB CalculateAABB(void) const
 	{
 		return my::AABB::Invalid();

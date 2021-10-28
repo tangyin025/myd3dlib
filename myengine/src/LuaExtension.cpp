@@ -241,6 +241,10 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventLeaveTrigger.connect(boost::bind(&Component::OnLeaveTrigger, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventPxThreadControllerHit.connect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventPxThreadObstacleHit.connect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 	}
 
 	virtual void ReleaseResource(void)
@@ -270,6 +274,10 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventLeaveTrigger.disconnect(boost::bind(&Component::OnLeaveTrigger, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventPxThreadControllerHit.disconnect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -370,6 +378,48 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnPxThreadShapeHit(Component* ptr, my::EventArg* arg)
 	{
 		ptr->OnPxThreadShapeHit(arg);
+	}
+
+	virtual void OnPxThreadControllerHit(my::EventArg* arg)
+	{
+		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		_ASSERT(m_OnPxThreadSubstepMuted);
+
+		try
+		{
+			luabind::wrap_base::call<void>("OnPxThreadControllerHit", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnPxThreadControllerHit(Component* ptr, my::EventArg* arg)
+	{
+		ptr->OnPxThreadControllerHit(arg);
+	}
+
+	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
+	{
+		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		_ASSERT(m_OnPxThreadSubstepMuted);
+
+		try
+		{
+			luabind::wrap_base::call<void>("OnPxThreadObstacleHit", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnPxThreadObstacleHit(Component* ptr, my::EventArg* arg)
+	{
+		ptr->OnPxThreadObstacleHit(arg);
 	}
 };
 
@@ -1632,6 +1682,8 @@ void LuaContext::Init(void)
 			.def("OnEnterTrigger", &Component::OnEnterTrigger, &ScriptComponent::default_OnEnterTrigger)
 			.def("OnLeaveTrigger", &Component::OnLeaveTrigger, &ScriptComponent::default_OnLeaveTrigger)
 			.def("OnPxThreadShapeHit", &Component::OnPxThreadShapeHit, &ScriptComponent::default_OnPxThreadShapeHit)
+			.def("OnPxThreadControllerHit", &Component::OnPxThreadControllerHit, &ScriptComponent::default_OnPxThreadControllerHit)
+			.def("OnPxThreadObstacleHit", &Component::OnPxThreadObstacleHit, &ScriptComponent::default_OnPxThreadObstacleHit)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
@@ -1771,15 +1823,21 @@ void LuaContext::Init(void)
 			.def_readonly("other", &TriggerEventArg::other)
 			.def_readonly("other_cmp", &TriggerEventArg::other_cmp)
 
-		, class_<ShapeHitEventArg, ActorEventArg>("ShapeHitEventArg")
-			.def_readonly("self_cmp", &ShapeHitEventArg::self_cmp)
-			.def_readonly("worldPos", &ShapeHitEventArg::worldPos)
-			.def_readonly("worldNormal", &ShapeHitEventArg::worldNormal)
-			.def_readonly("dir", &ShapeHitEventArg::dir)
-			.def_readonly("length", &ShapeHitEventArg::length)
+		, class_<ControllerEventArg, ActorEventArg>("ControllerEventArg")
+			.def_readonly("self_cmp", &ControllerEventArg::self_cmp)
+			.def_readonly("worldPos", &ControllerEventArg::worldPos)
+			.def_readonly("worldNormal", &ControllerEventArg::worldNormal)
+			.def_readonly("dir", &ControllerEventArg::dir)
+			.def_readonly("length", &ControllerEventArg::length)
+
+		, class_<ShapeHitEventArg, ControllerEventArg>("ShapeHitEventArg")
 			.def_readonly("other", &ShapeHitEventArg::other)
 			.def_readonly("other_cmp", &ShapeHitEventArg::other_cmp)
 			.def_readonly("triangleIndex", &ShapeHitEventArg::triangleIndex)
+
+		, class_<ControllerHitEventArg, ControllerEventArg>("ControllerHitEventArg")
+			.def_readonly("other", &ControllerHitEventArg::other)
+			.def_readonly("other_cmp", &ControllerHitEventArg::other_cmp)
 
 		, class_<Actor, bases<my::NamedObject, my::OctEntity>, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())

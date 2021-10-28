@@ -68,7 +68,7 @@ void Controller::EnterPhysxScene(PhysxScene * scene)
 	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysxDeleter<physx::PxController>());
 
 	//// ! recursively call Actor::SetPose by PhysxScene::TickPostRender
-	physx::PxRigidDynamic * actor = m_PxController->getActor()->is<physx::PxRigidDynamic>();
+	physx::PxRigidDynamic * actor = m_PxController->getActor();
 	_ASSERT(actor);
 	//actor->userData = m_Actor;
 	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
@@ -159,12 +159,34 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 
 void Controller::onControllerHit(const physx::PxControllersHit & hit)
 {
+	_ASSERT(m_Actor);
 
+	physx::PxRigidDynamic* actor = hit.other->getActor();
+	_ASSERT(actor);
+	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
+	actor->getShapes(shapes.data(), shapes.size());
+	_ASSERT(!shapes.empty());
+	if (shapes.front()->userData)
+	{
+		Component* other_cmp = (Component*)shapes.front()->userData;
+		ControllerHitEventArg arg(m_Actor, this, other_cmp->m_Actor, other_cmp);
+		arg.worldPos = (Vector3&)hit.worldPos;
+		arg.worldNormal = (Vector3&)hit.worldNormal;
+		arg.dir = (Vector3&)hit.dir;
+		arg.length = hit.length;
+		m_Actor->m_EventPxThreadControllerHit(&arg);
+	}
 }
 
 void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 {
+	_ASSERT(m_Actor);
 
+	if (hit.userData)
+	{
+		ObstacleHitEventArg arg(m_Actor, this);
+		m_Actor->m_EventPxThreadObstacleHit(&arg);
+	}
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxShape & shape, const physx::PxActor & actor)
