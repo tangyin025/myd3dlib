@@ -2159,10 +2159,40 @@ void CMainFrame::OnControlListbox()
 	listBox->m_Skin = skin;
 	listBox->m_x.offset = 10;
 	listBox->m_y.offset = 10;
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	listBox->AddItem(str_printf(L"item%d", i));
-	//}
+	for (int i = 0; i < 3; i++)
+	{
+		my::ButtonSkinPtr skin(new my::ButtonSkin());
+		skin->m_Image.reset(new my::ControlImage());
+		skin->m_Image->m_TexturePath = theApp.default_button_img;
+		skin->m_Image->m_Rect = theApp.default_button_img_rect;
+		skin->m_Image->m_Border = theApp.default_button_img_border;
+		skin->m_FontPath = theApp.default_font_path;
+		skin->m_FontHeight = theApp.default_font_height;
+		skin->m_FontFaceIndex = theApp.default_font_face_index;
+		skin->m_TextColor = theApp.default_button_text_color;
+		skin->m_TextAlign = theApp.default_button_text_align;
+		skin->m_PressedOffset = theApp.default_button_pressed_offset;
+		skin->m_DisabledImage.reset(new my::ControlImage());
+		skin->m_DisabledImage->m_TexturePath = theApp.default_button_disabledimg;
+		skin->m_DisabledImage->m_Rect = theApp.default_button_disabledimg_rect;
+		skin->m_DisabledImage->m_Border = theApp.default_button_disabledimg_border;
+		skin->m_PressedImage.reset(new my::ControlImage());
+		skin->m_PressedImage->m_TexturePath = theApp.default_button_pressedimg;
+		skin->m_PressedImage->m_Rect = theApp.default_button_pressedimg_rect;
+		skin->m_PressedImage->m_Border = theApp.default_button_pressedimg_border;
+		skin->m_MouseOverImage.reset(new my::ControlImage());
+		skin->m_MouseOverImage->m_TexturePath = theApp.default_button_mouseoverimg;
+		skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
+		skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
+
+		my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(listBox->GetName()) + "_item").c_str()).c_str()));
+		btn->m_Skin = skin;
+		std::string text(btn->GetName());
+		btn->m_Text = str_printf(L"item%d", i);
+
+		listBox->InsertControl(btn);
+	}
+	listBox->OnLayout();
 
 	m_selctl->InsertControl(listBox);
 	m_selctl = listBox.get();

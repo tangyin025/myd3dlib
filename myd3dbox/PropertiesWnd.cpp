@@ -5457,11 +5457,44 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		listbox->m_ItemSize.x = pControl->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
 		listbox->m_ItemSize.y = pControl->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
 		int ItemCount = pControl->GetSubItem(PropId + 3)->GetValue().lVal;
-		//for (int i = listbox->m_Items.size(); i < ItemCount; i++)
-		//{
-		//	listbox->AddItem(str_printf(L"item%d", i));
-		//}
-		//listbox->m_Items.resize(ItemCount);
+		int i = listbox->m_Childs.size();
+		for (; i < ItemCount; i++)
+		{
+			my::ButtonSkinPtr skin(new my::ButtonSkin());
+			skin->m_Image.reset(new my::ControlImage());
+			skin->m_Image->m_TexturePath = theApp.default_button_img;
+			skin->m_Image->m_Rect = theApp.default_button_img_rect;
+			skin->m_Image->m_Border = theApp.default_button_img_border;
+			skin->m_FontPath = theApp.default_font_path;
+			skin->m_FontHeight = theApp.default_font_height;
+			skin->m_FontFaceIndex = theApp.default_font_face_index;
+			skin->m_TextColor = theApp.default_button_text_color;
+			skin->m_TextAlign = theApp.default_button_text_align;
+			skin->m_PressedOffset = theApp.default_button_pressed_offset;
+			skin->m_DisabledImage.reset(new my::ControlImage());
+			skin->m_DisabledImage->m_TexturePath = theApp.default_button_disabledimg;
+			skin->m_DisabledImage->m_Rect = theApp.default_button_disabledimg_rect;
+			skin->m_DisabledImage->m_Border = theApp.default_button_disabledimg_border;
+			skin->m_PressedImage.reset(new my::ControlImage());
+			skin->m_PressedImage->m_TexturePath = theApp.default_button_pressedimg;
+			skin->m_PressedImage->m_Rect = theApp.default_button_pressedimg_rect;
+			skin->m_PressedImage->m_Border = theApp.default_button_pressedimg_border;
+			skin->m_MouseOverImage.reset(new my::ControlImage());
+			skin->m_MouseOverImage->m_TexturePath = theApp.default_button_mouseoverimg;
+			skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
+			skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
+
+			my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(listbox->GetName()) + "_item").c_str()).c_str()));
+			btn->m_Skin = skin;
+			std::string text(btn->GetName());
+			btn->m_Text = str_printf(L"item%d", i);
+
+			listbox->InsertControl(btn);
+		}
+		while (i > ItemCount)
+		{
+			listbox->RemoveControl(listbox->m_Childs[--i]);
+		}
 		listbox->OnLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
