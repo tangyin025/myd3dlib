@@ -430,6 +430,7 @@ void PhysxScene::onSleep(physx::PxActor** actors, physx::PxU32 count)
 
 void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
 {
+	// ! set physx::PxPairFlag::eNOTIFY_TOUCH_FOUND for PhysxScene::filter pairFlags
 	std::vector<physx::PxContactPairPoint> contactPoints;
 	for (physx::PxU32 i = 0; i < nbPairs; i++)
 	{
