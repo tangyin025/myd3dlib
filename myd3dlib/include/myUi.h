@@ -339,8 +339,6 @@ namespace my
 
 		bool m_bVisible;
 
-		bool m_bHasFocus;
-
 		UINT m_nHotkey;
 
 		UDim m_x;
@@ -370,7 +368,6 @@ namespace my
 			: m_Requested(false)
 			, m_bEnabled(true)
 			, m_bVisible(true)
-			, m_bHasFocus(false)
 			, m_nHotkey(0)
 			, m_x(0, 0)
 			, m_y(0, 0)
@@ -388,7 +385,6 @@ namespace my
 			, m_Requested(false)
 			, m_bEnabled(true)
 			, m_bVisible(true)
-			, m_bHasFocus(false)
 			, m_nHotkey(0)
 			, m_x(0, 0)
 			, m_y(0, 0)

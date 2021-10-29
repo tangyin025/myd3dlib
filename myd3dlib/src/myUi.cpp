@@ -989,8 +989,6 @@ bool Control::CanHaveFocus(void) const
 
 void Control::OnFocusIn(void)
 {
-	m_bHasFocus = true;
-
 	// ! fix ListBox scroll pos
 	if (m_Parent && m_Parent->GetControlType() == ControlTypeListBox)
 	{
@@ -1023,7 +1021,6 @@ void Control::OnFocusIn(void)
 
 void Control::OnFocusOut(void)
 {
-	m_bHasFocus = false;
 }
 
 void Control::OnMouseEnter(const Vector2 & pt)
@@ -1782,7 +1779,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			{
 				Skin->DrawImage(ui_render, Skin->m_DisabledImage, m_Rect, m_Skin->m_Color);
 			}
-			else if(m_bHasFocus)
+			else if(GetFocused())
 			{
 				Skin->DrawImage(ui_render, Skin->m_FocusedImage, m_Rect, m_Skin->m_Color);
 			}
@@ -1814,7 +1811,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 				Skin->m_Font->PushString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 
-				if(m_bHasFocus && m_bCaretOn && !ImeEditBox::s_bHideCaret)
+				if(GetFocused() && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 				{
 					Rectangle CaretRect(
 						TextRect.l + caret_x - x1st - 1,
@@ -2410,7 +2407,7 @@ void ImeEditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & 
 
 	    ImeUi_RenderUI();
 
-		if(m_bHasFocus)
+		if(GetFocused())
 		{
 			RenderIndicator(ui_render, fElapsedTime);
 
@@ -3401,7 +3398,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if(m_bHasFocus && m_bPressed)
+		if(GetFocused() && m_bPressed)
 		{
 			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 			{
@@ -3412,7 +3409,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		switch(uMsg)
 		{
 		case WM_MOUSEMOVE:
-			if(m_bHasFocus && m_bPressed)
+			if(GetFocused() && m_bPressed)
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
@@ -3445,7 +3442,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				return true;
 			}
 
-			if(m_bHasFocus && m_bPressed)
+			if(GetFocused() && m_bPressed)
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
@@ -3500,7 +3497,7 @@ void ComboBox::OnFocusOut(void)
 
 bool ComboBox::HitTest(const Vector2 & pt) const
 {
-	if (m_bHasFocus && m_bPressed)
+	if (GetFocused() && m_bPressed)
 	{
 		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar.m_Rect.PtInRect(pt);
 	}
