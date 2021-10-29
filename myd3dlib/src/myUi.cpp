@@ -990,6 +990,35 @@ bool Control::CanHaveFocus(void) const
 void Control::OnFocusIn(void)
 {
 	m_bHasFocus = true;
+
+	// ! fix ListBox scroll pos
+	if (m_Parent && m_Parent->GetControlType() == ControlTypeListBox)
+	{
+		struct Finder
+		{
+			const Control* ptr;
+
+			Finder(const Control* _ptr)
+				: ptr(_ptr)
+			{
+			}
+
+			bool operator() (const Control::ControlPtrList::value_type & self)
+			{
+				return self.get() == ptr;
+			}
+		};
+
+		ListBox* listBox = dynamic_cast<ListBox*>(m_Parent);
+		_ASSERT(listBox);
+		ControlPtrList::iterator ctrl_iter = std::find_if(listBox->m_Childs.begin(), listBox->m_Childs.end(), Finder(this));
+		if (ctrl_iter != listBox->m_Childs.end())
+		{
+			int idx = std::distance(listBox->m_Childs.begin(), ctrl_iter);
+			int pos = idx / listBox->m_ItemColumn;
+			listBox->m_ScrollBar.ScrollTo(pos);
+		}
+	}
 }
 
 void Control::OnFocusOut(void)
@@ -1289,7 +1318,7 @@ static float _GetNearestDist(const my::Rectangle & rcSrc, const my::Rectangle & 
 	return dist;
 }
 
-void Control::GetNearestControl(const my::Rectangle& rect, DWORD dir, Control** nearest_ctrl, float& nearest_ctrl_dist, Control* recursive_self)
+void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist, Control * recursive_self)
 {
 	if (m_bEnabled && m_bVisible)
 	{
