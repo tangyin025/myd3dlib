@@ -963,10 +963,7 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 						SetFocusControl(nearest_ctrl);
 
-						if (s_FocusControl != s_MouseOverControl)
-						{
-							SetMouseOverControl(s_FocusControl, s_FocusControl->m_Rect.lt);
-						}
+						SetMouseOverControl(s_FocusControl, s_FocusControl->m_Rect.lt);
 						return true;
 					}
 				}
@@ -1288,19 +1285,24 @@ Control * Control::GetTopControl(void)
 
 bool Control::SetFocusRecursive(void)
 {
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	if (m_bEnabled && m_bVisible)
 	{
-		if ((*ctrl_iter)->CanHaveFocus() && (*ctrl_iter)->SetFocusRecursive())
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
+			if ((*ctrl_iter)->SetFocusRecursive())
+			{
+				return true;
+			}
+		}
+
+		if (CanHaveFocus())
+		{
+			SetFocusControl(this);
+
+			SetMouseOverControl(this, m_Rect.lt);
 			return true;
 		}
-	}
-
-	if (CanHaveFocus())
-	{
-		SetFocusControl(this);
-		return true;
 	}
 	return false;
 }
@@ -4224,10 +4226,9 @@ void Dialog::SetVisible(bool bVisible)
 				DialogMgr::DialogList::reverse_iterator dlg_iter = m_Manager->m_DlgList.rbegin();
 				for (; dlg_iter != m_Manager->m_DlgList.rend(); dlg_iter++)
 				{
-					if ((*dlg_iter)->CanHaveFocus())
+					if ((*dlg_iter)->SetFocusRecursive())
 					{
-						(*dlg_iter)->SetFocusRecursive();
-						break;
+						return;
 					}
 				}
 			}

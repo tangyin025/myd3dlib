@@ -1246,7 +1246,19 @@ LRESULT Client::MsgProc(
 	if (m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
-		m_Console->SetVisible(!m_Console->GetVisible());
+		if (!m_Console->GetVisible())
+		{
+			m_Console->SetVisible(true);
+		}
+		else if (!my::Control::s_FocusControl || !m_Console->ContainsControl(my::Control::s_FocusControl))
+		{
+			m_Console->SetFocusRecursive();
+		}
+		else
+		{
+			m_Console->SetVisible(false);
+		}
+
 		if (m_Console->GetVisible())
 		{
 			m_Console->MoveToFront();
