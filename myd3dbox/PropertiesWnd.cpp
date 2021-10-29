@@ -786,7 +786,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
 	pControl->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
 	pControl->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)control->m_bEnabled);
-	pControl->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)(my::Control::GetFocusControl() == control));
+	pControl->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)control->GetFocused());
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
 	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(7)))->SetColor(color);
@@ -898,7 +898,7 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 		return;
 	}
 	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bPressed);
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)button->m_bMouseOver);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)button->GetMouseOver());
 	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
 	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DisabledImage->m_TexturePath.c_str())).c_str());
 	pControl->GetSubItem(PropId + 3)->GetSubItem(0)->SetValue((_variant_t)skin->m_DisabledImage->m_Rect.l);
@@ -1845,7 +1845,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	CMFCPropertyGridProperty* pEnabled = new CCheckBoxProp(_T("Enabled"), control->m_bEnabled, NULL, PropertyControlEnabled);
 	pControl->AddSubItem(pEnabled);
 
-	CMFCPropertyGridProperty* pFocused = new CCheckBoxProp(_T("Focused"), my::Control::GetFocusControl() == control, NULL, PropertyControlFocused);
+	CMFCPropertyGridProperty* pFocused = new CCheckBoxProp(_T("Focused"), control->GetFocused(), NULL, PropertyControlFocused);
 	pControl->AddSubItem(pFocused);
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
@@ -1992,7 +1992,7 @@ void CPropertiesWnd::CreatePropertiesButton(CMFCPropertyGridProperty * pControl,
 	CMFCPropertyGridProperty* pPressed = new CCheckBoxProp(_T("Pressed"), button->m_bPressed, NULL, PropertyButtonPressed);
 	pControl->AddSubItem(pPressed);
 
-	CMFCPropertyGridProperty* pMouseOver = new CCheckBoxProp(_T("MouseOver"), button->m_bMouseOver, NULL, PropertyButtonMouseOver);
+	CMFCPropertyGridProperty* pMouseOver = new CCheckBoxProp(_T("MouseOver"), button->GetMouseOver(), NULL, PropertyButtonMouseOver);
 	pControl->AddSubItem(pMouseOver);
 
 	my::ButtonSkinPtr skin = boost::dynamic_pointer_cast<my::ButtonSkin>(button->m_Skin);
@@ -4096,14 +4096,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlFocused:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		if (pProp->GetValue().boolVal)
-		{
-			my::Control::SetFocusControl(control);
-		}
-		else
-		{
-			my::Control::SetFocusControl(NULL);
-		}
+		control->SetFocused(pProp->GetValue().boolVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
@@ -4333,7 +4326,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyButtonMouseOver:
 	{
 		my::Button* button = dynamic_cast<my::Button*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		button->m_bMouseOver = pProp->GetValue().boolVal;
+		button->SetMouseOver(pProp->GetValue().boolVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

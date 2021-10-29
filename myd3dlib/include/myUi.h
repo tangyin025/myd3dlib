@@ -339,8 +339,6 @@ namespace my
 
 		bool m_bVisible;
 
-		bool m_bMouseOver;
-
 		bool m_bHasFocus;
 
 		UINT m_nHotkey;
@@ -372,7 +370,6 @@ namespace my
 			: m_Requested(false)
 			, m_bEnabled(true)
 			, m_bVisible(true)
-			, m_bMouseOver(false)
 			, m_bHasFocus(false)
 			, m_nHotkey(0)
 			, m_x(0, 0)
@@ -391,7 +388,6 @@ namespace my
 			, m_Requested(false)
 			, m_bEnabled(true)
 			, m_bVisible(true)
-			, m_bMouseOver(false)
 			, m_bHasFocus(false)
 			, m_nHotkey(0)
 			, m_x(0, 0)
@@ -448,6 +444,11 @@ namespace my
 
 		static void SetCaptureControl(Control * control);
 
+		static Control * GetMouseOverControl(void)
+		{
+			return s_MouseOverControl;
+		}
+
 		static void SetMouseOverControl(Control * control, const Vector2 & pt);
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
@@ -489,6 +490,10 @@ namespace my
 		virtual void SetCaptured(bool bCaptured);
 
 		virtual bool GetCaptured(void) const;
+
+		virtual void SetMouseOver(bool bMouseOver);
+
+		virtual bool GetMouseOver(void) const;
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld) const;
 
@@ -684,7 +689,6 @@ namespace my
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
 			ar & BOOST_SERIALIZATION_NVP(m_bPressed);
-			ar & BOOST_SERIALIZATION_NVP(m_bMouseOver);
 		}
 
 		virtual DWORD GetControlType(void) const

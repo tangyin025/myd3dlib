@@ -1073,7 +1073,9 @@ void LuaContext::Init(void)
 				def("GetFocusControl", &my::Control::GetFocusControl),
 				def("SetFocusControl", &my::Control::SetFocusControl),
 				def("GetCaptureControl", &my::Control::GetCaptureControl),
-				def("SetCaptureControl", &my::Control::SetCaptureControl)
+				def("SetCaptureControl", &my::Control::SetCaptureControl),
+				def("GetMouseOverControl", &my::Control::GetMouseOverControl),
+				def("SetMouseOverControl", &my::Control::SetMouseOverControl)
 			]
 			.def("RequestResource", &my::Control::RequestResource, &ScriptControl::default_RequestResource)
 			.def("ReleaseResource", &my::Control::ReleaseResource, &ScriptControl::default_ReleaseResource)
@@ -1086,6 +1088,7 @@ void LuaContext::Init(void)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
 			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
 			.property("Captured", &my::Control::GetCaptured, &my::Control::SetCaptured)
+			.property("MouseOver", &my::Control::GetMouseOver, &my::Control::SetMouseOver)
 			.def("InsertControl", &my::Control::InsertControl)
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.def("ClearAllControl", &my::Control::ClearAllControl)

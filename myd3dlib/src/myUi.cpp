@@ -965,7 +965,7 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 						if (s_FocusControl != s_MouseOverControl)
 						{
-							SetMouseOverControl(s_FocusControl, Vector2(0, 0));
+							SetMouseOverControl(s_FocusControl, s_FocusControl->m_Rect.lt);
 						}
 						return true;
 					}
@@ -1030,8 +1030,6 @@ void Control::OnMouseEnter(const Vector2 & pt)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		m_bMouseOver = true;
-
 		if (m_Skin && !m_Skin->m_MouseEnterSound.empty())
 		{
 			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseEnterSound.c_str());
@@ -1049,8 +1047,6 @@ void Control::OnMouseLeave(const Vector2 & pt)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		m_bMouseOver = false;
-
 		if (m_EventMouseLeave)
 		{
 			MouseEventArg arg(this, pt);
@@ -1161,6 +1157,23 @@ void Control::SetCaptured(bool bCaptured)
 bool Control::GetCaptured(void) const
 {
 	return Control::GetCaptureControl() == this;
+}
+
+void Control::SetMouseOver(bool bMouseOver)
+{
+	if (bMouseOver)
+	{
+		Control::SetMouseOverControl(this, m_Rect.lt);
+	}
+	else if (GetMouseOver())
+	{
+		Control::SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
+	}
+}
+
+bool Control::GetMouseOver(void) const
+{
+	return Control::GetMouseOverControl() == this;
 }
 
 bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld) const
@@ -1547,7 +1560,7 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 				else
 				{
 					D3DXCOLOR DstColor = m_Skin->m_Color;
-					if(m_bMouseOver /*|| m_bHasFocus*/)
+					if(GetMouseOver() /*|| m_bHasFocus*/)
 					{
 						m_Rect = m_Rect.offset(-Skin->m_PressedOffset);
 					}
@@ -2943,7 +2956,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				else
 				{
 					D3DXCOLOR DstColor = m_Skin->m_Color;
-					if (m_bMouseOver /*|| m_bHasFocus*/)
+					if (GetMouseOver() /*|| m_bHasFocus*/)
 					{
 						m_Rect = m_Rect.offset(-Skin->m_PressedOffset);
 					}
@@ -3286,7 +3299,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				else
 				{
 					D3DXCOLOR DstColor = m_Skin->m_Color;
-					if(m_bMouseOver /*|| m_bHasFocus*/)
+					if(GetMouseOver() /*|| m_bHasFocus*/)
 					{
 						BtnRect = BtnRect.offset(-Skin->m_PressedOffset);
 					}
