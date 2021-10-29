@@ -1113,6 +1113,16 @@ void Control::SetVisible(bool bVisible)
 			{
 				SetFocusControl(NULL);
 			}
+
+			if (s_CaptureControl && ContainsControl(s_CaptureControl))
+			{
+				SetCaptureControl(NULL);
+			}
+
+			if (s_MouseOverControl && ContainsControl(s_MouseOverControl))
+			{
+				SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
+			}
 		}
 	}
 }
@@ -3391,7 +3401,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	}
-	return false;
+	return Control::HandleKeyboard(uMsg, wParam, lParam);
 }
 
 bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
