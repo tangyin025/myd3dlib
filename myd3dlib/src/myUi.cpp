@@ -1133,17 +1133,20 @@ void Control::SetFocused(bool bFocused)
 {
 	if (bFocused)
 	{
-		Control::SetFocusControl(this);
+		Control::SetFocusRecursive();
 	}
-	else if (GetFocused())
+	else
 	{
-		Control::SetFocusControl(NULL);
+		if (GetFocused())
+		{
+			Control::SetFocusControl(NULL);
+		}
 	}
 }
 
 bool Control::GetFocused(void) const
 {
-	return ContainsControl(Control::GetFocusControl());
+	return s_FocusControl && ContainsControl(s_FocusControl);
 }
 
 void Control::SetCaptured(bool bCaptured)
@@ -4145,9 +4148,9 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				m_bPressed = true;
 				m_MouseOffset.x = pt.x - m_x.offset;
 				m_MouseOffset.y = pt.y - m_y.offset;
-				if (!s_FocusControl || !ContainsControl(s_FocusControl))
+				if (!GetFocused())
 				{
-					SetFocusRecursive();
+					SetFocused(true);
 				}
 				SetCaptureControl(this);
 				return true;
@@ -4214,22 +4217,18 @@ void Dialog::SetVisible(bool bVisible)
 
 		if (m_bVisible)
 		{
-			if (!s_FocusControl || !ContainsControl(s_FocusControl))
-			{
-				SetFocusRecursive();
-			}
+			SetFocused(true);
 		}
-		else
+		else if (m_Manager && !my::Control::s_FocusControl)
 		{
-			if (m_Manager && !s_FocusControl)
+			DialogMgr::DialogList::reverse_iterator dlg_iter = m_Manager->m_DlgList.rbegin();
+			for (; dlg_iter != m_Manager->m_DlgList.rend(); dlg_iter++)
 			{
-				DialogMgr::DialogList::reverse_iterator dlg_iter = m_Manager->m_DlgList.rbegin();
-				for (; dlg_iter != m_Manager->m_DlgList.rend(); dlg_iter++)
+				(*dlg_iter)->SetFocused(true);
+
+				if (Control::s_FocusControl)
 				{
-					if ((*dlg_iter)->SetFocusRecursive())
-					{
-						return;
-					}
+					return;
 				}
 			}
 		}

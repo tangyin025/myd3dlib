@@ -849,7 +849,7 @@ HRESULT Client::OnCreateDevice(
 
 	if (m_Console->GetVisible())
 	{
-		m_Console->SetFocusRecursive();
+		m_Console->SetFocused(true);
 	}
 
 	m_EventLog("Client::OnCreateDevice");
@@ -1250,9 +1250,9 @@ LRESULT Client::MsgProc(
 		{
 			m_Console->SetVisible(true);
 		}
-		else if (!my::Control::s_FocusControl || !m_Console->ContainsControl(my::Control::s_FocusControl))
+		else if (!m_Console->GetFocused())
 		{
-			m_Console->SetFocusRecursive();
+			m_Console->SetFocused(true);
 		}
 		else
 		{

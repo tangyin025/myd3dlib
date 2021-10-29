@@ -786,7 +786,7 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
 	pControl->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
 	pControl->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)control->m_bEnabled);
-	pControl->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)control->GetFocused());
+	pControl->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)(my::Control::GetFocusControl() == control));
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
 	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(7)))->SetColor(color);
@@ -1845,7 +1845,7 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	CMFCPropertyGridProperty* pEnabled = new CCheckBoxProp(_T("Enabled"), control->m_bEnabled, NULL, PropertyControlEnabled);
 	pControl->AddSubItem(pEnabled);
 
-	CMFCPropertyGridProperty* pFocused = new CCheckBoxProp(_T("Focused"), control->GetFocused(), NULL, PropertyControlFocused);
+	CMFCPropertyGridProperty* pFocused = new CCheckBoxProp(_T("Focused"), my::Control::GetFocusControl() == control, NULL, PropertyControlFocused);
 	pControl->AddSubItem(pFocused);
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
@@ -4096,7 +4096,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlFocused:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		control->SetFocused(pProp->GetValue().boolVal);
+		if (pProp->GetValue().boolVal)
+		{
+			my::Control::SetFocusControl(control);
+		}
+		else
+		{
+			my::Control::SetFocusControl(NULL);
+		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

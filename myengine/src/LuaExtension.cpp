@@ -1093,7 +1093,6 @@ void LuaContext::Init(void)
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
-			.def("SetFocusRecursive", &my::Control::SetFocusRecursive)
 
 		, class_<my::Static, my::Control, boost::shared_ptr<my::Control> >("Static")
 			.def(constructor<const char *>())
