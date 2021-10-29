@@ -1318,25 +1318,25 @@ static float _GetNearestDist(const my::Rectangle & rcSrc, const my::Rectangle & 
 	case VK_UP:
 		if (rcDst.Center().y < rcSrc.t)
 		{
-			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(500, 1)).magnitudeSq();
 		}
 		break;
 	case VK_DOWN:
 		if (rcDst.Center().y > rcSrc.b)
 		{
-			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(500, 1)).magnitudeSq();
 		}
 		break;
 	case VK_LEFT:
 		if (rcDst.Center().x < rcSrc.l)
 		{
-			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(1, 500)).magnitudeSq();
 		}
 		break;
 	case VK_RIGHT:
 		if (rcDst.Center().x > rcSrc.r)
 		{
-			dist = (rcSrc.Center() - rcDst.Center()).magnitudeSq();
+			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(1, 500)).magnitudeSq();
 		}
 		break;
 	}
