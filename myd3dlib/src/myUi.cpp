@@ -941,6 +941,39 @@ bool Control::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_KEYDOWN:
+			switch (wParam)
+			{
+			case VK_UP:
+			case VK_DOWN:
+			case VK_LEFT:
+			case VK_RIGHT:
+				if (m_Parent)
+				{
+					Control* nearest_ctrl = NULL;
+					float nearest_ctrl_dist = FLT_MAX;
+					m_Parent->GetNearestControl(m_Rect, wParam, &nearest_ctrl, nearest_ctrl_dist, this);
+					if (nearest_ctrl)
+					{
+						_ASSERT(nearest_ctrl != this);
+
+						SetFocusControl(nearest_ctrl);
+
+						if (s_FocusControl != s_MouseOverControl)
+						{
+							SetMouseOverControl(s_FocusControl, Vector2(0, 0));
+						}
+						return true;
+					}
+				}
+				break;
+			}
+		}
+	}
 	return false;
 }
 
@@ -1256,23 +1289,13 @@ static float _GetNearestDist(const my::Rectangle & rcSrc, const my::Rectangle & 
 	return dist;
 }
 
-void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist)
+void Control::GetNearestControl(const my::Rectangle& rect, DWORD dir, Control** nearest_ctrl, float& nearest_ctrl_dist, Control* recursive_self)
 {
-	if (m_bVisible)
+	if (m_bEnabled && m_bVisible)
 	{
-		Control* local_nearest_ctrl = NULL;
-		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
-		{
-			(*ctrl_iter)->GetNearestControl(rect, dir, &local_nearest_ctrl, nearest_ctrl_dist);
-		}
+		_ASSERT(!recursive_self || ContainsControl(recursive_self) && recursive_self != this);
 
-		if (local_nearest_ctrl)
-		{
-			*nearest_ctrl = local_nearest_ctrl;
-			return;
-		}
-		else if (CanHaveFocus())
+		if (CanHaveFocus())
 		{
 			float dist = _GetNearestDist(rect, m_Rect, dir);
 			if (dist > 0 && dist < nearest_ctrl_dist)
@@ -1280,6 +1303,22 @@ void Control::GetNearestControl(const my::Rectangle & rect, DWORD dir, Control *
 				*nearest_ctrl = this;
 				nearest_ctrl_dist = dist;
 			}
+		}
+		else
+		{
+			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+			for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+			{
+				if (ctrl_iter->get() != recursive_self)
+				{
+					(*ctrl_iter)->GetNearestControl(rect, dir, nearest_ctrl, nearest_ctrl_dist, NULL);
+				}
+			}
+		}
+
+		if (!*nearest_ctrl && recursive_self && m_Parent)
+		{
+			m_Parent->GetNearestControl(rect, dir, nearest_ctrl, nearest_ctrl_dist, this);
 		}
 	}
 }
@@ -1545,7 +1584,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	}
-	return false;
+	return Control::HandleKeyboard(uMsg, wParam, lParam);
 }
 
 bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
@@ -2926,7 +2965,7 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	}
-	return false;
+	return Control::HandleKeyboard(uMsg, wParam, lParam);
 }
 
 bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
@@ -3889,10 +3928,12 @@ Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 	return NULL;
 }
 
-void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist)
+void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist, Control * recursive_self)
 {
-	if (m_bVisible)
+	if (m_bEnabled && m_bVisible)
 	{
+		_ASSERT(!recursive_self || ContainsControl(recursive_self) && recursive_self != this);
+
 		Vector2 cent = rect.Center();
 		int ibegin, iend;
 		float y;
@@ -3920,7 +3961,7 @@ void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** ne
 			for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
 			{
 				int idx = i * m_ItemColumn + j;
-				if (idx < m_Childs.size())
+				if (idx < m_Childs.size() && m_Childs[idx].get() != recursive_self)
 				{
 					Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
 					float dist = _GetNearestDist(rect, ItemRect, dir);
@@ -3931,6 +3972,11 @@ void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** ne
 					}
 				}
 			}
+		}
+
+		if (!*nearest_ctrl && recursive_self && m_Parent)
+		{
+			m_Parent->GetNearestControl(rect, dir, nearest_ctrl, nearest_ctrl_dist, this);
 		}
 	}
 }
@@ -4032,47 +4078,6 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
-	{
-		switch (uMsg)
-		{
-		case WM_KEYDOWN:
-			switch (wParam)
-			{
-			case VK_UP:
-			case VK_DOWN:
-			case VK_LEFT:
-			case VK_RIGHT:
-				if (!s_FocusControl || !ContainsControl(s_FocusControl))
-				{
-					if (SetFocusRecursive())
-					{
-						if (s_FocusControl != s_MouseOverControl)
-						{
-							SetMouseOverControl(s_FocusControl, Vector2(0, 0));
-						}
-						return true;
-					}
-				}
-				else
-				{
-					Control * nearest_ctrl = NULL;
-					float nearest_ctrl_dist = FLT_MAX;
-					GetNearestControl(s_FocusControl->m_Rect, wParam, &nearest_ctrl, nearest_ctrl_dist);
-					if (nearest_ctrl)
-					{
-						SetFocusControl(nearest_ctrl);
-					}
-					if (s_FocusControl != s_MouseOverControl)
-					{
-						SetMouseOverControl(s_FocusControl, Vector2(0, 0));
-					}
-					return true;
-				}
-				break;
-			}
-		}
-	}
 	return false;
 }
 
