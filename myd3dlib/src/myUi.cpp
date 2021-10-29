@@ -3910,9 +3910,9 @@ void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** ne
 		}
 		else
 		{
-			ibegin = m_ScrollBar.m_nPosition;
-			iend = m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize;
-			y = m_Rect.t;
+			ibegin = Max(0, m_ScrollBar.m_nPosition - 1);
+			iend = Min(m_ScrollBar.m_nEnd, m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize + 1);
+			y = m_ScrollBar.m_nPosition <= 0 ? m_Rect.t : m_Rect.t - m_ItemSize.y;
 		}
 		for (int i = ibegin; i < iend; i++, y += m_ItemSize.y)
 		{
