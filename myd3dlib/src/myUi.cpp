@@ -959,8 +959,6 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_Parent->GetNearestControl(m_Rect, wParam, &nearest_ctrl, nearest_ctrl_dist, this);
 					if (nearest_ctrl)
 					{
-						_ASSERT(nearest_ctrl != this);
-
 						SetFocusControl(nearest_ctrl);
 
 						SetMouseOverControl(s_FocusControl, s_FocusControl->m_Rect.lt);
@@ -1318,25 +1316,45 @@ static float _GetNearestDist(const my::Rectangle & rcSrc, const my::Rectangle & 
 	case VK_UP:
 		if (rcDst.Center().y < rcSrc.t)
 		{
-			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(500, 1)).magnitudeSq();
+			Vector2 diff = rcSrc.Center() - rcDst.Center();
+			if (fabs(diff.x) > rcSrc.Width() * 0.5f)
+			{
+				diff.x *= 500.0f;
+			}
+			dist = diff.magnitudeSq();
 		}
 		break;
 	case VK_DOWN:
 		if (rcDst.Center().y > rcSrc.b)
 		{
-			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(500, 1)).magnitudeSq();
+			Vector2 diff = rcSrc.Center() - rcDst.Center();
+			if (fabs(diff.x) > rcSrc.Width() * 0.5f)
+			{
+				diff.x *= 500.0f;
+			}
+			dist = diff.magnitudeSq();
 		}
 		break;
 	case VK_LEFT:
 		if (rcDst.Center().x < rcSrc.l)
 		{
-			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(1, 500)).magnitudeSq();
+			Vector2 diff = rcSrc.Center() - rcDst.Center();
+			if (fabs(diff.y) > rcSrc.Height() * 0.5f)
+			{
+				diff.y *= 500.0f;
+			}
+			dist = diff.magnitudeSq();
 		}
 		break;
 	case VK_RIGHT:
 		if (rcDst.Center().x > rcSrc.r)
 		{
-			dist = ((rcSrc.Center() - rcDst.Center()) * Vector2(1, 500)).magnitudeSq();
+			Vector2 diff = rcSrc.Center() - rcDst.Center();
+			if (fabs(diff.y) > rcSrc.Height() * 0.5f)
+			{
+				diff.y *= 500.0f;
+			}
+			dist = diff.magnitudeSq();
 		}
 		break;
 	}
@@ -4258,16 +4276,16 @@ void Dialog::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nea
 		switch (dir)
 		{
 		case VK_UP:
-			Control::GetNearestControl(rect.offset(Vector2(0, m_Manager->GetDlgViewport().y)), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			Control::GetNearestControl(rect.offset(Vector2(0, m_Manager->GetDlgViewport().y)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		case VK_DOWN:
-			Control::GetNearestControl(rect.offset(Vector2(0, -m_Manager->GetDlgViewport().y)), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			Control::GetNearestControl(rect.offset(Vector2(0, -m_Manager->GetDlgViewport().y)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		case VK_LEFT:
-			Control::GetNearestControl(rect.offset(Vector2(m_Manager->GetDlgViewport().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			Control::GetNearestControl(rect.offset(Vector2(m_Manager->GetDlgViewport().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		case VK_RIGHT:
-			Control::GetNearestControl(rect.offset(Vector2(-m_Manager->GetDlgViewport().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			Control::GetNearestControl(rect.offset(Vector2(-m_Manager->GetDlgViewport().x, 0)), dir, nearest_ctrl, nearest_ctrl_dist, NULL);
 			break;
 		}
 	}
