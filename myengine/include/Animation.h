@@ -242,7 +242,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
 	}
 
-	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
+	void SetActiveChild(int ActiveChild, float BlendTime);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 

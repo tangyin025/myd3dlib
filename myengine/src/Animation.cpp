@@ -342,11 +342,11 @@ void AnimationNodeSlot::StopAll(void)
 	}
 }
 
-void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTime)
+void AnimationNodeBlend::SetActiveChild(int ActiveChild, float BlendTime)
 {
 	_ASSERT(ActiveChild < m_Childs.size());
 	m_BlendTime = BlendTime;
-	m_TargetWeight = (ActiveChild == 0 ? 0.0f : 1.0f);
+	m_TargetWeight = ActiveChild <= 0 ? 0.0f : 1.0f;
 }
 
 void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
