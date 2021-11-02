@@ -215,8 +215,6 @@ class AnimationNodeBlend : public AnimationNode
 public:
 	float m_BlendTime;
 
-	unsigned int m_ActiveChild;
-
 	float m_Weight;
 
 	float m_TargetWeight;
@@ -225,7 +223,6 @@ public:
 	AnimationNodeBlend(void)
 		: AnimationNode(2)
 		, m_BlendTime(0)
-		, m_ActiveChild(0)
 		, m_Weight(0)
 		, m_TargetWeight(0)
 	{
@@ -242,7 +239,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
-		ar & BOOST_SERIALIZATION_NVP(m_ActiveChild);
+		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
 	}
 
 	void SetActiveChild(unsigned int ActiveChild, float BlendTime);

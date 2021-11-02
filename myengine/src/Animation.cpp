@@ -345,7 +345,6 @@ void AnimationNodeSlot::StopAll(void)
 void AnimationNodeBlend::SetActiveChild(unsigned int ActiveChild, float BlendTime)
 {
 	_ASSERT(ActiveChild < m_Childs.size());
-	m_ActiveChild = ActiveChild;
 	m_BlendTime = BlendTime;
 	m_TargetWeight = (ActiveChild == 0 ? 0.0f : 1.0f);
 }
