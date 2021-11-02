@@ -4249,6 +4249,30 @@ bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld) const
 	return false;
 }
 
+void Dialog::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist, Control * recursive_self)
+{
+	Control::GetNearestControl(rect, dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+
+	if (m_bEnabled && m_bVisible && !*nearest_ctrl)
+	{
+		switch (dir)
+		{
+		case VK_UP:
+			Control::GetNearestControl(rect.offset(Vector2(0, m_Rect.Height())), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			break;
+		case VK_DOWN:
+			Control::GetNearestControl(rect.offset(Vector2(0, -m_Rect.Height())), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			break;
+		case VK_LEFT:
+			Control::GetNearestControl(rect.offset(Vector2(m_Rect.Width(), 0)), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			break;
+		case VK_RIGHT:
+			Control::GetNearestControl(rect.offset(Vector2(-m_Rect.Width(), 0)), dir, nearest_ctrl, nearest_ctrl_dist, recursive_self);
+			break;
+		}
+	}
+}
+
 void Dialog::MoveToFront(void) const
 {
 	if (m_Manager)

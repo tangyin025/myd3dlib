@@ -1535,6 +1535,8 @@ namespace my
 
 		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld) const;
 
+		virtual void GetNearestControl(const Rectangle & rect, DWORD dir, Control ** nearest_ctrl, float & nearest_ctrl_dist, Control * recursive_self);
+
 		virtual void MoveToFront(void) const;
 	};
 
