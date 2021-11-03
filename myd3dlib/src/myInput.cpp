@@ -813,7 +813,7 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	if (desc.joystick)
 	{
 		m_joystick = desc.joystick;
-		m_joystick->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+		m_joystick->SetCooperativeLevel(hwnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
 	}
 
 	//::GetCursorPos(&m_MousePos);
@@ -832,19 +832,19 @@ bool InputMgr::Capture(double fTime, float fElapsedTime)
 {
 	if (!m_keyboard->Capture())
 	{
-		return false;
+		//return false;
 	}
 
 	if (!m_mouse->Capture())
 	{
-		return false;
+		//return false;
 	}
 
 	if (m_joystick)
 	{
 		if (!m_joystick->Capture())
 		{
-			return false;
+			//return false;
 		}
 	}
 	return true;
