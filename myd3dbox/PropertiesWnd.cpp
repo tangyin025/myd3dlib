@@ -3115,7 +3115,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 		actor->UpdateWorld();
 		actor->UpdateOctNode();
-		actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)actor->m_Position, (physx::PxQuat&)actor->m_Rotation));
+		actor->SetPxPoseOrbyPxThread(actor->m_Position, actor->m_Rotation);
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
 

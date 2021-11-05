@@ -102,7 +102,7 @@ void Controller::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader,
 {
 }
 
-void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
+void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxControllerMoveMuted)
 	{
@@ -111,7 +111,7 @@ void Controller::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
 
 	if (m_PxController)
 	{
-		m_PxController->setFootPosition(physx::PxExtendedVec3(pose.p.x, pose.p.y, pose.p.z));
+		m_PxController->setFootPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
 	}
 }
 
@@ -123,8 +123,6 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 	{
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
-		physx::PxTransform pose(physx::toVec3(m_PxController->getFootPosition()), (physx::PxQuat&)m_Actor->m_Rotation);
-
 		// ! recursively call Controller::SetPxPoseOrbyPxThread
 		m_PxControllerMoveMuted = true;
 		BOOST_SCOPE_EXIT(&m_PxControllerMoveMuted)
@@ -133,7 +131,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 		}
 		BOOST_SCOPE_EXIT_END
 
-		m_Actor->SetPxPoseOrbyPxThread(pose);
+		m_Actor->SetPxPoseOrbyPxThread((Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
 	}
 
 	return moveFlags;

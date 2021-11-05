@@ -381,15 +381,15 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 				if (rigidDynamic && rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 				{
 					m_Actor->SetPose(Pos, m_Actor->m_Rotation);
-					m_Actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)m_Actor->m_Rotation));
+					m_Actor->SetPxPoseOrbyPxThread(Pos, m_Actor->m_Rotation);
 				}
 				else
-					m_Actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)m_Actor->m_Rotation));
+					m_Actor->SetPxPoseOrbyPxThread(Pos, m_Actor->m_Rotation);
 			}
 			else
 			{
 				m_Actor->SetPose(Pos, m_Actor->m_Rotation);
-				m_Actor->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)m_Actor->m_Rotation));
+				m_Actor->SetPxPoseOrbyPxThread(Pos, m_Actor->m_Rotation);
 			}
 		}
 		else

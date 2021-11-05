@@ -390,7 +390,7 @@ void Actor::UpdateAttaches(float fElapsedTime)
 
 			att_iter->first->m_World = Matrix4::Compose(att_iter->first->m_Scale, Rot, Pos);
 
-			att_iter->first->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+			att_iter->first->SetPxPoseOrbyPxThread(Pos, Rot);
 		}
 		else
 		{
@@ -402,7 +402,7 @@ void Actor::UpdateAttaches(float fElapsedTime)
 
 			att_iter->first->m_World = Matrix4::Compose(att_iter->first->m_Scale, Rot, Pos);
 
-			att_iter->first->SetPxPoseOrbyPxThread(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+			att_iter->first->SetPxPoseOrbyPxThread(Pos, Rot);
 		}
 
 		att_iter->first->UpdateOctNode();
@@ -422,7 +422,12 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 	UpdateOctNode();
 }
 
-void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
+void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos)
+{
+	SetPxPoseOrbyPxThread(Pos, m_Rotation);
+}
+
+void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	if (m_PxActor)
 	{
@@ -431,23 +436,23 @@ void Actor::SetPxPoseOrbyPxThread(const physx::PxTransform & pose)
 		{
 			if (rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
-				rigidDynamic->setKinematicTarget(pose);
+				rigidDynamic->setKinematicTarget(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 			}
 			else
 			{
-				m_PxActor->setGlobalPose(pose);
+				m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 			}
 		}
 		else
 		{
-			m_PxActor->setGlobalPose(pose);
+			m_PxActor->setGlobalPose(physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
 		}
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->SetPxPoseOrbyPxThread(pose);
+		(*cmp_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
 	}
 }
 
