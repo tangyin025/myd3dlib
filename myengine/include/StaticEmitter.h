@@ -111,10 +111,6 @@ public:
 		return ComponentTypeStaticEmitter;
 	}
 
-	void CopyFrom(const StaticEmitter& rhs);
-
-	virtual ComponentPtr Clone(void) const;
-
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);

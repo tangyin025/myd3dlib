@@ -228,24 +228,16 @@ void Component::load(Archive & ar, const unsigned int version)
 	}
 }
 
-void Component::CopyFrom(const Component & rhs)
-{
-	if (rhs.m_Name)
-	{
-		SetName(NamedObject::MakeUniqueName(rhs.m_Name).c_str());
-	}
-
-	m_LodMask = rhs.m_LodMask;
-	if (rhs.m_Material)
-	{
-		m_Material = rhs.m_Material->Clone();
-	}
-}
-
 ComponentPtr Component::Clone(void) const
 {
+	std::stringstream sstr;
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(sstr, ".txt");
+	*oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
+	oa.reset();
+
 	ComponentPtr ret(new Component());
-	ret->CopyFrom(*this);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt", "");
+	*ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
 }
 
@@ -538,23 +530,6 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		break;
 	}
 	}
-}
-
-void MeshComponent::CopyFrom(const MeshComponent & rhs)
-{
-	Component::CopyFrom(rhs);
-	m_MeshPath = rhs.m_MeshPath;
-	m_MeshSubMeshName = rhs.m_MeshSubMeshName;
-	m_MeshSubMeshId = rhs.m_MeshSubMeshId;
-	m_MeshColor = rhs.m_MeshColor;
-	m_bInstance = rhs.m_bInstance;
-}
-
-ComponentPtr MeshComponent::Clone(void) const
-{
-	MeshComponentPtr ret(new MeshComponent());
-	ret->CopyFrom(*this);
-	return ret;
 }
 
 void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
@@ -1128,19 +1103,6 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
-void ClothComponent::CopyFrom(const ClothComponent & rhs)
-{
-	Component::CopyFrom(rhs);
-	// TODO:
-}
-
-ComponentPtr ClothComponent::Clone(void) const
-{
-	ClothComponentPtr ret(new ClothComponent());
-	ret->CopyFrom(*this);
-	return ret;
-}
-
 void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId)
 {
 	if (m_VertexData.empty())
@@ -1469,20 +1431,6 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 	}
 }
 
-void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
-{
-	Component::CopyFrom(rhs);
-	m_EmitterFaceType = rhs.m_EmitterFaceType;
-	m_EmitterVelType = rhs.m_EmitterVelType;
-}
-
-ComponentPtr EmitterComponent::Clone(void) const
-{
-	EmitterComponentPtr ret(new EmitterComponent());
-	ret->CopyFrom(*this);
-	return ret;
-}
-
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 {
 	_ASSERT(m_Actor);
@@ -1615,19 +1563,6 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnCycle);
-}
-
-void SphericalEmitter::CopyFrom(const SphericalEmitter & rhs)
-{
-	EmitterComponent::CopyFrom(rhs);
-	// TODO:
-}
-
-ComponentPtr SphericalEmitter::Clone(void) const
-{
-	SphericalEmitterPtr ret(new SphericalEmitter());
-	ret->CopyFrom(*this);
-	return ret;
 }
 
 void SphericalEmitter::RequestResource(void)

@@ -44,10 +44,6 @@ public:
 	{
 		return m_Requested;
 	}
-
-	void CopyFrom(const Component& rhs);
-
-	virtual ComponentPtr Clone(void) const;
 };
 
 typedef boost::shared_ptr<Navigation> NavigationPtr;

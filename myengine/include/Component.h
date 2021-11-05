@@ -116,8 +116,6 @@ public:
 		return m_Requested;
 	}
 
-	void CopyFrom(const Component & rhs);
-
 	virtual ComponentPtr Clone(void) const;
 
 	virtual void RequestResource(void);
@@ -283,10 +281,6 @@ public:
 		return ComponentTypeMesh;
 	}
 
-	void CopyFrom(const MeshComponent & rhs);
-
-	virtual ComponentPtr Clone(void) const;
-
 	void OnMeshReady(my::DeviceResourceBasePtr res);
 
 	void OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeometryType::Enum type);
@@ -398,10 +392,6 @@ public:
 		return ComponentTypeCloth;
 	}
 
-	void CopyFrom(const ClothComponent & rhs);
-
-	virtual ComponentPtr Clone(void) const;
-
 	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId);
 
 	virtual void RequestResource(void);
@@ -504,10 +494,6 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	}
 
-	void CopyFrom(const EmitterComponent & rhs);
-
-	virtual ComponentPtr Clone(void) const;
-
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
 	void AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
@@ -596,10 +582,6 @@ public:
 	{
 		return ComponentTypeSphericalEmitter;
 	}
-
-	void CopyFrom(const SphericalEmitter & rhs);
-
-	virtual ComponentPtr Clone(void) const;
 
 	virtual void RequestResource(void);
 

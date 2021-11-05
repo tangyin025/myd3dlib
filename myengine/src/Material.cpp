@@ -4,6 +4,7 @@
 #include "myResource.h"
 #include "RenderPipeline.h"
 #include "libc.h"
+#include "Actor.h"
 #include <fstream>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
@@ -71,20 +72,10 @@ void MaterialParameterFloat::Set(my::Effect * shader)
 	shader->SetFloat(m_Handle, m_Value);
 }
 
-MaterialParameterPtr MaterialParameterFloat::Clone(void) const
-{
-	return boost::shared_ptr<MaterialParameterFloat>(new MaterialParameterFloat(m_Name, m_Value));
-}
-
 void MaterialParameterFloat2::Set(my::Effect * shader)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 2);
-}
-
-MaterialParameterPtr MaterialParameterFloat2::Clone(void) const
-{
-	return boost::shared_ptr<MaterialParameterFloat2>(new MaterialParameterFloat2(m_Name, m_Value));
 }
 
 void MaterialParameterFloat3::Set(my::Effect * shader)
@@ -93,20 +84,10 @@ void MaterialParameterFloat3::Set(my::Effect * shader)
 	shader->SetFloatArray(m_Handle, &m_Value.x, 3);
 }
 
-MaterialParameterPtr MaterialParameterFloat3::Clone(void) const
-{
-	return boost::shared_ptr<MaterialParameterFloat3>(new MaterialParameterFloat3(m_Name, m_Value));
-}
-
 void MaterialParameterFloat4::Set(my::Effect * shader)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 4);
-}
-
-MaterialParameterPtr MaterialParameterFloat4::Clone(void) const
-{
-	return boost::shared_ptr<MaterialParameterFloat4>(new MaterialParameterFloat4(m_Name, m_Value));
 }
 
 MaterialParameterTexture::~MaterialParameterTexture(void)
@@ -146,11 +127,6 @@ void MaterialParameterTexture::Set(my::Effect * shader)
 {
 	_ASSERT(m_Handle);
 	shader->SetTexture(m_Handle, m_Texture.get());
-}
-
-MaterialParameterPtr MaterialParameterTexture::Clone(void) const
-{
-	return boost::shared_ptr<MaterialParameterTexture>(new MaterialParameterTexture(m_Name, m_TexturePath));
 }
 
 template<class Archive>
@@ -199,26 +175,16 @@ bool Material::operator == (const Material & rhs) const
 	return false;
 }
 
-void Material::CopyFrom(const Material & rhs)
-{
-	m_Shader = rhs.m_Shader;
-	m_PassMask = rhs.m_PassMask;
-	m_CullMode = rhs.m_CullMode;
-	m_ZEnable = rhs.m_ZEnable;
-	m_ZWriteEnable = rhs.m_ZWriteEnable;
-	m_BlendMode = rhs.m_BlendMode;
-	m_ParameterList.clear();
-	MaterialParameterPtrList::const_iterator param_iter = rhs.m_ParameterList.begin();
-	for (; param_iter != rhs.m_ParameterList.end(); param_iter++)
-	{
-		m_ParameterList.push_back((*param_iter)->Clone());
-	}
-}
-
 MaterialPtr Material::Clone(void) const
 {
+	std::stringstream sstr;
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(sstr, ".txt");
+	*oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
+	oa.reset();
+
 	MaterialPtr ret(new Material());
-	ret->CopyFrom(*this);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt", "");
+	*ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
 }
 

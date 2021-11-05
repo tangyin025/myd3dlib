@@ -78,8 +78,6 @@ public:
 	virtual void ReleaseResource(void)
 	{
 	}
-
-	virtual MaterialParameterPtr Clone(void) const = 0;
 };
 
 class MaterialParameterFloat : public MaterialParameter
@@ -115,8 +113,6 @@ public:
 	}
 
 	virtual void Set(my::Effect * shader);
-
-	virtual MaterialParameterPtr Clone(void) const;
 };
 
 class MaterialParameterFloat2 : public MaterialParameter
@@ -152,8 +148,6 @@ public:
 	}
 
 	virtual void Set(my::Effect * shader);
-
-	virtual MaterialParameterPtr Clone(void) const;
 };
 
 class MaterialParameterFloat3 : public MaterialParameter
@@ -189,8 +183,6 @@ public:
 	}
 
 	virtual void Set(my::Effect * shader);
-
-	virtual MaterialParameterPtr Clone(void) const;
 };
 
 class MaterialParameterFloat4 : public MaterialParameter
@@ -226,8 +218,6 @@ public:
 	}
 
 	virtual void Set(my::Effect * shader);
-
-	virtual MaterialParameterPtr Clone(void) const;
 };
 
 class MaterialParameterTexture : public MaterialParameter
@@ -274,8 +264,6 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void Set(my::Effect * shader);
-
-	virtual MaterialParameterPtr Clone(void) const;
 };
 
 class Material;
@@ -337,8 +325,6 @@ public:
 	}
 
 	bool operator == (const Material & rhs) const;
-
-	void CopyFrom(const Material & rhs);
 
 	virtual MaterialPtr Clone(void) const;
 

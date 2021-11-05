@@ -251,31 +251,16 @@ boost::shared_ptr<boost::archive::polymorphic_oarchive> Actor::GetOArchive(std::
 	return boost::shared_ptr<boost::archive::polymorphic_oarchive>(new Archive(ostr));
 }
 
-void Actor::CopyFrom(const Actor & rhs)
-{
-	if (rhs.m_Name)
-	{
-		SetName(NamedObject::MakeUniqueName(rhs.m_Name).c_str());
-	}
-
-	m_aabb = rhs.m_aabb;
-	m_Position = rhs.m_Position;
-	m_Rotation = rhs.m_Rotation;
-	m_Scale = rhs.m_Scale;
-	m_World = rhs.m_World;
-	m_LodDist = rhs.m_LodDist;
-	m_LodFactor = rhs.m_LodFactor;
-	ComponentPtrList::const_iterator rhs_cmp_iter = rhs.m_Cmps.begin();
-	for (; rhs_cmp_iter != rhs.m_Cmps.end(); rhs_cmp_iter++)
-	{
-		m_Cmps.push_back((*rhs_cmp_iter)->Clone());
-	}
-}
-
 ActorPtr Actor::Clone(void) const
 {
+	std::stringstream sstr;
+	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(sstr, ".txt");
+	*oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
+	oa.reset();
+
 	ActorPtr ret(new Actor());
-	ret->CopyFrom(*this);
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt", "");
+	*ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
 }
 

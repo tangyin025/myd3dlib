@@ -165,19 +165,6 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	}
 }
 
-void StaticEmitter::CopyFrom(const StaticEmitter& rhs)
-{
-	EmitterComponent::CopyFrom(rhs);
-	// TODO:
-}
-
-ComponentPtr StaticEmitter::Clone(void) const
-{
-	StaticEmitterPtr ret(new StaticEmitter());
-	ret->CopyFrom(*this);
-	return ret;
-}
-
 void StaticEmitter::RequestResource(void)
 {
 	EmitterComponent::RequestResource();

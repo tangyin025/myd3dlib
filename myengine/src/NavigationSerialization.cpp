@@ -148,13 +148,3 @@ void Navigation::load(Archive& ar, const unsigned int version)
 		m_navQuery->init(m_navMesh.get(), 1024);
 	}
 }
-
-void Navigation::CopyFrom(const Component& rhs)
-{
-
-}
-
-ComponentPtr Navigation::Clone(void) const
-{
-	return ComponentPtr();
-}

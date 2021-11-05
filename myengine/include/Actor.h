@@ -295,8 +295,6 @@ public:
 		return m_Requested;
 	}
 
-	void CopyFrom(const Actor & rhs);
-
 	virtual ActorPtr Clone(void) const;
 
 	virtual void RequestResource(void);
