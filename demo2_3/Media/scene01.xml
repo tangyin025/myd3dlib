@@ -96,15 +96,15 @@
 									<count>10</count>
 									<item_version>1</item_version>
 									<item class_id="14" tracking_level="0" version="1">
-										<px class_id="15" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
-											<MaterialParameter class_id="16" tracking_level="0" version="0">
+										<px class_id="16" class_name="MaterialParameterTexture" tracking_level="1" version="0" object_id="_6">
+											<MaterialParameter class_id="15" tracking_level="0" version="0">
 												<m_Name>g_DiffuseTexture0</m_Name>
 											</MaterialParameter>
 											<m_TexturePath>texture/Red.dds</m_TexturePath>
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_7">
+										<px class_id_reference="16" object_id="_7">
 											<MaterialParameter>
 												<m_Name>g_NormalTexture0</m_Name>
 											</MaterialParameter>
@@ -112,7 +112,7 @@
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_8">
+										<px class_id_reference="16" object_id="_8">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture1</m_Name>
 											</MaterialParameter>
@@ -120,7 +120,7 @@
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_9">
+										<px class_id_reference="16" object_id="_9">
 											<MaterialParameter>
 												<m_Name>g_NormalTexture1</m_Name>
 											</MaterialParameter>
@@ -128,7 +128,7 @@
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_10">
+										<px class_id_reference="16" object_id="_10">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture2</m_Name>
 											</MaterialParameter>
@@ -136,7 +136,7 @@
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_11">
+										<px class_id_reference="16" object_id="_11">
 											<MaterialParameter>
 												<m_Name>g_NormalTexture2</m_Name>
 											</MaterialParameter>
@@ -144,7 +144,7 @@
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_12">
+										<px class_id_reference="16" object_id="_12">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture3</m_Name>
 											</MaterialParameter>
@@ -152,7 +152,7 @@
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_13">
+										<px class_id_reference="16" object_id="_13">
 											<MaterialParameter>
 												<m_Name>g_NormalTexture3</m_Name>
 											</MaterialParameter>
@@ -268,7 +268,7 @@ QgAAAP9//38A
 									<count>1</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_20">
+										<px class_id_reference="16" object_id="_20">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -311,7 +311,7 @@ QgAAAP9//38A
 									<count>1</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_25">
+										<px class_id_reference="16" object_id="_25">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -354,7 +354,7 @@ QgAAAP9//38A
 									<count>1</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_30">
+										<px class_id_reference="16" object_id="_30">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -397,7 +397,7 @@ QgAAAP9//38A
 									<count>1</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_35">
+										<px class_id_reference="16" object_id="_35">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -440,7 +440,7 @@ QgAAAP9//38A
 									<count>1</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_40">
+										<px class_id_reference="16" object_id="_40">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -483,7 +483,7 @@ QgAAAP9//38A
 									<count>1</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_45">
+										<px class_id_reference="16" object_id="_45">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -569,7 +569,7 @@ QgAAAP9//38A
 									<count>4</count>
 									<item_version>1</item_version>
 									<item>
-										<px class_id_reference="15" object_id="_52">
+										<px class_id_reference="16" object_id="_52">
 											<MaterialParameter>
 												<m_Name>g_DiffuseTexture</m_Name>
 											</MaterialParameter>
@@ -577,7 +577,7 @@ QgAAAP9//38A
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_53">
+										<px class_id_reference="16" object_id="_53">
 											<MaterialParameter>
 												<m_Name>g_NormalTexture</m_Name>
 											</MaterialParameter>
@@ -585,7 +585,7 @@ QgAAAP9//38A
 										</px>
 									</item>
 									<item>
-										<px class_id_reference="15" object_id="_54">
+										<px class_id_reference="16" object_id="_54">
 											<MaterialParameter>
 												<m_Name>g_SpecularTexture</m_Name>
 											</MaterialParameter>

@@ -174,7 +174,7 @@ namespace my
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
-	class ControlSkin
+	class ControlSkin : public boost::enable_shared_from_this<ControlSkin>
 	{
 	public:
 		D3DCOLOR m_Color;
@@ -251,8 +251,6 @@ namespace my
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip);
 
 		void DrawString(UIRender * ui_render, LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
-
-		void CopyFrom(const ControlSkin & rhs);
 
 		virtual ControlSkinPtr Clone(void) const;
 	};
@@ -574,10 +572,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const ProgressBarSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ProgressBarSkin> ProgressBarSkinPtr;
@@ -653,10 +647,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const ButtonSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
@@ -741,10 +731,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const EditBoxSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<EditBoxSkin> EditBoxSkinPtr;
@@ -954,10 +940,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const ScrollBarSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ScrollBarSkin> ScrollBarSkinPtr;
@@ -1152,10 +1134,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const ComboBoxSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ComboBoxSkin> ComboBoxSkinPtr;
@@ -1340,10 +1318,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const ListBoxSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<ListBoxSkin> ListBoxSkinPtr;
@@ -1450,10 +1424,6 @@ namespace my
 		virtual void RequestResource(void);
 
 		virtual void ReleaseResource(void);
-
-		void CopyFrom(const DialogSkin & rhs);
-
-		virtual ControlSkinPtr Clone(void) const;
 	};
 
 	typedef boost::shared_ptr<DialogSkin> DialogSkinPtr;

@@ -256,7 +256,6 @@ ActorPtr Actor::Clone(void) const
 	std::stringstream sstr;
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(sstr, ".txt");
 	*oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
-	oa.reset();
 
 	ActorPtr ret(new Actor());
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt", "");

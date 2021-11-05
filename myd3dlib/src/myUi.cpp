@@ -722,29 +722,15 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 	}
 }
 
-void ControlSkin::CopyFrom(const ControlSkin & rhs)
-{
-	m_Color = rhs.m_Color;
-	if (rhs.m_Image)
-	{
-		m_Image = rhs.m_Image->Clone();
-	}
-	m_FontPath = rhs.m_FontPath;
-	m_FontHeight = rhs.m_FontHeight;
-	m_FontFaceIndex = rhs.m_FontFaceIndex;
-	m_TextColor = rhs.m_TextColor;
-	m_TextAlign = rhs.m_TextAlign;
-	m_VisibleShowSound = rhs.m_VisibleShowSound;
-	m_VisibleHideSound = rhs.m_VisibleHideSound;
-	m_MouseEnterSound = rhs.m_MouseEnterSound;
-	m_MouseLeaveSound = rhs.m_MouseLeaveSound;
-	m_MouseClickSound = rhs.m_MouseClickSound;
-}
-
 ControlSkinPtr ControlSkin::Clone(void) const
 {
+	std::stringstream sstr;
+	boost::archive::text_oarchive oa(sstr);
+	oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
+
 	ControlSkinPtr ret(new ControlSkin());
-	ret->CopyFrom(*this);
+	boost::archive::text_iarchive ia(sstr);
+	ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
 }
 
@@ -1462,22 +1448,6 @@ void ProgressBarSkin::ReleaseResource(void)
 	}
 }
 
-void ProgressBarSkin::CopyFrom(const ProgressBarSkin & rhs)
-{
-	ControlSkin::CopyFrom(rhs);
-	if (rhs.m_ForegroundImage)
-	{
-		m_ForegroundImage = rhs.m_ForegroundImage->Clone();
-	}
-}
-
-ControlSkinPtr ProgressBarSkin::Clone(void) const
-{
-	ProgressBarSkinPtr ret(new ProgressBarSkin());
-	ret->CopyFrom(*this);
-	return ret;
-}
-
 void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
@@ -1538,31 +1508,6 @@ void ButtonSkin::ReleaseResource(void)
 	{
 		m_MouseOverImage->ReleaseResource();
 	}
-}
-
-void ButtonSkin::CopyFrom(const ButtonSkin & rhs)
-{
-	ControlSkin::CopyFrom(rhs);
-	if (rhs.m_DisabledImage)
-	{
-		m_DisabledImage = rhs.m_DisabledImage->Clone();
-	}
-	if (rhs.m_PressedImage)
-	{
-		m_PressedImage = rhs.m_PressedImage->Clone();
-	}
-	if (rhs.m_MouseOverImage)
-	{
-		m_MouseOverImage = rhs.m_MouseOverImage->Clone();
-	}
-	m_PressedOffset = rhs.m_PressedOffset;
-}
-
-ControlSkinPtr ButtonSkin::Clone(void) const
-{
-	ButtonSkinPtr ret(new ButtonSkin());
-	ret->CopyFrom(*this);
-	return ret;
 }
 
 void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
@@ -1762,32 +1707,6 @@ void EditBoxSkin::ReleaseResource(void)
 	{
 		m_CaretImage->ReleaseResource();
 	}
-}
-
-void EditBoxSkin::CopyFrom(const EditBoxSkin & rhs)
-{
-	ControlSkin::CopyFrom(rhs);
-	if (rhs.m_DisabledImage)
-	{
-		m_DisabledImage = rhs.m_DisabledImage->Clone();
-	}
-	if (rhs.m_FocusedImage)
-	{
-		m_FocusedImage = rhs.m_FocusedImage->Clone();
-	}
-	m_SelBkColor = rhs.m_SelBkColor;
-	m_CaretColor = rhs.m_CaretColor;
-	if (rhs.m_CaretImage)
-	{
-		m_CaretImage = rhs.m_CaretImage->Clone();
-	}
-}
-
-ControlSkinPtr EditBoxSkin::Clone(void) const
-{
-	EditBoxSkinPtr ret(new EditBoxSkin());
-	ret->CopyFrom(*this);
-	return ret;
 }
 
 void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
@@ -2685,38 +2604,6 @@ void ScrollBarSkin::ReleaseResource(void)
 	}
 }
 
-void ScrollBarSkin::CopyFrom(const ScrollBarSkin & rhs)
-{
-	ControlSkin::CopyFrom(rhs);
-	if (rhs.m_UpBtnNormalImage)
-	{
-		m_UpBtnNormalImage = rhs.m_UpBtnNormalImage->Clone();
-	}
-	if (rhs.m_UpBtnDisabledImage)
-	{
-		m_UpBtnDisabledImage = rhs.m_UpBtnDisabledImage->Clone();
-	}
-	if (rhs.m_DownBtnNormalImage)
-	{
-		m_DownBtnNormalImage = rhs.m_DownBtnNormalImage->Clone();
-	}
-	if (rhs.m_DownBtnDisabledImage)
-	{
-		m_DownBtnDisabledImage = rhs.m_DownBtnDisabledImage->Clone();
-	}
-	if (rhs.m_ThumbBtnNormalImage)
-	{
-		m_ThumbBtnNormalImage = rhs.m_ThumbBtnNormalImage->Clone();
-	}
-}
-
-ControlSkinPtr ScrollBarSkin::Clone(void) const
-{
-	ScrollBarSkinPtr ret(new ScrollBarSkin());
-	ret->CopyFrom(*this);
-	return ret;
-}
-
 void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	SimulateRepeatedScroll();
@@ -3158,52 +3045,6 @@ void ComboBoxSkin::ReleaseResource(void)
 	{
 		m_ScrollBarImage->ReleaseResource();
 	}
-}
-
-void ComboBoxSkin::CopyFrom(const ComboBoxSkin & rhs)
-{
-	ButtonSkin::CopyFrom(rhs);
-	if (rhs.m_DropdownImage)
-	{
-		m_DropdownImage = rhs.m_DropdownImage->Clone();
-	}
-	m_DropdownItemTextColor = rhs.m_DropdownItemTextColor;
-	m_DropdownItemTextAlign = rhs.m_DropdownItemTextAlign;
-	if (rhs.m_DropdownItemMouseOverImage)
-	{
-		m_DropdownItemMouseOverImage = rhs.m_DropdownItemMouseOverImage->Clone();
-	}
-	if (rhs.m_ScrollBarUpBtnNormalImage)
-	{
-		m_ScrollBarUpBtnNormalImage = rhs.m_ScrollBarUpBtnNormalImage->Clone();
-	}
-	if (rhs.m_ScrollBarUpBtnDisabledImage)
-	{
-		m_ScrollBarUpBtnDisabledImage = rhs.m_ScrollBarUpBtnDisabledImage->Clone();
-	}
-	if (rhs.m_ScrollBarDownBtnNormalImage)
-	{
-		m_ScrollBarDownBtnNormalImage = rhs.m_ScrollBarDownBtnNormalImage->Clone();
-	}
-	if (rhs.m_ScrollBarDownBtnDisabledImage)
-	{
-		m_ScrollBarDownBtnDisabledImage = rhs.m_ScrollBarDownBtnDisabledImage->Clone();
-	}
-	if (rhs.m_ScrollBarThumbBtnNormalImage)
-	{
-		m_ScrollBarThumbBtnNormalImage = rhs.m_ScrollBarThumbBtnNormalImage->Clone();
-	}
-	if (rhs.m_ScrollBarImage)
-	{
-		m_ScrollBarImage = rhs.m_ScrollBarImage->Clone();
-	}
-}
-
-ControlSkinPtr ComboBoxSkin::Clone(void) const
-{
-	ComboBoxSkinPtr ret(new ComboBoxSkin());
-	ret->CopyFrom(*this);
-	return ret;
 }
 
 ComboBox::ComboBox(const char* Name)
@@ -3764,42 +3605,6 @@ void ListBoxSkin::ReleaseResource(void)
 	}
 }
 
-void ListBoxSkin::CopyFrom(const ListBoxSkin & rhs)
-{
-	ControlSkin::CopyFrom(rhs);
-	if (rhs.m_ScrollBarUpBtnNormalImage)
-	{
-		m_ScrollBarUpBtnNormalImage = rhs.m_ScrollBarUpBtnNormalImage->Clone();
-	}
-	if (rhs.m_ScrollBarUpBtnDisabledImage)
-	{
-		m_ScrollBarUpBtnDisabledImage = rhs.m_ScrollBarUpBtnDisabledImage->Clone();
-	}
-	if (rhs.m_ScrollBarDownBtnNormalImage)
-	{
-		m_ScrollBarDownBtnNormalImage = rhs.m_ScrollBarDownBtnNormalImage->Clone();
-	}
-	if (rhs.m_ScrollBarDownBtnDisabledImage)
-	{
-		m_ScrollBarDownBtnDisabledImage = rhs.m_ScrollBarDownBtnDisabledImage->Clone();
-	}
-	if (rhs.m_ScrollBarThumbBtnNormalImage)
-	{
-		m_ScrollBarThumbBtnNormalImage = rhs.m_ScrollBarThumbBtnNormalImage->Clone();
-	}
-	if (rhs.m_ScrollBarImage)
-	{
-		m_ScrollBarImage = rhs.m_ScrollBarImage->Clone();
-	}
-}
-
-ControlSkinPtr ListBoxSkin::Clone(void) const
-{
-	ListBoxSkinPtr ret(new ListBoxSkin());
-	ret->CopyFrom(*this);
-	return ret;
-}
-
 ListBox::ListBox(const char* Name)
 	: Control(Name)
 	, m_ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str())
@@ -4097,18 +3902,6 @@ void DialogSkin::RequestResource(void)
 void DialogSkin::ReleaseResource(void)
 {
 	ControlSkin::ReleaseResource();
-}
-
-void DialogSkin::CopyFrom(const DialogSkin & rhs)
-{
-	ControlSkin::CopyFrom(rhs);
-}
-
-ControlSkinPtr DialogSkin::Clone(void) const
-{
-	DialogSkinPtr ret(new DialogSkin());
-	ret->CopyFrom(*this);
-	return ret;
 }
 
 Dialog::~Dialog(void)
