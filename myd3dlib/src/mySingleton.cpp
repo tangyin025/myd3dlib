@@ -93,16 +93,12 @@ void NamedObject::SetName(const char * Name)
 {
 	if (m_Name)
 	{
-		D3DContext::getSingleton().UnregisterNamedObject(m_Name, this);
-
-		_ASSERT(!m_Name);
+		BOOST_VERIFY(D3DContext::getSingleton().UnregisterNamedObject(m_Name, this));
 	}
 
 	if (Name && Name[0] != '\0')
 	{
-		D3DContext::getSingleton().RegisterNamedObject(Name, this);
-
-		_ASSERT(m_Name);
+		BOOST_VERIFY(D3DContext::getSingleton().RegisterNamedObject(Name, this));
 	}
 }
 
@@ -123,6 +119,13 @@ void NamedObject::load(Archive & ar, const unsigned int version)
 		NamedObjectSerializationContext * pxar = dynamic_cast<NamedObjectSerializationContext *>(&ar);
 		_ASSERT(pxar);
 
-		SetName((pxar->prefix + Name).c_str());
+		if (!pxar->prefix.empty())
+		{
+			SetName((pxar->prefix + Name).c_str());
+		}
+		else
+		{
+			SetName(MakeUniqueName(Name.c_str()).c_str());
+		}
 	}
 }

@@ -200,27 +200,25 @@ void D3DContext::OnDestroyDevice(void)
 	}
 }
 
-void D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
+bool D3DContext::RegisterNamedObject(const char * Name, NamedObject * Object)
 {
-	//_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
-
 	CriticalSectionLock lock(m_NamedObjectsSec);
 
 	std::pair<NamedObjectMap::iterator, bool> result = m_NamedObjects.insert(NamedObjectMap::value_type(Name, Object));
 	if (!result.second)
 	{
-		THROW_CUSEXCEPTION(str_printf("%s already existed", Name));
+		return false;
 	}
 
 	_ASSERT(!Object->m_Name);
 
 	Object->m_Name = result.first->first.c_str();
+
+	return true;
 }
 
-void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
+bool D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 {
-	//_ASSERT(GetCurrentThreadId() == m_d3dThreadId);
-
 	CriticalSectionLock lock(m_NamedObjectsSec);
 
 	NamedObjectMap::iterator obj_iter = m_NamedObjects.find(Name);
@@ -231,13 +229,15 @@ void D3DContext::UnregisterNamedObject(const char * Name, NamedObject * Object)
 		m_NamedObjects.erase(obj_iter);
 
 		Object->m_Name = NULL;
+
+		return true;
 	}
+
+	return false;
 }
 
 NamedObject * D3DContext::GetNamedObject(const char * Name)
 {
-	//_ASSERT(GetCurrentThreadId() == m_d3dThreadId || GetCurrentThreadId() == m_serializeThreadId);
-
 	CriticalSectionLock lock(m_NamedObjectsSec);
 
 	NamedObjectMap::const_iterator obj_iter = m_NamedObjects.find(Name);
@@ -245,6 +245,7 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 	{
 		return obj_iter->second;
 	}
+
 	return NULL;
 }
 

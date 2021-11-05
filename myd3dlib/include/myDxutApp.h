@@ -117,9 +117,9 @@ namespace my
 
 		virtual void OnDestroyDevice(void);
 
-		void RegisterNamedObject(const char * Name, NamedObject * Object);
+		bool RegisterNamedObject(const char * Name, NamedObject * Object);
 
-		void UnregisterNamedObject(const char * Name, NamedObject * Object);
+		bool UnregisterNamedObject(const char * Name, NamedObject * Object);
 
 		NamedObject * GetNamedObject(const char * Name);
 
