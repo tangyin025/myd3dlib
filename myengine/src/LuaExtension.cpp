@@ -1928,7 +1928,6 @@ void LuaContext::Init(void)
 
 		, class_<Action, boost::intrusive_ptr<Action> >("Action")
 			.def(constructor<>())
-			.def_readwrite("Length", &Action::m_Length)
 			.def("AddTrack", &Action::AddTrack)
 			.def("RemoveTrack", &Action::RemoveTrack)
 

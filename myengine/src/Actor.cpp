@@ -323,15 +323,15 @@ void Actor::Update(float fElapsedTime)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		if ((*action_inst_iter)->m_Time < (*action_inst_iter)->m_Template->m_Length)
+		if (action_inst_iter->first->m_Time < action_inst_iter->second)
 		{
-			(*action_inst_iter)->Update(fElapsedTime);
+			action_inst_iter->first->Update(fElapsedTime);
 
 			action_inst_iter++;
 		}
 		else
 		{
-			(*action_inst_iter)->Stop();
+			action_inst_iter->first->Stop();
 
 			// ! make sure action inst was not in parallel task list
 			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
@@ -702,10 +702,9 @@ void Actor::ClearAllAttacher(void)
 	}
 }
 
-void Actor::PlayAction(Action * action)
+void Actor::PlayAction(Action * action, float Length)
 {
-	ActionInstPtr act_inst(action->CreateInstance(this));
-	m_ActionInstList.push_back(act_inst);
+	m_ActionInstList.push_back(std::make_pair(ActionInstPtr(action->CreateInstance(this)), Length));
 }
 
 void Actor::StopAllAction(void)
@@ -713,7 +712,7 @@ void Actor::StopAllAction(void)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
 	{
-		(*action_inst_iter)->Stop();
+		action_inst_iter->first->Stop();
 	}
 	m_ActionInstList.clear();
 }

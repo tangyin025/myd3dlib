@@ -23,15 +23,12 @@ class Actor;
 class Action : public boost::intrusive_ref_counter<Action>
 {
 public:
-	float m_Length;
-
 	typedef std::vector<ActionTrackPtr> ActionTrackPtrList;
 
 	ActionTrackPtrList m_TrackList;
 
 public:
 	Action(void)
-		: m_Length(1.0f)
 	{
 	}
 

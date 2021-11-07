@@ -216,7 +216,7 @@ public:
 
 	AttachPairList m_Attaches;
 
-	typedef std::vector<boost::shared_ptr<ActionInst> > ActionInstPtrList;
+	typedef std::vector<std::pair<boost::shared_ptr<ActionInst>, float> > ActionInstPtrList;
 
 	ActionInstPtrList m_ActionInstList;
 
@@ -345,7 +345,7 @@ public:
 
 	void ClearAllAttacher(void);
 
-	void PlayAction(Action * action);
+	void PlayAction(Action * action, float Length);
 
 	void StopAllAction(void);
 
