@@ -345,8 +345,23 @@ void AnimationNodeSlot::StopAll(void)
 void AnimationNodeBlend::SetActiveChild(int ActiveChild, float BlendTime)
 {
 	_ASSERT(ActiveChild < m_Childs.size());
-	m_BlendTime = BlendTime;
-	m_TargetWeight = ActiveChild <= 0 ? 0.0f : 1.0f;
+
+	if (ActiveChild <= 0)
+	{
+		if (m_TargetWeight > 0.0f)
+		{
+			m_TargetWeight = 0.0f;
+			m_BlendTime = BlendTime;
+		}
+	}
+	else
+	{
+		if (m_TargetWeight < 1.0f)
+		{
+			m_TargetWeight = 1.0f;
+			m_BlendTime = BlendTime;
+		}
+	}
 }
 
 void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
@@ -363,12 +378,12 @@ void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 		m_BlendTime -= fElapsedTime;
 	}
 
-	if (m_Childs[0])
+	if (m_Childs[0] && m_Weight < 1.0f)
 	{
 		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1 - m_TargetWeight));
 	}
 
-	if (m_Childs[1])
+	if (m_Childs[1] && m_Weight > 0.0f)
 	{
 		m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_TargetWeight);
 	}
