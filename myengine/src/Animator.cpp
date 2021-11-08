@@ -14,6 +14,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/range/algorithm/copy.hpp>
 
 using namespace my;
 
@@ -364,6 +365,15 @@ void AnimationNodeBlend::SetActiveChild(int ActiveChild, float BlendTime)
 	}
 }
 
+int AnimationNodeBlend::GetActiveChild(void) const
+{
+	if (m_TargetWeight < 0.5f)
+	{
+		return 0;
+	}
+	return 1;
+}
+
 void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 {
 	if (m_BlendTime < fElapsedTime)
@@ -420,10 +430,110 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 		m_Childs[1]->GetPose(OtherPose);
 	}
 
-	for (unsigned int i = 0; i < pose.size(); i++)
+	return pose.LerpSelf(OtherPose, m_Weight);
+}
+
+AnimationNodeBlendList::AnimationNodeBlendList(void)
+{
+
+}
+
+AnimationNodeBlendList::~AnimationNodeBlendList(void)
+{
+
+}
+
+void AnimationNodeBlendList::SetActiveChild(int ActiveChild, float BlendTime)
+{
+	if (m_TargetWeight.size() < m_Childs.size())
 	{
-		pose[i].LerpSelf(OtherPose[i], m_Weight);
+		m_TargetWeight.resize(m_Childs.size(), 0);
+
+		m_Weight.resize(m_Childs.size(), 0);
 	}
+
+	if (ActiveChild >= 0 && ActiveChild < m_Childs.size() && m_TargetWeight[ActiveChild] < 1.0f)
+	{
+		for (int i = 0; i < m_TargetWeight.size(); i++)
+		{
+			if (i == ActiveChild)
+			{
+				m_TargetWeight[i] = 1.0f;
+			}
+			else
+			{
+				m_TargetWeight[i] = 0.0f;
+			}
+		}
+
+		m_BlendTime = BlendTime;
+	}
+}
+
+int AnimationNodeBlendList::GetActiveChild(void) const
+{
+	for (int i = 0; i < m_TargetWeight.size(); i++)
+	{
+		if (m_TargetWeight[i] > 0.5f)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
+void AnimationNodeBlendList::Tick(float fElapsedTime, float fTotalWeight)
+{
+	if (m_BlendTime < fElapsedTime)
+	{
+		boost::range::copy(m_Weight, m_TargetWeight.begin());
+
+		m_BlendTime = 0;
+	}
+	else
+	{
+		for (int i = 0; i < m_TargetWeight.size(); i++)
+		{
+			const float delta = m_TargetWeight[i] - m_Weight[i];
+			m_Weight[i] += delta * fElapsedTime / m_BlendTime;
+		}
+		m_BlendTime -= fElapsedTime;
+	}
+
+	for (int i = 0; i < m_TargetWeight.size(); i++)
+	{
+		if (m_Childs[i] && m_Weight[i] > 0.0f)
+		{
+			m_Childs[i]->Tick(fElapsedTime, m_TargetWeight[i]);
+		}
+	}
+}
+
+my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose) const
+{
+	bool init_pose = false;
+
+	for (int i = 0; i < m_TargetWeight.size(); i++)
+	{
+		if (m_Childs[i] && m_Weight[i] > 0.0f)
+		{
+			if (!init_pose)
+			{
+				m_Childs[i]->GetPose(pose);
+
+				init_pose = true;
+			}
+			else
+			{
+				my::BoneList OtherPose(pose.size());
+
+				m_Childs[i]->GetPose(OtherPose);
+
+				pose.LerpSelf(OtherPose, m_Weight[i]);
+			}
+		}
+	}
+
 	return pose;
 }
 

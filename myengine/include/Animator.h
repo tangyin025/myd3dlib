@@ -244,12 +244,37 @@ public:
 
 	void SetActiveChild(int ActiveChild, float BlendTime);
 
+	int GetActiveChild(void) const;
+
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
+
+class AnimationNodeBlendList : public AnimationNode
+{
+public:
+	float m_BlendTime;
+
+	std::vector<float> m_Weight;
+
+	std::vector<float> m_TargetWeight;
+
+public:
+	AnimationNodeBlendList(void);
+
+	~AnimationNodeBlendList(void);
+
+	void SetActiveChild(int ActiveChild, float BlendTime);
+
+	int GetActiveChild(void) const;
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+};
 
 class AnimationNodeRate : public AnimationNode
 {
