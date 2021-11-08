@@ -80,6 +80,10 @@ public:
 
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime);
 
+	void SetFootPosition(const my::Vector3 & Pos);
+
+	my::Vector3 GetFootPosition(void) const;
+
 	virtual void onShapeHit(const physx::PxControllerShapeHit & hit);
 
 	virtual void onControllerHit(const physx::PxControllersHit & hit);

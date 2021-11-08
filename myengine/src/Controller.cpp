@@ -81,12 +81,9 @@ void Controller::LeavePhysxScene(PhysxScene * scene)
 {
 	Component::LeavePhysxScene(scene);
 
-	_ASSERT(!m_PxController || m_PxController->getActor()->getScene() == scene->m_PxScene.get());
+	_ASSERT(m_PxController && m_PxController->getActor()->getScene() == scene->m_PxScene.get());
 
-	if (m_PxController)
-	{
-		scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
-	}
+	scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
 
 	m_PxController.reset();
 
@@ -95,7 +92,7 @@ void Controller::LeavePhysxScene(PhysxScene * scene)
 
 void Controller::Update(float fElapsedTime)
 {
-	m_Actor->SetPose((my::Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
+	//m_Actor->SetPose(GetFootPosition());
 }
 
 void Controller::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -109,10 +106,7 @@ void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quater
 		return;
 	}
 
-	if (m_PxController)
-	{
-		m_PxController->setFootPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
-	}
+	SetFootPosition(Pos);
 }
 
 unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime)
@@ -131,10 +125,20 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 		}
 		BOOST_SCOPE_EXIT_END
 
-		m_Actor->SetPxPoseOrbyPxThread((Vector3&)physx::toVec3(m_PxController->getFootPosition()), m_Actor->m_Rotation);
+		m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation);
 	}
 
 	return moveFlags;
+}
+
+void Controller::SetFootPosition(const my::Vector3 & Pos)
+{
+	m_PxController->setFootPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+}
+
+my::Vector3 Controller::GetFootPosition(void) const
+{
+	return (my::Vector3&)physx::toVec3(m_PxController->getFootPosition());
 }
 
 void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)

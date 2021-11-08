@@ -395,6 +395,11 @@ void Actor::UpdateAttaches(float fElapsedTime)
 	}
 }
 
+void Actor::SetPose(const my::Vector3 & Pos)
+{
+	SetPose(Pos, m_Rotation);
+}
+
 void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
 	m_Position = Pos;

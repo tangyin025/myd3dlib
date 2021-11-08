@@ -305,6 +305,8 @@ public:
 
 	void UpdateAttaches(float fElapsedTime);
 
+	void SetPose(const my::Vector3 & Pos);
+
 	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
 	void SetPxPoseOrbyPxThread(const my::Vector3 & Pos);
