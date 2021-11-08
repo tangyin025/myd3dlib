@@ -1,6 +1,6 @@
 #include "ActionTrack.h"
 #include "Actor.h"
-#include "Animation.h"
+#include "Animator.h"
 #include "FModContext.h"
 #include <fmod_errors.h>
 #include "libc.h"

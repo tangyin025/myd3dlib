@@ -7,7 +7,7 @@
 
 #include "ChildView.h"
 #include "MainFrm.h"
-#include "Animation.h"
+#include "Animator.h"
 #include "DetourDebugDraw.h"
 #include "NavigationSerialization.h"
 #include "StaticEmitter.h"

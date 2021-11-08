@@ -3,7 +3,7 @@
 #include "myDxutApp.h"
 #include "myEffect.h"
 #include "myResource.h"
-#include "Animation.h"
+#include "Animator.h"
 #include "Material.h"
 #include "PhysxContext.h"
 #include "RenderPipeline.h"

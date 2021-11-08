@@ -21,7 +21,7 @@
 #include "NavigationSerialization.h"
 #include "NavigationDlg.h"
 #include "SimplifyMeshDlg.h"
-#include "Animation.h"
+#include "Animator.h"
 #include "Win32InputBox.h"
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>

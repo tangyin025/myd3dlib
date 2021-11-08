@@ -10,7 +10,7 @@
 #include "Material.h"
 #include "Terrain.h"
 #include "StaticEmitter.h"
-#include "Animation.h"
+#include "Animator.h"
 #include <boost/scope_exit.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>

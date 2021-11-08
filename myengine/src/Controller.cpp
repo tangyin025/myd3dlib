@@ -16,7 +16,7 @@
 #include <boost/scope_exit.hpp>
 #include "PhysxContext.h"
 #include "ActionTrack.h"
-#include "Animation.h"
+#include "Animator.h"
 #include "myDxutApp.h"
 
 using namespace my;
