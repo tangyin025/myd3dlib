@@ -228,12 +228,6 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 			if (seq_iter->m_TargetWeight <= 0)
 			{
 				seq_iter = m_SequenceSlot.erase(seq_iter);
-
-				if (m_SequenceSlot.empty())
-				{
-					m_Priority = INT_MIN;
-				}
-
 				continue;
 			}
 			Weight = seq_iter->m_TargetWeight;
@@ -282,31 +276,39 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group, DWORD_PTR UserData)
+void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, DWORD_PTR UserData)
 {
-	if (Prority >= m_Priority)
+	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
+	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
-		m_Priority = Prority;
-		Sequence seq;
-		seq.m_Time = StartTime;
-		seq.m_Weight = 0;
-		seq.m_Name = Name;
-		seq.SetRootList(RootList);
-		seq.m_Rate = Rate;
-		seq.m_Loop = Loop;
-		seq.m_Group = Group;
-		seq.m_BlendTime = BlendTime;
-		seq.m_BlendOutTime = BlendOutTime;
-		seq.m_TargetWeight = 1.0f;
-		seq.m_UserData = UserData;
-		seq.m_Parent = this;
-		m_SequenceSlot.push_front(seq);
+		if (seq_iter->m_Priority)
+		{
+			break;
+		}
+	}
+
+	SequenceList::iterator res_seq_iter = m_SequenceSlot.rinsert(seq_iter);
+	if (res_seq_iter != m_SequenceSlot.end())
+	{
+		res_seq_iter->m_Time = StartTime;
+		res_seq_iter->m_Weight = 0;
+		res_seq_iter->m_Name = Name;
+		res_seq_iter->SetRootList(RootList);
+		res_seq_iter->m_Rate = Rate;
+		res_seq_iter->m_Loop = Loop;
+		res_seq_iter->m_Group = Group;
+		res_seq_iter->m_Priority = Priority;
+		res_seq_iter->m_BlendTime = BlendTime;
+		res_seq_iter->m_BlendOutTime = BlendOutTime;
+		res_seq_iter->m_TargetWeight = 1.0f;
+		res_seq_iter->m_UserData = UserData;
+		res_seq_iter->m_Parent = this;
 
 		if (!Group.empty())
 		{
-			Animator * Root = dynamic_cast<Animator *>(GetTopNode());
+			Animator* Root = dynamic_cast<Animator*>(GetTopNode());
 			Root->AddSequenceGroup(Group, &m_SequenceSlot.front());
-			Root->SyncSequenceGroupTime(Group, seq.m_Time / seq.GetLength());
+			Root->SyncSequenceGroupTime(Group, res_seq_iter->m_Time / res_seq_iter->GetLength());
 		}
 	}
 }

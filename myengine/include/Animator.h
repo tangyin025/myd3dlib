@@ -150,6 +150,8 @@ public:
 	class Sequence : public AnimationNodeSequence
 	{
 	public:
+		int m_Priority;
+
 		float m_BlendTime;
 
 		float m_BlendOutTime;
@@ -159,7 +161,8 @@ public:
 		DWORD_PTR m_UserData;
 
 		Sequence(void)
-			: m_BlendTime(0)
+			: m_Priority(INT_MIN)
+			, m_BlendTime(0)
 			, m_BlendOutTime(0)
 			, m_TargetWeight(1.0f)
 			, m_UserData(0)
@@ -168,7 +171,7 @@ public:
 
 		~Sequence(void)
 		{
-			_ASSERT(dynamic_cast<AnimationNodeSlot *>(m_Parent));
+			_ASSERT(!m_Parent || dynamic_cast<AnimationNodeSlot *>(m_Parent));
 			m_Parent = NULL;
 		}
 	};
@@ -177,13 +180,10 @@ public:
 
 	SequenceList m_SequenceSlot;
 
-	int m_Priority;
-
 public:
 	AnimationNodeSlot(void)
 		: AnimationNode(1)
 		, m_SequenceSlot(2)
-		, m_Priority(INT_MIN)
 	{
 	}
 
@@ -199,7 +199,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const std::string & Group, DWORD_PTR UserData);
+	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, DWORD_PTR UserData);
 
 	void StopIndex(int i);
 
