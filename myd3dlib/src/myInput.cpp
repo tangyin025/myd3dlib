@@ -1073,7 +1073,89 @@ LONG InputMgr::GetKeyAxisRaw(DWORD Key) const
 					}
 				}
 				break;
+			case JoystickNegativeAxis:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0:
+						if (m_joystick->GetX() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetX() > 32767 + m_JoystickAxisDeadZone)
+							return m_joystick->GetX();
+						break;
+					case 1:
+						if (m_joystick->GetY() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetY() > 32767 + m_JoystickAxisDeadZone)
+							return m_joystick->GetY();
+						break;
+					case 2:
+						if (m_joystick->GetZ() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetZ() > 32767 + m_JoystickAxisDeadZone)
+							return m_joystick->GetZ();
+						break;
+					case 3:
+						if (m_joystick->GetRx() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRx() > 32767 + m_JoystickAxisDeadZone)
+							return m_joystick->GetRx();
+						break;
+					case 4:
+						if (m_joystick->GetRy() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRy() > 32767 + m_JoystickAxisDeadZone)
+							return m_joystick->GetRy();
+						break;
+					case 5:
+						if (m_joystick->GetRz() < 32767 - m_JoystickAxisDeadZone || m_joystick->GetRz() > 32767 + m_JoystickAxisDeadZone)
+							return m_joystick->GetRz();
+						break;
+					}
+				}
+				break;
 			case JoystickPov:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0: // Horizontal
+						switch (m_joystick->m_State.rgdwPOV[0])
+						{
+						case JP_North:
+							return 32767;
+						case JP_NorthEast:
+							return 54612;
+						case JP_East:
+							return 65535;
+						case JP_SouthEast:
+							return 54612;
+						case JP_South:
+							return 32767;
+						case JP_SouthWest:
+							return 10922;
+						case JP_West:
+							return 0;
+						case JP_NorthWest:
+							return 10922;
+						}
+						break;
+					case 1: // Vertical
+						switch (m_joystick->m_State.rgdwPOV[0])
+						{
+						case JP_North:
+							return 0;
+						case JP_NorthEast:
+							return 10922;
+						case JP_East:
+							return 32767;
+						case JP_SouthEast:
+							return 54612;
+						case JP_South:
+							return 65535;
+						case JP_SouthWest:
+							return 54612;
+						case JP_West:
+							return 32767;
+						case JP_NorthWest:
+							return 10922;
+						}
+						break;
+					}
+				}
+				break;
+			case JoystickNegativePov:
 				if (m_joystick)
 				{
 					switch (value_iter->second)
@@ -1136,6 +1218,112 @@ LONG InputMgr::GetKeyAxisRaw(DWORD Key) const
 	return 32767;
 }
 
+static bool _isaxisdown(LONG val)
+{
+	return val > 54612;
+}
+
+static bool _isnegativeaxisdown(LONG val)
+{
+	return val < 10922;
+}
+
+static bool _ispovnorthdown(DWORD val)
+{
+	switch (val)
+	{
+	case JP_North:
+		return true;
+	case JP_NorthEast:
+		return true;
+	case JP_East:
+		return false;
+	case JP_SouthEast:
+		return false;
+	case JP_South:
+		return false;
+	case JP_SouthWest:
+		return false;
+	case JP_West:
+		return false;
+	case JP_NorthWest:
+		return true;
+	}
+	return false;
+}
+
+static bool _ispoveastdown(DWORD val)
+{
+	switch (val)
+	{
+	case JP_North:
+		return false;
+	case JP_NorthEast:
+		return true;
+	case JP_East:
+		return true;
+	case JP_SouthEast:
+		return true;
+	case JP_South:
+		return false;
+	case JP_SouthWest:
+		return false;
+	case JP_West:
+		return false;
+	case JP_NorthWest:
+		return false;
+	}
+	return false;
+}
+
+static bool _ispovsouthdown(DWORD val)
+{
+	switch (val)
+	{
+	case JP_North:
+		return false;
+	case JP_NorthEast:
+		return false;
+	case JP_East:
+		return false;
+	case JP_SouthEast:
+		return true;
+	case JP_South:
+		return true;
+	case JP_SouthWest:
+		return true;
+	case JP_West:
+		return false;
+	case JP_NorthWest:
+		return false;
+	}
+	return false;
+}
+
+static bool _ispovwestdown(DWORD val)
+{
+	switch (val)
+	{
+	case JP_North:
+		return false;
+	case JP_NorthEast:
+		return false;
+	case JP_East:
+		return false;
+	case JP_SouthEast:
+		return false;
+	case JP_South:
+		return false;
+	case JP_SouthWest:
+		return true;
+	case JP_West:
+		return true;
+	case JP_NorthWest:
+		return true;
+	}
+	return false;
+}
+
 bool InputMgr::IsKeyDown(DWORD Key) const
 {
 	if (Key < m_BindKeys.size())
@@ -1189,27 +1377,59 @@ bool InputMgr::IsKeyDown(DWORD Key) const
 					switch (value_iter->second)
 					{
 					case 0:
-						if (m_joystick->GetX() < 21845 || m_joystick->GetX() > 43690)
+						if (_isaxisdown(m_joystick->GetX()))
 							return true;
 						break;
 					case 1:
-						if (m_joystick->GetY() < 21845 || m_joystick->GetY() > 43690)
+						if (_isaxisdown(m_joystick->GetY()))
 							return true;
 						break;
 					case 2:
-						if (m_joystick->GetZ() < 21845 || m_joystick->GetZ() > 43690)
+						if (_isaxisdown(m_joystick->GetZ()))
 							return true;
 						break;
 					case 3:
-						if (m_joystick->GetRx() < 21845 || m_joystick->GetRx() > 43690)
+						if (_isaxisdown(m_joystick->GetRx()))
 							return true;
 						break;
 					case 4:
-						if (m_joystick->GetRy() < 21845 || m_joystick->GetRy() > 43690)
+						if (_isaxisdown(m_joystick->GetRy()))
 							return true;
 						break;
 					case 5:
-						if (m_joystick->GetRz() < 21845 || m_joystick->GetRz() > 43690)
+						if (_isaxisdown(m_joystick->GetRz()))
+							return true;
+						break;
+					}
+				}
+				break;
+			case JoystickNegativeAxis:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0:
+						if (_isnegativeaxisdown(m_joystick->GetX()))
+							return true;
+						break;
+					case 1:
+						if (_isnegativeaxisdown(m_joystick->GetY()))
+							return true;
+						break;
+					case 2:
+						if (_isnegativeaxisdown(m_joystick->GetZ()))
+							return true;
+						break;
+					case 3:
+						if (_isnegativeaxisdown(m_joystick->GetRx()))
+							return true;
+						break;
+					case 4:
+						if (_isnegativeaxisdown(m_joystick->GetRy()))
+							return true;
+						break;
+					case 5:
+						if (_isnegativeaxisdown(m_joystick->GetRz()))
 							return true;
 						break;
 					}
@@ -1221,50 +1441,32 @@ bool InputMgr::IsKeyDown(DWORD Key) const
 					switch (value_iter->second)
 					{
 					case 0: // Horizontal
-						switch (m_joystick->m_State.rgdwPOV[0])
-						{
-						case JP_North:
-							return false;
-						case JP_NorthEast:
+						if (_ispoveastdown(m_joystick->m_State.rgdwPOV[0]))
 							return true;
-						case JP_East:
-							return true;
-						case JP_SouthEast:
-							return true;
-						case JP_South:
-							return false;
-						case JP_SouthWest:
-							return true;
-						case JP_West:
-							return true;
-						case JP_NorthWest:
-							return true;
-						}
 						break;
 					case 1: // Vertical
-						switch (m_joystick->m_State.rgdwPOV[0])
-						{
-						case JP_North:
+						if (_ispovsouthdown(m_joystick->m_State.rgdwPOV[0]))
 							return true;
-						case JP_NorthEast:
-							return true;
-						case JP_East:
-							return false;
-						case JP_SouthEast:
-							return true;
-						case JP_South:
-							return true;
-						case JP_SouthWest:
-							return true;
-						case JP_West:
-							return false;
-						case JP_NorthWest:
-							return true;
-						}
 						break;
 					}
 				}
 				break;
+			case JoystickNegativePov:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0: // Horizontal
+						if (_ispovwestdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
+						break;
+					case 1: // Vertical
+						if (_ispovnorthdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
+						break;
+					}
+				}
+			break;
 			case JoystickButton:
 				if (m_joystick && value_iter->second >= 0 && value_iter->second < _countof(m_joystick->m_State.rgbButtons))
 				{
@@ -1280,20 +1482,16 @@ bool InputMgr::IsKeyDown(DWORD Key) const
 
 static bool _isaxispress(LONG lastval, LONG val)
 {
-	if (lastval == 32767 && (val < 10922 || val > 54612))
+	if (lastval == 32767 && _isaxisdown(val))
 	{
 		return true;
 	}
 	return false;
 }
 
-static bool _isaxisrelease(LONG lastval, LONG val)
+static bool _isnegativeaxispress(LONG lastval, LONG val)
 {
-	if (lastval == 0 && val > 21845)
-	{
-		return true;
-	}
-	else if (lastval == 65535 && val < 43690)
+	if (lastval == 32767 && _isnegativeaxisdown(val))
 	{
 		return true;
 	}
@@ -1379,58 +1577,66 @@ bool InputMgr::IsKeyPressRaw(DWORD Key) const
 					}
 				}
 				break;
+			case JoystickNegativeAxis:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0:
+						if (_isnegativeaxispress(m_joystick->m_LastFrameState.lX, m_joystick->GetX()))
+							return true;
+						break;
+					case 1:
+						if (_isnegativeaxispress(m_joystick->m_LastFrameState.lY, m_joystick->GetY()))
+							return true;
+						break;
+					case 2:
+						if (_isnegativeaxispress(m_joystick->m_LastFrameState.lZ, m_joystick->GetZ()))
+							return true;
+						break;
+					case 3:
+						if (_isnegativeaxispress(m_joystick->m_LastFrameState.lRx, m_joystick->GetRx()))
+							return true;
+						break;
+					case 4:
+						if (_isnegativeaxispress(m_joystick->m_LastFrameState.lRy, m_joystick->GetRy()))
+							return true;
+						break;
+					case 5:
+						if (_isnegativeaxispress(m_joystick->m_LastFrameState.lRz, m_joystick->GetRz()))
+							return true;
+						break;
+					}
+				}
+				break;
 			case JoystickPov:
 				if (m_joystick)
 				{
 					switch (value_iter->second)
 					{
 					case 0: // Horizontal
-						if (LOWORD(m_joystick->m_LastFrameState.rgdwPOV[0]) == 0xFFFF)
-						{
-							switch (m_joystick->m_State.rgdwPOV[0])
-							{
-							case JP_North:
-								return false;
-							case JP_NorthEast:
-								return true;
-							case JP_East:
-								return true;
-							case JP_SouthEast:
-								return true;
-							case JP_South:
-								return false;
-							case JP_SouthWest:
-								return true;
-							case JP_West:
-								return true;
-							case JP_NorthWest:
-								return true;
-							}
-						}
+						if (!_ispoveastdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && _ispoveastdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
 						break;
 					case 1: // Vertical
-						if (LOWORD(m_joystick->m_LastFrameState.rgdwPOV[0]) == 0xFFFF)
-						{
-							switch (m_joystick->m_State.rgdwPOV[0])
-							{
-							case JP_North:
-								return true;
-							case JP_NorthEast:
-								return true;
-							case JP_East:
-								return false;
-							case JP_SouthEast:
-								return true;
-							case JP_South:
-								return true;
-							case JP_SouthWest:
-								return true;
-							case JP_West:
-								return false;
-							case JP_NorthWest:
-								return true;
-							}
-						}
+						if (!_ispovsouthdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && _ispovsouthdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
+						break;
+					}
+				}
+				break;
+			case JoystickNegativePov:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0: // Horizontal
+						if (!_ispovwestdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && _ispovwestdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
+						break;
+					case 1: // Vertical
+						if (!_ispovnorthdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && _ispovnorthdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
 						break;
 					}
 				}
@@ -1479,6 +1685,24 @@ bool InputMgr::IsKeyPress(DWORD Key)
 				return true;
 			}
 		}
+	}
+	return false;
+}
+
+static bool _isaxisrelease(LONG lastval, LONG val)
+{
+	if (lastval == 65535 && val < 43690)
+	{
+		return true;
+	}
+	return true;
+}
+
+static bool _isnegativeaxisrelease(LONG lastval, LONG val)
+{
+	if (lastval == 0 && val > 21845)
+	{
+		return true;
 	}
 	return false;
 }
@@ -1562,58 +1786,66 @@ bool InputMgr::IsKeyRelease(DWORD Key) const
 					}
 				}
 				break;
+			case JoystickNegativeAxis:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0:
+						if (_isnegativeaxisrelease(m_joystick->m_LastFrameState.lX, m_joystick->GetX()))
+							return true;
+						break;
+					case 1:
+						if (_isnegativeaxisrelease(m_joystick->m_LastFrameState.lY, m_joystick->GetY()))
+							return true;
+						break;
+					case 2:
+						if (_isnegativeaxisrelease(m_joystick->m_LastFrameState.lZ, m_joystick->GetZ()))
+							return true;
+						break;
+					case 3:
+						if (_isnegativeaxisrelease(m_joystick->m_LastFrameState.lRx, m_joystick->GetRx()))
+							return true;
+						break;
+					case 4:
+						if (_isnegativeaxisrelease(m_joystick->m_LastFrameState.lRy, m_joystick->GetRy()))
+							return true;
+						break;
+					case 5:
+						if (_isnegativeaxisrelease(m_joystick->m_LastFrameState.lRz, m_joystick->GetRz()))
+							return true;
+						break;
+					}
+				}
+				break;
 			case JoystickPov:
 				if (m_joystick)
 				{
 					switch (value_iter->second)
 					{
 					case 0: // Horizontal
-						if (LOWORD(m_joystick->m_State.rgdwPOV[0]) == 0xFFFF)
-						{
-							switch (m_joystick->m_LastFrameState.rgdwPOV[0])
-							{
-							case JP_North:
-								return false;
-							case JP_NorthEast:
-								return true;
-							case JP_East:
-								return true;
-							case JP_SouthEast:
-								return true;
-							case JP_South:
-								return false;
-							case JP_SouthWest:
-								return true;
-							case JP_West:
-								return true;
-							case JP_NorthWest:
-								return true;
-							}
-						}
+						if (_ispoveastdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && !_ispoveastdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
 						break;
 					case 1: // Vertical
-						if (LOWORD(m_joystick->m_State.rgdwPOV[0]) == 0xFFFF)
-						{
-							switch (m_joystick->m_LastFrameState.rgdwPOV[0])
-							{
-							case JP_North:
-								return true;
-							case JP_NorthEast:
-								return true;
-							case JP_East:
-								return false;
-							case JP_SouthEast:
-								return true;
-							case JP_South:
-								return true;
-							case JP_SouthWest:
-								return true;
-							case JP_West:
-								return false;
-							case JP_NorthWest:
-								return true;
-							}
-						}
+						if (_ispovsouthdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && !_ispovsouthdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
+						break;
+					}
+				}
+				break;
+			case JoystickNegativePov:
+				if (m_joystick)
+				{
+					switch (value_iter->second)
+					{
+					case 0: // Horizontal
+						if (_ispovwestdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && !_ispovwestdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
+						break;
+					case 1: // Vertical
+						if (_ispovnorthdown(m_joystick->m_LastFrameState.rgdwPOV[0]) && !_ispovnorthdown(m_joystick->m_State.rgdwPOV[0]))
+							return true;
 						break;
 					}
 				}

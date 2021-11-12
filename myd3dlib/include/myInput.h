@@ -469,7 +469,9 @@ namespace my
 			MouseMove,
 			MouseButton,
 			JoystickAxis,
+			JoystickNegativeAxis,
 			JoystickPov,
+			JoystickNegativePov,
 			JoystickButton,
 		};
 

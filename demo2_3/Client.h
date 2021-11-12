@@ -153,9 +153,15 @@ public:
 		KeyMouseX,
 		KeyMouseY,
 		KeyJump,
-		KeyFire1,
-		KeyFire2,
-		KeyFire3,
+		KeyFire,
+		KeyLock,
+		KeyDash,
+		KeyMap,
+		KeyBag,
+		KeyWeapon1,
+		KeyWeapon2,
+		KeyWeapon3,
+		KeyWeapon4,
 		KeyCount,
 	};
 

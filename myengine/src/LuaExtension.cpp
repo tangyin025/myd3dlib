@@ -1569,10 +1569,13 @@ void LuaContext::Init(void)
 			.enum_("Type")
 			[
 				value("KeyboardButton", my::InputMgr::KeyboardButton),
+				value("KeyboardNegativeButton", my::InputMgr::KeyboardNegativeButton),
 				value("MouseMove", my::InputMgr::MouseMove),
 				value("MouseButton", my::InputMgr::MouseButton),
 				value("JoystickAxis", my::InputMgr::JoystickAxis),
+				value("JoystickNegativeAxis", my::InputMgr::JoystickNegativeAxis),
 				value("JoystickPov", my::InputMgr::JoystickPov),
+				value("JoystickNegativePov", my::InputMgr::JoystickNegativePov),
 				value("JoystickButton", my::InputMgr::JoystickButton)
 			]
 			.def("BindKey", &my::InputMgr::BindKey)

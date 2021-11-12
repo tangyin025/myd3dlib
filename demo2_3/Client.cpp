@@ -478,8 +478,8 @@ namespace boost
 			const std::vector<std::string>& values,
 			my::InputMgr::KeyPairList*, int)
 		{
-			//                      2                3                        4           5             6              7             8                9
-			static boost::regex r("((KeyboardButton)|(KeyboardNegativeButton)|(MouseMove)|(MouseButton)|(JoystickAxis)|(JoystickPov)|(JoystickButton))(\\d+)");
+			//                      2                3                        4           5             6              7                      8             9                     10               11
+			static boost::regex r("((KeyboardButton)|(KeyboardNegativeButton)|(MouseMove)|(MouseButton)|(JoystickAxis)|(JoystickNegativeAxis)|(JoystickPov)|(JoystickNegativePov)|(JoystickButton))(\\d+)");
 
 			// Make sure no previous assignment to 'a' was made.
 			boost::program_options::validators::check_first_occurrence(v);
@@ -494,34 +494,42 @@ namespace boost
 			my::InputMgr::KeyPairList res;
 			while (boost::regex_search(s_iter, s.end(), match, r, boost::match_default))
 			{
-				_ASSERT(match[9].matched);
+				_ASSERT(match[11].matched);
 				if (match[2].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::KeyboardButton, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::KeyboardButton, boost::lexical_cast<int>(match[11])));
 				}
 				else if (match[3].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::KeyboardNegativeButton, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::KeyboardNegativeButton, boost::lexical_cast<int>(match[11])));
 				}
 				else if (match[4].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::MouseMove, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::MouseMove, boost::lexical_cast<int>(match[11])));
 				}
 				else if (match[5].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::MouseButton, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::MouseButton, boost::lexical_cast<int>(match[11])));
 				}
 				else if (match[6].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickAxis, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::JoystickAxis, boost::lexical_cast<int>(match[11])));
 				}
 				else if (match[7].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickPov, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::JoystickNegativeAxis, boost::lexical_cast<int>(match[11])));
 				}
 				else if (match[8].matched)
 				{
-					res.push_back(std::make_pair(my::InputMgr::JoystickButton, boost::lexical_cast<int>(match[9])));
+					res.push_back(std::make_pair(my::InputMgr::JoystickPov, boost::lexical_cast<int>(match[11])));
+				}
+				else if (match[9].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::JoystickNegativePov, boost::lexical_cast<int>(match[11])));
+				}
+				else if (match[10].matched)
+				{
+					res.push_back(std::make_pair(my::InputMgr::JoystickButton, boost::lexical_cast<int>(match[11])));
 				}
 				s_iter = match[0].second;
 			}
@@ -574,9 +582,15 @@ Client::Client(void)
 		("keymousex", boost::program_options::value(&m_InitBindKeys[KeyMouseX])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse X")
 		("keymousey", boost::program_options::value(&m_InitBindKeys[KeyMouseY])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse Y")
 		("keyjump", boost::program_options::value(&m_InitBindKeys[KeyJump])->default_value(InputMgr::KeyPairList(), ""), "Key Jump")
-		("keyfire1", boost::program_options::value(&m_InitBindKeys[KeyFire1])->default_value(InputMgr::KeyPairList(), ""), "Key Fire1")
-		("keyfire2", boost::program_options::value(&m_InitBindKeys[KeyFire2])->default_value(InputMgr::KeyPairList(), ""), "Key Fire2")
-		("keyfire3", boost::program_options::value(&m_InitBindKeys[KeyFire3])->default_value(InputMgr::KeyPairList(), ""), "Key Fire3")
+		("keyfire", boost::program_options::value(&m_InitBindKeys[KeyFire])->default_value(InputMgr::KeyPairList(), ""), "Key Fire")
+		("keylock", boost::program_options::value(&m_InitBindKeys[KeyLock])->default_value(InputMgr::KeyPairList(), ""), "Key Lock")
+		("keydash", boost::program_options::value(&m_InitBindKeys[KeyDash])->default_value(InputMgr::KeyPairList(), ""), "Key Dash")
+		("keymap", boost::program_options::value(&m_InitBindKeys[KeyMap])->default_value(InputMgr::KeyPairList(), ""), "Key Map")
+		("keybag", boost::program_options::value(&m_InitBindKeys[KeyBag])->default_value(InputMgr::KeyPairList(), ""), "Key Bag")
+		("keyweapon1", boost::program_options::value(&m_InitBindKeys[KeyWeapon1])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon1")
+		("keyweapon2", boost::program_options::value(&m_InitBindKeys[KeyWeapon2])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon2")
+		("keyweapon3", boost::program_options::value(&m_InitBindKeys[KeyWeapon3])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon3")
+		("keyweapon4", boost::program_options::value(&m_InitBindKeys[KeyWeapon4])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon4")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
 		;
@@ -813,9 +827,15 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyMouseX", Client::KeyMouseX),
 				luabind::value("KeyMouseY", Client::KeyMouseY),
 				luabind::value("KeyJump", Client::KeyJump),
-				luabind::value("KeyFire1", Client::KeyFire1),
-				luabind::value("KeyFire2", Client::KeyFire2),
-				luabind::value("KeyFire3", Client::KeyFire3),
+				luabind::value("KeyFire", Client::KeyFire),
+				luabind::value("KeyLock", Client::KeyLock),
+				luabind::value("KeyDash", Client::KeyDash),
+				luabind::value("KeyMap", Client::KeyMap),
+				luabind::value("KeyBag", Client::KeyBag),
+				luabind::value("KeyWeapon1", Client::KeyWeapon1),
+				luabind::value("KeyWeapon2", Client::KeyWeapon2),
+				luabind::value("KeyWeapon3", Client::KeyWeapon3),
+				luabind::value("KeyWeapon4", Client::KeyWeapon4),
 				luabind::value("KeyCount", Client::KeyCount)
 			]
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
@@ -999,12 +1019,11 @@ void Client::OnFrameTick(
 	{
 		if (IsKeyPress(KeyUIHorizontal))
 		{
-			LONG LeftRight = GetKeyAxisRaw(KeyUIHorizontal);
-			if (LeftRight < 32767 - m_JoystickAxisDeadZone)
+			if (GetKeyAxisRaw(KeyUIHorizontal) < 32767)
 			{
 				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_LEFT, 0);
 			}
-			else if (LeftRight > 32767 + m_JoystickAxisDeadZone)
+			else
 			{
 				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RIGHT, 0);
 			}
@@ -1012,12 +1031,11 @@ void Client::OnFrameTick(
 
 		if (IsKeyPress(KeyUIVertical))
 		{
-			LONG UpDown = GetKeyAxisRaw(KeyUIVertical);
-			if (UpDown < 32767 - m_JoystickAxisDeadZone)
+			if (GetKeyAxisRaw(KeyUIVertical) < 32767)
 			{
 				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_UP, 0);
 			}
-			else if (UpDown > 32767 + m_JoystickAxisDeadZone)
+			else
 			{
 				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_DOWN, 0);
 			}
