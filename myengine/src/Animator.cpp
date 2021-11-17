@@ -2,6 +2,7 @@
 #include "Actor.h"
 #include "myResource.h"
 #include "PhysxContext.h"
+#include "myUtility.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/archive/polymorphic_text_iarchive.hpp>
@@ -837,10 +838,10 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 		particle.getPosition().transformCoord(m_Actor->m_World.inverse());
 
 	particle_i++;
-	int sub_node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
-	for (; sub_node_i >= 0; sub_node_i = m_Skeleton->m_boneHierarchy[sub_node_i].m_sibling)
+	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
 	{
-		UpdateDynamicBone(context, anim_pose_hier[node_i], particle.getPosition(), sub_node_i, particle_i, fElapsedTime);
+		UpdateDynamicBone(context, anim_pose_hier[node_i], particle.getPosition(), child_i, particle_i, fElapsedTime);
 	}
 }
 
@@ -916,18 +917,45 @@ void Animator::UpdateIK(IKContext & ik)
 void Animator::TransformHierarchyBoneList(
 	my::BoneList & boneList,
 	const my::BoneHierarchy & boneHierarchy,
-	int root_i,
+	int node_i,
 	const my::Quaternion & Rotation,
 	const my::Vector3 & Position)
 {
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	BoneList::reference bone = boneList[root_i];
+	BoneHierarchy::const_reference node = boneHierarchy[node_i];
+	BoneList::reference bone = boneList[node_i];
 	bone.m_rotation *= Rotation;
 	bone.m_position = Rotation * (bone.m_position - Position) + Position;
 
-	int node_i = boneHierarchy[root_i].m_child;
-	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	int child_i = boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = boneHierarchy[child_i].m_sibling)
 	{
-		TransformHierarchyBoneList(boneList, boneHierarchy, node_i, Rotation, Position);
+		TransformHierarchyBoneList(boneList, boneHierarchy, child_i, Rotation, Position);
+	}
+}
+
+void Animator::DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color)
+{
+	_ASSERT(m_Actor);
+
+	if (m_Skeleton)
+	{
+		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
+		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
+		{
+			std::deque<int> stack;
+			stack.push_back(*root_iter);
+			while (!stack.empty())
+			{
+				int node_i = stack.back();
+				stack.pop_back();
+				int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+				for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
+				{
+					helper->PushLine(anim_pose_hier[node_i].m_position.transformCoord(m_Actor->m_World),
+						anim_pose_hier[child_i].m_position.transformCoord(m_Actor->m_World), color);
+					stack.push_back(child_i);
+				}
+			}
+		}
 	}
 }

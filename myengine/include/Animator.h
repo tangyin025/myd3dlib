@@ -323,6 +323,11 @@ public:
 	}
 };
 
+namespace my
+{
+	class DrawHelper;
+}
+
 class Animator
 	: public Component
 	, public AnimationNodeSlot
@@ -443,9 +448,11 @@ public:
 	static void TransformHierarchyBoneList(
 		my::BoneList & boneList,
 		const my::BoneHierarchy & boneHierarchy,
-		int root_i,
+		int node_i,
 		const my::Quaternion & Rotation,
 		const my::Vector3 & Position);
+
+	void DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;
