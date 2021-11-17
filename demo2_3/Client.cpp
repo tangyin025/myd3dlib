@@ -791,7 +791,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
-		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr> >("Client")
+		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, my::DrawHelper> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)
 			.def_readonly("SkyLightCam", &Client::m_SkyLightCam)
