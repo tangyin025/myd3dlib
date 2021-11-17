@@ -650,12 +650,12 @@ void Animator::Update(float fElapsedTime)
 				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
 		}
 
-		DynamicBoneContextMap::iterator jb_iter = m_DynamicBones.begin();
-		for (; jb_iter != m_DynamicBones.end(); jb_iter++)
+		DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
+		for (; db_iter != m_DynamicBones.end(); db_iter++)
 		{
 			int particle_i = 0;
-			UpdateDynamicBone(jb_iter->second, anim_pose_hier[jb_iter->second.root_i],
-				anim_pose_hier[jb_iter->second.root_i].m_position.transformCoord(m_Actor->m_World), jb_iter->first, particle_i, fElapsedTime);
+			UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
+				anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
 		}
 
 		IKContextMap::iterator ik_iter = m_Iks.begin();
@@ -778,8 +778,8 @@ void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarch
 {
 	_ASSERT(mass > 0);
 
-	int root_i = boneHierarchy.FindParent(node_i);
-	if (-1 == root_i)
+	int parent_i = boneHierarchy.FindParent(node_i);
+	if (parent_i < 0)
 	{
 		return;
 	}
@@ -790,7 +790,7 @@ void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarch
 		return;
 	}
 
-	res.first->second.root_i = root_i;
+	res.first->second.parent_i = parent_i;
 	res.first->second.springConstant = springConstant;
 	AddDynamicBone(res.first->second, node_i, boneHierarchy, mass, damping);
 }
@@ -799,10 +799,10 @@ void Animator::AddDynamicBone(DynamicBoneContext & context, int node_i, const my
 {
 	context.m_ParticleList.push_back(Particle(
 		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
-	node_i = boneHierarchy[node_i].m_child;
-	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	int child_i = boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = boneHierarchy[child_i].m_sibling)
 	{
-		AddDynamicBone(context, node_i, boneHierarchy, mass, damping);
+		AddDynamicBone(context, child_i, boneHierarchy, mass, damping);
 	}
 }
 

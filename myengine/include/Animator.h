@@ -351,7 +351,7 @@ public:
 	class DynamicBoneContext
 	{
 	public:
-		int root_i;
+		int parent_i;
 
 		float springConstant;
 
