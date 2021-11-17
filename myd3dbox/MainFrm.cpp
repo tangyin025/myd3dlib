@@ -1038,7 +1038,7 @@ void CMainFrame::OnFileNew()
 	//m_ActorList.push_back(actor);
 
 	//my::OgreSkeletonAnimationPtr skel = theApp.LoadSkeleton(animator->m_SkeletonPath.c_str());
-	//animator->AddJiggleBone(skel->GetBoneIndex("joint2"), skel->m_boneHierarchy, 0.1, 0.001, -10);
+	//animator->AddDynamicBone(skel->GetBoneIndex("joint2"), skel->m_boneHierarchy, 0.1, 0.001, -10);
 
 	////TerrainPtr terrain(new Terrain(my::NamedObject::MakeUniqueName("terrain").c_str(), 2, 2, 32, 1.0f));
 	////terrain->AddMaterial(mtl);

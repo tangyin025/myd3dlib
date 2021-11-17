@@ -348,7 +348,7 @@ public:
 
 	typedef std::vector<my::Particle> ParticleList;
 
-	class JiggleBoneContext
+	class DynamicBoneContext
 	{
 	public:
 		int root_i;
@@ -358,9 +358,9 @@ public:
 		ParticleList m_ParticleList;
 	};
 
-	typedef std::map<int, JiggleBoneContext> JiggleBoneContextMap;
+	typedef std::map<int, DynamicBoneContext> DynamicBoneContextMap;
 
-	JiggleBoneContextMap m_JiggleBones;
+	DynamicBoneContextMap m_DynamicBones;
 
 	class IKContext
 	{
@@ -430,11 +430,11 @@ public:
 
 	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
 
-	void AddJiggleBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant);
+	void AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant);
 
-	static void AddJiggleBone(JiggleBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping);
+	static void AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping);
 
-	void UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
+	void UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
 
 	void AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0);
 

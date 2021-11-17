@@ -1946,7 +1946,7 @@ void LuaContext::Init(void)
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
-			.def("AddJiggleBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddJiggleBone)
+			.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
 
 		, class_<Action, boost::intrusive_ptr<Action> >("Action")

@@ -650,11 +650,11 @@ void Animator::Update(float fElapsedTime)
 				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
 		}
 
-		JiggleBoneContextMap::iterator jb_iter = m_JiggleBones.begin();
-		for (; jb_iter != m_JiggleBones.end(); jb_iter++)
+		DynamicBoneContextMap::iterator jb_iter = m_DynamicBones.begin();
+		for (; jb_iter != m_DynamicBones.end(); jb_iter++)
 		{
 			int particle_i = 0;
-			UpdateJiggleBone(jb_iter->second, anim_pose_hier[jb_iter->second.root_i],
+			UpdateDynamicBone(jb_iter->second, anim_pose_hier[jb_iter->second.root_i],
 				anim_pose_hier[jb_iter->second.root_i].m_position.transformCoord(m_Actor->m_World), jb_iter->first, particle_i, fElapsedTime);
 		}
 
@@ -774,7 +774,7 @@ void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceG
 	}
 }
 
-void Animator::AddJiggleBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant)
+void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant)
 {
 	_ASSERT(mass > 0);
 
@@ -784,7 +784,7 @@ void Animator::AddJiggleBone(int node_i, const my::BoneHierarchy & boneHierarchy
 		return;
 	}
 
-	std::pair<JiggleBoneContextMap::iterator, bool> res = m_JiggleBones.insert(std::make_pair(node_i, JiggleBoneContext()));
+	std::pair<DynamicBoneContextMap::iterator, bool> res = m_DynamicBones.insert(std::make_pair(node_i, DynamicBoneContext()));
 	if (!res.second)
 	{
 		return;
@@ -792,21 +792,21 @@ void Animator::AddJiggleBone(int node_i, const my::BoneHierarchy & boneHierarchy
 
 	res.first->second.root_i = root_i;
 	res.first->second.springConstant = springConstant;
-	AddJiggleBone(res.first->second, node_i, boneHierarchy, mass, damping);
+	AddDynamicBone(res.first->second, node_i, boneHierarchy, mass, damping);
 }
 
-void Animator::AddJiggleBone(JiggleBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping)
+void Animator::AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping)
 {
 	context.m_ParticleList.push_back(Particle(
 		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
 	node_i = boneHierarchy[node_i].m_child;
 	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		AddJiggleBone(context, node_i, boneHierarchy, mass, damping);
+		AddDynamicBone(context, node_i, boneHierarchy, mass, damping);
 	}
 }
 
-void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
+void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
 {
 	_ASSERT(m_Actor);
 
@@ -840,7 +840,7 @@ void Animator::UpdateJiggleBone(JiggleBoneContext & context, const my::Bone & pa
 	int sub_node_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
 	for (; sub_node_i >= 0; sub_node_i = m_Skeleton->m_boneHierarchy[sub_node_i].m_sibling)
 	{
-		UpdateJiggleBone(context, anim_pose_hier[node_i], particle.getPosition(), sub_node_i, particle_i, fElapsedTime);
+		UpdateDynamicBone(context, anim_pose_hier[node_i], particle.getPosition(), sub_node_i, particle_i, fElapsedTime);
 	}
 }
 
