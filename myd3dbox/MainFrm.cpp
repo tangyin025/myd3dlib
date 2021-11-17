@@ -1037,8 +1037,6 @@ void CMainFrame::OnFileNew()
 	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
 	//m_ActorList.push_back(actor);
 
-	//actor->RequestResource();
-	//actor->SetLod(0);
 	//my::OgreSkeletonAnimationPtr skel = theApp.LoadSkeleton(animator->m_SkeletonPath.c_str());
 	//animator->AddJiggleBone(skel->GetBoneIndex("joint2"), skel->m_boneHierarchy, 0.1, 0.001, -10);
 
@@ -1060,14 +1058,14 @@ void CMainFrame::OnFileNew()
 	//m_selctl = NULL;
 	//OnSelChanged();
 
-	//for (int i = 0; i < 300000; i++)
-	//{
-	//	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(my::Random(-3000.0f, 3000.0f), 0, my::Random(-3000.0f, 3000.0f)), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	//	actor->UpdateAABB();
-	//	actor->UpdateWorld();
-	//	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), 0.1f, 0.1f);
-	//	m_ActorList.push_back(actor);
-	//}
+	////for (int i = 0; i < 300000; i++)
+	////{
+	////	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(my::Random(-3000.0f, 3000.0f), 0, my::Random(-3000.0f, 3000.0f)), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
+	////	actor->UpdateAABB();
+	////	actor->UpdateWorld();
+	////	AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), 0.1f, 0.1f);
+	////	m_ActorList.push_back(actor);
+	////}
 }
 
 void CMainFrame::OnFileOpen()

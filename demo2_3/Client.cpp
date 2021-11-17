@@ -791,7 +791,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
-		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, PhysxScene> >("Client")
+		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)
 			.def_readonly("SkyLightCam", &Client::m_SkyLightCam)
@@ -855,6 +855,9 @@ HRESULT Client::OnCreateDevice(
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)
 			.def("OnControlSound", &Client::OnControlSound)
+			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
+			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
+			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))
