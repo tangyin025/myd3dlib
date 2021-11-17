@@ -844,7 +844,15 @@ void LuaContext::Init(void)
 			.property("MaterialNum", &my::OgreMesh::GetMaterialNum)
 			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
 
+		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")
+			.def_readonly("sibling", &my::BoneHierarchyNode::m_sibling)
+			.def_readonly("child", &my::BoneHierarchyNode::m_child)
+
 		, class_<my::BoneHierarchy>("BoneHierarchy")
+
+		, class_<my::Bone>("Bone")
+			.def_readwrite("rotation", &my::Bone::m_rotation)
+			.def_readwrite("position", &my::Bone::m_position)
 
 		, class_<my::OgreSkeletonAnimation, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("OgreSkeletonAnimation")
 			.def_readonly("boneHierarchy", &my::OgreSkeletonAnimation::m_boneHierarchy)
@@ -1945,6 +1953,7 @@ void LuaContext::Init(void)
 			.def(constructor<const char*>())
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
+			.def_readonly("final_pose", &Animator::final_pose, luabind::return_stl_iterator)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
 			.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
