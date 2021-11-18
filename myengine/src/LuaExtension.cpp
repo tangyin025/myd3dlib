@@ -246,7 +246,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.connect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 
-		//my::DialogMgr::getSingleton().m_EventGUI.connect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1));
+		my::DialogMgr::getSingleton().m_EventGUI.connect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2));
 	}
 
 	virtual void ReleaseResource(void)
@@ -281,7 +281,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 
-		//my::DialogMgr::getSingleton().m_EventGUI.disconnect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1));
+		my::DialogMgr::getSingleton().m_EventGUI.disconnect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2));
 	}
 
 	virtual void Update(float fElapsedTime)
