@@ -1510,7 +1510,7 @@ namespace my
 		virtual void MoveToFront(void) const;
 	};
 
-	class DialogMgr
+	class DialogMgr : public SingleInstance<DialogMgr>
 	{
 	public:
 		typedef std::list<Dialog *> DialogList;
@@ -1527,10 +1527,19 @@ namespace my
 
 		Matrix4 m_InverseViewProj;
 
+		typedef boost::signals2::signal<void (UIRender *, float)> GUIEvent;
+
+		GUIEvent m_EventGUI;
+
 	public:
 		DialogMgr(void)
 		{
 			SetDlgViewport(Vector2(800,600), D3DXToRadian(75.0f));
+		}
+
+		~DialogMgr(void)
+		{
+			_ASSERT(m_EventGUI.empty());
 		}
 
 		void SetDlgViewport(const Vector2 & Viewport, float fov);

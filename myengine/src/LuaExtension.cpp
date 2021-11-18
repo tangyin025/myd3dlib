@@ -245,6 +245,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadControllerHit.connect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.connect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
+
+		//my::DialogMgr::getSingleton().m_EventGUI.connect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1));
 	}
 
 	virtual void ReleaseResource(void)
@@ -278,6 +280,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadControllerHit.disconnect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
+
+		//my::DialogMgr::getSingleton().m_EventGUI.disconnect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1));
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -361,8 +365,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
 	{
-		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
-
 		_ASSERT(m_OnPxThreadSubstepMuted);
 
 		try
@@ -382,8 +384,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadControllerHit(my::EventArg* arg)
 	{
-		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
-
 		_ASSERT(m_OnPxThreadSubstepMuted);
 
 		try
@@ -403,8 +403,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
 	{
-		//my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
-
 		_ASSERT(m_OnPxThreadSubstepMuted);
 
 		try
@@ -420,6 +418,25 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnPxThreadObstacleHit(Component* ptr, my::EventArg* arg)
 	{
 		ptr->OnPxThreadObstacleHit(arg);
+	}
+
+	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime)
+	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		try
+		{
+			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime)
+	{
+		ptr->OnGUI(ui_render, fElapsedTime);
 	}
 };
 
@@ -1702,6 +1719,7 @@ void LuaContext::Init(void)
 			.def("OnPxThreadShapeHit", &Component::OnPxThreadShapeHit, &ScriptComponent::default_OnPxThreadShapeHit)
 			.def("OnPxThreadControllerHit", &Component::OnPxThreadControllerHit, &ScriptComponent::default_OnPxThreadControllerHit)
 			.def("OnPxThreadObstacleHit", &Component::OnPxThreadObstacleHit, &ScriptComponent::default_OnPxThreadObstacleHit)
+			.def("OnGUI", &Component::OnGUI, &ScriptComponent::default_OnGUI)
 			.def("CalculateAABB", &Component::CalculateAABB)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
@@ -1868,9 +1886,6 @@ void LuaContext::Init(void)
 			.def_readwrite("LodDist", &Actor::m_LodDist)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
 			.def_readonly("Cmps", &Actor::m_Cmps, luabind::return_stl_iterator)
-			//.def_readwrite("EventEnterTrigger", &Actor::m_EventEnterTrigger)
-			//.def_readwrite("EventLeaveTrigger", &Actor::m_EventLeaveTrigger)
-			//.def_readwrite("EventPxThreadShapeHit", &Actor::m_EventPxThreadShapeHit)
 			.def(self == other<const Actor&>())
 			.property("Requested", &Actor::IsRequested)
 			.def("Clone", &Actor::Clone)

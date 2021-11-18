@@ -4133,6 +4133,8 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 {
 	ui_render->SetViewProj(m_ViewProj);
 
+	m_EventGUI(ui_render, fElapsedTime);
+
 	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{

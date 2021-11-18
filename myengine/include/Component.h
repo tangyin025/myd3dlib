@@ -10,6 +10,8 @@
 namespace my
 {
 	class Effect;
+
+	class UIRender;
 };
 
 class Material;
@@ -154,11 +156,15 @@ public:
 	{
 	}
 
-	virtual void OnPxThreadControllerHit(my::EventArg* arg)
+	virtual void OnPxThreadControllerHit(my::EventArg * arg)
 	{
 	}
 
-	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
+	virtual void OnPxThreadObstacleHit(my::EventArg * arg)
+	{
+	}
+
+	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime)
 	{
 	}
 
