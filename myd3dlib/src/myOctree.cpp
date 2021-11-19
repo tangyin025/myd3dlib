@@ -3,6 +3,7 @@
 #include <boost/algorithm/cxx11/none_of.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/range/algorithm/find_if.hpp>
+#include <boost/scope_exit.hpp>
 
 using namespace my;
 
@@ -58,8 +59,12 @@ OctNode * OctNode::GetTopNode(void)
 
 void OctNode::AddEntity(OctEntity * entity, const AABB & aabb, float minblock, float threshold)
 {
+	//_ASSERT(!GetTopNode()->m_QueryEntityMuted);
+
 	_ASSERT(!entity->m_Node);
+
 	_ASSERT(aabb.IsValid());
+
 	if (m_max.x - m_min.x > minblock + threshold || m_max.y - m_min.y > minblock + threshold || m_max.z - m_min.z > minblock + threshold)
 	{
 		if (aabb.m_min.x > m_Half.x - threshold && aabb.m_max.x < m_max.x + threshold)
@@ -121,6 +126,7 @@ void OctNode::AddEntity(OctEntity * entity, const AABB & aabb, float minblock, f
 			}
 		}
 	}
+
 	_ASSERT(m_Entities.end() == boost::find_if(m_Entities, (&boost::lambda::_1)->* & std::pair<OctEntity*, AABB>::first == entity));
 	m_Entities.push_back(std::make_pair(entity, aabb));
 	entity->m_Node = this;
@@ -138,6 +144,15 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 
 void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 {
+#ifdef _DEBUG
+	const_cast<bool&>(m_QueryEntityMuted) = true;
+	BOOST_SCOPE_EXIT(&m_QueryEntityMuted)
+	{
+		const_cast<bool&>(m_QueryEntityMuted) = false;
+	}
+	BOOST_SCOPE_EXIT_END
+#endif
+
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
@@ -162,6 +177,15 @@ void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 
 void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 {
+#ifdef _DEBUG
+	const_cast<bool&>(m_QueryEntityMuted) = true;
+	BOOST_SCOPE_EXIT(&m_QueryEntityMuted)
+	{
+		const_cast<bool&>(m_QueryEntityMuted) = false;
+	}
+	BOOST_SCOPE_EXIT_END
+#endif
+		
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
@@ -196,6 +220,15 @@ void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 
 void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) const
 {
+#ifdef _DEBUG
+	const_cast<bool&>(m_QueryEntityMuted) = true;
+	BOOST_SCOPE_EXIT(&m_QueryEntityMuted)
+	{
+		const_cast<bool&>(m_QueryEntityMuted) = false;
+	}
+	BOOST_SCOPE_EXIT_END
+#endif
+
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for (; entity_iter != m_Entities.end(); entity_iter++)
 	{
@@ -230,6 +263,15 @@ void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 
 void OctNode::QueryEntityAll(QueryCallback * callback) const
 {
+#ifdef _DEBUG
+	const_cast<bool&>(m_QueryEntityMuted) = true;
+	BOOST_SCOPE_EXIT(&m_QueryEntityMuted)
+	{
+		const_cast<bool&>(m_QueryEntityMuted) = false;
+	}
+	BOOST_SCOPE_EXIT_END
+#endif
+		
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for(; entity_iter != m_Entities.end(); entity_iter++)
 	{
@@ -265,6 +307,8 @@ size_t OctNode::QueryEntityAllNum(void) const
 
 void OctNode::RemoveEntity(OctEntity * entity)
 {
+	_ASSERT(!GetTopNode()->m_QueryEntityMuted);
+
 	if (entity->m_Node)
 	{
 		_ASSERT(HaveNode(entity->m_Node));
@@ -280,6 +324,8 @@ void OctNode::RemoveEntity(OctEntity * entity)
 
 void OctNode::ClearAllEntity(void)
 {
+	_ASSERT(!GetTopNode()->m_QueryEntityMuted);
+
 	OctNode * Root = GetTopNode();
 	OctEntityMap::iterator entity_iter = m_Entities.begin();
 	for (; entity_iter != m_Entities.end(); entity_iter = m_Entities.begin())
@@ -300,6 +346,8 @@ void OctNode::ClearAllEntity(void)
 
 void OctNode::Flush(void)
 {
+	_ASSERT(!GetTopNode()->m_QueryEntityMuted);
+
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
 		if (m_Childs[i])

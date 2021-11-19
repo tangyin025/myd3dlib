@@ -50,10 +50,17 @@ namespace my
 
 		ChildArray m_Childs;
 
+#ifdef _DEBUG
+		bool m_QueryEntityMuted;
+#endif
+
 	public:
 		OctNode(void)
 			: m_Parent(NULL)
 			, m_Half(0, 0, 0)
+#ifdef _DEBUG
+			, m_QueryEntityMuted(false)
+#endif
 		{
 		}
 
