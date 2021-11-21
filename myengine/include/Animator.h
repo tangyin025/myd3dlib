@@ -87,8 +87,6 @@ public:
 
 	std::string m_Name;
 
-	std::vector<std::string> m_RootList;
-
 	float m_Rate;
 
 	bool m_Loop;
@@ -121,7 +119,6 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 		ar & BOOST_SERIALIZATION_NVP(m_Name);
-		ar & BOOST_SERIALIZATION_NVP(m_RootList);
 		ar & BOOST_SERIALIZATION_NVP(m_Rate);
 		ar & BOOST_SERIALIZATION_NVP(m_Loop);
 		ar & BOOST_SERIALIZATION_NVP(m_Group);
@@ -136,10 +133,6 @@ public:
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
 	float GetLength(void) const;
-
-	void SetRootList(std::string RootList);
-
-	std::string GetRootList(void) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
@@ -152,6 +145,8 @@ public:
 	public:
 		int m_Priority;
 
+		int m_RootId;
+
 		float m_BlendTime;
 
 		float m_BlendOutTime;
@@ -162,6 +157,7 @@ public:
 
 		Sequence(void)
 			: m_Priority(INT_MIN)
+			, m_RootId(-1)
 			, m_BlendTime(0)
 			, m_BlendOutTime(0)
 			, m_TargetWeight(1.0f)

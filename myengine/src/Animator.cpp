@@ -109,7 +109,6 @@ AnimationNodeSequence & AnimationNodeSequence::operator = (const AnimationNodeSe
 	m_Weight = rhs.m_Weight;
 	m_LastElapsedTime = rhs.m_LastElapsedTime;
 	m_Name = rhs.m_Name;
-	m_RootList = rhs.m_RootList;
 	m_Rate = rhs.m_Rate;
 	m_Loop = rhs.m_Loop;
 	m_Group = rhs.m_Group;
@@ -165,24 +164,19 @@ float AnimationNodeSequence::GetLength(void) const
 	}
 	return 1.0f;
 }
-
-void AnimationNodeSequence::SetRootList(std::string RootList)
-{
-	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
-	if (!RootList.empty())
-	{
-		boost::algorithm::split(m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
-	}
-	else
-	{
-		m_RootList.clear();
-	}
-}
-
-std::string AnimationNodeSequence::GetRootList(void) const
-{
-	return std::string();
-}
+//
+//void AnimationNodeSequence::SetRootList(std::string RootList)
+//{
+//	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
+//	if (!RootList.empty())
+//	{
+//		boost::algorithm::split(m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
+//	}
+//	else
+//	{
+//		m_RootList.clear();
+//	}
+//}
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 {
@@ -192,25 +186,10 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
 		if (anim)
 		{
-			if (m_RootList.empty())
+			BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
+			for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
 			{
-				BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
-				for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
-				{
-					anim->GetPose(pose, Root->m_Skeleton->m_boneHierarchy, *root_iter, m_Time);
-				}
-			}
-			else
-			{
-				std::vector<std::string>::const_iterator root_name_iter = m_RootList.begin();
-				for (; root_name_iter != m_RootList.end(); root_name_iter++)
-				{
-					OgreSkeleton::BoneNameMap::const_iterator root_iter = Root->m_Skeleton->m_boneNameMap.find(*root_name_iter);
-					if (root_iter != Root->m_Skeleton->m_boneNameMap.end())
-					{
-						anim->GetPose(pose, Root->m_Skeleton->m_boneHierarchy, root_iter->second, m_Time);
-					}
-				}
+				anim->GetPose(pose, Root->m_Skeleton->m_boneHierarchy, *root_iter, m_Time);
 			}
 		}
 	}
@@ -294,7 +273,7 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 		res_seq_iter->m_Time = StartTime;
 		res_seq_iter->m_Weight = 0;
 		res_seq_iter->m_Name = Name;
-		res_seq_iter->SetRootList(RootList);
+		//res_seq_iter->SetRootList(RootList);
 		res_seq_iter->m_Rate = Rate;
 		res_seq_iter->m_Loop = Loop;
 		res_seq_iter->m_Group = Group;
