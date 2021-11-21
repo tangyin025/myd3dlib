@@ -1951,11 +1951,6 @@ void LuaContext::Init(void)
 			.def("SetActiveChild", &AnimationNodeBlend::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlend::GetActiveChild)
 
-		, class_<AnimationNodeBlendSubBone, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendSubBone")
-			.def(constructor<>())
-			.def_readwrite("SubBoneId", &AnimationNodeBlendSubBone::m_SubBoneId)
-			.def_readwrite("Weight", &AnimationNodeBlendSubBone::m_Weight)
-
 		, class_<AnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
 			.def(constructor<>())
 			.def("SetActiveChild", &AnimationNodeBlendList::SetActiveChild)

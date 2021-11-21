@@ -74,6 +74,8 @@ public:
 	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const = 0;
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const = 0;
 };
 
 class AnimationNodeSequence : public AnimationNode
@@ -131,6 +133,8 @@ public:
 	void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
 
 	float GetLength(void) const;
 };
@@ -195,6 +199,8 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
+
 	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, DWORD_PTR UserData);
 
 	void StopIndex(int i);
@@ -245,45 +251,11 @@ public:
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
-
-class AnimationNodeBlendSubBone : public AnimationNode
-{
-public:
-	int m_SubBoneId;
-
-	float m_Weight;
-
-public:
-	AnimationNodeBlendSubBone(void)
-		: AnimationNode(2)
-		, m_SubBoneId(-1)
-		, m_Weight(1.0f)
-	{
-	}
-
-	~AnimationNodeBlendSubBone(void)
-	{
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void serialize(Archive& ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_SubBoneId);
-		ar & BOOST_SERIALIZATION_NVP(m_Weight);
-	}
-
-	virtual void Tick(float fElapsedTime, float fTotalWeight);
-
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
-};
-
-typedef boost::shared_ptr<AnimationNodeBlendSubBone> AnimationNodeBlendSubBonePtr;
 
 class AnimationNodeBlendList : public AnimationNode
 {
@@ -306,6 +278,8 @@ public:
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
 };
 
 class AnimationNodeRate : public AnimationNode
@@ -336,6 +310,8 @@ public:
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeRate> AnimationNodeRateBySpeedPtr;
