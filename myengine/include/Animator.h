@@ -221,12 +221,15 @@ public:
 
 	float m_TargetWeight;
 
+	int m_TargetRootId;
+
 public:
 	AnimationNodeBlend(void)
 		: AnimationNode(2)
 		, m_BlendTime(0)
 		, m_Weight(0)
 		, m_TargetWeight(0)
+		, m_TargetRootId(-1)
 	{
 	}
 
