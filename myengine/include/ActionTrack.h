@@ -110,7 +110,6 @@ public:
 	struct KeyFrame
 	{
 		std::string Name;
-		std::string RootList;
 		float Rate;
 		float BlendTime;
 		float BlendOutTime;
@@ -118,6 +117,7 @@ public:
 		int Prority;
 		float StartTime;
 		std::string Group;
+		int RootId;
 	};
 
 	typedef std::map<float, KeyFrame> KeyFrameMap;
@@ -131,7 +131,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, const char * Name, const char * RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group);
+	void AddKeyFrame(float Time, const char * Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group, int RootId);
 };
 
 class ActionTrackAnimationInst : public ActionTrackInst

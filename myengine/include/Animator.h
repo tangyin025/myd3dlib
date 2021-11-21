@@ -149,22 +149,22 @@ public:
 	public:
 		int m_Priority;
 
-		int m_RootId;
-
 		float m_BlendTime;
 
 		float m_BlendOutTime;
 
 		float m_TargetWeight;
 
+		int m_TargetRootId;
+
 		DWORD_PTR m_UserData;
 
 		Sequence(void)
 			: m_Priority(INT_MIN)
-			, m_RootId(-1)
 			, m_BlendTime(0)
 			, m_BlendOutTime(0)
 			, m_TargetWeight(1.0f)
+			, m_TargetRootId(-1)
 			, m_UserData(0)
 		{
 		}
@@ -201,7 +201,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
 
-	void Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, DWORD_PTR UserData);
+	void Play(const std::string & Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, int RootId, DWORD_PTR UserData);
 
 	void StopIndex(int i);
 

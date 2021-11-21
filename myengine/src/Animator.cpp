@@ -164,19 +164,6 @@ float AnimationNodeSequence::GetLength(void) const
 	}
 	return 1.0f;
 }
-//
-//void AnimationNodeSequence::SetRootList(std::string RootList)
-//{
-//	boost::trim_if(RootList, boost::algorithm::is_any_of(" \t,"));
-//	if (!RootList.empty())
-//	{
-//		boost::algorithm::split(m_RootList, RootList, boost::algorithm::is_any_of(" \t,"), boost::algorithm::token_compress_on);
-//	}
-//	else
-//	{
-//		m_RootList.clear();
-//	}
-//}
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
 {
@@ -236,8 +223,6 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 		seq_iter->Tick(fElapsedTime, Weight);
 
-		fTotalWeight = Max(0.0f, fTotalWeight - Weight);
-
 		if (seq_iter->m_TargetWeight > 0 && !seq_iter->m_Loop && seq_iter->m_Time >= seq_iter->GetLength())
 		{
 			seq_iter->m_TargetWeight = 0;
@@ -260,12 +245,23 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
 		m_Childs[0]->GetPose(pose);
 	}
 
-	SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
-	for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
+	const Animator* Root = dynamic_cast<const Animator*>(GetTopNode());
+	if (Root->m_Skeleton)
 	{
-		my::BoneList OtherPose(pose.size());
-		seq_iter->GetPose(OtherPose);
-		pose.LerpSelf(OtherPose, seq_iter->m_Weight);
+		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
+		for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
+		{
+			my::BoneList OtherPose(pose.size());
+			seq_iter->GetPose(OtherPose);
+			if (seq_iter->m_TargetRootId < 0)
+			{
+				pose.LerpSelf(OtherPose, seq_iter->m_Weight);
+			}
+			else
+			{
+				pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, seq_iter->m_TargetRootId, seq_iter->m_Weight);
+			}
+		}
 	}
 	return pose;
 }
@@ -285,13 +281,20 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i) const
 		{
 			my::BoneList OtherPose(pose.size());
 			seq_iter->GetPose(OtherPose, root_i);
-			pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_i, seq_iter->m_Weight);
+			if (seq_iter->m_TargetRootId < 0)
+			{
+				pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_i, seq_iter->m_Weight);
+			}
+			else
+			{
+				pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, seq_iter->m_TargetRootId, seq_iter->m_Weight);
+			}
 		}
 	}
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, DWORD_PTR UserData)
+void AnimationNodeSlot::Play(const std::string & Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, int RootId, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
@@ -308,7 +311,6 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 		res_seq_iter->m_Time = StartTime;
 		res_seq_iter->m_Weight = 0;
 		res_seq_iter->m_Name = Name;
-		//res_seq_iter->SetRootList(RootList);
 		res_seq_iter->m_Rate = Rate;
 		res_seq_iter->m_Loop = Loop;
 		res_seq_iter->m_Group = Group;
@@ -316,6 +318,7 @@ void AnimationNodeSlot::Play(const std::string & Name, std::string RootList, flo
 		res_seq_iter->m_BlendTime = BlendTime;
 		res_seq_iter->m_BlendOutTime = BlendOutTime;
 		res_seq_iter->m_TargetWeight = 1.0f;
+		res_seq_iter->m_TargetRootId = RootId;
 		res_seq_iter->m_UserData = UserData;
 		res_seq_iter->m_Parent = this;
 
@@ -407,7 +410,7 @@ void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 
 	if (m_Childs[0] && (m_Weight < 1.0f || m_TargetRootId >= 0))
 	{
-		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (m_TargetRootId >= 0 ? 1.0f : (1.0f - m_TargetWeight)));
+		m_Childs[0]->Tick(fElapsedTime, m_TargetRootId >= 0 ? fTotalWeight : fTotalWeight * (1.0f - m_TargetWeight));
 	}
 
 	if (m_Childs[1] && m_Weight > 0.0f)
