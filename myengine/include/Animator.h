@@ -253,6 +253,42 @@ public:
 
 typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
 
+class AnimationNodeBlendSubBone : public AnimationNode
+{
+public:
+	int m_SubBoneId;
+
+	float m_Weight;
+
+public:
+	AnimationNodeBlendSubBone(void)
+		: AnimationNode(2)
+		, m_SubBoneId(-1)
+		, m_Weight(1.0f)
+	{
+	}
+
+	~AnimationNodeBlendSubBone(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_SubBoneId);
+		ar & BOOST_SERIALIZATION_NVP(m_Weight);
+	}
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+};
+
+typedef boost::shared_ptr<AnimationNodeBlendSubBone> AnimationNodeBlendSubBonePtr;
+
 class AnimationNodeBlendList : public AnimationNode
 {
 public:

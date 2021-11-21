@@ -431,9 +431,48 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 	if (m_Childs[1])
 	{
 		m_Childs[1]->GetPose(OtherPose);
+
+		pose.LerpSelf(OtherPose, m_Weight);
 	}
 
-	return pose.LerpSelf(OtherPose, m_Weight);
+	return pose;
+}
+
+void AnimationNodeBlendSubBone::Tick(float fElapsedTime, float fTotalWeight)
+{
+	AnimationNodePtrList::iterator node_iter = m_Childs.begin();
+	for (; node_iter != m_Childs.end(); node_iter++)
+	{
+		if (*node_iter)
+		{
+			(*node_iter)->Tick(fElapsedTime, fTotalWeight);
+		}
+	}
+}
+
+my::BoneList & AnimationNodeBlendSubBone::GetPose(my::BoneList & pose) const
+{
+	if (m_Childs[0])
+	{
+		m_Childs[0]->GetPose(pose);
+	}
+
+	if (m_SubBoneId >= 0 && m_Childs[1])
+	{
+		my::BoneList OtherPose(pose.size());
+		if (m_Childs[1])
+		{
+			m_Childs[1]->GetPose(OtherPose);
+		}
+
+		const Animator* Root = dynamic_cast<const Animator*>(GetTopNode());
+		if (Root->m_Skeleton && m_SubBoneId < Root->m_Skeleton->m_boneHierarchy.size())
+		{
+			pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, m_SubBoneId, m_Weight);
+		}
+	}
+
+	return pose;
 }
 
 AnimationNodeBlendList::AnimationNodeBlendList(void)
