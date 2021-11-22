@@ -1936,6 +1936,7 @@ void LuaContext::Init(void)
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<>())
 			.def_readwrite("Name", &AnimationNodeSequence::m_Name)
+			.def_readwrite("Rate", &AnimationNodeSequence::m_Rate)
 			.def_readwrite("Loop", &AnimationNodeSequence::m_Loop)
 			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 
