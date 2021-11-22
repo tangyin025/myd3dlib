@@ -1954,6 +1954,8 @@ void LuaContext::Init(void)
 
 		, class_<AnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
 			.def(constructor<>())
+			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)
+			.def("SetTargetWeight", &AnimationNodeBlendList::SetTargetWeight)
 			.def("SetActiveChild", &AnimationNodeBlendList::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlendList::GetActiveChild)
 

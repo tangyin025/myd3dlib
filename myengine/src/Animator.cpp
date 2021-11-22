@@ -520,6 +520,21 @@ AnimationNodeBlendList::~AnimationNodeBlendList(void)
 
 }
 
+void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight)
+{
+	if (m_TargetWeight.size() < m_Childs.size())
+	{
+		m_TargetWeight.resize(m_Childs.size(), 0);
+
+		m_Weight.resize(m_Childs.size(), 0);
+	}
+
+	if (Child >= 0 && Child < m_Childs.size())
+	{
+		m_TargetWeight[Child] = Weight;
+	}
+}
+
 void AnimationNodeBlendList::SetActiveChild(int ActiveChild, float BlendTime)
 {
 	if (m_TargetWeight.size() < m_Childs.size())

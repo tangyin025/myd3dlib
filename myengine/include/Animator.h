@@ -274,6 +274,8 @@ public:
 
 	~AnimationNodeBlendList(void);
 
+	void SetTargetWeight(int Child, float Weight);
+
 	void SetActiveChild(int ActiveChild, float BlendTime);
 
 	int GetActiveChild(void) const;
