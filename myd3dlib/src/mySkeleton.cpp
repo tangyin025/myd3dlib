@@ -137,7 +137,7 @@ BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
 {
 	_ASSERT(leafedBoneHierarchy.size() == size());
 
-	reference node = leafedBoneHierarchy[root_i] = operator[](root_i);
+	reference node = (leafedBoneHierarchy[root_i] = operator[](root_i));
 
 	if(leafNodeIndices.end() == leafNodeIndices.find(root_i))
 	{

@@ -413,9 +413,9 @@ void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
 		m_BlendTime -= fElapsedTime;
 	}
 
-	if (m_Childs[0] && (m_Weight < 1.0f || m_TargetRootId >= 0))
+	if (m_Childs[0] && m_Weight < 1.0f)
 	{
-		m_Childs[0]->Tick(fElapsedTime, m_TargetRootId >= 0 ? fTotalWeight : fTotalWeight * (1.0f - m_TargetWeight));
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1.0f - m_TargetWeight));
 	}
 
 	if (m_Childs[1] && m_Weight > 0.0f)
@@ -435,7 +435,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 		return pose;
 	}
 
-	if (m_Weight >= 1.0f && m_TargetRootId < 0)
+	if (m_Weight >= 1.0f)
 	{
 		if (m_Childs[1])
 		{
@@ -454,14 +454,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
 	{
 		my::BoneList OtherPose(pose.size());
 		m_Childs[1]->GetPose(OtherPose);
-		if (m_TargetRootId < 0)
-		{
-			pose.LerpSelf(OtherPose, m_Weight);
-		}
-		else if (Root->m_Skeleton)
-		{
-			pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, m_TargetRootId, m_Weight);
-		}
+		pose.LerpSelf(OtherPose, m_Weight);
 	}
 
 	return pose;
@@ -478,7 +471,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose, int root_i) cons
 		return pose;
 	}
 
-	if (m_Weight >= 1.0f && m_TargetRootId < 0)
+	if (m_Weight >= 1.0f)
 	{
 		if (m_Childs[1])
 		{
@@ -497,14 +490,7 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose, int root_i) cons
 	{
 		my::BoneList OtherPose(pose.size());
 		m_Childs[1]->GetPose(OtherPose, root_i);
-		if (m_TargetRootId < 0)
-		{
-			pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_i, m_Weight);
-		}
-		else
-		{
-			pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, m_TargetRootId, m_Weight);
-		}
+		pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, root_i, m_Weight);
 	}
 
 	return pose;

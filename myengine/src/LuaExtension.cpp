@@ -1978,7 +1978,6 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("BlendTime", &AnimationNodeBlend::m_BlendTime)
 			.def_readwrite("TargetWeight", &AnimationNodeBlend::m_TargetWeight)
-			.def_readwrite("TargetRootId", &AnimationNodeBlend::m_TargetRootId)
 			.def("SetActiveChild", &AnimationNodeBlend::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlend::GetActiveChild)
 
