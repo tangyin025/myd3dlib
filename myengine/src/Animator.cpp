@@ -16,6 +16,7 @@
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/assign/list_of.hpp>
 
 using namespace my;
 
@@ -24,6 +25,8 @@ BOOST_CLASS_EXPORT(AnimationNode)
 BOOST_CLASS_EXPORT(AnimationNodeSequence)
 
 BOOST_CLASS_EXPORT(AnimationNodeSlot)
+
+BOOST_CLASS_EXPORT(AnimationNodeSubTree)
 
 BOOST_CLASS_EXPORT(AnimationNodeBlendList)
 
@@ -152,41 +155,25 @@ void AnimationNodeSequence::Advance(float fElapsedTime)
 float AnimationNodeSequence::GetLength(void) const
 {
 	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
-	if (Root->m_Skeleton)
+	_ASSERT(Root->m_Skeleton);
+
+	const OgreAnimation* anim = Root->m_Skeleton->GetAnimation(m_Name);
+	if (anim)
 	{
-		const OgreAnimation * anim = Root->m_Skeleton->GetAnimation(m_Name);
-		if (anim)
-		{
-			return anim->GetLength();
-		}
+		return anim->GetLength();
 	}
 	return 1.0f;
-}
-
-my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
-{
-	const Animator * Root = dynamic_cast<const Animator *>(GetTopNode());
-	if (Root->m_Skeleton)
-	{
-		BoneIndexSet::const_iterator root_iter = Root->m_Skeleton->m_boneRootSet.begin();
-		for (; root_iter != Root->m_Skeleton->m_boneRootSet.end(); root_iter++)
-		{
-			GetPose(pose, *root_iter, Root->m_Skeleton->m_boneHierarchy);
-		}
-	}
-	return pose;
 }
 
 my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
 {
 	const Animator* Root = dynamic_cast<const Animator*>(GetTopNode());
-	if (Root->m_Skeleton)
+	_ASSERT(Root->m_Skeleton);
+
+	const OgreAnimation* anim = Root->m_Skeleton->GetAnimation(m_Name);
+	if (anim)
 	{
-		const OgreAnimation* anim = Root->m_Skeleton->GetAnimation(m_Name);
-		if (anim)
-		{
-			anim->GetPose(pose, boneHierarchy, root_i, m_Time);
-		}
+		anim->GetPose(pose, boneHierarchy, root_i, m_Time);
 	}
 	return pose;
 }
@@ -217,7 +204,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 		seq_iter->Tick(fElapsedTime, Weight);
 
-		if (seq_iter->m_TargetRootId < 0)
+		if (seq_iter->m_RootId < 0)
 		{
 			fTotalWeight = Max(0.0f, fTotalWeight - Weight);
 		}
@@ -237,34 +224,6 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 	}
 }
 
-my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose) const
-{
-	if (m_Childs[0])
-	{
-		m_Childs[0]->GetPose(pose);
-	}
-
-	const Animator* Root = dynamic_cast<const Animator*>(GetTopNode());
-	if (Root->m_Skeleton)
-	{
-		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
-		for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
-		{
-			my::BoneList OtherPose(pose.size());
-			seq_iter->GetPose(OtherPose);
-			if (seq_iter->m_TargetRootId < 0)
-			{
-				pose.LerpSelf(OtherPose, seq_iter->m_Weight);
-			}
-			else
-			{
-				pose.LerpSelf(OtherPose, Root->m_Skeleton->m_boneHierarchy, seq_iter->m_TargetRootId, seq_iter->m_Weight);
-			}
-		}
-	}
-	return pose;
-}
-
 my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
 {
 	if (m_Childs[0])
@@ -272,22 +231,18 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 		m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
 	}
 
-	const Animator* Root = dynamic_cast<const Animator*>(GetTopNode());
-	if (Root->m_Skeleton)
+	SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
+	for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
 	{
-		SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
-		for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
+		my::BoneList OtherPose(pose.size());
+		seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
+		if (seq_iter->m_RootId < 0)
 		{
-			my::BoneList OtherPose(pose.size());
-			seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
-			if (seq_iter->m_TargetRootId < 0)
-			{
-				pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight);
-			}
-			else
-			{
-				pose.LerpSelf(OtherPose, boneHierarchy, seq_iter->m_TargetRootId, seq_iter->m_Weight);
-			}
+			pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight);
+		}
+		else
+		{
+			pose.LerpSelf(OtherPose, boneHierarchy, seq_iter->m_RootId, seq_iter->m_Weight);
 		}
 	}
 	return pose;
@@ -317,7 +272,7 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float BlendTi
 		res_seq_iter->m_BlendTime = BlendTime;
 		res_seq_iter->m_BlendOutTime = BlendOutTime;
 		res_seq_iter->m_TargetWeight = 1.0f;
-		res_seq_iter->m_TargetRootId = RootId;
+		res_seq_iter->m_RootId = RootId;
 		res_seq_iter->m_UserData = UserData;
 		res_seq_iter->m_Parent = this;
 
@@ -360,6 +315,36 @@ void AnimationNodeSlot::StopAll(void)
 			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
 		}
 	}
+}
+
+void AnimationNodeSubTree::Tick(float fElapsedTime, float fTotalWeight)
+{
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		if (m_Childs[i])
+		{
+			m_Childs[i]->Tick(fElapsedTime, fTotalWeight);
+		}
+	}
+}
+
+my::BoneList & AnimationNodeSubTree::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
+{
+	if (m_boneHierarchy.empty() && m_NodeId >= 0)
+	{
+		boneHierarchy.BuildLeafedHierarchy(const_cast<my::BoneHierarchy&>(m_boneHierarchy), root_i, boost::assign::list_of(m_NodeId));
+	}
+
+	if (m_Childs[0])
+	{
+		m_Childs[0]->GetPose(pose, root_i, m_boneHierarchy);
+	}
+
+	if (m_Childs[1])
+	{
+		m_Childs[1]->GetPose(pose, m_NodeId, boneHierarchy);
+	}
+	return pose;
 }
 
 void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight)
@@ -445,31 +430,6 @@ void AnimationNodeBlendList::Tick(float fElapsedTime, float fTotalWeight)
 	}
 }
 
-my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose) const
-{
-	bool init_pose = false;
-
-	for (int i = 0; i < m_TargetWeight.size(); i++)
-	{
-		if (m_Childs[i] && m_Weight[i] > 0.0f)
-		{
-			if (!init_pose)
-			{
-				m_Childs[i]->GetPose(pose);
-				init_pose = true;
-			}
-			else
-			{
-				my::BoneList OtherPose(pose.size());
-				m_Childs[i]->GetPose(OtherPose);
-				pose.LerpSelf(OtherPose, m_Weight[i]);
-			}
-		}
-	}
-
-	return pose;
-}
-
 my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
 {
 	bool init_pose = false;
@@ -501,15 +461,6 @@ void AnimationNodeRate::Tick(float fElapsedTime, float fTotalWeight)
 	{
 		m_Childs[0]->Tick(fElapsedTime * m_Rate, fTotalWeight);
 	}
-}
-
-my::BoneList & AnimationNodeRate::GetPose(my::BoneList & pose) const
-{
-	if (m_Childs[0])
-	{
-		return m_Childs[0]->GetPose(pose);
-	}
-	return pose;
 }
 
 my::BoneList & AnimationNodeRate::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
@@ -606,11 +557,11 @@ void Animator::Update(float fElapsedTime)
 			UpdateSequenceGroup();
 		}
 
-		GetPose(anim_pose);
-
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
+			GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
+
 			anim_pose.BuildHierarchyBoneList(
 				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
 		}

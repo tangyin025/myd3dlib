@@ -58,7 +58,7 @@ namespace my
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
 			int root_i,
-			const BoneIndexSet & leafNodeIndices = BoneIndexSet());
+			const BoneIndexSet & leafNodeIndices = BoneIndexSet()) const;
 
 		TransformList & Transform(
 			TransformList & hierarchyTransformList,

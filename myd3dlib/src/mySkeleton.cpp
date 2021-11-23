@@ -133,7 +133,7 @@ int BoneHierarchy::FindParent(int child_i) const
 BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
 	BoneHierarchy & leafedBoneHierarchy,
 	int root_i,
-	const BoneIndexSet & leafNodeIndices)
+	const BoneIndexSet & leafNodeIndices) const
 {
 	_ASSERT(leafedBoneHierarchy.size() == size());
 

@@ -1974,6 +1974,10 @@ void LuaContext::Init(void)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)
 
+		, class_<AnimationNodeSubTree, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSubTree")
+			.def(constructor<>())
+			.def_readwrite("NodeId", &AnimationNodeSubTree::m_NodeId)
+
 		, class_<AnimationNodeBlendList, ScriptAnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
 			.def(constructor<unsigned int>())
 			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)

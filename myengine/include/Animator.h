@@ -73,8 +73,6 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose) const = 0;
-
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const = 0;
 };
 
@@ -132,8 +130,6 @@ public:
 
 	void Advance(float fElapsedTime);
 
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
-
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	float GetLength(void) const;
@@ -155,7 +151,7 @@ public:
 
 		float m_TargetWeight;
 
-		int m_TargetRootId;
+		int m_RootId;
 
 		DWORD_PTR m_UserData;
 
@@ -164,7 +160,7 @@ public:
 			, m_BlendTime(0)
 			, m_BlendOutTime(0)
 			, m_TargetWeight(1.0f)
-			, m_TargetRootId(-1)
+			, m_RootId(-1)
 			, m_UserData(0)
 		{
 		}
@@ -197,8 +193,6 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
-
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	void Play(const std::string & Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, int RootId, DWORD_PTR UserData);
@@ -211,6 +205,38 @@ public:
 };
 
 typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;
+
+class AnimationNodeSubTree : public AnimationNode
+{
+public:
+	int m_NodeId;
+
+	my::BoneHierarchy m_boneHierarchy;
+
+public:
+	AnimationNodeSubTree(void)
+		: AnimationNode(2)
+		, m_NodeId(-1)
+	{
+	}
+
+	virtual ~AnimationNodeSubTree(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_NodeId);
+	}
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
+};
 
 class AnimationNodeBlendList : public AnimationNode
 {
@@ -260,8 +286,6 @@ public:
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
 
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
-
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
 
@@ -291,8 +315,6 @@ public:
 	}
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
-
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
