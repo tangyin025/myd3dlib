@@ -297,6 +297,8 @@ public:
 
 	void SetTargetWeight(int Child, float Weight);
 
+	void SetTargetWeight(int Child, float Weight, bool Exclusive);
+
 	float GetTargetWeight(int Child);
 
 	void SetActiveChild(int ActiveChild, float BlendTime);

@@ -518,6 +518,23 @@ void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight)
 	}
 }
 
+void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight, bool Exclusive)
+{
+	SetTargetWeight(Child, Weight);
+
+	if (Exclusive)
+	{
+		float ExclusiveWeight = my::Max(0.0f, 1 - Weight);
+		for (int i = 0; i < m_Childs.size(); i++)
+		{
+			if (i != Child)
+			{
+				m_TargetWeight[i] *= ExclusiveWeight;
+			}
+		}
+	}
+}
+
 float AnimationNodeBlendList::GetTargetWeight(int Child)
 {
 	if (Child >= 0 && Child < m_Childs.size())
@@ -531,17 +548,7 @@ void AnimationNodeBlendList::SetActiveChild(int ActiveChild, float BlendTime)
 {
 	if (ActiveChild >= 0 && ActiveChild < m_Childs.size() && m_TargetWeight[ActiveChild] < 1.0f)
 	{
-		for (int i = 0; i < m_TargetWeight.size(); i++)
-		{
-			if (i == ActiveChild)
-			{
-				m_TargetWeight[i] = 1.0f;
-			}
-			else
-			{
-				m_TargetWeight[i] = 0.0f;
-			}
-		}
+		SetTargetWeight(ActiveChild, 1.0f, true);
 
 		m_BlendTime = BlendTime;
 	}
@@ -551,7 +558,7 @@ int AnimationNodeBlendList::GetActiveChild(void) const
 {
 	for (int i = 0; i < m_TargetWeight.size(); i++)
 	{
-		if (m_TargetWeight[i] > 0.5f)
+		if (m_TargetWeight[i] > 0.99f)
 		{
 			return i;
 		}
