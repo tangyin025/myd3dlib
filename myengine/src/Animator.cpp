@@ -550,13 +550,6 @@ void Animator::Update(float fElapsedTime)
 {
 	if (m_Skeleton)
 	{
-		if (fElapsedTime > 0.0f)
-		{
-			Tick(fElapsedTime, 1.0f);
-
-			UpdateSequenceGroup();
-		}
-
 		my::BoneIndexSet::const_iterator root_iter = m_Skeleton->m_boneRootSet.begin();
 		for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 		{
@@ -589,6 +582,13 @@ void Animator::Update(float fElapsedTime)
 		m_DualQuats.resize(m_Skeleton->m_boneBindPose.size());
 		final_pose.BuildDualQuaternionList(m_DualQuats);
 	}
+}
+
+void Animator::Tick(float fElapsedTime, float fTotalWeight)
+{
+	AnimationNodeSlot::Tick(fElapsedTime, fTotalWeight);
+
+	UpdateSequenceGroup();
 }
 
 void Animator::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)

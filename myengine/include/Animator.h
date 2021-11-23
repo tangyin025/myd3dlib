@@ -434,6 +434,8 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
 	void AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
 	void RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
