@@ -586,9 +586,12 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)
 {
-	AnimationNodeSlot::Tick(fElapsedTime, fTotalWeight);
+	if (m_Skeleton)
+	{
+		AnimationNodeSlot::Tick(fElapsedTime, fTotalWeight);
 
-	UpdateSequenceGroup();
+		UpdateSequenceGroup();
+	}
 }
 
 void Animator::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
