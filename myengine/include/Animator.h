@@ -112,7 +112,7 @@ public:
 	{
 	}
 
-	~AnimationNodeSequence(void);
+	virtual ~AnimationNodeSequence(void);
 
 	friend class boost::serialization::access;
 
@@ -233,7 +233,7 @@ public:
 	{
 	}
 
-	~AnimationNodeBlend(void)
+	virtual ~AnimationNodeBlend(void)
 	{
 	}
 
@@ -243,7 +243,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
 		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
 	}
 
@@ -269,12 +268,36 @@ public:
 
 	std::vector<float> m_TargetWeight;
 
-public:
-	AnimationNodeBlendList(void);
+protected:
+	AnimationNodeBlendList(void)
+	{
+	}
 
-	~AnimationNodeBlendList(void);
+public:
+	AnimationNodeBlendList(unsigned int ChildNum)
+		: AnimationNode(ChildNum)
+		, m_BlendTime(0)
+		, m_Weight(ChildNum, 0.0f)
+		, m_TargetWeight(ChildNum, 0.0f)
+	{
+	}
+
+	virtual ~AnimationNodeBlendList(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
+	}
 
 	void SetTargetWeight(int Child, float Weight);
+
+	float GetTargetWeight(int Child);
 
 	void SetActiveChild(int ActiveChild, float BlendTime);
 
@@ -299,7 +322,7 @@ public:
 	{
 	}
 
-	~AnimationNodeRate(void)
+	virtual ~AnimationNodeRate(void)
 	{
 	}
 
@@ -405,7 +428,7 @@ public:
 	{
 	}
 
-	~Animator(void);
+	virtual ~Animator(void);
 
 	friend class boost::serialization::access;
 

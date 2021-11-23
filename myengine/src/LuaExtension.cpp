@@ -440,6 +440,35 @@ struct ScriptComponent : Component, luabind::wrap_base
 	}
 };
 
+struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
+{
+	ScriptAnimationNodeBlendList(unsigned int ChildNum)
+		: AnimationNodeBlendList(ChildNum)
+	{
+	}
+
+	virtual ~ScriptAnimationNodeBlendList(void)
+	{
+	}
+
+	virtual void Tick(float fElapsedTime, float fTotalWeight)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("Tick");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_Tick(AnimationNodeBlendList* ptr, float fElapsedTime, float fTotalWeight)
+	{
+		ptr->AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
+	}
+};
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -1953,12 +1982,14 @@ void LuaContext::Init(void)
 			.def("SetActiveChild", &AnimationNodeBlend::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlend::GetActiveChild)
 
-		, class_<AnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
-			.def(constructor<>())
+		, class_<AnimationNodeBlendList, ScriptAnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
+			.def(constructor<unsigned int>())
 			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)
 			.def("SetTargetWeight", &AnimationNodeBlendList::SetTargetWeight)
+			.def("GetTargetWeight", &AnimationNodeBlendList::GetTargetWeight)
 			.def("SetActiveChild", &AnimationNodeBlendList::SetActiveChild)
 			.def("GetActiveChild", &AnimationNodeBlendList::GetActiveChild)
+			.def("Tick", &AnimationNodeBlendList::Tick, &ScriptAnimationNodeBlendList::default_Tick)
 
 		, class_<AnimationNodeRate, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRate")
 			.def(constructor<>())

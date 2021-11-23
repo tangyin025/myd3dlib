@@ -510,40 +510,25 @@ my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose, int root_i) cons
 	return pose;
 }
 
-AnimationNodeBlendList::AnimationNodeBlendList(void)
-{
-
-}
-
-AnimationNodeBlendList::~AnimationNodeBlendList(void)
-{
-
-}
-
 void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight)
 {
-	if (m_TargetWeight.size() < m_Childs.size())
-	{
-		m_TargetWeight.resize(m_Childs.size(), 0);
-
-		m_Weight.resize(m_Childs.size(), 0);
-	}
-
 	if (Child >= 0 && Child < m_Childs.size())
 	{
 		m_TargetWeight[Child] = Weight;
 	}
 }
 
+float AnimationNodeBlendList::GetTargetWeight(int Child)
+{
+	if (Child >= 0 && Child < m_Childs.size())
+	{
+		return m_TargetWeight[Child];
+	}
+	return 0;
+}
+
 void AnimationNodeBlendList::SetActiveChild(int ActiveChild, float BlendTime)
 {
-	if (m_TargetWeight.size() < m_Childs.size())
-	{
-		m_TargetWeight.resize(m_Childs.size(), 0);
-
-		m_Weight.resize(m_Childs.size(), 0);
-	}
-
 	if (ActiveChild >= 0 && ActiveChild < m_Childs.size() && m_TargetWeight[ActiveChild] < 1.0f)
 	{
 		for (int i = 0; i < m_TargetWeight.size(); i++)
