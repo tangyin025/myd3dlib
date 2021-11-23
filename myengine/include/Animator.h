@@ -75,7 +75,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const = 0;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const = 0;
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const = 0;
 };
 
 class AnimationNodeSequence : public AnimationNode
@@ -134,7 +134,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	float GetLength(void) const;
 };
@@ -199,7 +199,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	void Play(const std::string & Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, int RootId, DWORD_PTR UserData);
 
@@ -251,7 +251,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
@@ -306,7 +306,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
 
 class AnimationNodeRate : public AnimationNode
@@ -338,7 +338,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i) const;
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 };
 
 typedef boost::shared_ptr<AnimationNodeRate> AnimationNodeRateBySpeedPtr;
