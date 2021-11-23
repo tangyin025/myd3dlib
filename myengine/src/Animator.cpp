@@ -25,9 +25,7 @@ BOOST_CLASS_EXPORT(AnimationNodeSequence)
 
 BOOST_CLASS_EXPORT(AnimationNodeSlot)
 
-BOOST_CLASS_EXPORT(AnimationNodeBlend)
-//
-//BOOST_CLASS_EXPORT(AnimationNodeBlendBySpeed)
+BOOST_CLASS_EXPORT(AnimationNodeBlendList)
 
 BOOST_CLASS_EXPORT(AnimationNodeRate)
 
@@ -362,132 +360,6 @@ void AnimationNodeSlot::StopAll(void)
 			StopIndex(std::distance(m_SequenceSlot.begin(), seq_iter));
 		}
 	}
-}
-
-void AnimationNodeBlend::SetActiveChild(int ActiveChild, float BlendTime)
-{
-	_ASSERT(ActiveChild < m_Childs.size());
-
-	if (ActiveChild <= 0)
-	{
-		if (m_TargetWeight > 0.0f)
-		{
-			m_TargetWeight = 0.0f;
-			m_BlendTime = BlendTime;
-		}
-	}
-	else
-	{
-		if (m_TargetWeight < 1.0f)
-		{
-			m_TargetWeight = 1.0f;
-			m_BlendTime = BlendTime;
-		}
-	}
-}
-
-int AnimationNodeBlend::GetActiveChild(void) const
-{
-	if (m_TargetWeight < 0.5f)
-	{
-		return 0;
-	}
-	return 1;
-}
-
-void AnimationNodeBlend::Tick(float fElapsedTime, float fTotalWeight)
-{
-	if (m_BlendTime < fElapsedTime)
-	{
-		m_Weight = m_TargetWeight;
-		m_BlendTime = 0;
-	}
-	else if (m_BlendTime > 0)
-	{
-		const float delta = m_TargetWeight - m_Weight;
-		m_Weight += delta * fElapsedTime / m_BlendTime;
-		m_BlendTime -= fElapsedTime;
-	}
-
-	if (m_Childs[0] && m_Weight < 1.0f)
-	{
-		m_Childs[0]->Tick(fElapsedTime, fTotalWeight * (1.0f - m_TargetWeight));
-	}
-
-	if (m_Childs[1] && m_Weight > 0.0f)
-	{
-		m_Childs[1]->Tick(fElapsedTime, fTotalWeight * m_TargetWeight);
-	}
-}
-
-my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose) const
-{
-	if (m_Weight <= 0.0f)
-	{
-		if (m_Childs[0])
-		{
-			return m_Childs[0]->GetPose(pose);
-		}
-		return pose;
-	}
-
-	if (m_Weight >= 1.0f)
-	{
-		if (m_Childs[1])
-		{
-			return m_Childs[1]->GetPose(pose);
-		}
-		return pose;
-	}
-
-	if (m_Childs[0])
-	{
-		m_Childs[0]->GetPose(pose);
-	}
-
-	if (m_Childs[1])
-	{
-		my::BoneList OtherPose(pose.size());
-		m_Childs[1]->GetPose(OtherPose);
-		pose.LerpSelf(OtherPose, m_Weight);
-	}
-
-	return pose;
-}
-
-my::BoneList & AnimationNodeBlend::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
-{
-	if (m_Weight <= 0.0f)
-	{
-		if (m_Childs[0])
-		{
-			return m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
-		}
-		return pose;
-	}
-
-	if (m_Weight >= 1.0f)
-	{
-		if (m_Childs[1])
-		{
-			return m_Childs[1]->GetPose(pose, root_i, boneHierarchy);
-		}
-		return pose;
-	}
-
-	if (m_Childs[0])
-	{
-		m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
-	}
-
-	if (m_Childs[1])
-	{
-		my::BoneList OtherPose(pose.size());
-		m_Childs[1]->GetPose(OtherPose, root_i, boneHierarchy);
-		pose.LerpSelf(OtherPose, boneHierarchy, root_i, m_Weight);
-	}
-
-	return pose;
 }
 
 void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight)

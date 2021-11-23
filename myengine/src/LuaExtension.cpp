@@ -1974,13 +1974,6 @@ void LuaContext::Init(void)
 			.def("Play", &AnimationNodeSlot::Play)
 			.def("Stop", &AnimationNodeSlot::Stop)
 
-		, class_<AnimationNodeBlend, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlend")
-			.def(constructor<>())
-			.def_readwrite("BlendTime", &AnimationNodeBlend::m_BlendTime)
-			.def_readwrite("TargetWeight", &AnimationNodeBlend::m_TargetWeight)
-			.def("SetActiveChild", &AnimationNodeBlend::SetActiveChild)
-			.def("GetActiveChild", &AnimationNodeBlend::GetActiveChild)
-
 		, class_<AnimationNodeBlendList, ScriptAnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
 			.def(constructor<unsigned int>())
 			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)

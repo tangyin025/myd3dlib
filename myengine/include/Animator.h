@@ -212,50 +212,6 @@ public:
 
 typedef boost::shared_ptr<AnimationNodeSlot> AnimationNodeSlotPtr;
 
-class AnimationNodeBlend : public AnimationNode
-{
-public:
-	float m_BlendTime;
-
-	float m_Weight;
-
-	float m_TargetWeight;
-
-public:
-	AnimationNodeBlend(void)
-		: AnimationNode(2)
-		, m_BlendTime(0)
-		, m_Weight(0)
-		, m_TargetWeight(0)
-	{
-	}
-
-	virtual ~AnimationNodeBlend(void)
-	{
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
-		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
-	}
-
-	void SetActiveChild(int ActiveChild, float BlendTime);
-
-	int GetActiveChild(void) const;
-
-	virtual void Tick(float fElapsedTime, float fTotalWeight);
-
-	virtual my::BoneList & GetPose(my::BoneList & pose) const;
-
-	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
-};
-
-typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
-
 class AnimationNodeBlendList : public AnimationNode
 {
 public:
