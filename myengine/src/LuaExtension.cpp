@@ -455,7 +455,7 @@ struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
 	{
 		try
 		{
-			luabind::wrap_base::call<void>("Tick");
+			luabind::wrap_base::call<void>("Tick", fElapsedTime, fTotalWeight);
 		}
 		catch (const luabind::error& e)
 		{
