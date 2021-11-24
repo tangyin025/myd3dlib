@@ -407,7 +407,7 @@ void AnimationNodeBlendList::Tick(float fElapsedTime, float fTotalWeight)
 {
 	if (m_BlendTime < fElapsedTime)
 	{
-		boost::range::copy(m_Weight, m_TargetWeight.begin());
+		boost::range::copy(m_TargetWeight, m_Weight.begin());
 
 		m_BlendTime = 0;
 	}
