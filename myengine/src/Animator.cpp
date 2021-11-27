@@ -423,7 +423,7 @@ void AnimationNodeBlendList::Tick(float fElapsedTime, float fTotalWeight)
 
 	for (int i = 0; i < m_TargetWeight.size(); i++)
 	{
-		if (m_Childs[i] && m_Weight[i] > 0.0f)
+		if (m_Childs[i])
 		{
 			m_Childs[i]->Tick(fElapsedTime, m_TargetWeight[i]);
 		}
