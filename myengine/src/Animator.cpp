@@ -330,17 +330,25 @@ void AnimationNodeSubTree::Tick(float fElapsedTime, float fTotalWeight)
 
 my::BoneList & AnimationNodeSubTree::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
 {
-	if (m_boneHierarchy.empty() && m_NodeId >= 0)
-	{
-		boneHierarchy.BuildLeafedHierarchy(const_cast<my::BoneHierarchy&>(m_boneHierarchy), root_i, boost::assign::list_of(m_NodeId));
-	}
-
 	if (m_Childs[0])
 	{
-		m_Childs[0]->GetPose(pose, root_i, m_boneHierarchy);
+		if (m_NodeId >= 0)
+		{
+			if (m_boneHierarchy.empty())
+			{
+				const_cast<my::BoneHierarchy&>(m_boneHierarchy).resize(boneHierarchy.size());
+				boneHierarchy.BuildLeafedHierarchy(const_cast<my::BoneHierarchy&>(m_boneHierarchy), root_i, boost::assign::list_of(m_NodeId));
+			}
+
+			m_Childs[0]->GetPose(pose, root_i, m_boneHierarchy);
+		}
+		else
+		{
+			m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
+		}
 	}
 
-	if (m_Childs[1])
+	if (m_Childs[1] && m_NodeId >= 0)
 	{
 		m_Childs[1]->GetPose(pose, m_NodeId, boneHierarchy);
 	}
