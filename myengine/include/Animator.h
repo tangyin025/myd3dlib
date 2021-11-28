@@ -98,7 +98,6 @@ protected:
 
 	Animator * m_GroupOwner;
 
-public:
 	AnimationNodeSequence(void)
 		: AnimationNode(0)
 		, m_Time(0)
@@ -106,6 +105,20 @@ public:
 		, m_LastElapsedTime(0)
 		, m_Rate(1.0f)
 		, m_Loop(true)
+		, m_GroupOwner(NULL)
+	{
+	}
+
+public:
+	AnimationNodeSequence(const char * Name, float Rate = 1.0f, bool Loop = true, const char * Group = "")
+		: AnimationNode(0)
+		, m_Time(0)
+		, m_Weight(1.0f)
+		, m_LastElapsedTime(0)
+		, m_Name(Name)
+		, m_Rate(Rate)
+		, m_Loop(Loop)
+		, m_Group(Group)
 		, m_GroupOwner(NULL)
 	{
 	}

@@ -68,6 +68,9 @@ namespace my
 			: AABB(minv, maxv)
 			, m_Parent(Parent)
 			, m_Half(Center())
+#ifdef _DEBUG
+			, m_QueryEntityMuted(false)
+#endif
 		{
 		}
 
@@ -75,6 +78,9 @@ namespace my
 			: AABB(minx, miny, minz, maxx, maxy, maxz)
 			, m_Parent(Parent)
 			, m_Half(Center())
+#ifdef _DEBUG
+			, m_QueryEntityMuted(false)
+#endif
 		{
 		}
 
@@ -82,6 +88,9 @@ namespace my
 			: AABB(_Min, _Max)
 			, m_Parent(Parent)
 			, m_Half(Center())
+#ifdef _DEBUG
+			, m_QueryEntityMuted(false)
+#endif
 		{
 		}
 
@@ -89,6 +98,9 @@ namespace my
 			: AABB(center, radius)
 			, m_Parent(Parent)
 			, m_Half(Center())
+#ifdef _DEBUG
+			, m_QueryEntityMuted(false)
+#endif
 		{
 		}
 

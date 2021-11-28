@@ -657,6 +657,12 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		if (!(*actor_iter)->m_Base)
 		{
 			(*actor_iter)->Update(fElapsedTime);
+
+			Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
+			if (animator)
+			{
+				animator->Tick(fElapsedTime, 1.0f);
+			}
 		}
 	}
 
@@ -1725,10 +1731,8 @@ void CMainFrame::OnComponentAnimator()
 	{
 		DEFINE_XML_NODE_SIMPLE(animation, animations);
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
-		AnimationNodeSequencePtr seq(new AnimationNodeSequence());
-		seq->m_Name = attr_name->value();
 		AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_animator").c_str()).c_str()));
-		animator->SetChild<0>(seq);
+		animator->SetChild<0>(AnimationNodeSequencePtr(new AnimationNodeSequence(attr_name->value())));
 		animator->ReloadSequenceGroup();
 		animator->m_SkeletonPath = path;
 		(*actor_iter)->AddComponent(animator);
