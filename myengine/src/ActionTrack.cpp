@@ -66,16 +66,17 @@ ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 
 void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group, int RootId)
 {
-	KeyFrame & key = m_Keys[Time];
-	key.Name = Name;
-	key.Rate = Rate;
-	key.Weight = Weight;
-	key.BlendTime = BlendTime;
-	key.BlendOutTime = BlendOutTime;
-	key.Loop = Loop;
-	key.Prority = Prority;
-	key.Group = Group;
-	key.RootId = RootId;
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.Name = Name;
+	key_iter->second.Rate = Rate;
+	key_iter->second.Weight = Weight;
+	key_iter->second.BlendTime = BlendTime;
+	key_iter->second.BlendOutTime = BlendOutTime;
+	key_iter->second.Loop = Loop;
+	key_iter->second.Prority = Prority;
+	key_iter->second.Group = Group;
+	key_iter->second.RootId = RootId;
 }
 
 void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
@@ -122,8 +123,9 @@ ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 
 void ActionTrackSound::AddKeyFrame(float Time, const char * Name)
 {
-	KeyFrame & key = m_Keys[Time];
-	key.Name = Name;
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.Name = Name;
 }
 
 class ActionTrackSoundInstCallback
@@ -215,9 +217,10 @@ ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 
 void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInterval)
 {
-	KeyFrame & key = m_Keys[Time];
-	key.SpawnCount = SpawnCount;
-	key.SpawnInterval = SpawnInterval;
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.SpawnCount = SpawnCount;
+	key_iter->second.SpawnInterval = SpawnInterval;
 }
 
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
@@ -355,7 +358,8 @@ ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 
 void ActionTrackPose::AddKeyFrame(float Time)
 {
-	m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
 }
 
 ActionTrackPoseInst::~ActionTrackPoseInst(void)

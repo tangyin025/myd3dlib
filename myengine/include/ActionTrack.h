@@ -120,7 +120,7 @@ public:
 		int RootId;
 	};
 
-	typedef std::map<float, KeyFrame> KeyFrameMap;
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
 
 	KeyFrameMap m_Keys;
 
@@ -159,7 +159,7 @@ public:
 		std::string Name;
 	};
 
-	typedef std::map<float, KeyFrame> KeyFrameMap;
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
 
 	KeyFrameMap m_Keys;
 
@@ -247,7 +247,7 @@ public:
 		float SpawnInterval;
 	};
 
-	typedef std::map<float, KeyFrame> KeyFrameMap;
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
 
 	KeyFrameMap m_Keys;
 
@@ -332,7 +332,7 @@ public:
 	{
 	};
 
-	typedef std::map<float, KeyFrame> KeyFrameMap;
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
 
 	KeyFrameMap m_Keys;
 
