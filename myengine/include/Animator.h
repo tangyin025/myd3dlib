@@ -208,7 +208,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
-	void Play(const std::string & Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, int RootId, DWORD_PTR UserData);
+	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, int RootId, DWORD_PTR UserData);
 
 	void StopIndex(int i);
 

@@ -64,16 +64,16 @@ ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, this));
 }
 
-void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Prority, float StartTime, const char * Group, int RootId)
+void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group, int RootId)
 {
 	KeyFrame & key = m_Keys[Time];
 	key.Name = Name;
 	key.Rate = Rate;
+	key.Weight = Weight;
 	key.BlendTime = BlendTime;
 	key.BlendOutTime = BlendOutTime;
 	key.Loop = Loop;
 	key.Prority = Prority;
-	key.StartTime = StartTime;
 	key.Group = Group;
 	key.RootId = RootId;
 }
@@ -94,11 +94,11 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 			animator->Play(
 				key_iter->second.Name,
 				key_iter->second.Rate,
+				key_iter->second.Weight,
 				key_iter->second.BlendTime,
 				key_iter->second.BlendOutTime,
 				key_iter->second.Loop,
 				key_iter->second.Prority,
-				key_iter->second.StartTime,
 				key_iter->second.Group,
 				key_iter->second.RootId,
 				(DWORD_PTR)this);

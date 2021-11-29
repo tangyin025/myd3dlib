@@ -248,7 +248,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, float Rate, float BlendTime, float BlendOutTime, bool Loop, int Priority, float StartTime, const std::string & Group, int RootId, DWORD_PTR UserData)
+void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, int RootId, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
@@ -262,7 +262,7 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float BlendTi
 	SequenceList::iterator res_seq_iter = m_SequenceSlot.rinsert(seq_iter);
 	if (res_seq_iter != m_SequenceSlot.end())
 	{
-		res_seq_iter->m_Time = StartTime;
+		res_seq_iter->m_Time = 0;
 		res_seq_iter->m_Weight = 0;
 		res_seq_iter->m_Name = Name;
 		res_seq_iter->m_Rate = Rate;
@@ -271,7 +271,7 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float BlendTi
 		res_seq_iter->m_Priority = Priority;
 		res_seq_iter->m_BlendTime = BlendTime;
 		res_seq_iter->m_BlendOutTime = BlendOutTime;
-		res_seq_iter->m_TargetWeight = 1.0f;
+		res_seq_iter->m_TargetWeight = Weight;
 		res_seq_iter->m_RootId = RootId;
 		res_seq_iter->m_UserData = UserData;
 		res_seq_iter->m_Parent = this;
