@@ -6,6 +6,7 @@
 #include <atlbase.h>
 #include "DXUTenum.h"
 #include <boost/unordered_set.hpp>
+#include <boost/array.hpp>
 
 namespace my
 {

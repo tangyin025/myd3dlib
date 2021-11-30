@@ -490,7 +490,7 @@ void Font::PushString(
 
 		// ! frequently calling UIRender::PushVertexSimple may obviously lose performance
 		ui_render->PushRectangle(
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color, m_Texture.get(), UIRender::UILayerFont);
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color, m_Texture.get());
 
 		pen.x += info.horiAdvance;
 	}

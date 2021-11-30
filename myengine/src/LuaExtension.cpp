@@ -1059,17 +1059,12 @@ void LuaContext::Init(void)
 			.def_readonly("pt", &my::MouseEventArg::pt)
 
 		, class_<my::UIRender>("UIRender")
-			.enum_("UILayerType")
-			[
-				value("UILayerTexture", my::UIRender::UILayerTexture),
-				value("UILayerFont", my::UIRender::UILayerFont)
-			]
-			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, my::UIRender::UILayerType))& my::UIRender::PushRectangle)
-			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Rectangle&, my::UIRender::UILayerType))& my::UIRender::PushRectangle)
-			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&, my::UIRender::UILayerType))& my::UIRender::PushRectangle)
-			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&, const my::Rectangle&, my::UIRender::UILayerType))& my::UIRender::PushRectangle)
-			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*, my::UIRender::UILayerType))& my::UIRender::PushWindow)
-			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*, const my::Rectangle&, my::UIRender::UILayerType))& my::UIRender::PushWindow)
+			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*))& my::UIRender::PushRectangle)
+			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushRectangle)
+			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&))& my::UIRender::PushRectangle)
+			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&, const my::Rectangle&))& my::UIRender::PushRectangle)
+			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*))& my::UIRender::PushWindow)
+			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushWindow)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())

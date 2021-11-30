@@ -1,7 +1,6 @@
 #pragma once
 
 #include "myFont.h"
-#include <boost/array.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <vector>
 #include <list>
@@ -53,14 +52,7 @@ namespace my
 
 		typedef std::pair<BaseTexture *, VertexList> UILayer;
 
-		enum UILayerType
-		{
-			UILayerTexture,
-			UILayerFont,
-			UILayerNum,
-		};
-
-		typedef boost::array<UILayer, UILayerNum> UILayerList;
+		typedef std::vector<UILayer> UILayerList;
 
 		UILayerList m_Layer;
 
@@ -99,21 +91,23 @@ namespace my
 
 		static void PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
+		VertexList & GetVertexList(BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip, UILayerType type);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, UILayerType type);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip, UILayerType type);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform);
+
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
 
 		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize);
 
 		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, const Rectangle & clip);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip, UILayerType type);
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
