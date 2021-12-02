@@ -90,6 +90,10 @@ public:
 	{
 	}
 
+	virtual void OnControlFocus(my::Control * control)
+	{
+	}
+
 	virtual void OnActorRequestResource(Actor * actor)
 	{
 	}
@@ -252,13 +256,13 @@ public:
 
 	virtual void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 
-	void AddEntity(my::OctEntity* entity);
+	void AddEntity(my::OctEntity * entity);
 
 	virtual void RemoveEntity(my::OctEntity * entity);
 
 	virtual void OnControlSound(const char * name);
 
-	virtual void OnControlFocus(bool bFocus);
+	virtual void OnControlFocus(my::Control * control);
 
 	template <typename T>
 	void LoadSceneAsync(const char * path, const char * prefix, const T & callback, int Priority = 0)

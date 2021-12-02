@@ -1,6 +1,7 @@
 #include "mySingleton.h"
 #include "myDxutApp.h"
 #include "myResource.h"
+#include "myMath.h"
 #include "libc.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>

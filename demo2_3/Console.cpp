@@ -6,7 +6,8 @@
 using namespace my;
 
 MessagePanel::MessagePanel(void)
-	: m_lbegin(0)
+	: Control(NamedObject::MakeUniqueName("MessagePanel").c_str())
+	, m_lbegin(0)
 	, m_lend(0)
 {
 	m_scrollbar.reset(new ScrollBar(NULL));
@@ -134,6 +135,7 @@ void MessagePanel::puts(const std::wstring & str)
 }
 
 ConsoleEditBox::ConsoleEditBox(void)
+	: ImeEditBox(NamedObject::MakeUniqueName("ConsoleEditBox").c_str())
 {
 }
 
@@ -179,6 +181,7 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 Console::Console(void)
+	: Dialog(NamedObject::MakeUniqueName("Console").c_str())
 {
 	m_x = UDim(0, 50);
 	m_y = UDim(0, 95);

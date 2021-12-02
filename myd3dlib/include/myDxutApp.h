@@ -1,11 +1,12 @@
 #pragma once
 
 #include "mySingleton.h"
-#include "myUi.h"
 #include "myThread.h"
 #include <atlbase.h>
+#include <d3d9.h>
 #include "DXUTenum.h"
 #include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/array.hpp>
 
 namespace my
@@ -54,6 +55,8 @@ namespace my
 
 		void UpdateClock(void);
 	};
+
+	class Control;
 
 	class D3DContext
 		: public SingleInstance<D3DContext>
@@ -136,7 +139,7 @@ namespace my
 		{
 		}
 
-		virtual void OnControlFocus(bool bFocus)
+		virtual void OnControlFocus(Control * control)
 		{
 		}
 	};

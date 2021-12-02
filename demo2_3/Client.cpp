@@ -435,6 +435,23 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		state->OnTick(fElapsedTime);
 	}
 
+	virtual void OnControlFocus(my::Control * control)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnControlFocus", control);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnControlFocus(StateBase * state, my::Control * control)
+	{
+		state->OnControlFocus(control);
+	}
+
 	virtual void OnActorRequestResource(Actor * actor)
 	{
 		try
@@ -788,6 +805,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OnEnter", &StateBase::OnEnter, &ScriptStateBase::default_OnEnter)
 			.def("OnExit", &StateBase::OnExit, &ScriptStateBase::default_OnExit)
 			.def("OnTick", &StateBase::OnTick, &ScriptStateBase::default_OnTick)
+			.def("OnControlFocus", &StateBase::OnControlFocus, &ScriptStateBase::default_OnControlFocus)
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
@@ -982,6 +1000,8 @@ void Client::OnDestroyDevice(void)
 	ResourceMgr::OnDestroyDevice();
 
 	LuaContext::Shutdown();
+
+	m_Console.reset();
 
 	_ASSERT(m_NamedObjects.empty());
 
@@ -1400,7 +1420,7 @@ void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minb
 	OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
-void Client::AddEntity(my::OctEntity* entity)
+void Client::AddEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
@@ -1456,27 +1476,12 @@ void Client::OnControlSound(const char * name)
 	ERRCHECK(result = event->start());
 }
 
-void Client::OnControlFocus(bool bFocus)
+void Client::OnControlFocus(my::Control * control)
 {
-	if (bFocus)
+	StateBase* curr_iter = m_Current;
+	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
-		::ClipCursor(NULL);
-		while (m_ShowCursorCount < 0)
-		{
-			m_ShowCursorCount = ::ShowCursor(TRUE);
-		}
-	}
-	else
-	{
-		CURSORINFO pci;
-		pci.cbSize = sizeof(CURSORINFO);
-		::GetCursorInfo(&pci);
-		CRect rc(pci.ptScreenPos, CSize(1, 1));
-		::ClipCursor(&rc);
-		while (m_ShowCursorCount >= 0)
-		{
-			m_ShowCursorCount = ::ShowCursor(FALSE);
-		}
+		curr_iter->OnControlFocus(control);
 	}
 }
 
