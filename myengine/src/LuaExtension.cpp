@@ -1268,7 +1268,7 @@ void LuaContext::Init(void)
 	];
 
 	module(m_State)[
-		class_<HWND>("HWND")
+		class_<HWND__>("HWND")
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
@@ -1404,19 +1404,21 @@ void LuaContext::Init(void)
 #endif
 				value("WM_USER", WM_USER)
 			]
+			.def_readonly("hWnd", &my::DxutWindow::m_hWnd)
 			.def("PostMessage", &my::DxutWindow::PostMessage)
 
-		, class_<my::Clock>("Clock")
-			.def_readonly("AbsoluteTime", &my::Clock::m_fAbsoluteTime)
-			.def_readonly("AbsoluteElapsedTime", &my::Clock::m_fAbsoluteElapsedTime)
-			.def_readwrite("TimeScale", &my::Clock::m_fTimeScale)
-			.def_readonly("ElapsedTime", &my::Clock::m_fElapsedTime)
-			.def_readonly("TotalTime", &my::Clock::m_fTotalTime)
-
-		, class_<my::D3DContext, my::Clock>("D3DContext")
+		, class_<my::D3DContext>("D3DContext")
+			.def_readonly("AbsoluteTime", &my::D3DContext::m_fAbsoluteTime)
+			.def_readonly("AbsoluteElapsedTime", &my::D3DContext::m_fAbsoluteElapsedTime)
+			.def_readwrite("TimeScale", &my::D3DContext::m_fTimeScale)
+			.def_readonly("ElapsedTime", &my::D3DContext::m_fElapsedTime)
+			.def_readonly("TotalTime", &my::D3DContext::m_fTotalTime)
+			.def_readonly("DeviceSettings", &my::D3DContext::m_DeviceSettings, luabind::copy(result))
+			.def_readonly("BackBufferSurfaceDesc", &my::D3DContext::m_BackBufferSurfaceDesc)
 			.def("GetNamedObject", &my::D3DContext::GetNamedObject)
 
 		, class_<my::DxutApp, bases<my::D3DContext, CD3D9Enumeration> >("DxutApp")
+			.def_readonly("wnd", &my::DxutApp::m_wnd)
 			.scope
 			[
 				def("DXUTD3DDeviceTypeToString", &my::DxutApp::DXUTD3DDeviceTypeToString),
@@ -1424,8 +1426,6 @@ void LuaContext::Init(void)
 				def("DXUTMultisampleTypeToString", &my::DxutApp::DXUTMultisampleTypeToString),
 				def("DXUTVertexProcessingTypeToString", &my::DxutApp::DXUTVertexProcessingTypeToString)
 			]
-			.def_readonly("BackBufferSurfaceDesc", &my::DxutApp::m_BackBufferSurfaceDesc)
-			.def_readonly("DeviceSettings", &my::DxutApp::m_DeviceSettings, luabind::copy(result))
 			.def("ToggleFullScreen", &my::DxutApp::ToggleFullScreen)
 			.def("ToggleREF", &my::DxutApp::ToggleREF)
 			.property("SoftwareVP", &my::DxutApp::GetSoftwareVP, &my::DxutApp::SetSoftwareVP)
@@ -1434,7 +1434,19 @@ void LuaContext::Init(void)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
-		, class_<my::Keyboard, boost::shared_ptr<my::Keyboard> >("Keyboard")
+		, class_<my::InputDevice, boost::shared_ptr<my::InputDevice> >("InputDevice")
+			.enum_("CooperativeLevelType")
+			[
+				value("DISCL_EXCLUSIVE", DISCL_EXCLUSIVE),
+				value("DISCL_NONEXCLUSIVE", DISCL_NONEXCLUSIVE),
+				value("DISCL_FOREGROUND", DISCL_FOREGROUND),
+				value("DISCL_BACKGROUND", DISCL_BACKGROUND),
+				value("DISCL_NOWINKEY", DISCL_NOWINKEY)
+			]
+			.def("SetCooperativeLevel", &my::InputDevice::SetCooperativeLevel)
+			.def("Unacquire", &my::InputDevice::Unacquire)
+
+		, class_<my::Keyboard, my::InputDevice, boost::shared_ptr<my::InputDevice> >("Keyboard")
 			.enum_("KeyCode")
 			[
 				value("KC_UNASSIGNED", my::KC_UNASSIGNED),
@@ -1587,7 +1599,7 @@ void LuaContext::Init(void)
 			.def("IsKeyPress", &my::Keyboard::IsKeyPress)
 			.def("IsKeyRelease", &my::Keyboard::IsKeyRelease)
 
-		, class_<my::Mouse, boost::shared_ptr<my::Mouse> >("Mouse")
+		, class_<my::Mouse, my::InputDevice, boost::shared_ptr<my::InputDevice> >("Mouse")
 			.property("X", &my::Mouse::GetX)
 			.property("Y", &my::Mouse::GetY)
 			.property("Z", &my::Mouse::GetZ)
@@ -1595,7 +1607,7 @@ void LuaContext::Init(void)
 			.def("IsButtonPress", &my::Mouse::IsButtonPress)
 			.def("IsButtonRelease", &my::Mouse::IsButtonRelease)
 
-		, class_<my::Joystick, boost::shared_ptr<my::Joystick> >("Joystick")
+		, class_<my::Joystick, my::InputDevice, boost::shared_ptr<my::InputDevice> >("Joystick")
 			.enum_("JoystickPov")
 			[
 				value("JP_None", my::JP_None),
