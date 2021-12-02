@@ -210,11 +210,11 @@ public:
 
 	Actor * m_Base;
 
-	typedef std::pair<Actor *, int> AttachPair;
+	int m_BaseBoneId;
 
-	typedef std::vector<AttachPair> AttachPairList;
+	typedef std::set<Actor *> ActorList;
 
-	AttachPairList m_Attaches;
+	ActorList m_Attaches;
 
 	typedef std::vector<std::pair<boost::shared_ptr<ActionInst>, float> > ActionInstPtrList;
 
@@ -244,6 +244,7 @@ protected:
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
+		, m_BaseBoneId(-1)
 		, m_ActionTrackPoseInstRef(0)
 	{
 	}
@@ -261,6 +262,7 @@ public:
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_Base(NULL)
+		, m_BaseBoneId(-1)
 		, m_ActionTrackPoseInstRef(0)
 	{
 	}

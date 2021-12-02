@@ -359,39 +359,39 @@ void Actor::Update(float fElapsedTime)
 void Actor::UpdateAttaches(float fElapsedTime)
 {
 	Animator* animator = GetFirstComponent<Animator>();
-	AttachPairList::iterator att_iter = m_Attaches.begin();
+	ActorList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter++)
 	{
-		if (animator && att_iter->second >= 0 && att_iter->second < (int)animator->anim_pose_hier.size())
+		if (animator && (*att_iter)->m_BaseBoneId >= 0 && (*att_iter)->m_BaseBoneId < (int)animator->anim_pose_hier.size())
 		{
-			const Bone & bone = animator->anim_pose_hier[att_iter->second];
+			const Bone & bone = animator->anim_pose_hier[(*att_iter)->m_BaseBoneId];
 
 			const Matrix4 World = Matrix4::Compose(
-				Vector3(1, 1, 1), att_iter->first->m_Rotation * bone.m_rotation, bone.m_rotation * att_iter->first->m_Position + bone.m_position) * m_World;
+				Vector3(1, 1, 1), (*att_iter)->m_Rotation * bone.m_rotation, bone.m_rotation * (*att_iter)->m_Position + bone.m_position) * m_World;
 
 			Vector3 Scale, Pos; Quaternion Rot;
 			World.Decompose(Scale, Rot, Pos);
 
-			att_iter->first->m_World = Matrix4::Compose(att_iter->first->m_Scale, Rot, Pos);
+			(*att_iter)->m_World = Matrix4::Compose((*att_iter)->m_Scale, Rot, Pos);
 
-			att_iter->first->SetPxPoseOrbyPxThread(Pos, Rot);
+			(*att_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
 		}
 		else
 		{
 			const Matrix4 World = Matrix4::Compose(
-				att_iter->first->m_Scale, att_iter->first->m_Rotation, att_iter->first->m_Position) * m_World;
+				(*att_iter)->m_Scale, (*att_iter)->m_Rotation, (*att_iter)->m_Position) * m_World;
 
 			Vector3 Scale, Pos; Quaternion Rot;
 			World.Decompose(Scale, Rot, Pos);
 
-			att_iter->first->m_World = Matrix4::Compose(att_iter->first->m_Scale, Rot, Pos);
+			(*att_iter)->m_World = Matrix4::Compose((*att_iter)->m_Scale, Rot, Pos);
 
-			att_iter->first->SetPxPoseOrbyPxThread(Pos, Rot);
+			(*att_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
 		}
 
-		att_iter->first->UpdateOctNode();
+		(*att_iter)->UpdateOctNode();
 
-		att_iter->first->Update(fElapsedTime);
+		(*att_iter)->Update(fElapsedTime);
 	}
 }
 
@@ -677,33 +677,32 @@ void Actor::Attach(Actor * other, int BoneId)
 
 	_ASSERT(m_Node && m_Node->GetTopNode()->HaveNode(other->m_Node));
 
-	m_Attaches.push_back(std::make_pair(other, BoneId));
+	m_Attaches.insert(other);
 
 	other->m_Base = this;
+
+	other->m_BaseBoneId = BoneId;
 }
 
 void Actor::Detach(Actor * other)
 {
-	AttachPairList::iterator att_iter = m_Attaches.begin();
-	for (; att_iter != m_Attaches.end(); att_iter++)
+	ActorList::iterator att_iter = m_Attaches.find(other);
+	if (att_iter != m_Attaches.end())
 	{
-		if (att_iter->first == other)
-		{
-			_ASSERT(att_iter->first->m_Base == this);
-			att_iter->first->m_Base = NULL;
-			m_Attaches.erase(att_iter);
-			return;
-		}
+		_ASSERT((*att_iter)->m_Base == this);
+		(*att_iter)->m_Base = NULL;
+		m_Attaches.erase(att_iter);
+		return;
 	}
 	_ASSERT(false);
 }
 
 void Actor::ClearAllAttacher(void)
 {
-	AttachPairList::iterator att_iter = m_Attaches.begin();
+	ActorList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter = m_Attaches.begin())
 	{
-		Detach(att_iter->first);
+		Detach(*att_iter);
 	}
 }
 
