@@ -284,7 +284,7 @@ static int loader_Lua (lua_State *L) {
 
 static int os_exit(lua_State * L)
 {
-	Client::getSingleton().m_wnd->SendMessage(WM_CLOSE);
+	Client::getSingleton().m_wnd->PostMessage(WM_CLOSE);
 	return 0;
 }
 

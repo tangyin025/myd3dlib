@@ -1380,6 +1380,7 @@ void LuaContext::Init(void)
 		, class_<my::DxutWindow, boost::shared_ptr<my::DxutWindow> >("DxutWindow")
 			.enum_("MessageCode")
 			[
+				value("WM_CLOSE", WM_CLOSE),
 				value("WM_MOUSEFIRST", WM_MOUSEFIRST),
 				value("WM_MOUSEMOVE", WM_MOUSEMOVE),
 				value("WM_LBUTTONDOWN", WM_LBUTTONDOWN),
@@ -1405,7 +1406,9 @@ void LuaContext::Init(void)
 				value("WM_USER", WM_USER)
 			]
 			.def_readonly("hWnd", &my::DxutWindow::m_hWnd)
-			.def("PostMessage", &my::DxutWindow::PostMessage)
+			.def("PostMessage", (BOOL(CWindow::*)(UINT))& my::DxutWindow::PostMessage)
+			.def("PostMessage", (BOOL(CWindow::*)(UINT, WPARAM))& my::DxutWindow::PostMessage)
+			.def("PostMessage", (BOOL(CWindow::*)(UINT, WPARAM, LPARAM))& my::DxutWindow::PostMessage)
 
 		, class_<my::D3DContext>("D3DContext")
 			.def_readonly("AbsoluteTime", &my::D3DContext::m_fAbsoluteTime)

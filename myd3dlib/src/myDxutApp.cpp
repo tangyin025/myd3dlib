@@ -24,6 +24,7 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			return TRUE;
 
 		case WM_DESTROY:
+			DxutApp::getSingleton().Cleanup3DEnvironment();
 			lResult = 0;
 			return TRUE;
 
@@ -327,7 +328,7 @@ int DxutApp::Run(void)
 			}
 		}
 
-		Cleanup3DEnvironment();
+		_ASSERT(!m_DeviceObjectsCreated);
 	}
 	catch(const my::Exception & e)
 	{
