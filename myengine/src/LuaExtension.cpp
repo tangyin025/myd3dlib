@@ -344,7 +344,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnEnterTrigger(Component* ptr, my::EventArg* arg)
 	{
-		ptr->OnEnterTrigger(arg);
+		ptr->Component::OnEnterTrigger(arg);
 	}
 
 	virtual void OnLeaveTrigger(my::EventArg* arg)
@@ -361,7 +361,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnLeaveTrigger(Component* ptr, my::EventArg* arg)
 	{
-		ptr->OnLeaveTrigger(arg);
+		ptr->Component::OnLeaveTrigger(arg);
 	}
 
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
@@ -380,7 +380,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadShapeHit(Component* ptr, my::EventArg* arg)
 	{
-		ptr->OnPxThreadShapeHit(arg);
+		ptr->Component::OnPxThreadShapeHit(arg);
 	}
 
 	virtual void OnPxThreadControllerHit(my::EventArg* arg)
@@ -399,7 +399,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadControllerHit(Component* ptr, my::EventArg* arg)
 	{
-		ptr->OnPxThreadControllerHit(arg);
+		ptr->Component::OnPxThreadControllerHit(arg);
 	}
 
 	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
@@ -418,7 +418,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadObstacleHit(Component* ptr, my::EventArg* arg)
 	{
-		ptr->OnPxThreadObstacleHit(arg);
+		ptr->Component::OnPxThreadObstacleHit(arg);
 	}
 
 	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime)
@@ -437,7 +437,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime)
 	{
-		ptr->OnGUI(ui_render, fElapsedTime);
+		ptr->Component::OnGUI(ui_render, fElapsedTime);
 	}
 };
 
@@ -2045,9 +2045,9 @@ void LuaContext::Init(void)
 			.def_readwrite("EmitterCapacity", &ActionTrackEmitter::m_EmitterCapacity)
 			.def_readwrite("EmitterFaceType", &ActionTrackEmitter::m_EmitterFaceType)
 			.def_readwrite("ParticleLifeTime", &ActionTrackEmitter::m_ParticleLifeTime)
-			.def_readwrite("ParticleVelocityX", &ActionTrackEmitter::m_ParticleVelocityX)
-			.def_readwrite("ParticleVelocityY", &ActionTrackEmitter::m_ParticleVelocityY)
-			.def_readwrite("ParticleVelocityZ", &ActionTrackEmitter::m_ParticleVelocityZ)
+			.def_readwrite("ParticlePositionX", &ActionTrackEmitter::m_ParticlePositionX)
+			.def_readwrite("ParticlePositionY", &ActionTrackEmitter::m_ParticlePositionY)
+			.def_readwrite("ParticlePositionZ", &ActionTrackEmitter::m_ParticlePositionZ)
 			.def_readwrite("ParticleColorR", &ActionTrackEmitter::m_ParticleColorR)
 			.def_readwrite("ParticleColorG", &ActionTrackEmitter::m_ParticleColorG)
 			.def_readwrite("ParticleColorB", &ActionTrackEmitter::m_ParticleColorB)

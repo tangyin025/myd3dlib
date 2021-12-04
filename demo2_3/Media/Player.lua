@@ -40,40 +40,30 @@ cmp.Material=lambert1
 player:AddComponent(cmp)
 
 -- 构建动画树
-local seq_idle=AnimationNodeSequence()
-seq_idle.Name="idle1"
-local seq_walk=AnimationNodeSequence()
-seq_walk.Name="walk"
-seq_walk.Group="move"
 local rate_walk=AnimationNodeRate()
 rate_walk.Speed0=1.2
-rate_walk.Child0=seq_walk
-local node_walk=AnimationNodeBlend()
-node_walk.Speed0=1.0
-node_walk.Child0=seq_idle
+rate_walk.Child0=AnimationNodeSequence("walk",1.0,true,"move")
+local node_walk=AnimationNodeBlendList(2)
+node_walk.Child0=AnimationNodeSequence("idle1")
 node_walk.Child1=rate_walk
-local seq_run=AnimationNodeSequence()
-seq_run.Name="run"
-seq_run.Group="move"
 local rate_run=AnimationNodeRate()
 rate_run.Speed0=7
-rate_run.Child0=seq_run
-local node_run=AnimationNodeBlend()
-node_run.Speed0=5.0
+rate_run.Child0=AnimationNodeSequence("run",1.0,true,"move")
+local node_run=AnimationNodeBlendList(2)
 node_run.Child0=node_walk
 node_run.Child1=rate_run
 
 -- 加载动画资源
-local anim=Animator(NamedObject.MakeUniqueName("anim_cmp"))
-anim.Child0=node_run
-anim:ReloadSequenceGroup()
-anim.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
-client:LoadSkeletonAsync(anim.SkeletonPath, function(res)
+local animator_cmp=Animator(NamedObject.MakeUniqueName("anim_cmp"))
+animator_cmp.Child0=node_run
+animator_cmp:ReloadSequenceGroup()
+animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
+client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
 	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	anim:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
-	anim:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
+	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
+	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
 end, 0)
-player:AddComponent(anim)
+player:AddComponent(animator_cmp)
 
 -- 角色行为
 class 'PlayerBehavior'(Component)
@@ -84,10 +74,15 @@ function PlayerBehavior:__init(name)
 end
 function PlayerBehavior:RequestResource()
 	Component.RequestResource(self)
-	self.Actor:PlayAction(SAction.act_tuowei)
+	self.Actor:PlayAction(SAction.act_tuowei,9999)
 	client.Camera.Euler=Vector3(0,0,0)
 end
+function PlayerBehavior:ReleaseResource()
+	Component.ReleaseResource(self)
+end
 function PlayerBehavior:Update(elapsedTime)
+	-- 更新角色位置
+	self.Actor:SetPose(controller_cmp.FootPosition)
 	self.velocity.y=self.velocity.y-9.81*elapsedTime
 	local speed=2
 	local direction=Vector3(0,0,0)
@@ -95,7 +90,7 @@ function PlayerBehavior:Update(elapsedTime)
 		-- 键盘按下事件
 		if client.keyboard:IsKeyPress(57) then
 			self.velocity.y=5.0
-			self.Actor:PlayAction(SAction.act_jump)
+			self.Actor:PlayAction(SAction.act_jump,5)
 		end
 		
 		if client.keyboard:IsKeyDown(17) then
@@ -147,6 +142,8 @@ function PlayerBehavior:Update(elapsedTime)
 		node_walk:SetActiveChild(0,0.1)
 	end
 	
+	-- 播放动画
+	animator_cmp:Tick(elapsedTime,1.0)
 	local LookMatrix=Matrix4.RotationYawPitchRoll(client.Camera.Euler.y,client.Camera.Euler.x,client.Camera.Euler.z)
 	client.Camera.Eye=self.Actor.Position+Vector3(0,1.75,0)+LookMatrix.row2.xyz*self.LookDist
 	client.SkyLightCam.Eye=self.Actor.Position
@@ -160,6 +157,9 @@ function PlayerBehavior:OnPxThreadSubstep(dtime)
 end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
+end
+function PlayerBehavior:OnGUI(ui_render,elapsedTime)
+	-- print("PlayerBehavior:OnGUI")
 end
 player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
 player:AddComponent(player_behavior)

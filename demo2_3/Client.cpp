@@ -379,9 +379,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnAdd(StateBase * state)
+	static void default_OnAdd(StateBase * ptr)
 	{
-		state->OnAdd();
+		ptr->StateBase::OnAdd();
 	}
 
 	virtual void OnEnter(void)
@@ -396,9 +396,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnEnter(StateBase * state)
+	static void default_OnEnter(StateBase * ptr)
 	{
-		state->OnEnter();
+		ptr->StateBase::OnEnter();
 	}
 
 	virtual void OnExit(void)
@@ -413,9 +413,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnExit(StateBase * state)
+	static void default_OnExit(StateBase * ptr)
 	{
-		state->OnExit();
+		ptr->StateBase::OnExit();
 	}
 
 	virtual void OnTick(float fElapsedTime)
@@ -430,9 +430,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnTick(StateBase * state, float fElapsedTime)
+	static void default_OnTick(StateBase * ptr, float fElapsedTime)
 	{
-		state->OnTick(fElapsedTime);
+		ptr->StateBase::OnTick(fElapsedTime);
 	}
 
 	virtual void OnControlFocus(my::Control * control)
@@ -447,9 +447,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnControlFocus(StateBase * state, my::Control * control)
+	static void default_OnControlFocus(StateBase * ptr, my::Control * control)
 	{
-		state->OnControlFocus(control);
+		ptr->StateBase::OnControlFocus(control);
 	}
 
 	virtual void OnActorRequestResource(Actor * actor)
@@ -464,9 +464,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnActorRequestResource(StateBase * state, Actor * actor)
+	static void default_OnActorRequestResource(StateBase * ptr, Actor * actor)
 	{
-		state->OnActorRequestResource(actor);
+		ptr->StateBase::OnActorRequestResource(actor);
 	}
 
 	virtual void OnActorReleaseResource(Actor * actor)
@@ -481,9 +481,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnActorReleaseResource(StateBase * state, Actor * actor)
+	static void default_OnActorReleaseResource(StateBase * ptr, Actor * actor)
 	{
-		state->OnActorReleaseResource(actor);
+		ptr->StateBase::OnActorReleaseResource(actor);
 	}
 };
 

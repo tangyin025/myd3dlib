@@ -226,6 +226,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
+	, m_SpawnPos(m_Template->m_EmitterCapacity)
 	, m_AttachBoneId(-1)
 	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
@@ -277,6 +278,8 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 
 	m_WorldEmitterCmp->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
 
+	m_SpawnPos.rresize(m_WorldEmitterCmp->m_ParticleList.size());
+
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
 	for (; key_iter != key_end; key_iter++)
@@ -292,19 +295,18 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			Vector3 SpawnPos;
 			if (m_AttachBoneId >= 0 && animator)
 			{
 				const Bone& bone = animator->anim_pose_hier[m_AttachBoneId];
-				SpawnPos = bone.m_position.transformCoord(m_Actor->m_World);
+				m_SpawnPos.push_back(bone.m_position.transformCoord(m_Actor->m_World));
 			}
 			else
 			{
-				SpawnPos = m_Actor->m_Position;
+				m_SpawnPos.push_back(m_Actor->m_Position);
 			}
 
 			m_WorldEmitterCmp->Spawn(
-				Vector3(0, 0, 0), SpawnPos, Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
+				Vector3(0, 0, 0), Vector3(0, 0, 0), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
 		}
 
 		if (key_inst_iter->m_SpawnCount <= 0)
@@ -333,12 +335,14 @@ void ActionTrackEmitterInst::DoTask(void)
 {
 	// ! take care of thread safe
 	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterCmp->m_ParticleList.begin();
+	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPos.size());
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
-		particle_iter->m_Position.x = particle_iter->m_Velocity.x + m_Template->m_ParticleVelocityX.Interpolate(ParticleTime, 0);
-		particle_iter->m_Position.y = particle_iter->m_Velocity.y + m_Template->m_ParticleVelocityY.Interpolate(ParticleTime, 0);
-		particle_iter->m_Position.z = particle_iter->m_Velocity.z + m_Template->m_ParticleVelocityZ.Interpolate(ParticleTime, 0);
+		const my::Vector3 & SpawnPos = m_SpawnPos[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
+		particle_iter->m_Position.x = SpawnPos.x + m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.y = SpawnPos.y + m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.z = SpawnPos.z + m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0);
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);

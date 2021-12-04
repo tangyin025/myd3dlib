@@ -1,19 +1,16 @@
 module("SAction", package.seeall)
 
 act_jump=Action()
-act_jump.Length=5.0
 local track=ActionTrackAnimation()
-track:AddKeyFrame(0,"jumpforward","",2.0,0.3,0.3,false,1,0,"")
+track:AddKeyFrame(0,"jumpforward",2.0,1.0,0.3,0.3,false,1,"",-1)
 act_jump:AddTrack(track)
 
 act_sound=Action()
-act_sound.Length=5.0
 local track=ActionTrackSound()
 track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
 act_sound:AddTrack(track)
 
 act_tuowei=Action()
-act_tuowei.Length=99999
 local particle1=Material()
 particle1.Shader="shader/mtl_particle1.fx"
 particle1.PassMask=Material.PassMaskTransparent
@@ -33,12 +30,10 @@ track.ParticleColorA:AddNode(0,1,0,0)
 track.ParticleColorA:AddNode(3,0,0,0)
 track.AttachBoneName="Bip01_Spine"
 track.SpawnInterval=0.1
-track.SpawnLength=99999
 track:AddKeyFrame(0,99999,0.1)
 act_tuowei:AddTrack(track)
 
 act_pose=Action()
-act_pose.Length=3
 act_pose_track=ActionTrackPose(3)
 act_pose_track.InterpolateX:AddNode(0,0,0,0)
 act_pose_track.InterpolateX:AddNode(3,1,0,0)
@@ -50,7 +45,6 @@ act_pose_track:AddKeyFrame(0)
 act_pose:AddTrack(act_pose_track)
 
 act_moving=Action()
-act_moving.Length=9999
 act_moving_track=ActionTrackPose(9999)
 for i=0,3600,3 do
 	act_moving_track.InterpolateZ:AddNode(i*3,0,0,0)

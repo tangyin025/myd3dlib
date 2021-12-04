@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/circular_buffer.hpp>
 #include <vector>
 #include <map>
 #include <set>
@@ -218,11 +219,11 @@ public:
 
 	float m_ParticleLifeTime;
 
-	my::Spline m_ParticleVelocityX;
+	my::Spline m_ParticlePositionX;
 
-	my::Spline m_ParticleVelocityY;
+	my::Spline m_ParticlePositionY;
 
-	my::Spline m_ParticleVelocityZ;
+	my::Spline m_ParticlePositionZ;
 
 	my::Spline m_ParticleColorR;
 
@@ -274,6 +275,8 @@ protected:
 	//boost::shared_ptr<Actor> m_WorldEmitterActor;
 
 	boost::shared_ptr<SphericalEmitter> m_WorldEmitterCmp;
+
+	boost::circular_buffer<my::Vector3> m_SpawnPos;
 
 	int m_AttachBoneId;
 

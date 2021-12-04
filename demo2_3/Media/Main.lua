@@ -28,7 +28,7 @@ function Actor2Behavior:__init(name)
 end
 function Actor2Behavior:RequestResource()
 	Component.RequestResource(self)
-	self.Actor:PlayAction(SAction.act_sound)
+	self.Actor:PlayAction(SAction.act_sound,5)
 end
 actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
 actor2:AddComponent(actor2_behavior)
@@ -120,7 +120,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	end
 	function Actor6Behavior:RequestResource()
 		Component.RequestResource(self)
-		self.Actor:PlayAction(SAction.act_moving)
+		self.Actor:PlayAction(SAction.act_moving,9999)
 	end
 	actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
 	actor6:AddComponent(actor6_behavior)	
