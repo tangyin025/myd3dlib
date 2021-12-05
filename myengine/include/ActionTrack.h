@@ -8,6 +8,7 @@
 #include <map>
 #include <set>
 #include "myMath.h"
+#include "mySkeleton.h"
 #include "mySpline.h"
 #include "myTask.h"
 
@@ -277,7 +278,7 @@ protected:
 
 	boost::shared_ptr<CircularEmitter> m_WorldEmitterCmp;
 
-	boost::circular_buffer<my::Vector3> m_SpawnPos;
+	boost::circular_buffer<my::Bone> m_SpawnPos;
 
 	float m_ActionTime;
 
