@@ -25,6 +25,7 @@ static char THIS_FILE[]=__FILE__;
 static const CPropertiesWnd::PassMaskDesc g_PassMaskDesc[] =
 {
 	{ _T("None"), RenderPipeline::PassMaskNone },
+	{ _T("Shadow"), RenderPipeline::PassMaskShadow },
 	{ _T("Light"), RenderPipeline::PassMaskLight },
 	{ _T("Background"), RenderPipeline::PassMaskBackground },
 	{ _T("Opaque"), RenderPipeline::PassMaskOpaque },

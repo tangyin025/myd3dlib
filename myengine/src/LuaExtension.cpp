@@ -1671,6 +1671,7 @@ void LuaContext::Init(void)
 			.enum_("PassMask")
 			[
 				value("PassMaskNone", RenderPipeline::PassMaskNone),
+				value("PassMaskShadow", RenderPipeline::PassMaskShadow),
 				value("PassMaskLight", RenderPipeline::PassMaskLight),
 				value("PassMaskBackground", RenderPipeline::PassMaskBackground),
 				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),

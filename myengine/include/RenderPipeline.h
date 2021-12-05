@@ -40,6 +40,7 @@ public:
 	enum PassMask
 	{
 		PassMaskNone = 0,
+		PassMaskShadow = 1 << PassTypeShadow,
 		PassMaskLight = 1 << PassTypeLight,
 		PassMaskBackground = 1 << PassTypeBackground,
 		PassMaskOpaque = 1 << PassTypeOpaque,
