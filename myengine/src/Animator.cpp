@@ -355,6 +355,14 @@ my::BoneList & AnimationNodeSubTree::GetPose(my::BoneList & pose, int root_i, co
 	return pose;
 }
 
+AnimationNodeBlendList::AnimationNodeBlendList(unsigned int ChildNum)
+	: AnimationNode(ChildNum)
+	, m_BlendTime(0)
+	, m_Weight(ChildNum, 0.0f)
+	, m_TargetWeight(boost::assign::list_of(1.0f).repeat(ChildNum - 1, 0.0f))
+{
+}
+
 void AnimationNodeBlendList::SetTargetWeight(int Child, float Weight)
 {
 	if (Child >= 0 && Child < m_Childs.size())

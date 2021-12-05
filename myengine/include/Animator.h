@@ -266,13 +266,7 @@ protected:
 	}
 
 public:
-	AnimationNodeBlendList(unsigned int ChildNum)
-		: AnimationNode(ChildNum)
-		, m_BlendTime(0)
-		, m_Weight(ChildNum, 0.0f)
-		, m_TargetWeight(ChildNum, 0.0f)
-	{
-	}
+	AnimationNodeBlendList(unsigned int ChildNum);
 
 	virtual ~AnimationNodeBlendList(void)
 	{
