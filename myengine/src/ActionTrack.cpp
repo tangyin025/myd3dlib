@@ -287,11 +287,11 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 			if (animator && m_Template->m_AttachBoneId >= 0 && m_Template->m_AttachBoneId < animator->anim_pose_hier.size())
 			{
 				const Bone& bone = animator->anim_pose_hier[m_Template->m_AttachBoneId];
-				m_SpawnPos.push_back(Bone(m_Actor->m_Rotation, bone.m_position.transformCoord(m_Actor->m_World)));
+				m_SpawnPos.push_back(bone.m_position.transformCoord(m_Actor->m_World));
 			}
 			else
 			{
-				m_SpawnPos.push_back(Bone(m_Actor->m_Rotation, m_Actor->m_Position));
+				m_SpawnPos.push_back(m_Actor->m_Position);
 			}
 
 			m_WorldEmitterCmp->Spawn(
@@ -328,35 +328,17 @@ void ActionTrackEmitterInst::DoTask(void)
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
-		const my::Bone & SpawnPos = m_SpawnPos[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
-		particle_iter->m_Position = SpawnPos.m_rotation * my::Vector3(
-			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
-			m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
-			m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0)) + SpawnPos.m_position;
+		const my::Vector3 & SpawnPos = m_SpawnPos[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
+		particle_iter->m_Position.x = SpawnPos.x + m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.y = SpawnPos.y + m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0);
+		particle_iter->m_Position.z = SpawnPos.z + m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0);
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.w = m_Template->m_ParticleColorA.Interpolate(ParticleTime, 1);
 		particle_iter->m_Size.x = m_Template->m_ParticleSizeX.Interpolate(ParticleTime, 1);
 		particle_iter->m_Size.y = m_Template->m_ParticleSizeY.Interpolate(ParticleTime, 1);
-		switch (m_Template->m_EmitterFaceType)
-		{
-		case EmitterComponent::FaceTypeX:
-			particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0) + SpawnPos.m_rotation.toEulerAngles().x;
-			break;
-		case EmitterComponent::FaceTypeY:
-			particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0) + SpawnPos.m_rotation.toEulerAngles().y;
-			break;
-		case EmitterComponent::FaceTypeZ:
-			particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0) + SpawnPos.m_rotation.toEulerAngles().z;
-			break;
-		case EmitterComponent::FaceTypeCamera:
-		case EmitterComponent::FaceTypeAngle:
-		case EmitterComponent::FaceTypeAngleCamera:
-		default:
-			particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0);
-			break;
-		}
+		particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0);
 	}
 
 	m_TaskEvent.SetEvent();
