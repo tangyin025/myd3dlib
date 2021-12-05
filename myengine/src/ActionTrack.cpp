@@ -227,7 +227,6 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_SpawnPos(m_Template->m_EmitterCapacity)
-	, m_AttachBoneId(-1)
 	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
@@ -247,16 +246,6 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	//Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
 
 	m_Actor->AddComponent(m_WorldEmitterCmp);
-
-	Animator* animator = m_Actor->GetFirstComponent<Animator>();
-	if (animator)
-	{
-		OgreSkeleton::BoneNameMap::const_iterator bone_name_iter = animator->m_Skeleton->m_boneNameMap.find(m_Template->m_AttachBoneName);
-		if (bone_name_iter != animator->m_Skeleton->m_boneNameMap.end())
-		{
-			m_AttachBoneId = bone_name_iter->second;
-		}
-	}
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
@@ -295,9 +284,9 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			if (m_AttachBoneId >= 0 && animator)
+			if (animator && m_Template->m_AttachBoneId >= 0 && m_Template->m_AttachBoneId < animator->anim_pose_hier.size())
 			{
-				const Bone& bone = animator->anim_pose_hier[m_AttachBoneId];
+				const Bone& bone = animator->anim_pose_hier[m_Template->m_AttachBoneId];
 				m_SpawnPos.push_back(bone.m_position.transformCoord(m_Actor->m_World));
 			}
 			else

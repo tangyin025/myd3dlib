@@ -239,7 +239,7 @@ public:
 
 	my::Spline m_ParticleAngle;
 
-	std::string m_AttachBoneName;
+	int m_AttachBoneId;
 
 	struct KeyFrame
 	{
@@ -257,6 +257,7 @@ public:
 		: m_EmitterCapacity(1024)
 		, m_EmitterFaceType(3) // FaceTypeCamera = 3
 		, m_ParticleLifeTime(FLT_MAX)
+		, m_AttachBoneId(-1)
 	{
 	}
 
@@ -277,8 +278,6 @@ protected:
 	boost::shared_ptr<SphericalEmitter> m_WorldEmitterCmp;
 
 	boost::circular_buffer<my::Vector3> m_SpawnPos;
-
-	int m_AttachBoneId;
 
 	float m_ActionTime;
 

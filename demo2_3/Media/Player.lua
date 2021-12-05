@@ -1,5 +1,5 @@
-require "Action.lua"
 module("SPlayer", package.seeall)
+require "Action.lua"
 
 -- 修正不规范资源
 -- mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")

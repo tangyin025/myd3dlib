@@ -2055,7 +2055,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticleSizeX", &ActionTrackEmitter::m_ParticleSizeX)
 			.def_readwrite("ParticleSizeY", &ActionTrackEmitter::m_ParticleSizeY)
 			.def_readwrite("ParticleAngle", &ActionTrackEmitter::m_ParticleAngle)
-			.def_readwrite("AttachBoneName", &ActionTrackEmitter::m_AttachBoneName)
+			.def_readwrite("AttachBoneId", &ActionTrackEmitter::m_AttachBoneId)
 
 		, class_<ActionTrackPose, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackPose")
 			.def(constructor<float>())
