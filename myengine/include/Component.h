@@ -42,12 +42,14 @@ public:
 		ComponentTypeController,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
+		ComponentTypeEmitter,
 		ComponentTypeStaticEmitter,
+		ComponentTypeCircularEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
-		ComponentTypeScript,
 		ComponentTypeAnimator,
 		ComponentTypeNavigation,
+		ComponentTypeScript,
 	};
 
 	enum LODMask
@@ -500,6 +502,11 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	}
 
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeEmitter;
+	}
+
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
 	void AddParticlePairToPipeline(RenderPipeline* pipeline, unsigned int PassMask, my::Emitter::Particle* particles1, unsigned int particle_num1, my::Emitter::Particle* particles2, unsigned int particle_num2);
@@ -507,9 +514,46 @@ public:
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
 
-class SphericalEmitter
+class CircularEmitter
 	: public EmitterComponent
 	, public my::Emitter
+{
+protected:
+	CircularEmitter(void)
+	{
+	}
+
+public:
+	CircularEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
+		: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
+		, Emitter(Capacity)
+	{
+	}
+
+	virtual ~CircularEmitter(void)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+	}
+
+	virtual ComponentType GetComponentType(void) const
+	{
+		return ComponentTypeCircularEmitter;
+	}
+
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
+};
+
+typedef boost::shared_ptr<CircularEmitter> CircularEmitterPtr;
+
+class SphericalEmitter
+	: public CircularEmitter
 {
 public:
 	float m_ParticleLifeTime;
@@ -555,8 +599,7 @@ protected:
 
 public:
 	SphericalEmitter(const char * Name, unsigned int Capacity, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
-		: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
-		, Emitter(Capacity)
+		: CircularEmitter(Name, Capacity, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_SpawnInterval(FLT_MAX)
 		, m_HalfSpawnArea(0,0,0)
@@ -596,8 +639,6 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual my::AABB CalculateAABB(void) const;
-
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
 typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;

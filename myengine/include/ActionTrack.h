@@ -266,7 +266,7 @@ public:
 	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
 };
 
-class SphericalEmitter;
+class CircularEmitter;
 
 class ActionTrackEmitterInst : public ActionTrackInst, public my::ParallelTask
 {
@@ -275,7 +275,7 @@ protected:
 
 	//boost::shared_ptr<Actor> m_WorldEmitterActor;
 
-	boost::shared_ptr<SphericalEmitter> m_WorldEmitterCmp;
+	boost::shared_ptr<CircularEmitter> m_WorldEmitterCmp;
 
 	boost::circular_buffer<my::Vector3> m_SpawnPos;
 

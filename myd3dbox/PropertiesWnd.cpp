@@ -2696,7 +2696,7 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 	case Component::ComponentTypeCloth:
 		return _T("Cloth");
 	case Component::ComponentTypeStaticEmitter:
-		return _T("Emitter");
+		return _T("StaticEmitter");
 	case Component::ComponentTypeSphericalEmitter:
 		return _T("SphericalEmitter");
 	case Component::ComponentTypeTerrain:
