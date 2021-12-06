@@ -3,6 +3,11 @@
 
 using namespace my;
 
+ParallelTask::~ParallelTask(void)
+{
+	_ASSERT(!ParallelTaskManager::getSingleton().FindTask(this));
+}
+
 ParallelTaskManager::ParallelTaskManager(void)
 	: m_bStopped(false)
 {

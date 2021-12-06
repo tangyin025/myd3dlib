@@ -1143,7 +1143,7 @@ void Client::OnFrameTick(
 		}
 	};
 
-	// ! StateBase::OnActorRequestResource, Actor::UpdateLod, Update may change other actor's life time
+	// ! OnActorRequestResource, UpdateLod, Update may change other actor's life time, DoAllParallelTasks also dependent it
 	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1)));
 
 	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
@@ -1183,8 +1183,6 @@ void Client::OnFrameTick(
 			actor_iter++;
 	}
 
-	DelayRemover<ActorPtr>::getSingleton().Leave();
-
 	m_SkyLightCam.UpdateViewProj();
 
 	m_Camera->UpdateViewProj();
@@ -1194,6 +1192,8 @@ void Client::OnFrameTick(
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
 		ParallelTaskManager::DoAllParallelTasks();
+
+		DelayRemover<ActorPtr>::getSingleton().Leave();
 
 		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
@@ -1214,6 +1214,12 @@ void Client::OnFrameTick(
 		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
 		m_UIRender->End();
 		V(m_d3dDevice->EndScene());
+	}
+	else
+	{
+		ParallelTaskManager::DoAllParallelTasks();
+
+		DelayRemover<ActorPtr>::getSingleton().Leave();
 	}
 
 	Present(NULL, NULL, NULL, NULL);

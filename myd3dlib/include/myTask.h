@@ -10,6 +10,8 @@ namespace my
 	class ParallelTask
 	{
 	public:
+		virtual ~ParallelTask(void);
+
 		virtual void DoTask(void) = 0;
 	};
 
