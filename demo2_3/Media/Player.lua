@@ -2,17 +2,17 @@ module("SPlayer", package.seeall)
 require "Action.lua"
 
 -- 修正不规范资源
--- mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
--- mesh:Transform(Matrix4.Compose(
-	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
+mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
+mesh:Transform(Matrix4.Compose(
+	Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
 skel=client:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_run.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_walk.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_jumpforward.skeleton.xml")
--- skel:Transform(Matrix4.Compose(
-	-- Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
+skel:Transform(Matrix4.Compose(
+	Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- skel:SaveOgreSkeletonAnimation("Media/character/casual19_m_highpoly_full.skeleton.xml")
 -- mesh2=client:LoadMesh("mesh/Cylinder.mesh.xml","")
 -- mesh2:Transform(Matrix4.Compose(
@@ -82,7 +82,7 @@ function PlayerBehavior:ReleaseResource()
 end
 function PlayerBehavior:Update(elapsedTime)
 	-- 更新角色位置
-	self.Actor:SetPose(controller_cmp.FootPosition)
+	self.Actor:SetPose(controller_cmp.Position)
 	self.velocity.y=self.velocity.y-9.81*elapsedTime
 	local speed=2
 	local direction=Vector3(0,0,0)
@@ -145,7 +145,7 @@ function PlayerBehavior:Update(elapsedTime)
 	-- 播放动画
 	animator_cmp:Tick(elapsedTime,1.0)
 	local LookMatrix=Matrix4.RotationYawPitchRoll(client.Camera.Euler.y,client.Camera.Euler.x,client.Camera.Euler.z)
-	client.Camera.Eye=self.Actor.Position+Vector3(0,1.75,0)+LookMatrix.row2.xyz*self.LookDist
+	client.Camera.Eye=self.Actor.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*self.LookDist
 	client.SkyLightCam.Eye=self.Actor.Position
 	client.ViewedCenter=self.Actor.Position
 end

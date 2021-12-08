@@ -1960,6 +1960,7 @@ void LuaContext::Init(void)
 			.def(constructor<const char*, float, float, float, unsigned int>())
 			.def_readwrite("filterWord0", &Controller::m_filterWord0)
 			.def("Move", &Controller::Move)
+			.property("Position", &Controller::GetPosition, &Controller::SetPosition)
 			.property("FootPosition", &Controller::GetFootPosition, &Controller::SetFootPosition)
 
 		, class_<Navigation, Component, boost::shared_ptr<Navigation> >("Navigation")

@@ -60,7 +60,7 @@ void Controller::EnterPhysxScene(PhysxScene * scene)
 	desc.height = m_Height;
 	desc.radius = m_Radius;
 	desc.contactOffset = m_ContactOffset;
-	desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y + m_ContactOffset + m_Radius + m_Height * 0.5f, m_Actor->m_Position.z);
+	desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y /*+ m_ContactOffset + m_Radius + m_Height * 0.5f*/, m_Actor->m_Position.z);
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
@@ -92,7 +92,7 @@ void Controller::LeavePhysxScene(PhysxScene * scene)
 
 void Controller::Update(float fElapsedTime)
 {
-	//m_Actor->SetPose(GetFootPosition());
+	//m_Actor->SetPose(GetPosition());
 }
 
 void Controller::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
@@ -106,7 +106,7 @@ void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quater
 		return;
 	}
 
-	SetFootPosition(Pos);
+	SetPosition(Pos);
 }
 
 unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime)
@@ -125,10 +125,20 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 		}
 		BOOST_SCOPE_EXIT_END
 
-		m_Actor->SetPxPoseOrbyPxThread(GetFootPosition(), m_Actor->m_Rotation);
+		//m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation);
 	}
 
 	return moveFlags;
+}
+
+void Controller::SetPosition(const my::Vector3 & Pos)
+{
+	m_PxController->setPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
+}
+
+my::Vector3 Controller::GetPosition(void) const
+{
+	return (my::Vector3&)physx::toVec3(m_PxController->getPosition());
 }
 
 void Controller::SetFootPosition(const my::Vector3 & Pos)

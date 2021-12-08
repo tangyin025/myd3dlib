@@ -80,6 +80,10 @@ public:
 
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime);
 
+	void SetPosition(const my::Vector3 & Pos);
+
+	my::Vector3 GetPosition(void) const;
+
 	void SetFootPosition(const my::Vector3 & Pos);
 
 	my::Vector3 GetFootPosition(void) const;
