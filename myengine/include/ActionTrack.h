@@ -80,7 +80,18 @@ public:
 	{
 	}
 
-	virtual ActionTrackInstPtr CreateInstance(Actor * actor) const = 0;
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const
+	{
+		return ActionTrackInstPtr();
+	}
+
+	virtual void UpdateTime(float Time, float fElapsedTime, Actor * _Actor)
+	{
+	}
+
+	virtual void Stop(Actor * _Actor)
+	{
+	}
 };
 
 typedef boost::intrusive_ptr<ActionTrack> ActionTrackPtr;

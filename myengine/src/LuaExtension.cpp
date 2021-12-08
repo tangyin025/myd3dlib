@@ -470,6 +470,79 @@ struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
 	}
 };
 
+struct ScriptActionTrack : ActionTrack, luabind::wrap_base
+{
+	class ScriptActionTrackInst : public ActionTrackInst
+	{
+	protected:
+		boost::intrusive_ptr<ScriptActionTrack> m_Template;
+
+	public:
+		ScriptActionTrackInst(Actor* actor, ScriptActionTrack* Template)
+			: ActionTrackInst(actor)
+			, m_Template(Template)
+		{
+		}
+
+		virtual void UpdateTime(float Time, float fElapsedTime)
+		{
+			m_Template->UpdateTime(Time, fElapsedTime, m_Actor);
+		}
+
+		virtual void Stop(void)
+		{
+			m_Template->Stop(m_Actor);
+		}
+	};
+
+	ScriptActionTrack(void)
+	{
+	}
+
+	virtual ~ScriptActionTrack(void)
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
+	{
+		return ActionTrackInstPtr(new ScriptActionTrackInst(_Actor, const_cast<ScriptActionTrack*>(this)));
+	}
+
+	virtual void UpdateTime(float Time, float fElapsedTime, Actor* _Actor)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("UpdateTime", Time, fElapsedTime, _Actor);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_UpdateTime(ScriptActionTrack* ptr, float Time, float fElapsedTime, Actor* _Actor)
+	{
+		ptr->ActionTrack::UpdateTime(Time, fElapsedTime, _Actor);
+	}
+
+	virtual void Stop(Actor* _Actor)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("Stop", _Actor);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_Stop(ScriptActionTrack* ptr, Actor* _Actor)
+	{
+		ptr->ActionTrack::Stop(_Actor);
+	}
+};
+
 LuaContext::LuaContext(void)
 	: m_State(NULL)
 {
@@ -2028,7 +2101,10 @@ void LuaContext::Init(void)
 			.def("AddTrack", &Action::AddTrack)
 			.def("RemoveTrack", &Action::RemoveTrack)
 
-		, class_<ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrack")
+		, class_<ActionTrack, ScriptActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrack")
+			.def(constructor<>())
+			.def("UpdateTime", &ActionTrack::UpdateTime, &ScriptActionTrack::default_UpdateTime)
+			.def("Stop", &ActionTrack::Stop, &ScriptActionTrack::default_Stop)
 
 		, class_<ActionTrackAnimation, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())
