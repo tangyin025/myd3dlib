@@ -600,10 +600,8 @@ Client::Client(void)
 		("keymousey", boost::program_options::value(&m_InitBindKeys[KeyMouseY])->default_value(InputMgr::KeyPairList(), ""), "Key Mouse Y")
 		("keyjump", boost::program_options::value(&m_InitBindKeys[KeyJump])->default_value(InputMgr::KeyPairList(), ""), "Key Jump")
 		("keyfire", boost::program_options::value(&m_InitBindKeys[KeyFire])->default_value(InputMgr::KeyPairList(), ""), "Key Fire")
-		("keylock1", boost::program_options::value(&m_InitBindKeys[KeyLock1])->default_value(InputMgr::KeyPairList(), ""), "Key Lock1")
-		("keylock2", boost::program_options::value(&m_InitBindKeys[KeyLock2])->default_value(InputMgr::KeyPairList(), ""), "Key Lock2")
-		("keymenu1", boost::program_options::value(&m_InitBindKeys[KeyMenu1])->default_value(InputMgr::KeyPairList(), ""), "Key Menu1")
-		("keymenu2", boost::program_options::value(&m_InitBindKeys[KeyMenu2])->default_value(InputMgr::KeyPairList(), ""), "Key Menu2")
+		("keylock", boost::program_options::value(&m_InitBindKeys[KeyLock])->default_value(InputMgr::KeyPairList(), ""), "Key Lock")
+		("keymenu", boost::program_options::value(&m_InitBindKeys[KeyMenu])->default_value(InputMgr::KeyPairList(), ""), "Key Menu")
 		("keyweapon1", boost::program_options::value(&m_InitBindKeys[KeyWeapon1])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon1")
 		("keyweapon2", boost::program_options::value(&m_InitBindKeys[KeyWeapon2])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon2")
 		("keyweapon3", boost::program_options::value(&m_InitBindKeys[KeyWeapon3])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon3")
@@ -846,10 +844,8 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyMouseY", Client::KeyMouseY),
 				luabind::value("KeyJump", Client::KeyJump),
 				luabind::value("KeyFire", Client::KeyFire),
-				luabind::value("KeyLock1", Client::KeyLock1),
-				luabind::value("KeyLock2", Client::KeyLock2),
-				luabind::value("KeyMenu1", Client::KeyMenu1),
-				luabind::value("KeyMenu2", Client::KeyMenu2),
+				luabind::value("KeyLock", Client::KeyLock),
+				luabind::value("KeyMenu", Client::KeyMenu),
 				luabind::value("KeyWeapon1", Client::KeyWeapon1),
 				luabind::value("KeyWeapon2", Client::KeyWeapon2),
 				luabind::value("KeyWeapon3", Client::KeyWeapon3),
