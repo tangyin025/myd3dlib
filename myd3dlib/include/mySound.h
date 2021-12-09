@@ -5,6 +5,7 @@
 #include <Mmsystem.h>
 #include <dsound.h>
 #include "myMath.h"
+#include "mySingleton.h"
 
 namespace my
 {
@@ -269,4 +270,29 @@ namespace my
 			const Vector3 & vel,
 			DWORD dwApply = DS3D_IMMEDIATE);
 	};
+
+	class Wav : public DeviceResourceBase
+	{
+	public:
+		HMMIO hwav;
+
+		MMCKINFO parent;
+
+		MMCKINFO child;
+
+		WAVEFORMATEX wavfmt;
+
+		std::vector<unsigned char> buffer;
+
+	public:
+		Wav(void)
+		{
+		}
+
+		void CreateWavInMemory(
+			LPCVOID Memory,
+			DWORD SizeOfMemory);
+	};
+
+	typedef boost::intrusive_ptr<Wav> WavPtr;
 }

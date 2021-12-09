@@ -313,6 +313,10 @@ public:
 		skin->m_ScrollBarThumbBtnNormalImage = image;
 		skin->m_ScrollBarImage = image2;
 
+		my::Wav wav;
+		my::CachePtr cache = ResourceMgr::OpenIStream("sound/jaguar.wav")->GetWholeCache();
+		wav.CreateWavInMemory(cache->data(), cache->size());
+
 		return S_OK;
 	}
 

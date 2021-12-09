@@ -602,3 +602,67 @@ void Sound3DListener::SetVelocity(
 {
 	V(m_ptr->SetVelocity(vel.x, vel.y, vel.z, dwApply));
 }
+
+void Wav::CreateWavInMemory(
+	LPCVOID Memory,
+	DWORD SizeOfMemory)
+{
+	MMIOINFO mmioinfo;
+	ZeroMemory(&mmioinfo, sizeof(mmioinfo));
+	mmioinfo.fccIOProc = FOURCC_MEM;
+	mmioinfo.pchBuffer = (char *)Memory;
+	mmioinfo.cchBuffer = SizeOfMemory;
+	if (NULL == (hwav = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
+	{
+		THROW_CUSEXCEPTION("open wave file failed");
+	}
+
+	parent.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+	if (MMSYSERR_NOERROR != mmioDescend(hwav, &parent, NULL, MMIO_FINDRIFF))
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("mmioDescend parent failed");
+	}
+
+	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
+	if (MMSYSERR_NOERROR != mmioDescend(hwav, &child, &parent, 0))
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("mmioDescend child failed");
+	}
+
+	if (sizeof(wavfmt) != mmioRead(hwav, (HPSTR)&wavfmt, sizeof(wavfmt)))
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("mmioRead wav format failed");
+	}
+
+	if (WAVE_FORMAT_PCM != wavfmt.wFormatTag)
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("not wave format pcm");
+	}
+
+	if (MMSYSERR_NOERROR != mmioAscend(hwav, &child, 0))
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("mmioAscend child failed");
+	}
+
+	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
+	if (MMSYSERR_NOERROR != mmioDescend(hwav, &child, &parent, 0))
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("mmioDescend child failed");
+	}
+
+	buffer.resize(child.cksize);
+
+	if((LONG)child.cksize != mmioRead(hwav, (HPSTR)&buffer[0], child.cksize))
+	{
+		mmioClose(hwav, 0);
+		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
+	}
+
+	mmioClose(hwav, 0);
+}

@@ -28,4 +28,14 @@ public:
 	bool Init(void);
 
 	void Shutdown(void);
+
+	SoundEventPtr Play(my::WavPtr wav);
+};
+
+class SoundEvent
+{
+public:
+	SoundEvent(void)
+	{
+	}
 };

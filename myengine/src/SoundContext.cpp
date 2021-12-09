@@ -25,3 +25,8 @@ void SoundContext::Shutdown(void)
 {
 	m_listener.reset();
 }
+
+SoundEventPtr SoundContext::Play(my::WavPtr wav)
+{
+	return SoundEventPtr();
+}
