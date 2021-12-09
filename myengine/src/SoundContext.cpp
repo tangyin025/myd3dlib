@@ -26,60 +26,84 @@ bool SoundContext::Init(HWND hwnd)
 void SoundContext::Shutdown(void)
 {
 	m_listener.reset();
-}
 
-SoundContext::BufferEventPairArray::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, DWORD flags)
-{
-	BufferEventPairArray::iterator buff_event_iter = m_pool.begin();
+	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
 	for (; buff_event_iter != m_pool.end(); buff_event_iter++)
 	{
-		if (!buff_event_iter->first.m_ptr)
+		buff_event_iter->second->m_sbuffer = NULL;
+		buff_event_iter->second->m_3dbuffer.reset();
+	}
+
+	m_pool.clear();
+}
+
+void SoundContext::ReleaseIdleBuffer(float fElapsedTime)
+{
+	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
+	for (; buff_event_iter != m_pool.end(); )
+	{
+		DWORD status = buff_event_iter->first.GetStatus();
+		if (!(status & DSBSTATUS_PLAYING) || (status & DSBSTATUS_TERMINATED))
 		{
-			_ASSERT(!buff_event_iter->second);
-			DSBUFFERDESC dsbd;
-			dsbd.dwSize = sizeof(dsbd);
-			dsbd.dwFlags = DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE;
-			dsbd.dwBufferBytes = wav->child.cksize;
-			dsbd.dwReserved = 0;
-			dsbd.lpwfxFormat = &wav->wavfmt;
-			dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
-
-			LPDIRECTSOUNDBUFFER pDsb = NULL;
-			HRESULT hr = m_sound.m_ptr->CreateSoundBuffer(&dsbd, &pDsb, NULL);
-			if (FAILED(hr))
-			{
-				THROW_DSOUNDEXCEPTION(hr);
-			}
-			buff_event_iter->first.Create(pDsb);
-
-			unsigned char* buffer1, * buffer2;
-			DWORD bytes1, bytes2;
-			buff_event_iter->first.Lock(0, wav->child.cksize, (LPVOID*)&buffer1, &bytes1, (LPVOID*)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
-			_ASSERT(bytes1 + bytes2 == wav->child.cksize);
-			if (buffer1)
-			{
-				memcpy(buffer1, &wav->buffer[0], bytes1);
-			}
-			if (buffer2)
-			{
-				memcpy(buffer2, &wav->buffer[bytes1], bytes2);
-			}
-			buff_event_iter->first.Unlock(buffer1, bytes1, buffer2, bytes2);
-			break;
+			buff_event_iter->second->m_sbuffer = NULL;
+			buff_event_iter->second->m_3dbuffer.reset();
+			buff_event_iter = m_pool.erase(buff_event_iter);
+		}
+		else
+		{
+			buff_event_iter++;
 		}
 	}
+}
+
+SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, DWORD flags)
+{
+	m_pool.insert(m_pool.begin(), BufferEventPair());
+
+	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
+
+	DSBUFFERDESC dsbd;
+	dsbd.dwSize = sizeof(dsbd);
+	dsbd.dwFlags = flags;
+	dsbd.dwBufferBytes = wav->child.cksize;
+	dsbd.dwReserved = 0;
+	dsbd.lpwfxFormat = &wav->wavfmt;
+	dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
+
+	LPDIRECTSOUNDBUFFER pDsb = NULL;
+	HRESULT hr = m_sound.m_ptr->CreateSoundBuffer(&dsbd, &pDsb, NULL);
+	if (FAILED(hr))
+	{
+		THROW_DSOUNDEXCEPTION(hr);
+	}
+	buff_event_iter->first.Create(pDsb);
+
+	unsigned char* buffer1, * buffer2;
+	DWORD bytes1, bytes2;
+	buff_event_iter->first.Lock(0, wav->child.cksize, (LPVOID*)&buffer1, &bytes1, (LPVOID*)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
+	_ASSERT(bytes1 + bytes2 == wav->child.cksize);
+	if (buffer1)
+	{
+		memcpy(buffer1, &wav->buffer[0], bytes1);
+	}
+	if (buffer2)
+	{
+		memcpy(buffer2, &wav->buffer[bytes1], bytes2);
+	}
+	buff_event_iter->first.Unlock(buffer1, bytes1, buffer2, bytes2);
+
 	return buff_event_iter;
 }
 
 SoundEventPtr SoundContext::Play(my::WavPtr wav)
 {
-	BufferEventPairArray::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
+	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER);
 
 	if (buff_event_iter != m_pool.end())
 	{
 		buff_event_iter->second.reset(new SoundEvent());
 		buff_event_iter->second->m_sbuffer = &buff_event_iter->first;
-		buff_event_iter->first.Play(0, 0);
+		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME);
 		return buff_event_iter->second;
 	}
 
@@ -88,7 +112,7 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav)
 
 SoundEventPtr SoundContext::Play(my::WavPtr wav, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
 {
-	BufferEventPairArray::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
+	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER);
 
 	if (buff_event_iter != m_pool.end())
 	{
@@ -102,7 +126,7 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav, const my::Vector3 & pos, const 
 		ds3dbuff.flMaxDistance = max_dist;
 		ds3dbuff.dwMode = DS3DMODE_NORMAL;
 		buff_event_iter->second->m_3dbuffer->SetAllParameters(&ds3dbuff, DS3D_IMMEDIATE);
-		buff_event_iter->first.Play(0, 0);
+		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME);
 		return buff_event_iter->second;
 	}
 

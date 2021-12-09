@@ -2,7 +2,6 @@
 
 #include "mySingleton.h"
 #include "mySound.h"
-#include <boost/array.hpp>
 
 class SoundEvent;
 
@@ -18,9 +17,9 @@ public:
 
 	typedef std::pair<my::SoundBuffer, SoundEventPtr> BufferEventPair;
 
-	typedef boost::array<BufferEventPair, 32> BufferEventPairArray;
+	typedef std::list<BufferEventPair> BufferEventPairList;
 
-	BufferEventPairArray m_pool;
+	BufferEventPairList m_pool;
 
 public:
 	SoundContext(void)
@@ -31,7 +30,9 @@ public:
 
 	void Shutdown(void);
 
-	BufferEventPairArray::iterator GetIdleBuffer(my::WavPtr wav, DWORD flags);
+	void ReleaseIdleBuffer(float fElapsedTime);
+
+	BufferEventPairList::iterator GetIdleBuffer(my::WavPtr wav, DWORD flags);
 
 	SoundEventPtr Play(my::WavPtr wav);
 

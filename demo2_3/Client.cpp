@@ -1026,9 +1026,11 @@ void Client::OnFrameTick(
 
 	DrawHelper::BeginLine();
 
-	CheckIORequests(0);
+	ResourceMgr::CheckIORequests(0);
 
 	PhysxScene::PushRenderBuffer(this);
+
+	SoundContext::ReleaseIdleBuffer(fElapsedTime);
 
 	EnterDeviceSection();
 
