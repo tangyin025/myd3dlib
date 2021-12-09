@@ -54,7 +54,7 @@ public:
 
 	virtual void seek(uint32_t offset)
 	{
-		m_istr->seek(offset);
+		m_istr->seek(offset, SEEK_SET);
 	}
 
 	virtual uint32_t tell() const

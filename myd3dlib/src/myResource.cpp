@@ -50,10 +50,10 @@ int ZipIStream::read(void * buff, unsigned read_size)
 	return zzip_file_read(m_fp, buff, read_size);
 }
 
-long ZipIStream::seek(long offset)
+long ZipIStream::seek(long offset, int origin)
 {
 	CriticalSectionLock lock(m_DirSec);
-	return zzip_seek(m_fp, offset, SEEK_SET);
+	return zzip_seek(m_fp, offset, origin);
 }
 
 long ZipIStream::tell(void)
@@ -95,9 +95,9 @@ int FileIStream::read(void * buff, unsigned read_size)
 	return _read(m_fp, buff, read_size);
 }
 
-long FileIStream::seek(long offset)
+long FileIStream::seek(long offset, int origin)
 {
-	return _lseek(m_fp, offset, SEEK_SET);
+	return _lseek(m_fp, offset, origin);
 }
 
 long FileIStream::tell(void)

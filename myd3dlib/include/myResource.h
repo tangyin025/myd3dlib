@@ -31,7 +31,7 @@ namespace my
 
 		virtual int read(void * buff, unsigned read_size);
 
-		virtual long seek(long offset);
+		virtual long seek(long offset, int origin);
 
 		virtual long tell(void);
 
@@ -52,7 +52,7 @@ namespace my
 
 		virtual int read(void * buff, unsigned read_size);
 
-		virtual long seek(long offset);
+		virtual long seek(long offset, int origin);
 
 		virtual long tell(void);
 

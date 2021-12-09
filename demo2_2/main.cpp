@@ -435,8 +435,7 @@ public:
 		if (m_keyboard->IsKeyPress(KC_SPACE))
 		{
 			my::WavPtr wav(new Wav());
-			my::CachePtr cache = ResourceMgr::OpenIStream("sound/jaguar.wav")->GetWholeCache();
-			wav->CreateWavInMemory(cache->data(), cache->size());
+			wav->CreateWavFromFile(_T("../demo2_3/Media/sound/jaguar.wav"));
 			SoundContext::Play(wav, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
 		}
 	

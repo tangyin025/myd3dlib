@@ -60,22 +60,6 @@ namespace my
 
 		void Create(IDirectSoundBuffer * ptr);
 
-		void CreateSoundBufferFromMmio(
-			LPDIRECTSOUND8 pDSound,
-			HMMIO hmmio,
-			DWORD flags);
-
-		void CreateSoundBufferFromFile(
-			LPDIRECTSOUND8 pDSound,
-			LPCTSTR pSrcFile,
-			DWORD flags = DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
-
-		void CreateSoundBufferFromFileInMemory(
-			LPDIRECTSOUND8 pDSound,
-			LPCVOID pSrcData,
-			UINT SrcDataLen,
-			DWORD flags = DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
-
 		void GetCurrentPosition(
 			LPDWORD pdwCurrentPlayCursor,
 			LPDWORD pdwCurrentWriteCursor);
@@ -274,8 +258,6 @@ namespace my
 	class Wav : public DeviceResourceBase
 	{
 	public:
-		HMMIO hwav;
-
 		MMCKINFO parent;
 
 		MMCKINFO child;
@@ -289,7 +271,13 @@ namespace my
 		{
 		}
 
-		void CreateWavInMemory(
+		void CreateWavFromMmio(
+			HMMIO hmmio);
+
+		void CreateWavFromFile(
+			LPCTSTR pFilename);
+
+		void CreateWavFromFileInMemory(
 			LPCVOID Memory,
 			DWORD SizeOfMemory);
 	};

@@ -140,7 +140,7 @@ namespace my
 
 		virtual int read(void* buff, unsigned read_size) = 0;
 
-		virtual long seek(long offset) = 0;
+		virtual long seek(long offset, int origin) = 0;
 
 		virtual long tell(void) = 0;
 

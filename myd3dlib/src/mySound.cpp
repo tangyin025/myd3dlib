@@ -1,5 +1,6 @@
 #include "mySound.h"
 #include "myException.h"
+#include "myResource.h"
 
 using namespace my;
 
@@ -68,155 +69,6 @@ void SoundBuffer::Create(IDirectSoundBuffer * ptr)
 	_ASSERT(!m_ptr);
 
 	m_ptr = ptr;
-}
-
-void SoundBuffer::CreateSoundBufferFromMmio(
-	LPDIRECTSOUND8 pDSound,
-	HMMIO hmmio,
-	DWORD flags)
-{
-	MMCKINFO parent;
-	MMCKINFO child;
-	WAVEFORMATEX wavfmt;
-
-	parent.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-	if(MMSYSERR_NOERROR != mmioDescend(hmmio, &parent, NULL, MMIO_FINDRIFF))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioDescend parent failed");
-	}
-
-	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
-	if(MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioDescend child failed");
-	}
-
-	if(sizeof(wavfmt) != mmioRead(hmmio, (HPSTR)&wavfmt, sizeof(wavfmt)))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioRead wav format failed");
-	}
-
-	if(WAVE_FORMAT_PCM != wavfmt.wFormatTag)
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("not wave format pcm");
-	}
-
-	if(MMSYSERR_NOERROR != mmioAscend(hmmio, &child, 0))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioAscend child failed");
-	}
-
-	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
-	if(MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioDescend child failed");
-	}
-
-	DSBUFFERDESC dsbd;
-	dsbd.dwSize = sizeof(dsbd);
-	dsbd.dwFlags = flags;
-	dsbd.dwBufferBytes = child.cksize;
-	dsbd.dwReserved = 0;
-	dsbd.lpwfxFormat = &wavfmt;
-	dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
-
-	HRESULT hr;
-	LPDIRECTSOUNDBUFFER lpdsbuffer;
-	if(FAILED(hr = pDSound->CreateSoundBuffer(&dsbd, &lpdsbuffer, NULL)))
-	{
-		THROW_DSOUNDEXCEPTION(hr);
-	}
-
-	Create(lpdsbuffer);
-
-	unsigned char * buffer1;
-	DWORD bytes1;
-	unsigned char * buffer2;
-	DWORD bytes2;
-	Lock(0, child.cksize, (LPVOID *)&buffer1, &bytes1, (LPVOID *)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
-
-	_ASSERT(bytes1 + bytes2 == child.cksize);
-
-	if(buffer1 != NULL && (LONG)bytes1 != mmioRead(hmmio, (HPSTR)buffer1, bytes1))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
-	}
-
-	if(buffer2 != NULL && (LONG)bytes2 != mmioRead(hmmio, (HPSTR)buffer2, bytes2))
-	{
-		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
-	}
-
-	Unlock(buffer1, bytes1, buffer2, bytes2);
-
-	mmioClose(hmmio, 0);
-}
-
-void SoundBuffer::CreateSoundBufferFromFile(
-	LPDIRECTSOUND8 pDSound,
-	LPCTSTR pSrcFile,
-	DWORD flags)
-{
-	HMMIO hmmio;
-	if(NULL == (hmmio = mmioOpen(const_cast<TCHAR *>(pSrcFile), NULL, MMIO_READ | MMIO_ALLOCBUF)))
-	{
-		THROW_CUSEXCEPTION("open wave file failed");
-	}
-
-	CreateSoundBufferFromMmio(pDSound, hmmio, flags);
-}
-
-void SoundBuffer::CreateSoundBufferFromFileInMemory(
-	LPDIRECTSOUND8 pDSound,
-	LPCVOID pSrcData,
-	UINT SrcDataLen,
-	DWORD flags)
-{
-	struct IOProc
-	{
-		static LRESULT CALLBACK MMIOProc(
-			LPSTR lpmmioinfo,  
-			UINT uMsg,         
-			LPARAM lParam1,
-			LPARAM lParam2)
-		{
-			MMIOINFO * pinfo = (MMIOINFO *)lpmmioinfo;
-			switch(uMsg)
-			{
-			case MMIOM_OPEN:
-			case MMIOM_CLOSE:
-				return 0;
-
-			case MMIOM_READ:
-				memcpy((void *)lParam1, pinfo->pchBuffer + pinfo->lDiskOffset, lParam2);
-				pinfo->lDiskOffset += lParam2;
-				return lParam2;
-			}
-			return -1;
-		}
-	};
-
-	MMIOINFO mmioinfo = {0};
-	mmioinfo.dwFlags = MMIO_READ;
-	mmioinfo.pIOProc = IOProc::MMIOProc;
-	mmioinfo.cchBuffer = SrcDataLen;
-	mmioinfo.pchBuffer = (HPSTR)pSrcData;
-
-	HMMIO hmmio;
-	if(NULL == (hmmio = mmioOpenA(NULL, &mmioinfo, MMIO_READ)))
-	{
-		THROW_CUSEXCEPTION("open wave file failed");
-	}
-
-	CreateSoundBufferFromMmio(pDSound, hmmio, flags);
 }
 
 void SoundBuffer::GetCurrentPosition(
@@ -603,7 +455,117 @@ void Sound3DListener::SetVelocity(
 	V(m_ptr->SetVelocity(vel.x, vel.y, vel.z, dwApply));
 }
 
-void Wav::CreateWavInMemory(
+void Wav::CreateWavFromMmio(
+	HMMIO hmmio)
+{
+	parent.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &parent, NULL, MMIO_FINDRIFF))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("mmioDescend parent failed");
+	}
+
+	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
+	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("mmioDescend child failed");
+	}
+
+	if (sizeof(wavfmt) != mmioRead(hmmio, (HPSTR)&wavfmt, sizeof(wavfmt)))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("mmioRead wav format failed");
+	}
+
+	if (WAVE_FORMAT_PCM != wavfmt.wFormatTag)
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("not wave format pcm");
+	}
+
+	if (MMSYSERR_NOERROR != mmioAscend(hmmio, &child, 0))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("mmioAscend child failed");
+	}
+
+	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
+	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("mmioDescend child failed");
+	}
+
+	buffer.resize(child.cksize);
+
+	if ((LONG)child.cksize != mmioRead(hmmio, (HPSTR)&buffer[0], child.cksize))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
+	}
+
+	mmioClose(hmmio, 0);
+}
+
+void Wav::CreateWavFromFile(
+	LPCTSTR pFilename)
+{
+	struct IOProc
+	{
+		static LRESULT CALLBACK MMIOProc(
+			LPSTR lpmmioinfo,
+			UINT uMsg,
+			LPARAM lParam1,
+			LPARAM lParam2)
+		{
+			MMIOINFO* pinfo = (MMIOINFO*)lpmmioinfo;
+			switch (uMsg)
+			{
+			case MMIOM_OPEN:
+			{
+				return 0;
+			}
+			case MMIOM_CLOSE:
+			{
+				return 0;
+			}
+			case MMIOM_READ:
+			{
+				my::IStream* istr = (my::IStream*)pinfo->pchBuffer;
+				int iread = istr->read((void*)lParam1, (unsigned int)lParam2);
+				pinfo->lDiskOffset += iread;
+				return iread;
+			}
+			case MMIOM_SEEK:
+			{
+				my::IStream* istr = (my::IStream*)pinfo->pchBuffer;
+				long loff = istr->seek(lParam1, lParam2);
+				pinfo->lDiskOffset = loff;
+				return loff;
+			}
+			}
+			return -1;
+		}
+	};
+
+	my::IStreamPtr istr = FileIStream::Open(pFilename);
+
+	MMIOINFO mmioinfo = { 0 };
+	mmioinfo.dwFlags = MMIO_READ;
+	mmioinfo.pIOProc = IOProc::MMIOProc;
+	mmioinfo.pchBuffer = (HPSTR)istr.get();
+
+	HMMIO hmmio;
+	if (NULL == (hmmio = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
+	{
+		THROW_CUSEXCEPTION("open wave file failed");
+	}
+
+	CreateWavFromMmio(hmmio);
+}
+
+void Wav::CreateWavFromFileInMemory(
 	LPCVOID Memory,
 	DWORD SizeOfMemory)
 {
@@ -612,57 +574,12 @@ void Wav::CreateWavInMemory(
 	mmioinfo.fccIOProc = FOURCC_MEM;
 	mmioinfo.pchBuffer = (char *)Memory;
 	mmioinfo.cchBuffer = SizeOfMemory;
-	if (NULL == (hwav = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
+
+	HMMIO hmmio;
+	if (NULL == (hmmio = mmioOpen(NULL, &mmioinfo, MMIO_READ)))
 	{
 		THROW_CUSEXCEPTION("open wave file failed");
 	}
 
-	parent.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-	if (MMSYSERR_NOERROR != mmioDescend(hwav, &parent, NULL, MMIO_FINDRIFF))
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("mmioDescend parent failed");
-	}
-
-	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
-	if (MMSYSERR_NOERROR != mmioDescend(hwav, &child, &parent, 0))
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("mmioDescend child failed");
-	}
-
-	if (sizeof(wavfmt) != mmioRead(hwav, (HPSTR)&wavfmt, sizeof(wavfmt)))
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("mmioRead wav format failed");
-	}
-
-	if (WAVE_FORMAT_PCM != wavfmt.wFormatTag)
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("not wave format pcm");
-	}
-
-	if (MMSYSERR_NOERROR != mmioAscend(hwav, &child, 0))
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("mmioAscend child failed");
-	}
-
-	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
-	if (MMSYSERR_NOERROR != mmioDescend(hwav, &child, &parent, 0))
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("mmioDescend child failed");
-	}
-
-	buffer.resize(child.cksize);
-
-	if((LONG)child.cksize != mmioRead(hwav, (HPSTR)&buffer[0], child.cksize))
-	{
-		mmioClose(hwav, 0);
-		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
-	}
-
-	mmioClose(hwav, 0);
+	CreateWavFromMmio(hmmio);
 }

@@ -65,7 +65,7 @@ public:
 		if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 		{
 			IStreamPtr istr = ResourceMgr::getSingleton().OpenIStream(m_path.c_str());
-			istr->seek(TerrainStream::CalculateStreamOff(m_ColChunks, m_Row, m_Col, m_ChunkSize, m_VertexStride));
+			istr->seek(TerrainStream::CalculateStreamOff(m_ColChunks, m_Row, m_Col, m_ChunkSize, m_VertexStride), SEEK_SET);
 			int BufferSize = (m_ChunkSize + 1) * (m_ChunkSize + 1) * m_VertexStride;
 			VertexBufferPtr vb = boost::dynamic_pointer_cast<VertexBuffer>(m_res);
 			ResourceMgr::getSingleton().EnterDeviceSection();
