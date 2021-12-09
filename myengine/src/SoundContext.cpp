@@ -28,7 +28,7 @@ void SoundContext::Shutdown(void)
 	m_listener.reset();
 }
 
-SoundEventPtr SoundContext::Play(my::WavPtr wav)
+SoundContext::BufferEventPairArray::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, DWORD flags)
 {
 	BufferEventPairArray::iterator buff_event_iter = m_pool.begin();
 	for (; buff_event_iter != m_pool.end(); buff_event_iter++)
@@ -68,13 +68,43 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav)
 			break;
 		}
 	}
+	return buff_event_iter;
+}
+
+SoundEventPtr SoundContext::Play(my::WavPtr wav)
+{
+	BufferEventPairArray::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
 
 	if (buff_event_iter != m_pool.end())
 	{
 		buff_event_iter->second.reset(new SoundEvent());
-		buff_event_iter->second->m_3dbuffer = buff_event_iter->first.Get3DBuffer();
+		buff_event_iter->second->m_sbuffer = &buff_event_iter->first;
 		buff_event_iter->first.Play(0, 0);
 		return buff_event_iter->second;
 	}
+
+	return SoundEventPtr();
+}
+
+SoundEventPtr SoundContext::Play(my::WavPtr wav, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
+{
+	BufferEventPairArray::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
+
+	if (buff_event_iter != m_pool.end())
+	{
+		buff_event_iter->second.reset(new SoundEvent());
+		buff_event_iter->second->m_sbuffer = &buff_event_iter->first;
+		buff_event_iter->second->m_3dbuffer = buff_event_iter->first.Get3DBuffer();
+		DS3DBUFFER ds3dbuff = buff_event_iter->second->m_3dbuffer->GetAllParameters();
+		ds3dbuff.vPosition = (D3DVECTOR&)pos;
+		ds3dbuff.vVelocity = (D3DVECTOR&)vel;
+		ds3dbuff.flMinDistance = min_dist;
+		ds3dbuff.flMaxDistance = max_dist;
+		ds3dbuff.dwMode = DS3DMODE_NORMAL;
+		buff_event_iter->second->m_3dbuffer->SetAllParameters(&ds3dbuff, DS3D_IMMEDIATE);
+		buff_event_iter->first.Play(0, 0);
+		return buff_event_iter->second;
+	}
+
 	return SoundEventPtr();
 }

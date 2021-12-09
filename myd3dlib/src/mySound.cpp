@@ -378,7 +378,7 @@ void Sound3DBuffer::SetMode(
 
 DS3DBUFFER Sound3DBuffer::GetAllParameters(void)
 {
-	DS3DBUFFER res;
+	DS3DBUFFER res = { sizeof(res) };
 	V(m_ptr->GetAllParameters(&res));
 	return res;
 }

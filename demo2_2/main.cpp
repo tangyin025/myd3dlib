@@ -435,7 +435,7 @@ public:
 			my::WavPtr wav(new Wav());
 			my::CachePtr cache = ResourceMgr::OpenIStream("sound/jaguar.wav")->GetWholeCache();
 			wav->CreateWavInMemory(cache->data(), cache->size());
-			SoundContext::Play(wav);
+			SoundContext::Play(wav, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
 		}
 	
 		// Clear the render target and the zbuffer 
