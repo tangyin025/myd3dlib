@@ -11,6 +11,7 @@
 #include <PrintCallStack.h>
 #include <shlobj.h>
 #include "Material.h"
+#include "SoundContext.h"
 
 using namespace my;
 
@@ -139,6 +140,8 @@ class Demo
 	, public FontLibrary
 	, public ResourceMgr
 	, public DialogMgr
+	, public SoundContext
+	, public my::InputMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
@@ -156,6 +159,7 @@ protected:
 public:
 	Demo(void)
 		: m_UIRender(new EffectUIRender())
+		, InputMgr(0)
 	{
 	}
 
@@ -195,6 +199,13 @@ public:
 		{
 			return hr;
 		}
+
+		if (!SoundContext::Init(m_wnd->m_hWnd))
+		{
+			return S_FALSE;
+		}
+
+		InputMgr::Create(m_hinst, m_wnd->m_hWnd);
 
 		ResourceMgr::StartIORequestProc(2);
 
@@ -313,10 +324,6 @@ public:
 		skin->m_ScrollBarThumbBtnNormalImage = image;
 		skin->m_ScrollBarImage = image2;
 
-		my::Wav wav;
-		my::CachePtr cache = ResourceMgr::OpenIStream("sound/jaguar.wav")->GetWholeCache();
-		wav.CreateWavInMemory(cache->data(), cache->size());
-
 		return S_OK;
 	}
 
@@ -408,6 +415,10 @@ public:
 
 		m_UIRender->OnDestroyDevice();
 
+		InputMgr::Destroy();
+
+		SoundContext::Shutdown();
+
 		ResourceMgr::OnDestroyDevice();
 
 		DxutApp::OnDestroyDevice();
@@ -417,6 +428,16 @@ public:
 	{
 		CheckIORequests(0);
 
+		InputMgr::Capture(fTime, fElapsedTime);
+
+		if (m_keyboard->IsKeyPress(KC_SPACE))
+		{
+			my::WavPtr wav(new Wav());
+			my::CachePtr cache = ResourceMgr::OpenIStream("sound/jaguar.wav")->GetWholeCache();
+			wav->CreateWavInMemory(cache->data(), cache->size());
+			SoundContext::Play(wav);
+		}
+	
 		// Clear the render target and the zbuffer 
 		V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
 

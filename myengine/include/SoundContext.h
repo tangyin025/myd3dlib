@@ -16,16 +16,18 @@ public:
 
 	my::Sound3DListenerPtr m_listener;
 
-	typedef std::pair<my::SoundBufferPtr, SoundEventPtr> BufferEventPair;
+	typedef std::pair<my::SoundBuffer, SoundEventPtr> BufferEventPair;
 
 	typedef boost::array<BufferEventPair, 32> BufferEventPairArray;
+
+	BufferEventPairArray m_pool;
 
 public:
 	SoundContext(void)
 	{
 	}
 
-	bool Init(void);
+	bool Init(HWND hwnd);
 
 	void Shutdown(void);
 
@@ -34,6 +36,11 @@ public:
 
 class SoundEvent
 {
+protected:
+	friend SoundContext;
+
+	my::Sound3DBufferPtr m_3dbuffer;
+
 public:
 	SoundEvent(void)
 	{

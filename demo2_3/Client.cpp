@@ -714,7 +714,7 @@ HRESULT Client::OnCreateDevice(
 		THROW_CUSEXCEPTION("PhysxScene::Init failed");
 	}
 
-	if (!SoundContext::Init())
+	if (!SoundContext::Init(m_wnd->m_hWnd))
 	{
 		THROW_CUSEXCEPTION("SoundContext::Init failed");
 	}
