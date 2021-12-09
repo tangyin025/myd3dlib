@@ -277,9 +277,9 @@ public:
 		m_Tex->CreateTextureFromFile(_T("four-holes.png"));
 		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
-		Material mtl;
-		mtl.m_Shader = "shader/mtl_BlinnPhong.fx";
-		mtl.ParseShaderParameters();
+		//Material mtl;
+		//mtl.m_Shader = "shader/mtl_BlinnPhong.fx";
+		//mtl.ParseShaderParameters();
 
 		m_Dlg.reset(new Dialog(NamedObject::MakeUniqueName("dialog").c_str()));
 		m_Dlg->m_Width = UDim(0, desc.Width);
@@ -313,57 +313,41 @@ public:
 		skin->m_ScrollBarThumbBtnNormalImage = image;
 		skin->m_ScrollBarImage = image2;
 
-		ListBoxPtr listBox(new ListBox(NamedObject::MakeUniqueName("listbox").c_str()));
-		listBox->m_Width.offset = 200;
-		listBox->OnLayout();
-		listBox->m_Skin = skin;
-		//listBox->AddItem(L"aaa");
-		//listBox->AddItem(L"bbb");
-		//listBox->AddItem(L"ccc");
-		//listBox->AddItem(L"ddd");
-		//listBox->AddItem(L"eee");
-		//listBox->AddItem(L"fff");
-		//listBox->AddItem(L"ggg");
-		//listBox->AddItem(L"hhh");
-		//listBox->AddItem(L"iii");
-		//listBox->AddItem(L"jjj");
-		m_Dlg->InsertControl(listBox);
-
 		return S_OK;
 	}
 
 	void OnMouseClick(EventArg* arg)
 	{
-		//static CPoint last_pt(0, 0);
-		//m_Tex->OnDestroyDevice();
-		//m_Tex->CreateTextureFromFile(_T("four-holes.png"));
-		//D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
+		static CPoint last_pt(0, 0);
+		m_Tex->OnDestroyDevice();
+		m_Tex->CreateTextureFromFile(_T("four-holes.png"));
+		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
-		//MouseEventArg * mouse_arg = dynamic_cast<MouseEventArg *>(arg);
-		//_ASSERT(mouse_arg);
-		//Vector2 ptLocal = mouse_arg->pt - mouse_arg->sender->m_Rect.LeftTop();
-		//D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
-		//CPoint pt((int)ptLocal.x, (int)ptLocal.y);
-		//my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
-		//bool ret = searcher.find(last_pt, pt);
-		//if (ret)
-		//{
-		//	DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
-		//	std::map<CPoint, CPoint>::const_iterator from_iter = searcher.from.begin();
-		//	for (; from_iter != searcher.from.end(); from_iter++)
-		//	{
-		//		searcher.map[from_iter->second.y][from_iter->second.x] = hover;
-		//	}
-		//	DWORD color = D3DCOLOR_ARGB(255, 255, 0, 0);
-		//	searcher.map[pt.y][pt.x] = color;
-		//	from_iter = searcher.from.find(pt);
-		//	for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
-		//	{
-		//		searcher.map[from_iter->second.y][from_iter->second.x] = color;
-		//	}
-		//	last_pt = pt;
-		//}
-		//m_Tex->UnlockRect();
+		MouseEventArg * mouse_arg = dynamic_cast<MouseEventArg *>(arg);
+		_ASSERT(mouse_arg);
+		Vector2 ptLocal = mouse_arg->pt - mouse_arg->sender->m_Rect.LeftTop();
+		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
+		CPoint pt((int)ptLocal.x, (int)ptLocal.y);
+		my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
+		bool ret = searcher.find(last_pt, pt);
+		if (ret)
+		{
+			DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
+			std::map<CPoint, CPoint>::const_iterator from_iter = searcher.from.begin();
+			for (; from_iter != searcher.from.end(); from_iter++)
+			{
+				searcher.map[from_iter->second.y][from_iter->second.x] = hover;
+			}
+			DWORD color = D3DCOLOR_ARGB(255, 255, 0, 0);
+			searcher.map[pt.y][pt.x] = color;
+			from_iter = searcher.from.find(pt);
+			for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
+			{
+				searcher.map[from_iter->second.y][from_iter->second.x] = color;
+			}
+			last_pt = pt;
+		}
+		m_Tex->UnlockRect();
 	}
 
 	virtual HRESULT OnResetDevice(

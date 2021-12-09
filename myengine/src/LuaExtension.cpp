@@ -29,7 +29,7 @@ extern "C"
 #include "Controller.h"
 #include "NavigationSerialization.h"
 #include "ActionTrack.h"
-#include "noise.h"
+//#include "noise.h"
 #include <boost/scope_exit.hpp>
 
 static int add_file_and_line(lua_State * L)
@@ -2198,17 +2198,17 @@ void LuaContext::Init(void)
 			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
 	];
 
-	module(m_State)[
-		class_<noise::module::Perlin>("Perlin")
-			.def(constructor<>())
-			.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
-			.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
-			.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
-			.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
-			.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
-			.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
-			.def("GetValue", &noise::module::Perlin::GetValue)
-	];
+	//module(m_State)[
+	//	class_<noise::module::Perlin>("Perlin")
+	//		.def(constructor<>())
+	//		.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
+	//		.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
+	//		.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
+	//		.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
+	//		.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
+	//		.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
+	//		.def("GetValue", &noise::module::Perlin::GetValue)
+	//];
 }
 
 void LuaContext::Shutdown(void)
