@@ -5,6 +5,7 @@
 #include "RenderPipeline.h"
 #include "Actor.h"
 #include "PhysxContext.h"
+#include "SoundContext.h"
 #include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
 
@@ -120,6 +121,7 @@ class Client
 	, public RenderPipeline::IRenderContext
 	, public PhysxSdk
 	, public PhysxScene
+	, public SoundContext
 {
 public:
 	my::UIRenderPtr m_UIRender;

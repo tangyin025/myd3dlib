@@ -714,6 +714,11 @@ HRESULT Client::OnCreateDevice(
 		THROW_CUSEXCEPTION("PhysxScene::Init failed");
 	}
 
+	if (!SoundContext::Init())
+	{
+		THROW_CUSEXCEPTION("SoundContext::Init failed");
+	}
+
 	ResourceMgr::StartIORequestProc(4);
 
 	ParallelTaskManager::StartParallelThread(4);
@@ -735,11 +740,6 @@ HRESULT Client::OnCreateDevice(
 		RenderPipeline::LoadShaderCache(szDir);
 	}
 
-	//if (!FModContext::Init())
-	//{
-	//	THROW_CUSEXCEPTION("FModContext::Init failed");
-	//}
-
 	if (!(m_Font = LoadFont(m_InitFont.c_str(), m_InitFontHeight, m_InitFontFaceIndex)))
 	{
 		THROW_CUSEXCEPTION("create m_Font failed");
@@ -751,8 +751,6 @@ HRESULT Client::OnCreateDevice(
 	}
 
 	m_Console = ConsolePtr(new Console());
-
-	//FModContext::LoadEventFile(m_InitSound.c_str());
 
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
@@ -1003,7 +1001,7 @@ void Client::OnDestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	//FModContext::Shutdown();
+	SoundContext::Shutdown();
 
 	PhysxScene::Shutdown();
 
