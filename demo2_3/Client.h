@@ -5,7 +5,6 @@
 #include "RenderPipeline.h"
 #include "Actor.h"
 #include "PhysxContext.h"
-#include "FModContext.h"
 #include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
 
@@ -121,7 +120,6 @@ class Client
 	, public RenderPipeline::IRenderContext
 	, public PhysxSdk
 	, public PhysxScene
-	, public FModContext
 {
 public:
 	my::UIRenderPtr m_UIRender;

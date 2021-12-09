@@ -735,10 +735,10 @@ HRESULT Client::OnCreateDevice(
 		RenderPipeline::LoadShaderCache(szDir);
 	}
 
-	if (!FModContext::Init())
-	{
-		THROW_CUSEXCEPTION("FModContext::Init failed");
-	}
+	//if (!FModContext::Init())
+	//{
+	//	THROW_CUSEXCEPTION("FModContext::Init failed");
+	//}
 
 	if (!(m_Font = LoadFont(m_InitFont.c_str(), m_InitFontHeight, m_InitFontFaceIndex)))
 	{
@@ -752,7 +752,7 @@ HRESULT Client::OnCreateDevice(
 
 	m_Console = ConsolePtr(new Console());
 
-	FModContext::LoadEventFile(m_InitSound.c_str());
+	//FModContext::LoadEventFile(m_InitSound.c_str());
 
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
@@ -1003,7 +1003,7 @@ void Client::OnDestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	FModContext::Shutdown();
+	//FModContext::Shutdown();
 
 	PhysxScene::Shutdown();
 
@@ -1241,7 +1241,7 @@ void Client::OnFrameTick(
 	//		(FMOD_VECTOR *)&m_Camera->m_View[1].xyz);
 	//}
 
-	FModContext::Update();
+	//FModContext::Update();
 
 	EnterDeviceSection();
 }
@@ -1473,9 +1473,9 @@ void Client::RemoveEntity(my::OctEntity * entity)
 
 void Client::OnControlSound(const char * name)
 {
-	FMOD::Event       *event;
-	ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
-	ERRCHECK(result = event->start());
+	//FMOD::Event       *event;
+	//ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
+	//ERRCHECK(result = event->start());
 }
 
 void Client::OnControlFocus(my::Control * control)

@@ -185,19 +185,14 @@ public:
 	void AddKeyFrame(float Time, const char * Name);
 };
 
-namespace FMOD
-{
-	class Event;
-};
-
 class ActionTrackSoundInst : public ActionTrackInst
 {
 protected:
 	boost::intrusive_ptr<const ActionTrackSound> m_Template;
 
-	typedef std::set<FMOD::Event *> FmodEventSet;
+	//typedef std::set<FMOD::Event *> FmodEventSet;
 
-	FmodEventSet m_evts;
+	//FmodEventSet m_evts;
 
 	friend class ActionTrackSoundInstCallback;
 
