@@ -156,6 +156,8 @@ protected:
 
 	my::DialogPtr m_Dlg;
 
+	Mp3 m_mp3;
+
 public:
 	Demo(void)
 		: m_UIRender(new EffectUIRender())
@@ -432,13 +434,18 @@ public:
 
 		InputMgr::Capture(fTime, fElapsedTime);
 
-		if (m_keyboard->IsKeyPress(KC_SPACE))
+		if (m_keyboard->IsKeyPress(KC_1))
 		{
 			my::WavPtr wav(new Wav());
 			wav->CreateWavFromFile(_T("../demo2_3/Media/sound/jaguar.wav"));
 			SoundContext::Play(wav, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
 		}
-	
+
+		if (m_keyboard->IsKeyPress(KC_2))
+		{
+			m_mp3.Play(my::FileIStream::Open(_T("castle1_34.mp3")));
+		}
+
 		// Clear the render target and the zbuffer 
 		V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
 

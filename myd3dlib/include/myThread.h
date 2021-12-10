@@ -74,7 +74,7 @@ namespace my
 	public:
 		SynchronizationObj(HANDLE handle);
 
-		virtual ~SynchronizationObj(void);
+		~SynchronizationObj(void);
 
 		BOOL Wait(DWORD dwMilliseconds = INFINITE);
 	};

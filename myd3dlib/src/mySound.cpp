@@ -33,11 +33,14 @@ void Sound::CreateSound(void)
 	Create(lpsound);
 }
 
-void Sound::CreateSoundBuffer(
-	LPCDSBUFFERDESC pcSoundBufferDesc,
-	LPDIRECTSOUNDBUFFER * ppSoundBuffer)
+SoundBufferPtr Sound::CreateSoundBuffer(
+	LPCDSBUFFERDESC pcSoundBufferDesc)
 {
-	V(m_ptr->CreateSoundBuffer(pcSoundBufferDesc, ppSoundBuffer, NULL));
+	LPDIRECTSOUNDBUFFER pdsbuffer;
+	V(m_ptr->CreateSoundBuffer(pcSoundBufferDesc, &pdsbuffer, NULL));
+	SoundBufferPtr ret(new SoundBuffer());
+	ret->Create(pdsbuffer);
+	return ret;
 }
 
 DSCAPS Sound::GetCaps(void)
@@ -184,7 +187,7 @@ void SoundBuffer::SetFormat(
 	V(m_ptr->SetFormat(pcfxFormat));
 }
 
-SoundNotifyPtr SoundBuffer::getNotify(void)
+SoundNotifyPtr SoundBuffer::GetNotify(void)
 {
 	LPDIRECTSOUNDNOTIFY lpnotify = NULL;
 	if (FAILED(hr = m_ptr->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&lpnotify)))

@@ -9,6 +9,10 @@
 
 namespace my
 {
+	class SoundBuffer;
+
+	typedef boost::shared_ptr<SoundBuffer> SoundBufferPtr;
+
 	class Sound
 	{
 	public:
@@ -25,9 +29,8 @@ namespace my
 
 		void CreateSound(void);
 
-		void CreateSoundBuffer(
-			LPCDSBUFFERDESC pcSoundBufferDesc,
-			LPDIRECTSOUNDBUFFER * ppSoundBuffer);
+		SoundBufferPtr CreateSoundBuffer(
+			LPCDSBUFFERDESC pcSoundBufferDesc);
 
 		DSCAPS GetCaps(void);
 
@@ -120,14 +123,12 @@ namespace my
 			LPCWAVEFORMATEX pcfxFormat);
 
 	public:
-		SoundNotifyPtr getNotify(void);
+		SoundNotifyPtr GetNotify(void);
 
 		Sound3DBufferPtr Get3DBuffer(void);
 
 		Sound3DListenerPtr Get3DListener(void);
 	};
-
-	typedef boost::shared_ptr<SoundBuffer> SoundBufferPtr;
 
 	class SoundNotify
 	{

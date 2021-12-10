@@ -2,6 +2,7 @@
 
 #include "mySingleton.h"
 #include "mySound.h"
+#include "myThread.h"
 
 class SoundEvent;
 
@@ -12,6 +13,8 @@ class SoundContext
 {
 public:
 	my::Sound m_sound;
+
+	my::CriticalSection m_soundsec;
 
 	my::Sound3DListenerPtr m_listener;
 
@@ -54,3 +57,67 @@ public:
 	{
 	}
 };
+
+class Mp3 : public my::Thread
+{
+protected:
+	static const DWORD MPEG_BUFSZ = 40000;
+
+	//static const DWORD MAX_RESAMPLEFACTOR = 6;
+
+	//static const DWORD MAX_NSAMPLES = 1152 * MAX_RESAMPLEFACTOR;
+
+	static const DWORD BLOCK_COUNT = 3;
+
+protected:
+	WAVEFORMATEX m_wavfmt;
+
+	my::SoundBufferPtr m_dsbuffer;
+
+	my::SoundNotifyPtr m_dsnotify;
+
+	DSBPOSITIONNOTIFY m_dsnp[BLOCK_COUNT];
+
+	my::Event m_events[BLOCK_COUNT + 1];
+
+	typedef std::vector<unsigned char> FileBuffer;
+
+	FileBuffer m_buffer;
+
+	my::IStreamPtr m_stream;
+
+	bool m_Loop;
+
+	my::CriticalSection m_LoopLock;
+
+	bool PlayOnce(void);
+
+public:
+	Mp3(void);
+
+	virtual ~Mp3(void);
+
+	void SetLoop(bool Loop)
+	{
+		my::CriticalSectionLock lock(m_LoopLock);
+		m_Loop = Loop;
+	}
+
+	bool GetLoop(void)
+	{
+		my::CriticalSectionLock lock(m_LoopLock);
+		return m_Loop;
+	}
+
+	void Play(my::IStreamPtr istr, bool Loop = false);
+
+	void Play(const char * path, bool Loop = false);
+
+	void StopAsync(void);
+
+	void Stop(void);
+
+	DWORD OnProc(void);
+};
+
+typedef boost::shared_ptr<Mp3> Mp3Ptr;
