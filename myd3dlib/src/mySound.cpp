@@ -34,10 +34,10 @@ void Sound::CreateSound(void)
 }
 
 void Sound::CreateSoundBuffer(
-	LPCDSBUFFERDESC pcDSBufferDesc,
-	LPDIRECTSOUNDBUFFER * ppDSBuffer)
+	LPCDSBUFFERDESC pcSoundBufferDesc,
+	LPDIRECTSOUNDBUFFER * ppSoundBuffer)
 {
-	V(m_ptr->CreateSoundBuffer(pcDSBufferDesc, ppDSBuffer, NULL));
+	V(m_ptr->CreateSoundBuffer(pcSoundBufferDesc, ppSoundBuffer, NULL));
 }
 
 DSCAPS Sound::GetCaps(void)
@@ -184,6 +184,16 @@ void SoundBuffer::SetFormat(
 	V(m_ptr->SetFormat(pcfxFormat));
 }
 
+SoundNotifyPtr SoundBuffer::getNotify(void)
+{
+	LPDIRECTSOUNDNOTIFY lpnotify = NULL;
+	if (FAILED(hr = m_ptr->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&lpnotify)))
+	{
+		THROW_DSOUNDEXCEPTION(hr);
+	}
+	return SoundNotifyPtr(new SoundNotify(lpnotify));
+}
+
 Sound3DBufferPtr SoundBuffer::Get3DBuffer(void)
 {
 	LPDIRECTSOUND3DBUFFER lp3dbuffer = NULL;
@@ -202,6 +212,25 @@ Sound3DListenerPtr SoundBuffer::Get3DListener(void)
 		THROW_DSOUNDEXCEPTION(hr);
 	}
 	return Sound3DListenerPtr(new Sound3DListener(lp3dlistener));
+}
+
+SoundNotify::SoundNotify(IDirectSoundNotify* ptr)
+	: m_ptr(ptr)
+{
+
+}
+
+SoundNotify::~SoundNotify(void)
+{
+	SAFE_RELEASE(m_ptr);
+}
+
+void SoundNotify::setNotificationPositions(DWORD dwPositionNotifies, LPCDSBPOSITIONNOTIFY pcPositionNotifies)
+{
+	if (FAILED(hr = m_ptr->SetNotificationPositions(dwPositionNotifies, pcPositionNotifies)))
+	{
+		THROW_DSOUNDEXCEPTION(hr);
+	}
 }
 
 Sound3DBuffer::Sound3DBuffer(IDirectSound3DBuffer * ptr)
