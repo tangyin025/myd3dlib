@@ -5,7 +5,6 @@
   <PropertyGroup Label="UserMacros">
     <BOOST_DIR>D:\Games\boost_1_74_0\</BOOST_DIR>
     <PHYSX_DIR>D:\Games\PhysX-3.4\PhysX_3.4\</PHYSX_DIR>
-    <FMOD_DIR>D:\Games\fmodapi44425win-installer\</FMOD_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
@@ -19,9 +18,6 @@
     </BuildMacro>
     <BuildMacro Include="PHYSX_DIR">
       <Value>$(PHYSX_DIR)</Value>
-    </BuildMacro>
-    <BuildMacro Include="FMOD_DIR">
-      <Value>$(FMOD_DIR)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

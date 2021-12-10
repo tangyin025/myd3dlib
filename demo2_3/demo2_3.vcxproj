@@ -89,7 +89,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -98,9 +98,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalOptions>PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PxFoundationDEBUG_x86.lib PxPvdSDKDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PxFoundationDEBUG_x86.lib PxPvdSDKDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib Ws2_32.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9d.lib;dinput8.lib;dsound.lib;winmm.lib;comctl32.lib;imm32.lib;version.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;$(FMOD_DIR)api\lib;$(FMOD_DIR)fmoddesignerapi\api\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -111,7 +111,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -120,9 +120,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalOptions>PhysX3DEBUG_x64.lib PhysX3CommonDEBUG_x64.lib PhysX3CookingDEBUG_x64.lib PxFoundationDEBUG_x64.lib PxPvdSDKDEBUG_x64.lib PhysX3ExtensionsDEBUG.lib Ws2_32.lib fmodex64_vc.lib fmod_event64.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>PhysX3DEBUG_x64.lib PhysX3CommonDEBUG_x64.lib PhysX3CookingDEBUG_x64.lib PxFoundationDEBUG_x64.lib PxPvdSDKDEBUG_x64.lib PhysX3ExtensionsDEBUG.lib Ws2_32.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9d.lib;dinput8.lib;dsound.lib;winmm.lib;comctl32.lib;imm32.lib;version.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win64;$(PHYSX_DIR)..\PxShared\lib\vc15win64;$(FMOD_DIR)api\lib;$(FMOD_DIR)fmoddesignerapi\api\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win64;$(PHYSX_DIR)..\PxShared\lib\vc15win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
@@ -133,7 +133,7 @@
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -144,7 +144,7 @@
     <Link>
       <AdditionalOptions>PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PxFoundation_x86.lib PxPvdSDK_x86.lib PhysX3Extensions.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9.lib;dinput8.lib;dsound.lib;winmm.lib;comctl32.lib;imm32.lib;version.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;$(FMOD_DIR)api\lib;$(FMOD_DIR)fmoddesignerapi\api\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win32;$(PHYSX_DIR)..\PxShared\lib\vc15win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -158,7 +158,7 @@
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libnoise\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -169,7 +169,7 @@
     <Link>
       <AdditionalOptions>PhysX3_x64.lib PhysX3Common_x64.lib PhysX3Cooking_x64.lib PxFoundation_x64.lib PxPvdSDK_x64.lib PhysX3Extensions.lib Ws2_32.lib fmodex64_vc.lib fmod_event64.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>dxerr.lib;dxguid.lib;d3d9.lib;d3dx9.lib;dinput8.lib;dsound.lib;winmm.lib;comctl32.lib;imm32.lib;version.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win64;$(PHYSX_DIR)..\PxShared\lib\vc15win64;$(FMOD_DIR)api\lib;$(FMOD_DIR)fmoddesignerapi\api\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PHYSX_DIR)Lib\vc15win64;$(PHYSX_DIR)..\PxShared\lib\vc15win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
