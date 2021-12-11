@@ -507,9 +507,9 @@ void Animator::load(Archive & ar, const unsigned int version)
 
 Animator::~Animator(void)
 {
-	if (!m_SkeletonPath.empty())
+	if (IsRequested())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_SkeletonPath, this);
+		_ASSERT(false); ReleaseResource();
 	}
 
 	SequenceGroupMap::iterator group_iter = m_SequenceGroup.begin();

@@ -1,5 +1,6 @@
 #include "myDxutApp.h"
 #include "myResource.h"
+#include "mySound.h"
 #include "libc.h"
 extern "C"
 {
@@ -248,6 +249,10 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 	}
 
 	return NULL;
+}
+
+void D3DContext::OnControlSound(boost::intrusive_ptr<Wav> wav)
+{
 }
 
 bool DxutApp::IsDeviceAcceptable(

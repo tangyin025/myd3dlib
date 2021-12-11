@@ -258,7 +258,7 @@ public:
 
 	virtual void RemoveEntity(my::OctEntity * entity);
 
-	virtual void OnControlSound(const char * name);
+	virtual void OnControlSound(boost::intrusive_ptr<my::Wav> wav);
 
 	virtual void OnControlFocus(my::Control * control);
 

@@ -245,6 +245,16 @@ namespace my
 
 		void OnFontReady(my::DeviceResourceBasePtr res);
 
+		void OnVisibleShowSoundReady(my::DeviceResourceBasePtr res);
+
+		void OnVisibleHideSoundReady(my::DeviceResourceBasePtr res);
+
+		void OnMouseEnterSoundReady(my::DeviceResourceBasePtr res);
+
+		void OnMouseLeaveSoundReady(my::DeviceResourceBasePtr res);
+
+		void OnMouseClickSoundReady(my::DeviceResourceBasePtr res);
+
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color);
 
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip);

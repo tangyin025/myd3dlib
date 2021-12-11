@@ -1472,11 +1472,9 @@ void Client::RemoveEntity(my::OctEntity * entity)
 	OctNode::RemoveEntity(entity);
 }
 
-void Client::OnControlSound(const char * name)
+void Client::OnControlSound(boost::intrusive_ptr<my::Wav> wav)
 {
-	//FMOD::Event       *event;
-	//ERRCHECK(result = m_EventSystem->getEvent(name, FMOD_EVENT_DEFAULT, &event));
-	//ERRCHECK(result = event->start());
+	SoundContext::Play(wav);
 }
 
 void Client::OnControlFocus(my::Control * control)
