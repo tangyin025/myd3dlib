@@ -3,6 +3,7 @@
 #include "myResource.h"
 #include "myCollision.h"
 #include "myUtility.h"
+#include "mySound.h"
 #include "ImeUi.h"
 #include "libc.h"
 #include <fstream>
@@ -627,6 +628,16 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 	}
 }
 
+ControlSkin::ControlSkin(void)
+	: m_Color(D3DCOLOR_ARGB(255, 255, 255, 255))
+	, m_FontHeight(13)
+	, m_FontFaceIndex(0)
+	, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
+	, m_TextAlign(Font::AlignLeftTop)
+	, m_Requested(false)
+{
+}
+
 ControlSkin::~ControlSkin(void)
 {
 	if (IsRequested())
@@ -976,9 +987,9 @@ void Control::OnMouseEnter(const Vector2 & pt)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if (m_Skin && !m_Skin->m_MouseEnterSound.empty())
+		if (m_Skin && !m_Skin->m_MouseEnterSoundPath.empty())
 		{
-			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseEnterSound.c_str());
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseEnterSoundPath.c_str());
 		}
 
 		if (m_EventMouseEnter)
@@ -999,9 +1010,9 @@ void Control::OnMouseLeave(const Vector2 & pt)
 			m_EventMouseLeave(&arg);
 		}
 
-		if (m_Skin && !m_Skin->m_MouseLeaveSound.empty())
+		if (m_Skin && !m_Skin->m_MouseLeaveSoundPath.empty())
 		{
-			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseLeaveSound.c_str());
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseLeaveSoundPath.c_str());
 		}
 	}
 }
@@ -1037,16 +1048,16 @@ void Control::SetVisible(bool bVisible)
 
 		if (m_bVisible)
 		{
-			if (m_Skin && !m_Skin->m_VisibleShowSound.empty())
+			if (m_Skin && !m_Skin->m_VisibleShowSoundPath.empty())
 			{
-				D3DContext::getSingleton().OnControlSound(m_Skin->m_VisibleShowSound.c_str());
+				D3DContext::getSingleton().OnControlSound(m_Skin->m_VisibleShowSoundPath.c_str());
 			}
 		}
 		else
 		{
-			if (m_Skin && !m_Skin->m_VisibleHideSound.empty())
+			if (m_Skin && !m_Skin->m_VisibleHideSoundPath.empty())
 			{
-				D3DContext::getSingleton().OnControlSound(m_Skin->m_VisibleHideSound.c_str());
+				D3DContext::getSingleton().OnControlSound(m_Skin->m_VisibleHideSoundPath.c_str());
 			}
 		}
 
@@ -1553,9 +1564,9 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_bPressed = false;
 					SetCaptureControl(NULL);
 
-					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					if (m_Skin && !m_Skin->m_MouseClickSoundPath.empty())
 					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSoundPath.c_str());
 					}
 
 					if (m_EventMouseClick)
@@ -1597,9 +1608,9 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 				if (HitTest(pt))
 				{
-					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					if (m_Skin && !m_Skin->m_MouseClickSoundPath.empty())
 					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSoundPath.c_str());
 					}
 
 					if (m_EventMouseClick)
@@ -1625,9 +1636,9 @@ void Button::OnHotkey(void)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+		if (m_Skin && !m_Skin->m_MouseClickSoundPath.empty())
 		{
-			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSoundPath.c_str());
 		}
 
 		if(m_EventMouseClick)
@@ -2877,9 +2888,9 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				m_Checked = true;
 
-				if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+				if (m_Skin && !m_Skin->m_MouseClickSoundPath.empty())
 				{
-					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSoundPath.c_str());
 				}
 
 				if (m_EventMouseClick)
@@ -2922,9 +2933,9 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				{
 					m_Checked = true;
 
-					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					if (m_Skin && !m_Skin->m_MouseClickSoundPath.empty())
 					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSoundPath.c_str());
 					}
 
 					if(m_EventMouseClick)
@@ -3948,9 +3959,9 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				}
 				else
 				{
-					if (m_Skin && !m_Skin->m_MouseClickSound.empty())
+					if (m_Skin && !m_Skin->m_MouseClickSoundPath.empty())
 					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound.c_str());
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSoundPath.c_str());
 					}
 
 					if (m_EventMouseClick)

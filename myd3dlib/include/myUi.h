@@ -2,6 +2,7 @@
 
 #include "myFont.h"
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <vector>
 #include <list>
 
@@ -168,6 +169,8 @@ namespace my
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
+	class Wav;
+
 	class ControlSkin : public boost::enable_shared_from_this<ControlSkin>
 	{
 	public:
@@ -187,28 +190,30 @@ namespace my
 
 		Font::Align m_TextAlign;
 
-		std::string m_VisibleShowSound;
+		std::string m_VisibleShowSoundPath;
 
-		std::string m_VisibleHideSound;
+		boost::intrusive_ptr<Wav> m_VisibleShowSound;
 
-		std::string m_MouseEnterSound;
+		std::string m_VisibleHideSoundPath;
 
-		std::string m_MouseLeaveSound;
+		boost::intrusive_ptr<Wav> m_VisibleHideSound;
 
-		std::string m_MouseClickSound;
+		std::string m_MouseEnterSoundPath;
+
+		boost::intrusive_ptr<Wav> m_MouseEnterSound;
+
+		std::string m_MouseLeaveSoundPath;
+
+		boost::intrusive_ptr<Wav> m_MouseLeaveSound;
+
+		std::string m_MouseClickSoundPath;
+
+		boost::intrusive_ptr<Wav> m_MouseClickSound;
 
 		bool m_Requested;
 
 	public:
-		ControlSkin(void)
-			: m_Color(D3DCOLOR_ARGB(255, 255, 255, 255))
-			, m_FontHeight(13)
-			, m_FontFaceIndex(0)
-			, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
-			, m_TextAlign(Font::AlignLeftTop)
-			, m_Requested(false)
-		{
-		}
+		ControlSkin(void);
 
 		virtual ~ControlSkin(void);
 
@@ -222,11 +227,11 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_FontFaceIndex);
 			ar & BOOST_SERIALIZATION_NVP(m_TextColor);
 			ar & BOOST_SERIALIZATION_NVP(m_TextAlign);
-			ar & BOOST_SERIALIZATION_NVP(m_VisibleShowSound);
-			ar & BOOST_SERIALIZATION_NVP(m_VisibleHideSound);
-			ar & BOOST_SERIALIZATION_NVP(m_MouseEnterSound);
-			ar & BOOST_SERIALIZATION_NVP(m_MouseLeaveSound);
-			ar & BOOST_SERIALIZATION_NVP(m_MouseClickSound);
+			ar & BOOST_SERIALIZATION_NVP(m_VisibleShowSoundPath);
+			ar & BOOST_SERIALIZATION_NVP(m_VisibleHideSoundPath);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseEnterSoundPath);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseLeaveSoundPath);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseClickSoundPath);
 		}
 
 		bool IsRequested(void) const
