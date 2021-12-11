@@ -88,9 +88,9 @@ protected:
 
 	bool m_Loop;
 
-	my::CriticalSection m_LoopLock;
+	//my::CriticalSection m_LoopLock;
 
-	bool PlayOnce(void);
+	bool PlayOnceByThread(void);
 
 public:
 	Mp3(void);
@@ -99,13 +99,13 @@ public:
 
 	void SetLoop(bool Loop)
 	{
-		my::CriticalSectionLock lock(m_LoopLock);
+		//my::CriticalSectionLock lock(m_LoopLock);
 		m_Loop = Loop;
 	}
 
 	bool GetLoop(void)
 	{
-		my::CriticalSectionLock lock(m_LoopLock);
+		//my::CriticalSectionLock lock(m_LoopLock);
 		return m_Loop;
 	}
 
@@ -117,7 +117,7 @@ public:
 
 	void Stop(void);
 
-	DWORD OnProc(void);
+	DWORD OnThreadProc(void);
 };
 
 typedef boost::shared_ptr<Mp3> Mp3Ptr;

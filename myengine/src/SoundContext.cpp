@@ -239,33 +239,8 @@ static signed long audio_linear_dither(
 	return output >> scalebits;
 }
 
-Mp3::Mp3(void)
-	: Thread(boost::bind(&Mp3::OnProc, this))
-	, m_buffer(MPEG_BUFSZ / sizeof(m_buffer[0]))
+bool Mp3::PlayOnceByThread(void)
 {
-	m_wavfmt.wFormatTag = WAVE_FORMAT_PCM;
-	m_wavfmt.nChannels = 0;
-	m_wavfmt.nSamplesPerSec = 0;
-
-	// NOTE: the first event of m_events array is stop event, position event is following the next
-	for (int i = 0; i < _countof(m_dsnp); i++)
-	{
-		m_dsnp[i].dwOffset = 0;
-		m_dsnp[i].hEventNotify = m_events[i + 1].m_handle;
-	}
-}
-
-Mp3::~Mp3(void)
-{
-	if (NULL != m_handle)
-	{
-		Stop();
-	}
-}
-
-bool Mp3::PlayOnce(void)
-{
-	DSBUFFERDESC dsbd;
 	audio_dither left_dither, right_dither;
 	std::vector<unsigned char> sbuffer;
 
@@ -403,8 +378,9 @@ bool Mp3::PlayOnce(void)
 				m_wavfmt.nAvgBytesPerSec = m_wavfmt.nSamplesPerSec * m_wavfmt.nBlockAlign;
 				m_wavfmt.cbSize = 0;
 
+				DSBUFFERDESC dsbd;
 				dsbd.dwSize = sizeof(dsbd);
-				dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE;
+				dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
 				dsbd.dwBufferBytes = m_wavfmt.nAvgBytesPerSec * BLOCK_COUNT;
 				dsbd.dwReserved = 0;
 				dsbd.lpwfxFormat = &m_wavfmt;
@@ -419,6 +395,7 @@ bool Mp3::PlayOnce(void)
 				// create dsound buffer & notify
 				my::CriticalSectionLock lock(SoundContext::getSingleton().m_soundsec);
 				m_dsbuffer = SoundContext::getSingleton().m_sound.CreateSoundBuffer(&dsbd);
+				lock.Unlock();
 				m_dsnotify = m_dsbuffer->GetNotify();
 				m_dsnotify->setNotificationPositions(_countof(m_dsnp), m_dsnp);
 			}
@@ -485,6 +462,30 @@ play_once_end:
 	return ret;
 }
 
+Mp3::Mp3(void)
+	: Thread(boost::bind(&Mp3::OnThreadProc, this))
+	, m_buffer(MPEG_BUFSZ / sizeof(m_buffer[0]))
+{
+	m_wavfmt.wFormatTag = WAVE_FORMAT_PCM;
+	m_wavfmt.nChannels = 0;
+	m_wavfmt.nSamplesPerSec = 0;
+
+	// NOTE: the first event of m_events array is stop event, position event is following the next
+	for (int i = 0; i < _countof(m_dsnp); i++)
+	{
+		m_dsnp[i].dwOffset = 0;
+		m_dsnp[i].hEventNotify = m_events[i + 1].m_handle;
+	}
+}
+
+Mp3::~Mp3(void)
+{
+	if (NULL != m_handle)
+	{
+		Stop();
+	}
+}
+
 void Mp3::Play(my::IStreamPtr istr, bool Loop /*= false*/)
 {
 	if (NULL != m_handle)
@@ -518,14 +519,14 @@ void Mp3::Stop(void)
 	CloseThread();
 }
 
-DWORD Mp3::OnProc(void)
+DWORD Mp3::OnThreadProc(void)
 {
 	try
 	{
 		do
 		{
 			;
-		} while (PlayOnce() && GetLoop());
+		} while (PlayOnceByThread() && GetLoop());
 	}
 	catch (Exception& /*e*/)
 	{

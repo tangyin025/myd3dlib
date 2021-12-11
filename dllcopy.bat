@@ -12,8 +12,6 @@ xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundationDEBUG_x86.dll Debug\
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundationDEBUG_x86.pdb Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxPvdSDKDEBUG_x86.dll Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxPvdSDKDEBUG_x86.pdb Debug\ /Y
-xcopy D:\Games\fmodapi44425win-installer\api\fmodex.dll Debug\ /Y
-xcopy D:\Games\fmodapi44425win-installer\fmoddesignerapi\api\fmod_event.dll Debug\ /Y
 
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win64\nvToolsExt64_1.dll x64\Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win64\PhysX3DEBUG_x64.dll x64\Debug\ /Y
@@ -29,8 +27,6 @@ xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxFoundationDEBUG_x64.dll x64\De
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxFoundationDEBUG_x64.pdb x64\Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxPvdSDKDEBUG_x64.dll x64\Debug\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxPvdSDKDEBUG_x64.pdb x64\Debug\ /Y
-xcopy D:\Games\fmodapi44425win-installer\api\fmodex64.dll x64\Debug\ /Y
-xcopy D:\Games\fmodapi44425win-installer\fmoddesignerapi\api\fmod_event64.dll x64\Debug\ /Y
 
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\nvToolsExt32_1.dll Release\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win32\PhysX3_x86.dll Release\ /Y
@@ -46,8 +42,6 @@ xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundation_x86.dll Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxFoundation_x86.pdb Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxPvdSDK_x86.dll Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win32\PxPvdSDK_x86.pdb Release\ /Y
-xcopy D:\Games\fmodapi44425win-installer\api\fmodex.dll Release\ /Y
-xcopy D:\Games\fmodapi44425win-installer\fmoddesignerapi\api\fmod_event.dll Release\ /Y
 
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win64\nvToolsExt64_1.dll x64\Release\ /Y
 xcopy D:\Games\PhysX-3.4\PhysX_3.4\Bin\vc15win64\PhysX3_x64.dll x64\Release\ /Y
@@ -63,5 +57,3 @@ xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxFoundation_x64.dll x64\Release
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxFoundation_x64.pdb x64\Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxPvdSDK_x64.dll x64\Release\ /Y
 xcopy D:\Games\PhysX-3.4\PxShared\bin\vc15win64\PxPvdSDK_x64.pdb x64\Release\ /Y
-xcopy D:\Games\fmodapi44425win-installer\api\fmodex64.dll x64\Release\ /Y
-xcopy D:\Games\fmodapi44425win-installer\fmoddesignerapi\api\fmod_event64.dll x64\Release\ /Y
