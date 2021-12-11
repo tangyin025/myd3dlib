@@ -494,7 +494,7 @@ namespace my
 			LoadIORequestAsync(path, request, callback);
 		}
 
-		boost::intrusive_ptr<Wav> LoadWav(const char * path, int height, int face_index);
+		boost::intrusive_ptr<Wav> LoadWav(const char * path);
 	};
 
 	class TextureIORequest : public IORequest

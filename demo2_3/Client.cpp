@@ -870,6 +870,7 @@ HRESULT Client::OnCreateDevice(
 			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
 			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
 			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
+			.def("Play", (SoundEventPtr(Client::*)(my::WavPtr))&Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))

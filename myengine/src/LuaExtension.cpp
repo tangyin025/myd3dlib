@@ -18,6 +18,7 @@ extern "C"
 #include "myResource.h"
 #include "myUi.h"
 #include "myInput.h"
+#include "mySound.h"
 #include "LuaExtension.inl"
 #include "Material.h"
 #include "RenderPipeline.h"
@@ -28,6 +29,7 @@ extern "C"
 #include "StaticEmitter.h"
 #include "Controller.h"
 #include "NavigationSerialization.h"
+#include "SoundContext.h"
 #include "ActionTrack.h"
 //#include "noise.h"
 #include <boost/scope_exit.hpp>
@@ -1077,6 +1079,8 @@ void LuaContext::Init(void)
 			.def_readonly("Height", &my::Font::m_Height)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
+		, class_<my::Wav, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("Wav")
+
 		, class_<my::ResourceMgr>("ResourceMgr")
 			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
@@ -1089,6 +1093,8 @@ void LuaContext::Init(void)
 			.def("LoadEffectAsync", &my::ResourceMgr::LoadEffectAsync<luabind::object>)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
 			.def("LoadFontAsync", &my::ResourceMgr::LoadFontAsync<luabind::object>)
+			.def("LoadWav", &my::ResourceMgr::LoadWav)
+			.def("LoadWavAsync", &my::ResourceMgr::LoadWavAsync<luabind::object>)
 
 		//, def("res2texture", (boost::shared_ptr<my::BaseTexture>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
 		//, def("res2mesh", (boost::shared_ptr<my::Mesh>(*)(const boost::shared_ptr<my::DeviceResourceBase>&))& boost::dynamic_pointer_cast<my::Mesh, my::DeviceResourceBase>)
@@ -2096,6 +2102,8 @@ void LuaContext::Init(void)
 			.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
+
+		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 
 		, class_<Action, boost::intrusive_ptr<Action> >("Action")
 			.def(constructor<>())

@@ -776,7 +776,7 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
 
-boost::intrusive_ptr<Wav> ResourceMgr::LoadWav(const char* path, int height, int face_index)
+boost::intrusive_ptr<Wav> ResourceMgr::LoadWav(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new WavIORequest(path, INT_MAX));
