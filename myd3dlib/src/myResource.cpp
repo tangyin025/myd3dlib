@@ -10,7 +10,7 @@
 #include "mySkeleton.h"
 #include "myEffect.h"
 #include "myFont.h"
-#include "myEmitter.h"
+#include "mySound.h"
 #include <boost/algorithm/string.hpp>
 
 using namespace my;
@@ -776,6 +776,14 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
 
+boost::intrusive_ptr<Wav> ResourceMgr::LoadWav(const char* path, int height, int face_index)
+{
+	SimpleResourceCallback cb;
+	IORequestPtr request(new WavIORequest(path, INT_MAX));
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
+	return boost::dynamic_pointer_cast<Wav>(cb.m_res);
+}
+
 void TextureIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
@@ -822,7 +830,6 @@ MeshIORequest::MeshIORequest(const char * path, const char * sub_mesh_name, int 
 	, m_path(path)
 	, m_sub_mesh_name(sub_mesh_name)
 {
-	m_res.reset(new OgreMesh());
 }
 
 void MeshIORequest::LoadResource(void)
@@ -836,20 +843,20 @@ void MeshIORequest::LoadResource(void)
 			rapidxml::xml_document<char> doc;
 			doc.parse<0>((char *)&(*cache)[0]);
 
-			boost::dynamic_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(&doc, m_sub_mesh_name);
+			OgreMeshPtr res(new OgreMesh());
+			res->CreateMeshFromOgreXml(&doc, m_sub_mesh_name);
+			m_res = res;
 		}
 		catch(rapidxml::parse_error &)
 		{
-			m_res->OnDestroyDevice();
 		}
 	}
 }
 
 void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if(!boost::dynamic_pointer_cast<OgreMesh>(m_res)->m_ptr)
+	if(!m_res)
 	{
-		m_res.reset();
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 }
@@ -863,29 +870,29 @@ void SkeletonIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
-		m_cache->push_back(0);
+		CachePtr cache = ResourceMgr::getSingleton().OpenIStream(m_path.c_str())->GetWholeCache();
+		cache->push_back(0);
 		try
 		{
-			m_doc.parse<0>((char *)&(*m_cache)[0]);
+			rapidxml::xml_document<char> doc;
+			doc.parse<0>((char *)&(*cache)[0]);
+
+			OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
+			res->CreateOgreSkeletonAnimation(&doc);
+			m_res = res;
 		}
 		catch(rapidxml::parse_error &)
 		{
-			m_doc.clear();
 		}
 	}
 }
 
 void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
-	if(!m_doc.first_node())
+	if(!m_res)
 	{
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
-
-	OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
-	res->CreateOgreSkeletonAnimation(&m_doc);
-	m_res = res;
 }
 
 EffectIORequest::EffectIORequest(const char * path, std::string macros, int Priority)
@@ -960,4 +967,22 @@ void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 std::string FontIORequest::BuildKey(const char * path, int height, int face_index)
 {
 	return str_printf("%s %d %d", path, height, face_index);
+}
+
+void WavIORequest::LoadResource(void)
+{
+	if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
+	{
+		WavPtr res(new Wav());
+		res->CreateWavFromFileInStream(ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
+		m_res = res;
+	}
+}
+
+void WavIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+{
+	if (!m_res)
+	{
+		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
+	}
 }

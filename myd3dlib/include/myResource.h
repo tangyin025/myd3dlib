@@ -310,7 +310,7 @@ namespace my
 
 	class Font;
 
-	class Emitter;
+	class Wav;
 
 	class IStreamBuff : public std::streambuf
 	{
@@ -413,7 +413,7 @@ namespace my
 		}
 
 		template <typename T>
-		void LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T& callback)
+		void LoadIORequestAndWait(const std::string& key, IORequestPtr request, const T & callback)
 		{
 			_ASSERT(IsMainThread());
 
@@ -440,7 +440,7 @@ namespace my
 		void OnIORequestCallback(IORequestPtr request);
 
 		template <typename T>
-		void LoadTextureAsync(const char* path, const T & callback, int Priority = 0)
+		void LoadTextureAsync(const char * path, const T & callback, int Priority = 0)
 		{
 			IORequestPtr request(new TextureIORequest(path, Priority));
 			LoadIORequestAsync(path, request, callback);
@@ -449,7 +449,7 @@ namespace my
 		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
 
 		template <typename T>
-		void LoadMeshAsync(const char* path, const char* sub_mesh_name, const T & callback, int Priority = 0)
+		void LoadMeshAsync(const char * path, const char * sub_mesh_name, const T & callback, int Priority = 0)
 		{
 			std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 			IORequestPtr request(new MeshIORequest(path, sub_mesh_name, Priority));
@@ -459,7 +459,7 @@ namespace my
 		boost::intrusive_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
 
 		template <typename T>
-		void LoadSkeletonAsync(const char* path, const T & callback, int Priority = 0)
+		void LoadSkeletonAsync(const char * path, const T & callback, int Priority = 0)
 		{
 			IORequestPtr request(new SkeletonIORequest(path, Priority));
 			LoadIORequestAsync(path, request, callback);
@@ -468,7 +468,7 @@ namespace my
 		boost::intrusive_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
 
 		template <typename T>
-		void LoadEffectAsync(const char* path, const char* macros, const T & callback, int Priority = 0)
+		void LoadEffectAsync(const char * path, const char * macros, const T & callback, int Priority = 0)
 		{
 			std::string key = EffectIORequest::BuildKey(path, macros);
 			IORequestPtr request(new EffectIORequest(path, macros, Priority));
@@ -478,7 +478,7 @@ namespace my
 		boost::intrusive_ptr<Effect> LoadEffect(const char * path, const char * macros);
 
 		template <typename T>
-		void LoadFontAsync(const char* path, int height, int face_index, const T & callback, int Priority = 0)
+		void LoadFontAsync(const char * path, int height, int face_index, const T & callback, int Priority = 0)
 		{
 			std::string key = FontIORequest::BuildKey(path, height, face_index);
 			IORequestPtr request(new FontIORequest(path, height, face_index, Priority));
@@ -486,6 +486,15 @@ namespace my
 		}
 
 		boost::intrusive_ptr<Font> LoadFont(const char * path, int height, int face_index);
+
+		template <typename T>
+		void LoadWavAsync(const char * path, const T & callback, int Priority = 0)
+		{
+			IORequestPtr request(new WavIORequest(path, Priority));
+			LoadIORequestAsync(path, request, callback);
+		}
+
+		boost::intrusive_ptr<Wav> LoadWav(const char * path, int height, int face_index);
 	};
 
 	class TextureIORequest : public IORequest
@@ -528,10 +537,6 @@ namespace my
 	{
 	protected:
 		std::string m_path;
-
-		CachePtr m_cache;
-
-		rapidxml::xml_document<char> m_doc;
 
 	public:
 		SkeletonIORequest(const char * path, int Priority)
@@ -591,5 +596,22 @@ namespace my
 		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
 		static std::string BuildKey(const char * path, int height, int face_index);
+	};
+
+	class WavIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+	public:
+		WavIORequest(const char * path, int Priority)
+			: IORequest(Priority)
+			, m_path(path)
+		{
+		}
+
+		virtual void LoadResource(void);
+
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 	};
 }

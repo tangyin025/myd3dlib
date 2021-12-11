@@ -543,6 +543,12 @@ void Wav::CreateWavFromMmio(
 void Wav::CreateWavFromFile(
 	LPCTSTR pFilename)
 {
+	CreateWavFromFileInStream(FileIStream::Open(pFilename));
+}
+
+void Wav::CreateWavFromFileInStream(
+	my::IStreamPtr istr)
+{
 	struct IOProc
 	{
 		static LRESULT CALLBACK MMIOProc(
@@ -581,8 +587,6 @@ void Wav::CreateWavFromFile(
 		}
 	};
 
-	my::IStreamPtr istr = FileIStream::Open(pFilename);
-
 	MMIOINFO mmioinfo = { 0 };
 	mmioinfo.dwFlags = MMIO_READ;
 	mmioinfo.pIOProc = IOProc::MMIOProc;
@@ -604,7 +608,7 @@ void Wav::CreateWavFromFileInMemory(
 	MMIOINFO mmioinfo;
 	ZeroMemory(&mmioinfo, sizeof(mmioinfo));
 	mmioinfo.fccIOProc = FOURCC_MEM;
-	mmioinfo.pchBuffer = (char *)Memory;
+	mmioinfo.pchBuffer = (char*)Memory;
 	mmioinfo.cchBuffer = SizeOfMemory;
 
 	HMMIO hmmio;

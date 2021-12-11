@@ -301,6 +301,9 @@ namespace my
 		void CreateWavFromFile(
 			LPCTSTR pFilename);
 
+		void CreateWavFromFileInStream(
+			my::IStreamPtr istr);
+
 		void CreateWavFromFileInMemory(
 			LPCVOID Memory,
 			DWORD SizeOfMemory);
