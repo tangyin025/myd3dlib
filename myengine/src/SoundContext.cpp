@@ -116,7 +116,7 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav)
 
 SoundEventPtr SoundContext::Play(my::WavPtr wav, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
 {
-	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER);
+	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER | DSBCAPS_MUTE3DATMAXDISTANCE);
 
 	if (buff_event_iter != m_pool.end())
 	{

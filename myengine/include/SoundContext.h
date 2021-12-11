@@ -56,6 +56,16 @@ public:
 		: m_sbuffer(NULL)
 	{
 	}
+
+	my::SoundBuffer * GetSoundBuffer(void) const
+	{
+		return m_sbuffer;
+	}
+
+	my::Sound3DBuffer * Get3DBuffer(void) const
+	{
+		return m_3dbuffer.get();
+	}
 };
 
 class Mp3 : public my::Thread

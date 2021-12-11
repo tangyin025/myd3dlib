@@ -445,10 +445,10 @@ void Sound3DListener::SetRolloffFactor(
 }
 
 void Sound3DListener::GetOrientation(
-	D3DVECTOR * pvOrientFront,
-	D3DVECTOR * pvOrientTop)
+	Vector3 & Front,
+	Vector3 & Top)
 {
-	V(m_ptr->GetOrientation(pvOrientFront, pvOrientTop));
+	V(m_ptr->GetOrientation((LPD3DVECTOR)&Front, (LPD3DVECTOR)&Top));
 }
 
 Vector3 Sound3DListener::GetPosition(void)

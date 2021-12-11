@@ -258,8 +258,8 @@ namespace my
 			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void GetOrientation(
-			D3DVECTOR * pvOrientFront,
-			D3DVECTOR * pvOrientTop);
+			Vector3 & Front,
+			Vector3 & Top);
 
 		Vector3 GetPosition(void);
 
