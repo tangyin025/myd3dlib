@@ -571,7 +571,7 @@ void Wav::CreateWavFromFileInStream(
 			case MMIOM_READ:
 			{
 				my::IStream* istr = (my::IStream*)pinfo->pchBuffer;
-				int iread = istr->read((void*)lParam1, (unsigned int)lParam2);
+				int iread = istr->read((void*)lParam1, lParam2);
 				pinfo->lDiskOffset += iread;
 				return iread;
 			}
