@@ -60,6 +60,8 @@ void SoundContext::ReleaseIdleBuffer(float fElapsedTime)
 
 SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, DWORD flags)
 {
+	_ASSERT(!(flags & DSBCAPS_CTRL3D) || wav->wavfmt.nChannels == 1);
+
 	m_pool.insert(m_pool.begin(), BufferEventPair());
 
 	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
