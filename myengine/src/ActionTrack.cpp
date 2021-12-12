@@ -119,11 +119,14 @@ ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, this));
 }
 
-void ActionTrackSound::AddKeyFrame(float Time, my::WavPtr Sound)
+void ActionTrackSound::AddKeyFrame(float Time, my::WavPtr Sound, bool Loop, float MinDistance, float MaxDistance)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
 	_ASSERT(key_iter != m_Keys.end());
 	key_iter->second.Sound = Sound;
+	key_iter->second.Loop = Loop;
+	key_iter->second.MinDistance = MinDistance;
+	key_iter->second.MaxDistance = MaxDistance;
 }
 
 ActionTrackSoundInst::~ActionTrackSoundInst(void)
@@ -148,7 +151,7 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 	for (; key_iter != key_end; key_iter++)
 	{
 		m_Events.push_back(SoundContext::getSingleton().Play(
-			key_iter->second.Sound, false, m_Actor->m_Position, my::Vector3(0, 0, 0), 1.0f, 5.0f));
+			key_iter->second.Sound, key_iter->second.Loop, m_Actor->m_Position, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
 	}
 }
 

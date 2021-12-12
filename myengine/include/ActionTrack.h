@@ -170,6 +170,9 @@ public:
 	struct KeyFrame
 	{
 		my::WavPtr Sound;
+		bool Loop;
+		float MinDistance;
+		float MaxDistance;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -183,7 +186,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, my::WavPtr Sound);
+	void AddKeyFrame(float Time, my::WavPtr Sound, bool Loop, float MinDistance, float MaxDistance);
 };
 
 class ActionTrackSoundInst : public ActionTrackInst
