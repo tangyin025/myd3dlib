@@ -64,6 +64,11 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
+static my::Bone animator_get_bone(Animator* anim, int i)
+{
+	return anim->anim_pose_hier[i];
+}
+
 struct ScriptControl : my::Control, luabind::wrap_base
 {
 	ScriptControl(const char* Name)
@@ -2148,6 +2153,8 @@ void LuaContext::Init(void)
 			.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
+
+		, def("animator_get_bone", &animator_get_bone)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
