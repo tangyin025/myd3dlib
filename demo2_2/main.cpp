@@ -438,12 +438,12 @@ public:
 		{
 			my::WavPtr wav(new Wav());
 			wav->CreateWavFromFile(_T("../demo2_3/Media/sound/jaguar.wav"));
-			SoundContext::Play(wav, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
+			SoundContext::Play(wav, false, Vector3(-3,0,0), Vector3(0,0,0), 1.0f, 5.0f);
 		}
 
 		if (m_keyboard->IsKeyPress(KC_2))
 		{
-			m_mp3.Play(my::FileIStream::Open(_T("castle1_34.mp3")));
+			m_mp3.Play(my::FileIStream::Open(_T("castle1_34.mp3")), false);
 		}
 
 		// Clear the render target and the zbuffer 

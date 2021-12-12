@@ -871,8 +871,8 @@ HRESULT Client::OnCreateDevice(
 			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
 			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
 			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
-			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr))& Client::Play)
-			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, const my::Vector3&, const my::Vector3&, float, float))& Client::Play)
+			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool))& Client::Play)
+			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float))& Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))
@@ -1476,7 +1476,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 
 void Client::OnControlSound(boost::intrusive_ptr<my::Wav> wav)
 {
-	SoundContext::Play(wav);
+	SoundContext::Play(wav, false);
 }
 
 void Client::OnControlFocus(my::Control * control)

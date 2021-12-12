@@ -37,9 +37,9 @@ public:
 
 	BufferEventPairList::iterator GetIdleBuffer(my::WavPtr wav, DWORD flags);
 
-	SoundEventPtr Play(my::WavPtr wav);
+	SoundEventPtr Play(my::WavPtr wav, bool Loop);
 
-	SoundEventPtr Play(my::WavPtr wav, const my::Vector3 & pos, const my::Vector3 & vel = my::Vector3(0, 0, 0), float min_dist = 1.0f, float max_dist = 1.0e9f);
+	SoundEventPtr Play(my::WavPtr wav, bool Loop, const my::Vector3 & pos, const my::Vector3 & vel = my::Vector3(0, 0, 0), float min_dist = 1.0f, float max_dist = 1.0e9f);
 };
 
 class SoundEvent
@@ -107,9 +107,9 @@ public:
 		return m_Loop;
 	}
 
-	void Play(my::IStreamPtr istr, bool Loop = false);
+	void Play(my::IStreamPtr istr, bool Loop);
 
-	void Play(const char * path, bool Loop = false);
+	void Play(const char * path, bool Loop);
 
 	void StopAsync(void);
 

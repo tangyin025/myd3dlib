@@ -45,15 +45,15 @@ void SoundContext::ReleaseIdleBuffer(float fElapsedTime)
 	for (; buff_event_iter != m_pool.end(); )
 	{
 		DWORD status = buff_event_iter->first.GetStatus();
-		if (!(status & DSBSTATUS_PLAYING) || (status & DSBSTATUS_TERMINATED))
+		if (status & DSBSTATUS_PLAYING)
+		{
+			buff_event_iter++;
+		}
+		else
 		{
 			buff_event_iter->second->m_sbuffer = NULL;
 			buff_event_iter->second->m_3dbuffer.reset();
 			buff_event_iter = m_pool.erase(buff_event_iter);
-		}
-		else
-		{
-			buff_event_iter++;
 		}
 	}
 }
@@ -99,7 +99,7 @@ SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavP
 	return buff_event_iter;
 }
 
-SoundEventPtr SoundContext::Play(my::WavPtr wav)
+SoundEventPtr SoundContext::Play(my::WavPtr wav, bool Loop)
 {
 	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER);
 
@@ -107,14 +107,14 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav)
 	{
 		buff_event_iter->second.reset(new SoundEvent());
 		buff_event_iter->second->m_sbuffer = &buff_event_iter->first;
-		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME);
+		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME | (Loop ? DSBPLAY_LOOPING : 0));
 		return buff_event_iter->second;
 	}
 
 	return SoundEventPtr();
 }
 
-SoundEventPtr SoundContext::Play(my::WavPtr wav, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
+SoundEventPtr SoundContext::Play(my::WavPtr wav, bool Loop, const my::Vector3 & pos, const my::Vector3 & vel, float min_dist, float max_dist)
 {
 	BufferEventPairList::iterator buff_event_iter = GetIdleBuffer(wav, DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER | DSBCAPS_MUTE3DATMAXDISTANCE);
 
@@ -130,7 +130,7 @@ SoundEventPtr SoundContext::Play(my::WavPtr wav, const my::Vector3 & pos, const 
 		ds3dbuff.flMaxDistance = max_dist;
 		ds3dbuff.dwMode = DS3DMODE_NORMAL;
 		buff_event_iter->second->m_3dbuffer->SetAllParameters(&ds3dbuff, DS3D_IMMEDIATE);
-		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME);
+		buff_event_iter->first.Play(0, DSBPLAY_TERMINATEBY_TIME | (Loop ? DSBPLAY_LOOPING : 0));
 		return buff_event_iter->second;
 	}
 
@@ -486,7 +486,7 @@ Mp3::~Mp3(void)
 	}
 }
 
-void Mp3::Play(my::IStreamPtr istr, bool Loop /*= false*/)
+void Mp3::Play(my::IStreamPtr istr, bool Loop)
 {
 	if (NULL != m_handle)
 	{
@@ -500,7 +500,7 @@ void Mp3::Play(my::IStreamPtr istr, bool Loop /*= false*/)
 	ResumeThread();
 }
 
-void Mp3::Play(const char * path, bool Loop /*= false*/)
+void Mp3::Play(const char * path, bool Loop)
 {
 	Play(my::ResourceMgr::getSingleton().OpenIStream(path), Loop);
 }

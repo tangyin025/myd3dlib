@@ -28,7 +28,7 @@ function Actor2Behavior:__init(name)
 end
 function Actor2Behavior:RequestResource()
 	Component.RequestResource(self)
-	self.Actor:PlayAction(SAction.act_sound,5)
+	self.Actor:PlayAction(SAction.act_sound,9999)
 end
 actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
 actor2:AddComponent(actor2_behavior)

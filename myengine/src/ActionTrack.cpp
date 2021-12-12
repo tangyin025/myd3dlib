@@ -138,8 +138,7 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 	_ASSERT(m_Actor);
 
 	SoundEventList::iterator event_iter = m_Events.begin();
-	for (; event_iter != m_Events.end()
-		&& (!(*event_iter)->m_sbuffer || !((*event_iter)->m_sbuffer->GetStatus() & DSBSTATUS_PLAYING)); )
+	for (; event_iter != m_Events.end() && !(*event_iter)->m_sbuffer; )
 	{
 		event_iter = m_Events.erase(event_iter);
 	}
@@ -149,7 +148,7 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 	for (; key_iter != key_end; key_iter++)
 	{
 		m_Events.push_back(SoundContext::getSingleton().Play(
-			key_iter->second.Sound, m_Actor->m_Position, my::Vector3(0, 0, 0), 1.0f, 10000000.0f));
+			key_iter->second.Sound, false, m_Actor->m_Position, my::Vector3(0, 0, 0), 1.0f, 5.0f));
 	}
 }
 
