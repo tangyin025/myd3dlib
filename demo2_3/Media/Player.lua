@@ -148,6 +148,12 @@ function PlayerBehavior:Update(elapsedTime)
 	client.Camera.Eye=self.Actor.Position+Vector3(0,0.75,0)+LookMatrix.row2.xyz*self.LookDist
 	client.SkyLightCam.Eye=self.Actor.Position
 	client.ViewedCenter=self.Actor.Position
+
+	-- 更新音效
+	client.listener:SetPosition(self.Actor.Position,Sound3DBuffer.DS3D_DEFERRED)
+	client.listener:SetVelocity(self.velocity,Sound3DBuffer.DS3D_DEFERRED)
+	client.listener:SetOrientation(LookMatrix.row2.xyz,LookMatrix.row1.xyz,Sound3DBuffer.DS3D_DEFERRED)
+	client.listener:CommitDeferredSettings()
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
 	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime)

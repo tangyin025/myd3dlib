@@ -44,9 +44,7 @@ public:
 
 class SoundEvent
 {
-protected:
-	friend SoundContext;
-
+public:
 	my::SoundBuffer * m_sbuffer;
 
 	my::Sound3DBufferPtr m_3dbuffer;
@@ -55,16 +53,6 @@ public:
 	SoundEvent(void)
 		: m_sbuffer(NULL)
 	{
-	}
-
-	my::SoundBuffer * GetSoundBuffer(void) const
-	{
-		return m_sbuffer;
-	}
-
-	my::Sound3DBuffer * Get3DBuffer(void) const
-	{
-		return m_3dbuffer.get();
 	}
 };
 

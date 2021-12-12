@@ -7,7 +7,9 @@ act_jump:AddTrack(track)
 
 act_sound=Action()
 local track=ActionTrackSound()
-track:AddKeyFrame(0,"demo2_3/untitled/drumloop")
+for i=0,5,1 do
+	track:AddKeyFrame(i,client:LoadWav("sound/drumloop.wav"))
+end
 act_sound:AddTrack(track)
 
 act_tuowei=Action()

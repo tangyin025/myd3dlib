@@ -2150,8 +2150,8 @@ void LuaContext::Init(void)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
-			.property("SoundBuffer", &SoundEvent::GetSoundBuffer)
-			.property("3DBuffer", &SoundEvent::Get3DBuffer)
+			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
+			.def_readonly("3dbuffer", &SoundEvent::m_3dbuffer)
 
 		, class_<Action, boost::intrusive_ptr<Action> >("Action")
 			.def(constructor<>())

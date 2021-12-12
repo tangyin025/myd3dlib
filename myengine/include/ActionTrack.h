@@ -6,10 +6,11 @@
 #include <boost/circular_buffer.hpp>
 #include <vector>
 #include <map>
-#include <set>
+#include <list>
 #include "myMath.h"
 #include "mySpline.h"
 #include "myTask.h"
+#include "SoundContext.h"
 
 class ActionTrack;
 
@@ -168,7 +169,7 @@ class ActionTrackSound : public ActionTrack
 public:
 	struct KeyFrame
 	{
-		std::string Name;
+		my::WavPtr Sound;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -182,7 +183,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, const char * Name);
+	void AddKeyFrame(float Time, my::WavPtr Sound);
 };
 
 class ActionTrackSoundInst : public ActionTrackInst
@@ -190,11 +191,9 @@ class ActionTrackSoundInst : public ActionTrackInst
 protected:
 	boost::intrusive_ptr<const ActionTrackSound> m_Template;
 
-	//typedef std::set<FMOD::Event *> FmodEventSet;
-
-	//FmodEventSet m_evts;
-
-	friend class ActionTrackSoundInstCallback;
+	typedef std::list<SoundEventPtr> SoundEventList;
+	
+	SoundEventList m_Events;
 
 public:
 	ActionTrackSoundInst(Actor * _Actor, const ActionTrackSound * Template)
@@ -208,8 +207,6 @@ public:
 	virtual void UpdateTime(float Time, float fElapsedTime);
 
 	virtual void Stop(void);
-
-	void StopAllEvent(bool immediate);
 };
 
 class Material;
