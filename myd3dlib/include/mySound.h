@@ -286,7 +286,7 @@ namespace my
 
 		MMCKINFO child;
 
-		WAVEFORMATEX wavfmt;
+		boost::shared_ptr<WAVEFORMATEX> wavfmt;
 
 		std::vector<unsigned char> buffer;
 

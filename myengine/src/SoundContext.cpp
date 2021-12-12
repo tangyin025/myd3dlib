@@ -60,18 +60,14 @@ void SoundContext::ReleaseIdleBuffer(float fElapsedTime)
 
 SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavPtr wav, DWORD flags)
 {
-	_ASSERT(!(flags & DSBCAPS_CTRL3D) || wav->wavfmt.nChannels == 1);
-
-	m_pool.insert(m_pool.begin(), BufferEventPair());
-
-	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
+	_ASSERT(!(flags & DSBCAPS_CTRL3D) || wav->wavfmt->nChannels == 1);
 
 	DSBUFFERDESC dsbd;
 	dsbd.dwSize = sizeof(dsbd);
 	dsbd.dwFlags = flags;
 	dsbd.dwBufferBytes = wav->child.cksize;
 	dsbd.dwReserved = 0;
-	dsbd.lpwfxFormat = &wav->wavfmt;
+	dsbd.lpwfxFormat = wav->wavfmt.get();
 	dsbd.guid3DAlgorithm = DS3DALG_DEFAULT;
 
 	LPDIRECTSOUNDBUFFER pDsb = NULL;
@@ -82,6 +78,9 @@ SoundContext::BufferEventPairList::iterator SoundContext::GetIdleBuffer(my::WavP
 		THROW_DSOUNDEXCEPTION(hr);
 	}
 	lock.Unlock();
+
+	m_pool.insert(m_pool.begin(), BufferEventPair());
+	BufferEventPairList::iterator buff_event_iter = m_pool.begin();
 	buff_event_iter->first.Create(pDsb);
 
 	unsigned char* buffer1, * buffer2;

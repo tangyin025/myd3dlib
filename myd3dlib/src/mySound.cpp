@@ -490,51 +490,104 @@ void Sound3DListener::SetVelocity(
 void Wav::CreateWavFromMmio(
 	HMMIO hmmio)
 {
-	parent.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &parent, NULL, MMIO_FINDRIFF))
+	ZeroMemory(&parent, sizeof(parent));
+	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &parent, NULL, 0))
 	{
 		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioDescend parent failed");
 	}
 
+	// Check to make sure this is a valid wave file
+	if ((parent.ckid != FOURCC_RIFF) ||
+		(parent.fccType != mmioFOURCC('W', 'A', 'V', 'E')))
+	{
+		mmioClose(hmmio, 0);
+		THROW_CUSEXCEPTION("parent.fccType != mmioFOURCC('W', 'A', 'V', 'E')");
+	}
+
+	// Search the input file for for the 'fmt ' chunk.
+	ZeroMemory(&child, sizeof(child));
 	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
-	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
+	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, MMIO_FINDCHUNK))
 	{
 		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioDescend child failed");
 	}
 
-	if (sizeof(wavfmt) != mmioRead(hmmio, (HPSTR)&wavfmt, sizeof(wavfmt)))
+	// Expect the 'fmt' chunk to be at least as large as <PCMWAVEFORMAT>;
+	// if there are extra parameters at the end, we'll ignore them
+	PCMWAVEFORMAT pcmWaveFormat;
+	if (child.cksize < sizeof(pcmWaveFormat))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioRead wav format failed");
+		THROW_CUSEXCEPTION("child.cksize < sizeof(pcmWaveFormat)");
 	}
 
-	if (WAVE_FORMAT_PCM != wavfmt.wFormatTag)
+	// Read the 'fmt ' chunk into <pcmWaveFormat>.
+	if (mmioRead(hmmio, (HPSTR)&pcmWaveFormat,
+		sizeof(pcmWaveFormat)) != sizeof(pcmWaveFormat))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("not wave format pcm");
+		THROW_CUSEXCEPTION("mmioRead pcmWaveFormat failed");
 	}
 
+	// Allocate the waveformatex, but if its not pcm format, read the next
+	// word, and thats how many extra bytes to allocate.
+	if (pcmWaveFormat.wf.wFormatTag == WAVE_FORMAT_PCM)
+	{
+		wavfmt.reset(new WAVEFORMATEX());
+
+		// Copy the bytes from the pcm structure to the waveformatex structure
+		memcpy(wavfmt.get(), &pcmWaveFormat, sizeof(pcmWaveFormat));
+		wavfmt->cbSize = 0;
+	}
+	else
+	{
+		// Read in length of extra bytes.
+		WORD cbExtraBytes = 0L;
+		if (mmioRead(hmmio, (CHAR*)&cbExtraBytes, sizeof(WORD)) != sizeof(WORD))
+		{
+			mmioClose(hmmio, 0);
+			THROW_CUSEXCEPTION("mmioRead cbExtraBytes failed");
+		}
+
+		wavfmt.reset((WAVEFORMATEX*)new CHAR[sizeof(WAVEFORMATEX) + cbExtraBytes]);
+
+		// Copy the bytes from the pcm structure to the waveformatex structure
+		memcpy(wavfmt.get(), &pcmWaveFormat, sizeof(pcmWaveFormat));
+		wavfmt->cbSize = cbExtraBytes;
+
+		// Now, read those extra bytes into the structure, if cbExtraAlloc != 0.
+		if (mmioRead(hmmio, (CHAR*)(((BYTE*)&(wavfmt->cbSize)) + sizeof(WORD)),
+			cbExtraBytes) != cbExtraBytes)
+		{
+			mmioClose(hmmio, 0);
+			THROW_CUSEXCEPTION("mmioRead extra bytes failed");
+		}
+	}
+
+	// Ascend the input file out of the 'fmt ' chunk.
 	if (MMSYSERR_NOERROR != mmioAscend(hmmio, &child, 0))
 	{
 		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioAscend child failed");
 	}
 
+	// Search the input file for the 'data' chunk.
+	ZeroMemory(&child, sizeof(child));
 	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
-	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
+	if (MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, MMIO_FINDCHUNK))
 	{
 		mmioClose(hmmio, 0);
 		THROW_CUSEXCEPTION("mmioDescend child failed");
 	}
 
+	// Copy the bytes from the io to the buffer.
 	buffer.resize(child.cksize);
-
 	if ((LONG)child.cksize != mmioRead(hmmio, (HPSTR)&buffer[0], child.cksize))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
+		THROW_CUSEXCEPTION("mmioRead buffer failed");
 	}
 
 	mmioClose(hmmio, 0);
