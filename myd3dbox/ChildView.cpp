@@ -1441,7 +1441,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
 			physx::PxRigidBody * body = NULL;
-			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->is<physx::PxRigidBody>()))
+			if ((*sel_iter)->m_PxActor && (body = (*sel_iter)->m_PxActor->is<physx::PxRigidBody>()) && !body->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 			{
 				body->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, true);
 			}

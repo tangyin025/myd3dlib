@@ -354,12 +354,6 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 {
 	_ASSERT(!m_PxShape);
 
-	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	//{
-	//	return;
-	//}
-
 	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
@@ -868,12 +862,6 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, Colle
 {
 	_ASSERT(!m_PxShape);
 
-	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	//{
-	//	return;
-	//}
-
 	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(TriangleMeshPath))
@@ -943,12 +931,6 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, Colle
 void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, CollectionObjMap & collectionObjs)
 {
 	_ASSERT(!m_PxShape);
-
-	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	//{
-	//	return;
-	//}
 
 	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 

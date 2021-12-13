@@ -831,12 +831,6 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 
 	float HeightScale = Max(fabs(aabb.m_max.y), fabs(aabb.m_min.y)) / SHRT_MAX;
 
-	//if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
-	//	&& !m_Actor->m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-	//{
-	//	return;
-	//}
-
 	physx::PxMaterial* material = CreatePhysxMaterial(0.5f, 0.5f, 0.5f, collectionObjs);
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(HeightFieldPath))
