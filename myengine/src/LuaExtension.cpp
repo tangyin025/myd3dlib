@@ -482,10 +482,10 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 	class ScriptActionTrackInst : public ActionTrackInst
 	{
 	protected:
-		boost::intrusive_ptr<ScriptActionTrack> m_Template;
+		boost::intrusive_ptr<const ScriptActionTrack> m_Template;
 
 	public:
-		ScriptActionTrackInst(Actor* actor, ScriptActionTrack* Template)
+		ScriptActionTrackInst(Actor* actor, const ScriptActionTrack* Template)
 			: ActionTrackInst(actor)
 			, m_Template(Template)
 		{
@@ -493,14 +493,26 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 
 		virtual void UpdateTime(float Time, float fElapsedTime)
 		{
-			m_Template->UpdateTime(Time, fElapsedTime, m_Actor);
+			ScriptActionTrack::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
+			ScriptActionTrack::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+			for (; key_iter != key_end; key_iter++)
+			{
+				const_cast<ScriptActionTrack*>(m_Template.get())->OnKeyFrame(key_iter->first, m_Actor);
+			}
 		}
 
 		virtual void Stop(void)
 		{
-			m_Template->Stop(m_Actor);
 		}
 	};
+
+	struct KeyFrame
+	{
+	};
+
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
 
 	ScriptActionTrack(void)
 	{
@@ -512,14 +524,20 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 
 	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
 	{
-		return ActionTrackInstPtr(new ScriptActionTrackInst(_Actor, const_cast<ScriptActionTrack*>(this)));
+		return ActionTrackInstPtr(new ScriptActionTrackInst(_Actor, this));
 	}
 
-	virtual void UpdateTime(float Time, float fElapsedTime, Actor* _Actor)
+	void AddKeyFrame(float Time)
+	{
+		KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+		_ASSERT(key_iter != m_Keys.end());
+	}
+
+	virtual void OnKeyFrame(float Time, Actor * _Actor)
 	{
 		try
 		{
-			luabind::wrap_base::call<void>("UpdateTime", Time, fElapsedTime, _Actor);
+			luabind::wrap_base::call<void>("OnKeyFrame", Time, _Actor);
 		}
 		catch (const luabind::error& e)
 		{
@@ -527,26 +545,9 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 		}
 	}
 
-	static void default_UpdateTime(ScriptActionTrack* ptr, float Time, float fElapsedTime, Actor* _Actor)
+	static void default_OnKeyFrame(ScriptActionTrack* ptr, float Time, Actor * _Actor)
 	{
-		ptr->ActionTrack::UpdateTime(Time, fElapsedTime, _Actor);
-	}
-
-	virtual void Stop(Actor* _Actor)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("Stop", _Actor);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_Stop(ScriptActionTrack* ptr, Actor* _Actor)
-	{
-		ptr->ActionTrack::Stop(_Actor);
+		ptr->ActionTrack::OnKeyFrame(Time, _Actor);
 	}
 };
 
@@ -2167,8 +2168,8 @@ void LuaContext::Init(void)
 
 		, class_<ActionTrack, ScriptActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrack")
 			.def(constructor<>())
-			.def("UpdateTime", &ActionTrack::UpdateTime, &ScriptActionTrack::default_UpdateTime)
-			.def("Stop", &ActionTrack::Stop, &ScriptActionTrack::default_Stop)
+			.def("AddKeyFrame", &ScriptActionTrack::AddKeyFrame)
+			.def("OnKeyFrame", &ActionTrack::OnKeyFrame, &ScriptActionTrack::default_OnKeyFrame)
 
 		, class_<ActionTrackAnimation, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())

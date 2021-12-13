@@ -86,11 +86,7 @@ public:
 		return ActionTrackInstPtr();
 	}
 
-	virtual void UpdateTime(float Time, float fElapsedTime, Actor * _Actor)
-	{
-	}
-
-	virtual void Stop(Actor * _Actor)
+	virtual void OnKeyFrame(float Time, Actor * _Actor)
 	{
 	}
 };
