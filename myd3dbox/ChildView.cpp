@@ -2011,7 +2011,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				break;
 			}
 
-			(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation);
+			(*sel_iter)->SetPxPoseOrbyPxThread((*sel_iter)->m_Position, (*sel_iter)->m_Rotation, NULL);
 		}
 		Invalidate();
 		UpdateWindow();

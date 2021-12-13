@@ -374,7 +374,7 @@ void Actor::UpdateAttaches(float fElapsedTime)
 
 			(*att_iter)->m_World = Matrix4::Compose((*att_iter)->m_Scale, Rot, Pos);
 
-			(*att_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
+			(*att_iter)->SetPxPoseOrbyPxThread(Pos, Rot, NULL);
 		}
 		else
 		{
@@ -386,7 +386,7 @@ void Actor::UpdateAttaches(float fElapsedTime)
 
 			(*att_iter)->m_World = Matrix4::Compose((*att_iter)->m_Scale, Rot, Pos);
 
-			(*att_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
+			(*att_iter)->SetPxPoseOrbyPxThread(Pos, Rot, NULL);
 		}
 
 		(*att_iter)->UpdateOctNode();
@@ -402,9 +402,16 @@ void Actor::SetPose(const my::Vector3 & Pos)
 
 void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
+	SetPose(Pos, Rot, m_Scale);
+}
+
+void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale)
+{
 	m_Position = Pos;
 
 	m_Rotation = Rot;
+
+	m_Scale = Scale;
 
 	UpdateWorld();
 
@@ -413,10 +420,10 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 
 void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos)
 {
-	SetPxPoseOrbyPxThread(Pos, m_Rotation);
+	SetPxPoseOrbyPxThread(Pos, m_Rotation, NULL);
 }
 
-void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot)
+void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot, const Component * Exclusion)
 {
 	if (m_PxActor)
 	{
@@ -441,7 +448,10 @@ void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
+		if (cmp_iter->get() != Exclusion)
+		{
+			(*cmp_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
+		}
 	}
 }
 

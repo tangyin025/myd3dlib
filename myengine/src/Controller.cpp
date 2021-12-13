@@ -101,31 +101,28 @@ void Controller::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader,
 
 void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
-	if (m_PxControllerMoveMuted)
-	{
-		return;
-	}
+	_ASSERT(!m_PxControllerMoveMuted);
 
 	SetPosition(Pos);
 }
 
 unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime)
 {
+	m_PxControllerMoveMuted = true;
+	BOOST_SCOPE_EXIT(&m_PxControllerMoveMuted)
+	{
+		m_PxControllerMoveMuted = false;
+	}
+	BOOST_SCOPE_EXIT_END
+		
 	physx::PxControllerCollisionFlags moveFlags;
 
 	if (m_PxController)
 	{
 		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
 
-		// ! recursively call Controller::SetPxPoseOrbyPxThread
-		m_PxControllerMoveMuted = true;
-		BOOST_SCOPE_EXIT(&m_PxControllerMoveMuted)
-		{
-			m_PxControllerMoveMuted = false;
-		}
-		BOOST_SCOPE_EXIT_END
-
-		//m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation);
+		// ! recursively call other Component::SetPxPoseOrbyPxThread
+		m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation, this);
 	}
 
 	return moveFlags;
