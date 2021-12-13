@@ -274,25 +274,21 @@ public:
 
 	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
 
+	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
+
+	bool Overlap(const physx::PxGeometry & geometry, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const OverlapCallback & callback, unsigned int MaxNbTouches);
+
 	template <typename T>
-	void Overlap(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, unsigned int MaxNbTouches, const T & callback)
+	bool OverlapBox(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
 	{
-		boost::function<void(unsigned int, Component*)> func(callback);
-		std::vector<physx::PxOverlapHit> hitbuff(MaxNbTouches);
-		physx::PxOverlapBuffer buff(hitbuff.data(), hitbuff.size());
 		physx::PxBoxGeometry box(hx, hy, hz);
-		physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-			physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
-		if (m_PxScene->overlap(box, physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), buff, filterData))
-		{
-			for (unsigned int i = 0; i < buff.getNbTouches(); i++)
-			{
-				const physx::PxOverlapHit& hit = buff.getTouch(i);
-				if (hit.shape->userData)
-				{
-					func(i, (Component*)hit.shape->userData);
-				}
-			}
-		}
+		return Overlap(box, Position, Rotation, filterWord0, callback, MaxNbTouches);
+	}
+
+	template <typename T>
+	bool OverlapSphere(float radius, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+	{
+		physx::PxSphereGeometry sphere(radius);
+		return Overlap(sphere, Position, Rotation, filterWord0, callback, MaxNbTouches);
 	}
 };

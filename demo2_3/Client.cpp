@@ -876,7 +876,8 @@ HRESULT Client::OnCreateDevice(
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))
-			.def("Overlap", &Client::Overlap<luabind::object>)
+			.def("OverlapBox", &Client::OverlapBox<luabind::object>)
+			.def("OverlapSphere", &Client::OverlapSphere<luabind::object>)
 
 		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -1542,4 +1543,53 @@ void Client::GetLoadSceneProgress(const char * path, int & ActorProgress, int & 
 
 	ActorProgress = 0;
 	DialogProgress = 0;
+}
+
+bool Client::Overlap(const physx::PxGeometry & geometry, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const OverlapCallback & callback, unsigned int MaxNbTouches)
+{
+	struct OverlapBuffer : physx::PxOverlapCallback
+	{
+		const boost::function<void(Actor*, Component*, unsigned int)>& callback;
+
+		int callback_i;
+
+		unsigned int RealMaxNbTouches;
+
+		OverlapBuffer(physx::PxOverlapHit* aTouches, physx::PxU32 aMaxNbTouches, const boost::function<void(Actor*, Component*, unsigned int)>& _callback, unsigned int _RealMaxNbTouches)
+			: PxHitCallback(aTouches, aMaxNbTouches)
+			, callback(_callback)
+			, callback_i(0)
+			, RealMaxNbTouches(_RealMaxNbTouches)
+		{
+		}
+
+		virtual physx::PxAgain processTouches(const physx::PxOverlapHit* buffer, physx::PxU32 nbHits)
+		{
+			for (unsigned int i = 0; i < nbHits && callback_i < RealMaxNbTouches; i++, callback_i++)
+			{
+				const physx::PxOverlapHit& hit = buffer[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					try
+					{
+						callback(other_cmp->m_Actor, other_cmp, hit.faceIndex);
+					}
+					catch (const luabind::error& e)
+					{
+						my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+						return false;
+					}
+				}
+			}
+
+			return callback_i < RealMaxNbTouches;
+		}
+	};
+
+	std::vector<physx::PxOverlapHit> hitbuff(my::Min(32U, MaxNbTouches));
+	OverlapBuffer buff(hitbuff.data(), hitbuff.size(), callback, MaxNbTouches);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
+	return m_PxScene->overlap(geometry, physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation), buff, filterData);
 }
