@@ -111,8 +111,6 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor5:UpdateWorld()
 	client:AddEntity(actor5)
 
-	SAction.act_moving_track.ParamStartPos=Vector3(-3,1,0)
-	SAction.act_moving_track.ParamEndPos=Vector3(-3,1,-5)
 	local actor6 = client:GetNamedObject("scene01_actor1")
 	class 'Actor6Behavior'(Component)
 	function Actor6Behavior:__init(name)
@@ -126,7 +124,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	actor6:AddComponent(actor6_behavior)	
 
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
-	-- SAction.act_pose_track.ParamStartPos=Vector3(0,3,0);SAction.act_pose_track.ParamEndPos=Vector3(-3,3,0);SPlayer.player:PlayAction(SAction.act_pose)
+	-- SPlayer.player:PlayAction(SAction.act_pose,3)
 
 end, 0)
 	

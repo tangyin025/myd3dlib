@@ -320,7 +320,11 @@ public:
 class ActionTrackPose : public ActionTrack
 {
 public:
+	float m_Start;
+
 	float m_Length;
+
+	unsigned int m_Repeat;
 
 	my::Spline m_InterpolateX;
 
@@ -328,29 +332,17 @@ public:
 
 	my::Spline m_InterpolateZ;
 
-	my::Vector3 m_ParamStartPos;
-
-	my::Vector3 m_ParamEndPos;
-
-	struct KeyFrame
-	{
-	};
-
-	typedef std::multimap<float, KeyFrame> KeyFrameMap;
-
-	KeyFrameMap m_Keys;
-
 public:
-	ActionTrackPose(float Length)
-		: m_Length(Length)
-		, m_ParamStartPos(0,0,0)
-		, m_ParamEndPos(0,0,0)
+	ActionTrackPose(float Start, float Length, unsigned int Repeat)
+		: m_Start(Start)
+		, m_Length(Length)
+		, m_Repeat(Repeat)
 	{
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time);
+	void AddKeyFrame(float Time, const my::Vector3 & Position);
 };
 
 class ActionTrackPoseInst : public ActionTrackInst
@@ -360,32 +352,12 @@ protected:
 
 	my::Vector3 m_StartPos;
 
-	my::Vector3 m_EndPos;
+	my::Quaternion m_StartRot;
 
-	struct KeyFrameInst
-	{
-		float m_Time;
-
-		KeyFrameInst(void)
-			: m_Time(0)
-		{
-		}
-	};
-
-	typedef std::vector<KeyFrameInst> KeyFrameInstList;
-
-	KeyFrameInstList m_KeyInsts;
+	my::Vector3 m_LasterPos;
 
 public:
-	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template, const my::Vector3 & StartPos, const my::Vector3 & EndPos)
-		: ActionTrackInst(_Actor)
-		, m_Template(Template)
-		, m_StartPos(StartPos)
-		, m_EndPos(EndPos)
-	{
-	}
-
-	virtual ~ActionTrackPoseInst(void);
+	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template);
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 

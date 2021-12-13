@@ -5,6 +5,7 @@
 #include "myOctree.h"
 #include "Material.h"
 #include "PhysxContext.h"
+#include "Controller.h"
 
 using namespace my;
 
@@ -303,73 +304,50 @@ void ActionTrackEmitterInst::DoTask(void)
 
 ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, this, m_ParamStartPos, m_ParamEndPos));
+	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, this));
 }
 
-void ActionTrackPose::AddKeyFrame(float Time)
+void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
 {
-	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
-	_ASSERT(key_iter != m_Keys.end());
+	m_InterpolateX.AddNode(Time, Position.x, 0, 0);
+	m_InterpolateY.AddNode(Time, Position.y, 0, 0);
+	m_InterpolateZ.AddNode(Time, Position.z, 0, 0);
 }
 
-ActionTrackPoseInst::~ActionTrackPoseInst(void)
+ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template)
+	: ActionTrackInst(_Actor)
+	, m_Template(Template)
+	, m_StartPos(_Actor->m_Position)
+	, m_StartRot(_Actor->m_Rotation)
+	, m_LasterPos(_Actor->m_Position)
 {
-	//_ASSERT(m_Actor->m_ActionTrackPoseInstRef == 0);
 }
 
 void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 {
-	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
-	if (key_inst_iter != m_KeyInsts.end())
+	if (Time + fElapsedTime >= m_Template->m_Start && Time + fElapsedTime < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
 	{
-		key_inst_iter->m_Time += fElapsedTime;
-		if (key_inst_iter->m_Time <= m_Template->m_Length)
+		float LocalTime = m_Template->m_Start + fmod(Time + fElapsedTime - m_Template->m_Start, m_Template->m_Length);
+
+		my::Vector3 Pos(m_StartRot * my::Vector3(m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
+			m_Template->m_InterpolateY.Interpolate(LocalTime, 0), m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)) + m_StartPos);
+
+		Controller* controller = (Controller*)m_Actor->GetFirstComponent(Component::ComponentTypeController);
+		if (controller)
 		{
-			my::Vector3 Pos(
-				my::Lerp(m_StartPos.x, m_EndPos.x, m_Template->m_InterpolateX.Interpolate(key_inst_iter->m_Time, 0)),
-				my::Lerp(m_StartPos.y, m_EndPos.y, m_Template->m_InterpolateY.Interpolate(key_inst_iter->m_Time, 0)),
-				my::Lerp(m_StartPos.z, m_EndPos.z, m_Template->m_InterpolateZ.Interpolate(key_inst_iter->m_Time, 0)));
-			if (m_Actor->m_PxActor)
-			{
-				physx::PxRigidDynamic* rigidDynamic = m_Actor->m_PxActor->is<physx::PxRigidDynamic>();
-				if (rigidDynamic && rigidDynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
-				{
-					m_Actor->SetPose(Pos, m_Actor->m_Rotation);
-					m_Actor->SetPxPoseOrbyPxThread(Pos, m_Actor->m_Rotation, NULL);
-				}
-				else
-					m_Actor->SetPxPoseOrbyPxThread(Pos, m_Actor->m_Rotation, NULL);
-			}
-			else
-			{
-				m_Actor->SetPose(Pos, m_Actor->m_Rotation);
-				m_Actor->SetPxPoseOrbyPxThread(Pos, m_Actor->m_Rotation, NULL);
-			}
+			controller->Move(Pos - m_LasterPos, 0.001, fElapsedTime);
+
+			m_LasterPos = Pos;
 		}
 		else
 		{
-			m_KeyInsts.erase(key_inst_iter);
-			m_Actor->m_ActionTrackPoseInstRef--;
-		}
-	}
-	else
-	{
-		ActionTrackPose::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
-		ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
-		if (key_iter != key_end)
-		{
-			m_KeyInsts.push_back(KeyFrameInst());
-			m_Actor->m_ActionTrackPoseInstRef++;
+			m_Actor->SetPose(Pos);
+
+			m_Actor->SetPxPoseOrbyPxThread(Pos);
 		}
 	}
 }
 
 void ActionTrackPoseInst::Stop(void)
 {
-	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
-	for (; key_inst_iter != m_KeyInsts.end(); key_inst_iter = m_KeyInsts.begin())
-	{
-		m_KeyInsts.erase(key_inst_iter);
-		m_Actor->m_ActionTrackPoseInstRef--;
-	}
 }
