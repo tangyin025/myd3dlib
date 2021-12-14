@@ -199,15 +199,8 @@ struct ScriptControl : my::Control, luabind::wrap_base
 
 struct ScriptComponent : Component, luabind::wrap_base
 {
-#ifdef _DEBUG
-	bool m_OnPxThreadSubstepMuted;
-#endif
-
 	ScriptComponent(const char* Name)
 		: Component(Name)
-#ifdef _DEBUG
-		, m_OnPxThreadSubstepMuted(false)
-#endif
 	{
 		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::AddComponent
 	}
@@ -313,15 +306,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
-#ifdef _DEBUG
-		m_OnPxThreadSubstepMuted = true;
-		BOOST_SCOPE_EXIT(&m_OnPxThreadSubstepMuted)
-		{
-			m_OnPxThreadSubstepMuted = false;
-		}
-		BOOST_SCOPE_EXIT_END
-#endif
-
 		try
 		{
 			luabind::wrap_base::call<void>("OnPxThreadSubstep", dtime);
@@ -373,8 +357,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
 	{
-		_ASSERT(m_OnPxThreadSubstepMuted);
-
 		try
 		{
 			luabind::wrap_base::call<void>("OnPxThreadShapeHit", arg);
@@ -392,8 +374,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadControllerHit(my::EventArg* arg)
 	{
-		_ASSERT(m_OnPxThreadSubstepMuted);
-
 		try
 		{
 			luabind::wrap_base::call<void>("OnPxThreadControllerHit", arg);
@@ -411,8 +391,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
 	{
-		_ASSERT(m_OnPxThreadSubstepMuted);
-
 		try
 		{
 			luabind::wrap_base::call<void>("OnPxThreadObstacleHit", arg);
