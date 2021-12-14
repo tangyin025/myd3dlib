@@ -4,12 +4,7 @@
  *      Guido Draheim <guidod@gmx.de>
  *      Tomi Ollila <too@iki.fi>
  *
- * Copyright (c) 1999,2000,2001,2002,2003 Guido Draheim
- *          All rights reserved,
- *          use under the restrictions of the
- *          Lesser GNU General Public License
- *          or alternatively the restrictions
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
 #include <zzip/lib.h>           /* archive handling */
@@ -198,7 +193,6 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
 #endif
     zzip_off_t offset = 0;
     zzip_ssize_t maplen = 0;    /* mmap(),read(),getpagesize() use size_t !! */
-    zzip_maphandle_t maphandle = ZZIP_MAPHANDLE_NULL; /* required on win32 */
     char *fd_map = 0;
 
     if (! trailer)
@@ -227,7 +221,7 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
         {
             zzip_off_t mapoff = offset;
             {
-                zzip_ssize_t pagesize = _zzip_getpagesize();
+                zzip_ssize_t pagesize = _zzip_getpagesize(io->fd.sys);
                 if (pagesize < ZZIP_BUFSIZ)
                     goto non_mmap;      /* an error? */
                 if (mapoff == filesize && filesize > pagesize)
@@ -251,7 +245,7 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
                     maplen = filesize - mapoff;
             }
 
-            fd_map = _zzip_mmap(maphandle, fd, mapoff, (zzip_size_t) maplen);
+            fd_map = _zzip_mmap(io->fd.sys, fd, mapoff, (zzip_size_t) maplen);
             if (fd_map == MAP_FAILED)
                 goto non_mmap;
             mapped = (unsigned char *) fd_map;
@@ -326,6 +320,12 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
 #                  endif
 
                     __fixup_rootseek(offset + tail - mapped, trailer);
+		    /*
+		     * "extract data from files archived in a single zip file."
+		     * So the file offsets must be within the current ZIP archive!
+		     */
+		    if (trailer->zz_rootseek >= filesize || (trailer->zz_rootseek + trailer->zz_rootsize) >= filesize)
+		        return(ZZIP_CORRUPTED);
                     { return(0); }
                 } else if ((*tail == 'P') &&
                            end - tail >=
@@ -344,6 +344,12 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
                         zzip_disk64_trailer_finalentries(orig);
                     trailer->zz_rootseek = zzip_disk64_trailer_rootseek(orig);
                     trailer->zz_rootsize = zzip_disk64_trailer_rootsize(orig);
+		    /*
+		     * "extract data from files archived in a single zip file."
+		     * So the file offsets must be within the current ZIP archive!
+		     */
+		    if (trailer->zz_rootseek >= filesize || (trailer->zz_rootseek + trailer->zz_rootsize) >= filesize)
+		        return(ZZIP_CORRUPTED);
                     { return(0); }
 #                  endif
                 }
@@ -353,7 +359,7 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
         if (USE_MMAP && fd_map)
         {
             HINT3("unmap *%p len=%li", fd_map, (long) maplen);
-            _zzip_munmap(maphandle, fd_map, (zzip_size_t) maplen);
+            _zzip_munmap(io->fd.sys, fd_map, (zzip_size_t) maplen);
             fd_map = 0;
         }
     }                           /*outer loop */
@@ -362,7 +368,7 @@ __zzip_fetch_disk_trailer(int fd, zzip_off_t filesize,
     if (USE_MMAP && fd_map)
     {
         HINT3("unmap *%p len=%li", fd_map, (long) maplen);
-        _zzip_munmap(maphandle, fd_map, (zzip_size_t) maplen);
+        _zzip_munmap(io->fd.sys, fd_map, (zzip_size_t) maplen);
     }
 #   ifdef _LOWSTK
     free(buf);
@@ -405,7 +411,6 @@ __zzip_parse_root_directory(int fd,
     uint16_t *p_reclen = 0;
     zzip_off64_t entries;
     zzip_off64_t zz_offset;     /* offset from start of root directory */
-    zzip_maphandle_t maphandle = ZZIP_MAPHANDLE_NULL; /* required on win32 */
     char *fd_map = 0;
     zzip_off64_t zz_fd_gap = 0;
     zzip_off64_t zz_entries = _disk_trailer_localentries(trailer);
@@ -421,12 +426,12 @@ __zzip_parse_root_directory(int fd,
 
     if (USE_MMAP && io->fd.sys)
     {
-        zz_fd_gap = zz_rootseek & (_zzip_getpagesize() - 1);
+        zz_fd_gap = zz_rootseek & (_zzip_getpagesize(io->fd.sys) - 1);
         HINT4(" fd_gap=%ld, mapseek=0x%lx, maplen=%ld", (long) (zz_fd_gap),
               (long) (zz_rootseek - zz_fd_gap),
               (long) (zz_rootsize + zz_fd_gap));
         fd_map =
-            _zzip_mmap(maphandle, fd, zz_rootseek - zz_fd_gap,
+            _zzip_mmap(io->fd.sys, fd, zz_rootseek - zz_fd_gap,
                        zz_rootsize + zz_fd_gap);
         /* if mmap failed we will fallback to seek/read mode */
         if (fd_map == MAP_FAILED)
@@ -553,7 +558,7 @@ __zzip_parse_root_directory(int fd,
     if (USE_MMAP && fd_map)
     {
         HINT3("unmap *%p len=%li", fd_map, (long) (zz_rootsize + zz_fd_gap));
-        _zzip_munmap(maphandle, fd_map, zz_rootsize + zz_fd_gap);
+        _zzip_munmap(io->fd.sys, fd_map, zz_rootsize + zz_fd_gap);
     }
 
     if (p_reclen)
@@ -633,7 +638,7 @@ zzip_dir_alloc(zzip_strings_t * fileext)
  * are helper functions used implicitly in other zzipcalls
  * e.g. => zzip_dir_close = zzip_close
  *
- * returns zero on sucess
+ * returns zero on success
  * returns the refcount when files are attached.
  */
 int

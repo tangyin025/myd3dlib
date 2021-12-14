@@ -4,12 +4,7 @@
  *	Guido Draheim <guidod@gmx.de>
  *      Mike Nordell <tamlin-@-algonet-se>
  *
- * Copyright (c) 2002,2003 Guido Draheim
- * 	    All rights reserved,
- *	    use under the restrictions of the
- *	    Lesser GNU General Public License
- *          or alternatively the restrictions 
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
 #include <zzip/lib.h>
@@ -29,9 +24,9 @@
 zzip_off_t
 zzip_filesize(int fd)
 {
-    struct _stat st;
+    struct stat st;
 
-    if (_fstat(fd, &st) < 0)
+    if (fstat(fd, &st) < 0)
         return -1;
 
 # if defined DEBUG && ! defined _WIN32
@@ -44,8 +39,8 @@ zzip_filesize(int fd)
 }
 
 static const struct zzip_plugin_io default_io = {
-    &_open,
-    &_close,
+    &open,
+    &close,
     &_zzip_read,
     &_zzip_lseek,
     &zzip_filesize,

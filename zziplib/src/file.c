@@ -4,12 +4,7 @@
  *      Guido Draheim <guidod@gmx.de>
  *      Tomi Ollila <Tomi.Ollila@iki.fi>
  *
- * Copyright (c) 1999,2000,2001,2002,2003 Guido Draheim
- *          All rights reserved,
- *          use under the restrictions of the
- *          Lesser GNU General Public License
- *          or alternatively the restrictions
- *          of the Mozilla Public License 1.1
+ * Copyright (c) Guido Draheim, use under copyleft (LGPL,MPL)
  */
 
 #include <zzip/lib.h>           /* exported... */
@@ -582,7 +577,7 @@ zzip_fopen(zzip_char_t * filename, zzip_char_t * mode)
  * Per default, the old file stream is closed and only the internal
  * structures associated with it are kept. These internal structures
  * may be reused for the return value, and this is a lot quicker when
- * the filename matches a zipped file that is incidently in the very
+ * the filename matches a zipped file that is incidentally in the very
  * same zip arch as the old filename wrapped in the stream struct.
  *
  * That's simply because the zip arch's central directory does not
