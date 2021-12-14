@@ -2749,6 +2749,37 @@ namespace my
 		static const Matrix4 identity;
 	};
 
+	class Bone
+	{
+	public:
+		Quaternion m_rotation;
+
+		Vector3 m_position;
+
+	public:
+		Bone(void)
+		{
+		}
+
+		Bone(const Quaternion & rotation, const Vector3 & position)
+			: m_rotation(rotation)
+			, m_position(position)
+		{
+		}
+
+		Bone Increment(const Bone & rhs) const;
+
+		Bone & IncrementSelf(const Bone & rhs);
+
+		Bone Lerp(const Bone & rhs, float t) const;
+
+		Bone & LerpSelf(const Bone & rhs, float t);
+
+		Matrix4 BuildTransform(void) const;
+
+		Matrix4 BuildInverseTransform(void) const;
+	};
+
 	class Plane
 	{
 	public:

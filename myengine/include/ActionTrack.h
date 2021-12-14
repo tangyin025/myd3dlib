@@ -279,7 +279,7 @@ protected:
 
 	boost::shared_ptr<CircularEmitter> m_WorldEmitterCmp;
 
-	boost::circular_buffer<my::Vector3> m_SpawnPos;
+	boost::circular_buffer<my::Bone> m_SpawnPose;
 
 	float m_ActionTime;
 
@@ -350,9 +350,7 @@ class ActionTrackPoseInst : public ActionTrackInst
 protected:
 	boost::intrusive_ptr<const ActionTrackPose> m_Template;
 
-	my::Vector3 m_StartPos;
-
-	my::Quaternion m_StartRot;
+	my::Bone m_StartPose;
 
 	my::Vector3 m_LasterPos;
 

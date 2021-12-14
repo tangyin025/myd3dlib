@@ -184,7 +184,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_SpawnPos(m_Template->m_EmitterCapacity)
+	, m_SpawnPose(m_Template->m_EmitterCapacity)
 	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
@@ -225,7 +225,7 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 
 	m_WorldEmitterCmp->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
 
-	m_SpawnPos.rresize(m_WorldEmitterCmp->m_ParticleList.size());
+	m_SpawnPose.rresize(m_WorldEmitterCmp->m_ParticleList.size());
 
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
@@ -245,11 +245,11 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 			if (animator && m_Template->m_AttachBoneId >= 0 && m_Template->m_AttachBoneId < animator->anim_pose_hier.size())
 			{
 				const Bone& bone = animator->anim_pose_hier[m_Template->m_AttachBoneId];
-				m_SpawnPos.push_back(bone.m_position.transformCoord(m_Actor->m_World));
+				m_SpawnPose.push_back(my::Bone(m_Actor->m_Rotation * bone.m_rotation, bone.m_position.transformCoord(m_Actor->m_World)));
 			}
 			else
 			{
-				m_SpawnPos.push_back(m_Actor->m_Position);
+				m_SpawnPose.push_back(my::Bone(m_Actor->m_Rotation, m_Actor->m_Position));
 			}
 
 			m_WorldEmitterCmp->Spawn(
@@ -282,14 +282,15 @@ void ActionTrackEmitterInst::DoTask(void)
 {
 	// ! take care of thread safe
 	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterCmp->m_ParticleList.begin();
-	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPos.size());
+	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPose.size());
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
-		const my::Vector3 & SpawnPos = m_SpawnPos[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
-		particle_iter->m_Position.x = SpawnPos.x + m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0);
-		particle_iter->m_Position.y = SpawnPos.y + m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0);
-		particle_iter->m_Position.z = SpawnPos.z + m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0);
+		const my::Bone & SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
+		particle_iter->m_Position = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
+			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
+			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
+			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0));
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
@@ -317,8 +318,7 @@ void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
 ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_StartPos(_Actor->m_Position)
-	, m_StartRot(_Actor->m_Rotation)
+	, m_StartPose(_Actor->m_Rotation, _Actor->m_Position)
 	, m_LasterPos(_Actor->m_Position)
 {
 }
@@ -329,8 +329,10 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 	{
 		float LocalTime = m_Template->m_Start + fmod(Time + fElapsedTime - m_Template->m_Start, m_Template->m_Length);
 
-		my::Vector3 Pos(m_StartRot * my::Vector3(m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
-			m_Template->m_InterpolateY.Interpolate(LocalTime, 0), m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)) + m_StartPos);
+		my::Vector3 Pos(m_StartPose.m_position + m_StartPose.m_rotation * my::Vector3(
+			m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
+			m_Template->m_InterpolateY.Interpolate(LocalTime, 0),
+			m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)));
 
 		Controller* controller = (Controller*)m_Actor->GetFirstComponent(Component::ComponentTypeController);
 		if (controller)

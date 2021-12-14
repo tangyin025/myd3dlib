@@ -260,6 +260,44 @@ Matrix4 Matrix4::UDQtoRM(const Matrix4 & dual)
 	return m ;      
 } 
 
+Bone Bone::Increment(const Bone & rhs) const
+{
+	return Bone(
+		m_rotation * rhs.m_rotation,
+		m_position + rhs.m_position);
+}
+
+Bone & Bone::IncrementSelf(const Bone & rhs)
+{
+	m_rotation *= rhs.m_rotation;
+	m_position += rhs.m_position;
+	return *this;
+}
+
+Bone Bone::Lerp(const Bone & rhs, float t) const
+{
+	return Bone(
+		m_rotation.slerp(rhs.m_rotation, t),
+		m_position.lerp(rhs.m_position, t));
+}
+
+Bone & Bone::LerpSelf(const Bone & rhs, float t)
+{
+	m_rotation.slerpSelf(rhs.m_rotation, t);
+	m_position.lerpSelf(rhs.m_position, t);
+	return *this;
+}
+
+Matrix4 Bone::BuildTransform(void) const
+{
+	return Matrix4::RotationQuaternion(m_rotation) * Matrix4::Translation(m_position);
+}
+
+Matrix4 Bone::BuildInverseTransform(void) const
+{
+	return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
+}
+
 Plane Plane::NormalDistance(const Vector3 & normal, float distance)
 {
 	_ASSERT(IS_NORMALIZED(normal));
