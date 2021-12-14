@@ -589,9 +589,11 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	CMFCPropertyGridProperty * pProp = pParticle->GetSubItem(0)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionX); pProp->SetValue((_variant_t)particle->m_Position.x);
 	pProp = pParticle->GetSubItem(0)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionY); pProp->SetValue((_variant_t)particle->m_Position.y);
 	pProp = pParticle->GetSubItem(0)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionZ); pProp->SetValue((_variant_t)particle->m_Position.z);
+	pProp = pParticle->GetSubItem(0)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionW); pProp->SetValue((_variant_t)particle->m_Position.w);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle->m_Velocity.x);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle->m_Velocity.y);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle->m_Velocity.z);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityW); pProp->SetValue((_variant_t)particle->m_Velocity.w);
 	COLORREF color = RGB(particle->m_Color.x * 255, particle->m_Color.y * 255, particle->m_Color.z * 255);
 	pProp = pParticle->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColor); (DYNAMIC_DOWNCAST(CColorProp, pProp))->SetColor(color);
 	pProp = pParticle->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorAlpha); pProp->SetValue((_variant_t)(long)(particle->m_Color.w * 255));
@@ -1599,6 +1601,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pPosition->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)particle->m_Position.z, NULL, PropertyEmitterParticlePositionZ);
 	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)particle->m_Position.w, NULL, PropertyEmitterParticlePositionW);
+	pPosition->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pVelocity = new CMFCPropertyGridProperty(_T("Velocity"), PropertyEmitterParticleVelocity, TRUE);
 	pParticle->AddSubItem(pVelocity);
@@ -1607,6 +1611,8 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pProp = new CSimpleProp(_T("y"), (_variant_t)particle->m_Velocity.y, NULL, PropertyEmitterParticleVelocityY);
 	pVelocity->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)particle->m_Velocity.z, NULL, PropertyEmitterParticleVelocityZ);
+	pVelocity->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)particle->m_Velocity.w, NULL, PropertyEmitterParticleVelocityW);
 	pVelocity->AddSubItem(pProp);
 
 	COLORREF color = RGB(particle->m_Color.x * 255, particle->m_Color.y * 255, particle->m_Color.z * 255);
@@ -3660,10 +3666,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEmitterParticlePositionX:
 	case PropertyEmitterParticlePositionY:
 	case PropertyEmitterParticlePositionZ:
+	case PropertyEmitterParticlePositionW:
 	case PropertyEmitterParticleVelocity:
 	case PropertyEmitterParticleVelocityX:
 	case PropertyEmitterParticleVelocityY:
 	case PropertyEmitterParticleVelocityZ:
+	case PropertyEmitterParticleVelocityW:
 	case PropertyEmitterParticleColor:
 	case PropertyEmitterParticleColorAlpha:
 	case PropertyEmitterParticleSize:
@@ -3677,9 +3685,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		case PropertyEmitterParticlePositionX:
 		case PropertyEmitterParticlePositionY:
 		case PropertyEmitterParticlePositionZ:
+		case PropertyEmitterParticlePositionW:
 		case PropertyEmitterParticleVelocityX:
 		case PropertyEmitterParticleVelocityY:
 		case PropertyEmitterParticleVelocityZ:
+		case PropertyEmitterParticleVelocityW:
 		case PropertyEmitterParticleSizeX:
 		case PropertyEmitterParticleSizeY:
 			pParticle = pProp->GetParent()->GetParent();
@@ -3713,9 +3723,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle->m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
 		particle->m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
 		particle->m_Position.z = pParticle->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal;
+		particle->m_Position.w = pParticle->GetSubItem(0)->GetSubItem(3)->GetValue().fltVal;
 		particle->m_Velocity.x = pParticle->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
 		particle->m_Velocity.y = pParticle->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
 		particle->m_Velocity.z = pParticle->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
+		particle->m_Velocity.w = pParticle->GetSubItem(1)->GetSubItem(3)->GetValue().fltVal;
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pParticle->GetSubItem(2)))->GetColor();
 		particle->m_Color.x = GetRValue(color) / 255.0f;
 		particle->m_Color.y = GetGValue(color) / 255.0f;

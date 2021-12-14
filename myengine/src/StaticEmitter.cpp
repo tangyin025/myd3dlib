@@ -356,7 +356,7 @@ void StaticEmitterStream::SetBuffer(int i, int j, my::DeviceResourceBasePtr res)
 	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
-void StaticEmitterStream::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
 	int i = (int)(Position.z / m_emit->m_ChunkWidth), j = (int)(Position.x / m_emit->m_ChunkWidth);
 
@@ -404,7 +404,7 @@ my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float
 			StaticEmitterChunkBuffer::iterator part_iter = buff->begin();
 			for (; part_iter != buff->end(); part_iter++)
 			{
-				float dist = (part_iter->m_Position - center).magnitude2D();
+				float dist = (part_iter->m_Position.xyz - center).magnitude2D();
 				if (dist < nearest_dist)
 				{
 					nearest_dist = dist;

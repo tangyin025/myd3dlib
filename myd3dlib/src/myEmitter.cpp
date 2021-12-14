@@ -9,7 +9,7 @@ using namespace my;
 //BOOST_CLASS_EXPORT(Emitter::Particle)
 //
 
-void Emitter::Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+void Emitter::Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
 	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, Time));
 }

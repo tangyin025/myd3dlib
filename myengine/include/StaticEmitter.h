@@ -139,7 +139,7 @@ public:
 
 	void SetBuffer(int i, int j, my::DeviceResourceBasePtr res);
 
-	void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
+	void Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
 	my::Emitter::Particle * GetNearestParticle2D(float x, float z, float max_dist);
 

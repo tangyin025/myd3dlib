@@ -15,9 +15,9 @@ namespace my
 		class Particle
 		{
 		public:
-			Vector3 m_Position;
+			Vector4 m_Position;
 
-			Vector3 m_Velocity;
+			Vector4 m_Velocity;
 
 			Vector4 m_Color;
 
@@ -29,8 +29,8 @@ namespace my
 
 		public:
 			Particle(void)
-				//: m_Position(0, 0, 0)
-				//, m_Velocity(0, 0, 0)
+				//: m_Position(0, 0, 0, 1)
+				//, m_Velocity(0, 0, 0, 0)
 				//, m_Color(1, 1, 1, 1)
 				//, m_Size(1, 1)
 				//, m_Angle(0)
@@ -38,7 +38,7 @@ namespace my
 			{
 			}
 
-			Particle(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle, float Time)
+			Particle(const Vector4 & Position, const Vector4 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle, float Time)
 				: m_Position(Position)
 				, m_Velocity(Velocity)
 				, m_Color(Color)
@@ -84,7 +84,7 @@ namespace my
 			m_ParticleList.set_capacity(new_capacity);
 		}
 
-		void Spawn(const my::Vector3 & Position, const my::Vector3 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
+		void Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
 		void RemoveAllParticle(void);
 

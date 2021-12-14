@@ -296,13 +296,13 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(my::Vector2);
 
 	offset = 0;
-	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, 1);
-	offset += sizeof(Vector3);
-	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, 1);
-	offset += sizeof(Vector3);
+	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 1);
+	offset += sizeof(Vector4);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 2);
 	offset += sizeof(Vector4);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 3);
+	offset += sizeof(Vector4);
+	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
 	offset += sizeof(Vector4);
 
 	m_ParticleIEList = m_ParticleVertElems.BuildVertexElementList(0);

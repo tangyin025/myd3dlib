@@ -457,32 +457,32 @@ my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Em
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90)),
-			particle.m_Position);
+			particle.m_Position.xyz);
 	case EmitterComponent::FaceTypeY:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, D3DXToRadian(-90)),
-			particle.m_Position);
+			particle.m_Position.xyz);
 	case EmitterComponent::FaceTypeZ:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle),
-			particle.m_Position);
+			particle.m_Position.xyz);
 	case EmitterComponent::FaceTypeCamera:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitZ, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitX, -sph.y) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - sph.z),
-			particle.m_Position);
+			particle.m_Position.xyz);
 	case EmitterComponent::FaceTypeAngle:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitY, particle.m_Angle),
-			particle.m_Position);
+			particle.m_Position.xyz);
 	case EmitterComponent::FaceTypeAngleCamera:
 		return my::Matrix4::Compose(
 			my::Vector3(particle.m_Size.x, particle.m_Size.y, particle.m_Size.x),
 			my::Quaternion::RotationAxis(my::Vector3::unitX, particle.m_Angle) * my::Quaternion::RotationAxis(my::Vector3::unitY, D3DXToRadian(90) - sph.z),
-			particle.m_Position);
+			particle.m_Position.xyz);
 	}
 	return my::Matrix4::Identity();
 }
@@ -2402,8 +2402,8 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 					if (res.first)
 					{
 						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-						my::Vector3 emit_pt = pt.transformCoord(local2emit);
-						if (!estr.m_emit->PtInRect(emit_pt))
+						my::Vector4 emit_pt = pt.transform(local2emit);
+						if (!estr.m_emit->PtInRect(emit_pt.xyz))
 						{
 							continue;
 						}
@@ -2411,7 +2411,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 						my::Emitter::Particle * particle = estr.GetNearestParticle2D(emit_pt.x, emit_pt.z, pFrame->m_PaintParticleMinDist);
 						if (!particle)
 						{
-							estr.Spawn(emit_pt, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+							estr.Spawn(emit_pt, my::Vector4(0, 0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
 							candidate.push_back(my::Vector2(emit_pt.x, emit_pt.z));
 						}
 						else
@@ -2437,10 +2437,10 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream&
 										my::RayResult res = tstr.RayTest(local_ray);
 										if (res.first)
 										{
-											my::Vector3 emit_pos = (local_ray.p + local_ray.d * res.second).transformCoord(local2emit);
-											if (estr.m_emit->PtInRect(emit_pos))
+											my::Vector4 emit_pos = (local_ray.p + local_ray.d * res.second).transform(local2emit);
+											if (estr.m_emit->PtInRect(emit_pos.xyz))
 											{
-												estr.Spawn(emit_pos, my::Vector3(0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+												estr.Spawn(emit_pos, my::Vector4(0, 0, 0, 0), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
 												candidate.push_back(rand_pos);
 											}
 										}

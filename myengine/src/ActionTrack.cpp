@@ -253,7 +253,7 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 			}
 
 			m_WorldEmitterCmp->Spawn(
-				Vector3(0, 0, 0), Vector3(0, 0, 0), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
+				Vector4(0, 0, 0, 1), Vector4(0, 0, 0, 0), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
 		}
 
 		if (key_inst_iter->m_SpawnCount <= 0)
@@ -287,7 +287,7 @@ void ActionTrackEmitterInst::DoTask(void)
 	{
 		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
 		const my::Bone & SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
-		particle_iter->m_Position = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
+		particle_iter->m_Position.xyz = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
 			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
 			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
 			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0));

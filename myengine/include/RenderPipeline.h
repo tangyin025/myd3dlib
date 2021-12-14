@@ -59,7 +59,7 @@ public:
 
 	static const DWORD m_ParticleVertStride = 20;
 
-	static const DWORD m_ParticleInstanceStride = 56;
+	static const DWORD m_ParticleInstanceStride = 64;
 
 	std::vector<D3DVERTEXELEMENT9> m_ParticleIEList;
 

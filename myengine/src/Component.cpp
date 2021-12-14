@@ -1585,11 +1585,11 @@ void SphericalEmitter::Update(float fElapsedTime)
 				Vector3(
 					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transformCoord(m_Actor->m_World),
-				Vector3::SphericalToCartesian(
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transform(m_Actor->m_World),
+				Vector4(Vector3::SphericalToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World), 0),
 				Vector4(
 					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
@@ -1603,14 +1603,14 @@ void SphericalEmitter::Update(float fElapsedTime)
 		else
 		{
 			Spawn(
-				Vector3(
+				Vector4(
 					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
-				Vector3::SphericalToCartesian(
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z), 1),
+				Vector4(Vector3::SphericalToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 0),
 				Vector4(
 					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
