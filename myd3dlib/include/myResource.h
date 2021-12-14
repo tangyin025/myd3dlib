@@ -28,7 +28,7 @@ namespace my
 
 		~ZipIStream(void);
 
-		virtual int read(void * buff, unsigned read_size);
+		virtual int read(void * buff, unsigned int read_size);
 
 		virtual long seek(long offset, int origin);
 
@@ -49,7 +49,7 @@ namespace my
 
 		static IStreamPtr Open(LPCTSTR pFilename);
 
-		virtual int read(void * buff, unsigned read_size);
+		virtual int read(void * buff, unsigned int read_size);
 
 		virtual long seek(long offset, int origin);
 

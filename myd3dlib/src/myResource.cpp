@@ -44,7 +44,7 @@ ZipIStream::~ZipIStream(void)
 	zzip_file_close(m_fp);
 }
 
-int ZipIStream::read(void * buff, unsigned read_size)
+int ZipIStream::read(void * buff, unsigned int read_size)
 {
 	CriticalSectionLock lock(m_DirSec);
 	return zzip_file_read(m_fp, buff, read_size);
@@ -90,7 +90,7 @@ IStreamPtr FileIStream::Open(LPCTSTR pFilename)
 	return IStreamPtr(new FileIStream(fp));
 }
 
-int FileIStream::read(void * buff, unsigned read_size)
+int FileIStream::read(void * buff, unsigned int read_size)
 {
 	return _read(m_fp, buff, read_size);
 }
