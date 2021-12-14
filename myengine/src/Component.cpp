@@ -1589,7 +1589,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 				Vector4(Vector3::SphericalToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World), 0),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World), 1),
 				Vector4(
 					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
@@ -1610,7 +1610,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 				Vector4(Vector3::SphericalToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 0),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1),
 				Vector4(
 					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),

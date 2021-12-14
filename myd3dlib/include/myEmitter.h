@@ -30,7 +30,7 @@ namespace my
 		public:
 			Particle(void)
 				//: m_Position(0, 0, 0, 1)
-				//, m_Velocity(0, 0, 0, 0)
+				//, m_Velocity(0, 0, 0, 1)
 				//, m_Color(1, 1, 1, 1)
 				//, m_Size(1, 1)
 				//, m_Angle(0)

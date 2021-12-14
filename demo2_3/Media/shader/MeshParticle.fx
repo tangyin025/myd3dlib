@@ -5,9 +5,9 @@ struct VS_INPUT
 	float2 Tex0  			: TEXCOORD0; // uv
 //#ifdef INSTANCE
 	float4 Pos				: POSITION1;
-	float3 Velocity			: NORMAL1;
-	float4 Color			: POSITION2;
-	float4 SizeAngleTime	: POSITION3; // size_x, size_y, angle, time
+	float4 Velocity			: POSITION2;
+	float4 Color			: POSITION3;
+	float4 SizeAngleTime	: POSITION4; // size_x, size_y, angle, time
 //#endif
 };
 
@@ -45,7 +45,7 @@ float4 TransformPosWS(VS_INPUT In)
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z, In.SizeAngleTime.z, Dir);
 #endif
 #if EMITTER_VEL_TYPE == 1
-	float4 Pos = mul(float4(In.Pos.xyz + In.Velocity * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
+	float4 Pos = mul(float4(In.Pos.xyz + In.Velocity.xyz * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
 #else
 	float4 Pos = mul(In.Pos, g_World);
 #endif

@@ -457,7 +457,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//m_emitter->m_Material->m_Shader = theApp.default_shader;
 	//m_emitter->m_Material->ParseShaderParameters();
 	//m_emitter->RequestResource();
-	////m_emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
+	////m_emitter->Spawn(my::Vector3(0,0,0,1), my::Vector3(0,0,0,1), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
 
 	m_wndOutliner.OnInitItemList();
 	return 0;
