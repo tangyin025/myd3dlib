@@ -227,6 +227,12 @@ public:
 
 	my::Spline m_ParticlePositionZ;
 
+	my::Spline m_ParticleEulerX;
+
+	my::Spline m_ParticleEulerY;
+
+	my::Spline m_ParticleEulerZ;
+
 	my::Spline m_ParticleColorR;
 
 	my::Spline m_ParticleColorG;

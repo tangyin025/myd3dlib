@@ -1468,6 +1468,9 @@ void EmitterComponent::AddParticlePairToPipeline(RenderPipeline* pipeline, unsig
 				case VelocityTypeVel:
 					macro[1].Definition = "1";
 					break;
+				case VelocityTypeQuat:
+					macro[1].Definition = "2";
+					break;
 				}
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, macro, m_Material->m_Shader.c_str(), PassID);
 				if (shader)

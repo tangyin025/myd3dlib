@@ -1,3 +1,4 @@
+#include "Quaternion.hlsl"
 
 struct VS_INPUT
 {
@@ -46,6 +47,9 @@ float4 TransformPosWS(VS_INPUT In)
 #endif
 #if EMITTER_VEL_TYPE == 1
 	float4 Pos = mul(float4(In.Pos.xyz + In.Velocity.xyz * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
+#elif EMITTER_VEL_TYPE == 2
+	float4 Pos = mul(In.Pos, g_World);
+	Offset = rotate_vector(Offset, In.Velocity);
 #else
 	float4 Pos = mul(In.Pos, g_World);
 #endif
@@ -71,50 +75,52 @@ float2 TransformUV(VS_INPUT In)
 float3 TransformNormal(VS_INPUT In)
 {
 #if EMITTER_FACE_TYPE == 0
-	return float3(1,0,0);
+	float3 Normal = float3(1,0,0);
 #elif EMITTER_FACE_TYPE == 1
-	return float3(0,1,0);
+	float3 Normal = float3(0,1,0);
 #elif EMITTER_FACE_TYPE == 2
-	return float3(0,0,1);
+	float3 Normal = float3(0,0,1);
 #elif EMITTER_FACE_TYPE == 3
-	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	return Dir;
+	float3 Normal = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Dir = float3(c, 0, -s);
-	return Dir;
+	float3 Normal = float3(c, 0, -s);
 #elif EMITTER_FACE_TYPE == 5
 	float3 Up = float3(0, 1, 0);
 	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 	float3 Right = normalize(cross(Up, Dir));
-	Dir = cross(Right, Up);
-	return Dir;
+	float3 Normal = cross(Right, Up);
 #endif
+#if EMITTER_VEL_TYPE == 2
+	Normal = rotate_vector(Normal, In.Velocity);
+#endif
+return Normal;
 }
 
 float3 TransformTangent(VS_INPUT In)
 {
 #if EMITTER_FACE_TYPE == 0
-	return float3(0,0,-1);
+	float3 Tangent = float3(0,0,-1);
 #elif EMITTER_FACE_TYPE == 1
-	return float3(1,0,0);
+	float3 Tangent = float3(1,0,0);
 #elif EMITTER_FACE_TYPE == 2
-	return float3(1,0,0);
+	float3 Tangent = float3(1,0,0);
 #elif EMITTER_FACE_TYPE == 3
-	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
-	return Right;
+	float3 Tangent = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Right = float3(-s, 0, -c);
-	return Right;
+	float3 Tangent = float3(-s, 0, -c);
 #elif EMITTER_FACE_TYPE == 5
 	float3 Up = float3(0, 1, 0);
 	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	float3 Right = normalize(cross(Up, Dir));
-	return Right;
+	float3 Tangent = normalize(cross(Up, Dir));
 #endif
+#if EMITTER_VEL_TYPE == 2
+	Tangent = rotate_vector(Tangent, In.Velocity);
+#endif
+	return Tangent;
 }
 
 float4 TransformLightWS(VS_INPUT In)

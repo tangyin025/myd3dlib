@@ -1916,7 +1916,8 @@ void LuaContext::Init(void)
 			.enum_("VelocityType")
 			[
 				value("VelocityTypeNone", EmitterComponent::VelocityTypeNone),
-				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel)
+				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel),
+				value("VelocityTypeQuat", EmitterComponent::VelocityTypeQuat)
 			]
 			.def_readwrite("EmitterVelType", &EmitterComponent::m_EmitterVelType)
 			.enum_("PrimitiveType")
@@ -2168,6 +2169,9 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticlePositionX", &ActionTrackEmitter::m_ParticlePositionX)
 			.def_readwrite("ParticlePositionY", &ActionTrackEmitter::m_ParticlePositionY)
 			.def_readwrite("ParticlePositionZ", &ActionTrackEmitter::m_ParticlePositionZ)
+			.def_readwrite("ParticleEulerX", &ActionTrackEmitter::m_ParticleEulerX)
+			.def_readwrite("ParticleEulerY", &ActionTrackEmitter::m_ParticleEulerY)
+			.def_readwrite("ParticleEulerZ", &ActionTrackEmitter::m_ParticleEulerZ)
 			.def_readwrite("ParticleColorR", &ActionTrackEmitter::m_ParticleColorR)
 			.def_readwrite("ParticleColorG", &ActionTrackEmitter::m_ParticleColorG)
 			.def_readwrite("ParticleColorB", &ActionTrackEmitter::m_ParticleColorB)

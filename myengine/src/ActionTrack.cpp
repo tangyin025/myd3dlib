@@ -189,7 +189,8 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
 	m_WorldEmitterCmp.reset(new CircularEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeWorld, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeWorld,
+			m_Template->m_EmitterFaceType == EmitterComponent::FaceTypeCamera || m_Template->m_EmitterFaceType == EmitterComponent::FaceTypeAngleCamera ? EmitterComponent::VelocityTypeNone : EmitterComponent::VelocityTypeQuat, EmitterComponent::PrimitiveTypeQuad));
 	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
 	//if (!m_Actor->m_Node)
@@ -291,6 +292,10 @@ void ActionTrackEmitterInst::DoTask(void)
 			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
 			m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
 			m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0));
+		particle_iter->m_Velocity = (Vector4&)(Quaternion::RotationEulerAngles(
+			m_Template->m_ParticleEulerX.Interpolate(ParticleTime, 0),
+			m_Template->m_ParticleEulerY.Interpolate(ParticleTime, 0),
+			m_Template->m_ParticleEulerZ.Interpolate(ParticleTime, 0)) * SpawnPose.m_rotation);
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
