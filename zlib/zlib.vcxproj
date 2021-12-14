@@ -18,6 +18,40 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\crc32.h" />
+    <ClInclude Include="include\deflate.h" />
+    <ClInclude Include="include\gzguts.h" />
+    <ClInclude Include="include\inffast.h" />
+    <ClInclude Include="include\inffixed.h" />
+    <ClInclude Include="include\inflate.h" />
+    <ClInclude Include="include\inftrees.h" />
+    <ClInclude Include="include\trees.h" />
+    <ClInclude Include="include\zconf.h" />
+    <ClInclude Include="include\zlib.h" />
+    <ClInclude Include="include\zutil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\adler32.c" />
+    <ClCompile Include="src\compress.c" />
+    <ClCompile Include="src\crc32.c" />
+    <ClCompile Include="src\deflate.c" />
+    <ClCompile Include="src\gzclose.c" />
+    <ClCompile Include="src\gzlib.c" />
+    <ClCompile Include="src\gzread.c" />
+    <ClCompile Include="src\gzwrite.c" />
+    <ClCompile Include="src\infback.c" />
+    <ClCompile Include="src\inffast.c" />
+    <ClCompile Include="src\inflate.c" />
+    <ClCompile Include="src\inftrees.c" />
+    <ClCompile Include="src\minizip\ioapi.c" />
+    <ClCompile Include="src\minizip\iowin32.c" />
+    <ClCompile Include="src\minizip\unzip.c" />
+    <ClCompile Include="src\minizip\zip.c" />
+    <ClCompile Include="src\trees.c" />
+    <ClCompile Include="src\uncompr.c" />
+    <ClCompile Include="src\zutil.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4B104248-0F92-4516-8D50-E87D5E9BB6B6}</ProjectGuid>
     <RootNamespace>zlib</RootNamespace>
@@ -126,40 +160,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="src\adler32.c" />
-    <ClCompile Include="src\compress.c" />
-    <ClCompile Include="src\crc32.c" />
-    <ClCompile Include="src\deflate.c" />
-    <ClCompile Include="src\gzclose.c" />
-    <ClCompile Include="src\gzlib.c" />
-    <ClCompile Include="src\gzread.c" />
-    <ClCompile Include="src\gzwrite.c" />
-    <ClCompile Include="src\infback.c" />
-    <ClCompile Include="src\inffast.c" />
-    <ClCompile Include="src\inflate.c" />
-    <ClCompile Include="src\inftrees.c" />
-    <ClCompile Include="src\ioapi.c" />
-    <ClCompile Include="src\trees.c" />
-    <ClCompile Include="src\uncompr.c" />
-    <ClCompile Include="src\unzip.c" />
-    <ClCompile Include="src\zutil.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\crc32.h" />
-    <ClInclude Include="include\deflate.h" />
-    <ClInclude Include="include\gzguts.h" />
-    <ClInclude Include="include\inffast.h" />
-    <ClInclude Include="include\inffixed.h" />
-    <ClInclude Include="include\inflate.h" />
-    <ClInclude Include="include\inftrees.h" />
-    <ClInclude Include="include\ioapi.h" />
-    <ClInclude Include="include\trees.h" />
-    <ClInclude Include="include\unzip.h" />
-    <ClInclude Include="include\zconf.h" />
-    <ClInclude Include="include\zlib.h" />
-    <ClInclude Include="include\zutil.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
