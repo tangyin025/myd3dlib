@@ -1135,30 +1135,10 @@ void Control::OnFocusIn(void)
 	// ! fix ListBox scroll pos
 	if (m_Parent && m_Parent->GetControlType() == ControlTypeListBox)
 	{
-		struct Finder
-		{
-			const Control* ptr;
-
-			Finder(const Control* _ptr)
-				: ptr(_ptr)
-			{
-			}
-
-			bool operator() (const Control::ControlPtrList::value_type & self)
-			{
-				return self.get() == ptr;
-			}
-		};
-
 		ListBox* listBox = dynamic_cast<ListBox*>(m_Parent);
 		_ASSERT(listBox);
-		ControlPtrList::iterator ctrl_iter = std::find_if(listBox->m_Childs.begin(), listBox->m_Childs.end(), Finder(this));
-		if (ctrl_iter != listBox->m_Childs.end())
-		{
-			int idx = std::distance(listBox->m_Childs.begin(), ctrl_iter);
-			int pos = idx / listBox->m_ItemColumn;
-			listBox->m_ScrollBar.ScrollTo(pos);
-		}
+		int pos = GetSiblingId() / listBox->m_ItemColumn;
+		listBox->m_ScrollBar.ScrollTo(pos);
 	}
 }
 
@@ -1377,6 +1357,16 @@ void Control::RemoveControl(ControlPtr control)
 unsigned int Control::GetChildNum(void) const
 {
 	return m_Childs.size();
+}
+
+unsigned int Control::GetSiblingId(void) const
+{
+	if (m_Parent)
+	{
+		ControlPtrList::iterator self_iter = boost::find_if(m_Parent->m_Childs, boost::bind(std::equal_to<ControlPtr>(), boost::placeholders::_1, const_cast<Control*>(this)->shared_from_this()));
+		return std::distance(m_Parent->m_Childs.begin(), self_iter);
+	}
+	return 0;
 }
 
 void Control::ClearAllControl(void)

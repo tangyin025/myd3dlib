@@ -508,6 +508,8 @@ namespace my
 
 		unsigned int GetChildNum(void) const;
 
+		unsigned int GetSiblingId(void) const;
+
 		virtual void ClearAllControl(void);
 
 		bool ContainsControl(Control * control) const;
