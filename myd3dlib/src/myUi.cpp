@@ -1085,15 +1085,18 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 				SetCaptureControl(NULL);
 				m_bPressed = false;
 
-				if (m_Skin && m_Skin->m_MouseClickSound)
+				if (HitTest(pt))
 				{
-					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-				}
+					if (m_Skin && m_Skin->m_MouseClickSound)
+					{
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+					}
 
-				if (m_EventMouseClick)
-				{
-					MouseEventArg arg(this, pt);
-					m_EventMouseClick(&arg);
+					if (m_EventMouseClick)
+					{
+						MouseEventArg arg(this, pt);
+						m_EventMouseClick(&arg);
+					}
 				}
 				return true;
 			}
@@ -1656,6 +1659,8 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	{
 		m_Rect = Rectangle::LeftTop(Offset.x + m_x.scale * Size.x + m_x.offset, Offset.y + m_y.scale * Size.y + m_y.offset, m_Width.scale * Size.x + m_Width.offset, m_Height.scale * Size.y + m_Height.offset);
 
+		Rectangle ButtonRect(m_Rect);
+
 		if(m_Skin)
 		{
 			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
@@ -1663,39 +1668,39 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(ui_render, Skin->m_DisabledImage, m_Rect, m_Skin->m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, ButtonRect, m_Skin->m_Color);
 			}
 			else
 			{
 				if(m_bPressed)
 				{
-					m_Rect = m_Rect.offset(Skin->m_PressedOffset);
-					Skin->DrawImage(ui_render, Skin->m_PressedImage, m_Rect, m_Skin->m_Color);
+					ButtonRect.offsetSelf(Skin->m_PressedOffset);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, ButtonRect, m_Skin->m_Color);
 				}
 				else
 				{
 					D3DXCOLOR DstColor = m_Skin->m_Color;
 					if(GetMouseOver() /*|| m_bHasFocus*/)
 					{
-						m_Rect = m_Rect.offset(-Skin->m_PressedOffset);
+						ButtonRect.offsetSelf(-Skin->m_PressedOffset);
 					}
 					else
 					{
 						DstColor.a = 0;
 					}
-					Skin->DrawImage(ui_render, Skin->m_Image, m_Rect, m_Skin->m_Color);
+					Skin->DrawImage(ui_render, Skin->m_Image, ButtonRect, m_Skin->m_Color);
 					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, m_Rect, m_BlendColor);
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, ButtonRect, m_BlendColor);
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), ButtonRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 		for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, ButtonRect.LeftTop(), ButtonRect.Extent());
 		}
 	}
 }
