@@ -820,11 +820,11 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 	}
 }
 
-void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
+void ControlSkin::DrawString(UIRender * ui_render, const wchar_t * str, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
 {
 	if(m_Font)
 	{
-		ui_render->PushString(rect, pString, TextColor, TextAlign, m_Font.get());
+		ui_render->PushString(rect, str, TextColor, TextAlign, m_Font.get());
 	}
 }
 
@@ -1593,6 +1593,16 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
+}
+
+bool Static::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool Static::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	return false;
 }
 
 void ProgressBarSkin::RequestResource(void)
@@ -2998,12 +3008,12 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				m_Checked = true;
 
-				return Control::HandleKeyboard(uMsg, wParam, lParam);
+				return Button::HandleKeyboard(uMsg, wParam, lParam);
 			}
 			break;
 		}
 	}
-	return Control::HandleKeyboard(uMsg, wParam, lParam);
+	return Button::HandleKeyboard(uMsg, wParam, lParam);
 }
 
 bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
@@ -3018,12 +3028,12 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				m_Checked = true;
 
-				return Control::HandleMouse(uMsg, pt, wParam, lParam);
+				return Button::HandleMouse(uMsg, pt, wParam, lParam);
 			}
 			break;
 		}
 	}
-	return Control::HandleMouse(uMsg, pt, wParam, lParam);
+	return Button::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
 void ComboBoxSkin::RequestResource(void)
@@ -3324,7 +3334,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	}
-	return Control::HandleKeyboard(uMsg, wParam, lParam);
+	return Button::HandleKeyboard(uMsg, wParam, lParam);
 }
 
 bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)

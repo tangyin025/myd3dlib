@@ -261,7 +261,7 @@ namespace my
 
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip);
 
-		void DrawString(UIRender * ui_render, LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
+		void DrawString(UIRender * ui_render, const wchar_t * str, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
 
 		virtual ControlSkinPtr Clone(void) const;
 	};
@@ -559,6 +559,10 @@ namespace my
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 	};
 
 	typedef boost::shared_ptr<Static> StaticPtr;
