@@ -3,6 +3,7 @@
 #include "Animator.h"
 #include "libc.h"
 #include "myOctree.h"
+#include "myResource.h"
 #include "Material.h"
 #include "PhysxContext.h"
 #include "Controller.h"
@@ -115,19 +116,45 @@ void ActionTrackAnimationInst::Stop(void)
 	}
 }
 
+void ActionTrackSound::KeyFrame::OnSoundReady(my::DeviceResourceBasePtr res)
+{
+	Sound = boost::dynamic_pointer_cast<my::Wav>(res);
+}
+
+ActionTrackSound::~ActionTrackSound(void)
+{
+	KeyFrameMap::iterator key_iter = m_Keys.begin();
+	for (; key_iter != m_Keys.end(); key_iter++)
+	{
+		if (!key_iter->second.SoundPath.empty())
+		{
+			my::ResourceMgr::getSingleton().RemoveIORequestCallback(key_iter->second.SoundPath, boost::bind(&ActionTrackSound::KeyFrame::OnSoundReady, &key_iter->second, boost::placeholders::_1));
+
+			key_iter->second.Sound.reset();
+		}
+	}
+}
+
 ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, this));
 }
 
-void ActionTrackSound::AddKeyFrame(float Time, my::WavPtr Sound, bool Loop, float MinDistance, float MaxDistance)
+void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
 	_ASSERT(key_iter != m_Keys.end());
-	key_iter->second.Sound = Sound;
+	key_iter->second.SoundPath = SoundPath;
 	key_iter->second.Loop = Loop;
 	key_iter->second.MinDistance = MinDistance;
 	key_iter->second.MaxDistance = MaxDistance;
+
+	if (!key_iter->second.SoundPath.empty())
+	{
+		_ASSERT(!key_iter->second.Sound);
+
+		my::ResourceMgr::getSingleton().LoadWavAsync(SoundPath, boost::bind(&ActionTrackSound::KeyFrame::OnSoundReady, &key_iter->second, boost::placeholders::_1), 0);
+	}
 }
 
 ActionTrackSoundInst::~ActionTrackSoundInst(void)
@@ -151,8 +178,11 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_Events.push_back(SoundContext::getSingleton().Play(
-			key_iter->second.Sound, key_iter->second.Loop, m_Actor->m_Position, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+		if (key_iter->second.Sound)
+		{
+			m_Events.push_back(SoundContext::getSingleton().Play(
+				key_iter->second.Sound, key_iter->second.Loop, m_Actor->m_Position, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+		}
 	}
 }
 

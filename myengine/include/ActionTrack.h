@@ -165,10 +165,13 @@ class ActionTrackSound : public ActionTrack
 public:
 	struct KeyFrame
 	{
+		std::string SoundPath;
 		my::WavPtr Sound;
 		bool Loop;
 		float MinDistance;
 		float MaxDistance;
+
+		void OnSoundReady(my::DeviceResourceBasePtr res);
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
@@ -180,9 +183,11 @@ public:
 	{
 	}
 
+	virtual ~ActionTrackSound(void);
+
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, my::WavPtr Sound, bool Loop, float MinDistance, float MaxDistance);
+	void AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance);
 };
 
 class ActionTrackSoundInst : public ActionTrackInst
