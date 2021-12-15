@@ -5,8 +5,10 @@
 
 class LargeImage;
 
+struct LargeImageTag;
+
 class LargeImageChunk
-	: public boost::intrusive::list_base_hook<>
+	: public boost::intrusive::list_base_hook<boost::intrusive::tag<LargeImageTag> >
 {
 public:
 	LargeImage* m_Owner;
@@ -51,7 +53,7 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef boost::intrusive::list<LargeImageChunk> ChunkSet;
+	typedef boost::intrusive::list<LargeImageChunk, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<LargeImageTag> > > > ChunkSet;
 
 	ChunkSet m_ViewedChunks;
 
