@@ -1374,6 +1374,11 @@ void Control::RemoveControl(ControlPtr control)
 	}
 }
 
+unsigned int Control::GetChildNum(void) const
+{
+	return m_Childs.size();
+}
+
 void Control::ClearAllControl(void)
 {
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();

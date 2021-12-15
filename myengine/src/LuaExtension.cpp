@@ -69,6 +69,11 @@ static my::Bone animator_get_bone(Animator* anim, int i)
 	return anim->anim_pose_hier[i];
 }
 
+static void ui_render_push_string(my::UIRender* ui_render, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, my::Font* font)
+{
+	ui_render->PushString(rect, str.c_str(), color, align, font);
+}
+
 struct ScriptControl : my::Control, luabind::wrap_base
 {
 	ScriptControl(const char* Name)
@@ -1128,7 +1133,8 @@ void LuaContext::Init(void)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&, const my::Rectangle&))& my::UIRender::PushRectangle)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*))& my::UIRender::PushWindow)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushWindow)
-			.def("PushString", &my::UIRender::PushString)
+
+		, def("ui_render_push_string", &ui_render_push_string)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
@@ -1215,6 +1221,7 @@ void LuaContext::Init(void)
 			.property("MouseOver", &my::Control::GetMouseOver, &my::Control::SetMouseOver)
 			.def("InsertControl", &my::Control::InsertControl)
 			.def("RemoveControl", &my::Control::RemoveControl)
+			.property("ChildNum", &my::Control::GetChildNum)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
 

@@ -506,6 +506,8 @@ namespace my
 
 		virtual void RemoveControl(ControlPtr control);
 
+		unsigned int GetChildNum(void) const;
+
 		virtual void ClearAllControl(void);
 
 		bool ContainsControl(Control * control) const;
