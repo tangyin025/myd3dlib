@@ -3031,6 +3031,26 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				return Button::HandleMouse(uMsg, pt, wParam, lParam);
 			}
 			break;
+
+		case WM_LBUTTONUP:
+			if (m_bPressed)
+			{
+				SetCaptureControl(NULL);
+				m_bPressed = false;
+
+				if (m_Skin && m_Skin->m_MouseClickSound)
+				{
+					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+				}
+
+				if (m_EventMouseClick)
+				{
+					MouseEventArg arg(this, pt);
+					m_EventMouseClick(&arg);
+				}
+				return true;
+			}
+			break;
 		}
 	}
 	return Button::HandleMouse(uMsg, pt, wParam, lParam);
