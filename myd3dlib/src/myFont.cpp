@@ -1,7 +1,6 @@
 #include "myFont.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include "myUI.h"
 #include "myResource.h"
 #include "myDxutApp.h"
 #include "libc.h"
@@ -466,34 +465,6 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	pen.y += m_LineHeight + m_face->size->metrics.descender / 64;
 
 	return pen;
-}
-
-void Font::PushString(
-	UIRender * ui_render,
-	LPCWSTR pString,
-	const my::Rectangle & rect,
-	D3DCOLOR Color,
-	Align align)
-{
-	Vector2 pen = CalculateAlignedPen(pString, rect, align);
-
-	wchar_t c;
-	while(c = *pString++)
-	{
-		const CharacterInfo & info = GetCharacterInfo(c);
-
-		Rectangle uv_rect(
-			(float)info.textureRect.left / m_textureDesc.Width,
-			(float)info.textureRect.top / m_textureDesc.Height,
-			(float)info.textureRect.right / m_textureDesc.Width,
-			(float)info.textureRect.bottom / m_textureDesc.Height);
-
-		// ! frequently calling UIRender::PushVertexSimple may obviously lose performance
-		ui_render->PushRectangle(
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color, m_Texture.get());
-
-		pen.x += info.horiAdvance;
-	}
 }
 
 void Font::DrawString(

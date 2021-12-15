@@ -548,6 +548,28 @@ void UIRender::PushWindow(const Rectangle & rect, DWORD color, const Rectangle &
 	PushWindowSimple(GetVertexList(texture), rect, color, WindowRect, WindowBorder, TextureSize, clip);
 }
 
+void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
+{
+	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
+
+	wchar_t c;
+	while (c = *str++)
+	{
+		const Font::CharacterInfo& info = font->GetCharacterInfo(c);
+
+		Rectangle uv_rect(
+			(float)info.textureRect.left / font->m_textureDesc.Width,
+			(float)info.textureRect.top / font->m_textureDesc.Height,
+			(float)info.textureRect.right / font->m_textureDesc.Width,
+			(float)info.textureRect.bottom / font->m_textureDesc.Height);
+
+		PushRectangle(
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+
+		pen.x += info.horiAdvance;
+	}
+}
+
 ControlImage::~ControlImage(void)
 {
 	if (IsRequested())
@@ -802,7 +824,7 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 {
 	if(m_Font)
 	{
-		m_Font->PushString(ui_render, pString, rect, TextColor, TextAlign);
+		ui_render->PushString(rect, pString, TextColor, TextAlign, m_Font.get());
 	}
 }
 
@@ -1828,7 +1850,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Skin->DrawImage(ui_render, Skin->m_CaretImage, SelRect, Skin->m_SelBkColor);
 				}
 
-				Skin->m_Font->PushString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+				Skin->DrawString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 
 				if(GetFocused() && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 				{
@@ -2570,7 +2592,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime)
 
 		Skin->DrawImage(ui_render, Skin->m_CaretImage, rc, m_CompWinColor);
 
-		Skin->m_Font->PushString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->DrawString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
 		float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
 		if(m_bCaretOn)
@@ -2617,7 +2639,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 
 		Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
 
-		Skin->m_Font->PushString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->DrawString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
 }
 

@@ -1272,7 +1272,7 @@ void Client::OnUIRender(
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 	for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += m_Font->m_LineHeight)
 	{
-		m_Font->PushString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5, (float)y, 500, 10), D3DCOLOR_ARGB(255, 255, 255, 0));
+		ui_render->PushString(Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignLeftTop, m_Font.get());
 	}
 	ui_render->Flush();
 }

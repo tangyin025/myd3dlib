@@ -92,8 +92,6 @@ namespace my
 		virtual ~FontLibrary(void);
 	};
 
-	class UIRender;
-
 	class Font : public DeviceResourceBase
 	{
 	public:
@@ -202,13 +200,6 @@ namespace my
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
-
-		void PushString(
-			UIRender * ui_render,
-			LPCWSTR pString,
-			const Rectangle & rect,
-			D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255),
-			Align align = AlignLeftTop);
 
 		void DrawString(
 			LPD3DXSPRITE pSprite,

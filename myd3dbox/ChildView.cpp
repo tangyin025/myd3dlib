@@ -1296,13 +1296,13 @@ void CChildView::OnPaint()
 					my::Vector3 pt = m_Camera->WorldToScreen(my::Vector3(12, 0, 0), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
-						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"x", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+						theApp.m_UIRender->PushString(my::Rectangle(pt.xy, pt.xy), L"x", D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle, theApp.m_Font.get());
 					}
 
 					pt = m_Camera->WorldToScreen(my::Vector3(0, 0, 12), my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 					if (pt.z > 0.0f && pt.z < 1.0f)
 					{
-						theApp.m_Font->PushString(theApp.m_UIRender.get(), L"z", my::Rectangle(pt.xy, pt.xy), D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle);
+						theApp.m_UIRender->PushString(my::Rectangle(pt.xy, pt.xy), L"z", D3DCOLOR_ARGB(255, 255, 255, 0), my::Font::AlignCenterMiddle, theApp.m_Font.get());
 					}
 					theApp.m_UIRender->Flush();
 				}
@@ -1323,7 +1323,7 @@ void CChildView::OnPaint()
 				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
 				for (int y = 5; info_iter != m_ScrInfo.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 				{
-					theApp.m_Font->PushString(theApp.m_UIRender.get(), &info_iter->second[0], my::Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+					theApp.m_UIRender->PushString(my::Rectangle::LeftTop(5, (float)y, 500, 10), &info_iter->second[0], D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop, theApp.m_Font.get());
 				}
 				theApp.m_UIRender->End();
 

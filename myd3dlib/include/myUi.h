@@ -109,6 +109,8 @@ namespace my
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture);
 
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip);
+
+		void PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;

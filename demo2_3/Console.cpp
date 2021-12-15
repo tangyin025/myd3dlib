@@ -29,8 +29,8 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 		float y = m_Rect.t;
 		for(; i != m_lend && y <= m_Rect.b - m_Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Skin->m_Font->m_LineHeight)
 		{
-			m_Skin->m_Font->PushString(ui_render, m_lines[i].m_Text.c_str(),
-				my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color);
+			m_Skin->DrawString(ui_render, m_lines[i].m_Text.c_str(),
+				my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color, my::Font::AlignLeftTop);
 		}
 	}
 }
