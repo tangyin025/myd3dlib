@@ -1073,11 +1073,8 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			if (HitTest(pt))
 			{
 				m_bPressed = true;
+				SetFocused(true);
 				SetCaptureControl(this);
-				if (CanHaveFocus())
-				{
-					SetFocusControl(this);
-				}
 				return true;
 			}
 			break;
@@ -1088,18 +1085,15 @@ bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 				SetCaptureControl(NULL);
 				m_bPressed = false;
 
-				if (HitTest(pt))
+				if (m_Skin && m_Skin->m_MouseClickSound)
 				{
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
+					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+				}
 
-					if (m_EventMouseClick)
-					{
-						MouseEventArg arg(this, pt);
-						m_EventMouseClick(&arg);
-					}
+				if (m_EventMouseClick)
+				{
+					MouseEventArg arg(this, pt);
+					m_EventMouseClick(&arg);
 				}
 				return true;
 			}
@@ -3994,42 +3988,21 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONDBLCLK:
 			if (HitTest(pt))
 			{
-				m_bPressed = true;
 				m_MouseOffset.x = pt.x - m_x.offset;
 				m_MouseOffset.y = pt.y - m_y.offset;
-				if (!GetFocused())
-				{
-					SetFocused(true);
-				}
-				SetCaptureControl(this);
-				return true;
+				
+				return Control::HandleMouse(uMsg, pt, wParam, lParam);
 			}
 			break;
 
 		case WM_LBUTTONUP:
 			if (m_bPressed)
 			{
-				SetCaptureControl(NULL);
-				m_bPressed = false;
-
 				if (m_bMouseDrag)
 				{
 					m_bMouseDrag = false;
 				}
-				else
-				{
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
-					if (m_EventMouseClick)
-					{
-						MouseEventArg arg(this, pt);
-						m_EventMouseClick(&arg);
-					}
-				}
-				return true;
+				return Control::HandleMouse(uMsg, pt, wParam, lParam);
 			}
 			break;
 
