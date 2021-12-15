@@ -1026,7 +1026,37 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 				}
 				break;
+
+			case VK_RETURN:
+				m_bPressed = true;
+				SetCaptureControl(this);
+				return true;
 			}
+			break;
+
+		case WM_KEYUP:
+			switch (wParam)
+			{
+			case VK_RETURN:
+				if (m_bPressed)
+				{
+					m_bPressed = false;
+					SetCaptureControl(NULL);
+
+					if (m_Skin && m_Skin->m_MouseClickSound)
+					{
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+					}
+
+					if (m_EventMouseClick)
+					{
+						MouseEventArg arg(this, Vector2(0, 0));
+						m_EventMouseClick(&arg);
+					}
+				}
+				return true;
+			}
+			break;
 		}
 	}
 	return false;
@@ -1034,6 +1064,48 @@ bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		switch (uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if (HitTest(pt))
+			{
+				m_bPressed = true;
+				SetCaptureControl(this);
+				if (CanHaveFocus())
+				{
+					SetFocusControl(this);
+				}
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if (m_bPressed)
+			{
+				SetCaptureControl(NULL);
+				m_bPressed = false;
+
+				if (HitTest(pt))
+				{
+					if (m_Skin && m_Skin->m_MouseClickSound)
+					{
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+					}
+
+					if (m_EventMouseClick)
+					{
+						MouseEventArg arg(this, pt);
+						m_EventMouseClick(&arg);
+					}
+				}
+				return true;
+			}
+			break;
+		}
+	}
 	return false;
 }
 
@@ -1636,90 +1708,12 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
-	{
-		switch(uMsg)
-		{
-		case WM_KEYDOWN:
-			switch(wParam)
-			{
-			case VK_RETURN:
-				m_bPressed = true;
-				SetCaptureControl(this);
-				return true;
-			}
-			break;
-
-		case WM_KEYUP:
-			switch(wParam)
-			{
-			case VK_RETURN:
-				if(m_bPressed)
-				{
-					m_bPressed = false;
-					SetCaptureControl(NULL);
-
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
-					if (m_EventMouseClick)
-					{
-						MouseEventArg arg(this, Vector2(0, 0));
-						m_EventMouseClick(&arg);
-					}
-				}
-				return true;
-			}
-			break;
-		}
-	}
 	return Control::HandleKeyboard(uMsg, wParam, lParam);
 }
 
 bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if (m_bEnabled && m_bVisible)
-	{
-		switch (uMsg)
-		{
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONDBLCLK:
-			if (HitTest(pt))
-			{
-				m_bPressed = true;
-				SetFocusControl(this);
-				SetCaptureControl(this);
-				return true;
-			}
-			break;
-
-		case WM_LBUTTONUP:
-			if (m_bPressed)
-			{
-				SetCaptureControl(NULL);
-				m_bPressed = false;
-
-				if (HitTest(pt))
-				{
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
-					if (m_EventMouseClick)
-					{
-						MouseEventArg arg(this, pt);
-						m_EventMouseClick(&arg);
-					}
-				}
-				return true;
-			}
-			break;
-		}
-	}
-	return false;
+	return Control::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
 bool Button::CanHaveFocus(void) const
@@ -2983,17 +2977,7 @@ bool CheckBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				m_Checked = true;
 
-				if (m_Skin && m_Skin->m_MouseClickSound)
-				{
-					D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-				}
-
-				if (m_EventMouseClick)
-				{
-					MouseEventArg arg(this, Vector2(0, 0));
-					m_EventMouseClick(&arg);
-				}
-				return true;
+				return Control::HandleKeyboard(uMsg, wParam, lParam);
 			}
 			break;
 		}
@@ -3011,40 +2995,14 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		case WM_LBUTTONDBLCLK:
 			if(HitTest(pt))
 			{
-				m_bPressed = true;
-				SetFocusControl(this);
-				SetCaptureControl(this);
-				return true;
-			}
-			break;
+				m_Checked = true;
 
-		case WM_LBUTTONUP:
-			if(m_bPressed)
-			{
-				m_bPressed = false;
-				SetCaptureControl(NULL);
-
-				if(HitTest(pt))
-				{
-					m_Checked = true;
-
-					if (m_Skin && m_Skin->m_MouseClickSound)
-					{
-						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-					}
-
-					if(m_EventMouseClick)
-					{
-						MouseEventArg arg(this, pt);
-						m_EventMouseClick(&arg);
-					}
-				}
-				return true;
+				return Control::HandleMouse(uMsg, pt, wParam, lParam);
 			}
 			break;
 		}
 	}
-	return false;
+	return Control::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
 void ComboBoxSkin::RequestResource(void)
