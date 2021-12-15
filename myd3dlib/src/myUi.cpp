@@ -3090,7 +3090,6 @@ ComboBox::ComboBox(const char* Name)
 	, m_ItemHeight(15)
 	, m_iFocused(0)
 	, m_iSelected(-1)
-	, m_BlendColor(0, 0, 0, 0)
 {
 	OnLayout();
 }
@@ -3293,6 +3292,13 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_bPressed = false;
 					return true;
 				}
+			}
+			break;
+
+		case WM_KEYUP:
+			if (wParam == VK_RETURN)
+			{
+				return false;
 			}
 			break;
 		}
