@@ -1222,6 +1222,7 @@ void LuaContext::Init(void)
 			.def("InsertControl", &my::Control::InsertControl)
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.property("ChildNum", &my::Control::GetChildNum)
+			.property("SiblingId", &my::Control::GetSiblingId)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
 

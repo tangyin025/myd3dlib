@@ -3244,9 +3244,9 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 							Skin->DrawImage(ui_render, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Skin->m_Color);
 						}
 
-						ComboBoxItem * item = m_Items[i].get();
+						ComboBoxItem & item = m_Items[i];
 						Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
-						Skin->DrawString(ui_render, item->strText.c_str(), ItemTextRect, Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign);
+						Skin->DrawString(ui_render, item.strText.c_str(), ItemTextRect, Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign);
 					}
 				}
 				else
@@ -3551,7 +3551,7 @@ void ComboBox::SetSelected(int iSelected)
 
 		if (m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
 		{
-			m_Text = m_Items[m_iSelected]->strText;
+			m_Text = m_Items[m_iSelected].strText;
 		}
 	}
 }
@@ -3565,9 +3565,7 @@ void ComboBox::AddItem(const std::wstring & strText)
 {
 	_ASSERT(!strText.empty());
 
-	ComboBoxItemPtr item(new ComboBoxItem(strText));
-
-	m_Items.push_back(item);
+	m_Items.push_back(ComboBoxItem(strText));
 
 	m_ScrollBar.m_nEnd = m_Items.size();
 }
@@ -3588,22 +3586,7 @@ bool ComboBox::ContainsItem(const std::wstring & strText, UINT iStart) const
 
 int ComboBox::FindItem(const std::wstring & strText, UINT iStart) const
 {
-	struct Finder
-	{
-		const std::wstring & str;
-
-		Finder(const std::wstring & _str)
-			: str(_str)
-		{
-		}
-
-		bool operator() (ComboBoxItemPtr item)
-		{
-			return item->strText == str;
-		}
-	};
-
-	ComboBoxItemPtrList::const_iterator item_iter = std::find_if(m_Items.begin() + iStart, m_Items.end(), Finder(strText));
+	ComboBoxItemList::const_iterator item_iter = boost::find_if(boost::make_iterator_range(m_Items.begin() + iStart, m_Items.end()), (&boost::lambda::_1)->* & ComboBoxItem::strText == strText);
 	if(item_iter != m_Items.end())
 	{
 		return std::distance(m_Items.begin(), item_iter);
@@ -3613,12 +3596,12 @@ int ComboBox::FindItem(const std::wstring & strText, UINT iStart) const
 
 void * ComboBox::GetItemData(int index)
 {
-	return m_Items[index]->pData;
+	return m_Items[index].pData;
 }
 
 void ComboBox::SetItemData(int index, void * pData)
 {
-	m_Items[index]->pData = pData;
+	m_Items[index].pData = pData;
 }
 
 unsigned int ComboBox::GetItemDataUInt(int index)

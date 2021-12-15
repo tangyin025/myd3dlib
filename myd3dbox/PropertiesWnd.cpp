@@ -4883,7 +4883,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			combobox->AddItem(str_printf(L"item%d", i));
 		}
-		combobox->m_Items.resize(ItemCount);
+		combobox->m_Items.resize(ItemCount, my::ComboBoxItem(L""));
 		combobox->OnLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

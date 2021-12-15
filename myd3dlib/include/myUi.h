@@ -1160,18 +1160,16 @@ namespace my
 	class ComboBoxItem
 	{
 	public:
-		std::wstring strText;
+		const std::wstring strText;
 
 		void * pData;
 
-		ComboBoxItem(const std::wstring _strText)
+		explicit ComboBoxItem(const std::wstring & _strText)
 			: strText(_strText)
 			, pData(NULL)
 		{
 		}
 	};
-
-	typedef boost::shared_ptr<ComboBoxItem> ComboBoxItemPtr;
 
 	class ComboBox : public Button
 	{
@@ -1188,9 +1186,9 @@ namespace my
 
 		Vector4 m_Border;
 
-		typedef std::vector<ComboBoxItemPtr> ComboBoxItemPtrList;
+		typedef std::vector<ComboBoxItem> ComboBoxItemList;
 
-		ComboBoxItemPtrList m_Items;
+		ComboBoxItemList m_Items;
 
 		float m_ItemHeight;
 
