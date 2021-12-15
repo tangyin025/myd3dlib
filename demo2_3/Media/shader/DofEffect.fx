@@ -6,7 +6,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
 
-#include "CommonHeader.fx"
+#include "CommonHeader.hlsl"
 
 static const int g_cKernelSize = 13;
 

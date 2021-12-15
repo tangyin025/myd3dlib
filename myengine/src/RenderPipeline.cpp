@@ -134,21 +134,21 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
-	oss << "#include \"CommonHeader.fx\"" << std::endl;
+	oss << "#include \"CommonHeader.hlsl\"" << std::endl;
 	oss << "#include \"";
 	switch (mesh_type)
 	{
 	case RenderPipeline::MeshTypeMesh:
-		oss << "MeshMesh.fx";
+		oss << "MeshMesh.hlsl";
 		break;
 	case RenderPipeline::MeshTypeParticle:
-		oss << "MeshParticle.fx";
+		oss << "MeshParticle.hlsl";
 		break;
 	case RenderPipeline::MeshTypeTerrain:
-		oss << "MeshTerrain.fx";
+		oss << "MeshTerrain.hlsl";
 		break;
 	default:
-		oss << "MeshUnknown.fx";
+		oss << "MeshUnknown.hlsl";
 		break;
 	}
 	oss << "\"" << std::endl;

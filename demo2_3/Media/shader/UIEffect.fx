@@ -1,5 +1,5 @@
 
-#include "CommonHeader.fx"
+#include "CommonHeader.hlsl"
 
 texture g_MeshTexture;
 

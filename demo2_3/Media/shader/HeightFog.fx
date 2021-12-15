@@ -1,5 +1,5 @@
 
-#include "CommonHeader.fx"
+#include "CommonHeader.hlsl"
 
 float4 g_FogColor;
 float g_StartDistance = 10;

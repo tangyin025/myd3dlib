@@ -6,7 +6,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
 
-#include "CommonHeader.fx"
+#include "CommonHeader.hlsl"
 
 float4 g_MeshColor;
 

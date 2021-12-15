@@ -1,5 +1,5 @@
 
-#include "CommonHeader.fx"
+#include "CommonHeader.hlsl"
 float g_bias=0.2;
 float g_intensity=5;
 float g_sample_rad=100;

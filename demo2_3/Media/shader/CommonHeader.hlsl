@@ -138,3 +138,35 @@ float ScreenDoorTransparency(float Alpha, float2 SPos)
 	};
 	return Alpha - thresholdMatrix[SPos.x % 4][SPos.y % 4];
 }
+
+// convert unit dual quaternion to rotation matrix
+matrix UDQtoRM(float2x4 dual)
+{
+    matrix m ;
+    float length = dot(dual[0], dual[0]);
+    float x = dual[0].x, y = dual[0].y, z = dual[0].z, w = dual[0].w;
+    float t1 = dual[1].x, t2 = dual[1].y, t3 = dual[1].z, t0 = dual[1].w;
+        
+    m[0][0] = w*w + x*x - y*y - z*z; 
+    m[1][0] = 2*x*y - 2*w*z; 
+    m[2][0] = 2*x*z + 2*w*y;
+    m[0][1] = 2*x*y + 2*w*z; 
+    m[1][1] = w*w + y*y - x*x - z*z; 
+    m[2][1] = 2*y*z - 2*w*x; 
+    m[0][2] = 2*x*z - 2*w*y; 
+    m[1][2] = 2*y*z + 2*w*x; 
+    m[2][2] = w*w + z*z - x*x - y*y;
+    
+    m[3][0] = -2*t0*x + 2*t1*w - 2*t2*z + 2*t3*y ;
+    m[3][1] = -2*t0*y + 2*t1*z + 2*t2*w - 2*t3*x ;
+    m[3][2] = -2*t0*z - 2*t1*y + 2*t2*x + 2*t3*w ;
+    
+    m[0][3] = 0.0 ;
+    m[1][3] = 0.0 ;
+    m[2][3] = 0.0 ;
+    m[3][3] = 1.0 ;            
+    
+    m /= length ;
+    
+    return m ;      
+} 
