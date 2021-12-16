@@ -1266,7 +1266,7 @@ void Client::OnUIRender(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fAbsoluteElapsedTime);
+	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fAbsoluteElapsedTime, DialogMgr::GetDlgViewport());
 	_ASSERT(m_Font);
 	ui_render->SetWorld(Matrix4::identity);
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();

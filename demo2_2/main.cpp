@@ -461,7 +461,7 @@ public:
 			m_UIRender->Begin();
 			m_UIRender->SetWorld(Matrix4::identity);
 			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
+			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime, DialogMgr::GetDlgViewport());
 			m_UIRender->End();
 			V(m_d3dDevice->EndScene());
 		}

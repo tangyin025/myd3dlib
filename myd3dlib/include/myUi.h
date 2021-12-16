@@ -1385,7 +1385,7 @@ namespace my
 			return ControlTypeListBox;
 		}
 
-		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -1505,7 +1505,7 @@ namespace my
 			return ControlTypeDialog;
 		}
 
-		virtual void Draw(UIRender* ui_render, float fElapsedTime, const Vector2& Offset, const Vector2& Size);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -1562,7 +1562,7 @@ namespace my
 
 		Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 
-		void Draw(UIRender * ui_render, double fTime, float fElapsedTime);
+		void Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & Viewport);
 
 		bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

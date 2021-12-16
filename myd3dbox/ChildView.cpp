@@ -1306,15 +1306,7 @@ void CChildView::OnPaint()
 					}
 					theApp.m_UIRender->Flush();
 				}
-				my::DialogMgr::DialogList::iterator dlg_iter = pFrame->m_DlgList.begin();
-				for (; dlg_iter != pFrame->m_DlgList.end(); dlg_iter++)
-				{
-					theApp.m_UIRender->SetWorld((*dlg_iter)->m_World);
-
-					(*dlg_iter)->Draw(theApp.m_UIRender.get(), theApp.m_fAbsoluteElapsedTime, my::Vector2(0, 0), my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
-
-					theApp.m_UIRender->Flush();
-				}
+				pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fAbsoluteElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
 				if (pFrame->m_selctl)
 				{
 					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctl);
