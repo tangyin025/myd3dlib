@@ -4186,7 +4186,7 @@ Vector2 DialogMgr::GetDlgViewport(void) const
 
 void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & Viewport)
 {
-	m_EventGUI(ui_render, fElapsedTime);
+	m_EventGUI(ui_render, fElapsedTime, Viewport);
 
 	DialogList::iterator dlg_iter = m_DlgList.begin();
 	for(; dlg_iter != m_DlgList.end(); dlg_iter++)

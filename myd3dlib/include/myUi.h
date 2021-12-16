@@ -1543,7 +1543,7 @@ namespace my
 
 		Matrix4 m_InverseViewProj;
 
-		typedef boost::signals2::signal<void (UIRender *, float)> GUIEvent;
+		typedef boost::signals2::signal<void (UIRender *, float, const Vector2 &)> GUIEvent;
 
 		GUIEvent m_EventGUI;
 

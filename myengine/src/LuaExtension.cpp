@@ -252,7 +252,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.connect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 
-		my::DialogMgr::getSingleton().m_EventGUI.connect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2));
+		my::DialogMgr::getSingleton().m_EventGUI.connect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 	}
 
 	virtual void ReleaseResource(void)
@@ -287,7 +287,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
 
-		my::DialogMgr::getSingleton().m_EventGUI.disconnect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2));
+		my::DialogMgr::getSingleton().m_EventGUI.disconnect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -411,13 +411,13 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->Component::OnPxThreadObstacleHit(arg);
 	}
 
-	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime)
+	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
 		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
 
 		try
 		{
-			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime);
+			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime, Viewport);
 		}
 		catch (const luabind::error& e)
 		{
@@ -425,9 +425,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 		}
 	}
 
-	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime)
+	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
-		ptr->Component::OnGUI(ui_render, fElapsedTime);
+		ptr->Component::OnGUI(ui_render, fElapsedTime, Viewport);
 	}
 };
 

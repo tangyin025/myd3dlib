@@ -164,8 +164,8 @@ end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
 end
-function PlayerBehavior:OnGUI(ui_render,elapsedTime)
-	-- print("PlayerBehavior:OnGUI")
+function PlayerBehavior:OnGUI(ui_render,elapsedTime,viewport)
+	-- print("BehaviorComponent:OnGUI",viewport.x,viewport.y)
 end
 player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
 player:AddComponent(player_behavior)
