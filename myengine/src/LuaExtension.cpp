@@ -1127,6 +1127,8 @@ void LuaContext::Init(void)
 			.def_readonly("pt", &my::MouseEventArg::pt)
 
 		, class_<my::UIRender>("UIRender")
+			.def_readonly("WhiteTex", &my::UIRender::m_WhiteTex)
+			.def("Flush", &my::UIRender::Flush)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*))& my::UIRender::PushRectangle)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushRectangle)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&))& my::UIRender::PushRectangle)

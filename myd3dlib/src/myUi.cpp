@@ -3720,22 +3720,6 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			float y = m_Rect.t;
-			for (int i = m_ScrollBar.m_nPosition; i < m_ScrollBar.m_nEnd && i < m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize; i++, y += m_ItemSize.y)
-			{
-				float x = m_Rect.l;
-				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
-				{
-					int idx = i * m_ItemColumn + j;
-					if (idx < m_Childs.size())
-					{
-						Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
-
-						m_Childs[idx]->Draw(ui_render, fElapsedTime, ItemRect.LeftTop(), ItemRect.Extent());
-					}
-				}
-			}
-
 			m_ScrollBar.SimulateRepeatedScroll();
 
 			m_ScrollBar.m_Rect = Rectangle::RightTop(m_Rect.l + m_Rect.Width(), m_Rect.t, m_ScrollbarWidth, m_Rect.Height());
@@ -3765,6 +3749,22 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
+			}
+
+			float y = m_Rect.t;
+			for (int i = m_ScrollBar.m_nPosition; i < m_ScrollBar.m_nEnd && i < m_ScrollBar.m_nPosition + m_ScrollBar.m_nPageSize; i++, y += m_ItemSize.y)
+			{
+				float x = m_Rect.l;
+				for (int j = 0; j < m_ItemColumn; j++, x += m_ItemSize.x)
+				{
+					int idx = i * m_ItemColumn + j;
+					if (idx < m_Childs.size())
+					{
+						Rectangle ItemRect = Rectangle::LeftTop(x, y, m_ItemSize.x, m_ItemSize.y);
+
+						m_Childs[idx]->Draw(ui_render, fElapsedTime, ItemRect.LeftTop(), ItemRect.Extent());
+					}
+				}
 			}
 		}
 	}
