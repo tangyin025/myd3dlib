@@ -1319,6 +1319,8 @@ void CChildView::OnPaint()
 				}
 				theApp.m_UIRender->End();
 
+				swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", theApp.m_UIRender->m_LayerDrawCall);
+
 				V(theApp.m_d3dDevice->EndScene());
 			}
 

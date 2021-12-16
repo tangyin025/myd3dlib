@@ -67,6 +67,7 @@ BOOST_CLASS_EXPORT(Dialog)
 
 UIRender::UIRender(void)
 	: m_WhiteTex(new my::Texture2D())
+	, m_LayerDrawCall(0)
 {
 	UILayerList::iterator layer_iter = m_Layer.begin();
 	for (; layer_iter != m_Layer.end(); layer_iter++)
@@ -115,6 +116,8 @@ void UIRender::OnDestroyDevice(void)
 
 void UIRender::Begin(void)
 {
+	m_LayerDrawCall = 0;
+
 	V(m_Device->SetVertexShader(NULL));
 	V(m_Device->SetPixelShader(NULL));
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
@@ -161,6 +164,7 @@ void UIRender::Flush(void)
 		V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
 		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
+		m_LayerDrawCall++;
 	}
 	m_Layer.clear();
 }

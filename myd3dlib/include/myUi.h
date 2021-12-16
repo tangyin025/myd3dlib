@@ -57,6 +57,8 @@ namespace my
 
 		UILayerList m_Layer;
 
+		int m_LayerDrawCall;
+
 	public:
 		UIRender(void);
 

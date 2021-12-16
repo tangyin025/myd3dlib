@@ -101,6 +101,8 @@ public:
 	{
 		_ASSERT(m_UIEffect->m_ptr);
 
+		m_LayerDrawCall = 0;
+
 		m_Passes = m_UIEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	}
 
@@ -109,6 +111,7 @@ public:
 		_ASSERT(m_UIEffect->m_ptr);
 
 		m_UIEffect->End();
+
 		m_Passes = 0;
 	}
 

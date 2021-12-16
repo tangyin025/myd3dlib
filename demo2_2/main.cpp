@@ -88,6 +88,8 @@ public:
 
 	void Begin(void)
 	{
+		m_LayerDrawCall = 0;
+
 		if(m_UIEffect->m_ptr)
 		{
 			m_UIEffect->SetVector(handle_ScreenDim, Vector4(

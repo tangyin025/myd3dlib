@@ -180,14 +180,14 @@ public:
 		//// 绘制网格
 		//PushGrid(12, 5, 5, D3DCOLOR_ARGB(255, 127, 127, 127), D3DCOLOR_ARGB(255, 0, 0, 0), Matrix4::RotationX(D3DXToRadian(-90)));
 
+		Client::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
+
 		// 绘制帧率
 		swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"Fps: %.2f", m_fFps);
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 		{
-			swprintf_s(&m_ScrInfo[1+PassID][0], m_ScrInfo[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), m_PassDrawCall[PassID]);
+			swprintf_s(&m_ScrInfo[1 + PassID][0], m_ScrInfo[1 + PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), m_PassDrawCall[PassID]);
 		}
-
-		Client::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
 	}
 
 	virtual void OnUIRender(
@@ -209,6 +209,8 @@ public:
 		//}
 
 		Client::OnUIRender(ui_render, fTime, fElapsedTime);
+
+		swprintf_s(&m_ScrInfo[1 + RenderPipeline::PassTypeNum][0], m_ScrInfo[1 + RenderPipeline::PassTypeNum].size(), L"PassTypeUILayer: %d", ui_render->m_LayerDrawCall);
 	}
 
 	virtual LRESULT MsgProc(
