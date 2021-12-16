@@ -4,12 +4,16 @@
 import xml.sax
 
 class TxaHandler(xml.sax.ContentHandler):
-    def __init__(self):
+    def __init__(self,fname):
         self.l=[]
+        self.f=open("../tables/"+fname+".lua",'w')
+        self.f.write("module(\""+fname+"\", package.seeall)\n")
 
     # 元素开始事件处理
     def startElement(self,tag,attributes):
         self.l.append(tag)
+        if self.l[-1]=="items":
+            self.f.write("data={\n")
 
     # 元素结束事件处理
     def endElement(self,tag):
@@ -17,6 +21,9 @@ class TxaHandler(xml.sax.ContentHandler):
         self.l.pop(-1)
         if tag=="array_item":
             print(self.name,self.uv_start_x,self.uv_start_y,self.uv_end_x,self.uv_end_y)
+            self.f.write("\t"+self.name+"={"+self.uv_start_x+","+self.uv_start_y+","+self.uv_end_x+","+self.uv_end_y+"},\n")
+        elif tag=="items":
+            self.f.write("}\n")
 
     # 内容事件处理
     def characters(self, content):
@@ -37,6 +44,7 @@ if ( __name__ == "__main__"):
     # 创建一个XMLReader
     parser=xml.sax.make_parser()
     # 重写ContextHandler
-    handler=TxaHandler()
+    model="icon_Equip1"
+    handler=TxaHandler(model)
     parser.setContentHandler(handler)
-    parser.parse("../texture/icon_Equip1.txa")
+    parser.parse("../texture/"+model+".txa")
