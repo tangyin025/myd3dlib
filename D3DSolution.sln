@@ -73,8 +73,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DetourCrowd", "DetourCrowd\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myengine", "myengine\myengine.vcxproj", "{ECBE9CA0-C8A4-4594-AC78-D99D7264E54B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MayaExport_fg", "MayaExport\MayaExport_fg.vcxproj", "{B8E79576-F7E4-4E50-97DB-08FF62F206AD}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysXCharacterKinematic", "PhysXCharacterKinematic\PhysXCharacterKinematic.vcxproj", "{1E04F7A2-C8F8-3D62-46FE-8762D28CA9A4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmad", "libmad\libmad.vcxproj", "{2CD5200A-891A-4538-9603-BAD942529B38}"
@@ -241,14 +239,6 @@ Global
 		{ECBE9CA0-C8A4-4594-AC78-D99D7264E54B}.Release|Win32.Build.0 = Release|Win32
 		{ECBE9CA0-C8A4-4594-AC78-D99D7264E54B}.Release|x64.ActiveCfg = Release|x64
 		{ECBE9CA0-C8A4-4594-AC78-D99D7264E54B}.Release|x64.Build.0 = Release|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|Win32.ActiveCfg = Debug|Win32
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|Win32.Build.0 = Debug|Win32
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|x64.ActiveCfg = Debug|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|x64.Build.0 = Debug|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|Win32.ActiveCfg = Release|Win32
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|Win32.Build.0 = Release|Win32
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|x64.ActiveCfg = Release|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|x64.Build.0 = Release|x64
 		{1E04F7A2-C8F8-3D62-46FE-8762D28CA9A4}.Debug|Win32.ActiveCfg = debug|Win32
 		{1E04F7A2-C8F8-3D62-46FE-8762D28CA9A4}.Debug|Win32.Build.0 = debug|Win32
 		{1E04F7A2-C8F8-3D62-46FE-8762D28CA9A4}.Debug|x64.ActiveCfg = debug|x64
