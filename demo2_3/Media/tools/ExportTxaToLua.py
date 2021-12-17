@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-
 import xml.sax
 
 class TxaHandler(xml.sax.ContentHandler):
@@ -40,11 +39,8 @@ class TxaHandler(xml.sax.ContentHandler):
             elif self.l[-2]=="uv_end":
                 self.uv_end_y=content
 
-if ( __name__ == "__main__"):
-    # 创建一个XMLReader
-    parser=xml.sax.make_parser()
-    # 重写ContextHandler
-    model="icon_Equip1"
-    handler=TxaHandler(model)
-    parser.setContentHandler(handler)
-    parser.parse("../texture/"+model+".txa")
+parser=xml.sax.make_parser()
+model="icon_Equip1"
+handler=TxaHandler(model)
+parser.setContentHandler(handler)
+parser.parse("../texture/"+model+".txa")
