@@ -537,24 +537,24 @@ namespace detail
   };
 
 // Needed because of some strange ADL issues.
-//
-//#define LUABIND_OPERATOR_ADL_WKND(op) \
-//  inline bool operator op( \
-//      basic_iterator<basic_access> const& x \
-//    , basic_iterator<basic_access> const& y) \
-//  { \
-//      return boost::operator op(x, y); \
-//  } \
-// \
-//  inline bool operator op( \
-//      basic_iterator<raw_access> const& x \
-//    , basic_iterator<raw_access> const& y) \
-//  { \
-//      return boost::operator op(x, y); \
-//  }
-//
-//  LUABIND_OPERATOR_ADL_WKND(==)
-//  LUABIND_OPERATOR_ADL_WKND(!=)
+
+#define LUABIND_OPERATOR_ADL_WKND(op) \
+  inline bool operator op( \
+      basic_iterator<basic_access> const& x \
+    , basic_iterator<basic_access> const& y) \
+  { \
+      return boost::operator op(x, y); \
+  } \
+ \
+  inline bool operator op( \
+      basic_iterator<raw_access> const& x \
+    , basic_iterator<raw_access> const& y) \
+  { \
+      return boost::operator op(x, y); \
+  }
+
+  LUABIND_OPERATOR_ADL_WKND(==)
+  LUABIND_OPERATOR_ADL_WKND(!=)
 
 #undef LUABIND_OPERATOR_ADL_WKND
  
@@ -963,12 +963,10 @@ namespace detail
 
       typename mpl::apply_wrap2<converter_generator, T, lua_to_cpp>::type cv;
 
-#ifndef LUABIND_NO_ERROR_CHECKING
       if (cv.match(interpreter, LUABIND_DECORATE_TYPE(T), -1) < 0)
       {
           return ErrorPolicy::handle_error(interpreter, typeid(T));
       }
-#endif
 
       return cv.apply(interpreter, LUABIND_DECORATE_TYPE(T), -1);
   }
@@ -1106,7 +1104,7 @@ namespace adl
           other.value_wrapper = 0;
       }
 
-      ~call_proxy() noexcept(false) // ! https://stackoverflow.com/questions/23574323/why-cant-i-catch-a-luabinderror-exception-when-my-lua-code-throws-an-error
+      ~call_proxy()
       {
           if (value_wrapper)
               call((detail::null_type*)0);
