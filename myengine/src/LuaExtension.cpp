@@ -29,6 +29,7 @@ extern "C"
 #include "StaticEmitter.h"
 #include "Controller.h"
 #include "NavigationSerialization.h"
+#include "LargeImage.h"
 #include "SoundContext.h"
 #include "ActionTrack.h"
 //#include "noise.h"
@@ -2154,6 +2155,14 @@ void LuaContext::Init(void)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
 
 		, def("animator_get_bone", &animator_get_bone)
+
+		, luabind::class_<LargeImage/*, my::ControlImage*/, boost::shared_ptr<LargeImage> >("LargeImage")
+			.def(luabind::constructor<>())
+			.def_readwrite("TexturePath", &LargeImage::m_TexturePath)
+			.def("RequestResource", &LargeImage::RequestResource)
+			.def("ReleaseResource", &LargeImage::ReleaseResource)
+			//.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD))& LargeImage::Draw)
+			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&))& LargeImage::Draw)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)

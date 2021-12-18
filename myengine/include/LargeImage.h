@@ -64,5 +64,5 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD color, const my::Rectangle& clip);
+	virtual void Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip);
 };

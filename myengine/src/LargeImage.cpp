@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "LargeImage.h"
+#include "myResource.h"
 
 LargeImageChunk::~LargeImageChunk(void)
 {
@@ -77,7 +77,7 @@ void LargeImage::ReleaseResource(void)
 	m_ViewedChunks.clear();
 }
 
-void LargeImage::Draw(my::UIRender* ui_render, const my::Rectangle& rect, DWORD color, const my::Rectangle& clip)
+void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip)
 {
 	const my::Vector2 ChunkSize(rect.Width() / m_Chunks.shape()[0], rect.Height() / m_Chunks.shape()[1]);
 

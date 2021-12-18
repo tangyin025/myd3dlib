@@ -590,7 +590,7 @@ void ControlImage::RequestResource(void)
 	{
 		_ASSERT(!m_Texture);
 
-		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), boost::bind(&ControlImage::OnImageReady, this, boost::placeholders::_1), INT_MAX);
+		my::ResourceMgr::getSingleton().LoadTextureAsync(m_TexturePath.c_str(), boost::bind(&ControlImage::OnTextureReady, this, boost::placeholders::_1), INT_MAX);
 	}
 }
 
@@ -600,13 +600,13 @@ void ControlImage::ReleaseResource(void)
 
 	if (!m_TexturePath.empty())
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath.c_str(), boost::bind(&ControlImage::OnImageReady, this, boost::placeholders::_1));
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_TexturePath.c_str(), boost::bind(&ControlImage::OnTextureReady, this, boost::placeholders::_1));
 
 		m_Texture.reset();
 	}
 }
 
-void ControlImage::OnImageReady(my::DeviceResourceBasePtr res)
+void ControlImage::OnTextureReady(my::DeviceResourceBasePtr res)
 {
 	m_Texture = boost::dynamic_pointer_cast<BaseTexture>(res);
 }

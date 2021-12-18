@@ -160,7 +160,7 @@ namespace my
 
 		virtual void ReleaseResource(void);
 
-		void OnImageReady(my::DeviceResourceBasePtr res);
+		void OnTextureReady(my::DeviceResourceBasePtr res);
 
 		virtual ControlImagePtr Clone(void) const;
 
