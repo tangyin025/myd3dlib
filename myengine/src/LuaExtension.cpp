@@ -1102,8 +1102,12 @@ void LuaContext::Init(void)
 		def("ARGB", &ARGB)
 
 		, class_<WPARAM>("WPARAM")
+			.def(constructor<int>())
+			.def(tostring(self))
 
 		, class_<LPARAM>("LPARAM")
+			.def(constructor<int>())
+			.def(tostring(self))
 
 		, class_<my::NamedObject>("NamedObject")
 			.scope

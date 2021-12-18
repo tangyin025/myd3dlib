@@ -25,13 +25,15 @@ for file in files:
                     if i>0:
                         o.write(", ")
                     i=i+1
-                    if cell.data_type=='f':
-                        tok=Tokenizer(cell.value)
-                        print("\n".join("%12s%11s%9s" % (t.value, t.type, t.subtype) for t in tok.items))
-                    elif cell.data_type=='n':
+                    if cell.data_type=='n' and cell.value!=None:
                         o.write(str(cell.value))
                     elif cell.data_type=='s':
-                        o.write('"'+cell.value+'"')
+                        o.write('"'+cell.value.strip('"')+'"')
+                    # elif cell.data_type=='f':
+                    #     tok=Tokenizer(cell.value)
+                    #     print("\n".join("%12s%11s%9s" % (t.value, t.type, t.subtype) for t in tok.items))
+                    else:
+                        o.write('nil')
                 o.write("},\n")
             o.write("}\n")
             o.close()
