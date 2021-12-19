@@ -322,7 +322,7 @@ int DxutApp::Run(void)
 		msg.message = WM_NULL;
 		while(WM_QUIT != msg.message)
 		{
-			if(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+			if(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE) && msg.message != WM_USER + 1024)
 			{
 				::TranslateMessage(&msg);
 				::DispatchMessageW(&msg);

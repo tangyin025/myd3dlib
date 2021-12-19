@@ -65,6 +65,12 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
+static bool Counter(const unsigned int c)
+{
+	static unsigned int g_c = 0;
+	return 0 == (g_c = (g_c + 1) % c);
+}
+
 static my::Bone animator_get_bone(Animator* anim, int i)
 {
 	return anim->anim_pose_hier[i];
@@ -1102,6 +1108,8 @@ void LuaContext::Init(void)
 	module(m_State)[
 		def("ARGB", &ARGB)
 
+		, def("Counter", &Counter)
+
 		, class_<WPARAM>("WPARAM")
 			.def(constructor<int>())
 			.def(tostring(self))
@@ -1679,6 +1687,7 @@ void LuaContext::Init(void)
 				value("KC_MAIL", my::KC_MAIL),
 				value("KC_MEDIASELECT", my::KC_MEDIASELECT)
 			]
+			.def("SetKeyState", &my::Keyboard::SetKeyState)
 			.def("IsKeyDown", &my::Keyboard::IsKeyDown)
 			.def("IsKeyPress", &my::Keyboard::IsKeyPress)
 			.def("IsKeyRelease", &my::Keyboard::IsKeyRelease)

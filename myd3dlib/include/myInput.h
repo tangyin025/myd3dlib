@@ -261,6 +261,13 @@ namespace my
 
 		virtual bool Capture(void);
 
+		void SetKeyState(unsigned int kc, BYTE state, BYTE last_state)
+		{
+			_ASSERT(kc < _countof(m_State));
+			m_State[kc] = state;
+			m_LastFrameState[kc] = last_state;
+		}
+
 		bool IsKeyDown(unsigned int kc) const
 		{
 			_ASSERT(kc < _countof(m_State));
