@@ -13,6 +13,7 @@
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
 #include <luabind/out_value_policy.hpp>
+#include <luabind/adopt_policy.hpp>
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -289,6 +290,16 @@ static int os_exit(lua_State * L)
 {
 	Client::getSingleton().m_wnd->PostMessage(WM_CLOSE);
 	return 0;
+}
+
+static void client_add_state_adopt(Client * self, StateBase * state)
+{
+	self->AddState(StateBasePtr(state));
+}
+
+static void client_add_state_adopt(Client * self, StateBase * state, StateBase * parent)
+{
+	self->AddState(StateBasePtr(state), parent);
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -790,7 +801,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("ActorList", &SceneContext::m_ActorList, luabind::return_stl_iterator)
 			.def_readonly("DialogList", &SceneContext::m_DialogList, luabind::return_stl_iterator)
 
-		, luabind::class_<StateBase, ScriptStateBase, boost::shared_ptr<StateBase> >("StateBase")
+		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
 			.def("OnAdd", &StateBase::OnAdd, &ScriptStateBase::default_OnAdd)
 			.def("OnEnter", &StateBase::OnEnter, &ScriptStateBase::default_OnEnter)
@@ -853,12 +864,12 @@ HRESULT Client::OnCreateDevice(
 			.def("InsertDlg", &Client::InsertDlg)
 			.def("RemoveDlg", &Client::RemoveDlg)
 			.def("RemoveAllDlg", &Client::RemoveAllDlg)
-			.def("AddEntity", (void(Client::*)(my::OctEntity *, const my::AABB &, float, float))&Client::AddEntity)
-			.def("AddEntity", (void(Client::*)(my::OctEntity *))&Client::AddEntity)
+			.def("AddEntity", (void(Client::*)(my::OctEntity*, const my::AABB&, float, float)) & Client::AddEntity)
+			.def("AddEntity", (void(Client::*)(my::OctEntity*)) & Client::AddEntity)
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
-			.def("AddState", (void(Client::*)(StateBase *))&Client::AddState) 
-			.def("AddState", (void(Client::*)(StateBase *, StateBase *))&Client::AddState) // ! luabind::class_::def does not support default arguments (Release build.)
+			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(_2))
+			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(_2)) // ! luabind::class_::def does not support default arguments (Release build.)
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)
@@ -866,8 +877,8 @@ HRESULT Client::OnCreateDevice(
 			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
 			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
 			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
-			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool))& Client::Play)
-			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float))& Client::Play)
+			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool)) & Client::Play)
+			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))

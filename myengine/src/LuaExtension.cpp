@@ -71,15 +71,41 @@ static bool Counter(const unsigned int c)
 	return 0 == (g_c = (g_c + 1) % c);
 }
 
-static my::Bone animator_get_bone(Animator* anim, int i)
+static my::Bone animator_get_bone(Animator* self, int i)
 {
-	return anim->anim_pose_hier[i];
+	return self->anim_pose_hier[i];
 }
 
-static void ui_render_push_string(my::UIRender* ui_render, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, my::Font* font)
+static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, my::Font* font)
 {
-	ui_render->PushString(rect, str.c_str(), color, align, font);
+	self->PushString(rect, str.c_str(), color, align, font);
 }
+
+struct ScriptControl;
+
+static void control_insert_control_adopt(my::Control* self, ScriptControl* ctrl)
+{
+	self->InsertControl(my::ControlPtr(ctrl));
+}
+
+struct ScriptComponent;
+
+static void actor_add_component_adopt(Actor* self, ScriptComponent* cmp)
+{
+	self->AddComponent(ComponentPtr(cmp));
+}
+
+struct ScriptAnimationNodeBlendList;
+
+template <unsigned int i>
+static void animation_node_set_child_adopt(AnimationNode* self, ScriptAnimationNodeBlendList* node)
+{
+	self->SetChild<i>(AnimationNodePtr(node));
+}
+
+struct ScriptActionTrack;
+
+static void action_add_track_adopt(Action* self, ScriptActionTrack* track);
 
 struct ScriptControl : my::Control, luabind::wrap_base
 {
@@ -540,6 +566,11 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 		ptr->ActionTrack::OnKeyFrame(Time, _Actor);
 	}
 };
+
+void action_add_track_adopt(Action* self, ScriptActionTrack* track)
+{
+	self->AddTrack(ActionTrackPtr(track, true));
+}
 
 LuaContext::LuaContext(void)
 	: m_State(NULL)
@@ -1148,8 +1179,7 @@ void LuaContext::Init(void)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, const my::Rectangle&, D3DCOLOR, my::BaseTexture*, const my::Matrix4&, const my::Rectangle&))& my::UIRender::PushRectangle)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*))& my::UIRender::PushWindow)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushWindow)
-
-		, def("ui_render_push_string", &ui_render_push_string)
+			.def("PushString", &ui_render_push_string)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
@@ -1181,7 +1211,7 @@ void LuaContext::Init(void)
 			.def("DrawString", &my::ControlSkin::DrawString)
 			.def("Clone", &my::ControlSkin::Clone)
 
-		, class_<my::Control, ScriptControl, my::NamedObject, boost::shared_ptr<my::Control> >("Control")
+		, class_<my::Control, ScriptControl, my::NamedObject/*, boost::shared_ptr<my::Control>*/ >("Control")
 			.def(constructor<const char *>())
 			.enum_("ControlType")
 			[
@@ -1234,7 +1264,8 @@ void LuaContext::Init(void)
 			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
 			.property("Captured", &my::Control::GetCaptured, &my::Control::SetCaptured)
 			.property("MouseOver", &my::Control::GetMouseOver, &my::Control::SetMouseOver)
-			.def("InsertControl", &my::Control::InsertControl)
+			.def("InsertControl", (void(my::Control::*)(boost::shared_ptr<my::Control>))&my::Control::InsertControl)
+			.def("InsertControlAdopt", &control_insert_control_adopt, adopt(_2))
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.property("ChildNum", &my::Control::GetChildNum)
 			.property("SiblingId", &my::Control::GetSiblingId)
@@ -1851,7 +1882,7 @@ void LuaContext::Init(void)
 		, class_<CollectionObjMap>("CollectionObjMap")
 			.def(constructor<>())
 
-		, class_<Component, ScriptComponent, my::NamedObject, boost::shared_ptr<Component> >("Component")
+		, class_<Component, ScriptComponent, my::NamedObject/*, boost::shared_ptr<Component>*/ >("Component")
 			.def(constructor<const char *>())
 			.enum_("ComponentType")
 			[
@@ -2097,7 +2128,8 @@ void LuaContext::Init(void)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
-			.def("AddComponent", &Actor::AddComponent/*, luabind::adopt(_1)*/)
+			.def("AddComponent", &Actor::AddComponent)
+			.def("AddComponentAdopt", &actor_add_component_adopt, adopt(_2))
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 			.def("Attach", &Actor::Attach)
@@ -2114,6 +2146,12 @@ void LuaContext::Init(void)
 			.property("Child3", &AnimationNode::GetChild<3>, &AnimationNode::SetChild<3>)
 			.property("Child4", &AnimationNode::GetChild<4>, &AnimationNode::SetChild<4>)
 			.property("Child5", &AnimationNode::GetChild<5>, &AnimationNode::SetChild<5>)
+			.def("SetChild0Adopt", &animation_node_set_child_adopt<0>, adopt(_2))
+			.def("SetChild1Adopt", &animation_node_set_child_adopt<1>, adopt(_2))
+			.def("SetChild2Adopt", &animation_node_set_child_adopt<2>, adopt(_2))
+			.def("SetChild3Adopt", &animation_node_set_child_adopt<3>, adopt(_2))
+			.def("SetChild4Adopt", &animation_node_set_child_adopt<4>, adopt(_2))
+			.def("SetChild5Adopt", &animation_node_set_child_adopt<5>, adopt(_2))
 			.def("RemoveChild", &AnimationNode::RemoveChild)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
@@ -2135,7 +2173,7 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("NodeId", &AnimationNodeSubTree::m_NodeId)
 
-		, class_<AnimationNodeBlendList, ScriptAnimationNodeBlendList, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeBlendList")
+		, class_<AnimationNodeBlendList, ScriptAnimationNodeBlendList, AnimationNode/*, boost::shared_ptr<AnimationNode>*/ >("AnimationNodeBlendList")
 			.def(constructor<unsigned int>())
 			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float))&AnimationNodeBlendList::SetTargetWeight)
@@ -2162,8 +2200,7 @@ void LuaContext::Init(void)
 			.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			.def("AddIK", &Animator::AddIK)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
-
-		, def("animator_get_bone", &animator_get_bone)
+			.def("GetBone", &animator_get_bone)
 
 		, luabind::class_<LargeImage/*, my::ControlImage*/, boost::shared_ptr<LargeImage> >("LargeImage")
 			.def(luabind::constructor<>())
@@ -2180,9 +2217,10 @@ void LuaContext::Init(void)
 		, class_<Action, boost::intrusive_ptr<Action> >("Action")
 			.def(constructor<>())
 			.def("AddTrack", &Action::AddTrack)
+			.def("AddTrackAdopt", &action_add_track_adopt, adopt(_2))
 			.def("RemoveTrack", &Action::RemoveTrack)
 
-		, class_<ActionTrack, ScriptActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrack")
+		, class_<ActionTrack, ScriptActionTrack/*, boost::intrusive_ptr<ActionTrack>*/ >("ActionTrack")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ScriptActionTrack::AddKeyFrame)
 			.def("OnKeyFrame", &ActionTrack::OnKeyFrame, &ScriptActionTrack::default_OnKeyFrame)

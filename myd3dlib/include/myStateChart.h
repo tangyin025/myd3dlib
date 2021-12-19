@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <boost/shared_ptr.hpp>
 
 namespace my
 {
@@ -8,9 +9,11 @@ namespace my
 	class StateChart
 	{
 	public:
+		typedef boost::shared_ptr<StateType> StateTypePtr;
+
 		typedef std::map<EventType, StateType *> EventStateMap;
 
-		typedef std::map<StateType *, EventStateMap> StateMap;
+		typedef std::map<StateTypePtr, EventStateMap> StateMap;
 
 		StateMap m_States;
 
@@ -41,7 +44,7 @@ namespace my
 					return res;
 				}
 
-				if (state_iter->first == state)
+				if (state_iter->first.get() == state)
 				{
 					return &(*state_iter);
 				}
@@ -49,11 +52,11 @@ namespace my
 			return NULL;
 		}
 
-		void AddState(StateType * state)
+		void AddState(StateTypePtr state)
 		{
 			_ASSERT(NULL == state->m_Parent);
 
-			_ASSERT(!FindState(state));
+			_ASSERT(!FindState(state.get()));
 
 			m_States.insert(std::make_pair(state, EventStateMap()));
 			state->m_Parent = this;
@@ -62,11 +65,11 @@ namespace my
 			if ((!m_Parent || m_Parent->m_Current == this) && !m_Current)
 			{
 				_ASSERT(m_States.size() == 1);
-				SetState(state);
+				SetState(state.get());
 			}
 		}
 
-		void AddState(StateType * state, StateType * parent)
+		void AddState(StateTypePtr state, StateType * parent)
 		{
 			StateMap::value_type * parent_iter = FindState(parent);
 			_ASSERT(NULL != parent_iter);
@@ -79,7 +82,14 @@ namespace my
 			_ASSERT(NULL != src_iter);
 			_ASSERT(NULL != src_iter->first->m_Parent);
 
-			StateMap::const_iterator dest_iter = src_iter->first->m_Parent->m_States.find(dest);
+			StateMap::const_iterator dest_iter = src_iter->first->m_Parent->m_States.begin();
+			for (; dest_iter != src_iter->first->m_Parent->m_States.end(); dest_iter++)
+			{
+				if (dest_iter->first.get() == dest)
+				{
+					break;
+				}
+			}
 			if (dest_iter == src_iter->first->m_Parent->m_States.end())
 			{
 				_ASSERT(false);
@@ -111,21 +121,28 @@ namespace my
 				return;
 			}
 
-			StateMap::const_iterator state_iter = m_States.find(state);
+			StateMap::const_iterator state_iter = m_States.begin();
+			for (; state_iter != m_States.end(); state_iter++)
+			{
+				if (state_iter->first.get() == state)
+				{
+					break;
+				}
+			}
 			if (state_iter == m_States.end())
 			{
 				_ASSERT(false);
 				return;
 			}
 
-			m_Current = state_iter->first;
+			m_Current = state_iter->first.get();
 			if (m_Current)
 			{
 				m_Current->OnEnter();
 
 				if (!m_Current->m_States.empty())
 				{
-					m_Current->SetState(m_Current->m_States.begin()->first);
+					m_Current->SetState(m_Current->m_States.begin()->first.get());
 				}
 			}
 		}
@@ -134,21 +151,28 @@ namespace my
 		{
 			if (m_Current)
 			{
-				StateMap::const_iterator src_iter = m_States.find(m_Current);
-				if (src_iter == m_States.end())
+				StateMap::const_iterator state_iter = m_States.begin();
+				for (; state_iter != m_States.end(); state_iter++)
+				{
+					if (state_iter->first.get() == m_Current)
+					{
+						break;
+					}
+				}
+				if (state_iter == m_States.end())
 				{
 					_ASSERT(false);
 					return;
 				}
 
-				EventStateMap::const_iterator event_iter = src_iter->second.find(_event);
-				if (event_iter != src_iter->second.end())
+				EventStateMap::const_iterator event_iter = state_iter->second.find(_event);
+				if (event_iter != state_iter->second.end())
 				{
 					SetState(event_iter->second);
 				}
 				else
 				{
-					src_iter->first->ProcessEvent(_event);
+					state_iter->first->ProcessEvent(_event);
 				}
 			}
 		}
