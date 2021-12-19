@@ -1020,7 +1020,7 @@ void Client::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
-	LuaContext::dogcstep(1);
+	LuaContext::dogc(LUA_GCSTEP, 1);
 
 	LeaveDeviceSection();
 
@@ -1183,6 +1183,8 @@ void Client::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
+	LuaContext::dogc(LUA_GCSTOP, 0);
+
 	PhysxScene::TickPreRender(fElapsedTime);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
@@ -1223,6 +1225,8 @@ void Client::OnFrameTick(
 	LeaveDeviceSection();
 
 	PhysxScene::TickPostRender(fElapsedTime);
+
+	LuaContext::dogc(LUA_GCRESTART, 0);
 
 	//if (player && player->m_Node)
 	//{

@@ -88,7 +88,7 @@ namespace my
 
 		CriticalSection m_DeviceObjectsSec;
 
-		typedef boost::unordered_map<std::string, NamedObject *> NamedObjectMap;
+		typedef std::map<std::string, NamedObject *> NamedObjectMap;
 
 		NamedObjectMap m_NamedObjects;
 

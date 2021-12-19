@@ -24,7 +24,7 @@ public:
 
 	int docall(int narg, int clear);
 
-	int dostring(const char *s, const char *name);
+	int dostring(const char * s, const char * name);
 
-	int dogcstep(int step);
+	int dogc(int what, int data);
 };

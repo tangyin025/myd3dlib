@@ -2340,12 +2340,12 @@ int LuaContext::docall(int narg, int clear)
 	return status;
 }
 
-int LuaContext::dostring(const char *s, const char *name)
+int LuaContext::dostring(const char * s, const char * name)
 {
 	return luaL_loadbuffer(m_State, s, strlen(s), name) || docall(0, 1);
 }
 
-int LuaContext::dogcstep(int step)
+int LuaContext::dogc(int what, int data)
 {
-	return lua_gc(m_State, LUA_GCSTEP, step);
+	return lua_gc(m_State, what, data);
 }

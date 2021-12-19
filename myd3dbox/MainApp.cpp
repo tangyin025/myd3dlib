@@ -11,6 +11,10 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
+extern "C"
+{
+#include <lua.h>
+}
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -730,7 +734,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	ASSERT_VALID(pView);
 	if (pFrame->m_State)
 	{
-		pFrame->dogcstep(1);
+		pFrame->dogc(LUA_GCSTEP, 1);
 	}
 
 	if (!m_IORequestList.empty())
