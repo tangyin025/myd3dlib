@@ -98,9 +98,20 @@ static void actor_add_component_adopt(Actor* self, ScriptComponent* cmp)
 struct ScriptAnimationNodeBlendList;
 
 template <unsigned int i>
-static void animation_node_set_child_adopt(AnimationNode* self, ScriptAnimationNodeBlendList* node)
+static AnimationNodePtr animation_node_get_child(const AnimationNode* self)
 {
-	self->SetChild<i>(AnimationNodePtr(node));
+	return self->GetChild(i);
+}
+
+template <unsigned int i>
+static void animation_node_set_child(AnimationNode* self, AnimationNodePtr node)
+{
+	return self->SetChild(i, node);
+}
+
+static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAnimationNodeBlendList* node)
+{
+	self->SetChild(i, AnimationNodePtr(node));
 }
 
 struct ScriptActionTrack;
@@ -2140,18 +2151,13 @@ void LuaContext::Init(void)
 		//, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
-			.property("Child0", &AnimationNode::GetChild<0>, &AnimationNode::SetChild<0>)
-			.property("Child1", &AnimationNode::GetChild<1>, &AnimationNode::SetChild<1>)
-			.property("Child2", &AnimationNode::GetChild<2>, &AnimationNode::SetChild<2>)
-			.property("Child3", &AnimationNode::GetChild<3>, &AnimationNode::SetChild<3>)
-			.property("Child4", &AnimationNode::GetChild<4>, &AnimationNode::SetChild<4>)
-			.property("Child5", &AnimationNode::GetChild<5>, &AnimationNode::SetChild<5>)
-			.def("SetChild0Adopt", &animation_node_set_child_adopt<0>, adopt(_2))
-			.def("SetChild1Adopt", &animation_node_set_child_adopt<1>, adopt(_2))
-			.def("SetChild2Adopt", &animation_node_set_child_adopt<2>, adopt(_2))
-			.def("SetChild3Adopt", &animation_node_set_child_adopt<3>, adopt(_2))
-			.def("SetChild4Adopt", &animation_node_set_child_adopt<4>, adopt(_2))
-			.def("SetChild5Adopt", &animation_node_set_child_adopt<5>, adopt(_2))
+			.property("Child0", &animation_node_get_child<0>, &animation_node_set_child<0>)
+			.property("Child1", &animation_node_get_child<1>, &animation_node_set_child<1>)
+			.property("Child2", &animation_node_get_child<2>, &animation_node_set_child<2>)
+			.property("Child3", &animation_node_get_child<3>, &animation_node_set_child<3>)
+			.property("Child4", &animation_node_get_child<4>, &animation_node_set_child<4>)
+			.property("Child5", &animation_node_get_child<5>, &animation_node_set_child<5>)
+			.def("SetChildAdopt", &animation_node_set_child_adopt, adopt(_3))
 			.def("RemoveChild", &AnimationNode::RemoveChild)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")

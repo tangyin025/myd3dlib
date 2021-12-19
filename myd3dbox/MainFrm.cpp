@@ -1732,7 +1732,7 @@ void CMainFrame::OnComponentAnimator()
 		DEFINE_XML_NODE_SIMPLE(animation, animations);
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
 		AnimatorPtr animator(new Animator(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_animator").c_str()).c_str()));
-		animator->SetChild<0>(AnimationNodeSequencePtr(new AnimationNodeSequence(attr_name->value())));
+		animator->SetChild(0, AnimationNodeSequencePtr(new AnimationNodeSequence(attr_name->value())));
 		animator->ReloadSequenceGroup();
 		animator->m_SkeletonPath = path;
 		(*actor_iter)->AddComponent(animator);

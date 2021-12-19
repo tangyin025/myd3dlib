@@ -47,23 +47,9 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	template <unsigned int i>
-	AnimationNodePtr GetChild(void) const
-	{
-		return m_Childs[i];
-	}
+	AnimationNodePtr GetChild(int i) const;
 
-	template <unsigned int i>
-	void SetChild(AnimationNodePtr node)
-	{
-		_ASSERT(!node->m_Parent);
-		if (m_Childs[i])
-		{
-			RemoveChild(i);
-		}
-		m_Childs[i] = node;
-		node->m_Parent = this;
-	}
+	void SetChild(int i, AnimationNodePtr node);
 
 	void RemoveChild(int i);
 
