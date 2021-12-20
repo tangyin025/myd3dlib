@@ -30,8 +30,8 @@ function Actor2Behavior:RequestResource()
 	Component.RequestResource(self)
 	self.Actor:PlayAction(SAction.act_sound,9999)
 end
-actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
-actor2:AddComponent(actor2_behavior)
+local actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
+actor2:AddComponentAdopt(actor2_behavior)
 
 -- 在角色手部绑定物体
 actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(25,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(90)),Vector3(0.1,0.25,0.1),AABB(-1,1))
@@ -120,8 +120,8 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 		Component.RequestResource(self)
 		self.Actor:PlayAction(SAction.act_moving,9999)
 	end
-	actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
-	actor6:AddComponent(actor6_behavior)	
+	local actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
+	actor6:AddComponentAdopt(actor6_behavior)	
 
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 	-- SPlayer.player:PlayAction(SAction.act_pose,3)

@@ -68,7 +68,7 @@ end
 local btn_toggle_ref=client:GetNamedObject("btn_toggle_ref")
 btn_toggle_ref.EventMouseClick=function(arg)
 	-- ! do not destroy device within lua context
-	client.wnd:PostMessage(40002,0,0)
+	client.wnd:PostMessage(40002,WPARAM(0),LPARAM(0))
 end
 
 local btn_change_device=client:GetNamedObject("btn_change_device")

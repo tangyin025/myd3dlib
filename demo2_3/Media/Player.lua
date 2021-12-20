@@ -50,12 +50,12 @@ local rate_run=AnimationNodeRate()
 rate_run.Speed0=7
 rate_run.Child0=AnimationNodeSequence("run",1.0,true,"move")
 local node_run=AnimationNodeBlendList(2)
-node_run.Child0=node_walk
+node_run:SetChildAdopt(0,node_walk)
 node_run.Child1=rate_run
 
 -- 加载动画资源
 local animator_cmp=Animator(NamedObject.MakeUniqueName("anim_cmp"))
-animator_cmp.Child0=node_run
+animator_cmp:SetChildAdopt(0,node_run)
 animator_cmp:ReloadSequenceGroup()
 animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
@@ -167,5 +167,5 @@ end
 function PlayerBehavior:OnGUI(ui_render,elapsedTime,viewport)
 	-- print("BehaviorComponent:OnGUI",viewport.x,viewport.y)
 end
-player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
-player:AddComponent(player_behavior)
+local player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
+player:AddComponentAdopt(player_behavior)
