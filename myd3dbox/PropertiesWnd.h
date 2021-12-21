@@ -516,6 +516,7 @@ public:
 		PropertyListBoxScrollBarImageBorderY,
 		PropertyListBoxScrollBarImageBorderZ,
 		PropertyListBoxScrollBarImageBorderW,
+		PropertyDialogEnableDrag,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -548,6 +549,7 @@ public:
 	void UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
 	void UpdatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox);
 	void UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);
+	void UpdatePropertiesDialog(CMFCPropertyGridProperty * pControl, my::Dialog * dialog);
 
 	void CreatePropertiesActor(Actor * actor);
 	void CreatePropertiesRigidActor(CMFCPropertyGridProperty * pParentCtrl, Actor * actor);
@@ -574,6 +576,7 @@ public:
 	void CreatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
 	void CreatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox);
 	void CreatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);
+	void CreatePropertiesDialog(CMFCPropertyGridProperty * pControl, my::Dialog * dialog);
 
 	static Property GetComponentProp(DWORD type);
 	static unsigned int GetComponentPropCount(DWORD type);

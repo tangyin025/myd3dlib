@@ -1469,7 +1469,7 @@ namespace my
 		Dialog(void)
 			: m_Manager(NULL)
 			, m_World(Matrix4::identity)
-			, m_EnableDrag(true)
+			, m_EnableDrag(false)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
@@ -1480,7 +1480,7 @@ namespace my
 			: Control(Name)
 			, m_Manager(NULL)
 			, m_World(Matrix4::identity)
-			, m_EnableDrag(true)
+			, m_EnableDrag(false)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0, 0)
 		{

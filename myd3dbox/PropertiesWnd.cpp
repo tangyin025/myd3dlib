@@ -831,6 +831,8 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 		UpdatePropertiesListBox(pControl, dynamic_cast<my::ListBox*>(control));
 		break;
 	case my::Control::ControlTypeDialog:
+		UpdatePropertiesDialog(pControl, dynamic_cast<my::Dialog*>(control));
+		break;
 	default:
 		RemovePropertiesFrom(pControl, GetControlPropCount(my::Control::ControlTypeControl));
 		break;
@@ -1200,6 +1202,19 @@ void CPropertiesWnd::UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 21)->GetSubItem(1)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.y);
 	pControl->GetSubItem(PropId + 21)->GetSubItem(2)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.z);
 	pControl->GetSubItem(PropId + 21)->GetSubItem(3)->SetValue((_variant_t)skin->m_ScrollBarImage->m_Border.w);
+}
+
+void CPropertiesWnd::UpdatePropertiesDialog(CMFCPropertyGridProperty * pControl, my::Dialog * dialog)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyDialogEnableDrag)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesDialog(pControl, dialog);
+		return;
+	}
+
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)dialog->m_EnableDrag);
 }
 
 void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
@@ -1927,6 +1942,8 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 		CreatePropertiesListBox(pControl, dynamic_cast<my::ListBox*>(control));
 		break;
 	case my::Control::ControlTypeDialog:
+		CreatePropertiesDialog(pControl, dynamic_cast<my::Dialog*>(control));
+		break;
 	default:
 		break;
 	}
@@ -2635,6 +2652,14 @@ void CPropertiesWnd::CreatePropertiesListBox(CMFCPropertyGridProperty * pControl
 	pScrollBarImageBorder->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_ScrollBarImage->m_Border.w, NULL, PropertyListBoxScrollBarImageBorderW);
 	pScrollBarImageBorder->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesDialog(CMFCPropertyGridProperty * pControl, my::Dialog * dialog)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
+
+	CMFCPropertyGridProperty* pEnableDrag = new CCheckBoxProp(_T("EnableDrag"), dialog->m_EnableDrag, NULL, PropertyDialogEnableDrag);
+	pControl->AddSubItem(pEnableDrag);
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetComponentProp(DWORD type)
@@ -5904,6 +5929,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		skin->m_ScrollBarImage->m_Border.y = pControl->GetSubItem(PropId + 21)->GetSubItem(1)->GetValue().fltVal;
 		skin->m_ScrollBarImage->m_Border.z = pControl->GetSubItem(PropId + 21)->GetSubItem(2)->GetValue().fltVal;
 		skin->m_ScrollBarImage->m_Border.w = pControl->GetSubItem(PropId + 21)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyDialogEnableDrag:
+	{
+		my::Dialog* dialog = dynamic_cast<my::Dialog*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		dialog->m_EnableDrag = pProp->GetValue().boolVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
