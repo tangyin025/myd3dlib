@@ -1163,7 +1163,7 @@ void Control::OnFocusIn(void)
 				continue;
 			}
 		}
-		listBox->m_ScrollBar.ScrollTo(i);
+		listBox->m_ScrollBar->ScrollTo(i);
 	}
 }
 
@@ -3153,7 +3153,7 @@ ComboBox::ComboBox(const char* Name)
 	: Button(Name)
 	, m_DropdownSize(100, 100)
 	, m_DropdownRect(0, 0, 100, 100)
-	, m_ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str())
+	, m_ScrollBar(new ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str()))
 	, m_ScrollbarWidth(20)
 	, m_ScrollbarUpDownBtnHeight(20)
 	, m_Border(0, 0, 0, 0)
@@ -3169,7 +3169,7 @@ void ComboBox::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 	ar << BOOST_SERIALIZATION_NVP(m_DropdownSize);
-	ar << boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
+	ar << BOOST_SERIALIZATION_NVP(m_ScrollBar);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_Border);
@@ -3181,7 +3181,7 @@ void ComboBox::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
 	ar >> BOOST_SERIALIZATION_NVP(m_DropdownSize);
-	ar >> boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
+	ar >> BOOST_SERIALIZATION_NVP(m_ScrollBar);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border);
@@ -3221,27 +3221,27 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 					Skin->DrawImage(ui_render, Skin->m_DropdownImage, m_DropdownRect, m_Skin->m_Color);
 
 					// ! ScrollBar source copy
-					m_ScrollBar.SimulateRepeatedScroll();
+					m_ScrollBar->SimulateRepeatedScroll();
 
-					m_ScrollBar.m_Rect = Rectangle::LeftTop(m_DropdownRect.r, m_DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
+					m_ScrollBar->m_Rect = Rectangle::LeftTop(m_DropdownRect.r, m_DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
 
-					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar.m_Rect, m_Skin->m_Color);
+					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar->m_Rect, m_Skin->m_Color);
 
-					Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar.m_Rect.l, m_ScrollBar.m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
+					Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar->m_Rect.l, m_ScrollBar->m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
 
-					Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar.m_Rect.r, m_ScrollBar.m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
+					Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar->m_Rect.r, m_ScrollBar->m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
 
-					if(m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
+					if(m_ScrollBar->m_bEnabled && m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart > m_ScrollBar->m_nPageSize)
 					{
 						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
 
 						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
 
 						float fTrackHeight = m_DropdownSize.y - m_ScrollbarUpDownBtnHeight * 2;
-						float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
-						int nMaxPosition = m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart - m_ScrollBar.m_nPageSize;
-						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-						Rectangle ThumbButtonRect(m_ScrollBar.m_Rect.l, fThumbTop, m_ScrollBar.m_Rect.r, fThumbTop + fThumbHeight);
+						float fThumbHeight = fTrackHeight * m_ScrollBar->m_nPageSize / (m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart);
+						int nMaxPosition = m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart - m_ScrollBar->m_nPageSize;
+						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar->m_nPosition - m_ScrollBar->m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+						Rectangle ThumbButtonRect(m_ScrollBar->m_Rect.l, fThumbTop, m_ScrollBar->m_Rect.r, fThumbTop + fThumbHeight);
 
 						Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 					}
@@ -3252,7 +3252,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 					}
 
-					int i = m_ScrollBar.m_nPosition;
+					int i = m_ScrollBar->m_nPosition;
 					float y = m_DropdownRect.t + m_Border.y;
 					for(; i < (int)m_Items.size() && y <= m_DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
@@ -3314,7 +3314,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					m_bPressed = true;
 					m_iFocused = m_iSelected;
-					m_ScrollBar.ScrollTo(m_iFocused);
+					m_ScrollBar->ScrollTo(m_iFocused);
 					return true;
 				}
 				else
@@ -3339,7 +3339,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (m_iFocused > 0)
 					{
-						m_ScrollBar.ScrollTo(--m_iFocused);
+						m_ScrollBar->ScrollTo(--m_iFocused);
 					}
 					return true;
 				}
@@ -3350,7 +3350,7 @@ bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					if (m_iFocused + 1 < (int)m_Items.size())
 					{
-						m_ScrollBar.ScrollTo(++m_iFocused);
+						m_ScrollBar->ScrollTo(++m_iFocused);
 					}
 					return true;
 				}
@@ -3382,7 +3382,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	{
 		if(GetFocused() && m_bPressed)
 		{
-			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
+			if(m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
 			{
 				return true;
 			}
@@ -3395,7 +3395,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
-					int i = m_ScrollBar.m_nPosition;
+					int i = m_ScrollBar->m_nPosition;
 					float y = m_DropdownRect.t;
 					for(; i < (int)m_Items.size() && y <= m_DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
@@ -3418,7 +3418,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				m_bPressed = !m_bPressed;
 				m_iFocused = m_iSelected;
-				m_ScrollBar.ScrollTo(m_iFocused);
+				m_ScrollBar->ScrollTo(m_iFocused);
 				SetFocusControl(this);
 				SetCaptureControl(this);
 				return true;
@@ -3428,7 +3428,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
-					int i = m_ScrollBar.m_nPosition;
+					int i = m_ScrollBar->m_nPosition;
 					float y = m_DropdownRect.t;
 					for(; i < (int)m_Items.size() && y <= m_DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
@@ -3481,7 +3481,7 @@ bool ComboBox::HitTest(const Vector2 & pt) const
 {
 	if (GetFocused() && m_bPressed)
 	{
-		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar.m_Rect.PtInRect(pt);
+		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar->m_Rect.PtInRect(pt);
 	}
 
 	return Button::HitTest(pt);
@@ -3489,17 +3489,17 @@ bool ComboBox::HitTest(const Vector2 & pt) const
 
 void ComboBox::OnLayout(void)
 {
-	m_ScrollBar.m_x = UDim(0, m_DropdownSize.x);
+	m_ScrollBar->m_x = UDim(0, m_DropdownSize.x);
 
-	m_ScrollBar.m_y = UDim(0, 0);
+	m_ScrollBar->m_y = UDim(0, 0);
 
-	m_ScrollBar.m_Width = UDim(0, m_ScrollbarWidth);
+	m_ScrollBar->m_Width = UDim(0, m_ScrollbarWidth);
 
-	m_ScrollBar.m_Height = UDim(0, m_DropdownSize.y);
+	m_ScrollBar->m_Height = UDim(0, m_DropdownSize.y);
 
-	m_ScrollBar.m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
+	m_ScrollBar->m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
 
-	m_ScrollBar.m_Parent = this;
+	m_ScrollBar->m_Parent = this;
 }
 
 void ComboBox::SetDropdownSize(const Vector2 & DropdownSize)
@@ -3586,14 +3586,14 @@ void ComboBox::AddItem(const std::wstring & strText)
 
 	m_Items.push_back(ComboBoxItem(strText));
 
-	m_ScrollBar.m_nEnd = m_Items.size();
+	m_ScrollBar->m_nEnd = m_Items.size();
 }
 
 void ComboBox::RemoveAllItems(void)
 {
 	m_Items.clear();
 
-	m_ScrollBar.m_nEnd = 0;
+	m_ScrollBar->m_nEnd = 0;
 
 	m_iSelected = -1;
 }
@@ -3698,7 +3698,7 @@ void ListBoxSkin::ReleaseResource(void)
 
 ListBox::ListBox(const char* Name)
 	: Control(Name)
-	, m_ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str())
+	, m_ScrollBar(new ScrollBar(NamedObject::MakeUniqueName((std::string(Name) + "_scrollbar").c_str()).c_str()))
 	, m_ScrollbarWidth(20)
 	, m_ScrollbarUpDownBtnHeight(20)
 	, m_ItemSize(50, 50)
@@ -3711,7 +3711,7 @@ template<class Archive>
 void ListBox::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
-	ar << boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
+	ar << BOOST_SERIALIZATION_NVP(m_ScrollBar);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_ItemSize);
@@ -3721,7 +3721,7 @@ template<class Archive>
 void ListBox::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
-	ar >> boost::serialization::make_nvp("m_ScrollbarNamedObject", (NamedObject &)m_ScrollBar);
+	ar >> BOOST_SERIALIZATION_NVP(m_ScrollBar);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar >> BOOST_SERIALIZATION_NVP(m_ItemSize);
@@ -3739,27 +3739,27 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			m_ScrollBar.SimulateRepeatedScroll();
+			m_ScrollBar->SimulateRepeatedScroll();
 
-			m_ScrollBar.m_Rect = Rectangle::RightTop(m_Rect.l + m_Rect.Width(), m_Rect.t, m_ScrollbarWidth, m_Rect.Height());
+			m_ScrollBar->m_Rect = Rectangle::RightTop(m_Rect.l + m_Rect.Width(), m_Rect.t, m_ScrollbarWidth, m_Rect.Height());
 
-			Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar.m_Rect, m_Skin->m_Color);
+			Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar->m_Rect, m_Skin->m_Color);
 
-			Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar.m_Rect.l, m_ScrollBar.m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
+			Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar->m_Rect.l, m_ScrollBar->m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
 
-			Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar.m_Rect.r, m_ScrollBar.m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
+			Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar->m_Rect.r, m_ScrollBar->m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
 
-			if (m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
+			if (m_ScrollBar->m_bEnabled && m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart > m_ScrollBar->m_nPageSize)
 			{
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
 
-				float fTrackHeight = m_ScrollBar.m_Rect.Height() - m_ScrollbarUpDownBtnHeight * 2;
-				float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
-				int nMaxPosition = m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart - m_ScrollBar.m_nPageSize;
-				float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-				Rectangle ThumbButtonRect(m_ScrollBar.m_Rect.l, fThumbTop, m_ScrollBar.m_Rect.r, fThumbTop + fThumbHeight);
+				float fTrackHeight = m_ScrollBar->m_Rect.Height() - m_ScrollbarUpDownBtnHeight * 2;
+				float fThumbHeight = fTrackHeight * m_ScrollBar->m_nPageSize / (m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart);
+				int nMaxPosition = m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart - m_ScrollBar->m_nPageSize;
+				float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar->m_nPosition - m_ScrollBar->m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+				Rectangle ThumbButtonRect(m_ScrollBar->m_Rect.l, fThumbTop, m_ScrollBar->m_Rect.r, fThumbTop + fThumbHeight);
 
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
 			}
@@ -3770,12 +3770,12 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
 			}
 
-			int start_i = m_ScrollBar.m_nPosition * m_ItemColumn;
+			int start_i = m_ScrollBar->m_nPosition * m_ItemColumn;
 			if (start_i < m_Childs.size())
 			{
 				ControlPtrList::iterator ctrl_iter = m_Childs.begin() + start_i;
 				int i = 0, j = 0;
-				for (; ctrl_iter != m_Childs.end() && i < m_ScrollBar.m_nPageSize; ctrl_iter++)
+				for (; ctrl_iter != m_Childs.end() && i < m_ScrollBar->m_nPageSize; ctrl_iter++)
 				{
 					if ((*ctrl_iter)->GetVisible())
 					{
@@ -3811,7 +3811,7 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 {
 	if (m_bEnabled && m_bVisible)
 	{
-		if (m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
+		if (m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
 		{
 			return true;
 		}
@@ -3826,21 +3826,21 @@ bool ListBox::CanHaveFocus(void) const
 
 void ListBox::OnLayout(void)
 {
-	m_ScrollBar.m_x = UDim(0, 0);
+	m_ScrollBar->m_x = UDim(0, 0);
 
-	m_ScrollBar.m_y = UDim(0, 0);
+	m_ScrollBar->m_y = UDim(0, 0);
 
-	m_ScrollBar.m_Width = UDim(0, m_ScrollbarWidth);
+	m_ScrollBar->m_Width = UDim(0, m_ScrollbarWidth);
 
-	m_ScrollBar.m_Height = UDim(0, m_Height.offset);
+	m_ScrollBar->m_Height = UDim(0, m_Height.offset);
 
-	m_ScrollBar.m_nPageSize = (int)(m_ScrollBar.m_Height.offset / m_ItemSize.y);
+	m_ScrollBar->m_nPageSize = (int)(m_ScrollBar->m_Height.offset / m_ItemSize.y);
 
-	m_ScrollBar.m_Parent = this;
+	m_ScrollBar->m_Parent = this;
 
 	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
 
-	m_ScrollBar.m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
+	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
@@ -3859,33 +3859,33 @@ void ListBox::InsertControl(ControlPtr control)
 {
 	Control::InsertControl(control);
 
-	m_ScrollBar.m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
+	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 }
 
 void ListBox::RemoveControl(ControlPtr control)
 {
 	Control::RemoveControl(control);
 
-	m_ScrollBar.m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
+	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 }
 
 void ListBox::ClearAllControl(void)
 {
 	Control::ClearAllControl();
 
-	m_ScrollBar.m_nEnd = 0;
+	m_ScrollBar->m_nEnd = 0;
 }
 
 Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 {
 	if (bIgnoreVisible || m_bEnabled && m_bVisible)
 	{
-		int start_i = m_ScrollBar.m_nPosition * m_ItemColumn;
+		int start_i = m_ScrollBar->m_nPosition * m_ItemColumn;
 		if (start_i < m_Childs.size())
 		{
 			ControlPtrList::iterator ctrl_iter = m_Childs.begin() + start_i;
 			int i = 0, j = 0;
-			for (; ctrl_iter != m_Childs.end() && i < m_ScrollBar.m_nPageSize; ctrl_iter++)
+			for (; ctrl_iter != m_Childs.end() && i < m_ScrollBar->m_nPageSize; ctrl_iter++)
 			{
 				if ((*ctrl_iter)->GetVisible())
 				{
@@ -3932,15 +3932,15 @@ void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** ne
 		}
 		else if (cent.y > m_Rect.b)
 		{
-			start_i = (m_ScrollBar.m_nEnd - 1) * m_ItemColumn;
-			i = m_ScrollBar.m_nPageSize - 1;
-			page_size = m_ScrollBar.m_nPageSize + 1;
+			start_i = (m_ScrollBar->m_nEnd - 1) * m_ItemColumn;
+			i = m_ScrollBar->m_nPageSize - 1;
+			page_size = m_ScrollBar->m_nPageSize + 1;
 		}
 		else
 		{
-			start_i = m_ScrollBar.m_nPosition <= 0 ? 0 : (m_ScrollBar.m_nPosition - 1) * m_ItemColumn;
-			i = m_ScrollBar.m_nPosition <= 0 ? 0 : -1;
-			page_size = m_ScrollBar.m_nPageSize + 1;
+			start_i = m_ScrollBar->m_nPosition <= 0 ? 0 : (m_ScrollBar->m_nPosition - 1) * m_ItemColumn;
+			i = m_ScrollBar->m_nPosition <= 0 ? 0 : -1;
+			page_size = m_ScrollBar->m_nPageSize + 1;
 		}
 		if (start_i < m_Childs.size())
 		{

@@ -1039,6 +1039,7 @@ namespace my
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 			ar & BOOST_SERIALIZATION_NVP(m_nPageSize);
+			ar & BOOST_SERIALIZATION_NVP(m_nEnd);
 		}
 
 		virtual DWORD GetControlType(void) const
@@ -1180,7 +1181,7 @@ namespace my
 
 		Rectangle m_DropdownRect;
 
-		ScrollBar m_ScrollBar;
+		ScrollBarPtr m_ScrollBar;
 
 		float m_ScrollbarWidth;
 
@@ -1218,7 +1219,10 @@ namespace my
 
 		~ComboBox(void)
 		{
-			m_ScrollBar.m_Parent = NULL;
+			if (m_ScrollBar)
+			{
+				m_ScrollBar->m_Parent = NULL;
+			}
 		}
 
 		friend class boost::serialization::access;
@@ -1341,7 +1345,7 @@ namespace my
 	class ListBox : public Control
 	{
 	public:
-		ScrollBar m_ScrollBar;
+		ScrollBarPtr m_ScrollBar;
 
 		float m_ScrollbarWidth;
 
@@ -1365,7 +1369,10 @@ namespace my
 
 		~ListBox(void)
 		{
-			m_ScrollBar.m_Parent = NULL;
+			if (m_ScrollBar)
+			{
+				m_ScrollBar->m_Parent = NULL;
+			}
 		}
 
 		friend class boost::serialization::access;
