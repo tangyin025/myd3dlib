@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 
 namespace my
@@ -13,9 +14,9 @@ namespace my
 
 		typedef std::map<EventType, StateType *> EventStateMap;
 
-		typedef std::map<StateTypePtr, EventStateMap> StateMap;
+		typedef std::vector<std::pair<StateTypePtr, EventStateMap> > StateTypeList;
 
-		StateMap m_States;
+		StateTypeList m_States;
 
 		StateType * m_Current;
 
@@ -33,20 +34,34 @@ namespace my
 			_ASSERT(NULL == m_Parent);
 		}
 
-		typename StateMap::value_type * FindState(StateType * state)
+		typename StateTypeList::value_type * FindState(StateType * state)
 		{
-			StateMap::iterator state_iter = m_States.begin();
+			StateTypeList::iterator state_iter = m_States.begin();
 			for (; state_iter != m_States.end(); state_iter++)
 			{
-				StateMap::value_type * res = state_iter->first->FindState(state);
-				if (res)
-				{
-					return res;
-				}
-
 				if (state_iter->first.get() == state)
 				{
 					return &(*state_iter);
+				}
+			}
+			return NULL;
+		}
+
+		typename StateTypeList::value_type * FindStateRecursive(StateType * state)
+		{
+			StateTypeList::value_type * res = FindState(state);
+			if (res)
+			{
+				return res;
+			}
+
+			StateTypeList::iterator state_iter = m_States.begin();
+			for (; state_iter != m_States.end(); state_iter++)
+			{
+				StateTypeList::value_type * res = state_iter->first->FindStateRecursive(state);
+				if (res)
+				{
+					return res;
 				}
 			}
 			return NULL;
@@ -56,9 +71,9 @@ namespace my
 		{
 			_ASSERT(NULL == state->m_Parent);
 
-			_ASSERT(!FindState(state.get()));
+			_ASSERT(!FindStateRecursive(state.get()));
 
-			m_States.insert(std::make_pair(state, EventStateMap()));
+			m_States.push_back(std::make_pair(state, EventStateMap()));
 			state->m_Parent = this;
 			state->OnAdd();
 
@@ -71,26 +86,19 @@ namespace my
 
 		void AddState(StateTypePtr state, StateType * parent)
 		{
-			StateMap::value_type * parent_iter = FindState(parent);
+			StateTypeList::value_type * parent_iter = FindStateRecursive(parent);
 			_ASSERT(NULL != parent_iter);
 			parent_iter->first->AddState(state);
 		}
 
 		void AddTransition(StateType * src, const EventType & _event, StateType * dest)
 		{
-			StateMap::value_type * src_iter = FindState(src);
+			StateTypeList::value_type * src_iter = FindStateRecursive(src);
 			_ASSERT(NULL != src_iter);
 			_ASSERT(NULL != src_iter->first->m_Parent);
 
-			StateMap::const_iterator dest_iter = src_iter->first->m_Parent->m_States.begin();
-			for (; dest_iter != src_iter->first->m_Parent->m_States.end(); dest_iter++)
-			{
-				if (dest_iter->first.get() == dest)
-				{
-					break;
-				}
-			}
-			if (dest_iter == src_iter->first->m_Parent->m_States.end())
+			StateTypeList::value_type * dest_iter = src_iter->first->m_Parent->FindState(dest);
+			if (!dest_iter)
 			{
 				_ASSERT(false);
 				return;
@@ -121,15 +129,8 @@ namespace my
 				return;
 			}
 
-			StateMap::const_iterator state_iter = m_States.begin();
-			for (; state_iter != m_States.end(); state_iter++)
-			{
-				if (state_iter->first.get() == state)
-				{
-					break;
-				}
-			}
-			if (state_iter == m_States.end())
+			StateTypeList::value_type * state_iter = FindState(state);
+			if (!state_iter)
 			{
 				_ASSERT(false);
 				return;
@@ -151,15 +152,8 @@ namespace my
 		{
 			if (m_Current)
 			{
-				StateMap::const_iterator state_iter = m_States.begin();
-				for (; state_iter != m_States.end(); state_iter++)
-				{
-					if (state_iter->first.get() == m_Current)
-					{
-						break;
-					}
-				}
-				if (state_iter == m_States.end())
+				StateTypeList::value_type * state_iter = FindState(m_Current);
+				if (!state_iter)
 				{
 					_ASSERT(false);
 					return;
@@ -180,7 +174,7 @@ namespace my
 		void ClearAllState(void)
 		{
 			SetState(NULL);
-			StateMap::iterator state_iter = m_States.begin();
+			StateTypeList::iterator state_iter = m_States.begin();
 			for (; state_iter != m_States.end(); state_iter++)
 			{
 				_ASSERT(this == state_iter->first->m_Parent);
