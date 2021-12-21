@@ -266,7 +266,7 @@ void Component::EnterPhysxScene(PhysxScene * scene)
 {
 	_ASSERT(m_Actor);
 
-	_ASSERT(!scene->m_RenderTickMuted);
+	_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
 
 	if (m_PxShape && m_Actor->m_PxActor)
 	{
@@ -280,7 +280,7 @@ void Component::LeavePhysxScene(PhysxScene * scene)
 {
 	_ASSERT(m_Actor);
 
-	_ASSERT(!scene->m_RenderTickMuted);
+	_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
 
 	if (m_PxShape && m_Actor->m_PxActor)
 	{
@@ -700,7 +700,7 @@ void MeshComponent::EnterPhysxScene(PhysxScene * scene)
 {
 	_ASSERT(m_Actor);
 
-	_ASSERT(!scene->m_RenderTickMuted);
+	_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
 
 	if (!m_PxMeshPath.empty() && m_Actor->m_PxActor)
 	{
@@ -734,7 +734,7 @@ void MeshComponent::LeavePhysxScene(PhysxScene * scene)
 {
 	_ASSERT(m_Actor);
 
-	_ASSERT(!scene->m_RenderTickMuted);
+	_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
 
 	if (!m_PxMeshPath.empty() && m_Actor->m_PxActor)
 	{

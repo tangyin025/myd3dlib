@@ -180,7 +180,7 @@ void PhysxScene::TickPreRender(float dtime)
 
 	m_WaitForResults = Advance(dtime);
 
-	m_RenderTickMuted = true;
+	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 }
 
 void PhysxScene::TickPostRender(float dtime)
@@ -254,7 +254,7 @@ void PhysxScene::TickPostRender(float dtime)
 		}
 	}
 
-	m_RenderTickMuted = false;
+	PhysxSdk::getSingleton().m_RenderTickMuted = false;
 }
 
 bool PhysxScene::Advance(float dtime)

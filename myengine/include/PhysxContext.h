@@ -80,8 +80,11 @@ public:
 
 	boost::shared_ptr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
+	bool m_RenderTickMuted;
+
 public:
 	PhysxSdk(void)
+		: m_RenderTickMuted(false)
 	{
 	}
 
@@ -120,8 +123,6 @@ public:
 
 	bool m_WaitForResults;
 
-	bool m_RenderTickMuted;
-
 	physx::PxU32 m_ErrorState;
 
 	boost::shared_ptr<physx::PxScene> m_PxScene;
@@ -149,7 +150,6 @@ public:
 		, m_Timer(1/60.0f,0)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
-		, m_RenderTickMuted(false)
 		, m_ErrorState(0)
 		, mActiveTransformCount(0)
 	{

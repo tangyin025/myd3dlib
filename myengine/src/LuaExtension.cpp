@@ -201,7 +201,7 @@ struct ScriptControl : my::Control, luabind::wrap_base
 		{
 			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 		}
-		return 0;
+		return false;
 	}
 
 	static bool default_MsgProc(my::Control* ptr, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -219,7 +219,7 @@ struct ScriptControl : my::Control, luabind::wrap_base
 		{
 			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 		}
-		return 0;
+		return false;
 	}
 
 	static bool default_HandleKeyboard(my::Control* ptr, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -237,12 +237,32 @@ struct ScriptControl : my::Control, luabind::wrap_base
 		{
 			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 		}
-		return 0;
+		return false;
 	}
 
 	static bool default_HandleMouse(my::Control* ptr, UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
 	{
 		return ptr->Control::HandleMouse(uMsg, pt, wParam, lParam);
+	}
+
+	virtual bool CanHaveFocus(void) const
+	{
+		_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
+
+		try
+		{
+			return luabind::wrap_base::call<bool>("CanHaveFocus");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+		return false;
+	}
+
+	static bool default_CanHaveFocus(my::Control* ptr)
+	{
+		return ptr->Control::CanHaveFocus();
 	}
 };
 
@@ -813,10 +833,10 @@ void LuaContext::Init(void)
 
 		, class_<my::Matrix4>("Matrix4")
 			.def(constructor<float>())
-			.property("row0", &my::Matrix4::getRow<0>, &my::Matrix4::setRow<0>/*, luabind::return_reference_to(_1)*/)
-			.property("row1", &my::Matrix4::getRow<1>, &my::Matrix4::setRow<1>/*, luabind::return_reference_to(_1)*/)
-			.property("row2", &my::Matrix4::getRow<2>, &my::Matrix4::setRow<2>/*, luabind::return_reference_to(_1)*/)
-			.property("row3", &my::Matrix4::getRow<3>, &my::Matrix4::setRow<3>/*, luabind::return_reference_to(_1)*/)
+			.property("row0", &my::Matrix4::getRow<0>, &my::Matrix4::setRow<0>)
+			.property("row1", &my::Matrix4::getRow<1>, &my::Matrix4::setRow<1>)
+			.property("row2", &my::Matrix4::getRow<2>, &my::Matrix4::setRow<2>)
+			.property("row3", &my::Matrix4::getRow<3>, &my::Matrix4::setRow<3>)
 			.property("column0", &my::Matrix4::getColumn<0>, &my::Matrix4::setColumn<0>)
 			.property("column1", &my::Matrix4::getColumn<1>, &my::Matrix4::setColumn<1>)
 			.property("column2", &my::Matrix4::getColumn<2>, &my::Matrix4::setColumn<2>)
@@ -1269,6 +1289,7 @@ void LuaContext::Init(void)
 			.def("MsgProc", &my::Control::MsgProc, &ScriptControl::default_MsgProc)
 			.def("HandleKeyboard", &my::Control::HandleKeyboard, &ScriptControl::default_HandleKeyboard)
 			.def("HandleMouse", &my::Control::HandleMouse, &ScriptControl::default_HandleMouse)
+			.def("CanHaveFocus", &my::Control::CanHaveFocus, &ScriptControl::default_CanHaveFocus)
 			.def("HitTest", &my::Control::HitTest)
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
@@ -1357,6 +1378,7 @@ void LuaContext::Init(void)
 
 		, class_<my::ComboBox, my::Button, boost::shared_ptr<my::Control> >("ComboBox")
 			.def(constructor<const char *>())
+			.def_readonly("ScrollBar", &my::ComboBox::m_ScrollBar)
 			.property("DropdownSize", &my::ComboBox::GetDropdownSize, &my::ComboBox::SetDropdownSize)
 			.property("ScrollbarWidth", &my::ComboBox::GetScrollbarWidth, &my::ComboBox::SetScrollbarWidth)
 			.property("ScrollbarUpDownBtnHeight", &my::ComboBox::GetScrollbarUpDownBtnHeight, &my::ComboBox::SetScrollbarUpDownBtnHeight)
@@ -1383,6 +1405,7 @@ void LuaContext::Init(void)
 
 		, class_<my::ListBox, my::Control, boost::shared_ptr<my::Control> >("ListBox")
 			.def(constructor<const char *>())
+			.def_readonly("ScrollBar", &my::ListBox::m_ScrollBar)
 			.property("ScrollbarWidth", &my::ListBox::GetScrollbarWidth, &my::ListBox::SetScrollbarWidth)
 			.property("ScrollbarUpDownBtnHeight", &my::ListBox::GetScrollbarUpDownBtnHeight, &my::ListBox::SetScrollbarUpDownBtnHeight)
 			.property("ItemSize", &my::ListBox::GetItemSize, &my::ListBox::SetItemSize)
