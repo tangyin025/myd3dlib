@@ -1384,15 +1384,9 @@ void Control::ClearAllControl(void)
 
 bool Control::ContainsControl(Control * control) const
 {
-	if (this == control)
+	for (; control; control = control->m_Parent)
 	{
-		return true;
-	}
-
-	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
-	{
-		if ((*ctrl_iter)->ContainsControl(control))
+		if (this == control)
 		{
 			return true;
 		}
