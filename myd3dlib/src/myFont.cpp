@@ -334,7 +334,7 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 	}
 }
 
-void Font::InsertCharacter(
+const Font::CharacterInfo & Font::InsertCharacter(
 	unsigned long character,
 	float width,
 	float height,
@@ -373,10 +373,12 @@ void Font::InsertCharacter(
 		m_Texture->UnlockRect();
 	}
 
-	m_characterMap.insert(std::make_pair(character, info));
+	std::pair<CharacterMap::iterator, bool> res = m_characterMap.insert(std::make_pair(character, info));
+	BOOST_VERIFY(res.second);
+	return res.first->second;
 }
 
-void Font::LoadCharacter(unsigned long character)
+const Font::CharacterInfo & Font::LoadCharacter(unsigned long character)
 {
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
@@ -393,7 +395,7 @@ void Font::LoadCharacter(unsigned long character)
 		THROW_CUSEXCEPTION("FT_PIXEL_MODE_GRAY != ft_face->glyph->bitmap.pixel_mode");
 	}
 
-	InsertCharacter(
+	return InsertCharacter(
 		character,
 		m_face->glyph->metrics.width / 64.0f / FontLibrary::getSingleton().m_Scale.x,
 		m_face->glyph->metrics.height / 64.0f / FontLibrary::getSingleton().m_Scale.y,
@@ -409,14 +411,12 @@ void Font::LoadCharacter(unsigned long character)
 const Font::CharacterInfo & Font::GetCharacterInfo(unsigned long character)
 {
 	CharacterMap::const_iterator char_info_iter = m_characterMap.find(character);
-	if(m_characterMap.end() == char_info_iter)
+	if(char_info_iter != m_characterMap.end())
 	{
-		LoadCharacter(character);
-		char_info_iter = m_characterMap.find(character);
+		return char_info_iter->second;
 	}
 
-	_ASSERT(m_characterMap.end() != char_info_iter);
-	return (*char_info_iter).second;
+	return LoadCharacter(character);
 }
 
 Vector2 Font::CalculateStringExtent(LPCWSTR pString)

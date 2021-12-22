@@ -181,7 +181,7 @@ namespace my
 
 		void AssignTextureRect(const CSize & size, CRect & outRect);
 
-		void InsertCharacter(
+		const CharacterInfo & InsertCharacter(
 			unsigned long character,
 			float width,
 			float height,
@@ -193,7 +193,7 @@ namespace my
 			int bmpHeight,
 			int bmpPitch);
 
-		void LoadCharacter(unsigned long character);
+		const CharacterInfo & LoadCharacter(unsigned long character);
 
 		const CharacterInfo & GetCharacterInfo(unsigned long character);
 
