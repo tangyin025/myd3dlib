@@ -195,6 +195,8 @@ namespace my
 
 		const CharacterInfo & LoadCharacter(unsigned long character);
 
+		const CharacterInfo & LoadCharacterOutline(unsigned long character, float outlineWidth);
+
 		const CharacterInfo & GetCharacterInfo(unsigned long character);
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);

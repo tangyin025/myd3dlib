@@ -1064,6 +1064,24 @@ namespace my
 			return *this;
 		}
 
+		Rectangle Union(const Vector2 & rhs) const
+		{
+			return Rectangle(
+				Min(l, rhs.x),
+				Min(t, rhs.y),
+				Max(r, rhs.x),
+				Max(b, rhs.y));
+		}
+
+		Rectangle & unionSelf(const Vector2 & rhs)
+		{
+			l = Min(l, rhs.x);
+			t = Min(t, rhs.y);
+			r = Max(r, rhs.x);
+			b = Max(b, rhs.y);
+			return *this;
+		}
+
 		Rectangle offset(float x, float y) const
 		{
 			return Rectangle(
