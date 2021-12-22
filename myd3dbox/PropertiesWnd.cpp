@@ -813,6 +813,11 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(16)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextColor >> 24));
 	pControl->GetSubItem(17)->SetValue(GetFontAlignDesc(control->m_Skin->m_TextAlign));
 
+	color = RGB(LOBYTE(control->m_Skin->m_TextOutlineColor >> 16), LOBYTE(control->m_Skin->m_TextOutlineColor >> 8), LOBYTE(control->m_Skin->m_TextOutlineColor));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(18)))->SetColor(color);
+	pControl->GetSubItem(19)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextOutlineColor >> 24));
+	pControl->GetSubItem(20)->SetValue((_variant_t)control->m_Skin->m_TextOutlineWidth);
+
 	switch (control->GetControlType())
 	{
 	case my::Control::ControlTypeStatic:
@@ -1924,6 +1929,16 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	}
 	pControl->AddSubItem(pTextAlign);
 
+	color = RGB(LOBYTE(control->m_Skin->m_TextOutlineColor >> 16), LOBYTE(control->m_Skin->m_TextOutlineColor >> 8), LOBYTE(control->m_Skin->m_TextOutlineColor));
+	CColorProp* pTextOutlineColor = new CColorProp(_T("TextOutlineColor"), color, NULL, NULL, PropertyControlTextOutlineColor);
+	pTextOutlineColor->EnableOtherButton(_T("Other..."));
+	pControl->AddSubItem(pTextOutlineColor);
+	CMFCPropertyGridProperty* pTextOutlineAlpha = new CSliderProp(_T("TextOutlineAlpha"), (long)LOBYTE(control->m_Skin->m_TextOutlineColor >> 24), NULL, PropertyControlTextOutlineAlpha);
+	pControl->AddSubItem(pTextOutlineAlpha);
+
+	CMFCPropertyGridProperty* pTextOutlineWidth = new CSimpleProp(_T("TextOutlineWidth"), (_variant_t)control->m_Skin->m_TextOutlineWidth, NULL, PropertyControlTextOutlineWidth);
+	pControl->AddSubItem(pTextOutlineWidth);
+
 	switch (control->GetControlType())
 	{
 	case my::Control::ControlTypeStatic:
@@ -2778,7 +2793,7 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	switch (type)
 	{
 	case my::Control::ControlTypeControl:
-		return 18;
+		return 21;
 	case my::Control::ControlTypeStatic:
 		return GetControlPropCount(my::Control::ControlTypeControl) + 1;
 	case my::Control::ControlTypeButton:
@@ -4273,6 +4288,25 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_FontAlignDesc));
 		control->m_Skin->m_TextAlign = (my::Font::Align)g_FontAlignDesc[i].mask;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyControlTextOutlineColor:
+	case PropertyControlTextOutlineAlpha:
+	{
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(18)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(19)->GetValue().lVal;
+		control->m_Skin->m_TextOutlineColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyControlTextOutlineWidth:
+	{
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
+		control->m_Skin->m_TextOutlineWidth = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
