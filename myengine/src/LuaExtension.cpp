@@ -136,6 +136,11 @@ struct ScriptControl : my::Control, luabind::wrap_base
 		return ControlTypeScript;
 	}
 
+	virtual bool CanHaveFocus(void) const
+	{
+		return true;
+	}
+
 	virtual void RequestResource(void)
 	{
 		try
@@ -243,26 +248,6 @@ struct ScriptControl : my::Control, luabind::wrap_base
 	static bool default_HandleMouse(my::Control* ptr, UINT uMsg, const my::Vector2& pt, WPARAM wParam, LPARAM lParam)
 	{
 		return ptr->Control::HandleMouse(uMsg, pt, wParam, lParam);
-	}
-
-	virtual bool CanHaveFocus(void) const
-	{
-		_ASSERT(!PhysxSdk::getSingleton().m_RenderTickMuted);
-
-		try
-		{
-			return luabind::wrap_base::call<bool>("CanHaveFocus");
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-		return false;
-	}
-
-	static bool default_CanHaveFocus(my::Control* ptr)
-	{
-		return ptr->Control::CanHaveFocus();
 	}
 };
 
@@ -1289,7 +1274,6 @@ void LuaContext::Init(void)
 			.def("MsgProc", &my::Control::MsgProc, &ScriptControl::default_MsgProc)
 			.def("HandleKeyboard", &my::Control::HandleKeyboard, &ScriptControl::default_HandleKeyboard)
 			.def("HandleMouse", &my::Control::HandleMouse, &ScriptControl::default_HandleMouse)
-			.def("CanHaveFocus", &my::Control::CanHaveFocus, &ScriptControl::default_CanHaveFocus)
 			.def("HitTest", &my::Control::HitTest)
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
