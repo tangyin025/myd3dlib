@@ -199,6 +199,8 @@ namespace my
 
 		const CharacterInfo & GetCharacterInfo(unsigned long character);
 
+		const CharacterInfo & GetCharacterOutlineInfo(unsigned long character, float outlineWidth);
+
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
