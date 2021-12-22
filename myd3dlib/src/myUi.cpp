@@ -445,7 +445,7 @@ void UIRender::PushRectangleSimple(VertexList & vertex_list, const my::Rectangle
 		CUSTOMVERTEX(rect.r, rect.t, 0, color, UvRect.r, UvRect.t));
 }
 
-void UIRender::PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip)
+void UIRender::PushRectangleSimple(VertexList & vertex_list, const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip)
 {
 	DWORD clipmask = (rect.l < clip.l ? ClipLeft : 0) | (rect.t < clip.t ? ClipTop : 0) | (rect.r > clip.r ? ClipRight : 0) | (rect.b > clip.b ? ClipBottom : 0);
 
@@ -479,12 +479,12 @@ void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & U
 	PushRectangleSimple(GetVertexList(texture), rect, UvRect, color);
 }
 
-void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip)
+void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip)
 {
 	PushRectangleSimple(GetVertexList(texture), rect, UvRect, color, clip);
 }
 
-void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform)
+void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform)
 {
 	const CUSTOMVERTEX v[] = {
 		{ rect.l, rect.t, 0, color, UvRect.l, UvRect.t },
@@ -497,7 +497,7 @@ void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D
 	PushTriangleSimple(GetVertexList(texture), v[2], v[3], v[1]);
 }
 
-void UIRender::PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip)
+void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip)
 {
 	const CUSTOMVERTEX v[] = {
 		{ rect.l, rect.t, 0, color, UvRect.l, UvRect.t },
@@ -526,7 +526,7 @@ void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & 
 	PushRectangleSimple(vertex_list, Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
 }
 
-void UIRender::PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, const Rectangle & clip)
+void UIRender::PushWindowSimple(VertexList & vertex_list, const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, const Rectangle & clip)
 {
 	Rectangle OutUvRect(WindowRect.l / TextureSize.cx,  WindowRect.t / TextureSize.cy, WindowRect.r / TextureSize.cx, WindowRect.b / TextureSize.cy);
 	Rectangle InRect(rect.l + WindowBorder.x, rect.t + WindowBorder.y, rect.r - WindowBorder.z, rect.b - WindowBorder.w);
@@ -547,19 +547,20 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 	PushWindowSimple(GetVertexList(texture), rect, color, WindowRect, WindowBorder, TextureSize);
 }
 
-void UIRender::PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip)
 {
 	PushWindowSimple(GetVertexList(texture), rect, color, WindowRect, WindowBorder, TextureSize, clip);
 }
 
-void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
+void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
 {
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
-	wchar_t c;
-	while (c = *str++)
+	const wchar_t* p = str;
+	float x = pen.x;
+	for (; *p; p++)
 	{
-		const Font::CharacterInfo& info = font->GetCharacterInfo(c);
+		const Font::CharacterInfo& info = font->GetCharacterInfo(*p);
 
 		Rectangle uv_rect(
 			(float)info.textureRect.left / font->m_textureDesc.Width,
@@ -568,9 +569,50 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 			(float)info.textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+			Rectangle::LeftTop(x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
 
-		pen.x += info.horiAdvance;
+		x += info.horiAdvance;
+	}
+}
+
+void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font)
+{
+	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
+
+	const wchar_t* p = str;
+	float x = pen.x;
+	for (; *p; p++)
+	{
+		const Font::CharacterInfo& info = font->GetCharacterOutlineInfo(*p, outlineWidth);
+
+		Rectangle uv_rect(
+			(float)info.textureRect.left / font->m_textureDesc.Width,
+			(float)info.textureRect.top / font->m_textureDesc.Height,
+			(float)info.textureRect.right / font->m_textureDesc.Width,
+			(float)info.textureRect.bottom / font->m_textureDesc.Height);
+
+		PushRectangle(
+			Rectangle::LeftTop(x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, outlineColor, font->m_Texture.get());
+
+		x += info.horiAdvance;
+	}
+
+	p = str;
+	x = pen.x;
+	for (; *p; p++)
+	{
+		const Font::CharacterInfo& info = font->GetCharacterInfo(*p);
+
+		Rectangle uv_rect(
+			(float)info.textureRect.left / font->m_textureDesc.Width,
+			(float)info.textureRect.top / font->m_textureDesc.Height,
+			(float)info.textureRect.right / font->m_textureDesc.Width,
+			(float)info.textureRect.bottom / font->m_textureDesc.Height);
+
+		PushRectangle(
+			Rectangle::LeftTop(x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+
+		x += info.horiAdvance;
 	}
 }
 
@@ -660,6 +702,8 @@ ControlSkin::ControlSkin(void)
 	, m_FontFaceIndex(0)
 	, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
 	, m_TextAlign(Font::AlignLeftTop)
+	, m_TextOutlineColor(D3DCOLOR_ARGB(0, 0, 0, 0))
+	, m_TextOutlineWidth(1.0f)
 	, m_Requested(false)
 {
 }
@@ -824,11 +868,18 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 	}
 }
 
-void ControlSkin::DrawString(UIRender * ui_render, const wchar_t * str, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
+void ControlSkin::DrawString(UIRender * ui_render, const wchar_t * str, const my::Rectangle & rect)
 {
 	if(m_Font)
 	{
-		ui_render->PushString(rect, str, TextColor, TextAlign, m_Font.get());
+		if (!(m_TextOutlineColor & D3DCOLOR_ARGB(255, 0, 0, 0)))
+		{
+			ui_render->PushString(rect, str, m_TextColor, m_TextAlign, m_Font.get());
+		}
+		else
+		{
+			ui_render->PushString(rect, str, m_TextColor, m_TextAlign, m_TextOutlineColor, m_TextOutlineWidth, m_Font.get());
+		}
 	}
 }
 
@@ -1595,7 +1646,7 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 		{
 			m_Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
 
-			m_Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
+			m_Skin->DrawString(ui_render, m_Text.c_str(), m_Rect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -1651,7 +1702,7 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 			Rectangle ProgressRect(m_Rect.l, m_Rect.t, Lerp(m_Rect.l, m_Rect.r, Max(0.0f, Min(1.0f, m_BlendProgress))), m_Rect.b);
 			Skin->DrawImage(ui_render, Skin->m_ForegroundImage, ProgressRect, m_Skin->m_Color);
 
-			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -1737,7 +1788,7 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text.c_str(), ButtonRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), ButtonRect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -1899,7 +1950,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Skin->DrawImage(ui_render, Skin->m_CaretImage, SelRect, Skin->m_SelBkColor);
 				}
 
-				Skin->DrawString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+				ui_render->PushString(TextRect, m_Text.c_str() + m_nFirstVisible, Skin->m_TextColor, Font::AlignLeftMiddle, m_Skin->m_Font.get());
 
 				if(GetFocused() && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 				{
@@ -2641,7 +2692,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime)
 
 		Skin->DrawImage(ui_render, Skin->m_CaretImage, rc, m_CompWinColor);
 
-		Skin->DrawString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
+		ui_render->PushString(rc, s_CompString.c_str(), Skin->m_TextColor, Font::AlignLeftTop, Skin->m_Font.get());
 
 		float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
 		if(m_bCaretOn)
@@ -2688,7 +2739,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 
 		Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
 
-		Skin->DrawString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
+		ui_render->PushString(CandRect, horizontalText.c_str(), Skin->m_TextColor, Font::AlignLeftTop, Skin->m_Font.get());
 	}
 }
 
@@ -3025,7 +3076,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -3263,9 +3314,12 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 							Skin->DrawImage(ui_render, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Skin->m_Color);
 						}
 
-						ComboBoxItem & item = m_Items[i];
-						Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
-						Skin->DrawString(ui_render, item.strText.c_str(), ItemTextRect, Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign);
+						if (Skin->m_Font)
+						{
+							ComboBoxItem& item = m_Items[i];
+							Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
+							ui_render->PushString(ItemTextRect, item.strText.c_str(), Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign, m_Skin->m_Font.get());
+						}
 					}
 				}
 				else
@@ -3285,7 +3339,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 				}
 			}
 
-			Skin->DrawString(ui_render, m_Text.c_str(), BtnRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), BtnRect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();

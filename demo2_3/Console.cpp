@@ -29,8 +29,8 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 		float y = m_Rect.t;
 		for(; i != m_lend && y <= m_Rect.b - m_Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Skin->m_Font->m_LineHeight)
 		{
-			m_Skin->DrawString(ui_render, m_lines[i].m_Text.c_str(),
-				my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color, my::Font::AlignLeftTop);
+			ui_render->PushString(my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Skin->m_Font->m_LineHeight),
+				m_lines[i].m_Text.c_str(), m_lines[i].m_Color, my::Font::AlignLeftTop, m_Skin->m_Font.get());
 		}
 	}
 }
@@ -183,6 +183,8 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 Console::Console(void)
 	: Dialog(NamedObject::MakeUniqueName("Console").c_str())
 {
+	m_EnableDrag = true;
+
 	m_x = UDim(0, 50);
 	m_y = UDim(0, 95);
 	m_Width = UDim(0, 700);

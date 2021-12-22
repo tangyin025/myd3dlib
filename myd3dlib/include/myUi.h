@@ -113,6 +113,8 @@ namespace my
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip);
 
 		void PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font);
+
+		void PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
@@ -194,6 +196,10 @@ namespace my
 
 		Font::Align m_TextAlign;
 
+		D3DCOLOR m_TextOutlineColor;
+
+		float m_TextOutlineWidth;
+
 		std::string m_VisibleShowSoundPath;
 
 		boost::intrusive_ptr<Wav> m_VisibleShowSound;
@@ -231,6 +237,8 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_FontFaceIndex);
 			ar & BOOST_SERIALIZATION_NVP(m_TextColor);
 			ar & BOOST_SERIALIZATION_NVP(m_TextAlign);
+			ar & BOOST_SERIALIZATION_NVP(m_TextOutlineColor);
+			ar & BOOST_SERIALIZATION_NVP(m_TextOutlineWidth);
 			ar & BOOST_SERIALIZATION_NVP(m_VisibleShowSoundPath);
 			ar & BOOST_SERIALIZATION_NVP(m_VisibleHideSoundPath);
 			ar & BOOST_SERIALIZATION_NVP(m_MouseEnterSoundPath);
@@ -263,7 +271,7 @@ namespace my
 
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip);
 
-		void DrawString(UIRender * ui_render, const wchar_t * str, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
+		void DrawString(UIRender * ui_render, const wchar_t * str, const Rectangle & rect);
 
 		virtual ControlSkinPtr Clone(void) const;
 	};
