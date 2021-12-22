@@ -335,7 +335,7 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 }
 
 void Font::InsertCharacter(
-	int character,
+	unsigned long character,
 	float width,
 	float height,
 	float horiBearingX,
@@ -376,7 +376,7 @@ void Font::InsertCharacter(
 	m_characterMap.insert(std::make_pair(character, info));
 }
 
-void Font::LoadCharacter(int character)
+void Font::LoadCharacter(unsigned long character)
 {
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
@@ -406,7 +406,7 @@ void Font::LoadCharacter(int character)
 		m_face->glyph->bitmap.pitch);
 }
 
-const Font::CharacterInfo & Font::GetCharacterInfo(int character)
+const Font::CharacterInfo & Font::GetCharacterInfo(unsigned long character)
 {
 	CharacterMap::const_iterator char_info_iter = m_characterMap.find(character);
 	if(m_characterMap.end() == char_info_iter)

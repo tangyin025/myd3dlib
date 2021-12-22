@@ -124,7 +124,7 @@ namespace my
 			CRect textureRect;
 		};
 
-		typedef boost::unordered_map<int, CharacterInfo> CharacterMap;
+		typedef boost::unordered_map<unsigned long, CharacterInfo> CharacterMap;
 
 		FT_FaceRec_ * m_face;
 
@@ -182,7 +182,7 @@ namespace my
 		void AssignTextureRect(const CSize & size, CRect & outRect);
 
 		void InsertCharacter(
-			int character,
+			unsigned long character,
 			float width,
 			float height,
 			float horiBearingX,
@@ -193,9 +193,9 @@ namespace my
 			int bmpHeight,
 			int bmpPitch);
 
-		void LoadCharacter(int character);
+		void LoadCharacter(unsigned long character);
 
-		const CharacterInfo & GetCharacterInfo(int character);
+		const CharacterInfo & GetCharacterInfo(unsigned long character);
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
