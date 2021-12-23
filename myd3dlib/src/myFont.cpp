@@ -492,11 +492,18 @@ const Font::CharacterInfo & Font::LoadCharacter(unsigned long character)
 		imgWidth * sizeof(pxl[0]));
 }
 
+static unsigned long _GetCharacterOutlineKey(unsigned long character, float outlineWidth)
+{
+	_ASSERT(!(character & 0xffff0000));
+
+	return character | (int(outlineWidth * 64) << 16);
+}
+
 const Font::CharacterInfo & Font::LoadCharacterOutline(unsigned long character, float outlineWidth)
 {
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-	unsigned long character_key = character | (int(outlineWidth * 64) << 16);
+	unsigned long character_key = _GetCharacterOutlineKey(character, outlineWidth);
 
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character_key));
 
@@ -611,7 +618,7 @@ const Font::CharacterInfo & Font::GetCharacterInfo(unsigned long character)
 
 const Font::CharacterInfo & Font::GetCharacterOutlineInfo(unsigned long character, float outlineWidth)
 {
-	unsigned long character_key = character | (int(outlineWidth * 64) << 16);
+	unsigned long character_key = _GetCharacterOutlineKey(character, outlineWidth);
 
 	CharacterMap::const_iterator char_info_iter = m_characterMap.find(character_key);
 	if (char_info_iter != m_characterMap.end())
@@ -679,10 +686,11 @@ void Font::DrawString(
 {
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
-	wchar_t c;
-	while(c = *pString++)
+	const wchar_t* p = pString;
+	float x = pen.x;
+	for (; *p; p++)
 	{
-		const CharacterInfo & info = GetCharacterInfo(c);
+		const CharacterInfo& info = GetCharacterInfo(*p);
 
 		CComPtr<IDirect3DDevice9> Device;
 		pSprite->GetDevice(&Device);
@@ -691,13 +699,69 @@ void Font::DrawString(
 		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
 		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 		V(pSprite->Draw(
-			(IDirect3DTexture9 *)m_Texture->m_ptr,
+			(IDirect3DTexture9*)m_Texture->m_ptr,
 			&info.textureRect,
-			(D3DXVECTOR3 *)&Vector3(0, 0, 0),
-			(D3DXVECTOR3 *)&Vector3(pen.x + info.horiBearingX, pen.y - info.horiBearingY, 0),
+			(D3DXVECTOR3*)&Vector3(0, 0, 0),
+			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, pen.y - info.horiBearingY, 0),
 			Color));
 
-		pen.x += info.horiAdvance;
+		x += info.horiAdvance;
+	}
+}
+
+void Font::DrawString(
+	LPD3DXSPRITE pSprite,
+	LPCWSTR pString,
+	const my::Rectangle & rect,
+	D3DCOLOR Color,
+	Align align,
+	D3DCOLOR OutlineColor,
+	float OutlineWidth)
+{
+	Vector2 pen = CalculateAlignedPen(pString, rect, align);
+
+	const wchar_t* p = pString;
+	float x = pen.x;
+	for (; *p; p++)
+	{
+		const CharacterInfo& info = GetCharacterOutlineInfo(*p, OutlineWidth);
+
+		CComPtr<IDirect3DDevice9> Device;
+		pSprite->GetDevice(&Device);
+		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+		V(pSprite->Draw(
+			(IDirect3DTexture9*)m_Texture->m_ptr,
+			&info.textureRect,
+			(D3DXVECTOR3*)&Vector3(0, 0, 0),
+			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, pen.y - info.horiBearingY, 0),
+			OutlineColor));
+
+		x += info.horiAdvance;
+	}
+
+	p = pString;
+	x = pen.x;
+	for (; *p; p++)
+	{
+		const CharacterInfo& info = GetCharacterInfo(*p);
+
+		CComPtr<IDirect3DDevice9> Device;
+		pSprite->GetDevice(&Device);
+		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+		V(pSprite->Draw(
+			(IDirect3DTexture9*)m_Texture->m_ptr,
+			&info.textureRect,
+			(D3DXVECTOR3*)&Vector3(0, 0, 0),
+			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, pen.y - info.horiBearingY, 0),
+			Color));
+
+		x += info.horiAdvance;
 	}
 }
 

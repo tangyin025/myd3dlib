@@ -209,8 +209,17 @@ namespace my
 			LPD3DXSPRITE pSprite,
 			LPCWSTR pString,
 			const Rectangle & rect,
-			D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255),
-			Align align = AlignLeftTop);
+			D3DCOLOR Color,
+			Align align);
+
+		void DrawString(
+			LPD3DXSPRITE pSprite,
+			LPCWSTR pString,
+			const Rectangle& rect,
+			D3DCOLOR Color,
+			Align align,
+			D3DCOLOR OutlineColor,
+			float OutlineWidth);
 
 		float CPtoX(LPCWSTR pString, int nCP);
 

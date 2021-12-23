@@ -146,13 +146,15 @@ class Demo
 	, public my::InputMgr
 {
 protected:
-	CComPtr<ID3DXFont> m_font;
+	CComPtr<ID3DXFont> m_d3dfont;
 
 	CComPtr<ID3DXSprite> m_sprite;
 
 	std::vector<DeviceResourceBasePtr> m_reses;
 
 	my::UIRenderPtr m_UIRender;
+
+	my::FontPtr m_font;
 
 	my::Texture2DPtr m_Tex;
 
@@ -192,7 +194,7 @@ public:
 		}
 
 		if(FAILED(hr = D3DXCreateFont(
-			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial"), &m_font)))
+			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial"), &m_d3dfont)))
 		{
 			return hr;
 		}
@@ -216,6 +218,12 @@ public:
 		if (FAILED(hr = m_UIRender->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;
+		}
+
+		m_font = LoadFont("font/wqy-microhei.ttc", 120, 0);
+		if (!m_font)
+		{
+			return S_FALSE;
 		}
 
 		TCHAR szPath[MAX_PATH];
@@ -297,6 +305,9 @@ public:
 		//mtl.ParseShaderParameters();
 
 		m_Dlg.reset(new Dialog(NamedObject::MakeUniqueName("dialog").c_str()));
+		m_Dlg->m_EnableDrag = true;
+		m_Dlg->m_x = UDim(0, 10);
+		m_Dlg->m_y = UDim(0, 30);
 		m_Dlg->m_Width = UDim(0, desc.Width);
 		m_Dlg->m_Height = UDim(0, desc.Height);
 		m_Dlg->m_Skin.reset(new ControlSkin());
@@ -333,44 +344,42 @@ public:
 
 	void OnMouseClick(EventArg* arg)
 	{
-		//static CPoint last_pt(0, 0);
-		//m_Tex->OnDestroyDevice();
-		//m_Tex->CreateTextureFromFile(_T("four-holes.png"));
-		//D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
+		static CPoint last_pt(0, 0);
+		m_Tex->OnDestroyDevice();
+		m_Tex->CreateTextureFromFile(_T("four-holes.png"));
+		D3DSURFACE_DESC desc = m_Tex->GetLevelDesc(0);
 
-		//MouseEventArg * mouse_arg = dynamic_cast<MouseEventArg *>(arg);
-		//_ASSERT(mouse_arg);
-		//Vector2 ptLocal = mouse_arg->pt - mouse_arg->sender->m_Rect.LeftTop();
-		//D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
-		//CPoint pt((int)ptLocal.x, (int)ptLocal.y);
-		//my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
-		//bool ret = searcher.find(last_pt, pt);
-		//if (ret)
-		//{
-		//	DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
-		//	std::map<CPoint, CPoint>::const_iterator from_iter = searcher.from.begin();
-		//	for (; from_iter != searcher.from.end(); from_iter++)
-		//	{
-		//		searcher.map[from_iter->second.y][from_iter->second.x] = hover;
-		//	}
-		//	DWORD color = D3DCOLOR_ARGB(255, 255, 0, 0);
-		//	searcher.map[pt.y][pt.x] = color;
-		//	from_iter = searcher.from.find(pt);
-		//	for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
-		//	{
-		//		searcher.map[from_iter->second.y][from_iter->second.x] = color;
-		//	}
-		//	last_pt = pt;
-		//}
-		//m_Tex->UnlockRect();
+		MouseEventArg * mouse_arg = dynamic_cast<MouseEventArg *>(arg);
+		_ASSERT(mouse_arg);
+		Vector2 ptLocal = mouse_arg->pt - mouse_arg->sender->m_Rect.LeftTop();
+		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
+		CPoint pt((int)ptLocal.x, (int)ptLocal.y);
+		my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
+		bool ret = searcher.find(last_pt, pt);
+		if (ret)
+		{
+			DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
+			std::map<CPoint, CPoint>::const_iterator from_iter = searcher.from.begin();
+			for (; from_iter != searcher.from.end(); from_iter++)
+			{
+				searcher.map[from_iter->second.y][from_iter->second.x] = hover;
+			}
+			DWORD color = D3DCOLOR_ARGB(255, 255, 0, 0);
+			searcher.map[pt.y][pt.x] = color;
+			from_iter = searcher.from.find(pt);
+			for (; from_iter != searcher.from.end(); from_iter = searcher.from.find(from_iter->second))
+			{
+				searcher.map[from_iter->second.y][from_iter->second.x] = color;
+			}
+			last_pt = pt;
+		}
+		m_Tex->UnlockRect();
 	}
 
 	virtual HRESULT OnResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
-
 		if (FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;
@@ -386,19 +395,25 @@ public:
 			return hr;
 		}
 
-		m_font->OnResetDevice();
+		m_d3dfont->OnResetDevice();
 
 		if(FAILED(hr = D3DXCreateSprite(pd3dDevice, &m_sprite)))
 		{
 			return hr;
 		}
 
+		DialogMgr::SetDlgViewport(Vector2(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600), D3DXToRadian(75.0f));
+
+		FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgViewport().y);
+
+		FontLibrary::m_EventScaleChanged(FontLibrary::m_Scale);
+
 		return S_OK;
 	}
 
 	virtual void OnLostDevice(void)
 	{
-		m_font->OnLostDevice();
+		m_d3dfont->OnLostDevice();
 
 		m_sprite.Release();
 
@@ -413,7 +428,7 @@ public:
 	{
 		m_Tex.reset();
 
-		m_font.Release();
+		m_d3dfont.Release();
 
 		RemoveAllDlg();
 
@@ -457,13 +472,15 @@ public:
 			V(m_sprite->Begin(D3DXSPRITE_ALPHABLEND));
 			wchar_t buff[256];
 			int len = swprintf_s(buff, _countof(buff), L"%.2f", m_fFps);
-			V(m_font->DrawTextW(m_sprite, buff, len, CRect(5, 5, 100, 100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f)));
+			V(m_d3dfont->DrawTextW(m_sprite, buff, len, CRect(5, 5, 100, 100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f)));
+			m_font->DrawString(m_sprite, L"哈哈", my::Rectangle(500, 100, 600, 200), D3DCOLOR_ARGB(255, 255, 90, 30), my::Font::AlignCenterMiddle, D3DCOLOR_ARGB(255, 255, 255, 255), 3.0f);
 			V(m_sprite->End());
 
 			m_UIRender->Begin();
 			m_UIRender->SetWorld(Matrix4::identity);
 			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime, DialogMgr::GetDlgViewport());
+			m_UIRender->PushString(my::Rectangle(500, 300, 600, 400), L"哈哈", D3DCOLOR_ARGB(255, 255, 90, 30), my::Font::AlignCenterMiddle, D3DCOLOR_ARGB(255, 255, 255, 255), 3.0f, m_font.get());
 			m_UIRender->End();
 			V(m_d3dDevice->EndScene());
 		}

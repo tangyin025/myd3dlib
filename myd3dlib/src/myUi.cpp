@@ -4142,6 +4142,16 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				if (m_bMouseDrag)
 				{
 					m_bMouseDrag = false;
+
+					SetCaptureControl(NULL);
+					m_bPressed = false;
+
+					if (m_Skin && m_Skin->m_MouseClickSound)
+					{
+						D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+					}
+
+					return true;
 				}
 				return Control::HandleMouse(uMsg, pt, wParam, lParam);
 			}
