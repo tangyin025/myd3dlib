@@ -1870,7 +1870,7 @@ namespace my
 			Subscribe<float, i>(Subscribe<Vector4, 3>(*this)) = value.w;
 		}
 
-		bool operator ==(const Matrix4& rhs) const
+		bool operator ==(const Matrix4 & rhs) const
 		{
 			return Subscribe<Vector4, 0>(*this) == Subscribe<Vector4, 0>(rhs)
 				&& Subscribe<Vector4, 1>(*this) == Subscribe<Vector4, 1>(rhs)
@@ -1878,7 +1878,7 @@ namespace my
 				&& Subscribe<Vector4, 3>(*this) == Subscribe<Vector4, 3>(rhs);
 		}
 
-		bool operator !=(const Matrix4& rhs) const
+		bool operator !=(const Matrix4 & rhs) const
 		{
 			return !operator ==(rhs);
 		}
@@ -3081,13 +3081,13 @@ namespace my
 		}
 
 	public:
-		bool operator ==(const AABB& rhs) const
+		bool operator ==(const AABB & rhs) const
 		{
 			return m_min == rhs.m_min
 				&& m_max == rhs.m_max;
 		}
 
-		bool operator !=(const AABB& rhs) const
+		bool operator !=(const AABB & rhs) const
 		{
 			return !operator ==(rhs);
 		}
