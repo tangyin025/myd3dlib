@@ -1442,7 +1442,8 @@ unsigned int Control::GetSiblingId(void) const
 {
 	if (m_Parent)
 	{
-		ControlPtrList::iterator self_iter = boost::find_if(m_Parent->m_Childs, boost::bind(std::equal_to<ControlPtr>(), boost::placeholders::_1, const_cast<Control*>(this)->shared_from_this()));
+		ControlPtrList::iterator self_iter = boost::find_if(m_Parent->m_Childs, boost::bind(std::equal_to<const Control*>(), this, boost::bind(&ControlPtr::get, boost::placeholders::_1)));
+		_ASSERT(self_iter != m_Parent->m_Childs.end());
 		return std::distance(m_Parent->m_Childs.begin(), self_iter);
 	}
 	return 0;
