@@ -247,7 +247,7 @@ ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 	//	Root->RemoveEntity(m_WorldEmitterActor.get());
 	//}
 
-	m_Actor->RemoveComponent(m_WorldEmitterCmp);
+	m_Actor->RemoveComponent(m_WorldEmitterCmp->GetSiblingId());
 }
 
 void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)

@@ -46,7 +46,7 @@ Component::~Component(void)
 
 	if (m_Actor)
 	{
-		_ASSERT(false); //m_Actor->RemoveComponent(shared_from_this());
+		_ASSERT(false); //m_Actor->RemoveComponent(GetSiblingId());
 	}
 }
 

@@ -289,7 +289,7 @@ public:
 
 	void InsertComponent(unsigned int i, ComponentPtr cmp);
 
-	void RemoveComponent(ComponentPtr cmp);
+	void RemoveComponent(unsigned int i);
 
 	unsigned int GetComponentNum(void) const;
 

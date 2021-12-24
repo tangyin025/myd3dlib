@@ -1421,12 +1421,12 @@ void Control::RemoveControl(unsigned int i)
 
 	_ASSERT((*ctrl_iter)->m_Parent == this);
 
-	(*ctrl_iter)->m_Parent = NULL;
-
 	if ((*ctrl_iter)->IsRequested())
 	{
 		(*ctrl_iter)->ReleaseResource();
 	}
+
+	(*ctrl_iter)->m_Parent = NULL;
 
 	m_Childs.erase(ctrl_iter);
 }

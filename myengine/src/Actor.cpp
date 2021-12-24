@@ -621,36 +621,32 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 	}
 }
 
-void Actor::RemoveComponent(ComponentPtr cmp)
+void Actor::RemoveComponent(unsigned int i)
 {
-	ComponentPtrList::iterator cmp_iter = std::find(m_Cmps.begin(), m_Cmps.end(), cmp);
-	if (cmp_iter != m_Cmps.end())
+	_ASSERT(i < m_Cmps.size());
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin() + i;
+
+	_ASSERT((*cmp_iter)->m_Actor == this);
+
+	// ! Component::ReleaseResource may change other cmp's life time
+	if (IsRequested())
 	{
-		_ASSERT(cmp->m_Actor == this);
+		_ASSERT(m_Node);
 
-		// ! Component::ReleaseResource may change other cmp's life time
-		m_Cmps.erase(cmp_iter);
-
-		if (IsRequested())
+		if ((*cmp_iter)->IsRequested())
 		{
-			_ASSERT(m_Node);
-
-			if (cmp->IsRequested())
-			{
-				cmp->ReleaseResource();
-			}
-
-			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
-			cmp->LeavePhysxScene(scene);
+			(*cmp_iter)->ReleaseResource();
 		}
 
-		cmp->m_Actor = NULL;
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		(*cmp_iter)->LeavePhysxScene(scene);
 	}
-	else
-	{
-		_ASSERT(false);
-	}
+
+	(*cmp_iter)->m_Actor = NULL;
+
+	m_Cmps.erase(cmp_iter);
 }
 
 unsigned int Actor::GetComponentNum(void) const
@@ -660,12 +656,10 @@ unsigned int Actor::GetComponentNum(void) const
 
 void Actor::ClearAllComponent(void)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter = m_Cmps.begin())
+	while (GetComponentNum() > 0)
 	{
-		RemoveComponent(*cmp_iter);
+		RemoveComponent(GetComponentNum() - 1);
 	}
-	_ASSERT(m_Cmps.empty());
 }
 
 void Actor::Attach(Actor * other, int BoneId)
