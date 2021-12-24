@@ -101,6 +101,11 @@ static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect,
 	self->PushString(rect, str.c_str(), color, align, outlineColor, outlineWidth, font);
 }
 
+static void ui_render_push_layer(my::UIRender* self, my::BaseTexture* texture)
+{
+	self->GetVertexList(texture);
+}
+
 struct ScriptControl;
 
 static void control_insert_control_adopt(my::Control* self, ScriptControl* ctrl)
@@ -1224,10 +1229,12 @@ void LuaContext::Init(void)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const CSize&, my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushWindow)
 			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*))& ui_render_push_string)
 			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*))& ui_render_push_string)
+			.def("PushLayer", &ui_render_push_layer)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
 			.def_readwrite("TexturePath", &my::ControlImage::m_TexturePath)
+			.def_readwrite("Texture", &my::ControlImage::m_Texture)
 			.def_readwrite("Rect", &my::ControlImage::m_Rect)
 			.def_readwrite("Border", &my::ControlImage::m_Border)
 			.def("Clone", &my::ControlImage::Clone)
