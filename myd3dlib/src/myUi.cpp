@@ -1397,11 +1397,11 @@ bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld) const
 	return false;
 }
 
-void Control::InsertControl(ControlPtr control)
+void Control::InsertControl(unsigned int i, ControlPtr control)
 {
 	_ASSERT(!control->m_Parent);
 
-	m_Childs.push_back(control);
+	m_Childs.insert(m_Childs.begin() + i, control);
 
 	control->m_Parent = this;
 
@@ -3912,9 +3912,9 @@ void ListBox::OnLayout(void)
 	}
 }
 
-void ListBox::InsertControl(ControlPtr control)
+void ListBox::InsertControl(unsigned int i, ControlPtr control)
 {
-	Control::InsertControl(control);
+	Control::InsertControl(i, control);
 
 	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 }

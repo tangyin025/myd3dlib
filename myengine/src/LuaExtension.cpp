@@ -108,9 +108,9 @@ static void ui_render_push_layer(my::UIRender* self, my::BaseTexture* texture)
 
 struct ScriptControl;
 
-static void control_insert_control_adopt(my::Control* self, ScriptControl* ctrl)
+static void control_insert_control_adopt(my::Control* self, unsigned int i, ScriptControl* ctrl)
 {
-	self->InsertControl(my::ControlPtr(ctrl));
+	self->InsertControl(i, my::ControlPtr(ctrl));
 }
 
 struct ScriptComponent;
@@ -1317,8 +1317,8 @@ void LuaContext::Init(void)
 			.property("Focused", &my::Control::GetFocused, &my::Control::SetFocused)
 			.property("Captured", &my::Control::GetCaptured, &my::Control::SetCaptured)
 			.property("MouseOver", &my::Control::GetMouseOver, &my::Control::SetMouseOver)
-			.def("InsertControl", (void(my::Control::*)(boost::shared_ptr<my::Control>))&my::Control::InsertControl)
-			.def("InsertControlAdopt", &control_insert_control_adopt, adopt(_2))
+			.def("InsertControl", (void(my::Control::*)(unsigned int, boost::shared_ptr<my::Control>))&my::Control::InsertControl)
+			.def("InsertControlAdopt", &control_insert_control_adopt, adopt(_3))
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.property("ChildNum", &my::Control::GetChildNum)
 			.property("SiblingId", &my::Control::GetSiblingId)

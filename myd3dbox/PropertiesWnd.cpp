@@ -5560,7 +5560,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			std::string text(btn->GetName());
 			btn->m_Text = str_printf(L"item%d", i);
 
-			listbox->InsertControl(btn);
+			listbox->InsertControl(listbox->GetChildNum(), btn);
 		}
 		while (i > ItemCount)
 		{
