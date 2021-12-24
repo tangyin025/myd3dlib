@@ -5562,9 +5562,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 			listbox->InsertControl(listbox->GetChildNum(), btn);
 		}
-		while (i > ItemCount)
+		for (; i > ItemCount; i--)
 		{
-			listbox->RemoveControl(listbox->m_Childs[--i]);
+			listbox->RemoveControl(i - 1);
 		}
 		listbox->OnLayout();
 		my::EventArg arg;

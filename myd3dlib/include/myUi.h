@@ -514,7 +514,7 @@ namespace my
 
 		virtual void InsertControl(unsigned int i, ControlPtr control);
 
-		virtual void RemoveControl(ControlPtr control);
+		virtual void RemoveControl(unsigned int i);
 
 		unsigned int GetChildNum(void) const;
 
@@ -1416,7 +1416,7 @@ namespace my
 
 		virtual void InsertControl(unsigned int i, ControlPtr control);
 
-		virtual void RemoveControl(ControlPtr control);
+		virtual void RemoveControl(unsigned int i);
 
 		virtual void ClearAllControl(void);
 

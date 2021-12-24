@@ -1528,11 +1528,11 @@ void CMainFrame::OnEditDelete()
 		}
 		else
 		{
-			my::ControlPtr control = m_selctl->shared_from_this();
+			my::Control * ctrl = m_selctl;
 
-			VERIFY(m_selctl = control->m_Parent);
+			VERIFY(m_selctl = ctrl->m_Parent);
 
-			control->m_Parent->RemoveControl(control);
+			m_selctl->RemoveControl(ctrl->GetSiblingId());
 		}
 		OnSelChanged();
 		return;

@@ -1401,6 +1401,8 @@ void Control::InsertControl(unsigned int i, ControlPtr control)
 {
 	_ASSERT(!control->m_Parent);
 
+	_ASSERT(i <= m_Childs.size());
+
 	m_Childs.insert(m_Childs.begin() + i, control);
 
 	control->m_Parent = this;
@@ -1411,26 +1413,22 @@ void Control::InsertControl(unsigned int i, ControlPtr control)
 	}
 }
 
-void Control::RemoveControl(ControlPtr control)
+void Control::RemoveControl(unsigned int i)
 {
-	ControlPtrList::iterator ctrl_iter = std::find(m_Childs.begin(), m_Childs.end(), control);
-	if(ctrl_iter != m_Childs.end())
+	_ASSERT(i < m_Childs.size());
+
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin() + i;
+
+	_ASSERT((*ctrl_iter)->m_Parent == this);
+
+	(*ctrl_iter)->m_Parent = NULL;
+
+	if ((*ctrl_iter)->IsRequested())
 	{
-		_ASSERT((*ctrl_iter)->m_Parent == this);
-
-		(*ctrl_iter)->m_Parent = NULL;
-
-		if ((*ctrl_iter)->IsRequested())
-		{
-			(*ctrl_iter)->ReleaseResource();
-		}
-
-		m_Childs.erase(ctrl_iter);
+		(*ctrl_iter)->ReleaseResource();
 	}
-	else
-	{
-		_ASSERT(false);
-	}
+
+	m_Childs.erase(ctrl_iter);
 }
 
 unsigned int Control::GetChildNum(void) const
@@ -1451,10 +1449,9 @@ unsigned int Control::GetSiblingId(void) const
 
 void Control::ClearAllControl(void)
 {
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter = m_Childs.begin())
+	while (GetChildNum() > 0)
 	{
-		RemoveControl(*ctrl_iter);
+		RemoveControl(GetChildNum() - 1);
 	}
 }
 
@@ -3919,9 +3916,9 @@ void ListBox::InsertControl(unsigned int i, ControlPtr control)
 	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 }
 
-void ListBox::RemoveControl(ControlPtr control)
+void ListBox::RemoveControl(unsigned int i)
 {
-	Control::RemoveControl(control);
+	Control::RemoveControl(i);
 
 	m_ScrollBar->m_nEnd = (int)ceilf(m_Childs.size() / (float)m_ItemColumn);
 }
