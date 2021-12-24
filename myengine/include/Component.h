@@ -209,6 +209,8 @@ public:
 	unsigned int GetQueryFilterWord0(void) const;
 
 	virtual void ClearShape(void);
+
+	unsigned int GetSiblingId(void) const;
 };
 
 class MeshComponent

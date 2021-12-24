@@ -22,6 +22,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 #include "mesh\GuTriangleMesh.h"
 #include "convex\GuConvexMesh.h"
 
@@ -432,6 +433,17 @@ void Component::ClearShape(void)
 	}
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eINVALID;
+}
+
+unsigned int Component::GetSiblingId(void) const
+{
+	if (m_Actor)
+	{
+		Actor::ComponentPtrList::iterator self_iter = boost::find_if(m_Actor->m_Cmps, boost::bind(std::equal_to<const Component*>(), this, boost::bind(&ComponentPtr::get, boost::placeholders::_1)));
+		_ASSERT(self_iter != m_Actor->m_Cmps.end());
+		return std::distance(m_Actor->m_Cmps.begin(), self_iter);
+	}
+	return 0;
 }
 
 MeshComponent::~MeshComponent(void)

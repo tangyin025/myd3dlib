@@ -1997,6 +1997,7 @@ void LuaContext::Init(void)
 			.def("SetShapeFlag", &Component::SetShapeFlag)
 			.def("GetShapeFlag", &Component::GetShapeFlag)
 			.def("ClearShape", &Component::ClearShape)
+			.property("SiblingId", &Component::GetSiblingId)
 
 		, class_<MeshComponent, Component, boost::shared_ptr<Component> >("MeshComponent")
 			.def(constructor<const char *>())
