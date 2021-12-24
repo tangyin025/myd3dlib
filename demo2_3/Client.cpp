@@ -145,6 +145,58 @@ public:
 	}
 };
 
+template <typename ElementType>
+class DelayRemover
+	: public my::Singleton<DelayRemover<ElementType> >
+	, protected std::deque<std::pair<boost::function<void(ElementType)>, std::list<ElementType> > >
+{
+public:
+	DelayRemover(void)
+	{
+	}
+
+	~DelayRemover(void)
+	{
+		_ASSERT(empty());
+	}
+
+	template <typename RemoveFuncType>
+	bool IsDelay(const RemoveFuncType& func) const
+	{
+		return !empty() && back().first == func;
+	}
+
+	template <typename RemoveFuncType>
+	void Enter(const RemoveFuncType& func)
+	{
+		_ASSERT(!IsDelay(func));
+
+		deque::push_back(value_type(func, std::list<ElementType>()));
+	}
+
+	void push_back(ElementType elem)
+	{
+		_ASSERT(!empty());
+
+		back().second.insert(back().second.end(), elem);
+	}
+
+	void Leave(void)
+	{
+		_ASSERT(!empty());
+
+		value_type back_dummy = back();
+
+		pop_back();
+
+		std::list<ElementType>::iterator iter = back_dummy.second.begin();
+		for (; iter != back_dummy.second.end(); iter++)
+		{
+			back_dummy.first(*iter);
+		}
+	}
+};
+
 static int lua_print(lua_State * L)
 {
 	int n = lua_gettop(L);  /* number of arguments */

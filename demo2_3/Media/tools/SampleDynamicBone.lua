@@ -11,8 +11,8 @@ anim_cmp.Child0=AnimationNodeSequence("clip1")
 anim_cmp:ReloadSequenceGroup()
 
 act=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-act:AddComponent(mesh_cmp)
-act:AddComponent(anim_cmp)
+act:InsertComponent(act.ComponentNum,mesh_cmp)
+act:InsertComponent(act.ComponentNum,anim_cmp)
 theApp.MainWnd:AddEntity(act,act.aabb:transform(act.World),1.0,0.1)
 
 local skel=theApp:LoadSkeleton(anim_cmp.SkeletonPath)

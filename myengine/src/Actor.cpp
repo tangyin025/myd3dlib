@@ -15,7 +15,7 @@
 #include <boost/archive/polymorphic_binary_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/list.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -288,11 +288,11 @@ void Actor::ReleaseResource(void)
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 	// ! Component::ReleaseResource may change other cmp's life time
-	DelayRemover<ComponentPtr>::getSingleton().Enter(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1));
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	ComponentPtrList dummy_cmps(m_Cmps.begin(), m_Cmps.end());
+	ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
+	for (; cmp_iter != dummy_cmps.end(); cmp_iter++)
 	{
-		if ((*cmp_iter)->m_Actor)
+		if (this == (*cmp_iter)->m_Actor)
 		{
 			if ((*cmp_iter)->IsRequested())
 			{
@@ -302,7 +302,6 @@ void Actor::ReleaseResource(void)
 			(*cmp_iter)->LeavePhysxScene(scene);
 		}
 	}
-	DelayRemover<ComponentPtr>::getSingleton().Leave();
 
 	m_Requested = false;
 
@@ -339,11 +338,11 @@ void Actor::Update(float fElapsedTime)
 	}
 
 	// ! Component::Update may change other cmp's life time
-	DelayRemover<ComponentPtr>::getSingleton().Enter(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1));
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	ComponentPtrList dummy_cmps(m_Cmps.begin(), m_Cmps.end());
+	ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
+	for (; cmp_iter != dummy_cmps.end(); cmp_iter++)
 	{
-		if ((*cmp_iter)->m_Actor)
+		if (this == (*cmp_iter)->m_Actor)
 		{
 			if ((*cmp_iter)->m_LodMask & 1 << m_Lod)
 			{
@@ -351,7 +350,6 @@ void Actor::Update(float fElapsedTime)
 			}
 		}
 	}
-	DelayRemover<ComponentPtr>::getSingleton().Leave();
 
 	UpdateAttaches(fElapsedTime);
 }
@@ -497,26 +495,28 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 		m_Lod = Lod;
 
 		// ! Component::RequestResource may change other cmp's life time
-		DelayRemover<ComponentPtr>::getSingleton().Enter(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1));
-		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-		for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+		ComponentPtrList dummy_cmps(m_Cmps.begin(), m_Cmps.end());
+		ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
+		for (; cmp_iter != dummy_cmps.end(); cmp_iter++)
 		{
-			if ((*cmp_iter)->m_LodMask >= 1 << Lod)
+			if (this == (*cmp_iter)->m_Actor)
 			{
-				if (!(*cmp_iter)->IsRequested())
+				if ((*cmp_iter)->m_LodMask >= 1 << Lod)
 				{
-					(*cmp_iter)->RequestResource();
+					if (!(*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->RequestResource();
+					}
 				}
-			}
-			else
-			{
-				if ((*cmp_iter)->IsRequested())
+				else
 				{
-					(*cmp_iter)->ReleaseResource();
+					if ((*cmp_iter)->IsRequested())
+					{
+						(*cmp_iter)->ReleaseResource();
+					}
 				}
 			}
 		}
-		DelayRemover<ComponentPtr>::getSingleton().Leave();
 	}
 }
 
@@ -595,15 +595,17 @@ bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 	return false;
 }
 
-void Actor::AddComponent(ComponentPtr cmp)
+void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 {
 	_ASSERT(!cmp->m_Actor);
 
-	// ! Component::RequestResource may change other cmp's life time
-	m_Cmps.push_back(cmp);
+	_ASSERT(i <= m_Cmps.size());
+
+	m_Cmps.insert(m_Cmps.begin() + i, cmp);
 
 	cmp->m_Actor = this;
 
+	// ! Component::RequestResource may change other cmp's life time
 	if (IsRequested())
 	{
 		_ASSERT(m_Node);
@@ -621,12 +623,6 @@ void Actor::AddComponent(ComponentPtr cmp)
 
 void Actor::RemoveComponent(ComponentPtr cmp)
 {
-	if (DelayRemover<ComponentPtr>::getSingleton().IsDelay(boost::bind(&Actor::RemoveComponent, this, boost::placeholders::_1)))
-	{
-		DelayRemover<ComponentPtr>::getSingleton().push_back(cmp);
-		return;
-	}
-
 	ComponentPtrList::iterator cmp_iter = std::find(m_Cmps.begin(), m_Cmps.end(), cmp);
 	if (cmp_iter != m_Cmps.end())
 	{

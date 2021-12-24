@@ -231,10 +231,10 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrack
 	//my::OctNode * Root = m_Actor->m_Node->GetTopNode();
 	//m_WorldEmitterActor.reset(new Actor(
 	//	NamedObject::MakeUniqueName("ActionTrackEmitterInst_actor").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), *Root));
-	//m_WorldEmitterActor->AddComponent(m_WorldEmitterCmp);
+	//m_WorldEmitterActor->InsertComponent(m_WorldEmitterCmp);
 	//Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
 
-	m_Actor->AddComponent(m_WorldEmitterCmp);
+	m_Actor->InsertComponent(m_Actor->GetComponentNum(), m_WorldEmitterCmp);
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)

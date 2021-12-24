@@ -115,9 +115,9 @@ static void control_insert_control_adopt(my::Control* self, unsigned int i, Scri
 
 struct ScriptComponent;
 
-static void actor_add_component_adopt(Actor* self, ScriptComponent* cmp)
+static void actor_insert_component_adopt(Actor* self, unsigned int i, ScriptComponent* cmp)
 {
-	self->AddComponent(ComponentPtr(cmp));
+	self->InsertComponent(i, ComponentPtr(cmp));
 }
 
 struct ScriptAnimationNodeBlendList;
@@ -281,7 +281,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 	ScriptComponent(const char* Name)
 		: Component(Name)
 	{
-		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::AddComponent
+		// ! make sure the ownership of lua part when using shared_ptr pass to Actor::InsertComponent
 	}
 
 	virtual ~ScriptComponent(void)
@@ -2185,8 +2185,8 @@ void LuaContext::Init(void)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
-			.def("AddComponent", &Actor::AddComponent)
-			.def("AddComponentAdopt", &actor_add_component_adopt, adopt(_2))
+			.def("InsertComponent", &Actor::InsertComponent)
+			.def("InsertComponentAdopt", &actor_insert_component_adopt, adopt(_3))
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.property("ComponentNum", &Actor::GetComponentNum)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
