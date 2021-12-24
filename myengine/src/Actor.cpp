@@ -657,6 +657,11 @@ void Actor::RemoveComponent(ComponentPtr cmp)
 	}
 }
 
+unsigned int Actor::GetComponentNum(void) const
+{
+	return m_Cmps.size();
+}
+
 void Actor::ClearAllComponent(void)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

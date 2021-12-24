@@ -343,6 +343,8 @@ public:
 
 	void RemoveComponent(ComponentPtr cmp);
 
+	unsigned int GetComponentNum(void) const;
+
 	void ClearAllComponent(void);
 
 	void Attach(Actor * other, int BoneId);
