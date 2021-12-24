@@ -1335,7 +1335,10 @@ void Control::SetFocused(bool bFocused)
 {
 	if (bFocused)
 	{
-		Control::SetFocusRecursive();
+		if (!GetFocused())
+		{
+			Control::SetFocusRecursive();
+		}
 	}
 	else
 	{
