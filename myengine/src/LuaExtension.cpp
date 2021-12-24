@@ -34,6 +34,10 @@ extern "C"
 #include "ActionTrack.h"
 //#include "noise.h"
 #include <boost/scope_exit.hpp>
+#include <boost/range/algorithm/transform.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/shared_container_iterator.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -69,6 +73,17 @@ static bool Counter(const unsigned int c)
 {
 	static unsigned int g_c = 0;
 	return 0 == (g_c = (g_c + 1) % c);
+}
+
+typedef std::vector<my::NamedObject*> obj_list;
+
+typedef boost::shared_container_iterator<obj_list> shared_obj_list_iter;
+
+static boost::iterator_range<shared_obj_list_iter> d3dcontext_get_named_object_list(my::D3DContext* self)
+{
+	boost::shared_ptr<obj_list> objs(new obj_list());
+	boost::range::transform(self->m_NamedObjects, std::back_inserter(*objs), (&boost::lambda::_1)->* & my::D3DContext::NamedObjectMap::value_type::second);
+	return boost::make_iterator_range(shared_obj_list_iter(objs->begin(), objs), shared_obj_list_iter(objs->end(), objs));
 }
 
 static my::Bone animator_get_bone(Animator* self, int i)
@@ -1571,6 +1586,7 @@ void LuaContext::Init(void)
 			.def_readonly("TotalTime", &my::D3DContext::m_fTotalTime)
 			.def_readonly("DeviceSettings", &my::D3DContext::m_DeviceSettings, luabind::copy(result))
 			.def_readonly("BackBufferSurfaceDesc", &my::D3DContext::m_BackBufferSurfaceDesc)
+			.property("NamedObjects", &d3dcontext_get_named_object_list, luabind::return_stl_iterator)
 			.def("GetNamedObject", &my::D3DContext::GetNamedObject)
 
 		, class_<my::DxutApp, bases<my::D3DContext, CD3D9Enumeration> >("DxutApp")
