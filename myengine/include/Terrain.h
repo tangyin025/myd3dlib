@@ -9,9 +9,11 @@
 
 class Terrain;
 
+struct TerrainTag;
+
 class TerrainChunk
 	: public my::OctEntity
-	, public boost::intrusive::list_base_hook<>
+	, public boost::intrusive::list_base_hook<boost::intrusive::tag<TerrainTag> >
 {
 public:
 	int m_Row;
@@ -95,7 +97,7 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef boost::intrusive::list<TerrainChunk> ChunkSet;
+	typedef boost::intrusive::list<TerrainChunk, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<TerrainTag> > > > ChunkSet;
 
 	ChunkSet m_ViewedChunks;
 

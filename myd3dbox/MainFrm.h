@@ -54,7 +54,7 @@ public:
 	int m_selinstid;
 	my::AABB m_selbox;
 	my::Control * m_selctl;
-	typedef boost::intrusive::list<Actor> ViewedActorSet;
+	typedef boost::intrusive::list<Actor, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<ViewedActorTag> > > > ViewedActorSet;
 	ViewedActorSet m_ViewedActors;
 	enum ControlHandleType
 	{

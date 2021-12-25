@@ -15,9 +15,11 @@ public:
 
 typedef boost::shared_ptr<StaticEmitterChunkBuffer> StaticEmitterChunkBufferPtr;
 
+struct StaticEmitterTag;
+
 class StaticEmitterChunk
 	: public my::OctEntity
-	, public boost::intrusive::list_base_hook<>
+	, public boost::intrusive::list_base_hook<boost::intrusive::tag<StaticEmitterTag> >
 {
 public:
 	int m_Row;
@@ -75,7 +77,7 @@ public:
 
 	ChunkMap m_Chunks;
 
-	typedef boost::intrusive::list<StaticEmitterChunk> ChunkSet;
+	typedef boost::intrusive::list<StaticEmitterChunk, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<StaticEmitterTag> > > > ChunkSet;
 
 	ChunkSet m_ViewedChunks;
 

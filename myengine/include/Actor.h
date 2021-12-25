@@ -119,11 +119,13 @@ public:
 	}
 };
 
+struct ViewedActorTag;
+
 class Actor
 	: public my::NamedObject
 	, public my::OctEntity
-	, public boost::intrusive::list_base_hook<>
 	, public boost::enable_shared_from_this<Actor>
+	, public boost::intrusive::list_base_hook<boost::intrusive::tag<ViewedActorTag> >
 {
 public:
 	static const float MinBlock;
