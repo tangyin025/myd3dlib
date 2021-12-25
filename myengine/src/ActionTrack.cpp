@@ -29,7 +29,7 @@ ActionInstPtr Action::CreateInstance(Actor * _Actor)
 	return ActionInstPtr(new ActionInst(_Actor, shared_from_this()));
 }
 
-ActionInst::ActionInst(Actor * _Actor, ConstActionPtr Template)
+ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 	: m_Template(Template)
 	, m_Time(0)
 {
@@ -211,7 +211,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 	key_iter->second.SpawnInterval = SpawnInterval;
 }
 
-ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, ConstActionTrackEmitterPtr Template)
+ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_SpawnPose(m_Template->m_EmitterCapacity)
@@ -350,7 +350,7 @@ void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
 	m_InterpolateZ.AddNode(Time, Position.z, 0, 0);
 }
 
-ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, ConstActionTrackPosePtr Template)
+ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_StartPose(_Actor->m_Rotation, _Actor->m_Position)
