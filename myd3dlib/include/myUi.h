@@ -525,6 +525,8 @@ namespace my
 
 		virtual Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 
+		bool GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> & childs);
+
 		Control * GetTopControl(void);
 
 		bool SetFocusRecursive(void);

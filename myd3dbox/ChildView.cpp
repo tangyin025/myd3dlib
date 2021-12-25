@@ -1674,6 +1674,24 @@ ctrl_handle_end:
 			(float)tracker.m_rect.top,
 			(float)tracker.m_rect.right,
 			(float)tracker.m_rect.bottom);
+		my::Frustum ui_ftm = m_UICamera.CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
+		for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
+		{
+			std::vector<my::Control*> ctrl_list;
+			if ((*dlg_iter)->GetChildAtFrustum(ui_ftm, ctrl_list))
+			{
+				pFrame->m_selactors.clear();
+				pFrame->m_selcmp = NULL;
+				pFrame->m_selchunkid.SetPoint(0, 0);
+				pFrame->m_selinstid = 0;
+				pFrame->m_selctl = ctrl_list.front();
+				pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
+				pFrame->OnSelChanged();
+				return;
+			}
+		}
+
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{
