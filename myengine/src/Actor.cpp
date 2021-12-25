@@ -699,7 +699,7 @@ void Actor::ClearAllAttacher(void)
 
 void Actor::PlayAction(Action * action, float Length)
 {
-	m_ActionInstList.push_back(std::make_pair(ActionInstPtr(action->CreateInstance(this)), Length));
+	m_ActionInstList.push_back(std::make_pair(action->CreateInstance(this), Length));
 }
 
 void Actor::StopAllAction(void)

@@ -542,7 +542,7 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 		boost::shared_ptr<const ScriptActionTrack> m_Template;
 
 	public:
-		ScriptActionTrackInst(Actor* actor, const ScriptActionTrack* Template)
+		ScriptActionTrackInst(Actor* actor, boost::shared_ptr<const ScriptActionTrack> Template)
 			: ActionTrackInst(actor)
 			, m_Template(Template)
 		{
@@ -581,7 +581,7 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 
 	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
 	{
-		return ActionTrackInstPtr(new ScriptActionTrackInst(_Actor, this));
+		return ActionTrackInstPtr(new ScriptActionTrackInst(_Actor, boost::static_pointer_cast<const ScriptActionTrack>(shared_from_this())));
 	}
 
 	void AddKeyFrame(float Time)
