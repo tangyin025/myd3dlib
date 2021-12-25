@@ -262,5 +262,5 @@ namespace my
 		const OgreAnimation * GetAnimation(const std::string & anim_name) const;
 	};
 
-	typedef boost::intrusive_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
+	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
 }

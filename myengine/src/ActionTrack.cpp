@@ -26,10 +26,10 @@ void Action::RemoveTrack(ActionTrackPtr track)
 
 ActionInstPtr Action::CreateInstance(Actor * _Actor)
 {
-	return ActionInstPtr(new ActionInst(_Actor, this));
+	return ActionInstPtr(new ActionInst(_Actor, shared_from_this()));
 }
 
-ActionInst::ActionInst(Actor * _Actor, const Action * Template)
+ActionInst::ActionInst(Actor * _Actor, ConstActionPtr Template)
 	: m_Template(Template)
 	, m_Time(0)
 {
@@ -61,7 +61,7 @@ void ActionInst::Stop(void)
 
 ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, this));
+	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
 }
 
 void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group, int RootId)
@@ -137,7 +137,7 @@ ActionTrackSound::~ActionTrackSound(void)
 
 ActionTrackInstPtr ActionTrackSound::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, this));
+	return ActionTrackInstPtr(new ActionTrackSoundInst(_Actor, boost::static_pointer_cast<const ActionTrackSound>(shared_from_this())));
 }
 
 void ActionTrackSound::AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance)
@@ -200,7 +200,7 @@ void ActionTrackSoundInst::Stop(void)
 
 ActionTrackInstPtr ActionTrackEmitter::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, this));
+	return ActionTrackInstPtr(new ActionTrackEmitterInst(_Actor, boost::static_pointer_cast<const ActionTrackEmitter>(shared_from_this())));
 }
 
 void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInterval)
@@ -211,7 +211,7 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 	key_iter->second.SpawnInterval = SpawnInterval;
 }
 
-ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template)
+ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, ConstActionTrackEmitterPtr Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_SpawnPose(m_Template->m_EmitterCapacity)
@@ -340,7 +340,7 @@ void ActionTrackEmitterInst::DoTask(void)
 
 ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, this));
+	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
 }
 
 void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
@@ -350,7 +350,7 @@ void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
 	m_InterpolateZ.AddNode(Time, Position.z, 0, 0);
 }
 
-ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template)
+ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, ConstActionTrackPosePtr Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_StartPose(_Actor->m_Rotation, _Actor->m_Position)

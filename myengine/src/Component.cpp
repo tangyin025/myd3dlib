@@ -587,7 +587,7 @@ public:
 	}
 };
 
-typedef boost::intrusive_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
+typedef boost::shared_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
 
 class PhysxTriangleMeshIORequest : public my::IORequest
 {

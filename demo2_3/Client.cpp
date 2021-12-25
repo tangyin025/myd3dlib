@@ -837,7 +837,7 @@ HRESULT Client::OnCreateDevice(
 	[
 		luabind::class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 
-		, luabind::class_<SceneContext, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("SceneContext")
+		, luabind::class_<SceneContext, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("SceneContext")
 			.def_readonly("SkyLightCamEuler", &SceneContext::m_SkyLightCamEuler)
 			.def_readonly("SkyLightColor", &SceneContext::m_SkyLightColor)
 			.def_readonly("AmbientColor", &SceneContext::m_AmbientColor)
@@ -937,7 +937,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OverlapBox", &Client::OverlapBox<luabind::object>)
 			.def("OverlapSphere", &Client::OverlapSphere<luabind::object>)
 
-		, luabind::def("res2scene", (boost::intrusive_ptr<SceneContext>(*)(const boost::intrusive_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
+		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
 	luabind::globals(m_State)["client"] = this;
 
@@ -1538,7 +1538,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 	OctNode::RemoveEntity(entity);
 }
 
-void Client::OnControlSound(boost::intrusive_ptr<my::Wav> wav)
+void Client::OnControlSound(boost::shared_ptr<my::Wav> wav)
 {
 	SoundContext::Play(wav, false);
 }
@@ -1563,7 +1563,7 @@ public:
 	}
 };
 
-boost::intrusive_ptr<SceneContext> Client::LoadScene(const char * path, const char * prefix)
+boost::shared_ptr<SceneContext> Client::LoadScene(const char * path, const char * prefix)
 {
 	std::string key = SceneContextRequest::BuildKey(path);
 	SimpleResourceCallback cb;

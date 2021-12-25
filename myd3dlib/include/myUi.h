@@ -2,7 +2,6 @@
 
 #include "myFont.h"
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include <boost/intrusive_ptr.hpp>
 #include <vector>
 #include <list>
 
@@ -202,23 +201,23 @@ namespace my
 
 		std::string m_VisibleShowSoundPath;
 
-		boost::intrusive_ptr<Wav> m_VisibleShowSound;
+		boost::shared_ptr<Wav> m_VisibleShowSound;
 
 		std::string m_VisibleHideSoundPath;
 
-		boost::intrusive_ptr<Wav> m_VisibleHideSound;
+		boost::shared_ptr<Wav> m_VisibleHideSound;
 
 		std::string m_MouseEnterSoundPath;
 
-		boost::intrusive_ptr<Wav> m_MouseEnterSound;
+		boost::shared_ptr<Wav> m_MouseEnterSound;
 
 		std::string m_MouseLeaveSoundPath;
 
-		boost::intrusive_ptr<Wav> m_MouseLeaveSound;
+		boost::shared_ptr<Wav> m_MouseLeaveSound;
 
 		std::string m_MouseClickSoundPath;
 
-		boost::intrusive_ptr<Wav> m_MouseClickSound;
+		boost::shared_ptr<Wav> m_MouseClickSound;
 
 		bool m_Requested;
 

@@ -309,5 +309,5 @@ namespace my
 			DWORD SizeOfMemory);
 	};
 
-	typedef boost::intrusive_ptr<Wav> WavPtr;
+	typedef boost::shared_ptr<Wav> WavPtr;
 }

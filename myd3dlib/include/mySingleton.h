@@ -1,8 +1,6 @@
 #pragma once
 
 #include <boost/scoped_ptr.hpp>
-#include <boost/intrusive_ptr.hpp>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -67,7 +65,7 @@ namespace my
 	template <class DerivedClass>
 	SingleInstance<DerivedClass> * SingleInstance<DerivedClass>::s_ptr(0);
 
-	class DeviceResourceBase : public boost::intrusive_ref_counter<DeviceResourceBase>
+	class DeviceResourceBase
 	{
 	public:
 		const char * m_Key;
@@ -89,7 +87,7 @@ namespace my
 		}
 	};
 
-	typedef boost::intrusive_ptr<DeviceResourceBase> DeviceResourceBasePtr;
+	typedef boost::shared_ptr<DeviceResourceBase> DeviceResourceBasePtr;
 
 	template <class DerivedClass> 
 	class D3DDeviceResource

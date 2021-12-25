@@ -41,7 +41,7 @@ public:
 	}
 };
 
-typedef boost::intrusive_ptr<SceneContext> SceneContextPtr;
+typedef boost::shared_ptr<SceneContext> SceneContextPtr;
 
 class SceneContextRequest : public my::IORequest
 {
@@ -258,7 +258,7 @@ public:
 
 	virtual void RemoveEntity(my::OctEntity * entity);
 
-	virtual void OnControlSound(boost::intrusive_ptr<my::Wav> wav);
+	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
 
 	virtual void OnControlFocus(my::Control * control);
 
@@ -270,7 +270,7 @@ public:
 		LoadIORequestAsync(key, request, callback);
 	}
 
-	boost::intrusive_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
+	boost::shared_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 
 	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
 

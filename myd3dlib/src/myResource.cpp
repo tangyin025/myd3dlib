@@ -637,7 +637,7 @@ bool ResourceMgr::CheckIORequests(DWORD dwMilliseconds)
 	DeviceResourceBasePtrSet::iterator res_iter = m_ResourceSet.begin();
 	for (; res_iter != m_ResourceSet.end(); )
 	{
-		if (res_iter->second->use_count() > 1)
+		if (res_iter->second.use_count() > 1)
 		{
 			res_iter++;
 		}
@@ -733,7 +733,7 @@ public:
 	}
 };
 
-boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
+boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new TextureIORequest(path, INT_MAX));
@@ -741,7 +741,7 @@ boost::intrusive_ptr<BaseTexture> ResourceMgr::LoadTexture(const char * path)
 	return boost::dynamic_pointer_cast<BaseTexture>(cb.m_res);
 }
 
-boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
+boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const char * sub_mesh_name)
 {
 	std::string key = MeshIORequest::BuildKey(path, sub_mesh_name);
 	SimpleResourceCallback cb;
@@ -750,7 +750,7 @@ boost::intrusive_ptr<OgreMesh> ResourceMgr::LoadMesh(const char * path, const ch
 	return boost::dynamic_pointer_cast<OgreMesh>(cb.m_res);
 }
 
-boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
+boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new SkeletonIORequest(path, INT_MAX));
@@ -758,7 +758,7 @@ boost::intrusive_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const char
 	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(cb.m_res);
 }
 
-boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
+boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const char * macros)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 	SimpleResourceCallback cb;
@@ -767,7 +767,7 @@ boost::intrusive_ptr<Effect> ResourceMgr::LoadEffect(const char * path, const ch
 	return boost::dynamic_pointer_cast<Effect>(cb.m_res);
 }
 
-boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, int face_index)
+boost::shared_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, int face_index)
 {
 	std::string key = FontIORequest::BuildKey(path, height, face_index);
 	SimpleResourceCallback cb;
@@ -776,7 +776,7 @@ boost::intrusive_ptr<Font> ResourceMgr::LoadFont(const char * path, int height, 
 	return boost::dynamic_pointer_cast<Font>(cb.m_res);
 }
 
-boost::intrusive_ptr<Wav> ResourceMgr::LoadWav(const char * path)
+boost::shared_ptr<Wav> ResourceMgr::LoadWav(const char * path)
 {
 	SimpleResourceCallback cb;
 	IORequestPtr request(new WavIORequest(path, INT_MAX));

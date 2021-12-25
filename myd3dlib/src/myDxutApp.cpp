@@ -251,7 +251,7 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 	return NULL;
 }
 
-void D3DContext::OnControlSound(boost::intrusive_ptr<Wav> wav)
+void D3DContext::OnControlSound(boost::shared_ptr<Wav> wav)
 {
 }
 

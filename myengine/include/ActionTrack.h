@@ -1,8 +1,7 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
-#include <boost/intrusive_ptr.hpp>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 #include <map>
@@ -14,7 +13,7 @@
 
 class ActionTrack;
 
-typedef boost::intrusive_ptr<ActionTrack> ActionTrackPtr;
+typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;
 
 class ActionInst;
 
@@ -22,7 +21,7 @@ typedef boost::shared_ptr<ActionInst> ActionInstPtr;
 
 class Actor;
 
-class Action : public boost::intrusive_ref_counter<Action>
+class Action : public boost::enable_shared_from_this<Action>
 {
 public:
 	typedef std::vector<ActionTrackPtr> ActionTrackPtrList;
@@ -45,7 +44,7 @@ public:
 	ActionInstPtr CreateInstance(Actor * _Actor);
 };
 
-typedef boost::intrusive_ptr<Action> ActionPtr;
+typedef boost::shared_ptr<const Action> ConstActionPtr;
 
 class ActionTrackInst;
 
@@ -54,7 +53,7 @@ typedef boost::shared_ptr<ActionTrackInst> ActionTrackInstPtr;
 class ActionInst
 {
 public:
-	boost::intrusive_ptr<const Action> m_Template;
+	ConstActionPtr m_Template;
 
 	float m_Time;
 
@@ -63,14 +62,14 @@ public:
 	ActionTrackInstPtrList m_TrackInstList;
 
 public:
-	ActionInst(Actor * _Actor, const Action * Template);
+	ActionInst(Actor * _Actor, ConstActionPtr Template);
 
 	void Update(float fElapsedTime);
 
 	void Stop(void);
 };
 
-class ActionTrack : public boost::intrusive_ref_counter<ActionTrack>
+class ActionTrack : public boost::enable_shared_from_this<ActionTrack>
 {
 public:
 	ActionTrack(void)
@@ -91,7 +90,7 @@ public:
 	}
 };
 
-typedef boost::intrusive_ptr<ActionTrack> ActionTrackPtr;
+typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;
 
 class ActionTrackInst
 {
@@ -143,13 +142,15 @@ public:
 	void AddKeyFrame(float Time, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group, int RootId);
 };
 
+typedef boost::shared_ptr<const ActionTrackAnimation> ConstActionTrackAnimationPtr;
+
 class ActionTrackAnimationInst : public ActionTrackInst
 {
 protected:
-	boost::intrusive_ptr<const ActionTrackAnimation> m_Template;
+	ConstActionTrackAnimationPtr m_Template;
 
 public:
-	ActionTrackAnimationInst(Actor * _Actor, const ActionTrackAnimation * Template)
+	ActionTrackAnimationInst(Actor * _Actor, ConstActionTrackAnimationPtr Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
 	{
@@ -190,17 +191,19 @@ public:
 	void AddKeyFrame(float Time, const char * SoundPath, bool Loop, float MinDistance, float MaxDistance);
 };
 
+typedef boost::shared_ptr<const ActionTrackSound> ConstActionTrackSoundPtr;
+
 class ActionTrackSoundInst : public ActionTrackInst
 {
 protected:
-	boost::intrusive_ptr<const ActionTrackSound> m_Template;
+	ConstActionTrackSoundPtr m_Template;
 
 	typedef std::list<SoundEventPtr> SoundEventList;
 	
 	SoundEventList m_Events;
 
 public:
-	ActionTrackSoundInst(Actor * _Actor, const ActionTrackSound * Template)
+	ActionTrackSoundInst(Actor * _Actor, ConstActionTrackSoundPtr Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
 	{
@@ -279,12 +282,14 @@ public:
 	void AddKeyFrame(float Time, int SpawnCount, float SpawnInterval);
 };
 
+typedef boost::shared_ptr<const ActionTrackEmitter> ConstActionTrackEmitterPtr;
+
 class CircularEmitter;
 
 class ActionTrackEmitterInst : public ActionTrackInst, public my::ParallelTask
 {
 protected:
-	boost::intrusive_ptr<const ActionTrackEmitter> m_Template;
+	ConstActionTrackEmitterPtr m_Template;
 
 	//boost::shared_ptr<Actor> m_WorldEmitterActor;
 
@@ -317,7 +322,7 @@ protected:
 	my::Event m_TaskEvent;
 
 public:
-	ActionTrackEmitterInst(Actor * _Actor, const ActionTrackEmitter * Template);
+	ActionTrackEmitterInst(Actor * _Actor, ConstActionTrackEmitterPtr Template);
 
 	virtual ~ActionTrackEmitterInst(void);
 
@@ -356,17 +361,19 @@ public:
 	void AddKeyFrame(float Time, const my::Vector3 & Position);
 };
 
+typedef boost::shared_ptr<const ActionTrackPose> ConstActionTrackPosePtr;
+
 class ActionTrackPoseInst : public ActionTrackInst
 {
 protected:
-	boost::intrusive_ptr<const ActionTrackPose> m_Template;
+	ConstActionTrackPosePtr m_Template;
 
 	my::Bone m_StartPose;
 
 	my::Vector3 m_LasterPos;
 
 public:
-	ActionTrackPoseInst(Actor * _Actor, const ActionTrackPose * Template);
+	ActionTrackPoseInst(Actor * _Actor, ConstActionTrackPosePtr Template);
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 

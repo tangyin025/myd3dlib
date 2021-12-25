@@ -159,7 +159,7 @@ namespace my
 		void Unlock(void);
 	};
 
-	typedef boost::intrusive_ptr<VertexBuffer> VertexBufferPtr;
+	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
 
 	class IndexBuffer : public D3DDeviceResource<IDirect3DIndexBuffer9>
 	{
@@ -183,7 +183,7 @@ namespace my
 		void Unlock(void);
 	};
 
-	typedef boost::intrusive_ptr<IndexBuffer> IndexBufferPtr;
+	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
 
 	class Mesh : public D3DDeviceResource<ID3DXMesh>
 	{
@@ -378,7 +378,7 @@ namespace my
 			const D3DVertexElementSet& VertexElems);
 	};
 
-	typedef boost::intrusive_ptr<Mesh> MeshPtr;
+	typedef boost::shared_ptr<Mesh> MeshPtr;
 
 	class OgreMesh : public Mesh
 	{
@@ -436,5 +436,5 @@ namespace my
 		AABB CalculateAABB(DWORD AttribId);
 	};
 
-	typedef boost::intrusive_ptr<OgreMesh> OgreMeshPtr;
+	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
 }

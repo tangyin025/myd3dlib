@@ -539,7 +539,7 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 	class ScriptActionTrackInst : public ActionTrackInst
 	{
 	protected:
-		boost::intrusive_ptr<const ScriptActionTrack> m_Template;
+		boost::shared_ptr<const ScriptActionTrack> m_Template;
 
 	public:
 		ScriptActionTrackInst(Actor* actor, const ScriptActionTrack* Template)
@@ -610,7 +610,7 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 
 void action_add_track_adopt(Action* self, ScriptActionTrack* track)
 {
-	self->AddTrack(ActionTrackPtr(track, true));
+	self->AddTrack(ActionTrackPtr(track));
 }
 
 LuaContext::LuaContext(void)
@@ -1017,23 +1017,23 @@ void LuaContext::Init(void)
 			.def_readonly("Pitch", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
 
-		, class_<my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("DeviceResourceBase")
+		, class_<my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("DeviceResourceBase")
 			.def_readonly("Key", &my::DeviceResourceBase::m_Key)
 
-		, class_<my::BaseTexture, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("BaseTexture")
+		, class_<my::BaseTexture, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("BaseTexture")
 
-		, class_<my::Texture2D, my::BaseTexture, boost::intrusive_ptr<my::DeviceResourceBase> >("Texture2D")
+		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
 			.def("GetLevelDesc", &my::Texture2D::GetLevelDesc)
 			.def("LockRect", &my::Texture2D::LockRect)
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
 
-		, class_<my::CubeTexture, my::BaseTexture, boost::intrusive_ptr<my::DeviceResourceBase> >("CubeTexture")
+		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 
-		, class_<my::Mesh, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("Mesh")
+		, class_<my::Mesh, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Mesh")
 			.property("NumFaces", &my::Mesh::GetNumFaces)
 			.property("NumVertices", &my::Mesh::GetNumVertices)
 
-		, class_<my::OgreMesh, my::Mesh, boost::intrusive_ptr<my::DeviceResourceBase> >("OgreMesh")
+		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::DeviceResourceBase> >("OgreMesh")
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
 			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
 			.def("Transform", &my::OgreMesh::Transform)
@@ -1050,7 +1050,7 @@ void LuaContext::Init(void)
 			.def_readwrite("rotation", &my::Bone::m_rotation)
 			.def_readwrite("position", &my::Bone::m_position)
 
-		, class_<my::OgreSkeletonAnimation, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("OgreSkeletonAnimation")
+		, class_<my::OgreSkeletonAnimation, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("OgreSkeletonAnimation")
 			.def_readonly("boneHierarchy", &my::OgreSkeletonAnimation::m_boneHierarchy)
 			.def("GetBoneIndex", &my::OgreSkeletonAnimation::GetBoneIndex)
 			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
@@ -1058,7 +1058,7 @@ void LuaContext::Init(void)
 			.def("Transform", &my::OgreSkeletonAnimation::Transform)
 
 		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
-		, class_<my::BaseEffect, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("BaseEffect")
+		, class_<my::BaseEffect, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("BaseEffect")
 			//.def("GetAnnotation", &my::BaseEffect::GetAnnotation)
 			//.def("GetAnnotationByName", &my::BaseEffect::GetAnnotationByName)
 			//.def("GetBool", &my::BaseEffect::GetBool)
@@ -1116,7 +1116,7 @@ void LuaContext::Init(void)
 			//.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector3 &))&my::BaseEffect::SetVector)
 			//.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
 
-		, class_<my::Effect, my::BaseEffect, boost::intrusive_ptr<my::DeviceResourceBase> >("Effect")
+		, class_<my::Effect, my::BaseEffect, boost::shared_ptr<my::DeviceResourceBase> >("Effect")
 			//.def("ApplyParameterBlock", &my::Effect::ApplyParameterBlock)
 			//.def("Begin", &my::Effect::Begin)
 			//.def("BeginParameterBlock", &my::Effect::BeginParameterBlock)
@@ -1138,7 +1138,7 @@ void LuaContext::Init(void)
 			//.def("SetTechnique", &my::Effect::SetTechnique)
 			//.def("ValidateTechnique", &my::Effect::ValidateTechnique)
 
-		, class_<my::Font, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("Font")
+		, class_<my::Font, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Font")
 			.enum_("Align")
 			[
 				value("AlignLeft", my::Font::AlignLeft),
@@ -1160,7 +1160,7 @@ void LuaContext::Init(void)
 			.def_readonly("Height", &my::Font::m_Height)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
-		, class_<my::Wav, my::DeviceResourceBase, boost::intrusive_ptr<my::DeviceResourceBase> >("Wav")
+		, class_<my::Wav, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Wav")
 
 		, class_<my::ResourceMgr>("ResourceMgr")
 			.def("CheckIORequests", &my::ResourceMgr::CheckIORequests)
@@ -2267,26 +2267,26 @@ void LuaContext::Init(void)
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
 			.def_readonly("3dbuffer", &SoundEvent::m_3dbuffer)
 
-		, class_<Action, boost::intrusive_ptr<Action> >("Action")
+		, class_<Action, boost::shared_ptr<Action> >("Action")
 			.def(constructor<>())
 			.def("AddTrack", &Action::AddTrack)
 			.def("AddTrackAdopt", &action_add_track_adopt, adopt(_2))
 			.def("RemoveTrack", &Action::RemoveTrack)
 
-		, class_<ActionTrack, ScriptActionTrack/*, boost::intrusive_ptr<ActionTrack>*/ >("ActionTrack")
+		, class_<ActionTrack, ScriptActionTrack/*, boost::shared_ptr<ActionTrack>*/ >("ActionTrack")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ScriptActionTrack::AddKeyFrame)
 			.def("OnKeyFrame", &ActionTrack::OnKeyFrame, &ScriptActionTrack::default_OnKeyFrame)
 
-		, class_<ActionTrackAnimation, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackAnimation")
+		, class_<ActionTrackAnimation, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackAnimation::AddKeyFrame)
 
-		, class_<ActionTrackSound, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackSound")
+		, class_<ActionTrackSound, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackSound")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackSound::AddKeyFrame)
 
-		, class_<ActionTrackEmitter, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackEmitter")
+		, class_<ActionTrackEmitter, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackEmitter")
 			.def(constructor<>())
 			.def("AddKeyFrame", &ActionTrackEmitter::AddKeyFrame)
 			.def_readwrite("EmitterMaterial", &ActionTrackEmitter::m_EmitterMaterial)
@@ -2308,7 +2308,7 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticleAngle", &ActionTrackEmitter::m_ParticleAngle)
 			.def_readwrite("AttachBoneId", &ActionTrackEmitter::m_AttachBoneId)
 
-		, class_<ActionTrackPose, ActionTrack, boost::intrusive_ptr<ActionTrack> >("ActionTrackPose")
+		, class_<ActionTrackPose, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackPose")
 			.def(constructor<float, float, unsigned int>())
 			.def_readwrite("Start", &ActionTrackPose::m_Start)
 			.def_readwrite("Length", &ActionTrackPose::m_Length)

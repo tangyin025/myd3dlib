@@ -8,7 +8,6 @@
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/array.hpp>
-#include <boost/intrusive_ptr.hpp>
 
 namespace my
 {
@@ -138,7 +137,7 @@ namespace my
 		{
 		}
 
-		virtual void OnControlSound(boost::intrusive_ptr<Wav> wav);
+		virtual void OnControlSound(boost::shared_ptr<Wav> wav);
 
 		virtual void OnControlFocus(Control * control)
 		{

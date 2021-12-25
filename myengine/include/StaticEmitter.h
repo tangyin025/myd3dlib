@@ -13,7 +13,7 @@ public:
 	}
 };
 
-typedef boost::intrusive_ptr<StaticEmitterChunkBuffer> StaticEmitterChunkBufferPtr;
+typedef boost::shared_ptr<StaticEmitterChunkBuffer> StaticEmitterChunkBufferPtr;
 
 class StaticEmitterChunk
 	: public my::OctEntity

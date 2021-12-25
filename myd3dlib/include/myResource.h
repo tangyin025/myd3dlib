@@ -445,7 +445,7 @@ namespace my
 			LoadIORequestAsync(path, request, callback);
 		}
 
-		boost::intrusive_ptr<BaseTexture> LoadTexture(const char * path);
+		boost::shared_ptr<BaseTexture> LoadTexture(const char * path);
 
 		template <typename T>
 		void LoadMeshAsync(const char * path, const char * sub_mesh_name, const T & callback, int Priority = 0)
@@ -455,7 +455,7 @@ namespace my
 			LoadIORequestAsync(key, request, callback);
 		}
 
-		boost::intrusive_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
+		boost::shared_ptr<OgreMesh> LoadMesh(const char * path, const char * sub_mesh_name);
 
 		template <typename T>
 		void LoadSkeletonAsync(const char * path, const T & callback, int Priority = 0)
@@ -464,7 +464,7 @@ namespace my
 			LoadIORequestAsync(path, request, callback);
 		}
 
-		boost::intrusive_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
+		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const char * path);
 
 		template <typename T>
 		void LoadEffectAsync(const char * path, const char * macros, const T & callback, int Priority = 0)
@@ -474,7 +474,7 @@ namespace my
 			LoadIORequestAsync(key, request, callback);
 		}
 
-		boost::intrusive_ptr<Effect> LoadEffect(const char * path, const char * macros);
+		boost::shared_ptr<Effect> LoadEffect(const char * path, const char * macros);
 
 		template <typename T>
 		void LoadFontAsync(const char * path, int height, int face_index, const T & callback, int Priority = 0)
@@ -484,7 +484,7 @@ namespace my
 			LoadIORequestAsync(key, request, callback);
 		}
 
-		boost::intrusive_ptr<Font> LoadFont(const char * path, int height, int face_index);
+		boost::shared_ptr<Font> LoadFont(const char * path, int height, int face_index);
 
 		template <typename T>
 		void LoadWavAsync(const char * path, const T & callback, int Priority = 0)
@@ -493,7 +493,7 @@ namespace my
 			LoadIORequestAsync(path, request, callback);
 		}
 
-		boost::intrusive_ptr<Wav> LoadWav(const char * path);
+		boost::shared_ptr<Wav> LoadWav(const char * path);
 	};
 
 	class TextureIORequest : public IORequest
