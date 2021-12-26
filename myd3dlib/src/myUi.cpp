@@ -557,10 +557,15 @@ void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCO
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
 	const wchar_t* p = str;
-	float x = pen.x;
-	for (; *p; p++)
+	for (float x = pen.x, y = pen.y; *p; p++)
 	{
 		const Font::CharacterInfo& info = font->GetCharacterInfo(*p);
+
+		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		{
+			x = pen.x;
+			y += font->m_LineHeight;
+		}
 
 		Rectangle uv_rect(
 			(float)info.textureRect.left / font->m_textureDesc.Width,
@@ -569,7 +574,7 @@ void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCO
 			(float)info.textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+			Rectangle::LeftTop(x + info.horiBearingX, y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
 
 		x += info.horiAdvance;
 	}
@@ -580,10 +585,15 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
 	const wchar_t* p = str;
-	float x = pen.x;
-	for (; *p; p++)
+	for (float x = pen.x, y = pen.y; *p; p++)
 	{
 		const Font::CharacterInfo& info = font->GetCharacterOutlineInfo(*p, outlineWidth);
+
+		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		{
+			x = pen.x;
+			y += font->m_LineHeight;
+		}
 
 		Rectangle uv_rect(
 			(float)info.textureRect.left / font->m_textureDesc.Width,
@@ -592,16 +602,21 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 			(float)info.textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, outlineColor, font->m_Texture.get());
+			Rectangle::LeftTop(x + info.horiBearingX, y - info.horiBearingY, info.width, info.height), uv_rect, outlineColor, font->m_Texture.get());
 
 		x += info.horiAdvance;
 	}
 
 	p = str;
-	x = pen.x;
-	for (; *p; p++)
+	for (float x = pen.x, y = pen.y; *p; p++)
 	{
 		const Font::CharacterInfo& info = font->GetCharacterInfo(*p);
+
+		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		{
+			x = pen.x;
+			y += font->m_LineHeight;
+		}
 
 		Rectangle uv_rect(
 			(float)info.textureRect.left / font->m_textureDesc.Width,
@@ -610,7 +625,7 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 			(float)info.textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+			Rectangle::LeftTop(x + info.horiBearingX, y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
 
 		x += info.horiAdvance;
 	}

@@ -682,38 +682,6 @@ void Font::DrawString(
 	LPCWSTR pString,
 	const my::Rectangle & rect,
 	D3DCOLOR Color,
-	Align align)
-{
-	Vector2 pen = CalculateAlignedPen(pString, rect, align);
-
-	const wchar_t* p = pString;
-	float x = pen.x;
-	for (; *p; p++)
-	{
-		const CharacterInfo& info = GetCharacterInfo(*p);
-
-		CComPtr<IDirect3DDevice9> Device;
-		pSprite->GetDevice(&Device);
-		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-		V(pSprite->Draw(
-			(IDirect3DTexture9*)m_Texture->m_ptr,
-			&info.textureRect,
-			(D3DXVECTOR3*)&Vector3(0, 0, 0),
-			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, pen.y - info.horiBearingY, 0),
-			Color));
-
-		x += info.horiAdvance;
-	}
-}
-
-void Font::DrawString(
-	LPD3DXSPRITE pSprite,
-	LPCWSTR pString,
-	const my::Rectangle & rect,
-	D3DCOLOR Color,
 	Align align,
 	D3DCOLOR OutlineColor,
 	float OutlineWidth)
@@ -721,10 +689,15 @@ void Font::DrawString(
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
 	const wchar_t* p = pString;
-	float x = pen.x;
-	for (; *p; p++)
+	for (float x = pen.x, y = pen.y; *p; p++)
 	{
 		const CharacterInfo& info = GetCharacterOutlineInfo(*p, OutlineWidth);
+
+		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		{
+			x = pen.x;
+			y += m_LineHeight;
+		}
 
 		CComPtr<IDirect3DDevice9> Device;
 		pSprite->GetDevice(&Device);
@@ -736,17 +709,22 @@ void Font::DrawString(
 			(IDirect3DTexture9*)m_Texture->m_ptr,
 			&info.textureRect,
 			(D3DXVECTOR3*)&Vector3(0, 0, 0),
-			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, pen.y - info.horiBearingY, 0),
+			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, y - info.horiBearingY, 0),
 			OutlineColor));
 
 		x += info.horiAdvance;
 	}
 
 	p = pString;
-	x = pen.x;
-	for (; *p; p++)
+	for (float x = pen.x, y = pen.y; *p; p++)
 	{
 		const CharacterInfo& info = GetCharacterInfo(*p);
+
+		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		{
+			x = pen.x;
+			y += m_LineHeight;
+		}
 
 		CComPtr<IDirect3DDevice9> Device;
 		pSprite->GetDevice(&Device);
@@ -758,7 +736,7 @@ void Font::DrawString(
 			(IDirect3DTexture9*)m_Texture->m_ptr,
 			&info.textureRect,
 			(D3DXVECTOR3*)&Vector3(0, 0, 0),
-			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, pen.y - info.horiBearingY, 0),
+			(D3DXVECTOR3*)&Vector3(x + info.horiBearingX, y - info.horiBearingY, 0),
 			Color));
 
 		x += info.horiAdvance;

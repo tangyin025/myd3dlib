@@ -103,7 +103,9 @@ namespace my
 			AlignTop			= 8,
 			AlignMiddle			= 16,
 			AlignBottom			= 32,
+			AlignMultiLine		= 64,
 			AlignLeftTop		= AlignLeft | AlignTop,
+			AlignLeftTopMultiLine = AlignLeftTop | AlignMultiLine,
 			AlignCenterTop		= AlignCenter | AlignTop,
 			AlignRightTop		= AlignRight | AlignTop,
 			AlignLeftMiddle		= AlignLeft | AlignMiddle,
@@ -204,13 +206,6 @@ namespace my
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
-
-		void DrawString(
-			LPD3DXSPRITE pSprite,
-			LPCWSTR pString,
-			const Rectangle & rect,
-			D3DCOLOR Color,
-			Align align);
 
 		void DrawString(
 			LPD3DXSPRITE pSprite,

@@ -1157,13 +1157,8 @@ void LuaContext::Init(void)
 		, class_<my::Font, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Font")
 			.enum_("Align")
 			[
-				value("AlignLeft", my::Font::AlignLeft),
-				value("AlignCenter", my::Font::AlignCenter),
-				value("AlignRight", my::Font::AlignRight),
-				value("AlignTop", my::Font::AlignTop),
-				value("AlignMiddle", my::Font::AlignMiddle),
-				value("AlignBottom", my::Font::AlignBottom),
 				value("AlignLeftTop", my::Font::AlignLeftTop),
+				value("AlignLeftTopMultiLine", my::Font::AlignLeftTopMultiLine),
 				value("AlignCenterTop", my::Font::AlignCenterTop),
 				value("AlignRightTop", my::Font::AlignRightTop),
 				value("AlignLeftMiddle", my::Font::AlignLeftMiddle),
