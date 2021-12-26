@@ -1495,7 +1495,7 @@ int Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> &
 	ControlPtrList::const_reverse_iterator ctrl_iter = m_Childs.rbegin();
 	for (; ctrl_iter != m_Childs.rend(); ctrl_iter++)
 	{
-		deep = (*ctrl_iter)->GetChildAtFrustum(ftm, childs);
+		deep = Max(deep, (*ctrl_iter)->GetChildAtFrustum(ftm, childs));
 		if (deep > 1)
 		{
 			return deep + 1;
