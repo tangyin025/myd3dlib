@@ -3004,7 +3004,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 bool ScrollBar::CanHaveFocus(void) const
 {
-	return m_bVisible && m_bEnabled;
+	return false;
 }
 
 void ScrollBar::SimulateRepeatedScroll(void)
@@ -3911,7 +3911,7 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 
 bool ListBox::CanHaveFocus(void) const
 {
-	return m_bVisible && m_bEnabled;
+	return false;
 }
 
 void ListBox::OnLayout(void)
@@ -4038,7 +4038,7 @@ void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** ne
 		{
 			if ((*ctrl_iter)->GetVisible())
 			{
-				if (i >= start_i)
+				if (i >= start_i && (*ctrl_iter)->CanHaveFocus())
 				{
 					(*ctrl_iter)->m_Rect = Rectangle::LeftTop(m_Rect.l + j * m_ItemSize.x, y + (i - start_i) * m_ItemSize.y, m_ItemSize.x, m_ItemSize.y);
 					float dist = _GetNearestDist(rect, (*ctrl_iter)->m_Rect, dir);
