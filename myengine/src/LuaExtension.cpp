@@ -1280,7 +1280,7 @@ void LuaContext::Init(void)
 			.def("DrawString", &my::ControlSkin::DrawString)
 			.def("Clone", &my::ControlSkin::Clone)
 
-		, class_<my::Control, ScriptControl, my::NamedObject/*, boost::shared_ptr<my::Control>*/ >("Control")
+		, class_<my::Control, my::NamedObject, ScriptControl/*, boost::shared_ptr<my::Control>*/ >("Control")
 			.def(constructor<const char *>())
 			.enum_("ControlType")
 			[
@@ -1955,7 +1955,7 @@ void LuaContext::Init(void)
 		, class_<CollectionObjMap>("CollectionObjMap")
 			.def(constructor<>())
 
-		, class_<Component, ScriptComponent, my::NamedObject/*, boost::shared_ptr<Component>*/ >("Component")
+		, class_<Component, my::NamedObject, ScriptComponent/*, boost::shared_ptr<Component>*/ >("Component")
 			.def(constructor<const char *>())
 			.enum_("ComponentType")
 			[
@@ -2243,7 +2243,7 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("NodeId", &AnimationNodeSubTree::m_NodeId)
 
-		, class_<AnimationNodeBlendList, ScriptAnimationNodeBlendList, AnimationNode/*, boost::shared_ptr<AnimationNode>*/ >("AnimationNodeBlendList")
+		, class_<AnimationNodeBlendList, AnimationNode, ScriptAnimationNodeBlendList/*, boost::shared_ptr<AnimationNode>*/ >("AnimationNodeBlendList")
 			.def(constructor<unsigned int>())
 			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float))&AnimationNodeBlendList::SetTargetWeight)
@@ -2260,7 +2260,7 @@ void LuaContext::Init(void)
 		, class_<AnimationEventArg, my::EventArg>("AnimationEventArg")
 			.def_readonly("self", &AnimationEventArg::self)
 
-		, class_<Animator, luabind::bases<Component, AnimationNodeSlot>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
+		, class_<Animator, bases<Component, AnimationNodeSlot>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
 			.def(constructor<const char*>())
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)
@@ -2272,7 +2272,7 @@ void LuaContext::Init(void)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
 			.def("GetBone", &animator_get_bone)
 
-		, luabind::class_<LargeImage/*, my::ControlImage*/, boost::shared_ptr<LargeImage> >("LargeImage")
+		, class_<LargeImage/*, my::ControlImage*/, boost::shared_ptr<LargeImage> >("LargeImage")
 			.def(luabind::constructor<>())
 			.def_readwrite("TexturePath", &LargeImage::m_TexturePath)
 			.def("RequestResource", &LargeImage::RequestResource)
