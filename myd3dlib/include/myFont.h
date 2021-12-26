@@ -183,7 +183,7 @@ namespace my
 
 		void AssignTextureRect(const CSize & size, CRect & outRect);
 
-		const CharacterInfo & InsertCharacter(
+		const CharacterInfo * InsertCharacter(
 			unsigned long character,
 			float width,
 			float height,
@@ -195,13 +195,13 @@ namespace my
 			int bmpHeight,
 			int bmpPitch);
 
-		const CharacterInfo & LoadCharacter(unsigned long character);
+		const CharacterInfo * LoadCharacter(unsigned long character);
 
-		const CharacterInfo & LoadCharacterOutline(unsigned long character, float outlineWidth);
+		const CharacterInfo * LoadCharacterOutline(unsigned long character, float outlineWidth);
 
-		const CharacterInfo & GetCharacterInfo(unsigned long character);
+		const CharacterInfo * GetCharacterInfo(unsigned long character);
 
-		const CharacterInfo & GetCharacterOutlineInfo(unsigned long character, float outlineWidth);
+		const CharacterInfo * GetCharacterOutlineInfo(unsigned long character, float outlineWidth);
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 

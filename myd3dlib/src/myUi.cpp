@@ -559,24 +559,24 @@ void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCO
 	const wchar_t* p = str;
 	for (float x = pen.x, y = pen.y; *p; p++)
 	{
-		const Font::CharacterInfo& info = font->GetCharacterInfo(*p);
+		const Font::CharacterInfo* info = font->GetCharacterInfo(*p);
 
-		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
 		{
 			x = pen.x;
 			y += font->m_LineHeight;
 		}
 
 		Rectangle uv_rect(
-			(float)info.textureRect.left / font->m_textureDesc.Width,
-			(float)info.textureRect.top / font->m_textureDesc.Height,
-			(float)info.textureRect.right / font->m_textureDesc.Width,
-			(float)info.textureRect.bottom / font->m_textureDesc.Height);
+			(float)info->textureRect.left / font->m_textureDesc.Width,
+			(float)info->textureRect.top / font->m_textureDesc.Height,
+			(float)info->textureRect.right / font->m_textureDesc.Width,
+			(float)info->textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(x + info.horiBearingX, y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), uv_rect, color, font->m_Texture.get());
 
-		x += info.horiAdvance;
+		x += info->horiAdvance;
 	}
 }
 
@@ -587,47 +587,47 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 	const wchar_t* p = str;
 	for (float x = pen.x, y = pen.y; *p; p++)
 	{
-		const Font::CharacterInfo& info = font->GetCharacterOutlineInfo(*p, outlineWidth);
+		const Font::CharacterInfo* info = font->GetCharacterOutlineInfo(*p, outlineWidth);
 
-		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
 		{
 			x = pen.x;
 			y += font->m_LineHeight;
 		}
 
 		Rectangle uv_rect(
-			(float)info.textureRect.left / font->m_textureDesc.Width,
-			(float)info.textureRect.top / font->m_textureDesc.Height,
-			(float)info.textureRect.right / font->m_textureDesc.Width,
-			(float)info.textureRect.bottom / font->m_textureDesc.Height);
+			(float)info->textureRect.left / font->m_textureDesc.Width,
+			(float)info->textureRect.top / font->m_textureDesc.Height,
+			(float)info->textureRect.right / font->m_textureDesc.Width,
+			(float)info->textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(x + info.horiBearingX, y - info.horiBearingY, info.width, info.height), uv_rect, outlineColor, font->m_Texture.get());
+			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), uv_rect, outlineColor, font->m_Texture.get());
 
-		x += info.horiAdvance;
+		x += info->horiAdvance;
 	}
 
 	p = str;
 	for (float x = pen.x, y = pen.y; *p; p++)
 	{
-		const Font::CharacterInfo& info = font->GetCharacterInfo(*p);
+		const Font::CharacterInfo* info = font->GetCharacterInfo(*p);
 
-		if (align & Font::AlignMultiLine && x + info.horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
 		{
 			x = pen.x;
 			y += font->m_LineHeight;
 		}
 
 		Rectangle uv_rect(
-			(float)info.textureRect.left / font->m_textureDesc.Width,
-			(float)info.textureRect.top / font->m_textureDesc.Height,
-			(float)info.textureRect.right / font->m_textureDesc.Width,
-			(float)info.textureRect.bottom / font->m_textureDesc.Height);
+			(float)info->textureRect.left / font->m_textureDesc.Width,
+			(float)info->textureRect.top / font->m_textureDesc.Height,
+			(float)info->textureRect.right / font->m_textureDesc.Width,
+			(float)info->textureRect.bottom / font->m_textureDesc.Height);
 
 		PushRectangle(
-			Rectangle::LeftTop(x + info.horiBearingX, y - info.horiBearingY, info.width, info.height), uv_rect, color, font->m_Texture.get());
+			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), uv_rect, color, font->m_Texture.get());
 
-		x += info.horiAdvance;
+		x += info->horiAdvance;
 	}
 }
 
@@ -2012,13 +2012,13 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 						float charWidth;
 						if(m_nCaret < (int)m_Text.length())
 						{
-							const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
-							charWidth = info.horiAdvance;
+							const Font::CharacterInfo * info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
+							charWidth = info->horiAdvance;
 						}
 						else
 						{
-							const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(L'_');
-							charWidth = info.horiAdvance;
+							const Font::CharacterInfo * info = Skin->m_Font->GetCharacterInfo(L'_');
+							charWidth = info->horiAdvance;
 						}
 						CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
 					}
@@ -2305,8 +2305,8 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 					if(nCP < (int)m_Text.length())
 					{
 						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
-						const Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
-						if(x > xLeft + info.horiAdvance * 0.5f)
+						const Font::CharacterInfo * info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
+						if(x > xLeft + info->horiAdvance * 0.5f)
 						{
 							nCP += 1;
 						}
@@ -2354,8 +2354,8 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 					if(nCP < (int)m_Text.length())
 					{
 						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
-						const Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
-						if(x > xLeft + info.horiAdvance * 0.5f)
+						const Font::CharacterInfo * info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
+						if(x > xLeft + info->horiAdvance * 0.5f)
 						{
 							nCP += 1;
 						}
@@ -2405,8 +2405,8 @@ void EditBox::PlaceCaret(int nCP)
 		float x2;
 		if(m_nCaret < (int)m_Text.length())
 		{
-			const Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
-			x2 = x + info.horiAdvance;
+			const Font::CharacterInfo * info = m_Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
+			x2 = x + info->horiAdvance;
 		}
 		else
 		{
