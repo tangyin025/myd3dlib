@@ -3144,8 +3144,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Actor* actor = (Actor*)pActor->GetValue().pulVal;
 		if (PropertyId == PropertyActorScaleX)
 		{
-			pActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.x);
-			pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.x);
+			pActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)pProp->GetValue().fltVal);
+			pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)pProp->GetValue().fltVal);
 			m_wndPropList.InvalidateRect(pActor->GetSubItem(4)->GetSubItem(1)->GetRect());
 			m_wndPropList.InvalidateRect(pActor->GetSubItem(4)->GetSubItem(2)->GetRect());
 		}
