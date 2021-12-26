@@ -1896,11 +1896,6 @@ void Button::OnHotkey(void)
 	}
 }
 
-bool Button::HitTest(const Vector2 & pt) const
-{
-	return Control::HitTest(pt);
-}
-
 void EditBoxSkin::RequestResource(void)
 {
 	ControlSkin::RequestResource();
@@ -2370,11 +2365,6 @@ void EditBox::OnFocusIn(void)
 	Control::OnFocusIn();
 
 	ResetCaretBlink();
-}
-
-bool EditBox::HitTest(const Vector2 & pt) const
-{
-	return Control::HitTest(pt);
 }
 
 void EditBox::SetText(const std::wstring & Text)
@@ -3575,7 +3565,7 @@ bool ComboBox::HitTest(const Vector2 & pt) const
 		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar->m_Rect.PtInRect(pt);
 	}
 
-	return Button::HitTest(pt);
+	return Control::HitTest(pt);
 }
 
 void ComboBox::OnLayout(void)

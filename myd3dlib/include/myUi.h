@@ -721,8 +721,6 @@ namespace my
 		virtual bool CanHaveFocus(void) const;
 
 		virtual void OnHotkey(void);
-
-		virtual bool HitTest(const Vector2 & pt) const;
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
@@ -844,8 +842,6 @@ namespace my
 		virtual bool CanHaveFocus(void) const;
 
 		virtual void OnFocusIn(void);
-
-		virtual bool HitTest(const Vector2 & pt) const;
 
 		virtual void SetText(const std::wstring & Text);
 
