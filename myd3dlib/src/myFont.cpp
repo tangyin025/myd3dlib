@@ -195,12 +195,15 @@ FontLibrary::~FontLibrary(void)
 Font::Font(int font_pixel_gap)
 	: m_face(NULL)
 	, FONT_PIXEL_GAP(font_pixel_gap)
+	, m_textureResetNotify(NULL)
 {
 	FontLibrary::getSingleton().m_EventScaleChanged.connect(boost::bind(&Font::OnScaleChanged, this, boost::placeholders::_1));
 }
 
 Font::~Font(void)
 {
+	_ASSERT(NULL == m_textureResetNotify);
+
 	if(m_face)
 	{
 		FT_Done_Face(m_face);
@@ -321,6 +324,11 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 	if(!m_textureRectRoot->AssignRect(size, outRect))
 	{
 		_ASSERT(m_textureDesc.Width > 0 && m_textureDesc.Height > 0);
+
+		if (m_textureResetNotify)
+		{
+			m_textureResetNotify->OnNotify(m_Texture, m_textureDesc);
+		}
 
 		CreateFontTexture(m_textureDesc.Width * 2, m_textureDesc.Height * 2);
 

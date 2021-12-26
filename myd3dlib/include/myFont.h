@@ -148,6 +148,14 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
+		class TextureResetNotify
+		{
+		public:
+			virtual void OnNotify(const Texture2DPtr &, const D3DSURFACE_DESC &) = 0;
+		};
+
+		TextureResetNotify * m_textureResetNotify;
+
 	public:
 		Font(int font_pixel_gap = 1);
 
