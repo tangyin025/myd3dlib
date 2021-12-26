@@ -1489,22 +1489,22 @@ Control * Control::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 	return NULL;
 }
 
-bool Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> & childs)
+int Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> & childs)
 {
-	bool bIgnoreSelf = false;
+	int deep = 0;
 	ControlPtrList::const_reverse_iterator ctrl_iter = m_Childs.rbegin();
 	for (; ctrl_iter != m_Childs.rend(); ctrl_iter++)
 	{
-		bool res = (*ctrl_iter)->GetChildAtFrustum(ftm, childs);
-		if (res && !bIgnoreSelf)
+		deep = (*ctrl_iter)->GetChildAtFrustum(ftm, childs);
+		if (deep > 1)
 		{
-			bIgnoreSelf = true;
+			return deep + 1;
 		}
 	}
 
-	if (bIgnoreSelf)
+	if (deep > 0)
 	{
-		return true;
+		return deep + 1;
 	}
 
 	Dialog* dlg = dynamic_cast<Dialog*>(GetTopControl());
@@ -1519,10 +1519,10 @@ bool Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> 
 		|| IntersectionTests::IntersectionTypeOutside != IntersectionTests::IntersectTriangleAndFrustum(v[0], v[2], v[3], ftm))
 	{
 		childs.push_back(this);
-		return true;
+		return 1;
 	}
 
-	return false;
+	return 0;
 }
 
 Control * Control::GetTopControl(void)

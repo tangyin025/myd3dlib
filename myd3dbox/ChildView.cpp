@@ -1693,7 +1693,7 @@ ctrl_handle_end:
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
-				pFrame->m_selctls = ctrl_list;
+				pFrame->m_selctls.insert(pFrame->m_selctls.begin(), ctrl_list.begin(), ctrl_list.end());
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 				pFrame->OnSelChanged();
 				return;
