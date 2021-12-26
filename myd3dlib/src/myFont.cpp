@@ -693,10 +693,19 @@ void Font::DrawString(
 	{
 		const CharacterInfo * info = GetCharacterOutlineInfo(*p, OutlineWidth);
 
-		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine)
 		{
-			x = pen.x;
-			y += m_LineHeight;
+			if (x + info->horiAdvance > rect.r)
+			{
+				x = pen.x;
+				y += m_LineHeight;
+			}
+			else if (*p == L'\n')
+			{
+				x = pen.x;
+				y += m_LineHeight;
+				continue;
+			}
 		}
 
 		CComPtr<IDirect3DDevice9> Device;
@@ -720,10 +729,19 @@ void Font::DrawString(
 	{
 		const CharacterInfo * info = GetCharacterInfo(*p);
 
-		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine)
 		{
-			x = pen.x;
-			y += m_LineHeight;
+			if (x + info->horiAdvance > rect.r)
+			{
+				x = pen.x;
+				y += m_LineHeight;
+			}
+			else if (*p == L'\n')
+			{
+				x = pen.x;
+				y += m_LineHeight;
+				continue;
+			}
 		}
 
 		CComPtr<IDirect3DDevice9> Device;

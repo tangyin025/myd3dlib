@@ -561,10 +561,19 @@ void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCO
 	{
 		const Font::CharacterInfo* info = font->GetCharacterInfo(*p);
 
-		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine)
 		{
-			x = pen.x;
-			y += font->m_LineHeight;
+			if (x + info->horiAdvance > rect.r)
+			{
+				x = pen.x;
+				y += font->m_LineHeight;
+			}
+			else if (*p == L'\n')
+			{
+				x = pen.x;
+				y += font->m_LineHeight;
+				continue;
+			}
 		}
 
 		Rectangle uv_rect(
@@ -589,10 +598,19 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 	{
 		const Font::CharacterInfo* info = font->GetCharacterOutlineInfo(*p, outlineWidth);
 
-		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine)
 		{
-			x = pen.x;
-			y += font->m_LineHeight;
+			if (x + info->horiAdvance > rect.r)
+			{
+				x = pen.x;
+				y += font->m_LineHeight;
+			}
+			else if (*p == L'\n')
+			{
+				x = pen.x;
+				y += font->m_LineHeight;
+				continue;
+			}
 		}
 
 		Rectangle uv_rect(
@@ -612,10 +630,19 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 	{
 		const Font::CharacterInfo* info = font->GetCharacterInfo(*p);
 
-		if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+		if (align & Font::AlignMultiLine)
 		{
-			x = pen.x;
-			y += font->m_LineHeight;
+			if (x + info->horiAdvance > rect.r)
+			{
+				x = pen.x;
+				y += font->m_LineHeight;
+			}
+			else if (*p == L'\n')
+			{
+				x = pen.x;
+				y += font->m_LineHeight;
+				continue;
+			}
 		}
 
 		Rectangle uv_rect(

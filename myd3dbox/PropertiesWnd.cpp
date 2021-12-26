@@ -14,6 +14,7 @@
 #include <boost/scope_exit.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include "ImportHeightDlg.h"
 
 #ifdef _DEBUG
@@ -854,7 +855,7 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 		CreatePropertiesStatic(pControl, static_ctl);
 		return;
 	}
-	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(static_ctl->m_Text).c_str());
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str());
 
 	switch (static_ctl->GetControlType())
 	{
@@ -1969,7 +1970,7 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 {
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
 
-	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(static_ctl->m_Text).c_str(), NULL, PropertyStaticText);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str(), NULL, PropertyStaticText);
 	pControl->AddSubItem(pProp);
 
 	switch (static_ctl->GetControlType())
@@ -4315,7 +4316,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyStaticText:
 	{
 		my::Static* static_ctl = dynamic_cast<my::Static*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		static_ctl->m_Text = ts2ws(pProp->GetValue().bstrVal);
+		static_ctl->m_Text = boost::algorithm::replace_all_copy(ts2ws(std::basic_string<TCHAR>(pProp->GetValue().bstrVal)), L"\\n", L"\n");
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
