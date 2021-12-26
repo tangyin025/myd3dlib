@@ -30,6 +30,7 @@
 #include "myException.h"
 #include <boost/scope_exit.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/assign/list_of.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -270,7 +271,6 @@ CMainFrame::CMainFrame()
 	, m_selchunkid(0, 0)
 	, m_selinstid(0)
 	, m_selbox(-1, 1)
-	, m_selctl(NULL)
 	, m_ctlhandle(ControlHandleNone)
 	, m_ctlhandleoff(0, 0)
 	, m_ctlhandlesz(0, 0)
@@ -761,7 +761,7 @@ void CMainFrame::ClearFileContext()
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
-	m_selctl = NULL;
+	m_selctls.clear();
 	ASSERT(m_ViewedActors.empty());
 	LuaContext::Shutdown();
 	m_CollectionObjs.clear();
@@ -1061,7 +1061,7 @@ void CMainFrame::OnFileNew()
 	//m_selcmp = NULL;
 	//m_selchunkid.SetPoint(0, 0);
 	//m_selinstid = 0;
-	//m_selctl = NULL;
+	//m_selctls.clear();
 	//OnSelChanged();
 
 	////for (int i = 0; i < 300000; i++)
@@ -1165,7 +1165,7 @@ void CMainFrame::OnCreateActor()
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
-	m_selctl = NULL;
+	m_selctls.clear();
 	OnSelChanged();
 }
 
@@ -1509,11 +1509,25 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	if (m_selctl)
+	while (!m_selctls.empty())
 	{
-		if (m_selctl->GetControlType() == my::Control::ControlTypeDialog)
+		ControlList::iterator other_iter = m_selctls.begin() + 1;
+		for (; other_iter != m_selctls.end(); )
 		{
-			my::DialogPtr dlg = boost::dynamic_pointer_cast<my::Dialog>(m_selctl->shared_from_this());
+			_ASSERT(*other_iter != m_selctls.front());
+			if (m_selctls.front()->ContainsControl(*other_iter))
+			{
+				other_iter = m_selctls.erase(other_iter);
+			}
+			else
+			{
+				other_iter++;
+			}
+		}
+
+		if (m_selctls.front()->GetControlType() == my::Control::ControlTypeDialog)
+		{
+			my::DialogPtr dlg = boost::dynamic_pointer_cast<my::Dialog>(m_selctls.front()->shared_from_this());
 			ASSERT(dlg);
 
 			RemoveDlg(dlg.get());
@@ -1524,18 +1538,23 @@ void CMainFrame::OnEditDelete()
 				m_DialogList.erase(dlg_iter);
 			}
 
-			m_selctl = NULL;
+			m_selctls.erase(m_selctls.begin());
 		}
 		else
 		{
-			my::Control * ctrl = m_selctl;
+			my::Control * parent = m_selctls.front()->m_Parent;
 
-			VERIFY(m_selctl = ctrl->m_Parent);
+			parent->RemoveControl(m_selctls.front()->GetSiblingId());
 
-			m_selctl->RemoveControl(ctrl->GetSiblingId());
+			if (m_selctls.size() == 1)
+			{
+				VERIFY(m_selctls.front() = parent);
+				OnSelChanged();
+				return;
+			}
+
+			m_selctls.erase(m_selctls.begin());
 		}
-		OnSelChanged();
-		return;
 	}
 
 	ActorList::iterator actor_iter = m_selactors.begin();
@@ -1795,12 +1814,12 @@ void CMainFrame::OnCreateDialog()
 
 	my::DialogPtr dlg(new my::Dialog(my::NamedObject::MakeUniqueName("dialog").c_str()));
 	dlg->m_Skin = skin;
-	if (m_selctl && m_selctl->GetControlType() == my::Control::ControlTypeDialog)
+	if (!m_selctls.empty() && m_selctls.front()->GetControlType() == my::Control::ControlTypeDialog)
 	{
-		dlg->m_x.scale = m_selctl->m_x.scale;
-		dlg->m_x.offset = m_selctl->m_x.offset + 10;
-		dlg->m_y.scale = m_selctl->m_y.scale;
-		dlg->m_y.offset = m_selctl->m_y.offset + 10;
+		dlg->m_x.scale = m_selctls.front()->m_x.scale;
+		dlg->m_x.offset = m_selctls.front()->m_x.offset + 10;
+		dlg->m_y.scale = m_selctls.front()->m_y.scale;
+		dlg->m_y.offset = m_selctls.front()->m_y.offset + 10;
 	}
 
 	InsertDlg(dlg.get());
@@ -1810,7 +1829,7 @@ void CMainFrame::OnCreateDialog()
 	m_selcmp = NULL;
 	m_selchunkid.SetPoint(0, 0);
 	m_selinstid = 0;
-	m_selctl = dlg.get();
+	m_selctls = boost::assign::list_of(dlg.get());
 	OnSelChanged();
 }
 
@@ -1818,10 +1837,7 @@ void CMainFrame::OnCreateDialog()
 void CMainFrame::OnControlStatic()
 {
 	// TODO: Add your command handler code here
-	if (!m_selctl)
-	{
-		return;
-	}
+	_ASSERT(!m_selctls.empty());
 
 	my::ControlSkinPtr skin(new my::ControlSkin());
 	skin->m_Image.reset(new my::ControlImage());
@@ -1831,15 +1847,15 @@ void CMainFrame::OnControlStatic()
 	skin->m_TextColor = theApp.default_static_text_color;
 	skin->m_TextAlign = theApp.default_static_text_align;
 
-	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_static").c_str()).c_str()));
+	my::StaticPtr static_ctl(new my::Static(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_static").c_str()).c_str()));
 	static_ctl->m_Skin = skin;
 	std::string text(static_ctl->GetName());
 	static_ctl->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	static_ctl->m_x.offset = 10;
 	static_ctl->m_y.offset = 10;
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), static_ctl);
-	m_selctl = static_ctl.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), static_ctl);
+	m_selctls = boost::assign::list_of(static_ctl.get());
 	OnSelChanged();
 }
 
@@ -1847,17 +1863,14 @@ void CMainFrame::OnControlStatic()
 void CMainFrame::OnUpdateControlStatic(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 
 
 void CMainFrame::OnControlProgressbar()
 {
 	// TODO: Add your command handler code here
-	if (!m_selctl)
-	{
-		return;
-	}
+	_ASSERT(!m_selctls.empty());
 
 	my::ProgressBarSkinPtr skin(new my::ProgressBarSkin());
 	skin->m_Image.reset(new my::ControlImage());
@@ -1874,14 +1887,14 @@ void CMainFrame::OnControlProgressbar()
 	skin->m_ForegroundImage->m_Rect = theApp.default_progressbar_foregroundimg_rect;
 	skin->m_ForegroundImage->m_Border = theApp.default_progressbar_foregroundimg_border;
 
-	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_progressbar").c_str()).c_str()));
+	my::ProgressBarPtr pgs(new my::ProgressBar(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_progressbar").c_str()).c_str()));
 	pgs->m_Skin = skin;
 	pgs->m_BlendProgress = pgs->m_Progress = 0.6f;
 	pgs->m_x.offset = 10;
 	pgs->m_y.offset = 10;
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), pgs);
-	m_selctl = pgs.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), pgs);
+	m_selctls.front() = pgs.get();
 	OnSelChanged();
 }
 
@@ -1889,7 +1902,7 @@ void CMainFrame::OnControlProgressbar()
 void CMainFrame::OnUpdateControlProgressbar(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 
 
@@ -1920,15 +1933,15 @@ void CMainFrame::OnControlButton()
 	skin->m_MouseOverImage->m_Rect = theApp.default_button_mouseoverimg_rect;
 	skin->m_MouseOverImage->m_Border = theApp.default_button_mouseoverimg_border;
 
-	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_button").c_str()).c_str()));
+	my::ButtonPtr btn(new my::Button(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_button").c_str()).c_str()));
 	btn->m_Skin = skin;
 	std::string text(btn->GetName());
 	btn->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	btn->m_x.offset = 10;
 	btn->m_y.offset = 10;
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), btn);
-	m_selctl = btn.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), btn);
+	m_selctls.front() = btn.get();
 	OnSelChanged();
 }
 
@@ -1936,7 +1949,7 @@ void CMainFrame::OnControlButton()
 void CMainFrame::OnUpdateControlButton(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 
 
@@ -1969,13 +1982,13 @@ void CMainFrame::OnControlImeeditbox()
 	skin->m_CaretImage->m_Rect = theApp.default_editbox_caretimg_rect;
 	skin->m_CaretImage->m_Border = theApp.default_editbox_caretimg_border;
 
-	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_imeeditbox").c_str()).c_str()));
+	my::ImeEditBoxPtr edit(new my::ImeEditBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_imeeditbox").c_str()).c_str()));
 	edit->m_Skin = skin;
 	edit->m_x.offset = 10;
 	edit->m_y.offset = 10;
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), edit);
-	m_selctl = edit.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), edit);
+	m_selctls.front() = edit.get();
 	OnSelChanged();
 }
 
@@ -1983,7 +1996,7 @@ void CMainFrame::OnControlImeeditbox()
 void CMainFrame::OnUpdateControlImeeditbox(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 
 
@@ -2014,15 +2027,15 @@ void CMainFrame::OnControlCheckbox()
 	skin->m_MouseOverImage->m_Rect = theApp.default_checkbox_mouseoverimg_rect;
 	skin->m_MouseOverImage->m_Border = theApp.default_checkbox_mouseoverimg_border;
 
-	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_checkbox").c_str()).c_str()));
+	my::CheckBoxPtr checkbox(new my::CheckBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_checkbox").c_str()).c_str()));
 	checkbox->m_Skin = skin;
 	std::string text(checkbox->GetName());
 	checkbox->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	checkbox->m_x.offset = 10;
 	checkbox->m_y.offset = 10;
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), checkbox);
-	m_selctl = checkbox.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), checkbox);
+	m_selctls.front() = checkbox.get();
 	OnSelChanged();
 }
 
@@ -2030,7 +2043,7 @@ void CMainFrame::OnControlCheckbox()
 void CMainFrame::OnUpdateControlCheckbox(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 
 
@@ -2095,7 +2108,7 @@ void CMainFrame::OnControlCombobox()
 	skin->m_ScrollBarImage->m_Rect = theApp.default_combobox_scrollbar_img_rect;
 	skin->m_ScrollBarImage->m_Border = theApp.default_combobox_scrollbar_img_border;
 
-	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_combobox").c_str()).c_str()));
+	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_combobox").c_str()).c_str()));
 	combobox->m_Skin = skin;
 	std::string text(combobox->GetName());
 	combobox->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
@@ -2106,8 +2119,8 @@ void CMainFrame::OnControlCombobox()
 		combobox->AddItem(str_printf(L"item%d", i));
 	}
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), combobox);
-	m_selctl = combobox.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), combobox);
+	m_selctls.front() = combobox.get();
 	OnSelChanged();
 }
 
@@ -2115,7 +2128,7 @@ void CMainFrame::OnControlCombobox()
 void CMainFrame::OnUpdateControlCombobox(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 
 
@@ -2157,7 +2170,7 @@ void CMainFrame::OnControlListbox()
 	skin->m_ScrollBarImage->m_Rect = theApp.default_listbox_scrollbar_img_rect;
 	skin->m_ScrollBarImage->m_Border = theApp.default_listbox_scrollbar_img_border;
 
-	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName((std::string(m_selctl->GetName()) + "_listbox").c_str()).c_str()));
+	my::ListBoxPtr listBox(new my::ListBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_listbox").c_str()).c_str()));
 	listBox->m_Skin = skin;
 	listBox->m_x.offset = 10;
 	listBox->m_y.offset = 10;
@@ -2192,12 +2205,12 @@ void CMainFrame::OnControlListbox()
 		std::string text(btn->GetName());
 		btn->m_Text = str_printf(L"item%d", i);
 
-		listBox->InsertControl(m_selctl->GetChildNum(), btn);
+		listBox->InsertControl(m_selctls.front()->GetChildNum(), btn);
 	}
 	listBox->OnLayout();
 
-	m_selctl->InsertControl(m_selctl->GetChildNum(), listBox);
-	m_selctl = listBox.get();
+	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), listBox);
+	m_selctls.front() = listBox.get();
 	OnSelChanged();
 }
 
@@ -2205,6 +2218,6 @@ void CMainFrame::OnControlListbox()
 void CMainFrame::OnUpdateControlListbox(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_selctl != NULL);
+	pCmdUI->Enable(!m_selctls.empty());
 }
 

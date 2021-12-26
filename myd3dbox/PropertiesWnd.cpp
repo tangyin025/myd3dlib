@@ -259,11 +259,11 @@ void CPropertiesWnd::OnSelectionChanged(my::EventArg * arg)
 			}
 		}
 	}
-	else if (pFrame->m_selctl)
+	else if (!pFrame->m_selctls.empty())
 	{
 		if (!m_OnPropertyChangeMuted)
 		{
-			UpdatePropertiesControl(pFrame->m_selctl);
+			UpdatePropertiesControl(pFrame->m_selctls.front());
 			m_wndPropList.AdjustLayout();
 		}
 	}

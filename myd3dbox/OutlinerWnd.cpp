@@ -3,6 +3,7 @@
 #include "MainApp.h"
 #include "MainFrm.h"
 #include "ChildView.h"
+#include <boost/assign/list_of.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -160,7 +161,8 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 		my::Control* control = dynamic_cast<my::Control*>(obj);
 		if (control)
 		{
-			if (control == pFrame->m_selctl)
+			CMainFrame::ControlList::iterator ctrl_iter = std::find(pFrame->m_selctls.begin(), pFrame->m_selctls.end(), control);
+			if (ctrl_iter != pFrame->m_selctls.end())
 			{
 				pItem->state = (pItem->state | LVIS_SELECTED);
 			}
@@ -333,7 +335,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		pFrame->m_selctl = NULL;
+		pFrame->m_selctls.clear();
 		pFrame->OnSelChanged();
 		*pResult = 0;
 		return;
@@ -348,9 +350,9 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
 		if (control->GetControlType() == my::Control::ControlTypeScrollBar)
-			pFrame->m_selctl = control->m_Parent;
+			pFrame->m_selctls = boost::assign::list_of(control->m_Parent);
 		else
-			pFrame->m_selctl = control;
+			pFrame->m_selctls = boost::assign::list_of(control);
 		pFrame->OnSelChanged();
 		*pResult = 0;
 		return;
@@ -364,7 +366,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		pFrame->m_selctl = NULL;
+		pFrame->m_selctls.clear();
 		pFrame->OnSelChanged();
 		*pResult = 0;
 		return;
@@ -378,7 +380,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		pFrame->m_selcmp = cmp;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		pFrame->m_selctl = NULL;
+		pFrame->m_selctls.clear();
 		pFrame->OnSelChanged();
 		*pResult = 0;
 		return;

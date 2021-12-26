@@ -1309,9 +1309,14 @@ void CChildView::OnPaint()
 					theApp.m_UIRender->Flush();
 				}
 				pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fAbsoluteElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
-				if (pFrame->m_selctl)
+				if (!pFrame->m_selctls.empty())
 				{
-					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctl, D3DCOLOR_ARGB(255, 255, 0, 0), false);
+					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctls.front(), D3DCOLOR_ARGB(255, 0, 255, 0), true);
+					CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin() + 1;
+					for (; ctrl_iter != pFrame->m_selctls.end(); ctrl_iter++)
+					{
+						RenderSelectedControl(theApp.m_d3dDevice, *ctrl_iter, D3DCOLOR_ARGB(255, 255, 255, 255), false);
+					}
 				}
 				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
@@ -1448,98 +1453,99 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (pFrame->m_selctl)
+	if (!pFrame->m_selctls.empty())
 	{
+		CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin();
 		my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		my::Dialog * dlg = dynamic_cast<my::Dialog *>(pFrame->m_selctl->GetTopControl());
+		my::Dialog * dlg = dynamic_cast<my::Dialog *>((*ctrl_iter)->GetTopControl());
 		my::Vector2 pt;
 		if (dlg->RayToWorld(ui_ray, pt))
 		{
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t + ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.l - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.l + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftTop;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset + pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t + ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.l + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.r - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterTop;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset + pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t + ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.r - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.r + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightTop;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset - pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset + pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b - ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.l - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.l + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b - ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftMiddle;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset + pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b - ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.l + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.r - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b - ctl_handle_size).PtInRect(pt))
 			{
 				my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 				my::DialogMgr::DialogList::reverse_iterator dlg_iter = pFrame->m_DlgList.rbegin();
@@ -1551,7 +1557,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 						my::Control* ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
 						if (ControlPtd)
 						{
-							if (ControlPtd != pFrame->m_selctl)
+							if (ControlPtd != (*ctrl_iter))
 								goto ctrl_handle_end;
 							break;
 						}
@@ -1563,90 +1569,90 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterMiddle;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pt.x - pFrame->m_selctl->m_Width.offset;
-				pFrame->m_ctlhandlesz.y = pt.y - pFrame->m_selctl->m_Height.offset;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = pt.x - (*ctrl_iter)->m_Width.offset;
+				pFrame->m_ctlhandlesz.y = pt.y - (*ctrl_iter)->m_Height.offset;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.t + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b - ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.r - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.t + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.r + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b - ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightMiddle;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset - pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset + pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset + pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b + ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.l - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.l + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleLeftBottom;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset - pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.l + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b + ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.l + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.r - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleCenterBottom;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset + pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset - pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset + pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
 				Invalidate();
 				return;
 			}
 
 			if (my::Rectangle(
-				pFrame->m_selctl->m_Rect.r - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b - ctl_handle_size,
-				pFrame->m_selctl->m_Rect.r + ctl_handle_size,
-				pFrame->m_selctl->m_Rect.b + ctl_handle_size).PtInRect(pt))
+				(*ctrl_iter)->m_Rect.r - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b - ctl_handle_size,
+				(*ctrl_iter)->m_Rect.r + ctl_handle_size,
+				(*ctrl_iter)->m_Rect.b + ctl_handle_size).PtInRect(pt))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleRightBottom;
-				pFrame->m_ctlhandleoff.x = pt.x - pFrame->m_selctl->m_x.offset;
-				pFrame->m_ctlhandleoff.y = pt.y - pFrame->m_selctl->m_y.offset;
-				pFrame->m_ctlhandlesz.x = pFrame->m_selctl->m_Width.offset - pt.x;
-				pFrame->m_ctlhandlesz.y = pFrame->m_selctl->m_Height.offset - pt.y;
+				pFrame->m_ctlhandleoff.x = pt.x - (*ctrl_iter)->m_x.offset;
+				pFrame->m_ctlhandleoff.y = pt.y - (*ctrl_iter)->m_y.offset;
+				pFrame->m_ctlhandlesz.x = (*ctrl_iter)->m_Width.offset - pt.x;
+				pFrame->m_ctlhandlesz.y = (*ctrl_iter)->m_Height.offset - pt.y;
 				SetCapture();
 				Invalidate();
 				return;
@@ -1660,13 +1666,13 @@ ctrl_handle_end:
 	tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
-	if (!(nFlags & MK_SHIFT) && (!pFrame->m_selactors.empty() || pFrame->m_selctl))
+	if (!(nFlags & MK_SHIFT) && (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty()))
 	{
 		pFrame->m_selactors.clear();
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		pFrame->m_selctl = NULL;
+		pFrame->m_selctls.clear();
 	}
 
 	if (!tracker.m_rect.IsRectEmpty())
@@ -1687,7 +1693,7 @@ ctrl_handle_end:
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
-				pFrame->m_selctl = ctrl_list.front();
+				pFrame->m_selctls = ctrl_list;
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 				pFrame->OnSelChanged();
 				return;
@@ -1720,7 +1726,7 @@ ctrl_handle_end:
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		pFrame->m_selctl = NULL;
+		pFrame->m_selctls.clear();
 	}
 	else
 	{
@@ -1734,14 +1740,29 @@ ctrl_handle_end:
 				my::Control* ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
 				if (ControlPtd)
 				{
-					pFrame->m_selactors.clear();
-					pFrame->m_selcmp = NULL;
-					pFrame->m_selchunkid.SetPoint(0, 0);
-					pFrame->m_selinstid = 0;
-					pFrame->m_selctl = ControlPtd;
-					pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
-					pFrame->OnSelChanged();
-					return;
+					CMainFrame::ControlList::iterator ctrl_iter = std::find(pFrame->m_selctls.begin(), pFrame->m_selctls.end(), ControlPtd);
+					if (ctrl_iter != pFrame->m_selctls.end())
+					{
+						pFrame->m_selactors.clear();
+						pFrame->m_selcmp = NULL;
+						pFrame->m_selchunkid.SetPoint(0, 0);
+						pFrame->m_selinstid = 0;
+						pFrame->m_selctls.erase(ctrl_iter);
+						pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
+						pFrame->OnSelChanged();
+						return;
+					}
+					else
+					{
+						pFrame->m_selactors.clear();
+						pFrame->m_selcmp = NULL;
+						pFrame->m_selchunkid.SetPoint(0, 0);
+						pFrame->m_selinstid = 0;
+						pFrame->m_selctls.insert(pFrame->m_selctls.begin(), ControlPtd);
+						pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
+						pFrame->OnSelChanged();
+						return;
+					}
 				}
 			}
 		}
@@ -1791,7 +1812,7 @@ ctrl_handle_end:
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
-				pFrame->m_selctl = NULL;
+				pFrame->m_selctls.clear();
 			}
 			else
 			{
@@ -1799,7 +1820,7 @@ ctrl_handle_end:
 				pFrame->m_selcmp = cb.selcmp;
 				pFrame->m_selchunkid = cb.selchunkid;
 				pFrame->m_selinstid = cb.selinstid;
-				pFrame->m_selctl = NULL;
+				pFrame->m_selctls.clear();
 			}
 		}
 	}
@@ -1837,7 +1858,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
 	{
-		_ASSERT(pFrame->m_selctl);
+		_ASSERT(!pFrame->m_selctls.empty());
 		pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 		ReleaseCapture();
 		my::EventArg arg;
@@ -1884,7 +1905,7 @@ void CChildView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (pFrame->m_selctl)
+	if (!pFrame->m_selctls.empty())
 	{
 		OnLButtonDown(nFlags, point);
 		return;
@@ -1926,58 +1947,59 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
 	{
-		_ASSERT(pFrame->m_selctl);
+		_ASSERT(!pFrame->m_selctls.empty());
+		CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin();
 		my::Ray ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		my::Vector2 pt;
-		if (pFrame->m_selctl->RayToWorld(ray, pt))
+		if ((*ctrl_iter)->RayToWorld(ray, pt))
 		{
 			switch (pFrame->m_ctlhandle)
 			{
 			case CMainFrame::ControlHandleLeftTop:
-				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
-				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
+				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterTop:
-				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightTop:
-				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
-				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y - pt.y;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftMiddle:
-				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterMiddle:
-				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				pFrame->m_selctl->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
+				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
+				(*ctrl_iter)->m_y.offset = pt.y - pFrame->m_ctlhandleoff.y;
 				break;
 			case CMainFrame::ControlHandleRightMiddle:
-				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleLeftBottom:
-				pFrame->m_selctl->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
-				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
-				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_x.offset = pt.x - pFrame->m_ctlhandleoff.x;
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x - pt.x;
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleCenterBottom:
-				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				(*ctrl_iter)->OnLayout();
 				break;
 			case CMainFrame::ControlHandleRightBottom:
-				pFrame->m_selctl->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
-				pFrame->m_selctl->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
-				pFrame->m_selctl->OnLayout();
+				(*ctrl_iter)->m_Width.offset = pFrame->m_ctlhandlesz.x + pt.x;
+				(*ctrl_iter)->m_Height.offset = pFrame->m_ctlhandlesz.y + pt.y;
+				(*ctrl_iter)->OnLayout();
 				break;
 			}
 		}
@@ -2004,7 +2026,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			pFrame->m_selactors.swap(new_selactors);
 			pFrame->m_selcmp = NULL;
 			pFrame->m_selchunkid.SetPoint(0, 0);
-			pFrame->m_selctl = NULL;
+			pFrame->m_selctls.clear();
 		}
 		StartPerformanceCount();
 		CMainFrame::ActorList::iterator sel_iter = pFrame->m_selactors.begin();
@@ -2169,7 +2191,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		return;
 	case VK_DELETE:
-		if (!pFrame->m_selactors.empty() || pFrame->m_selctl)
+		if (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty())
 		{
 			pFrame->OnCmdMsg(ID_EDIT_DELETE, 0, NULL, NULL);
 		}
