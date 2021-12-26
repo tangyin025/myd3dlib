@@ -64,7 +64,7 @@ protected:
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor);
 	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp);
-	void RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl);
+	void RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl, D3DCOLOR color, bool subhandle);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
 	static my::Matrix4 GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & View);

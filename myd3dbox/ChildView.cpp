@@ -378,7 +378,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	}
 }
 
-void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl)
+void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl, D3DCOLOR color, bool subhandle)
 {
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -387,54 +387,56 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	ASSERT(dlg);
 
 	Vertex v[] = {
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l + (subhandle ? ctl_handle_size : 0), ctl->m_Rect.t, 0, color},
+		{ctl->m_Rect.r - (subhandle ? ctl_handle_size : 0), ctl->m_Rect.t, 0, color},
+		{ctl->m_Rect.r, ctl->m_Rect.t + (subhandle ? ctl_handle_size : 0), 0, color},
+		{ctl->m_Rect.r, ctl->m_Rect.b - (subhandle ? ctl_handle_size : 0), 0, color},
+		{ctl->m_Rect.r - (subhandle ? ctl_handle_size : 0), ctl->m_Rect.b, 0, color},
+		{ctl->m_Rect.l + (subhandle ? ctl_handle_size : 0), ctl->m_Rect.b, 0, color},
+		{ctl->m_Rect.l, ctl->m_Rect.b - (subhandle ? ctl_handle_size : 0), 0, color},
+		{ctl->m_Rect.l, ctl->m_Rect.t + (subhandle ? ctl_handle_size : 0), 0, color},
 
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
 
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.t - ctl_handle_size, 0, color},
 
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l, ctl->m_Rect.b - ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
-		{ctl->m_Rect.l, ctl->m_Rect.t + ctl_handle_size, 0, D3DCOLOR_ARGB(255, 0, 255, 0)},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.r - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l + ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b + ctl_handle_size, 0, color},
+		{ctl->m_Rect.l - ctl_handle_size, ctl->m_Rect.b - ctl_handle_size, 0, color},
 	};
+
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&dlg->m_World));
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0])));
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, subhandle ? _countof(v) / 2 : 4, v, sizeof(v[0])));
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -1309,7 +1311,7 @@ void CChildView::OnPaint()
 				pFrame->DialogMgr::Draw(theApp.m_UIRender.get(), theApp.m_fTotalTime, theApp.m_fAbsoluteElapsedTime, my::Vector2(-m_UICamera.m_View._41 * 2, m_UICamera.m_View._42 * 2));
 				if (pFrame->m_selctl)
 				{
-					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctl);
+					RenderSelectedControl(theApp.m_d3dDevice, pFrame->m_selctl, D3DCOLOR_ARGB(255, 255, 0, 0), false);
 				}
 				theApp.m_UIRender->SetWorld(my::Matrix4::identity);
 				ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
