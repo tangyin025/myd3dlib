@@ -34,7 +34,7 @@ btn_toggle_fs.Skin.MouseOverImage=ControlImage()
 btn_toggle_fs.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
 btn_toggle_fs.Skin.MouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)
 btn_toggle_fs.Skin.MouseOverImage.Border=Vector4(7,7,7,7)
-dlg:InsertControl(btn_toggle_fs)
+dlg:InsertControl(dlg.ChildNum,btn_toggle_fs)
 
 local btn_toggle_ref=Button("btn_toggle_ref")
 btn_toggle_ref.x=UDim(0,35)
@@ -44,7 +44,7 @@ btn_toggle_ref.Height=UDim(0,22)
 btn_toggle_ref.Text="Toggle REF (F3)"
 btn_toggle_ref.Skin=btn_toggle_fs.Skin:Clone()
 btn_toggle_ref:SetHotkey(114) -- VK_F3
-dlg:InsertControl(btn_toggle_ref)
+dlg:InsertControl(dlg.ChildNum,btn_toggle_ref)
 
 local btn_change_device=Button("btn_change_device")
 btn_change_device.x=UDim(0,35)
@@ -54,7 +54,7 @@ btn_change_device.Height=UDim(0,22)
 btn_change_device.Text="Change device (F2)"
 btn_change_device.Skin=btn_toggle_fs.Skin:Clone()
 btn_change_device:SetHotkey(113) -- VK_F2
-dlg:InsertControl(btn_change_device)
+dlg:InsertControl(dlg.ChildNum,btn_change_device)
 
 dlg.EventAlign=function(arg)
 	-- dlg.Location=Vector2(client.DlgViewport.x-170,0)

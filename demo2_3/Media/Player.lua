@@ -22,7 +22,7 @@ skel:Transform(Matrix4.Compose(
 -- 创建Player主体
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
 local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,1)
-player:AddComponent(controller_cmp)
+player:InsertComponent(player.ComponentNum,controller_cmp)
 
 -- 模型材质
 local lambert1=Material()
@@ -37,7 +37,7 @@ local cmp=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp.MeshPath="character/casual19_m_highpoly.mesh.xml"
 cmp.MeshSubMeshName=""
 cmp.Material=lambert1
-player:AddComponent(cmp)
+player:InsertComponent(player.ComponentNum,cmp)
 
 -- 构建动画树
 local rate_walk=AnimationNodeRate()
@@ -63,7 +63,7 @@ client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
 	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
 	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
 end, 0)
-player:AddComponent(animator_cmp)
+player:InsertComponent(player.ComponentNum,animator_cmp)
 
 -- 角色行为
 class 'PlayerBehavior'(Component)
@@ -168,4 +168,4 @@ function PlayerBehavior:OnGUI(ui_render,elapsedTime,viewport)
 	-- print("BehaviorComponent:OnGUI",viewport.x,viewport.y)
 end
 local player_behavior=PlayerBehavior(NamedObject.MakeUniqueName('player_behavior'))
-player:AddComponentAdopt(player_behavior)
+player:InsertComponentAdopt(player.ComponentNum,player_behavior)

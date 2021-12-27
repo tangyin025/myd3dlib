@@ -23,7 +23,7 @@ lbl_title.Skin.Image=ControlImage()
 lbl_title.Skin.Image.TexturePath="texture/CommonUI.png"
 lbl_title.Skin.Image.Rect=Rectangle.LeftTop(0,0,256,42)
 lbl_title.Skin.Image.Border=Vector4(0,0,0,0)
-dlg:InsertControl(lbl_title)
+dlg:InsertControl(dlg.ChildNum,lbl_title)
 
 local btn_ok=Button("btn_ok")
 btn_ok.x=UDim(0,230)
@@ -54,7 +54,7 @@ btn_ok.Skin.MouseOverImage=ControlImage()
 btn_ok.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
 btn_ok.Skin.MouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)
 btn_ok.Skin.MouseOverImage.Border=Vector4(7,7,7,7)
-dlg:InsertControl(btn_ok)
+dlg:InsertControl(dlg.ChildNum,btn_ok)
 
 local btn_cancel=Button("btn_cancel")
 btn_cancel.x=UDim(0,315)
@@ -63,7 +63,7 @@ btn_cancel.Width=UDim(0,80)
 btn_cancel.Height=UDim(0,32)
 btn_cancel.Text="Cancel"
 btn_cancel.Skin=btn_ok.Skin:Clone()
-dlg:InsertControl(btn_cancel)
+dlg:InsertControl(dlg.ChildNum,btn_cancel)
 
 local item_y=390
 local item_height=30
@@ -79,7 +79,7 @@ lbl_vertical_sync.Skin.FontHeight=13
 lbl_vertical_sync.Skin.FontFaceIndex=0
 lbl_vertical_sync.Skin.TextColor=ARGB(255,255,255,255)
 lbl_vertical_sync.Skin.TextAlign=Font.AlignRightMiddle
-dlg:InsertControl(lbl_vertical_sync)
+dlg:InsertControl(dlg.ChildNum,lbl_vertical_sync)
 
 local cbx_vertical_sync=ComboBox("cbx_vertical_sync")
 cbx_vertical_sync.x=UDim(0,201)
@@ -147,7 +147,7 @@ cbx_vertical_sync.Skin.ScrollBarImage=ControlImage()
 cbx_vertical_sync.Skin.ScrollBarImage.TexturePath="texture/CommonUI.png"
 cbx_vertical_sync.Skin.ScrollBarImage.Rect=Rectangle.LeftTop(1,43,16,16)
 cbx_vertical_sync.Skin.ScrollBarImage.Border=Vector4(7,7,7,7)
-dlg:InsertControl(cbx_vertical_sync)
+dlg:InsertControl(dlg.ChildNum,cbx_vertical_sync)
 
 item_y=item_y-item_height
 local lbl_vertex_processing=Static(NamedObject.MakeUniqueName("static"))
@@ -157,7 +157,7 @@ lbl_vertex_processing.Width=UDim(0,190)
 lbl_vertex_processing.Height=UDim(0,22)
 lbl_vertex_processing.Text="Vertex Processing"
 lbl_vertex_processing.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_vertex_processing)
+dlg:InsertControl(dlg.ChildNum,lbl_vertex_processing)
 
 local cbx_vertex_processing=ComboBox("cbx_vertex_processing")
 cbx_vertex_processing.x=UDim(0,201)
@@ -169,7 +169,7 @@ cbx_vertex_processing.DropdownSize=Vector2(304-20,130)
 cbx_vertex_processing.Border=Vector4(20,0,20,0)
 cbx_vertex_processing.ItemHeight=22
 cbx_vertex_processing.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_vertex_processing)
+dlg:InsertControl(dlg.ChildNum,cbx_vertex_processing)
 
 item_y=item_y-item_height
 local lbl_multisample_quality=Static(NamedObject.MakeUniqueName("static"))
@@ -179,7 +179,7 @@ lbl_multisample_quality.Width=UDim(0,190)
 lbl_multisample_quality.Height=UDim(0,22)
 lbl_multisample_quality.Text="Multisample Quality"
 lbl_multisample_quality.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_multisample_quality)
+dlg:InsertControl(dlg.ChildNum,lbl_multisample_quality)
 
 local cbx_multisample_quality=ComboBox("cbx_multisample_quality")
 cbx_multisample_quality.x=UDim(0,201)
@@ -191,7 +191,7 @@ cbx_multisample_quality.DropdownSize=Vector2(304-20,130)
 cbx_multisample_quality.Border=Vector4(20,0,20,0)
 cbx_multisample_quality.ItemHeight=22
 cbx_multisample_quality.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_multisample_quality)
+dlg:InsertControl(dlg.ChildNum,cbx_multisample_quality)
 
 item_y=item_y-item_height
 local lbl_multisample_type=Static(NamedObject.MakeUniqueName("static"))
@@ -201,7 +201,7 @@ lbl_multisample_type.Width=UDim(0,190)
 lbl_multisample_type.Height=UDim(0,22)
 lbl_multisample_type.Text="Multisample Type"
 lbl_multisample_type.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_multisample_type)
+dlg:InsertControl(dlg.ChildNum,lbl_multisample_type)
 
 local cbx_multisample_type=ComboBox("cbx_multisample_type")
 cbx_multisample_type.x=UDim(0,201)
@@ -213,7 +213,7 @@ cbx_multisample_type.DropdownSize=Vector2(304-20,130)
 cbx_multisample_type.Border=Vector4(20,0,20,0)
 cbx_multisample_type.ItemHeight=22
 cbx_multisample_type.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_multisample_type)
+dlg:InsertControl(dlg.ChildNum,cbx_multisample_type)
 
 item_y=item_y-item_height
 local lbl_depth_stencil_format=Static(NamedObject.MakeUniqueName("static"))
@@ -223,7 +223,7 @@ lbl_depth_stencil_format.Width=UDim(0,190)
 lbl_depth_stencil_format.Height=UDim(0,22)
 lbl_depth_stencil_format.Text="Depth/Stencil Format"
 lbl_depth_stencil_format.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_depth_stencil_format)
+dlg:InsertControl(dlg.ChildNum,lbl_depth_stencil_format)
 
 local cbx_depth_stencil_format=ComboBox("cbx_depth_stencil_format")
 cbx_depth_stencil_format.x=UDim(0,201)
@@ -235,7 +235,7 @@ cbx_depth_stencil_format.DropdownSize=Vector2(304-20,130)
 cbx_depth_stencil_format.Border=Vector4(20,0,20,0)
 cbx_depth_stencil_format.ItemHeight=22
 cbx_depth_stencil_format.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_depth_stencil_format)
+dlg:InsertControl(dlg.ChildNum,cbx_depth_stencil_format)
 
 item_y=item_y-item_height
 local lbl_back_buffer_format=Static(NamedObject.MakeUniqueName("static"))
@@ -245,7 +245,7 @@ lbl_back_buffer_format.Width=UDim(0,190)
 lbl_back_buffer_format.Height=UDim(0,22)
 lbl_back_buffer_format.Text="Back Buffer Format"
 lbl_back_buffer_format.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_back_buffer_format)
+dlg:InsertControl(dlg.ChildNum,lbl_back_buffer_format)
 
 local cbx_back_buffer_format=ComboBox("cbx_back_buffer_format")
 cbx_back_buffer_format.x=UDim(0,201)
@@ -257,7 +257,7 @@ cbx_back_buffer_format.DropdownSize=Vector2(304-20,130)
 cbx_back_buffer_format.Border=Vector4(20,0,20,0)
 cbx_back_buffer_format.ItemHeight=22
 cbx_back_buffer_format.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_back_buffer_format)
+dlg:InsertControl(dlg.ChildNum,cbx_back_buffer_format)
 
 item_y=item_y-item_height
 local lbl_refresh_rate=Static(NamedObject.MakeUniqueName("static"))
@@ -267,7 +267,7 @@ lbl_refresh_rate.Width=UDim(0,190)
 lbl_refresh_rate.Height=UDim(0,22)
 lbl_refresh_rate.Text="Refresh Rate"
 lbl_refresh_rate.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_refresh_rate)
+dlg:InsertControl(dlg.ChildNum,lbl_refresh_rate)
 
 local cbx_refresh_rate=ComboBox("cbx_refresh_rate")
 cbx_refresh_rate.x=UDim(0,201)
@@ -279,7 +279,7 @@ cbx_refresh_rate.DropdownSize=Vector2(304-20,130)
 cbx_refresh_rate.Border=Vector4(20,0,20,0)
 cbx_refresh_rate.ItemHeight=22
 cbx_refresh_rate.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_refresh_rate)
+dlg:InsertControl(dlg.ChildNum,cbx_refresh_rate)
 
 item_y=item_y-item_height
 local lbl_resolution=Static(NamedObject.MakeUniqueName("static"))
@@ -289,7 +289,7 @@ lbl_resolution.Width=UDim(0,190)
 lbl_resolution.Height=UDim(0,22)
 lbl_resolution.Text="Resolution"
 lbl_resolution.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_resolution)
+dlg:InsertControl(dlg.ChildNum,lbl_resolution)
 
 local cbx_resolution=ComboBox("cbx_resolution")
 cbx_resolution.x=UDim(0,201)
@@ -301,7 +301,7 @@ cbx_resolution.DropdownSize=Vector2(304-20,130)
 cbx_resolution.Border=Vector4(20,0,20,0)
 cbx_resolution.ItemHeight=22
 cbx_resolution.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_resolution)
+dlg:InsertControl(dlg.ChildNum,cbx_resolution)
 
 item_y=item_y-item_height
 local lbl_adapter_format=Static(NamedObject.MakeUniqueName("static"))
@@ -311,7 +311,7 @@ lbl_adapter_format.Width=UDim(0,190)
 lbl_adapter_format.Height=UDim(0,22)
 lbl_adapter_format.Text="Adapter Format"
 lbl_adapter_format.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_adapter_format)
+dlg:InsertControl(dlg.ChildNum,lbl_adapter_format)
 
 local cbx_adapter_format=ComboBox("cbx_adapter_format")
 cbx_adapter_format.x=UDim(0,201)
@@ -323,7 +323,7 @@ cbx_adapter_format.DropdownSize=Vector2(304-20,130)
 cbx_adapter_format.Border=Vector4(20,0,20,0)
 cbx_adapter_format.ItemHeight=22
 cbx_adapter_format.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_adapter_format)
+dlg:InsertControl(dlg.ChildNum,cbx_adapter_format)
 
 item_y=item_y-item_height
 local chx_windowed=CheckBox("chx_windowed")
@@ -355,7 +355,7 @@ chx_windowed.Skin.MouseOverImage=ControlImage()
 chx_windowed.Skin.MouseOverImage.TexturePath="texture/CommonUI.png"
 chx_windowed.Skin.MouseOverImage.Rect=Rectangle.LeftTop(113,43,21,21)
 chx_windowed.Skin.MouseOverImage.Border=Vector4(21,21,0,0)
-dlg:InsertControl(chx_windowed)
+dlg:InsertControl(dlg.ChildNum,chx_windowed)
 
 local chx_full_screen=CheckBox("chx_full_screen")
 chx_full_screen.x=UDim(0,360)
@@ -364,7 +364,7 @@ chx_full_screen.Width=UDim(0,120)
 chx_full_screen.Height=UDim(0,22)
 chx_full_screen.Text="        Full Screen"
 chx_full_screen.Skin=chx_windowed.Skin:Clone()
-dlg:InsertControl(chx_full_screen)
+dlg:InsertControl(dlg.ChildNum,chx_full_screen)
 
 item_y=item_y-item_height
 local lbl_render_device=Static(NamedObject.MakeUniqueName("static"))
@@ -374,7 +374,7 @@ lbl_render_device.Width=UDim(0,190)
 lbl_render_device.Height=UDim(0,22)
 lbl_render_device.Text="Render Device"
 lbl_render_device.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_render_device)
+dlg:InsertControl(dlg.ChildNum,lbl_render_device)
 
 local cbx_render_device=ComboBox("cbx_render_device")
 cbx_render_device.x=UDim(0,201)
@@ -386,7 +386,7 @@ cbx_render_device.DropdownSize=Vector2(304-20,130)
 cbx_render_device.Border=Vector4(20,0,20,0)
 cbx_render_device.ItemHeight=22
 cbx_render_device.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_render_device)
+dlg:InsertControl(dlg.ChildNum,cbx_render_device)
 
 item_y=item_y-item_height
 local lbl_display_adapter=Static(NamedObject.MakeUniqueName("static"))
@@ -396,7 +396,7 @@ lbl_display_adapter.Width=UDim(0,190)
 lbl_display_adapter.Height=UDim(0,22)
 lbl_display_adapter.Text="Display Adapter"
 lbl_display_adapter.Skin=lbl_vertical_sync.Skin:Clone()
-dlg:InsertControl(lbl_display_adapter)
+dlg:InsertControl(dlg.ChildNum,lbl_display_adapter)
 
 local cbx_display_adapter=ComboBox("cbx_display_adapter")
 cbx_display_adapter.x=UDim(0,201)
@@ -408,7 +408,7 @@ cbx_display_adapter.DropdownSize=Vector2(304-20,130)
 cbx_display_adapter.Border=Vector4(20,0,20,0)
 cbx_display_adapter.ItemHeight=22
 cbx_display_adapter.Skin=cbx_vertical_sync.Skin:Clone()
-dlg:InsertControl(cbx_display_adapter)
+dlg:InsertControl(dlg.ChildNum,cbx_display_adapter)
 
 dlg.EventAlign=function(arg)
 	-- dlg.Location=(client.DlgViewport-dlg.Size)*0.5

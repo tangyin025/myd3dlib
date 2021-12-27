@@ -3550,18 +3550,10 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		if(GetFocused() && m_bPressed)
-		{
-			if(m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
-			{
-				return true;
-			}
-		}
-
 		switch(uMsg)
 		{
 		case WM_MOUSEMOVE:
-			if(GetFocused() && m_bPressed)
+			if(m_bPressed)
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
@@ -3594,7 +3586,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				return true;
 			}
 
-			if(GetFocused() && m_bPressed)
+			if(m_bPressed)
 			{
 				if(m_DropdownRect.PtInRect(pt))
 				{
@@ -3649,7 +3641,7 @@ void ComboBox::OnFocusOut(void)
 
 bool ComboBox::HitTest(const Vector2 & pt) const
 {
-	if (GetFocused() && m_bPressed)
+	if (m_bPressed)
 	{
 		return m_Rect.PtInRect(pt) || m_DropdownRect.PtInRect(pt) || m_ScrollBar->m_Rect.PtInRect(pt);
 	}
@@ -3670,6 +3662,20 @@ void ComboBox::OnLayout(void)
 	m_ScrollBar->m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
 
 	m_ScrollBar->m_Parent = this;
+}
+
+Control * ComboBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
+{
+	if (m_bPressed)
+	{
+		Control* ctrl = m_ScrollBar->GetChildAtPoint(pt, bIgnoreVisible);
+		if (ctrl)
+		{
+			return ctrl;
+		}
+	}
+
+	return Control::GetChildAtPoint(pt, bIgnoreVisible);
 }
 
 void ComboBox::SetDropdownSize(const Vector2 & DropdownSize)
