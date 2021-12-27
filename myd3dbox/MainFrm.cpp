@@ -2210,7 +2210,7 @@ void CMainFrame::OnControlListbox()
 		std::string text(btn->GetName());
 		btn->m_Text = str_printf(L"item%d", i);
 
-		listBox->InsertControl(m_selctls.front()->GetChildNum(), btn);
+		listBox->InsertControl(listBox->GetChildNum(), btn);
 	}
 	listBox->OnLayout();
 

@@ -3305,7 +3305,7 @@ void ComboBox::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border);
 	ar >> BOOST_SERIALIZATION_NVP(m_ItemHeight);
-	OnLayout();
+	m_ScrollBar->m_Parent = this;
 }
 
 void ComboBox::RequestResource(void)
@@ -3786,6 +3786,7 @@ void ListBox::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_ItemSize);
+	ar << BOOST_SERIALIZATION_NVP(m_ItemColumn);
 }
 
 template<class Archive>
@@ -3796,7 +3797,8 @@ void ListBox::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
 	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
 	ar >> BOOST_SERIALIZATION_NVP(m_ItemSize);
-	OnLayout();
+	ar >> BOOST_SERIALIZATION_NVP(m_ItemColumn);
+	m_ScrollBar->m_Parent = this;
 }
 
 void ListBox::RequestResource(void)
@@ -4096,23 +4098,6 @@ Dialog::~Dialog(void)
 	{
 		_ASSERT(false); m_Manager->RemoveDlg(this);
 	}
-}
-
-
-template<class Archive>
-void Dialog::save(Archive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
-	ar << BOOST_SERIALIZATION_NVP(m_World);
-	ar << BOOST_SERIALIZATION_NVP(m_EnableDrag);
-}
-
-template<class Archive>
-void Dialog::load(Archive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
-	ar >> BOOST_SERIALIZATION_NVP(m_World);
-	ar >> BOOST_SERIALIZATION_NVP(m_EnableDrag);
 }
 
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)

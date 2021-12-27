@@ -1472,15 +1472,11 @@ namespace my
 		friend class boost::serialization::access;
 
 		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const;
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version);
-
-		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			boost::serialization::split_member(ar, *this, version);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+			ar & BOOST_SERIALIZATION_NVP(m_World);
+			ar & BOOST_SERIALIZATION_NVP(m_EnableDrag);
 		}
 
 		virtual DWORD GetControlType(void) const
