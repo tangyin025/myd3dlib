@@ -1422,12 +1422,6 @@ void LuaContext::Init(void)
 
 		, class_<my::ListBoxSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ListBoxSkin")
 			.def(constructor<>())
-			.def_readwrite("ScrollBarUpBtnNormalImage", &my::ListBoxSkin::m_ScrollBarUpBtnNormalImage)
-			.def_readwrite("ScrollBarUpBtnDisabledImage", &my::ListBoxSkin::m_ScrollBarUpBtnDisabledImage)
-			.def_readwrite("ScrollBarDownBtnNormalImage", &my::ListBoxSkin::m_ScrollBarDownBtnNormalImage)
-			.def_readwrite("ScrollBarDownBtnDisabledImage", &my::ListBoxSkin::m_ScrollBarDownBtnDisabledImage)
-			.def_readwrite("ScrollBarThumbBtnNormalImage", &my::ListBoxSkin::m_ScrollBarThumbBtnNormalImage)
-			.def_readwrite("ScrollBarImage", &my::ListBoxSkin::m_ScrollBarImage)
 
 		, class_<my::ListBox, my::Control, boost::shared_ptr<my::Control> >("ListBox")
 			.def(constructor<const char *>())

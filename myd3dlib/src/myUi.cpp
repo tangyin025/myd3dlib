@@ -3760,59 +3760,11 @@ UINT ComboBox::GetNumItems(void)
 void ListBoxSkin::RequestResource(void)
 {
 	ControlSkin::RequestResource();
-	if (m_ScrollBarUpBtnNormalImage)
-	{
-		m_ScrollBarUpBtnNormalImage->RequestResource();
-	}
-	if (m_ScrollBarUpBtnDisabledImage)
-	{
-		m_ScrollBarUpBtnDisabledImage->RequestResource();
-	}
-	if (m_ScrollBarDownBtnNormalImage)
-	{
-		m_ScrollBarDownBtnNormalImage->RequestResource();
-	}
-	if (m_ScrollBarDownBtnDisabledImage)
-	{
-		m_ScrollBarDownBtnDisabledImage->RequestResource();
-	}
-	if (m_ScrollBarThumbBtnNormalImage)
-	{
-		m_ScrollBarThumbBtnNormalImage->RequestResource();
-	}
-	if (m_ScrollBarImage)
-	{
-		m_ScrollBarImage->RequestResource();
-	}
 }
 
 void ListBoxSkin::ReleaseResource(void)
 {
 	ControlSkin::ReleaseResource();
-	if (m_ScrollBarUpBtnNormalImage)
-	{
-		m_ScrollBarUpBtnNormalImage->ReleaseResource();
-	}
-	if (m_ScrollBarUpBtnDisabledImage)
-	{
-		m_ScrollBarUpBtnDisabledImage->ReleaseResource();
-	}
-	if (m_ScrollBarDownBtnNormalImage)
-	{
-		m_ScrollBarDownBtnNormalImage->ReleaseResource();
-	}
-	if (m_ScrollBarDownBtnDisabledImage)
-	{
-		m_ScrollBarDownBtnDisabledImage->ReleaseResource();
-	}
-	if (m_ScrollBarThumbBtnNormalImage)
-	{
-		m_ScrollBarThumbBtnNormalImage->ReleaseResource();
-	}
-	if (m_ScrollBarImage)
-	{
-		m_ScrollBarImage->ReleaseResource();
-	}
 }
 
 ListBox::ListBox(const char* Name)
@@ -3847,6 +3799,20 @@ void ListBox::load(Archive & ar, const unsigned int version)
 	OnLayout();
 }
 
+void ListBox::RequestResource(void)
+{
+	Control::RequestResource();
+
+	m_ScrollBar->RequestResource();
+}
+
+void ListBox::ReleaseResource(void)
+{
+	m_ScrollBar->ReleaseResource();
+
+	Control::ReleaseResource();
+}
+
 void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if (m_bVisible)
@@ -3858,36 +3824,7 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			ListBoxSkinPtr Skin = boost::dynamic_pointer_cast<ListBoxSkin>(m_Skin);
 			_ASSERT(Skin);
 
-			m_ScrollBar->SimulateRepeatedScroll();
-
-			m_ScrollBar->m_Rect = Rectangle::RightTop(m_Rect.l + m_Rect.Width(), m_Rect.t, m_ScrollbarWidth, m_Rect.Height());
-
-			Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar->m_Rect, m_Skin->m_Color);
-
-			Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar->m_Rect.l, m_ScrollBar->m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
-
-			Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar->m_Rect.r, m_ScrollBar->m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
-
-			if (m_ScrollBar->m_bEnabled && m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart > m_ScrollBar->m_nPageSize)
-			{
-				Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
-
-				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
-
-				float fTrackHeight = m_ScrollBar->m_Rect.Height() - m_ScrollbarUpDownBtnHeight * 2;
-				float fThumbHeight = fTrackHeight * m_ScrollBar->m_nPageSize / (m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart);
-				int nMaxPosition = m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart - m_ScrollBar->m_nPageSize;
-				float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar->m_nPosition - m_ScrollBar->m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-				Rectangle ThumbButtonRect(m_ScrollBar->m_Rect.l, fThumbTop, m_ScrollBar->m_Rect.r, fThumbTop + fThumbHeight);
-
-				Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
-			}
-			else
-			{
-				Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
-
-				Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
-			}
+			m_ScrollBar->Draw(ui_render, fElapsedTime, Vector2(m_Rect.l + m_Rect.Width() - m_ScrollbarWidth, m_Rect.t), Vector2(m_ScrollbarWidth, m_Rect.Height()));
 
 			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 			int i = 0, j = 0;
