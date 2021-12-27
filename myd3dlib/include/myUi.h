@@ -1123,18 +1123,6 @@ namespace my
 
 		ControlImagePtr m_DropdownItemMouseOverImage;
 
-		ControlImagePtr m_ScrollBarUpBtnNormalImage;
-
-		ControlImagePtr m_ScrollBarUpBtnDisabledImage;
-
-		ControlImagePtr m_ScrollBarDownBtnNormalImage;
-
-		ControlImagePtr m_ScrollBarDownBtnDisabledImage;
-
-		ControlImagePtr m_ScrollBarThumbBtnNormalImage;
-
-		ControlImagePtr m_ScrollBarImage;
-
 	public:
 		ComboBoxSkin(void)
 			: m_DropdownItemTextColor(D3DCOLOR_ARGB(255,255,255,255))
@@ -1150,12 +1138,6 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemTextColor);
 			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemTextAlign);
 			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemMouseOverImage);
-			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnNormalImage);
-			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnDisabledImage);
-			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnNormalImage);
-			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnDisabledImage);
-			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarThumbBtnNormalImage);
-			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarImage);
 		}
 
 		virtual void RequestResource(void);

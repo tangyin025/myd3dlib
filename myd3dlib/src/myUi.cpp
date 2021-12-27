@@ -3253,30 +3253,6 @@ void ComboBoxSkin::RequestResource(void)
 	{
 		m_DropdownItemMouseOverImage->RequestResource();
 	}
-	if (m_ScrollBarUpBtnNormalImage)
-	{
-		m_ScrollBarUpBtnNormalImage->RequestResource();
-	}
-	if (m_ScrollBarUpBtnDisabledImage)
-	{
-		m_ScrollBarUpBtnDisabledImage->RequestResource();
-	}
-	if (m_ScrollBarDownBtnNormalImage)
-	{
-		m_ScrollBarDownBtnNormalImage->RequestResource();
-	}
-	if (m_ScrollBarDownBtnDisabledImage)
-	{
-		m_ScrollBarDownBtnDisabledImage->RequestResource();
-	}
-	if (m_ScrollBarThumbBtnNormalImage)
-	{
-		m_ScrollBarThumbBtnNormalImage->RequestResource();
-	}
-	if (m_ScrollBarImage)
-	{
-		m_ScrollBarImage->RequestResource();
-	}
 }
 
 void ComboBoxSkin::ReleaseResource(void)
@@ -3289,30 +3265,6 @@ void ComboBoxSkin::ReleaseResource(void)
 	if (m_DropdownItemMouseOverImage)
 	{
 		m_DropdownItemMouseOverImage->ReleaseResource();
-	}
-	if (m_ScrollBarUpBtnNormalImage)
-	{
-		m_ScrollBarUpBtnNormalImage->ReleaseResource();
-	}
-	if (m_ScrollBarUpBtnDisabledImage)
-	{
-		m_ScrollBarUpBtnDisabledImage->ReleaseResource();
-	}
-	if (m_ScrollBarDownBtnNormalImage)
-	{
-		m_ScrollBarDownBtnNormalImage->ReleaseResource();
-	}
-	if (m_ScrollBarDownBtnDisabledImage)
-	{
-		m_ScrollBarDownBtnDisabledImage->ReleaseResource();
-	}
-	if (m_ScrollBarThumbBtnNormalImage)
-	{
-		m_ScrollBarThumbBtnNormalImage->ReleaseResource();
-	}
-	if (m_ScrollBarImage)
-	{
-		m_ScrollBarImage->ReleaseResource();
 	}
 }
 
