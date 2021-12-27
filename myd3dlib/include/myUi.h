@@ -1244,6 +1244,10 @@ namespace my
 			boost::serialization::split_member(ar, *this, version);
 		}
 
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
 		virtual DWORD GetControlType(void) const
 		{
 			return ControlTypeComboBox;

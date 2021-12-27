@@ -3356,6 +3356,20 @@ void ComboBox::load(Archive & ar, const unsigned int version)
 	OnLayout();
 }
 
+void ComboBox::RequestResource(void)
+{
+	Control::RequestResource();
+
+	m_ScrollBar->RequestResource();
+}
+
+void ComboBox::ReleaseResource(void)
+{
+	m_ScrollBar->ReleaseResource();
+
+	Control::ReleaseResource();
+}
+
 void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)
 {
 	if(m_bVisible)
@@ -3387,37 +3401,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 					Skin->DrawImage(ui_render, Skin->m_DropdownImage, m_DropdownRect, m_Skin->m_Color);
 
-					// ! ScrollBar source copy
-					m_ScrollBar->SimulateRepeatedScroll();
-
-					m_ScrollBar->m_Rect = Rectangle::LeftTop(m_DropdownRect.r, m_DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y);
-
-					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, m_ScrollBar->m_Rect, m_Skin->m_Color);
-
-					Rectangle UpButtonRect = Rectangle::LeftTop(m_ScrollBar->m_Rect.l, m_ScrollBar->m_Rect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
-
-					Rectangle DownButtonRect = Rectangle::RightBottom(m_ScrollBar->m_Rect.r, m_ScrollBar->m_Rect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight);
-
-					if(m_ScrollBar->m_bEnabled && m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart > m_ScrollBar->m_nPageSize)
-					{
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Skin->m_Color);
-
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Skin->m_Color);
-
-						float fTrackHeight = m_DropdownSize.y - m_ScrollbarUpDownBtnHeight * 2;
-						float fThumbHeight = fTrackHeight * m_ScrollBar->m_nPageSize / (m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart);
-						int nMaxPosition = m_ScrollBar->m_nEnd - m_ScrollBar->m_nStart - m_ScrollBar->m_nPageSize;
-						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar->m_nPosition - m_ScrollBar->m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
-						Rectangle ThumbButtonRect(m_ScrollBar->m_Rect.l, fThumbTop, m_ScrollBar->m_Rect.r, fThumbTop + fThumbHeight);
-
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Skin->m_Color);
-					}
-					else
-					{
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Skin->m_Color);
-
-						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Skin->m_Color);
-					}
+					m_ScrollBar->Draw(ui_render, fElapsedTime, Vector2(m_DropdownRect.r, m_DropdownRect.t), Vector2(m_ScrollbarWidth, m_DropdownSize.y));
 
 					int i = m_ScrollBar->m_nPosition;
 					float y = m_DropdownRect.t + m_Border.y;
@@ -3658,7 +3642,7 @@ bool ComboBox::HitTest(const Vector2 & pt) const
 
 void ComboBox::OnLayout(void)
 {
-	m_ScrollBar->m_x = UDim(0, m_DropdownSize.x);
+	m_ScrollBar->m_x = UDim(0, 0);
 
 	m_ScrollBar->m_y = UDim(0, 0);
 

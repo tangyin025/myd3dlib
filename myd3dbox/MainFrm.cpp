@@ -2107,8 +2107,35 @@ void CMainFrame::OnControlCombobox()
 	skin->m_ScrollBarImage->m_Rect = theApp.default_combobox_scrollbar_img_rect;
 	skin->m_ScrollBarImage->m_Border = theApp.default_combobox_scrollbar_img_border;
 
+	my::ScrollBarSkinPtr scroll_skin(new my::ScrollBarSkin());
+	scroll_skin->m_Image.reset(new my::ControlImage());
+	scroll_skin->m_Image->m_TexturePath = theApp.default_combobox_scrollbar_img;
+	scroll_skin->m_Image->m_Rect = theApp.default_combobox_scrollbar_img_rect;
+	scroll_skin->m_Image->m_Border = theApp.default_combobox_scrollbar_img_border;
+	scroll_skin->m_UpBtnNormalImage.reset(new my::ControlImage());
+	scroll_skin->m_UpBtnNormalImage->m_TexturePath = theApp.default_combobox_scrollbarupbtn_normalimg;
+	scroll_skin->m_UpBtnNormalImage->m_Rect = theApp.default_combobox_scrollbarupbtn_normalimg_rect;
+	scroll_skin->m_UpBtnNormalImage->m_Border = theApp.default_combobox_scrollbarupbtn_normalimg_border;
+	scroll_skin->m_UpBtnDisabledImage.reset(new my::ControlImage());
+	scroll_skin->m_UpBtnDisabledImage->m_TexturePath = theApp.default_combobox_scrollbarupbtn_disabledimg;
+	scroll_skin->m_UpBtnDisabledImage->m_Rect = theApp.default_combobox_scrollbarupbtn_disabledimg_rect;
+	scroll_skin->m_UpBtnDisabledImage->m_Border = theApp.default_combobox_scrollbarupbtn_disabledimg_border;
+	scroll_skin->m_DownBtnNormalImage.reset(new my::ControlImage());
+	scroll_skin->m_DownBtnNormalImage->m_TexturePath = theApp.default_combobox_scrollbardownbtn_normalimg;
+	scroll_skin->m_DownBtnNormalImage->m_Rect = theApp.default_combobox_scrollbardownbtn_normalimg_rect;
+	scroll_skin->m_DownBtnNormalImage->m_Border = theApp.default_combobox_scrollbardownbtn_normalimg_border;
+	scroll_skin->m_DownBtnDisabledImage.reset(new my::ControlImage());
+	scroll_skin->m_DownBtnDisabledImage->m_TexturePath = theApp.default_combobox_scrollbardownbtn_disabledimg;
+	scroll_skin->m_DownBtnDisabledImage->m_Rect = theApp.default_combobox_scrollbardownbtn_disabledimg_rect;
+	scroll_skin->m_DownBtnDisabledImage->m_Border = theApp.default_combobox_scrollbardownbtn_disabledimg_border;
+	scroll_skin->m_ThumbBtnNormalImage.reset(new my::ControlImage());
+	scroll_skin->m_ThumbBtnNormalImage->m_TexturePath = theApp.default_combobox_scrollbarthumbbtn_normalimg;
+	scroll_skin->m_ThumbBtnNormalImage->m_Rect = theApp.default_combobox_scrollbarthumbbtn_normalimg_rect;
+	scroll_skin->m_ThumbBtnNormalImage->m_Border = theApp.default_combobox_scrollbarthumbbtn_normalimg_border;
+
 	my::ComboBoxPtr combobox(new my::ComboBox(my::NamedObject::MakeUniqueName((std::string(m_selctls.front()->GetName()) + "_combobox").c_str()).c_str()));
 	combobox->m_Skin = skin;
+	combobox->m_ScrollBar->m_Skin = scroll_skin;
 	std::string text(combobox->GetName());
 	combobox->m_Text = ms2ws(&text[text.find_last_of("_") + 1]);
 	combobox->m_x.offset = 10;

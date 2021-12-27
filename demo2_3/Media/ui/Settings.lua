@@ -123,30 +123,31 @@ cbx_vertical_sync.Skin.DropdownItemMouseOverImage=ControlImage()
 cbx_vertical_sync.Skin.DropdownItemMouseOverImage.TexturePath="texture/CommonUI.png"
 cbx_vertical_sync.Skin.DropdownItemMouseOverImage.Rect=Rectangle.LeftTop(35,43,16,16)
 cbx_vertical_sync.Skin.DropdownItemMouseOverImage.Border=Vector4(7,7,7,7)
-cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage=ControlImage()
-cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage.TexturePath="texture/CommonUI.png"
-cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
-cbx_vertical_sync.Skin.ScrollBarUpBtnNormalImage.Border=Vector4(7,7,7,7)
-cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage=ControlImage()
-cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage.TexturePath="texture/CommonUI.png"
-cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
-cbx_vertical_sync.Skin.ScrollBarUpBtnDisabledImage.Border=Vector4(7,7,7,7)
-cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage=ControlImage()
-cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage.TexturePath="texture/CommonUI.png"
-cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
-cbx_vertical_sync.Skin.ScrollBarDownBtnNormalImage.Border=Vector4(7,7,7,7)
-cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage=ControlImage()
-cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage.TexturePath="texture/CommonUI.png"
-cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
-cbx_vertical_sync.Skin.ScrollBarDownBtnDisabledImage.Border=Vector4(7,7,7,7)
-cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage=ControlImage()
-cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage.TexturePath="texture/CommonUI.png"
-cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
-cbx_vertical_sync.Skin.ScrollBarThumbBtnNormalImage.Border=Vector4(7,7,7,7)
-cbx_vertical_sync.Skin.ScrollBarImage=ControlImage()
-cbx_vertical_sync.Skin.ScrollBarImage.TexturePath="texture/CommonUI.png"
-cbx_vertical_sync.Skin.ScrollBarImage.Rect=Rectangle.LeftTop(1,43,16,16)
-cbx_vertical_sync.Skin.ScrollBarImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.ScrollBar.Skin=ScrollBarSkin()
+cbx_vertical_sync.ScrollBar.Skin.UpBtnNormalImage=ControlImage()
+cbx_vertical_sync.ScrollBar.Skin.UpBtnNormalImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.ScrollBar.Skin.UpBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.ScrollBar.Skin.UpBtnNormalImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.ScrollBar.Skin.UpBtnDisabledImage=ControlImage()
+cbx_vertical_sync.ScrollBar.Skin.UpBtnDisabledImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.ScrollBar.Skin.UpBtnDisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.ScrollBar.Skin.UpBtnDisabledImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.ScrollBar.Skin.DownBtnNormalImage=ControlImage()
+cbx_vertical_sync.ScrollBar.Skin.DownBtnNormalImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.ScrollBar.Skin.DownBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.ScrollBar.Skin.DownBtnNormalImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.ScrollBar.Skin.DownBtnDisabledImage=ControlImage()
+cbx_vertical_sync.ScrollBar.Skin.DownBtnDisabledImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.ScrollBar.Skin.DownBtnDisabledImage.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.ScrollBar.Skin.DownBtnDisabledImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.ScrollBar.Skin.ThumbBtnNormalImage=ControlImage()
+cbx_vertical_sync.ScrollBar.Skin.ThumbBtnNormalImage.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.ScrollBar.Skin.ThumbBtnNormalImage.Rect=Rectangle.LeftTop(52,43,16,16)
+cbx_vertical_sync.ScrollBar.Skin.ThumbBtnNormalImage.Border=Vector4(7,7,7,7)
+cbx_vertical_sync.ScrollBar.Skin.Image=ControlImage()
+cbx_vertical_sync.ScrollBar.Skin.Image.TexturePath="texture/CommonUI.png"
+cbx_vertical_sync.ScrollBar.Skin.Image.Rect=Rectangle.LeftTop(1,43,16,16)
+cbx_vertical_sync.ScrollBar.Skin.Image.Border=Vector4(7,7,7,7)
 dlg:InsertControl(dlg.ChildNum,cbx_vertical_sync)
 
 item_y=item_y-item_height
@@ -169,6 +170,7 @@ cbx_vertex_processing.DropdownSize=Vector2(304-20,130)
 cbx_vertex_processing.Border=Vector4(20,0,20,0)
 cbx_vertex_processing.ItemHeight=22
 cbx_vertex_processing.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_vertex_processing.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_vertex_processing)
 
 item_y=item_y-item_height
@@ -191,6 +193,7 @@ cbx_multisample_quality.DropdownSize=Vector2(304-20,130)
 cbx_multisample_quality.Border=Vector4(20,0,20,0)
 cbx_multisample_quality.ItemHeight=22
 cbx_multisample_quality.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_multisample_quality.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_multisample_quality)
 
 item_y=item_y-item_height
@@ -213,6 +216,7 @@ cbx_multisample_type.DropdownSize=Vector2(304-20,130)
 cbx_multisample_type.Border=Vector4(20,0,20,0)
 cbx_multisample_type.ItemHeight=22
 cbx_multisample_type.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_multisample_type.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_multisample_type)
 
 item_y=item_y-item_height
@@ -235,6 +239,7 @@ cbx_depth_stencil_format.DropdownSize=Vector2(304-20,130)
 cbx_depth_stencil_format.Border=Vector4(20,0,20,0)
 cbx_depth_stencil_format.ItemHeight=22
 cbx_depth_stencil_format.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_depth_stencil_format.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_depth_stencil_format)
 
 item_y=item_y-item_height
@@ -257,6 +262,7 @@ cbx_back_buffer_format.DropdownSize=Vector2(304-20,130)
 cbx_back_buffer_format.Border=Vector4(20,0,20,0)
 cbx_back_buffer_format.ItemHeight=22
 cbx_back_buffer_format.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_back_buffer_format.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_back_buffer_format)
 
 item_y=item_y-item_height
@@ -279,6 +285,7 @@ cbx_refresh_rate.DropdownSize=Vector2(304-20,130)
 cbx_refresh_rate.Border=Vector4(20,0,20,0)
 cbx_refresh_rate.ItemHeight=22
 cbx_refresh_rate.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_refresh_rate.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_refresh_rate)
 
 item_y=item_y-item_height
@@ -301,6 +308,7 @@ cbx_resolution.DropdownSize=Vector2(304-20,130)
 cbx_resolution.Border=Vector4(20,0,20,0)
 cbx_resolution.ItemHeight=22
 cbx_resolution.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_resolution.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_resolution)
 
 item_y=item_y-item_height
@@ -323,6 +331,7 @@ cbx_adapter_format.DropdownSize=Vector2(304-20,130)
 cbx_adapter_format.Border=Vector4(20,0,20,0)
 cbx_adapter_format.ItemHeight=22
 cbx_adapter_format.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_adapter_format.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_adapter_format)
 
 item_y=item_y-item_height
@@ -386,6 +395,7 @@ cbx_render_device.DropdownSize=Vector2(304-20,130)
 cbx_render_device.Border=Vector4(20,0,20,0)
 cbx_render_device.ItemHeight=22
 cbx_render_device.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_render_device.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_render_device)
 
 item_y=item_y-item_height
@@ -408,6 +418,7 @@ cbx_display_adapter.DropdownSize=Vector2(304-20,130)
 cbx_display_adapter.Border=Vector4(20,0,20,0)
 cbx_display_adapter.ItemHeight=22
 cbx_display_adapter.Skin=cbx_vertical_sync.Skin:Clone()
+cbx_display_adapter.ScrollBar.Skin=cbx_vertical_sync.ScrollBar.Skin:Clone()
 dlg:InsertControl(dlg.ChildNum,cbx_display_adapter)
 
 dlg.EventAlign=function(arg)
