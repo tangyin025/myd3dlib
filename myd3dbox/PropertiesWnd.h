@@ -343,6 +343,66 @@ public:
 		PropertyEditBoxCaretImageBorderY,
 		PropertyEditBoxCaretImageBorderZ,
 		PropertyEditBoxCaretImageBorderW,
+		PropertyScrollBarUpDownButtonHeight,
+		PropertyScrollBarPosition,
+		PropertyScrollBarPageSize,
+		PropertyScrollBarStart,
+		PropertyScrollBarEnd,
+		PropertyScrollBarUpBtnNormalImagePath,
+		PropertyScrollBarUpBtnNormalImageRect,
+		PropertyScrollBarUpBtnNormalImageRectLeft,
+		PropertyScrollBarUpBtnNormalImageRectTop,
+		PropertyScrollBarUpBtnNormalImageRectWidth,
+		PropertyScrollBarUpBtnNormalImageRectHeight,
+		PropertyScrollBarUpBtnNormalImageBorder,
+		PropertyScrollBarUpBtnNormalImageBorderX,
+		PropertyScrollBarUpBtnNormalImageBorderY,
+		PropertyScrollBarUpBtnNormalImageBorderZ,
+		PropertyScrollBarUpBtnNormalImageBorderW,
+		PropertyScrollBarUpBtnDisabledImagePath,
+		PropertyScrollBarUpBtnDisabledImageRect,
+		PropertyScrollBarUpBtnDisabledImageRectLeft,
+		PropertyScrollBarUpBtnDisabledImageRectTop,
+		PropertyScrollBarUpBtnDisabledImageRectWidth,
+		PropertyScrollBarUpBtnDisabledImageRectHeight,
+		PropertyScrollBarUpBtnDisabledImageBorder,
+		PropertyScrollBarUpBtnDisabledImageBorderX,
+		PropertyScrollBarUpBtnDisabledImageBorderY,
+		PropertyScrollBarUpBtnDisabledImageBorderZ,
+		PropertyScrollBarUpBtnDisabledImageBorderW,
+		PropertyScrollBarDownBtnNormalImagePath,
+		PropertyScrollBarDownBtnNormalImageRect,
+		PropertyScrollBarDownBtnNormalImageRectLeft,
+		PropertyScrollBarDownBtnNormalImageRectTop,
+		PropertyScrollBarDownBtnNormalImageRectWidth,
+		PropertyScrollBarDownBtnNormalImageRectHeight,
+		PropertyScrollBarDownBtnNormalImageBorder,
+		PropertyScrollBarDownBtnNormalImageBorderX,
+		PropertyScrollBarDownBtnNormalImageBorderY,
+		PropertyScrollBarDownBtnNormalImageBorderZ,
+		PropertyScrollBarDownBtnNormalImageBorderW,
+		PropertyScrollBarDownBtnDisabledImagePath,
+		PropertyScrollBarDownBtnDisabledImageRect,
+		PropertyScrollBarDownBtnDisabledImageRectLeft,
+		PropertyScrollBarDownBtnDisabledImageRectTop,
+		PropertyScrollBarDownBtnDisabledImageRectWidth,
+		PropertyScrollBarDownBtnDisabledImageRectHeight,
+		PropertyScrollBarDownBtnDisabledImageBorder,
+		PropertyScrollBarDownBtnDisabledImageBorderX,
+		PropertyScrollBarDownBtnDisabledImageBorderY,
+		PropertyScrollBarDownBtnDisabledImageBorderZ,
+		PropertyScrollBarDownBtnDisabledImageBorderW,
+		PropertyScrollBarThumbBtnNormalImagePath,
+		PropertyScrollBarThumbBtnNormalImageRect,
+		PropertyScrollBarThumbBtnNormalImageRectLeft,
+		PropertyScrollBarThumbBtnNormalImageRectTop,
+		PropertyScrollBarThumbBtnNormalImageRectWidth,
+		PropertyScrollBarThumbBtnNormalImageRectHeight,
+		PropertyScrollBarThumbBtnNormalImageBorder,
+		PropertyScrollBarThumbBtnNormalImageBorderX,
+		PropertyScrollBarThumbBtnNormalImageBorderY,
+		PropertyScrollBarThumbBtnNormalImageBorderZ,
+		PropertyScrollBarThumbBtnNormalImageBorderW,
 		PropertyCheckBoxChecked,
 		PropertyComboBoxDropdownSize,
 		PropertyComboBoxDropdownSizeX,
@@ -483,6 +543,7 @@ public:
 	void UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 	void UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 	void UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
+	void UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pControl, my::ScrollBar * scrollbar);
 	void UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
 	void UpdatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox);
 	void UpdatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);
@@ -510,6 +571,7 @@ public:
 	void CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
 	void CreatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button);
 	void CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox);
+	void CreatePropertiesScrollBar(CMFCPropertyGridProperty * pControl, my::ScrollBar * scrollbar);
 	void CreatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox);
 	void CreatePropertiesComboBox(CMFCPropertyGridProperty * pControl, my::ComboBox * combobox);
 	void CreatePropertiesListBox(CMFCPropertyGridProperty * pControl, my::ListBox * listbox);

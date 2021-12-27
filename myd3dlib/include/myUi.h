@@ -973,8 +973,6 @@ namespace my
 	class ScrollBar : public Control
 	{
 	public:
-		bool m_bPressed;
-
 		bool m_bDrag;
 
 		float m_UpDownButtonHeight;
@@ -1004,8 +1002,7 @@ namespace my
 
 	protected:
 		ScrollBar(void)
-			: m_bPressed(false)
-			, m_bDrag(false)
+			: m_bDrag(false)
 			, m_UpDownButtonHeight(20)
 			, m_nPosition(0)
 			, m_nPageSize(1)
@@ -1020,7 +1017,6 @@ namespace my
 	public:
 		ScrollBar(const char * Name)
 			: Control(Name)
-			, m_bPressed(false)
 			, m_bDrag(false)
 			, m_UpDownButtonHeight(20)
 			, m_nPosition(0)

@@ -829,7 +829,9 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeImeEditBox:
 		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	//case my::Control::ControlTypeScrollBar:
+	case my::Control::ControlTypeScrollBar:
+		UpdatePropertiesScrollBar(pControl, dynamic_cast<my::ScrollBar*>(control));
+		break;
 	case my::Control::ControlTypeCheckBox:
 	case my::Control::ControlTypeComboBox:
 		UpdatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
@@ -1012,6 +1014,75 @@ void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_CaretImage->m_Border.y);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)skin->m_CaretImage->m_Border.z);
 	pControl->GetSubItem(PropId + 13)->GetSubItem(3)->SetValue((_variant_t)skin->m_CaretImage->m_Border.w);
+}
+
+void CPropertiesWnd::UpdatePropertiesScrollBar(CMFCPropertyGridProperty * pControl, my::ScrollBar * scrollbar)
+{
+	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyScrollBarUpDownButtonHeight)
+	{
+		RemovePropertiesFrom(pControl, PropId);
+		CreatePropertiesScrollBar(pControl, scrollbar);
+		return;
+	}
+
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)scrollbar->m_UpDownButtonHeight);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)scrollbar->m_nPosition);
+	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)scrollbar->m_nPageSize);
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)scrollbar->m_nStart);
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)scrollbar->m_nEnd);
+
+	my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+
+	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 6)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 6)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 7)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.x);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.y);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.z);
+	pControl->GetSubItem(PropId + 7)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnNormalImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 9)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 9)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 10)->GetSubItem(1)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 10)->GetSubItem(2)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 10)->GetSubItem(3)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.w);
+	pControl->GetSubItem(PropId + 10)->GetSubItem(0)->SetValue((_variant_t)skin->m_UpBtnDisabledImage->m_Border.x);
+
+	pControl->GetSubItem(PropId + 11)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 12)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 12)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 12)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 13)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.x);
+	pControl->GetSubItem(PropId + 13)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.y);
+	pControl->GetSubItem(PropId + 13)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.z);
+	pControl->GetSubItem(PropId + 13)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnNormalImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 14)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 15)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 15)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 15)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 15)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 16)->GetSubItem(0)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.x);
+	pControl->GetSubItem(PropId + 16)->GetSubItem(1)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.y);
+	pControl->GetSubItem(PropId + 16)->GetSubItem(2)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.z);
+	pControl->GetSubItem(PropId + 16)->GetSubItem(3)->SetValue((_variant_t)skin->m_DownBtnDisabledImage->m_Border.w);
+
+	pControl->GetSubItem(PropId + 17)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 18)->GetSubItem(0)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.l);
+	pControl->GetSubItem(PropId + 18)->GetSubItem(1)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.t);
+	pControl->GetSubItem(PropId + 18)->GetSubItem(2)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Width());
+	pControl->GetSubItem(PropId + 18)->GetSubItem(3)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Height());
+	pControl->GetSubItem(PropId + 19)->GetSubItem(1)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.y);
+	pControl->GetSubItem(PropId + 19)->GetSubItem(0)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.x);
+	pControl->GetSubItem(PropId + 19)->GetSubItem(2)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.z);
+	pControl->GetSubItem(PropId + 19)->GetSubItem(3)->SetValue((_variant_t)skin->m_ThumbBtnNormalImage->m_Border.w);
 }
 
 void CPropertiesWnd::UpdatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox)
@@ -1890,7 +1961,9 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	case my::Control::ControlTypeImeEditBox:
 		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
 		break;
-	//case my::Control::ControlTypeScrollBar:
+	case my::Control::ControlTypeScrollBar:
+		CreatePropertiesScrollBar(pControl, dynamic_cast<my::ScrollBar*>(control));
+		break;
 	case my::Control::ControlTypeCheckBox:
 	case my::Control::ControlTypeComboBox:
 		CreatePropertiesStatic(pControl, dynamic_cast<my::Static*>(control));
@@ -2177,6 +2250,149 @@ void CPropertiesWnd::CreatePropertiesEditBox(CMFCPropertyGridProperty * pControl
 	pCaretImageBorder->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_CaretImage->m_Border.w, NULL, PropertyEditBoxCaretImageBorderW);
 	pCaretImageBorder->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesScrollBar(CMFCPropertyGridProperty * pControl, my::ScrollBar * scrollbar)
+{
+	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
+
+	CMFCPropertyGridProperty* pUpDownButtonHeight = new CSimpleProp(_T("UpDownButtonHeight"), (_variant_t)scrollbar->m_UpDownButtonHeight, NULL, PropertyScrollBarUpDownButtonHeight);
+	pControl->AddSubItem(pUpDownButtonHeight);
+	CMFCPropertyGridProperty* pPosition = new CSimpleProp(_T("Position"), (_variant_t)scrollbar->m_nPosition, NULL, PropertyScrollBarPosition);
+	pControl->AddSubItem(pPosition);
+	CMFCPropertyGridProperty* pPageSize = new CSimpleProp(_T("PageSize"), (_variant_t)scrollbar->m_nPageSize, NULL, PropertyScrollBarPageSize);
+	pControl->AddSubItem(pPageSize);
+	CMFCPropertyGridProperty* pStart = new CSimpleProp(_T("Start"), (_variant_t)scrollbar->m_nStart, NULL, PropertyScrollBarStart);
+	pControl->AddSubItem(pStart);
+	CMFCPropertyGridProperty* pEnd = new CSimpleProp(_T("End"), (_variant_t)scrollbar->m_nEnd, NULL, PropertyScrollBarEnd);
+	pControl->AddSubItem(pEnd);
+
+	my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+
+	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImagePath = new CFileProp(_T("ScrollBarUpBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnNormalImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarUpBtnNormalImagePath);
+	pControl->AddSubItem(pScrollBarUpBtnNormalImagePath);
+
+	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImageRect = new CSimpleProp(_T("ScrollBarUpBtnNormalImageRect"), PropertyScrollBarUpBtnNormalImageRect, TRUE);
+	pControl->AddSubItem(pScrollBarUpBtnNormalImageRect);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.l, NULL, PropertyScrollBarUpBtnNormalImageRectLeft);
+	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.t, NULL, PropertyScrollBarUpBtnNormalImageRectTop);
+	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarUpBtnNormalImageRectWidth);
+	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_UpBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarUpBtnNormalImageRectHeight);
+	pScrollBarUpBtnNormalImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarUpBtnNormalImageBorder = new CSimpleProp(_T("ScrollBarUpBtnNormalImageBorder"), PropertyScrollBarUpBtnNormalImageBorder, TRUE);
+	pControl->AddSubItem(pScrollBarUpBtnNormalImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_UpBtnNormalImage->m_Border.x, NULL, PropertyScrollBarUpBtnNormalImageBorderX);
+	pScrollBarUpBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_UpBtnNormalImage->m_Border.y, NULL, PropertyScrollBarUpBtnNormalImageBorderY);
+	pScrollBarUpBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_UpBtnNormalImage->m_Border.z, NULL, PropertyScrollBarUpBtnNormalImageBorderZ);
+	pScrollBarUpBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_UpBtnNormalImage->m_Border.w, NULL, PropertyScrollBarUpBtnNormalImageBorderW);
+	pScrollBarUpBtnNormalImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImagePath = new CFileProp(_T("ScrollBarUpBtnDisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_UpBtnDisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarUpBtnDisabledImagePath);
+	pControl->AddSubItem(pScrollBarUpBtnDisabledImagePath);
+
+	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImageRect = new CSimpleProp(_T("ScrollBarUpBtnDisabledImageRect"), PropertyScrollBarUpBtnDisabledImageRect, TRUE);
+	pControl->AddSubItem(pScrollBarUpBtnDisabledImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.l, NULL, PropertyScrollBarUpBtnDisabledImageRectLeft);
+	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.t, NULL, PropertyScrollBarUpBtnDisabledImageRectTop);
+	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Width(), NULL, PropertyScrollBarUpBtnDisabledImageRectWidth);
+	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_UpBtnDisabledImage->m_Rect.Height(), NULL, PropertyScrollBarUpBtnDisabledImageRectHeight);
+	pScrollBarUpBtnDisabledImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarUpBtnDisabledImageBorder = new CSimpleProp(_T("ScrollBarUpBtnDisabledImageBorder"), PropertyScrollBarUpBtnDisabledImageBorder, TRUE);
+	pControl->AddSubItem(pScrollBarUpBtnDisabledImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_UpBtnDisabledImage->m_Border.x, NULL, PropertyScrollBarUpBtnDisabledImageBorderX);
+	pScrollBarUpBtnDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_UpBtnDisabledImage->m_Border.y, NULL, PropertyScrollBarUpBtnDisabledImageBorderY);
+	pScrollBarUpBtnDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_UpBtnDisabledImage->m_Border.z, NULL, PropertyScrollBarUpBtnDisabledImageBorderZ);
+	pScrollBarUpBtnDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_UpBtnDisabledImage->m_Border.w, NULL, PropertyScrollBarUpBtnDisabledImageBorderW);
+	pScrollBarUpBtnDisabledImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImagePath = new CFileProp(_T("ScrollBarDownBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnNormalImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarDownBtnNormalImagePath);
+	pControl->AddSubItem(pScrollBarDownBtnNormalImagePath);
+
+	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImageRect = new CSimpleProp(_T("ScrollBarDownBtnNormalImageRect"), PropertyScrollBarDownBtnNormalImageRect, TRUE);
+	pControl->AddSubItem(pScrollBarDownBtnNormalImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.l, NULL, PropertyScrollBarDownBtnNormalImageRectLeft);
+	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.t, NULL, PropertyScrollBarDownBtnNormalImageRectTop);
+	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarDownBtnNormalImageRectWidth);
+	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DownBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarDownBtnNormalImageRectHeight);
+	pScrollBarDownBtnNormalImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarDownBtnNormalImageBorder = new CSimpleProp(_T("ScrollBarDownBtnNormalImageBorder"), PropertyScrollBarDownBtnNormalImageBorder, TRUE);
+	pControl->AddSubItem(pScrollBarDownBtnNormalImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_DownBtnNormalImage->m_Border.x, NULL, PropertyScrollBarDownBtnNormalImageBorderX);
+	pScrollBarDownBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_DownBtnNormalImage->m_Border.y, NULL, PropertyScrollBarDownBtnNormalImageBorderY);
+	pScrollBarDownBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_DownBtnNormalImage->m_Border.z, NULL, PropertyScrollBarDownBtnNormalImageBorderZ);
+	pScrollBarDownBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DownBtnNormalImage->m_Border.w, NULL, PropertyScrollBarDownBtnNormalImageBorderW);
+	pScrollBarDownBtnNormalImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImagePath = new CFileProp(_T("ScrollBarDownBtnDisabledImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_DownBtnDisabledImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarDownBtnDisabledImagePath);
+	pControl->AddSubItem(pScrollBarDownBtnDisabledImagePath);
+
+	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImageRect = new CSimpleProp(_T("ScrollBarDownBtnDisabledImageRect"), PropertyScrollBarDownBtnDisabledImageRect, TRUE);
+	pControl->AddSubItem(pScrollBarDownBtnDisabledImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.l, NULL, PropertyScrollBarDownBtnDisabledImageRectLeft);
+	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.t, NULL, PropertyScrollBarDownBtnDisabledImageRectTop);
+	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Width(), NULL, PropertyScrollBarDownBtnDisabledImageRectWidth);
+	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_DownBtnDisabledImage->m_Rect.Height(), NULL, PropertyScrollBarDownBtnDisabledImageRectHeight);
+	pScrollBarDownBtnDisabledImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarDownBtnDisabledImageBorder = new CSimpleProp(_T("ScrollBarDownBtnDisabledImageBorder"), PropertyScrollBarDownBtnDisabledImageBorder, TRUE);
+	pControl->AddSubItem(pScrollBarDownBtnDisabledImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_DownBtnDisabledImage->m_Border.x, NULL, PropertyScrollBarDownBtnDisabledImageBorderX);
+	pScrollBarDownBtnDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_DownBtnDisabledImage->m_Border.y, NULL, PropertyScrollBarDownBtnDisabledImageBorderY);
+	pScrollBarDownBtnDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_DownBtnDisabledImage->m_Border.z, NULL, PropertyScrollBarDownBtnDisabledImageBorderZ);
+	pScrollBarDownBtnDisabledImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_DownBtnDisabledImage->m_Border.w, NULL, PropertyScrollBarDownBtnDisabledImageBorderW);
+	pScrollBarDownBtnDisabledImageBorder->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImagePath = new CFileProp(_T("ScrollBarThumbBtnNormalImage"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_ThumbBtnNormalImage->m_TexturePath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyScrollBarThumbBtnNormalImagePath);
+	pControl->AddSubItem(pScrollBarThumbBtnNormalImagePath);
+
+	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImageRect = new CSimpleProp(_T("ScrollBarThumbBtnNormalImageRect"), PropertyScrollBarThumbBtnNormalImageRect, TRUE);
+	pControl->AddSubItem(pScrollBarThumbBtnNormalImageRect);
+	pProp = new CSimpleProp(_T("left"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.l, NULL, PropertyScrollBarThumbBtnNormalImageRectLeft);
+	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("top"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.t, NULL, PropertyScrollBarThumbBtnNormalImageRectTop);
+	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Width"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Width(), NULL, PropertyScrollBarThumbBtnNormalImageRectWidth);
+	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Rect.Height(), NULL, PropertyScrollBarThumbBtnNormalImageRectHeight);
+	pScrollBarThumbBtnNormalImageRect->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty* pScrollBarThumbBtnNormalImageBorder = new CSimpleProp(_T("ScrollBarThumbBtnNormalImageBorder"), PropertyScrollBarThumbBtnNormalImageBorder, TRUE);
+	pControl->AddSubItem(pScrollBarThumbBtnNormalImageBorder);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Border.x, NULL, PropertyScrollBarThumbBtnNormalImageBorderX);
+	pScrollBarThumbBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Border.y, NULL, PropertyScrollBarThumbBtnNormalImageBorderY);
+	pScrollBarThumbBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Border.z, NULL, PropertyScrollBarThumbBtnNormalImageBorderZ);
+	pScrollBarThumbBtnNormalImageBorder->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)skin->m_ThumbBtnNormalImage->m_Border.w, NULL, PropertyScrollBarThumbBtnNormalImageBorderW);
+	pScrollBarThumbBtnNormalImageBorder->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesCheckBox(CMFCPropertyGridProperty * pControl, my::CheckBox * checkbox)
@@ -4672,6 +4888,354 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		skin->m_CaretImage->m_Border.y = pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().fltVal;
 		skin->m_CaretImage->m_Border.z = pControl->GetSubItem(PropId + 13)->GetSubItem(2)->GetValue().fltVal;
 		skin->m_CaretImage->m_Border.w = pControl->GetSubItem(PropId + 13)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarUpDownButtonHeight:
+	case PropertyScrollBarPosition:
+	case PropertyScrollBarPageSize:
+	case PropertyScrollBarStart:
+	case PropertyScrollBarEnd:
+	{
+		CMFCPropertyGridProperty* pControl = pProp->GetParent();
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		scrollbar->m_UpDownButtonHeight = pControl->GetSubItem(PropId + 0)->GetValue().fltVal;
+		scrollbar->m_nPosition = pControl->GetSubItem(PropId + 1)->GetValue().intVal;
+		scrollbar->m_nPageSize = pControl->GetSubItem(PropId + 2)->GetValue().intVal;
+		scrollbar->m_nStart = pControl->GetSubItem(PropId + 3)->GetValue().intVal;
+		scrollbar->m_nEnd = pControl->GetSubItem(PropId + 4)->GetValue().intVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarUpBtnNormalImagePath:
+	{
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(scrollbar);
+			return 0;
+		}
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		skin->m_UpBtnNormalImage->ReleaseResource();
+		skin->m_UpBtnNormalImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_UpBtnNormalImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarUpBtnNormalImageRect:
+	case PropertyScrollBarUpBtnNormalImageRectLeft:
+	case PropertyScrollBarUpBtnNormalImageRectTop:
+	case PropertyScrollBarUpBtnNormalImageRectWidth:
+	case PropertyScrollBarUpBtnNormalImageRectHeight:
+	case PropertyScrollBarUpBtnNormalImageBorder:
+	case PropertyScrollBarUpBtnNormalImageBorderX:
+	case PropertyScrollBarUpBtnNormalImageBorderY:
+	case PropertyScrollBarUpBtnNormalImageBorderZ:
+	case PropertyScrollBarUpBtnNormalImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyScrollBarUpBtnNormalImageRectLeft:
+		case PropertyScrollBarUpBtnNormalImageRectTop:
+		case PropertyScrollBarUpBtnNormalImageRectWidth:
+		case PropertyScrollBarUpBtnNormalImageRectHeight:
+		case PropertyScrollBarUpBtnNormalImageBorderX:
+		case PropertyScrollBarUpBtnNormalImageBorderY:
+		case PropertyScrollBarUpBtnNormalImageBorderZ:
+		case PropertyScrollBarUpBtnNormalImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyScrollBarUpBtnNormalImageRect:
+		case PropertyScrollBarUpBtnNormalImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		skin->m_UpBtnNormalImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 6)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 6)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_UpBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 7)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_UpBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 7)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_UpBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 7)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_UpBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 7)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarUpBtnDisabledImagePath:
+	{
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(scrollbar);
+			return 0;
+		}
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		skin->m_UpBtnDisabledImage->ReleaseResource();
+		skin->m_UpBtnDisabledImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_UpBtnDisabledImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarUpBtnDisabledImageRect:
+	case PropertyScrollBarUpBtnDisabledImageRectLeft:
+	case PropertyScrollBarUpBtnDisabledImageRectTop:
+	case PropertyScrollBarUpBtnDisabledImageRectWidth:
+	case PropertyScrollBarUpBtnDisabledImageRectHeight:
+	case PropertyScrollBarUpBtnDisabledImageBorder:
+	case PropertyScrollBarUpBtnDisabledImageBorderX:
+	case PropertyScrollBarUpBtnDisabledImageBorderY:
+	case PropertyScrollBarUpBtnDisabledImageBorderZ:
+	case PropertyScrollBarUpBtnDisabledImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyScrollBarUpBtnDisabledImageRectLeft:
+		case PropertyScrollBarUpBtnDisabledImageRectTop:
+		case PropertyScrollBarUpBtnDisabledImageRectWidth:
+		case PropertyScrollBarUpBtnDisabledImageRectHeight:
+		case PropertyScrollBarUpBtnDisabledImageBorderX:
+		case PropertyScrollBarUpBtnDisabledImageBorderY:
+		case PropertyScrollBarUpBtnDisabledImageBorderZ:
+		case PropertyScrollBarUpBtnDisabledImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyScrollBarUpBtnDisabledImageRect:
+		case PropertyScrollBarUpBtnDisabledImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		skin->m_UpBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 9)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 9)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 9)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 9)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_UpBtnDisabledImage->m_Border.x = pControl->GetSubItem(PropId + 10)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_UpBtnDisabledImage->m_Border.y = pControl->GetSubItem(PropId + 10)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_UpBtnDisabledImage->m_Border.z = pControl->GetSubItem(PropId + 10)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_UpBtnDisabledImage->m_Border.w = pControl->GetSubItem(PropId + 10)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarDownBtnNormalImagePath:
+	{
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(scrollbar);
+			return 0;
+		}
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		skin->m_DownBtnNormalImage->ReleaseResource();
+		skin->m_DownBtnNormalImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_DownBtnNormalImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarDownBtnNormalImageRect:
+	case PropertyScrollBarDownBtnNormalImageRectLeft:
+	case PropertyScrollBarDownBtnNormalImageRectTop:
+	case PropertyScrollBarDownBtnNormalImageRectWidth:
+	case PropertyScrollBarDownBtnNormalImageRectHeight:
+	case PropertyScrollBarDownBtnNormalImageBorder:
+	case PropertyScrollBarDownBtnNormalImageBorderX:
+	case PropertyScrollBarDownBtnNormalImageBorderY:
+	case PropertyScrollBarDownBtnNormalImageBorderZ:
+	case PropertyScrollBarDownBtnNormalImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyScrollBarDownBtnNormalImageRectLeft:
+		case PropertyScrollBarDownBtnNormalImageRectTop:
+		case PropertyScrollBarDownBtnNormalImageRectWidth:
+		case PropertyScrollBarDownBtnNormalImageRectHeight:
+		case PropertyScrollBarDownBtnNormalImageBorderX:
+		case PropertyScrollBarDownBtnNormalImageBorderY:
+		case PropertyScrollBarDownBtnNormalImageBorderZ:
+		case PropertyScrollBarDownBtnNormalImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyScrollBarDownBtnNormalImageRect:
+		case PropertyScrollBarDownBtnNormalImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		skin->m_DownBtnNormalImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 12)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 12)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 12)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 12)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_DownBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 13)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_DownBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 13)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_DownBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 13)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_DownBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 13)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarDownBtnDisabledImagePath:
+	{
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(scrollbar);
+			return 0;
+		}
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		skin->m_DownBtnDisabledImage->ReleaseResource();
+		skin->m_DownBtnDisabledImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_DownBtnDisabledImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarDownBtnDisabledImageRect:
+	case PropertyScrollBarDownBtnDisabledImageRectLeft:
+	case PropertyScrollBarDownBtnDisabledImageRectTop:
+	case PropertyScrollBarDownBtnDisabledImageRectWidth:
+	case PropertyScrollBarDownBtnDisabledImageRectHeight:
+	case PropertyScrollBarDownBtnDisabledImageBorder:
+	case PropertyScrollBarDownBtnDisabledImageBorderX:
+	case PropertyScrollBarDownBtnDisabledImageBorderY:
+	case PropertyScrollBarDownBtnDisabledImageBorderZ:
+	case PropertyScrollBarDownBtnDisabledImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyScrollBarDownBtnDisabledImageRectLeft:
+		case PropertyScrollBarDownBtnDisabledImageRectTop:
+		case PropertyScrollBarDownBtnDisabledImageRectWidth:
+		case PropertyScrollBarDownBtnDisabledImageRectHeight:
+		case PropertyScrollBarDownBtnDisabledImageBorderX:
+		case PropertyScrollBarDownBtnDisabledImageBorderY:
+		case PropertyScrollBarDownBtnDisabledImageBorderZ:
+		case PropertyScrollBarDownBtnDisabledImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyScrollBarDownBtnDisabledImageRect:
+		case PropertyScrollBarDownBtnDisabledImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		skin->m_DownBtnDisabledImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 15)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 15)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 15)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 15)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_DownBtnDisabledImage->m_Border.x = pControl->GetSubItem(PropId + 16)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_DownBtnDisabledImage->m_Border.y = pControl->GetSubItem(PropId + 16)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_DownBtnDisabledImage->m_Border.z = pControl->GetSubItem(PropId + 16)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_DownBtnDisabledImage->m_Border.w = pControl->GetSubItem(PropId + 16)->GetSubItem(3)->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarThumbBtnNormalImagePath:
+	{
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		std::string path = theApp.GetRelativePath(ts2ms(pProp->GetValue().bstrVal).c_str());
+		if (path.empty() && _tcslen(pProp->GetValue().bstrVal) > 0)
+		{
+			MessageBox(str_printf(_T("cannot relative path: %s"), pProp->GetValue().bstrVal).c_str());
+			UpdatePropertiesControl(scrollbar);
+			return 0;
+		}
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		skin->m_ThumbBtnNormalImage->ReleaseResource();
+		skin->m_ThumbBtnNormalImage->m_TexturePath = path;
+		if (skin->IsRequested())
+		{
+			skin->m_ThumbBtnNormalImage->RequestResource();
+		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyScrollBarThumbBtnNormalImageRect:
+	case PropertyScrollBarThumbBtnNormalImageRectLeft:
+	case PropertyScrollBarThumbBtnNormalImageRectTop:
+	case PropertyScrollBarThumbBtnNormalImageRectWidth:
+	case PropertyScrollBarThumbBtnNormalImageRectHeight:
+	case PropertyScrollBarThumbBtnNormalImageBorder:
+	case PropertyScrollBarThumbBtnNormalImageBorderX:
+	case PropertyScrollBarThumbBtnNormalImageBorderY:
+	case PropertyScrollBarThumbBtnNormalImageBorderZ:
+	case PropertyScrollBarThumbBtnNormalImageBorderW:
+	{
+		CMFCPropertyGridProperty* pControl = NULL;
+		switch (PropertyId)
+		{
+		case PropertyScrollBarThumbBtnNormalImageRectLeft:
+		case PropertyScrollBarThumbBtnNormalImageRectTop:
+		case PropertyScrollBarThumbBtnNormalImageRectWidth:
+		case PropertyScrollBarThumbBtnNormalImageRectHeight:
+		case PropertyScrollBarThumbBtnNormalImageBorderX:
+		case PropertyScrollBarThumbBtnNormalImageBorderY:
+		case PropertyScrollBarThumbBtnNormalImageBorderZ:
+		case PropertyScrollBarThumbBtnNormalImageBorderW:
+			pControl = pProp->GetParent()->GetParent();
+			break;
+		case PropertyScrollBarThumbBtnNormalImageRect:
+		case PropertyScrollBarThumbBtnNormalImageBorder:
+			pControl = pProp->GetParent();
+			break;
+		}
+		my::ScrollBar* scrollbar = dynamic_cast<my::ScrollBar*>((my::Control*)pControl->GetValue().pulVal);
+		my::ScrollBarSkinPtr skin = boost::dynamic_pointer_cast<my::ScrollBarSkin>(scrollbar->m_Skin);
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		skin->m_ThumbBtnNormalImage->m_Rect = my::Rectangle::LeftTop(
+			pControl->GetSubItem(PropId + 18)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 18)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 18)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(PropId + 18)->GetSubItem(3)->GetValue().fltVal);
+		skin->m_ThumbBtnNormalImage->m_Border.x = pControl->GetSubItem(PropId + 19)->GetSubItem(0)->GetValue().fltVal;
+		skin->m_ThumbBtnNormalImage->m_Border.y = pControl->GetSubItem(PropId + 19)->GetSubItem(1)->GetValue().fltVal;
+		skin->m_ThumbBtnNormalImage->m_Border.z = pControl->GetSubItem(PropId + 19)->GetSubItem(2)->GetValue().fltVal;
+		skin->m_ThumbBtnNormalImage->m_Border.w = pControl->GetSubItem(PropId + 19)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
