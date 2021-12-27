@@ -3552,6 +3552,13 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	{
 		switch(uMsg)
 		{
+		case WM_MOUSEWHEEL:
+			if (m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
+			{
+				return true;
+			}
+			break;
+
 		case WM_MOUSEMOVE:
 			if(m_bPressed)
 			{
