@@ -31,6 +31,7 @@
 #include <boost/scope_exit.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1508,15 +1509,20 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	while (!m_selctls.empty())
+	typedef std::list<my::Control*> ControlLink;
+	ControlLink delctls(m_selctls.begin(), m_selctls.end());
+	ControlLink::iterator first_iter = boost::find_if(delctls,
+		boost::bind(std::not_equal_to<DWORD>(), my::Control::ControlTypeScrollBar, boost::bind(&my::Control::GetControlType, boost::placeholders::_1)));
+
+	for (; first_iter != delctls.end(); first_iter = boost::find_if(delctls,
+		boost::bind(std::not_equal_to<DWORD>(), my::Control::ControlTypeScrollBar, boost::bind(&my::Control::GetControlType, boost::placeholders::_1))))
 	{
-		ControlList::iterator other_iter = m_selctls.begin() + 1;
-		for (; other_iter != m_selctls.end(); )
+		ControlLink::iterator other_iter = delctls.begin();
+		for (; other_iter != delctls.end(); )
 		{
-			_ASSERT(*other_iter != m_selctls.front());
-			if (m_selctls.front()->ContainsControl(*other_iter))
+			if (other_iter != first_iter && (*first_iter)->ContainsControl(*other_iter))
 			{
-				other_iter = m_selctls.erase(other_iter);
+				other_iter = delctls.erase(other_iter);
 			}
 			else
 			{
@@ -1524,9 +1530,9 @@ void CMainFrame::OnEditDelete()
 			}
 		}
 
-		if (m_selctls.front()->GetControlType() == my::Control::ControlTypeDialog)
+		if ((*first_iter)->GetControlType() == my::Control::ControlTypeDialog)
 		{
-			my::DialogPtr dlg = boost::dynamic_pointer_cast<my::Dialog>(m_selctls.front()->shared_from_this());
+			my::DialogPtr dlg = boost::dynamic_pointer_cast<my::Dialog>((*first_iter)->shared_from_this());
 			ASSERT(dlg);
 
 			RemoveDlg(dlg.get());
@@ -1537,24 +1543,25 @@ void CMainFrame::OnEditDelete()
 				m_DialogList.erase(dlg_iter);
 			}
 
-			m_selctls.erase(m_selctls.begin());
+			delctls.erase(first_iter);
 		}
 		else
 		{
-			my::Control * parent = m_selctls.front()->m_Parent;
+			my::Control * parent = (*first_iter)->m_Parent;
 
-			parent->RemoveControl(m_selctls.front()->GetSiblingId());
+			parent->RemoveControl((*first_iter)->GetSiblingId());
 
-			if (m_selctls.size() == 1)
+			if (delctls.size() == 1)
 			{
-				VERIFY(m_selctls.front() = parent);
+				m_selctls = boost::assign::list_of(parent);
 				OnSelChanged();
 				return;
 			}
 
-			m_selctls.erase(m_selctls.begin());
+			delctls.erase(first_iter);
 		}
 	}
+	m_selctls.assign(delctls.begin(), delctls.end());
 
 	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter = m_selactors.begin())
