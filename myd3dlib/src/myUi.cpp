@@ -3993,9 +3993,14 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 {
 	if (m_bEnabled && m_bVisible)
 	{
-		if (m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
+		switch (uMsg)
 		{
-			return true;
+		case WM_MOUSEWHEEL:
+			if (m_ScrollBar->HandleMouse(uMsg, pt, wParam, lParam))
+			{
+				return true;
+			}
+			break;
 		}
 	}
 	return false;
@@ -4087,6 +4092,12 @@ Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 			{
 				continue;
 			}
+		}
+
+		Control* ctrl = m_ScrollBar->GetChildAtPoint(pt, bIgnoreVisible);
+		if (ctrl)
+		{
+			return ctrl;
 		}
 
 		if (HitTest(pt))
