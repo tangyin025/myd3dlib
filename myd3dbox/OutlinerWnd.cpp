@@ -349,10 +349,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 		pFrame->m_selcmp = NULL;
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
-		if (control->GetControlType() == my::Control::ControlTypeScrollBar)
-			pFrame->m_selctls = boost::assign::list_of(control->m_Parent);
-		else
-			pFrame->m_selctls = boost::assign::list_of(control);
+		pFrame->m_selctls = boost::assign::list_of(control);
 		pFrame->OnSelChanged();
 		*pResult = 0;
 		return;
