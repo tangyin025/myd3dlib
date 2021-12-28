@@ -259,14 +259,12 @@ void PhysxScene::TickPostRender(float dtime)
 
 bool PhysxScene::Advance(float dtime)
 {
-	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
+	m_Timer.m_RemainingTime += my::Min(0.1f, dtime);
 
-	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
+	if(!m_Timer.Step())
 	{
 		return false;
 	}
-
-	m_Timer.m_RemainingTime -= m_Timer.m_Interval;
 
 	m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
 
@@ -277,26 +275,20 @@ bool PhysxScene::Advance(float dtime)
 	return true;
 }
 
-bool PhysxScene::AdvanceSync(float dtime)
+void PhysxScene::AdvanceSync(float dtime)
 {
-	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
+	m_Timer.m_RemainingTime += my::Min(0.1f, dtime);
 
-	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
+	for (; m_Timer.Step(); )
 	{
-		return false;
+		m_PxScene->simulate(m_Timer.m_Interval, NULL, 0, 0, true);
+
+		m_PxScene->fetchResults(true, &m_ErrorState);
+
+		_ASSERT(0 == m_ErrorState);
+
+		m_EventPxThreadSubstep(m_Timer.m_Interval);
 	}
-
-	m_Timer.m_RemainingTime -= m_Timer.m_Interval;
-
-	m_PxScene->simulate(m_Timer.m_Interval, NULL, 0, 0, true);
-
-	m_PxScene->fetchResults(true, &m_ErrorState);
-
-	_ASSERT(0 == m_ErrorState);
-
-	m_EventPxThreadSubstep(dtime);
-
-	return true;
 }
 
 void PhysxScene::Substep(StepperTask & completionTask)
@@ -313,13 +305,11 @@ void PhysxScene::SubstepDone(StepperTask * ownerTask)
 	// ! be aware of multi thread
 	m_EventPxThreadSubstep(m_Timer.m_Interval);
 
-	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
+	if(!m_Timer.Step())
 	{
 		m_Sync.SetEvent();
 		return;
 	}
-
-	m_Timer.m_RemainingTime -= m_Timer.m_Interval;
 
 	StepperTask & task = (ownerTask == &m_Completion0 ? m_Completion1 : m_Completion0);
 

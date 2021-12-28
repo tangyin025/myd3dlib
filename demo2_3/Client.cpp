@@ -910,9 +910,6 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyCount", Client::KeyCount)
 			]
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
-			.def("InsertTimer", &Client::InsertTimer)
-			.def("RemoveTimer", &Client::RemoveTimer)
-			.def("RemoveAllTimer", &Client::RemoveAllTimer)
 			.def("InsertDlg", &Client::InsertDlg)
 			.def("RemoveDlg", &Client::RemoveDlg)
 			.def("RemoveAllDlg", &Client::RemoveAllDlg)
@@ -1048,8 +1045,6 @@ void Client::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
-	RemoveAllTimer();
-
 	m_SimpleSample.reset();
 
 	m_UIRender->OnDestroyDevice();
@@ -1141,8 +1136,6 @@ void Client::OnFrameTick(
 			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_ESCAPE, 0);
 		}
 	}
-
-	TimerMgr::Update(fTime, fElapsedTime);
 
 	StateBase * curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)

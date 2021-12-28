@@ -147,7 +147,7 @@ public:
 	PhysxScene(void)
 		: m_Completion0(this)
 		, m_Completion1(this)
-		, m_Timer(1/60.0f,0)
+		, m_Timer(1/60.0f)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
 		, m_ErrorState(0)
@@ -171,7 +171,7 @@ public:
 
 	bool Advance(float dtime);
 
-	bool AdvanceSync(float dtime);
+	void AdvanceSync(float dtime);
 
 	void Substep(StepperTask & completionTask);
 

@@ -90,54 +90,16 @@ void DrawHelper::PushTriangle(const Vector3& v0, const Vector3& v1, const Vector
 	PushTriangleVertex(v2.x, v2.y, v2.z, color);
 }
 
-void Timer::Step(float fElapsedTime, int MaxIter)
+bool Timer::Step(void)
 {
-	m_RemainingTime = Min(4 * m_Interval, m_RemainingTime + fElapsedTime);
-	for(int i = 0; m_RemainingTime >= m_Interval && m_Managed; i++)
+	if (m_RemainingTime >= m_Interval)
 	{
-		if (m_EventTimer)
-		{
-			TimerEventArg arg(m_Interval);
-			m_EventTimer(&arg);
-		}
-
 		m_RemainingTime -= m_Interval;
+
+		return true;
 	}
-}
 
-void TimerMgr::InsertTimer(TimerPtr timer)
-{
-	_ASSERT(!timer->m_Managed);
-
-	m_timerSet.insert(timer);
-
-	timer->m_Managed = true;
-}
-
-void TimerMgr::RemoveTimer(TimerPtr timer)
-{
-	_ASSERT(timer->m_Managed);
-
-	m_timerSet.erase(timer);
-
-	timer->m_Managed = false;
-}
-
-void TimerMgr::RemoveAllTimer(void)
-{
-	m_timerSet.clear();
-}
-
-void TimerMgr::Update(
-	double fTime,
-	float fElapsedTime)
-{
-	TimerPtrSet::const_iterator timer_iter = m_timerSet.begin();
-	for(; timer_iter != m_timerSet.end(); )
-	{
-		// ! must step iterator before Update, because TimerEvent will remove self from set
-		(*timer_iter++)->Step(fElapsedTime, m_MaxIterCount);
-	}
+	return false;
 }
 
 Vector3 BaseCamera::ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float z)

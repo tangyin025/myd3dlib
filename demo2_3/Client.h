@@ -107,7 +107,6 @@ typedef boost::shared_ptr<StateBase> StateBasePtr;
 
 class Client
 	: public my::DxutApp
-	, public my::TimerMgr
 	, public my::FontLibrary
 	, public my::DialogMgr
 	, public my::InputMgr

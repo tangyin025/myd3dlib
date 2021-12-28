@@ -49,18 +49,6 @@ namespace my
 		void PushTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, D3DCOLOR color);
 	};
 
-	class TimerEventArg : public EventArg
-	{
-	public:
-		float m_Interval;
-
-	public:
-		TimerEventArg(float Interval)
-			: m_Interval(Interval)
-		{
-		}
-	};
-
 	class Timer
 	{
 	public:
@@ -68,48 +56,17 @@ namespace my
 
 		float m_RemainingTime;
 
-		EventFunction m_EventTimer;
-
-		bool m_Managed;
-
 	public:
-		Timer(float Interval, float RemainingTime = 0)
+		Timer(float Interval)
 			: m_Interval(Interval)
-			, m_RemainingTime(RemainingTime)
-			, m_Managed(false)
+			, m_RemainingTime(0)
 		{
 		}
 
-		void Step(float fElapsedTime, int MaxIter);
+		bool Step(void);
 	};
 
 	typedef boost::shared_ptr<Timer> TimerPtr;
-
-	class TimerMgr
-	{
-	protected:
-		typedef std::set<TimerPtr> TimerPtrSet;
-
-		TimerPtrSet m_timerSet;
-
-		const int m_MaxIterCount;
-
-	public:
-		TimerMgr(void)
-			: m_MaxIterCount(4)
-		{
-		}
-
-		void InsertTimer(TimerPtr timer);
-
-		void RemoveTimer(TimerPtr timer);
-
-		void RemoveAllTimer(void);
-
-		void Update(
-			double fTime,
-			float fElapsedTime);
-	};
 
 	class BaseCamera
 	{

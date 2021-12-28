@@ -1877,14 +1877,10 @@ void LuaContext::Init(void)
 			.def("GetVelocity", &my::Sound3DListener::GetVelocity)
 			.def("SetVelocity", &my::Sound3DListener::SetVelocity)
 
-		, class_<my::TimerEventArg, my::EventArg>("TimerEventArg")
-			.def_readonly("Interval", &my::TimerEventArg::m_Interval)
-
 		, class_<my::Timer, boost::shared_ptr<my::Timer> >("Timer")
-			.def(constructor<float, float>())
+			.def(constructor<float>())
 			.def_readonly("Interval", &my::Timer::m_Interval)
-			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
-			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
+			.def_readwrite("RemainingTime", &my::Timer::m_RemainingTime)
 
 		, class_<CPoint>("CPoint")
 			.def_readwrite("x", &CPoint::x)
