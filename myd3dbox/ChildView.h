@@ -62,8 +62,8 @@ protected:
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
-	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor);
-	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp);
+	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor, D3DCOLOR color);
+	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp, D3DCOLOR color);
 	void RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Control * ctl, D3DCOLOR color, bool subhandle);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);

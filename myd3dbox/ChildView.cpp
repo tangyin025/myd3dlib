@@ -280,17 +280,22 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	}
 }
 
-void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor)
+void CChildView::RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor, D3DCOLOR color)
 {
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 	PushLineAABB(*actor->m_Node, D3DCOLOR_ARGB(255, 255, 255, 0));
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 	{
-		RenderSelectedComponent(pd3dDevice, cmp_iter->get());
+		if (cmp_iter->get() == pFrame->m_selcmp)
+		{
+			RenderSelectedComponent(pd3dDevice, cmp_iter->get(), color);
+		}
 	}
 }
 
-void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp)
+void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp, D3DCOLOR color)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -312,7 +317,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 				if (shader)
 				{
 					shader->SetMatrix(shader->GetParameterByName(NULL, "g_World"), mesh_cmp->m_Actor->m_World);
-					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), my::Vector4(0, 1, 0, 1));
+					shader->SetVector(shader->GetParameterByName(NULL, "g_MeshColor"), (my::Vector4&)D3DXCOLOR(color));
 					if (animator && !animator->m_DualQuats.empty() && mesh_cmp->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 					{
 						shader->SetMatrixArray(shader->GetParameterByName(NULL, "g_dualquat"), &animator->m_DualQuats[0], animator->m_DualQuats.size());
@@ -329,10 +334,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 
 	case Component::ComponentTypeStaticEmitter:
 		{
-			if (pFrame->m_selactors.size() > 1 || pFrame->m_selcmp != cmp)
-			{
-				return;
-			}
+			ASSERT(pFrame->m_selactors.size() >= 1 && pFrame->m_selcmp == cmp);
 			StaticEmitter * static_emit_cmp = dynamic_cast<StaticEmitter *>(cmp);
 			StaticEmitter::ChunkMap::const_iterator chunk_iter = static_emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y));
 			ASSERT(chunk_iter != static_emit_cmp->m_Chunks.end());
@@ -355,9 +357,9 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 					my::Vector3 v0 = theApp.m_ParticleVertElems.GetPosition(pv0).transformCoord(p2World);
 					my::Vector3 v1 = theApp.m_ParticleVertElems.GetPosition(pv1).transformCoord(p2World);
 					my::Vector3 v2 = theApp.m_ParticleVertElems.GetPosition(pv2).transformCoord(p2World);
-					PushLine(v0, v1, D3DCOLOR_ARGB(255, 0, 255, 0));
-					PushLine(v1, v2, D3DCOLOR_ARGB(255, 0, 255, 0));
-					PushLine(v2, v0, D3DCOLOR_ARGB(255, 0, 255, 0));
+					PushLine(v0, v1, color);
+					PushLine(v1, v2, color);
+					PushLine(v2, v0, color);
 				}
 				theApp.m_ParticleVb.Unlock();
 				theApp.m_ParticleIb.Unlock();
@@ -367,10 +369,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 
 	case Component::ComponentTypeTerrain:
 		{
-			if (pFrame->m_selactors.size() > 1 || pFrame->m_selcmp != cmp)
-			{
-				return;
-			}
+			ASSERT(pFrame->m_selactors.size() >= 1 && pFrame->m_selcmp == cmp);
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			PushLineAABB(terrain->m_Chunks[pFrame->m_selchunkid.x][pFrame->m_selchunkid.y].m_OctAabb->transform(terrain->m_Actor->m_World), D3DCOLOR_ARGB(255, 255, 0, 255));
 		}
@@ -1251,7 +1250,7 @@ void CChildView::OnPaint()
 					CMainFrame::ActorList::const_iterator sel_iter = pFrame->m_selactors.begin();
 					for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 					{
-						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter);
+						RenderSelectedActor(theApp.m_d3dDevice, *sel_iter, D3DCOLOR_ARGB(255, 0, 255, 0));
 					}
 				}
 
@@ -1693,7 +1692,7 @@ ctrl_handle_end:
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
-				pFrame->m_selctls.insert(pFrame->m_selctls.begin(), ctrl_list.begin(), ctrl_list.end());
+				pFrame->m_selctls.insert(pFrame->m_selctls.end(), ctrl_list.begin(), ctrl_list.end());
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 				pFrame->OnSelChanged();
 				return;
@@ -1703,18 +1702,17 @@ ctrl_handle_end:
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::OctNode::QueryCallback
 		{
-			CMainFrame::ActorList & selacts;
-			const my::Frustum & ftm;
-			CChildView * pView;
-			Callback(CMainFrame::ActorList & _selacts, const my::Frustum & _ftm, CChildView * _pView)
-				: selacts(_selacts)
-				, ftm(_ftm)
+			CMainFrame::ActorList selacts;
+			const my::Frustum& ftm;
+			CChildView* pView;
+			Callback(const my::Frustum& _ftm, CChildView* _pView)
+				: ftm(_ftm)
 				, pView(_pView)
 			{
 			}
-			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 			{
-				Actor * actor = dynamic_cast<Actor *>(oct_entity);
+				Actor* actor = dynamic_cast<Actor*>(oct_entity);
 				ASSERT(actor);
 				if (pView->OverlapTestFrustumAndActor(ftm, actor))
 				{
@@ -1722,8 +1720,13 @@ ctrl_handle_end:
 				}
 			}
 		};
-		pFrame->QueryEntity(ftm, &Callback(pFrame->m_selactors, ftm, this));
-		pFrame->m_selcmp = NULL;
+		Callback cb(ftm, this);
+		pFrame->QueryEntity(ftm, &cb);
+		pFrame->m_selactors.insert(pFrame->m_selactors.end(), cb.selacts.begin(), cb.selacts.end());
+		if (!pFrame->m_selcmp && !pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetComponentNum() > 0)
+		{
+			pFrame->m_selcmp = pFrame->m_selactors.front()->m_Cmps.front().get();
+		}
 		pFrame->m_selchunkid.SetPoint(0, 0);
 		pFrame->m_selinstid = 0;
 		pFrame->m_selctls.clear();
@@ -1809,14 +1812,24 @@ ctrl_handle_end:
 			if (sel_iter != pFrame->m_selactors.end())
 			{
 				pFrame->m_selactors.erase(sel_iter);
-				pFrame->m_selcmp = NULL;
+				if (pFrame->m_selcmp && pFrame->m_selcmp->m_Actor == cb.selact)
+				{
+					if (!pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetComponentNum() > 0)
+					{
+						pFrame->m_selcmp = pFrame->m_selactors.front()->m_Cmps.front().get();
+					}
+					else
+					{
+						pFrame->m_selcmp = NULL;
+					}
+				}
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
 				pFrame->m_selctls.clear();
 			}
 			else
 			{
-				pFrame->m_selactors.push_back(cb.selact);
+				pFrame->m_selactors.insert(pFrame->m_selactors.begin(), cb.selact);
 				pFrame->m_selcmp = cb.selcmp;
 				pFrame->m_selchunkid = cb.selchunkid;
 				pFrame->m_selinstid = cb.selinstid;
