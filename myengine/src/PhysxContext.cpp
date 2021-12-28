@@ -355,7 +355,7 @@ void PhysxScene::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//	}
 	//}
 
-	if (((physx::Cct::CharacterControllerManager *)m_ControllerMgr.get())->mDebugRenderingFlags)
+	if (static_cast<physx::Cct::CharacterControllerManager*>(m_ControllerMgr.get())->mDebugRenderingFlags)
 	{
 		physx::PxRenderBuffer& controllerDebugRenderable = m_ControllerMgr->getRenderBuffer();
 

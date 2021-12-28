@@ -25,19 +25,19 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -82,7 +82,7 @@
       <AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /Zi /d2Zi+</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(PHYSX_DIR)Source/Common/include;$(PHYSX_DIR)../PxShared/include;$(PHYSX_DIR)../PxShared/src/foundation/include;$(PHYSX_DIR)../PxShared/src/fastxml/include;$(PHYSX_DIR)../PxShared/src/pvd/include;$(PHYSX_DIR)Include/characterkinematic;$(PHYSX_DIR)Include/common;$(PHYSX_DIR)Include/geometry;$(PHYSX_DIR)Include/extensions;$(PHYSX_DIR)Include;$(PHYSX_DIR)Source/GeomUtils/headers;$(PHYSX_DIR)Source/Common/src;$(PHYSX_DIR)Source/GeomUtils/src/contact;$(PHYSX_DIR)Source/GeomUtils/src/common;$(PHYSX_DIR)Source/GeomUtils/src/convex;$(PHYSX_DIR)Source/GeomUtils/src/distance;$(PHYSX_DIR)Source/GeomUtils/src/gjk;$(PHYSX_DIR)Source/GeomUtils/src/intersection;$(PHYSX_DIR)Source/GeomUtils/src/mesh;$(PHYSX_DIR)Source/GeomUtils/src/hf;$(PHYSX_DIR)Source/GeomUtils/src/pcm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;PX_PHYSX_DLL_NAME_POSTFIX=DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;PX_PHYSX_DLL_NAME_POSTFIX=DEBUG;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level4</WarningLevel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -116,7 +116,7 @@
       <AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /Zi /d2Zi+</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(PHYSX_DIR)Source/Common/include;$(PHYSX_DIR)../PxShared/include;$(PHYSX_DIR)../PxShared/src/foundation/include;$(PHYSX_DIR)../PxShared/src/fastxml/include;$(PHYSX_DIR)../PxShared/src/pvd/include;$(PHYSX_DIR)Include/characterkinematic;$(PHYSX_DIR)Include/common;$(PHYSX_DIR)Include/geometry;$(PHYSX_DIR)Include/extensions;$(PHYSX_DIR)Include;$(PHYSX_DIR)Source/GeomUtils/headers;$(PHYSX_DIR)Source/Common/src;$(PHYSX_DIR)Source/GeomUtils/src/contact;$(PHYSX_DIR)Source/GeomUtils/src/common;$(PHYSX_DIR)Source/GeomUtils/src/convex;$(PHYSX_DIR)Source/GeomUtils/src/distance;$(PHYSX_DIR)Source/GeomUtils/src/gjk;$(PHYSX_DIR)Source/GeomUtils/src/intersection;$(PHYSX_DIR)Source/GeomUtils/src/mesh;$(PHYSX_DIR)Source/GeomUtils/src/hf;$(PHYSX_DIR)Source/GeomUtils/src/pcm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;PX_PHYSX_DLL_NAME_POSTFIX=DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=1;PX_SUPPORT_PVD=1;PX_PHYSX_DLL_NAME_POSTFIX=DEBUG;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level4</WarningLevel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -160,7 +160,7 @@
       <AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /d2Zi+</AdditionalOptions>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>$(PHYSX_DIR)Source/Common/include;$(PHYSX_DIR)../PxShared/include;$(PHYSX_DIR)../PxShared/src/foundation/include;$(PHYSX_DIR)../PxShared/src/fastxml/include;$(PHYSX_DIR)../PxShared/src/pvd/include;$(PHYSX_DIR)Include/characterkinematic;$(PHYSX_DIR)Include/common;$(PHYSX_DIR)Include/geometry;$(PHYSX_DIR)Include/extensions;$(PHYSX_DIR)Include;$(PHYSX_DIR)Source/GeomUtils/headers;$(PHYSX_DIR)Source/Common/src;$(PHYSX_DIR)Source/GeomUtils/src/contact;$(PHYSX_DIR)Source/GeomUtils/src/common;$(PHYSX_DIR)Source/GeomUtils/src/convex;$(PHYSX_DIR)Source/GeomUtils/src/distance;$(PHYSX_DIR)Source/GeomUtils/src/gjk;$(PHYSX_DIR)Source/GeomUtils/src/intersection;$(PHYSX_DIR)Source/GeomUtils/src/mesh;$(PHYSX_DIR)Source/GeomUtils/src/hf;$(PHYSX_DIR)Source/GeomUtils/src/pcm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;PX_SUPPORT_PVD=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;PX_SUPPORT_PVD=0;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level4</WarningLevel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -193,7 +193,7 @@
       <AdditionalOptions>/GR- /GF /arch:SSE2 /MP /Wall /wd4514 /wd4820 /wd4127 /wd4710 /wd4711 /wd4435 /wd4577 /wd4464 /wd4623 /wd4626 /wd5027 /wd4987 /wd5038 /d2Zi+</AdditionalOptions>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>$(PHYSX_DIR)Source/Common/include;$(PHYSX_DIR)../PxShared/include;$(PHYSX_DIR)../PxShared/src/foundation/include;$(PHYSX_DIR)../PxShared/src/fastxml/include;$(PHYSX_DIR)../PxShared/src/pvd/include;$(PHYSX_DIR)Include/characterkinematic;$(PHYSX_DIR)Include/common;$(PHYSX_DIR)Include/geometry;$(PHYSX_DIR)Include/extensions;$(PHYSX_DIR)Include;$(PHYSX_DIR)Source/GeomUtils/headers;$(PHYSX_DIR)Source/Common/src;$(PHYSX_DIR)Source/GeomUtils/src/contact;$(PHYSX_DIR)Source/GeomUtils/src/common;$(PHYSX_DIR)Source/GeomUtils/src/convex;$(PHYSX_DIR)Source/GeomUtils/src/distance;$(PHYSX_DIR)Source/GeomUtils/src/gjk;$(PHYSX_DIR)Source/GeomUtils/src/intersection;$(PHYSX_DIR)Source/GeomUtils/src/mesh;$(PHYSX_DIR)Source/GeomUtils/src/hf;$(PHYSX_DIR)Source/GeomUtils/src/pcm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;PX_SUPPORT_PVD=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PX_PHYSX_CHARACTER_EXPORTS;PX_PHYSX_CORE_EXPORTS;PX_FOUNDATION_DLL=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;PX_SUPPORT_PVD=0;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level4</WarningLevel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
