@@ -2127,6 +2127,7 @@ void CMainFrame::OnControlCombobox()
 	{
 		combobox->AddItem(str_printf(L"item%d", i));
 	}
+	combobox->OnLayout();
 
 	m_selctls.front()->InsertControl(m_selctls.front()->GetChildNum(), combobox);
 	m_selctls.front() = combobox.get();
