@@ -3604,7 +3604,7 @@ void ComboBox::OnLayout(void)
 
 	m_ScrollBar->m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
 
-	m_ScrollBar->m_Parent = this;
+	m_ScrollBar->m_nEnd = m_Items.size();
 }
 
 Control * ComboBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
@@ -3897,8 +3897,6 @@ void ListBox::OnLayout(void)
 	m_ScrollBar->m_Height = UDim(0, m_Height.offset);
 
 	m_ScrollBar->m_nPageSize = (int)(m_ScrollBar->m_Height.offset / m_ItemSize.y);
-
-	m_ScrollBar->m_Parent = this;
 
 	m_ItemColumn = Max(1, (int)((fabs(m_Width.offset) - m_ScrollbarWidth) / m_ItemSize.x));
 
