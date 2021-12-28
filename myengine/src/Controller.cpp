@@ -64,17 +64,17 @@ void Controller::EnterPhysxScene(PhysxScene * scene)
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
-	desc.userData = NULL;
+	desc.userData = this;
 	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysxDeleter<physx::PxController>());
 
 	//// ! recursively call Actor::SetPose by PhysxScene::TickPostRender
-	physx::PxRigidDynamic * actor = m_PxController->getActor();
-	_ASSERT(actor);
-	//actor->userData = m_Actor;
-	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
-	actor->getShapes(shapes.data(), shapes.size());
-	_ASSERT(!shapes.empty());
-	shapes.front()->userData = this;
+	//physx::PxRigidDynamic * actor = m_PxController->getActor();
+	//_ASSERT(actor);
+	////actor->userData = m_Actor;
+	//std::vector<physx::PxShape*> shapes(actor->getNbShapes());
+	//actor->getShapes(shapes.data(), shapes.size());
+	//_ASSERT(!shapes.empty());
+	//shapes.front()->userData = this;
 }
 
 void Controller::LeavePhysxScene(PhysxScene * scene)
@@ -168,16 +168,11 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 
 void Controller::onControllerHit(const physx::PxControllersHit & hit)
 {
-	_ASSERT(m_Actor);
+	_ASSERT(m_Actor && hit.controller->getUserData() == this);
 
-	physx::PxRigidDynamic* actor = hit.other->getActor();
-	_ASSERT(actor);
-	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
-	actor->getShapes(shapes.data(), shapes.size());
-	_ASSERT(!shapes.empty());
-	if (shapes.front()->userData)
+	if (hit.other->getUserData())
 	{
-		Component* other_cmp = (Component*)shapes.front()->userData;
+		Component* other_cmp = (Component*)hit.other->getUserData();
 		ControllerHitEventArg arg(m_Actor, this, other_cmp->m_Actor, other_cmp);
 		arg.worldPos = (Vector3&)hit.worldPos;
 		arg.worldNormal = (Vector3&)hit.worldNormal;
