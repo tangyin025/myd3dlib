@@ -305,7 +305,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 		_ASSERT(!IsRequested());
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeScript;
 	}
@@ -1947,9 +1947,9 @@ void LuaContext::Init(void)
 				value("ComponentTypeStaticEmitter", Component::ComponentTypeStaticEmitter),
 				value("ComponentTypeSphericalEmitter", Component::ComponentTypeSphericalEmitter),
 				value("ComponentTypeTerrain", Component::ComponentTypeTerrain),
-				value("ComponentTypeScript", Component::ComponentTypeScript),
 				value("ComponentTypeAnimator", Component::ComponentTypeAnimator),
-				value("ComponentTypeNavigation", Component::ComponentTypeNavigation)
+				value("ComponentTypeNavigation", Component::ComponentTypeNavigation),
+				value("ComponentTypeScript", Component::ComponentTypeScript)
 			]
 			.property("ComponentType", &Component::GetComponentType)
 			.enum_("LODMask")

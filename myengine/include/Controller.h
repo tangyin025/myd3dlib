@@ -59,7 +59,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeController;
 	}

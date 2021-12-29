@@ -110,7 +110,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeComponent;
 	}
@@ -286,7 +286,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeMesh;
 	}
@@ -397,7 +397,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeCloth;
 	}
@@ -505,7 +505,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_EmitterPrimitiveType);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeEmitter;
 	}
@@ -545,7 +545,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeCircularEmitter;
 	}
@@ -630,7 +630,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	virtual ComponentType GetComponentType(void) const
+	virtual DWORD GetComponentType(void) const
 	{
 		return ComponentTypeSphericalEmitter;
 	}

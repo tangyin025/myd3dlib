@@ -372,7 +372,7 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 		Controller* controller = (Controller*)m_Actor->GetFirstComponent(Component::ComponentTypeController);
 		if (controller)
 		{
-			controller->Move(Pos - m_LasterPos, 0.001, fElapsedTime);
+			controller->Move(Pos - m_LasterPos, 0.001f, fElapsedTime);
 
 			m_LasterPos = Pos;
 		}
