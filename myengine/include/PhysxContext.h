@@ -6,6 +6,10 @@
 #include "myUtility.h"
 #include "myThread.h"
 
+class Actor;
+
+class Component;
+
 class PhysxAllocator : public physx::PxAllocatorCallback
 {
 public:
@@ -203,4 +207,8 @@ public:
 	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count);
 
 	void removeRenderActorsFromPhysicsActor(const physx::PxActor * actor);
+	
+	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
+
+	bool Overlap(const physx::PxGeometry & geometry, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const OverlapCallback & callback, unsigned int MaxNbTouches);
 };

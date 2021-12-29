@@ -272,22 +272,4 @@ public:
 	boost::shared_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 
 	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
-
-	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
-
-	bool Overlap(const physx::PxGeometry & geometry, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const OverlapCallback & callback, unsigned int MaxNbTouches);
-
-	template <typename T>
-	bool OverlapBox(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
-	{
-		physx::PxBoxGeometry box(hx, hy, hz);
-		return Overlap(box, Position, Rotation, filterWord0, callback, MaxNbTouches);
-	}
-
-	template <typename T>
-	bool OverlapSphere(float radius, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
-	{
-		physx::PxSphereGeometry sphere(radius);
-		return Overlap(sphere, Position, Rotation, filterWord0, callback, MaxNbTouches);
-	}
 };
