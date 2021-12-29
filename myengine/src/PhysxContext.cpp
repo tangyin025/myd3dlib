@@ -23,6 +23,7 @@
 #include "CctBoxController.h"
 #include "CctCapsuleController.h"
 #include <luabind/luabind.hpp>
+#include "Controller.h"
 
 void * PhysxAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
@@ -527,10 +528,7 @@ bool PhysxScene::Overlap(const physx::PxGeometry & geometry, const my::Vector3 &
 
 	std::vector<physx::PxOverlapHit> hitbuff(my::Min(32U, MaxNbTouches));
 	OverlapBuffer buff(hitbuff.data(), hitbuff.size(), callback, MaxNbTouches);
-	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
 	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
-	m_PxScene->overlap(geometry, pose, buff, filterData);
 
 	physx::Cct::CharacterControllerManager* mManager = static_cast<physx::Cct::CharacterControllerManager*>(m_ControllerMgr.get());
 	const physx::PxU32 nbControllers = mManager->getNbControllers();
@@ -538,57 +536,61 @@ bool PhysxScene::Overlap(const physx::PxGeometry & geometry, const my::Vector3 &
 	for (physx::PxU32 i = 0; i < nbControllers && buff.callback_i < MaxNbTouches; i++)
 	{
 		physx::Cct::Controller* currentController = controllers[i];
-		switch (currentController->mType)
+		if (currentController->mUserData)
 		{
-		case physx::PxControllerShapeType::eBOX:
-		{
-			physx::Cct::BoxController* BC = static_cast<physx::Cct::BoxController*>(currentController);
-			physx::PxBoxGeometry box(BC->mHalfHeight, BC->mHalfSideExtent, BC->mHalfForwardExtent);
-			physx::PxTransform box_pose(physx::toVec3(BC->getPosition()), BC->mUserParams.mQuatFromUp);
-			if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
+			_ASSERT(Component::ComponentTypeController == ((Component*)currentController->mUserData)->GetComponentType());
+			Controller* other_cmp = static_cast<Controller*>((Component*)currentController->mUserData);
+			if (other_cmp->m_filterWord0 & filterWord0)
 			{
-				if (BC->mUserData)
+				switch (currentController->mType)
 				{
-					Component* other_cmp = (Component*)BC->mUserData;
-					try
-					{
-						callback(other_cmp->m_Actor, other_cmp, 0);
-					}
-					catch (const luabind::error& e)
-					{
-						my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-						return false;
-					}
-				}
-				buff.callback_i++;
-			}
-			break;
-		}
-		case physx::PxControllerShapeType::eCAPSULE:
-		{
-			physx::Cct::CapsuleController* CC = static_cast<physx::Cct::CapsuleController*>(currentController);
-			physx::PxCapsuleGeometry capsule(CC->mRadius, CC->mHeight * 0.5f);
-			physx::PxTransform capsule_pose(physx::toVec3(CC->getPosition()), CC->mUserParams.mQuatFromUp);
-			if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
-			{
-				if (CC->mUserData)
+				case physx::PxControllerShapeType::eBOX:
 				{
-					Component* other_cmp = (Component*)CC->mUserData;
-					try
+					physx::Cct::BoxController* BC = static_cast<physx::Cct::BoxController*>(currentController);
+					physx::PxBoxGeometry box(BC->mHalfHeight, BC->mHalfSideExtent, BC->mHalfForwardExtent);
+					physx::PxTransform box_pose(physx::toVec3(BC->getPosition()), BC->mUserParams.mQuatFromUp);
+					if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
 					{
-						callback(other_cmp->m_Actor, other_cmp, 0);
+						try
+						{
+							callback(other_cmp->m_Actor, other_cmp, 0);
+						}
+						catch (const luabind::error& e)
+						{
+							my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+							return false;
+						}
+						buff.callback_i++;
 					}
-					catch (const luabind::error& e)
-					{
-						my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-						return false;
-					}
+					break;
 				}
-				buff.callback_i++;
+				case physx::PxControllerShapeType::eCAPSULE:
+				{
+					physx::Cct::CapsuleController* CC = static_cast<physx::Cct::CapsuleController*>(currentController);
+					physx::PxCapsuleGeometry capsule(CC->mRadius, CC->mHeight * 0.5f);
+					physx::PxTransform capsule_pose(physx::toVec3(CC->getPosition()), CC->mUserParams.mQuatFromUp);
+					if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
+					{
+						try
+						{
+							callback(other_cmp->m_Actor, other_cmp, 0);
+						}
+						catch (const luabind::error& e)
+						{
+							my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+							return false;
+						}
+						buff.callback_i++;
+					}
+					break;
+				}
+				}
 			}
-			break;
-		}
 		}
 	}
+
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
+	m_PxScene->overlap(geometry, pose, buff, filterData);
 	return buff.callback_i > 0;
 }
