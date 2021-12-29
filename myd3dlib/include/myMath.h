@@ -1018,6 +1018,14 @@ namespace my
 		{
 		}
 
+		explicit Rectangle(const Vector2 & leftTop)
+			: l(leftTop.x)
+			, t(leftTop.y)
+			, r(leftTop.x)
+			, b(leftTop.y)
+		{
+		}
+
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
