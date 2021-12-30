@@ -1941,6 +1941,7 @@ void LuaContext::Init(void)
 
 		, class_<Component, my::NamedObject, ScriptComponent/*, boost::shared_ptr<Component>*/ >("Component")
 			.def(constructor<const char *>())
+			.def(self == other<const Component&>())
 			.enum_("ComponentType")
 			[
 				value("ComponentTypeComponent", Component::ComponentTypeComponent),
@@ -2146,6 +2147,7 @@ void LuaContext::Init(void)
 
 		, class_<Actor, bases<my::NamedObject, my::OctEntity>, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const char *, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
+			.def(self == other<const Actor&>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Position", &Actor::m_Position)
 			.def_readwrite("Rotation", &Actor::m_Rotation)
@@ -2157,7 +2159,6 @@ void LuaContext::Init(void)
 			.def_readonly("Base", &Actor::m_Base)
 			.def_readwrite("BaseBoneId", &Actor::m_BaseBoneId)
 			.def_readonly("Attaches", &Actor::m_Attaches, luabind::return_stl_iterator)
-			.def(self == other<const Actor&>())
 			.property("Requested", &Actor::IsRequested)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)

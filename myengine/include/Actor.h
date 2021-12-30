@@ -219,6 +219,11 @@ public:
 
 	virtual ~Actor(void);
 
+	bool operator ==(const Actor & rhs) const
+	{
+		return this == &rhs;
+	}
+
 	friend class boost::serialization::access;
 
 	template<class Archive>
@@ -236,11 +241,6 @@ public:
 	static boost::shared_ptr<boost::archive::polymorphic_iarchive> GetIArchive(std::istream & istr, const char * ext, const char * prefix);
 
 	static boost::shared_ptr<boost::archive::polymorphic_oarchive> GetOArchive(std::ostream & ostr, const char * ext);
-
-	bool operator ==(const Actor & rhs) const
-	{
-		return this == &rhs;
-	}
 
 	bool IsRequested(void) const
 	{

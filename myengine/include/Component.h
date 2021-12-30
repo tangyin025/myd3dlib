@@ -96,6 +96,11 @@ protected:
 public:
 	virtual ~Component(void);
 
+	bool operator ==(const Component & rhs) const
+	{
+		return this == &rhs;
+	}
+
 	friend class boost::serialization::access;
 
 	template<class Archive>
