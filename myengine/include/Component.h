@@ -63,6 +63,8 @@ public:
 		LOD0_1_2 = LOD0 | LOD1 | LOD2,
 	};
 
+	enum { TypeID = ComponentTypeComponent };
+
 	LODMask m_LodMask;
 
 	Actor * m_Actor;
@@ -117,7 +119,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeComponent;
+		return TypeID;
 	}
 
 	bool IsRequested(void) const
@@ -222,6 +224,8 @@ class MeshComponent
 	: public Component
 {
 public:
+	enum { TypeID = ComponentTypeMesh };
+
 	std::string m_MeshPath;
 
 	std::string m_MeshSubMeshName;
@@ -293,7 +297,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeMesh;
+		return TypeID;
 	}
 
 	void OnMeshReady(my::DeviceResourceBasePtr res);
@@ -329,6 +333,8 @@ class ClothComponent
 	: public Component
 {
 public:
+	enum { TypeID = ComponentTypeCloth };
+
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
 	std::vector<unsigned char> m_VertexData;
@@ -404,7 +410,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeCloth;
+		return TypeID;
 	}
 
 	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId);
@@ -438,6 +444,8 @@ class EmitterComponent
 	: public Component
 {
 public:
+	enum { TypeID = ComponentTypeEmitter };
+
 	enum FaceType
 	{
 		FaceTypeX			= 0,
@@ -512,7 +520,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeEmitter;
+		return TypeID;
 	}
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
@@ -526,6 +534,9 @@ class CircularEmitter
 	: public EmitterComponent
 	, public my::Emitter
 {
+public:
+	enum { TypeID = ComponentTypeCircularEmitter };
+
 protected:
 	CircularEmitter(void)
 	{
@@ -552,7 +563,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeCircularEmitter;
+		return TypeID;
 	}
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
@@ -564,6 +575,8 @@ class SphericalEmitter
 	: public CircularEmitter
 {
 public:
+	enum { TypeID = ComponentTypeSphericalEmitter };
+
 	float m_ParticleLifeTime;
 
 	float m_SpawnInterval;
@@ -637,7 +650,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeSphericalEmitter;
+		return TypeID;
 	}
 
 	virtual void RequestResource(void);

@@ -8,6 +8,8 @@ class Controller
 	, public physx::PxControllerBehaviorCallback
 {
 public:
+	enum { TypeID = ComponentTypeController };
+
 	float m_Height;
 
 	float m_Radius;
@@ -61,7 +63,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeController;
+		return TypeID;
 	}
 
 	virtual void RequestResource(void);

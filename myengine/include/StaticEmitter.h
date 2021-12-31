@@ -69,6 +69,8 @@ class StaticEmitter
 	, public my::OctRoot
 {
 public:
+	enum { TypeID = ComponentTypeStaticEmitter };
+
 	float m_ChunkWidth;
 
 	std::string m_EmitterChunkPath;
@@ -110,7 +112,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeStaticEmitter;
+		return TypeID;
 	}
 
 	virtual void RequestResource(void);

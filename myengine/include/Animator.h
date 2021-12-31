@@ -339,6 +339,8 @@ class Animator
 	, public AnimationNodeSlot
 {
 public:
+	enum { TypeID = ComponentTypeAnimator };
+
 	std::string m_SkeletonPath;
 
 	my::OgreSkeletonAnimationPtr m_Skeleton;
@@ -416,7 +418,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeAnimator;
+		return TypeID;
 	}
 
 	void OnSkeletonReady(my::DeviceResourceBasePtr res);

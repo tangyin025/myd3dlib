@@ -369,7 +369,7 @@ void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 			m_Template->m_InterpolateY.Interpolate(LocalTime, 0),
 			m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)));
 
-		Controller* controller = (Controller*)m_Actor->GetFirstComponent(Component::ComponentTypeController);
+		Controller* controller = m_Actor->GetFirstComponent<Controller>();
 		if (controller)
 		{
 			controller->Move(Pos - m_LasterPos, 0.001f, fElapsedTime);

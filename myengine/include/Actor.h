@@ -307,13 +307,11 @@ public:
 
 	void StopAllAction(void);
 
-	Component * GetFirstComponent(Component::ComponentType Type);
+	Component * GetFirstComponent(DWORD Type);
 
 	template <typename ComponentType>
-	ComponentType * GetFirstComponent(void);
+	ComponentType * GetFirstComponent(void)
+	{
+		return dynamic_cast<ComponentType*>(GetFirstComponent(ComponentType::TypeID));
+	}
 };
-
-class Animator;
-
-template <>
-Animator * Actor::GetFirstComponent<Animator>(void);

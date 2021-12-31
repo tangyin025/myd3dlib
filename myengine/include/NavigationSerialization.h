@@ -9,6 +9,8 @@ class dtNavMeshQuery;
 class Navigation : public Component
 {
 public:
+	enum { TypeID = ComponentTypeNavigation };
+
 	boost::shared_ptr<dtNavMesh> m_navMesh;
 
 	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
@@ -37,7 +39,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeNavigation;
+		return TypeID;
 	}
 
 	bool IsRequested(void) const

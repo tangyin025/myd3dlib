@@ -712,7 +712,7 @@ void Actor::StopAllAction(void)
 	m_ActionInstList.clear();
 }
 
-Component * Actor::GetFirstComponent(Component::ComponentType Type)
+Component * Actor::GetFirstComponent(DWORD Type)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
@@ -723,10 +723,4 @@ Component * Actor::GetFirstComponent(Component::ComponentType Type)
 		}
 	}
 	return NULL;
-}
-
-template <>
-Animator * Actor::GetFirstComponent<Animator>(void)
-{
-	return dynamic_cast<Animator*>(GetFirstComponent(Component::ComponentTypeAnimator));
 }

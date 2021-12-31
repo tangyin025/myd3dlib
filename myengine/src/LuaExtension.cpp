@@ -2195,7 +2195,7 @@ void LuaContext::Init(void)
 			.def("Attach", &Actor::Attach)
 			.def("Detach", &Actor::Detach)
 			.def("PlayAction", &Actor::PlayAction)
-			.def("GetFirstComponent", (Component * (Actor::*)(Component::ComponentType))&Actor::GetFirstComponent)
+			.def("GetFirstComponent", (Component * (Actor::*)(DWORD))&Actor::GetFirstComponent)
 
 		//, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 

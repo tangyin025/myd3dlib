@@ -64,6 +64,8 @@ class Terrain
 	, public my::OctRoot
 {
 public:
+	enum { TypeID = ComponentTypeTerrain };
+
 	static const float MinBlock;
 
 	static const float Threshold;
@@ -154,7 +156,7 @@ public:
 
 	virtual DWORD GetComponentType(void) const
 	{
-		return ComponentTypeTerrain;
+		return TypeID;
 	}
 
 	virtual void RequestResource(void);
