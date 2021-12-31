@@ -2315,6 +2315,8 @@ void LuaContext::Init(void)
 			.def_readwrite("Start", &ActionTrackPose::m_Start)
 			.def_readwrite("Length", &ActionTrackPose::m_Length)
 			.def_readwrite("Repeat", &ActionTrackPose::m_Repeat)
+			.def_readwrite("StartPos", &ActionTrackPose::m_StartPos)
+			.def_readwrite("StartRot", &ActionTrackPose::m_StartRot)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
 
 		, class_<PhysxScene>("PhysxScene")

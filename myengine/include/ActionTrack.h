@@ -334,6 +334,10 @@ public:
 
 	unsigned int m_Repeat;
 
+	my::Vector3 m_StartPos;
+
+	my::Quaternion m_StartRot;
+
 	my::Spline m_InterpolateX;
 
 	my::Spline m_InterpolateY;
@@ -345,6 +349,8 @@ public:
 		: m_Start(Start)
 		, m_Length(Length)
 		, m_Repeat(Repeat)
+		, m_StartPos(0, 0, 0)
+		, m_StartRot(my::Quaternion::Identity())
 	{
 	}
 

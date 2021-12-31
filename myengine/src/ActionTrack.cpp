@@ -353,8 +353,8 @@ void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
 ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_StartPose(_Actor->m_Rotation, _Actor->m_Position)
-	, m_LasterPos(_Actor->m_Position)
+	, m_StartPose(Template->m_StartRot, Template->m_StartPos)
+	, m_LasterPos(Template->m_StartPos)
 {
 }
 
