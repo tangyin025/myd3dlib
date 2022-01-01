@@ -10,6 +10,8 @@ class Actor;
 
 class Component;
 
+class Controller;
+
 class PhysxAllocator : public physx::PxAllocatorCallback
 {
 public:
@@ -210,5 +212,14 @@ public:
 	
 	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
 
-	bool Overlap(const physx::PxGeometry & geometry, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const OverlapCallback & callback, unsigned int MaxNbTouches);
+	typedef boost::function<bool(Controller *)> ControllerFilterCallback;
+
+	bool Overlap(
+		const physx::PxGeometry & geometry,
+		const my::Vector3 & Position,
+		const my::Quaternion & Rotation,
+		unsigned int filterWord0,
+		const ControllerFilterCallback & controllerfilter,
+		const OverlapCallback & callback,
+		unsigned int MaxNbTouches);
 };

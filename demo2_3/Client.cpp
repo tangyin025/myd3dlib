@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "resource.h"
 #include "NavigationSerialization.h"
+#include "Controller.h"
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
@@ -354,18 +355,20 @@ static void client_add_state_adopt(Client * self, StateBase * state, StateBase *
 	self->AddState(StateBasePtr(state), parent);
 }
 
-template <typename T>
-static bool client_overlap_box(Client * self, float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+template <typename F, typename T>
+static bool client_overlap_box(Client * self, float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const F & controllerfilter, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxBoxGeometry box(hx, hy, hz);
-	return self->Overlap(box, Position, Rotation, filterWord0, callback, MaxNbTouches);
+	PhysxScene::ControllerFilterCallback f = boost::bind(&luabind::call_function<bool, Controller*>, controllerfilter, boost::placeholders::_1);
+	return self->Overlap(box, Position, Rotation, filterWord0, f, callback, MaxNbTouches);
 }
 
-template <typename T>
-static bool client_overlap_sphere(Client * self, float radius, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+template <typename F, typename T>
+static bool client_overlap_sphere(Client * self, float radius, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const F & controllerfilter, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
-	return self->Overlap(sphere, Position, Rotation, filterWord0, callback, MaxNbTouches);
+	PhysxScene::ControllerFilterCallback f = boost::bind(&luabind::call_function<bool, Controller*>, controllerfilter, boost::placeholders::_1);
+	return self->Overlap(sphere, Position, Rotation, filterWord0, f, callback, MaxNbTouches);
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -945,8 +948,8 @@ HRESULT Client::OnCreateDevice(
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))
-			.def("OverlapBox", &client_overlap_box<luabind::object>)
-			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
+			.def("OverlapBox", &client_overlap_box<luabind::object, luabind::object>)
+			.def("OverlapSphere", &client_overlap_sphere<luabind::object, luabind::object>)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
