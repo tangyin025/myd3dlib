@@ -209,17 +209,4 @@ public:
 	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count);
 
 	void removeRenderActorsFromPhysicsActor(const physx::PxActor * actor);
-	
-	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
-
-	typedef boost::function<bool(Controller *)> ControllerFilterFunc;
-
-	bool Overlap(
-		const physx::PxGeometry & geometry,
-		const my::Vector3 & Position,
-		const my::Quaternion & Rotation,
-		unsigned int filterWord0,
-		const ControllerFilterFunc & controllerfilter,
-		const OverlapCallback & callback,
-		unsigned int MaxNbTouches);
 };

@@ -272,4 +272,17 @@ public:
 	boost::shared_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 
 	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
+	
+	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
+
+	typedef boost::function<bool(Controller *)> ControllerFilterFunc;
+
+	bool Overlap(
+		const physx::PxGeometry & geometry,
+		const my::Vector3 & Position,
+		const my::Quaternion & Rotation,
+		unsigned int filterWord0,
+		const ControllerFilterFunc & controllerfilter,
+		const OverlapCallback & callback,
+		unsigned int MaxNbTouches);
 };
