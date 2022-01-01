@@ -16,8 +16,6 @@ public:
 
 	float m_ContactOffset;
 
-	unsigned int m_filterWord0;
-
 	bool m_PxControllerMoveMuted;
 
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
@@ -29,18 +27,16 @@ protected:
 		: m_Height(1.0f)
 		, m_Radius(1.0f)
 		, m_ContactOffset(0.1f)
-		, m_filterWord0(0)
 		, m_PxControllerMoveMuted(false)
 	{
 	}
 
 public:
-	Controller(const char * Name, float Height, float Radius, float ContactOffset, unsigned int filterWord0)
+	Controller(const char * Name, float Height, float Radius, float ContactOffset)
 		: Component(Name)
 		, m_Height(Height)
 		, m_Radius(Radius)
 		, m_ContactOffset(ContactOffset)
-		, m_filterWord0(filterWord0)
 		, m_PxControllerMoveMuted(false)
 	{
 	}
@@ -80,7 +76,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime);
+	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0);
 
 	void SetPosition(const my::Vector3 & Pos);
 

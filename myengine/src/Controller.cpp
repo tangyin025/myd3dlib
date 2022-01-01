@@ -106,7 +106,7 @@ void Controller::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quater
 	SetPosition(Pos);
 }
 
-unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime)
+unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0)
 {
 	m_PxControllerMoveMuted = true;
 	BOOST_SCOPE_EXIT(&m_PxControllerMoveMuted)
@@ -119,7 +119,7 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 
 	if (m_PxController)
 	{
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(m_filterWord0, 0, 0, 0)), NULL);
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0)), NULL);
 
 		// ! recursively call other Component::SetPxPoseOrbyPxThread
 		m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation, this);

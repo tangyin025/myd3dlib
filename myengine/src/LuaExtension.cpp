@@ -2112,8 +2112,7 @@ void LuaContext::Init(void)
 				value("eCOLLISION_UP", physx::PxControllerCollisionFlag::eCOLLISION_UP),
 				value("eCOLLISION_DOWN", physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
 			]
-			.def(constructor<const char*, float, float, float, unsigned int>())
-			.def_readwrite("filterWord0", &Controller::m_filterWord0)
+			.def(constructor<const char*, float, float, float>())
 			.def("Move", &Controller::Move)
 			.property("Position", &Controller::GetPosition, &Controller::SetPosition)
 			.property("FootPosition", &Controller::GetFootPosition, &Controller::SetFootPosition)
