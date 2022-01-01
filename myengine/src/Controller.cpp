@@ -119,7 +119,25 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 
 	if (m_PxController)
 	{
-		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0)), NULL);
+		struct FilterCallback : physx::PxControllerFilterCallback
+		{
+			FilterCallback(void)
+			{
+			}
+
+			virtual bool filter(const physx::PxController & a, const physx::PxController & b)
+			{
+				if (a.getUserData() && b.getUserData())
+				{
+					Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
+					Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
+					return controller0->m_Actor->m_Base != controller1->m_Actor && controller0->m_Actor != controller1->m_Actor->m_Base;
+				}
+				return false;
+			}
+		};
+
+		moveFlags = m_PxController->move((physx::PxVec3&)disp, minDist, elapsedTime, physx::PxControllerFilters(&physx::PxFilterData(filterWord0, 0, 0, 0), NULL, &FilterCallback()), NULL);
 
 		// ! recursively call other Component::SetPxPoseOrbyPxThread
 		m_Actor->SetPxPoseOrbyPxThread(GetPosition(), m_Actor->m_Rotation, this);

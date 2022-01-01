@@ -489,7 +489,7 @@ bool PhysxScene::Overlap(
 		const my::Vector3 & Position,
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
-		const ControllerFilterCallback & controllerfilter,
+		const ControllerFilterFunc & controllerfilter,
 		const OverlapCallback & callback,
 		unsigned int MaxNbTouches)
 {

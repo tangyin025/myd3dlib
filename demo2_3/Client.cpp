@@ -359,16 +359,16 @@ template <typename F, typename T>
 static bool client_overlap_box(Client * self, float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const F & controllerfilter, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxBoxGeometry box(hx, hy, hz);
-	PhysxScene::ControllerFilterCallback f = boost::bind(&luabind::call_function<bool, Controller*>, controllerfilter, boost::placeholders::_1);
-	return self->Overlap(box, Position, Rotation, filterWord0, f, callback, MaxNbTouches);
+	PhysxScene::ControllerFilterFunc func = boost::bind(&luabind::call_function<bool, Controller*>, controllerfilter, boost::placeholders::_1);
+	return self->Overlap(box, Position, Rotation, filterWord0, func, callback, MaxNbTouches);
 }
 
 template <typename F, typename T>
 static bool client_overlap_sphere(Client * self, float radius, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const F & controllerfilter, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
-	PhysxScene::ControllerFilterCallback f = boost::bind(&luabind::call_function<bool, Controller*>, controllerfilter, boost::placeholders::_1);
-	return self->Overlap(sphere, Position, Rotation, filterWord0, f, callback, MaxNbTouches);
+	PhysxScene::ControllerFilterFunc func = boost::bind(&luabind::call_function<bool, Controller*>, controllerfilter, boost::placeholders::_1);
+	return self->Overlap(sphere, Position, Rotation, filterWord0, func, callback, MaxNbTouches);
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
