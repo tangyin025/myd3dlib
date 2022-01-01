@@ -79,7 +79,7 @@ namespace luabind
 					rhs.m_called = true;
 				}
 
-				~proxy_function_caller()
+				~proxy_function_caller() noexcept(false) // ! https://stackoverflow.com/questions/23574323/why-cant-i-catch-a-luabinderror-exception-when-my-lua-code-throws-an-error
 				{
 					if (m_called) return;
 
