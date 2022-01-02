@@ -2193,6 +2193,8 @@ void LuaContext::Init(void)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 			.def("Attach", &Actor::Attach)
 			.def("Detach", &Actor::Detach)
+			.property("AttachNum", &Actor::GetAttachNum)
+			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("GetFirstComponent", (Component * (Actor::*)(DWORD))&Actor::GetFirstComponent)
 

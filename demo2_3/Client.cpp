@@ -1517,7 +1517,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 
 	actor->StopAllAction();
 
-	actor->ClearAllAttacher();
+	actor->ClearAllAttach();
 
 	if (actor->m_Base)
 	{

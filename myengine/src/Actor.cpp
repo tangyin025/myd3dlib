@@ -683,7 +683,12 @@ void Actor::Detach(Actor * other)
 	_ASSERT(false);
 }
 
-void Actor::ClearAllAttacher(void)
+unsigned int Actor::GetAttachNum(void) const
+{
+	return m_Attaches.size();
+}
+
+void Actor::ClearAllAttach(void)
 {
 	ActorList::iterator att_iter = m_Attaches.begin();
 	for (; att_iter != m_Attaches.end(); att_iter = m_Attaches.begin())

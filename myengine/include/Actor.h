@@ -299,7 +299,9 @@ public:
 
 	void Detach(Actor * other);
 
-	void ClearAllAttacher(void);
+	unsigned int GetAttachNum(void) const;
+
+	void ClearAllAttach(void);
 
 	void PlayAction(Action * action, float Length);
 
