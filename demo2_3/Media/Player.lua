@@ -2,9 +2,9 @@ module("SPlayer", package.seeall)
 require "Action.lua"
 
 -- 修正不规范资源
-mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
-mesh:Transform(Matrix4.Compose(
-	Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
+-- mesh=client:LoadMesh("character/casual19_m_highpoly.mesh.xml","")
+-- mesh:Transform(Matrix4.Compose(
+-- 	Vector3(1,1,1),Quaternion.Identity(),Vector3(0,-95,0)))
 -- mesh:SaveOgreMesh("Media/character/casual19_m_highpoly.mesh.xml")
 skel=client:LoadSkeleton("character/casual19_m_highpoly.skeleton.xml")
 skel:AddOgreSkeletonAnimationFromFile("character/casual19_m_highpoly_idle1.skeleton.xml")
@@ -21,7 +21,7 @@ skel:Transform(Matrix4.Compose(
 
 -- 创建Player主体
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
-local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,1)
+local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1)
 player:InsertComponent(player.ComponentNum,controller_cmp)
 
 -- 模型材质
@@ -60,8 +60,8 @@ animator_cmp:ReloadSequenceGroup()
 animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)
 	-- arg.self:AddJiggleBone("Bip01_R_Forearm",0.01,0.01,-10)
-	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
-	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, controller_cmp.filterWord0)
+	animator_cmp:AddIK(res:GetBoneIndex("Bip01_L_Thigh"), res.boneHierarchy, 0.1, 1)
+	animator_cmp:AddIK(res:GetBoneIndex("Bip01_R_Thigh"), res.boneHierarchy, 0.1, 1)
 end, 0)
 player:InsertComponent(player.ComponentNum,animator_cmp)
 
@@ -156,7 +156,7 @@ function PlayerBehavior:Update(elapsedTime)
 	client.listener:CommitDeferredSettings()
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
-	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime)
+	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime,1)
 	if bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end

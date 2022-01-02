@@ -399,7 +399,10 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot, const m
 
 	UpdateWorld();
 
-	UpdateOctNode();
+	if (m_Node)
+	{
+		UpdateOctNode();
+	}
 }
 
 void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos)
