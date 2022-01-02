@@ -1188,9 +1188,7 @@ void Client::OnFrameTick(
 				ViewedActorSet::iterator actor_iter = m_client->m_ViewedActors.iterator_to(*actor);
 				if (actor_iter != insert_actor_iter)
 				{
-					m_client->m_ViewedActors.erase(actor_iter);
-
-					m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
+					m_client->m_ViewedActors.splice(insert_actor_iter, m_client->m_ViewedActors, actor_iter);
 				}
 				else
 				{

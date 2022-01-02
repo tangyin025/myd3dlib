@@ -217,9 +217,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					CMainFrame::ViewedActorSet::iterator actor_iter = pFrame->m_ViewedActors.iterator_to(*actor);
 					if (actor_iter != insert_actor_iter)
 					{
-						pFrame->m_ViewedActors.erase(actor_iter);
-
-						pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
+						pFrame->m_ViewedActors.splice(insert_actor_iter, pFrame->m_ViewedActors, actor_iter);
 					}
 					else
 					{
