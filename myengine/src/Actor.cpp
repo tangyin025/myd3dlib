@@ -456,19 +456,18 @@ void Actor::UpdateAABB(void)
 
 void Actor::UpdateWorld(void)
 {
-	//_ASSERT(!m_Base);
+	_ASSERT(!m_Base);
 
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 }
 
 void Actor::UpdateOctNode(void)
 {
-	if (m_Node)
-	{
-		my::OctNode * Root = m_Node->GetTopNode();
-		Root->OctNode::RemoveEntity(this);
-		Root->OctNode::AddEntity(this, m_aabb.transform(m_World), MinBlock, Threshold);
-	}
+	_ASSERT(m_Node);
+
+	my::OctNode* Root = m_Node->GetTopNode();
+	Root->OctNode::RemoveEntity(this);
+	Root->OctNode::AddEntity(this, m_aabb.transform(m_World), MinBlock, Threshold);
 }
 
 int Actor::CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const

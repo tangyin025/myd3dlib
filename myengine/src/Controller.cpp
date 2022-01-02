@@ -131,7 +131,10 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 				{
 					Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
 					Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
-					return controller0->m_Actor->m_Base != controller1->m_Actor && controller0->m_Actor != controller1->m_Actor->m_Base;
+					if (controller0->m_Actor->m_Base != controller1->m_Actor && controller0->m_Actor != controller1->m_Actor->m_Base)
+					{
+						return true;
+					}
 				}
 				return false;
 			}
