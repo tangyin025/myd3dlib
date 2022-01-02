@@ -319,6 +319,33 @@ void Actor::ReleaseResource(void)
 
 void Actor::Update(float fElapsedTime)
 {
+	if (m_Base)
+	{
+		Animator* animator = m_Base->GetFirstComponent<Animator>();
+
+		if (animator && m_BaseBoneId >= 0 && m_BaseBoneId < (int)animator->anim_pose_hier.size())
+		{
+			const Bone& bone = animator->anim_pose_hier[m_BaseBoneId];
+
+			const Bone attach_pose(m_Rotation * bone.m_rotation * m_Base->m_Rotation,
+				(bone.m_rotation * m_Position + bone.m_position).transformCoord(m_Base->m_World));
+
+			m_World = Matrix4::Compose(m_Scale, attach_pose.m_rotation, attach_pose.m_position);
+
+			SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
+		}
+		else
+		{
+			const Bone attach_pose(m_Rotation * m_Base->m_Rotation, m_Position.transformCoord(m_Base->m_World));
+
+			m_World = Matrix4::Compose(m_Scale, attach_pose.m_rotation, attach_pose.m_position);
+
+			SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
+		}
+
+		UpdateOctNode();
+	}
+
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
@@ -348,40 +375,6 @@ void Actor::Update(float fElapsedTime)
 			{
 				(*cmp_iter)->Update(fElapsedTime);
 			}
-		}
-	}
-
-	// ! Detached Actor must not be removed from scene immediately
-	Animator* animator = GetFirstComponent<Animator>();
-	ActorList dummy_acts(m_Attaches.begin(), m_Attaches.end());
-	ActorList::iterator att_iter = dummy_acts.begin();
-	for (; att_iter != dummy_acts.end(); att_iter++)
-	{
-		if (this == (*att_iter)->m_Base)
-		{
-			if (animator && (*att_iter)->m_BaseBoneId >= 0 && (*att_iter)->m_BaseBoneId < (int)animator->anim_pose_hier.size())
-			{
-				const Bone& bone = animator->anim_pose_hier[(*att_iter)->m_BaseBoneId];
-
-				const Bone attach_pose((*att_iter)->m_Rotation * bone.m_rotation * m_Rotation,
-					(bone.m_rotation * (*att_iter)->m_Position + bone.m_position).transformCoord(m_World));
-
-				(*att_iter)->m_World = Matrix4::Compose((*att_iter)->m_Scale, attach_pose.m_rotation, attach_pose.m_position);
-
-				(*att_iter)->SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
-			}
-			else
-			{
-				const Bone attach_pose((*att_iter)->m_Rotation * m_Rotation, (*att_iter)->m_Position.transformCoord(m_World));
-
-				(*att_iter)->m_World = Matrix4::Compose((*att_iter)->m_Scale, attach_pose.m_rotation, attach_pose.m_position);
-
-				(*att_iter)->SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
-			}
-
-			(*att_iter)->UpdateOctNode();
-
-			(*att_iter)->Update(fElapsedTime);
 		}
 	}
 }

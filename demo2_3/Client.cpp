@@ -1227,10 +1227,7 @@ void Client::OnFrameTick(
 
 		actor_iter->UpdateLod(m_Camera->m_Eye, m_ViewedCenter);
 
-		if (!actor_iter->m_Base)
-		{
-			actor_iter->Update(fElapsedTime);
-		}
+		actor_iter->Update(fElapsedTime);
 	}
 
 	for (; actor_iter != m_ViewedActors.end(); )

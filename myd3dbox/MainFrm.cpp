@@ -655,15 +655,12 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		if (!(*actor_iter)->m_Base)
-		{
-			(*actor_iter)->Update(fElapsedTime);
+		(*actor_iter)->Update(fElapsedTime);
 
-			Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
-			if (animator)
-			{
-				animator->Tick(fElapsedTime, 1.0f);
-			}
+		Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
+		if (animator)
+		{
+			animator->Tick(fElapsedTime, 1.0f);
 		}
 	}
 
