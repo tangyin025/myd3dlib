@@ -255,8 +255,6 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	void UpdateAttaches(float fElapsedTime);
-
 	void SetPose(const my::Vector3 & Pos);
 
 	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
