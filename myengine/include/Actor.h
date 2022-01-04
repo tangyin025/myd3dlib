@@ -301,6 +301,8 @@ public:
 
 	unsigned int GetAttachNum(void) const;
 
+	my::Bone GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const;
+
 	void ClearAllAttach(void);
 
 	void PlayAction(Action * action, float Length);
@@ -309,9 +311,17 @@ public:
 
 	Component * GetFirstComponent(DWORD Type);
 
+	const Component * GetFirstComponent(DWORD Type) const;
+
 	template <typename ComponentType>
 	ComponentType * GetFirstComponent(void)
 	{
 		return dynamic_cast<ComponentType*>(GetFirstComponent(ComponentType::TypeID));
+	}
+
+	template <typename ComponentType>
+	const ComponentType * GetFirstComponent(void) const
+	{
+		return dynamic_cast<const ComponentType*>(GetFirstComponent(ComponentType::TypeID));
 	}
 };

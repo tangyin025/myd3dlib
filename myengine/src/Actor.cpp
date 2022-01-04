@@ -321,27 +321,11 @@ void Actor::Update(float fElapsedTime)
 {
 	if (m_Base)
 	{
-		Animator* animator = m_Base->GetFirstComponent<Animator>();
+		Bone attach_pose = m_Base->GetAttachPose(m_BaseBoneId, m_Position, m_Rotation);
 
-		if (animator && m_BaseBoneId >= 0 && m_BaseBoneId < (int)animator->anim_pose_hier.size())
-		{
-			const Bone& bone = animator->anim_pose_hier[m_BaseBoneId];
+		m_World = Matrix4::Compose(m_Scale, attach_pose.m_rotation, attach_pose.m_position);
 
-			const Bone attach_pose(m_Rotation * bone.m_rotation * m_Base->m_Rotation,
-				(bone.m_rotation * m_Position + bone.m_position).transformCoord(m_Base->m_World));
-
-			m_World = Matrix4::Compose(m_Scale, attach_pose.m_rotation, attach_pose.m_position);
-
-			SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
-		}
-		else
-		{
-			const Bone attach_pose(m_Rotation * m_Base->m_Rotation, m_Position.transformCoord(m_Base->m_World));
-
-			m_World = Matrix4::Compose(m_Scale, attach_pose.m_rotation, attach_pose.m_position);
-
-			SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
-		}
+		SetPxPoseOrbyPxThread(attach_pose.m_position, attach_pose.m_rotation, NULL);
 
 		UpdateOctNode();
 	}
@@ -688,6 +672,20 @@ unsigned int Actor::GetAttachNum(void) const
 	return m_Attaches.size();
 }
 
+my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const
+{
+	const Animator* animator = GetFirstComponent<Animator>();
+
+	if (animator && BoneId >= 0 && BoneId < (int)animator->anim_pose_hier.size())
+	{
+		const my::Bone& bone = animator->anim_pose_hier[BoneId];
+
+		return my::Bone(LocalRotation * bone.m_rotation * m_Rotation, (bone.m_rotation * LocalPosition + bone.m_position).transformCoord(m_World));
+	}
+
+	return my::Bone(LocalRotation * m_Rotation, LocalPosition.transformCoord(m_World));
+}
+
 void Actor::ClearAllAttach(void)
 {
 	ActorList::iterator att_iter = m_Attaches.begin();
@@ -715,6 +713,19 @@ void Actor::StopAllAction(void)
 Component * Actor::GetFirstComponent(DWORD Type)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		if ((*cmp_iter)->GetComponentType() == Type)
+		{
+			return cmp_iter->get();
+		}
+	}
+	return NULL;
+}
+
+const Component * Actor::GetFirstComponent(DWORD Type) const
+{
+	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		if ((*cmp_iter)->GetComponentType() == Type)
