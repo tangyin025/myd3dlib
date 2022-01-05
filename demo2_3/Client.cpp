@@ -1183,6 +1183,14 @@ void Client::OnFrameTick(
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
+			if (!actor->m_Base)
+			{
+				InsertViewedActor(actor);
+			}
+		}
+
+		void InsertViewedActor(Actor* actor)
+		{
 			if (actor->is_linked())
 			{
 				ViewedActorSet::iterator actor_iter = m_client->m_ViewedActors.iterator_to(*actor);
@@ -1210,6 +1218,12 @@ void Client::OnFrameTick(
 				}
 
 				m_client->m_ViewedActors.insert(insert_actor_iter, *actor);
+			}
+
+			Actor::ActorList::iterator attach_iter = actor->m_Attaches.begin();
+			for (; attach_iter != actor->m_Attaches.end(); attach_iter++)
+			{
+				InsertViewedActor(*attach_iter);
 			}
 		}
 	};

@@ -221,26 +221,21 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					}
 					else
 					{
-						_ASSERT(insert_actor_iter != pFrame->m_ViewedActors.end());
+						ASSERT(insert_actor_iter != pFrame->m_ViewedActors.end());
 
 						insert_actor_iter++;
 					}
 				}
 				else
 				{
-					_ASSERT(!actor->IsRequested());
+					ASSERT(!actor->IsRequested());
 
 					actor->RequestResource();
 
 					pFrame->m_ViewedActors.insert(insert_actor_iter, *actor);
 				}
-			}
 
-			if (actor->IsRequested())
-			{
 				actor->UpdateLod(ViewPos, TargetPos);
-
-				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 
 				if (pView->m_bShowNavigation)
 				{
@@ -254,6 +249,11 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 						}
 					}
 				}
+			}
+
+			if (actor->IsRequested())
+			{
+				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 			}
 		}
 	};
@@ -1359,7 +1359,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 		// ! 在初始化窗口时，会被反复创建多次
 		StartPerformanceCount();
 		ResetD3DSwapChain();
-		_ASSERT(m_Camera);
+		ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
 		m_Camera->UpdateViewProj();
 
@@ -1869,7 +1869,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
 	{
-		_ASSERT(!pFrame->m_selctls.empty());
+		ASSERT(!pFrame->m_selctls.empty());
 		pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 		ReleaseCapture();
 		my::EventArg arg;
@@ -1958,7 +1958,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (pFrame->m_ctlhandle != CMainFrame::ControlHandleNone)
 	{
-		_ASSERT(!pFrame->m_selctls.empty());
+		ASSERT(!pFrame->m_selctls.empty());
 		CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin();
 		my::Ray ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		my::Vector2 pt;
