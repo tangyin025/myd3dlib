@@ -74,8 +74,8 @@ Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
 
 Vector2 Vector2::RandomUnit(void)
 {
-	float a = Random(0.0f, 2.0f * D3DX_PI);
-	return Vector2(cosf(a), sinf(a));
+	float theta = Random(0.0f, 2.0f * D3DX_PI);
+	return PolarToCartesian(1.0f, theta);
 }
 
 Vector2 Vector2::RandomUnitCircle(void)
@@ -127,10 +127,10 @@ Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
 
 Vector3 Vector3::RandomUnit(void)
 {
-	float z = Random(-1.0f, 1.0f);
-	float a = Random(0.0f, 2.0f * D3DX_PI);
-	float r = sqrtf(1.0f - z * z);
-	return Vector3(r * cosf(a), r * sinf(a), z);
+	float y = Random(-1.0f, 1.0f);
+	float theta = Random(0.0f, 2.0f * D3DX_PI);
+	float r = sqrtf(1.0f - y * y);
+	return Vector3(r * cosf(theta), y, r * sinf(theta));
 }
 
 Vector3 Vector3::RandomUnitSphere(void)
