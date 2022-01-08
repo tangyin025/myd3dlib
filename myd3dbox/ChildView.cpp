@@ -449,7 +449,7 @@ double CChildView::EndPerformanceCount(void)
 
 my::Matrix4 CChildView::GetParticleTransform(DWORD EmitterFaceType, const my::Emitter::Particle & particle, const my::Matrix4 & View)
 {
-	my::Vector3 sph = View.getColumn<2>().xyz.cartesianToSpherical();
+	my::Vector3 sph = View.getColumn<2>().xyz.cartesianToPolar();
 	switch (EmitterFaceType)
 	{
 	case EmitterComponent::FaceTypeX:

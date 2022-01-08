@@ -684,8 +684,10 @@ void LuaContext::Init(void)
 			.def("transformNormal", &my::Vector2::transformNormal)
 			.def("transformNormalTranspose", &my::Vector2::transformNormalTranspose)
 			.def("transform", &my::Vector2::transform)
+			.property("cartesianToPolar", &my::Vector2::cartesianToPolar)
 			.scope
 			[
+				def("PolarToCartesian", &my::Vector2::PolarToCartesian),
 				def("RandomUnit", &my::Vector2::RandomUnit),
 				def("RandomUnitCircle", &my::Vector2::RandomUnitCircle)
 			]
@@ -724,10 +726,10 @@ void LuaContext::Init(void)
 			.def("transformNormal", &my::Vector3::transformNormal)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
 			.def("transform", (my::Vector3(my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
-			.def("cartesianToSpherical", &my::Vector3::cartesianToSpherical)
+			.property("cartesianToPolar", &my::Vector3::cartesianToPolar)
 			.scope
 			[
-				def("SphericalToCartesian", &my::Vector3::SphericalToCartesian),
+				def("PolarToCartesian", &my::Vector3::PolarToCartesian),
 				def("Angle", &my::Vector3::Angle),
 				def("CosTheta", &my::Vector3::CosTheta),
 				def("Cosine", &my::Vector3::Cosine),

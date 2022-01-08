@@ -1601,7 +1601,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
 					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transform(m_Actor->m_World),
-				Vector4(Vector3::SphericalToCartesian(
+				Vector4(Vector3::PolarToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
 					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World), 1),
@@ -1622,7 +1622,7 @@ void SphericalEmitter::Update(float fElapsedTime)
 					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
 					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z), 1),
-				Vector4(Vector3::SphericalToCartesian(
+				Vector4(Vector3::PolarToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
 					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1),

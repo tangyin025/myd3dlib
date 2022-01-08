@@ -320,6 +320,18 @@ namespace my
 		Vector2 transformNormalTranspose(const Matrix4 & m) const;
 
 	public:
+		static Vector2 PolarToCartesian(float length, float theta)
+		{
+			return Vector2(length * cosf(theta), length * sinf(theta));
+		}
+
+		Vector2 cartesianToPolar(void) const
+		{
+			float length = magnitude();
+
+			return Vector2(length, atan2f(y, x));
+		}
+
 		static Vector2 RandomUnit(void);
 
 		static Vector2 RandomUnitCircle(void);
@@ -619,16 +631,16 @@ namespace my
 		Vector3 transformNormalTranspose(const Matrix4 & m) const;
 
 	public:
-		static Vector3 SphericalToCartesian(float rho, float elevation, float azimuth)
+		static Vector3 PolarToCartesian(float length, float phi, float theta)
 		{
-			return Vector3(rho * sinf(elevation) * sinf(azimuth), rho * cosf(elevation), rho * sinf(elevation) * cosf(azimuth));
+			return Vector3(length * cosf(phi) * cosf(theta), length * sinf(phi), length * cosf(phi) * sinf(theta));
 		}
 
-		Vector3 cartesianToSpherical(void) const
+		Vector3 cartesianToPolar(void) const
 		{
-			float rho = magnitude();
+			float length = magnitude();
 
-			return Vector3(rho, asinf(y / rho), atan2f(z, x));
+			return Vector3(length, asinf(y / length), atan2f(z, x));
 		}
 
 		static float Angle(const Vector3 & v0, const Vector3 & v1)
