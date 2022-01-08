@@ -7,26 +7,21 @@
 
 using namespace my;
 
-void DrawHelper::BeginLine(void)
-{
-	m_lineVerts.clear();
-
-	m_triVerts.clear();
-}
-
-void DrawHelper::EndLine(IDirect3DDevice9 * pd3dDevice)
+void DrawHelper::FlushLine(IDirect3DDevice9 * pd3dDevice)
 {
 	HRESULT hr;
 	if (!m_lineVerts.empty())
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_lineVerts.size() / 2, &m_lineVerts[0], sizeof(m_lineVerts[0])));
+		m_lineVerts.clear();
 	}
 
 	if (!m_triVerts.empty())
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, m_triVerts.size() / 3, &m_triVerts[0], sizeof(m_triVerts[0])));
+		m_triVerts.clear();
 	}
 }
 

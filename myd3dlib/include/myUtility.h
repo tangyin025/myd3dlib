@@ -32,9 +32,7 @@ namespace my
 		{
 		}
 
-		void BeginLine(void);
-
-		void EndLine(IDirect3DDevice9 * pd3dDevice);
+		void FlushLine(IDirect3DDevice9 * pd3dDevice);
 
 		void PushLineVertex(float x, float y, float z, D3DCOLOR color);
 

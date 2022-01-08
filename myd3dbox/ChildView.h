@@ -79,6 +79,7 @@ protected:
 	void OnPivotModeChanged(my::EventArg * arg);
 	void OnCmpAttriChanged(my::EventArg * arg);
 	void OnCameraPropChanged(my::EventArg * arg);
+	void DrawTerrainHeightFieldHandle(Terrain* terrain);
 
 	virtual void depthMask(bool state);
 	virtual void texture(bool state);

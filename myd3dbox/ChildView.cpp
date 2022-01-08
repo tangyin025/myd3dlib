@@ -1102,6 +1102,44 @@ void CChildView::OnCameraPropChanged(my::EventArg * arg)
 	Invalidate();
 }
 
+void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
+{
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
+	CPoint point;
+	GetCursorPos(&point);
+	ScreenToClient(&point);
+	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+	my::Ray local_ray = ray.transform(terrain->m_Actor->m_World.inverse());
+	my::RayResult res = terrain->SimpleRayTest(local_ray);
+	if (res.first)
+	{
+		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+		my::Vector3 last_handle_pt;
+		for (int i = 0; i <= 30; i++)
+		{
+			my::Vector2 pos = my::Vector2::PolarToCartesian(pFrame->m_PaintRadius, (float)i / 30 * 2 * D3DX_PI);
+			my::Ray local_ray = my::Ray(my::Vector3(pt.x + pos.x, pt.y + 1000.0f, pt.z + pos.y), my::Vector3(0, -1, 0));
+			my::RayResult res = terrain->SimpleRayTest(local_ray);
+			my::Vector3 handle_pt;
+			if (res.first)
+			{
+				handle_pt = (local_ray.p + local_ray.d * res.second).transformCoord(terrain->m_Actor->m_World);
+			}
+			else
+			{
+				handle_pt = my::Vector3(pt.x + pos.x, pt.y, pt.z + pos.y).transformCoord(terrain->m_Actor->m_World);
+			}
+			if (i > 0)
+			{
+				DrawHelper::PushLine(last_handle_pt, handle_pt, D3DCOLOR_ARGB(255, 255, 255, 0));
+			}
+			last_handle_pt = handle_pt;
+		}
+	}
+}
+
 void CChildView::depthMask(bool state)
 {
 }
@@ -1208,8 +1246,6 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			DrawHelper::BeginLine();
-
 			if (m_bShowGrid)
 			{
 				PushLineGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
@@ -1266,13 +1302,14 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
-				DrawHelper::EndLine(theApp.m_d3dDevice);
+				DrawHelper::FlushLine(theApp.m_d3dDevice);
 
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
 					if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 					{
+						DrawTerrainHeightFieldHandle(pFrame->GetSelComponent<Terrain>());
 					}
 					else if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
 					{
@@ -1286,6 +1323,8 @@ void CChildView::OnPaint()
 						pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
 					}
 				}
+				V(theApp.m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&my::Matrix4::identity));
+				DrawHelper::FlushLine(theApp.m_d3dDevice);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(m_UICamera.m_ViewProj);

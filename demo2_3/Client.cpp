@@ -1103,8 +1103,6 @@ void Client::OnFrameTick(
 
 	LeaveDeviceSection();
 
-	DrawHelper::BeginLine();
-
 	ResourceMgr::CheckIORequests(0);
 
 	PhysxScene::PushRenderBuffer(this);
@@ -1290,7 +1288,7 @@ void Client::OnFrameTick(
 		V(m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
 		V(m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
 		V(m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
-		DrawHelper::EndLine(m_d3dDevice);
+		DrawHelper::FlushLine(m_d3dDevice);
 
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
