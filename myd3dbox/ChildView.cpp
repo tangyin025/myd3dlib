@@ -945,90 +945,15 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 
 	case Component::ComponentTypeTerrain:
 		{
-			struct Callback : public my::OctNode::QueryCallback
-			{
-				const my::Ray & ray;
-				const my::Vector3 & ViewPos;
-				CChildView * pView;
-				Terrain * terrain;
-				my::RayResult ret;
-				CPoint raychunkid;
-				Callback(const my::Ray & _ray, const my::Vector3 & _ViewPos, CChildView * _pView, Terrain * _terrain)
-					: ray(_ray)
-					, pView(_pView)
-					, ViewPos(_ViewPos)
-					, terrain(_terrain)
-					, ret(false, FLT_MAX)
-					, raychunkid(0, 0)
-				{
-				}
-				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
-				{
-					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
-					my::RayResult result;
-					if (!chunk->m_Vb)
-					{
-						std::vector<unsigned short> ib;
-						for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
-						{
-							for (int j = chunk->m_Col * terrain->m_MinLodChunkSize; j < chunk->m_Col * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; j++)
-							{
-								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 0));
-								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
-								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
-								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
-								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
-								ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 1));
-							}
-						}
-						result = my::Mesh::RayTest(
-							ray,
-							terrain->m_rootVb.Lock(0, 0, D3DLOCK_READONLY),
-							(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
-							terrain->m_VertexStride,
-							&ib[0],
-							true,
-							ib.size() / 3,
-							terrain->m_VertexElems);
-						terrain->m_rootVb.Unlock();
-					}
-					else
-					{
-						const Terrain::Fragment& frag = terrain->GetFragment(
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col, ViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, ViewPos),
-							terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
-							terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
-							terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
-						result = my::Mesh::RayTest(
-							ray,
-							chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
-							frag.VertNum,
-							terrain->m_VertexStride,
-							const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
-							false,
-							frag.PrimitiveCount,
-							terrain->m_VertexElems);
-						chunk->m_Vb->Unlock();
-						const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-					}
-					if (result.first && result.second < ret.second)
-					{
-						ret = result;
-						raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
-					}
-				}
-			};
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
-			Callback cb(local_ray, LocalViewPos, this, terrain);
-			terrain->QueryEntity(local_ray, &cb);
-			if (cb.ret.first)
+			my::RayResult ret = OverlapTestRayAndTerrain(local_ray, LocalViewPos, terrain, raychunkid);
+			if (ret.first)
 			{
-				raychunkid = cb.raychunkid;
+				raychunkid = raychunkid;
 				rayinstid = 0;
-				return cb.ret;
+				return ret;
 			}
 		}
 		break;
@@ -1077,6 +1002,86 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 	return ret;
 }
 
+my::RayResult CChildView::OverlapTestRayAndTerrain(const my::Ray & local_ray, const my::Vector3 & LocalViewPos, Terrain * terrain, CPoint & raychunkid)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		const my::Ray& ray;
+		const my::Vector3& ViewPos;
+		Terrain* terrain;
+		my::RayResult ret;
+		CPoint& raychunkid;
+		Callback(const my::Ray& _ray, const my::Vector3& _ViewPos, Terrain* _terrain, CPoint& _raychunkid)
+			: ray(_ray)
+			, ViewPos(_ViewPos)
+			, terrain(_terrain)
+			, ret(false, FLT_MAX)
+			, raychunkid(_raychunkid)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
+			my::RayResult result;
+			if (!chunk->m_Vb)
+			{
+				std::vector<unsigned short> ib;
+				for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
+				{
+					for (int j = chunk->m_Col * terrain->m_MinLodChunkSize; j < chunk->m_Col * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; j++)
+					{
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 1));
+					}
+				}
+				result = my::Mesh::RayTest(
+					ray,
+					terrain->m_rootVb.Lock(0, 0, D3DLOCK_READONLY),
+					(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
+					terrain->m_VertexStride,
+					&ib[0],
+					true,
+					ib.size() / 3,
+					terrain->m_VertexElems);
+				terrain->m_rootVb.Unlock();
+			}
+			else
+			{
+				const Terrain::Fragment& frag = terrain->GetFragment(
+					terrain->CalculateLod(chunk->m_Row, chunk->m_Col, ViewPos),
+					terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, ViewPos),
+					terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
+					terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
+					terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
+				result = my::Mesh::RayTest(
+					ray,
+					chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
+					frag.VertNum,
+					terrain->m_VertexStride,
+					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+					false,
+					frag.PrimitiveCount,
+					terrain->m_VertexElems);
+				chunk->m_Vb->Unlock();
+				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+			}
+			if (result.first && result.second < ret.second)
+			{
+				ret = result;
+				raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+			}
+		}
+	};
+
+	Callback cb(local_ray, LocalViewPos, terrain, raychunkid);
+	terrain->QueryEntity(local_ray, &cb);
+	return cb.ret;
+}
+
 void CChildView::OnSelectionChanged(my::EventArg * arg)
 {
 	Invalidate();
@@ -1112,7 +1117,10 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 	ScreenToClient(&point);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 	my::Ray local_ray = ray.transform(terrain->m_Actor->m_World.inverse());
-	my::RayResult res = terrain->SimpleRayTest(local_ray);
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
+	CPoint chunkid;
+	my::RayResult res = OverlapTestRayAndTerrain(local_ray, LocalViewPos, terrain, chunkid);
 	if (res.first)
 	{
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
@@ -1121,7 +1129,7 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 		{
 			my::Vector2 pos = my::Vector2::PolarToCartesian(pFrame->m_PaintRadius, (float)i / 30 * 2 * D3DX_PI);
 			my::Ray local_ray = my::Ray(my::Vector3(pt.x + pos.x, pt.y + 1000.0f, pt.z + pos.y), my::Vector3(0, -1, 0));
-			my::RayResult res = terrain->SimpleRayTest(local_ray);
+			my::RayResult res = OverlapTestRayAndTerrain(local_ray, LocalViewPos, terrain, chunkid);
 			my::Vector3 handle_pt;
 			if (res.first)
 			{

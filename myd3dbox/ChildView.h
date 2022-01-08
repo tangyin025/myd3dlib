@@ -74,6 +74,7 @@ protected:
 	my::RayResult OverlapTestRayAndActor(const my::Ray & ray, Actor * actor);
 	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, const my::Ray & local_ray, Component * cmp, CPoint & raychunkid, int & rayinstid);
 	my::RayResult OverlapTestRayAndParticles(const my::Ray & ray, const my::Ray & local_ray, EmitterComponent * emitter, const my::Emitter::Particle * part_start, int part_num, int & part_id);
+	my::RayResult OverlapTestRayAndTerrain(const my::Ray & local_ray, const my::Vector3 & LocalViewPos, Terrain * terrain, CPoint & raychunkid);
 	void OnSelectionChanged(my::EventArg * arg);
 	void OnSelectionPlaying(my::EventArg * arg);
 	void OnPivotModeChanged(my::EventArg * arg);
