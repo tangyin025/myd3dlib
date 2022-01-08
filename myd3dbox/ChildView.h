@@ -138,7 +138,7 @@ public:
 	afx_msg void OnUpdateShowNavigation(CCmdUI *pCmdUI);
 	void OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream & tstr);
 	void OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr);
-	void OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream& estr);
+	void OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

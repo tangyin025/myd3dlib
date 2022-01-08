@@ -1690,7 +1690,7 @@ void CMainFrame::OnPaintEmitterinstance()
 void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	if (GetSelComponent<StaticEmitter>())
+	if (GetSelComponent<Terrain>() && GetSelComponent<StaticEmitter>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeEmitterInstance);

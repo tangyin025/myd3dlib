@@ -1307,15 +1307,11 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 				if (m_bShowCmpHandle && !pFrame->m_selactors.empty())
 				{
-					if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
+					if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField
+						|| pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor
+						|| pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 					{
 						DrawTerrainHeightFieldHandle(pFrame->GetSelComponent<Terrain>());
-					}
-					else if (pFrame->m_PaintType == CMainFrame::PaintTypeTerrainColor)
-					{
-					}
-					else if (pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
-					{
 					}
 					else
 					{
@@ -1462,10 +1458,11 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 
 	StaticEmitter* emit = pFrame->GetSelComponent<StaticEmitter>();
-	if (emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
+	if (terrain && emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
+		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
 		m_PaintEmitterCaptured.reset(new StaticEmitterStream(emit));
-		OnPaintEmitterInstance(ray, *m_PaintEmitterCaptured);
+		OnPaintEmitterInstance(ray, *m_PaintTerrainCaptured, *m_PaintEmitterCaptured);
 		SetCapture();
 		Invalidate();
 		return;
@@ -1882,25 +1879,24 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (m_PaintTerrainCaptured)
+	if (m_PaintTerrainCaptured || m_PaintEmitterCaptured)
 	{
-		m_PaintTerrainCaptured->Release();
-		m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateAABB();
-		m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateOctNode();
-		pFrame->UpdateSelBox();
-		m_PaintTerrainCaptured.reset();
-		ReleaseCapture();
-		Invalidate();
-		return;
-	}
+		if (m_PaintTerrainCaptured)
+		{
+			m_PaintTerrainCaptured->Release();
+			m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateAABB();
+			m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateOctNode();
+			m_PaintTerrainCaptured.reset();
+		}
 
-	if (m_PaintEmitterCaptured)
-	{
-		m_PaintEmitterCaptured->Release();
-		m_PaintEmitterCaptured->m_emit->m_Actor->UpdateAABB();
-		m_PaintEmitterCaptured->m_emit->m_Actor->UpdateOctNode();
+		if (m_PaintEmitterCaptured)
+		{
+			m_PaintEmitterCaptured->Release();
+			m_PaintEmitterCaptured->m_emit->m_Actor->UpdateAABB();
+			m_PaintEmitterCaptured->m_emit->m_Actor->UpdateOctNode();
+			m_PaintEmitterCaptured.reset();
+		}
 		pFrame->UpdateSelBox();
-		m_PaintEmitterCaptured.reset();
 		ReleaseCapture();
 		Invalidate();
 		return;
@@ -1986,10 +1982,10 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (m_PaintEmitterCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
+	if (m_PaintTerrainCaptured && m_PaintEmitterCaptured && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		OnPaintEmitterInstance(ray, *m_PaintEmitterCaptured);
+		OnPaintEmitterInstance(ray, *m_PaintTerrainCaptured, *m_PaintEmitterCaptured);
 		Invalidate();
 		UpdateWindow();
 		return;
@@ -2454,94 +2450,57 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	}
 }
 
-void CChildView::OnPaintEmitterInstance(const my::Ray& ray, StaticEmitterStream& estr)
+void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr)
 {
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-
-	struct Callback : public my::OctNode::QueryCallback
+	CPoint raychunkid; int rayinstid;
+	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
+	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
+	if (res.first)
 	{
-		const my::Ray& ray;
-		CMainFrame* pFrame;
-		StaticEmitterStream& estr;
-		Callback(const my::Ray& _ray, CMainFrame* _pFrame, StaticEmitterStream& _estr)
-			: ray(_ray)
-			, pFrame(_pFrame)
-			, estr(_estr)
+		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
+		std::list<my::Vector2> candidate;
+		my::Emitter::Particle* particle = estr.GetNearestParticle2D(pt.x, pt.z, pFrame->m_PaintParticleMinDist);
+		if (!particle)
 		{
+			estr.Spawn(my::Vector4(pt, 1.0f), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+			candidate.push_back(my::Vector2(pt.x, pt.z));
 		}
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		else
 		{
-			Actor* actor = dynamic_cast<Actor*>(oct_entity);
-			ASSERT(actor);
-			my::Ray local_ray = ray.transform(actor->m_World.inverse());
-			my::Matrix4 local2emit = actor->m_World * estr.m_emit->m_Actor->m_World.inverse();
-			my::Matrix4 emit2local = local2emit.inverse();
-			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
-			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
-			{
-				if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeTerrain)
-				{
-					TerrainStream tstr(dynamic_cast<Terrain*>(cmp_iter->get()));
-					my::RayResult res = tstr.RayTest(local_ray);
-					if (res.first)
-					{
-						my::Vector3 pt = local_ray.p + local_ray.d * res.second;
-						my::Vector4 emit_pt = pt.transform(local2emit);
-						if (!estr.m_emit->PtInRect(emit_pt.xyz))
-						{
-							continue;
-						}
-						std::list<my::Vector2> candidate;
-						my::Emitter::Particle * particle = estr.GetNearestParticle2D(emit_pt.x, emit_pt.z, pFrame->m_PaintParticleMinDist);
-						if (!particle)
-						{
-							estr.Spawn(emit_pt, my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
-							candidate.push_back(my::Vector2(emit_pt.x, emit_pt.z));
-						}
-						else
-						{
-							candidate.push_back(my::Vector2(particle->m_Position.x, particle->m_Position.z));
-						}
+			candidate.push_back(my::Vector2(particle->m_Position.x, particle->m_Position.z));
+		}
 
-						do 
+		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
+		float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
+		for (; !candidate.empty(); candidate.pop_front())
+		{
+			const my::Vector2& pos = candidate.front();
+			for (int i = 0; i < 30; i++)
+			{
+				my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * LocalPaintParticleMinDist;
+				if (rand_pos.x >= estr.m_emit->m_min.x && rand_pos.x < estr.m_emit->m_max.x
+					&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
+					&& (rand_pos - my::Vector2(pt.x, pt.z)).magnitudeSq() < LocalPaintRadius * LocalPaintRadius)
+				{
+					if (!estr.GetNearestParticle2D(rand_pos.x, rand_pos.y, LocalPaintParticleMinDist))
+					{
+						my::Ray local_ray = my::Ray(my::Vector3(rand_pos.x, estr.m_emit->m_max.y, rand_pos.y), my::Vector3(0, -1, 0));
+						my::RayResult res = tstr.RayTest(local_ray);
+						if (res.first)
 						{
-							float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
-							float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
-							const my::Vector2 & pos = candidate.front();
-							for (int i = 0; i < 30; i++)
+							my::Vector3 emit_pos = local_ray.p + local_ray.d * res.second;
+							if (estr.m_emit->PtInRect(emit_pos))
 							{
-								my::Vector2 rand_pos = pos + my::Vector2::RandomUnit() * my::Random(1.0f, 2.0f) * LocalPaintParticleMinDist;
-								if (rand_pos.x >= estr.m_emit->m_min.x && rand_pos.x < estr.m_emit->m_max.x
-									&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
-									&& (rand_pos - my::Vector2(emit_pt.x, emit_pt.z)).magnitudeSq() < LocalPaintRadius * LocalPaintRadius)
-								{
-									if (!estr.GetNearestParticle2D(rand_pos.x, rand_pos.y, LocalPaintParticleMinDist))
-									{
-										my::Ray local_ray = my::Ray(my::Vector3(rand_pos.x, estr.m_emit->m_max.y, rand_pos.y), my::Vector3(0, -1, 0)).transform(emit2local);
-										my::RayResult res = tstr.RayTest(local_ray);
-										if (res.first)
-										{
-											my::Vector4 emit_pos = (local_ray.p + local_ray.d * res.second).transform(local2emit);
-											if (estr.m_emit->PtInRect(emit_pos.xyz))
-											{
-												estr.Spawn(emit_pos, my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
-												candidate.push_back(rand_pos);
-											}
-										}
-									}
-								}
+								estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
+								candidate.push_back(rand_pos);
 							}
-							candidate.pop_front();
 						}
-						while (!candidate.empty());
 					}
 				}
 			}
 		}
-	};
-
-	Callback cb(ray, pFrame, estr);
-	pFrame->QueryEntity(ray, &cb);
+	}
 }
