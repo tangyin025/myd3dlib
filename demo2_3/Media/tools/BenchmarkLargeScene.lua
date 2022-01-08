@@ -53,7 +53,6 @@ for i=1,300000,1 do
 	mesh_cmp:CreateTriangleMeshShape("mesh/Gear.mesh.xml.pxtrianglemesh",theApp.MainWnd.CollectionObjs)
 	mesh_cmp.SimulationFilterWord0=1
 	mesh_cmp.QueryFilterWord0=1
-	act.CullingDist=500
 	act:UpdateWorld()
 	theApp.MainWnd:AddEntity(act,act.aabb:transform(act.World),1.0,0.1)
 	table.insert(acts,act)
