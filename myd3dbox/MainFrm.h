@@ -124,7 +124,12 @@ public:
 	void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 	void RemoveEntity(my::OctEntity * entity);
 	void OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak_ptr<MeshComponent> mesh_cmp_weak_ptr);
-	Component* GetSelComponent(Component::ComponentType Type);
+	Component* GetSelComponent(DWORD Type);
+	template <typename ComponentType>
+	ComponentType* GetSelComponent(void)
+	{
+		return dynamic_cast<ComponentType*>(GetSelComponent(ComponentType::TypeID));
+	}
 
 // Implementation
 public:

@@ -946,20 +946,12 @@ void CMainFrame::OnMeshComponentReady(my::DeviceResourceBasePtr res, boost::weak
 	}
 }
 
-Component* CMainFrame::GetSelComponent(Component::ComponentType Type)
+Component* CMainFrame::GetSelComponent(DWORD Type)
 {
 	if (!m_selactors.empty())
 	{
-		Actor::ComponentPtrList::iterator cmp_iter = m_selactors.front()->m_Cmps.begin();
-		for (; cmp_iter != m_selactors.front()->m_Cmps.end(); cmp_iter++)
-		{
-			if ((*cmp_iter)->GetComponentType() == Type)
-			{
-				return cmp_iter->get();
-			}
-		}
+		return m_selactors.front()->GetFirstComponent(Type);
 	}
-
 	return NULL;
 }
 
@@ -1642,8 +1634,7 @@ void CMainFrame::OnPaintTerrainHeightField()
 void CMainFrame::OnUpdatePaintTerrainHeightField(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	Terrain* terrain = dynamic_cast<Terrain*>(GetSelComponent(Component::ComponentTypeTerrain));
-	if (terrain)
+	if (GetSelComponent<Terrain>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeTerrainHeightField);
@@ -1671,8 +1662,7 @@ void CMainFrame::OnPaintTerrainColor()
 void CMainFrame::OnUpdatePaintTerrainColor(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	Terrain* terrain = dynamic_cast<Terrain*>(GetSelComponent(Component::ComponentTypeTerrain));
-	if (terrain)
+	if (GetSelComponent<Terrain>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeTerrainColor);
@@ -1700,8 +1690,7 @@ void CMainFrame::OnPaintEmitterinstance()
 void CMainFrame::OnUpdatePaintEmitterinstance(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	StaticEmitter* emit = dynamic_cast<StaticEmitter*>(GetSelComponent(Component::ComponentTypeStaticEmitter));
-	if (emit)
+	if (GetSelComponent<StaticEmitter>())
 	{
 		pCmdUI->Enable(TRUE);
 		pCmdUI->SetCheck(m_PaintType == PaintTypeEmitterInstance);

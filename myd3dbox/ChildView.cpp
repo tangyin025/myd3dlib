@@ -1403,7 +1403,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	Terrain* terrain = dynamic_cast<Terrain *>(pFrame->GetSelComponent(Component::ComponentTypeTerrain));
+	Terrain* terrain = pFrame->GetSelComponent<Terrain>();
 	if (terrain && pFrame->m_PaintType == CMainFrame::PaintTypeTerrainHeightField)
 	{
 		m_PaintTerrainCaptured.reset(new TerrainStream(terrain));
@@ -1422,7 +1422,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	StaticEmitter* emit = dynamic_cast<StaticEmitter*>(pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter));
+	StaticEmitter* emit = pFrame->GetSelComponent<StaticEmitter>();
 	if (emit && pFrame->m_PaintType == CMainFrame::PaintTypeEmitterInstance)
 	{
 		m_PaintEmitterCaptured.reset(new StaticEmitterStream(emit));
@@ -2129,19 +2129,19 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		}
 		return;
 	case 'T':
-		if (pFrame->GetSelComponent(Component::ComponentTypeTerrain) && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainHeightField)
+		if (pFrame->GetSelComponent<Terrain>() && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainHeightField)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_TERRAINHEIGHTFIELD, 0, NULL, NULL);
 		}
 		return;
 	case 'Y':
-		if (pFrame->GetSelComponent(Component::ComponentTypeTerrain) && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainColor)
+		if (pFrame->GetSelComponent<Terrain>() && pFrame->m_PaintType != CMainFrame::PaintTypeTerrainColor)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_TERRAINCOLOR, 0, NULL, NULL);
 		}
 		return;
 	case 'U':
-		if (pFrame->GetSelComponent(Component::ComponentTypeStaticEmitter) && pFrame->m_PaintType != CMainFrame::PaintTypeEmitterInstance)
+		if (pFrame->GetSelComponent<StaticEmitter>() && pFrame->m_PaintType != CMainFrame::PaintTypeEmitterInstance)
 		{
 			pFrame->OnCmdMsg(ID_PAINT_EMITTERINSTANCE, 0, NULL, NULL);
 		}
