@@ -887,6 +887,68 @@ void Terrain::ClearShape(void)
 	m_PxHeightFieldPath.clear();
 }
 
+my::RayResult Terrain::SimpleRayTest(const my::Ray & local_ray)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		const my::Ray& ray;
+		Terrain* terrain;
+		my::RayResult ret;
+		Callback(const my::Ray& _ray, Terrain* _terrain)
+			: ray(_ray)
+			, terrain(_terrain)
+			, ret(false, FLT_MAX)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			my::RayResult result;
+			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
+			if (terrain->m_Chunks[chunk->m_Row][chunk->m_Col].m_Vb)
+			{
+				const Terrain::Fragment& frag = terrain->GetFragment(0, 0, 0, 0, 0);
+				result = Mesh::RayTest(
+					ray,
+					terrain->m_Chunks[chunk->m_Row][chunk->m_Col].m_Vb->Lock(0, 0, D3DLOCK_READONLY),
+					frag.VertNum,
+					terrain->m_VertexStride,
+					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+					false,
+					frag.PrimitiveCount,
+					terrain->m_VertexElems);
+				terrain->m_Chunks[chunk->m_Row][chunk->m_Col].m_Vb->Unlock();
+				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+				if (result.first && result.second < ret.second)
+				{
+					ret = result;
+				}
+			}
+			else
+			{
+				result = Mesh::RayTest(
+					ray,
+					terrain->m_rootVb.Lock(0, 0, D3DLOCK_READONLY),
+					(terrain->m_RowChunks * terrain->m_MinLodChunkSize + 1) * (terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1),
+					terrain->m_VertexStride,
+					terrain->m_rootIb.Lock(0, 0, D3DLOCK_READONLY),
+					false,
+					terrain->m_RowChunks * terrain->m_MinLodChunkSize * terrain->m_ColChunks * terrain->m_MinLodChunkSize * 2,
+					terrain->m_VertexElems);
+				terrain->m_rootVb.Unlock();
+				terrain->m_rootIb.Unlock();
+				if (result.first && result.second < ret.second)
+				{
+					ret = result;
+				}
+			}
+		}
+	};
+
+	Callback cb(local_ray, this);
+	QueryEntity(local_ray, &cb);
+	return cb.ret;
+}
+
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_Vbs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])

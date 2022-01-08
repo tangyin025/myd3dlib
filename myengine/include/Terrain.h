@@ -174,6 +174,8 @@ public:
 	void CreateHeightFieldShape(const char * HeightFieldPath, const my::Vector3 & ActorScale, CollectionObjMap & collectionObjs);
 
 	virtual void ClearShape(void);
+
+	my::RayResult SimpleRayTest(const my::Ray & local_ray);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
