@@ -493,17 +493,18 @@ namespace my
 		Vector3 normal = calculateTriangleNormal(v0, v1, v2);
 
 		float denom = normal.dot(dir);
-
-		if(denom > -EPSILON_E6)
+		if (denom < -EPSILON_E6)
 		{
-			return RayResult(false, FLT_MAX);
+			float t = -(normal.dot(pos) - normal.dot(v0)) / denom;
+			if (t >= 0)
+			{
+				Vector3 intersection = pos + dir * t;
+
+				return RayResult(isInsideTriangle(intersection, v0, v1, v2), t);
+			}
 		}
 
-		float t = -(normal.dot(pos) - normal.dot(v0)) / denom;
-
-		Vector3 intersection = pos + dir * t;
-
-		return RayResult(isInsideTriangle(intersection, v0, v1, v2), t);
+		return RayResult(false, FLT_MAX);
 	}
 
 	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndAABB(const AABB & lhs, const AABB & rhs)
