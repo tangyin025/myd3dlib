@@ -835,6 +835,8 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(HeightFieldPath))
 	{
+		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
 		TerrainStream tstr(this);
 		for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
@@ -876,6 +878,11 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 	m_PxShape->userData = this;
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eHEIGHTFIELD;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
 }
 
 void Terrain::ClearShape(void)

@@ -523,6 +523,17 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 
 void Actor::ClearRigidActor(void)
 {
+	if (m_PxActor && IsRequested())
+	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
+
+		scene->m_PxScene->removeActor(*m_PxActor, false);
+
+		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
+	}
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -548,6 +559,15 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 			physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation)), PhysxDeleter<physx::PxRigidActor>());
 		m_PxActor->userData = this;
 		break;
+	}
+
+	if (m_PxActor && IsRequested())
+	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		_ASSERT(!m_PxActor->getScene());
+
+		scene->m_PxScene->addActor(*m_PxActor);
 	}
 }
 

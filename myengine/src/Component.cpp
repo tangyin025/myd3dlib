@@ -333,6 +333,11 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	m_PxShape->userData = this;
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eBOX;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
 }
 
 void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, CollectionObjMap & collectionObjs)
@@ -349,6 +354,11 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	m_PxShape->userData = this;
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eCAPSULE;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
 }
 
 void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, CollectionObjMap & collectionObjs)
@@ -365,6 +375,11 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	m_PxShape->userData = this;
 
 	m_PxShapeGeometryType = physx::PxGeometryType::ePLANE;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
 }
 
 void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, CollectionObjMap & collectionObjs)
@@ -381,6 +396,11 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	m_PxShape->userData = this;
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eSPHERE;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		m_Actor->m_PxActor->attachShape(*m_PxShape);
+	}
 }
 
 void Component::SetSimulationFilterWord0(unsigned int filterWord0)
@@ -427,6 +447,13 @@ void Component::ClearShape(void)
 {
 	if (m_PxShape)
 	{
+		if (m_Actor && m_Actor->IsRequested())
+		{
+			_ASSERT(m_PxShape->getActor() == m_Actor->m_PxActor.get());
+
+			m_Actor->m_PxActor->detachShape(*m_PxShape);
+		}
+
 		_ASSERT(!m_PxShape->getActor());
 
 		m_PxShape.reset();
@@ -878,6 +905,8 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, Colle
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(TriangleMeshPath))
 	{
+		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
 		physx::PxTriangleMeshDesc desc;
@@ -938,6 +967,12 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, Colle
 	m_PxMeshTmp = obj_res.first->second.get();
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eTRIANGLEMESH;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		IORequestPtr request(new PhysxTriangleMeshIORequest(m_PxMeshPath.c_str(), INT_MAX));
+		my::ResourceMgr::getSingleton().LoadIORequestAsync(m_PxMeshPath, request, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, physx::PxGeometryType::eTRIANGLEMESH));
+	}
 }
 
 void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, CollectionObjMap & collectionObjs)
@@ -948,6 +983,8 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(ConvexMeshPath))
 	{
+		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
 		physx::PxConvexMeshDesc desc;
@@ -999,6 +1036,12 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 	m_PxMeshTmp = obj_res.first->second.get();
 
 	m_PxShapeGeometryType = physx::PxGeometryType::eCONVEXMESH;
+
+	if (m_Actor && m_Actor->IsRequested())
+	{
+		IORequestPtr request(new PhysxConvexMeshIORequest(m_PxMeshPath.c_str(), INT_MAX));
+		my::ResourceMgr::getSingleton().LoadIORequestAsync(m_PxMeshPath, request, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, physx::PxGeometryType::eCONVEXMESH));
+	}
 }
 
 void MeshComponent::ClearShape(void)
@@ -1102,6 +1145,8 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 {
 	if (m_VertexData.empty())
 	{
+		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[AttribId];
 		m_VertexStride = mesh->GetNumBytesPerVertex();
 		m_VertexData.resize(att.VertexCount * m_VertexStride);

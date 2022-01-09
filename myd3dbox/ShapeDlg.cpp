@@ -93,11 +93,6 @@ void CShapeDlg::OnOK()
 	// ! physx attached shape is not writable
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT(pFrame);
-	if (m_cmp->m_Actor->IsRequested())
-	{
-		m_cmp->LeavePhysxScene(pFrame);
-	}
-
 	m_cmp->ClearShape();
 	my::Quaternion rot(my::Quaternion::RotationEulerAngles(D3DXToRadian(m_angle.x), D3DXToRadian(m_angle.y), D3DXToRadian(m_angle.z)));
 	switch (m_type)
@@ -149,11 +144,6 @@ void CShapeDlg::OnOK()
 			terrain->SetQueryFilterWord0(m_filterWord0);
 		}
 		break;
-	}
-
-	if (m_cmp->m_Actor->IsRequested())
-	{
-		m_cmp->EnterPhysxScene(pFrame);
 	}
 
 	EndDialog(IDOK);

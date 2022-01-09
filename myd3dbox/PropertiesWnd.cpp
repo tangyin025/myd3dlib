@@ -3008,11 +3008,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				body->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, true);
 			}
-
-			if (actor->IsRequested())
-			{
-				pFrame->m_PxScene->addActor(*actor->m_PxActor);
-			}
 		}
 		UpdatePropertiesRigidActor(pProp->GetParent(), actor);
 		m_wndPropList.AdjustLayout();
@@ -3126,15 +3121,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		default:
 		{
-			if (cmp->m_Actor->IsRequested())
-			{
-				cmp->LeavePhysxScene(pFrame);
-			}
 			cmp->ClearShape();
-			if (cmp->m_Actor->IsRequested())
-			{
-				cmp->EnterPhysxScene(pFrame);
-			}
 			UpdatePropertiesShape(pProp->GetParent(), cmp);
 			m_wndPropList.AdjustLayout();
 			my::EventArg arg;
