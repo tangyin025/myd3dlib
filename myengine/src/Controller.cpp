@@ -43,16 +43,8 @@ void Controller::load(Archive & ar, const unsigned int version)
 void Controller::RequestResource(void)
 {
 	Component::RequestResource();
-}
 
-void Controller::ReleaseResource(void)
-{
-	Component::ReleaseResource();
-}
-
-void Controller::EnterPhysxScene(PhysxScene * scene)
-{
-	Component::EnterPhysxScene(scene);
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
@@ -77,9 +69,9 @@ void Controller::EnterPhysxScene(PhysxScene * scene)
 	//shapes.front()->userData = this;
 }
 
-void Controller::LeavePhysxScene(PhysxScene * scene)
+void Controller::ReleaseResource(void)
 {
-	Component::LeavePhysxScene(scene);
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
 
 	_ASSERT(m_PxController && m_PxController->getActor()->getScene() == scene->m_PxScene.get());
 
@@ -88,6 +80,18 @@ void Controller::LeavePhysxScene(PhysxScene * scene)
 	m_PxController.reset();
 
 	m_PxMaterial.reset();
+
+	Component::ReleaseResource();
+}
+
+void Controller::EnterPhysxScene(PhysxScene * scene)
+{
+	Component::EnterPhysxScene(scene);
+}
+
+void Controller::LeavePhysxScene(PhysxScene * scene)
+{
+	Component::LeavePhysxScene(scene);
 }
 
 void Controller::Update(float fElapsedTime)

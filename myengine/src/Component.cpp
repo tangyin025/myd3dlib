@@ -1207,21 +1207,11 @@ void ClothComponent::RequestResource(void)
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-}
-
-void ClothComponent::ReleaseResource(void)
-{
-	Component::ReleaseResource();
-
-	m_Decl.Release();
-}
-
-void ClothComponent::EnterPhysxScene(PhysxScene * scene)
-{
-	Component::EnterPhysxScene(scene);
 
 	if (m_Cloth)
 	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
 		_ASSERT(!m_Cloth->getScene());
 
 		scene->m_PxScene->addActor(*m_Cloth);
@@ -1230,12 +1220,14 @@ void ClothComponent::EnterPhysxScene(PhysxScene * scene)
 	}
 }
 
-void ClothComponent::LeavePhysxScene(PhysxScene * scene)
+void ClothComponent::ReleaseResource(void)
 {
-	Component::LeavePhysxScene(scene);
+	m_Decl.Release();
 
 	if (m_Cloth)
 	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Actor->m_Node->GetTopNode());
+
 		_ASSERT(m_Cloth->getScene() == scene->m_PxScene.get());
 
 		scene->m_PxScene->removeActor(*m_Cloth);
@@ -1244,6 +1236,18 @@ void ClothComponent::LeavePhysxScene(PhysxScene * scene)
 
 		scene->m_EventPxThreadSubstep.disconnect(boost::bind(&ClothComponent::OnPxThreadSubstep, this, boost::placeholders::_1));
 	}
+
+	Component::ReleaseResource();
+}
+
+void ClothComponent::EnterPhysxScene(PhysxScene * scene)
+{
+	Component::EnterPhysxScene(scene);
+}
+
+void ClothComponent::LeavePhysxScene(PhysxScene * scene)
+{
+	Component::LeavePhysxScene(scene);
 }
 
 void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
