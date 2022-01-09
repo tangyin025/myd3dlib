@@ -670,12 +670,12 @@ Client::Client(void)
 		("mousemoveaxiscoef", boost::program_options::value(&m_MouseMoveAxisCoef)->default_value(5000), "Mouse Move Axis Coef")
 		("physxframeinterval", boost::program_options::value(&PhysxScene::m_Timer.m_Interval)->default_value(1/60.0f), "Physx Frame Interval")
 		("fov", boost::program_options::value(&m_InitFov)->default_value(75.0f), "Fov")
+		("iothreadnum", boost::program_options::value(&m_InitIOThreadNum)->default_value(3), "IO Thread Number")
 		("loadshadercache", boost::program_options::value(&m_InitLoadShaderCache)->default_value(true), "Load Shader Cache")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
 		("fontheight", boost::program_options::value(&m_InitFontHeight)->default_value(13), "Font Height")
 		("fontfaceindex", boost::program_options::value(&m_InitFontFaceIndex)->default_value(0), "Font Face Index")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
-		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\demo2_3.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
 		("keyuihorizontal", boost::program_options::value(&m_InitBindKeys[KeyUIHorizontal])->default_value(InputMgr::KeyPairList(), ""), "Key UI Horizontal")
 		("keyuivertical", boost::program_options::value(&m_InitBindKeys[KeyUIVertical])->default_value(InputMgr::KeyPairList(), ""), "Key UI Vertical")
@@ -806,9 +806,9 @@ HRESULT Client::OnCreateDevice(
 		THROW_CUSEXCEPTION("SoundContext::Init failed");
 	}
 
-	ResourceMgr::StartIORequestProc(4);
+	ResourceMgr::StartIORequestProc(m_InitIOThreadNum);
 
-	ParallelTaskManager::StartParallelThread(4);
+	ParallelTaskManager::StartParallelThread(m_InitIOThreadNum);
 
 	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{

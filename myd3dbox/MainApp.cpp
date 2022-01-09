@@ -366,6 +366,7 @@ BOOL CMainApp::InitInstance()
 		("path", boost::program_options::value(&path_list)->default_value(boost::assign::list_of("..\\demo2_3\\Media")("Media"), ""), "Path")
 		("default_fov", boost::program_options::value(&default_fov)->default_value(75.0f), "Default fov")
 		("default_viewed_dist", boost::program_options::value(&default_viewed_dist)->default_value(1000.0f), "Default viewed dist")
+		("default_io_thread_num", boost::program_options::value(&default_io_thread_num)->default_value(3), "Default io thread num")
 		("default_load_shader_cache", boost::program_options::value(&default_load_shader_cache)->default_value(true), "Default load shader cache")
 		("default_font_path", boost::program_options::value(&default_font_path)->default_value("font/wqy-microhei.ttc"), "Default font")
 		("default_font_height", boost::program_options::value(&default_font_height)->default_value(13), "Default font height")
@@ -576,7 +577,7 @@ HRESULT CMainApp::OnCreateDevice(
 		return hr;
 	}
 
-	my::ResourceMgr::StartIORequestProc(4);
+	my::ResourceMgr::StartIORequestProc(default_io_thread_num);
 
 	if (FAILED(hr = RenderPipeline::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{

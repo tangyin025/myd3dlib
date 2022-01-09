@@ -910,9 +910,9 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath, Colle
 		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
 		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
 		physx::PxTriangleMeshDesc desc;
-		desc.points.count = att.VertexCount;
+		desc.points.count = mesh->GetNumVertices()/*att.VertexCount*/;
 		desc.points.stride = mesh->GetNumBytesPerVertex();
-		desc.points.data = (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
+		desc.points.data = (unsigned char*)mesh->LockVertexBuffer()/* + att.VertexStart * desc.points.stride*/;
 		desc.triangles.count = att.FaceCount;
 		if (mesh->GetOptions() & D3DXMESH_32BIT)
 		{

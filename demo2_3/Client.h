@@ -131,6 +131,8 @@ public:
 
 	float m_InitFov;
 
+	int m_InitIOThreadNum;
+
 	bool m_InitLoadShaderCache;
 
 	std::string m_InitFont;
@@ -140,8 +142,6 @@ public:
 	int m_InitFontFaceIndex;
 
 	std::string m_InitUIEffect;
-
-	std::string m_InitSound;
 
 	std::string m_InitScript;
 
