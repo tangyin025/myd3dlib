@@ -341,8 +341,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadControllerHit.connect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.connect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
-
-		my::DialogMgr::getSingleton().m_EventGUI.connect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 	}
 
 	virtual void ReleaseResource(void)
@@ -376,8 +374,6 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventPxThreadControllerHit.disconnect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadObstacleHit.disconnect(boost::bind(&Component::OnPxThreadObstacleHit, ptr, boost::placeholders::_1));
-
-		my::DialogMgr::getSingleton().m_EventGUI.disconnect(boost::bind(&Component::OnGUI, ptr, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -518,6 +514,14 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
 		ptr->Component::OnGUI(ui_render, fElapsedTime, Viewport);
+	}
+
+	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
+	{
+		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
+		{
+			my::DialogMgr::getSingleton().m_UIPassObjs.push_back(boost::bind(&Component::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+		}
 	}
 };
 

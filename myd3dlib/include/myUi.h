@@ -1520,9 +1520,11 @@ namespace my
 
 		Matrix4 m_InverseViewProj;
 
-		typedef boost::signals2::signal<void (UIRender *, float, const Vector2 &)> GUIEvent;
+		typedef boost::function<void (UIRender *, float, const Vector2 &)> UIPassObj;
 
-		GUIEvent m_EventGUI;
+		typedef std::vector<UIPassObj> UIPassObjList;
+
+		UIPassObjList m_UIPassObjs;
 
 	public:
 		DialogMgr(void)
@@ -1532,7 +1534,7 @@ namespace my
 
 		~DialogMgr(void)
 		{
-			_ASSERT(m_EventGUI.empty());
+			_ASSERT(m_UIPassObjs.empty());
 		}
 
 		void SetDlgViewport(const Vector2 & Viewport, float fov);
