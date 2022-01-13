@@ -26,6 +26,7 @@ Lua 5.1.5<br>
 Luabind 0.9.1<br>
 libid3tag-0.15.1b<br>
 libmad-0.15.1b<br>
+SQLite 3.37.2
 
 screenshots
 ----

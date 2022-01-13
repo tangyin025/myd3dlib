@@ -8,6 +8,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "LargeImage.h"
+#include "SqlContext.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -956,6 +957,12 @@ HRESULT Client::OnCreateDevice(
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object, luabind::object>)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
+
+		, luabind::class_<SqlContext>("SqlContext")
+			.def(luabind::constructor<>())
+			.def("Open", &SqlContext::Open)
+			.def("Close", &SqlContext::Close)
+			.def("Exec", &SqlContext::Exec)
 	];
 	luabind::globals(m_State)["client"] = this;
 
