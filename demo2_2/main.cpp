@@ -1,5 +1,5 @@
 ﻿#include <myD3dLib.h>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 //#include <Opcode.h>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -314,7 +314,7 @@ public:
 		m_Dlg->m_Skin->m_Image.reset(new ControlImage());
 		m_Dlg->m_Skin->m_Image->m_Texture = m_Tex;
 		m_Dlg->m_Skin->m_Image->m_Rect = my::Rectangle(0, 0, desc.Width, desc.Height);
-		m_Dlg->m_EventMouseClick = boost::bind(&Demo::OnMouseClick, this, _1);
+		m_Dlg->m_EventMouseClick = boost::bind(&Demo::OnMouseClick, this, boost::placeholders::_1);
 		DialogMgr::InsertDlg(m_Dlg.get());
 
 		ControlImagePtr image(new ControlImage());

@@ -270,7 +270,7 @@ int CEnvironmentWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.connect(boost::bind(&CEnvironmentWnd::OnCameraPropChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.connect(boost::bind(&CEnvironmentWnd::OnCameraPropChanged, this, boost::placeholders::_1));
 
 	SetPropListFont();
 	InitPropList();
@@ -284,7 +284,7 @@ void CEnvironmentWnd::OnDestroy()
 	CDockablePane::OnDestroy();
 
 	// TODO: Add your message handler code here
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.disconnect(boost::bind(&CEnvironmentWnd::OnCameraPropChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.disconnect(boost::bind(&CEnvironmentWnd::OnCameraPropChanged, this, boost::placeholders::_1));
 }
 
 void CEnvironmentWnd::OnSize(UINT nType, int cx, int cy)

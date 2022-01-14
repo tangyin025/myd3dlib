@@ -3,7 +3,7 @@
 #include "myCollision.h"
 #include "myDxutApp.h"
 #include "rapidxml.hpp"
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 using namespace my;
 

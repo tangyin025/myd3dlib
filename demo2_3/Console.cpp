@@ -225,11 +225,11 @@ Console::Console(void)
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_CaretImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_CaretImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_CaretImage->m_Border = Vector4(0,0,0,0);
-	m_Edit->m_EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
-	m_Edit->m_EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
-	m_Edit->m_EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
-	m_Edit->m_EventPageUp = boost::bind(&Console::OnEventPageUp, this, _1);
-	m_Edit->m_EventPageDown = boost::bind(&Console::OnEventPageDown, this, _1);
+	m_Edit->m_EventEnter = boost::bind(&Console::OnEventEnter, this, boost::placeholders::_1);
+	m_Edit->m_EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, boost::placeholders::_1);
+	m_Edit->m_EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, boost::placeholders::_1);
+	m_Edit->m_EventPageUp = boost::bind(&Console::OnEventPageUp, this, boost::placeholders::_1);
+	m_Edit->m_EventPageDown = boost::bind(&Console::OnEventPageDown, this, boost::placeholders::_1);
 	InsertControl(GetChildNum(), m_Edit);
 
 	m_Panel.reset(new MessagePanel());
@@ -266,12 +266,12 @@ Console::Console(void)
 	InsertControl(GetChildNum(), m_Panel);
 
 	m_strIter = m_strList.end();
-	Client::getSingleton().m_EventLog.connect(boost::bind(&Console::OnEventLog, this, _1));
+	Client::getSingleton().m_EventLog.connect(boost::bind(&Console::OnEventLog, this, boost::placeholders::_1));
 }
 
 Console::~Console(void)
 {
-	Client::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
+	Client::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, boost::placeholders::_1));
 }
 
 void Console::OnEventEnter(EventArg * arg)

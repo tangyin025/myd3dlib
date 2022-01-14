@@ -2,7 +2,7 @@
 #include "myDxutApp.h"
 #include "libc.h"
 #include <strstream>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <zzip/file.h>
 #include <fstream>
 #include <SYS\Stat.h>

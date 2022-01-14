@@ -81,7 +81,7 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndOutputDebug.SetFont(&afxGlobalData.fontRegular);
 
-	theApp.m_EventLog.connect(boost::bind(&COutputWnd::OnEventLog, this, _1));
+	theApp.m_EventLog.connect(boost::bind(&COutputWnd::OnEventLog, this, boost::placeholders::_1));
 
 	return 0;
 }
@@ -124,7 +124,7 @@ void COutputWnd::OnEventLog(const char * str)
 
 void COutputWnd::OnDestroy()
 {
-	theApp.m_EventLog.connect(boost::bind(&COutputWnd::OnEventLog, this, _1));
+	theApp.m_EventLog.connect(boost::bind(&COutputWnd::OnEventLog, this, boost::placeholders::_1));
 
 	CDockablePane::OnDestroy();
 	// TODO: Add your message handler code here

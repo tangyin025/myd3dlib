@@ -56,8 +56,8 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_EventSelectionChanged.connect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, _1));
-	pFrame->m_EventAttributeChanged.connect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, _1));
+	pFrame->m_EventSelectionChanged.connect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, boost::placeholders::_1));
+	pFrame->m_EventAttributeChanged.connect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, boost::placeholders::_1));
 
 	return 0;
 }
@@ -77,8 +77,8 @@ void COutlinerWnd::OnDestroy()
 	// TODO: Add your message handler code here
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_EventSelectionChanged.disconnect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, _1));
-	pFrame->m_EventAttributeChanged.disconnect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, _1));
+	pFrame->m_EventSelectionChanged.disconnect(boost::bind(&COutlinerWnd::OnSelectionChanged, this, boost::placeholders::_1));
+	pFrame->m_EventAttributeChanged.disconnect(boost::bind(&COutlinerWnd::OnAttributeChanged, this, boost::placeholders::_1));
 }
 
 void COutlinerWnd::OnInitItemList()
@@ -89,14 +89,14 @@ void COutlinerWnd::OnInitItemList()
 		m_Items.push_back(named_obj_iter->second);
 	}
 	m_listCtrl.SetItemCountEx(m_Items.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
-	theApp.m_EventNamedObjectCreate.connect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, _1));
-	theApp.m_EventNamedObjectDestroy.connect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, _1));
+	theApp.m_EventNamedObjectCreate.connect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, boost::placeholders::_1));
+	theApp.m_EventNamedObjectDestroy.connect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, boost::placeholders::_1));
 }
 
 void COutlinerWnd::OnDestroyItemList()
 {
-	theApp.m_EventNamedObjectCreate.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, _1));
-	theApp.m_EventNamedObjectDestroy.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, _1));
+	theApp.m_EventNamedObjectCreate.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectAdded, this, boost::placeholders::_1));
+	theApp.m_EventNamedObjectDestroy.disconnect(boost::bind(&COutlinerWnd::OnNamedObjectRemoved, this, boost::placeholders::_1));
 	m_listCtrl.DeleteAllItems();
 	m_Items.clear();
 }

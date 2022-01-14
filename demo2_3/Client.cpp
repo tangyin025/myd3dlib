@@ -974,8 +974,8 @@ HRESULT Client::OnCreateDevice(
 			.def("AddEntity", (void(Client::*)(my::OctEntity*)) & Client::AddEntity)
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
-			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(_2))
-			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(_2)) // ! luabind::class_::def does not support default arguments (Release build.)
+			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
+			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)
@@ -987,7 +987,7 @@ HRESULT Client::OnCreateDevice(
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
-			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(_3) + luabind::pure_out_value(_4))
+			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
 			.def("OverlapBox", &client_overlap_box<luabind::object, luabind::object>)
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object, luabind::object>)
 
@@ -1269,7 +1269,7 @@ void Client::OnFrameTick(
 	};
 
 	// ! OnActorRequestResource, UpdateLod, Update may change other actor's life time, DoAllParallelTasks also dependent it
-	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1)));
+	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, boost::placeholders::_1)));
 
 	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
 	QueryEntity(cb.m_aabb, &cb);
@@ -1563,7 +1563,7 @@ void Client::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
-	if (DelayRemover<ActorPtr>::getSingleton().IsDelay(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, _1))))
+	if (DelayRemover<ActorPtr>::getSingleton().IsDelay(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, boost::placeholders::_1))))
 	{
 		DelayRemover<ActorPtr>::getSingleton().push_back(actor->shared_from_this());
 		return;
