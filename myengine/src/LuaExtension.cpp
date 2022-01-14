@@ -2273,10 +2273,6 @@ void LuaContext::Init(void)
 			//.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD))& LargeImage::Draw)
 			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&))& LargeImage::Draw)
 
-		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
-			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
-			.def_readonly("3dbuffer", &SoundEvent::m_3dbuffer)
-
 		, class_<Action, boost::shared_ptr<Action> >("Action")
 			.def(constructor<>())
 			.def("AddTrack", &Action::AddTrack)
@@ -2379,6 +2375,17 @@ void LuaContext::Init(void)
 				value("eALL", physx::PxControllerDebugRenderFlag::eALL)
 			]
 			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
+
+		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
+			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
+			.def_readonly("3dbuffer", &SoundEvent::m_3dbuffer)
+
+		, class_<Mp3, boost::shared_ptr<Mp3> >("Mp3")
+			.def(constructor<>())
+			.property("Loop", &Mp3::GetLoop, &Mp3::SetLoop)
+			.def("Play", (void(Mp3::*)(const char *, bool))&Mp3::Play)
+			.def("StopAsync", &Mp3::StopAsync)
+			.def("Stop", &Mp3::Stop)
 	];
 
 	//module(m_State)[
