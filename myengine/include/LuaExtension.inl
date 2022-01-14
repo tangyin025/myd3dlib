@@ -59,7 +59,7 @@ namespace luabind
 
 					try
 					{
-						obj(arg);
+						luabind::call_function<void>(obj, arg);
 					}
 					catch (const luabind::error & e)
 					{

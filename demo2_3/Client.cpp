@@ -378,21 +378,33 @@ static bool client_overlap_sphere(Client * self, float radius, const my::Vector3
 
 static int sqlcontext_exec_callback(void* data, int argc, char** argv, char** azColName)
 {
-	luabind::object& callback = *(luabind::object*)data;
-	luabind::object param = luabind::newtable(callback.interpreter());
-	for (int i = 0; i < argc; i++)
+	try
 	{
-		if (argv[i])
+		const luabind::object& callback = *(luabind::object*)data;
+		luabind::object param = luabind::newtable(callback.interpreter());
+		for (int i = 0; i < argc; i++)
 		{
-			param[(const char*)azColName[i]] = (const char*)argv[i];
+			if (argv[i])
+			{
+				param[(const char*)azColName[i]] = (const char*)argv[i];
+			}
+			else
+			{
+				param[(const char*)azColName[i]] = luabind::nil;
+			}
 		}
-		else
-		{
-			param[(const char*)azColName[i]] = luabind::nil;
-		}
+		luabind::call_function<void>(callback, param);
+		return 0;
 	}
-	callback(param);
-	return 0;
+	catch (const luabind::error& e)
+	{
+		my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+	}
+	catch (const std::exception& e)
+	{
+		my::D3DContext::getSingleton().m_EventLog(e.what());
+	}
+	return 1;
 }
 
 static void sqlcontext_exec(SqlContext* self, const char* sql, const luabind::object& callback) {
