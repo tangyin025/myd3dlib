@@ -5,7 +5,7 @@
 
 using namespace my;
 
-Matrix4 TransformList::BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, DWORD DualQuaternionSize, DWORD indices, const Vector4 & weights)
+Matrix4 TransformList::BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, size_t DualQuaternionSize, DWORD indices, const Vector4 & weights)
 {
 	_ASSERT(((unsigned char*)&indices)[0] < DualQuaternionSize);
 	Matrix4 m = DualQuaternions[((unsigned char*)&indices)[0]];

@@ -31,7 +31,7 @@ namespace my
 		: public std::vector<Matrix4>
 	{
 	public:
-		static Matrix4 BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, DWORD DualQuaternionSize, DWORD indices, const Vector4 & weights);
+		static Matrix4 BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, size_t DualQuaternionSize, DWORD indices, const Vector4 & weights);
 
 		static Vector3 TransformVertexWithDualQuaternion(const Vector3 & position, const Matrix4 & dual);
 
