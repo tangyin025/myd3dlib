@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <BOOST_DIR>D:\Games\boost_1_74_0\</BOOST_DIR>
+    <BOOST_DIR>D:\Games\boost_1_75_0\</BOOST_DIR>
     <PHYSX_DIR>D:\Games\PhysX-3.4\PhysX_3.4\</PHYSX_DIR>
   </PropertyGroup>
   <PropertyGroup>

@@ -17,7 +17,7 @@ MFC scene editor<br>
 3rd party dependencies
 ----
 NVIDIA® PhysX® SDK 3.4<br>
-boost 1.74.0<br>
+boost 1.75.0<br>
 Recast Navigation<br>
 FreeType 2.9.1<br>
 zlib 1.2.11<br>
