@@ -33,21 +33,14 @@ void SqlContext::Close(void)
 	{
 		THROW_CUSEXCEPTION("sqlite3_close failed");
 	}
+
+	db = NULL;
 }
 
-static int callback(void* data, int argc, char** argv, char** azColName) {
-	int i;
-	for (i = 0; i < argc; i++) {
-		my::D3DContext::getSingleton().m_EventLog(str_printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL").c_str());
-	}
-	my::D3DContext::getSingleton().m_EventLog("\n");
-	return 0;
-}
-
-void SqlContext::Exec(const char* sql)
+void SqlContext::Exec(const char* sql, int (*callback)(void*, int, char**, char**), void* data)
 {
 	char* zErrMsg = 0;
-	if (SQLITE_OK != sqlite3_exec(db, sql, callback, 0, &zErrMsg))
+	if (SQLITE_OK != sqlite3_exec(db, sql, callback, data, &zErrMsg))
 	{
 		boost::shared_ptr<char> autofree(zErrMsg, sqlite3_free);
 		THROW_CUSEXCEPTION(zErrMsg);

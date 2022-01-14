@@ -376,6 +376,29 @@ static bool client_overlap_sphere(Client * self, float radius, const my::Vector3
 	return self->Overlap(sphere, Position, Rotation, filterWord0, func, callback, MaxNbTouches);
 }
 
+static int sqlcontext_exec_callback(void* data, int argc, char** argv, char** azColName)
+{
+	luabind::object& callback = *(luabind::object*)data;
+	luabind::object param = luabind::newtable(callback.interpreter());
+	for (int i = 0; i < argc; i++)
+	{
+		if (argv[i])
+		{
+			param[(const char*)azColName[i]] = (const char*)argv[i];
+		}
+		else
+		{
+			param[(const char*)azColName[i]] = luabind::nil;
+		}
+	}
+	callback(param);
+	return 0;
+}
+
+static void sqlcontext_exec(SqlContext* self, const char* sql, const luabind::object& callback) {
+	self->Exec(sql, sqlcontext_exec_callback, const_cast<luabind::object*>(&callback));
+}
+
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
 	: IORequest(Priority)
 	, m_path(path)
@@ -962,7 +985,7 @@ HRESULT Client::OnCreateDevice(
 			.def(luabind::constructor<>())
 			.def("Open", &SqlContext::Open)
 			.def("Close", &SqlContext::Close)
-			.def("Exec", &SqlContext::Exec)
+			.def("Exec", &sqlcontext_exec)
 	];
 	luabind::globals(m_State)["client"] = this;
 
