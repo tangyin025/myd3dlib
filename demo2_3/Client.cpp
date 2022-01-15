@@ -407,6 +407,10 @@ static int sqlcontext_exec_callback(void* data, int argc, char** argv, char** az
 	return 1;
 }
 
+static void sqlcontext_exec(SqlContext* self, const char* sql) {
+	self->Exec(sql, NULL, NULL);
+}
+
 static void sqlcontext_exec(SqlContext* self, const char* sql, const luabind::object& callback) {
 	self->Exec(sql, sqlcontext_exec_callback, const_cast<luabind::object*>(&callback));
 }
@@ -997,7 +1001,8 @@ HRESULT Client::OnCreateDevice(
 			.def(luabind::constructor<>())
 			.def("Open", &SqlContext::Open)
 			.def("Close", &SqlContext::Close)
-			.def("Exec", &sqlcontext_exec)
+			.def("Exec", (void(*)(SqlContext*, const char*))& sqlcontext_exec)
+			.def("Exec", (void(*)(SqlContext*, const char*, const luabind::object&))& sqlcontext_exec)
 	];
 	luabind::globals(m_State)["client"] = this;
 
