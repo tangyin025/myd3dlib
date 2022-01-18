@@ -3747,7 +3747,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, desc.Width); j++)
 				{
-					tstr.SetColor(pixel[i][j], i, j);
+					switch (desc.Format)
+					{
+					case D3DFMT_X8R8G8B8:
+						tstr.SetColor(D3DCOLOR_ARGB(255 - GetRValue(pixel[i][j]) - GetGValue(pixel[i][j]) - GetBValue(pixel[i][j]),
+							GetRValue(pixel[i][j]), GetGValue(pixel[i][j]), GetBValue(pixel[i][j])), i, j);
+						break;
+					case D3DFMT_A8R8G8B8:
+						tstr.SetColor(pixel[i][j], i, j);
+						break;
+					}
 				}
 			}
 			tex.UnlockRect(0);

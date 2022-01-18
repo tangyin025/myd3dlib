@@ -132,7 +132,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 		NormalTS += (tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * In.Color.b;
 	if (In.Color.a >= 0.004)
 		NormalTS += (tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * In.Color.a;
-	oNormal = float4(mul(normalize(NormalTS), m), g_Shininess);
+	oNormal = float4(mul(NormalTS, m), g_Shininess);
 	oPos = float4(In.PosVS, 1.0);
 }
 
