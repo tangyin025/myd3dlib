@@ -3750,8 +3750,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					switch (desc.Format)
 					{
 					case D3DFMT_X8R8G8B8:
-						tstr.SetColor(D3DCOLOR_ARGB(255 - GetRValue(pixel[i][j]) - GetGValue(pixel[i][j]) - GetBValue(pixel[i][j]),
-							GetRValue(pixel[i][j]), GetGValue(pixel[i][j]), GetBValue(pixel[i][j])), i, j);
+						tstr.SetColor(D3DCOLOR_ARGB(255 - LOBYTE(pixel[i][j] >> 16) - LOBYTE(pixel[i][j] >> 8) - LOBYTE(pixel[i][j]),
+							LOBYTE(pixel[i][j] >> 16), LOBYTE(pixel[i][j] >> 8), LOBYTE(pixel[i][j])), i, j);
 						break;
 					case D3DFMT_A8R8G8B8:
 						tstr.SetColor(pixel[i][j], i, j);
