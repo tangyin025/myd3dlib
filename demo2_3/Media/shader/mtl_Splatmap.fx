@@ -132,7 +132,7 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 		NormalTS += (tex2D(NormalTextureSampler2, In.Tex0).rgb * 2 - 1) * In.Color.b;
 	if (In.Color.a >= 0.004)
 		NormalTS += (tex2D(NormalTextureSampler3, In.Tex0).rgb * 2 - 1) * In.Color.a;
-	oNormal = float4(mul(NormalTS, m), g_Shininess);
+	oNormal = float4(mul(normalize(NormalTS), m), g_Shininess);
 	oPos = float4(In.PosVS, 1.0);
 }
 
@@ -140,7 +140,6 @@ struct OPAQUE_VS_OUTPUT
 {
 	float4 Pos				: SV_Position;
 	float2 Tex0				: TEXCOORD0;
-	float3 Normal			: NORMAL;
 	float4 Color			: COLOR0;
 	float4 ShadowCoord		: TEXCOORD3;
 	float3 ViewVS			: TEXCOORD4;
@@ -152,7 +151,6 @@ OPAQUE_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In) * g_TextureScale;
-	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
 	Output.Color = TransformColor(In);
 	Output.ShadowCoord = mul(PosWS, g_SkyLightViewProj);
 	Output.ViewVS = mul(g_Eye - PosWS.xyz, (float3x3)g_View); // ! dont normalize here
