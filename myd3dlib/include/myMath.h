@@ -645,17 +645,22 @@ namespace my
 
 		static float Angle(const Vector3 & v0, const Vector3 & v1)
 		{
-			const float cosf = v0.dot(v1);					// |v0|*|v1|*Cos(Angle)
-			const float sinf = (v0.cross(v1)).magnitude();	// |v0|*|v1|*Sin(Angle)
-			return atan2f(sinf, cosf);
+			return acosf(CosTheta(v0, v1));
 		}
 
 		static float CosTheta(const Vector3 & v0, const Vector3 & v1)
 		{
-			float determinant = v0.magnitude() * v1.magnitude();
-			_ASSERT(determinant != 0);
-			return v0.dot(v1) / determinant;
+			float determinantSq = v0.magnitudeSq() * v1.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
+			_ASSERT(determinantSq != 0);
+			return v0.dot(v1) / sqrtf(determinantSq);
 		}
+
+		//static float SinTheta(const Vector3 & v0, const Vector3 & v1)
+		//{
+		//	float determinantSq = v0.magnitudeSq() * v1.magnitudeSq(); // |v0|*|v1|*Sin(Angle)
+		//	_ASSERT(determinantSq != 0);
+		//	return sqrtf(v0.cross(v1).magnitudeSq() / determinantSq);
+		//}
 
 		static float Cosine(float a, float b, float c)
 		{
