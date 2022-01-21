@@ -2433,15 +2433,16 @@ namespace my
 
 		static Matrix4 RotationQuaternion(const Quaternion & q)
 		{
-			//return Matrix4(
-			//	1 - 2 * (q.y * q.y + q.z * q.z), 2 * (q.x * q.y + q.w * q.z), 2 * (q.x * q.z - q.w * q.y), 0,
-			//	2 * (q.x * q.y - q.w * q.z), 1 - 2 * (q.x * q.x + q.z * q.z), 2 * (q.y * q.z + q.w * q.x), 0,
-			//	2 * (q.x * q.z + q.w * q.y), 2 * (q.y * q.z - q.w * q.x), 1 - 2 * (q.x * q.x + q.y * q.y), 0,
-			//	0, 0, 0, 1);
+			// https://www.cs.cmu.edu/~kiranb/animation/p245-shoemake.pdf
+			return Matrix4(
+				1 - 2.0f * q.y * q.y - 2.0f * q.z * q.z, 2.0f * q.x * q.y + 2.0f * q.w * q.z, 2.0f * q.x * q.z - 2.0f * q.w * q.y, 0,
+				2.0f * q.x * q.y - 2.0f * q.w * q.z, 1 - 2.0f * q.x * q.x - 2.0f * q.z * q.z, 2.0f * q.y * q.z + 2.0f * q.w * q.x, 0,
+				2.0f * q.x * q.z + 2.0f * q.w * q.y, 2.0f * q.y * q.z - 2.0f * q.w * q.x, 1 - 2.0f * q.x * q.x - 2.0f * q.y * q.y, 0,
+				0, 0, 0, 1);
 
-			Matrix4 ret;
-			D3DXMatrixRotationQuaternion((D3DXMATRIX *)&ret, (D3DXQUATERNION *)&q);
-			return ret;
+			//Matrix4 ret;
+			//D3DXMatrixRotationQuaternion((D3DXMATRIX *)&ret, (D3DXQUATERNION *)&q);
+			//return ret;
 		}
 
 		static Matrix4 RotationX(float angle)
@@ -2728,60 +2729,9 @@ namespace my
 
 		static Matrix4 UDQtoRM(const Matrix4 & dual);
 
-		static void MakePositive(Vector3 & euler)
-		{
-			const float negativeFlip = -0.0001f;
-			const float positiveFlip = (D3DX_PI * 2.0f) - 0.0001f;
+		Vector3 toEulerAngles(void) const;
 
-			if (euler.x < negativeFlip)
-				euler.x += 2.0f * D3DX_PI;
-			else if (euler.x > positiveFlip)
-				euler.x -= 2.0f * D3DX_PI;
-
-			if (euler.y < negativeFlip)
-				euler.y += 2.0f * D3DX_PI;
-			else if (euler.y > positiveFlip)
-				euler.y -= 2.0f * D3DX_PI;
-
-			if (euler.z < negativeFlip)
-				euler.z += 2.0f * D3DX_PI;
-			else if (euler.z > positiveFlip)
-				euler.z -= 2.0f * D3DX_PI;
-		}
-
-		Vector3 toEulerAngles(void) const
-		{
-			// from http://www.geometrictools.com/Documentation/EulerAngles.pdf
-			// YXZ order
-			Vector3 ret;
-			if (_23 < 0.999f) // some fudge for imprecision
-			{
-				if (_23 > -0.999f) // some fudge for imprecision
-				{
-					ret.x = asinf(_23);
-					ret.y = atan2f(-_13, _33);
-					ret.z = atan2f(-_21, _22);
-					MakePositive(ret);
-				}
-				else
-				{
-					// WARNING.  Not unique.  YA - ZA = atan2(-r01,r00)
-					ret.x = -D3DX_PI * 0.5f;
-					ret.y = atan2f(-_12, _11);
-					ret.z = 0.0f;
-					MakePositive(ret);
-				}
-			}
-			else
-			{
-				// WARNING.  Not unique.  YA + ZA = atan2(r01,r00)
-				ret.x = D3DX_PI * 0.5f;
-				ret.y = atan2f(_12, _11);
-				ret.z = 0.0f;
-				MakePositive(ret);
-			}
-			return ret;
-		}
+		Quaternion toRotation(void) const;
 
 	public:
 		static const Matrix4 identity;

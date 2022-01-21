@@ -672,6 +672,14 @@ void Actor::Attach(Actor * other, int BoneId)
 	other->m_Base = this;
 
 	other->m_BaseBoneId = BoneId;
+
+	const my::Bone pose = GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity());
+
+	const my::Matrix4 world2loc = my::Matrix4::Compose(m_Scale, pose.m_rotation, pose.m_position).inverse();
+
+	other->m_Position = other->m_Position.transformCoord(world2loc);
+
+	other->m_Rotation = pose.m_rotation.conjugate() * other->m_Rotation;
 }
 
 void Actor::Detach(Actor * other)
@@ -680,8 +688,16 @@ void Actor::Detach(Actor * other)
 	if (att_iter != m_Attaches.end())
 	{
 		_ASSERT((*att_iter)->m_Base == this);
+
 		(*att_iter)->m_Base = NULL;
+
 		m_Attaches.erase(att_iter);
+
+		const my::Bone pose = GetAttachPose(other->m_BaseBoneId, Vector3(0, 0, 0), Quaternion::Identity());
+
+		const my::Matrix4 loc2world = my::Matrix4::Compose(m_Scale, pose.m_rotation, pose.m_position);
+
+		other->SetPose(other->m_Position.transformCoord(loc2world), other->m_Rotation * pose.m_rotation);
 		return;
 	}
 	_ASSERT(false);
@@ -694,16 +710,20 @@ unsigned int Actor::GetAttachNum(void) const
 
 my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const
 {
+	Quaternion RootRotation; Vector3 RootPosition, RootScale;
+
+	m_World.Decompose(RootScale, RootRotation, RootPosition);
+
 	const Animator* animator = GetFirstComponent<Animator>();
 
 	if (animator && BoneId >= 0 && BoneId < (int)animator->anim_pose_hier.size())
 	{
 		const my::Bone& bone = animator->anim_pose_hier[BoneId];
 
-		return my::Bone(LocalRotation * bone.m_rotation * m_Rotation, (bone.m_rotation * LocalPosition + bone.m_position).transformCoord(m_World));
+		return my::Bone(LocalRotation * bone.m_rotation * RootRotation, (bone.m_rotation * LocalPosition + bone.m_position).transformCoord(m_World));
 	}
 
-	return my::Bone(LocalRotation * m_Rotation, LocalPosition.transformCoord(m_World));
+	return my::Bone(LocalRotation * RootRotation, LocalPosition.transformCoord(m_World));
 }
 
 void Actor::ClearAllAttach(void)

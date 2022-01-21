@@ -260,6 +260,99 @@ Matrix4 Matrix4::UDQtoRM(const Matrix4 & dual)
 	return m ;      
 } 
 
+static void _SanitizeEuler(Vector3& euler)
+{
+	const float negativeFlip = -0.0001f;
+	const float positiveFlip = (D3DX_PI * 2.0f) - 0.0001f;
+
+	if (euler.x < negativeFlip)
+		euler.x += 2.0f * D3DX_PI;
+	else if (euler.x > positiveFlip)
+		euler.x -= 2.0f * D3DX_PI;
+
+	if (euler.y < negativeFlip)
+		euler.y += 2.0f * D3DX_PI;
+	else if (euler.y > positiveFlip)
+		euler.y -= 2.0f * D3DX_PI;
+
+	if (euler.z < negativeFlip)
+		euler.z += 2.0f * D3DX_PI;
+	else if (euler.z > positiveFlip)
+		euler.z -= 2.0f * D3DX_PI;
+}
+
+Vector3 Matrix4::toEulerAngles(void) const
+{
+	// from http://www.geometrictools.com/Documentation/EulerAngles.pdf
+	// YXZ order
+	Vector3 ret;
+	if (_23 < 0.999f) // some fudge for imprecision
+	{
+		if (_23 > -0.999f) // some fudge for imprecision
+		{
+			ret.x = asinf(_23);
+			ret.y = atan2f(-_13, _33);
+			ret.z = atan2f(-_21, _22);
+			_SanitizeEuler(ret);
+		}
+		else
+		{
+			// WARNING.  Not unique.  YA - ZA = atan2(-r01,r00)
+			ret.x = -D3DX_PI * 0.5f;
+			ret.y = atan2f(-_12, _11);
+			ret.z = 0.0f;
+			_SanitizeEuler(ret);
+		}
+	}
+	else
+	{
+		// WARNING.  Not unique.  YA + ZA = atan2(r01,r00)
+		ret.x = D3DX_PI * 0.5f;
+		ret.y = atan2f(_12, _11);
+		ret.z = 0.0f;
+		_SanitizeEuler(ret);
+	}
+	return ret;
+}
+
+Quaternion Matrix4::toRotation(void) const
+{
+	// This algorithm comes from  "Quaternion Calculus and Fast Animation",
+	// Ken Shoemake, 1987 SIGGRAPH course notes
+	// https://www.cs.cmu.edu/~kiranb/animation/p245-shoemake.pdf
+	_ASSERT(IS_UNITED(determinant()));
+	Quaternion q;
+	float t = (*this)[0][0] + (*this)[1][1] + (*this)[2][2];
+	if (t > 0)
+	{
+		t = sqrt(t + 1.0f);
+		q.w = 0.5f * t;
+		t = 0.5f / t;
+		q.x = ((*this)[1][2] - (*this)[2][1]) * t;
+		q.y = ((*this)[2][0] - (*this)[0][2]) * t;
+		q.z = ((*this)[0][1] - (*this)[1][0]) * t;
+	}
+	else
+	{
+		int i = 0;
+		if ((*this)[1][1] > (*this)[0][0])
+			i = 1;
+		if ((*this)[2][2] > (*this)[i][i])
+			i = 2;
+		int j = (i + 1) % 3;
+		int k = (j + 1) % 3;
+
+		t = sqrt((*this)[i][i] - (*this)[j][j] - (*this)[k][k] + 1.0f);
+		_ASSERT(t > EPSILON_E12);
+		(&q.x)[i] = -0.5f * t;
+		t = 0.5f / t;
+		q.w = ((*this)[k][j] - (*this)[j][k]) * t;
+		(&q.x)[j] = -((*this)[j][i] + (*this)[i][j]) * t;
+		(&q.x)[k] = -((*this)[k][i] + (*this)[i][k]) * t;
+	}
+	return q;
+}
+
 Bone Bone::Increment(const Bone & rhs) const
 {
 	return Bone(

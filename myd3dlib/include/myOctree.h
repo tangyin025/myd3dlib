@@ -51,7 +51,7 @@ namespace my
 		ChildArray m_Childs;
 
 #ifdef _DEBUG
-		bool m_QueryEntityMuted;
+		volatile bool m_QueryEntityMuted;
 #endif
 
 	public:

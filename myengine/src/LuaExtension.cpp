@@ -910,6 +910,7 @@ void LuaContext::Init(void)
 			.def("lerp", &my::Matrix4::lerp)
 			.def("lerpSelf", &my::Matrix4::lerpSelf, luabind::return_reference_to(boost::placeholders::_1))
 			.property("EulerAngles", &my::Matrix4::toEulerAngles)
+			.property("Rotation", &my::Matrix4::toRotation)
 			.scope
 			[
 				def("Compose", (my::Matrix4(*)(const my::Vector3 &, const my::Quaternion &, const my::Vector3 &))&my::Matrix4::Compose),
