@@ -9,7 +9,7 @@ terrain.Material.Shader="shader/mtl_Splatmap.fx"
 terrain.Material:ParseShaderParameters()
 terrain.Material:SetParameter("g_TextureScale",Vector2(2048,2048))
 local tbox=terrain:CalculateAABB()
-local act=Actor("actor0",Vector3(-tbox:Center().x*8,0,-tbox:Center().z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
+local act=Actor("actor0",Vector3(-tbox.Center.x*8,0,-tbox.Center.z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
 act:InsertComponent(act.ComponentNum,terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
 terrain:CreateHeightFieldShape("terrain/chunk_123456.pxheightfield",act.Scale,theApp.MainWnd.CollectionObjs)
@@ -49,10 +49,10 @@ for i=1,300000,1 do
 		math.random(0,100),
 		math.random(-4000,4000)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 	act:InsertComponent(act.ComponentNum,mesh_cmp)
-	act:CreateRigidActor(Actor.eRIGID_STATIC)
-	mesh_cmp:CreateTriangleMeshShape("mesh/Gear.mesh.xml.pxtrianglemesh",theApp.MainWnd.CollectionObjs)
-	mesh_cmp.SimulationFilterWord0=1
-	mesh_cmp.QueryFilterWord0=1
+	-- act:CreateRigidActor(Actor.eRIGID_STATIC)
+	-- mesh_cmp:CreateTriangleMeshShape("mesh/Gear.mesh.xml.pxtrianglemesh",theApp.MainWnd.CollectionObjs)
+	-- mesh_cmp.SimulationFilterWord0=1
+	-- mesh_cmp.QueryFilterWord0=1
 	act:UpdateWorld()
 	theApp.MainWnd:AddEntity(act,act.aabb:transform(act.World),1.0,0.1)
 	table.insert(acts,act)
