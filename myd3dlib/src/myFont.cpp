@@ -236,6 +236,7 @@ Vector2 Font::GetScale(void) const
 {
 	_ASSERT(m_face);
 
+	// ! for screen viewport scale use FontLibrary::m_Scale
 	return Vector2(
 		m_face->size->metrics.x_scale * m_face->units_per_EM / m_Height / (64.0f * 65536.0f),
 		m_face->size->metrics.y_scale * m_face->units_per_EM / m_Height / (64.0f * 65536.0f));
@@ -319,6 +320,7 @@ void Font::OnDestroyDevice(void)
 
 void Font::CreateFontTexture(UINT Width, UINT Height)
 {
+	// ! UIRender::m_Layer will hold this object's ptr
 	m_Texture->OnDestroyDevice();
 
 	m_Texture->CreateTexture(Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
