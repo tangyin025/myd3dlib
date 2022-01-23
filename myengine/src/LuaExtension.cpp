@@ -2273,7 +2273,7 @@ void LuaContext::Init(void)
 			.def("RequestResource", &LargeImage::RequestResource)
 			.def("ReleaseResource", &LargeImage::ReleaseResource)
 			//.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD))& LargeImage::Draw)
-			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&))& LargeImage::Draw)
+			.def("Draw", (void (LargeImage::*)(my::UIRender*, const my::Rectangle&, DWORD, const my::Rectangle&, int))& LargeImage::Draw)
 
 		, class_<Action, boost::shared_ptr<Action> >("Action")
 			.def(constructor<>())

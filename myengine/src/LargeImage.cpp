@@ -1,5 +1,40 @@
 #include "LargeImage.h"
 #include "myResource.h"
+#include <boost/tuple/tuple_comparison.hpp>
+#include <boost/functional/hash.hpp>
+
+namespace boost {
+	namespace tuples {
+		namespace detail {
+			template <class Tuple, size_t Index = length<Tuple>::value - 1>
+			struct HashValueImpl
+			{
+				static void apply(size_t& seed, Tuple const& tuple)
+				{
+					HashValueImpl<Tuple, Index - 1>::apply(seed, tuple);
+					boost::hash_combine(seed, tuple.get<Index>());
+				}
+			};
+
+			template <class Tuple>
+			struct HashValueImpl<Tuple, 0>
+			{
+				static void apply(size_t& seed, Tuple const& tuple)
+				{
+					boost::hash_combine(seed, tuple.get<0>());
+				}
+			};
+		} // namespace detail
+
+		template <class Tuple>
+		size_t hash_value(Tuple const& tuple)
+		{
+			size_t seed = 0;
+			detail::HashValueImpl<Tuple>::apply(seed, tuple);
+			return seed;
+		}
+	}
+}
 
 LargeImageChunk::~LargeImageChunk(void)
 {
@@ -20,7 +55,7 @@ void LargeImageChunk::RequestResource(void)
 		_ASSERT(!m_Texture);
 
 		char path[MAX_PATH];
-		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Row, m_Col);
+		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Depth, m_Row, m_Col);
 		my::ResourceMgr::getSingleton().LoadTextureAsync(path,
 			boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
 	}
@@ -35,7 +70,7 @@ void LargeImageChunk::ReleaseResource(void)
 	if (!m_Owner->m_TexturePath.empty())
 	{
 		char path[MAX_PATH];
-		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Row, m_Col);
+		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Depth, m_Row, m_Col);
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(path,
 			boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
 
@@ -50,16 +85,7 @@ void LargeImageChunk::OnTextureReady(my::DeviceResourceBasePtr res)
 
 LargeImage::LargeImage(void)
 {
-	m_Chunks.resize(boost::extents[2][2]);
-	for (int i = 0; i < m_Chunks.shape()[0]; i++)
-	{
-		for (int j = 0; j < m_Chunks.shape()[1]; j++)
-		{
-			m_Chunks[i][j].m_Owner = this;
-			m_Chunks[i][j].m_Row = i;
-			m_Chunks[i][j].m_Col = j;
-		}
-	}
+
 }
 
 void LargeImage::RequestResource(void)
@@ -77,31 +103,30 @@ void LargeImage::ReleaseResource(void)
 	m_ViewedChunks.clear();
 }
 
-void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip)
+void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth)
 {
-	const my::Vector2 ChunkSize(rect.Width() / m_Chunks.shape()[0], rect.Height() / m_Chunks.shape()[1]);
-
+	const int row_count = my::ipow(2, depth);
+	const int col_count = my::ipow(2, depth);
+	const my::Vector2 ChunkSize(rect.Width() / row_count, rect.Height() / col_count);
 	const int ibegin = my::Max(0, (int)floorf((clip.l - rect.l) / ChunkSize.x));
-
 	const int jbegin = my::Max(0, (int)floorf((clip.t - rect.t) / ChunkSize.y));
-
-	const int iend = my::Min((int)m_Chunks.shape()[0], (int)ceilf((clip.r - rect.l) / ChunkSize.x));
-
-	const int jend = my::Min((int)m_Chunks.shape()[0], (int)ceilf((clip.b - rect.t) / ChunkSize.y));
-
+	const int iend = my::Min(row_count, (int)ceilf((clip.r - rect.l) / ChunkSize.x));
+	const int jend = my::Min(col_count, (int)ceilf((clip.b - rect.t) / ChunkSize.y));
 	ChunkSet::iterator insert_chunk_iter = m_ViewedChunks.begin();
 	for (int i = ibegin; i < iend; i++)
 	{
 		for (int j = jbegin; j < jend; j++)
 		{
-			if (m_Chunks[i][j].is_linked())
+			std::pair<LargeImageChunkMap::iterator, bool> res = m_Chunks.insert(LargeImageChunkMap::value_type(boost::make_tuple(depth, i, j), LargeImageChunk(this, depth, i, j)));
+
+			if (res.first->second.is_linked())
 			{
-				ChunkSet::iterator chunk_iter = m_ViewedChunks.iterator_to(m_Chunks[i][j]);
+				ChunkSet::iterator chunk_iter = m_ViewedChunks.iterator_to(res.first->second);
 				if (chunk_iter != insert_chunk_iter)
 				{
 					m_ViewedChunks.erase(chunk_iter);
 
-					m_ViewedChunks.insert(insert_chunk_iter, m_Chunks[i][j]);
+					m_ViewedChunks.insert(insert_chunk_iter, res.first->second);
 				}
 				else
 				{
@@ -110,20 +135,20 @@ void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWOR
 					insert_chunk_iter++;
 				}
 
-				if (m_Chunks[i][j].m_Texture)
+				if (res.first->second.m_Texture)
 				{
 					my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
 
-					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, m_Chunks[i][j].m_Texture.get(), clip);
+					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, res.first->second.m_Texture.get(), clip);
 				}
 			}
 			else
 			{
-				_ASSERT(!m_Chunks[i][j].IsRequested());
+				_ASSERT(!res.first->second.IsRequested());
 
-				m_Chunks[i][j].RequestResource();
+				res.first->second.RequestResource();
 
-				m_ViewedChunks.insert(insert_chunk_iter, m_Chunks[i][j]);
+				m_ViewedChunks.insert(insert_chunk_iter, res.first->second);
 			}
 		}
 	}

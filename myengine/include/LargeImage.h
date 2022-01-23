@@ -1,6 +1,6 @@
 #pragma once
 #include <myUi.h>
-#include <boost/multi_array.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/intrusive/list.hpp>
 
 class LargeImage;
@@ -11,7 +11,9 @@ class LargeImageChunk
 	: public boost::intrusive::list_base_hook<boost::intrusive::tag<LargeImageTag> >
 {
 public:
-	LargeImage* m_Owner;
+	LargeImage * m_Owner;
+
+	int m_Depth;
 
 	int m_Row;
 
@@ -22,10 +24,11 @@ public:
 	my::Texture2DPtr m_Texture;
 
 public:
-	LargeImageChunk(void)
-		: m_Owner(NULL)
-		, m_Row(0)
-		, m_Col(0)
+	LargeImageChunk(LargeImage * Owner, int Depth, int Row, int Col)
+		: m_Owner(Owner)
+		, m_Depth(Depth)
+		, m_Row(Row)
+		, m_Col(Col)
 		, m_Requested(false)
 	{
 	}
@@ -49,9 +52,9 @@ class LargeImage
 public:
 	std::string m_TexturePath;
 
-	typedef boost::multi_array<LargeImageChunk, 2> ChunkArray2D;
+	typedef boost::unordered_map<boost::tuple<int, int, int>, LargeImageChunk> LargeImageChunkMap;
 
-	ChunkArray2D m_Chunks;
+	LargeImageChunkMap m_Chunks;
 
 	typedef boost::intrusive::list<LargeImageChunk, boost::intrusive::base_hook<boost::intrusive::list_base_hook<boost::intrusive::tag<LargeImageTag> > > > ChunkSet;
 
@@ -64,5 +67,5 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip);
+	void Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWORD color, const my::Rectangle & clip, int depth);
 };
