@@ -195,25 +195,23 @@ FontLibrary::~FontLibrary(void)
 Font::Font(int font_pixel_gap)
 	: m_face(NULL)
 	, FONT_PIXEL_GAP(font_pixel_gap)
-	, m_textureResetNotify(NULL)
+	, m_Texture(new Texture2D())
 {
-	FontLibrary::getSingleton().m_EventScaleChanged.connect(boost::bind(&Font::OnScaleChanged, this, boost::placeholders::_1));
+	FontLibrary::getSingleton().m_EventScaleChanged.connect(boost::bind(&Font::SetScale, this, boost::placeholders::_1));
 }
 
 Font::~Font(void)
 {
-	_ASSERT(NULL == m_textureResetNotify);
-
 	if(m_face)
 	{
 		FT_Done_Face(m_face);
 		m_face = NULL;
 	}
 
-	FontLibrary::getSingleton().m_EventScaleChanged.disconnect(boost::bind(&Font::OnScaleChanged, this, boost::placeholders::_1));
+	FontLibrary::getSingleton().m_EventScaleChanged.disconnect(boost::bind(&Font::SetScale, this, boost::placeholders::_1));
 }
 
-void Font::OnScaleChanged(const Vector2 & Scale)
+void Font::SetScale(const Vector2 & Scale)
 {
 	_ASSERT(m_face);
 
@@ -234,6 +232,15 @@ void Font::OnScaleChanged(const Vector2 & Scale)
 	m_characterMap.clear();
 }
 
+Vector2 Font::GetScale(void) const
+{
+	_ASSERT(m_face);
+
+	return Vector2(
+		m_face->size->metrics.x_scale * m_face->units_per_EM / m_Height / (64.0f * 65536.0f),
+		m_face->size->metrics.y_scale * m_face->units_per_EM / m_Height / (64.0f * 65536.0f));
+}
+
 void Font::Create(FT_Face face, int height)
 {
 	_ASSERT(!m_face);
@@ -244,7 +251,7 @@ void Font::Create(FT_Face face, int height)
 
 	CreateFontTexture(512, 512);
 
-	OnScaleChanged(FontLibrary::getSingleton().m_Scale);
+	SetScale(FontLibrary::getSingleton().m_Scale);
 
 	m_LineHeight = m_face->size->metrics.height / 64;
 }
@@ -312,7 +319,7 @@ void Font::OnDestroyDevice(void)
 
 void Font::CreateFontTexture(UINT Width, UINT Height)
 {
-	m_Texture.reset(new Texture2D());
+	m_Texture->OnDestroyDevice();
 
 	m_Texture->CreateTexture(Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 
@@ -324,11 +331,6 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 	if(!m_textureRectRoot->AssignRect(size, outRect))
 	{
 		_ASSERT(m_textureDesc.Width > 0 && m_textureDesc.Height > 0);
-
-		if (m_textureResetNotify)
-		{
-			m_textureResetNotify->OnNotify(m_Texture, m_textureDesc);
-		}
 
 		CreateFontTexture(m_textureDesc.Width * 2, m_textureDesc.Height * 2);
 

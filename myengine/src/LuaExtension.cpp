@@ -1181,6 +1181,7 @@ void LuaContext::Init(void)
 			]
 			.def_readonly("Height", &my::Font::m_Height)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
+			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
 
 		, class_<my::Wav, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Wav")
 

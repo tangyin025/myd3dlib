@@ -555,29 +555,6 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 
 void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
 {
-	struct TextureResetNotify : Font::TextureResetNotify
-	{
-		UIRender* ui_render;
-
-		TextureResetNotify(UIRender* _ui_render)
-			: ui_render(_ui_render)
-		{
-		}
-
-		void OnNotify(const Texture2DPtr &, const D3DSURFACE_DESC &)
-		{
-			ui_render->Flush();
-		}
-	};
-
-	TextureResetNotify notify(this);
-	font->m_textureResetNotify = &notify;
-	BOOST_SCOPE_EXIT(&font)
-	{
-		font->m_textureResetNotify = NULL;
-	}
-	BOOST_SCOPE_EXIT_END
-
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
 	const wchar_t* p = str;
@@ -615,29 +592,6 @@ void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCO
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font)
 {
-	struct TextureResetNotify : Font::TextureResetNotify
-	{
-		UIRender* ui_render;
-
-		TextureResetNotify(UIRender* _ui_render)
-			: ui_render(_ui_render)
-		{
-		}
-
-		void OnNotify(const Texture2DPtr &, const D3DSURFACE_DESC &)
-		{
-			ui_render->Flush();
-		}
-	};
-
-	TextureResetNotify notify(this);
-	font->m_textureResetNotify = &notify;
-	BOOST_SCOPE_EXIT(&font)
-	{
-		font->m_textureResetNotify = NULL;
-	}
-	BOOST_SCOPE_EXIT_END
-		
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
 	const wchar_t* p = str;
