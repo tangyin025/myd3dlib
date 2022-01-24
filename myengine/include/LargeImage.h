@@ -1,6 +1,5 @@
 #pragma once
 #include <myUi.h>
-#include <boost/unordered_map.hpp>
 #include <boost/intrusive/list.hpp>
 
 class LargeImage;
@@ -13,11 +12,11 @@ class LargeImageChunk
 public:
 	LargeImage * m_Owner;
 
-	int m_Depth;
+	const int m_Depth;
 
-	int m_Row;
+	const int m_Row;
 
-	int m_Col;
+	const int m_Col;
 
 	bool m_Requested;
 
@@ -52,7 +51,7 @@ class LargeImage
 public:
 	std::string m_TexturePath;
 
-	typedef boost::unordered_map<boost::tuple<int, int, int>, LargeImageChunk> LargeImageChunkMap;
+	typedef std::map<boost::tuple<int, int, int>, LargeImageChunk> LargeImageChunkMap;
 
 	LargeImageChunkMap m_Chunks;
 
