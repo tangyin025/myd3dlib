@@ -2327,7 +2327,7 @@ void LuaContext::Init(void)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
 
 		, class_<Steering>("Steering")
-			.def(constructor<const Actor *>())
+			.def(constructor<const Actor *, float, float>())
 			.def_readonly("Actor", &Steering::m_Actor)
 			.def_readwrite("Forward", &Steering::m_Forward)
 			.def_readwrite("Speed", &Steering::m_Speed)

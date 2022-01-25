@@ -18,7 +18,7 @@ public:
 	float m_MaxSpeed;
 
 public:
-	Steering(const Actor * _Actor);
+	Steering(const Actor * _Actor, float BrakingRate, float MaxSpeed);
 
 	~Steering(void);
 

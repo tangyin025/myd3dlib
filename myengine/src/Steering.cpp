@@ -1,12 +1,12 @@
 #include "Steering.h"
 #include "Actor.h"
 
-Steering::Steering(const Actor * _Actor)
+Steering::Steering(const Actor * _Actor, float BrakingRate, float MaxSpeed)
 	: m_Actor(_Actor)
 	, m_Forward(_Actor->m_World.getColumn<2>().xyz.normalize())
 	, m_Speed(0.0f)
-	, m_BrakingRate(0.75f)
-	, m_MaxSpeed(5.0f)
+	, m_BrakingRate(BrakingRate)
+	, m_MaxSpeed(MaxSpeed)
 {
 }
 
