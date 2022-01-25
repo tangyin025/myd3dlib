@@ -32,6 +32,7 @@ extern "C"
 #include "LargeImage.h"
 #include "SoundContext.h"
 #include "ActionTrack.h"
+#include "Steering.h"
 //#include "noise.h"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
@@ -2324,6 +2325,15 @@ void LuaContext::Init(void)
 			.def_readwrite("StartPos", &ActionTrackPose::m_StartPos)
 			.def_readwrite("StartRot", &ActionTrackPose::m_StartRot)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
+
+		, class_<Steering>("Steering")
+			.def(constructor<const Actor *>())
+			.def_readonly("Actor", &Steering::m_Actor)
+			.def_readwrite("Forward", &Steering::m_Forward)
+			.def_readwrite("Speed", &Steering::m_Speed)
+			.def_readwrite("BrakingRate", &Steering::m_BrakingRate)
+			.def_readwrite("MaxSpeed", &Steering::m_MaxSpeed)
+			.def("SeekDir", &Steering::SeekDir)
 
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")
