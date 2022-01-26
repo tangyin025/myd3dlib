@@ -22,5 +22,7 @@ public:
 
 	~Steering(void);
 
-	my::Vector3 SeekDir(my::Vector3 Dir, float dtime);
+	my::Vector3 SeekDir(my::Vector3 Force, float dtime);
+
+	my::Vector3 SeekTarget(const my::Vector3 & Target, float dtime);
 };

@@ -3100,20 +3100,14 @@ namespace my
 		{
 			return m_max - m_min;
 		}
-		
-		bool PtInRect(const Vector3 & pt)
-		{
-			return pt.x >= m_min.x && pt.x < m_max.x
-				&& pt.y >= m_min.y && pt.y < m_max.y
-				&& pt.z >= m_min.z && pt.z < m_max.z;
-		}
 
 		template <UINT Quad>
 		AABB Slice(const Vector3 & cente);
 
 		bool Intersect(const Vector3 & pos) const
 		{
-			if (Intersect2D(pos) && pos.y >= m_min.y && pos.y < m_max.y)
+			if (Intersect2D(pos)
+				&& pos.y >= m_min.y && pos.y < m_max.y)
 			{
 				return true;
 			}
@@ -3122,7 +3116,8 @@ namespace my
 
 		bool Intersect2D(const Vector3 & pos) const
 		{
-			if (pos.x >= m_min.x && pos.x < m_max.x && pos.z >= m_min.z && pos.z < m_max.z)
+			if (pos.x >= m_min.x && pos.x < m_max.x
+				&& pos.z >= m_min.z && pos.z < m_max.z)
 			{
 				return true;
 			}

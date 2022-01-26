@@ -445,12 +445,16 @@ void Actor::UpdateWorld(void)
 {
 	_ASSERT(!m_Base);
 
+	_ASSERT(!m_Node || !PhysxSdk::getSingleton().m_RenderTickMuted);
+
 	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 }
 
 void Actor::UpdateOctNode(void)
 {
 	_ASSERT(m_Node);
+
+	_ASSERT(!m_Node || !PhysxSdk::getSingleton().m_RenderTickMuted);
 
 	my::OctNode* Root = m_Node->GetTopNode();
 	Root->OctNode::RemoveEntity(this);

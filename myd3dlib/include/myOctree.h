@@ -104,7 +104,7 @@ namespace my
 		{
 		}
 
-		virtual ~OctNode(void)
+		~OctNode(void)
 		{
 		}
 

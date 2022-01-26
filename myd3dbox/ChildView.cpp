@@ -2507,7 +2507,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 						if (res.first)
 						{
 							my::Vector3 emit_pos = local_ray.p + local_ray.d * res.second;
-							if (estr.m_emit->PtInRect(emit_pos))
+							if (estr.m_emit->Intersect(emit_pos))
 							{
 								estr.Spawn(my::Vector4(emit_pos, 1.0f), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
 								candidate.push_back(rand_pos);
