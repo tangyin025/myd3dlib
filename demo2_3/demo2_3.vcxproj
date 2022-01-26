@@ -219,7 +219,7 @@
       <Project>{e7e0b84b-e196-45f1-b017-aeb3121d2052}</Project>
     </ProjectReference>
     <ProjectReference Include="..\freetype\freetype.vcxproj">
-      <Project>{ab3a72ec-552c-41bd-9d73-761d2419d4d1}</Project>
+      <Project>{2393A386-F7FA-3923-A760-848892FC4B10}</Project>
     </ProjectReference>
     <ProjectReference Include="..\libboost_program_options\libboost_program_options.vcxproj">
       <Project>{79940869-b99a-42b6-9e8e-d683614c630a}</Project>

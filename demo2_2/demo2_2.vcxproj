@@ -189,7 +189,7 @@
       <Project>{e7e0b84b-e196-45f1-b017-aeb3121d2052}</Project>
     </ProjectReference>
     <ProjectReference Include="..\freetype\freetype.vcxproj">
-      <Project>{ab3a72ec-552c-41bd-9d73-761d2419d4d1}</Project>
+      <Project>{2393A386-F7FA-3923-A760-848892FC4B10}</Project>
     </ProjectReference>
     <ProjectReference Include="..\libboost_program_options\libboost_program_options.vcxproj">
       <Project>{79940869-b99a-42b6-9e8e-d683614c630a}</Project>
@@ -223,6 +223,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Recast\Recast.vcxproj">
       <Project>{bce7e203-90f1-41cd-95e4-d616e838986c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\sqlite\sqlite.vcxproj">
+      <Project>{8fe4e999-e732-4308-84bc-8d001cbc3c01}</Project>
     </ProjectReference>
     <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{4b104248-0f92-4516-8d50-e87d5e9bb6b6}</Project>
