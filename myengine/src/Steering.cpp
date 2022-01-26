@@ -100,14 +100,13 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 {
 	struct Callback : public my::OctNode::QueryCallback
 	{
-		Vector3 startpos;
-
+		const Actor* self;
+		Vector3 pos;
 		std::vector<Controller*> neighbors;
-
 		Navigation* navi;
-
-		Callback(const my::Vector3 pos)
-			: startpos(pos)
+		Callback(const Actor* _self, const my::Vector3& _pos)
+			: self(_self)
+			, pos(_pos)
 			, navi(NULL)
 		{
 		}
@@ -116,27 +115,31 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (!navi)
+			if (actor != self)
 			{
-				navi = actor->GetFirstComponent<Navigation>();
-				if (navi && !actor->m_OctAabb->Intersect2D(startpos))
+				if (!navi && (navi = actor->GetFirstComponent<Navigation>()) && !actor->m_OctAabb->Intersect2D(pos))
 				{
 					navi = NULL;
 				}
-			}
 
-			Controller* neighbor = actor->GetFirstComponent<Controller>();
-			if (neighbor)
-			{
-				neighbors.push_back(neighbor);
+				Controller* neighbor = actor->GetFirstComponent<Controller>();
+				if (neighbor)
+				{
+					neighbors.push_back(neighbor);
+				}
 			}
 		}
 	};
 
 	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
 	OctNode* Root = m_Actor->m_Node->GetTopNode();
-	Callback cb(controller->GetPosition());
+	Callback cb(m_Actor, controller->GetPosition());
 	Root->QueryEntity(AABB(controller->GetPosition(), 5.0f), &cb);
 
-	return Vector3(0, 0, 0);
+	if (!cb.navi)
+	{
+		return Vector3(0, 0, 0);
+	}
+
+	return m_Forward * m_Speed;
 }

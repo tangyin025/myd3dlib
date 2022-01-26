@@ -2333,6 +2333,7 @@ void LuaContext::Init(void)
 			.def_readwrite("BrakingRate", &Steering::m_BrakingRate)
 			.def_readwrite("MaxSpeed", &Steering::m_MaxSpeed)
 			.def("SeekDir", &Steering::SeekDir)
+			.def("SeekTarget", &Steering::SeekTarget)
 
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")
