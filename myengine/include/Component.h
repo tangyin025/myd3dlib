@@ -240,7 +240,24 @@ public:
 
 	std::string m_PxMeshPath;
 
-	my::DeviceResourceBasePtr m_PxMesh;
+	class PhysxBaseResource : public my::DeviceResourceBase
+	{
+	public:
+		physx::PxBase* m_ptr;
+
+		PhysxBaseResource(void)
+			: m_ptr(NULL)
+		{
+		}
+
+		virtual ~PhysxBaseResource(void);
+
+		void Create(physx::PxBase* ptr);
+	};
+
+	typedef boost::shared_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
+
+	PhysxBaseResourcePtr m_PxMesh;
 
 	physx::PxBase * m_PxMeshTmp;
 

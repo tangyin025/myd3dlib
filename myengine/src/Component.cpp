@@ -571,50 +571,37 @@ void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
 	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
 }
 
-class PhysxBaseResource : public my::DeviceResourceBase
+MeshComponent::PhysxBaseResource::~PhysxBaseResource(void)
 {
-public:
-	physx::PxBase* m_ptr;
-
-	PhysxBaseResource(void)
-		: m_ptr(NULL)
+	if (m_ptr)
 	{
-	}
-
-	virtual ~PhysxBaseResource(void)
-	{
-		if (m_ptr)
+		switch (m_ptr->getConcreteType())
 		{
-			switch (m_ptr->getConcreteType())
-			{
-			case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
-			{
-				_ASSERT(static_cast<physx::Gu::TriangleMesh*>(m_ptr)->getRefCount() == 1);
-				break;
-			}
-			case physx::PxConcreteType::eCONVEX_MESH:
-			{
-				_ASSERT(static_cast<physx::Gu::ConvexMesh*>(m_ptr)->getRefCount() == 1);
-				break;
-			}
-			default:
-				_ASSERT(false);
-				break;
-			}
-
-			m_ptr->release();
+		case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
+		{
+			_ASSERT(static_cast<physx::Gu::TriangleMesh*>(m_ptr)->getReferenceCount() == 1);
+			break;
 		}
+		case physx::PxConcreteType::eCONVEX_MESH:
+		{
+			_ASSERT(static_cast<physx::Gu::ConvexMesh*>(m_ptr)->getReferenceCount() == 1);
+			break;
+		}
+		default:
+			_ASSERT(false);
+			break;
+		}
+
+		m_ptr->release();
 	}
+}
 
-	void Create(physx::PxBase* ptr)
-	{
-		_ASSERT(NULL == m_ptr);
+void MeshComponent::PhysxBaseResource::Create(physx::PxBase* ptr)
+{
+	_ASSERT(NULL == m_ptr);
 
-		m_ptr = ptr;
-	}
-};
-
-typedef boost::shared_ptr<PhysxBaseResource> PhysxBaseResourcePtr;
+	m_ptr = ptr;
+}
 
 class PhysxTriangleMeshIORequest : public my::IORequest
 {
@@ -633,7 +620,7 @@ public:
 		if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 		{
 			PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
-			PhysxBaseResourcePtr res(new PhysxBaseResource());
+			MeshComponent::PhysxBaseResourcePtr res(new MeshComponent::PhysxBaseResource());
 			res->Create(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer));
 			m_res = res;
 		}
@@ -665,7 +652,7 @@ public:
 		if (my::ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 		{
 			PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
-			PhysxBaseResourcePtr res(new PhysxBaseResource());
+			MeshComponent::PhysxBaseResourcePtr res(new MeshComponent::PhysxBaseResource());
 			res->Create(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer));
 			m_res = res;
 		}
@@ -684,7 +671,7 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 {
 	_ASSERT(!m_PxMesh);
 
-	m_PxMesh = res;
+	m_PxMesh = boost::dynamic_pointer_cast<PhysxBaseResource>(res);
 
 	_ASSERT(m_Actor && m_Actor->m_PxActor && m_PxShape && !m_PxShape->getActor());
 
@@ -693,16 +680,14 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 	case physx::PxGeometryType::eTRIANGLEMESH:
 	{
 		physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-		m_PxShape->setGeometry(physx::PxTriangleMeshGeometry(
-			boost::dynamic_pointer_cast<PhysxBaseResource>(m_PxMesh)->m_ptr->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()));
+		m_PxShape->setGeometry(physx::PxTriangleMeshGeometry(m_PxMesh->m_ptr->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()));
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 		break;
 	}
 	case physx::PxGeometryType::eCONVEXMESH:
 	{
 		physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-		m_PxShape->setGeometry(physx::PxConvexMeshGeometry(
-			boost::dynamic_pointer_cast<PhysxBaseResource>(m_PxMesh)->m_ptr->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()));
+		m_PxShape->setGeometry(physx::PxConvexMeshGeometry(m_PxMesh->m_ptr->is<physx::PxConvexMesh>(), mesh_scaling, physx::PxConvexMeshGeometryFlags()));
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 		break;
 	}

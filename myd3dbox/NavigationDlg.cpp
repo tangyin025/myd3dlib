@@ -10,6 +10,8 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "Terrain.h"
+#include "mesh\GuTriangleMesh.h"
+#include "convex\GuConvexMesh.h"
 
 
 // CNavigationDlg dialog
@@ -326,24 +328,23 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 				case physx::PxGeometryType::eCONVEXMESH:
 				{
 					MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
-					physx::PxConvexMeshGeometry geom;
+					boost::shared_ptr<physx::PxConvexMesh> convexMesh;
 					if (!mesh_cmp->m_PxMesh)
 					{
 						PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(mesh_cmp->m_PxMeshPath.c_str()));
-						physx::PxConvexMesh * convexMesh = PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer);
-						physx::PxMeshScale mesh_scaling((physx::PxVec3&)cmp->m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-						geom = physx::PxConvexMeshGeometry(convexMesh, mesh_scaling, physx::PxConvexMeshGeometryFlags());
+						convexMesh.reset(PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer), PhysxDeleter<physx::PxConvexMesh>());
 					}
 					else
 					{
-						VERIFY(cmp->m_PxShape->getConvexMeshGeometry(geom));
+						convexMesh.reset(mesh_cmp->m_PxMesh->m_ptr->is<physx::PxConvexMesh>(), PhysxDeleter<physx::PxConvexMesh>());
+						static_cast<physx::Gu::ConvexMesh*>(convexMesh.get())->acquireReference();
 					}
-					boost::const_multi_array_ref<physx::PxVec3, 1> verts(geom.convexMesh->getVertices(), boost::extents[geom.convexMesh->getNbVertices()]);
-					const physx::PxU8* polys = geom.convexMesh->getIndexBuffer();
-					for (unsigned int i = 0; i < geom.convexMesh->getNbPolygons(); i++)
+					boost::const_multi_array_ref<physx::PxVec3, 1> verts(convexMesh->getVertices(), boost::extents[convexMesh->getNbVertices()]);
+					const physx::PxU8* polys = convexMesh->getIndexBuffer();
+					for (unsigned int i = 0; i < convexMesh->getNbPolygons(); i++)
 					{
 						physx::PxHullPolygon hullpoly;
-						geom.convexMesh->getPolygonData(i, hullpoly);
+						convexMesh->getPolygonData(i, hullpoly);
 						if (hullpoly.mNbVerts < 3)
 						{
 							pDlg->log(RC_LOG_ERROR, "buildNavigation: invalid polygon");
@@ -362,32 +363,31 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 				case physx::PxGeometryType::eTRIANGLEMESH:
 				{
 					MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
-					physx::PxTriangleMeshGeometry geom;
+					boost::shared_ptr<physx::PxTriangleMesh> triangleMesh;
 					if (!mesh_cmp->m_PxMesh)
 					{
 						PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(mesh_cmp->m_PxMeshPath.c_str()));
-						physx::PxTriangleMesh* triangleMesh = PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer);
-						physx::PxMeshScale mesh_scaling((physx::PxVec3&)cmp->m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
-						geom = physx::PxTriangleMeshGeometry(triangleMesh, mesh_scaling, physx::PxMeshGeometryFlags());
+						triangleMesh.reset(PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer), PhysxDeleter<physx::PxTriangleMesh>());
 					}
 					else
 					{
-						VERIFY(cmp->m_PxShape->getTriangleMeshGeometry(geom));
+						triangleMesh.reset(mesh_cmp->m_PxMesh->m_ptr->is<physx::PxTriangleMesh>(), PhysxDeleter<physx::PxTriangleMesh>());
+						static_cast<physx::Gu::TriangleMesh*>(triangleMesh.get())->acquireReference();
 					}
-					boost::const_multi_array_ref<physx::PxVec3, 1> verts(geom.triangleMesh->getVertices(), boost::extents[geom.triangleMesh->getNbVertices()]);
-					for (unsigned int i = 0; i < geom.triangleMesh->getNbTriangles(); i++)
+					boost::const_multi_array_ref<physx::PxVec3, 1> verts(triangleMesh->getVertices(), boost::extents[triangleMesh->getNbVertices()]);
+					for (unsigned int i = 0; i < triangleMesh->getNbTriangles(); i++)
 					{
 						my::Vector3 v0, v1, v2;
-						if (geom.triangleMesh->getTriangleMeshFlags().isSet(physx::PxTriangleMeshFlag::e16_BIT_INDICES))
+						if (triangleMesh->getTriangleMeshFlags().isSet(physx::PxTriangleMeshFlag::e16_BIT_INDICES))
 						{
-							boost::const_multi_array_ref<unsigned short, 1> tris((unsigned short*)geom.triangleMesh->getTriangles(), boost::extents[geom.triangleMesh->getNbTriangles() * 3]);
+							boost::const_multi_array_ref<unsigned short, 1> tris((unsigned short*)triangleMesh->getTriangles(), boost::extents[triangleMesh->getNbTriangles() * 3]);
 							v0 = ((my::Vector3&)verts[tris[i * 3 + 0]]).transformCoord(actor->m_World);
 							v1 = ((my::Vector3&)verts[tris[i * 3 + 1]]).transformCoord(actor->m_World);
 							v2 = ((my::Vector3&)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
 						}
 						else
 						{
-							boost::const_multi_array_ref<int, 1> tris((int*)geom.triangleMesh->getTriangles(), boost::extents[geom.triangleMesh->getNbTriangles() * 3]);
+							boost::const_multi_array_ref<int, 1> tris((int*)triangleMesh->getTriangles(), boost::extents[triangleMesh->getNbTriangles() * 3]);
 							v0 = ((my::Vector3&)verts[tris[i * 3 + 0]]).transformCoord(actor->m_World);
 							v1 = ((my::Vector3&)verts[tris[i * 3 + 1]]).transformCoord(actor->m_World);
 							v2 = ((my::Vector3&)verts[tris[i * 3 + 2]]).transformCoord(actor->m_World);
