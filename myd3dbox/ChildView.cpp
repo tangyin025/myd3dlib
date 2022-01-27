@@ -245,7 +245,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
 						{
 							Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-							duDebugDrawNavMeshWithClosedList(pView, *navi->m_navMesh, *navi->m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST);
+							duDebugDrawNavMeshWithClosedList(pView, *navi->m_navMesh, *navi->m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);
 						}
 					}
 				}

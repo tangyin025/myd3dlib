@@ -250,11 +250,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
 				Component* cmp = cmp_iter->get();
-				if (!cmp->m_PxShape)
-				{
-					continue;
-				}
-				switch (cmp->m_PxShape->getGeometryType())
+				switch (cmp->m_PxShapeGeometryType)
 				{
 				case physx::PxGeometryType::eSPHERE:
 				case physx::PxGeometryType::eCAPSULE:
@@ -329,8 +325,19 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 				}
 				case physx::PxGeometryType::eCONVEXMESH:
 				{
+					MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
 					physx::PxConvexMeshGeometry geom;
-					VERIFY(cmp->m_PxShape->getConvexMeshGeometry(geom));
+					if (!mesh_cmp->m_PxMesh)
+					{
+						PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(mesh_cmp->m_PxMeshPath.c_str()));
+						physx::PxConvexMesh * convexMesh = PhysxSdk::getSingleton().m_sdk->createConvexMesh(readBuffer);
+						physx::PxMeshScale mesh_scaling((physx::PxVec3&)cmp->m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
+						geom = physx::PxConvexMeshGeometry(convexMesh, mesh_scaling, physx::PxConvexMeshGeometryFlags());
+					}
+					else
+					{
+						VERIFY(cmp->m_PxShape->getConvexMeshGeometry(geom));
+					}
 					boost::const_multi_array_ref<physx::PxVec3, 1> verts(geom.convexMesh->getVertices(), boost::extents[geom.convexMesh->getNbVertices()]);
 					const physx::PxU8* polys = geom.convexMesh->getIndexBuffer();
 					for (unsigned int i = 0; i < geom.convexMesh->getNbPolygons(); i++)
@@ -354,8 +361,19 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 				}
 				case physx::PxGeometryType::eTRIANGLEMESH:
 				{
+					MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>(cmp);
 					physx::PxTriangleMeshGeometry geom;
-					VERIFY(cmp->m_PxShape->getTriangleMeshGeometry(geom));
+					if (!mesh_cmp->m_PxMesh)
+					{
+						PhysxInputData readBuffer(my::ResourceMgr::getSingleton().OpenIStream(mesh_cmp->m_PxMeshPath.c_str()));
+						physx::PxTriangleMesh* triangleMesh = PhysxSdk::getSingleton().m_sdk->createTriangleMesh(readBuffer);
+						physx::PxMeshScale mesh_scaling((physx::PxVec3&)cmp->m_Actor->m_Scale, physx::PxQuat(physx::PxIdentity));
+						geom = physx::PxTriangleMeshGeometry(triangleMesh, mesh_scaling, physx::PxMeshGeometryFlags());
+					}
+					else
+					{
+						VERIFY(cmp->m_PxShape->getTriangleMeshGeometry(geom));
+					}
 					boost::const_multi_array_ref<physx::PxVec3, 1> verts(geom.triangleMesh->getVertices(), boost::extents[geom.triangleMesh->getNbVertices()]);
 					for (unsigned int i = 0; i < geom.triangleMesh->getNbTriangles(); i++)
 					{
