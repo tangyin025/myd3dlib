@@ -130,6 +130,25 @@ Navigation::~Navigation(void)
 
 }
 
+namespace boost {
+	namespace serialization {
+		template<>
+		void access::destroy<dtNavMesh>(const dtNavMesh* t) // const appropriate here?
+		{
+			// the const business is an MSVC 6.0 hack that should be
+			// benign on everything else
+			delete const_cast<dtNavMesh*>(t);
+		}
+		template<>
+		void access::construct<dtNavMesh>(dtNavMesh* t) {
+			// default is inplace invocation of default constructor
+			// Note the :: before the placement new. Required if the
+			// class doesn't have a class-specific placement new defined.
+			::new(t)dtNavMesh;
+		}
+	} // namespace serialization
+} // namespace boost
+
 template<class Archive>
 void Navigation::save(Archive& ar, const unsigned int version) const
 {

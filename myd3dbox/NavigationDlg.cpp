@@ -25,14 +25,6 @@ IMPLEMENT_DYNAMIC(CNavigationDlg, CDialogEx)
 
 CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CNavigationDlg::IDD, pParent)
-	, m_solid(NULL)
-	//, m_triareas(NULL)
-	, m_chf(NULL)
-	, m_cset(NULL)
-	, m_pmesh(NULL)
-	, m_dmesh(NULL)
-	, m_navMesh(NULL)
-	//, m_navQuery(NULL)
 	, m_bindingBox(-100, 100)
 	, m_cellSize(0.3f)
 	, m_cellHeight(0.2f)
@@ -179,7 +171,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	//this->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts / 1000.0f, ntris / 1000.0f);
 
 	// Allocate voxel heightfield where we rasterize our input data to.
-	m_solid = rcAllocHeightfield();
+	m_solid.reset(rcAllocHeightfield(), rcFreeHeightField);
 	if (!m_solid)
 	{
 		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
@@ -194,7 +186,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	//// Allocate array that can hold triangle flags.
 	//// If you have multiple meshes you need to process, allocate
 	//// and array which can hold the max number of triangles you need to process.
-	//m_triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	//m_triareas.reset(new unsigned char[chunkyMesh->maxTrisPerChunk]);
 	//if (!m_triareas)
 	//{
 	//	this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
@@ -452,7 +444,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
 	// between walkable cells will be calculated.
-	m_chf = rcAllocCompactHeightfield();
+	m_chf.reset(rcAllocCompactHeightfield(), rcFreeCompactHeightfield);
 	if (!m_chf)
 	{
 		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
@@ -546,7 +538,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	}
 
 	// Create contours.
-	m_cset = rcAllocContourSet();
+	m_cset.reset(rcAllocContourSet(), rcFreeContourSet);
 	if (!m_cset)
 	{
 		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
@@ -564,7 +556,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	}
 
 	// Build polygon navmesh from the contours.
-	m_pmesh = rcAllocPolyMesh();
+	m_pmesh.reset(rcAllocPolyMesh(), rcFreePolyMesh);
 	if (!m_pmesh)
 	{
 		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
@@ -577,7 +569,7 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	}
 
 	// Build detail mesh.
-	m_dmesh = rcAllocPolyMeshDetail();
+	m_dmesh.reset(rcAllocPolyMeshDetail(), rcFreePolyMeshDetail);
 	if (!m_dmesh)
 	{
 		this->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
@@ -740,7 +732,7 @@ void CNavigationDlg::OnOK()
 	m_maxTiles = 1 << tileBits;
 	m_maxPolysPerTile = 1 << polyBits;
 
-	m_navMesh = dtAllocNavMesh();
+	m_navMesh.reset(dtAllocNavMesh(), dtFreeNavMesh);
 	if (!m_navMesh)
 	{
 		this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");

@@ -38,15 +38,15 @@ public:
 		SAMPLE_POLYFLAGS_DISABLED = 0x10,		// Disabled polygon
 		SAMPLE_POLYFLAGS_ALL = 0xffff	// All abilities.
 	};
-	rcHeightfield* m_solid;
-	//unsigned char* m_triareas;
-	rcCompactHeightfield* m_chf;
-	rcContourSet* m_cset;
-	rcPolyMesh* m_pmesh;
+	boost::shared_ptr<rcHeightfield> m_solid;
+	//boost::shared_array<char> m_triareas;
+	boost::shared_ptr<rcCompactHeightfield> m_chf;
+	boost::shared_ptr<rcContourSet> m_cset;
+	boost::shared_ptr<rcPolyMesh> m_pmesh;
 	rcConfig m_cfg;
-	rcPolyMeshDetail* m_dmesh;
-	dtNavMesh* m_navMesh;
-	//dtNavMeshQuery* m_navQuery;
+	boost::shared_ptr<rcPolyMeshDetail> m_dmesh;
+	boost::shared_ptr<dtNavMesh> m_navMesh;
+	//boost::shared_ptr<dtNavMeshQuery> m_navQuery;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
