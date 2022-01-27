@@ -2,6 +2,7 @@
 #include "mySingleton.h"
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
+#include <DetourNode.h>
 #include <boost/serialization/split_free.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -134,6 +135,8 @@ void Navigation::save(Archive& ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_navMesh);
+	int MaxNodes = m_navQuery->getNodePool()->getMaxNodes();
+	ar << BOOST_SERIALIZATION_NVP(MaxNodes);
 }
 
 template<class Archive>
@@ -141,10 +144,12 @@ void Navigation::load(Archive& ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_navMesh);
+	int MaxNodes;
+	ar >> BOOST_SERIALIZATION_NVP(MaxNodes);
 
 	if (m_navMesh)
 	{
 		m_navQuery.reset(new dtNavMeshQuery);
-		m_navQuery->init(m_navMesh.get(), 1024);
+		m_navQuery->init(m_navMesh.get(), MaxNodes);
 	}
 }

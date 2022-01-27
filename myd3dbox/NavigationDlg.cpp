@@ -32,7 +32,7 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_pmesh(NULL)
 	, m_dmesh(NULL)
 	, m_navMesh(NULL)
-	, m_navQuery(NULL)
+	//, m_navQuery(NULL)
 	, m_bindingBox(-100, 100)
 	, m_cellSize(0.3f)
 	, m_cellHeight(0.2f)
@@ -763,13 +763,12 @@ void CNavigationDlg::OnOK()
 		return;
 	}
 
-	m_navQuery = dtAllocNavMeshQuery();
-	status = m_navQuery->init(m_navMesh, 2048);
-	if (dtStatusFailed(status))
-	{
-		this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
-		return;
-	}
+	//status = m_navQuery->init(m_navMesh, 2048);
+	//if (dtStatusFailed(status))
+	//{
+	//	this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
+	//	return;
+	//}
 
 	// Start the build process.
 	this->startTimer(RC_TIMER_TEMP);

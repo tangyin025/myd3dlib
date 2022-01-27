@@ -1778,7 +1778,8 @@ void CMainFrame::OnCreateNavigation()
 
 	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str()));
 	navi_cmp->m_navMesh.reset(dlg.m_navMesh);
-	navi_cmp->m_navQuery.reset(dlg.m_navQuery);
+	navi_cmp->m_navQuery.reset(new dtNavMeshQuery);
+	navi_cmp->m_navQuery->init(dlg.m_navMesh, 1024);
 	(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), navi_cmp);
 	UpdateSelBox();
 

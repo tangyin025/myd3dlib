@@ -46,8 +46,7 @@ public:
 	rcConfig m_cfg;
 	rcPolyMeshDetail* m_dmesh;
 	dtNavMesh* m_navMesh;
-	dtNavMeshQuery* m_navQuery;
-	//dtCrowd* m_crowd;
+	//dtNavMeshQuery* m_navQuery;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
