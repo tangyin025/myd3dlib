@@ -2,6 +2,7 @@
 #include "Actor.h"
 #include "Controller.h"
 #include "NavigationSerialization.h"
+#include "DetourCommon.h"
 
 using namespace my;
 
@@ -11,7 +12,11 @@ Steering::Steering(const Actor* _Actor, float BrakingRate, float MaxSpeed)
 	, m_Speed(0.0f)
 	, m_BrakingRate(BrakingRate)
 	, m_MaxSpeed(MaxSpeed)
+	, m_agentPos(FLT_MAX)
+	, m_targetPos(FLT_MAX)
+	, m_targetRef(0)
 {
+	m_corridor.init(256);
 }
 
 Steering::~Steering(void)
@@ -133,13 +138,92 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 
 	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
 	OctNode* Root = m_Actor->m_Node->GetTopNode();
-	Callback cb(m_Actor, controller->GetPosition());
-	Root->QueryEntity(AABB(controller->GetPosition(), 5.0f), &cb);
+	const Vector3 pos = controller->GetPosition();
+	Callback cb(m_Actor, pos);
+	Root->QueryEntity(AABB(pos, 5.0f), &cb);
 
 	if (!cb.navi)
 	{
 		return Vector3(0, 0, 0);
 	}
+
+	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
+	// dtCrowd::checkPathValidity
+	dtQueryFilter filter;
+	dtPolyRef agentRef = m_corridor.getFirstPoly();
+	float m_agentPlacementHalfExtents[3] = { controller->m_Radius, controller->m_Height * 0.5, controller->m_Radius };
+	if ((m_agentPos - pos).magnitude2D() > EPSILON_E3 || !cb.navi->m_navQuery->isValidPolyRef(agentRef, &filter))
+	{
+		// Find nearest position on navmesh and place the agent there.
+		dtPolyRef ref = 0;
+		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &ref, &m_agentPos.x);
+		if (dtStatusFailed(status))
+		{
+			return Vector3(0, 0, 0);
+		}
+		m_corridor.reset(ref, &m_agentPos.x);
+	}
+
+	// CrowdToolState::setMoveTarget
+	if ((m_targetPos - Target).magnitude2D() > EPSILON_E3)
+	{
+		// Find nearest point on navmesh and set move request to that location.
+		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetPos.x);
+		if (dtStatusFailed(status))
+		{
+			return Vector3(0, 0, 0);
+		}
+	}
+
+	// dtCrowd::updateMoveRequest
+	const dtPolyRef* path = m_corridor.getPath();
+	const int npath = m_corridor.getPathCount();
+	static const int MAX_RES = 32;
+	float reqPos[3];
+	dtPolyRef reqPath[MAX_RES];	// The path to the request location
+	int reqPathCount = 0;
+
+	// Quick search towards the goal.
+	static const int MAX_ITER = 20;
+	dtStatus status = 0;
+	status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &pos.x, &m_targetPos.x, &filter);
+	status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
+	//// Try to use existing steady path during replan if possible.
+	//status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
+	// Try to move towards target when goal changes.
+	status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
+	if (!dtStatusFailed(status) && reqPathCount > 0)
+	{
+		// In progress or succeed.
+		if (reqPath[reqPathCount - 1] != m_targetRef)
+		{
+			// Partial path, constrain target position inside the last polygon.
+			status = cb.navi->m_navQuery->closestPointOnPoly(reqPath[reqPathCount - 1], &m_targetPos.x, reqPos, 0);
+			if (dtStatusFailed(status))
+				reqPathCount = 0;
+		}
+		else
+		{
+			dtVcopy(reqPos, &m_targetPos.x);
+		}
+	}
+	else
+	{
+		reqPathCount = 0;
+	}
+
+	if (!reqPathCount)
+	{
+		// Could not find path, start the request from current location.
+		dtVcopy(reqPos, &pos.x);
+		reqPath[0] = path[0];
+		reqPathCount = 1;
+	}
+
+	m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
+
+	m_ncorners = m_corridor.findCorners(m_cornerVerts, m_cornerFlags, m_cornerPolys,
+		DT_CROWDAGENT_MAX_CORNERS, cb.navi->m_navQuery.get(), &filter);
 
 	return m_Forward * m_Speed;
 }

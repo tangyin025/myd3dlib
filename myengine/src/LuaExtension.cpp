@@ -160,6 +160,16 @@ struct ScriptActionTrack;
 
 static void action_add_track_adopt(Action* self, ScriptActionTrack* track);
 
+static my::Vector3 steering_get_corner(const Steering* self, int i)
+{
+	if (i < self->m_ncorners)
+	{
+		const float* verts = &self->m_cornerVerts[i * 3];
+		return my::Vector3(verts[0], verts[1], verts[2]);
+	}
+	return my::Vector3(0, 0, 0);
+}
+
 struct ScriptControl : my::Control, luabind::wrap_base
 {
 	ScriptControl(const char* Name)
@@ -2332,8 +2342,10 @@ void LuaContext::Init(void)
 			.def_readwrite("Speed", &Steering::m_Speed)
 			.def_readwrite("BrakingRate", &Steering::m_BrakingRate)
 			.def_readwrite("MaxSpeed", &Steering::m_MaxSpeed)
+			.def_readonly("ncorners", &Steering::m_ncorners)
 			.def("SeekDir", &Steering::SeekDir)
 			.def("SeekTarget", &Steering::SeekTarget)
+			.def("GetCorner", &steering_get_corner)
 
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")
