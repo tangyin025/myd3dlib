@@ -89,7 +89,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -111,7 +111,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -133,7 +133,7 @@
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -158,7 +158,7 @@
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(SolutionDir)myengine\include;$(BOOST_DIR);$(PHYSX_DIR)Include;$(PHYSX_DIR)Include\common;$(PHYSX_DIR)Include\geometry;$(PHYSX_DIR)Source\Common\src;$(PHYSX_DIR)Source\GeomUtils\src;$(PHYSX_DIR)..\PxShared\include;$(PHYSX_DIR)..\PxShared\src\foundation\include;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Recast\Include;$(SolutionDir)Detour\Include;$(SolutionDir)DetourCrowd\Include;$(SolutionDir)DetourTileCache\Include;$(SolutionDir)DebugUtils\Include;$(SolutionDir)libmad\include;$(SolutionDir)libid3tag\include;$(SolutionDir)sqlite\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB;_SCL_SECURE_NO_WARNINGS;D3DXFX_LARGEADDRESS_HANDLE;PX_PHYSX_CHARACTER_STATIC_LIB=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -208,6 +208,9 @@
   <ItemGroup>
     <ProjectReference Include="..\DebugUtils\DebugUtils.vcxproj">
       <Project>{1b6cc677-1d1e-4bab-9943-d4f0fc8c8e4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DetourCrowd\DetourCrowd.vcxproj">
+      <Project>{2ca9dcdf-2768-4ede-b9aa-47ba3d150838}</Project>
     </ProjectReference>
     <ProjectReference Include="..\DetourTileCache\DetourTileCache.vcxproj">
       <Project>{f3683163-8a98-4464-be2f-8a33e5865115}</Project>
