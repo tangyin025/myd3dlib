@@ -77,6 +77,8 @@ protected:
 	///  @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
 	virtual int doGetAccumulatedTime(const rcTimerLabel /*label*/) const { return -1; }
 
+	unsigned char* buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize);
+
 	DECLARE_MESSAGE_MAP()
 	virtual void OnOK();
 public:
@@ -98,4 +100,5 @@ public:
 	BOOL m_filterLedgeSpans;
 	BOOL m_filterWalkableLowHeightSpans;
 	int m_partitionType;
+	float m_tileSize;
 };
