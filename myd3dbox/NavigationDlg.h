@@ -100,5 +100,7 @@ public:
 	BOOL m_filterLedgeSpans;
 	BOOL m_filterWalkableLowHeightSpans;
 	int m_partitionType;
+	int m_maxTiles;
+	int m_maxPolysPerTile;
 	float m_tileSize;
 };

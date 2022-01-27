@@ -51,6 +51,8 @@ CNavigationDlg::CNavigationDlg(CWnd* pParent /*=NULL*/)
 	, m_filterLedgeSpans(TRUE)
 	, m_filterWalkableLowHeightSpans(TRUE)
 	, m_partitionType(SAMPLE_PARTITION_WATERSHED)
+	, m_maxTiles(0)
+	, m_maxPolysPerTile(0)
 	, m_tileSize(32.0f)
 {
 }
@@ -684,6 +686,30 @@ unsigned char* CNavigationDlg::buildTileMesh(const int tx, const int ty, const f
 	return navData;
 }
 
+inline static unsigned int nextPow2(unsigned int v)
+{
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+	return v;
+}
+
+inline static unsigned int ilog2(unsigned int v)
+{
+	unsigned int r;
+	unsigned int shift;
+	r = (v > 0xffff) << 4; v >>= r;
+	shift = (v > 0xff) << 3; v >>= shift; r |= shift;
+	shift = (v > 0xf) << 2; v >>= shift; r |= shift;
+	shift = (v > 0x3) << 1; v >>= shift; r |= shift;
+	r |= (v >> 1);
+	return r;
+}
+
 void CNavigationDlg::OnOK()
 {
 	// TODO: Add your specialized code here and/or call the base class
@@ -694,40 +720,87 @@ void CNavigationDlg::OnOK()
 		return;
 	}
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+
+	int gw = 0, gh = 0;
+	const float* bmin = &m_bindingBox.m_min.x;
+	const float* bmax = &m_bindingBox.m_max.x;
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+	const int ts = (int)m_tileSize;
+	const int tw = (gw + ts - 1) / ts;
+	const int th = (gh + ts - 1) / ts;
+	const float tcs = m_tileSize * m_cellSize;
+
+	// Max tiles and max polys affect how the tile IDs are caculated.
+	// There are 22 bits available for identifying a tile and a polygon.
+	int tileBits = rcMin((int)ilog2(nextPow2(tw * th)), 14);
+	if (tileBits > 14) tileBits = 14;
+	int polyBits = 22 - tileBits;
+	m_maxTiles = 1 << tileBits;
+	m_maxPolysPerTile = 1 << polyBits;
+
+	m_navMesh = dtAllocNavMesh();
+	if (!m_navMesh)
+	{
+		this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");
+		return;
+	}
+
+	dtNavMeshParams params;
+	rcVcopy(params.orig, &m_bindingBox.m_min.x);
+	params.tileWidth = m_tileSize * m_cellSize;
+	params.tileHeight = m_tileSize * m_cellSize;
+	params.maxTiles = m_maxTiles;
+	params.maxPolys = m_maxPolysPerTile;
+
+	dtStatus status;
+
+	status = m_navMesh->init(&params);
+	if (dtStatusFailed(status))
+	{
+		this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
+		return;
+	}
+
+	m_navQuery = dtAllocNavMeshQuery();
+	status = m_navQuery->init(m_navMesh, 2048);
+	if (dtStatusFailed(status))
+	{
+		this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
+		return;
+	}
 
 	// Start the build process.
 	this->startTimer(RC_TIMER_TEMP);
 
-	int dataSize = 0;
-	unsigned char* data = buildTileMesh(0, 0, &m_bindingBox.m_min.x, &m_bindingBox.m_max.x, dataSize);
-	if (data)
+	float m_lastBuiltTileBmin[3];
+	float m_lastBuiltTileBmax[3];
+	for (int y = 0; y < th; ++y)
 	{
-		m_navMesh = dtAllocNavMesh();
-		if (!m_navMesh)
+		for (int x = 0; x < tw; ++x)
 		{
-			dtFree(data);
-			this->log(RC_LOG_ERROR, "Could not create Detour navmesh");
-			return;
-		}
+			m_lastBuiltTileBmin[0] = bmin[0] + x * tcs;
+			m_lastBuiltTileBmin[1] = bmin[1];
+			m_lastBuiltTileBmin[2] = bmin[2] + y * tcs;
 
-		dtStatus status;
+			m_lastBuiltTileBmax[0] = bmin[0] + (x + 1) * tcs;
+			m_lastBuiltTileBmax[1] = bmax[1];
+			m_lastBuiltTileBmax[2] = bmin[2] + (y + 1) * tcs;
 
-		status = m_navMesh->init(data, dataSize, DT_TILE_FREE_DATA);
-		if (dtStatusFailed(status))
-		{
-			dtFree(data);
-			this->log(RC_LOG_ERROR, "Could not init Detour navmesh");
-			return;
-		}
-
-		m_navQuery = dtAllocNavMeshQuery();
-		status = m_navQuery->init(m_navMesh, 2048);
-		if (dtStatusFailed(status))
-		{
-			this->log(RC_LOG_ERROR, "Could not init Detour navmesh query");
-			return;
+			int dataSize = 0;
+			unsigned char* data = buildTileMesh(x, y, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize);
+			if (data)
+			{
+				//// Remove any previous data (navmesh owns and deletes the data).
+				//m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), 0, 0);
+				// Let the navmesh own the data.
+				dtStatus status = m_navMesh->addTile(data, dataSize, DT_TILE_FREE_DATA, 0, 0);
+				if (dtStatusFailed(status))
+				{
+					dtFree(data);
+				}
+			}
 		}
 	}
 
