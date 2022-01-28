@@ -6,6 +6,16 @@
 
 using namespace my;
 
+ObstacleAvoidanceContext::ObstacleAvoidanceContext(void)
+	: dtObstacleAvoidanceQuery()
+{
+	dtObstacleAvoidanceQuery::init(6, 8);
+}
+
+ObstacleAvoidanceContext::~ObstacleAvoidanceContext(void)
+{
+}
+
 Steering::Steering(const Actor* _Actor, float BrakingRate, float MaxSpeed)
 	: m_Actor(_Actor)
 	, m_Forward(_Actor->m_World.getColumn<2>().xyz.normalize())
@@ -15,6 +25,7 @@ Steering::Steering(const Actor* _Actor, float BrakingRate, float MaxSpeed)
 	, m_agentPos(FLT_MAX)
 	, m_targetPos(FLT_MAX)
 	, m_targetRef(0)
+	, m_ncorners(0)
 {
 	m_corridor.init(256);
 }
@@ -148,7 +159,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
-	// dtCrowd::checkPathValidity
+	// dtCrowd::update
 	dtQueryFilter filter;
 	dtPolyRef agentRef = m_corridor.getFirstPoly();
 	float m_agentPlacementHalfExtents[3] = { controller->m_Radius, controller->m_Height * 0.5, controller->m_Radius };
@@ -222,8 +233,14 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 
 	m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
 
+	// Find next corner to steer to.
 	m_ncorners = m_corridor.findCorners(m_cornerVerts, m_cornerFlags, m_cornerPolys,
 		DT_CROWDAGENT_MAX_CORNERS, cb.navi->m_navQuery.get(), &filter);
+	if (!m_ncorners)
+	{
+		return Vector3(0, 0, 0);
+	}
 
-	return m_Forward * m_Speed;
+	my::Vector3 desiredForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
+	return SeekDir(desiredForce, dtime);
 }

@@ -2,6 +2,8 @@
 
 #include "myMath.h"
 #include "DetourPathCorridor.h"
+#include "DetourObstacleAvoidance.h"
+#include "mySingleton.h"
 
 class Actor;
 
@@ -11,6 +13,16 @@ class Actor;
 /// corners will be one less than this number.
 /// @ingroup crowd
 static const int DT_CROWDAGENT_MAX_CORNERS = 4;
+
+class ObstacleAvoidanceContext
+	: public dtObstacleAvoidanceQuery
+	, public my::SingleInstance<ObstacleAvoidanceContext>
+{
+public:
+	ObstacleAvoidanceContext(void);
+
+	virtual ~ObstacleAvoidanceContext(void);
+};
 
 class Steering
 {
