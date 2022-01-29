@@ -2,6 +2,7 @@
 
 #include "myMath.h"
 #include "DetourPathCorridor.h"
+#include "DetourLocalBoundary.h"
 #include "DetourObstacleAvoidance.h"
 #include "mySingleton.h"
 
@@ -16,7 +17,7 @@ static const int DT_CROWDAGENT_MAX_CORNERS = 4;
 
 class ObstacleAvoidanceContext
 	: public dtObstacleAvoidanceQuery
-	, public my::SingleInstance<ObstacleAvoidanceContext>
+	, public my::Singleton<ObstacleAvoidanceContext>
 {
 public:
 	ObstacleAvoidanceContext(void);
@@ -39,6 +40,9 @@ public:
 
 	/// The path corridor the agent is using.
 	dtPathCorridor m_corridor;
+
+	/// The local boundary data for the agent.
+	dtLocalBoundary m_boundary;
 
 	my::Vector3 m_agentPos;
 

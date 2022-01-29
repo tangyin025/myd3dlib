@@ -232,6 +232,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
+	m_boundary.reset();
 
 	// Find next corner to steer to.
 	m_ncorners = m_corridor.findCorners(m_cornerVerts, m_cornerFlags, m_cornerPolys,
@@ -242,5 +243,43 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	my::Vector3 desiredForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
-	return SeekDir(desiredForce, dtime);
+	my::Vector3 dvel = SeekDir(desiredForce, dtime);
+	my::Vector3 npos = pos + dvel * dtime;
+
+	// Update the collision boundary after certain distance has been passed or
+	// if it has become invalid.
+	const float collisionQueryRange = 5.0f;
+	const float updateThr = collisionQueryRange * 0.25f;
+	if (dtVdist2DSqr(&npos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
+	{
+		m_boundary.update(m_corridor.getFirstPoly(), &npos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
+	}
+
+	// Append neighbour segments as obstacles.
+	for (int j = 0; j < m_boundary.getSegmentCount(); ++j)
+	{
+		const float* s = m_boundary.getSegment(j);
+		if (dtTriArea2D(&npos.x, s, s + 3) < 0.0f)
+			continue;
+		ObstacleAvoidanceContext::getSingleton().addSegment(s, s + 3);
+	}
+
+	// Sample new safe velocity.
+	my::Vector3 vel = m_Forward * m_Speed;
+	my::Vector3 nvel;
+	dtObstacleAvoidanceParams params;
+	params.velBias = 0.4f;
+	params.weightDesVel = 2.0f;
+	params.weightCurVel = 0.75f;
+	params.weightSide = 0.75f;
+	params.weightToi = 2.5f;
+	params.horizTime = 2.5f;
+	params.gridSize = 33;
+	params.adaptiveDivs = 7;
+	params.adaptiveRings = 2;
+	params.adaptiveDepth = 5;
+	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&npos.x, controller->m_Radius, m_MaxSpeed,
+		&vel.x, &dvel.x, &nvel.x, &params, NULL);
+	ObstacleAvoidanceContext::getSingleton().reset();
+	return nvel;
 }
