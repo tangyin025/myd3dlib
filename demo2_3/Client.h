@@ -282,7 +282,6 @@ public:
 		const my::Vector3 & Position,
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
-		const ControllerFilterFunc & controllerfilter,
 		const OverlapCallback & callback,
 		unsigned int MaxNbTouches);
 };
