@@ -2346,6 +2346,7 @@ void LuaContext::Init(void)
 			.def("SeekDir", &Steering::SeekDir)
 			.def("SeekTarget", &Steering::SeekTarget)
 			.def("GetCorner", &steering_get_corner)
+			.def("AddCircleObstacle", &Steering::AddCircleObstacle)
 
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")

@@ -70,4 +70,6 @@ public:
 	my::Vector3 SeekDir(my::Vector3 Force, float dtime);
 
 	my::Vector3 SeekTarget(const my::Vector3 & Target, float dtime);
+
+	void AddCircleObstacle(const my::Vector3 & pos, float radius, const my::Vector3 & vel, const my::Vector3 & dvel);
 };

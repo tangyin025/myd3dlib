@@ -284,3 +284,8 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	ObstacleAvoidanceContext::getSingleton().reset();
 	return nvel;
 }
+
+void Steering::AddCircleObstacle(const my::Vector3 & pos, float radius, const my::Vector3 & vel, const my::Vector3 & dvel)
+{
+	ObstacleAvoidanceContext::getSingleton().addCircle(&pos.x, radius, &vel.x, &dvel.x);
+}
