@@ -325,7 +325,7 @@ Quaternion Matrix4::toRotation(void) const
 	float t = (*this)[0][0] + (*this)[1][1] + (*this)[2][2];
 	if (t > 0)
 	{
-		t = sqrt(t + 1.0f);
+		t = sqrtf(t + 1.0f);
 		q.w = 0.5f * t;
 		t = 0.5f / t;
 		q.x = ((*this)[1][2] - (*this)[2][1]) * t;
@@ -342,7 +342,7 @@ Quaternion Matrix4::toRotation(void) const
 		int j = (i + 1) % 3;
 		int k = (j + 1) % 3;
 
-		t = sqrt((*this)[i][i] - (*this)[j][j] - (*this)[k][k] + 1.0f);
+		t = sqrtf((*this)[i][i] - (*this)[j][j] - (*this)[k][k] + 1.0f);
 		_ASSERT(t > EPSILON_E12);
 		(&q.x)[i] = -0.5f * t;
 		t = 0.5f / t;

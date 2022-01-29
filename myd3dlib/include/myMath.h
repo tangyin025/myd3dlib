@@ -314,17 +314,20 @@ namespace my
 
 		Vector2 normalize(void) const
 		{
-			float invLength = 1 / magnitude();
+			float length = magnitude();
 
-			return Vector2(x * invLength, y * invLength);
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *(1.0f / length);
 		}
 
 		Vector2 & normalizeSelf(void)
 		{
-			float invLength = 1 / magnitude();
-			x *= invLength;
-			y *= invLength;
-			return *this;
+			float length = magnitude();
+
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *=(1.0f / length);
 		}
 
 		Vector4 transform(const Matrix4 & m) const;
@@ -624,18 +627,20 @@ namespace my
 
 		Vector3 normalize(void) const
 		{
-			float invLength = 1 / magnitude();
+			float length = magnitude();
 
-			return Vector3(x * invLength, y * invLength, z * invLength);
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *(1.0f / length);
 		}
 
 		Vector3 & normalizeSelf(void)
 		{
-			float invLength = 1 / magnitude();
-			x *= invLength;
-			y *= invLength;
-			z *= invLength;
-			return *this;
+			float length = magnitude();
+
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *=(1.0f / length);
 		}
 
 		Vector4 transform(const Matrix4 & m) const;
@@ -968,19 +973,20 @@ namespace my
 
 		Vector4 normalize(void) const
 		{
-			float invLength = 1 / magnitude();
+			float length = magnitude();
 
-			return Vector4(x * invLength, y * invLength, z * invLength, w * invLength);
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *(1.0f / length);
 		}
 
 		Vector4 & normalizeSelf(void)
 		{
-			float invLength = 1 / magnitude();
-			x *= invLength;
-			y *= invLength;
-			z *= invLength;
-			w *= invLength;
-			return *this;
+			float length = magnitude();
+
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *=(1.0f / length);
 		}
 
 		Vector4 transform(const Matrix4 & m) const;
@@ -1708,19 +1714,20 @@ namespace my
 
 		Quaternion normalize(void) const
 		{
-			float invLength = 1 / magnitude();
+			float length = magnitude();
 
-			return Quaternion(x * invLength, y * invLength, z * invLength, w * invLength);
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *(1.0f / length);
 		}
 
 		Quaternion & normalizeSelf(void)
 		{
-			float invLength = 1 / magnitude();
-			x *= invLength;
-			y *= invLength;
-			z *= invLength;
-			w *= invLength;
-			return *this;
+			float length = magnitude();
+
+			_ASSERT(length > EPSILON_E12);
+
+			return operator *=(1.0f / length);
 		}
 
 		static Quaternion RotationAxis(const Vector3 & v, float angle)
@@ -2846,14 +2853,23 @@ namespace my
 
 		Plane normalize(void) const
 		{
-			float invLength = 1 / magnitude();
+			float length = magnitude();
+
+			_ASSERT(length > EPSILON_E12);
+
+			float invLength = 1 / length;
 
 			return Plane(a * invLength, b * invLength, c * invLength, d * invLength);
 		}
 
 		Plane & normalizeSelf(void)
 		{
-			float invLength = 1 / magnitude();
+			float length = magnitude();
+
+			_ASSERT(length > EPSILON_E12);
+
+			float invLength = 1 / length;
+
 			a *= invLength;
 			b *= invLength;
 			c *= invLength;

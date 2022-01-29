@@ -162,13 +162,13 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	// dtCrowd::update
 	dtQueryFilter filter;
 	dtPolyRef agentRef = m_corridor.getFirstPoly();
-	float m_agentPlacementHalfExtents[3] = { controller->m_Radius, controller->m_Height * 0.5, controller->m_Radius };
+	float m_agentPlacementHalfExtents[3] = { controller->m_Radius * 2.0f, controller->m_Height * 1.5f, controller->m_Radius * 2.0f };
 	if ((m_agentPos - pos).magnitude2D() > EPSILON_E3 || !cb.navi->m_navQuery->isValidPolyRef(agentRef, &filter))
 	{
 		// Find nearest position on navmesh and place the agent there.
 		dtPolyRef ref = 0;
 		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &ref, &m_agentPos.x);
-		if (dtStatusFailed(status))
+		if (dtStatusFailed(status) || !ref)
 		{
 			return Vector3(0, 0, 0);
 		}
