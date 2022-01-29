@@ -250,7 +250,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
-	const float collisionQueryRange = 5.0f;
+	const float collisionQueryRange = controller->m_Radius * 12.0f;
 	const float updateThr = collisionQueryRange * 0.25f;
 	if (dtVdist2DSqr(&npos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
 	{
