@@ -17,7 +17,7 @@ static const int DT_CROWDAGENT_MAX_CORNERS = 4;
 
 class ObstacleAvoidanceContext
 	: public dtObstacleAvoidanceQuery
-	, public my::Singleton<ObstacleAvoidanceContext>
+	, public my::SingletonLocalThread<ObstacleAvoidanceContext>
 {
 public:
 	ObstacleAvoidanceContext(void);

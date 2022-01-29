@@ -76,7 +76,7 @@ namespace my
 		bool AssignRect(const CSize & size, CRect & outRect);
 	};
 
-	class FontLibrary : public SingleInstance<FontLibrary>
+	class FontLibrary : public SingletonInstance<FontLibrary>
 	{
 	public:
 		FT_LibraryRec_ * m_Library;

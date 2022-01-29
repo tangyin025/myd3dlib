@@ -6,7 +6,7 @@
 struct lua_State;
 
 class LuaContext
-	: public my::SingleInstance<LuaContext>
+	: public my::SingletonInstance<LuaContext>
 {
 public:
 	lua_State * m_State;

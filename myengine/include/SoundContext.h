@@ -9,7 +9,7 @@ class SoundEvent;
 typedef boost::shared_ptr<SoundEvent> SoundEventPtr;
 
 class SoundContext
-	: public my::SingleInstance<SoundContext>
+	: public my::SingletonInstance<SoundContext>
 {
 public:
 	my::Sound m_sound;

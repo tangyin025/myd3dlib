@@ -1503,7 +1503,7 @@ namespace my
 		virtual void MoveToFront(void) const;
 	};
 
-	class DialogMgr : public SingleInstance<DialogMgr>
+	class DialogMgr : public SingletonInstance<DialogMgr>
 	{
 	public:
 		typedef std::list<Dialog *> DialogList;

@@ -242,8 +242,10 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		return Vector3(0, 0, 0);
 	}
 
-	my::Vector3 desiredForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
-	my::Vector3 dvel = SeekDir(desiredForce, dtime);
+	// Integrate.
+	my::Vector3 desireForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
+	Vector3 dvel = SeekDir(desireForce, dtime);
+	Vector3 vel = m_Forward * m_Speed;
 	my::Vector3 npos = pos + dvel * dtime;
 
 	// Update the collision boundary after certain distance has been passed or
@@ -265,8 +267,6 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	// Sample new safe velocity.
-	my::Vector3 vel = m_Forward * m_Speed;
-	my::Vector3 nvel;
 	dtObstacleAvoidanceParams params;
 	params.velBias = 0.4f;
 	params.weightDesVel = 2.0f;
@@ -278,6 +278,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	params.adaptiveDivs = 7;
 	params.adaptiveRings = 2;
 	params.adaptiveDepth = 5;
+	my::Vector3 nvel;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&npos.x, controller->m_Radius, m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
 	ObstacleAvoidanceContext::getSingleton().reset();

@@ -70,7 +70,7 @@ public:
 };
 
 class PhysxSdk
-	: public my::SingleInstance<PhysxSdk>
+	: public my::SingletonInstance<PhysxSdk>
 	, public physx::PxErrorCallback
 {
 public:

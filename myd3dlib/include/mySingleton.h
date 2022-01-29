@@ -31,10 +31,31 @@ namespace my
 	};
 
 	template <class DerivedClass>
-	class SingleInstance
+	class SingletonLocalThread
 	{
 	public:
-		static SingleInstance * s_ptr;
+		static DerivedClass* getSingletonPtr(void)
+		{
+			__declspec(thread) static boost::scoped_ptr<DerivedClass> ptr(new DerivedClass);
+			return ptr.get();
+		}
+
+		static DerivedClass& getSingleton(void)
+		{
+			return *getSingletonPtr();
+		}
+
+	public:
+		virtual ~SingletonLocalThread(void)
+		{
+		}
+	};
+
+	template <class DerivedClass>
+	class SingletonInstance
+	{
+	public:
+		static SingletonInstance * s_ptr;
 
 	public:
 		static DerivedClass * getSingletonPtr(void)
@@ -49,13 +70,13 @@ namespace my
 		}
 
 	public:
-		SingleInstance(void)
+		SingletonInstance(void)
 		{
 			_ASSERT(NULL == s_ptr);
 			s_ptr = this;
 		}
 
-		virtual ~SingleInstance(void)
+		virtual ~SingletonInstance(void)
 		{
 			_ASSERT(this == s_ptr);
 			s_ptr = NULL;
@@ -63,7 +84,7 @@ namespace my
 	};
 
 	template <class DerivedClass>
-	SingleInstance<DerivedClass> * SingleInstance<DerivedClass>::s_ptr(0);
+	SingletonInstance<DerivedClass> * SingletonInstance<DerivedClass>::s_ptr(0);
 
 	class DeviceResourceBase
 	{

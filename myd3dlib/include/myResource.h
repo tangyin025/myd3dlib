@@ -332,7 +332,7 @@ namespace my
 	};
 
 	class ResourceMgr
-		: public SingleInstance<ResourceMgr>
+		: public SingletonInstance<ResourceMgr>
 		, public StreamDirMgr
 		, public AsynchronousIOMgr
 		, public ID3DXInclude

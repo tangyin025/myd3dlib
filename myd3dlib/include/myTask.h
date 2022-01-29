@@ -17,7 +17,7 @@ namespace my
 
 	typedef boost::shared_ptr<ParallelTask> ParallelTaskPtr;
 
-	class ParallelTaskManager : public SingleInstance<ParallelTaskManager>
+	class ParallelTaskManager : public SingletonInstance<ParallelTaskManager>
 	{
 	public:
 		typedef std::vector<ThreadPtr> ThreadPtrList;

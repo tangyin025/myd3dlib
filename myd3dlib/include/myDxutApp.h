@@ -61,7 +61,7 @@ namespace my
 	class Wav;
 
 	class D3DContext
-		: public SingleInstance<D3DContext>
+		: public SingletonInstance<D3DContext>
 		, public Clock
 	{
 	public:

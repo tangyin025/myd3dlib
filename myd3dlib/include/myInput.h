@@ -444,7 +444,7 @@ namespace my
 	typedef boost::shared_ptr<Joystick> JoystickPtr;
 
 	class InputMgr
-		: public SingleInstance<InputMgr>
+		: public SingletonInstance<InputMgr>
 	{
 	public:
 		struct JoystickEnumDesc
