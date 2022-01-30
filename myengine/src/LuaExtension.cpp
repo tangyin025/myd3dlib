@@ -1972,6 +1972,7 @@ void LuaContext::Init(void)
 				value("ComponentTypeTerrain", Component::ComponentTypeTerrain),
 				value("ComponentTypeAnimator", Component::ComponentTypeAnimator),
 				value("ComponentTypeNavigation", Component::ComponentTypeNavigation),
+				value("ComponentTypeSteering", Component::ComponentTypeSteering),
 				value("ComponentTypeScript", Component::ComponentTypeScript)
 			]
 			.property("ComponentType", &Component::GetComponentType)
