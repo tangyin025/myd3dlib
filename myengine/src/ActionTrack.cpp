@@ -181,7 +181,7 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 		if (key_iter->second.Sound)
 		{
 			m_Events.push_back(SoundContext::getSingleton().Play(
-				key_iter->second.Sound, key_iter->second.Loop, m_Actor->m_Position, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
+				key_iter->second.Sound, key_iter->second.Loop, m_Actor->m_World.getRow<3>().xyz, my::Vector3(0, 0, 0), key_iter->second.MinDistance, key_iter->second.MaxDistance));
 		}
 	}
 }
@@ -273,15 +273,8 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			if (animator && m_Template->m_AttachBoneId >= 0 && m_Template->m_AttachBoneId < animator->anim_pose_hier.size())
-			{
-				const Bone& bone = animator->anim_pose_hier[m_Template->m_AttachBoneId];
-				m_SpawnPose.push_back(my::Bone(m_Actor->m_Rotation * bone.m_rotation, bone.m_position.transformCoord(m_Actor->m_World)));
-			}
-			else
-			{
-				m_SpawnPose.push_back(my::Bone(m_Actor->m_Rotation, m_Actor->m_Position));
-			}
+			m_SpawnPose.push_back(m_Actor->GetAttachPose(
+				m_Template->m_AttachBoneId, Vector3(0, 0, 0), Quaternion::Identity()));
 
 			m_WorldEmitterCmp->Spawn(
 				Vector4(0, 0, 0, 1), Vector4(0, 0, 0, 1), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);

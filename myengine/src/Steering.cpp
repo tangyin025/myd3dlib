@@ -226,7 +226,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		// Quick search towards the goal.
 		static const int MAX_ITER = 20;
 		dtStatus status = 0;
-		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &pos.x, &m_targetRefPos.x, &filter);
+		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &m_agentPos.x, &m_targetRefPos.x, &filter);
 		status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
 		// Try to move towards target when goal changes.
 		status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
@@ -252,7 +252,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		if (!reqPathCount)
 		{
 			// Could not find path, start the request from current location.
-			dtVcopy(reqPos, &pos.x);
+			dtVcopy(reqPos, &m_agentPos.x);
 			reqPath[0] = path[0];
 			reqPathCount = 1;
 		}
@@ -277,15 +277,15 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	// Calculate steering.
-	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
+	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - m_agentPos).normalize();
 	Vector3 vel = m_Forward * m_Speed;
 
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
 	const float updateThr = collisionQueryRange * 0.25f;
-	if (dtVdist2DSqr(&pos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
+	if (dtVdist2DSqr(&m_agentPos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
 	{
-		m_boundary.update(m_corridor.getFirstPoly(), &pos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
+		m_boundary.update(m_corridor.getFirstPoly(), &m_agentPos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
 	}
 
 	// Add neighbours as obstacles.
@@ -306,7 +306,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	for (int i = 0; i < m_boundary.getSegmentCount(); ++i)
 	{
 		const float* s = m_boundary.getSegment(i);
-		if (dtTriArea2D(&pos.x, s, s + 3) < 0.0f)
+		if (dtTriArea2D(&m_agentPos.x, s, s + 3) < 0.0f)
 			continue;
 		ObstacleAvoidanceContext::getSingleton().addSegment(s, s + 3);
 	}
@@ -324,7 +324,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	params.adaptiveRings = 2;
 	params.adaptiveDepth = 5;
 	Vector3 nvel;
-	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&pos.x, controller->m_Radius, m_MaxSpeed,
+	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->m_Radius, m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
 	return SeekDir(nvel, dtime);
 }
