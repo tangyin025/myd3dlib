@@ -1,10 +1,9 @@
 #pragma once
 
-#include "myMath.h"
+#include "Component.h"
 #include "DetourPathCorridor.h"
 #include "DetourLocalBoundary.h"
 #include "DetourObstacleAvoidance.h"
-#include "mySingleton.h"
 
 class Actor;
 
@@ -25,10 +24,10 @@ public:
 	virtual ~ObstacleAvoidanceContext(void);
 };
 
-class Steering
+class Steering : public Component
 {
 public:
-	const Actor * m_Actor;
+	enum { TypeID = ComponentTypeSteering };
 
 	my::Vector3 m_Forward;
 
@@ -63,9 +62,14 @@ public:
 	int m_ncorners;
 
 public:
-	Steering(const Actor * _Actor, float BrakingRate, float MaxSpeed);
+	Steering(const char * Name, float BrakingRate, float MaxSpeed);
 
 	~Steering(void);
+
+	virtual DWORD GetComponentType(void) const
+	{
+		return TypeID;
+	}
 
 	my::Vector3 SeekDir(my::Vector3 Force, float dtime);
 

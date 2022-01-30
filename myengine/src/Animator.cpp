@@ -836,15 +836,19 @@ void Animator::UpdateIK(IKContext & ik)
 	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
 	_ASSERT(scene);
 
-	Vector3 pos[3] = {
+	const Vector3 pos[3] = {
 		anim_pose_hier[ik.id[0]].m_position,
 		anim_pose_hier[ik.id[1]].m_position,
 		anim_pose_hier[ik.id[2]].m_position };
-	Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
-	float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
-	Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
-	float theta[2] = { acos(Vector3::CosTheta(normal[0], normal[2])), acos(Vector3::CosTheta(-normal[0], normal[1])) };
+	const Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
+	const float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
+	if (length[0] < EPSILON_E12 || length[1] < EPSILON_E12 || length[2] < EPSILON_E12)
+	{
+		return;
+	}
 
+	const Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
+	const float theta[2] = { acos(Vector3::CosTheta(normal[0], normal[2])), acos(Vector3::CosTheta(-normal[0], normal[1])) };
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(ik.hitRadius);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(

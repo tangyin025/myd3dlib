@@ -16,9 +16,9 @@ ObstacleAvoidanceContext::~ObstacleAvoidanceContext(void)
 {
 }
 
-Steering::Steering(const Actor* _Actor, float BrakingRate, float MaxSpeed)
-	: m_Actor(_Actor)
-	, m_Forward(_Actor->m_World.getColumn<2>().xyz.normalize())
+Steering::Steering(const char * Name, float BrakingRate, float MaxSpeed)
+	: Component(Name)
+	, m_Forward(0, 0, 1)
 	, m_Speed(0.0f)
 	, m_BrakingRate(BrakingRate)
 	, m_MaxSpeed(MaxSpeed)
