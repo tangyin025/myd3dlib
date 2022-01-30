@@ -51,6 +51,8 @@ public:
 
 	my::Vector3 m_targetRefPos;
 
+	float m_targetReplanTime;				/// <Time since the agent's target was replanned.
+
 	/// The local path corridor corners for the agent. (Staight path.) [(x, y, z) * #ncorners]
 	float m_cornerVerts[DT_CROWDAGENT_MAX_CORNERS * 3];
 

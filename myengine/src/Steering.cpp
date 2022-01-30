@@ -26,6 +26,7 @@ Steering::Steering(const char * Name, float BrakingRate, float MaxSpeed)
 	, m_targetPos(FLT_MAX)
 	, m_targetRef(0)
 	, m_targetRefPos(FLT_MAX)
+	, m_targetReplanTime(0.0f)
 	, m_ncorners(0)
 {
 	m_corridor.init(256);
@@ -196,20 +197,23 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	else
 	{
 		// Move along navmesh.
-		if (m_corridor.movePosition(&pos.x, cb.navi->m_navQuery.get(), &filter))
+		if (m_corridor.movePosition(&pos.x, cb.navi->m_navQuery.get(), &filter) && dtVdist2DSqr(m_corridor.getPos(), &pos.x) < EPSILON_E12)
 		{
 			// Get valid constrained position back.
 			dtVcopy(&m_agentPos.x, m_corridor.getPos());
 		}
 		else
 		{
-			m_corridor.reset(agentRef, &m_agentPos.x);
+			Vector3 dvel = (*(Vector3*)m_corridor.getPos() - pos).normalize();
+			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
-			replan = true;
+			return SeekDir(dvel, dtime);
 		}
 	}
 
 	// dtCrowd::updateMoveRequest
+	static const int CHECK_LOOKAHEAD = 10;
+	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	if (replan)
 	{
 		const dtPolyRef* path = m_corridor.getPath();
@@ -224,8 +228,6 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		dtStatus status = 0;
 		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &pos.x, &m_targetRefPos.x, &filter);
 		status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
-		//// Try to use existing steady path during replan if possible.
-		//status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
 		// Try to move towards target when goal changes.
 		status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
 		if (!dtStatusFailed(status) && reqPathCount > 0)
@@ -256,6 +258,14 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		}
 		m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
 		m_boundary.reset();
+		m_targetReplanTime = 0.0f;
+	}
+	else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
+		m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
+		m_corridor.getLastPoly() != m_targetRef)
+	{
+		//// Try to use existing steady path during replan if possible.
+		//status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
 	}
 
 	// Find next corner to steer to.
@@ -266,18 +276,16 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		return Vector3(0, 0, 0);
 	}
 
-	// Integrate.
-	Vector3 desireForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
-	Vector3 dvel = SeekDir(desireForce, dtime);
+	// Calculate steering.
+	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
 	Vector3 vel = m_Forward * m_Speed;
-	Vector3 npos = pos + dvel * dtime;
 
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
 	const float updateThr = collisionQueryRange * 0.25f;
-	if (dtVdist2DSqr(&npos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
+	if (dtVdist2DSqr(&pos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
 	{
-		m_boundary.update(m_corridor.getFirstPoly(), &npos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
+		m_boundary.update(m_corridor.getFirstPoly(), &pos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
 	}
 
 	// Add neighbours as obstacles.
@@ -298,7 +306,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	for (int i = 0; i < m_boundary.getSegmentCount(); ++i)
 	{
 		const float* s = m_boundary.getSegment(i);
-		if (dtTriArea2D(&npos.x, s, s + 3) < 0.0f)
+		if (dtTriArea2D(&pos.x, s, s + 3) < 0.0f)
 			continue;
 		ObstacleAvoidanceContext::getSingleton().addSegment(s, s + 3);
 	}
@@ -316,7 +324,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	params.adaptiveRings = 2;
 	params.adaptiveDepth = 5;
 	Vector3 nvel;
-	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&npos.x, controller->m_Radius, m_MaxSpeed,
+	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&pos.x, controller->m_Radius, m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
-	return nvel;
+	return SeekDir(nvel, dtime);
 }
