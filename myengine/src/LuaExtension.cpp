@@ -2152,7 +2152,6 @@ void LuaContext::Init(void)
 			.def("SeekDir", &Steering::SeekDir)
 			.def("SeekTarget", &Steering::SeekTarget)
 			.def("GetCorner", &steering_get_corner)
-			.def("AddCircleObstacle", &Steering::AddCircleObstacle)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)
