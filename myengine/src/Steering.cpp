@@ -25,6 +25,7 @@ Steering::Steering(const char * Name, float BrakingRate, float MaxSpeed)
 	, m_agentPos(FLT_MAX)
 	, m_targetPos(FLT_MAX)
 	, m_targetRef(0)
+	, m_targetRefPos(FLT_MAX)
 	, m_ncorners(0)
 {
 	m_corridor.init(256);
@@ -114,6 +115,9 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 
 my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 {
+	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
+	// dtCrowd::update
+
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		const Actor* self;
@@ -150,90 +154,109 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
 	OctNode* Root = m_Actor->m_Node->GetTopNode();
 	const Vector3 pos = controller->GetPosition();
-	Callback cb(m_Actor, pos);
 	const float collisionQueryRange = controller->m_Radius * 12.0f;
+	Callback cb(m_Actor, pos);
 	Root->QueryEntity(AABB(pos, collisionQueryRange), &cb);
-
 	if (!cb.navi)
 	{
 		return Vector3(0, 0, 0);
 	}
 
-	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
-	// dtCrowd::update
+	// CrowdToolState::setMoveTarget
+	bool replan = false;
 	dtQueryFilter filter;
-	dtPolyRef agentRef = m_corridor.getFirstPoly();
 	float m_agentPlacementHalfExtents[3] = { controller->m_Radius * 2.0f, controller->m_Height * 1.5f, controller->m_Radius * 2.0f };
-	if ((m_agentPos - pos).magnitude2D() > EPSILON_E3 || !cb.navi->m_navQuery->isValidPolyRef(agentRef, &filter))
+	if ((m_targetPos - Target).magnitude2D() > EPSILON_E3 || !cb.navi->m_navQuery->isValidPolyRef(m_targetRef, &filter))
 	{
-		// Find nearest position on navmesh and place the agent there.
-		dtPolyRef ref = 0;
-		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &ref, &m_agentPos.x);
-		if (dtStatusFailed(status) || !ref)
+		// Find nearest point on navmesh and set move request to that location.
+		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetRefPos.x);
+		if (dtStatusFailed(status) || !m_targetRef)
 		{
 			return Vector3(0, 0, 0);
 		}
-		m_corridor.reset(ref, &m_agentPos.x);
+		m_targetPos = Target;
+		m_corridor.reset(0, &m_agentPos.x);
+		m_boundary.reset();
+		replan = true;
 	}
 
-	// CrowdToolState::setMoveTarget
-	if ((m_targetPos - Target).magnitude2D() > EPSILON_E3)
+	dtPolyRef agentRef = m_corridor.getFirstPoly();
+	if (!cb.navi->m_navQuery->isValidPolyRef(agentRef, &filter))
 	{
-		// Find nearest point on navmesh and set move request to that location.
-		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetPos.x);
-		if (dtStatusFailed(status))
+		// Find nearest position on navmesh and place the agent there.
+		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &agentRef, &m_agentPos.x);
+		if (dtStatusFailed(status) || !agentRef)
 		{
 			return Vector3(0, 0, 0);
+		}
+		m_corridor.reset(agentRef, &m_agentPos.x);
+		m_boundary.reset();
+		replan = true;
+	}
+	else
+	{
+		// Move along navmesh.
+		if (m_corridor.movePosition(&pos.x, cb.navi->m_navQuery.get(), &filter))
+		{
+			// Get valid constrained position back.
+			dtVcopy(&m_agentPos.x, m_corridor.getPos());
+		}
+		else
+		{
+			m_corridor.reset(agentRef, &m_agentPos.x);
+			m_boundary.reset();
+			replan = true;
 		}
 	}
 
 	// dtCrowd::updateMoveRequest
-	const dtPolyRef* path = m_corridor.getPath();
-	const int npath = m_corridor.getPathCount();
-	static const int MAX_RES = 32;
-	float reqPos[3];
-	dtPolyRef reqPath[MAX_RES];	// The path to the request location
-	int reqPathCount = 0;
-
-	// Quick search towards the goal.
-	static const int MAX_ITER = 20;
-	dtStatus status = 0;
-	status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &pos.x, &m_targetPos.x, &filter);
-	status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
-	//// Try to use existing steady path during replan if possible.
-	//status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
-	// Try to move towards target when goal changes.
-	status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
-	if (!dtStatusFailed(status) && reqPathCount > 0)
+	if (replan)
 	{
-		// In progress or succeed.
-		if (reqPath[reqPathCount - 1] != m_targetRef)
+		const dtPolyRef* path = m_corridor.getPath();
+		const int npath = m_corridor.getPathCount();
+		static const int MAX_RES = 32;
+		float reqPos[3];
+		dtPolyRef reqPath[MAX_RES];	// The path to the request location
+		int reqPathCount = 0;
+
+		// Quick search towards the goal.
+		static const int MAX_ITER = 20;
+		dtStatus status = 0;
+		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &pos.x, &m_targetRefPos.x, &filter);
+		status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
+		//// Try to use existing steady path during replan if possible.
+		//status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
+		// Try to move towards target when goal changes.
+		status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
+		if (!dtStatusFailed(status) && reqPathCount > 0)
 		{
-			// Partial path, constrain target position inside the last polygon.
-			status = cb.navi->m_navQuery->closestPointOnPoly(reqPath[reqPathCount - 1], &m_targetPos.x, reqPos, 0);
-			if (dtStatusFailed(status))
-				reqPathCount = 0;
+			// In progress or succeed.
+			if (reqPath[reqPathCount - 1] != m_targetRef)
+			{
+				// Partial path, constrain target position inside the last polygon.
+				status = cb.navi->m_navQuery->closestPointOnPoly(reqPath[reqPathCount - 1], &m_targetRefPos.x, reqPos, 0);
+				if (dtStatusFailed(status))
+					reqPathCount = 0;
+			}
+			else
+			{
+				dtVcopy(reqPos, &m_targetRefPos.x);
+			}
 		}
 		else
 		{
-			dtVcopy(reqPos, &m_targetPos.x);
+			reqPathCount = 0;
 		}
+		if (!reqPathCount)
+		{
+			// Could not find path, start the request from current location.
+			dtVcopy(reqPos, &pos.x);
+			reqPath[0] = path[0];
+			reqPathCount = 1;
+		}
+		m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
+		m_boundary.reset();
 	}
-	else
-	{
-		reqPathCount = 0;
-	}
-
-	if (!reqPathCount)
-	{
-		// Could not find path, start the request from current location.
-		dtVcopy(reqPos, &pos.x);
-		reqPath[0] = path[0];
-		reqPathCount = 1;
-	}
-
-	m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
-	m_boundary.reset();
 
 	// Find next corner to steer to.
 	m_ncorners = m_corridor.findCorners(m_cornerVerts, m_cornerFlags, m_cornerPolys,
@@ -244,10 +267,10 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	// Integrate.
-	my::Vector3 desireForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
+	Vector3 desireForce = (*(Vector3*)&m_cornerVerts[0] - pos).normalize();
 	Vector3 dvel = SeekDir(desireForce, dtime);
 	Vector3 vel = m_Forward * m_Speed;
-	my::Vector3 npos = pos + dvel * dtime;
+	Vector3 npos = pos + dvel * dtime;
 
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
@@ -292,7 +315,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	params.adaptiveDivs = 7;
 	params.adaptiveRings = 2;
 	params.adaptiveDepth = 5;
-	my::Vector3 nvel;
+	Vector3 nvel;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&npos.x, controller->m_Radius, m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
 	return nvel;

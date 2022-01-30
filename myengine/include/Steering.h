@@ -49,6 +49,8 @@ public:
 
 	dtPolyRef m_targetRef;
 
+	my::Vector3 m_targetRefPos;
+
 	/// The local path corridor corners for the agent. (Staight path.) [(x, y, z) * #ncorners]
 	float m_cornerVerts[DT_CROWDAGENT_MAX_CORNERS * 3];
 
