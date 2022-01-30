@@ -118,7 +118,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	{
 		const Actor* self;
 		Vector3 pos;
-		std::vector<Controller*> neighbors;
+		std::vector<Steering*> neighbors;
 		Navigation* navi;
 		Callback(const Actor* _self, const my::Vector3& _pos)
 			: self(_self)
@@ -131,14 +131,14 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (actor != self)
+			if (actor != self && !actor->m_Base)
 			{
 				if (!navi && (navi = actor->GetFirstComponent<Navigation>()) && !actor->m_OctAabb->Intersect2D(pos))
 				{
 					navi = NULL;
 				}
 
-				Controller* neighbor = actor->GetFirstComponent<Controller>();
+				Steering* neighbor = actor->GetFirstComponent<Steering>();
 				if (neighbor)
 				{
 					neighbors.push_back(neighbor);
@@ -151,7 +151,8 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	OctNode* Root = m_Actor->m_Node->GetTopNode();
 	const Vector3 pos = controller->GetPosition();
 	Callback cb(m_Actor, pos);
-	Root->QueryEntity(AABB(pos, 5.0f), &cb);
+	const float collisionQueryRange = controller->m_Radius * 12.0f;
+	Root->QueryEntity(AABB(pos, collisionQueryRange), &cb);
 
 	if (!cb.navi)
 	{
@@ -250,17 +251,30 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
-	const float collisionQueryRange = controller->m_Radius * 12.0f;
 	const float updateThr = collisionQueryRange * 0.25f;
 	if (dtVdist2DSqr(&npos.x, m_boundary.getCenter()) > dtSqr(updateThr) || !m_boundary.isValid(cb.navi->m_navQuery.get(), &filter))
 	{
 		m_boundary.update(m_corridor.getFirstPoly(), &npos.x, collisionQueryRange, cb.navi->m_navQuery.get(), &filter);
 	}
 
-	// Append neighbour segments as obstacles.
-	for (int j = 0; j < m_boundary.getSegmentCount(); ++j)
+	// Add neighbours as obstacles.
+	ObstacleAvoidanceContext::getSingleton().reset();
+	for (int i = 0; i < cb.neighbors.size(); ++i)
 	{
-		const float* s = m_boundary.getSegment(j);
+		const Steering* nei = cb.neighbors[i];
+		const Controller* neicontroller = nei->m_Actor->GetFirstComponent<Controller>();
+		if (neicontroller)
+		{
+			Vector3 npos = neicontroller->GetPosition();
+			Vector3 vel = nei->m_Forward * nei->m_Speed;
+			ObstacleAvoidanceContext::getSingleton().addCircle(&npos.x, neicontroller->m_Radius, &vel.x, &vel.x);
+		}
+	}
+
+	// Append neighbour segments as obstacles.
+	for (int i = 0; i < m_boundary.getSegmentCount(); ++i)
+	{
+		const float* s = m_boundary.getSegment(i);
 		if (dtTriArea2D(&npos.x, s, s + 3) < 0.0f)
 			continue;
 		ObstacleAvoidanceContext::getSingleton().addSegment(s, s + 3);
@@ -281,7 +295,6 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	my::Vector3 nvel;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&npos.x, controller->m_Radius, m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
-	ObstacleAvoidanceContext::getSingleton().reset();
 	return nvel;
 }
 
