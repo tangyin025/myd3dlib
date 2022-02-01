@@ -33,9 +33,11 @@ public:
 
 	float m_Speed;
 
-	float m_BrakingRate;
-
 	float m_MaxSpeed;
+
+	float m_BrakingSpeed;
+
+	float m_MaxAdjustedSpeed;
 
 	/// The path corridor the agent is using.
 	dtPathCorridor m_corridor;
@@ -66,7 +68,7 @@ public:
 	int m_ncorners;
 
 public:
-	Steering(const char * Name, float BrakingRate, float MaxSpeed);
+	Steering(const char * Name, float BrakingSpeed, float MaxSpeed, float MaxAdjustedSpeed);
 
 	~Steering(void);
 

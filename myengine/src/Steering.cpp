@@ -16,12 +16,13 @@ ObstacleAvoidanceContext::~ObstacleAvoidanceContext(void)
 {
 }
 
-Steering::Steering(const char * Name, float BrakingRate, float MaxSpeed)
+Steering::Steering(const char * Name, float MaxSpeed, float BrakingSpeed, float MaxAdjustedSpeed)
 	: Component(Name)
 	, m_Forward(0, 0, 1)
 	, m_Speed(0.0f)
-	, m_BrakingRate(BrakingRate)
 	, m_MaxSpeed(MaxSpeed)
+	, m_BrakingSpeed(BrakingSpeed)
+	, m_MaxAdjustedSpeed(MaxAdjustedSpeed)
 	, m_agentPos(FLT_MAX)
 	, m_targetPos(FLT_MAX)
 	, m_targetRef(0)
@@ -41,20 +42,15 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	// https://github.com/meshula/OpenSteer/blob/master/src/SimpleVehicle.cpp
 	// SimpleVehicle::applySteeringForce
 
-	float forceLength = Force.magnitude();
-	if (forceLength < EPSILON_E3)
-	{
-		// apply a given braking force (for a given dt) to our momentum.
-		float Braking = Min(m_Speed * m_BrakingRate, 10.0f);
-		m_Speed -= Braking * dtime;
-	}
+	// apply a given braking force (for a given dt) to our momentum.
+	m_Speed = Max(0.0f, m_Speed - m_BrakingSpeed * dtime);
 
 	// allows a specific vehicle class to redefine this adjustment.
 	// default is to disallow backward-facing steering at low speed.
-	const float maxAdjustedSpeed = 0.2f * m_MaxSpeed;
-	if (forceLength >= EPSILON_E3 && m_Speed < maxAdjustedSpeed)
+	const float forceLength = Force.magnitude();
+	if (forceLength >= EPSILON_E3 && m_Speed < m_MaxAdjustedSpeed)
 	{
-		const float range = m_Speed / maxAdjustedSpeed;
+		const float range = m_Speed / m_MaxAdjustedSpeed;
 		// const float cosine = interpolate (pow (range, 6), 1.0f, -1.0f);
 		// const float cosine = interpolate (pow (range, 10), 1.0f, -1.0f);
 		// const float cosine = interpolate (pow (range, 20), 1.0f, -1.0f);
@@ -89,7 +85,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	}
 
 	// compute acceleration and velocity
-	Vector3 newAcceleration = Force * 5.0f;
+	const Vector3 newAcceleration = Force;
 	Vector3 newVelocity = m_Forward * m_Speed;
 
 	// Euler integrate (per frame) acceleration into velocity
@@ -277,7 +273,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	}
 
 	// Calculate steering.
-	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - m_agentPos).normalize();
+	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - m_agentPos).normalize() * m_MaxSpeed;
 	Vector3 vel = m_Forward * m_Speed;
 
 	// Update the collision boundary after certain distance has been passed or
