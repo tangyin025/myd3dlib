@@ -27,6 +27,8 @@ class AnimationNode;
 
 class AnimationNodeSequence;
 
+class Navigation;
+
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -204,6 +206,14 @@ public:
 		PropertyAnimationNodeType,
 		PropertyAnimationNodeSequenceName,
 		PropertyNavigation,
+		PropertyNavigationOrigin,
+		PropertyNavigationOriginX,
+		PropertyNavigationOriginY,
+		PropertyNavigationOriginZ,
+		PropertyNavigationTileWidth,
+		PropertyNavigationTileHeight,
+		PropertyNavigationMaxTiles,
+		PropertyNavigationMaxPolys,
 		PropertyPaint,
 		PropertyPaintShape,
 		PropertyPaintMode,
@@ -472,6 +482,7 @@ public:
 	void UpdatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 	void UpdatePropertiesAnimationNode(CMFCPropertyGridProperty * pAnimationNode, AnimationNode * node);
 	void UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
+	void UpdatePropertiesNavigation(CMFCPropertyGridProperty * pComponent, Navigation * navigation);
 	void UpdatePropertiesControl(my::Control * control);
 	void UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 	void UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);
@@ -500,6 +511,7 @@ public:
 	void CreatePropertiesAnimator(CMFCPropertyGridProperty * pComponent, Animator * animator);
 	void CreatePropertiesAnimationNode(CMFCPropertyGridProperty * pParentCtrl, AnimationNode * node);
 	void CreatePropertiesAnimationNodeSequence(CMFCPropertyGridProperty * pAnimationNode, AnimationNodeSequence * seq);
+	void CreatePropertiesNavigation(CMFCPropertyGridProperty * pComponent, Navigation * navigation);
 	void CreatePropertiesControl(my::Control * control);
 	void CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl);
 	void CreatePropertiesProgressBar(CMFCPropertyGridProperty * pControl, my::ProgressBar * progressbar);

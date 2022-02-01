@@ -11,11 +11,13 @@
 #include "Terrain.h"
 #include "StaticEmitter.h"
 #include "Animator.h"
+#include "NavigationSerialization.h"
 #include <boost/scope_exit.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "ImportHeightDlg.h"
+#include "DetourNavMesh.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -397,6 +399,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	case Component::ComponentTypeAnimator:
 		UpdatePropertiesAnimator(pComponent, dynamic_cast<Animator *>(cmp));
 		break;
+	case Component::ComponentTypeNavigation:
+		UpdatePropertiesNavigation(pComponent, dynamic_cast<Navigation *>(cmp));
+		break;
 	}
 }
 
@@ -764,6 +769,25 @@ void CPropertiesWnd::UpdatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 			pAnimationNode->GetSubItem(1)->AddOption(ms2ts(anim_iter->first).c_str(), TRUE);
 		}
 	}
+}
+
+void CPropertiesWnd::UpdatePropertiesNavigation(CMFCPropertyGridProperty * pComponent, Navigation * navigation)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty* pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyNavigationOrigin)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+	}
+
+	const dtNavMeshParams* params = navigation->m_navMesh->getParams();
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)params->orig[0]);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)params->orig[1]);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)params->orig[2]);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)params->tileWidth);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)params->tileHeight);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)params->maxTiles);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)params->maxPolys);
 }
 
 void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
@@ -1311,6 +1335,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 	case Component::ComponentTypeAnimator:
 		CreatePropertiesAnimator(pComponent, dynamic_cast<Animator *>(cmp));
 		break;
+	case Component::ComponentTypeNavigation:
+		CreatePropertiesNavigation(pComponent, dynamic_cast<Navigation *>(cmp));
+		break;
 	}
 }
 
@@ -1785,6 +1812,38 @@ void CPropertiesWnd::CreatePropertiesAnimationNodeSequence(CMFCPropertyGridPrope
 			pProp->AddOption(ms2ts(anim_iter->first).c_str(), TRUE);
 		}
 	}
+}
+
+void CPropertiesWnd::CreatePropertiesNavigation(CMFCPropertyGridProperty * pComponent, Navigation * navigation)
+{
+	ASSERT(pComponent->GetSubItemsCount() == GetComponentPropCount(Component::ComponentTypeComponent));
+
+	const dtNavMeshParams * params = navigation->m_navMesh->getParams();
+	CMFCPropertyGridProperty* pOrigin = new CMFCPropertyGridProperty(_T("Origin"), PropertyNavigationOrigin, TRUE);
+	pOrigin->Enable(FALSE);
+	pComponent->AddSubItem(pOrigin);
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("x"), (_variant_t)params->orig[0], NULL, PropertyNavigationOriginX);
+	pProp->Enable(FALSE);
+	pOrigin->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)params->orig[1], NULL, PropertyNavigationOriginY);
+	pProp->Enable(FALSE);
+	pOrigin->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)params->orig[2], NULL, PropertyNavigationOriginZ);
+	pProp->Enable(FALSE);
+	pOrigin->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("TileWidth"), (_variant_t)params->tileWidth, NULL, PropertyNavigationTileWidth);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("TileHeight"), (_variant_t)params->tileHeight, NULL, PropertyNavigationTileHeight);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("MaxTiles"), (_variant_t)params->maxTiles, NULL, PropertyNavigationMaxTiles);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("MaxPolys"), (_variant_t)params->maxPolys, NULL, PropertyNavigationMaxPolys);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
@@ -2523,7 +2582,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeAnimator:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeNavigation:
-		return GetComponentPropCount(Component::ComponentTypeComponent);
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
