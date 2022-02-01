@@ -68,7 +68,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 		if (cosineOfSourceAngle < cosineOfConeAngle)
 		{
 			// find the portion of "source" that is perpendicular to "basis"
-			const Vector3 perp = Force - m_Forward * cosineOfSourceAngle;
+			const Vector3 perp = Force - m_Forward * Force.dot(m_Forward);
 
 			// normalize that perpendicular
 			const Vector3 unitPerp = perp.normalize();
@@ -110,7 +110,7 @@ my::Vector3 Steering::SeekDir(my::Vector3 Force, float dtime)
 	return newVelocity;
 }
 
-my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
+my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, float dtime)
 {
 	// https://github.com/recastnavigation/recastnavigation/blob/master/DetourCrowd/Source/DetourCrowd.cpp
 	// dtCrowd::update
@@ -274,7 +274,6 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 
 	// Calculate steering.
 	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - m_agentPos).normalize() * m_MaxSpeed;
-	Vector3 vel = m_Forward * m_Speed;
 
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
@@ -320,7 +319,8 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float dtime)
 	params.adaptiveRings = 2;
 	params.adaptiveDepth = 5;
 	Vector3 nvel;
+	Vector3 vel = m_Forward * m_Speed;
 	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->m_Radius, m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
-	return SeekDir(nvel, dtime);
+	return SeekDir(nvel.normalize() * forceLength, dtime);
 }

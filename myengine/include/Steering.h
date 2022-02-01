@@ -79,5 +79,5 @@ public:
 
 	my::Vector3 SeekDir(my::Vector3 Force, float dtime);
 
-	my::Vector3 SeekTarget(const my::Vector3 & Target, float dtime);
+	my::Vector3 SeekTarget(const my::Vector3 & Target, float forceLength, float dtime);
 };
