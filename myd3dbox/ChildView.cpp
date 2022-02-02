@@ -244,7 +244,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
 						{
 							Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-							navi->DebugDraw(pView);
+							navi->DebugDraw(pView, frustum, ViewPos, TargetPos);
 						}
 					}
 				}

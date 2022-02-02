@@ -4,6 +4,7 @@
 #include <DetourNavMeshQuery.h>
 #include <DetourNode.h>
 #include "DetourDebugDraw.h"
+#include "Actor.h"
 #include <boost/serialization/split_free.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -193,7 +194,39 @@ void Navigation::BuildQueryAndChunks(int MaxNodes)
 	}
 }
 
-void Navigation::DebugDraw(struct duDebugDraw * dd)
+extern void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
+	const dtMeshTile* tile, unsigned char flags);
+
+void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	duDebugDrawNavMeshWithClosedList(dd, *m_navMesh, *m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		duDebugDraw* dd;
+		const dtNavMesh* mesh;
+		const dtNavMeshQuery* query;
+		const Vector3& ViewPos;
+		const Actor* actor;
+		Callback(duDebugDraw* _dd, const dtNavMesh* _mesh, const dtNavMeshQuery* _query, const Vector3& _ViewPos, const Actor* _actor)
+			: dd(_dd)
+			, mesh(_mesh)
+			, query(_query)
+			, ViewPos(_ViewPos)
+			, actor(_actor)
+		{
+		}
+		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			NavigationTileChunk* chunk = dynamic_cast<NavigationTileChunk*>(oct_entity);
+			const dtMeshTile* tile = mesh->getTile(chunk->m_tileId);
+			_ASSERT(aabb == AABB(*(Vector3*)tile->header->bmin, *(Vector3*)tile->header->bmax));
+			int lod = actor->CalculateLod(aabb, ViewPos);
+			if (lod <= 0)
+			{
+				drawMeshTile(dd, *mesh, query, tile, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);
+			}
+		}
+	};
+
+	Callback cb(dd, m_navMesh.get(), m_navQuery.get(), TargetPos, m_Actor);
+	QueryEntity(frustum, &cb);
 }

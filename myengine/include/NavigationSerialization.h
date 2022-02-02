@@ -74,7 +74,7 @@ public:
 
 	void BuildQueryAndChunks(int MaxNodes);
 
-	void DebugDraw(struct duDebugDraw * dd);
+	void DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 };
 
 typedef boost::shared_ptr<Navigation> NavigationPtr;
