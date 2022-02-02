@@ -179,12 +179,14 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		m_boundary.reset();
 		replan = true;
 	}
-	else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
-		m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
-		m_corridor.getLastPoly() != m_targetRef)
-	{
-		replan = true;
-	}
+	//else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
+	//	m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
+	//	m_corridor.getLastPoly() != m_targetRef)
+	//{
+	//	m_corridor.reset(0, &m_agentPos.x);
+	//	m_boundary.reset();
+	//	replan = true;
+	//}
 
 	dtPolyRef agentRef = m_corridor.getFirstPoly();
 	if (!cb.navi->m_navQuery->isValidPolyRef(agentRef, &filter))
@@ -242,12 +244,12 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		dtStatus status = 0;
 		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &m_agentPos.x, &m_targetRefPos.x, &filter);
 		status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
-		if (m_corridor.getPathCount() > 1)
-		{
-			// Try to use existing steady path during replan if possible.
-			status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
-		}
-		else
+		//if (ag->targetReplan) // && npath > 10)
+		//{
+		//	// Try to use existing steady path during replan if possible.
+		//	status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
+		//}
+		//else
 		{
 			// Try to move towards target when goal changes.
 			status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
