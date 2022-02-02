@@ -160,6 +160,8 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	}
 
 	// CrowdToolState::setMoveTarget
+	static const int CHECK_LOOKAHEAD = 10;
+	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	bool replan = false;
 	dtQueryFilter filter;
 	float m_agentPlacementHalfExtents[3] = { controller->m_Radius * 2.0f, controller->m_Height * 1.5f, controller->m_Radius * 2.0f };
@@ -169,11 +171,18 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&Target.x, m_agentPlacementHalfExtents, &filter, &m_targetRef, &m_targetRefPos.x);
 		if (dtStatusFailed(status) || !m_targetRef)
 		{
-			return Vector3(0, 0, 0);
+			return SeekDir(Vector3(0, 0, 0), dtime);
 		}
+
 		m_targetPos = Target;
 		m_corridor.reset(0, &m_agentPos.x);
 		m_boundary.reset();
+		replan = true;
+	}
+	else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
+		m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
+		m_corridor.getLastPoly() != m_targetRef)
+	{
 		replan = true;
 	}
 
@@ -184,23 +193,34 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		dtStatus status = cb.navi->m_navQuery->findNearestPoly(&pos.x, m_agentPlacementHalfExtents, &filter, &agentRef, &m_agentPos.x);
 		if (dtStatusFailed(status) || !agentRef)
 		{
-			return Vector3(0, 0, 0);
+			return SeekDir(Vector3(0, 0, 0), dtime);
 		}
-		m_corridor.reset(agentRef, &m_agentPos.x);
-		m_boundary.reset();
-		replan = true;
+
+		if (dtVdist2DSqr(&m_agentPos.x, &pos.x) < EPSILON_E6)
+		{
+			m_corridor.reset(agentRef, &m_agentPos.x);
+			m_boundary.reset();
+			replan = true;
+		}
+		else
+		{
+			Vector3 dvel = (m_agentPos - pos).normalize2D();
+			m_corridor.reset(0, &pos.x);
+			m_boundary.reset();
+			return SeekDir(dvel * forceLength, dtime);
+		}
 	}
 	else
 	{
 		// Move along navmesh.
-		if (m_corridor.movePosition(&pos.x, cb.navi->m_navQuery.get(), &filter) && dtVdist2DSqr(m_corridor.getPos(), &pos.x) < EPSILON_E12)
+		if (m_corridor.movePosition(&pos.x, cb.navi->m_navQuery.get(), &filter) && dtVdist2DSqr(m_corridor.getPos(), &pos.x) < EPSILON_E6)
 		{
 			// Get valid constrained position back.
 			dtVcopy(&m_agentPos.x, m_corridor.getPos());
 		}
 		else
 		{
-			Vector3 dvel = (*(Vector3*)m_corridor.getPos() - pos).normalize();
+			Vector3 dvel = (*(Vector3*)m_corridor.getPos() - pos).normalize2D();
 			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
 			return SeekDir(dvel * forceLength, dtime);
@@ -208,8 +228,6 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	}
 
 	// dtCrowd::updateMoveRequest
-	static const int CHECK_LOOKAHEAD = 10;
-	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	if (replan)
 	{
 		const dtPolyRef* path = m_corridor.getPath();
@@ -224,8 +242,16 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		dtStatus status = 0;
 		status = cb.navi->m_navQuery->initSlicedFindPath(path[0], m_targetRef, &m_agentPos.x, &m_targetRefPos.x, &filter);
 		status = cb.navi->m_navQuery->updateSlicedFindPath(MAX_ITER, 0);
-		// Try to move towards target when goal changes.
-		status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
+		if (m_corridor.getPathCount() > 1)
+		{
+			// Try to use existing steady path during replan if possible.
+			status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
+		}
+		else
+		{
+			// Try to move towards target when goal changes.
+			status = cb.navi->m_navQuery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
+		}
 		if (!dtStatusFailed(status) && reqPathCount > 0)
 		{
 			// In progress or succeed.
@@ -255,13 +281,6 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		m_corridor.setCorridor(reqPos, reqPath, reqPathCount);
 		m_boundary.reset();
 		m_targetReplanTime = 0.0f;
-	}
-	else if (m_targetReplanTime > TARGET_REPLAN_DELAY &&
-		m_corridor.getPathCount() < CHECK_LOOKAHEAD &&
-		m_corridor.getLastPoly() != m_targetRef)
-	{
-		//// Try to use existing steady path during replan if possible.
-		//status = cb.navi->m_navQuery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
 	}
 
 	// Find next corner to steer to.

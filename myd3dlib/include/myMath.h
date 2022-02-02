@@ -634,6 +634,15 @@ namespace my
 			return operator *(1.0f / length);
 		}
 
+		Vector3 normalize2D(void) const
+		{
+			float length = magnitude2D();
+
+			_ASSERT(length > EPSILON_E12);
+
+			return Vector3(x, 0, z) * (1.0f / length);
+		}
+
 		Vector3 & normalizeSelf(void)
 		{
 			float length = magnitude();
