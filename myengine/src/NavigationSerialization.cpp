@@ -3,6 +3,7 @@
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourNode.h>
+#include "DetourDebugDraw.h"
 #include <boost/serialization/split_free.hpp>
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -22,6 +23,8 @@
 static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
 
 static const int NAVMESHSET_VERSION = 1;
+
+using namespace my;
 
 BOOST_CLASS_EXPORT(Navigation)
 
@@ -127,7 +130,7 @@ Navigation::Navigation(const char* Name)
 
 Navigation::~Navigation(void)
 {
-
+	ClearAllEntity();
 }
 
 namespace boost {
@@ -168,7 +171,29 @@ void Navigation::load(Archive& ar, const unsigned int version)
 
 	if (m_navMesh)
 	{
-		m_navQuery.reset(new dtNavMeshQuery);
-		m_navQuery->init(m_navMesh.get(), MaxNodes);
+		BuildQueryAndChunks(MaxNodes);
 	}
+}
+
+void Navigation::BuildQueryAndChunks(int MaxNodes)
+{
+	_ASSERT(m_navMesh);
+		
+	m_navQuery.reset(new dtNavMeshQuery);
+	m_navQuery->init(m_navMesh.get(), MaxNodes);
+
+	for (int i = 0; i < m_navMesh->getMaxTiles(); i++)
+	{
+		const dtMeshTile* tile = boost::const_pointer_cast<const dtNavMesh>(m_navMesh)->getTile(i);
+		if (!tile->header)
+			continue;
+		NavigationTileChunkPtr chunk(new NavigationTileChunk(i));
+		m_Chunks.push_back(chunk);
+		AddEntity(chunk.get(), AABB(*(Vector3*)tile->header->bmin, *(Vector3*)tile->header->bmax), 0.1f, 0.1f);
+	}
+}
+
+void Navigation::DebugDraw(struct duDebugDraw * dd)
+{
+	duDebugDrawNavMeshWithClosedList(dd, *m_navMesh, *m_navQuery, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);
 }

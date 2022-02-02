@@ -41,7 +41,7 @@ public:
 	{
 	}
 
-	~StaticEmitterChunk(void);
+	virtual ~StaticEmitterChunk(void);
 
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)

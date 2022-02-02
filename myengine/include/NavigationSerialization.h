@@ -6,7 +6,28 @@ class dtNavMesh;
 
 class dtNavMeshQuery;
 
-class Navigation : public Component
+class NavigationTileChunk
+	: public my::OctEntity
+{
+public:
+	int m_tileId;
+
+public:
+	NavigationTileChunk(int tileId)
+		: m_tileId(tileId)
+	{
+	}
+
+	virtual ~NavigationTileChunk(void)
+	{
+	}
+};
+
+typedef boost::shared_ptr<NavigationTileChunk> NavigationTileChunkPtr;
+
+class Navigation
+	: public Component
+	, public my::OctRoot
 {
 public:
 	enum { TypeID = ComponentTypeNavigation };
@@ -14,6 +35,10 @@ public:
 	boost::shared_ptr<dtNavMesh> m_navMesh;
 
 	boost::shared_ptr<dtNavMeshQuery> m_navQuery;
+
+	typedef std::vector<NavigationTileChunkPtr> TileChunkList;
+
+	TileChunkList m_Chunks;
 
 protected:
 	Navigation(void);
@@ -46,6 +71,10 @@ public:
 	{
 		return m_Requested;
 	}
+
+	void BuildQueryAndChunks(int MaxNodes);
+
+	void DebugDraw(struct duDebugDraw * dd);
 };
 
 typedef boost::shared_ptr<Navigation> NavigationPtr;
