@@ -203,7 +203,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 			Vector3 dvel = (*(Vector3*)m_corridor.getPos() - pos).normalize();
 			m_corridor.reset(0, &pos.x);
 			m_boundary.reset();
-			return SeekDir(dvel, dtime);
+			return SeekDir(dvel * forceLength, dtime);
 		}
 	}
 
