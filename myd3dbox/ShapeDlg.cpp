@@ -183,6 +183,13 @@ void CShapeDlg::OnChangeEdit11()
 void CShapeDlg::OnClickedButton4()
 {
 	// TODO: Add your control notification handler code here
+	if (!UpdateData(TRUE))
+	{
+		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
+		// the UpdateData routine will set focus to correct item
+		return;
+	}
+
 	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
 	FullPath.append(2, '\0');
 	SHFILEOPSTRUCTA shfo;

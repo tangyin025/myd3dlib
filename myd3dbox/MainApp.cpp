@@ -579,6 +579,8 @@ HRESULT CMainApp::OnCreateDevice(
 
 	my::ResourceMgr::StartIORequestProc(default_io_thread_num);
 
+	ParallelTaskManager::StartParallelThread(default_io_thread_num);
+
 	if (FAILED(hr = RenderPipeline::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
@@ -649,6 +651,8 @@ void CMainApp::OnLostDevice(void)
 
 void CMainApp::OnDestroyDevice(void)
 {
+	ParallelTaskManager::StopParallelThread();
+
 	m_UIRender->OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();

@@ -19,6 +19,7 @@ class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::FontLibrary
 	, public my::ResourceMgr
+	, public my::ParallelTaskManager
 	, public RenderPipeline
 	, public PhysxSdk
 {
@@ -33,7 +34,7 @@ public:
 	// cfg
 	float default_fov;
 	float default_viewed_dist;
-	bool default_io_thread_num;
+	int default_io_thread_num;
 	bool default_load_shader_cache;
 	std::string default_font_path;
 	int default_font_height;
