@@ -18,7 +18,7 @@ MFC scene editor<br>
 ----
 NVIDIA® PhysX® SDK 3.4<br>
 boost 1.75.0<br>
-Recast Navigation<br>
+Recast Navigation 1.5.1<br>
 FreeType 2.9.1<br>
 zlib 1.2.11<br>
 ZZIPlib 0.13.68<br>
