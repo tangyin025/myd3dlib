@@ -3756,10 +3756,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				{
 					const my::Vector3 pos = tstr.GetPos(i, j);
 					const my::Vector3 Dirs[4] = {
-						tstr.GetPos(i - 1, j) - pos,
-						tstr.GetPos(i, j - 1) - pos,
-						tstr.GetPos(i + 1, j) - pos,
-						tstr.GetPos(i, j + 1) - pos
+						my::Vector3(j, tstr.GetPos(i - 1, j).y, i - 1) - pos,
+						my::Vector3(j - 1, tstr.GetPos(i, j - 1).y, i) - pos,
+						my::Vector3(j, tstr.GetPos(i + 1, j).y, i + 1) - pos,
+						my::Vector3(j + 1, tstr.GetPos(i, j + 1).y, i) - pos
 					};
 					const my::Vector3 Nors[4] = {
 						Dirs[0].cross(Dirs[1]).normalize(),

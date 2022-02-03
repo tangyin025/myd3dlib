@@ -1100,10 +1100,10 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNorm
 			{
 				const Vector3 pos = GetPos(_i, _j);
 				const Vector3 Dirs[4] = {
-					GetPos(_i - 1, _j) - pos,
-					GetPos(_i, _j - 1) - pos,
-					GetPos(_i + 1, _j) - pos,
-					GetPos(_i, _j + 1) - pos
+					Vector3(_j, GetPos(_i - 1, _j).y, _i - 1) - pos,
+					Vector3(_j - 1, GetPos(_i, _j - 1).y, _i) - pos,
+					Vector3(_j, GetPos(_i + 1, _j).y, _i + 1) - pos,
+					Vector3(_j + 1, GetPos(_i, _j + 1).y, _i) - pos
 				};
 				const Vector3 Nors[4] = {
 					Dirs[0].cross(Dirs[1]).normalize(),
