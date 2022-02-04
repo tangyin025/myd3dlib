@@ -301,7 +301,7 @@ void StaticEmitterStream::Release(void)
 
 		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, buff_iter->first.first, buff_iter->first.second);
 		std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
-		std::ofstream ofs(FullPath, std::ios::binary);
+		std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 		_ASSERT(ofs.is_open());
 
 		my::AABB chunk_box = *chunk_iter->second.m_OctAabb;

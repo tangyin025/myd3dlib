@@ -652,6 +652,8 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::OnFrameTick(float fElapsedTime)
 {
+	theApp.EnterDeviceSection();
+
 	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
@@ -685,6 +687,8 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 			}
 		}
 	}
+
+	theApp.LeaveDeviceSection();
 
 	if (haveSelActors)
 	{
@@ -813,7 +817,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 
 BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 {
-	std::ofstream ofs(lpszPathName, std::ios::binary);
+	std::ofstream ofs(lpszPathName, std::ios::binary, _SH_DENYRW);
 	LPCTSTR Ext = PathFindExtension(lpszPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(ofs, ts2ms(Ext).c_str());
 	*oa << boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
@@ -1472,8 +1476,8 @@ void CMainFrame::OnComponentTerrain()
 	if (dlg.m_AlignToCenter)
 	{
 		my::Vector3 center = dlg.m_terrain->Center();
-		(*actor_iter)->m_Position.x -= center.x;
-		(*actor_iter)->m_Position.z -= center.z;
+		(*actor_iter)->m_Position.x -= center.x * (*actor_iter)->m_Scale.x;
+		(*actor_iter)->m_Position.z -= center.z * (*actor_iter)->m_Scale.z;
 		(*actor_iter)->UpdateWorld();
 		// TODO: update pxactor, ref Actor::SetPose
 	}

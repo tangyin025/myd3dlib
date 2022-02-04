@@ -189,7 +189,7 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 
 	TCHAR BuffPath[MAX_PATH];
 	_stprintf_s(BuffPath, _countof(BuffPath), _T("ShaderCache_%zx"), seed);
-	std::ofstream ofs(BuffPath, std::ios::binary);
+	std::ofstream ofs(BuffPath, std::ios::binary, _SH_DENYRW);
 	ofs.write((char*)buff->GetBufferPointer(), buff->GetBufferSize());
 	ofs.flush();
 

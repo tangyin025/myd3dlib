@@ -935,7 +935,7 @@ void TerrainStream::Release(void)
 			{
 				my::VertexBufferPtr vb = GetVB(k, l);
 				std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(m_terrain->m_ChunkPath.c_str());
-				std::fstream fstr(FullPath, std::ios::in | std::ios::out | std::ios::binary);
+				std::fstream fstr(FullPath, std::ios::in | std::ios::out | std::ios::binary, _SH_DENYRW);
 				_ASSERT(fstr.is_open());
 				int stream_off = CalculateStreamOff(m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride);
 				fstr.seekp(stream_off, std::ios::beg);
@@ -1004,8 +1004,10 @@ my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 	{
 		if (!my::ResourceMgr::getSingleton().CheckPath(m_terrain->m_ChunkPath.c_str()))
 		{
+			_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(m_terrain->m_ChunkPath.c_str());
-			std::ofstream ofs(FullPath, std::ios::binary);
+			std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 			_ASSERT(ofs.is_open());
 			for (int k = 0; k < m_terrain->m_RowChunks; k++)
 			{
@@ -1026,22 +1028,15 @@ my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 				}
 			}
 			ofs.close();
-			_ASSERT(my::ResourceMgr::getSingleton().CheckPath(m_terrain->m_ChunkPath.c_str()));
 		}
 
-		std::string key = TerrainChunkIORequest::BuildKey(m_terrain->m_ChunkPath.c_str(), k, l);
-		IORequestPtr request(new TerrainChunkIORequest(m_terrain->m_ChunkPath.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
-		my::ResourceMgr::getSingleton().LoadIORequestAndWait(key, request, boost::bind(&TerrainStream::SetVB, this, k, l, boost::placeholders::_1));
+		TerrainChunkIORequest request(m_terrain->m_ChunkPath.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX);
+		request.LoadResource();
+		request.CreateResource(NULL);
+		m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request.m_res);
 	}
 
 	return m_Vbs[k][l];
-}
-
-void TerrainStream::SetVB(int k, int l, my::DeviceResourceBasePtr res)
-{
-	_ASSERT(!m_Vbs[k][l]);
-	m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(res);
-	_ASSERT(m_Vbs[k][l]->m_ptr);
 }
 
 int TerrainStream::CalculateStreamOff(int ColChunks, int Row, int Col, int ChunkSize, int VertexStride)

@@ -195,8 +195,6 @@ public:
 
 	my::VertexBufferPtr GetVB(int k, int l);
 
-	void SetVB(int k, int l, my::DeviceResourceBasePtr res);
-
 	static int CalculateStreamOff(int ColChunks, int Row, int Col, int ChunkSize, int VertexStride);
 
 	my::Vector3 GetPos(int i, int j);
