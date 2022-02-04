@@ -849,6 +849,8 @@ void CNavigationDlg::OnOK()
 	// Start the build process.
 	this->startTimer(RC_TIMER_TEMP);
 
+	theApp.LeaveDeviceSection();
+
 	float m_lastBuiltTileBmin[3];
 	float m_lastBuiltTileBmax[3];
 	std::vector<my::ParallelTaskPtr> tasks;
@@ -883,6 +885,8 @@ void CNavigationDlg::OnOK()
 	}
 
 	theApp.DoAllParallelTasks();
+
+	theApp.EnterDeviceSection();
 
 	this->stopTimer(RC_TIMER_TOTAL);
 

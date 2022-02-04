@@ -1253,8 +1253,6 @@ void CChildView::Dump(CDumpContext& dc) const
 
 void CChildView::OnPaint()
 {
-	theApp.EnterDeviceSection();
-
 	CPaintDC dc(this); // device context for painting
 	// TODO: Add your message handler code here
 	// Do not call CView::OnPaint() for painting messages
@@ -1393,8 +1391,6 @@ void CChildView::OnPaint()
 			theApp.ResetD3DDevice();
 		}
 	}
-
-	theApp.LeaveDeviceSection();
 }
 
 BOOL CChildView::OnEraseBkgnd(CDC* pDC)

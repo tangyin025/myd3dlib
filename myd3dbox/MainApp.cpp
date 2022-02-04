@@ -609,8 +609,6 @@ HRESULT CMainApp::OnCreateDevice(
 		return S_FALSE;
 	}
 
-	LeaveDeviceSection();
-
 	return S_OK;
 }
 
@@ -734,6 +732,8 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	// TODO: Add your specialized code here and/or call the base class
 	Clock::UpdateClock();
 
+	LeaveDeviceSection();
+
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
@@ -758,6 +758,8 @@ BOOL CMainApp::OnIdle(LONG lCount)
 	{
 		bContinue = TRUE;
 	}
+
+	EnterDeviceSection();
 
 	if (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty())
 	{

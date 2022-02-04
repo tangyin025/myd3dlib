@@ -652,8 +652,6 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::OnFrameTick(float fElapsedTime)
 {
-	theApp.EnterDeviceSection();
-
 	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
@@ -687,8 +685,6 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 			}
 		}
 	}
-
-	theApp.LeaveDeviceSection();
 
 	if (haveSelActors)
 	{
