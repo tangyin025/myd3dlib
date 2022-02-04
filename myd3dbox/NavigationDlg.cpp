@@ -754,17 +754,18 @@ public:
 		// Let the navmesh own the data.
 		my::CriticalSectionLock lock(const_cast<CNavigationDlg*>(pdlg)->m_navMeshSec);
 		dtStatus status = pdlg->m_navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, 0);
+		lock.Unlock();
 		if (dtStatusFailed(status))
 		{
 			dtFree(navData);
 		}
 
 		m_solid.reset();
+		//m_triareas.reset();
 		m_chf.reset();
 		m_cset.reset();
 		m_pmesh.reset();
 		m_dmesh.reset();
-		return;
 	}
 };
 
