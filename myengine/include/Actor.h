@@ -273,9 +273,11 @@ public:
 
 	void UpdateOctNode(void);
 
-	int CalculateLod(const my::Vector3 & Center, const my::Vector3 & ViewPos) const;
+	int CalculateLod(float DistanceSq, float Scale) const;
 
-	int CalculateLod2D(const my::Vector3 & Center, const my::Vector3 & ViewPos) const;
+	int CalculateLod(const my::Vector3 & Center, const my::Vector3 & ViewPos, float Scale) const;
+
+	int CalculateLod2D(const my::Vector3 & Center, const my::Vector3 & ViewPos, float Scale) const;
 	
 	void UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
