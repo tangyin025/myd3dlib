@@ -22,7 +22,7 @@ public:
 
 	bool m_Requested;
 
-	unsigned int m_Lod[5];
+	int m_Lod[5];
 
 	my::VertexBufferPtr m_Vb;
 
@@ -122,11 +122,6 @@ public:
 	D3DXHANDLE handle_TerrainSize;
 
 	int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos) const;
-
-	TerrainChunk * GetChunk(int i, int j)
-	{
-		TerrainChunk * ret = &m_Chunks[i][j]; _ASSERT(ret->m_Row == i && ret->m_Col == j); return ret;
-	}
 
 	void CreateElements(void);
 

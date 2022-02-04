@@ -2110,7 +2110,6 @@ void LuaContext::Init(void)
 			.def_readonly("ChunkSize", &Terrain::m_ChunkSize)
 			.def_readwrite("ChunkPath", &Terrain::m_ChunkPath)
 			//.def_readonly("Chunks", &Terrain::m_Chunks, luabind::return_stl_iterator)
-			.def("GetChunk", &Terrain::GetChunk)
 			.def("CreateHeightFieldShape", &Terrain::CreateHeightFieldShape)
 
 		, class_<TerrainStream>("TerrainStream")

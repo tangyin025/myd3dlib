@@ -219,7 +219,7 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 			NavigationTileChunk* chunk = dynamic_cast<NavigationTileChunk*>(oct_entity);
 			const dtMeshTile* tile = mesh->getTile(chunk->m_tileId);
 			_ASSERT(aabb == AABB(*(Vector3*)tile->header->bmin, *(Vector3*)tile->header->bmax));
-			int lod = actor->CalculateLod(aabb, ViewPos);
+			int lod = actor->CalculateLod2D(aabb.Center(), ViewPos);
 			if (lod <= 0)
 			{
 				drawMeshTile(dd, *mesh, query, tile, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);

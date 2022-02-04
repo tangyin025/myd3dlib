@@ -2620,9 +2620,9 @@ TerrainChunk * CPropertiesWnd::GetTerrainChunkSafe(Terrain * terrain, const CPoi
 	if (chunkid.x >= 0 && chunkid.x < (int)terrain->m_Chunks.shape()[0]
 		&& chunkid.y >= 0 && chunkid.y < (int)terrain->m_Chunks.shape()[1])
 	{
-		return terrain->GetChunk(chunkid.x, chunkid.y);
+		return &terrain->m_Chunks[chunkid.x][chunkid.y];
 	}
-	return terrain->GetChunk(0, 0);
+	return &terrain->m_Chunks[0][0];
 }
 
 CPropertiesWnd::Property CPropertiesWnd::GetMaterialParameterTypeProp(DWORD type)

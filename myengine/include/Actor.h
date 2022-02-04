@@ -273,7 +273,9 @@ public:
 
 	void UpdateOctNode(void);
 
-	int CalculateLod(const my::AABB & Aabb, const my::Vector3 & ViewPos) const;
+	int CalculateLod(const my::Vector3 & Center, const my::Vector3 & ViewPos) const;
+
+	int CalculateLod2D(const my::Vector3 & Center, const my::Vector3 & ViewPos) const;
 	
 	void UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
