@@ -53,10 +53,7 @@ public:
 		return m_istr->read(dest, count);
 	}
 
-	virtual uint32_t getLength() const
-	{
-		return m_istr->GetSize();
-	}
+	virtual uint32_t getLength() const;
 
 	virtual void seek(uint32_t offset)
 	{

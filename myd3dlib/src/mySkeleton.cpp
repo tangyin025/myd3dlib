@@ -5,7 +5,7 @@
 
 using namespace my;
 
-Matrix4 TransformList::BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, size_t DualQuaternionSize, DWORD indices, const Vector4 & weights)
+Matrix4 TransformList::BuildSkinnedDualQuaternion(const Matrix4 * DualQuaternions, DWORD DualQuaternionSize, DWORD indices, const Vector4 & weights)
 {
 	_ASSERT(((unsigned char*)&indices)[0] < DualQuaternionSize);
 	Matrix4 m = DualQuaternions[((unsigned char*)&indices)[0]];
@@ -47,6 +47,11 @@ Vector3 TransformList::TransformVertexWithDualQuaternion(const Vector3 & positio
 	Vector3 translation = (dual[1].xyz * dual[0].w - dual[0].xyz * dual[1].w + dual[0].xyz.cross(dual[1].xyz)) * 2;
 	outPosition += translation;
 	return outPosition;
+}
+
+Vector3 TransformList::TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const
+{
+	return TransformVertexWithDualQuaternion(position, BuildSkinnedDualQuaternion(data(), size(), indices, weights));
 }
 
 void BoneHierarchy::InsertSibling(int root_i, int sibling_i)

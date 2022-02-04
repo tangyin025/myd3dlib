@@ -1672,7 +1672,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 							for (i = 0; i < g_dwCount; i++)
 							{
 								UINT uLen = lstrlen(
-									(LPTSTR)((DWORD)lpCandList + lpCandList->dwOffset[i])) + (3 - sizeof(TCHAR));
+									(LPTSTR)((DWORD_PTR)lpCandList + lpCandList->dwOffset[i])) + (3 - sizeof(TCHAR));
 								if (uLen + cChars > maxCandChar)
 								{
 									if (i > g_dwSelection)
@@ -1704,7 +1704,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 							i++, j++)
 					    {
 							ComposeCandidateLine( j,
-								(LPTSTR)( (DWORD)lpCandList + lpCandList->dwOffset[i] ) );
+								(LPTSTR)( (DWORD_PTR)lpCandList + lpCandList->dwOffset[i] ) );
 					    }
 					    ImeUiCallback_Free( (HANDLE)lpCandList );
 						_ImmReleaseContext(hWnd, himc);

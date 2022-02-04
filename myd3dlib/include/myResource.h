@@ -34,7 +34,7 @@ namespace my
 
 		virtual long tell(void);
 
-		virtual unsigned long GetSize(void);
+		virtual size_t GetSize(void);
 	};
 
 	class FileIStream : public IStream
@@ -55,7 +55,7 @@ namespace my
 
 		virtual long tell(void);
 
-		virtual unsigned long GetSize(void);
+		virtual size_t GetSize(void);
 	};
 
 	class StreamDir

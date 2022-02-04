@@ -163,7 +163,7 @@ namespace my
 
 		virtual long tell(void) = 0;
 
-		virtual unsigned long GetSize(void) = 0;
+		virtual size_t GetSize(void) = 0;
 
 		virtual CachePtr GetWholeCache(void);
 	};

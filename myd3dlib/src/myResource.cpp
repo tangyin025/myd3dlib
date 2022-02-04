@@ -62,7 +62,7 @@ long ZipIStream::tell(void)
 	return zzip_tell(m_fp);
 }
 
-unsigned long ZipIStream::GetSize(void)
+size_t ZipIStream::GetSize(void)
 {
 	CriticalSectionLock lock(m_DirSec);
 	return m_fp->usize;
@@ -105,7 +105,7 @@ long FileIStream::tell(void)
 	return _tell(m_fp);
 }
 
-unsigned long FileIStream::GetSize(void)
+size_t FileIStream::GetSize(void)
 {
 	return _filelength(m_fp);
 }
