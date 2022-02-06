@@ -19,7 +19,6 @@ public:
 	enum { IDD = IDD_DIALOG4 };
 
 	boost::shared_ptr<dtNavMesh> m_navMesh;
-	my::CriticalSection m_navMeshSec;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

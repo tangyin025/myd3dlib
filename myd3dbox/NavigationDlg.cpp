@@ -136,12 +136,16 @@ public:
 	boost::shared_ptr<rcContourSet> m_cset;
 	boost::shared_ptr<rcPolyMesh> m_pmesh;
 	boost::shared_ptr<rcPolyMeshDetail> m_dmesh;
+	int dataSize;
+	unsigned char* data;
 
 	BuildTileMeshTask(int _tx, int _ty, const float* _bmin, const float* _bmax, const CNavigationDlg* _pdlg, rcContext* ctx)
 		: tx(_tx)
 		, ty(_ty)
 		, pdlg(_pdlg)
 		, m_ctx(ctx)
+		, dataSize(0)
+		, data(NULL)
 	{
 		dtVcopy(bmin, _bmin);
 		dtVcopy(bmax, _bmax);
@@ -749,17 +753,8 @@ public:
 
 		m_tileBuildTime = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL) / 1000.0f;
 
-		//// Remove any previous data (navmesh owns and deletes the data).
-		//m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), 0, 0);
-		// Let the navmesh own the data.
-		my::CriticalSectionLock lock(const_cast<CNavigationDlg*>(pdlg)->m_navMeshSec);
-		dtStatus status = pdlg->m_navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, 0);
-		lock.Unlock();
-		if (dtStatusFailed(status))
-		{
-			dtFree(navData);
-		}
-
+		dataSize = navDataSize;
+		data = navData;
 		m_solid.reset();
 		//m_triareas.reset();
 		m_chf.reset();
@@ -887,6 +882,21 @@ void CNavigationDlg::OnOK()
 	theApp.DoAllParallelTasks();
 
 	theApp.EnterDeviceSection();
+
+	for (int i = 0; i < tasks.size(); i++)
+	{
+		//// Remove any previous data (navmesh owns and deletes the data).
+		//m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), 0, 0);
+		// Let the navmesh own the data.
+		dtStatus status = m_navMesh->addTile(
+			boost::static_pointer_cast<BuildTileMeshTask>(tasks[i])->data,
+			boost::static_pointer_cast<BuildTileMeshTask>(tasks[i])->dataSize,
+			DT_TILE_FREE_DATA, 0, 0);
+		if (dtStatusFailed(status))
+		{
+			dtFree(boost::static_pointer_cast<BuildTileMeshTask>(tasks[i])->data);
+		}
+	}
 
 	this->stopTimer(RC_TIMER_TOTAL);
 
