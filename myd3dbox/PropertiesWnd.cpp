@@ -574,17 +574,17 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	{
 		if (pParticle->GetSubItemsCount() > 0)
 		{
-			UpdatePropertiesStaticEmitterParticle(pComponent->GetSubItem(PropId + 7), CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
+			UpdatePropertiesStaticEmitterParticle(pComponent->GetSubItem(PropId + 8), CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
 		}
 		else
 		{
-			RemovePropertiesFrom(pComponent, PropId + 7);
+			RemovePropertiesFrom(pComponent, PropId + 8);
 			CreatePropertiesStaticEmitterParticle(pComponent, CPoint(chunk_iter->first.first, chunk_iter->first.second), pFrame->m_selinstid, &(*chunk_iter->second.m_buff)[pFrame->m_selinstid]);
 		}
 	}
 	else
 	{
-		RemovePropertiesFrom(pComponent->GetSubItem(PropId + 7), 0);
+		RemovePropertiesFrom(pComponent->GetSubItem(PropId + 8), 0);
 	}
 }
 
