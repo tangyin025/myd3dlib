@@ -885,16 +885,17 @@ void CNavigationDlg::OnOK()
 
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		//// Remove any previous data (navmesh owns and deletes the data).
-		//m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), 0, 0);
-		// Let the navmesh own the data.
-		dtStatus status = m_navMesh->addTile(
-			boost::static_pointer_cast<BuildTileMeshTask>(tasks[i])->data,
-			boost::static_pointer_cast<BuildTileMeshTask>(tasks[i])->dataSize,
-			DT_TILE_FREE_DATA, 0, 0);
-		if (dtStatusFailed(status))
+		boost::shared_ptr<BuildTileMeshTask> task = boost::static_pointer_cast<BuildTileMeshTask>(tasks[i]);
+		if (task->data)
 		{
-			dtFree(boost::static_pointer_cast<BuildTileMeshTask>(tasks[i])->data);
+			//// Remove any previous data (navmesh owns and deletes the data).
+			//m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), 0, 0);
+			// Let the navmesh own the data.
+			dtStatus status = m_navMesh->addTile(task->data, task->dataSize, DT_TILE_FREE_DATA, 0, 0);
+			if (dtStatusFailed(status))
+			{
+				dtFree(task->data);
+			}
 		}
 	}
 
