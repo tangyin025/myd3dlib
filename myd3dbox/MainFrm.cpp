@@ -1463,6 +1463,7 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	CTerrainDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_terrain").c_str()).c_str());
+	dlg.m_ActorScale = (*actor_iter)->m_Scale;
 	if (dlg.DoModal() != IDOK)
 	{
 		return;
@@ -1472,6 +1473,7 @@ void CMainFrame::OnComponentTerrain()
 	if (dlg.m_AlignToCenter)
 	{
 		my::Vector3 center = dlg.m_terrain->Center();
+		(*actor_iter)->m_Scale = dlg.m_ActorScale;
 		(*actor_iter)->m_Position.x -= center.x * (*actor_iter)->m_Scale.x;
 		(*actor_iter)->m_Position.z -= center.z * (*actor_iter)->m_Scale.z;
 		(*actor_iter)->UpdateWorld();

@@ -21,6 +21,7 @@ CTerrainDlg::CTerrainDlg(const char * TerrainComponentName, CWnd* pParent /*=NUL
 	, m_ChunkSize(64)
 	, m_AlignToCenter(TRUE)
 	, m_MinLodChunkSize(2)
+	, m_ActorScale(0)
 {
 	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name).c_str());
 }
@@ -38,12 +39,19 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT4, m_AssetPath);
 	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
 	DDX_Text(pDX, IDC_EDIT5, m_MinLodChunkSize);
+	DDX_Text(pDX, IDC_EDIT6, m_ActorScale.x);
+	DDV_MinMaxFloat(pDX, m_ActorScale.x, EPSILON_E6, FLT_MAX);
+	DDX_Text(pDX, IDC_EDIT7, m_ActorScale.y);
+	DDV_MinMaxFloat(pDX, m_ActorScale.y, EPSILON_E6, FLT_MAX);
+	DDX_Text(pDX, IDC_EDIT8, m_ActorScale.z);
+	DDV_MinMaxFloat(pDX, m_ActorScale.z, EPSILON_E6, FLT_MAX);
 }
 
 
 BEGIN_MESSAGE_MAP(CTerrainDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT4, &CTerrainDlg::OnChangeEdit4)
 	ON_BN_CLICKED(IDC_BUTTON1, &CTerrainDlg::OnClickedButton1)
+	ON_EN_CHANGE(IDC_EDIT6, &CTerrainDlg::OnChangeEdit6)
 END_MESSAGE_MAP()
 
 
@@ -146,4 +154,19 @@ void CTerrainDlg::OnClickedButton1()
 	}
 
 	OnChangeEdit4();
+}
+
+
+void CTerrainDlg::OnChangeEdit6()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialogEx::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+	CString strText;
+	GetDlgItemText(IDC_EDIT6, strText);
+	SetDlgItemText(IDC_EDIT7, strText);
+	SetDlgItemText(IDC_EDIT8, strText);
 }
