@@ -292,33 +292,39 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 void StaticEmitterStream::Release(void)
 {
-	BufferMap::const_iterator buff_iter = m_buffs.begin();
-	for (; buff_iter != m_buffs.end(); buff_iter++)
+	std::map<std::pair<int, int>, bool>::iterator dirty_iter = m_dirty.begin();
+	for (; dirty_iter != m_dirty.end(); dirty_iter++)
 	{
-		StaticEmitter::ChunkMap::iterator chunk_iter = m_emit->m_Chunks.find(buff_iter->first);
-		_ASSERT(chunk_iter != m_emit->m_Chunks.end());
-		_ASSERT(chunk_iter->second.m_OctAabb);
-
-		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, buff_iter->first.first, buff_iter->first.second);
-		std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
-		std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
-		_ASSERT(ofs.is_open());
-
-		my::AABB chunk_box = *chunk_iter->second.m_OctAabb;
-		chunk_box.m_min.y = FLT_MAX;
-		chunk_box.m_max.y = FLT_MIN;
-		StaticEmitterChunkBuffer::const_iterator part_iter = buff_iter->second->begin();
-		for (; part_iter != buff_iter->second->end(); part_iter++)
+		if (dirty_iter->second)
 		{
-			chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y * 0.5f);
-			chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y * 0.5f);
-			ofs.write((char *)&(*part_iter), sizeof(my::Emitter::Particle));
-		}
-		m_emit->RemoveEntity(&chunk_iter->second);
-		m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_ChunkWidth, 0.1f);
-	}
+			StaticEmitterChunkBuffer* buff = GetBuffer(dirty_iter->first.first, dirty_iter->first.second);
+			_ASSERT(buff);
 
-	m_buffs.clear();
+			StaticEmitter::ChunkMap::iterator chunk_iter = m_emit->m_Chunks.find(dirty_iter->first);
+			_ASSERT(chunk_iter != m_emit->m_Chunks.end());
+			_ASSERT(chunk_iter->second.m_OctAabb);
+
+			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, dirty_iter->first.first, dirty_iter->first.second);
+			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+			std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
+			_ASSERT(ofs.is_open());
+
+			my::AABB chunk_box = *chunk_iter->second.m_OctAabb;
+			chunk_box.m_min.y = FLT_MAX;
+			chunk_box.m_max.y = FLT_MIN;
+			StaticEmitterChunkBuffer::const_iterator part_iter = buff->begin();
+			for (; part_iter != buff->end(); part_iter++)
+			{
+				chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y * 0.5f);
+				chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y * 0.5f);
+				ofs.write((char*)&(*part_iter), sizeof(my::Emitter::Particle));
+			}
+			m_emit->RemoveEntity(&chunk_iter->second);
+			m_emit->AddEntity(&chunk_iter->second, chunk_box, m_emit->m_ChunkWidth, 0.1f);
+
+			dirty_iter->second = false;
+		}
+	}
 }
 
 StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
@@ -343,17 +349,14 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 	}
 
 	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
-	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), i, j, INT_MAX));
-	my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&StaticEmitterStream::SetBuffer, this, i, j, boost::placeholders::_1));
+	StaticEmitterChunkIORequest request(path.c_str(), i, j, INT_MAX);
+	request.LoadResource();
+	request.CreateResource(NULL);
+	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(request.m_res);
 
 	buff_iter = m_buffs.find(std::make_pair(i, j));
 	_ASSERT(buff_iter != m_buffs.end());
 	return buff_iter->second.get();
-}
-
-void StaticEmitterStream::SetBuffer(int i, int j, my::DeviceResourceBasePtr res)
-{
-	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
 void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
@@ -379,6 +382,8 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 	}
 
 	buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));
+
+	m_dirty[std::make_pair(i, j)] = true;
 }
 
 my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float z, float max_dist)

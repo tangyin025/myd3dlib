@@ -137,11 +137,11 @@ public:
 
 	BufferMap m_buffs;
 
+	std::map<std::pair<int, int>, bool> m_dirty;
+
 	void Release(void);
 
 	StaticEmitterChunkBuffer * GetBuffer(int i, int j);
-
-	void SetBuffer(int i, int j, my::DeviceResourceBasePtr res);
 
 	void Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
