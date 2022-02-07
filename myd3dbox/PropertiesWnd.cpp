@@ -3598,9 +3598,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int instid = pParticle->GetValue().intVal;
 		StaticEmitterStream estr(emit_cmp);
 		StaticEmitterChunkBuffer * buff = estr.GetBuffer(chunkid.x, chunkid.y);
-		if (instid >= buff->size())
+		if (!buff || instid >= buff->size())
 		{
-			MessageBox(_T("instid >= buff->size()"));
+			MessageBox(_T("!buff || instid >= buff->size()"));
 			return 0;
 		}
 		my::Emitter::Particle * particle = &(*buff)[instid];
@@ -3620,6 +3620,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle->m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
 		particle->m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		particle->m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
+		estr.m_dirty[std::make_pair(chunkid.x, chunkid.y)] = true;
 		estr.Release();
 		Actor * actor = emit_cmp->m_Actor;
 		actor->UpdateAABB();
