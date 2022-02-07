@@ -97,6 +97,10 @@ void CStaticEmitterDlg::OnOK()
 
 	m_emit_cmp->m_ChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 
+	StaticEmitterStream estr(m_emit_cmp.get());
+	estr.Spawn(my::Vector4(0, 0, 0, 1), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(10, 10), 0.0f, 0.0f);
+	estr.Release();
+
 	{
 		MaterialPtr mtl(new Material());
 		mtl->m_Shader = theApp.default_shader;

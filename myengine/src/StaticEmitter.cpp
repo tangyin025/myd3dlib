@@ -300,8 +300,6 @@ void StaticEmitterStream::Release(void)
 	{
 		if (dirty_iter->second)
 		{
-			_ASSERT(m_emit->m_Actor);
-
 			StaticEmitterChunkBuffer* buff = GetBuffer(dirty_iter->first.first, dirty_iter->first.second);
 			_ASSERT(buff);
 
@@ -320,8 +318,8 @@ void StaticEmitterStream::Release(void)
 			StaticEmitterChunkBuffer::const_iterator part_iter = buff->begin();
 			for (; part_iter != buff->end(); part_iter++)
 			{
-				chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y / m_emit->m_Actor->m_Scale.y * 0.5f);
-				chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y / m_emit->m_Actor->m_Scale.y * 0.5f);
+				chunk_box.m_min.y = Min(chunk_box.m_min.y, part_iter->m_Position.y - part_iter->m_Size.y * 0.5f);
+				chunk_box.m_max.y = Max(chunk_box.m_max.y, part_iter->m_Position.y + part_iter->m_Size.y * 0.5f);
 				ofs.write((char*)&(*part_iter), sizeof(my::Emitter::Particle));
 			}
 			m_emit->RemoveEntity(&chunk_iter->second);
