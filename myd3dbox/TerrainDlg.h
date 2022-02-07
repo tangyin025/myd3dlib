@@ -33,7 +33,7 @@ public:
 	BOOL m_AlignToCenter;
 	virtual void OnOK();
 	afx_msg void OnChangeEdit4();
-	int m_MinLodChunkSize;
+	int m_MinChunkLodSize;
 	afx_msg void OnClickedButton1();
 	my::Vector3 m_ActorScale;
 	afx_msg void OnChangeEdit6();

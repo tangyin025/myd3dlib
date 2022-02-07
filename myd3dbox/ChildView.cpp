@@ -1031,16 +1031,16 @@ my::RayResult CChildView::OverlapTestRayAndTerrain(const my::Ray & local_ray, co
 			if (!chunk->m_Vb)
 			{
 				std::vector<unsigned short> ib;
-				for (int i = chunk->m_Row * terrain->m_MinLodChunkSize; i < chunk->m_Row * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; i++)
+				for (int i = chunk->m_Row * terrain->m_MinChunkLodSize; i < chunk->m_Row * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; i++)
 				{
-					for (int j = chunk->m_Col * terrain->m_MinLodChunkSize; j < chunk->m_Col * terrain->m_MinLodChunkSize + terrain->m_MinLodChunkSize; j++)
+					for (int j = chunk->m_Col * terrain->m_MinChunkLodSize; j < chunk->m_Col * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; j++)
 					{
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 0));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 0) + (j + 1));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 0));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinLodChunkSize + 1) * (i + 1) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 1));
 					}
 				}
 				result = my::Mesh::RayTest(

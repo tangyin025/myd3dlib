@@ -76,7 +76,9 @@ public:
 
 	int m_ChunkSize;
 
-	int m_MinLodChunkSize;
+	float m_ChunkLodScale;
+
+	int m_MinChunkLodSize;
 
 	typedef boost::multi_array<unsigned int, 2> IndexTable;
 
@@ -131,7 +133,7 @@ protected:
 	Terrain(void);
 
 public:
-	Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, int MinLodChunkSize);
+	Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, int MinChunkLodSize);
 
 	virtual ~Terrain(void);
 

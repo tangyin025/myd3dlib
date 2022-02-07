@@ -119,6 +119,7 @@ void StaticEmitterChunk::OnChunkBufferReady(my::DeviceResourceBasePtr res)
 StaticEmitter::StaticEmitter(const char* Name, const my::AABB & LocalRootAabb, float ChunkWidth, FaceType _FaceType, SpaceType _SpaceTypeWorld, VelocityType _VelocityType, PrimitiveType _PrimitiveType)
 	: EmitterComponent(Name, _FaceType, _SpaceTypeWorld, _VelocityType, _PrimitiveType)
 	, m_ChunkWidth(ChunkWidth)
+	, m_ChunkLodScale(1.0f)
 	, OctRoot(LocalRootAabb.m_min, LocalRootAabb.m_max)
 {
 }
@@ -129,6 +130,7 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
@@ -149,6 +151,7 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
@@ -224,7 +227,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(chunk->m_OctAabb->Center(), LocalViewPos, 1.0f);
+				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(chunk->m_OctAabb->Center(), LocalViewPos, emit_cmp->m_Actor->m_Scale.x * emit_cmp->m_ChunkLodScale);
 			}
 
 			if (chunk->m_Lod >= 1)
@@ -274,11 +277,11 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		const float CullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1), 2.0);
+		const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1) / (m_Actor->m_Scale.x * m_ChunkLodScale), 2.0);
 		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 		for (; chunk_iter != m_ViewedChunks.end(); )
 		{
-			if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > CullingDistSq)
+			if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDistSq)
 			{
 				chunk_iter->ReleaseResource();
 
