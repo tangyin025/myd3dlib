@@ -227,7 +227,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(chunk->m_OctAabb->Center(), LocalViewPos, emit_cmp->m_Actor->m_Scale.x * emit_cmp->m_ChunkLodScale);
+				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(chunk->m_OctAabb->Center(), LocalViewPos, emit_cmp->m_ChunkLodScale / emit_cmp->m_Actor->m_Scale.x);
 			}
 
 			if (chunk->m_Lod >= 1)
@@ -277,7 +277,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1) / (m_Actor->m_Scale.x * m_ChunkLodScale), 2.0);
+		const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1) * m_ChunkLodScale / m_Actor->m_Scale.x, 2.0);
 		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 		for (; chunk_iter != m_ViewedChunks.end(); )
 		{
