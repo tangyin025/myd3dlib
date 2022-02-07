@@ -76,8 +76,6 @@ public:
 
 	int m_ChunkSize;
 
-	float m_ChunkLodScale;
-
 	int m_MinChunkLodSize;
 
 	typedef boost::multi_array<unsigned int, 2> IndexTable;
@@ -96,6 +94,8 @@ public:
 	FragmentMap m_Fragment;
 
 	std::string m_ChunkPath;
+
+	float m_ChunkLodScale;
 
 	typedef boost::multi_array<TerrainChunk, 2> ChunkArray2D;
 

@@ -80,11 +80,11 @@ void StaticEmitterChunk::RequestResource(void)
 	m_Requested = true;
 
 	StaticEmitter * emit_cmp = dynamic_cast<StaticEmitter*>(m_Node->GetTopNode());
-	if (!emit_cmp->m_EmitterChunkPath.empty())
+	if (!emit_cmp->m_ChunkPath.empty())
 	{
 		_ASSERT(!m_buff);
 
-		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_EmitterChunkPath, m_Row, m_Col);
+		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
 		IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), m_Row, m_Col, 0));
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
 			path, request, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
@@ -94,9 +94,9 @@ void StaticEmitterChunk::RequestResource(void)
 void StaticEmitterChunk::ReleaseResource(void)
 {
 	StaticEmitter * emit_cmp = dynamic_cast<StaticEmitter*>(m_Node->GetTopNode());
-	if (!emit_cmp->m_EmitterChunkPath.empty())
+	if (!emit_cmp->m_ChunkPath.empty())
 	{
-		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_EmitterChunkPath, m_Row, m_Col);
+		std::string path = StaticEmitterChunk::MakeChunkPath(emit_cmp->m_ChunkPath, m_Row, m_Col);
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(
 			path, boost::bind(&StaticEmitterChunk::OnChunkBufferReady, this, boost::placeholders::_1));
 
@@ -130,8 +130,8 @@ void StaticEmitter::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkWidth);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
-	ar << BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize = m_Chunks.size();
 	ar << BOOST_SERIALIZATION_NVP(ChunkSize);
 	ChunkMap::const_iterator chunk_iter = m_Chunks.begin();
@@ -151,8 +151,8 @@ void StaticEmitter::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctRoot);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkWidth);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_EmitterChunkPath);
 	DWORD ChunkSize;
 	ar >> BOOST_SERIALIZATION_NVP(ChunkSize);
 	for (int i = 0; i < (int)ChunkSize; i++)
@@ -309,7 +309,7 @@ void StaticEmitterStream::Release(void)
 			_ASSERT(chunk_iter != m_emit->m_Chunks.end());
 			_ASSERT(chunk_iter->second.m_OctAabb);
 
-			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, dirty_iter->first.first, dirty_iter->first.second);
+			std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, dirty_iter->first.first, dirty_iter->first.second);
 			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 			std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
 			_ASSERT(ofs.is_open());
@@ -353,7 +353,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 		return buff_res.first->second.get();
 	}
 
-	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
+	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
 	StaticEmitterChunkIORequest request(path.c_str(), i, j, INT_MAX);
 	request.LoadResource();
 	request.CreateResource(NULL);
@@ -371,7 +371,7 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 	StaticEmitterChunkBuffer* buff = GetBuffer(i, j);
 	if (!buff)
 	{
-		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_EmitterChunkPath, i, j);
+		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
 
 		std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(i, j),
 			boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(my::ResourceMgr::getSingleton().AddResource(path, DeviceResourceBasePtr(new StaticEmitterChunkBuffer())))));

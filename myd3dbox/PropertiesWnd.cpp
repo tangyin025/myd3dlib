@@ -563,11 +563,12 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_EmitterVelType[emit_cmp->m_EmitterVelType]);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)g_EmitterPrimitiveType[emit_cmp->m_EmitterPrimitiveType]);
 	pChunkWidth->SetValue((_variant_t)emit_cmp->m_ChunkWidth);
-	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_EmitterChunkPath).c_str());
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), emit_cmp->m_Material.get());
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)ms2ts(emit_cmp->m_ChunkPath).c_str());
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)emit_cmp->m_ChunkLodScale);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMFCPropertyGridProperty * pParticle = pComponent->GetSubItem(PropId + 7);
+	CMFCPropertyGridProperty * pParticle = pComponent->GetSubItem(PropId + 8);
 	StaticEmitter::ChunkMap::const_iterator chunk_iter = (pFrame->m_selcmp == emit_cmp ? emit_cmp->m_Chunks.find(std::make_pair(pFrame->m_selchunkid.x, pFrame->m_selchunkid.y)) : emit_cmp->m_Chunks.begin());
 	if (chunk_iter != emit_cmp->m_Chunks.end() && chunk_iter->second.m_buff && pFrame->m_selinstid < chunk_iter->second.m_buff->size())
 	{
@@ -684,40 +685,41 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ColChunks);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_ChunkSize);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)ms2ts(terrain->m_ChunkPath).c_str());
-	pComponent->GetSubItem(PropId + 4);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_ChunkLodScale);
 	pComponent->GetSubItem(PropId + 5);
-	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 6), terrain->m_Material.get());
+	pComponent->GetSubItem(PropId + 6);
+	UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 7), terrain->m_Material.get());
 
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	CPoint selchunkid = pFrame->m_selcmp == terrain ? pFrame->m_selchunkid : CPoint(0, 0);
 	MaterialPtr mtl = terrain->m_Chunks[selchunkid.x][selchunkid.y].m_Material;
-	pComponent->GetSubItem(PropId + 7)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
+	pComponent->GetSubItem(PropId + 8)->SetValue((_variant_t)(VARIANT_BOOL)(mtl != NULL));
 
 	CString strTitle;
 	strTitle.Format(_T("Chunk_%d_%d Material"), selchunkid.x, selchunkid.y);
 	if (mtl)
 	{
-		if (pComponent->GetSubItem(PropId + 8)->GetSubItemsCount() <= 0)
+		if (pComponent->GetSubItem(PropId + 9)->GetSubItemsCount() <= 0)
 		{
-			RemovePropertiesFrom(pComponent, PropId + 8);
+			RemovePropertiesFrom(pComponent, PropId + 9);
 			CreatePropertiesMaterial(pComponent, strTitle, mtl.get());
 		}
 		else
 		{
-			pComponent->GetSubItem(PropId + 8)->SetName(strTitle, FALSE);
-			UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 8), mtl.get());
+			pComponent->GetSubItem(PropId + 9)->SetName(strTitle, FALSE);
+			UpdatePropertiesMaterial(pComponent->GetSubItem(PropId + 9), mtl.get());
 		}
 	}
 	else
 	{
-		if (pComponent->GetSubItem(PropId + 8)->GetSubItemsCount() <= 0)
+		if (pComponent->GetSubItem(PropId + 9)->GetSubItemsCount() <= 0)
 		{
-			pComponent->GetSubItem(PropId + 8)->SetName(strTitle, FALSE);
+			pComponent->GetSubItem(PropId + 9)->SetName(strTitle, FALSE);
 		}
 		else
 		{
-			RemovePropertiesFrom(pComponent, PropId + 8);
+			RemovePropertiesFrom(pComponent, PropId + 9);
 			CMFCPropertyGridProperty* pMaterial = new CSimpleProp(strTitle, PropertyMaterial, FALSE);
 			pComponent->AddSubItem(pMaterial);
 		}
@@ -1570,9 +1572,11 @@ void CPropertiesWnd::CreatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 	CMFCPropertyGridProperty * pChunkWidth = new CSimpleProp(_T("ChunkWidth"), (_variant_t)emit_cmp->m_ChunkWidth, NULL, PropertyStaticEmitterChunkWidth);
 	pChunkWidth->Enable(FALSE);
 	pComponent->AddSubItem(pChunkWidth);
-	CMFCPropertyGridProperty * pEmitterChunkPath = new CSimpleProp(_T("EmitterChunkPath"), (_variant_t)ms2ts(emit_cmp->m_EmitterChunkPath).c_str(), NULL, PropertyStaticEmitterChunkPath);
-	pEmitterChunkPath->Enable(FALSE);
-	pComponent->AddSubItem(pEmitterChunkPath);
+	CMFCPropertyGridProperty * pChunkPath = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(emit_cmp->m_ChunkPath).c_str(), NULL, PropertyStaticEmitterChunkPath);
+	pChunkPath->Enable(FALSE);
+	pComponent->AddSubItem(pChunkPath);
+	CMFCPropertyGridProperty* pChunkLodScale = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)emit_cmp->m_ChunkLodScale, NULL, PropertyStaticEmitterChunkLodScale);
+	pComponent->AddSubItem(pChunkLodScale);
 	CreatePropertiesMaterial(pComponent, _T("Material"), emit_cmp->m_Material.get());
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -1736,6 +1740,8 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("ChunkPath"), (_variant_t)ms2ts(terrain->m_ChunkPath).c_str(), NULL, PropertyTerrainChunkPath);
 	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("ChunkLodScale"), (_variant_t)terrain->m_ChunkLodScale, NULL, PropertyTerrainChunkLodScale);
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
@@ -2574,11 +2580,11 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeStaticEmitter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 20;
 	case Component::ComponentTypeTerrain:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 9;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 10;
 	case Component::ComponentTypeAnimator:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeNavigation:
@@ -3635,6 +3641,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyStaticEmitterChunkWidth:
 	case PropertyStaticEmitterChunkPath:
 		break;
+	case PropertyStaticEmitterChunkLodScale:
+	{
+		StaticEmitter* emit_cmp = (StaticEmitter*)pProp->GetParent()->GetValue().pulVal;
+		emit_cmp->m_ChunkLodScale = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertySphericalEmitterParticleCapacity:
 	{
 		SphericalEmitter * sphe_emit_cmp = (SphericalEmitter *)pProp->GetParent()->GetValue().pulVal;
@@ -3721,6 +3735,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 		}
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyTerrainRowChunks:
+	case PropertyTerrainColChunks:
+	case PropertyTerrainChunkSize:
+	case PropertyTerrainChunkPath:
+		break;
+	case PropertyTerrainChunkLodScale:
+	{
+		Terrain* terrain = (Terrain*)pProp->GetParent()->GetValue().pullVal;
+		terrain->m_ChunkLodScale = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

@@ -73,9 +73,9 @@ public:
 
 	float m_ChunkWidth;
 
-	float m_ChunkLodScale;
+	std::string m_ChunkPath;
 
-	std::string m_EmitterChunkPath;
+	float m_ChunkLodScale;
 
 	typedef std::map<std::pair<int, int>, StaticEmitterChunk> ChunkMap;
 

@@ -210,8 +210,8 @@ Terrain::Terrain(void)
 	: m_RowChunks(1)
 	, m_ColChunks(1)
 	, m_ChunkSize(8)
-	, m_ChunkLodScale(1.0f)
 	, m_MinChunkLodSize(2)
+	, m_ChunkLodScale(1.0f)
 	, handle_World(NULL)
 	, handle_TerrainSize(NULL)
 {
@@ -224,8 +224,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
-	, m_ChunkLodScale(1.0f)
 	, m_MinChunkLodSize(Min(ChunkSize, MinChunkLodSize))
+	, m_ChunkLodScale(1.0f)
 	, m_IndexTable(boost::extents[ChunkSize + 1][ChunkSize + 1])
 	, m_Chunks(boost::extents[RowChunks][ColChunks])
 	, handle_World(NULL)
@@ -471,9 +471,9 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkSize);
-	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	ar << BOOST_SERIALIZATION_NVP(m_MinChunkLodSize);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkPath);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	D3DVERTEXBUFFER_DESC desc = const_cast<my::VertexBuffer&>(m_rootVb).GetDesc();
 	ar << boost::serialization::make_nvp("BufferSize", desc.Size);
 	void * pVertices = const_cast<my::VertexBuffer&>(m_rootVb).Lock(0, 0, D3DLOCK_READONLY);
@@ -521,9 +521,9 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkSize);
 	m_IndexTable.resize(boost::extents[m_ChunkSize + 1][m_ChunkSize + 1]);
 	_FillVertexTable(m_IndexTable, m_ChunkSize + 1);
-	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_MinChunkLodSize);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkLodScale);
 	DWORD BufferSize;
 	ar >> BOOST_SERIALIZATION_NVP(BufferSize);
 	ResourceMgr::getSingleton().EnterDeviceSection(); // ! unpaired lock/unlock will break the main thread m_d3dDevice->Present

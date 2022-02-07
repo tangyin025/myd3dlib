@@ -95,7 +95,7 @@ void CStaticEmitterDlg::OnOK()
 	m_emit_cmp.reset(new StaticEmitter(m_emit_cmp_name.c_str(), m_BoundingBox, m_ChunkWidth,
 		EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
 
-	m_emit_cmp->m_EmitterChunkPath = ts2ms((LPCTSTR)m_AssetPath);
+	m_emit_cmp->m_ChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 
 	{
 		MaterialPtr mtl(new Material());
