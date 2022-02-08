@@ -56,6 +56,8 @@ public:
 
 	void ReleaseResource(void);
 
+	static std::string MakeChunkPath(const std::string & ChunkPath, int Row, int Col);
+
 	void OnVertexBufferReady(my::DeviceResourceBasePtr res);
 };
 
@@ -196,8 +198,6 @@ public:
 	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
 
 	my::VertexBufferPtr GetVB(int k, int l);
-
-	static int CalculateStreamOff(int ColChunks, int Row, int Col, int ChunkSize, int VertexStride);
 
 	my::Vector3 GetPos(int i, int j);
 

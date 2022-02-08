@@ -65,7 +65,6 @@ public:
 		if (ResourceMgr::getSingleton().CheckPath(m_path.c_str()))
 		{
 			IStreamPtr istr = ResourceMgr::getSingleton().OpenIStream(m_path.c_str());
-			istr->seek(TerrainStream::CalculateStreamOff(m_ColChunks, m_Row, m_Col, m_ChunkSize, m_VertexStride), SEEK_SET);
 			int BufferSize = (m_ChunkSize + 1) * (m_ChunkSize + 1) * m_VertexStride;
 			VertexBufferPtr vb = boost::dynamic_pointer_cast<VertexBuffer>(m_res);
 			ResourceMgr::getSingleton().EnterDeviceSection();
@@ -87,11 +86,6 @@ public:
 			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 		}
 	}
-
-	static std::string TerrainChunkIORequest::BuildKey(const char* path, int Row, int Col)
-	{
-		return str_printf("%s %d %d", path, Row, Col);
-	}
 };
 
 TerrainChunk::~TerrainChunk(void)
@@ -112,10 +106,10 @@ void TerrainChunk::RequestResource(void)
 	{
 		_ASSERT(!m_Vb);
 
-		std::string key = TerrainChunkIORequest::BuildKey(terrain->m_ChunkPath.c_str(), m_Row, m_Col);
-		IORequestPtr request(new TerrainChunkIORequest(terrain->m_ChunkPath.c_str(), terrain->m_ColChunks, m_Row, m_Col, terrain->m_ChunkSize, terrain->m_VertexStride, 0));
+		std::string path = TerrainChunk::MakeChunkPath(terrain->m_ChunkPath, m_Row, m_Col);
+		IORequestPtr request(new TerrainChunkIORequest(path.c_str(), terrain->m_ColChunks, m_Row, m_Col, terrain->m_ChunkSize, terrain->m_VertexStride, 0));
 		my::ResourceMgr::getSingleton().LoadIORequestAsync(
-			key, request, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
+			path, request, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 	}
 
 	if (m_Material)
@@ -130,9 +124,9 @@ void TerrainChunk::ReleaseResource(void)
 
 	if (!terrain->m_ChunkPath.empty())
 	{
-		std::string key = TerrainChunkIORequest::BuildKey(terrain->m_ChunkPath.c_str(), m_Row, m_Col);
+		std::string path = TerrainChunk::MakeChunkPath(terrain->m_ChunkPath, m_Row, m_Col);
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(
-			key, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
+			path, boost::bind(&TerrainChunk::OnVertexBufferReady, this, boost::placeholders::_1));
 
 		m_Vb.reset();
 	}
@@ -143,6 +137,11 @@ void TerrainChunk::ReleaseResource(void)
 	}
 
 	m_Requested = false;
+}
+
+std::string TerrainChunk::MakeChunkPath(const std::string & ChunkPath, int Row, int Col)
+{
+	return str_printf("%s_%d_%d", ChunkPath.c_str(), Row, Col);
 }
 
 void TerrainChunk::OnVertexBufferReady(my::DeviceResourceBasePtr res)
@@ -836,8 +835,6 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 
 	if (!my::ResourceMgr::getSingleton().CheckPath(HeightFieldPath))
 	{
-		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
-
 		boost::multi_array<physx::PxHeightFieldSample, 2> Samples(boost::extents[m_ColChunks * m_ChunkSize + 1][m_RowChunks * m_ChunkSize + 1]);
 		TerrainStream tstr(this);
 		for (int i = 0; i < m_RowChunks * m_ChunkSize + 1; i++)
@@ -937,12 +934,14 @@ void TerrainStream::Release(void)
 
 			if (m_VertDirty[k][l])
 			{
+				_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 				my::VertexBufferPtr vb = GetVB(k, l);
-				std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(m_terrain->m_ChunkPath.c_str());
+				std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
+				std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
 				std::fstream fstr(FullPath, std::ios::in | std::ios::out | std::ios::binary, _SH_DENYRW);
 				_ASSERT(fstr.is_open());
-				int stream_off = CalculateStreamOff(m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride);
-				fstr.seekp(stream_off, std::ios::beg);
+
 				const D3DVERTEXBUFFER_DESC desc = vb->GetDesc();
 				_ASSERT(desc.Size == m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
 				void* pVertices = vb->Lock(0, 0, D3DLOCK_READONLY);
@@ -1006,17 +1005,20 @@ my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 
 	if (!m_Vbs[k][l])
 	{
-		if (!my::ResourceMgr::getSingleton().CheckPath(m_terrain->m_ChunkPath.c_str()))
+		std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
+
+		if (!my::ResourceMgr::getSingleton().CheckPath(path.c_str()))
 		{
 			_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-			std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(m_terrain->m_ChunkPath.c_str());
-			std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
-			_ASSERT(ofs.is_open());
 			for (int k = 0; k < m_terrain->m_RowChunks; k++)
 			{
 				for (int l = 0; l < m_terrain->m_ColChunks; l++)
 				{
+					std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
+					std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+					std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
+					_ASSERT(ofs.is_open());
 					std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
 					for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
 					{
@@ -1031,21 +1033,15 @@ my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 					ofs.write(&buff[0], buff.size());
 				}
 			}
-			ofs.close();
 		}
 
-		TerrainChunkIORequest request(m_terrain->m_ChunkPath.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX);
+		TerrainChunkIORequest request(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX);
 		request.LoadResource();
 		request.CreateResource(NULL);
 		m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request.m_res);
 	}
 
 	return m_Vbs[k][l];
-}
-
-int TerrainStream::CalculateStreamOff(int ColChunks, int Row, int Col, int ChunkSize, int VertexStride)
-{
-	return (ColChunks * Row + Col) * (ChunkSize + 1) * (ChunkSize + 1) * VertexStride;
 }
 
 my::Vector3 TerrainStream::GetPos(int i, int j)
