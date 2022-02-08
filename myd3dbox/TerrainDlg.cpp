@@ -50,7 +50,6 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CTerrainDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT4, &CTerrainDlg::OnChangeEdit4)
-	ON_BN_CLICKED(IDC_BUTTON1, &CTerrainDlg::OnClickedButton1)
 	ON_EN_CHANGE(IDC_EDIT6, &CTerrainDlg::OnChangeEdit6)
 END_MESSAGE_MAP()
 
@@ -79,23 +78,38 @@ void CTerrainDlg::OnOK()
 		return;
 	}
 
-	if (m_AssetPath.IsEmpty())
+	CString strText;
+	GetDlgItemText(IDC_STATIC5, strText);
+	if (!strText.IsEmpty())
 	{
-		MessageBox(_T("m_AssetPath.IsEmpty()"));
-		return;
+		strText.Format(_T("Overwrite existed '%s_*'?"), m_AssetPath);
+		if (IDCANCEL == AfxMessageBox(strText, MB_OKCANCEL))
+		{
+			return;
+		}
+
+		std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str()) + "_*";
+		FullPath.append(2, '\0');
+		SHFILEOPSTRUCTA shfo;
+		ZeroMemory(&shfo, sizeof(shfo));
+		shfo.hwnd = AfxGetMainWnd()->m_hWnd;
+		shfo.wFunc = FO_DELETE;
+		shfo.pFrom = FullPath.c_str();
+		shfo.fFlags = FOF_ALLOWUNDO | FOF_FILESONLY | FOF_NOCONFIRMATION | FOF_NORECURSION;
+		int res = SHFileOperationA(&shfo);
+		if (res != 0)
+		{
+			return;
+		}
 	}
 
 	m_terrain.reset(new Terrain(m_terrain_name.c_str(), m_RowChunks, m_ColChunks, m_ChunkSize, m_MinChunkLodSize));
 
 	m_terrain->m_ChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 
-
-	if (!GetDlgItem(IDC_BUTTON1)->IsWindowEnabled())
-	{
-		TerrainStream tstr(m_terrain.get());
-		tstr.GetPos(0, 0);
-		tstr.Release();
-	}
+	TerrainStream tstr(m_terrain.get());
+	tstr.GetPos(0, 0);
+	tstr.Release();
 
 	{
 		MaterialPtr mtl(new Material());
@@ -118,42 +132,16 @@ void CTerrainDlg::OnChangeEdit4()
 	// TODO:  Add your control notification handler code here
 	CString strText;
 	GetDlgItemText(IDC_EDIT4, strText);
-	if (my::ResourceMgr::getSingleton().CheckPath(theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()).c_str()))
+	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)strText).c_str()) + "_*";
+	WIN32_FIND_DATAA data;
+	HANDLE h = FindFirstFileA(FullPath.c_str(), &data);
+	if (h == INVALID_HANDLE_VALUE)
 	{
-		GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
-	}
-	else
-	{
-		GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
-	}
-}
-
-
-void CTerrainDlg::OnClickedButton1()
-{
-	// TODO: Add your control notification handler code here
-	if (!UpdateData(TRUE))
-	{
-		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
-		// the UpdateData routine will set focus to correct item
+		SetDlgItemText(IDC_STATIC5, _T(""));
 		return;
 	}
-
-	std::string FullPath = theApp.GetFullPath(ts2ms((LPCTSTR)m_AssetPath).c_str());
-	FullPath.append(2, '\0');
-	SHFILEOPSTRUCTA shfo;
-	ZeroMemory(&shfo, sizeof(shfo));
-	shfo.hwnd = AfxGetMainWnd()->m_hWnd;
-	shfo.wFunc = FO_DELETE;
-	shfo.pFrom = FullPath.c_str();
-	shfo.fFlags = FOF_ALLOWUNDO | FOF_FILESONLY | FOF_NOCONFIRMATION | FOF_NORECURSION;
-	int res = SHFileOperationA(&shfo);
-	if (res != 0)
-	{
-		MessageBox(str_printf(_T("SHFileOperation failed: %s"), ms2ts(FullPath).c_str()).c_str());
-	}
-
-	OnChangeEdit4();
+	SetDlgItemText(IDC_STATIC5, _T("Existed !"));
+	FindClose(h);
 }
 
 
