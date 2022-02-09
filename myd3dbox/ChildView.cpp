@@ -2485,7 +2485,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 		float LocalPaintParticleMinDist = pFrame->m_PaintParticleMinDist / tstr.m_terrain->m_Actor->m_Scale.x;
 		my::Vector3 pt = local_ray.p + local_ray.d * res.second;
 		std::list<my::Vector2> candidate;
-		my::Emitter::Particle* particle = estr.GetNearestParticle2D(pt.x, pt.z, LocalPaintParticleMinDist);
+		my::Emitter::Particle* particle = estr.GetFirstNearParticle2D(pt, LocalPaintParticleMinDist);
 		if (!particle)
 		{
 			estr.Spawn(my::Vector4(pt, 1.0f), my::Vector4(0, 0, 0, 1), my::Vector4(1, 1, 1, 1), my::Vector2(1, 1), 0.0f, 0.0f);
@@ -2506,7 +2506,7 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 					&& rand_pos.y >= estr.m_emit->m_min.z && rand_pos.y < estr.m_emit->m_max.z
 					&& (rand_pos - my::Vector2(pt.x, pt.z)).magnitudeSq() < LocalPaintRadius * LocalPaintRadius)
 				{
-					if (!estr.GetNearestParticle2D(rand_pos.x, rand_pos.y, LocalPaintParticleMinDist))
+					if (!estr.GetFirstNearParticle2D(my::Vector3(rand_pos.x, 0, rand_pos.y), LocalPaintParticleMinDist))
 					{
 						my::Ray local_ray = my::Ray(my::Vector3(rand_pos.x, estr.m_emit->m_max.y, rand_pos.y), my::Vector3(0, -1, 0));
 						my::RayResult res = tstr.RayTest(local_ray);

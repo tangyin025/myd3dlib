@@ -390,19 +390,19 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 	m_dirty[std::make_pair(i, j)] = true;
 }
 
-my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float z, float max_dist)
+my::Emitter::Particle * StaticEmitterStream::GetFirstNearParticle2D(const my::Vector3 & Center, float Range)
 {
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		StaticEmitterStream & estr;
-		Vector3 center;
-		float nearest_dist;
-		my::Emitter::Particle * nearest_particle;
-		Callback(StaticEmitterStream & _estr, float x, float z, float _max_dist)
+		const Vector3 & Center;
+		const float RangeSq;
+		my::Emitter::Particle * near_particle;
+		Callback(StaticEmitterStream & _estr, const Vector3 & _Center, float _range)
 			: estr(_estr)
-			, center(x, 0, z)
-			, nearest_dist(_max_dist)
-			, nearest_particle(NULL)
+			, Center(_Center)
+			, RangeSq(_range * _range)
+			, near_particle(NULL)
 		{
 		}
 		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -413,18 +413,18 @@ my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float
 			StaticEmitterChunkBuffer::iterator part_iter = buff->begin();
 			for (; part_iter != buff->end(); part_iter++)
 			{
-				float dist = (part_iter->m_Position.xyz - center).magnitude2D();
-				if (dist < nearest_dist)
+				float DistSq = (part_iter->m_Position.xyz - Center).magnitudeSq2D();
+				if (DistSq < RangeSq)
 				{
-					nearest_dist = dist;
-					nearest_particle = &(*part_iter);
+					near_particle = &(*part_iter);
+					return false;
 				}
 			}
 			return true;
 		}
 	};
 
-	Callback cb(*this, x, z, max_dist);
-	m_emit->QueryEntity(AABB(x - max_dist, m_emit->m_min.y, z - max_dist, x + max_dist, m_emit->m_max.y, z + max_dist), &cb);
-	return cb.nearest_particle;
+	Callback cb(*this, Center, Range);
+	m_emit->QueryEntity(AABB(Center.x - Range, m_emit->m_min.y, Center.z - Range, Center.x + Range, m_emit->m_max.y, Center.z + Range), &cb);
+	return cb.near_particle;
 }
