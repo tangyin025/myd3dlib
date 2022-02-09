@@ -976,6 +976,7 @@ HRESULT Client::OnCreateDevice(
 			.def("AddEntity", (void(Client::*)(my::OctEntity*)) & Client::AddEntity)
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
+			.property("AllEntityNum", &Client::GetAllEntityNum)
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
 			.def("AddTransition", &Client::AddTransition)

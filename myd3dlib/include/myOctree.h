@@ -124,9 +124,9 @@ namespace my
 
 		bool QueryEntity(const Frustum & frustum, QueryCallback * callback) const;
 
-		bool QueryEntityAll(QueryCallback * callback) const;
+		bool QueryAllEntity(QueryCallback * callback) const;
 
-		size_t QueryEntityAllNum(void) const;
+		int GetAllEntityNum(void) const;
 
 		virtual void RemoveEntity(OctEntity * entity);
 

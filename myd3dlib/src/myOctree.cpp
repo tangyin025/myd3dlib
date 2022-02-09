@@ -217,7 +217,7 @@ bool OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 			switch (IntersectionTests::IntersectAABBAndAABB(*(*node_iter), aabb))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				if (!(*node_iter)->QueryEntityAll(callback))
+				if (!(*node_iter)->QueryAllEntity(callback))
 				{
 					return false;
 				}
@@ -270,7 +270,7 @@ bool OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 			switch (IntersectionTests::IntersectAABBAndFrustum(*(*node_iter), frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				if (!(*node_iter)->QueryEntityAll(callback))
+				if (!(*node_iter)->QueryAllEntity(callback))
 				{
 					return false;
 				}
@@ -288,7 +288,7 @@ bool OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 	return true;
 }
 
-bool OctNode::QueryEntityAll(QueryCallback * callback) const
+bool OctNode::QueryAllEntity(QueryCallback * callback) const
 {
 #ifdef _DEBUG
 	const_cast<bool&>(m_QueryEntityMuted) = true;
@@ -313,7 +313,7 @@ bool OctNode::QueryEntityAll(QueryCallback * callback) const
 	{
 		if (*node_iter)
 		{
-			if (!(*node_iter)->QueryEntityAll(callback))
+			if (!(*node_iter)->QueryAllEntity(callback))
 			{
 				return false;
 			}
@@ -322,9 +322,9 @@ bool OctNode::QueryEntityAll(QueryCallback * callback) const
 	return true;
 }
 
-size_t OctNode::QueryEntityAllNum(void) const
+int OctNode::GetAllEntityNum(void) const
 {
-	size_t ret = 0;
+	int ret = 0;
 	ret += m_Entities.size();
 
 	ChildArray::const_iterator node_iter = m_Childs.begin();
@@ -332,10 +332,9 @@ size_t OctNode::QueryEntityAllNum(void) const
 	{
 		if (*node_iter)
 		{
-			ret += (*node_iter)->QueryEntityAllNum();
+			ret += (*node_iter)->GetAllEntityNum();
 		}
 	}
-
 	return ret;
 }
 

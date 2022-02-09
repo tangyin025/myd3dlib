@@ -830,7 +830,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("FogFalloff", theApp.m_FogFalloff);
 
 	// ! save all actor in the scene, including lua context actor
-	DWORD ActorListSize = QueryEntityAllNum();
+	DWORD ActorListSize = GetAllEntityNum();
 	*oa << BOOST_SERIALIZATION_NVP(ActorListSize);
 	struct Callback : public my::OctNode::QueryCallback
 	{
@@ -848,7 +848,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 			return true;
 		}
 	} cb(oa);
-	QueryEntityAll(&cb);
+	QueryAllEntity(&cb);
 	_ASSERT(ActorListSize == cb.i);
 
 	DWORD DialogListSize = m_DlgList.size();
