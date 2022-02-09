@@ -197,7 +197,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, insert_actor_iter(pFrame->m_ViewedActors.begin())
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_entity));
 
@@ -206,7 +206,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 				&& my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, pView->m_ViewedDist)) == my::IntersectionTests::IntersectionTypeOutside)
 			{
-				return;
+				return true;
 			}
 
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
@@ -254,6 +254,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 			}
+			return true;
 		}
 	};
 
@@ -593,16 +594,18 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					, ret(false)
 				{
 				}
-				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 					if (chunk->m_buff)
 					{
-						if (!ret && pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size()))
+						if (pView->OverlapTestFrustumAndParticles(frustum, local_ftm, emitter, &(*chunk->m_buff)[0], chunk->m_buff->size()))
 						{
 							ret = true;
+							return false;
 						}
 					}
+					return true;
 				}
 			};
 			Callback cb(this, frustum, local_ftm, static_emit_cmp);
@@ -841,7 +844,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					, rayinstid(0)
 				{
 				}
-				virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+				virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 				{
 					StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 					if (chunk->m_buff)
@@ -855,6 +858,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 							rayinstid = part_id;
 						}
 					}
+					return true;
 				}
 			};
 			Callback cb(this, ray, local_ray, static_emit_cmp);
@@ -1024,7 +1028,7 @@ my::RayResult CChildView::OverlapTestRayAndTerrain(const my::Ray & local_ray, co
 			, raychunkid(_raychunkid)
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
 			my::RayResult result;
@@ -1079,6 +1083,7 @@ my::RayResult CChildView::OverlapTestRayAndTerrain(const my::Ray & local_ray, co
 				ret = result;
 				raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
 			}
+			return true;
 		}
 	};
 
@@ -1758,7 +1763,7 @@ ctrl_handle_end:
 				, pView(_pView)
 			{
 			}
-			virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor* actor = dynamic_cast<Actor*>(oct_entity);
 				ASSERT(actor);
@@ -1766,6 +1771,7 @@ ctrl_handle_end:
 				{
 					selacts.push_back(actor);
 				}
+				return true;
 			}
 		};
 		Callback cb(ftm, this);
@@ -1837,7 +1843,7 @@ ctrl_handle_end:
 				, selinstid(0)
 			{
 			}
-			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 			{
 				Actor * actor = dynamic_cast<Actor *>(oct_entity);
 				ASSERT(actor);
@@ -1850,6 +1856,7 @@ ctrl_handle_end:
 					selchunkid = pView->m_raychunkid;
 					selinstid = pView->m_rayinstid;
 				}
+				return true;
 			}
 		};
 		Callback cb(ray, this);

@@ -35,7 +35,7 @@ namespace my
 		struct QueryCallback
 		{
 		public:
-			virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
+			virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType) = 0;
 		};
 
 		OctNode * m_Parent;
@@ -118,13 +118,13 @@ namespace my
 
 		void AddToChild(ChildArray::reference & child, const AABB & child_aabb, OctEntity * entity, const AABB & aabb, float minblock, float threshold);
 
-		void QueryEntity(const Ray & ray, QueryCallback * callback) const;
+		bool QueryEntity(const Ray & ray, QueryCallback * callback) const;
 
-		void QueryEntity(const AABB & aabb, QueryCallback * callback) const;
+		bool QueryEntity(const AABB & aabb, QueryCallback * callback) const;
 
-		void QueryEntity(const Frustum & frustum, QueryCallback * callback) const;
+		bool QueryEntity(const Frustum & frustum, QueryCallback * callback) const;
 
-		void QueryEntityAll(QueryCallback * callback) const;
+		bool QueryEntityAll(QueryCallback * callback) const;
 
 		size_t QueryEntityAllNum(void) const;
 

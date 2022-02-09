@@ -1222,7 +1222,7 @@ void Client::OnFrameTick(
 		{
 		}
 
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
@@ -1230,6 +1230,7 @@ void Client::OnFrameTick(
 			{
 				InsertViewedActor(actor);
 			}
+			return true;
 		}
 
 		void InsertViewedActor(Actor* actor)
@@ -1534,7 +1535,7 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 		{
 		}
 
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_entity));
 
@@ -1544,6 +1545,7 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 			}
+			return true;
 		}
 	};
 
@@ -1738,16 +1740,18 @@ bool Client::Overlap(
 		const physx::PxTransform& pose;
 		const OverlapCallback& callback;
 		int callback_i;
+		unsigned int RealMaxNbTouches;
 
-		Callback(const physx::PxGeometry& _geometry, const physx::PxTransform& _pose, const OverlapCallback& _callback)
+		Callback(const physx::PxGeometry& _geometry, const physx::PxTransform& _pose, const OverlapCallback& _callback, unsigned int _RealMaxNbTouches)
 			: geometry(_geometry)
 			, pose(_pose)
 			, callback(_callback)
 			, callback_i(0)
+			, RealMaxNbTouches(_RealMaxNbTouches)
 		{
 		}
 
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
@@ -1789,11 +1793,12 @@ bool Client::Overlap(
 					my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 				}
 			}
+			return callback_i < RealMaxNbTouches;
 		}
 	};
 
 	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
-	Callback cb(geometry, pose, callback);
+	Callback cb(geometry, pose, callback, MaxNbTouches);
 	physx::PxBounds3 bounds = physx::PxGeometryQuery::getWorldBounds(geometry, pose);
 	QueryEntity((my::AABB&)bounds, &cb);
 

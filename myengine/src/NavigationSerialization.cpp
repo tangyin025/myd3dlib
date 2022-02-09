@@ -214,7 +214,7 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 			, actor(_actor)
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			NavigationTileChunk* chunk = dynamic_cast<NavigationTileChunk*>(oct_entity);
 			const dtMeshTile* tile = mesh->getTile(chunk->m_tileId);
@@ -224,6 +224,7 @@ void Navigation::DebugDraw(struct duDebugDraw * dd, const my::Frustum & frustum,
 			{
 				drawMeshTile(dd, *mesh, query, tile, DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST /*| DU_DRAWNAVMESH_COLOR_TILES*/);
 			}
+			return true;
 		}
 	};
 

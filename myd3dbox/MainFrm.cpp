@@ -841,10 +841,11 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 			, i(0)
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			ActorPtr actor_ptr = dynamic_cast<Actor*>(oct_entity)->shared_from_this();
 			*oa << boost::serialization::make_nvp(str_printf("Actor%d", i++).c_str(), actor_ptr);
+			return true;
 		}
 	} cb(oa);
 	QueryEntityAll(&cb);

@@ -656,7 +656,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, insert_chunk_iter(_terrain->m_ViewedChunks.begin())
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -680,7 +680,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 						RootPrimitiveCount += 2;
 					}
 				}
-				return;
+				return true;
 			}
 
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -726,7 +726,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 						RootPrimitiveCount += 2;
 					}
 				}
-				return;
+				return true;
 			}
 
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -761,6 +761,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					}
 				}
 			}
+			return true;
 		}
 	};
 
@@ -1241,7 +1242,7 @@ my::RayResult TerrainStream::RayTest(const my::Ray& local_ray)
 			, ret(false, FLT_MAX)
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			my::RayResult result;
 			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
@@ -1262,6 +1263,7 @@ my::RayResult TerrainStream::RayTest(const my::Ray& local_ray)
 			{
 				ret = result;
 			}
+			return true;
 		}
 	};
 

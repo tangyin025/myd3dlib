@@ -222,7 +222,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			, insert_chunk_iter(_emit_cmp->m_ViewedChunks.begin())
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -232,7 +232,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 			if (chunk->m_Lod >= 1)
 			{
-				return;
+				return true;
 			}
 
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
@@ -267,6 +267,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			{
 				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size(), NULL, 0);
 			}
+			return true;
 		}
 	};
 
@@ -404,7 +405,7 @@ my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float
 			, nearest_particle(NULL)
 		{
 		}
-		virtual void OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			StaticEmitterChunk * chunk = dynamic_cast<StaticEmitterChunk *>(oct_entity);
 			StaticEmitterChunkBuffer * buff = estr.GetBuffer(chunk->m_Row, chunk->m_Col);
@@ -419,6 +420,7 @@ my::Emitter::Particle * StaticEmitterStream::GetNearestParticle2D(float x, float
 					nearest_particle = &(*part_iter);
 				}
 			}
+			return true;
 		}
 	};
 

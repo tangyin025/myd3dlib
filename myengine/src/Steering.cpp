@@ -128,7 +128,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		{
 		}
 
-		virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
@@ -145,6 +145,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 					neighbors.push_back(neighbor);
 				}
 			}
+			return true;
 		}
 	};
 

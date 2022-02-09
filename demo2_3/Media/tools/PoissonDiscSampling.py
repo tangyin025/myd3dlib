@@ -21,6 +21,7 @@ p=numpy.array([0,0])
 turtle.goto(p)
 queue=[p]
 grid={(0,0):p}
+turtle.dot(3)
 turtle.write(len(grid),False,"center")
 inner=50
 cellsize=inner*math.sqrt(0.5)
@@ -51,6 +52,7 @@ while len(queue)>0:
             grid[(gx,gy)]=p
             queue.append(p)
             turtle.goto(p)
+            turtle.dot(3)
             turtle.write(len(grid),False,"center")
 
 # 输出统计信息

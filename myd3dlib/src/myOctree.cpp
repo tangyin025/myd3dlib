@@ -142,7 +142,7 @@ void OctNode::AddToChild(ChildArray::reference & child, const AABB & child_aabb,
 	child->OctNode::AddEntity(entity, aabb, minblock, threshold);
 }
 
-void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
+bool OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 {
 #ifdef _DEBUG
 	const_cast<bool&>(m_QueryEntityMuted) = true;
@@ -158,7 +158,10 @@ void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 	{
 		if (IntersectionTests::rayAndAABB(ray.p, ray.d, entity_iter->second).first)
 		{
-			callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeRay);
+			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeRay))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -169,13 +172,17 @@ void OctNode::QueryEntity(const Ray & ray, QueryCallback * callback) const
 		{
 			if (IntersectionTests::rayAndAABB(ray.p, ray.d, *(*node_iter)).first)
 			{
-				(*node_iter)->QueryEntity(ray, callback);
+				if (!(*node_iter)->QueryEntity(ray, callback))
+				{
+					return false;
+				}
 			}
 		}
 	}
+	return true;
 }
 
-void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
+bool OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 {
 #ifdef _DEBUG
 	const_cast<bool&>(m_QueryEntityMuted) = true;
@@ -194,7 +201,10 @@ void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type);
+			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type))
+			{
+				return false;
+			}
 			break;
 		}
 	}
@@ -207,18 +217,25 @@ void OctNode::QueryEntity(const AABB & aabb, QueryCallback * callback) const
 			switch (IntersectionTests::IntersectAABBAndAABB(*(*node_iter), aabb))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				(*node_iter)->QueryEntityAll(callback);
+				if (!(*node_iter)->QueryEntityAll(callback))
+				{
+					return false;
+				}
 				break;
 
 			case IntersectionTests::IntersectionTypeIntersect:
-				(*node_iter)->QueryEntity(aabb, callback);
+				if (!(*node_iter)->QueryEntity(aabb, callback))
+				{
+					return false;
+				}
 				break;
 			}
 		}
 	}
+	return true;
 }
 
-void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) const
+bool OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) const
 {
 #ifdef _DEBUG
 	const_cast<bool&>(m_QueryEntityMuted) = true;
@@ -237,7 +254,10 @@ void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type);
+			if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, intersect_type))
+			{
+				return false;
+			}
 			break;
 		}
 	}
@@ -250,18 +270,25 @@ void OctNode::QueryEntity(const Frustum & frustum, QueryCallback * callback) con
 			switch (IntersectionTests::IntersectAABBAndFrustum(*(*node_iter), frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				(*node_iter)->QueryEntityAll(callback);
+				if (!(*node_iter)->QueryEntityAll(callback))
+				{
+					return false;
+				}
 				break;
 
 			case IntersectionTests::IntersectionTypeIntersect:
-				(*node_iter)->QueryEntity(frustum, callback);
+				if (!(*node_iter)->QueryEntity(frustum, callback))
+				{
+					return false;
+				}
 				break;
 			}
 		}
 	}
+	return true;
 }
 
-void OctNode::QueryEntityAll(QueryCallback * callback) const
+bool OctNode::QueryEntityAll(QueryCallback * callback) const
 {
 #ifdef _DEBUG
 	const_cast<bool&>(m_QueryEntityMuted) = true;
@@ -275,7 +302,10 @@ void OctNode::QueryEntityAll(QueryCallback * callback) const
 	OctEntityMap::const_iterator entity_iter = m_Entities.begin();
 	for(; entity_iter != m_Entities.end(); entity_iter++)
 	{
-		callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeInside);
+		if (!callback->OnQueryEntity(entity_iter->first, entity_iter->second, IntersectionTests::IntersectionTypeInside))
+		{
+			return false;
+		}
 	}
 
 	ChildArray::const_iterator node_iter = m_Childs.begin();
@@ -283,9 +313,13 @@ void OctNode::QueryEntityAll(QueryCallback * callback) const
 	{
 		if (*node_iter)
 		{
-			(*node_iter)->QueryEntityAll(callback);
+			if (!(*node_iter)->QueryEntityAll(callback))
+			{
+				return false;
+			}
 		}
 	}
+	return true;
 }
 
 size_t OctNode::QueryEntityAllNum(void) const

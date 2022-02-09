@@ -299,13 +299,13 @@ public:
 				, walkableThr(_walkableThr)
 			{
 			}
-			virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+			virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 			{
 				const Actor* actor = dynamic_cast<Actor*>(oct_entity);
 				ASSERT(actor);
 				if (!actor->m_PxActor || !actor->m_PxActor->is<physx::PxRigidStatic>())
 				{
-					return;
+					return true;
 				}
 				Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
 				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
@@ -471,7 +471,7 @@ public:
 								, tstr(terrain)
 							{
 							}
-							virtual void OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+							virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 							{
 								TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
 								for (int m = 0; m < (int)tstr.m_terrain->m_ChunkSize; m++)
@@ -489,6 +489,7 @@ public:
 										rcRasterizeTriangle(m_ctx, &v3.x, &v1.x, &v2.x, Normal[1].y > walkableThr ? RC_WALKABLE_AREA : 0, *ptask->m_solid, ptask->m_cfg.walkableClimb);
 									}
 								}
+								return true;
 							}
 						};
 						Terrain* terrain = dynamic_cast<Terrain*>(cmp_iter->get());
@@ -502,6 +503,7 @@ public:
 					}
 					}
 				}
+				return true;
 			}
 		};
 
