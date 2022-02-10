@@ -3746,7 +3746,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertyTerrainChunkLodScale:
 	{
-		Terrain* terrain = (Terrain*)pProp->GetParent()->GetValue().pullVal;
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().pulVal;
 		terrain->m_ChunkLodScale = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -3754,11 +3754,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	}
 	case PropertyTerrainHeightMap:
 	{
-		CMFCPropertyGridProperty * pComponent = pProp->GetParent();
-		Terrain * terrain = (Terrain *)pComponent->GetValue().pulVal;
-		unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+		Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().pulVal;
 		ImportHeightDlg dlg;
-		dlg.m_AssetPath = pComponent->GetSubItem(PropId + 4)->GetValue().bstrVal;
+		dlg.m_AssetPath = pProp->GetValue().bstrVal;
 		if (!dlg.m_AssetPath.IsEmpty())
 		{
 			TerrainStream tstr(terrain);
