@@ -4,8 +4,10 @@ import random
 import math
 
 # 绘制矩形框
-rect=(-300,-300,300,300)
+rect=(-500,-500,500,500)
 turtle.speed("fastest")
+turtle.delay(0)
+turtle.tracer(False)
 turtle.up()
 turtle.goto(rect[0],rect[1])
 turtle.down()
@@ -58,4 +60,5 @@ while len(queue)>0:
 # 输出统计信息
 turtle.goto(rect[0]-50,0)
 turtle.write("total:%d"%(len(grid)),False,"center")
+turtle.getcanvas().postscript(file="aaa.eps")
 turtle.done()

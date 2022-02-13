@@ -44,6 +44,8 @@ public:
 	std::string default_specular_texture;
 	std::string default_shader;
 	std::string default_terrain_shader;
+	float default_terrain_max_height;
+	float default_terrain_water_level;
 	D3DCOLOR default_dialog_color;
 	std::string default_dialog_img;
 	my::Rectangle default_dialog_img_rect;

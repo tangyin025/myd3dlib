@@ -15,8 +15,8 @@ ImportHeightDlg::ImportHeightDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG3, pParent)
 	, m_AssetPath(_T(""))
 	, m_TerrainSize(513)
-	, m_MaxHeight(2625)
-	, m_WaterLevel(1150)
+	, m_MaxHeight(theApp.default_terrain_max_height)
+	, m_WaterLevel(theApp.default_terrain_water_level)
 {
 
 }
