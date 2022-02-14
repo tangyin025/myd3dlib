@@ -22,7 +22,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_AssetPath;
-	int m_TerrainSize;
+	CSize m_TerrainSize;
 	float m_MaxHeight;
 	float m_WaterLevel;
 };

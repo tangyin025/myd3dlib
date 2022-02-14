@@ -14,7 +14,7 @@ IMPLEMENT_DYNAMIC(ImportHeightDlg, CDialogEx)
 ImportHeightDlg::ImportHeightDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG3, pParent)
 	, m_AssetPath(_T(""))
-	, m_TerrainSize(513)
+	, m_TerrainSize(513, 513)
 	, m_MaxHeight(theApp.default_terrain_max_height)
 	, m_WaterLevel(theApp.default_terrain_water_level)
 {
@@ -29,9 +29,10 @@ void ImportHeightDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_AssetPath);
-	DDX_Text(pDX, IDC_EDIT2, m_TerrainSize);
-	DDX_Text(pDX, IDC_EDIT3, m_MaxHeight);
-	DDX_Text(pDX, IDC_EDIT4, m_WaterLevel);
+	DDX_Text(pDX, IDC_EDIT2, m_TerrainSize.cx);
+	DDX_Text(pDX, IDC_EDIT3, m_TerrainSize.cy);
+	DDX_Text(pDX, IDC_EDIT4, m_MaxHeight);
+	DDX_Text(pDX, IDC_EDIT5, m_WaterLevel);
 }
 
 

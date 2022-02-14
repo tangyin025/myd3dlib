@@ -3759,26 +3759,32 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		dlg.m_AssetPath = pProp->GetValue().bstrVal;
 		if (!dlg.m_AssetPath.IsEmpty())
 		{
-			TerrainStream tstr(terrain);
-			my::IStreamPtr istr = my::FileIStream::Open(dlg.m_AssetPath);
-			dlg.m_TerrainSize = (int)sqrt(istr->GetSize() / sizeof(unsigned short));
+			my::Texture2D tex;
+			tex.CreateTextureFromFile(dlg.m_AssetPath);
+			D3DSURFACE_DESC desc = tex.GetLevelDesc(0);
+			if (desc.Format != D3DFMT_L16)
+			{
+				MessageBox(_T("desc.Format != D3DFMT_L16"));
+				return 0;
+			}
+			dlg.m_TerrainSize.SetSize(desc.Width, desc.Height);
 			if (dlg.DoModal() != IDOK)
 			{
 				return 0;
 			}
-			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); i++)
+			D3DLOCKED_RECT lrc = tex.LockRect(NULL, D3DLOCK_READONLY, 0);
+			boost::multi_array_ref<WORD, 2> pixel((WORD*)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(WORD)]);
+			TerrainStream tstr(terrain);
+			for (int i = 0; i < my::Min<int>(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cy); i++)
 			{
-				istr->seek(i* dlg.m_TerrainSize * sizeof(unsigned short), SEEK_SET);
-				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); j++)
+				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cx); j++)
 				{
-					unsigned short r16;
-					istr->read(&r16, sizeof(r16));
-					tstr.SetPos(my::Vector3(j, ((float)r16 / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i), i, j, false);
+					tstr.SetPos(my::Vector3(j, ((float)pixel[i][j] / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i), i, j, false);
 				}
 			}
-			for (int i = 0; i < my::Min(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); i++)
+			for (int i = 0; i < my::Min<int>(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cy); i++)
 			{
-				for (int j = 0; j < my::Min(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize); j++)
+				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cx); j++)
 				{
 					const my::Vector3 pos = tstr.GetPos(i, j);
 					const my::Vector3 Dirs[4] = {
@@ -3797,7 +3803,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					tstr.SetNormal(Normal, i, j);
 				}
 			}
-			istr.reset();
+			tex.UnlockRect(0);
 			tstr.Release();
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
@@ -3818,7 +3824,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			TerrainStream tstr(terrain);
 			my::Texture2D tex;
 			tex.CreateTextureFromFile(strPath, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, 1, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
-			D3DSURFACE_DESC desc = tex.GetLevelDesc();
+			D3DSURFACE_DESC desc = tex.GetLevelDesc(0);
 			if (desc.Format != D3DFMT_A8R8G8B8 && desc.Format != D3DFMT_X8R8G8B8)
 			{
 				MessageBox(_T("desc.Format != D3DFMT_A8R8G8B8 && desc.Format != D3DFMT_X8R8G8B8"));
