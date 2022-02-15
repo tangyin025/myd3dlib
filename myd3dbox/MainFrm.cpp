@@ -32,6 +32,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/range/algorithm/find_if.hpp>
+#include "DeleteCmpsDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1501,6 +1502,20 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
+	if (m_selactors.size() == 1 && m_selactors.front()->m_Cmps.size() > 1)
+	{
+		CDeleteCmpsDlg dlg;
+		if (dlg.DoModal() != IDOK)
+		{
+			return;
+		}
+
+		if (m_selactors.front()->m_Cmps.size() > 0)
+		{
+			return;
+		}
+	}
+
 	typedef std::list<my::Control*> ControlLink;
 	ControlLink delctls(m_selctls.begin(), m_selctls.end());
 	ControlLink::iterator first_iter = boost::find_if(delctls,

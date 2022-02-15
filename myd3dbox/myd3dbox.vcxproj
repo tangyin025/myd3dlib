@@ -222,6 +222,7 @@
   <ItemGroup>
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CtrlProps.cpp" />
+    <ClCompile Include="DeleteCmpsDlg.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
     <ClCompile Include="EnvironmentWnd.cpp" />
     <ClCompile Include="ImportHeightDlg.cpp" />
@@ -247,6 +248,7 @@
   <ItemGroup>
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CtrlProps.h" />
+    <ClInclude Include="DeleteCmpsDlg.h" />
     <ClInclude Include="DragableTreeCtrl.h" />
     <ClInclude Include="EnvironmentWnd.h" />
     <ClInclude Include="ImportHeightDlg.h" />

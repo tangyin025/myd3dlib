@@ -36,6 +36,7 @@
 #define IDD_DIALOG4                     314
 #define IDD_DIALOG5                     316
 #define IDR_POPUP_SCRIPT                317
+#define IDD_DIALOG6                     318
 #define IDC_EDIT1                       1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT3                       1002
@@ -72,6 +73,7 @@
 #define IDC_EDIT19                      1029
 #define IDC_BUTTON4                     1030
 #define IDC_EDIT20                      1031
+#define IDC_LIST1                       1032
 #define ID_CREATE_COMPONENT             32771
 #define ID_COMPONENT_MESH               32772
 #define ID_COMPONENT_STATICEMITTER      32773
@@ -121,7 +123,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
 #define _APS_NEXT_COMMAND_VALUE         32813
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
