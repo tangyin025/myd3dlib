@@ -29,6 +29,8 @@ void CDeleteCmpsDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CDeleteCmpsDlg, CDialogEx)
+	ON_BN_CLICKED(IDC_BUTTON1, &CDeleteCmpsDlg::OnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CDeleteCmpsDlg::OnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -77,4 +79,24 @@ void CDeleteCmpsDlg::OnOK()
 	}
 
 	CDialogEx::OnOK();
+}
+
+
+void CDeleteCmpsDlg::OnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	for (int nItem = m_listCtrl.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listCtrl.SetCheck(nItem, TRUE);
+	}
+}
+
+
+void CDeleteCmpsDlg::OnClickedButton2()
+{
+	// TODO: Add your control notification handler code here
+	for (int nItem = m_listCtrl.GetItemCount() - 1; nItem >= 0; nItem--)
+	{
+		m_listCtrl.SetCheck(nItem, FALSE);
+	}
 }
