@@ -87,6 +87,14 @@ void CNavigationDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CNavigationDlg, CDialogEx)
+	ON_EN_CHANGE(IDC_EDIT1, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT2, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT3, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT4, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT5, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT6, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT7, &CNavigationDlg::OnChangeEdit7)
+	ON_EN_CHANGE(IDC_EDIT20, &CNavigationDlg::OnChangeEdit7)
 END_MESSAGE_MAP()
 
 
@@ -98,6 +106,17 @@ void CNavigationDlg::doLog(const rcLogCategory category, const char* msg, const 
 	{
 		theApp.m_EventLog(msg);
 	}
+}
+
+BOOL CNavigationDlg::OnInitDialog()
+{
+	__super::OnInitDialog();
+
+	// TODO:  Add extra initialization here
+	OnChangeEdit7();
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // EXCEPTION: OCX Property Pages should return FALSE
 }
 
 class BuildTileMeshTask : public my::ParallelTask
@@ -800,26 +819,6 @@ void CNavigationDlg::OnOK()
 		return;
 	}
 
-	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-
-	int gw = 0, gh = 0;
-	const float* bmin = &m_bindingBox.m_min.x;
-	const float* bmax = &m_bindingBox.m_max.x;
-	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
-	const int ts = (int)m_tileSize;
-	const int tw = (gw + ts - 1) / ts;
-	const int th = (gh + ts - 1) / ts;
-	const float tcs = m_tileSize * m_cellSize;
-
-	// Max tiles and max polys affect how the tile IDs are caculated.
-	// There are 22 bits available for identifying a tile and a polygon.
-	int tileBits = rcMin((int)ilog2(nextPow2(tw * th)), 14);
-	if (tileBits > 14) tileBits = 14;
-	int polyBits = 22 - tileBits;
-	m_maxTiles = 1 << tileBits;
-	m_maxPolysPerTile = 1 << polyBits;
-
 	m_navMesh.reset(dtAllocNavMesh(), dtFreeNavMesh);
 	if (!m_navMesh)
 	{
@@ -842,6 +841,17 @@ void CNavigationDlg::OnOK()
 		this->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
 		return;
 	}
+
+	const float* bmin = &m_bindingBox.m_min.x;
+	const float* bmax = &m_bindingBox.m_max.x;
+	int gw = 0, gh = 0;
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+	const int ts = (int)m_tileSize;
+	const int tw = (gw + ts - 1) / ts;
+	const int th = (gh + ts - 1) / ts;
+	const float tcs = m_tileSize * m_cellSize;
+	ASSERT(m_maxTiles == 1 << rcMin((int)ilog2(nextPow2(tw * th)), 14));
+	ASSERT(m_maxPolysPerTile = 1 << (22 - rcMin((int)ilog2(nextPow2(tw * th)), 14)));
 
 	// Start the build process.
 	this->startTimer(RC_TIMER_TEMP);
@@ -907,4 +917,44 @@ void CNavigationDlg::OnOK()
 	duLogBuildTimes(*this, this->getAccumulatedTime(RC_TIMER_TOTAL));
 
 	CDialogEx::OnOK();
+}
+
+
+void CNavigationDlg::OnChangeEdit7()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the __super::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	// TODO:  Add your control notification handler code here
+	CDataExchange dx(this, TRUE);
+	DDX_Text(&dx, IDC_EDIT1, m_bindingBox.m_min.x);
+	DDX_Text(&dx, IDC_EDIT2, m_bindingBox.m_min.y);
+	DDX_Text(&dx, IDC_EDIT3, m_bindingBox.m_min.z);
+	DDX_Text(&dx, IDC_EDIT4, m_bindingBox.m_max.x);
+	DDX_Text(&dx, IDC_EDIT5, m_bindingBox.m_max.y);
+	DDX_Text(&dx, IDC_EDIT6, m_bindingBox.m_max.z);
+	DDX_Text(&dx, IDC_EDIT7, m_cellSize);
+	DDX_Text(&dx, IDC_EDIT20, m_tileSize); // may exception catched by out AfxCallWndProc
+
+	int gw = 0, gh = 0;
+	const float* bmin = &m_bindingBox.m_min.x;
+	const float* bmax = &m_bindingBox.m_max.x;
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+	const int ts = (int)m_tileSize;
+	const int tw = (gw + ts - 1) / ts;
+	const int th = (gh + ts - 1) / ts;
+
+	// Max tiles and max polys affect how the tile IDs are caculated.
+	// There are 22 bits available for identifying a tile and a polygon.
+	int tileBits = rcMin((int)ilog2(nextPow2(tw * th)), 14);
+	if (tileBits > 14) tileBits = 14;
+	int polyBits = 22 - tileBits;
+	m_maxTiles = 1 << tileBits;
+	m_maxPolysPerTile = 1 << polyBits;
+
+	CString strText;
+	strText.Format(_T("Tiles  %d x %d\nMax Tiles  %d\nMax Polys  %d"), tw, th, m_maxTiles, m_maxPolysPerTile);
+	SetDlgItemText(IDC_STATIC5, strText);
 }

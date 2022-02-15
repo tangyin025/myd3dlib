@@ -49,6 +49,7 @@ protected:
 	virtual int doGetAccumulatedTime(const rcTimerLabel /*label*/) const { return -1; }
 
 	DECLARE_MESSAGE_MAP()
+	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 public:
 	my::AABB m_bindingBox;
@@ -72,4 +73,5 @@ public:
 	int m_maxTiles;
 	int m_maxPolysPerTile;
 	float m_tileSize;
+	afx_msg void OnChangeEdit7();
 };
