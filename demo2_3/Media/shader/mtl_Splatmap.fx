@@ -1,12 +1,16 @@
 
 texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Red.dds";>;
 texture g_NormalTexture0:MaterialParameter<string Initialize="texture/Normal.dds";>;
+texture g_SpecularTexture0:MaterialParameter<string Initialize="texture/White.dds";>;
 texture g_DiffuseTexture1:MaterialParameter<string Initialize="texture/Green.dds";>;
 texture g_NormalTexture1:MaterialParameter<string Initialize="texture/Normal.dds";>;
+texture g_SpecularTexture1:MaterialParameter<string Initialize="texture/White.dds";>;
 texture g_DiffuseTexture2:MaterialParameter<string Initialize="texture/Blue.dds";>;
 texture g_NormalTexture2:MaterialParameter<string Initialize="texture/Normal.dds";>;
+texture g_SpecularTexture2:MaterialParameter<string Initialize="texture/White.dds";>;
 texture g_DiffuseTexture3:MaterialParameter<string Initialize="texture/Checker.bmp";>;
 texture g_NormalTexture3:MaterialParameter<string Initialize="texture/Normal.dds";>;
+texture g_SpecularTexture3:MaterialParameter<string Initialize="texture/White.dds";>;
 float g_Shininess:MaterialParameter = 25;
 float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 
@@ -26,6 +30,16 @@ sampler NormalTextureSampler0 = sampler_state
 	MagFilter = LINEAR;
 };
 
+sampler SpecularTextureSampler0 = sampler_state
+{
+	Texture = <g_SpecularTexture0>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+};
+
 sampler DiffuseTextureSampler1 = sampler_state
 {
     Texture = <g_DiffuseTexture1>;
@@ -40,6 +54,16 @@ sampler NormalTextureSampler1 = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+};
+
+sampler SpecularTextureSampler1 = sampler_state
+{
+	Texture = <g_SpecularTexture1>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler DiffuseTextureSampler2 = sampler_state
@@ -58,6 +82,16 @@ sampler NormalTextureSampler2 = sampler_state
 	MagFilter = LINEAR;
 };
 
+sampler SpecularTextureSampler2 = sampler_state
+{
+	Texture = <g_SpecularTexture2>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+};
+
 sampler DiffuseTextureSampler3 = sampler_state
 {
     Texture = <g_DiffuseTexture3>;
@@ -72,6 +106,16 @@ sampler NormalTextureSampler3 = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+};
+
+sampler SpecularTextureSampler3 = sampler_state
+{
+	Texture = <g_SpecularTexture3>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 struct SHADOW_VS_OUTPUT
@@ -167,16 +211,29 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	float3 Ref = Reflection(Normal, In.ViewVS);
 	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
 	float4 Diffuse = float4(0,0,0,0);
+	float3 Specular = float3(0,0,0);
 	if (In.Color.r >= 0.004)
+	{
 		Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.r;
+		Specular += tex2D(SpecularTextureSampler0, In.Tex0).xyz;
+	}
 	if (In.Color.g >= 0.004)
+	{
 		Diffuse += tex2D(DiffuseTextureSampler1, In.Tex0) * In.Color.g;
+		Specular += tex2D(SpecularTextureSampler1, In.Tex0).xyz;
+	}
 	if (In.Color.b >= 0.004)
+	{
 		Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.b;
+		Specular += tex2D(SpecularTextureSampler2, In.Tex0).xyz;
+	}
 	if (In.Color.a >= 0.004)
+	{
 		Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.a;
+		Specular += tex2D(SpecularTextureSampler3, In.Tex0).xyz;
+	}
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Diffuse.a * (ScreenLight.w + SkySpecular);
+	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
     return float4(Final, 1);
 }
 
