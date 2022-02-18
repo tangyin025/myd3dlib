@@ -215,22 +215,22 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	if (In.Color.r >= 0.004)
 	{
 		Diffuse += tex2D(DiffuseTextureSampler0, In.Tex0) * In.Color.r;
-		Specular += tex2D(SpecularTextureSampler0, In.Tex0).xyz;
+		Specular += tex2D(SpecularTextureSampler0, In.Tex0).xyz * In.Color.r;
 	}
 	if (In.Color.g >= 0.004)
 	{
 		Diffuse += tex2D(DiffuseTextureSampler1, In.Tex0) * In.Color.g;
-		Specular += tex2D(SpecularTextureSampler1, In.Tex0).xyz;
+		Specular += tex2D(SpecularTextureSampler1, In.Tex0).xyz * In.Color.g;
 	}
 	if (In.Color.b >= 0.004)
 	{
 		Diffuse += tex2D(DiffuseTextureSampler2, In.Tex0) * In.Color.b;
-		Specular += tex2D(SpecularTextureSampler2, In.Tex0).xyz;
+		Specular += tex2D(SpecularTextureSampler2, In.Tex0).xyz * In.Color.b;
 	}
 	if (In.Color.a >= 0.004)
 	{
 		Diffuse += tex2D(DiffuseTextureSampler3, In.Tex0) * In.Color.a;
-		Specular += tex2D(SpecularTextureSampler3, In.Tex0).xyz;
+		Specular += tex2D(SpecularTextureSampler3, In.Tex0).xyz * In.Color.a;
 	}
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = Diffuse.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
