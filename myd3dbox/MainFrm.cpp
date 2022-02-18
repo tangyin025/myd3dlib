@@ -1476,8 +1476,8 @@ void CMainFrame::OnComponentTerrain()
 	{
 		my::Vector3 center = dlg.m_terrain->Center();
 		(*actor_iter)->m_Scale = dlg.m_ActorScale;
-		(*actor_iter)->m_Position.x -= center.x * (*actor_iter)->m_Scale.x;
-		(*actor_iter)->m_Position.z -= center.z * (*actor_iter)->m_Scale.z;
+		(*actor_iter)->m_Position.x = -center.x * (*actor_iter)->m_Scale.x;
+		(*actor_iter)->m_Position.z = -center.z * (*actor_iter)->m_Scale.z;
 		(*actor_iter)->UpdateWorld();
 		// TODO: update pxactor, ref Actor::SetPose
 	}
@@ -1512,6 +1512,14 @@ void CMainFrame::OnEditDelete()
 
 		if (m_selactors.front()->m_Cmps.size() > 0)
 		{
+			if (m_selactors.front()->m_Cmps.end() == boost::find_if(m_selactors.front()->m_Cmps,
+				boost::bind(std::equal_to<Component*>(), m_selcmp, boost::bind(&ComponentPtr::get, boost::placeholders::_1))))
+			{
+				m_selcmp = NULL;
+				m_selchunkid.SetPoint(0, 0);
+				m_selinstid = 0;
+			}
+			OnSelChanged();
 			return;
 		}
 	}
