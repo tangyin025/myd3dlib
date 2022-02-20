@@ -183,9 +183,9 @@ void PhysxScene::TickPreRender(float dtime)
 
 	mTriggerPairs.clear();
 
-	m_WaitForResults = Advance(dtime);
-
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
+
+	m_WaitForResults = Advance(dtime);
 }
 
 void PhysxScene::TickPostRender(float dtime)
@@ -193,6 +193,8 @@ void PhysxScene::TickPostRender(float dtime)
 	if(m_WaitForResults)
 	{
 		m_Sync.Wait(INFINITE);
+
+		PhysxSdk::getSingleton().m_RenderTickMuted = false;
 
 		const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(mActiveTransformCount, 0);
 		mBufferedActiveTransforms.resize(mActiveTransformCount);
@@ -258,8 +260,10 @@ void PhysxScene::TickPostRender(float dtime)
 			}
 		}
 	}
-
-	PhysxSdk::getSingleton().m_RenderTickMuted = false;
+	else
+	{
+		PhysxSdk::getSingleton().m_RenderTickMuted = false;
+	}
 }
 
 bool PhysxScene::Advance(float dtime)
