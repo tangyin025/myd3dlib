@@ -113,7 +113,7 @@ public:
 
 	my::D3DVertexElementSet m_VertexElems;
 
-	static const DWORD m_VertexStride = 12 + 4 + 4;
+	static const DWORD m_VertexStride = 12 + 12 + 4;
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
@@ -215,7 +215,7 @@ public:
 
 	void SetNormal(const my::Vector3& Normal, int i, int j);
 
-	void SetNormal(D3DCOLOR dw, int k, int l, int m, int n);
+	void SetNormal(const my::Vector3& Normal, int k, int l, int m, int n);
 
 	my::RayResult RayTest(const my::Ray& local_ray);
 };

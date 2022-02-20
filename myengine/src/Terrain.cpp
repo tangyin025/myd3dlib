@@ -240,8 +240,8 @@ Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize,
 		{
 			unsigned char * pVertex = (unsigned char *)pVertices + (i * (m_ColChunks * m_MinChunkLodSize + 1) + j) * m_VertexStride;
 			m_VertexElems.SetPosition(pVertex, Vector3((float)j * m_ChunkSize / m_MinChunkLodSize, 0, (float)i * m_ChunkSize / m_MinChunkLodSize), 0);
+			m_VertexElems.SetNormal(pVertex, Vector3(0, 1, 0), 0);
 			m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 0, 0, 0), 0);
-			m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
 		}
 	}
 	m_rootVb.Unlock();
@@ -277,9 +277,9 @@ void Terrain::CreateElements(void)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
+	m_VertexElems.InsertNormalElement(offset, 0);
+	offset += sizeof(Vector3);
 	m_VertexElems.InsertColorElement(offset, 0);
-	offset += sizeof(D3DCOLOR);
-	m_VertexElems.InsertColorElement(offset, 1);
 	offset += sizeof(D3DCOLOR);
 	_ASSERT(m_VertexStride == offset);
 }
@@ -612,7 +612,7 @@ void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LP
 
 	shader->SetMatrix(handle_World, m_Actor->m_World);
 
-	shader->SetVector(handle_TerrainSize, Vector2(m_RowChunks * m_ChunkSize, m_ColChunks * m_ChunkSize));
+	shader->SetVector(handle_TerrainSize, Vector2(m_ColChunks * m_ChunkSize, m_RowChunks * m_ChunkSize));
 }
 
 void Terrain::Update(float fElapsedTime)
@@ -1027,8 +1027,8 @@ my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 						{
 							char* pVertex = &buff[0] + m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride;
 							m_terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)l * m_terrain->m_ChunkSize + n, 0, (float)k * m_terrain->m_ChunkSize + m), 0);
+							m_terrain->m_VertexElems.SetNormal(pVertex, Vector3(0, 1, 0), 0);
 							m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 0, 0, 0), 0);
-							m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_COLORVALUE(0.5f, 1.0f, 0.5f, 0.0f), 1);
 						}
 					}
 					ofs.write(&buff[0], buff.size());
@@ -1175,56 +1175,51 @@ void TerrainStream::SetColor(D3DCOLOR Color, int k, int l, int m, int n)
 
 my::Vector3 TerrainStream::GetNormal(int i, int j)
 {
-	D3DCOLOR ret;
+	my::Vector3 ret;
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
-	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][1].Offset;
+	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
 	void* pbuff = vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
-	ret = *(D3DCOLOR*)pbuff;
+	ret = *(my::Vector3*)pbuff;
 	vb->Unlock();
-	const float f = 1.0f / 255.0f;
-	return my::Vector3(
-		f * (float)(unsigned char)(ret >> 16),
-		f * (float)(unsigned char)(ret >> 8),
-		f * (float)(unsigned char)(ret >> 0)) * 2.0f - 1.0f;
+	return ret;
 }
 
 void TerrainStream::SetNormal(const my::Vector3& Normal, int i, int j)
 {
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
-	D3DCOLOR dw = D3DCOLOR_COLORVALUE((Normal.x + 1.0f) * 0.5f, (Normal.y + 1.0f) * 0.5f, (Normal.z + 1.0f) * 0.5f, 0);
-	SetNormal(dw, k, l, m, n);
+	SetNormal(Normal, k, l, m, n);
 
 	if (m == 0 && k > 0)
 	{
-		SetNormal(dw, k - 1, l, m_terrain->m_ChunkSize, n);
+		SetNormal(Normal, k - 1, l, m_terrain->m_ChunkSize, n);
 	}
 
 	if (n == 0 && l > 0)
 	{
-		SetNormal(dw, k, l - 1, m, m_terrain->m_ChunkSize);
+		SetNormal(Normal, k, l - 1, m, m_terrain->m_ChunkSize);
 	}
 
 	if (m == 0 && k > 0 && n == 0 && l > 0)
 	{
-		SetNormal(dw, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
+		SetNormal(Normal, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
 	}
 
 	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0)
 	{
-		m_terrain->m_VertexElems.SetColor((unsigned char*)m_terrain->m_rootVb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks * m_terrain->m_MinChunkLodSize + 1) + p) * m_terrain->m_VertexStride, dw, 1);
+		m_terrain->m_VertexElems.SetNormal((unsigned char*)m_terrain->m_rootVb.Lock(0, 0, 0) + (o * (m_terrain->m_ColChunks * m_terrain->m_MinChunkLodSize + 1) + p) * m_terrain->m_VertexStride, Normal, 0);
 		m_terrain->m_rootVb.Unlock();
 	}
 }
 
-void TerrainStream::SetNormal(D3DCOLOR dw, int k, int l, int m, int n)
+void TerrainStream::SetNormal(const my::Vector3& Normal, int k, int l, int m, int n)
 {
-	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][1].Offset;
+	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
-	void* pbuff = vb->Lock(off, sizeof(dw), 0);
-	*(D3DCOLOR*)pbuff = dw;
+	void* pbuff = vb->Lock(off, sizeof(Normal), 0);
+	*(my::Vector3*)pbuff = Normal;
 	vb->Unlock();
 	m_VertDirty[k][l] = true;
 }
