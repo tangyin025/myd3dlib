@@ -838,17 +838,20 @@ void Mesh::ComputeTangentFrame(
 		float t1 = w2.y - w1.y;
 		float t2 = w3.y - w1.y;
 
-		float r = 1.0F / (s1 * t2 - s2 * t1);
-		Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
-		Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+		if (s1 * t2 - s2 * t1 > EPSILON_E12)
+		{
+			float r = 1.0F / (s1 * t2 - s2 * t1);
+			Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+			Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
 
-		tan1[i1] += sdir;
-		tan1[i2] += sdir;
-		tan1[i3] += sdir;
+			tan1[i1] += sdir;
+			tan1[i2] += sdir;
+			tan1[i3] += sdir;
 
-		tan2[i1] += tdir;
-		tan2[i2] += tdir;
-		tan2[i3] += tdir;
+			tan2[i1] += tdir;
+			tan2[i2] += tdir;
+			tan2[i3] += tdir;
+		}
 	}
 
 	for(DWORD vertex_i = 0; vertex_i < NumVerts; vertex_i++)
@@ -858,7 +861,9 @@ void Mesh::ComputeTangentFrame(
 		const Vector3 & t = tan1[vertex_i];
 
 		// Gram-Schmidt orthogonalize
-		VertexElems.SetTangent(pVertex, (t - n * n.dot(t)).normalize(), 0);
+		Vector3 perpendicular = t - n * n.dot(t);
+		float l = perpendicular.magnitude();
+		VertexElems.SetTangent(pVertex, l > EPSILON_E12 ? perpendicular / l : Vector3(0, 0, 1), 0);
 	}
 }
 
