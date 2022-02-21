@@ -8,15 +8,15 @@
 
 namespace my
 {
-	template <typename NodeT>
+	template <typename NodeT, typename NodePred = std::less<NodeT> >
 	class AStar
 	{
 	public:
-		std::set<NodeT> open;
-		std::set<NodeT> close;
-		std::map<NodeT, float> gscore;
-		std::map<NodeT, float> fscore;
-		std::map<NodeT, NodeT> from;
+		std::set<NodeT, NodePred> open;
+		std::set<NodeT, NodePred> close;
+		std::map<NodeT, float, NodePred> gscore;
+		std::map<NodeT, float, NodePred> fscore;
+		std::map<NodeT, NodeT, NodePred> from;
 
 	public:
 		AStar(void)
@@ -42,15 +42,15 @@ namespace my
 
 			while (!open.empty())
 			{
-				CPoint current = the_node_in_open_having_the_lowest_fScore_value();
+				const NodeT current = the_node_in_open_having_the_lowest_fScore_value();
 				if (current == goal)
 				{
 					return true;
 				}
 				open.erase(current);
 				close.insert(current);
-				std::vector<CPoint> neighbors = get_neighbors(current);
-				std::vector<CPoint>::const_iterator neighbor_iter = neighbors.begin();
+				std::vector<NodeT> neighbors = get_neighbors(current);
+				std::vector<NodeT>::const_iterator neighbor_iter = neighbors.begin();
 				for (; neighbor_iter != neighbors.end(); neighbor_iter++)
 				{
 					if (close.find(*neighbor_iter) != close.end())
@@ -102,8 +102,24 @@ namespace my
 		virtual float dist_between(const NodeT & start, const NodeT & goal) = 0;
 	};
 
+	struct CPointCompare
+	{
+		bool operator() (const CPoint & lhs, const CPoint & rhs) const
+		{
+			if (lhs.x < rhs.x)
+			{
+				return true;
+			}
+			if (lhs.x == rhs.x)
+			{
+				return lhs.y < rhs.y;
+			}
+			return false;
+		}
+	};
+
 	template <typename T>
-	class AStar2D : public AStar<CPoint>
+	class AStar2D : public AStar<CPoint, CPointCompare>
 	{
 	public:
 		boost::multi_array_ref<T, 2> map;
@@ -155,19 +171,4 @@ namespace my
 			return Dist[goal.y - start.y + 1][goal.x - start.x + 1];
 		}
 	};
-}
-
-inline bool operator < (const CPoint & lhs, const CPoint & rhs)
-{
-	if (lhs.x < rhs.x)
-	{
-		return true;
-	}
-
-	if (lhs.x == rhs.x)
-	{
-		return lhs.y < rhs.y;
-	}
-
-	return false;
 }
