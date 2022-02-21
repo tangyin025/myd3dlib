@@ -1465,7 +1465,7 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	CTerrainDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_terrain").c_str()).c_str());
-	dlg.m_ActorScale = (*actor_iter)->m_Scale;
+	dlg.m_ChunkLodScale = (dlg.m_ActorScale = (*actor_iter)->m_Scale).x;
 	if (dlg.DoModal() != IDOK)
 	{
 		return;

@@ -22,6 +22,7 @@ CTerrainDlg::CTerrainDlg(const char * TerrainComponentName, CWnd* pParent /*=NUL
 	, m_AlignToCenter(TRUE)
 	, m_MinChunkLodSize(2)
 	, m_ActorScale(0)
+	, m_ChunkLodScale(0)
 {
 	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name).c_str());
 }
@@ -40,11 +41,13 @@ void CTerrainDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK1, m_AlignToCenter);
 	DDX_Text(pDX, IDC_EDIT5, m_MinChunkLodSize);
 	DDX_Text(pDX, IDC_EDIT6, m_ActorScale.x);
-	DDV_MinMaxFloat(pDX, m_ActorScale.x, EPSILON_E6, FLT_MAX);
+	DDV_MinMaxFloat(pDX, m_ActorScale.x, EPSILON_E12, FLT_MAX);
 	DDX_Text(pDX, IDC_EDIT7, m_ActorScale.y);
-	DDV_MinMaxFloat(pDX, m_ActorScale.y, EPSILON_E6, FLT_MAX);
+	DDV_MinMaxFloat(pDX, m_ActorScale.y, EPSILON_E12, FLT_MAX);
 	DDX_Text(pDX, IDC_EDIT8, m_ActorScale.z);
-	DDV_MinMaxFloat(pDX, m_ActorScale.z, EPSILON_E6, FLT_MAX);
+	DDV_MinMaxFloat(pDX, m_ActorScale.z, EPSILON_E12, FLT_MAX);
+	DDX_Text(pDX, IDC_EDIT9, m_ChunkLodScale);
+	DDV_MinMaxFloat(pDX, m_ChunkLodScale, EPSILON_E12, FLT_MAX);
 }
 
 
@@ -107,6 +110,8 @@ void CTerrainDlg::OnOK()
 
 	m_terrain->m_ChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 
+	m_terrain->m_ChunkLodScale = m_ChunkLodScale;
+
 	TerrainStream tstr(m_terrain.get());
 	tstr.GetPos(0, 0);
 	tstr.Release();
@@ -157,4 +162,5 @@ void CTerrainDlg::OnChangeEdit6()
 	GetDlgItemText(IDC_EDIT6, strText);
 	SetDlgItemText(IDC_EDIT7, strText);
 	SetDlgItemText(IDC_EDIT8, strText);
+	SetDlgItemText(IDC_EDIT9, strText);
 }

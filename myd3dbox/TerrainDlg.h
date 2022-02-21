@@ -36,4 +36,5 @@ public:
 	int m_MinChunkLodSize;
 	my::Vector3 m_ActorScale;
 	afx_msg void OnChangeEdit6();
+	float m_ChunkLodScale;
 };
