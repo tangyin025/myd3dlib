@@ -5,6 +5,7 @@
 #include <boost/multi_array.hpp>
 #include <atlbase.h>
 #include <atltypes.h>
+#include "myMath.h"
 
 namespace my
 {
@@ -151,17 +152,15 @@ namespace my
 		std::vector<CPoint> get_neighbors(const CPoint & pt)
 		{
 			std::vector<CPoint> ret;
-			int i = std::max<int>(pt.x - 1, 0);
-			for (; i <= std::min<int>(pt.x + 1, map.shape()[1] - 1); i++)
+			for (int i = Max<int>(pt.y - 1, 0); i < Min<int>(pt.y + 2, map.shape()[0]); i++)
 			{
-				int j = std::max<int>(pt.y - 1, 0);
-				for (; j <= std::min<int>(pt.y + 1, map.shape()[0] - 1); j++)
+				for (int j = Max<int>(pt.x - 1, 0); j < Min<int>(pt.x + 2, map.shape()[1]); j++)
 				{
-					if (i != pt.x || j != pt.y)
+					if (j != pt.x || i != pt.y)
 					{
-						if (map[j][i] != obstacle)
+						if (map[i][j] != obstacle)
 						{
-							ret.push_back(CPoint(i, j));
+							ret.push_back(CPoint(j, i));
 						}
 					}
 				}

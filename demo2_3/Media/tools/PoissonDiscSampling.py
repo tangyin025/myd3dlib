@@ -72,10 +72,10 @@ class AStar2D(AStar):
         return math.fabs(start[0]-goal[0])+math.fabs(start[1]-goal[1])
     def get_neighbors(self,pos):
         neis=[]
-        for i in range(max(0,pos[0]-1),min(self.graph.shape[0],pos[0]+2)):
-            for j in range(max(0,pos[1]-1),min(self.graph.shape[1],pos[1]+2)):
-                if i!=pos[0] or j!=pos[1]:
-                    neis.append((i,j))
+        for i in range(max(0,pos[1]-1),min(self.graph.shape[1],pos[1]+2)):
+            for j in range(max(0,pos[0]-1),min(self.graph.shape[0],pos[0]+2)):
+                if j!=pos[0] or i!=pos[1]:
+                    neis.append((j,i))
         return neis
     def dist_between(self,start,goal):
         dist=((1.4,1,1.4),(1,1,1),(1.4,1,1.4))
@@ -83,14 +83,8 @@ class AStar2D(AStar):
         assert(math.fabs(start[1]-goal[1])<=1)
         return dist[goal[1]-start[1]+1][goal[0]-start[0]+1]
 
-img=cv2.imread("../../terrain/project2 Height Output 1025.png")
-# finder=AStar2D(img,(577,483),(579,458),25)
-# if finder.solve():
-#     print("success",len(finder.close),len(finder.came_from))
-# else:
-#     print("failed",len(finder.close))
-
 # 鼠标点击处理
+img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 def onmouseclick(x,y):
     posf=turtle.pos()
     pos=(int(posf[0]+img.shape[1]/2),int(posf[1]+img.shape[0]/2))
