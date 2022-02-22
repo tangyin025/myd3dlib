@@ -38,7 +38,7 @@ namespace my
 			from.clear();
 		}
 
-		bool find()
+		bool solve()
 		{
 			cleanup();
 
