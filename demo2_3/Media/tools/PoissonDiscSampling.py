@@ -82,7 +82,7 @@ class AStar2D(AStar):
         dist=((1.4,1,1.4),(1,1,1),(1.4,1,1.4))
         assert(math.fabs(start[0]-goal[0])<=1)
         assert(math.fabs(start[1]-goal[1])<=1)
-        return dist[goal[1]-start[1]+1][goal[0]-start[0]+1]
+        return dist[goal[1]-start[1]+1][goal[0]-start[0]+1]*math.fabs(float(img[goal[1],goal[0],0])-float(img[start[1],start[0],0]))*30
 
 img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 
@@ -90,7 +90,7 @@ img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 def onmouseclick(x,y):
     posf=turtle.pos()
     pos=(int(posf[0]+img.shape[1]/2),int(posf[1]+img.shape[0]/2))
-    finder=AStar2D(img,pos,(int(x+img.shape[1]/2),int(y+img.shape[0]/2)),100000)
+    finder=AStar2D(img,pos,(int(x+img.shape[1]/2),int(y+img.shape[0]/2)),50000)
     if finder.solve():
         pos=finder.goal
         path=[]
