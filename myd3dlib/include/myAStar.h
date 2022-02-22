@@ -12,6 +12,9 @@ namespace my
 	class AStar
 	{
 	public:
+		const NodeT start;
+		const NodeT goal;
+		const size_t limit;
 		std::set<NodeT, NodePred> open;
 		std::set<NodeT, NodePred> close;
 		std::map<NodeT, float, NodePred> gscore;
@@ -19,7 +22,10 @@ namespace my
 		std::map<NodeT, NodeT, NodePred> from;
 
 	public:
-		AStar(void)
+		AStar(const NodeT & _start, const NodeT & _goal, size_t _limit)
+			: start(_start)
+			, goal(_goal)
+			, limit(_limit)
 		{
 		}
 
@@ -32,7 +38,7 @@ namespace my
 			from.clear();
 		}
 
-		bool find(const NodeT & start, const NodeT & goal)
+		bool find()
 		{
 			cleanup();
 
@@ -46,6 +52,10 @@ namespace my
 				if (current == goal)
 				{
 					return true;
+				}
+				else if (close.size() > limit)
+				{
+					return false;
 				}
 				open.erase(current);
 				close.insert(current);
@@ -126,8 +136,9 @@ namespace my
 		T obstacle;
 
 	public:
-		AStar2D(int height, int pitch, T * pBits, T _obstacle)
-			: map(pBits, boost::extents[height][pitch / sizeof(T)])
+		AStar2D(int height, int pitch, T * pBits, T _obstacle, const CPoint & start, const CPoint & goal, size_t limit)
+			: AStar(start, goal, limit)
+			, map(pBits, boost::extents[height][pitch / sizeof(T)])
 			, obstacle(_obstacle)
 		{
 		}

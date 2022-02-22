@@ -354,9 +354,8 @@ public:
 		Vector2 ptLocal = mouse_arg->pt - mouse_arg->sender->m_Rect.LeftTop();
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
 		CPoint pt((int)ptLocal.x, (int)ptLocal.y);
-		my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0));
-		bool ret = searcher.find(last_pt, pt);
-		if (ret)
+		my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0), last_pt, pt, 32767);
+		if (searcher.find())
 		{
 			DWORD hover = D3DCOLOR_ARGB(255, 0, 255, 0);
 			std::map<CPoint, CPoint>::const_iterator from_iter = searcher.from.begin();
