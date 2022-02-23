@@ -5,6 +5,13 @@ import math
 from PathFinding import AStar
 import cv2
 
+# 坐标转换
+def tur2img(img,tp):
+    return (int(tp[0]+img.shape[1]/2),int(img.shape[0]/2-tp[1]))
+
+def img2tur(img,ip):
+    return (ip[0]-img.shape[1]/2,img.shape[0]/2-ip[1])
+
 # 绘制矩形框
 ts=turtle.getscreen()
 ts.bgpic("../../terrain/project2 Height Output 1025.png")
@@ -88,9 +95,7 @@ img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 
 # 鼠标点击处理
 def onmouseclick(x,y):
-    posf=turtle.pos()
-    pos=(int(posf[0]+img.shape[1]/2),int(posf[1]+img.shape[0]/2))
-    finder=AStar2D(img,pos,(int(x+img.shape[1]/2),int(y+img.shape[0]/2)),50000)
+    finder=AStar2D(img,tur2img(img,turtle.pos()),tur2img(img,(x,y)),5000)
     if finder.solve():
         pos=finder.goal
         path=[]
@@ -98,7 +103,7 @@ def onmouseclick(x,y):
             path.append(pos)
             pos=finder.came_from[pos]
         for pos in reversed(path):
-            turtle.goto(pos[0]-img.shape[1]/2,pos[1]-img.shape[0]/2)
+            turtle.goto(img2tur(img,pos))
     else:
         print("failed",finder.start,finder.goal,len(finder.close))
         turtle.goto((x,y))
