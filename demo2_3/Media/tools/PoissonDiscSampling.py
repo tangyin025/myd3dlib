@@ -6,8 +6,9 @@ from PathFinding import AStar
 import cv2
 
 # 坐标转换
+step=8
 def tur2img(img,tp):
-    return (int(tp[0]+img.shape[1]/2),int(img.shape[0]/2-tp[1]))
+    return (int(math.floor((tp[0]+img.shape[1]/2)/step+0.5)*step),int(math.floor((img.shape[0]/2-tp[1])/step+0.5)*step))
 
 def img2tur(img,ip):
     return (ip[0]-img.shape[1]/2,img.shape[0]/2-ip[1])
@@ -80,18 +81,33 @@ class AStar2D(AStar):
         dy=goal[1]-start[1]
         return dx*dx+dy*dy
     def get_neighbors(self,pos):
-        neis=[]
-        for i in range(max(0,pos[1]-1),min(self.img.shape[1],pos[1]+2),1):
-            for j in range(max(0,pos[0]-1),min(self.img.shape[0],pos[0]+2),1):
-                if j!=pos[0] or i!=pos[1]:
-                    # if math.fabs(float(img[i,j,0])-float(img[pos[1],pos[0],0]))<2:
-                    neis.append((j,i))
-        return neis
+        neis=(
+            (pos[0]-step,pos[1]-step),
+            (pos[0],pos[1]-step),
+            (pos[0]+step,pos[1]-step),
+            (pos[0]-step,pos[1]),
+            (pos[0]+step,pos[1]),
+            (pos[0]-step,pos[1]+step),
+            (pos[0],pos[1]+step),
+            (pos[0]+step,pos[1]+step),
+            (pos[0]-step,pos[1]-step*2),
+            (pos[0]+step,pos[1]-step*2),
+            (pos[0]-step*2,pos[1]-step),
+            (pos[0]+step*2,pos[1]-step),
+            (pos[0]-step*2,pos[1]+step),
+            (pos[0]+step*2,pos[1]+step),
+            (pos[0]-step,pos[1]+step*2),
+            (pos[0]+step,pos[1]+step*2))
+        ret_neis=[]
+        for nei in neis:
+            if nei[0]>=0 and nei[0]<self.img.shape[0] and nei[1]>=0 and nei[1]<self.img.shape[1]:
+                ret_neis.append(nei)
+        return ret_neis
     def dist_between(self,start,goal):
         dx=goal[0]-start[0]
         dy=goal[1]-start[1]
         dh=math.fabs(float(img[goal[1],goal[0],0])-float(img[start[1],start[0],0]))
-        return dx*dx+dy*dy+dh*dh*90
+        return dx*dx+dy*dy+dh*dh*120
 
 img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 
