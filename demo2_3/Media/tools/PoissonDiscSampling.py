@@ -120,10 +120,12 @@ def onmouseclick(x,y):
         while pos in finder.came_from:
             path.append(pos)
             pos=finder.came_from[pos]
+        turtle.down()
         for pos in reversed(path):
             turtle.goto(img2tur(img,pos))
     else:
         print("failed",finder.start,finder.goal,len(finder.close))
+        turtle.up()
         turtle.goto((x,y))
 
 # 输出统计信息
