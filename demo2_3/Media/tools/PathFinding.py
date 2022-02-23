@@ -1,3 +1,4 @@
+import sys
 
 class AStar:
     def __init__(self,start,goal,limit):
@@ -34,7 +35,7 @@ class AStar:
                 if nei not in self.open:
                     self.open.add(nei)
                     assert(nei not in self.gscore)
-                    self.gscore[nei]=9999
+                    self.gscore[nei]=sys.float_info.max
                 tentative_gscore=self.gscore[curr]+self.dist_between(curr,nei)
                 if tentative_gscore>self.gscore[nei]:
                     continue
@@ -44,7 +45,7 @@ class AStar:
         return False
 
     def the_node_in_open_having_the_lowest_fScore_value(self):
-        lowest_score=9999
+        lowest_score=sys.float_info.max
         lowest_pos=None
         it=iter(self.open)
         for pos in it:

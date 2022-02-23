@@ -76,26 +76,28 @@ class AStar2D(AStar):
         super(AStar2D, self).__init__(start,goal,depth)
         self.img=img
     def heuristic_cost_estimate(self,start,goal):
-        return math.fabs(start[0]-goal[0])+math.fabs(start[1]-goal[1])
+        dx=goal[0]-start[0]
+        dy=goal[1]-start[1]
+        return dx*dx+dy*dy
     def get_neighbors(self,pos):
         neis=[]
-        for i in range(max(0,pos[1]-1),min(self.img.shape[1],pos[1]+2)):
-            for j in range(max(0,pos[0]-1),min(self.img.shape[0],pos[0]+2)):
+        for i in range(max(0,pos[1]-1),min(self.img.shape[1],pos[1]+2),1):
+            for j in range(max(0,pos[0]-1),min(self.img.shape[0],pos[0]+2),1):
                 if j!=pos[0] or i!=pos[1]:
                     # if math.fabs(float(img[i,j,0])-float(img[pos[1],pos[0],0]))<2:
                     neis.append((j,i))
         return neis
     def dist_between(self,start,goal):
-        dist=((1.4,1,1.4),(1,1,1),(1.4,1,1.4))
-        assert(math.fabs(start[0]-goal[0])<=1)
-        assert(math.fabs(start[1]-goal[1])<=1)
-        return dist[goal[1]-start[1]+1][goal[0]-start[0]+1]*math.fabs(float(img[goal[1],goal[0],0])-float(img[start[1],start[0],0]))*30
+        dx=goal[0]-start[0]
+        dy=goal[1]-start[1]
+        dh=math.fabs(float(img[goal[1],goal[0],0])-float(img[start[1],start[0],0]))
+        return dx*dx+dy*dy+dh*dh*90
 
 img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 
 # 鼠标点击处理
 def onmouseclick(x,y):
-    finder=AStar2D(img,tur2img(img,turtle.pos()),tur2img(img,(x,y)),5000)
+    finder=AStar2D(img,tur2img(img,turtle.pos()),tur2img(img,(x,y)),50000)
     if finder.solve():
         pos=finder.goal
         path=[]
