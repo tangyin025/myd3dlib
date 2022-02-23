@@ -55,7 +55,7 @@ void LargeImageChunk::RequestResource(void)
 		_ASSERT(!m_Texture);
 
 		char path[MAX_PATH];
-		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Depth, m_Row, m_Col);
+		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Depth, m_Col, m_Row);
 		my::ResourceMgr::getSingleton().LoadTextureAsync(path,
 			boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
 	}
@@ -70,7 +70,7 @@ void LargeImageChunk::ReleaseResource(void)
 	if (!m_Owner->m_TexturePath.empty())
 	{
 		char path[MAX_PATH];
-		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Depth, m_Row, m_Col);
+		sprintf_s(path, _countof(path), m_Owner->m_TexturePath.c_str(), m_Depth, m_Col, m_Row);
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(path,
 			boost::bind(&LargeImageChunk::OnTextureReady, this, boost::placeholders::_1));
 
