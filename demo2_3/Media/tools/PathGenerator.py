@@ -44,7 +44,7 @@ i=0
 for k,v in disc.grid.items():
     turtle.goto(v)
     turtle.dot(3)
-    turtle.write(i,False,"center")
+    turtle.write(k,False,"center")
     i=i+1
 
 # 寻路准备
@@ -107,8 +107,10 @@ def onmouseclick(x,y):
         turtle.goto((x,y))
 
 # 绘制统计信息
+turtle.color((0,0,0),(255,0,0))
 turtle.goto(rect[0]-50,0)
 turtle.write("total:%d"%(len(disc.grid)),False,"center")
+turtle.color((255,255,0),(255,0,0))
 # turtle.getcanvas().postscript(file="aaa.eps")
 ts.onclick(onmouseclick)
 turtle.down()
