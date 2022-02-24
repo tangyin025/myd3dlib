@@ -2,9 +2,10 @@ import turtle
 import numpy
 import random
 import math
-from PathFinding import AStar
 import cv2
 import xml.dom.minidom as minidom
+from RandomSampling import PoissonDisc
+from PathFinding import AStar
 
 # 坐标转换
 step=4
@@ -35,45 +36,16 @@ turtle.up()
 turtle.colormode(255)
 turtle.color((255,255,0),(255,0,0))
 
-# 中心点为起点
-random.seed(3)
-p=numpy.array([0,0])
-turtle.goto(p)
-queue=[p]
-grid={(0,0):p}
-turtle.dot(3)
-turtle.write(len(grid),False,"center")
-inner=50
-cellsize=inner*math.sqrt(0.5)
-
-# 遍历最近节点
-def near(p,gx,gy):
-    for x in range(gx-2,gx+3):
-        for y in range(gy-2,gy+3):
-            g=grid.get((x,y))
-            if g is not None:
-                dist=p-g
-                if dist.dot(dist)<inner*inner:
-                    return True
-    return False
-
 # 泊松盘采样
-while len(queue)>0:
-    center=queue.pop(0)
-    for i in range(0,30,1):
-        theta=random.random()*math.pi*2
-        A=2/(inner*inner*4-inner*inner)
-        r=math.sqrt(2*random.random()/A+inner*inner)
-        p=center+numpy.array([r*math.cos(theta),r*math.sin(theta)])
-        gx=math.floor(p[0]/cellsize)
-        gy=math.floor(p[1]/cellsize)
-        if p[0]>rect[0] and p[0]<rect[2] and p[1]>rect[1] and p[1]<rect[3] and not near(p,gx,gy):
-            assert (gx,gy) not in grid
-            grid[(gx,gy)]=p
-            queue.append(p)
-            turtle.goto(p)
-            turtle.dot(3)
-            turtle.write(len(grid),False,"center")
+disc=PoissonDisc((rect[0],rect[1]),(rect[2],rect[3]),turtle.pos(),50)
+random.seed(3)
+disc.sample()
+i=0
+for k,v in disc.grid.items():
+    turtle.goto(v)
+    turtle.dot(3)
+    turtle.write(i,False,"center")
+    i=i+1
 
 # 寻路准备
 class AStar2D(AStar):
@@ -136,7 +108,7 @@ def onmouseclick(x,y):
 
 # 绘制统计信息
 turtle.goto(rect[0]-50,0)
-turtle.write("total:%d"%(len(grid)),False,"center")
+turtle.write("total:%d"%(len(disc.grid)),False,"center")
 # turtle.getcanvas().postscript(file="aaa.eps")
 ts.onclick(onmouseclick)
 turtle.down()
@@ -159,5 +131,5 @@ for path in all_paths:
     element.setAttribute('d', path_str)
     root.appendChild(element)
     del path_str
-with open('default.svg','w',newline='\n',encoding='utf-8') as f:
+with open('aaa.svg','w',newline='\n',encoding='utf-8') as f:
     dom.writexml(f, addindent='\t', newl='\n',encoding='utf-8')
