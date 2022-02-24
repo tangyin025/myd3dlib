@@ -83,7 +83,7 @@ class AStar2D(AStar):
         dx=goal[0]-start[0]
         dy=goal[1]-start[1]
         dh=math.fabs(float(img[goal[1],goal[0],0])-float(img[start[1],start[0],0]))
-        return dx*dx+dy*dy+dh*dh*120
+        return dx*dx+dy*dy+dh*dh*320
 
 img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 
@@ -117,9 +117,11 @@ turtle.mainloop()
 # 输出路劲svg
 dom=minidom.getDOMImplementation().createDocument(None,'svg',None)
 root=dom.documentElement
-root.setAttribute('width',"%dpx"%img.shape[0])
-root.setAttribute('height',"%dpx"%img.shape[1])
-root.setAttribute("viewBox","%d %d %d %d"%(0,0,img.shape[0],img.shape[1]))
+lt=img2wm(img,(0,0))
+rb=img2wm(img,(img.shape[0],img.shape[1]))
+root.setAttribute('width',"%dpx"%rb[0])
+root.setAttribute('height',"%dpx"%-lt[1])
+root.setAttribute("viewBox","%d %d %d %d"%(lt[0],lt[1],rb[0],-lt[1]))
 for path in all_paths:
     for pos in path:
         wmp=img2wm(img,pos)
