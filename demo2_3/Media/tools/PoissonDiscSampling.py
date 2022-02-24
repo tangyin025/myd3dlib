@@ -4,14 +4,18 @@ import random
 import math
 from PathFinding import AStar
 import cv2
+import xml.dom.minidom as minidom
 
 # 坐标转换
-step=8
+step=4
 def tur2img(img,tp):
     return (int(math.floor((tp[0]+img.shape[1]/2)/step+0.5)*step),int(math.floor((img.shape[0]/2-tp[1])/step+0.5)*step))
 
 def img2tur(img,ip):
     return (ip[0]-img.shape[1]/2,img.shape[0]/2-ip[1])
+
+def img2wm(img,ip):
+    return (ip[0]*7.8125,(ip[1]-img.shape[1])*7.8125)
 
 # 绘制矩形框
 ts=turtle.getscreen()
@@ -112,6 +116,7 @@ class AStar2D(AStar):
 img=cv2.imread("../../terrain/project2 Height Output 1025.png")
 
 # 鼠标点击处理
+all_paths=[]
 def onmouseclick(x,y):
     finder=AStar2D(img,tur2img(img,turtle.pos()),tur2img(img,(x,y)),50000)
     if finder.solve():
@@ -123,15 +128,36 @@ def onmouseclick(x,y):
         turtle.down()
         for pos in reversed(path):
             turtle.goto(img2tur(img,pos))
+        all_paths.append(path)
     else:
         print("failed",finder.start,finder.goal,len(finder.close))
         turtle.up()
         turtle.goto((x,y))
 
-# 输出统计信息
+# 绘制统计信息
 turtle.goto(rect[0]-50,0)
 turtle.write("total:%d"%(len(grid)),False,"center")
 # turtle.getcanvas().postscript(file="aaa.eps")
 ts.onclick(onmouseclick)
 turtle.down()
 turtle.mainloop()
+
+# 输出路劲svg
+dom=minidom.getDOMImplementation().createDocument(None,'svg',None)
+root=dom.documentElement
+root.setAttribute('width',"%dpx"%img.shape[0])
+root.setAttribute('height',"%dpx"%img.shape[1])
+root.setAttribute("viewBox","%d %d %d %d"%(0,0,img.shape[0],img.shape[1]))
+for path in all_paths:
+    for pos in path:
+        wmp=img2wm(img,pos)
+        if 'path_str' not in dir():
+            path_str="M{0},{1}".format(wmp[0],wmp[1])
+        else:
+            path_str=path_str+" L{0},{1}".format(wmp[0],wmp[1])
+    element = dom.createElement('path')
+    element.setAttribute('d', path_str)
+    root.appendChild(element)
+    del path_str
+with open('default.svg','w',newline='\n',encoding='utf-8') as f:
+    dom.writexml(f, addindent='\t', newl='\n',encoding='utf-8')
