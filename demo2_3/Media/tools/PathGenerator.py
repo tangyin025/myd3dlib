@@ -15,12 +15,15 @@ def tur2img(img,tp):
 def img2tur(img,ip):
     return (ip[0]-img.shape[1]/2,img.shape[0]/2-ip[1])
 
+def tur2wm(img,tp):
+    return img2wm(img,tur2img(img,tp))
+
 def img2wm(img,ip):
     return (ip[0]*7.8125,(ip[1]-img.shape[1])*7.8125)
 
 # 绘制矩形框
 ts=turtle.getscreen()
-ts.bgpic("../../terrain/project2 Height Output 1025.png")
+ts.bgpic("../texture/project Height Output 1025.png")
 rect=(-500,-500,500,500)
 turtle.speed("fastest")
 turtle.delay(0)
@@ -85,7 +88,7 @@ class AStar2D(AStar):
         dh=math.fabs(float(img[goal[1],goal[0],0])-float(img[start[1],start[0],0]))
         return dx*dx+dy*dy+dh*dh*320
 
-img=cv2.imread("../../terrain/project2 Height Output 1025.png")
+img=cv2.imread("../texture/project Height Output 1025.png")
 
 # 鼠标点击处理
 all_paths=[]
@@ -131,9 +134,23 @@ for path in all_paths:
             path_str="M{0},{1}".format(wmp[0],wmp[1])
         else:
             path_str=path_str+" L{0},{1}".format(wmp[0],wmp[1])
-    element = dom.createElement('path')
+    element=dom.createElement('path')
     element.setAttribute('d', path_str)
     root.appendChild(element)
     del path_str
 with open('aaa.svg','w',newline='\n',encoding='utf-8') as f:
+    dom.writexml(f, addindent='\t', newl='\n',encoding='utf-8')
+
+# 输出散布点svg
+for k,v in disc.grid.items():
+    wmp=tur2wm(img,v)
+    element=dom.createElement('circle')
+    element.setAttribute('cx',str(wmp[0]))
+    element.setAttribute('cy',str(wmp[1]))
+    element.setAttribute('r',"30")
+    element.setAttribute("stroke","black")
+    element.setAttribute("stroke-width","10")
+    element.setAttribute("style","fill:none")
+    root.appendChild(element)
+with open('bbb.svg','w',newline='\n',encoding='utf-8') as f:
     dom.writexml(f, addindent='\t', newl='\n',encoding='utf-8')
