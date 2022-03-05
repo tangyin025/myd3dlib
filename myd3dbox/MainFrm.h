@@ -208,6 +208,7 @@ public:
 	afx_msg void OnUpdateControlCombobox(CCmdUI* pCmdUI);
 	afx_msg void OnControlListbox();
 	afx_msg void OnUpdateControlListbox(CCmdUI* pCmdUI);
+	virtual BOOL OnShowPopupMenu(CMFCPopupMenu* pMenuPopup);
 };
 
 

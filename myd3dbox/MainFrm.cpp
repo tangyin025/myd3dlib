@@ -2246,3 +2246,10 @@ void CMainFrame::OnUpdateControlListbox(CCmdUI* pCmdUI)
 	pCmdUI->Enable(!m_selctls.empty());
 }
 
+
+BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	return __super::OnShowPopupMenu(pMenuPopup);
+}
