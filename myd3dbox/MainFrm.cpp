@@ -254,6 +254,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_COMBOBOX, &CMainFrame::OnUpdateControlCombobox)
 	ON_COMMAND(ID_CONTROL_LISTBOX, &CMainFrame::OnControlListbox)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_LISTBOX, &CMainFrame::OnUpdateControlListbox)
+	ON_COMMAND_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnToolsScript1)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -288,6 +289,7 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
 	m_PaintSpline.AddNode(0, 0, 1, 1);
 	m_PaintSpline.AddNode(1, 1, 1, 1);
+	m_ToolScripts.SetSize(ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
 }
 
 CMainFrame::~CMainFrame()
@@ -2273,16 +2275,16 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						CString path;
-						PathCombine(path.GetBufferSetLength(MAX_PATH), pattern, ffd.cFileName);
+						PathCombine(m_ToolScripts[i - first_script_index].GetBufferSetLength(MAX_PATH), pattern, ffd.cFileName);
+						m_ToolScripts[i - first_script_index].ReleaseBuffer();
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
-							pMenuBar->SetButtonText(i, path);
+							pMenuBar->SetButtonText(i, m_ToolScripts[i - first_script_index]);
 							i++;
 						}
 						else
 						{
-							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, path), i);
+							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, m_ToolScripts[i - first_script_index]), i);
 							i++;
 						}
 					}
@@ -2299,4 +2301,11 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 	}
 
 	return __super::OnShowPopupMenu(pMenuPopup);
+}
+
+
+void CMainFrame::OnToolsScript1(UINT id)
+{
+	// TODO: Add your command handler code here
+	luaL_loadfile(m_State, tstou8((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1);
 }

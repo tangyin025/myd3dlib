@@ -103,6 +103,7 @@ public:
 	my::EventSignal m_EventPivotModeChanged;
 	my::EventSignal m_EventAttributeChanged;
 	my::EventSignal m_EventCameraPropChanged;
+	CStringArray m_ToolScripts;
 
 // Operations
 public:
@@ -209,6 +210,7 @@ public:
 	afx_msg void OnControlListbox();
 	afx_msg void OnUpdateControlListbox(CCmdUI* pCmdUI);
 	virtual BOOL OnShowPopupMenu(CMFCPopupMenu* pMenuPopup);
+	afx_msg void OnToolsScript1(UINT id);
 };
 
 
