@@ -117,13 +117,23 @@
 #define ID_CONTROL_COMBOBOX             32811
 #define ID_CONTROL_LISTBOX              32812
 #define ID_TOOLS_SCRIPT1                32813
+#define ID_TOOLS_SCRIPT2                32814
+#define ID_TOOLS_SCRIPT3                32815
+#define ID_TOOLS_SCRIPT4                32816
+#define ID_TOOLS_SCRIPT5                32817
+#define ID_TOOLS_SCRIPT6                32818
+#define ID_TOOLS_SCRIPT7                32819
+#define ID_TOOLS_SCRIPT8                32820
+#define ID_TOOLS_SCRIPT9                32821
+#define ID_TOOLS_SCRIPT10               32822
+#define ID_TOOLS_SCRIPT_LAST            32823
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32814
+#define _APS_NEXT_COMMAND_VALUE         32824
 #define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

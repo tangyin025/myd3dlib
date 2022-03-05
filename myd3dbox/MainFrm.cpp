@@ -2250,6 +2250,47 @@ void CMainFrame::OnUpdateControlListbox(CCmdUI* pCmdUI)
 BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 {
 	// TODO: Add your specialized code here and/or call the base class
+	if (pMenuPopup)
+	{
+		CMFCPopupMenuBar* pMenuBar = pMenuPopup->GetMenuBar();
+		ASSERT_VALID(pMenuBar);
+		for (int i = 0; i < pMenuBar->GetCount(); )
+		{
+			if (pMenuBar->GetItemID(i) == ID_TOOLS_SCRIPT1)
+			{
+				const int first_script_index = i;
+				WIN32_FIND_DATA ffd;
+				HANDLE hFind = INVALID_HANDLE_VALUE;
+				hFind = FindFirstFile(_T("tools\\*.lua"), &ffd);
+				if (hFind == INVALID_HANDLE_VALUE)
+				{
+					break;
+				}
+
+				do
+				{
+					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					{
+						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
+						{
+							pMenuBar->SetButtonText(i++, ffd.cFileName);
+						}
+						else
+						{
+							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, ffd.cFileName), i++);
+						}
+					}
+				}
+				while (FindNextFile(hFind, &ffd) && i - first_script_index < ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
+
+				FindClose(hFind);
+			}
+			else
+			{
+				i++;
+			}
+		}
+	}
 
 	return __super::OnShowPopupMenu(pMenuPopup);
 }

@@ -335,21 +335,19 @@ std::string StreamDirMgr::GetRelativePath(const char * path)
 
 IStreamPtr StreamDirMgr::OpenIStream(const char * path)
 {
-	if(!PathIsRelativeA(path))
+	if(PathIsRelativeA(path))
 	{
-		return FileIStream::Open(ms2ts(path).c_str());
-	}
-
-	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
-	for(; dir_iter != m_DirList.end(); dir_iter++)
-	{
-		if((*dir_iter)->CheckPath(path))
+		ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
+		for (; dir_iter != m_DirList.end(); dir_iter++)
 		{
-			return (*dir_iter)->OpenIStream(path);
+			if ((*dir_iter)->CheckPath(path))
+			{
+				return (*dir_iter)->OpenIStream(path);
+			}
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path));
+	return FileIStream::Open(ms2ts(path).c_str());
 }
 
 bool AsynchronousIOMgr::IsMainThread(void) const
