@@ -2261,23 +2261,29 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				const int first_script_index = i;
 				WIN32_FIND_DATA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				hFind = FindFirstFile(_T("tools\\*.lua"), &ffd);
+				CString pattern = _T("tools\\*.lua");
+				hFind = FindFirstFile(pattern, &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;
 				}
 
+				PathRemoveFileSpec(pattern.GetBuffer());
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
+						CString path;
+						PathCombine(path.GetBufferSetLength(MAX_PATH), pattern, ffd.cFileName);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
-							pMenuBar->SetButtonText(i++, ffd.cFileName);
+							pMenuBar->SetButtonText(i, path);
+							i++;
 						}
 						else
 						{
-							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, ffd.cFileName), i++);
+							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, path), i);
+							i++;
 						}
 					}
 				}
