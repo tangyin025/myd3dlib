@@ -896,9 +896,13 @@ void Terrain::ClearShape(void)
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_Vbs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
+	, m_NormalDirty(boost::extents[terrain->m_RowChunks * terrain->m_ChunkSize + 1][terrain->m_ColChunks * terrain->m_ChunkSize + 1])
 	, m_AabbDirty(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 	, m_VertDirty(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
 {
+	std::fill_n(m_NormalDirty.origin(), m_NormalDirty.num_elements(), false);
+	std::fill_n(m_AabbDirty.origin(), m_AabbDirty.num_elements(), false);
+	std::fill_n(m_VertDirty.origin(), m_VertDirty.num_elements(), false);
 }
 
 TerrainStream::~TerrainStream(void)
@@ -1058,7 +1062,7 @@ my::Vector3 TerrainStream::GetPos(int i, int j)
 	return ret;
 }
 
-void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNormal)
+void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j)
 {
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
@@ -1085,28 +1089,11 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNorm
 		m_terrain->m_rootVb.Unlock();
 	}
 
-	if (UpdateNormal)
+	for (int _i = Max(i - 1, 0); _i <= Min(i + 1, (int)(m_NormalDirty.shape()[0] - 1)); _i++)
 	{
-		for (int _i = Max(0, i - 1); _i <= Min((int)m_terrain->m_Chunks.shape()[0] * ((int)m_terrain->m_IndexTable.shape()[0] - 1), i + 1); _i++)
+		for (int _j = Max(j - 1, 0); _j <= Min(j + 1, (int)(m_NormalDirty.shape()[1] - 1)); _j++)
 		{
-			for (int _j = Max(0, j - 1); _j <= Min((int)m_terrain->m_Chunks.shape()[1] * ((int)m_terrain->m_IndexTable.shape()[1] - 1), j + 1); _j++)
-			{
-				const Vector3 pos = GetPos(_i, _j);
-				const Vector3 Dirs[4] = {
-					Vector3(_j, GetPos(_i - 1, _j).y, _i - 1) - pos,
-					Vector3(_j - 1, GetPos(_i, _j - 1).y, _i) - pos,
-					Vector3(_j, GetPos(_i + 1, _j).y, _i + 1) - pos,
-					Vector3(_j + 1, GetPos(_i, _j + 1).y, _i) - pos
-				};
-				const Vector3 Nors[4] = {
-					Dirs[0].cross(Dirs[1]).normalize(),
-					Dirs[1].cross(Dirs[2]).normalize(),
-					Dirs[2].cross(Dirs[3]).normalize(),
-					Dirs[3].cross(Dirs[0]).normalize()
-				};
-				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
-				SetNormal(Normal, _i, _j);
-			}
+			m_NormalDirty[_i][_j] = true;
 		}
 	}
 }
@@ -1222,6 +1209,36 @@ void TerrainStream::SetNormal(const my::Vector3& Normal, int k, int l, int m, in
 	*(my::Vector3*)pbuff = Normal;
 	vb->Unlock();
 	m_VertDirty[k][l] = true;
+}
+
+void TerrainStream::UpdateNormal(void)
+{
+	for (int i = 0; i < m_NormalDirty.shape()[0]; i++)
+	{
+		for (int j = 0; j < m_NormalDirty.shape()[1]; j++)
+		{
+			if (m_NormalDirty[i][j])
+			{
+				const Vector3 pos = GetPos(i, j);
+				const Vector3 Dirs[4] = {
+					Vector3(j, GetPos(i - 1, j).y, i - 1) - pos,
+					Vector3(j - 1, GetPos(i, j - 1).y, i) - pos,
+					Vector3(j, GetPos(i + 1, j).y, i + 1) - pos,
+					Vector3(j + 1, GetPos(i, j + 1).y, i) - pos
+				};
+				const Vector3 Nors[4] = {
+					Dirs[0].cross(Dirs[1]).normalize(),
+					Dirs[1].cross(Dirs[2]).normalize(),
+					Dirs[2].cross(Dirs[3]).normalize(),
+					Dirs[3].cross(Dirs[0]).normalize()
+				};
+				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
+				SetNormal(Normal, i, j);
+
+				m_NormalDirty[i][j] = false;
+			}
+		}
+	}
 }
 
 my::RayResult TerrainStream::RayTest(const my::Ray& local_ray)

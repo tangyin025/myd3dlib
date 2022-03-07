@@ -184,6 +184,8 @@ public:
 
 	boost::multi_array<my::VertexBufferPtr, 2> m_Vbs;
 
+	boost::multi_array<bool, 2> m_NormalDirty;
+
 	boost::multi_array<bool, 2> m_AabbDirty;
 
 	boost::multi_array<bool, 2> m_VertDirty;
@@ -201,7 +203,7 @@ public:
 
 	my::Vector3 GetPos(int i, int j);
 
-	void SetPos(const my::Vector3& Pos, int i, int j, bool UpdateNormal);
+	void SetPos(const my::Vector3& Pos, int i, int j);
 
 	void SetPos(const my::Vector3& Pos, int k, int l, int m, int n);
 
@@ -216,6 +218,8 @@ public:
 	void SetNormal(const my::Vector3& Normal, int i, int j);
 
 	void SetNormal(const my::Vector3& Normal, int k, int l, int m, int n);
+
+	void UpdateNormal(void);
 
 	my::RayResult RayTest(const my::Ray& local_ray);
 };

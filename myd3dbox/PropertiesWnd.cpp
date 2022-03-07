@@ -3779,30 +3779,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cx); j++)
 				{
-					tstr.SetPos(my::Vector3(j, ((float)pixel[i][j] / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i), i, j, false);
+					tstr.SetPos(my::Vector3(j, ((float)pixel[i][j] / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i), i, j);
 				}
 			}
-			for (int i = 0; i < my::Min<int>(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cy); i++)
-			{
-				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cx); j++)
-				{
-					const my::Vector3 pos = tstr.GetPos(i, j);
-					const my::Vector3 Dirs[4] = {
-						my::Vector3(j, tstr.GetPos(i - 1, j).y, i - 1) - pos,
-						my::Vector3(j - 1, tstr.GetPos(i, j - 1).y, i) - pos,
-						my::Vector3(j, tstr.GetPos(i + 1, j).y, i + 1) - pos,
-						my::Vector3(j + 1, tstr.GetPos(i, j + 1).y, i) - pos
-					};
-					const my::Vector3 Nors[4] = {
-						Dirs[0].cross(Dirs[1]).normalize(),
-						Dirs[1].cross(Dirs[2]).normalize(),
-						Dirs[2].cross(Dirs[3]).normalize(),
-						Dirs[3].cross(Dirs[0]).normalize()
-					};
-					const my::Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
-					tstr.SetNormal(Normal, i, j);
-				}
-			}
+			tstr.UpdateNormal();
 			tex.UnlockRect(0);
 			tstr.Release();
 			Actor * actor = terrain->m_Actor;

@@ -2428,11 +2428,12 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 							LocalHeight = my::Max(LocalHeight, tstr.GetPos(i, j).y);
 							break;
 						}
-						tstr.SetPos(my::Vector3(j, LocalHeight, i), i, j, true);
+						tstr.SetPos(my::Vector3(j, LocalHeight, i), i, j);
 					}
 				}
 			}
 		}
+		tstr.UpdateNormal();
 	}
 }
 
