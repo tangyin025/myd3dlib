@@ -203,21 +203,21 @@ public:
 
 	my::Vector3 GetPos(int i, int j);
 
-	void SetPos(const my::Vector3& Pos, int i, int j);
+	void SetPos(int i, int j, const my::Vector3& Pos);
 
-	void SetPos(const my::Vector3& Pos, int k, int l, int m, int n);
+	void SetPos(int k, int l, int m, int n, const my::Vector3& Pos);
 
 	D3DCOLOR GetColor(int i, int j);
 
-	void SetColor(D3DCOLOR Color, int i, int j);
+	void SetColor(int i, int j, D3DCOLOR Color);
 
-	void SetColor(D3DCOLOR Color, int k, int l, int m, int n);
+	void SetColor(int k, int l, int m, int n, D3DCOLOR Color);
 
 	my::Vector3 GetNormal(int i, int j);
 
-	void SetNormal(const my::Vector3& Normal, int i, int j);
+	void SetNormal(int i, int j, const my::Vector3& Normal);
 
-	void SetNormal(const my::Vector3& Normal, int k, int l, int m, int n);
+	void SetNormal(int k, int l, int m, int n, const my::Vector3& Normal);
 
 	void UpdateNormal(void);
 

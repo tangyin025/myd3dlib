@@ -1062,25 +1062,25 @@ my::Vector3 TerrainStream::GetPos(int i, int j)
 	return ret;
 }
 
-void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j)
+void TerrainStream::SetPos(int i, int j, const my::Vector3& Pos)
 {
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
-	SetPos(Pos, k, l, m, n);
+	SetPos(k, l, m, n, Pos);
 
 	if (m == 0 && k > 0)
 	{
-		SetPos(Pos, k - 1, l, m_terrain->m_ChunkSize, n);
+		SetPos(k - 1, l, m_terrain->m_ChunkSize, n, Pos);
 	}
 
 	if (n == 0 && l > 0)
 	{
-		SetPos(Pos, k, l - 1, m, m_terrain->m_ChunkSize);
+		SetPos(k, l - 1, m, m_terrain->m_ChunkSize, Pos);
 	}
 
 	if (m == 0 && k > 0 && n == 0 && l > 0)
 	{
-		SetPos(Pos, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
+		SetPos(k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize, Pos);
 	}
 
 	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0)
@@ -1098,7 +1098,7 @@ void TerrainStream::SetPos(const my::Vector3& Pos, int i, int j)
 	}
 }
 
-void TerrainStream::SetPos(const my::Vector3& Pos, int k, int l, int m, int n)
+void TerrainStream::SetPos(int k, int l, int m, int n, const my::Vector3& Pos)
 {
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
@@ -1122,25 +1122,25 @@ D3DCOLOR TerrainStream::GetColor(int i, int j)
 	return ret;
 }
 
-void TerrainStream::SetColor(D3DCOLOR Color, int i, int j)
+void TerrainStream::SetColor(int i, int j, D3DCOLOR Color)
 {
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
-	SetColor(Color, k, l, m, n);
+	SetColor(k, l, m, n, Color);
 
 	if (m == 0 && k > 0)
 	{
-		SetColor(Color, k - 1, l, m_terrain->m_ChunkSize, n);
+		SetColor(k - 1, l, m_terrain->m_ChunkSize, n, Color);
 	}
 
 	if (n == 0 && l > 0)
 	{
-		SetColor(Color, k, l - 1, m, m_terrain->m_ChunkSize);
+		SetColor(k, l - 1, m, m_terrain->m_ChunkSize, Color);
 	}
 
 	if (m == 0 && k > 0 && n == 0 && l > 0)
 	{
-		SetColor(Color, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
+		SetColor(k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize, Color);
 	}
 
 	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0)
@@ -1150,7 +1150,7 @@ void TerrainStream::SetColor(D3DCOLOR Color, int i, int j)
 	}
 }
 
-void TerrainStream::SetColor(D3DCOLOR Color, int k, int l, int m, int n)
+void TerrainStream::SetColor(int k, int l, int m, int n, D3DCOLOR Color)
 {
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
@@ -1173,25 +1173,25 @@ my::Vector3 TerrainStream::GetNormal(int i, int j)
 	return ret;
 }
 
-void TerrainStream::SetNormal(const my::Vector3& Normal, int i, int j)
+void TerrainStream::SetNormal(int i, int j, const my::Vector3& Normal)
 {
 	int k, l, m, n, o, p;
 	GetIndices(i, j, k, l, m, n, o, p);
-	SetNormal(Normal, k, l, m, n);
+	SetNormal(k, l, m, n, Normal);
 
 	if (m == 0 && k > 0)
 	{
-		SetNormal(Normal, k - 1, l, m_terrain->m_ChunkSize, n);
+		SetNormal(k - 1, l, m_terrain->m_ChunkSize, n, Normal);
 	}
 
 	if (n == 0 && l > 0)
 	{
-		SetNormal(Normal, k, l - 1, m, m_terrain->m_ChunkSize);
+		SetNormal(k, l - 1, m, m_terrain->m_ChunkSize, Normal);
 	}
 
 	if (m == 0 && k > 0 && n == 0 && l > 0)
 	{
-		SetNormal(Normal, k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize);
+		SetNormal(k - 1, l - 1, m_terrain->m_ChunkSize, m_terrain->m_ChunkSize, Normal);
 	}
 
 	if (m % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0 && n % (m_terrain->m_ChunkSize / m_terrain->m_MinChunkLodSize) == 0)
@@ -1201,7 +1201,7 @@ void TerrainStream::SetNormal(const my::Vector3& Normal, int i, int j)
 	}
 }
 
-void TerrainStream::SetNormal(const my::Vector3& Normal, int k, int l, int m, int n)
+void TerrainStream::SetNormal(int k, int l, int m, int n, const my::Vector3& Normal)
 {
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
@@ -1233,7 +1233,7 @@ void TerrainStream::UpdateNormal(void)
 					Dirs[3].cross(Dirs[0]).normalize()
 				};
 				const Vector3 Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
-				SetNormal(Normal, i, j);
+				SetNormal(i, j, Normal);
 
 				m_NormalDirty[i][j] = false;
 			}

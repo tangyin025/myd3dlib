@@ -2428,7 +2428,7 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 							LocalHeight = my::Max(LocalHeight, tstr.GetPos(i, j).y);
 							break;
 						}
-						tstr.SetPos(my::Vector3(j, LocalHeight, i), i, j);
+						tstr.SetPos(i, j, my::Vector3(j, LocalHeight, i));
 					}
 				}
 			}
@@ -2464,7 +2464,7 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 					{
 						D3DXCOLOR color;
 						D3DXColorLerp(&color, &D3DXCOLOR(tstr.GetColor(i, j)), &pFrame->m_PaintColor, pFrame->m_PaintSpline.Interpolate(1 - dist, 1));
-						tstr.SetColor(color, i, j);
+						tstr.SetColor(i, j, color);
 					}
 				}
 			}

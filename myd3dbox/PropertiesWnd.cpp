@@ -3779,7 +3779,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cx); j++)
 				{
-					tstr.SetPos(my::Vector3(j, ((float)pixel[i][j] / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i), i, j);
+					tstr.SetPos(i, j, my::Vector3(j, ((float)pixel[i][j] / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i));
 				}
 			}
 			tstr.UpdateNormal();
@@ -3819,11 +3819,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					switch (desc.Format)
 					{
 					case D3DFMT_X8R8G8B8:
-						tstr.SetColor(D3DCOLOR_ARGB(255 - LOBYTE(pixel[i][j] >> 16) - LOBYTE(pixel[i][j] >> 8) - LOBYTE(pixel[i][j]),
-							LOBYTE(pixel[i][j] >> 16), LOBYTE(pixel[i][j] >> 8), LOBYTE(pixel[i][j])), i, j);
+						tstr.SetColor(i, j, D3DCOLOR_ARGB(255 - LOBYTE(pixel[i][j] >> 16) - LOBYTE(pixel[i][j] >> 8) - LOBYTE(pixel[i][j]),
+							LOBYTE(pixel[i][j] >> 16), LOBYTE(pixel[i][j] >> 8), LOBYTE(pixel[i][j])));
 						break;
 					case D3DFMT_A8R8G8B8:
-						tstr.SetColor(pixel[i][j], i, j);
+						tstr.SetColor(i, j, pixel[i][j]);
 						break;
 					}
 				}
