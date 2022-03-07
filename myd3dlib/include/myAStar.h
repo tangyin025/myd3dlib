@@ -181,4 +181,44 @@ namespace my
 			return Dist[goal.y - start.y + 1][goal.x - start.x + 1];
 		}
 	};
+
+	template <typename T>
+	class BilinearFiltering
+	{
+	public:
+		boost::multi_array_ref<T, 2> pixel;
+
+		int width;
+
+		BilinearFiltering(T* pBits, int pitch, int _width, int height)
+			: pixel(pBits, boost::extents[height][pitch / sizeof(T)])
+			, width(_width)
+		{
+		}
+
+		BilinearFiltering(const D3DLOCKED_RECT& lrc, int _width, int height)
+			: BilinearFiltering((T*)lrc.pBits, lrc.Pitch, _width, height)
+		{
+		}
+
+		T Sample(float u, float v)
+		{
+			float us = u * width - 0.5f;
+			float vs = v * pixel.shape()[0] - 0.5f;
+			int j = (int)us;
+			int i = (int)vs;
+			float uf = us - j;
+			float vf = vs - i;
+			const T n[] = {
+				pixel[(i + 0) % pixel.shape()[0]][(j + 0) % width],
+				pixel[(i + 0) % pixel.shape()[0]][(j + 1) % width],
+				pixel[(i + 1) % pixel.shape()[0]][(j + 0) % width],
+				pixel[(i + 1) % pixel.shape()[0]][(j + 1) % width]
+			};
+			return Lerp(Lerp(n[0], n[1], uf), Lerp(n[2], n[3], uf), vf);
+		}
+	};
+
+	template <>
+	D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v);
 }

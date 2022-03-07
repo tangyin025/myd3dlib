@@ -57,9 +57,9 @@ namespace my
 	}
 
 	template <typename T>
-	T Lerp(T a, T b, T s)
+	T Lerp(T a, T b, float s)
 	{
-		return a + s * (b - a);
+		return (T)(a + s * (b - a));
 	}
 
 	template <typename T>
@@ -3399,4 +3399,28 @@ namespace my
 			return UDim(0.0f, 1.0f);
 		}
 	};
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente);
 }

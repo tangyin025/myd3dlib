@@ -19,6 +19,7 @@ extern "C"
 #include "myUi.h"
 #include "myInput.h"
 #include "mySound.h"
+#include "myAStar.h"
 #include "LuaExtension.inl"
 #include "Material.h"
 #include "RenderPipeline.h"
@@ -63,6 +64,16 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 {
 	std::string s = e.what();
 	lua_pushlstring(L, s.c_str(), s.length());
+}
+
+static D3DLOCKED_RECT texture2d_lock_rect(my::Texture2D* self, unsigned int level)
+{
+	return self->LockRect(NULL, 0, level);
+}
+
+static void texture2d_create_texture_from_file(my::Texture2D* self, const std::string& path)
+{
+	self->CreateTextureFromFile(u8tows(path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 }
 
 static DWORD ARGB(int a, int r, int g, int b)
@@ -1061,9 +1072,16 @@ void LuaContext::Init(void)
 		, class_<my::BaseTexture, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("BaseTexture")
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
+			.def(constructor<>())
 			.def("GetLevelDesc", &my::Texture2D::GetLevelDesc)
-			.def("LockRect", &my::Texture2D::LockRect)
+			.def("LockRect", &texture2d_lock_rect)
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
+			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
+
+		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
+			.def(constructor<unsigned short*, int, int, int>())
+			.def(constructor<const D3DLOCKED_RECT&, int, int>())
+			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 
