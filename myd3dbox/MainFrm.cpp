@@ -2279,14 +2279,16 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
 						m_ToolScripts[i - first_script_index] = pattern + ffd.cFileName;
+						CString strText;
+						strText.Format(_T("&%d %s"), i - first_script_index + 1, m_ToolScripts[i - first_script_index]);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
-							pMenuBar->SetButtonText(i, m_ToolScripts[i - first_script_index]);
+							pMenuBar->SetButtonText(i, strText);
 							i++;
 						}
 						else
 						{
-							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, m_ToolScripts[i - first_script_index]), i);
+							pMenuBar->InsertButton(CMFCToolBarMenuButton(ID_TOOLS_SCRIPT1 + i - first_script_index, NULL, -1, strText), i);
 							i++;
 						}
 					}
