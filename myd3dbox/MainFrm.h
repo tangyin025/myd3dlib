@@ -211,6 +211,7 @@ public:
 	afx_msg void OnUpdateControlListbox(CCmdUI* pCmdUI);
 	virtual BOOL OnShowPopupMenu(CMFCPopupMenu* pMenuPopup);
 	afx_msg void OnToolsScript1(UINT id);
+	afx_msg void OnUpdateToolsScript1(CCmdUI* pCmdUI);
 };
 
 

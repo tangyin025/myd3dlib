@@ -255,6 +255,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_CONTROL_LISTBOX, &CMainFrame::OnControlListbox)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_LISTBOX, &CMainFrame::OnUpdateControlListbox)
 	ON_COMMAND_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnToolsScript1)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnUpdateToolsScript1)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -2263,20 +2264,21 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				const int first_script_index = i;
 				WIN32_FIND_DATA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				CString pattern = _T("tools\\*.lua");
+				CString pattern = ms2ts(theApp.default_tool_scrpit_pattern).c_str();
 				hFind = FindFirstFile(pattern, &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;
 				}
 
-				PathRemoveFileSpec(pattern.GetBuffer());
+				LPTSTR szName = PathFindFileName(pattern.GetBuffer()); // ! PathRemoveFileSpec
+				*szName = _T('\0');
+				pattern.ReleaseBuffer();
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						PathCombine(m_ToolScripts[i - first_script_index].GetBufferSetLength(MAX_PATH), pattern, ffd.cFileName);
-						m_ToolScripts[i - first_script_index].ReleaseBuffer();
+						m_ToolScripts[i - first_script_index] = pattern + ffd.cFileName;
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
 							pMenuBar->SetButtonText(i, m_ToolScripts[i - first_script_index]);
@@ -2308,4 +2310,11 @@ void CMainFrame::OnToolsScript1(UINT id)
 {
 	// TODO: Add your command handler code here
 	luaL_loadfile(m_State, tstou8((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1);
+}
+
+
+void CMainFrame::OnUpdateToolsScript1(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_ToolScripts[pCmdUI->m_nID - ID_TOOLS_SCRIPT1].IsEmpty());
 }
