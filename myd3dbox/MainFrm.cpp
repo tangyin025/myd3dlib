@@ -2311,7 +2311,18 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 void CMainFrame::OnToolsScript1(UINT id)
 {
 	// TODO: Add your command handler code here
-	luaL_loadfile(m_State, tstou8((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1);
+	if (luaL_loadfile(m_State, tstou8((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1))
+	{
+		if (!lua_isnil(m_State, -1))
+		{
+			std::string msg = lua_tostring(m_State, -1);
+			if (msg.empty())
+				msg = "error object is not a string";
+			lua_pop(m_State, 1);
+
+			theApp.m_EventLog(msg.c_str());
+		}
+	}
 }
 
 
