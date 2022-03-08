@@ -201,20 +201,25 @@ namespace my
 		{
 		}
 
-		T Sample(float u, float v)
+		void SampleFourNeighbors(float u, float v, T& n0, T& n1, T& n2, T& n3, float& uf, float& vf)
 		{
-			float us = u * width - 0.5f;
-			float vs = v * pixel.shape()[0] - 0.5f;
+			const float us = u * width - 0.5f;
+			const float vs = v * pixel.shape()[0] - 0.5f;
 			int j = (int)us;
 			int i = (int)vs;
-			float uf = us - j;
-			float vf = vs - i;
-			const T n[] = {
-				pixel[(i + 0) % pixel.shape()[0]][(j + 0) % width],
-				pixel[(i + 0) % pixel.shape()[0]][(j + 1) % width],
-				pixel[(i + 1) % pixel.shape()[0]][(j + 0) % width],
-				pixel[(i + 1) % pixel.shape()[0]][(j + 1) % width]
-			};
+			n0 = pixel[(i + 0) % pixel.shape()[0]][(j + 0) % width];
+			n1 = pixel[(i + 0) % pixel.shape()[0]][(j + 1) % width];
+			n2 = pixel[(i + 1) % pixel.shape()[0]][(j + 0) % width];
+			n3 = pixel[(i + 1) % pixel.shape()[0]][(j + 1) % width];
+			uf = us - j;
+			vf = vs - i;
+		}
+
+		T Sample(float u, float v)
+		{
+			T n[4];
+			float uf, vf;
+			SampleFourNeighbors(u, v, n[0], n[1], n[2], n[3], uf, vf);
 			return Lerp(Lerp(n[0], n[1], uf), Lerp(n[2], n[3], uf), vf);
 		}
 	};
