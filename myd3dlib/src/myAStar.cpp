@@ -2,6 +2,8 @@
 
 using namespace my;
 
+template class BilinearFiltering<D3DCOLOR>; // unresolved external symbol my::BilinearFiltering<unsigned long>::Sample
+
 template <>
 D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v)
 {

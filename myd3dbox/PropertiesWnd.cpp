@@ -3767,19 +3767,20 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				MessageBox(_T("desc.Format != D3DFMT_L16"));
 				return 0;
 			}
-			dlg.m_TerrainSize.SetSize(desc.Width, desc.Height);
+			dlg.m_TextureSize.SetSize(desc.Width, desc.Height);
 			if (dlg.DoModal() != IDOK)
 			{
 				return 0;
 			}
 			D3DLOCKED_RECT lrc = tex.LockRect(NULL, D3DLOCK_READONLY, 0);
-			boost::multi_array_ref<WORD, 2> pixel((WORD*)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(WORD)]);
+			my::BilinearFiltering<unsigned short> sampler((unsigned short*)lrc.pBits, lrc.Pitch, desc.Width, desc.Height);
 			TerrainStream tstr(terrain);
-			for (int i = 0; i < my::Min<int>(terrain->m_RowChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cy); i++)
+			for (int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkSize + 1; i++)
 			{
-				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, dlg.m_TerrainSize.cx); j++)
+				for (int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkSize + 1; j++)
 				{
-					tstr.SetPos(i, j, my::Vector3(j, ((float)pixel[i][j] / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i));
+					unsigned short pixel = sampler.Sample((j + 0.5f) / (terrain->m_ColChunks * terrain->m_ChunkSize + 1), (i + 0.5f) / (terrain->m_RowChunks * terrain->m_ChunkSize + 1));
+					tstr.SetPos(i, j, my::Vector3(j, ((float)pixel / USHRT_MAX * dlg.m_MaxHeight - dlg.m_WaterLevel) / terrain->m_Actor->m_Scale.y, i));
 				}
 			}
 			tstr.UpdateNormal();
@@ -3811,19 +3812,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				return 0;
 			}
 			D3DLOCKED_RECT lrc = tex.LockRect(NULL, D3DLOCK_READONLY, 0);
-			boost::multi_array_ref<DWORD, 2> pixel((DWORD*)lrc.pBits, boost::extents[desc.Height][lrc.Pitch / sizeof(DWORD)]);
-			for (int i = 0; i < my::Min<int>(terrain->m_RowChunks * terrain->m_ChunkSize + 1, desc.Height); i++)
+			my::BilinearFiltering<D3DCOLOR> sampler((D3DCOLOR*)lrc.pBits, lrc.Pitch, desc.Width, desc.Height);
+			for (int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkSize + 1; i++)
 			{
-				for (int j = 0; j < my::Min<int>(terrain->m_ColChunks * terrain->m_ChunkSize + 1, desc.Width); j++)
+				for (int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkSize + 1; j++)
 				{
+					D3DXCOLOR pixel = sampler.Sample((j + 0.5f) / (terrain->m_ColChunks * terrain->m_ChunkSize + 1), (i + 0.5f) / (terrain->m_RowChunks * terrain->m_ChunkSize + 1));
 					switch (desc.Format)
 					{
 					case D3DFMT_X8R8G8B8:
-						tstr.SetColor(i, j, D3DCOLOR_ARGB(255 - LOBYTE(pixel[i][j] >> 16) - LOBYTE(pixel[i][j] >> 8) - LOBYTE(pixel[i][j]),
-							LOBYTE(pixel[i][j] >> 16), LOBYTE(pixel[i][j] >> 8), LOBYTE(pixel[i][j])));
+						tstr.SetColor(i, j, D3DCOLOR_ARGB(255 - LOBYTE(pixel >> 16) - LOBYTE(pixel >> 8) - LOBYTE(pixel), LOBYTE(pixel >> 16), LOBYTE(pixel >> 8), LOBYTE(pixel)));
 						break;
 					case D3DFMT_A8R8G8B8:
-						tstr.SetColor(i, j, pixel[i][j]);
+						tstr.SetColor(i, j, pixel);
 						break;
 					}
 				}

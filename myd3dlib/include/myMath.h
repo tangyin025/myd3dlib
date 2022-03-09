@@ -3258,6 +3258,30 @@ namespace my
 		AABB & transformSelf(const Matrix4 & m);
 	};
 
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente);
+
+	template <>
+	AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente);
+
 	class UDim // ref: CEGUI::UDim
 	{
 	public:
@@ -3399,28 +3423,4 @@ namespace my
 			return UDim(0.0f, 1.0f);
 		}
 	};
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente);
 }
