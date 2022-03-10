@@ -732,7 +732,7 @@ void CMainFrame::InitFileContext()
 	[
 		luabind::class_<CWnd> ("CWnd")
 
-		, luabind::class_<CChildView, CWnd>("ChildView")
+		, luabind::class_<CChildView, luabind::bases<CWnd, my::DrawHelper> >("ChildView")
 			.def_readonly("Camera", &CChildView::m_Camera)
 
 		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxScene> >("MainFrame")
@@ -853,6 +853,13 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
 		{
 			ActorPtr actor_ptr = dynamic_cast<Actor*>(oct_entity)->shared_from_this();
+			if (Component * cmp = actor_ptr->GetFirstComponent(Component::ComponentTypeScript))
+			{
+				CString msg;
+				msg.Format(_T("invalid serialization: %S.%S"), actor_ptr->GetName(), cmp->GetName());
+				AfxMessageBox(msg);
+				return false;
+			}
 			*oa << boost::serialization::make_nvp(str_printf("Actor%d", i++).c_str(), actor_ptr);
 			return true;
 		}
