@@ -626,7 +626,7 @@ namespace my
 
 		float D = a0 * b1 - a1 * b0;
 
-		if (D > EPSILON_E12)
+		if (D != 0)
 		{
 			intersect.x = (b0 * c1 - b1 * c0) / D;
 			intersect.y = (a1 * c0 - a0 * c1) / D;
