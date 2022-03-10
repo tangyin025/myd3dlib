@@ -470,15 +470,36 @@ namespace my
 		return calculateTriangleDirection(v0, v1, v2).normalize();
 	}
 
-	bool IntersectionTests::isInsideTriangle(const Vector3 & point, const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
+	bool IntersectionTests::isInsideTriangle(const Vector3 & P, const Vector3 & A, const Vector3 & B, const Vector3 & C)
 	{
-		_ASSERT(isValidTriangle(v0, v1, v2));
+		_ASSERT(isValidTriangle(A, B, C));
 
-		Vector3 planeDir = calculateTriangleDirection(v0, v1, v2);
+		//Vector3 planeDir = calculateTriangleDirection(v0, v1, v2);
 
-		return planeDir.dot(calculateTriangleDirection(point, v0, v1)) >= 0
-			&& planeDir.dot(calculateTriangleDirection(point, v1, v2)) >= 0
-			&& planeDir.dot(calculateTriangleDirection(point, v2, v0)) >= 0;
+		//return planeDir.dot(calculateTriangleDirection(point, v0, v1)) >= 0
+		//	&& planeDir.dot(calculateTriangleDirection(point, v1, v2)) >= 0
+		//	&& planeDir.dot(calculateTriangleDirection(point, v2, v0)) >= 0;
+
+		// https://blackpawn.com/texts/pointinpoly/default.html
+		// Compute vectors        
+		Vector3 v0 = C - A;
+		Vector3 v1 = B - A;
+		Vector3 v2 = P - A;
+
+		// Compute dot products
+		float dot00 = v0.dot(v0);
+		float dot01 = v0.dot(v1);
+		float dot02 = v0.dot(v2);
+		float dot11 = v1.dot(v1);
+		float dot12 = v1.dot(v2);
+
+		// Compute barycentric coordinates
+		float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+		float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+		float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+		// Check if point is in triangle
+		return (u >= 0) && (v >= 0) && (u + v < 1);
 	}
 
 	RayResult IntersectionTests::rayAndTriangle(
@@ -490,21 +511,49 @@ namespace my
 	{
 		_ASSERT(IS_NORMALIZED(dir));
 
-		Vector3 normal = calculateTriangleNormal(v0, v1, v2);
+		//Vector3 normal = calculateTriangleNormal(v0, v1, v2);
 
-		float denom = normal.dot(dir);
-		if (denom < -EPSILON_E6)
+		//float denom = normal.dot(dir);
+		//if (denom < -EPSILON_E6)
+		//{
+		//	float t = -(normal.dot(pos) - normal.dot(v0)) / denom;
+		//	if (t >= 0)
+		//	{
+		//		Vector3 intersection = pos + dir * t;
+
+		//		return RayResult(isInsideTriangle(intersection, v0, v1, v2), t);
+		//	}
+		//}
+
+		//return RayResult(false, FLT_MAX);
+
+		// Geometric Tools For Computer Graphics, 11.1.2
+		Vector3 e1 = v1 - v0;
+		Vector3 e2 = v2 - v0;
+		Vector3 p = dir.cross(e2);
+		float tmp = p.dot(e1);
+		if (tmp /*> -EPSILON_E6 && tmp*/ < EPSILON_E6)
 		{
-			float t = -(normal.dot(pos) - normal.dot(v0)) / denom;
-			if (t >= 0)
-			{
-				Vector3 intersection = pos + dir * t;
-
-				return RayResult(isInsideTriangle(intersection, v0, v1, v2), t);
-			}
+			return RayResult(false, FLT_MAX);
 		}
 
-		return RayResult(false, FLT_MAX);
+		tmp = 1.0f / tmp;
+		Vector3 s = pos - v0;
+		float u = tmp * s.dot(p);
+		if (u < 0.0f || u > 1.0f)
+		{
+			return RayResult(false, FLT_MAX);
+		}
+
+		Vector3 q = s.cross(e1);
+		float v = tmp * q.dot(dir);
+		if (v < 0.0f || v + u > 1.0f)
+		{
+			return RayResult(false, FLT_MAX);
+		}
+
+		float t = tmp * q.dot(e2);
+		return RayResult(t > 0, t);
 	}
 
 	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndAABB(const AABB & lhs, const AABB & rhs)

@@ -201,7 +201,7 @@ Ray PerspectiveCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 0.0f);
 
-	return Ray(m_Eye, (At - m_Eye).normalize());
+	return Ray(At, (At - m_Eye).normalize());
 }
 
 Frustum PerspectiveCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
