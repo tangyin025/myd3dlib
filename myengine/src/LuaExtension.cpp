@@ -715,7 +715,8 @@ void LuaContext::Init(void)
 			[
 				def("PolarToCartesian", &my::Vector2::PolarToCartesian),
 				def("RandomUnit", &my::Vector2::RandomUnit),
-				def("RandomUnitCircle", &my::Vector2::RandomUnitCircle)
+				def("RandomUnitCircle", &my::Vector2::RandomUnitCircle),
+				def("LineIntersect", &my::IntersectionTests::IntersectLine2D, luabind::pure_out_value(boost::placeholders::_6))
 			]
 
 		, class_<my::Vector3>("Vector3")

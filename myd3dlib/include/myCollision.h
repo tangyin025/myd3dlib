@@ -553,6 +553,8 @@ namespace my
 		static IntersectionType IntersectTriangleAndPlane(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, const Plane & plane);
 
 		static IntersectionType IntersectTriangleAndFrustum(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, const Frustum & frustum);
+
+		static bool IntersectLine2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////

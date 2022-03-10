@@ -614,6 +614,27 @@ namespace my
 		return ret;
 	}
 
+	bool IntersectionTests::IntersectLine2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect)
+	{
+		float a0 = p0.y - p1.y;
+		float b0 = p1.x - p0.x;
+		float c0 = p0.x * p1.y - p1.x * p0.y;
+
+		float a1 = p2.y - p3.y;
+		float b1 = p3.x - p2.x;
+		float c1 = p2.x * p3.y - p3.x * p2.y;
+
+		float D = a0 * b1 - a1 * b0;
+
+		if (D > EPSILON_E12)
+		{
+			intersect.x = (b0 * c1 - b1 * c0) / D;
+			intersect.y = (a1 * c0 - a0 * c1) / D;
+			return true;
+		}
+		return false;
+	}
+
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// VolumnHelper
 	// /////////////////////////////////////////////////////////////////////////////////////
