@@ -543,7 +543,23 @@ struct ScriptComponent : Component, luabind::wrap_base
 		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
 			my::DialogMgr::getSingleton().m_UIPassObjs.push_back(boost::bind(&Component::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+
+			my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+			try
+			{
+				luabind::wrap_base::call<void>("AddToPipeline", frustum, pipeline, PassMask, ViewPos, TargetPos);
+			}
+			catch (const luabind::error& e)
+			{
+				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			}
 		}
+	}
+
+	static void default_AddToPipeline(Component* ptr, const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
+	{
+		ptr->Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 	}
 };
 
@@ -968,6 +984,17 @@ void LuaContext::Init(void)
 				def("Translation", (my::Matrix4(*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]
 
+		, class_<my::Bone>("Bone")
+			.def_readwrite("rotation", &my::Bone::m_rotation)
+			.def_readwrite("position", &my::Bone::m_position)
+
+		, class_<my::Plane>("Plane")
+			.def(constructor<float, float, float, float>())
+			.def_readwrite("a", &my::Plane::a)
+			.def_readwrite("b", &my::Plane::b)
+			.def_readwrite("c", &my::Plane::c)
+			.def_readwrite("d", &my::Plane::d)
+
 		, class_<my::Ray>("Ray")
 			.def(constructor<const my::Vector3 &, const my::Vector3 &>())
 			.def_readwrite("p", &my::Ray::p)
@@ -979,6 +1006,15 @@ void LuaContext::Init(void)
 			.def(constructor<bool, float>())
 			.def_readonly("first", &my::RayResult::first)
 			.def_readonly("second", &my::RayResult::second)
+
+		, class_<my::Frustum>("Frustum")
+			.def(constructor<const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&>())
+			.def_readonly("Up", &my::Frustum::Up)
+			.def_readonly("Down", &my::Frustum::Down)
+			.def_readonly("Left", &my::Frustum::Left)
+			.def_readonly("Right", &my::Frustum::Right)
+			.def_readonly("Near", &my::Frustum::Near)
+			.def_readonly("Far", &my::Frustum::Far)
 
 		, class_<my::AABB>("AABB")
 			.def(constructor<float, float>())
@@ -1105,10 +1141,6 @@ void LuaContext::Init(void)
 			.def_readonly("child", &my::BoneHierarchyNode::m_child)
 
 		, class_<my::BoneHierarchy>("BoneHierarchy")
-
-		, class_<my::Bone>("Bone")
-			.def_readwrite("rotation", &my::Bone::m_rotation)
-			.def_readwrite("position", &my::Bone::m_position)
 
 		, class_<my::OgreSkeletonAnimation, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("OgreSkeletonAnimation")
 			.def_readonly("boneHierarchy", &my::OgreSkeletonAnimation::m_boneHierarchy)
@@ -1934,17 +1966,6 @@ void LuaContext::Init(void)
 
 	module(m_State)[
 		class_<Material, boost::shared_ptr<Material> >("Material")
-			.enum_("PassMask")
-			[
-				value("PassMaskNone", RenderPipeline::PassMaskNone),
-				value("PassMaskShadow", RenderPipeline::PassMaskShadow),
-				value("PassMaskLight", RenderPipeline::PassMaskLight),
-				value("PassMaskBackground", RenderPipeline::PassMaskBackground),
-				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
-				value("PassMaskNormalOpaque", RenderPipeline::PassMaskNormalOpaque),
-				value("PassMaskShadowNormalOpaque", RenderPipeline::PassMaskShadowNormalOpaque),
-				value("PassMaskTransparent", RenderPipeline::PassMaskTransparent)
-			]
 			.enum_("CullMode")
 			[
 				value("CullModeNone", D3DCULL_NONE),
@@ -2023,6 +2044,7 @@ void LuaContext::Init(void)
 			.def("OnPxThreadObstacleHit", &Component::OnPxThreadObstacleHit, &ScriptComponent::default_OnPxThreadObstacleHit)
 			.def("OnGUI", &Component::OnGUI, &ScriptComponent::default_OnGUI)
 			.def("CalculateAABB", &Component::CalculateAABB)
+			.def("AddToPipeline", &Component::AddToPipeline, &ScriptComponent::default_AddToPipeline)
 			.property("Material", &Component::GetMaterial, &Component::SetMaterial)
 			.def("CreateBoxShape", &Component::CreateBoxShape)
 			.def("CreateCapsuleShape", &Component::CreateCapsuleShape)
@@ -2375,6 +2397,19 @@ void LuaContext::Init(void)
 			.def_readwrite("StartPos", &ActionTrackPose::m_StartPos)
 			.def_readwrite("StartRot", &ActionTrackPose::m_StartRot)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
+
+		, class_<RenderPipeline>("RenderPipeline")
+			.enum_("PassMask")
+			[
+				value("PassMaskNone", RenderPipeline::PassMaskNone),
+				value("PassMaskShadow", RenderPipeline::PassMaskShadow),
+				value("PassMaskLight", RenderPipeline::PassMaskLight),
+				value("PassMaskBackground", RenderPipeline::PassMaskBackground),
+				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
+				value("PassMaskNormalOpaque", RenderPipeline::PassMaskNormalOpaque),
+				value("PassMaskShadowNormalOpaque", RenderPipeline::PassMaskShadowNormalOpaque),
+				value("PassMaskTransparent", RenderPipeline::PassMaskTransparent)
+			]
 
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")
