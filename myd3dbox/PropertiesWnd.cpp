@@ -2617,6 +2617,10 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
 		return _T("Animator");
 	case Component::ComponentTypeNavigation:
 		return _T("Navigation");
+	case Component::ComponentTypeSteering:
+		return _T("Steering");
+	case Component::ComponentTypeScript:
+		return _T("Script");
 	}
 	return _T("Unknown Component");
 }
