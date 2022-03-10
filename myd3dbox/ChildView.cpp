@@ -10,6 +10,7 @@
 #include "Animator.h"
 #include "NavigationSerialization.h"
 #include "StaticEmitter.h"
+#include <boost/scope_exit.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1272,7 +1273,13 @@ void CChildView::OnPaint()
 
 			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			ASSERT_VALID(pFrame);
-			pFrame->PushRenderBuffer(this);
+			pFrame->PhysxScene::PushRenderBuffer(this);
+			pFrame->m_RenderingView = this;
+			BOOST_SCOPE_EXIT(&pFrame)
+			{
+				pFrame->m_RenderingView = FALSE;
+			}
+			BOOST_SCOPE_EXIT_END
 
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{

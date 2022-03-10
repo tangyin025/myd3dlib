@@ -285,6 +285,7 @@ CMainFrame::CMainFrame()
 	, m_PaintHeight(5.0f)
 	, m_PaintColor(1.0f, 0.0f, 0.0f, 0.0f)
 	, m_PaintParticleMinDist(1.0f)
+	, m_RenderingView(NULL)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -731,6 +732,9 @@ void CMainFrame::InitFileContext()
 	[
 		luabind::class_<CWnd> ("CWnd")
 
+		, luabind::class_<CChildView, CWnd>("ChildView")
+			.def_readonly("Camera", &CChildView::m_Camera)
+
 		, luabind::class_<CMainFrame, luabind::bases<CWnd, PhysxScene> >("MainFrame")
 			.def("InsertDlg", &CMainFrame::InsertDlg)
 			.def("RemoveDlg", &CMainFrame::RemoveDlg)
@@ -741,6 +745,7 @@ void CMainFrame::InitFileContext()
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
 			.def_readonly("CollectionObjs", &CMainFrame::m_CollectionObjs)
+			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
 			.def_readonly("MainWnd", &CMainApp::m_pMainWnd)
