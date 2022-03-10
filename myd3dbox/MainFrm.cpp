@@ -963,11 +963,11 @@ Component* CMainFrame::GetSelComponent(DWORD Type)
 void CMainFrame::OnDestroy()
 {
 	m_wndOutliner.OnDestroyItemList();
+	ClearFileContext();
 	CFrameWndEx::OnDestroy();
 
 	// TODO: Add your message handler code here
 	//m_emitter.reset();
-	ClearFileContext();
 	theApp.DestroyD3DDevice();
 	PhysxScene::Shutdown();
 }

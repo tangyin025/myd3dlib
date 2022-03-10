@@ -682,6 +682,7 @@ void LuaContext::Init(void)
 		, def("Wrap", (float(*)(float, float, float))&my::Wrap<float>)
 
 		, class_<my::Vector2>("Vector2")
+			.def(constructor<float>())
 			.def(constructor<float, float>())
 			.def_readwrite("x", &my::Vector2::x)
 			.def_readwrite("y", &my::Vector2::y)
@@ -720,6 +721,8 @@ void LuaContext::Init(void)
 			]
 
 		, class_<my::Vector3>("Vector3")
+			.def(constructor<float>())
+			.def(constructor<const my::Vector2&, float>())
 			.def(constructor<float, float, float>())
 			.def_readwrite("x", &my::Vector3::x)
 			.def_readwrite("y", &my::Vector3::y)
