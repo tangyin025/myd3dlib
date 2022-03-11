@@ -663,24 +663,50 @@ namespace my
 		return ret;
 	}
 
-	bool IntersectionTests::IntersectLine2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect)
+	bool IntersectionTests::IntersectLineSegments2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect)
 	{
-		float a0 = p0.y - p1.y;
-		float b0 = p1.x - p0.x;
-		float c0 = p0.x * p1.y - p1.x * p0.y;
+		//float a0 = p0.y - p1.y;
+		//float b0 = p1.x - p0.x;
+		//float c0 = p0.x * p1.y - p1.x * p0.y;
 
-		float a1 = p2.y - p3.y;
-		float b1 = p3.x - p2.x;
-		float c1 = p2.x * p3.y - p3.x * p2.y;
+		//float a1 = p2.y - p3.y;
+		//float b1 = p3.x - p2.x;
+		//float c1 = p2.x * p3.y - p3.x * p2.y;
 
-		float D = a0 * b1 - a1 * b0;
+		//float D = a0 * b1 - a1 * b0;
 
-		if (D != 0)
+		//if (D != 0)
+		//{
+		//	intersect.x = (b0 * c1 - b1 * c0) / D;
+		//	intersect.y = (a1 * c0 - a0 * c1) / D;
+		//	return true;
+		//}
+		//return false;
+
+		// Geometric Tools For Computer Graphics, 7.1
+		const Vector2 D0 = p1 - p0, D1 = p3 - p2, E = p2 - p0;
+		float kross = D0.kross(D1);
+		float sqrKross = kross * kross;
+		float sqrLen0 = D0.magnitudeSq();
+		float sqrLen1 = D1.magnitudeSq();
+		if (sqrKross > EPSILON_E12 * sqrLen0 * sqrLen1)
 		{
-			intersect.x = (b0 * c1 - b1 * c0) / D;
-			intersect.y = (a1 * c0 - a0 * c1) / D;
+			// lines of the segments are not parallel
+			float s = (E.x * D1.y - E.y * D1.x) / kross;
+			if (s < 0 || s > 1) {
+				// intersection of lines is not a point on segment P0 + s * D0
+				return false;
+			}
+			float t = (E.x * D0.y - E.y * D0.x) / kross;
+			if (t < 0 || t > 1) {
+				// intersection of lines is not a point on segment P1 + t * D1
+				return false;
+			}
+			// intersection of lines is a point on each segment
+			intersect = p0 + D0 * s;
 			return true;
 		}
+		// lines of the segments are parallel
 		return false;
 	}
 
