@@ -412,10 +412,10 @@ namespace my
 		{
 		}
 
-		Vector3(const Vector2 & _v, float _z)
+		Vector3(const Vector2 & _v, float _y)
 			: x(_v.x)
-			, y(_v.y)
-			, z(_z)
+			, y(_y)
+			, z(_v.y)
 		{
 		}
 
