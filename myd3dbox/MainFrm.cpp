@@ -33,6 +33,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/range/algorithm/find_if.hpp>
 #include "DeleteCmpsDlg.h"
+#include <lualib.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -187,6 +188,28 @@ static int os_exit(lua_State * L)
 	AfxGetMainWnd()->SendMessage(WM_CLOSE);
 	return 0;
 }
+//
+//static int io_open(lua_State* L) {
+//	const char* filename = luaL_checkstring(L, 1);
+//	const char* mode = luaL_optstring(L, 2, "r");
+//	FILE** pf = (FILE**)lua_newuserdata(L, sizeof(FILE*));
+//	*pf = NULL;  /* file handle is currently `closed' */
+//	luaL_getmetatable(L, LUA_FILEHANDLE);
+//	lua_setmetatable(L, -2);
+//	*pf = _tfopen(u8tots(filename).c_str(), ms2ts(mode).c_str());
+//	if (*pf == NULL)
+//	{
+//		int en = errno;  /* calls to Lua API may change this value */
+//		lua_pushnil(L);
+//		if (filename)
+//			lua_pushfstring(L, "%s: %s", filename, strerror(en));
+//		else
+//			lua_pushfstring(L, "%s", strerror(en));
+//		lua_pushinteger(L, en);
+//		return 3;
+//	}
+//	return 1;
+//}
 
 // CMainFrame
 
@@ -727,6 +750,9 @@ void CMainFrame::InitFileContext()
 	lua_getglobal(m_State, "os");
 	lua_pushcclosure(m_State, os_exit, 0);
 	lua_setfield(m_State, -2, "exit");
+	//lua_getglobal(m_State, "io");
+	//lua_pushcclosure(m_State, io_open, 0); // ! lost file:__close
+	//lua_setfield(m_State, -2, "open");
 	lua_settop(m_State, 0);
 	luabind::module(m_State)
 	[
