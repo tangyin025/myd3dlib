@@ -40,6 +40,8 @@ namespace my
 
 		void PushLineAABB(const AABB & aabb, D3DCOLOR color);
 
+		void PushLineBox(float hx, float hy, float hz, const Matrix4 & world, D3DCOLOR color);
+
 		void PushLineGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0), const Matrix4 & Transform = Matrix4::identity);
 
 		void PushTriangleVertex(float x, float y, float z, D3DCOLOR color);

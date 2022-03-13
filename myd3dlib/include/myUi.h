@@ -1449,7 +1449,7 @@ namespace my
 	protected:
 		Dialog(void)
 			: m_Manager(NULL)
-			, m_World(Matrix4::identity)
+			, m_World(Matrix4::Identity())
 			, m_EnableDrag(false)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
@@ -1460,7 +1460,7 @@ namespace my
 		Dialog(const char * Name)
 			: Control(Name)
 			, m_Manager(NULL)
-			, m_World(Matrix4::identity)
+			, m_World(Matrix4::Identity())
 			, m_EnableDrag(false)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0, 0)

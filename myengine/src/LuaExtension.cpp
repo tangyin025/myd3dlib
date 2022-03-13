@@ -732,8 +732,7 @@ void LuaContext::Init(void)
 			[
 				def("PolarToCartesian", &my::Vector2::PolarToCartesian),
 				def("RandomUnit", &my::Vector2::RandomUnit),
-				def("RandomUnitCircle", &my::Vector2::RandomUnitCircle),
-				def("IntersectLineSegments", &my::IntersectionTests::IntersectLineSegments2D, luabind::pure_out_value(boost::placeholders::_5))
+				def("RandomUnitCircle", &my::Vector2::RandomUnitCircle)
 			]
 
 		, class_<my::Vector3>("Vector3")
@@ -1002,11 +1001,6 @@ void LuaContext::Init(void)
 			.def("transform", &my::Ray::transform)
 			.def("transformSelf", &my::Ray::transformSelf)
 
-		, class_<my::RayResult>("RayResult")
-			.def(constructor<bool, float>())
-			.def_readonly("first", &my::RayResult::first)
-			.def_readonly("second", &my::RayResult::second)
-
 		, class_<my::Frustum>("Frustum")
 			.def(constructor<const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&, const my::Plane&>())
 			.def_readonly("Up", &my::Frustum::Up)
@@ -1062,6 +1056,7 @@ void LuaContext::Init(void)
 			.def("PushLineVertex", &my::DrawHelper::PushLineVertex)
 			.def("PushLine", &my::DrawHelper::PushLine)
 			.def("PushLineAABB", &my::DrawHelper::PushLineAABB)
+			.def("PushLineBox", &my::DrawHelper::PushLineBox)
 			.def("PushTriangleVertex", &my::DrawHelper::PushTriangleVertex)
 			.def("PushTriangle", &my::DrawHelper::PushTriangle)
 
@@ -1102,6 +1097,55 @@ void LuaContext::Init(void)
 	];
 
 	module(m_State)[
+		class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
+			.def(constructor<unsigned short*, int, int, int>())
+			.def(constructor<const D3DLOCKED_RECT&, int, int>())
+			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)
+
+		, class_<my::RayResult>("RayResult")
+			.def(constructor<bool, float>())
+			.def_readonly("first", &my::RayResult::first)
+			.def_readonly("second", &my::RayResult::second)
+
+		, class_<my::CollisionPrimitive>("CollisionPrimitive")
+			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
+			.property("Friction", &my::CollisionPrimitive::getFriction, &my::CollisionPrimitive::setFriction)
+			.property("Restitution", &my::CollisionPrimitive::getRestitution, &my::CollisionPrimitive::setRestitution)
+			.property("Transform", &my::CollisionPrimitive::getTransform, &my::CollisionPrimitive::setTransform)
+			.enum_("PrimitiveType")
+			[
+				value("PrimitiveTypeShere", my::CollisionPrimitive::PrimitiveTypeShere),
+				value("PrimitiveTypeBox", my::CollisionPrimitive::PrimitiveTypeBox)
+			]
+			.property("PrimitiveType", &my::CollisionPrimitive::getPrimitiveType)
+
+		, class_<my::CollisionSphere, my::CollisionPrimitive>("CollisionSphere")
+			.def(constructor<float, const my::Matrix4&, float, float>())
+			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
+
+		, class_<my::CollisionBox, my::CollisionPrimitive>("CollisionBox")
+			.def(constructor<const my::Vector3&, const my::Matrix4&, float, float>())
+			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
+
+		, class_<my::IntersectionTests>("IntersectionTests")
+			.scope
+			[
+				def("sphereAndHalfSpace", &my::IntersectionTests::sphereAndHalfSpace),
+				def("sphereAndSphere", &my::IntersectionTests::sphereAndSphere),
+				def("boxAndHalfSpace", &my::IntersectionTests::boxAndHalfSpace),
+				def("boxAndBox", &my::IntersectionTests::boxAndBox),
+				def("rayAndParallelPlane", &my::IntersectionTests::rayAndParallelPlane),
+				def("rayAndAABB", &my::IntersectionTests::rayAndAABB),
+				def("rayAndHalfSpace", &my::IntersectionTests::rayAndHalfSpace),
+				def("rayAndSphere", &my::IntersectionTests::rayAndSphere),
+				def("rayAndCylinder", &my::IntersectionTests::rayAndCylinder),
+				def("rayAndTriangle", &my::IntersectionTests::rayAndTriangle),
+				def("rayAndBox", &my::IntersectionTests::rayAndBox),
+				def("IntersectLineSegments", &my::IntersectionTests::IntersectLineSegments2D, luabind::pure_out_value(boost::placeholders::_5))
+			]
+	];
+
+	module(m_State)[
 		class_<D3DLOCKED_RECT>("D3DLOCKED_RECT")
 			.def_readonly("Pitch", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
@@ -1117,11 +1161,6 @@ void LuaContext::Init(void)
 			.def("LockRect", &texture2d_lock_rect)
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
-
-		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
-			.def(constructor<unsigned short*, int, int, int>())
-			.def(constructor<const D3DLOCKED_RECT&, int, int>())
-			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 

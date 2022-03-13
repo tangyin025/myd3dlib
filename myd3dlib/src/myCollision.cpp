@@ -65,7 +65,7 @@ namespace my
 	{
 		_ASSERT(NULL != body);
 
-		transform = offset * body->getTransform();
+		setTransform(offset * body->getTransform());
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -611,7 +611,7 @@ namespace my
 		}
 
 		// Box definitely intersected
-		return RayResult(true, tnear > 0 ? tnear : tfar);
+		return RayResult(tnear > 0, tnear > 0 ? tnear : tfar);
 	}
 
 	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndAABB(const AABB & lhs, const AABB & rhs)

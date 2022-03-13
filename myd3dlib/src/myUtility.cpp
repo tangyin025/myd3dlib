@@ -38,7 +38,7 @@ void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR color
 
 void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
 {
-	Vector3 v[8] = {
+	const Vector3 v[8] = {
 		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z),
 		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z),
 		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z),
@@ -46,8 +46,25 @@ void DrawHelper::PushLineAABB(const AABB & aabb, D3DCOLOR color)
 		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z),
 		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z),
 		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z),
-		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z),
-	};
+		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z) };
+
+	PushLine(v[0], v[1], color); PushLine(v[1], v[2], color); PushLine(v[2], v[3], color); PushLine(v[3], v[0], color);
+	PushLine(v[4], v[5], color); PushLine(v[5], v[6], color); PushLine(v[6], v[7], color); PushLine(v[7], v[4], color);
+	PushLine(v[0], v[4], color); PushLine(v[1], v[5], color); PushLine(v[2], v[6], color); PushLine(v[3], v[7], color);
+}
+
+void DrawHelper::PushLineBox(float hx, float hy, float hz, const Matrix4 & world, D3DCOLOR color)
+{
+	const Vector3 v[8] = {
+		Vector3(-hx, -hy, -hz).transformCoord(world),
+		Vector3(-hx, -hy,  hz).transformCoord(world),
+		Vector3(-hx,  hy,  hz).transformCoord(world),
+		Vector3(-hx,  hy, -hz).transformCoord(world),
+		Vector3( hx, -hy, -hz).transformCoord(world),
+		Vector3( hx, -hy,  hz).transformCoord(world),
+		Vector3( hx,  hy,  hz).transformCoord(world),
+		Vector3( hx,  hy, -hz).transformCoord(world) };
+
 	PushLine(v[0], v[1], color); PushLine(v[1], v[2], color); PushLine(v[2], v[3], color); PushLine(v[3], v[0], color);
 	PushLine(v[4], v[5], color); PushLine(v[5], v[6], color); PushLine(v[6], v[7], color); PushLine(v[7], v[4], color);
 	PushLine(v[0], v[4], color); PushLine(v[1], v[5], color); PushLine(v[2], v[6], color); PushLine(v[3], v[7], color);

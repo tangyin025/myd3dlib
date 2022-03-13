@@ -274,7 +274,7 @@ namespace my
 			return friction;
 		}
 
-		void setResitution(float _restitution)
+		void setRestitution(float _restitution)
 		{
 			restitution = _restitution;
 		}
@@ -294,6 +294,11 @@ namespace my
 			return transform[i].xyz;
 		}
 
+		void setTransform(const Matrix4 & _transform)
+		{
+			transform = _transform;
+		}
+
 		void calculateInternals(void);
 
 	protected:
@@ -302,6 +307,7 @@ namespace my
 			, offset(_offset)
 			, friction(_friction)
 			, restitution(_restitution)
+			, transform(Matrix4::Identity())
 		{
 		}
 
