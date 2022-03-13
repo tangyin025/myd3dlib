@@ -2888,7 +2888,7 @@ namespace my
 
 		float DistanceToPoint(const Vector3 & pt) const
 		{
-			return a * pt.x + b * pt.y + c * pt.z + d;
+			return normal.dot(pt) + d;
 		}
 
 		Plane transform(const Matrix4 & InverseTranspose) const;

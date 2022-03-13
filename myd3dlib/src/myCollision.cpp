@@ -768,6 +768,81 @@ namespace my
 		return false;
 	}
 
+	static void closestAxis2(const Vector3 & v, unsigned int & j, unsigned int & k)
+	{
+		// find largest 2D plane projection
+		const float absPx = fabs(v.x);
+		const float absPy = fabs(v.y);
+		const float absPz = fabs(v.z);
+		//PxU32 m = 0;	//x biggest axis
+		j = 1;
+		k = 2;
+		if (absPy > absPx && absPy > absPz)
+		{
+			//y biggest
+			j = 2;
+			k = 0;
+			//m = 1;
+		}
+		else if (absPz > absPx)
+		{
+			//z biggest
+			j = 0;
+			k = 1;
+			//m = 2;
+		}
+		//		return m;
+	}
+
+	bool IntersectionTests::IntersectEdgeEdge3(const Vector3 & p1, const Vector3 & p2, const Vector3 & motion, const Vector3 & p3, const Vector3 & p4, float & dist, Vector3 & ip)
+	{
+		// While we're at it, precompute some more data for EE tests
+		const Vector3 v1 = p2 - p1;
+
+		// Build plane P based on edge (p1, p2) and direction (dir)
+		const Plane plane = Plane::NormalPosition(v1.cross(motion), p1);
+
+		// find largest 2D plane projection
+		unsigned int i, j;
+		closestAxis2(plane.normal, i, j);
+		const float coeff = 1.0f / (v1[i] * motion[j] - v1[j] * motion[i]);
+
+		// if colliding edge (p3,p4) does not cross plane return no collision
+		// same as if p3 and p4 on same side of plane return 0
+		//
+		// Derivation:
+		// d3 = d(p3, P) = (p3 | plane.n) - plane.d;		Reversed sign compared to Plane::Distance() because plane.d is negated.
+		// d4 = d(p4, P) = (p4 | plane.n) - plane.d;		Reversed sign compared to Plane::Distance() because plane.d is negated.
+		// if d3 and d4 have the same sign, they're on the same side of the plane => no collision
+		// We test both sides at the same time by only testing Sign(d3 * d4).
+		// ### put that in the Plane class
+		// ### also check that code in the triangle class that might be similar
+		const float d3 = plane.DistanceToPoint(p3);
+
+		const float temp = d3 * plane.DistanceToPoint(p4);
+		if (temp > 0.0f)	return false;
+
+		// if colliding edge (p3,p4) and plane are parallel return no collision
+		const Vector3 v2 = p4 - p3;
+
+		const float temp2 = plane.normal.dot(v2);
+		if (temp2 == 0.0f)	return false;	// ### epsilon would be better
+
+		// compute intersection point of plane and colliding edge (p3,p4)
+		ip = p3 - v2 * (d3 / temp2);
+
+		// compute distance of intersection from line (ip, -dir) to line (p1,p2)
+		dist = (v1[i] * (ip[j] - p1[j]) - v1[j] * (ip[i] - p1[i])) * coeff;
+		if (dist < 0.0f)	return false;
+
+		// compute intersection point on edge (p1,p2) line
+		ip -= motion * dist;
+
+		// check if intersection point (ip) is between edge (p1,p2) vertices
+		const float temp3 = (p1.x - ip.x) * (p2.x - ip.x) + (p1.y - ip.y) * (p2.y - ip.y) + (p1.z - ip.z) * (p2.z - ip.z);
+		return temp3 < 0.0f;
+	}
+
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// VolumnHelper
 	// /////////////////////////////////////////////////////////////////////////////////////
