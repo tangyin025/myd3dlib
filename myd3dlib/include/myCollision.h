@@ -565,7 +565,7 @@ namespace my
 
 		static IntersectionType IntersectTriangleAndFrustum(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, const Frustum & frustum);
 
-		static bool IntersectLineSegments2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect);
+		static bool IntersectSegments2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect);
 
 		static bool IntersectEdgeEdge3(const Vector3 & p1, const Vector3 & p2, const Vector3 & motion, const Vector3 & p3, const Vector3 & p4, float & dist, Vector3 & ip);
 	};

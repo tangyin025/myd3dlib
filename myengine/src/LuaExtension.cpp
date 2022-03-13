@@ -1141,7 +1141,7 @@ void LuaContext::Init(void)
 				def("rayAndCylinder", &my::IntersectionTests::rayAndCylinder),
 				def("rayAndTriangle", &my::IntersectionTests::rayAndTriangle),
 				def("rayAndBox", &my::IntersectionTests::rayAndBox),
-				def("IntersectLineSegments", &my::IntersectionTests::IntersectLineSegments2D, luabind::pure_out_value(boost::placeholders::_5))
+				def("IntersectSegments2D", &my::IntersectionTests::IntersectSegments2D, luabind::pure_out_value(boost::placeholders::_5))
 			]
 	];
 

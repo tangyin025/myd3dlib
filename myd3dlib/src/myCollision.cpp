@@ -721,7 +721,7 @@ namespace my
 		return ret;
 	}
 
-	bool IntersectionTests::IntersectLineSegments2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect)
+	bool IntersectionTests::IntersectSegments2D(const Vector2 & p0, const Vector2 & p1, const Vector2 & p2, const Vector2 & p3, Vector2 & intersect)
 	{
 		//float a0 = p0.y - p1.y;
 		//float b0 = p1.x - p0.x;
