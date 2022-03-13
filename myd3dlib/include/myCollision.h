@@ -12,60 +12,60 @@ namespace my
 
 	class RigidBody;
 
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// BoundingSphere
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// BoundingSphere
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	class BoundingSphere
-	{
-	protected:
-		Vector3 center;
+	//class BoundingSphere
+	//{
+	//protected:
+	//	Vector3 center;
 
-		float radius;
+	//	float radius;
 
-	public:
-		const Vector3 & getCenter(void) const
-		{
-			return center;
-		}
+	//public:
+	//	const Vector3 & getCenter(void) const
+	//	{
+	//		return center;
+	//	}
 
-		void setCenter(const Vector3 & _center)
-		{
-			center = _center;
-		}
+	//	void setCenter(const Vector3 & _center)
+	//	{
+	//		center = _center;
+	//	}
 
-		const float getRadius(void) const
-		{
-			return radius;
-		}
+	//	const float getRadius(void) const
+	//	{
+	//		return radius;
+	//	}
 
-		void setRadius(float _radius)
-		{
-			radius = _radius;
-		}
+	//	void setRadius(float _radius)
+	//	{
+	//		radius = _radius;
+	//	}
 
-	public:
-		BoundingSphere(const Vector3 & _center, float _radius);
+	//public:
+	//	BoundingSphere(const Vector3 & _center, float _radius);
 
-		bool overlaps(const BoundingSphere & other) const;
+	//	bool overlaps(const BoundingSphere & other) const;
 
-		float getGrowth(const BoundingSphere & other) const;
+	//	float getGrowth(const BoundingSphere & other) const;
 
-		float getVolumn(void) const;
-	};
+	//	float getVolumn(void) const;
+	//};
 
-	BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
+	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
 
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// PotentialContact
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// PotentialContact
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	struct PotentialContact
-	{
-		RigidBody * body0;
+	//struct PotentialContact
+	//{
+	//	RigidBody * body0;
 
-		RigidBody * body1;
-	};
+	//	RigidBody * body1;
+	//};
 
 	//// /////////////////////////////////////////////////////////////////////////////////////
 	//// BVHNode
@@ -535,6 +535,11 @@ namespace my
 			const Vector3 & v1,
 			const Vector3 & v2);
 
+		static RayResult rayAndBox(
+			const Vector3 & pos,
+			const Vector3 & dir,
+			const CollisionBox & box);
+		
 		enum IntersectionType
 		{
 			IntersectionTypeUnknown = 0,
@@ -718,50 +723,50 @@ namespace my
 			Contact * contacts,
 			unsigned limits);
 
-		static bool _tryBoxAxisAndTriangle(
-			const CollisionBox & box,
-			const Vector3 & axis,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			unsigned index,
-			float & smallestPenetration,
-			unsigned & smallestIndex);
+		//static bool _tryBoxAxisAndTriangle(
+		//	const CollisionBox & box,
+		//	const Vector3 & axis,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	unsigned index,
+		//	float & smallestPenetration,
+		//	unsigned & smallestIndex);
 
-		static bool _zeroAxisOrTryBoxAxisAndTriangle(
-			const CollisionBox & box,
-			const Vector3 & axis,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			unsigned index,
-			float & smallestPenetration,
-			unsigned & smallestIndex);
+		//static bool _zeroAxisOrTryBoxAxisAndTriangle(
+		//	const CollisionBox & box,
+		//	const Vector3 & axis,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	unsigned index,
+		//	float & smallestPenetration,
+		//	unsigned & smallestIndex);
 
-		static float calculateBoxAxisAndTrianglePenetration(
-			const CollisionBox & box,
-			const Vector3 & axis,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2);
+		//static float calculateBoxAxisAndTrianglePenetration(
+		//	const CollisionBox & box,
+		//	const Vector3 & axis,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2);
 
-		static Vector3 findPointFromTriangleByDirection(
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			const Vector3 & dir);
+		//static Vector3 findPointFromTriangleByDirection(
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	const Vector3 & dir);
 
-		// ! still can't work properly
-		static unsigned boxAndTriangle(
-			const CollisionBox & box,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			RigidBody * triangleBody,
-			float triangleFriction,
-			float triangleRestitution,
-			Contact * contacts,
-			unsigned limits);
+		//// ! still can't work properly
+		//static unsigned boxAndTriangle(
+		//	const CollisionBox & box,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	RigidBody * triangleBody,
+		//	float triangleFriction,
+		//	float triangleRestitution,
+		//	Contact * contacts,
+		//	unsigned limits);
 	};
 }
 
