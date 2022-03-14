@@ -20,6 +20,8 @@
 #include <boost/serialization/export.hpp>
 #include "CctCharacterControllerManager.h"
 
+using namespace my;
+
 void * PhysxAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
 #ifdef _DEBUG
@@ -128,7 +130,7 @@ const char * PhysxScene::StepperTask::getName(void) const
 bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher)
 {
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = (physx::PxVec3&)my::Vector3::Gravity;
+	sceneDesc.gravity = (physx::PxVec3&)Vector3::Gravity;
 	sceneDesc.simulationEventCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
@@ -212,7 +214,7 @@ void PhysxScene::TickPostRender(float dtime)
 					Actor* actor = (Actor*)mBufferedActiveTransforms[i].userData;
 					if (!actor->m_Base)
 					{
-						actor->SetPose((my::Vector3&)mBufferedActiveTransforms[i].actor2World.p, (my::Quaternion&)mBufferedActiveTransforms[i].actor2World.q);
+						actor->SetPose((Vector3&)mBufferedActiveTransforms[i].actor2World.p, (Quaternion&)mBufferedActiveTransforms[i].actor2World.q);
 					}
 				}
 			}
@@ -350,7 +352,7 @@ void PhysxScene::PushRenderBuffer(my::DrawHelper * drawHelper)
 		for(physx::PxU32 i=0; i<numLines; i++)
 		{
 			const physx::PxDebugLine& line = lines[i];
-			drawHelper->PushLine((my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
+			drawHelper->PushLine((Vector3 &)line.pos0, (Vector3 &)line.pos1, line.color0);
 		}
 	}
 
@@ -375,7 +377,7 @@ void PhysxScene::PushRenderBuffer(my::DrawHelper * drawHelper)
 			for (physx::PxU32 i = 0; i < numLines; i++)
 			{
 				const physx::PxDebugLine& line = lines[i];
-				drawHelper->PushLine((my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
+				drawHelper->PushLine((Vector3 &)line.pos0, (Vector3 &)line.pos1, line.color0);
 			}
 		}
 		controllerDebugRenderable.clear();
@@ -486,4 +488,111 @@ void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxActor * actor
 		}
 		mDeletedActors.push_back(const_cast<physx::PxActor*>(actor));
 	}
+}
+
+PhysxSpatialIndex::PhysxSpatialIndex(void)
+	: m_PxSpatialIndex(physx::PxCreateSpatialIndex(), PhysxDeleter<physx::PxSpatialIndex>())
+{
+
+}
+
+PhysxSpatialIndex::~PhysxSpatialIndex(void)
+{
+
+}
+
+void PhysxSpatialIndex::AddTriangle(const my::Vector3& v0, const my::Vector3& v1, const my::Vector3& v2)
+{
+	m_TriangleList.push_back(physx::PxTriangle((physx::PxVec3&)v0, (physx::PxVec3&)v1, (physx::PxVec3&)v2));
+}
+
+void PhysxSpatialIndex::AddBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot)
+{
+	AddGeometry(physx::PxBoxGeometry(hx, hy, hz), physx::PxTransform((physx::PxVec3&)Pos, (physx::PxQuat&)Rot));
+}
+
+void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose)
+{
+	m_GeometryList.push_back(GeometryTuple(geom, pose, 0));
+	m_PxSpatialIndex->insert(m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose));
+}
+
+size_t PhysxSpatialIndex::GetTriangleNum(void) const
+{
+	return m_TriangleList.size();
+}
+
+size_t PhysxSpatialIndex::GetGeometryNum(void) const
+{
+	return m_GeometryList.size();
+}
+
+void PhysxSpatialIndex::GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my::Vector3& v2) const
+{
+	v0 = (Vector3&)m_TriangleList[i].verts[0];
+	v1 = (Vector3&)m_TriangleList[i].verts[1];
+	v2 = (Vector3&)m_TriangleList[i].verts[2];
+}
+
+void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vector3& Pos, my::Quaternion& Rot) const
+{
+	const physx::PxBoxGeometry& box = m_GeometryList[i].get<0>().box();
+	hx = box.halfExtents.x;
+	hy = box.halfExtents.y;
+	hz = box.halfExtents.z;
+
+	Pos = (Vector3&)m_GeometryList[i].get<1>().p;
+	Rot = (Quaternion&)m_GeometryList[i].get<1>().q;
+}
+
+bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t)
+{
+	struct HitCallback : physx::PxSpatialLocationCallback
+	{
+		float closest;
+		const Vector3 & dir;
+		float dist;
+		physx::PxBoxGeometry box;
+		physx::PxTransform pose;
+		HitCallback(const Vector3& _dir, float _dist, float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot)
+			: closest(FLT_MAX)
+			, dir(_dir)
+			, dist(_dist)
+			, box(hx, hy, hz)
+			, pose((physx::PxVec3&)Pos, (physx::PxQuat&)Rot)
+		{
+		}
+		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item, physx::PxReal distance, physx::PxReal& shrunkDistance)
+		{
+			GeometryTuple& geomtuple = static_cast<GeometryTuple&>(item);
+			physx::PxSweepHit hit;
+			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geomtuple.get<0>().any(), geomtuple.get<1>(), hit))
+			{
+				if (hit.distance < closest)
+				{
+					closest = hit.distance;
+				}
+			}
+			return true;
+		}
+	};
+
+	HitCallback cb(dir, dist, hx, hy, hz, Pos, Rot);
+	m_PxSpatialIndex->sweep(physx::PxGeometryQuery::getWorldBounds(cb.box, cb.pose), (physx::PxVec3&)dir, dist, cb);
+
+	physx::PxSweepHit hit;
+	if (physx::PxMeshQuery::sweep((physx::PxVec3&)dir, dist, cb.box, cb.pose, GetTriangleNum(), m_TriangleList.data(), hit))
+	{
+		if (hit.distance < cb.closest)
+		{
+			cb.closest = hit.distance;
+		}
+	}
+
+	if (cb.closest < FLT_MAX)
+	{
+		t = cb.closest;
+		return true;
+	}
+	return false;
 }

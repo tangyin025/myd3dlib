@@ -1097,55 +1097,6 @@ void LuaContext::Init(void)
 	];
 
 	module(m_State)[
-		class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
-			.def(constructor<unsigned short*, int, int, int>())
-			.def(constructor<const D3DLOCKED_RECT&, int, int>())
-			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)
-
-		, class_<my::RayResult>("RayResult")
-			.def(constructor<bool, float>())
-			.def_readonly("first", &my::RayResult::first)
-			.def_readonly("second", &my::RayResult::second)
-
-		, class_<my::CollisionPrimitive>("CollisionPrimitive")
-			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
-			.property("Friction", &my::CollisionPrimitive::getFriction, &my::CollisionPrimitive::setFriction)
-			.property("Restitution", &my::CollisionPrimitive::getRestitution, &my::CollisionPrimitive::setRestitution)
-			.property("Transform", &my::CollisionPrimitive::getTransform, &my::CollisionPrimitive::setTransform)
-			.enum_("PrimitiveType")
-			[
-				value("PrimitiveTypeShere", my::CollisionPrimitive::PrimitiveTypeShere),
-				value("PrimitiveTypeBox", my::CollisionPrimitive::PrimitiveTypeBox)
-			]
-			.property("PrimitiveType", &my::CollisionPrimitive::getPrimitiveType)
-
-		, class_<my::CollisionSphere, my::CollisionPrimitive>("CollisionSphere")
-			.def(constructor<float, const my::Matrix4&, float, float>())
-			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
-
-		, class_<my::CollisionBox, my::CollisionPrimitive>("CollisionBox")
-			.def(constructor<const my::Vector3&, const my::Matrix4&, float, float>())
-			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
-
-		, class_<my::IntersectionTests>("IntersectionTests")
-			.scope
-			[
-				def("sphereAndHalfSpace", &my::IntersectionTests::sphereAndHalfSpace),
-				def("sphereAndSphere", &my::IntersectionTests::sphereAndSphere),
-				def("boxAndHalfSpace", &my::IntersectionTests::boxAndHalfSpace),
-				def("boxAndBox", &my::IntersectionTests::boxAndBox),
-				def("rayAndParallelPlane", &my::IntersectionTests::rayAndParallelPlane),
-				def("rayAndAABB", &my::IntersectionTests::rayAndAABB),
-				def("rayAndHalfSpace", &my::IntersectionTests::rayAndHalfSpace),
-				def("rayAndSphere", &my::IntersectionTests::rayAndSphere),
-				def("rayAndCylinder", &my::IntersectionTests::rayAndCylinder),
-				def("rayAndTriangle", &my::IntersectionTests::rayAndTriangle),
-				def("rayAndBox", &my::IntersectionTests::rayAndBox),
-				def("IntersectSegments2D", &my::IntersectionTests::IntersectSegments2D, luabind::pure_out_value(boost::placeholders::_5))
-			]
-	];
-
-	module(m_State)[
 		class_<D3DLOCKED_RECT>("D3DLOCKED_RECT")
 			.def_readonly("Pitch", &D3DLOCKED_RECT::Pitch)
 			.def_readonly("pBits", &D3DLOCKED_RECT::pBits)
@@ -2515,17 +2466,74 @@ void LuaContext::Init(void)
 			.def("Stop", &Mp3::Stop)
 	];
 
-	//module(m_State)[
-	//	class_<noise::module::Perlin>("Perlin")
-	//		.def(constructor<>())
-	//		.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
-	//		.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
-	//		.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
-	//		.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
-	//		.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
-	//		.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
-	//		.def("GetValue", &noise::module::Perlin::GetValue)
-	//];
+	module(m_State)[
+		//class_<noise::module::Perlin>("Perlin")
+		//	.def(constructor<>())
+		//	.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
+		//	.property("Lacunarity", &noise::module::Perlin::GetLacunarity, &noise::module::Perlin::SetLacunarity)
+		//	.property("NoiseQuality", &noise::module::Perlin::GetNoiseQuality, &noise::module::Perlin::SetNoiseQuality)
+		//	.property("OctaveCount", &noise::module::Perlin::GetOctaveCount, &noise::module::Perlin::SetOctaveCount)
+		//	.property("Persistence", &noise::module::Perlin::GetPersistence, &noise::module::Perlin::SetPersistence)
+		//	.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
+		//	.def("GetValue", &noise::module::Perlin::GetValue)
+
+		class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
+			.def(constructor<unsigned short*, int, int, int>())
+			.def(constructor<const D3DLOCKED_RECT&, int, int>())
+			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)
+
+		, class_<my::RayResult>("RayResult")
+			.def(constructor<bool, float>())
+			.def_readonly("first", &my::RayResult::first)
+			.def_readonly("second", &my::RayResult::second)
+
+		, class_<my::CollisionPrimitive>("CollisionPrimitive")
+			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
+			.property("Friction", &my::CollisionPrimitive::getFriction, &my::CollisionPrimitive::setFriction)
+			.property("Restitution", &my::CollisionPrimitive::getRestitution, &my::CollisionPrimitive::setRestitution)
+			.property("Transform", &my::CollisionPrimitive::getTransform, &my::CollisionPrimitive::setTransform)
+			.enum_("PrimitiveType")
+			[
+				value("PrimitiveTypeShere", my::CollisionPrimitive::PrimitiveTypeShere),
+				value("PrimitiveTypeBox", my::CollisionPrimitive::PrimitiveTypeBox)
+			]
+			.property("PrimitiveType", &my::CollisionPrimitive::getPrimitiveType)
+
+		, class_<my::CollisionSphere, my::CollisionPrimitive>("CollisionSphere")
+			.def(constructor<float, const my::Matrix4&, float, float>())
+			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
+
+		, class_<my::CollisionBox, my::CollisionPrimitive>("CollisionBox")
+			.def(constructor<const my::Vector3&, const my::Matrix4&, float, float>())
+			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
+
+		, class_<my::IntersectionTests>("IntersectionTests")
+			.scope
+			[
+				def("sphereAndHalfSpace", &my::IntersectionTests::sphereAndHalfSpace),
+				def("sphereAndSphere", &my::IntersectionTests::sphereAndSphere),
+				def("boxAndHalfSpace", &my::IntersectionTests::boxAndHalfSpace),
+				def("boxAndBox", &my::IntersectionTests::boxAndBox),
+				def("rayAndParallelPlane", &my::IntersectionTests::rayAndParallelPlane),
+				def("rayAndAABB", &my::IntersectionTests::rayAndAABB),
+				def("rayAndHalfSpace", &my::IntersectionTests::rayAndHalfSpace),
+				def("rayAndSphere", &my::IntersectionTests::rayAndSphere),
+				def("rayAndCylinder", &my::IntersectionTests::rayAndCylinder),
+				def("rayAndTriangle", &my::IntersectionTests::rayAndTriangle),
+				def("rayAndBox", &my::IntersectionTests::rayAndBox),
+				def("IntersectSegments2D", &my::IntersectionTests::IntersectSegments2D, luabind::pure_out_value(boost::placeholders::_5))
+			]
+
+		, class_<PhysxSpatialIndex>("PhysxSpatialIndex")
+			.def(constructor<>())
+			.def("AddTriangle", &PhysxSpatialIndex::AddTriangle)
+			.def("AddBox", &PhysxSpatialIndex::AddBox)
+			.property("TriangleNum", &PhysxSpatialIndex::GetTriangleNum)
+			.property("GeometryNum", &PhysxSpatialIndex::GetGeometryNum)
+			.def("GetTriangle", &PhysxSpatialIndex::GetTriangle, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5))
+			.def("GetBox", &PhysxSpatialIndex::GetBox, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5) + luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7))
+			.def("SweepBox", &PhysxSpatialIndex::SweepBox, luabind::pure_out_value(boost::placeholders::_9))
+	];
 }
 
 void LuaContext::Shutdown(void)

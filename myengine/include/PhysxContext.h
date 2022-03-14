@@ -5,6 +5,7 @@
 #include "myMath.h"
 #include "myUtility.h"
 #include "myThread.h"
+#include <boost/tuple/tuple.hpp>
 
 class Actor;
 
@@ -206,4 +207,49 @@ public:
 	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count);
 
 	void removeRenderActorsFromPhysicsActor(const physx::PxActor * actor);
+};
+
+class PhysxSpatialIndex
+{
+public:
+	boost::shared_ptr<physx::PxSpatialIndex> m_PxSpatialIndex;
+
+	typedef std::vector<physx::PxTriangle> TriangleList;
+
+	TriangleList m_TriangleList;
+
+	struct GeometryTuple
+		: public physx::PxSpatialIndexItem
+		, public boost::tuple<physx::PxGeometryHolder, physx::PxTransform, physx::PxSpatialIndexItemId>
+	{
+		GeometryTuple(const physx::PxGeometryHolder & geom, const physx::PxTransform & pose, physx::PxSpatialIndexItemId id)
+			: tuple(geom, pose, id)
+		{
+		}
+	};
+
+	typedef std::vector<GeometryTuple> GeometryTupleList;
+
+	GeometryTupleList m_GeometryList;
+
+public:
+	PhysxSpatialIndex(void);
+
+	~PhysxSpatialIndex(void);
+
+	void AddTriangle(const my::Vector3& v0, const my::Vector3& v1, const my::Vector3& v2);
+
+	void AddBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot);
+
+	void AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose);
+
+	size_t GetTriangleNum(void) const;
+
+	size_t GetGeometryNum(void) const;
+
+	void GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my::Vector3& v2) const;
+
+	void GetBox(int i, float& hx, float& hy, float& hz, my::Vector3& Pos, my::Quaternion& Rot) const;
+
+	bool SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t);
 };
