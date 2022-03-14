@@ -515,7 +515,7 @@ void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::
 {
 	m_GeometryList.push_back(GeometryPair(geom, pose));
 	BOOST_VERIFY(m_GeometryList.size() - 1 == m_PxSpatialIndex->insert(
-		m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose)));
+		(physx::PxSpatialIndexItem&)m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose)));
 }
 
 size_t PhysxSpatialIndex::GetTriangleNum(void) const
@@ -565,7 +565,7 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 		}
 		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item, physx::PxReal distance, physx::PxReal& shrunkDistance)
 		{
-			GeometryPair& geomtuple = static_cast<GeometryPair&>(item);
+			GeometryPair& geomtuple = (GeometryPair&)item;
 			physx::PxSweepHit hit;
 			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geomtuple.first.any(), geomtuple.second, hit))
 			{

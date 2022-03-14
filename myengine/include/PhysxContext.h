@@ -217,15 +217,7 @@ public:
 
 	TriangleList m_TriangleList;
 
-	struct GeometryPair
-		: public physx::PxSpatialIndexItem
-		, public std::pair<physx::PxGeometryHolder, physx::PxTransform>
-	{
-		GeometryPair(const physx::PxGeometryHolder & geom, const physx::PxTransform & pose)
-			: pair(geom, pose)
-		{
-		}
-	};
+	typedef std::pair<physx::PxGeometryHolder, physx::PxTransform> GeometryPair;
 
 	typedef std::vector<GeometryPair> GeometryTupleList;
 
