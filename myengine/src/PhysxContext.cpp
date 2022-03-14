@@ -19,6 +19,9 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include "CctCharacterControllerManager.h"
+#include "GuIntersectionTriangleBox.h"
+#include "GuBox.h"
+#include "GuBoxConversion.h"
 
 using namespace my;
 
@@ -546,7 +549,51 @@ void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vecto
 	Rot = (Quaternion&)m_GeometryList[i].second.q;
 }
 
-bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t)
+bool PhysxSpatialIndex::OverlapBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot) const
+{
+	struct OverlapCallback : physx::PxSpatialOverlapCallback
+	{
+		physx::PxBoxGeometry box;
+		physx::PxTransform pose;
+		bool overlap;
+		OverlapCallback(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot)
+			: box(hx, hy, hz)
+			, pose((physx::PxVec3&)Pos, (physx::PxQuat&)Rot)
+			, overlap(false)
+		{
+		}
+		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item)
+		{
+			GeometryPair& geompair = (GeometryPair&)item;
+			if (physx::PxGeometryQuery::overlap(box, pose, geompair.first.any(), geompair.second))
+			{
+				overlap = true;
+				return false;
+			}
+			return true;
+		}
+	};
+
+	OverlapCallback cb(hx, hy, hz, Pos, Rot);
+	m_PxSpatialIndex->overlap(physx::PxGeometryQuery::getWorldBounds(cb.box, cb.pose), cb);
+
+	if (!cb.overlap)
+	{
+		physx::Gu::BoxPadded box;
+		physx::buildFrom(box, cb.pose.p, cb.box.halfExtents, cb.pose.q);
+		TriangleList::const_iterator tri_iter = m_TriangleList.begin();
+		for (; tri_iter != m_TriangleList.end(); tri_iter++)
+		{
+			if (physx::Gu::intersectTriangleBox(box, tri_iter->verts[0], tri_iter->verts[1], tri_iter->verts[2]))
+			{
+				return true;
+			}
+		}
+	}
+	return cb.overlap;
+}
+
+bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t) const
 {
 	struct HitCallback : physx::PxSpatialLocationCallback
 	{
@@ -565,9 +612,9 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 		}
 		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item, physx::PxReal distance, physx::PxReal& shrunkDistance)
 		{
-			GeometryPair& geomtuple = (GeometryPair&)item;
+			GeometryPair& geompair = (GeometryPair&)item;
 			physx::PxSweepHit hit;
-			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geomtuple.first.any(), geomtuple.second, hit))
+			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geompair.first.any(), geompair.second, hit))
 			{
 				if (hit.distance < closest)
 				{
