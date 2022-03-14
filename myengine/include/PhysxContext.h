@@ -5,7 +5,6 @@
 #include "myMath.h"
 #include "myUtility.h"
 #include "myThread.h"
-#include <boost/tuple/tuple.hpp>
 
 class Actor;
 
@@ -218,17 +217,17 @@ public:
 
 	TriangleList m_TriangleList;
 
-	struct GeometryTuple
+	struct GeometryPair
 		: public physx::PxSpatialIndexItem
-		, public boost::tuple<physx::PxGeometryHolder, physx::PxTransform, physx::PxSpatialIndexItemId>
+		, public std::pair<physx::PxGeometryHolder, physx::PxTransform>
 	{
-		GeometryTuple(const physx::PxGeometryHolder & geom, const physx::PxTransform & pose, physx::PxSpatialIndexItemId id)
-			: tuple(geom, pose, id)
+		GeometryPair(const physx::PxGeometryHolder & geom, const physx::PxTransform & pose)
+			: pair(geom, pose)
 		{
 		}
 	};
 
-	typedef std::vector<GeometryTuple> GeometryTupleList;
+	typedef std::vector<GeometryPair> GeometryTupleList;
 
 	GeometryTupleList m_GeometryList;
 

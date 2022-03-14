@@ -513,8 +513,9 @@ void PhysxSpatialIndex::AddBox(float hx, float hy, float hz, const my::Vector3& 
 
 void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose)
 {
-	m_GeometryList.push_back(GeometryTuple(geom, pose, 0));
-	m_PxSpatialIndex->insert(m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose));
+	m_GeometryList.push_back(GeometryPair(geom, pose));
+	BOOST_VERIFY(m_GeometryList.size() - 1 == m_PxSpatialIndex->insert(
+		m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose)));
 }
 
 size_t PhysxSpatialIndex::GetTriangleNum(void) const
@@ -536,13 +537,13 @@ void PhysxSpatialIndex::GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my:
 
 void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vector3& Pos, my::Quaternion& Rot) const
 {
-	const physx::PxBoxGeometry& box = m_GeometryList[i].get<0>().box();
+	const physx::PxBoxGeometry& box = m_GeometryList[i].first.box();
 	hx = box.halfExtents.x;
 	hy = box.halfExtents.y;
 	hz = box.halfExtents.z;
 
-	Pos = (Vector3&)m_GeometryList[i].get<1>().p;
-	Rot = (Quaternion&)m_GeometryList[i].get<1>().q;
+	Pos = (Vector3&)m_GeometryList[i].second.p;
+	Rot = (Quaternion&)m_GeometryList[i].second.q;
 }
 
 bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t)
@@ -564,9 +565,9 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 		}
 		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item, physx::PxReal distance, physx::PxReal& shrunkDistance)
 		{
-			GeometryTuple& geomtuple = static_cast<GeometryTuple&>(item);
+			GeometryPair& geomtuple = static_cast<GeometryPair&>(item);
 			physx::PxSweepHit hit;
-			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geomtuple.get<0>().any(), geomtuple.get<1>(), hit))
+			if (physx::PxGeometryQuery::sweep((physx::PxVec3&)dir, dist, box, pose, geomtuple.first.any(), geomtuple.second, hit))
 			{
 				if (hit.distance < closest)
 				{
