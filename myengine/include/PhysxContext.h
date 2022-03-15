@@ -219,7 +219,9 @@ public:
 
 	typedef std::pair<physx::PxGeometryHolder, physx::PxTransform> GeometryPair;
 
-	typedef std::vector<GeometryPair> GeometryTupleList;
+	typedef boost::shared_ptr<GeometryPair> GeometryPairPtr;
+
+	typedef std::vector<GeometryPairPtr> GeometryTupleList;
 
 	GeometryTupleList m_GeometryList;
 

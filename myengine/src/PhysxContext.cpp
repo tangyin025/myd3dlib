@@ -516,9 +516,10 @@ void PhysxSpatialIndex::AddBox(float hx, float hy, float hz, const my::Vector3& 
 
 void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose)
 {
-	m_GeometryList.push_back(GeometryPair(geom, pose));
+	GeometryPairPtr geompair(new GeometryPair(geom, pose));
+	m_GeometryList.push_back(geompair);
 	BOOST_VERIFY(m_GeometryList.size() - 1 == m_PxSpatialIndex->insert(
-		(physx::PxSpatialIndexItem&)m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose)));
+		(physx::PxSpatialIndexItem&)*geompair, physx::PxGeometryQuery::getWorldBounds(geom, pose)));
 }
 
 int PhysxSpatialIndex::GetTriangleNum(void) const
@@ -540,13 +541,13 @@ void PhysxSpatialIndex::GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my:
 
 void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vector3& Pos, my::Quaternion& Rot) const
 {
-	const physx::PxBoxGeometry& box = m_GeometryList[i].first.box();
+	const physx::PxBoxGeometry& box = m_GeometryList[i]->first.box();
 	hx = box.halfExtents.x;
 	hy = box.halfExtents.y;
 	hz = box.halfExtents.z;
 
-	Pos = (Vector3&)m_GeometryList[i].second.p;
-	Rot = (Quaternion&)m_GeometryList[i].second.q;
+	Pos = (Vector3&)m_GeometryList[i]->second.p;
+	Rot = (Quaternion&)m_GeometryList[i]->second.q;
 }
 
 bool PhysxSpatialIndex::OverlapBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot) const
