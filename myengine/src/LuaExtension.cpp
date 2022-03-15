@@ -908,7 +908,7 @@ void LuaContext::Init(void)
 				def("RotationAxis", &my::Quaternion::RotationAxis),
 				def("RotationMatrix", &my::Quaternion::RotationMatrix),
 				def("RotationYawPitchRoll", &my::Quaternion::RotationYawPitchRoll),
-				def("RotationFromTo", &my::Quaternion::RotationFromTo),
+				def("RotationFromTo", (my::Quaternion(*)(const my::Vector3 &, const my::Vector3 &))&my::Quaternion::RotationFromTo),
 				def("RotationEulerAngles", &my::Quaternion::RotationEulerAngles)
 			]
 

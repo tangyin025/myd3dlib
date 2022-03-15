@@ -218,6 +218,11 @@ Quaternion Quaternion::RotationFromTo(const Vector3 & from, const Vector3 & to, 
 	return Quaternion(c.x * invs, c.y * invs, c.z * invs, s * 0.5f).normalize();
 }
 
+Quaternion Quaternion::RotationFromTo(const Vector3 & from, const Vector3 & to)
+{
+	return RotationFromTo(from, to, Vector3::zero);
+}
+
 Vector3 Quaternion::toEulerAngles(void) const
 {
 	Matrix4 mat = Matrix4::RotationQuaternion(*this);
