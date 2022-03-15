@@ -521,12 +521,12 @@ void PhysxSpatialIndex::AddGeometry(const physx::PxGeometry& geom, const physx::
 		(physx::PxSpatialIndexItem&)m_GeometryList.back(), physx::PxGeometryQuery::getWorldBounds(geom, pose)));
 }
 
-size_t PhysxSpatialIndex::GetTriangleNum(void) const
+int PhysxSpatialIndex::GetTriangleNum(void) const
 {
 	return m_TriangleList.size();
 }
 
-size_t PhysxSpatialIndex::GetGeometryNum(void) const
+int PhysxSpatialIndex::GetGeometryNum(void) const
 {
 	return m_GeometryList.size();
 }

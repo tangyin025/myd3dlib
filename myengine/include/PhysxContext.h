@@ -234,9 +234,9 @@ public:
 
 	void AddGeometry(const physx::PxGeometry& geom, const physx::PxTransform& pose);
 
-	size_t GetTriangleNum(void) const;
+	int GetTriangleNum(void) const;
 
-	size_t GetGeometryNum(void) const;
+	int GetGeometryNum(void) const;
 
 	void GetTriangle(int i, my::Vector3& v0, my::Vector3& v1, my::Vector3& v2) const;
 
