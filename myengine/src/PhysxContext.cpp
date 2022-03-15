@@ -20,8 +20,8 @@
 #include <boost/serialization/export.hpp>
 #include "CctCharacterControllerManager.h"
 #include "GuIntersectionTriangleBox.h"
-#include "GuBox.h"
-#include "GuBoxConversion.h"
+#include "common/GuBoxConversion.h"
+#include "intersection/GuIntersectionRayTriangle.h"
 
 using namespace my;
 
@@ -548,6 +548,60 @@ void PhysxSpatialIndex::GetBox(int i, float& hx, float& hy, float& hz, my::Vecto
 
 	Pos = (Vector3&)m_GeometryList[i]->second.p;
 	Rot = (Quaternion&)m_GeometryList[i]->second.q;
+}
+
+bool PhysxSpatialIndex::Raycast(const my::Vector3& pos, const my::Vector3& dir, float dist, float& t) const
+{
+	struct HitCallback : physx::PxSpatialLocationCallback
+	{
+		float closest;
+		const my::Vector3& pos;
+		const my::Vector3& dir;
+		float dist;
+		HitCallback(const my::Vector3& _pos, const my::Vector3& _dir, float _dist)
+			: closest(FLT_MAX)
+			, pos(_pos)
+			, dir(_dir)
+			, dist(_dist)
+		{
+		}
+		virtual physx::PxAgain onHit(physx::PxSpatialIndexItem& item, physx::PxReal distance, physx::PxReal& shrunkDistance)
+		{
+			GeometryPair& geompair = (GeometryPair&)item;
+			physx::PxRaycastHit hit;
+			if (physx::PxGeometryQuery::raycast((physx::PxVec3&)pos, (physx::PxVec3&)dir, geompair.first.any(), geompair.second, dist, physx::PxHitFlag::eDISTANCE, 1, &hit))
+			{
+				if (hit.distance < closest)
+				{
+					closest = hit.distance;
+				}
+			}
+			return true;
+		}
+	};
+
+	HitCallback cb(pos, dir, dist);
+	m_PxSpatialIndex->raycast((physx::PxVec3&)pos, (physx::PxVec3&)dir, dist, cb);
+
+	TriangleList::const_iterator tri_iter = m_TriangleList.begin();
+	for (; tri_iter != m_TriangleList.end(); tri_iter++)
+	{
+		float t, u, v;
+		if (physx::Gu::intersectRayTriangleCulling((physx::PxVec3&)pos, (physx::PxVec3&)dir, tri_iter->verts[0], tri_iter->verts[1], tri_iter->verts[2], t, u, v))
+		{
+			if (t < cb.closest)
+			{
+				cb.closest = t;
+			}
+		}
+	}
+
+	if (cb.closest < FLT_MAX)
+	{
+		t = cb.closest;
+		return true;
+	}
+	return false;
 }
 
 bool PhysxSpatialIndex::OverlapBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot) const

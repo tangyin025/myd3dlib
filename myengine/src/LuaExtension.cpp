@@ -2532,6 +2532,7 @@ void LuaContext::Init(void)
 			.property("GeometryNum", &PhysxSpatialIndex::GetGeometryNum)
 			.def("GetTriangle", &PhysxSpatialIndex::GetTriangle, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5))
 			.def("GetBox", &PhysxSpatialIndex::GetBox, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4) + luabind::pure_out_value(boost::placeholders::_5) + luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7))
+			.def("Raycast", &PhysxSpatialIndex::Raycast, luabind::pure_out_value(boost::placeholders::_5))
 			.def("OverlapBox", &PhysxSpatialIndex::OverlapBox)
 			.def("SweepBox", &PhysxSpatialIndex::SweepBox, luabind::pure_out_value(boost::placeholders::_9))
 	];
