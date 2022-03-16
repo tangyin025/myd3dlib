@@ -40,6 +40,7 @@ extern "C"
 #include <boost/range/iterator_range.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_container_iterator.hpp>
+#include <boost/regex.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -666,9 +667,35 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 	}
 };
 
-void action_add_track_adopt(Action* self, ScriptActionTrack* track)
+static void action_add_track_adopt(Action* self, ScriptActionTrack* track)
 {
 	self->AddTrack(ActionTrackPtr(track));
+}
+
+typedef std::vector<boost::cmatch> sub_match_list;
+
+typedef boost::shared_container_iterator<sub_match_list> shared_sub_match_list_iter;
+
+static boost::iterator_range<shared_sub_match_list_iter> regex_search_all(boost::regex* self, const char* s)
+{
+	const char* s_iter = s;
+	boost::cmatch match;
+	boost::shared_ptr<sub_match_list> matchs(new sub_match_list());
+	for (; boost::regex_search(s_iter, match, *self, boost::match_default); s_iter = match[0].second)
+	{
+		matchs->push_back(match);
+	}
+	return boost::make_iterator_range(shared_sub_match_list_iter(matchs->begin(), matchs), shared_sub_match_list_iter(matchs->end(), matchs));
+}
+
+static bool cmatch_is_matched(boost::cmatch* self, int i)
+{
+	return self->operator[](i).matched;
+}
+
+static std::string cmatch_sub_match(boost::cmatch* self, int i)
+{
+	return self->operator[](i);
 }
 
 LuaContext::LuaContext(void)
@@ -2535,6 +2562,14 @@ void LuaContext::Init(void)
 			.def("Raycast", &PhysxSpatialIndex::Raycast, luabind::pure_out_value(boost::placeholders::_5))
 			.def("OverlapBox", &PhysxSpatialIndex::OverlapBox)
 			.def("SweepBox", &PhysxSpatialIndex::SweepBox, luabind::pure_out_value(boost::placeholders::_9))
+
+		, class_<boost::regex>("regex")
+			.def(constructor<const char *>())
+			.def("search_all", &regex_search_all, luabind::return_stl_iterator)
+
+		, class_<boost::cmatch>("cmatch")
+			.def("is_matched", &cmatch_is_matched)
+			.def("sub_match", &cmatch_sub_match)
 	];
 }
 
