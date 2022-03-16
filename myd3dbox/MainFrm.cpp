@@ -2295,7 +2295,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 	{
 		CMFCPopupMenuBar* pMenuBar = pMenuPopup->GetMenuBar();
 		ASSERT_VALID(pMenuBar);
-		for (int i = 0; i < pMenuBar->GetCount(); )
+		for (int i = 0; i < pMenuBar->GetCount(); i++)
 		{
 			if (pMenuBar->GetItemID(i) == ID_TOOLS_SCRIPT1)
 			{
@@ -2332,12 +2332,8 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 					}
 				}
 				while (FindNextFile(hFind, &ffd) && i - first_script_index < ID_TOOLS_SCRIPT_LAST - ID_TOOLS_SCRIPT1);
-
 				FindClose(hFind);
-			}
-			else
-			{
-				i++;
+				break;
 			}
 		}
 	}
