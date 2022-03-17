@@ -678,10 +678,9 @@ typedef boost::shared_container_iterator<sub_match_list> shared_sub_match_list_i
 
 static boost::iterator_range<shared_sub_match_list_iter> regex_search_all(boost::regex* self, const char* s)
 {
-	const char* s_iter = s;
 	boost::cmatch match;
 	boost::shared_ptr<sub_match_list> matchs(new sub_match_list());
-	for (; boost::regex_search(s_iter, match, *self, boost::match_default); s_iter = match[0].second)
+	for (; boost::regex_search(s, match, *self, boost::match_default); s = match[0].second)
 	{
 		matchs->push_back(match);
 	}

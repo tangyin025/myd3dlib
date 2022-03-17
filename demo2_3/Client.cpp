@@ -634,7 +634,7 @@ namespace boost
 			std::string::const_iterator s_iter = s.begin();
 			boost::smatch match;
 			my::InputMgr::KeyPairList res;
-			while (boost::regex_search(s_iter, s.end(), match, r, boost::match_default))
+			for (; boost::regex_search(s_iter, s.end(), match, r, boost::match_default); s_iter = match[0].second)
 			{
 				_ASSERT(match[11].matched);
 				if (match[2].matched)
@@ -673,7 +673,6 @@ namespace boost
 				{
 					res.push_back(std::make_pair(my::InputMgr::JoystickButton, boost::lexical_cast<int>(match[11])));
 				}
-				s_iter = match[0].second;
 			}
 			if (s_iter != s.end())
 			{

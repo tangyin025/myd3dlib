@@ -261,7 +261,7 @@ void Material::ParseShaderParameters(void)
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
 	m_ParameterList.clear();
-	while (boost::regex_search(start, end, what, reg, boost::match_default))
+	for (; boost::regex_search(start, end, what, reg, boost::match_default); start = what[0].second)
 	{
 		std::string Name = what[7];
 		std::string Annotations = what[8];
@@ -327,7 +327,6 @@ void Material::ParseShaderParameters(void)
 			}
 			AddParameter(Name, Path);
 		}
-		start = what[0].second;
 	}
 
 	//                             12                3                4               5                    6                7                     8                      9
@@ -335,7 +334,7 @@ void Material::ParseShaderParameters(void)
 	start = (const char *)&(*cache)[0];
 	end = (const char *)&(*cache)[cache->size() - 1];
 	m_PassMask = 0;
-	while (boost::regex_search(start, end, what, reg_pass, boost::match_default))
+	for (; boost::regex_search(start, end, what, reg_pass, boost::match_default); start = what[0].second)
 	{
 		std::string assignment = what[9];
 		if (what[2].matched)
@@ -380,7 +379,6 @@ void Material::ParseShaderParameters(void)
 				m_PassMask |= 1 << RenderPipeline::PassTypeTransparent;
 			}
 		}
-		start = what[0].second;
 	}
 }
 
