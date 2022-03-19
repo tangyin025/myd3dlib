@@ -1058,18 +1058,8 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 		my::Vector3 last_handle_pt;
 		for (int i = 0; i <= 30; i++)
 		{
-			my::Vector2 pos = my::Vector2::PolarToCartesian(LocalPaintRadius, (float)i / 30 * 2 * D3DX_PI);
-			my::Ray local_ray = my::Ray(my::Vector3(pt.x + pos.x, pt.y + 1000.0f, pt.z + pos.y), my::Vector3(0, -1, 0));
-			my::RayResult res = terrain->RayTest(local_ray, LocalViewPos, chunkid);
-			my::Vector3 handle_pt;
-			if (res.first)
-			{
-				handle_pt = (local_ray.p + local_ray.d * res.second).transformCoord(terrain->m_Actor->m_World);
-			}
-			else
-			{
-				handle_pt = my::Vector3(pt.x + pos.x, pt.y, pt.z + pos.y).transformCoord(terrain->m_Actor->m_World);
-			}
+			const my::Vector2 pos = my::Vector2(pt.x, pt.z) + my::Vector2::PolarToCartesian(LocalPaintRadius, (float)i / 30 * 2 * D3DX_PI);
+			const my::Vector3 handle_pt= my::Vector3(pos, terrain->RayTest2D(pos.x, pos.y)).transformCoord(terrain->m_Actor->m_World);
 			if (i > 0)
 			{
 				DrawHelper::PushLine(last_handle_pt, handle_pt, D3DCOLOR_ARGB(255, 255, 255, 0));

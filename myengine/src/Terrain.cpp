@@ -25,6 +25,7 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/casts.hpp>
+#include <boost/scope_exit.hpp>
 
 using namespace my;
 //
@@ -219,7 +220,7 @@ Terrain::Terrain(void)
 
 Terrain::Terrain(const char * Name, int RowChunks, int ColChunks, int ChunkSize, int MinChunkLodSize)
 	: Component(Name)
-	, OctRoot(0, -1.0f, 0, (float)ChunkSize * ColChunks, 1.0f, (float)ChunkSize * RowChunks)
+	, OctRoot(0, -1024.0f, 0, (float)ChunkSize * ColChunks, 1024.0f, (float)ChunkSize * RowChunks)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkSize(ChunkSize)
@@ -977,6 +978,68 @@ my::RayResult Terrain::RayTest(const my::Ray& local_ray, const my::Vector3& Loca
 	return cb.ret;
 }
 
+float Terrain::RayTest2D(float x, float z)
+{
+	int k, l, m, n, o, p;
+	TerrainStream::GetIndices(this, (int)z, (int)x, k, l, m, n, o, p);
+	if (m_Chunks[k][l].m_Vb)
+	{
+		m = Min<int>(m, m_IndexTable.shape()[0] - 2);
+		n = Min<int>(n, m_IndexTable.shape()[1] - 2);
+		unsigned char* pVertices = (unsigned char*)m_Chunks[k][l].m_Vb->Lock(0, 0, D3DLOCK_READONLY);
+		BOOST_SCOPE_EXIT(this_, k, l)
+		{
+			this_->m_Chunks[k][l].m_Vb->Unlock();
+		}
+		BOOST_SCOPE_EXIT_END;
+		const Vector3& v0 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 0][n + 0] * m_VertexStride, 0);
+		const Vector3& v1 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 0] * m_VertexStride, 0);
+		const Vector3& v2 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 0][n + 1] * m_VertexStride, 0);
+		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 0][n + 1] * m_VertexStride, 0);
+		const Vector3& v4 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 0] * m_VertexStride, 0);
+		const Vector3& v5 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 1] * m_VertexStride, 0);
+		RayResult res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v0, v1, v2);
+		if (res.first)
+		{
+			return m_max.y - res.second;
+		}
+		res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v3, v4, v5);
+		if (res.first)
+		{
+			return m_max.y - res.second;
+		}
+		return v0.y;
+	}
+	else
+	{
+		o = Min<int>(o, m_RowChunks * m_MinChunkLodSize - 1);
+		p = Min<int>(p, m_ColChunks * m_MinChunkLodSize - 1);
+		unsigned char* pVertices = (unsigned char*)m_rootVb.Lock(0, 0, D3DLOCK_READONLY);
+		BOOST_SCOPE_EXIT(this_, k, l)
+		{
+			this_->m_rootVb.Unlock();
+		}
+		BOOST_SCOPE_EXIT_END;
+		const Vector3& v0 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 0) + (p + 0)) * m_VertexStride, 0);
+		const Vector3& v1 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 0)) * m_VertexStride, 0);
+		const Vector3& v2 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 0) + (p + 1)) * m_VertexStride, 0);
+		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 0) + (p + 1)) * m_VertexStride, 0);
+		const Vector3& v4 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 0)) * m_VertexStride, 0);
+		const Vector3& v5 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 1)) * m_VertexStride, 0);
+		RayResult res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v0, v1, v2);
+		if (res.first)
+		{
+			return m_max.y - res.second;
+		}
+		res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v3, v4, v5);
+		if (res.first)
+		{
+			return m_max.y - res.second;
+		}
+		return v0.y;
+	}
+}
+
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_Vbs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])
@@ -1044,7 +1107,7 @@ void TerrainStream::Release(void)
 	}
 }
 
-void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const
+void TerrainStream::GetIndices(const Terrain* terrain, int i, int j, int& k, int& l, int& m, int& n, int& o, int& p)
 {
 	if (i < 0)
 	{
@@ -1052,17 +1115,17 @@ void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int
 		m = 0;
 		o = 0;
 	}
-	else if (i >= m_terrain->m_RowChunks * m_terrain->m_ChunkSize)
+	else if (i >= terrain->m_RowChunks * terrain->m_ChunkSize)
 	{
-		k = m_terrain->m_RowChunks - 1;
-		m = m_terrain->m_ChunkSize;
-		o = m_terrain->m_RowChunks * m_terrain->m_MinChunkLodSize;
+		k = terrain->m_RowChunks - 1;
+		m = terrain->m_ChunkSize;
+		o = terrain->m_RowChunks * terrain->m_MinChunkLodSize;
 	}
 	else
 	{
-		k = i / m_terrain->m_ChunkSize;
-		m = i % m_terrain->m_ChunkSize;
-		o = i * m_terrain->m_MinChunkLodSize / m_terrain->m_ChunkSize;
+		k = i / terrain->m_ChunkSize;
+		m = i % terrain->m_ChunkSize;
+		o = i * terrain->m_MinChunkLodSize / terrain->m_ChunkSize;
 	}
 
 	if (j < 0)
@@ -1071,17 +1134,17 @@ void TerrainStream::GetIndices(int i, int j, int& k, int& l, int& m, int& n, int
 		n = 0;
 		p = 0;
 	}
-	else if (j >= m_terrain->m_ColChunks * m_terrain->m_ChunkSize)
+	else if (j >= terrain->m_ColChunks * terrain->m_ChunkSize)
 	{
-		l = m_terrain->m_ColChunks - 1;
-		n = m_terrain->m_ChunkSize;
-		p = m_terrain->m_ColChunks * m_terrain->m_MinChunkLodSize;
+		l = terrain->m_ColChunks - 1;
+		n = terrain->m_ChunkSize;
+		p = terrain->m_ColChunks * terrain->m_MinChunkLodSize;
 	}
 	else
 	{
-		l = j / m_terrain->m_ChunkSize;
-		n = j % m_terrain->m_ChunkSize;
-		p = j * m_terrain->m_MinChunkLodSize / m_terrain->m_ChunkSize;
+		l = j / terrain->m_ChunkSize;
+		n = j % terrain->m_ChunkSize;
+		p = j * terrain->m_MinChunkLodSize / terrain->m_ChunkSize;
 	}
 }
 
@@ -1137,7 +1200,7 @@ my::Vector3 TerrainStream::GetPos(int i, int j)
 {
 	my::Vector3 ret;
 	int k, l, m, n, o, p;
-	GetIndices(i, j, k, l, m, n, o, p);
+	GetIndices(m_terrain, i, j, k, l, m, n, o, p);
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
 	void* pbuff = vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
@@ -1149,7 +1212,7 @@ my::Vector3 TerrainStream::GetPos(int i, int j)
 void TerrainStream::SetPos(int i, int j, const my::Vector3& Pos)
 {
 	int k, l, m, n, o, p;
-	GetIndices(i, j, k, l, m, n, o, p);
+	GetIndices(m_terrain, i, j, k, l, m, n, o, p);
 	SetPos(k, l, m, n, Pos);
 
 	if (m == 0 && k > 0)
@@ -1197,7 +1260,7 @@ D3DCOLOR TerrainStream::GetColor(int i, int j)
 {
 	D3DCOLOR ret;
 	int k, l, m, n, o, p;
-	GetIndices(i, j, k, l, m, n, o, p);
+	GetIndices(m_terrain, i, j, k, l, m, n, o, p);
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_COLOR][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
 	void* pbuff = vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
@@ -1209,7 +1272,7 @@ D3DCOLOR TerrainStream::GetColor(int i, int j)
 void TerrainStream::SetColor(int i, int j, D3DCOLOR Color)
 {
 	int k, l, m, n, o, p;
-	GetIndices(i, j, k, l, m, n, o, p);
+	GetIndices(m_terrain, i, j, k, l, m, n, o, p);
 	SetColor(k, l, m, n, Color);
 
 	if (m == 0 && k > 0)
@@ -1248,7 +1311,7 @@ my::Vector3 TerrainStream::GetNormal(int i, int j)
 {
 	my::Vector3 ret;
 	int k, l, m, n, o, p;
-	GetIndices(i, j, k, l, m, n, o, p);
+	GetIndices(m_terrain, i, j, k, l, m, n, o, p);
 	std::streamoff off = m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride + m_terrain->m_VertexElems.elems[D3DDECLUSAGE_NORMAL][0].Offset;
 	my::VertexBufferPtr vb = GetVB(k, l);
 	void* pbuff = vb->Lock(off, sizeof(ret), D3DLOCK_READONLY);
@@ -1260,7 +1323,7 @@ my::Vector3 TerrainStream::GetNormal(int i, int j)
 void TerrainStream::SetNormal(int i, int j, const my::Vector3& Normal)
 {
 	int k, l, m, n, o, p;
-	GetIndices(i, j, k, l, m, n, o, p);
+	GetIndices(m_terrain, i, j, k, l, m, n, o, p);
 	SetNormal(k, l, m, n, Normal);
 
 	if (m == 0 && k > 0)

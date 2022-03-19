@@ -175,6 +175,8 @@ public:
 	virtual void ClearShape(void);
 
 	my::RayResult RayTest(const my::Ray& local_ray, const my::Vector3& LocalViewPos, CPoint& raychunkid);
+
+	float RayTest2D(float x, float z);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
@@ -199,7 +201,7 @@ public:
 
 	void Release(void);
 
-	void GetIndices(int i, int j, int& k, int& l, int& m, int& n, int& o, int& p) const;
+	static void GetIndices(const Terrain* terrain, int i, int j, int& k, int& l, int& m, int& n, int& o, int& p);
 
 	my::VertexBufferPtr GetVB(int k, int l);
 
