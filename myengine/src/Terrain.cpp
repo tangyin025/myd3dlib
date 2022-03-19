@@ -893,6 +893,90 @@ void Terrain::ClearShape(void)
 	m_PxHeightFieldPath.clear();
 }
 
+my::RayResult Terrain::RayTest(const my::Ray& local_ray, const my::Vector3& LocalViewPos, CPoint& raychunkid)
+{
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		const my::Ray& ray;
+		const my::Vector3& ViewPos;
+		Terrain* terrain;
+		my::RayResult ret;
+		CPoint raychunkid;
+		Callback(const my::Ray& _ray, const my::Vector3& _ViewPos, Terrain* _terrain)
+			: ray(_ray)
+			, ViewPos(_ViewPos)
+			, terrain(_terrain)
+			, ret(false, FLT_MAX)
+		{
+		}
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
+			my::RayResult result;
+			if (!chunk->m_Vb)
+			{
+				std::vector<unsigned short> ib;
+				for (int i = chunk->m_Row * terrain->m_MinChunkLodSize; i < chunk->m_Row * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; i++)
+				{
+					for (int j = chunk->m_Col * terrain->m_MinChunkLodSize; j < chunk->m_Col * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; j++)
+					{
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 1));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 0));
+						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 1));
+					}
+				}
+				result = my::Mesh::RayTest(
+					ray,
+					terrain->m_rootVb.Lock(0, 0, D3DLOCK_READONLY),
+					(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
+					terrain->m_VertexStride,
+					&ib[0],
+					true,
+					ib.size() / 3,
+					terrain->m_VertexElems);
+				terrain->m_rootVb.Unlock();
+			}
+			else
+			{
+				const Terrain::Fragment& frag = terrain->GetFragment(
+					terrain->CalculateLod(chunk->m_Row, chunk->m_Col, ViewPos),
+					terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, ViewPos),
+					terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
+					terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
+					terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
+				result = my::Mesh::RayTest(
+					ray,
+					chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
+					frag.VertNum,
+					terrain->m_VertexStride,
+					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+					false,
+					frag.PrimitiveCount,
+					terrain->m_VertexElems);
+				chunk->m_Vb->Unlock();
+				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+			}
+			if (result.first && result.second < ret.second)
+			{
+				ret = result;
+				raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
+			}
+			return true;
+		}
+	};
+
+	Callback cb(local_ray, LocalViewPos, this);
+	QueryEntity(local_ray, &cb);
+	if (cb.ret.first)
+	{
+		raychunkid = cb.raychunkid;
+	}
+	return cb.ret;
+}
+
 TerrainStream::TerrainStream(Terrain* terrain)
 	: m_terrain(terrain)
 	, m_Vbs(boost::extents[terrain->m_RowChunks][terrain->m_ColChunks])

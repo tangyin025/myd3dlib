@@ -958,7 +958,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 			my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
-			my::RayResult ret = OverlapTestRayAndTerrain(local_ray, LocalViewPos, terrain, raychunkid);
+			my::RayResult ret = terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 			if (ret.first)
 			{
 				raychunkid = raychunkid;
@@ -1012,87 +1012,6 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 	return ret;
 }
 
-my::RayResult CChildView::OverlapTestRayAndTerrain(const my::Ray & local_ray, const my::Vector3 & LocalViewPos, Terrain * terrain, CPoint & raychunkid)
-{
-	struct Callback : public my::OctNode::QueryCallback
-	{
-		const my::Ray& ray;
-		const my::Vector3& ViewPos;
-		Terrain* terrain;
-		my::RayResult ret;
-		CPoint& raychunkid;
-		Callback(const my::Ray& _ray, const my::Vector3& _ViewPos, Terrain* _terrain, CPoint& _raychunkid)
-			: ray(_ray)
-			, ViewPos(_ViewPos)
-			, terrain(_terrain)
-			, ret(false, FLT_MAX)
-			, raychunkid(_raychunkid)
-		{
-		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-		{
-			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
-			my::RayResult result;
-			if (!chunk->m_Vb)
-			{
-				std::vector<unsigned short> ib;
-				for (int i = chunk->m_Row * terrain->m_MinChunkLodSize; i < chunk->m_Row * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; i++)
-				{
-					for (int j = chunk->m_Col * terrain->m_MinChunkLodSize; j < chunk->m_Col * terrain->m_MinChunkLodSize + terrain->m_MinChunkLodSize; j++)
-					{
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 0));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 0));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 1));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 0) + (j + 1));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 0));
-						ib.push_back((terrain->m_ColChunks * terrain->m_MinChunkLodSize + 1) * (i + 1) + (j + 1));
-					}
-				}
-				result = my::Mesh::RayTest(
-					ray,
-					terrain->m_rootVb.Lock(0, 0, D3DLOCK_READONLY),
-					(terrain->m_RowChunks + 1) * (terrain->m_ColChunks + 1),
-					terrain->m_VertexStride,
-					&ib[0],
-					true,
-					ib.size() / 3,
-					terrain->m_VertexElems);
-				terrain->m_rootVb.Unlock();
-			}
-			else
-			{
-				const Terrain::Fragment& frag = terrain->GetFragment(
-					terrain->CalculateLod(chunk->m_Row, chunk->m_Col, ViewPos),
-					terrain->CalculateLod(chunk->m_Row, chunk->m_Col - 1, ViewPos),
-					terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Col, ViewPos),
-					terrain->CalculateLod(chunk->m_Row, chunk->m_Col + 1, ViewPos),
-					terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Col, ViewPos));
-				result = my::Mesh::RayTest(
-					ray,
-					chunk->m_Vb->Lock(0, 0, D3DLOCK_READONLY),
-					frag.VertNum,
-					terrain->m_VertexStride,
-					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
-					false,
-					frag.PrimitiveCount,
-					terrain->m_VertexElems);
-				chunk->m_Vb->Unlock();
-				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-			}
-			if (result.first && result.second < ret.second)
-			{
-				ret = result;
-				raychunkid.SetPoint(chunk->m_Row, chunk->m_Col);
-			}
-			return true;
-		}
-	};
-
-	Callback cb(local_ray, LocalViewPos, terrain, raychunkid);
-	terrain->QueryEntity(local_ray, &cb);
-	return cb.ret;
-}
-
 void CChildView::OnSelectionChanged(my::EventArg * arg)
 {
 	Invalidate();
@@ -1131,7 +1050,7 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
 	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(terrain->m_Actor->m_World.inverse());
 	CPoint chunkid;
-	my::RayResult res = OverlapTestRayAndTerrain(local_ray, LocalViewPos, terrain, chunkid);
+	my::RayResult res = terrain->RayTest(local_ray, LocalViewPos, chunkid);
 	if (res.first)
 	{
 		float LocalPaintRadius = pFrame->m_PaintRadius / terrain->m_Actor->m_Scale.x;
@@ -1141,7 +1060,7 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 		{
 			my::Vector2 pos = my::Vector2::PolarToCartesian(LocalPaintRadius, (float)i / 30 * 2 * D3DX_PI);
 			my::Ray local_ray = my::Ray(my::Vector3(pt.x + pos.x, pt.y + 1000.0f, pt.z + pos.y), my::Vector3(0, -1, 0));
-			my::RayResult res = OverlapTestRayAndTerrain(local_ray, LocalViewPos, terrain, chunkid);
+			my::RayResult res = terrain->RayTest(local_ray, LocalViewPos, chunkid);
 			my::Vector3 handle_pt;
 			if (res.first)
 			{
@@ -2410,9 +2329,11 @@ void CChildView::OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream& ts
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint raychunkid; int rayinstid;
+	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
+	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 	if (res.first)
 	{
 		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
@@ -2451,9 +2372,11 @@ void CChildView::OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr)
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint raychunkid; int rayinstid;
+	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
+	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 	if (res.first)
 	{
 		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
@@ -2485,9 +2408,11 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 	// TODO: Add your implementation code here.
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint raychunkid; int rayinstid;
+	CPoint raychunkid;
 	my::Ray local_ray = ray.transform(tstr.m_terrain->m_Actor->m_World.inverse());
-	my::RayResult res = OverlapTestRayAndComponent(ray, local_ray, tstr.m_terrain, raychunkid, rayinstid);
+	my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(m_Camera.get());
+	my::Vector3 LocalViewPos = model_view_camera->m_LookAt.transformCoord(tstr.m_terrain->m_Actor->m_World.inverse());
+	my::RayResult res = tstr.m_terrain->RayTest(local_ray, LocalViewPos, raychunkid);
 	if (res.first)
 	{
 		float LocalPaintRadius = pFrame->m_PaintRadius / tstr.m_terrain->m_Actor->m_Scale.x;
