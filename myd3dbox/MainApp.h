@@ -37,6 +37,7 @@ public:
 	int default_io_thread_num;
 	bool default_load_shader_cache;
 	std::string default_tool_scrpit_pattern;
+	float default_emitter_chunk_width;
 	std::string default_font_path;
 	int default_font_height;
 	int default_font_face_index;

@@ -14,7 +14,7 @@ IMPLEMENT_DYNAMIC(CStaticEmitterDlg, CDialogEx)
 CStaticEmitterDlg::CStaticEmitterDlg(const char* StaticEmitterName, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG5, pParent)
 	, m_emit_cmp_name(StaticEmitterName)
-	, m_ChunkWidth(4.0f)
+	, m_ChunkWidth(theApp.default_emitter_chunk_width)
 {
 	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name).c_str());
 }
@@ -34,7 +34,7 @@ void CStaticEmitterDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT6, m_BoundingBox.m_max.y);
 	DDX_Text(pDX, IDC_EDIT7, m_BoundingBox.m_max.z);
 	DDX_Text(pDX, IDC_EDIT8, m_ChunkWidth);
-	DDV_MinMaxFloat(pDX, m_ChunkWidth, 1, 1024);
+	DDV_MinMaxFloat(pDX, m_ChunkWidth, EPSILON_E3, 1024);
 }
 
 
