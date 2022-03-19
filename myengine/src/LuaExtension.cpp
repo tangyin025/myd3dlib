@@ -799,6 +799,7 @@ void LuaContext::Init(void)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
 			.def("transform", (my::Vector3(my::Vector3::*)(const my::Quaternion &) const)&my::Vector3::transform)
 			.property("cartesianToPolar", &my::Vector3::cartesianToPolar)
+			.property("xz", &my::Vector3::xz)
 			.scope
 			[
 				def("PolarToCartesian", &my::Vector3::PolarToCartesian),
@@ -2187,7 +2188,8 @@ void LuaContext::Init(void)
 			.def("GetNormal", &TerrainStream::GetNormal, copy(result))
 			.def("SetNormal", (void(TerrainStream::*)(int, int, const my::Vector3&))&TerrainStream::SetNormal)
 			.def("UpdateNormal", &TerrainStream::UpdateNormal)
-			.def("RayTest", &TerrainStream::RayTest)
+			//.def("RayTest", &TerrainStream::RayTest)
+			.def("RayTest2D", &TerrainStream::RayTest2D)
 
 		, class_<Controller, Component, boost::shared_ptr<Component> >("Controller")
 			.enum_("CollisionFlag")

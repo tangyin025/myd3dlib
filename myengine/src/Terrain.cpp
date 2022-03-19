@@ -995,20 +995,27 @@ float Terrain::RayTest2D(float x, float z)
 		const Vector3& v0 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 0][n + 0] * m_VertexStride, 0);
 		const Vector3& v1 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 0] * m_VertexStride, 0);
 		const Vector3& v2 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 0][n + 1] * m_VertexStride, 0);
-		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 0][n + 1] * m_VertexStride, 0);
-		const Vector3& v4 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 0] * m_VertexStride, 0);
-		const Vector3& v5 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 1] * m_VertexStride, 0);
-		RayResult res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v0, v1, v2);
-		if (res.first)
+		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 1] * m_VertexStride, 0);
+		const Vector2 d0 = Vector2(x, z) - v2.xz();
+		const Vector2 d1 = v1.xz() - v2.xz();
+		if (d0.kross(d1))
 		{
-			return m_max.y - res.second;
+			RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v0, v1, v2));
+			if (res.first)
+			{
+				return m_max.y - res.second;
+			}
+			return v0.y;
 		}
-		res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v3, v4, v5);
-		if (res.first)
+		else
 		{
-			return m_max.y - res.second;
+			RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v2, v1, v3));
+			if (res.first)
+			{
+				return m_max.y - res.second;
+			}
+			return v2.y;
 		}
-		return v0.y;
 	}
 	else
 	{
@@ -1023,20 +1030,27 @@ float Terrain::RayTest2D(float x, float z)
 		const Vector3& v0 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 0) + (p + 0)) * m_VertexStride, 0);
 		const Vector3& v1 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 0)) * m_VertexStride, 0);
 		const Vector3& v2 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 0) + (p + 1)) * m_VertexStride, 0);
-		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 0) + (p + 1)) * m_VertexStride, 0);
-		const Vector3& v4 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 0)) * m_VertexStride, 0);
-		const Vector3& v5 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 1)) * m_VertexStride, 0);
-		RayResult res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v0, v1, v2);
-		if (res.first)
+		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 1)) * m_VertexStride, 0);
+		const Vector2 d0 = Vector2(x, z) - v2.xz();
+		const Vector2 d1 = v1.xz() - v2.xz();
+		if (d0.kross(d1))
 		{
-			return m_max.y - res.second;
+			RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v0, v1, v2));
+			if (res.first)
+			{
+				return m_max.y - res.second;
+			}
+			return v0.y;
 		}
-		res = IntersectionTests::rayAndTriangle(Vector3(x, m_max.y, z), Vector3(0, -1, 0), v3, v4, v5);
-		if (res.first)
+		else
 		{
-			return m_max.y - res.second;
+			RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v2, v1, v3));
+			if (res.first)
+			{
+				return m_max.y - res.second;
+			}
+			return v2.y;
 		}
-		return v0.y;
 	}
 }
 
@@ -1387,46 +1401,75 @@ void TerrainStream::UpdateNormal(void)
 		}
 	}
 }
+//
+//my::RayResult TerrainStream::RayTest(const my::Ray& local_ray)
+//{
+//	struct Callback : public my::OctNode::QueryCallback
+//	{
+//		const my::Ray& ray;
+//		TerrainStream& tstr;
+//		my::RayResult ret;
+//		Callback(const my::Ray& _ray, TerrainStream& _tstr)
+//			: ray(_ray)
+//			, tstr(_tstr)
+//			, ret(false, FLT_MAX)
+//		{
+//		}
+//		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+//		{
+//			my::RayResult result;
+//			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
+//			const Terrain::Fragment& frag = tstr.m_terrain->GetFragment(0, 0, 0, 0, 0);
+//			my::VertexBufferPtr vb = tstr.GetVB(chunk->m_Row, chunk->m_Col);
+//			result = Mesh::RayTest(
+//				ray,
+//				vb->Lock(0, 0, D3DLOCK_READONLY),
+//				frag.VertNum,
+//				tstr.m_terrain->m_VertexStride,
+//				const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+//				false,
+//				frag.PrimitiveCount,
+//				tstr.m_terrain->m_VertexElems);
+//			vb->Unlock();
+//			const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+//			if (result.first && result.second < ret.second)
+//			{
+//				ret = result;
+//			}
+//			return true;
+//		}
+//	};
+//
+//	Callback cb(local_ray, *this);
+//	m_terrain->QueryEntity(local_ray, &cb);
+//	return cb.ret;
+//}
 
-my::RayResult TerrainStream::RayTest(const my::Ray& local_ray)
+float TerrainStream::RayTest2D(float x, float z)
 {
-	struct Callback : public my::OctNode::QueryCallback
+	const int i = (int)z, j = (int)x;
+	const Vector3 v0 = GetPos(i + 0, j + 0);
+	const Vector3 v1 = GetPos(i + 1, j + 0);
+	const Vector3 v2 = GetPos(i + 0, j + 1);
+	const Vector3 v3 = GetPos(i + 1, j + 1);
+	const Vector2 d0 = Vector2(x, z) - v2.xz();
+	const Vector2 d1 = v1.xz() - v2.xz();
+	if (d0.kross(d1))
 	{
-		const my::Ray& ray;
-		TerrainStream& tstr;
-		my::RayResult ret;
-		Callback(const my::Ray& _ray, TerrainStream& _tstr)
-			: ray(_ray)
-			, tstr(_tstr)
-			, ret(false, FLT_MAX)
+		RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_terrain->m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v0, v1, v2));
+		if (res.first)
 		{
+			return m_terrain->m_max.y - res.second;
 		}
-		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		return v0.y;
+	}
+	else
+	{
+		RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_terrain->m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v2, v1, v3));
+		if (res.first)
 		{
-			my::RayResult result;
-			TerrainChunk* chunk = dynamic_cast<TerrainChunk*>(oct_entity);
-			const Terrain::Fragment& frag = tstr.m_terrain->GetFragment(0, 0, 0, 0, 0);
-			my::VertexBufferPtr vb = tstr.GetVB(chunk->m_Row, chunk->m_Col);
-			result = Mesh::RayTest(
-				ray,
-				vb->Lock(0, 0, D3DLOCK_READONLY),
-				frag.VertNum,
-				tstr.m_terrain->m_VertexStride,
-				const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
-				false,
-				frag.PrimitiveCount,
-				tstr.m_terrain->m_VertexElems);
-			vb->Unlock();
-			const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-			if (result.first && result.second < ret.second)
-			{
-				ret = result;
-			}
-			return true;
+			return m_terrain->m_max.y - res.second;
 		}
-	};
-
-	Callback cb(local_ray, *this);
-	m_terrain->QueryEntity(local_ray, &cb);
-	return cb.ret;
+		return v2.y;
+	}
 }

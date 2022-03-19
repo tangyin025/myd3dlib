@@ -705,6 +705,11 @@ namespace my
 
 		static Vector3 RandomUnitSphere(void);
 
+		Vector2 xz(void) const
+		{
+			return Vector2(x, z);
+		}
+
 		static const Vector3 zero;
 
 		static const Vector3 one;

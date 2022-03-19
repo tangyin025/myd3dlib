@@ -225,5 +225,7 @@ public:
 
 	void UpdateNormal(void);
 
-	my::RayResult RayTest(const my::Ray& local_ray);
+	//my::RayResult RayTest(const my::Ray& local_ray);
+
+	float RayTest2D(float x, float z);
 };
