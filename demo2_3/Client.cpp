@@ -1001,6 +1001,7 @@ HRESULT Client::OnCreateDevice(
 			.def("Close", &SqlContext::Close)
 			.def("Exec", (void(*)(SqlContext*, const char*))& sqlcontext_exec)
 			.def("Exec", (void(*)(SqlContext*, const char*, const luabind::object&))& sqlcontext_exec)
+			.def("Clone", &SqlContext::Clone)
 	];
 	luabind::globals(m_State)["client"] = this;
 

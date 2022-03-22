@@ -23,9 +23,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\shell.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>

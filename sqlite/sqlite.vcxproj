@@ -23,7 +23,6 @@
     <ClInclude Include="include\sqlite3ext.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\shell.c" />
     <ClCompile Include="src\sqlite3.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
