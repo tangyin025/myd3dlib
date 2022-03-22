@@ -996,7 +996,7 @@ HRESULT Client::OnCreateDevice(
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 
 		, luabind::class_<SqlContext>("SqlContext")
-			.def(luabind::constructor<>())
+			.def(luabind::constructor<const char*>())
 			.def("Open", &SqlContext::Open)
 			.def("Close", &SqlContext::Close)
 			.def("Exec", (void(*)(SqlContext*, const char*))& sqlcontext_exec)

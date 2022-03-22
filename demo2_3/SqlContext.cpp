@@ -855,9 +855,10 @@ static void main_init(ShellState* data) {
     sqlite3_snprintf(sizeof(continuePrompt), continuePrompt, "   ...> ");
 }
 
-SqlContext::SqlContext(void)
+SqlContext::SqlContext(const char* filename)
 	: db(NULL)
 {
+    Open(filename);
 }
 
 SqlContext::~SqlContext(void)

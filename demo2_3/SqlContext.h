@@ -8,7 +8,7 @@ public:
 	sqlite3 * db;
 
 public:
-	SqlContext(void);
+	SqlContext(const char* filename);
 
 	~SqlContext(void);
 
