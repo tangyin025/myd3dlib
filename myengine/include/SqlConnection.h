@@ -2,15 +2,15 @@
 
 struct sqlite3;
 
-class SqlContext
+class SqlConnection
 {
 public:
 	sqlite3 * db;
 
 public:
-	SqlContext(const char* filename);
+	SqlConnection(const char* filename);
 
-	~SqlContext(void);
+	~SqlConnection(void);
 
 	void Open(const char* filename);
 

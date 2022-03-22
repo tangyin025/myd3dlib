@@ -1,5 +1,5 @@
-#include "stdafx.h"
-#include "SqlContext.h"
+#include "SqlConnection.h"
+#include "mySingleton.h"
 #include <sqlite3.h>
 #include <boost/scope_exit.hpp>
 
@@ -351,10 +351,10 @@ using namespace my;
 # define SQLITE_PRIVATE static
 #endif
 
-typedef sqlite3_uint64 u64;
-typedef unsigned char u8;
-
-typedef struct sqlite3expert sqlite3expert;
+#include <io.h>
+#  ifndef access
+#   define access(f,m) _access((f),(m))
+#  endif
 
 /*
 ** These are the allowed modes.
@@ -423,6 +423,11 @@ static const char* modeDescr[] = {
 #define SHFLG_HeaderSet      0x00000080 /* showHeader has been specified */
 #define SHFLG_DumpDataOnly   0x00000100 /* .dump show data only */
 #define SHFLG_DumpNoSys      0x00000200 /* .dump omits system tables */
+
+typedef sqlite3_uint64 u64;
+typedef unsigned char u8;
+
+typedef struct sqlite3expert sqlite3expert;
 
 typedef struct ExpertInfo ExpertInfo;
 struct ExpertInfo {
@@ -855,13 +860,13 @@ static void main_init(ShellState* data) {
     sqlite3_snprintf(sizeof(continuePrompt), continuePrompt, "   ...> ");
 }
 
-SqlContext::SqlContext(const char* filename)
+SqlConnection::SqlConnection(const char* filename)
 	: db(NULL)
 {
     Open(filename);
 }
 
-SqlContext::~SqlContext(void)
+SqlConnection::~SqlConnection(void)
 {
 	if (db)
 	{
@@ -869,7 +874,7 @@ SqlContext::~SqlContext(void)
 	}
 }
 
-void SqlContext::Open(const char* filename)
+void SqlConnection::Open(const char* filename)
 {
 	_ASSERT(!db);
 
@@ -885,7 +890,7 @@ void SqlContext::Open(const char* filename)
 	}
 }
 
-void SqlContext::Close(void)
+void SqlConnection::Close(void)
 {
 	_ASSERT(db);
 
@@ -897,7 +902,7 @@ void SqlContext::Close(void)
 	db = NULL;
 }
 
-void SqlContext::Exec(const char* sql, int (*callback)(void*, int, char**, char**), void* data)
+void SqlConnection::Exec(const char* sql, int (*callback)(void*, int, char**, char**), void* data)
 {
 	char* zErrMsg = 0;
 	if (SQLITE_OK != sqlite3_exec(db, sql, callback, data, &zErrMsg))
@@ -907,7 +912,7 @@ void SqlContext::Exec(const char* sql, int (*callback)(void*, int, char**, char*
 	}
 }
 
-void SqlContext::Clone(const char* other)
+void SqlConnection::Clone(const char* other)
 {
     ShellState data;
     main_init(&data);

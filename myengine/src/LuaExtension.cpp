@@ -32,6 +32,7 @@ extern "C"
 #include "NavigationSerialization.h"
 #include "LargeImage.h"
 #include "SoundContext.h"
+#include "SqlConnection.h"
 #include "ActionTrack.h"
 #include "Steering.h"
 //#include "noise.h"
@@ -670,6 +671,45 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 static void action_add_track_adopt(Action* self, ScriptActionTrack* track)
 {
 	self->AddTrack(ActionTrackPtr(track));
+}
+
+static void sqlcontext_exec(SqlConnection* self, const char* sql) {
+	self->Exec(sql, NULL, NULL);
+}
+
+static int sqlcontext_exec_callback(void* data, int argc, char** argv, char** azColName)
+{
+	try
+	{
+		const luabind::object& callback = *(luabind::object*)data;
+		luabind::object param = luabind::newtable(callback.interpreter());
+		for (int i = 0; i < argc; i++)
+		{
+			if (argv[i])
+			{
+				param[(const char*)azColName[i]] = (const char*)argv[i];
+			}
+			else
+			{
+				param[(const char*)azColName[i]] = luabind::nil;
+			}
+		}
+		luabind::call_function<void>(callback, param);
+		return 0;
+	}
+	catch (const luabind::error& e)
+	{
+		my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+	}
+	catch (const std::exception& e)
+	{
+		my::D3DContext::getSingleton().m_EventLog(e.what());
+	}
+	return 1;
+}
+
+static void sqlcontext_exec(SqlConnection* self, const char* sql, const luabind::object& callback) {
+	self->Exec(sql, sqlcontext_exec_callback, const_cast<luabind::object*>(&callback));
 }
 
 typedef std::vector<boost::cmatch> sub_match_list;
@@ -2494,6 +2534,14 @@ void LuaContext::Init(void)
 			.def("Play", (void(Mp3::*)(const char *, bool))&Mp3::Play)
 			.def("StopAsync", &Mp3::StopAsync)
 			.def("Stop", &Mp3::Stop)
+
+		, luabind::class_<SqlConnection>("SqlConnection")
+			.def(luabind::constructor<const char*>())
+			.def("Open", &SqlConnection::Open)
+			.def("Close", &SqlConnection::Close)
+			.def("Exec", (void(*)(SqlConnection*, const char*))& sqlcontext_exec)
+			.def("Exec", (void(*)(SqlConnection*, const char*, const luabind::object&))& sqlcontext_exec)
+			.def("Clone", &SqlConnection::Clone)
 	];
 
 	module(m_State)[

@@ -186,7 +186,6 @@
     </ClCompile>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SqlContext.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -200,7 +199,6 @@
     <ClInclude Include="Client.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SqlContext.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Net\Socket.h" />
     <ClInclude Include="Net\SocketAPI.h" />

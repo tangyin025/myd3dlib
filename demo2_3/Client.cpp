@@ -8,11 +8,9 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "LargeImage.h"
-#include "SqlContext.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
-#include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
 #include <luabind/out_value_policy.hpp>
 #include <luabind/adopt_policy.hpp>
@@ -372,45 +370,6 @@ static bool client_overlap_sphere(Client * self, float radius, const my::Vector3
 {
 	physx::PxSphereGeometry sphere(radius);
 	return self->Overlap(sphere, Position, Rotation, filterWord0, callback, MaxNbTouches);
-}
-
-static int sqlcontext_exec_callback(void* data, int argc, char** argv, char** azColName)
-{
-	try
-	{
-		const luabind::object& callback = *(luabind::object*)data;
-		luabind::object param = luabind::newtable(callback.interpreter());
-		for (int i = 0; i < argc; i++)
-		{
-			if (argv[i])
-			{
-				param[(const char*)azColName[i]] = (const char*)argv[i];
-			}
-			else
-			{
-				param[(const char*)azColName[i]] = luabind::nil;
-			}
-		}
-		luabind::call_function<void>(callback, param);
-		return 0;
-	}
-	catch (const luabind::error& e)
-	{
-		my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-	}
-	catch (const std::exception& e)
-	{
-		my::D3DContext::getSingleton().m_EventLog(e.what());
-	}
-	return 1;
-}
-
-static void sqlcontext_exec(SqlContext* self, const char* sql) {
-	self->Exec(sql, NULL, NULL);
-}
-
-static void sqlcontext_exec(SqlContext* self, const char* sql, const luabind::object& callback) {
-	self->Exec(sql, sqlcontext_exec_callback, const_cast<luabind::object*>(&callback));
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -994,14 +953,6 @@ HRESULT Client::OnCreateDevice(
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
-
-		, luabind::class_<SqlContext>("SqlContext")
-			.def(luabind::constructor<const char*>())
-			.def("Open", &SqlContext::Open)
-			.def("Close", &SqlContext::Close)
-			.def("Exec", (void(*)(SqlContext*, const char*))& sqlcontext_exec)
-			.def("Exec", (void(*)(SqlContext*, const char*, const luabind::object&))& sqlcontext_exec)
-			.def("Clone", &SqlContext::Clone)
 	];
 	luabind::globals(m_State)["client"] = this;
 
