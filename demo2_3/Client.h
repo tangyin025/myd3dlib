@@ -145,6 +145,8 @@ public:
 
 	std::string m_InitScript;
 
+	int m_InitLanguageId;
+
 	enum Key
 	{
 		KeyUIHorizontal,
