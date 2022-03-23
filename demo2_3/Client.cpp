@@ -1572,6 +1572,11 @@ void Client::OnControlFocus(my::Control * control)
 	}
 }
 
+std::wstring Client::OnControlTranslate(const std::string& str)
+{
+	return D3DContext::OnControlTranslate(str);
+}
+
 class SimpleResourceCallback
 {
 public:

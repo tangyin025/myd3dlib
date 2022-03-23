@@ -261,6 +261,8 @@ public:
 
 	virtual void OnControlFocus(my::Control * control);
 
+	virtual std::wstring OnControlTranslate(const std::string& str);
+
 	template <typename T>
 	void LoadSceneAsync(const char * path, const char * prefix, const T & callback, int Priority = 0)
 	{

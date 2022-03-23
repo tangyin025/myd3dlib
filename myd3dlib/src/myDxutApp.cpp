@@ -251,8 +251,9 @@ NamedObject * D3DContext::GetNamedObject(const char * Name)
 	return NULL;
 }
 
-void D3DContext::OnControlSound(boost::shared_ptr<Wav> wav)
+std::wstring D3DContext::OnControlTranslate(const std::string& str)
 {
+	return u8tows(str);
 }
 
 bool DxutApp::IsDeviceAcceptable(

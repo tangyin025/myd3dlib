@@ -1713,7 +1713,7 @@ void Static::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	std::string text_u8;
 	ar >> boost::serialization::make_nvp("m_Text", text_u8);
-	m_Text = u8tows(text_u8);
+	m_Text = D3DContext::getSingleton().OnControlTranslate(text_u8);
 }
 
 void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size)

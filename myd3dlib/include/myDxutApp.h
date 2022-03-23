@@ -137,11 +137,15 @@ namespace my
 		{
 		}
 
-		virtual void OnControlSound(boost::shared_ptr<Wav> wav);
+		virtual void OnControlSound(boost::shared_ptr<Wav> wav)
+		{
+		}
 
 		virtual void OnControlFocus(Control * control)
 		{
 		}
+
+		virtual std::wstring OnControlTranslate(const std::string& str);
 	};
 
 	class DxutApp
