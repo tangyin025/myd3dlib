@@ -168,6 +168,10 @@ public:
 
 	boost::array<InputMgr::KeyPairList, KeyCount> m_InitBindKeys;
 
+	typedef boost::unordered_map<std::string, std::wstring> TranslationMap;
+
+	TranslationMap m_TranslationMap;
+
 	my::Vector3 m_ViewedCenter;
 
 	float m_ViewedDist;
@@ -262,6 +266,8 @@ public:
 	virtual void OnControlFocus(my::Control * control);
 
 	virtual std::wstring OnControlTranslate(const std::string& str);
+
+	void SetTranslation(const std::string& key, const std::wstring& text);
 
 	template <typename T>
 	void LoadSceneAsync(const char * path, const char * prefix, const T & callback, int Priority = 0)

@@ -940,7 +940,9 @@ HRESULT Client::OnCreateDevice(
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)
-			.def("OnControlSound", &Client::OnControlSound)
+			//.def("OnControlSound", &Client::OnControlSound)
+			.def("GetTranslation", &Client::OnControlTranslate)
+			.def("SetTranslation", &Client::SetTranslation)
 			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
 			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
 			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
@@ -1574,7 +1576,17 @@ void Client::OnControlFocus(my::Control * control)
 
 std::wstring Client::OnControlTranslate(const std::string& str)
 {
+	TranslationMap::iterator trans_iter = m_TranslationMap.find(str);
+	if (trans_iter != m_TranslationMap.end())
+	{
+		return trans_iter->second;
+	}
 	return D3DContext::OnControlTranslate(str);
+}
+
+void Client::SetTranslation(const std::string& key, const std::wstring& text)
+{
+	m_TranslationMap[key] = text;
 }
 
 class SimpleResourceCallback
