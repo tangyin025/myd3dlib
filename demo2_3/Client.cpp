@@ -358,6 +358,11 @@ static void client_add_state_adopt(Client * self, StateBase * state, StateBase *
 	self->AddState(StateBasePtr(state), parent);
 }
 
+static bool client_file_exists(Client * self, const std::string & path)
+{
+	return PathFileExists(u8tots(path).c_str());
+}
+
 template <typename T>
 static bool client_overlap_box(Client * self, float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
 {
@@ -939,6 +944,7 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityNum", &Client::GetAllEntityNum)
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
+			.def("FileExists", client_file_exists)
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)
