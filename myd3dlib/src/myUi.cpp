@@ -3836,7 +3836,7 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			break;
 		}
 	}
-	return false;
+	return Control::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
 bool ListBox::CanHaveFocus(void) const
