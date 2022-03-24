@@ -3235,6 +3235,8 @@ ComboBox::ComboBox(const char* Name)
 	, m_iSelected(-1)
 {
 	OnLayout();
+
+	m_ScrollBar->m_Parent = this;
 }
 
 template<class Archive>
@@ -3730,6 +3732,8 @@ ListBox::ListBox(const char* Name)
 	, m_ItemColumn(1)
 {
 	OnLayout();
+
+	m_ScrollBar->m_Parent = this;
 }
 
 template<class Archive>
