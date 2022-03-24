@@ -120,13 +120,13 @@ void NamedObject::load(Archive & ar, const unsigned int version)
 		NamedObjectSerializationContext * pxar = dynamic_cast<NamedObjectSerializationContext *>(&ar);
 		_ASSERT(pxar);
 
-		if (!pxar->prefix.empty())
-		{
+		//if (!pxar->prefix.empty())
+		//{
 			SetName((pxar->prefix + Name).c_str());
-		}
-		else
-		{
-			SetName(MakeUniqueName(Name.c_str()).c_str());
-		}
+		//}
+		//else
+		//{
+		//	SetName(MakeUniqueName(Name.c_str()).c_str());
+		//}
 	}
 }
