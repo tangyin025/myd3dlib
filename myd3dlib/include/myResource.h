@@ -273,12 +273,14 @@ namespace my
 
 		//void RemoveAllIORequest(void);
 
+		bool FindIORequest(const std::string & key);
+
 		template <typename T>
-		bool FindIORequestCallback(const T & callback)
+		bool FindIORequestCallback(const T & callback) const
 		{
 			_ASSERT(IsMainThread());
 
-			IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+			IORequestPtrPairList::const_iterator req_iter = m_IORequestList.begin();
 			for (; req_iter != m_IORequestList.end(); req_iter++)
 			{
 				IORequest::ResourceCallbackSet::iterator callback_iter = std::find(req_iter->second->m_callbacks.begin(), req_iter->second->m_callbacks.end(), callback);

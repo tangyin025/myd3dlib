@@ -59,11 +59,44 @@ protected:
 public:
 	SceneContextRequest(const char* path, const char* prefix, int Priority);
 
-	virtual void SceneContextRequest::LoadResource(void);
+	virtual void LoadResource(void);
 
-	virtual void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
-	static std::string SceneContextRequest::BuildKey(const char* path);
+	static std::string BuildKey(const char* path);
+};
+
+struct PlayerData : public my::DeviceResourceBase
+{
+	int mapid;
+
+	int areaid;
+
+	PlayerData(void);
+
+	virtual ~PlayerData(void);
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar& BOOST_SERIALIZATION_NVP(mapid);
+		ar& BOOST_SERIALIZATION_NVP(areaid);
+	}
+};
+
+typedef boost::shared_ptr<PlayerData> PlayerDataPtr;
+
+class PlayerDataRequest : public my::IORequest
+{
+protected:
+	std::string m_path;
+
+public:
+	PlayerDataRequest(const PlayerData* data, const char* path, int Priority);
+
+	virtual void LoadResource(void);
+
+	virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 };
 
 class StateBase
@@ -282,6 +315,19 @@ public:
 	boost::shared_ptr<SceneContext> LoadScene(const char * path, const char * prefix);
 
 	void GetLoadSceneProgress(const char * path, int & ActorProgress, int & DialogProgress);
+
+	boost::shared_ptr<PlayerData> LoadPlayerData(const char * path);
+
+	template <typename T>
+	void SavePlayerDataAsync(const PlayerData * data, const char * path, const T & callback, int Priority = 0)
+	{
+		if (FindIORequest(path))
+		{
+			THROW_CUSEXCEPTION("PlayerData is in writing!");
+		}
+		IORequestPtr request(new PlayerDataRequest(data, path, Priority));
+		LoadIORequestAsync(path, request, callback);
+	}
 	
 	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
 

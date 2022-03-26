@@ -444,6 +444,18 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 //	m_IORequestListMutex.Release();
 //}
 
+bool AsynchronousIOMgr::FindIORequest(const std::string & key)
+{
+	MutexLock lock(m_IORequestListMutex);
+
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.find(key);
+	if (req_iter != m_IORequestList.end())
+	{
+		return true;
+	}
+	return false;
+}
+
 void AsynchronousIOMgr::StartIORequestProc(LONG lMaximumCount)
 {
 	m_bStopped = false;

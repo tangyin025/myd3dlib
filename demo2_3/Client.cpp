@@ -17,6 +17,8 @@
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -439,6 +441,36 @@ void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		m_res.reset();
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
+}
+
+PlayerData::PlayerData(void)
+	: mapid(0)
+	, areaid(0)
+{
+}
+
+PlayerData::~PlayerData(void)
+{
+}
+
+PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
+	: IORequest(Priority)
+	, m_path(path)
+{
+	m_res.reset(new PlayerData(*data));
+}
+
+void PlayerDataRequest::LoadResource(void)
+{
+	boost::shared_ptr<PlayerData> ret = boost::dynamic_pointer_cast<PlayerData>(m_res);
+	_ASSERT(ret);
+	std::ofstream ofs(m_path, std::ios::binary, _SH_DENYRW);
+	boost::archive::text_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("PlayerData", ret);
+}
+
+void PlayerDataRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
+{
 }
 
 std::string SceneContextRequest::BuildKey(const char* path)
@@ -876,6 +908,9 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("ActorList", &SceneContext::m_ActorList, luabind::return_stl_iterator)
 			.def_readonly("DialogList", &SceneContext::m_DialogList, luabind::return_stl_iterator)
 
+		, luabind::class_<PlayerData, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("PlayerData")
+			.def(luabind::constructor<>())
+
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
 			.def("OnAdd", &StateBase::OnAdd, &ScriptStateBase::default_OnAdd)
@@ -959,6 +994,8 @@ HRESULT Client::OnCreateDevice(
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
 			.def("LoadScene", &Client::LoadScene)
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
+			.def("LoadPlayerData", &Client::LoadPlayerData)
+			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
 			.def("OverlapBox", &client_overlap_box<luabind::object>)
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
 
@@ -1650,6 +1687,16 @@ void Client::GetLoadSceneProgress(const char * path, int & ActorProgress, int & 
 
 	ActorProgress = 0;
 	DialogProgress = 0;
+}
+
+boost::shared_ptr<PlayerData> Client::LoadPlayerData(const char * path)
+{
+	boost::shared_ptr<PlayerData> ret;
+	my::IStreamBuff buff(my::FileIStream::Open(u8tots(path).c_str()));
+	std::istream ifs(&buff);
+	boost::archive::text_iarchive ia(ifs);
+	ia >> boost::serialization::make_nvp("PlayerData", ret);
+	return ret;
 }
 
 bool Client::Overlap(
