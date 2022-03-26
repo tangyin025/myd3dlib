@@ -17,8 +17,8 @@
 #include "LuaExtension.inl"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -443,14 +443,36 @@ void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
+BOOST_CLASS_VERSION(PlayerData, 1)
+
 PlayerData::PlayerData(void)
-	: mapid(0)
+	: sceneid(0)
 	, areaid(0)
+	, logintime(time(NULL))
+	, gametime(0)
 {
 }
 
 PlayerData::~PlayerData(void)
 {
+}
+
+template<class Archive>
+void PlayerData::save(Archive& ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(sceneid);
+	ar << BOOST_SERIALIZATION_NVP(areaid);
+	ar << BOOST_SERIALIZATION_NVP(logintime);
+	ar << BOOST_SERIALIZATION_NVP(gametime);
+}
+
+template<class Archive>
+void PlayerData::load(Archive& ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(sceneid);
+	ar >> BOOST_SERIALIZATION_NVP(areaid);
+	ar >> BOOST_SERIALIZATION_NVP(logintime);
+	ar >> BOOST_SERIALIZATION_NVP(gametime);
 }
 
 PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
@@ -464,8 +486,10 @@ void PlayerDataRequest::LoadResource(void)
 {
 	boost::shared_ptr<PlayerData> ret = boost::dynamic_pointer_cast<PlayerData>(m_res);
 	_ASSERT(ret);
+	ret->gametime += time(NULL) - ret->logintime;
+
 	std::ofstream ofs(m_path, std::ios::binary, _SH_DENYRW);
-	boost::archive::text_oarchive oa(ofs);
+	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("PlayerData", ret);
 }
 
@@ -910,6 +934,10 @@ HRESULT Client::OnCreateDevice(
 
 		, luabind::class_<PlayerData, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("PlayerData")
 			.def(luabind::constructor<>())
+			.def_readwrite("sceneid", &PlayerData::sceneid)
+			.def_readwrite("areaid", &PlayerData::areaid)
+			.def_readwrite("logintime", &PlayerData::logintime)
+			.def_readwrite("gametime", &PlayerData::gametime)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
@@ -996,6 +1024,7 @@ HRESULT Client::OnCreateDevice(
 			.def("GetLoadSceneProgress", &Client::GetLoadSceneProgress, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
 			.def("LoadPlayerData", &Client::LoadPlayerData)
 			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
+			.def("SavePlayerData", &Client::SavePlayerData)
 			.def("OverlapBox", &client_overlap_box<luabind::object>)
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
 
@@ -1694,9 +1723,16 @@ boost::shared_ptr<PlayerData> Client::LoadPlayerData(const char * path)
 	boost::shared_ptr<PlayerData> ret;
 	my::IStreamBuff buff(my::FileIStream::Open(u8tots(path).c_str()));
 	std::istream ifs(&buff);
-	boost::archive::text_iarchive ia(ifs);
+	boost::archive::xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PlayerData", ret);
 	return ret;
+}
+
+void Client::SavePlayerData(const PlayerData * data, const char * path)
+{
+	SimpleResourceCallback cb;
+	IORequestPtr request(new PlayerDataRequest(data, path, INT_MAX));
+	LoadIORequestAndWait(path, request, boost::bind(&SimpleResourceCallback::OnResourceReady, &cb, boost::placeholders::_1));
 }
 
 bool Client::Overlap(

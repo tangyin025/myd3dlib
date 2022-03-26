@@ -68,19 +68,28 @@ public:
 
 struct PlayerData : public my::DeviceResourceBase
 {
-	int mapid;
+	int sceneid;
 
 	int areaid;
+
+	double logintime;
+
+	double gametime;
 
 	PlayerData(void);
 
 	virtual ~PlayerData(void);
 
 	template<class Archive>
+	void save(Archive& ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive& ar, const unsigned int version);
+
+	template<class Archive>
 	void serialize(Archive& ar, const unsigned int version)
 	{
-		ar& BOOST_SERIALIZATION_NVP(mapid);
-		ar& BOOST_SERIALIZATION_NVP(areaid);
+		boost::serialization::split_member(ar, *this, version);
 	}
 };
 
@@ -328,6 +337,8 @@ public:
 		IORequestPtr request(new PlayerDataRequest(data, path, Priority));
 		LoadIORequestAsync(path, request, callback);
 	}
+
+	void SavePlayerData(const PlayerData * data, const char * path);
 	
 	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
 
