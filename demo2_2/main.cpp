@@ -351,7 +351,7 @@ public:
 
 		MouseEventArg * mouse_arg = dynamic_cast<MouseEventArg *>(arg);
 		_ASSERT(mouse_arg);
-		Vector2 ptLocal = mouse_arg->pt - mouse_arg->sender->m_Rect.LeftTop();
+		Vector2 ptLocal = mouse_arg->pt - mouse_arg->self->m_Rect.LeftTop();
 		D3DLOCKED_RECT lr = m_Tex->LockRect(NULL);
 		CPoint pt((int)ptLocal.x, (int)ptLocal.y);
 		my::AStar2D<DWORD> searcher(desc.Height, lr.Pitch, (DWORD*)lr.pBits, D3DCOLOR_ARGB(0,0,0,0), last_pt, pt, 32767);

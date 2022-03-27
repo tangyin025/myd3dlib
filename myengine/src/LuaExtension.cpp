@@ -1355,7 +1355,7 @@ void LuaContext::Init(void)
 			.def("clear", &my::EventFunction::clear)
 
 		, class_<my::ControlEventArg, my::EventArg>("ControlEventArg")
-			.def_readonly("sender", &my::ControlEventArg::sender)
+			.def_readonly("self", &my::ControlEventArg::self)
 
 		, class_<my::VisibleEventArg, my::ControlEventArg>("VisibleEventArg")
 			.def_readonly("Visible", &my::VisibleEventArg::Visible)

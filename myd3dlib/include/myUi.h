@@ -282,10 +282,10 @@ namespace my
 	class ControlEventArg : public EventArg
 	{
 	public:
-		Control * sender;
+		Control * self;
 
-		ControlEventArg(Control * _sender)
-			: sender(_sender)
+		ControlEventArg(Control * _self)
+			: self(_self)
 		{
 		}
 
@@ -299,8 +299,8 @@ namespace my
 	public:
 		bool Visible;
 
-		VisibleEventArg(Control * _sender, bool _Visible)
-			: ControlEventArg(_sender)
+		VisibleEventArg(Control * _self, bool _Visible)
+			: ControlEventArg(_self)
 			, Visible(_Visible)
 		{
 		}
@@ -311,8 +311,8 @@ namespace my
 	public:
 		Vector2 pt;
 
-		MouseEventArg(Control * _sender, const Vector2 & _pt)
-			: ControlEventArg(_sender)
+		MouseEventArg(Control * _self, const Vector2 & _pt)
+			: ControlEventArg(_self)
 			, pt(_pt)
 		{
 		}
