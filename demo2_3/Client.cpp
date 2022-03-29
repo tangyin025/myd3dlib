@@ -350,6 +350,36 @@ static int os_exit(lua_State * L)
 	return 0;
 }
 
+static int PlayerData_getattr(const PlayerData * self, int i)
+{
+	return my::Subscribe<int>(self->attrs, i);
+}
+
+static void PlayerData_setattr(PlayerData * self, int i, int v)
+{
+	my::Subscribe<int>(self->attrs, i) = v;
+}
+
+static int PlayerData_getitem(const PlayerData* self, int i)
+{
+	return my::Subscribe<int>(self->items, i);
+}
+
+static void PlayerData_setitem(PlayerData* self, int i, int v)
+{
+	my::Subscribe<int>(self->items, i) = v;
+}
+
+static int PlayerData_getquest(const PlayerData * self, int i)
+{
+	return my::Subscribe<int>(self->quests, i);
+}
+
+static void PlayerData_setquest(PlayerData * self, int i, int v)
+{
+	my::Subscribe<int>(self->quests, i) = v;
+}
+
 static void client_add_state_adopt(Client * self, StateBase * state)
 {
 	self->AddState(StateBasePtr(state));
@@ -450,6 +480,9 @@ PlayerData::PlayerData(void)
 	, pos(0, 0, 0)
 	, angle(D3DXToRadian(0))
 {
+	std::fill_n(attrs, _countof(attrs), 0);
+	std::fill_n(items, _countof(items), 0);
+	std::fill_n(quests, _countof(quests), 0);
 }
 
 PlayerData::~PlayerData(void)
@@ -466,6 +499,9 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(sceneid);
 	ar << BOOST_SERIALIZATION_NVP(pos);
 	ar << BOOST_SERIALIZATION_NVP(angle);
+	ar << BOOST_SERIALIZATION_NVP(attrs);
+	ar << BOOST_SERIALIZATION_NVP(items);
+	ar << BOOST_SERIALIZATION_NVP(quests);
 }
 
 template<class Archive>
@@ -476,6 +512,9 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(sceneid);
 	ar >> BOOST_SERIALIZATION_NVP(pos);
 	ar >> BOOST_SERIALIZATION_NVP(angle);
+	ar >> BOOST_SERIALIZATION_NVP(attrs);
+	ar >> BOOST_SERIALIZATION_NVP(items);
+	ar >> BOOST_SERIALIZATION_NVP(quests);
 }
 
 PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
@@ -937,11 +976,29 @@ HRESULT Client::OnCreateDevice(
 
 		, luabind::class_<PlayerData, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("PlayerData")
 			.def(luabind::constructor<>())
+			.enum_("ATTRIBUTE")
+			[
+				luabind::value("ATTR_EQUIP0", 0),
+				luabind::value("ATTR_EQUIP1", 1),
+				luabind::value("ATTR_EQUIP2", 2),
+				luabind::value("ATTR_WEAPON0", 3),
+				luabind::value("ATTR_WEAPON1", 4),
+				luabind::value("ATTR_WEAPON2", 5),
+				luabind::value("ATTR_QUEST_NUM", 6),
+				luabind::value("ATTR_ITEM_NUM", 7),
+				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs))
+			]
 			.def_readwrite("logintime", &PlayerData::logintime)
 			.def_readwrite("gametime", &PlayerData::gametime)
 			.def_readwrite("sceneid", &PlayerData::sceneid)
 			.def_readwrite("pos", &PlayerData::pos)
 			.def_readwrite("angle", &PlayerData::angle)
+			.def("getattr", &PlayerData_getattr)
+			.def("setattr", &PlayerData_setattr)
+			.def("getitem", &PlayerData_getitem)
+			.def("setitem", &PlayerData_setitem)
+			.def("getquest", &PlayerData_getquest)
+			.def("setquest", &PlayerData_setquest)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
@@ -1011,7 +1068,7 @@ HRESULT Client::OnCreateDevice(
 			.property("AllEntityNum", &Client::GetAllEntityNum)
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
-			.def("FileExists", client_file_exists)
+			.def("FileExists", &client_file_exists)
 			.def("AddTransition", &Client::AddTransition)
 			.def("ProcessEvent", &Client::ProcessEvent)
 			.def("ClearAllState", &Client::ClearAllState)

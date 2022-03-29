@@ -78,6 +78,12 @@ struct PlayerData : public my::DeviceResourceBase
 
 	float angle;
 
+	int attrs[64];
+
+	int items[512];
+
+	int quests[16];
+
 	PlayerData(void);
 
 	virtual ~PlayerData(void);
