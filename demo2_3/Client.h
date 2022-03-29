@@ -68,13 +68,15 @@ public:
 
 struct PlayerData : public my::DeviceResourceBase
 {
-	int sceneid;
-
-	int areaid;
-
 	double logintime;
 
 	double gametime;
+
+	int sceneid;
+
+	my::Vector3 pos;
+
+	float angle;
 
 	PlayerData(void);
 

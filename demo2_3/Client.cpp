@@ -443,13 +443,12 @@ void SceneContextRequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-BOOST_CLASS_VERSION(PlayerData, 1)
-
 PlayerData::PlayerData(void)
-	: sceneid(0)
-	, areaid(0)
-	, logintime(time(NULL))
+	: logintime(time(NULL))
 	, gametime(0)
+	, sceneid(0)
+	, pos(0, 0, 0)
+	, angle(D3DXToRadian(0))
 {
 }
 
@@ -457,22 +456,26 @@ PlayerData::~PlayerData(void)
 {
 }
 
+BOOST_CLASS_VERSION(PlayerData, 1)
+
 template<class Archive>
 void PlayerData::save(Archive& ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(sceneid);
-	ar << BOOST_SERIALIZATION_NVP(areaid);
 	ar << BOOST_SERIALIZATION_NVP(logintime);
 	ar << BOOST_SERIALIZATION_NVP(gametime);
+	ar << BOOST_SERIALIZATION_NVP(sceneid);
+	ar << BOOST_SERIALIZATION_NVP(pos);
+	ar << BOOST_SERIALIZATION_NVP(angle);
 }
 
 template<class Archive>
 void PlayerData::load(Archive& ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(sceneid);
-	ar >> BOOST_SERIALIZATION_NVP(areaid);
 	ar >> BOOST_SERIALIZATION_NVP(logintime);
 	ar >> BOOST_SERIALIZATION_NVP(gametime);
+	ar >> BOOST_SERIALIZATION_NVP(sceneid);
+	ar >> BOOST_SERIALIZATION_NVP(pos);
+	ar >> BOOST_SERIALIZATION_NVP(angle);
 }
 
 PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
@@ -934,10 +937,11 @@ HRESULT Client::OnCreateDevice(
 
 		, luabind::class_<PlayerData, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("PlayerData")
 			.def(luabind::constructor<>())
-			.def_readwrite("sceneid", &PlayerData::sceneid)
-			.def_readwrite("areaid", &PlayerData::areaid)
 			.def_readwrite("logintime", &PlayerData::logintime)
 			.def_readwrite("gametime", &PlayerData::gametime)
+			.def_readwrite("sceneid", &PlayerData::sceneid)
+			.def_readwrite("pos", &PlayerData::pos)
+			.def_readwrite("angle", &PlayerData::angle)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
