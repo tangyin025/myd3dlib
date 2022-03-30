@@ -370,6 +370,16 @@ static void PlayerData_setitem(PlayerData* self, int i, int v)
 	my::Subscribe<int>(self->items, i) = v;
 }
 
+static int PlayerData_getitemstatus(const PlayerData* self, int i)
+{
+	return my::Subscribe<int>(self->itemstatus, i);
+}
+
+static void PlayerData_setitemstatus(PlayerData* self, int i, int v)
+{
+	my::Subscribe<int>(self->itemstatus, i) = v;
+}
+
 static int PlayerData_getquest(const PlayerData * self, int i)
 {
 	return my::Subscribe<int>(self->quests, i);
@@ -378,6 +388,16 @@ static int PlayerData_getquest(const PlayerData * self, int i)
 static void PlayerData_setquest(PlayerData * self, int i, int v)
 {
 	my::Subscribe<int>(self->quests, i) = v;
+}
+
+static int PlayerData_getqueststatus(const PlayerData* self, int i)
+{
+	return my::Subscribe<int>(self->queststatus, i);
+}
+
+static void PlayerData_setqueststatus(PlayerData* self, int i, int v)
+{
+	my::Subscribe<int>(self->queststatus, i) = v;
 }
 
 static void client_add_state_adopt(Client * self, StateBase * state)
@@ -482,7 +502,9 @@ PlayerData::PlayerData(void)
 {
 	std::fill_n(attrs, _countof(attrs), 0);
 	std::fill_n(items, _countof(items), 0);
+	std::fill_n(itemstatus, _countof(itemstatus), 0);
 	std::fill_n(quests, _countof(quests), 0);
+	std::fill_n(queststatus, _countof(queststatus), 0);
 }
 
 PlayerData::~PlayerData(void)
@@ -501,7 +523,9 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(angle);
 	ar << BOOST_SERIALIZATION_NVP(attrs);
 	ar << BOOST_SERIALIZATION_NVP(items);
+	ar << BOOST_SERIALIZATION_NVP(itemstatus);
 	ar << BOOST_SERIALIZATION_NVP(quests);
+	ar << BOOST_SERIALIZATION_NVP(queststatus);
 }
 
 template<class Archive>
@@ -514,7 +538,9 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(angle);
 	ar >> BOOST_SERIALIZATION_NVP(attrs);
 	ar >> BOOST_SERIALIZATION_NVP(items);
+	ar >> BOOST_SERIALIZATION_NVP(itemstatus);
 	ar >> BOOST_SERIALIZATION_NVP(quests);
+	ar >> BOOST_SERIALIZATION_NVP(queststatus);
 }
 
 PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
@@ -997,8 +1023,12 @@ HRESULT Client::OnCreateDevice(
 			.def("setattr", &PlayerData_setattr)
 			.def("getitem", &PlayerData_getitem)
 			.def("setitem", &PlayerData_setitem)
+			.def("getitemstatus", &PlayerData_getitemstatus)
+			.def("setitemstatus", &PlayerData_setitemstatus)
 			.def("getquest", &PlayerData_getquest)
 			.def("setquest", &PlayerData_setquest)
+			.def("getqueststatus", &PlayerData_getqueststatus)
+			.def("setqueststatus", &PlayerData_setqueststatus)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())

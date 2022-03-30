@@ -82,7 +82,11 @@ struct PlayerData : public my::DeviceResourceBase
 
 	int items[512];
 
+	int itemstatus[_countof(items)];
+
 	int quests[16];
+
+	int queststatus[_countof(quests)];
 
 	PlayerData(void);
 
