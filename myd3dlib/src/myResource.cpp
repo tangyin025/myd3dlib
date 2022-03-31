@@ -132,6 +132,50 @@ std::string StreamDir::ReplaceBackslash(const char * path)
 	return ret;
 }
 
+int zip_istr_dir_open(zzip_char_t* name, int flags, ...)
+{
+	_ASSERT(false);
+	return 0;
+}
+
+int zip_istr_dir_close(int fd)
+{
+	return _close(fd);
+}
+
+zzip_ssize_t zip_istr_dir_read(int fd, void* buf, zzip_size_t len)
+{
+	return _read(fd, buf, len);
+}
+
+zzip_off_t zip_istr_dir_seeks(int fd, zzip_off_t offset, int whence)
+{
+	return _lseek(fd, offset, whence);
+}
+
+zzip_off_t zip_istr_dir_filesize(int fd)
+{
+	struct stat st;
+	if (fstat(fd, &st) < 0)
+		return -1;
+	return st.st_size;
+}
+
+zzip_ssize_t zip_istr_dir_write(int fd, _zzip_const void* buf, zzip_size_t len)
+{
+	return _write(fd, buf, len);
+}
+
+static const struct zzip_plugin_io zip_istr_dir_io = {
+	&zip_istr_dir_open,
+	&zip_istr_dir_close,
+	&zip_istr_dir_read,
+	&zip_istr_dir_seeks,
+	&zip_istr_dir_filesize,
+	1, 1,
+	&zip_istr_dir_write
+};
+
 ZipIStreamDir::ZipIStreamDir(const std::string & dir)
 	: StreamDir(dir)
 {
@@ -141,8 +185,9 @@ ZipIStreamDir::ZipIStreamDir(const std::string & dir)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
 	}
+
 	zzip_error_t rv;
-	m_zipdir = zzip_dir_fdopen(fd, &rv);
+	m_zipdir = zzip_dir_fdopen_ext_io(fd, &rv, NULL, (zzip_plugin_io_t)&zip_istr_dir_io);
 	if (!m_zipdir)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));

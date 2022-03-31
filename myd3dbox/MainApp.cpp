@@ -514,8 +514,14 @@ BOOL CMainApp::InitInstance()
 	std::vector<std::string>::const_iterator path_iter = path_list.begin();
 	for (; path_iter != path_list.end(); path_iter++)
 	{
-		ResourceMgr::RegisterFileDir(*path_iter);
-		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
+		if (FILE_ATTRIBUTE_DIRECTORY & GetFileAttributesA(path_iter->c_str()))
+		{
+			ResourceMgr::RegisterFileDir(*path_iter);
+		}
+		else
+		{
+			ResourceMgr::RegisterZipDir(*path_iter);
+		}
 	}
 
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
