@@ -20,6 +20,7 @@ extern "C"
 #include "myInput.h"
 #include "mySound.h"
 #include "myAStar.h"
+#include "PrintCallStack.h"
 #include "LuaExtension.inl"
 #include "Material.h"
 #include "RenderPipeline.h"
@@ -87,6 +88,13 @@ static bool Counter(const unsigned int c)
 {
 	static unsigned int g_c = 0;
 	return 0 == (g_c = (g_c + 1) % c);
+}
+
+static std::string PrintCallStack(void)
+{
+	std::ostringstream osstr;
+	PrintCallStack(osstr);
+	return osstr.str();
 }
 
 typedef std::vector<my::NamedObject*> obj_list;
@@ -1333,6 +1341,8 @@ void LuaContext::Init(void)
 		def("ARGB", &ARGB)
 
 		, def("Counter", &Counter)
+
+		, def("PrintCallStack", (std::string (*)(void))& PrintCallStack)
 
 		, class_<WPARAM>("WPARAM")
 			.def(constructor<int>())

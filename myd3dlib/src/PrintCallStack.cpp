@@ -17,11 +17,11 @@ void PrintCallStack(std::ostringstream & ostr)
 		}
 	}
 
+#ifndef _WIN64
 	HANDLE hThread = GetCurrentThread();
 
 	CONTEXT Context;
 	ZeroMemory( &Context, sizeof( CONTEXT ) );
-#ifndef _WIN64
 	Context.ContextFlags = CONTEXT_CONTROL;
 	__asm {
 	Label:
@@ -30,9 +30,6 @@ void PrintCallStack(std::ostringstream & ostr)
 		mov eax, [Label];
 		mov[Context.Eip], eax;
 	}
-#else
-	GetThreadContext(hThread, &Context);
-#endif
 
 	struct ReadMemoryRoutine {
 		static BOOL CALLBACK Proc(HANDLE hProcess, DWORD64 lpBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead) {
@@ -60,6 +57,14 @@ void PrintCallStack(std::ostringstream & ostr)
 	StackFrame.AddrStack.Offset = Context.Rsp;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 #endif
+	ULONG64 buffer[(sizeof(SYMBOL_INFO) +
+		MAX_SYM_NAME * sizeof(TCHAR) +
+		sizeof(ULONG64) - 1) /
+		sizeof(ULONG64)];
+	PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
+	pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+	pSymbol->MaxNameLen = MAX_SYM_NAME;
+
 	while (1) {
 		if (!StackWalk64(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &StackFrame, &Context, &ReadMemoryRoutine::Proc, SymFunctionTableAccess64, SymGetModuleBase64, NULL)) {
 			break;
@@ -68,10 +73,6 @@ void PrintCallStack(std::ostringstream & ostr)
 			break;
 		}
 		DWORD64 Displacement64;
-		unsigned char buffer[sizeof(SYMBOL_INFO) + (MAX_SYM_NAME - 1) * sizeof(TCHAR)];
-		SYMBOL_INFO * pSymbol = (PSYMBOL_INFO)buffer;
-		pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-		pSymbol->MaxNameLen = MAX_SYM_NAME;
 		if (!SymFromAddr(hProcess, StackFrame.AddrPC.Offset, &Displacement64, pSymbol)) {
 			strcpy_s(pSymbol->Name, MAX_SYM_NAME, "unknown symbol name");
 		}
@@ -84,6 +85,39 @@ void PrintCallStack(std::ostringstream & ostr)
 		}
 		ostr << Line.FileName << " (" << Line.LineNumber << "): " << pSymbol->Name << std::endl;
 	}
+#else
+	// https://stackoverflow.com/questions/590160/how-to-log-stack-frames-with-windows-x64
+    // Quote from Microsoft Documentation:
+    // ## Windows Server 2003 and Windows XP:  
+    // ## The sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
+    const int kMaxCallers = 62;
+
+    void* callers_stack[kMaxCallers];
+	unsigned short frames = CaptureStackBackTrace(0, kMaxCallers, callers_stack, NULL);
+	ULONG64 buffer[(sizeof(SYMBOL_INFO) +
+		MAX_SYM_NAME * sizeof(TCHAR) +
+		sizeof(ULONG64) - 1) /
+		sizeof(ULONG64)];
+	PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
+	pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+	pSymbol->MaxNameLen = MAX_SYM_NAME;
+
+    for (unsigned int i = 0; i < frames; i++)
+    {
+		DWORD64 Displacement64;
+		if (!SymFromAddr(hProcess, (DWORD64)(callers_stack[i]), &Displacement64, pSymbol)) {
+			strcpy_s(pSymbol->Name, MAX_SYM_NAME, "unknown symbol name");
+		}
+		DWORD Displacement;
+		IMAGEHLP_LINE64 Line;
+		ZeroMemory(&Line, sizeof(Line));
+		Line.SizeOfStruct = sizeof(Line);
+		if (!SymGetLineFromAddr64(hProcess, (DWORD64)(callers_stack[i]), &Displacement, &Line)) {
+			Line.FileName = "unknown file name";
+		}
+		ostr << Line.FileName << " (" << Line.LineNumber << "): " << pSymbol->Name << std::endl;
+	}
+#endif
 }
 
 void WriteMiniDump(struct _EXCEPTION_POINTERS * pException, const TCHAR * FileName)
