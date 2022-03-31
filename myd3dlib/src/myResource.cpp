@@ -110,28 +110,6 @@ size_t FileIStream::GetSize(void)
 	return _filelength(m_fp);
 }
 
-std::string StreamDir::ReplaceSlash(const char * path)
-{
-	size_t pos = 0;
-	std::string ret(path);
-	while(std::string::npos != (pos = ret.find('/', pos)))
-	{
-		ret.replace(pos++, 1, 1, '\\');
-	}
-	return ret;
-}
-
-std::string StreamDir::ReplaceBackslash(const char * path)
-{
-	size_t pos = 0;
-	std::string ret(path);
-	while(std::string::npos != (pos = ret.find('\\', pos)))
-	{
-		ret.replace(pos++, 1, 1, '/');
-	}
-	return ret;
-}
-
 static int zip_istr_dir_open(zzip_char_t* name, int flags, ...)
 {
 	_ASSERT(false);
@@ -288,7 +266,9 @@ std::string ZipIStreamDir::GetRelativePath(const char * path)
 IStreamPtr ZipIStreamDir::OpenIStream(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
-	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, ReplaceBackslash(path).c_str(), ZZIP_CASEINSENSITIVE);
+	std::string path_str(path);
+	boost::algorithm::replace_all(path_str, "\\", "/");
+	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, path_str.c_str(), ZZIP_CASEINSENSITIVE);
 	if(NULL == zfile)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path));
@@ -1051,7 +1031,7 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 
 	EffectPtr res(new Effect());
-	ResourceMgr::getSingleton().m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path.c_str());
+	ResourceMgr::getSingleton().m_EffectInclude = boost::replace_all_copy(m_path, "/", "\\");
 	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_EffectInclude[0]);
 	res->CreateEffect(&(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), 0, ResourceMgr::getSingleton().m_EffectPool);
 	m_res = res;

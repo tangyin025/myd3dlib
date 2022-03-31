@@ -73,10 +73,6 @@ namespace my
 		{
 		}
 
-		static std::string ReplaceSlash(const char * path);
-
-		static std::string ReplaceBackslash(const char * path);
-
 		virtual bool CheckPath(const char * path) = 0;
 
 		virtual std::string GetFullPath(const char * path) = 0;
