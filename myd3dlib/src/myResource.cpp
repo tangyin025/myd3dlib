@@ -132,28 +132,28 @@ std::string StreamDir::ReplaceBackslash(const char * path)
 	return ret;
 }
 
-int zip_istr_dir_open(zzip_char_t* name, int flags, ...)
+static int zip_istr_dir_open(zzip_char_t* name, int flags, ...)
 {
 	_ASSERT(false);
 	return 0;
 }
 
-int zip_istr_dir_close(int fd)
+static int zip_istr_dir_close(int fd)
 {
 	return _close(fd);
 }
 
-zzip_ssize_t zip_istr_dir_read(int fd, void* buf, zzip_size_t len)
+static zzip_ssize_t zip_istr_dir_read(int fd, void* buf, zzip_size_t len)
 {
 	return _read(fd, buf, len);
 }
 
-zzip_off_t zip_istr_dir_seeks(int fd, zzip_off_t offset, int whence)
+static zzip_off_t zip_istr_dir_seeks(int fd, zzip_off_t offset, int whence)
 {
 	return _lseek(fd, offset, whence);
 }
 
-zzip_off_t zip_istr_dir_filesize(int fd)
+static zzip_off_t zip_istr_dir_filesize(int fd)
 {
 	struct stat st;
 	if (fstat(fd, &st) < 0)
@@ -161,8 +161,9 @@ zzip_off_t zip_istr_dir_filesize(int fd)
 	return st.st_size;
 }
 
-zzip_ssize_t zip_istr_dir_write(int fd, _zzip_const void* buf, zzip_size_t len)
+static zzip_ssize_t zip_istr_dir_write(int fd, _zzip_const void* buf, zzip_size_t len)
 {
+	_ASSERT(false);
 	return _write(fd, buf, len);
 }
 
@@ -199,17 +200,79 @@ ZipIStreamDir::~ZipIStreamDir(void)
 	zzip_dir_close(m_zipdir);
 }
 
+#define ZZIP_BACKSLASH_DIRSEP 1
+
+static zzip_char_t*
+strrchr_basename(zzip_char_t* name)
+{
+	register zzip_char_t* n = strrchr(name, '/');
+	if (n) return n + 1;
+	return name;
+}
+
+static zzip_char_t*
+dirsep_basename(zzip_char_t* name)
+{
+	register zzip_char_t* n = strrchr(name, '/');
+
+	if (ZZIP_BACKSLASH_DIRSEP)
+	{
+		register zzip_char_t* m = strrchr(name, '\\');
+		if (!n || (m && n < m))
+			n = m;
+	}
+
+	if (n) return n + 1;
+	return name;
+}
+
 bool ZipIStreamDir::CheckPath(const char * path)
 {
 	CriticalSectionLock lock(m_DirSec);
-	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, ReplaceBackslash(path).c_str(), ZZIP_CASEINSENSITIVE);
-	if(NULL == zfile)
-	{
-		return false;
-	}
 
-	zzip_file_close(zfile);
-	return true;
+	std::string path_str(path);
+	boost::algorithm::replace_all(path_str, "\\", "/");
+	const char* name = path_str.c_str();
+	int o_mode = ZZIP_CASEINSENSITIVE;
+	struct zzip_dir_hdr* hdr = m_zipdir->hdr0;
+	int (*filename_strcmp) (zzip_char_t*, zzip_char_t*);
+	zzip_char_t* (*filename_basename)(zzip_char_t*);
+
+	filename_strcmp = (o_mode & ZZIP_CASELESS) ? _stricmp : strcmp;
+	filename_basename = (o_mode & ZZIP_CASELESS) ? dirsep_basename : strrchr_basename;
+
+	if (!m_zipdir)
+		return false;
+	if (!m_zipdir->fd || m_zipdir->fd == -1)
+		return false;
+	if (!hdr)
+		return false;
+
+	if (o_mode & ZZIP_NOPATHS)
+		name = filename_basename(name);
+
+	while (1)
+	{
+		register zzip_char_t* hdr_name = hdr->d_name;
+
+		if (o_mode & ZZIP_NOPATHS)
+			hdr_name = filename_basename(hdr_name);
+
+		//HINT4("name='%s', compr=%d, size=%d\n",
+		//	hdr->d_name, hdr->d_compr, hdr->d_usize);
+
+		if (!filename_strcmp(hdr_name, name))
+		{
+			return true;
+		}
+		else
+		{
+			if (hdr->d_reclen == 0)
+				break;
+			hdr = (struct zzip_dir_hdr*)((char*)hdr + hdr->d_reclen);
+		}                       /*filename_strcmp */
+	}                           /*forever */
+	return false;
 }
 
 std::string ZipIStreamDir::GetFullPath(const char * path)
