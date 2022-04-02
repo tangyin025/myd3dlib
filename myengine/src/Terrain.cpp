@@ -1201,13 +1201,19 @@ my::VertexBufferPtr TerrainStream::GetVB(int k, int l)
 			}
 		}
 
-		TerrainChunkIORequest request(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX);
-		request.LoadResource();
-		request.CreateResource(NULL);
-		m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request.m_res);
+		// ! m_terrain->m_Chunks[k][l] may have requested
+		IORequestPtr request(new TerrainChunkIORequest(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
+		my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&TerrainStream::SetVB, this, k, l, boost::placeholders::_1));
 	}
 
 	return m_Vbs[k][l];
+}
+
+void TerrainStream::SetVB(int k, int l, my::DeviceResourceBasePtr res)
+{
+	_ASSERT(!m_Vbs[k][l]);
+	m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(res);
+	_ASSERT(m_Vbs[k][l]->m_ptr);
 }
 
 my::Vector3 TerrainStream::GetPos(int i, int j)

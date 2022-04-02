@@ -205,6 +205,8 @@ public:
 
 	my::VertexBufferPtr GetVB(int k, int l);
 
+	void SetVB(int k, int l, my::DeviceResourceBasePtr res);
+
 	my::Vector3 GetPos(int i, int j);
 
 	void SetPos(int i, int j, const my::Vector3& Pos);
