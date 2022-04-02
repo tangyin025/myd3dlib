@@ -24,6 +24,7 @@ zlib 1.2.11<br>
 ZZIPlib 0.13.68<br>
 Lua 5.1.5<br>
 Luabind 0.9.1<br>
+LuaJIT 2.1<br>
 libid3tag-0.15.1b<br>
 libmad-0.15.1b<br>
 SQLite 3.37.2

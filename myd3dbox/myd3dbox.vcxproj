@@ -317,11 +317,11 @@
     <ProjectReference Include="..\libmad\libmad.vcxproj">
       <Project>{2cd5200a-891a-4538-9603-bad942529b38}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\lua51\lua51.vcxproj">
-      <Project>{198a862b-2908-48a8-8654-5d6b4583e441}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\luabind\luabind.vcxproj">
       <Project>{8f8c0f3c-baec-48ff-900a-33c045bb395f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LuaJIT\LuaJIT.vcxproj">
+      <Project>{a21d63f5-fd44-42f3-88a8-59929d40f4d6}</Project>
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
