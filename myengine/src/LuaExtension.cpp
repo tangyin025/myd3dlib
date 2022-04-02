@@ -2185,6 +2185,7 @@ void LuaContext::Init(void)
 			.def(constructor<StaticEmitter *>())
 			.def("Release", &StaticEmitterStream::Release)
 			.def("Spawn", &StaticEmitterStream::Spawn)
+			.def("SpawnIO", &StaticEmitterStream::SpawnIO)
 
 		, class_<CircularEmitter, EmitterComponent, boost::shared_ptr<Component> >("CircularEmitter")
 			.def(constructor<const char*, unsigned int, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())

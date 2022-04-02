@@ -394,6 +394,41 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 	m_dirty[std::make_pair(i, j)] = true;
 }
 
+void StaticEmitterStream::SpawnIO(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+{
+	int i = Position.z / m_emit->m_ChunkWidth, j = Position.x / m_emit->m_ChunkWidth;
+
+	BufferMap::const_iterator buff_iter = m_buffs.find(std::make_pair(i, j));
+	if (buff_iter != m_buffs.end())
+	{
+		Spawn(Position, Velocity, Color, Size, Angle, Time);
+		return;
+	}
+
+	StaticEmitter::ChunkMap::const_iterator chunk_iter = m_emit->m_Chunks.find(std::make_pair(i, j));
+	if (chunk_iter == m_emit->m_Chunks.end())
+	{
+		std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunk(i, j)));
+		_ASSERT(chunk_res.second);
+
+		m_emit->AddEntity(&chunk_res.first->second,
+			my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
+	}
+	else if (chunk_iter->second.IsRequested()) //else if (chunk_iter->second.m_buff)
+	{
+		Spawn(Position, Velocity, Color, Size, Angle, Time);
+		return;
+	}
+
+	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
+	std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+	std::ofstream ofs(FullPath, std::ios::binary | std::ios::app, _SH_DENYRW);
+	_ASSERT(ofs.is_open());
+
+	my::Emitter::Particle part(Position, Velocity, Color, Size, Angle, Time);
+	ofs.write((char*)&part, sizeof(part));
+}
+
 my::Emitter::Particle * StaticEmitterStream::GetFirstNearParticle2D(const my::Vector3 & Center, float Range)
 {
 	struct Callback : public my::OctNode::QueryCallback

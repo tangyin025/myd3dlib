@@ -149,6 +149,8 @@ public:
 
 	void Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
+	void SpawnIO(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
+
 	my::Emitter::Particle * GetFirstNearParticle2D(const my::Vector3 & Center, float Range);
 
 	StaticEmitterStream(StaticEmitter* emit)
