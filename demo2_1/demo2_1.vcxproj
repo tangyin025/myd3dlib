@@ -176,9 +176,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\freetype\freetype.vcxproj">
       <Project>{2393A386-F7FA-3923-A760-848892FC4B10}</Project>
     </ProjectReference>
@@ -191,11 +188,11 @@
     <ProjectReference Include="..\libboost_serialization\libboost_serialization.vcxproj">
       <Project>{97882a3e-fe4e-4cff-9863-517ffd484289}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\lua51\lua51.vcxproj">
-      <Project>{198a862b-2908-48a8-8654-5d6b4583e441}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\luabind\luabind.vcxproj">
       <Project>{8f8c0f3c-baec-48ff-900a-33c045bb395f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LuaJIT\LuaJIT.vcxproj">
+      <Project>{a21d63f5-fd44-42f3-88a8-59929d40f4d6}</Project>
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>
@@ -209,6 +206,9 @@
     <ProjectReference Include="..\zziplib\zziplib.vcxproj">
       <Project>{5d10d16e-e3aa-4430-83db-4a4fbb9a201d}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\LuaJIT\src\luajit.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
