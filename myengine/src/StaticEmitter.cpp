@@ -367,41 +367,26 @@ void StaticEmitterStream::SetBuffer(int i, int j, my::DeviceResourceBasePtr res)
 	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
-void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+void StaticEmitterStream::SpawnBuffer(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
 	int i = Position.z / m_emit->m_ChunkWidth, j = Position.x / m_emit->m_ChunkWidth;
 
 	StaticEmitterChunkBuffer* buff = GetBuffer(i, j);
-	if (!buff)
-	{
-		std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunk(i, j)));
-		_ASSERT(chunk_res.second);
-
-		m_emit->AddEntity(&chunk_res.first->second,
-			my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
-
-		std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
-
-		std::pair<BufferMap::iterator, bool> buff_res = m_buffs.insert(std::make_pair(std::make_pair(i, j),
-			boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(my::ResourceMgr::getSingleton().AddResource(path, DeviceResourceBasePtr(new StaticEmitterChunkBuffer())))));
-		_ASSERT(buff_res.second);
-
-		buff = buff_res.first->second.get();
-	}
+	_ASSERT(buff);
 
 	buff->push_back(my::Emitter::Particle(Position, Velocity, Color, Size, Angle, Time));
 
 	m_dirty[std::make_pair(i, j)] = true;
 }
 
-void StaticEmitterStream::SpawnIOPossibly(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
 	int i = Position.z / m_emit->m_ChunkWidth, j = Position.x / m_emit->m_ChunkWidth;
 
 	BufferMap::const_iterator buff_iter = m_buffs.find(std::make_pair(i, j));
 	if (buff_iter != m_buffs.end())
 	{
-		Spawn(Position, Velocity, Color, Size, Angle, Time);
+		SpawnBuffer(Position, Velocity, Color, Size, Angle, Time);
 		return;
 	}
 
@@ -416,7 +401,7 @@ void StaticEmitterStream::SpawnIOPossibly(const my::Vector4 & Position, const my
 	}
 	else if (chunk_iter->second.IsRequested()) //else if (chunk_iter->second.m_buff)
 	{
-		Spawn(Position, Velocity, Color, Size, Angle, Time);
+		SpawnBuffer(Position, Velocity, Color, Size, Angle, Time);
 		return;
 	}
 
