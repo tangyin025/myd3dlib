@@ -1064,6 +1064,10 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 			{
 				DrawHelper::PushLine(last_handle_pt, handle_pt, D3DCOLOR_ARGB(255, 255, 255, 0));
 			}
+			//else
+			//{
+			//	DrawHelper::PushLine(handle_pt, my::Vector3(handle_pt.xz(), handle_pt.y + 10), D3DCOLOR_ARGB(255, 255, 0, 0));
+			//}
 			last_handle_pt = handle_pt;
 		}
 	}

@@ -998,7 +998,7 @@ float Terrain::RayTest2D(float x, float z)
 		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + m_IndexTable[m + 1][n + 1] * m_VertexStride, 0);
 		const Vector2 d0 = Vector2(x, z) - v2.xz();
 		const Vector2 d1 = v1.xz() - v2.xz();
-		if (d0.kross(d1))
+		if (d0.kross(d1) < 0)
 		{
 			RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v0, v1, v2));
 			if (res.first)
@@ -1033,7 +1033,7 @@ float Terrain::RayTest2D(float x, float z)
 		const Vector3& v3 = m_VertexElems.GetPosition(pVertices + ((m_ColChunks * m_MinChunkLodSize + 1) * (o + 1) + (p + 1)) * m_VertexStride, 0);
 		const Vector2 d0 = Vector2(x, z) - v2.xz();
 		const Vector2 d1 = v1.xz() - v2.xz();
-		if (d0.kross(d1))
+		if (d0.kross(d1) < 0)
 		{
 			RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v0, v1, v2));
 			if (res.first)
@@ -1460,7 +1460,7 @@ float TerrainStream::RayTest2D(float x, float z)
 	const Vector3 v3 = GetPos(i + 1, j + 1);
 	const Vector2 d0 = Vector2(x, z) - v2.xz();
 	const Vector2 d1 = v1.xz() - v2.xz();
-	if (d0.kross(d1))
+	if (d0.kross(d1) < 0)
 	{
 		RayResult res = IntersectionTests::rayAndHalfSpace(Vector3(x, m_terrain->m_max.y, z), Vector3(0, -1, 0), Plane::FromTriangle(v0, v1, v2));
 		if (res.first)
