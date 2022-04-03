@@ -394,7 +394,7 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 	m_dirty[std::make_pair(i, j)] = true;
 }
 
-void StaticEmitterStream::SpawnIO(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
+void StaticEmitterStream::SpawnIOPossibly(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
 {
 	int i = Position.z / m_emit->m_ChunkWidth, j = Position.x / m_emit->m_ChunkWidth;
 
