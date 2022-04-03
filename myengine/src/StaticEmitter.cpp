@@ -396,8 +396,9 @@ void StaticEmitterStream::Spawn(const my::Vector4 & Position, const my::Vector4 
 		std::pair<StaticEmitter::ChunkMap::iterator, bool> chunk_res = m_emit->m_Chunks.insert(std::make_pair(std::make_pair(i, j), StaticEmitterChunk(i, j)));
 		_ASSERT(chunk_res.second);
 
-		m_emit->AddEntity(&chunk_res.first->second,
-			my::AABB(j * m_emit->m_ChunkWidth, m_emit->m_min.y, i * m_emit->m_ChunkWidth, (j + 1) * m_emit->m_ChunkWidth, m_emit->m_max.y, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
+		m_emit->AddEntity(&chunk_res.first->second, my::AABB(
+			(j + 0) * m_emit->m_ChunkWidth, Position.y - Size.y * 0.5f, (i + 0) * m_emit->m_ChunkWidth,
+			(j + 1) * m_emit->m_ChunkWidth, Position.y + Size.y * 0.5f, (i + 1) * m_emit->m_ChunkWidth), m_emit->m_ChunkWidth, 0.1f);
 	}
 	else if (chunk_iter->second.IsRequested()) //else if (chunk_iter->second.m_buff)
 	{
