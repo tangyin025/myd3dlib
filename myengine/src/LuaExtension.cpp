@@ -2180,6 +2180,7 @@ void LuaContext::Init(void)
 			.def(constructor<const char *, const my::AABB &, float, EmitterComponent::FaceType, EmitterComponent::SpaceType, EmitterComponent::VelocityType, EmitterComponent::PrimitiveType>())
 			.def_readonly("ChunkWidth", &StaticEmitter::m_ChunkWidth)
 			.def_readwrite("ChunkPath", &StaticEmitter::m_ChunkPath)
+			.def_readwrite("ChunkLodScale", &StaticEmitter::m_ChunkLodScale)
 
 		, class_<StaticEmitterStream>("StaticEmitterStream")
 			.def(constructor<StaticEmitter *>())
