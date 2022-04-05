@@ -207,6 +207,8 @@ my::AABB StaticEmitter::CalculateAABB(void) const
 
 void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 {
+	static const int LastLod = 3;
+
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		RenderPipeline* pipeline;
@@ -230,7 +232,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(chunk->m_OctAabb->Center(), LocalViewPos, emit_cmp->m_ChunkLodScale / emit_cmp->m_Actor->m_Scale.x);
 			}
 
-			if (chunk->m_Lod >= 1)
+			if (chunk->m_Lod >= LastLod)
 			{
 				return true;
 			}
@@ -265,7 +267,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 			if (chunk->m_buff)
 			{
-				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size(), NULL, 0);
+				emit_cmp->AddParticlePairToPipeline(pipeline, PassMask, &(*chunk->m_buff)[0], chunk->m_buff->size() >> chunk->m_Lod, NULL, 0);
 			}
 			return true;
 		}
@@ -278,7 +280,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, 1) * m_ChunkLodScale / m_Actor->m_Scale.x, 2.0);
+		const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale / m_Actor->m_Scale.x, 2.0);
 		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 		for (; chunk_iter != m_ViewedChunks.end(); )
 		{
