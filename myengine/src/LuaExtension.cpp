@@ -1473,7 +1473,7 @@ void LuaContext::Init(void)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
 
-		, class_<my::StaticSkin, boost::shared_ptr<my::ControlSkin> >("StaticSkin")
+		, class_<my::StaticSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("StaticSkin")
 			.def(constructor<>())
 			.def_readwrite("FontPath", &my::StaticSkin::m_FontPath)
 			.def_readwrite("FontHeight", &my::StaticSkin::m_FontHeight)

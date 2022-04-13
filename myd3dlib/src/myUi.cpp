@@ -2784,9 +2784,6 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime)
 
 		if (Skin->m_Font)
 		{
-			EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(Skin);
-			_ASSERT(Skin);
-
 			s_CompString = ts2ws(ImeUi_GetCompositionString());
 
 			Rectangle TextRect = m_Rect.shrink(m_Border);
