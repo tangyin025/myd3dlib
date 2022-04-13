@@ -18,6 +18,8 @@
 #include <boost/algorithm/string.hpp>
 #include "ImportHeightDlg.h"
 #include "DetourNavMesh.h"
+#include <ft2build.h>
+#include <freetype/freetype.h>
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -875,7 +877,15 @@ void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
 	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str())).c_str());
 	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)skin->m_FontHeight);
-	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)skin->m_FontFaceIndex);
+
+	TCHAR buff[65];
+	CMFCPropertyGridProperty* pFontFaceIndex = pControl->GetSubItem(PropId + 3);
+	pFontFaceIndex->SetValue((_variant_t)_itot(skin->m_FontFaceIndex, buff, 10));
+	pFontFaceIndex->RemoveAllOptions();
+	for (unsigned int i = 0; skin->m_Font && i < skin->m_Font->m_face->num_faces; i++)
+	{
+		pFontFaceIndex->AddOption(_itot(i, buff, 10), TRUE);
+	}
 
 	COLORREF color = RGB(LOBYTE(skin->m_TextColor >> 16), LOBYTE(skin->m_TextColor >> 8), LOBYTE(skin->m_TextColor));
 	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 4)))->SetColor(color);
@@ -1969,7 +1979,13 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 	pControl->AddSubItem(pFontPath);
 	CMFCPropertyGridProperty* pFontHeight = new CSimpleProp(_T("FontHeight"), (_variant_t)(long)skin->m_FontHeight, NULL, PropertyStaticFontHeight);
 	pControl->AddSubItem(pFontHeight);
-	CMFCPropertyGridProperty* pFontFaceIndex = new CSimpleProp(_T("FontFaceIndex"), (_variant_t)(long)skin->m_FontFaceIndex, NULL, PropertyStaticFontFaceIndex);
+
+	TCHAR buff[65];
+	CMFCPropertyGridProperty* pFontFaceIndex = new CComboProp(_T("FontFaceIndex"), _itot(skin->m_FontFaceIndex, buff, 10), NULL, PropertyStaticFontFaceIndex);
+	for (unsigned int i = 0; skin->m_Font && i < skin->m_Font->m_face->num_faces; i++)
+	{
+		pFontFaceIndex->AddOption(_itot(i, buff, 10), TRUE);
+	}
 	pControl->AddSubItem(pFontFaceIndex);
 
 	COLORREF color = RGB(LOBYTE(skin->m_TextColor >> 16), LOBYTE(skin->m_TextColor >> 8), LOBYTE(skin->m_TextColor));
@@ -4103,6 +4119,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
+	case PropertyStaticText:
+	{
+		my::Static* static_ctl = dynamic_cast<my::Static*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
+		static_ctl->m_Text = boost::algorithm::replace_all_copy(ts2ws(std::basic_string<TCHAR>(pProp->GetValue().bstrVal)), L"\\n", L"\n");
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
 	case PropertyStaticFontPath:
 	case PropertyStaticFontHeight:
 	case PropertyStaticFontFaceIndex:
@@ -4121,18 +4145,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 		my::Control* control = (my::Control*)pControl->GetValue().pulVal;
-		std::string path = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(12)->GetValue().bstrVal).c_str());
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		std::string path = theApp.GetRelativePath(ts2ms(pControl->GetSubItem(PropId + 1)->GetValue().bstrVal).c_str());
 		if (path.empty())
 		{
-			MessageBox(str_printf(_T("cannot relative path: %s"), pControl->GetSubItem(12)->GetValue().bstrVal).c_str());
+			MessageBox(str_printf(_T("cannot relative path: %s"), pControl->GetSubItem(PropId + 1)->GetValue().bstrVal).c_str());
 			UpdatePropertiesControl(control);
 			return 0;
 		}
 		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
 		skin->ReleaseResource();
 		skin->m_FontPath = path;
-		skin->m_FontHeight = pControl->GetSubItem(13)->GetValue().lVal;
-		skin->m_FontFaceIndex = pControl->GetSubItem(14)->GetValue().lVal;
+		skin->m_FontHeight = pControl->GetSubItem(PropId + 2)->GetValue().lVal;
+		skin->m_FontFaceIndex = _ttoi(pControl->GetSubItem(PropId + 3)->GetValue().bstrVal);
 		if (control->IsRequested())
 		{
 			control->m_Skin->RequestResource();
@@ -4145,8 +4170,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyStaticTextColorAlpha:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(15)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(16)->GetValue().lVal;
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 4)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(PropId + 5)->GetValue().lVal;
 		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
 		skin->m_TextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
@@ -4168,8 +4194,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyStaticTextOutlineAlpha:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(18)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(19)->GetValue().lVal;
+		unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(PropId + 7)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(PropId + 8)->GetValue().lVal;
 		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
 		skin->m_TextOutlineColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
@@ -4181,14 +4208,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
 		skin->m_TextOutlineWidth = pProp->GetValue().fltVal;
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
-		break;
-	}
-	case PropertyStaticText:
-	{
-		my::Static* static_ctl = dynamic_cast<my::Static*>((my::Control*)pProp->GetParent()->GetValue().pulVal);
-		static_ctl->m_Text = boost::algorithm::replace_all_copy(ts2ws(std::basic_string<TCHAR>(pProp->GetValue().bstrVal)), L"\\n", L"\n");
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
