@@ -864,28 +864,28 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl)
 {
 	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyStaticFontPath)
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyStaticText)
 	{
 		RemovePropertiesFrom(pControl, PropId);
 		CreatePropertiesStatic(pControl, static_ctl);
 		return;
 	}
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str());
+
 	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
-	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str())).c_str());
-	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)skin->m_FontHeight);
-	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)skin->m_FontFaceIndex);
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)skin->m_FontHeight);
+	pControl->GetSubItem(PropId + 3)->SetValue((_variant_t)(long)skin->m_FontFaceIndex);
 
 	COLORREF color = RGB(LOBYTE(skin->m_TextColor >> 16), LOBYTE(skin->m_TextColor >> 8), LOBYTE(skin->m_TextColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 3)))->SetColor(color);
-	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)(long)LOBYTE(skin->m_TextColor >> 24));
-	pControl->GetSubItem(PropId + 5)->SetValue(GetFontAlignDesc(skin->m_TextAlign));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 4)))->SetColor(color);
+	pControl->GetSubItem(PropId + 5)->SetValue((_variant_t)(long)LOBYTE(skin->m_TextColor >> 24));
+	pControl->GetSubItem(PropId + 6)->SetValue(GetFontAlignDesc(skin->m_TextAlign));
 
 	color = RGB(LOBYTE(skin->m_TextOutlineColor >> 16), LOBYTE(skin->m_TextOutlineColor >> 8), LOBYTE(skin->m_TextOutlineColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 6)))->SetColor(color);
-	pControl->GetSubItem(PropId + 7)->SetValue((_variant_t)(long)LOBYTE(skin->m_TextOutlineColor >> 24));
-	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)skin->m_TextOutlineWidth);
-
-	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str());
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 7)))->SetColor(color);
+	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)(long)LOBYTE(skin->m_TextOutlineColor >> 24));
+	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)skin->m_TextOutlineWidth);
 
 	switch (static_ctl->GetControlType())
 	{
@@ -934,7 +934,7 @@ void CPropertiesWnd::UpdatePropertiesProgressBar(CMFCPropertyGridProperty * pCon
 void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl, my::Button * button)
 {
 	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyButtonDisabledImagePath)
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyButtonPressed)
 	{
 		RemovePropertiesFrom(pControl, PropId);
 		CreatePropertiesButton(pControl, button);
@@ -993,7 +993,7 @@ void CPropertiesWnd::UpdatePropertiesButton(CMFCPropertyGridProperty * pControl,
 void CPropertiesWnd::UpdatePropertiesEditBox(CMFCPropertyGridProperty * pControl, my::EditBox * editbox)
 {
 	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeStatic);
-	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyButtonDisabledImagePath)
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyEditBoxBorder)
 	{
 		RemovePropertiesFrom(pControl, PropId);
 		CreatePropertiesEditBox(pControl, editbox);
@@ -1960,6 +1960,9 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 {
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
 
+	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str(), NULL, PropertyStaticText);
+	pControl->AddSubItem(pProp);
+
 	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
 
 	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyStaticFontPath);
@@ -1992,9 +1995,6 @@ void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl,
 
 	CMFCPropertyGridProperty* pTextOutlineWidth = new CSimpleProp(_T("TextOutlineWidth"), (_variant_t)skin->m_TextOutlineWidth, NULL, PropertyStaticTextOutlineWidth);
 	pControl->AddSubItem(pTextOutlineWidth);
-
-	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str(), NULL, PropertyStaticText);
-	pControl->AddSubItem(pProp);
 
 	switch (static_ctl->GetControlType())
 	{
