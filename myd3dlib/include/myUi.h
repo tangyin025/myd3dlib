@@ -183,22 +183,6 @@ namespace my
 
 		ControlImagePtr m_Image;
 
-		std::string m_FontPath;
-
-		int m_FontHeight;
-
-		int m_FontFaceIndex;
-
-		FontPtr m_Font;
-
-		D3DCOLOR m_TextColor;
-
-		Font::Align m_TextAlign;
-
-		D3DCOLOR m_TextOutlineColor;
-
-		float m_TextOutlineWidth;
-
 		std::string m_VisibleShowSoundPath;
 
 		boost::shared_ptr<Wav> m_VisibleShowSound;
@@ -231,13 +215,6 @@ namespace my
 		{
 			ar & BOOST_SERIALIZATION_NVP(m_Color);
 			ar & BOOST_SERIALIZATION_NVP(m_Image);
-			ar & BOOST_SERIALIZATION_NVP(m_FontPath);
-			ar & BOOST_SERIALIZATION_NVP(m_FontHeight);
-			ar & BOOST_SERIALIZATION_NVP(m_FontFaceIndex);
-			ar & BOOST_SERIALIZATION_NVP(m_TextColor);
-			ar & BOOST_SERIALIZATION_NVP(m_TextAlign);
-			ar & BOOST_SERIALIZATION_NVP(m_TextOutlineColor);
-			ar & BOOST_SERIALIZATION_NVP(m_TextOutlineWidth);
 			ar & BOOST_SERIALIZATION_NVP(m_VisibleShowSoundPath);
 			ar & BOOST_SERIALIZATION_NVP(m_VisibleHideSoundPath);
 			ar & BOOST_SERIALIZATION_NVP(m_MouseEnterSoundPath);
@@ -254,8 +231,6 @@ namespace my
 
 		virtual void ReleaseResource(void);
 
-		void OnFontReady(my::DeviceResourceBasePtr res);
-
 		void OnVisibleShowSoundReady(my::DeviceResourceBasePtr res);
 
 		void OnVisibleHideSoundReady(my::DeviceResourceBasePtr res);
@@ -269,8 +244,6 @@ namespace my
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color);
 
 		void DrawImage(UIRender * ui_render, const ControlImagePtr & Image, const Rectangle & rect, DWORD color, const Rectangle & clip);
-
-		void DrawString(UIRender * ui_render, const wchar_t * str, const Rectangle & rect);
 
 		virtual ControlSkinPtr Clone(void) const;
 	};
@@ -538,6 +511,52 @@ namespace my
 		UINT GetHotkey(void);
 	};
 
+	class StaticSkin : public ControlSkin
+	{
+	public:
+		std::string m_FontPath;
+
+		int m_FontHeight;
+
+		int m_FontFaceIndex;
+
+		FontPtr m_Font;
+
+		D3DCOLOR m_TextColor;
+
+		Font::Align m_TextAlign;
+
+		D3DCOLOR m_TextOutlineColor;
+
+		float m_TextOutlineWidth;
+
+	public:
+		StaticSkin(void);
+
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_FontPath);
+			ar & BOOST_SERIALIZATION_NVP(m_FontHeight);
+			ar & BOOST_SERIALIZATION_NVP(m_FontFaceIndex);
+			ar & BOOST_SERIALIZATION_NVP(m_TextColor);
+			ar & BOOST_SERIALIZATION_NVP(m_TextAlign);
+			ar & BOOST_SERIALIZATION_NVP(m_TextOutlineColor);
+			ar & BOOST_SERIALIZATION_NVP(m_TextOutlineWidth);
+		}
+
+		virtual void RequestResource(void);
+
+		virtual void ReleaseResource(void);
+
+		void OnFontReady(my::DeviceResourceBasePtr res);
+
+		void DrawString(UIRender * ui_render, const wchar_t * str, const Rectangle & rect);
+	};
+
+	typedef boost::shared_ptr<StaticSkin> StaticSkinPtr;
+
 	class Static : public Control
 	{
 	public:
@@ -582,7 +601,7 @@ namespace my
 
 	typedef boost::shared_ptr<Static> StaticPtr;
 
-	class ProgressBarSkin : public ControlSkin
+	class ProgressBarSkin : public StaticSkin
 	{
 	public:
 		ControlImagePtr m_ForegroundImage;
@@ -595,7 +614,7 @@ namespace my
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StaticSkin);
 			ar & BOOST_SERIALIZATION_NVP(m_ForegroundImage);
 		}
 
@@ -647,7 +666,7 @@ namespace my
 
 	typedef boost::shared_ptr<ProgressBar> ProgressBarPtr;
 
-	class ButtonSkin : public ControlSkin
+	class ButtonSkin : public StaticSkin
 	{
 	public:
 		ControlImagePtr m_DisabledImage;
@@ -667,7 +686,7 @@ namespace my
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StaticSkin);
 			ar & BOOST_SERIALIZATION_NVP(m_DisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_PressedImage);
 			ar & BOOST_SERIALIZATION_NVP(m_MouseOverImage);
@@ -725,7 +744,7 @@ namespace my
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
 
-	class EditBoxSkin : public ControlSkin
+	class EditBoxSkin : public StaticSkin
 	{
 	public:
 		ControlImagePtr m_DisabledImage;
@@ -748,7 +767,7 @@ namespace my
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StaticSkin);
 			ar & BOOST_SERIALIZATION_NVP(m_DisabledImage);
 			ar & BOOST_SERIALIZATION_NVP(m_FocusedImage);
 			ar & BOOST_SERIALIZATION_NVP(m_SelBkColor);

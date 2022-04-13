@@ -1899,7 +1899,7 @@ void CMainFrame::OnControlStatic()
 	// TODO: Add your command handler code here
 	_ASSERT(!m_selctls.empty());
 
-	my::ControlSkinPtr skin(new my::ControlSkin());
+	my::StaticSkinPtr skin(new my::StaticSkin());
 	skin->m_Image.reset(new my::ControlImage());
 	skin->m_FontPath = theApp.default_font_path;
 	skin->m_FontHeight = theApp.default_font_height;
@@ -2204,11 +2204,6 @@ void CMainFrame::OnControlListbox()
 	skin->m_Image->m_TexturePath = theApp.default_listbox_img;
 	skin->m_Image->m_Rect = theApp.default_listbox_img_rect;
 	skin->m_Image->m_Border = theApp.default_listbox_img_border;
-	skin->m_FontPath = theApp.default_font_path;
-	skin->m_FontHeight = theApp.default_font_height;
-	skin->m_FontFaceIndex = theApp.default_font_face_index;
-	skin->m_TextColor = theApp.default_listbox_text_color;
-	skin->m_TextAlign = theApp.default_listbox_text_align;
 
 	my::ScrollBarSkinPtr scroll_skin(new my::ScrollBarSkin());
 	scroll_skin->m_Image.reset(new my::ControlImage());

@@ -832,19 +832,6 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(11)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
 	pControl->GetSubItem(11)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
 	pControl->GetSubItem(11)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
-	pControl->GetSubItem(12)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str());
-	pControl->GetSubItem(13)->SetValue((_variant_t)(long)control->m_Skin->m_FontHeight);
-	pControl->GetSubItem(14)->SetValue((_variant_t)(long)control->m_Skin->m_FontFaceIndex);
-
-	color = RGB(LOBYTE(control->m_Skin->m_TextColor >> 16), LOBYTE(control->m_Skin->m_TextColor >> 8), LOBYTE(control->m_Skin->m_TextColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(15)))->SetColor(color);
-	pControl->GetSubItem(16)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextColor >> 24));
-	pControl->GetSubItem(17)->SetValue(GetFontAlignDesc(control->m_Skin->m_TextAlign));
-
-	color = RGB(LOBYTE(control->m_Skin->m_TextOutlineColor >> 16), LOBYTE(control->m_Skin->m_TextOutlineColor >> 8), LOBYTE(control->m_Skin->m_TextOutlineColor));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(18)))->SetColor(color);
-	pControl->GetSubItem(19)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_TextOutlineColor >> 24));
-	pControl->GetSubItem(20)->SetValue((_variant_t)control->m_Skin->m_TextOutlineWidth);
 
 	switch (control->GetControlType())
 	{
@@ -877,13 +864,28 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 void CPropertiesWnd::UpdatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl)
 {
 	unsigned int PropId = GetControlPropCount(my::Control::ControlTypeControl);
-	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyStaticText)
+	if (pControl->GetSubItemsCount() <= PropId || pControl->GetSubItem(PropId)->GetData() != PropertyStaticFontPath)
 	{
 		RemovePropertiesFrom(pControl, PropId);
 		CreatePropertiesStatic(pControl, static_ctl);
 		return;
 	}
-	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str());
+	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
+	pControl->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str())).c_str());
+	pControl->GetSubItem(PropId + 1)->SetValue((_variant_t)(long)skin->m_FontHeight);
+	pControl->GetSubItem(PropId + 2)->SetValue((_variant_t)(long)skin->m_FontFaceIndex);
+
+	COLORREF color = RGB(LOBYTE(skin->m_TextColor >> 16), LOBYTE(skin->m_TextColor >> 8), LOBYTE(skin->m_TextColor));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 3)))->SetColor(color);
+	pControl->GetSubItem(PropId + 4)->SetValue((_variant_t)(long)LOBYTE(skin->m_TextColor >> 24));
+	pControl->GetSubItem(PropId + 5)->SetValue(GetFontAlignDesc(skin->m_TextAlign));
+
+	color = RGB(LOBYTE(skin->m_TextOutlineColor >> 16), LOBYTE(skin->m_TextOutlineColor >> 8), LOBYTE(skin->m_TextOutlineColor));
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(PropId + 6)))->SetColor(color);
+	pControl->GetSubItem(PropId + 7)->SetValue((_variant_t)(long)LOBYTE(skin->m_TextOutlineColor >> 24));
+	pControl->GetSubItem(PropId + 8)->SetValue((_variant_t)skin->m_TextOutlineWidth);
+
+	pControl->GetSubItem(PropId + 9)->SetValue((_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str());
 
 	switch (static_ctl->GetControlType())
 	{
@@ -1927,37 +1929,6 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pProp = new CSimpleProp(_T("w"), (_variant_t)control->m_Skin->m_Image->m_Border.w, NULL, PropertyControlImageBorderW);
 	pImageBorder->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_FontPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyControlFontPath);
-	pControl->AddSubItem(pFontPath);
-	CMFCPropertyGridProperty* pFontHeight = new CSimpleProp(_T("FontHeight"), (_variant_t)(long)control->m_Skin->m_FontHeight, NULL, PropertyControlFontHeight);
-	pControl->AddSubItem(pFontHeight);
-	CMFCPropertyGridProperty* pFontFaceIndex = new CSimpleProp(_T("FontFaceIndex"), (_variant_t)(long)control->m_Skin->m_FontFaceIndex, NULL, PropertyControlFontFaceIndex);
-	pControl->AddSubItem(pFontFaceIndex);
-
-	color = RGB(LOBYTE(control->m_Skin->m_TextColor >> 16), LOBYTE(control->m_Skin->m_TextColor >> 8), LOBYTE(control->m_Skin->m_TextColor));
-	CColorProp* pTextColor = new CColorProp(_T("TextColor"), color, NULL, NULL, PropertyControlTextColor);
-	pTextColor->EnableOtherButton(_T("Other..."));
-	pControl->AddSubItem(pTextColor);
-	CMFCPropertyGridProperty* pTextColorAlpha = new CSliderProp(_T("TextAlpha"), (long)LOBYTE(control->m_Skin->m_TextColor >> 24), NULL, PropertyControlTextColorAlpha);
-	pControl->AddSubItem(pTextColorAlpha);
-
-	CMFCPropertyGridProperty* pTextAlign = new CComboProp(_T("TextAlign"), GetFontAlignDesc(control->m_Skin->m_TextAlign), NULL, PropertyControlTextAlign);
-	for (unsigned int i = 0; i < _countof(g_FontAlignDesc); i++)
-	{
-		pTextAlign->AddOption(g_FontAlignDesc[i].desc, TRUE);
-	}
-	pControl->AddSubItem(pTextAlign);
-
-	color = RGB(LOBYTE(control->m_Skin->m_TextOutlineColor >> 16), LOBYTE(control->m_Skin->m_TextOutlineColor >> 8), LOBYTE(control->m_Skin->m_TextOutlineColor));
-	CColorProp* pTextOutlineColor = new CColorProp(_T("TextOutlineColor"), color, NULL, NULL, PropertyControlTextOutlineColor);
-	pTextOutlineColor->EnableOtherButton(_T("Other..."));
-	pControl->AddSubItem(pTextOutlineColor);
-	CMFCPropertyGridProperty* pTextOutlineAlpha = new CSliderProp(_T("TextOutlineAlpha"), (long)LOBYTE(control->m_Skin->m_TextOutlineColor >> 24), NULL, PropertyControlTextOutlineAlpha);
-	pControl->AddSubItem(pTextOutlineAlpha);
-
-	CMFCPropertyGridProperty* pTextOutlineWidth = new CSimpleProp(_T("TextOutlineWidth"), (_variant_t)control->m_Skin->m_TextOutlineWidth, NULL, PropertyControlTextOutlineWidth);
-	pControl->AddSubItem(pTextOutlineWidth);
-
 	switch (control->GetControlType())
 	{
 	case my::Control::ControlTypeStatic:
@@ -1988,6 +1959,39 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 void CPropertiesWnd::CreatePropertiesStatic(CMFCPropertyGridProperty * pControl, my::Static * static_ctl)
 {
 	ASSERT(pControl->GetSubItemsCount() == GetControlPropCount(my::Control::ControlTypeControl));
+
+	my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(static_ctl->m_Skin);
+
+	CMFCPropertyGridProperty* pFontPath = new CFileProp(_T("FontPath"), TRUE, (_variant_t)ms2ts(theApp.GetFullPath(skin->m_FontPath.c_str())).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyStaticFontPath);
+	pControl->AddSubItem(pFontPath);
+	CMFCPropertyGridProperty* pFontHeight = new CSimpleProp(_T("FontHeight"), (_variant_t)(long)skin->m_FontHeight, NULL, PropertyStaticFontHeight);
+	pControl->AddSubItem(pFontHeight);
+	CMFCPropertyGridProperty* pFontFaceIndex = new CSimpleProp(_T("FontFaceIndex"), (_variant_t)(long)skin->m_FontFaceIndex, NULL, PropertyStaticFontFaceIndex);
+	pControl->AddSubItem(pFontFaceIndex);
+
+	COLORREF color = RGB(LOBYTE(skin->m_TextColor >> 16), LOBYTE(skin->m_TextColor >> 8), LOBYTE(skin->m_TextColor));
+	CColorProp* pTextColor = new CColorProp(_T("TextColor"), color, NULL, NULL, PropertyStaticTextColor);
+	pTextColor->EnableOtherButton(_T("Other..."));
+	pControl->AddSubItem(pTextColor);
+	CMFCPropertyGridProperty* pTextColorAlpha = new CSliderProp(_T("TextAlpha"), (long)LOBYTE(skin->m_TextColor >> 24), NULL, PropertyStaticTextColorAlpha);
+	pControl->AddSubItem(pTextColorAlpha);
+
+	CMFCPropertyGridProperty* pTextAlign = new CComboProp(_T("TextAlign"), GetFontAlignDesc(skin->m_TextAlign), NULL, PropertyStaticTextAlign);
+	for (unsigned int i = 0; i < _countof(g_FontAlignDesc); i++)
+	{
+		pTextAlign->AddOption(g_FontAlignDesc[i].desc, TRUE);
+	}
+	pControl->AddSubItem(pTextAlign);
+
+	color = RGB(LOBYTE(skin->m_TextOutlineColor >> 16), LOBYTE(skin->m_TextOutlineColor >> 8), LOBYTE(skin->m_TextOutlineColor));
+	CColorProp* pTextOutlineColor = new CColorProp(_T("TextOutlineColor"), color, NULL, NULL, PropertyStaticTextOutlineColor);
+	pTextOutlineColor->EnableOtherButton(_T("Other..."));
+	pControl->AddSubItem(pTextOutlineColor);
+	CMFCPropertyGridProperty* pTextOutlineAlpha = new CSliderProp(_T("TextOutlineAlpha"), (long)LOBYTE(skin->m_TextOutlineColor >> 24), NULL, PropertyStaticTextOutlineAlpha);
+	pControl->AddSubItem(pTextOutlineAlpha);
+
+	CMFCPropertyGridProperty* pTextOutlineWidth = new CSimpleProp(_T("TextOutlineWidth"), (_variant_t)skin->m_TextOutlineWidth, NULL, PropertyStaticTextOutlineWidth);
+	pControl->AddSubItem(pTextOutlineWidth);
 
 	CMFCPropertyGridProperty* pProp = new CSimpleProp(_T("Text"), (_variant_t)ws2ts(boost::algorithm::replace_all_copy(static_ctl->m_Text, L"\n", L"\\n")).c_str(), NULL, PropertyStaticText);
 	pControl->AddSubItem(pProp);
@@ -2655,9 +2659,9 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	switch (type)
 	{
 	case my::Control::ControlTypeControl:
-		return 21;
+		return 12;
 	case my::Control::ControlTypeStatic:
-		return GetControlPropCount(my::Control::ControlTypeControl) + 1;
+		return GetControlPropCount(my::Control::ControlTypeControl) + 10;
 	case my::Control::ControlTypeButton:
 		return GetControlPropCount(my::Control::ControlTypeStatic) + 12;
 	}
@@ -4099,20 +4103,20 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyControlFontPath:
-	case PropertyControlFontHeight:
-	case PropertyControlFontFaceIndex:
+	case PropertyStaticFontPath:
+	case PropertyStaticFontHeight:
+	case PropertyStaticFontFaceIndex:
 	{
 		CMFCPropertyGridProperty* pControl = NULL;
 		switch (PropertyId)
 		{
-		case PropertyControlFontPath:
+		case PropertyStaticFontPath:
 			pControl = pProp->GetParent();
 			break;
-		case PropertyControlFontHeight:
+		case PropertyStaticFontHeight:
 			pControl = pProp->GetParent();
 			break;
-		case PropertyControlFontFaceIndex:
+		case PropertyStaticFontFaceIndex:
 			pControl = pProp->GetParent();
 			break;
 		}
@@ -4124,10 +4128,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			UpdatePropertiesControl(control);
 			return 0;
 		}
-		control->m_Skin->ReleaseResource();
-		control->m_Skin->m_FontPath = path;
-		control->m_Skin->m_FontHeight = pControl->GetSubItem(13)->GetValue().lVal;
-		control->m_Skin->m_FontFaceIndex = pControl->GetSubItem(14)->GetValue().lVal;
+		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
+		skin->ReleaseResource();
+		skin->m_FontPath = path;
+		skin->m_FontHeight = pControl->GetSubItem(13)->GetValue().lVal;
+		skin->m_FontFaceIndex = pControl->GetSubItem(14)->GetValue().lVal;
 		if (control->IsRequested())
 		{
 			control->m_Skin->RequestResource();
@@ -4136,42 +4141,46 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyControlTextColor:
-	case PropertyControlTextColorAlpha:
+	case PropertyStaticTextColor:
+	case PropertyStaticTextColorAlpha:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(15)))->GetColor();
 		BYTE alpha = pProp->GetParent()->GetSubItem(16)->GetValue().lVal;
-		control->m_Skin->m_TextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
+		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
+		skin->m_TextColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyControlTextAlign:
+	case PropertyStaticTextAlign:
 	{
 		my::Control* control = (my::Control *)pProp->GetParent()->GetValue().pulVal;
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_FontAlignDesc));
-		control->m_Skin->m_TextAlign = (my::Font::Align)g_FontAlignDesc[i].mask;
+		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
+		skin->m_TextAlign = (my::Font::Align)g_FontAlignDesc[i].mask;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyControlTextOutlineColor:
-	case PropertyControlTextOutlineAlpha:
+	case PropertyStaticTextOutlineColor:
+	case PropertyStaticTextOutlineAlpha:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
 		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(18)))->GetColor();
 		BYTE alpha = pProp->GetParent()->GetSubItem(19)->GetValue().lVal;
-		control->m_Skin->m_TextOutlineColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
+		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
+		skin->m_TextOutlineColor = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
-	case PropertyControlTextOutlineWidth:
+	case PropertyStaticTextOutlineWidth:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		control->m_Skin->m_TextOutlineWidth = pProp->GetValue().fltVal;
+		my::StaticSkinPtr skin = boost::dynamic_pointer_cast<my::StaticSkin>(control->m_Skin);
+		skin->m_TextOutlineWidth = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

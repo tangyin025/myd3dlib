@@ -32,6 +32,8 @@ BOOST_CLASS_EXPORT(ControlSkin)
 
 BOOST_CLASS_EXPORT(Control)
 
+BOOST_CLASS_EXPORT(StaticSkin)
+
 BOOST_CLASS_EXPORT(Static)
 
 BOOST_CLASS_EXPORT(ProgressBarSkin)
@@ -741,12 +743,6 @@ void ControlImage::Draw(UIRender * ui_render, const Rectangle & rect, DWORD colo
 
 ControlSkin::ControlSkin(void)
 	: m_Color(D3DCOLOR_ARGB(255, 255, 255, 255))
-	, m_FontHeight(13)
-	, m_FontFaceIndex(0)
-	, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
-	, m_TextAlign(Font::AlignLeftTop)
-	, m_TextOutlineColor(D3DCOLOR_ARGB(0, 0, 0, 0))
-	, m_TextOutlineWidth(1.0f)
 	, m_Requested(false)
 {
 }
@@ -766,13 +762,6 @@ void ControlSkin::RequestResource(void)
 	if (m_Image)
 	{
 		m_Image->RequestResource();
-	}
-
-	if (!m_FontPath.empty())
-	{
-		_ASSERT(!m_Font);
-
-		my::ResourceMgr::getSingleton().LoadFontAsync(m_FontPath.c_str(), m_FontHeight, m_FontFaceIndex, boost::bind(&ControlSkin::OnFontReady, this, boost::placeholders::_1), INT_MAX);
 	}
 
 	if (!m_VisibleShowSoundPath.empty())
@@ -820,15 +809,6 @@ void ControlSkin::ReleaseResource(void)
 		m_Image->ReleaseResource();
 	}
 
-	if (!m_FontPath.empty())
-	{
-		std::string Key = my::FontIORequest::BuildKey(m_FontPath.c_str(), m_FontHeight, m_FontFaceIndex);
-
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(Key, boost::bind(&ControlSkin::OnFontReady, this, boost::placeholders::_1));
-
-		m_Font.reset();
-	}
-
 	if (!m_VisibleShowSoundPath.empty())
 	{
 		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_VisibleShowSoundPath, boost::bind(&ControlSkin::OnVisibleShowSoundReady, this, boost::placeholders::_1));
@@ -863,11 +843,6 @@ void ControlSkin::ReleaseResource(void)
 
 		m_MouseClickSound.reset();
 	}
-}
-
-void ControlSkin::OnFontReady(my::DeviceResourceBasePtr res)
-{
-	m_Font = boost::dynamic_pointer_cast<Font>(res);
 }
 
 void ControlSkin::OnVisibleShowSoundReady(my::DeviceResourceBasePtr res)
@@ -908,21 +883,6 @@ void ControlSkin::DrawImage(UIRender * ui_render, const ControlImagePtr & Image,
 	if (Image)
 	{
 		Image->Draw(ui_render, rect, color, clip);
-	}
-}
-
-void ControlSkin::DrawString(UIRender * ui_render, const wchar_t * str, const my::Rectangle & rect)
-{
-	if(m_Font)
-	{
-		if (!(m_TextOutlineColor & D3DCOLOR_ARGB(255, 0, 0, 0)))
-		{
-			ui_render->PushString(rect, str, m_TextColor, m_TextAlign, m_Font.get());
-		}
-		else
-		{
-			ui_render->PushString(rect, str, m_TextColor, m_TextAlign, m_TextOutlineColor, m_TextOutlineWidth, m_Font.get());
-		}
 	}
 }
 
@@ -1698,6 +1658,60 @@ UINT Control::GetHotkey(void)
 	return m_nHotkey;
 }
 
+StaticSkin::StaticSkin(void)
+	: m_FontHeight(13)
+	, m_FontFaceIndex(0)
+	, m_TextColor(D3DCOLOR_ARGB(255, 255, 255, 255))
+	, m_TextAlign(Font::AlignLeftTop)
+	, m_TextOutlineColor(D3DCOLOR_ARGB(0, 0, 0, 0))
+	, m_TextOutlineWidth(1.0f)
+{
+}
+
+void StaticSkin::RequestResource(void)
+{
+	ControlSkin::RequestResource();
+	if (!m_FontPath.empty())
+	{
+		_ASSERT(!m_Font);
+
+		my::ResourceMgr::getSingleton().LoadFontAsync(m_FontPath.c_str(), m_FontHeight, m_FontFaceIndex, boost::bind(&StaticSkin::OnFontReady, this, boost::placeholders::_1), INT_MAX);
+	}
+}
+
+void StaticSkin::ReleaseResource(void)
+{
+	ControlSkin::ReleaseResource();
+	if (!m_FontPath.empty())
+	{
+		std::string Key = my::FontIORequest::BuildKey(m_FontPath.c_str(), m_FontHeight, m_FontFaceIndex);
+
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(Key, boost::bind(&StaticSkin::OnFontReady, this, boost::placeholders::_1));
+
+		m_Font.reset();
+	}
+}
+
+void StaticSkin::OnFontReady(my::DeviceResourceBasePtr res)
+{
+	m_Font = boost::dynamic_pointer_cast<Font>(res);
+}
+
+void StaticSkin::DrawString(UIRender* ui_render, const wchar_t* str, const my::Rectangle& rect)
+{
+	if (m_Font)
+	{
+		if (!(m_TextOutlineColor & D3DCOLOR_ARGB(255, 0, 0, 0)))
+		{
+			ui_render->PushString(rect, str, m_TextColor, m_TextAlign, m_Font.get());
+		}
+		else
+		{
+			ui_render->PushString(rect, str, m_TextColor, m_TextAlign, m_TextOutlineColor, m_TextOutlineWidth, m_Font.get());
+		}
+	}
+}
+
 template<class Archive>
 void Static::save(Archive & ar, const unsigned int version) const
 {
@@ -1724,9 +1738,12 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 		if(m_Skin)
 		{
-			m_Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
+			StaticSkinPtr Skin = boost::dynamic_pointer_cast<StaticSkin>(m_Skin);
+			_ASSERT(Skin);
 
-			m_Skin->DrawString(ui_render, m_Text.c_str(), m_Rect);
+			Skin->DrawImage(ui_render, m_Skin->m_Image, m_Rect, m_Skin->m_Color);
+
+			Skin->DrawString(ui_render, m_Text.c_str(), m_Rect);
 		}
 
 		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
@@ -1749,7 +1766,7 @@ bool Static::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 void ProgressBarSkin::RequestResource(void)
 {
-	ControlSkin::RequestResource();
+	StaticSkin::RequestResource();
 	if (m_ForegroundImage)
 	{
 		m_ForegroundImage->RequestResource();
@@ -1758,7 +1775,7 @@ void ProgressBarSkin::RequestResource(void)
 
 void ProgressBarSkin::ReleaseResource(void)
 {
-	ControlSkin::ReleaseResource();
+	StaticSkin::ReleaseResource();
 	if (m_ForegroundImage)
 	{
 		m_ForegroundImage->ReleaseResource();
@@ -1795,7 +1812,7 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 
 void ButtonSkin::RequestResource(void)
 {
-	ControlSkin::RequestResource();
+	StaticSkin::RequestResource();
 	if (m_DisabledImage)
 	{
 		m_DisabledImage->RequestResource();
@@ -1812,7 +1829,7 @@ void ButtonSkin::RequestResource(void)
 
 void ButtonSkin::ReleaseResource(void)
 {
-	ControlSkin::ReleaseResource();
+	StaticSkin::ReleaseResource();
 	if (m_DisabledImage)
 	{
 		m_DisabledImage->ReleaseResource();
@@ -1941,7 +1958,7 @@ void Button::OnHotkey(void)
 
 void EditBoxSkin::RequestResource(void)
 {
-	ControlSkin::RequestResource();
+	StaticSkin::RequestResource();
 	if (m_DisabledImage)
 	{
 		m_DisabledImage->RequestResource();
@@ -1958,7 +1975,7 @@ void EditBoxSkin::RequestResource(void)
 
 void EditBoxSkin::ReleaseResource(void)
 {
-	ControlSkin::ReleaseResource();
+	StaticSkin::ReleaseResource();
 	if (m_DisabledImage)
 	{
 		m_DisabledImage->ReleaseResource();
@@ -2025,7 +2042,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Skin->DrawImage(ui_render, Skin->m_CaretImage, SelRect, Skin->m_SelBkColor);
 				}
 
-				ui_render->PushString(TextRect, m_Text.c_str() + m_nFirstVisible, Skin->m_TextColor, Font::AlignLeftMiddle, m_Skin->m_Font.get());
+				ui_render->PushString(TextRect, m_Text.c_str() + m_nFirstVisible, Skin->m_TextColor, Font::AlignLeftMiddle, Skin->m_Font.get());
 
 				if(GetFocused() && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 				{
@@ -2324,39 +2341,45 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 				SetFocusControl(this);
 				SetCaptureControl(this);
 
-				if(m_Skin && m_Skin->m_Font)
+				if (m_Skin)
 				{
-					Vector2 ptLocal = pt - m_Rect.LeftTop();
-					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-					float x = ptLocal.x - m_Border.x + x1st;
-					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
-					if(nCP < (int)m_Text.length())
+					EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+					_ASSERT(Skin);
+
+					if (Skin->m_Font)
 					{
-						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
-						const Font::CharacterInfo * info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
-						if(x > xLeft + info->horiAdvance * 0.5f)
+						Vector2 ptLocal = pt - m_Rect.LeftTop();
+						float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+						float x = ptLocal.x - m_Border.x + x1st;
+						int nCP = Skin->m_Font->XtoCP(m_Text.c_str(), x);
+						if (nCP < (int)m_Text.length())
 						{
-							nCP += 1;
+							float xLeft = Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
+							const Font::CharacterInfo* info = Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
+							if (x > xLeft + info->horiAdvance * 0.5f)
+							{
+								nCP += 1;
+							}
 						}
-					}
 
-					if(uMsg == WM_LBUTTONDBLCLK)
-					{
-						m_nSelStart = GetPriorItemPos(nCP);
-
-						PlaceCaret(GetNextItemPos(nCP));
-					}
-					else
-					{
-						PlaceCaret(nCP);
-
-						if(GetKeyState(VK_SHIFT) >= 0)
+						if (uMsg == WM_LBUTTONDBLCLK)
 						{
-							m_nSelStart = m_nCaret;
-						}
-					}
+							m_nSelStart = GetPriorItemPos(nCP);
 
-					ResetCaretBlink();
+							PlaceCaret(GetNextItemPos(nCP));
+						}
+						else
+						{
+							PlaceCaret(nCP);
+
+							if (GetKeyState(VK_SHIFT) >= 0)
+							{
+								m_nSelStart = m_nCaret;
+							}
+						}
+
+						ResetCaretBlink();
+					}
 				}
 				return true;
 			}
@@ -2373,23 +2396,29 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 		case WM_MOUSEMOVE:
 			if(m_bMouseDrag)
 			{
-				if(m_Skin && m_Skin->m_Font)
+				if (m_Skin)
 				{
-					Vector2 ptLocal = pt - m_Rect.LeftTop();
-					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-					float x = ptLocal.x - m_Border.x + x1st;
-					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
-					if(nCP < (int)m_Text.length())
-					{
-						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
-						const Font::CharacterInfo * info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
-						if(x > xLeft + info->horiAdvance * 0.5f)
-						{
-							nCP += 1;
-						}
-					}
+					EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+					_ASSERT(Skin);
 
-					PlaceCaret(nCP);
+					if (Skin->m_Font)
+					{
+						Vector2 ptLocal = pt - m_Rect.LeftTop();
+						float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+						float x = ptLocal.x - m_Border.x + x1st;
+						int nCP = Skin->m_Font->XtoCP(m_Text.c_str(), x);
+						if (nCP < (int)m_Text.length())
+						{
+							float xLeft = Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
+							const Font::CharacterInfo* info = Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
+							if (x > xLeft + info->horiAdvance * 0.5f)
+							{
+								nCP += 1;
+							}
+						}
+
+						PlaceCaret(nCP);
+					}
 				}
 			}
 			break;
@@ -2426,37 +2455,43 @@ void EditBox::PlaceCaret(int nCP)
 {
 	m_nCaret = nCP;
 
-	if(m_Skin && m_Skin->m_Font)
+	if (m_Skin)
 	{
-		float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-		float x = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
-		float x2;
-		if(m_nCaret < (int)m_Text.length())
-		{
-			const Font::CharacterInfo * info = m_Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
-			x2 = x + info->horiAdvance;
-		}
-		else
-		{
-			x2 = x;
-		}
+		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+		_ASSERT(Skin);
 
-		if(x <= x1st) // ! '=' to rewrite 1st visible, if it was large than caret
+		if (Skin->m_Font)
 		{
-			m_nFirstVisible = m_nCaret;
-		}
-		else
-		{
-			float xNewLeft = x2 - (m_Rect.Width() - m_Border.x - m_Border.z);
-			if(xNewLeft > x1st)
+			float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+			float x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+			float x2;
+			if (m_nCaret < (int)m_Text.length())
 			{
-				int nCPNew1st = m_Skin->m_Font->XtoCP(m_Text.c_str(), xNewLeft);
-				float xNew1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCPNew1st);
-				if(xNew1st < xNewLeft)
+				const Font::CharacterInfo* info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
+				x2 = x + info->horiAdvance;
+			}
+			else
+			{
+				x2 = x;
+			}
+
+			if (x <= x1st) // ! '=' to rewrite 1st visible, if it was large than caret
+			{
+				m_nFirstVisible = m_nCaret;
+			}
+			else
+			{
+				float xNewLeft = x2 - (m_Rect.Width() - m_Border.x - m_Border.z);
+				if (xNewLeft > x1st)
 				{
-					nCPNew1st++;
+					int nCPNew1st = Skin->m_Font->XtoCP(m_Text.c_str(), xNewLeft);
+					float xNew1st = Skin->m_Font->CPtoX(m_Text.c_str(), nCPNew1st);
+					if (xNew1st < xNewLeft)
+					{
+						nCPNew1st++;
+					}
+					m_nFirstVisible = nCPNew1st;
 				}
-				m_nFirstVisible = nCPNew1st;
 			}
 		}
 	}
@@ -2742,74 +2777,83 @@ void ImeEditBox::RenderIndicator(UIRender * ui_render, float fElapsedTime)
 
 void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime)
 {
-	if(m_Skin && m_Skin->m_Font)
+	if (m_Skin)
 	{
 		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 		_ASSERT(Skin);
 
-		s_CompString = ts2ws(ImeUi_GetCompositionString());
-
-		Rectangle TextRect = m_Rect.shrink(m_Border);
-
-		float x, x1st;
-		x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
-		x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-		Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
-
-		Rectangle rc(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
-		if(rc.r > TextRect.r)
-			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
-
-		Skin->DrawImage(ui_render, Skin->m_CaretImage, rc, m_CompWinColor);
-
-		ui_render->PushString(rc, s_CompString.c_str(), Skin->m_TextColor, Font::AlignLeftTop, Skin->m_Font.get());
-
-		float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
-		if(m_bCaretOn)
+		if (Skin->m_Font)
 		{
-			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
+			EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(Skin);
+			_ASSERT(Skin);
 
-			Skin->DrawImage(ui_render, Skin->m_CaretImage, CaretRect, Skin->m_CaretColor);
+			s_CompString = ts2ws(ImeUi_GetCompositionString());
+
+			Rectangle TextRect = m_Rect.shrink(m_Border);
+
+			float x, x1st;
+			x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+			x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+			Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
+
+			Rectangle rc(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
+			if (rc.r > TextRect.r)
+				rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
+
+			Skin->DrawImage(ui_render, Skin->m_CaretImage, rc, m_CompWinColor);
+
+			ui_render->PushString(rc, s_CompString.c_str(), Skin->m_TextColor, Font::AlignLeftTop, Skin->m_Font.get());
+
+			float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
+			if (m_bCaretOn)
+			{
+				Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
+
+				Skin->DrawImage(ui_render, Skin->m_CaretImage, CaretRect, Skin->m_CaretColor);
+			}
 		}
 	}
 }
 
 void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 {
-	if(m_Skin && m_Skin->m_Font)
+	if (m_Skin)
 	{
 		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 		_ASSERT(Skin);
 
-		Rectangle TextRect = m_Rect.shrink(m_Border);
-
-		float x, x1st, comp_x;
-		x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
-		x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-		Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
-
-		Rectangle CompRect(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
-		if(CompRect.r > TextRect.r)
-			CompRect.offsetSelf(TextRect.l - CompRect.l, TextRect.Height());
-
-		comp_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
-
-		float WidthRequired = 0;
-		float HeightRequired = 0;
-		float SingleLineHeight = 0;
-
-		std::wstring horizontalText;
-		for(UINT i = 0; i < MAX_CANDLIST && *ImeUi_GetCandidate(i) != L'\0'; i++)
+		if (Skin->m_Font)
 		{
-			horizontalText += ts2ws(ImeUi_GetCandidate(i));
+			Rectangle TextRect = m_Rect.shrink(m_Border);
+
+			float x, x1st, comp_x;
+			x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+			x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+			Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
+
+			Rectangle CompRect(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
+			if (CompRect.r > TextRect.r)
+				CompRect.offsetSelf(TextRect.l - CompRect.l, TextRect.Height());
+
+			comp_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
+
+			float WidthRequired = 0;
+			float HeightRequired = 0;
+			float SingleLineHeight = 0;
+
+			std::wstring horizontalText;
+			for (UINT i = 0; i < MAX_CANDLIST && *ImeUi_GetCandidate(i) != L'\0'; i++)
+			{
+				horizontalText += ts2ws(ImeUi_GetCandidate(i));
+			}
+			extent = Skin->m_Font->CalculateStringExtent(horizontalText.c_str());
+
+			Rectangle CandRect = Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight);
+
+			Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
+
+			ui_render->PushString(CandRect, horizontalText.c_str(), Skin->m_TextColor, Font::AlignLeftTop, Skin->m_Font.get());
 		}
-		extent = Skin->m_Font->CalculateStringExtent(horizontalText.c_str());
-
-		Rectangle CandRect = Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight);
-
-		Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
-
-		ui_render->PushString(CandRect, horizontalText.c_str(), Skin->m_TextColor, Font::AlignLeftTop, Skin->m_Font.get());
 	}
 }
 
@@ -3326,7 +3370,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 						{
 							ComboBoxItem& item = m_Items[i];
 							Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
-							ui_render->PushString(ItemTextRect, item.strText.c_str(), Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign, m_Skin->m_Font.get());
+							ui_render->PushString(ItemTextRect, item.strText.c_str(), Skin->m_DropdownItemTextColor, Skin->m_DropdownItemTextAlign, Skin->m_Font.get());
 						}
 					}
 				}

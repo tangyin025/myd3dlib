@@ -153,8 +153,6 @@ public:
 	std::string default_listbox_img;
 	my::Rectangle default_listbox_img_rect;
 	my::Vector4 default_listbox_img_border;
-	D3DCOLOR default_listbox_text_color;
-	my::Font::Align default_listbox_text_align;
 	std::string default_listbox_scrollbarupbtn_normalimg;
 	my::Rectangle default_listbox_scrollbarupbtn_normalimg_rect;
 	my::Vector4 default_listbox_scrollbarupbtn_normalimg_border;

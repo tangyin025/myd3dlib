@@ -23,14 +23,20 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const my::Vect
 {
 	Control::Draw(ui_render, fElapsedTime, Offset, Size);
 
-	if(m_Skin && m_Skin->m_Font)
+	if (m_Skin)
 	{
-		int i = MoveLineIndex(m_lbegin, m_scrollbar->m_nPosition);
-		float y = m_Rect.t;
-		for(; i != m_lend && y <= m_Rect.b - m_Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Skin->m_Font->m_LineHeight)
+		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+		_ASSERT(Skin);
+
+		if (Skin->m_Font)
 		{
-			ui_render->PushString(my::Rectangle(m_Rect.l, y, m_Rect.r, y + m_Skin->m_Font->m_LineHeight),
-				m_lines[i].m_Text.c_str(), m_lines[i].m_Color, my::Font::AlignLeftTop, m_Skin->m_Font.get());
+			int i = MoveLineIndex(m_lbegin, m_scrollbar->m_nPosition);
+			float y = m_Rect.t;
+			for (; i != m_lend && y <= m_Rect.b - Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += Skin->m_Font->m_LineHeight)
+			{
+				ui_render->PushString(my::Rectangle(m_Rect.l, y, m_Rect.r, y + Skin->m_Font->m_LineHeight),
+					m_lines[i].m_Text.c_str(), m_lines[i].m_Color, my::Font::AlignLeftTop, Skin->m_Font.get());
+			}
 		}
 	}
 }
@@ -64,10 +70,12 @@ int MessagePanel::LineIndexDistance(int start, int end)
 
 void MessagePanel::_update_scrollbar(void)
 {
-	_ASSERT(m_Skin && m_Skin->m_Font);
+	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+	_ASSERT(Skin && Skin->m_Font);
+
 	m_scrollbar->m_nStart = 0;
 	m_scrollbar->m_nEnd = LineIndexDistance(m_lbegin, m_lend);
-	m_scrollbar->m_nPageSize = (int)(m_Height.offset / m_Skin->m_Font->m_LineHeight);
+	m_scrollbar->m_nPageSize = (int)(m_Height.offset / Skin->m_Font->m_LineHeight);
 	m_scrollbar->m_nPosition = m_scrollbar->m_nEnd - m_scrollbar->m_nPageSize;
 }
 
@@ -85,15 +93,16 @@ void MessagePanel::_push_enter(D3DCOLOR Color)
 
 void MessagePanel::_push_line(const std::wstring & str, D3DCOLOR Color)
 {
-	_ASSERT(m_Skin && m_Skin->m_Font);
+	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+	_ASSERT(Skin && Skin->m_Font);
 
 	if(!str.empty())
 	{
 		int last_line_idx = MoveLineIndex(m_lend, -1);
 		std::wstring & last_line_str = m_lines[last_line_idx].m_Text;
-		float lend_x = m_Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
+		float lend_x = Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
 		float remain_x = m_Width.offset - m_scrollbar->m_Width.offset - lend_x;
-		int nCP = m_Skin->m_Font->XtoCP(str.c_str(), remain_x);
+		int nCP = Skin->m_Font->XtoCP(str.c_str(), remain_x);
 		last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
 
 		if(nCP < (int)str.length())
@@ -106,31 +115,25 @@ void MessagePanel::_push_line(const std::wstring & str, D3DCOLOR Color)
 
 void MessagePanel::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
-	if(m_Skin && m_Skin->m_Font)
-	{
-		_push_enter(Color);
-		puts(str);
-	}
+	_push_enter(Color);
+	puts(str);
 }
 
 void MessagePanel::puts(const std::wstring & str)
 {
-	if(m_Skin && m_Skin->m_Font)
+	D3DCOLOR Color = m_lines[MoveLineIndex(m_lend, -1)].m_Color;
+	std::wstring::size_type lpos = 0;
+	for (; lpos < str.length(); )
 	{
-		D3DCOLOR Color = m_lines[MoveLineIndex(m_lend, -1)].m_Color;
-		std::wstring::size_type lpos = 0;
-		for(; lpos < str.length(); )
+		std::wstring::size_type rpos = str.find(L'\n', lpos);
+		if (std::wstring::npos == rpos)
 		{
-			std::wstring::size_type rpos = str.find(L'\n', lpos);
-			if(std::wstring::npos == rpos)
-			{
-				_push_line(str.substr(lpos).c_str(), Color);
-				break;
-			}
-			_push_line(str.substr(lpos, rpos - lpos).c_str(), Color);
-			_push_enter(Color);
-			lpos = rpos + 1;
+			_push_line(str.substr(lpos).c_str(), Color);
+			break;
 		}
+		_push_line(str.substr(lpos, rpos - lpos).c_str(), Color);
+		_push_enter(Color);
+		lpos = rpos + 1;
 	}
 }
 
@@ -191,9 +194,6 @@ Console::Console(void)
 	m_Height = UDim(0, 410);
 	m_Skin.reset(new ControlSkin());
 	m_Skin->m_Color = D3DCOLOR_ARGB(197,0,0,0);
-	m_Skin->m_Font = Client::getSingleton().m_Font;
-	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	m_Skin->m_TextAlign = Font::AlignLeftTop;
 	m_Skin->m_Image.reset(new ControlImage());
 	m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
@@ -207,15 +207,16 @@ Console::Console(void)
 	m_Edit->m_x = UDim(0, Border.x);
 	m_Edit->m_y = UDim(0, m_Height.offset - Border.w - m_Edit->m_Height.offset);
 	m_Edit->m_Border = Vector4(0,0,0,0);
-	m_Edit->m_Skin.reset(new EditBoxSkin());
-	m_Edit->m_Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-	m_Edit->m_Skin->m_Font = Client::getSingleton().m_Font;
-	m_Edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
-	m_Edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
-	m_Edit->m_Skin->m_Image.reset(new ControlImage());
-	m_Edit->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-	m_Edit->m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
-	m_Edit->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
+	EditBoxSkinPtr Skin(new EditBoxSkin());
+	Skin->m_Color = D3DCOLOR_ARGB(15,255,255,255);
+	Skin->m_Font = Client::getSingleton().m_Font;
+	Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
+	Skin->m_TextAlign = Font::AlignLeftMiddle;
+	Skin->m_Image.reset(new ControlImage());
+	Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
+	Skin->m_Image->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
+	Skin->m_Image->m_Border = Vector4(0,0,0,0);
+	m_Edit->m_Skin = Skin;
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_FocusedImage.reset(new ControlImage());
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_FocusedImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
 	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_FocusedImage->m_Rect = my::Rectangle::LeftTop(158,43,2,2);
@@ -237,9 +238,10 @@ Console::Console(void)
 	m_Panel->m_Height = UDim(0, m_Height.offset - Border.y - Border.w - m_Edit->m_Height.offset);
 	m_Panel->m_x = UDim(0, Border.x);
 	m_Panel->m_y = UDim(0, Border.y);
-	m_Panel->m_Skin.reset(new ControlSkin());
-	m_Panel->m_Skin->m_Color = D3DCOLOR_ARGB(0,0,0,0);
-	m_Panel->m_Skin->m_Font = Client::getSingleton().m_Font;
+	Skin.reset(new EditBoxSkin());
+	Skin->m_Color = D3DCOLOR_ARGB(0, 0, 0, 0);
+	Skin->m_Font = Client::getSingleton().m_Font;
+	m_Panel->m_Skin = Skin;
 	m_Panel->m_scrollbar->m_Width = UDim(0, 20);
 	m_Panel->m_scrollbar->m_Height = UDim(0, m_Panel->m_Height.offset);
 	m_Panel->m_scrollbar->m_x = UDim(0, m_Panel->m_Width.offset - m_Panel->m_scrollbar->m_Width.offset);
@@ -284,7 +286,7 @@ void Console::OnEventEnter(EventArg * arg)
 			m_strList.pop_front();
 		m_strIter = m_strList.end();
 		m_Edit->SetText(L"");
-		m_Panel->AddLine(code, m_Edit->m_Skin->m_TextColor);
+		m_Panel->AddLine(code, boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_TextColor);
 		Client::getSingleton().ExecuteCode(wstou8(code).c_str());
 	}
 }
