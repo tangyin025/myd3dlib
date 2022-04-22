@@ -2628,6 +2628,7 @@ void LuaContext::Init(void)
 			.def("Raycast", &PhysxSpatialIndex::Raycast, luabind::pure_out_value(boost::placeholders::_5))
 			.def("OverlapBox", &PhysxSpatialIndex::OverlapBox)
 			.def("SweepBox", &PhysxSpatialIndex::SweepBox, luabind::pure_out_value(boost::placeholders::_9))
+			.def("GetAABB", &PhysxSpatialIndex::GetAABB)
 
 		, class_<boost::regex>("regex")
 			.def(constructor<const char *>())

@@ -22,6 +22,8 @@
 #include "GuIntersectionTriangleBox.h"
 #include "common/GuBoxConversion.h"
 #include "intersection/GuIntersectionRayTriangle.h"
+#include "NpSpatialIndex.h"
+#include "SqAABBPruner.h"
 
 using namespace my;
 
@@ -698,4 +700,34 @@ bool PhysxSpatialIndex::SweepBox(float hx, float hy, float hz, const my::Vector3
 		return true;
 	}
 	return false;
+}
+
+// access private member using template trick, https://stackoverflow.com/questions/12993219/access-private-member-using-template-trick
+template<typename Tag, typename Tag::type M>
+struct Rob {
+	friend typename Tag::type get(Tag) {
+		return M;
+	}
+};
+
+struct NpSpatialIndex_f {
+	typedef physx::Sq::IncrementalPruner* physx::NpSpatialIndex::* type;
+	friend type get(NpSpatialIndex_f);
+};
+
+template struct Rob<NpSpatialIndex_f, &physx::NpSpatialIndex::mPruner>;
+
+struct ExtendedBucketPruner_f {
+	typedef const physx::Sq::PruningPool* physx::Sq::ExtendedBucketPruner::* type;
+	friend type get(ExtendedBucketPruner_f);
+};
+
+template struct Rob<ExtendedBucketPruner_f, &physx::Sq::ExtendedBucketPruner::mPruningPool>;
+
+const my::AABB & PhysxSpatialIndex::GetAABB(void) const
+{
+	physx::NpSpatialIndex* idx = static_cast<physx::NpSpatialIndex*>(m_PxSpatialIndex.get());
+	physx::Sq::AABBPruner* pruner = static_cast<physx::Sq::AABBPruner*>(idx->*get(NpSpatialIndex_f()));
+	const physx::Sq::PruningPool* pool = static_cast<const physx::Sq::PruningPool*>(pruner->mBucketPruner.*get(ExtendedBucketPruner_f()));
+	return *(AABB*)pool->getCurrentWorldBoxes();
 }
