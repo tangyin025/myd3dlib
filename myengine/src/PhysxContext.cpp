@@ -717,17 +717,14 @@ struct NpSpatialIndex_f {
 
 template struct Rob<NpSpatialIndex_f, &physx::NpSpatialIndex::mPruner>;
 
-struct ExtendedBucketPruner_f {
-	typedef const physx::Sq::PruningPool* physx::Sq::ExtendedBucketPruner::* type;
-	friend type get(ExtendedBucketPruner_f);
-};
-
-template struct Rob<ExtendedBucketPruner_f, &physx::Sq::ExtendedBucketPruner::mPruningPool>;
-
-const my::AABB & PhysxSpatialIndex::GetAABB(void) const
+my::AABB PhysxSpatialIndex::CalculateAABB(void) const
 {
+	my::AABB ret(FLT_MAX, -FLT_MAX);
 	physx::NpSpatialIndex* idx = static_cast<physx::NpSpatialIndex*>(m_PxSpatialIndex.get());
 	physx::Sq::AABBPruner* pruner = static_cast<physx::Sq::AABBPruner*>(idx->*get(NpSpatialIndex_f()));
-	const physx::Sq::PruningPool* pool = static_cast<const physx::Sq::PruningPool*>(pruner->mBucketPruner.*get(ExtendedBucketPruner_f()));
-	return *(AABB*)pool->getCurrentWorldBoxes();
+	for (int i = 0; i < pruner->mPool.mNbObjects; i++)
+	{
+		ret.unionSelf((AABB&)pruner->mPool.mWorldBoxes[i]);
+	}
+	return ret;
 }

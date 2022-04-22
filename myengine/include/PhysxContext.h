@@ -250,5 +250,5 @@ public:
 
 	bool SweepBox(float hx, float hy, float hz, const my::Vector3& Pos, const my::Quaternion& Rot, const my::Vector3& dir, float dist, float& t) const;
 
-	const my::AABB & GetAABB(void) const;
+	my::AABB CalculateAABB(void) const;
 };
