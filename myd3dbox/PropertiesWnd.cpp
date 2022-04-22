@@ -3118,6 +3118,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		cmp->SetName(Name.c_str());
+		break;
 	}
 	case PropertyComponentLODMask:
 	{
