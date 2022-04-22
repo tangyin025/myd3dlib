@@ -120,13 +120,17 @@ void NamedObject::load(Archive & ar, const unsigned int version)
 		NamedObjectSerializationContext * pxar = dynamic_cast<NamedObjectSerializationContext *>(&ar);
 		_ASSERT(pxar);
 
-		//if (!pxar->prefix.empty())
-		//{
+		if (pxar->make_unique)
+		{
+			_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+			_ASSERT(pxar->prefix.empty());
+
+			SetName(MakeUniqueName(Name.c_str()).c_str());
+		}
+		else
+		{
 			SetName((pxar->prefix + Name).c_str());
-		//}
-		//else
-		//{
-		//	SetName(MakeUniqueName(Name.c_str()).c_str());
-		//}
+		}
 	}
 }

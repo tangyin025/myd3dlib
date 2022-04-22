@@ -238,7 +238,8 @@ ComponentPtr Component::Clone(void) const
 	*oa << boost::serialization::make_nvp(__FUNCTION__, shared_from_this());
 
 	ComponentPtr ret(new Component());
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt", "");
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(sstr, ".txt");
+	boost::dynamic_pointer_cast<NamedObjectSerializationContext>(ia)->make_unique = true;
 	*ia >> boost::serialization::make_nvp(__FUNCTION__, ret);
 	return ret;
 }

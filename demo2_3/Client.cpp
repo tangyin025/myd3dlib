@@ -446,7 +446,8 @@ void SceneContextRequest::LoadResource(void)
 		my::IStreamBuff buff(ResourceMgr::getSingleton().OpenIStream(m_path.c_str()));
 		std::istream ifs(&buff);
 		LPCSTR Ext = PathFindExtensionA(m_path.c_str());
-		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext, m_prefix.c_str());
+		boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, Ext);
+		boost::dynamic_pointer_cast<NamedObjectSerializationContext>(ia)->prefix = m_prefix;
 		SceneContextPtr scene = boost::dynamic_pointer_cast<SceneContext>(m_res);
 		*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", scene->m_SkyLightCamEuler);
 		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);

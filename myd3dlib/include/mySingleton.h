@@ -175,8 +175,10 @@ namespace my
 	public:
 		std::string prefix;
 
-		NamedObjectSerializationContext(const char * _prefix)
-			: prefix(_prefix)
+		bool make_unique;
+
+		NamedObjectSerializationContext(void)
+			: make_unique(false)
 		{
 		}
 	};

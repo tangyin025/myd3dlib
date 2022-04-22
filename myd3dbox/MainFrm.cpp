@@ -805,7 +805,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	my::IStreamBuff buff(my::FileIStream::Open(lpszFileName));
 	std::istream ifs(&buff);
 	LPCTSTR Ext = PathFindExtension(lpszFileName);
-	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str(), "");
+	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str());
 	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
 	*ia >> boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*ia >> boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
