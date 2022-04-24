@@ -604,6 +604,11 @@ bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 	return false;
 }
 
+void Actor::InsertComponent(ComponentPtr cmp)
+{
+	InsertComponent(GetComponentNum(), cmp);
+}
+
 void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 {
 	_ASSERT(!cmp->m_Actor);

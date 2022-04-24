@@ -289,6 +289,8 @@ public:
 
 	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;
 
+	void InsertComponent(ComponentPtr cmp);
+
 	void InsertComponent(unsigned int i, ComponentPtr cmp);
 
 	void RemoveComponent(unsigned int i);

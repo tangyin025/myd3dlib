@@ -153,6 +153,11 @@ static void listbox_resize_child_num(my::ListBox* self, unsigned int size, const
 
 struct ScriptComponent;
 
+static void actor_insert_component_adopt(Actor* self, ScriptComponent* cmp)
+{
+	self->InsertComponent(ComponentPtr(cmp));
+}
+
 static void actor_insert_component_adopt(Actor* self, unsigned int i, ScriptComponent* cmp)
 {
 	self->InsertComponent(i, ComponentPtr(cmp));
@@ -2340,8 +2345,10 @@ void LuaContext::Init(void)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
-			.def("InsertComponent", &Actor::InsertComponent)
-			.def("InsertComponentAdopt", &actor_insert_component_adopt, adopt(boost::placeholders::_3))
+			.def("InsertComponent", (void (Actor::*)(ComponentPtr))& Actor::InsertComponent)
+			.def("InsertComponent", (void (Actor::*)(unsigned int i, ComponentPtr))& Actor::InsertComponent)
+			.def("InsertComponentAdopt", (void(*)(Actor*, ScriptComponent*))& actor_insert_component_adopt, adopt(boost::placeholders::_2))
+			.def("InsertComponentAdopt", (void(*)(Actor*, unsigned int i, ScriptComponent*))& actor_insert_component_adopt, adopt(boost::placeholders::_3))
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.property("ComponentNum", &Actor::GetComponentNum)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)

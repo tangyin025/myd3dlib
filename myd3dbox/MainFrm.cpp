@@ -1064,8 +1064,8 @@ void CMainFrame::OnFileNew()
 	//animator->UpdateSequenceGroup();
 
 	//ActorPtr actor(new Actor("actor_123349993", my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), AABB(-10,10)));
-	//actor->InsertComponent(actor->GetComponentNum(), mesh_cmp);
-	//actor->InsertComponent(actor->GetComponentNum(), animator);
+	//actor->InsertComponent(mesh_cmp);
+	//actor->InsertComponent(animator);
 	//actor->UpdateWorld();
 	//AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World), Actor::MinBlock, Actor::Threshold);
 	//m_ActorList.push_back(actor);
@@ -1077,7 +1077,7 @@ void CMainFrame::OnFileNew()
 	////terrain->AddMaterial(mtl);
 
 	////ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), my::Vector3(-terrain->m_RowChunks*terrain->m_ChunkSize/2, 0, -terrain->m_ColChunks*terrain->m_ChunkSize/2), my::Quaternion::Identity(), my::Vector3(1, 1, 1), my::AABB(-1, 1)));
-	////actor->InsertComponent(actor->GetComponentNum(), terrain);
+	////actor->InsertComponent(terrain);
 	////actor->UpdateAABB();
 	////actor->UpdateWorld();
 	////AddEntity(actor.get(), actor->m_aabb.transform(actor->m_World));
@@ -1206,7 +1206,7 @@ void CMainFrame::OnCreateController()
 	}
 
 	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller").c_str()).c_str(), 1.0f, 1.0f, 0.1f));
-	(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), controller_cmp);
+	(*actor_iter)->InsertComponent(controller_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
@@ -1273,7 +1273,7 @@ void CMainFrame::OnComponentMesh()
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), mesh_cmp);
+			(*actor_iter)->InsertComponent(mesh_cmp);
 
 			theApp.LoadMeshAsync(path.c_str(), "", boost::bind(&CMainFrame::OnMeshComponentReady, this, boost::placeholders::_1, boost::weak_ptr<MeshComponent>(mesh_cmp)));
 		}
@@ -1293,7 +1293,7 @@ void CMainFrame::OnComponentMesh()
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
 			mesh_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), mesh_cmp);
+			(*actor_iter)->InsertComponent(mesh_cmp);
 
 			theApp.LoadMeshAsync(path.c_str(), attr_name->value(), boost::bind(&CMainFrame::OnMeshComponentReady, this, boost::placeholders::_1, boost::weak_ptr<MeshComponent>(mesh_cmp)));
 		}
@@ -1368,7 +1368,7 @@ void CMainFrame::OnComponentCloth()
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
 			cloth_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), cloth_cmp);
+			(*actor_iter)->InsertComponent(cloth_cmp);
 		}
 	}
 	else
@@ -1394,7 +1394,7 @@ void CMainFrame::OnComponentCloth()
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
 			cloth_cmp->SetMaterial(mtl);
-			(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), cloth_cmp);
+			(*actor_iter)->InsertComponent(cloth_cmp);
 		}
 	}
 
@@ -1429,7 +1429,7 @@ void CMainFrame::OnComponentStaticEmitter()
 		return;
 	}
 
-	(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), dlg.m_emit_cmp);
+	(*actor_iter)->InsertComponent(dlg.m_emit_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
@@ -1477,7 +1477,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	mtl->m_Shader = theApp.default_shader;
 	mtl->ParseShaderParameters();
 	sphe_emit_cmp->SetMaterial(mtl);
-	(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), sphe_emit_cmp);
+	(*actor_iter)->InsertComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();
 	UpdateSelBox();
@@ -1508,7 +1508,7 @@ void CMainFrame::OnComponentTerrain()
 		return;
 	}
 
-	(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), dlg.m_terrain);
+	(*actor_iter)->InsertComponent(dlg.m_terrain);
 	if (dlg.m_AlignToCenter)
 	{
 		my::Vector3 center = dlg.m_terrain->Center();
@@ -1809,7 +1809,7 @@ void CMainFrame::OnComponentAnimator()
 		animator->SetChild(0, AnimationNodeSequencePtr(new AnimationNodeSequence(attr_name->value())));
 		animator->ReloadSequenceGroup();
 		animator->m_SkeletonPath = path;
-		(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), animator);
+		(*actor_iter)->InsertComponent(animator);
 	}
 
 	my::EventArg arg;
@@ -1842,7 +1842,7 @@ void CMainFrame::OnCreateNavigation()
 	NavigationPtr navi_cmp(new Navigation(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_navigation").c_str()).c_str()));
 	navi_cmp->m_navMesh = dlg.m_navMesh;
 	navi_cmp->BuildQueryAndChunks(2048);
-	(*actor_iter)->InsertComponent((*actor_iter)->GetComponentNum(), navi_cmp);
+	(*actor_iter)->InsertComponent(navi_cmp);
 	UpdateSelBox();
 
 	my::EventArg arg;

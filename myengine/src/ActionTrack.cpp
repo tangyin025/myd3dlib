@@ -234,7 +234,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 	//m_WorldEmitterActor->InsertComponent(m_WorldEmitterCmp);
 	//Root->AddEntity(m_WorldEmitterActor.get(), m_WorldEmitterActor->m_aabb, Actor::MinBlock, Actor::Threshold);
 
-	m_Actor->InsertComponent(m_Actor->GetComponentNum(), m_WorldEmitterCmp);
+	m_Actor->InsertComponent(m_WorldEmitterCmp);
 }
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
