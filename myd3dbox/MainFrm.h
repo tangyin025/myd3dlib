@@ -43,7 +43,6 @@ public:
 	CString m_strPathName;
 	typedef std::vector<ActorPtr> ActorPtrList;
 	ActorPtrList m_ActorList;
-	CollectionObjMap m_CollectionObjs;
 	typedef std::vector<my::DialogPtr> DialogPtrList;
 	DialogPtrList m_DialogList;
 	Pivot m_Pivot;

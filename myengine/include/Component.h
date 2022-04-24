@@ -28,8 +28,6 @@ class Component;
 
 typedef boost::shared_ptr<Component> ComponentPtr;
 
-typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > CollectionObjMap;
-
 class Component
 	: public my::NamedObject
 	, public boost::enable_shared_from_this<Component>
@@ -194,15 +192,15 @@ public:
 		return m_Material;
 	}
 
-	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution, CollectionObjMap & collectionObjs);
+	physx::PxMaterial * CreatePhysxMaterial(float staticFriction, float dynamicFriction, float restitution);
 
-	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz, CollectionObjMap & collectionObjs);
+	void CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & rot, float hx, float hy, float hz);
 
-	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight, CollectionObjMap & collectionObjs);
+	void CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, float halfHeight);
 
-	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot, CollectionObjMap & collectionObjs);
+	void CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion & rot);
 
-	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius, CollectionObjMap & collectionObjs);
+	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
 
 	void SetSimulationFilterWord0(unsigned int filterWord0);
 
@@ -338,9 +336,9 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos);
 
-	void CreateTriangleMeshShape(const char * TriangleMeshPath, CollectionObjMap & collectionObjs);
+	void CreateTriangleMeshShape(const char * TriangleMeshPath);
 
-	void CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex, CollectionObjMap & collectionObjs);
+	void CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex);
 
 	virtual void ClearShape(void);
 };

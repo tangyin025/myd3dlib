@@ -477,10 +477,6 @@ void SceneContextRequest::LoadResource(void)
 		{
 			*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), scene->m_DialogList[i]);
 		}
-
-		ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
-		_ASSERT(pxar);
-		scene->m_CollectionObjs.insert(pxar->m_CollectionObjs.begin(), pxar->m_CollectionObjs.end());
 	}
 }
 

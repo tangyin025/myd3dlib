@@ -2068,9 +2068,6 @@ void LuaContext::Init(void)
 			.def("SetParameter", &Material::SetParameter<my::Vector4>)
 			.def("SetParameter", &Material::SetParameter<std::string>)
 
-		, class_<CollectionObjMap>("CollectionObjMap")
-			.def(constructor<>())
-
 		, class_<Component, my::NamedObject, ScriptComponent/*, boost::shared_ptr<Component>*/ >("Component")
 			.def(constructor<const char *>())
 			.def(self == other<const Component&>())
@@ -2143,6 +2140,7 @@ void LuaContext::Init(void)
 			.def_readonly("Mesh", &MeshComponent::m_Mesh)
 			.def_readwrite("bInstance", &MeshComponent::m_bInstance)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
+			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
 
 		, class_<ClothComponent, Component, boost::shared_ptr<Component> >("ClothComponent")
 			.def(constructor<const char *>())

@@ -770,7 +770,6 @@ void CMainFrame::InitFileContext()
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
-			.def_readonly("CollectionObjs", &CMainFrame::m_CollectionObjs)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
 
 		, luabind::class_<CMainApp, luabind::bases<my::D3DContext, my::ResourceMgr> >("MainApp")
@@ -796,7 +795,7 @@ void CMainFrame::ClearFileContext()
 	m_selctls.clear();
 	ASSERT(m_ViewedActors.empty());
 	LuaContext::Shutdown();
-	m_CollectionObjs.clear();
+	theApp.m_CollectionObjs.clear();
 	_ASSERT(theApp.m_NamedObjects.empty());
 }
 
@@ -836,10 +835,6 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 		*ia >> boost::serialization::make_nvp(str_printf("Dialog%d", i).c_str(), m_DialogList[i]);
 		InsertDlg(m_DialogList[i].get());
 	}
-
-	ActorSerializationContext* pxar = dynamic_cast<ActorSerializationContext*>(ia.get());
-	_ASSERT(pxar);
-	m_CollectionObjs.insert(pxar->m_CollectionObjs.begin(), pxar->m_CollectionObjs.end());
 
 	theApp.m_EventLog(str_printf("CMainFrame::OpenFileContext: %Iu actors, %Iu dialogs", m_ActorList.size(), m_DialogList.size()).c_str());
 

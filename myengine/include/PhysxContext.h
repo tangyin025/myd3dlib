@@ -66,6 +66,8 @@ public:
 	}
 };
 
+typedef std::map<std::string, boost::shared_ptr<physx::PxBase> > CollectionObjMap;
+
 class PhysxSdk
 	: public my::SingletonInstance<PhysxSdk>
 	, public physx::PxErrorCallback
@@ -82,6 +84,10 @@ public:
 	boost::shared_ptr<physx::PxCooking> m_Cooking;
 
 	boost::shared_ptr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
+
+	CollectionObjMap m_CollectionObjs;
+
+	my::CriticalSection m_CollectionObjsSec;
 
 	bool m_RenderTickMuted;
 
