@@ -2299,15 +2299,11 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				{
 					break;
 				}
-
-				LPTSTR szName = PathFindFileName(pattern.GetBuffer()); // ! PathRemoveFileSpec
-				*szName = _T('\0');
-				pattern.ReleaseBuffer();
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						m_ToolScripts[i - first_script_index] = pattern + ffd.cFileName;
+						m_ToolScripts[i - first_script_index] = ffd.cFileName;
 						CString strText;
 						strText.Format(_T("&%d %s"), i - first_script_index + 1, m_ToolScripts[i - first_script_index]);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
