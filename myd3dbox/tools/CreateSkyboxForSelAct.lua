@@ -19,7 +19,7 @@ for act in theApp.MainWnd.selactors do
 		mesh_cmp.Material.CullMode=Material.CullModeCCW
 		mesh_cmp.Material.ZEnable=false
 		mesh_cmp.Material:SetParameter("g_DiffuseTexture",skybox_tex_path[i+1])
-		act:InsertComponent(act.ComponentNum,mesh_cmp)
+		act:InsertComponent(mesh_cmp)
 	end
 	break
 end

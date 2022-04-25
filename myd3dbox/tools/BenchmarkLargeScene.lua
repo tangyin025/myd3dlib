@@ -10,9 +10,9 @@ terrain.Material:ParseShaderParameters()
 terrain.Material:SetParameter("g_TextureScale",Vector2(2048,2048))
 local tbox=terrain:CalculateAABB()
 local act=Actor("actor0",Vector3(-tbox.Center.x*8,0,-tbox.Center.z*8),Quaternion.Identity(),Vector3(8,8,8),tbox)
-act:InsertComponent(act.ComponentNum,terrain)
+act:InsertComponent(terrain)
 act:CreateRigidActor(Actor.eRIGID_STATIC)
-terrain:CreateHeightFieldShape("terrain/chunk_123456.pxheightfield",act.Scale,theApp.MainWnd.CollectionObjs)
+terrain:CreateHeightFieldShape("terrain/chunk_123456.pxheightfield",act.Scale)
 terrain.SimulationFilterWord0=1
 terrain.QueryFilterWord0=1
 act:UpdateWorld()
@@ -23,7 +23,7 @@ act:UpdateWorld()
 -- emit_cmp.Material.Shader="shader/mtl_BlinnPhong.fx"
 -- emit_cmp.Material:ParseShaderParameters()
 -- emit_cmp.EmitterChunkPath="terrain/emit_123456"
--- act:InsertComponent(act.ComponentNum,emit_cmp)
+-- act:InsertComponent(emit_cmp)
 -- local estr=StaticEmitterStream(emit_cmp)
 -- for i=1,300000,1 do
 	-- estr:Spawn(Vector3(math.random(act.aabb.min.x,act.aabb.max.x),
@@ -48,9 +48,9 @@ for i=1,300000,1 do
 		math.random(-4000,4000),
 		math.random(0,100),
 		math.random(-4000,4000)),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
-	act:InsertComponent(act.ComponentNum,mesh_cmp)
+	act:InsertComponent(mesh_cmp)
 	-- act:CreateRigidActor(Actor.eRIGID_STATIC)
-	-- mesh_cmp:CreateTriangleMeshShape("mesh/Gear.mesh.xml.pxtrianglemesh",theApp.MainWnd.CollectionObjs)
+	-- mesh_cmp:CreateTriangleMeshShape("mesh/Gear.mesh.xml.pxtrianglemesh")
 	-- mesh_cmp.SimulationFilterWord0=1
 	-- mesh_cmp.QueryFilterWord0=1
 	act:UpdateWorld()

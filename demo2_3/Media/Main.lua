@@ -3,8 +3,6 @@ require "ui/Settings.lua"
 require "Player.lua"
 require "Action.lua"
 
-collectionObjs=CollectionObjMap()
-
 -- 创建一个物理球
 actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert2=Material()
@@ -16,9 +14,9 @@ lambert2:AddParameter("g_SpecularTexture", "texture/White.dds")
 local cmp2=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp2.MeshPath="mesh/Sphere.mesh.xml"
 cmp2.Material=lambert2
-actor2:InsertComponent(actor2.ComponentNum,cmp2)
+actor2:InsertComponent(cmp2)
 actor2:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1,collectionObjs)
+cmp2:CreateSphereShape(Vector3(0,0,0),Quaternion.Identity(),1)
 cmp2.SimulationFilterWord0=1
 cmp2.QueryFilterWord0=1
 class 'Actor2Behavior'(Component)
@@ -30,16 +28,16 @@ function Actor2Behavior:RequestResource()
 	self.Actor:PlayAction(SAction.act_sound,9999)
 end
 local actor2_behavior=Actor2Behavior(NamedObject.MakeUniqueName("actor_behavior"))
-actor2:InsertComponentAdopt(actor2.ComponentNum,actor2_behavior)
+actor2:InsertComponentAdopt(actor2_behavior)
 
 -- 在角色手部绑定物体
 actor3=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Identity(),Vector3(0.1,0.25,0.1),AABB(-1,1))
 local cmp3=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp3.MeshPath="mesh/Cylinder.mesh.xml"
 cmp3.Material=lambert2:Clone()
-actor3:InsertComponent(actor3.ComponentNum,cmp3)
+actor3:InsertComponent(cmp3)
 actor3:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp3:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,collectionObjs)
+cmp3:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25)
 cmp3.SimulationFilterWord0=1
 cmp3.QueryFilterWord0=1
 
@@ -48,18 +46,18 @@ actor4=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,0,0),Quaternion.Ident
 local cmp4=MeshComponent(NamedObject.MakeUniqueName("mesh_cmp"))
 cmp4.MeshPath="mesh/Cylinder.mesh.xml"
 cmp4.Material=lambert2:Clone()
-actor4:InsertComponent(actor4.ComponentNum,cmp4)
+actor4:InsertComponent(cmp4)
 actor4:CreateRigidActor(Actor.eRIGID_DYNAMIC)
-cmp4:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25,collectionObjs)
+cmp4:CreateCapsuleShape(Vector3(0,0,0),Quaternion.RotationYawPitchRoll(0,0,math.rad(-90)),0.1,0.25)
 cmp4.SimulationFilterWord0=1
 cmp4.QueryFilterWord0=1
 
 -- 搞一个trigger
 actor5=Actor(NamedObject.MakeUniqueName("actor"),Vector3(3,1,0),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local cmp5=StaticEmitter(NamedObject.MakeUniqueName("mesh_cmp"),actor5.aabb,3,EmitterComponent.FaceTypeCamera,EmitterComponent.SpaceTypeLocal,EmitterComponent.VelocityTypeNone,EmitterComponent.PrimitiveTypeQuad)
-actor5:InsertComponent(actor5.ComponentNum,cmp5)
+actor5:InsertComponent(cmp5)
 actor5:CreateRigidActor(Actor.eRIGID_STATIC)
-cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1,collectionObjs)
+cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1)
 cmp5.SimulationFilterWord0=2
 cmp5.QueryFilterWord0=2
 cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
@@ -124,7 +122,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 		self.Actor:PlayAction(SAction.act_moving,9999)
 	end
 	local actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
-	actor6:InsertComponentAdopt(actor6.ComponentNum,actor6_behavior)	
+	actor6:InsertComponentAdopt(actor6_behavior)	
 
 	-- SPlayer.player:Detach(actor3);actor3:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor3.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end;SPlayer.player:Detach(actor4);actor4:SetRigidBodyFlag(Actor.eKINEMATIC,false);for cmp in actor4.Cmps do cmp.SimulationFilterWord0=1;cmp.QueryFilterWord0=1 end
 	-- SPlayer.player:PlayAction(SAction.act_pose,3)
