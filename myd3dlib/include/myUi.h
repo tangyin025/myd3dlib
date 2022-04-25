@@ -291,6 +291,8 @@ namespace my
 		}
 	};
 
+	class Dialog;
+
 	class Control
 		: public my::NamedObject
 		, public boost::enable_shared_from_this<Control>
@@ -500,7 +502,7 @@ namespace my
 
 		int GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> & childs);
 
-		Control * GetTopControl(void);
+		Dialog * GetTopControl(void);
 
 		bool SetFocusRecursive(void);
 

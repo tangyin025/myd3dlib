@@ -1510,7 +1510,7 @@ int Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> &
 		return deep + 1;
 	}
 
-	Dialog* dlg = dynamic_cast<Dialog*>(GetTopControl());
+	Dialog* dlg = GetTopControl();
 
 	Vector3 v[] = {
 		Vector3(m_Rect.l, m_Rect.t, 0).transformCoord(dlg->m_World),
@@ -1528,13 +1528,16 @@ int Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> &
 	return 0;
 }
 
-Control * Control::GetTopControl(void)
+Dialog * Control::GetTopControl(void)
 {
 	if (m_Parent)
 	{
 		return m_Parent->GetTopControl();
 	}
-	return this;
+
+	_ASSERT(GetControlType() == ControlTypeDialog);
+
+	return dynamic_cast<Dialog*>(this);
 }
 
 bool Control::SetFocusRecursive(void)

@@ -387,7 +387,7 @@ void CChildView::RenderSelectedControl(IDirect3DDevice9 * pd3dDevice, my::Contro
 	CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 
-	my::Dialog * dlg = dynamic_cast<my::Dialog *>(ctl->GetTopControl());
+	my::Dialog * dlg = ctl->GetTopControl();
 	ASSERT(dlg);
 
 	Vertex v[] = {
@@ -1430,7 +1430,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin();
 		my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		my::Dialog * dlg = dynamic_cast<my::Dialog *>((*ctrl_iter)->GetTopControl());
+		my::Dialog * dlg = (*ctrl_iter)->GetTopControl();
 		my::Vector2 pt;
 		if (dlg->RayToWorld(ui_ray, pt))
 		{
