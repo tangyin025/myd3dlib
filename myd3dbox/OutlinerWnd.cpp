@@ -203,7 +203,7 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 	{
 		my::NamedObject* obj = m_Items[pItem->iItem];
 		my::Control* control = dynamic_cast<my::Control*>(obj);
-		if (control)
+		if (control && control->GetTopControl()->m_Manager)
 		{
 			switch (control->GetControlType())
 			{
@@ -241,13 +241,13 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 		}
 
 		Actor* actor = dynamic_cast<Actor*>(obj);
-		if (actor)
+		if (actor && actor->m_Node)
 		{
 			pItem->iImage = 6;
 		}
 
 		Component* cmp = dynamic_cast<Component*>(obj);
-		if (cmp)
+		if (cmp && cmp->m_Actor && cmp->m_Actor->m_Node)
 		{
 			switch (cmp->GetComponentType())
 			{
@@ -343,7 +343,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 
 	my::NamedObject* obj = m_Items[pItemActivate->iItem];
 	my::Control* control = dynamic_cast<my::Control*>(obj);
-	if (control)
+	if (control && control->GetTopControl()->m_Manager)
 	{
 		pFrame->m_selactors.clear();
 		pFrame->m_selcmp = NULL;
@@ -356,7 +356,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 
 	Actor* actor = dynamic_cast<Actor*>(obj);
-	if (actor)
+	if (actor && actor->m_Node)
 	{
 		pFrame->m_selactors.clear();
 		pFrame->m_selactors.push_back(actor);
@@ -370,7 +370,7 @@ void COutlinerWnd::OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 
 	Component* cmp = dynamic_cast<Component*>(obj);
-	if (cmp)
+	if (cmp && cmp->m_Actor && cmp->m_Actor->m_Node)
 	{
 		pFrame->m_selactors.clear();
 		pFrame->m_selactors.push_back(cmp->m_Actor);
