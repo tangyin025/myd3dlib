@@ -26,6 +26,7 @@
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/iterator_policy.hpp>
+#include <luabind/tag_function.hpp>
 #include "LuaExtension.inl"
 #include "myException.h"
 #include <boost/scope_exit.hpp>
@@ -768,6 +769,8 @@ void CMainFrame::InitFileContext()
 			.def("AddEntity", &CMainFrame::AddEntity)
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
+			.def("InsertActor", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
+				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)
