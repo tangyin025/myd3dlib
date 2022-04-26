@@ -312,8 +312,6 @@ public:
 
 	virtual void AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold);
 
-	void AddEntity(my::OctEntity * entity);
-
 	virtual void RemoveEntity(my::OctEntity * entity);
 
 	virtual void OnControlSound(boost::shared_ptr<my::Wav> wav);
