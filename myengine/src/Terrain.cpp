@@ -23,8 +23,6 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/casts.hpp>
 #include <boost/scope_exit.hpp>
 
 using namespace my;
