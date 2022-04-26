@@ -22,7 +22,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/range/algorithm/find_if.hpp>
 #include <boost/scope_exit.hpp>
 
@@ -467,7 +466,7 @@ UIRender::VertexList & UIRender::GetVertexList(BaseTexture * texture)
 {
 	_ASSERT(texture);
 
-	UILayerList::iterator layer_iter = boost::find_if(m_Layer, (&boost::lambda::_1)->* & UILayer::first == texture);
+	UILayerList::iterator layer_iter = boost::find_if(m_Layer, boost::bind(std::equal_to<BaseTexture*>(), boost::bind(&UILayer::first, boost::placeholders::_1), texture));
 	if (layer_iter != m_Layer.end())
 	{
 		return layer_iter->second;
@@ -3724,7 +3723,8 @@ bool ComboBox::ContainsItem(const std::wstring & strText, UINT iStart) const
 
 int ComboBox::FindItem(const std::wstring & strText, UINT iStart) const
 {
-	ComboBoxItemList::const_iterator item_iter = boost::find_if(boost::make_iterator_range(m_Items.begin() + iStart, m_Items.end()), (&boost::lambda::_1)->* & ComboBoxItem::strText == strText);
+	ComboBoxItemList::const_iterator item_iter = boost::find_if(
+		boost::make_iterator_range(m_Items.begin() + iStart, m_Items.end()), boost::bind(std::equal_to<std::wstring>(), boost::bind(&ComboBoxItem::strText, boost::placeholders::_1), strText));
 	if(item_iter != m_Items.end())
 	{
 		return std::distance(m_Items.begin(), item_iter);
