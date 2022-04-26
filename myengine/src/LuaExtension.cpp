@@ -40,7 +40,6 @@ extern "C"
 #include <boost/scope_exit.hpp>
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/shared_container_iterator.hpp>
 #include <boost/regex.hpp>
 
@@ -104,7 +103,7 @@ typedef boost::shared_container_iterator<obj_list> shared_obj_list_iter;
 static boost::iterator_range<shared_obj_list_iter> d3dcontext_get_named_object_list(my::D3DContext* self)
 {
 	boost::shared_ptr<obj_list> objs(new obj_list());
-	boost::range::transform(self->m_NamedObjects, std::back_inserter(*objs), (&boost::lambda::_1)->* & my::D3DContext::NamedObjectMap::value_type::second);
+	boost::range::transform(self->m_NamedObjects, std::back_inserter(*objs), boost::bind(&my::D3DContext::NamedObjectMap::value_type::second, boost::placeholders::_1));
 	return boost::make_iterator_range(shared_obj_list_iter(objs->begin(), objs), shared_obj_list_iter(objs->end(), objs));
 }
 
