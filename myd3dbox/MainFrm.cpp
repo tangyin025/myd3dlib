@@ -771,7 +771,7 @@ void CMainFrame::InitFileContext()
 				boost::bind(boost::mem_fn(&CMainFrame::AddEntity), boost::placeholders::_1, boost::placeholders::_2, boost::bind(&AABB::transform, boost::bind(&Actor::m_aabb, boost::placeholders::_2), boost::bind(&Actor::m_World, boost::placeholders::_2)), Actor::MinBlock, Actor::Threshold)))
 			.def("RemoveEntity", &CMainFrame::RemoveEntity)
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
-			.def("InsertActor", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
+			.def("PushToActorList", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
 				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
