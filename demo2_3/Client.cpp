@@ -27,8 +27,8 @@
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
 #include <boost/assign/list_of.hpp>
-#include "CctCharacterControllerManager.h"
-#include "CctController.h"
+//#include "CctCharacterControllerManager.h"
+//#include "CctController.h"
 #include "CctBoxController.h"
 #include "CctCapsuleController.h"
 
@@ -1123,6 +1123,7 @@ HRESULT Client::OnCreateDevice(
 			.def("SavePlayerData", &Client::SavePlayerData)
 			.def("OverlapBox", &client_overlap_box<luabind::object>)
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
+			.def("Raycast", &Client::Raycast, luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7) + luabind::pure_out_value(boost::placeholders::_8))
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -1993,7 +1994,33 @@ bool Client::Overlap(
 	std::vector<physx::PxOverlapHit> hitbuff(my::Min(32U, MaxNbTouches));
 	OverlapBuffer buff(hitbuff.data(), hitbuff.size(), callback, cb.callback_i, MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER*/);
-	m_PxScene->overlap(geometry, pose, buff, filterData);
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER*/ | physx::PxQueryFlag::eANY_HIT);
+	m_PxScene->overlap(geometry, pose, buff, filterData, NULL);
 	return buff.callback_i > 0;
+}
+
+bool Client::Raycast(
+	const my::Vector3 & origin,
+	const my::Vector3 & unitDir,
+	float distance,
+	unsigned int filterWord0,
+	float & hitDistance,
+	Actor *& hitActor,
+	Component *& hitCmp)
+{
+	physx::PxRaycastBuffer hit;
+	hit.block.distance = FLT_MAX;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
+	{
+		hitDistance = hit.block.distance;
+		if (hit.block.shape->userData)
+		{
+			hitCmp = (Component*)hit.block.shape->userData;
+			hitActor = hitCmp->m_Actor;
+		}
+		return true;
+	}
+	return false;
 }

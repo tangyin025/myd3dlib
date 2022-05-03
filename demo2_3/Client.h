@@ -351,8 +351,6 @@ public:
 	
 	typedef boost::function<void(Actor *, Component *, unsigned int)> OverlapCallback;
 
-	typedef boost::function<bool(Controller *)> ControllerFilterFunc;
-
 	bool Overlap(
 		const physx::PxGeometry & geometry,
 		const my::Vector3 & Position,
@@ -360,4 +358,13 @@ public:
 		unsigned int filterWord0,
 		const OverlapCallback & callback,
 		unsigned int MaxNbTouches);
+
+	bool Raycast(
+		const my::Vector3 & origin,
+		const my::Vector3 & unitDir,
+		float distance,
+		unsigned int filterWord0,
+		float & hitDistance,
+		Actor *& hitActor,
+		Component *& hitCmp);
 };
