@@ -367,4 +367,15 @@ public:
 		float & hitDistance,
 		Actor *& hitActor,
 		Component *& hitCmp);
+
+	bool Sweep(
+		const physx::PxGeometry & geometry,
+		const my::Vector3 & Position,
+		const my::Quaternion & Rotation,
+		const my::Vector3 & unitDir,
+		float distance,
+		unsigned int filterWord0,
+		float & hitDistance,
+		Actor *& hitActor,
+		Component *& hitCmp);
 };

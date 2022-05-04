@@ -424,10 +424,24 @@ static bool client_overlap_box(Client * self, float hx, float hy, float hz, cons
 }
 
 template <typename T>
-static bool client_overlap_sphere(Client * self, float radius, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+static bool client_overlap_sphere(Client * self, float radius, const my::Vector3 & Position, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
-	return self->Overlap(sphere, Position, Rotation, filterWord0, callback, MaxNbTouches);
+	return self->Overlap(sphere, Position, Quaternion::Identity(), filterWord0, callback, MaxNbTouches);
+}
+
+static bool client_sweep_sphere(Client * self,
+	float radius,
+	const my::Vector3 & Position,
+	const my::Vector3 & unitDir,
+	float distance,
+	unsigned int filterWord0,
+	float & hitDistance,
+	Actor *& hitActor,
+	Component *& hitCmp)
+{
+	physx::PxSphereGeometry sphere(radius);
+	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, hitDistance, hitActor, hitCmp);
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -1124,6 +1138,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OverlapBox", &client_overlap_box<luabind::object>)
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
 			.def("Raycast", &Client::Raycast, luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7) + luabind::pure_out_value(boost::placeholders::_8))
+			.def("SweepSphere", &client_sweep_sphere, luabind::pure_out_value(boost::placeholders::_7) + luabind::pure_out_value(boost::placeholders::_8) + luabind::pure_out_value(boost::placeholders::_9))
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -2013,6 +2028,36 @@ bool Client::Raycast(
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
+	{
+		hitDistance = hit.block.distance;
+		if (hit.block.shape->userData)
+		{
+			hitCmp = (Component*)hit.block.shape->userData;
+			hitActor = hitCmp->m_Actor;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool Client::Sweep(
+	const physx::PxGeometry & geometry,
+	const my::Vector3 & Position,
+	const my::Quaternion & Rotation,
+	const my::Vector3 & unitDir,
+	float distance,
+	unsigned int filterWord0,
+	float & hitDistance,
+	Actor *& hitActor,
+	Component *& hitCmp)
+{
+	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
+
+	physx::PxSweepBuffer hit;
+	hit.block.distance = FLT_MAX;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (m_PxScene->sweep(geometry, pose, (physx::PxVec3&)unitDir, distance, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL, 0.0f))
 	{
 		hitDistance = hit.block.distance;
 		if (hit.block.shape->userData)
