@@ -896,30 +896,33 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath)
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
-		physx::PxTriangleMeshDesc desc;
-		desc.points.count = mesh->GetNumVertices()/*att.VertexCount*/;
-		desc.points.stride = mesh->GetNumBytesPerVertex();
-		desc.points.data = (unsigned char*)mesh->LockVertexBuffer()/* + att.VertexStart * desc.points.stride*/;
-		desc.triangles.count = att.FaceCount;
-		if (mesh->GetOptions() & D3DXMESH_32BIT)
+		if (mesh)
 		{
-			desc.triangles.stride = 3 * sizeof(DWORD);
-		}
-		else
-		{
-			desc.triangles.stride = 3 * sizeof(WORD);
-			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-		}
-		desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
+			const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
+			physx::PxTriangleMeshDesc desc;
+			desc.points.count = mesh->GetNumVertices()/*att.VertexCount*/;
+			desc.points.stride = mesh->GetNumBytesPerVertex();
+			desc.points.data = (unsigned char*)mesh->LockVertexBuffer()/* + att.VertexStart * desc.points.stride*/;
+			desc.triangles.count = att.FaceCount;
+			if (mesh->GetOptions() & D3DXMESH_32BIT)
+			{
+				desc.triangles.stride = 3 * sizeof(DWORD);
+			}
+			else
+			{
+				desc.triangles.stride = 3 * sizeof(WORD);
+				desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
+			}
+			desc.triangles.data = (unsigned char*)mesh->LockIndexBuffer() + att.FaceStart * desc.triangles.stride;
 
-		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(TriangleMeshPath).c_str());
-		bool status = PhysxSdk::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
-		mesh->UnlockIndexBuffer();
-		mesh->UnlockVertexBuffer();
-		if (!status)
-		{
-			THROW_CUSEXCEPTION("cookTriangleMesh failed");
+			physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(TriangleMeshPath).c_str());
+			bool status = PhysxSdk::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
+			mesh->UnlockIndexBuffer();
+			mesh->UnlockVertexBuffer();
+			if (!status)
+			{
+				THROW_CUSEXCEPTION("cookTriangleMesh failed");
+			}
 		}
 	}
 
@@ -950,7 +953,7 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath)
 
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Vector3(1, 1, 1), physx::PxQuat(physx::PxIdentity));
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(physx::PxTriangleMeshGeometry(obj_res.first->second->is<physx::PxTriangleMesh>(), mesh_scaling, physx::PxMeshGeometryFlags()),
-		*material, true, /*physx::PxShapeFlag::eVISUALIZATION |*/ physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
+		*material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
 	m_PxShape->userData = this;
 
@@ -976,24 +979,27 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
 		OgreMeshPtr mesh = m_Mesh ? m_Mesh : my::ResourceMgr::getSingleton().LoadMesh(m_MeshPath.c_str(), m_MeshSubMeshName.c_str());
-		const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
-		physx::PxConvexMeshDesc desc;
-		desc.points.count = att.VertexCount;
-		desc.points.stride = mesh->GetNumBytesPerVertex();
-		desc.points.data = (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
-		desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
-		if (bInflateConvex)
+		if (mesh)
 		{
-			desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
-		}
-		desc.vertexLimit = 256;
+			const D3DXATTRIBUTERANGE& att = mesh->m_AttribTable[m_MeshSubMeshId];
+			physx::PxConvexMeshDesc desc;
+			desc.points.count = att.VertexCount;
+			desc.points.stride = mesh->GetNumBytesPerVertex();
+			desc.points.data = (unsigned char*)mesh->LockVertexBuffer() + att.VertexStart * desc.points.stride;
+			desc.flags = physx::PxConvexFlag::eCOMPUTE_CONVEX;
+			if (bInflateConvex)
+			{
+				desc.flags |= physx::PxConvexFlag::eINFLATE_CONVEX;
+			}
+			desc.vertexLimit = 256;
 
-		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ConvexMeshPath).c_str());
-		bool status = PhysxSdk::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
-		mesh->UnlockVertexBuffer();
-		if (!status)
-		{
-			THROW_CUSEXCEPTION("cookConvexMesh failed");
+			physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ConvexMeshPath).c_str());
+			bool status = PhysxSdk::getSingleton().m_Cooking->cookConvexMesh(desc, writeBuffer);
+			mesh->UnlockVertexBuffer();
+			if (!status)
+			{
+				THROW_CUSEXCEPTION("cookConvexMesh failed");
+			}
 		}
 	}
 
