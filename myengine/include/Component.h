@@ -208,11 +208,11 @@ public:
 
 	void SetQueryFilterWord0(unsigned int filterWord0);
 
+	unsigned int GetQueryFilterWord0(void) const;
+
 	void SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value);
 
 	bool GetShapeFlag(physx::PxShapeFlag::Enum Flag) const;
-
-	unsigned int GetQueryFilterWord0(void) const;
 
 	virtual void ClearShape(void);
 
