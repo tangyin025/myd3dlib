@@ -204,7 +204,7 @@ public:
 		, m_Position(Position)
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)
-		, m_World(my::Matrix4::Identity())
+		, m_World(my::Matrix4::Compose(Scale, Rotation, Position))
 		, m_Requested(false)
 		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
