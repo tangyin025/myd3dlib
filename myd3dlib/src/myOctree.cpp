@@ -23,15 +23,9 @@ OctEntity::~OctEntity(void)
 
 bool OctNode::HaveNode(const OctNode * node) const
 {
-	if (this == node)
+	for (; node; node = node->m_Parent)
 	{
-		return true;
-	}
-
-	ChildArray::const_iterator node_iter = m_Childs.begin();
-	for(; node_iter != m_Childs.end(); node_iter++)
-	{
-		if (*node_iter && (*node_iter)->HaveNode(node))
+		if (this == node)
 		{
 			return true;
 		}
