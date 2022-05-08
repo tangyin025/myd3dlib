@@ -1426,7 +1426,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
-	if (!pFrame->m_selctls.empty())
+	if (!pFrame->m_selctls.empty() && !(nFlags & MK_CONTROL))
 	{
 		CMainFrame::ControlList::iterator ctrl_iter = pFrame->m_selctls.begin();
 		my::Ray ui_ray = m_UICamera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
@@ -1639,7 +1639,7 @@ ctrl_handle_end:
 	tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
-	if (!(nFlags & MK_SHIFT) && (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty()))
+	if (!(nFlags & MK_SHIFT) && !(nFlags & MK_CONTROL) && (!pFrame->m_selactors.empty() || !pFrame->m_selctls.empty()))
 	{
 		pFrame->m_selactors.clear();
 		pFrame->m_selcmp = NULL;
@@ -1666,7 +1666,14 @@ ctrl_handle_end:
 				pFrame->m_selcmp = NULL;
 				pFrame->m_selchunkid.SetPoint(0, 0);
 				pFrame->m_selinstid = 0;
-				pFrame->m_selctls.insert(pFrame->m_selctls.end(), ctrl_list.begin(), ctrl_list.end());
+				if (nFlags & MK_CONTROL)
+				{
+					my::intersection_remove(pFrame->m_selctls, ctrl_list.begin(), ctrl_list.end());
+				}
+				else
+				{
+					my::union_insert(pFrame->m_selctls, ctrl_list.begin(), ctrl_list.end());
+				}
 				pFrame->m_ctlhandle = CMainFrame::ControlHandleNone;
 				pFrame->OnSelChanged();
 				return;
@@ -1697,7 +1704,14 @@ ctrl_handle_end:
 		};
 		Callback cb(ftm, this);
 		pFrame->QueryEntity(ftm, &cb);
-		pFrame->m_selactors.insert(pFrame->m_selactors.end(), cb.selacts.begin(), cb.selacts.end());
+		if (nFlags & MK_CONTROL)
+		{
+			my::intersection_remove(pFrame->m_selactors, cb.selacts.begin(), cb.selacts.end());
+		}
+		else
+		{
+			my::union_insert(pFrame->m_selactors, cb.selacts.begin(), cb.selacts.end());
+		}
 		if (!pFrame->m_selcmp && !pFrame->m_selactors.empty() && pFrame->m_selactors.front()->GetComponentNum() > 0)
 		{
 			pFrame->m_selcmp = pFrame->m_selactors.front()->m_Cmps.front().get();

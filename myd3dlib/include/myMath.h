@@ -113,6 +113,34 @@ namespace my
 		}
 	}
 
+	template <typename ForwardRange, typename ForwardRangeIterator>
+	ForwardRange & union_insert(ForwardRange & rng, ForwardRangeIterator begin, ForwardRangeIterator end)
+	{
+		for (ForwardRangeIterator iter = begin; iter != end; iter++)
+		{
+			ForwardRangeIterator find_iter = std::find(rng.begin(), rng.end(), *iter);
+			if (find_iter == rng.end())
+			{
+				rng.push_back(*iter);
+			}
+		}
+		return rng;
+	}
+
+	template <typename ForwardRange, typename ForwardRangeIterator>
+	ForwardRange & intersection_remove(ForwardRange & rng, ForwardRangeIterator begin, ForwardRangeIterator end)
+	{
+		for (ForwardRangeIterator iter = begin; iter != end; iter++)
+		{
+			ForwardRangeIterator find_iter = std::find(rng.begin(), rng.end(), *iter);
+			if (find_iter != rng.end())
+			{
+				rng.erase(find_iter);
+			}
+		}
+		return rng;
+	}
+
 	class Vector4;
 
 	class Quaternion;
