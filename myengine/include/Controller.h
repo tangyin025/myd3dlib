@@ -86,6 +86,10 @@ public:
 
 	my::Vector3 GetFootPosition(void) const;
 
+	const my::Vector3 & GetContactNormalDownPass(void) const;
+
+	const my::Vector3 & GetContactNormalSidePass(void) const;
+
 	virtual void onShapeHit(const physx::PxControllerShapeHit & hit);
 
 	virtual void onControllerHit(const physx::PxControllersHit & hit);

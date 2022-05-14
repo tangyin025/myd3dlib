@@ -2263,6 +2263,8 @@ void LuaContext::Init(void)
 			.def("Move", &Controller::Move)
 			.property("Position", &Controller::GetPosition, &Controller::SetPosition)
 			.property("FootPosition", &Controller::GetFootPosition, &Controller::SetFootPosition)
+			.property("ContactNormalDownPass", &Controller::GetContactNormalDownPass)
+			.property("ContactNormalSidePass", &Controller::GetContactNormalSidePass)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
 			.def(constructor<const char*>())

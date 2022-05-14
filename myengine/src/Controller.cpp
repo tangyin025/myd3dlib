@@ -18,6 +18,7 @@
 #include "ActionTrack.h"
 #include "Animator.h"
 #include "myDxutApp.h"
+#include "CctCapsuleController.h"
 
 using namespace my;
 
@@ -171,6 +172,16 @@ void Controller::SetFootPosition(const my::Vector3 & Pos)
 my::Vector3 Controller::GetFootPosition(void) const
 {
 	return (my::Vector3&)physx::toVec3(m_PxController->getFootPosition());
+}
+
+const my::Vector3 & Controller::GetContactNormalDownPass(void) const
+{
+	return (Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mContactNormalDownPass;
+}
+
+const my::Vector3 & Controller::GetContactNormalSidePass(void) const
+{
+	return (Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mContactNormalSidePass;
 }
 
 void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
