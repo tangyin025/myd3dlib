@@ -231,15 +231,15 @@ void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxShape & shape, const physx::PxActor & actor)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
+	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxController & controller)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
+	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 }
 
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle & obstacle)
 {
-	return physx::PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT;
+	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 }
