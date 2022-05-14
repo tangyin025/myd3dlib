@@ -186,7 +186,7 @@ const my::Vector3 & Controller::GetContactNormalSidePass(void) const
 
 void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 {
-	_ASSERT(m_Actor);
+	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
 
 	if (hit.shape->userData)
 	{
@@ -204,7 +204,7 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 
 void Controller::onControllerHit(const physx::PxControllersHit & hit)
 {
-	_ASSERT(m_Actor && hit.controller->getUserData() == this);
+	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
 
 	if (hit.other->getUserData())
 	{
@@ -220,11 +220,15 @@ void Controller::onControllerHit(const physx::PxControllersHit & hit)
 
 void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 {
-	_ASSERT(m_Actor);
+	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
 
 	if (hit.userData)
 	{
 		ObstacleHitEventArg arg(m_Actor, this);
+		arg.worldPos = (Vector3&)hit.worldPos;
+		arg.worldNormal = (Vector3&)hit.worldNormal;
+		arg.dir = (Vector3&)hit.dir;
+		arg.length = hit.length;
 		m_Actor->m_EventPxThreadObstacleHit(&arg);
 	}
 }
