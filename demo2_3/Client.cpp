@@ -1453,16 +1453,16 @@ void Client::OnFrameTick(
 
 	m_Camera->UpdateViewProj();
 
-	LuaContext::dogc(LUA_GCSTOP, 0);
+	ParallelTaskManager::DoAllParallelTasks();
+
+	DelayRemover<ActorPtr>::getSingleton().Leave();
+
+	//LuaContext::dogc(LUA_GCSTOP, 0);
 
 	PhysxScene::TickPreRender(fElapsedTime);
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		ParallelTaskManager::DoAllParallelTasks();
-
-		DelayRemover<ActorPtr>::getSingleton().Leave();
-
 		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 
 		V(m_d3dDevice->SetVertexShader(NULL));
@@ -1483,12 +1483,6 @@ void Client::OnFrameTick(
 		m_UIRender->End();
 		V(m_d3dDevice->EndScene());
 	}
-	else
-	{
-		ParallelTaskManager::DoAllParallelTasks();
-
-		DelayRemover<ActorPtr>::getSingleton().Leave();
-	}
 
 	Present(NULL, NULL, NULL, NULL);
 
@@ -1496,7 +1490,7 @@ void Client::OnFrameTick(
 
 	PhysxScene::TickPostRender(fElapsedTime);
 
-	LuaContext::dogc(LUA_GCRESTART, 0);
+	//LuaContext::dogc(LUA_GCRESTART, 0);
 
 	//if (player && player->m_Node)
 	//{
