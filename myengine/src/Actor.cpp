@@ -763,6 +763,22 @@ void Actor::StopAllAction(void)
 	m_ActionInstList.clear();
 }
 
+bool Actor::GetActionDisplacement(float dtime, my::Vector3 & disp)
+{
+	bool ret = false;
+	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
+	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
+	{
+		my::Vector3 local_disp;
+		if (action_inst_iter->first->GetDisplacement(dtime, local_disp))
+		{
+			disp = (ret ? disp + local_disp : local_disp);
+			ret = true;
+		}
+	}
+	return ret;
+}
+
 Component * Actor::GetFirstComponent(DWORD Type)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

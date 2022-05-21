@@ -65,6 +65,8 @@ public:
 	void Update(float fElapsedTime);
 
 	void Stop(void);
+
+	bool GetDisplacement(float dtime, my::Vector3 & disp);
 };
 
 class ActionTrack : public boost::enable_shared_from_this<ActionTrack>
@@ -108,6 +110,11 @@ public:
 	virtual void UpdateTime(float Time, float fElapsedTime) = 0;
 
 	virtual void Stop(void) = 0;
+
+	virtual bool GetDisplacement(float dtime, my::Vector3 & disp)
+	{
+		return false;
+	}
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -368,10 +375,14 @@ protected:
 
 	my::Vector3 m_LasterPos;
 
+	float m_Time;
+
 public:
 	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
 
 	virtual void UpdateTime(float Time, float fElapsedTime);
 
 	virtual void Stop(void);
+
+	virtual bool GetDisplacement(float dtime, my::Vector3 & disp);
 };

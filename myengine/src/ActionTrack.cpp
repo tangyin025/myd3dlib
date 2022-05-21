@@ -59,6 +59,22 @@ void ActionInst::Stop(void)
 	}
 }
 
+bool ActionInst::GetDisplacement(float dtime, my::Vector3 & disp)
+{
+	bool ret = false;
+	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
+	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
+	{
+		my::Vector3 local_disp;
+		if ((*track_inst_iter)->GetDisplacement(dtime, local_disp))
+		{
+			disp = (ret ? disp + local_disp : local_disp);
+			ret = true;
+		}
+	}
+	return ret;
+}
+
 ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
@@ -348,36 +364,61 @@ ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const
 	, m_Template(Template)
 	, m_StartPose(Template->m_StartRot, Template->m_StartPos)
 	, m_LasterPos(Template->m_StartPos)
+	, m_Time(0.0f)
 {
 }
 
 void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
 {
-	if (Time + fElapsedTime >= m_Template->m_Start && Time + fElapsedTime < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
+	//if (Time + fElapsedTime >= m_Template->m_Start && Time + fElapsedTime < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
+	//{
+	//	float LocalTime = m_Template->m_Start + fmod(Time + fElapsedTime - m_Template->m_Start, m_Template->m_Length);
+
+	//	my::Vector3 Pos(m_StartPose.m_position + m_StartPose.m_rotation * my::Vector3(
+	//		m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
+	//		m_Template->m_InterpolateY.Interpolate(LocalTime, 0),
+	//		m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)));
+
+	//	Controller* controller = m_Actor->GetFirstComponent<Controller>();
+	//	if (controller)
+	//	{
+	//		controller->Move(Pos - m_LasterPos, 0.001f, fElapsedTime, 0);
+
+	//		m_LasterPos = Pos;
+	//	}
+	//	else
+	//	{
+	//		m_Actor->SetPose(Pos);
+
+	//		m_Actor->SetPxPoseOrbyPxThread(Pos);
+	//	}
+	//}
+}
+
+void ActionTrackPoseInst::Stop(void)
+{
+}
+
+bool ActionTrackPoseInst::GetDisplacement(float dtime, my::Vector3 & disp)
+{
+	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
+
+	m_Time += dtime;
+
+	if (m_Time >= m_Template->m_Start && m_Time < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
 	{
-		float LocalTime = m_Template->m_Start + fmod(Time + fElapsedTime - m_Template->m_Start, m_Template->m_Length);
+		float LocalTime = m_Template->m_Start + fmod(m_Time - m_Template->m_Start, m_Template->m_Length);
 
 		my::Vector3 Pos(m_StartPose.m_position + m_StartPose.m_rotation * my::Vector3(
 			m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
 			m_Template->m_InterpolateY.Interpolate(LocalTime, 0),
 			m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)));
 
-		Controller* controller = m_Actor->GetFirstComponent<Controller>();
-		if (controller)
-		{
-			controller->Move(Pos - m_LasterPos, 0.001f, fElapsedTime, 0);
+		disp = Pos - m_LasterPos;
 
-			m_LasterPos = Pos;
-		}
-		else
-		{
-			m_Actor->SetPose(Pos);
+		m_LasterPos = Pos;
 
-			m_Actor->SetPxPoseOrbyPxThread(Pos);
-		}
+		return true;
 	}
-}
-
-void ActionTrackPoseInst::Stop(void)
-{
+	return false;
 }

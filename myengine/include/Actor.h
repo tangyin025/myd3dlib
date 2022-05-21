@@ -313,6 +313,8 @@ public:
 
 	void StopAllAction(void);
 
+	bool GetActionDisplacement(float dtime, my::Vector3 & disp);
+
 	Component * GetFirstComponent(DWORD Type);
 
 	const Component * GetFirstComponent(DWORD Type) const;
