@@ -769,17 +769,20 @@ bool Actor::GetActionDisplacement(float dtime, my::Vector3 & disp)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
 	{
-		my::Vector3 local_disp;
-		if (action_inst_iter->first->GetDisplacement(dtime, local_disp))
+		if (action_inst_iter->first->m_Time < action_inst_iter->second)
 		{
-			if (ret)
+			my::Vector3 local_disp;
+			if (action_inst_iter->first->GetDisplacement(dtime, local_disp))
 			{
-				disp += local_disp;
-			}
-			else
-			{
-				disp = local_disp;
-				ret = true;
+				if (ret)
+				{
+					disp += local_disp;
+				}
+				else
+				{
+					disp = local_disp;
+					ret = true;
+				}
 			}
 		}
 	}
