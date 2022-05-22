@@ -15,7 +15,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/scope_exit.hpp>
 #include "PhysxContext.h"
-#include "ActionTrack.h"
 #include "Animator.h"
 #include "myDxutApp.h"
 #include "CctCapsuleController.h"

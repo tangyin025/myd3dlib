@@ -33,9 +33,6 @@
     <ClInclude Include="include\PhysxContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ActionTrack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\LuaExtension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,6 +60,9 @@
     <ClInclude Include="include\SqlConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Action.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp">
@@ -81,9 +81,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\PhysxContext.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ActionTrack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\LuaExtension.cpp">
@@ -111,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SqlConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Action.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
