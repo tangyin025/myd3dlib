@@ -111,10 +111,7 @@ public:
 
 	virtual void Stop(void) = 0;
 
-	virtual bool GetDisplacement(float dtime, my::Vector3 & disp)
-	{
-		return false;
-	}
+	virtual bool GetDisplacement(float dtime, my::Vector3 & disp) { return false; }
 };
 
 class ActionTrackAnimation : public ActionTrack

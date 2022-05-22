@@ -68,8 +68,15 @@ bool ActionInst::GetDisplacement(float dtime, my::Vector3 & disp)
 		my::Vector3 local_disp;
 		if ((*track_inst_iter)->GetDisplacement(dtime, local_disp))
 		{
-			disp = (ret ? disp + local_disp : local_disp);
-			ret = true;
+			if (ret)
+			{
+				disp += local_disp;
+			}
+			else
+			{
+				disp = local_disp;
+				ret = true;
+			}
 		}
 	}
 	return ret;
