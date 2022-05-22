@@ -109,11 +109,11 @@ public:
 	{
 	}
 
-	virtual void UpdateTime(float Time, float fElapsedTime) = 0;
+	virtual void UpdateTime(float LastTime, float Time) = 0;
 
 	virtual void Stop(void) = 0;
 
-	virtual bool GetDisplacement(float Time, float dtime, my::Vector3 & disp) { return false; }
+	virtual bool GetDisplacement(float dtime, float Time, my::Vector3 & disp) { return false; }
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -158,7 +158,7 @@ public:
 	{
 	}
 
-	virtual void UpdateTime(float Time, float fElapsedTime);
+	virtual void UpdateTime(float LastTime, float Time);
 
 	virtual void Stop(void);
 };
@@ -211,7 +211,7 @@ public:
 
 	~ActionTrackSoundInst(void);
 
-	virtual void UpdateTime(float Time, float fElapsedTime);
+	virtual void UpdateTime(float LastTime, float Time);
 
 	virtual void Stop(void);
 };
@@ -295,8 +295,6 @@ protected:
 
 	boost::circular_buffer<my::Bone> m_SpawnPose;
 
-	float m_ActionTime;
-
 	struct KeyFrameInst
 	{
 		float m_Time;
@@ -319,12 +317,14 @@ protected:
 
 	my::Event m_TaskEvent;
 
+	float m_TaskTime;
+
 public:
 	ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template);
 
 	virtual ~ActionTrackEmitterInst(void);
 
-	virtual void UpdateTime(float Time, float fElapsedTime);
+	virtual void UpdateTime(float LastTime, float Time);
 
 	virtual void Stop(void);
 
@@ -377,9 +377,9 @@ protected:
 public:
 	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
 
-	virtual void UpdateTime(float Time, float fElapsedTime);
+	virtual void UpdateTime(float LastTime, float Time);
 
 	virtual void Stop(void);
 
-	virtual bool GetDisplacement(float Time, float dtime, my::Vector3 & disp);
+	virtual bool GetDisplacement(float dtime, float Time, my::Vector3 & disp);
 };

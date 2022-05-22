@@ -48,7 +48,7 @@ void ActionInst::Update(float fElapsedTime)
 		ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 		for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 		{
-			(*track_inst_iter)->UpdateTime(m_LastTime, m_Time - m_LastTime);
+			(*track_inst_iter)->UpdateTime(m_LastTime, m_Time);
 		}
 		m_LastTime = m_Time;
 	}
@@ -70,7 +70,7 @@ bool ActionInst::GetDisplacement(float dtime, my::Vector3 & disp)
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{
 		my::Vector3 local_disp;
-		if ((*track_inst_iter)->GetDisplacement(m_Time, dtime, local_disp))
+		if ((*track_inst_iter)->GetDisplacement(dtime, m_Time, local_disp))
 		{
 			if (ret)
 			{
@@ -106,7 +106,7 @@ void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate
 	key_iter->second.RootId = RootId;
 }
 
-void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
+void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 {
 	_ASSERT(m_Template);
 
@@ -115,8 +115,8 @@ void ActionTrackAnimationInst::UpdateTime(float Time, float fElapsedTime)
 	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
 	{
-		ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
-		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+		ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
 		for (; key_iter != key_end; key_iter++)
 		{
 			animator->Play(
@@ -189,7 +189,7 @@ ActionTrackSoundInst::~ActionTrackSoundInst(void)
 	Stop();
 }
 
-void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
+void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 {
 	_ASSERT(m_Template);
 
@@ -201,8 +201,8 @@ void ActionTrackSoundInst::UpdateTime(float Time, float fElapsedTime)
 		event_iter = m_Events.erase(event_iter);
 	}
 
-	ActionTrackSound::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
-	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+	ActionTrackSound::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
 		if (key_iter->second.Sound)
@@ -242,7 +242,6 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
 	, m_SpawnPose(m_Template->m_EmitterCapacity)
-	, m_ActionTime(0)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
 	m_WorldEmitterCmp.reset(new CircularEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
@@ -277,16 +276,14 @@ ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 	m_Actor->RemoveComponent(m_WorldEmitterCmp->GetSiblingId());
 }
 
-void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
+void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 {
-	m_ActionTime = Time + fElapsedTime;
-
-	m_WorldEmitterCmp->RemoveParticleBefore(m_ActionTime - m_Template->m_ParticleLifeTime);
+	m_WorldEmitterCmp->RemoveParticleBefore(Time - m_Template->m_ParticleLifeTime);
 
 	m_SpawnPose.rresize(m_WorldEmitterCmp->m_ParticleList.size());
 
-	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
-	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(m_ActionTime);
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
 		m_KeyInsts.push_back(KeyFrameInst(
@@ -297,7 +294,7 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
-		for (; key_inst_iter->m_Time < m_ActionTime && key_inst_iter->m_SpawnCount > 0;
+		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
 			m_SpawnPose.push_back(m_Actor->GetAttachPose(
@@ -319,6 +316,8 @@ void ActionTrackEmitterInst::UpdateTime(float Time, float fElapsedTime)
 
 	m_TaskEvent.ResetEvent();
 
+	m_TaskTime = Time;
+
 	ParallelTaskManager::getSingleton().PushTask(this);
 }
 
@@ -336,7 +335,7 @@ void ActionTrackEmitterInst::DoTask(void)
 	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPose.size());
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
-		const float ParticleTime = m_ActionTime - particle_iter->m_Time;
+		const float ParticleTime = m_TaskTime - particle_iter->m_Time;
 		const my::Bone & SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
 		particle_iter->m_Position.xyz = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
 			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
@@ -378,38 +377,15 @@ ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const
 {
 }
 
-void ActionTrackPoseInst::UpdateTime(float Time, float fElapsedTime)
+void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 {
-	//if (Time + fElapsedTime >= m_Template->m_Start && Time + fElapsedTime < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
-	//{
-	//	float LocalTime = m_Template->m_Start + fmod(Time + fElapsedTime - m_Template->m_Start, m_Template->m_Length);
-
-	//	my::Vector3 Pos(m_StartPose.m_position + m_StartPose.m_rotation * my::Vector3(
-	//		m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
-	//		m_Template->m_InterpolateY.Interpolate(LocalTime, 0),
-	//		m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)));
-
-	//	Controller* controller = m_Actor->GetFirstComponent<Controller>();
-	//	if (controller)
-	//	{
-	//		controller->Move(Pos - m_LasterPos, 0.001f, fElapsedTime, 0);
-
-	//		m_LasterPos = Pos;
-	//	}
-	//	else
-	//	{
-	//		m_Actor->SetPose(Pos);
-
-	//		m_Actor->SetPxPoseOrbyPxThread(Pos);
-	//	}
-	//}
 }
 
 void ActionTrackPoseInst::Stop(void)
 {
 }
 
-bool ActionTrackPoseInst::GetDisplacement(float Time, float dtime, my::Vector3 & disp)
+bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
 {
 	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
 
