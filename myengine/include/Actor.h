@@ -313,7 +313,7 @@ public:
 
 	void StopAllAction(void);
 
-	bool GetActionDisplacement(float dtime, my::Vector3 & disp);
+	bool TickActionAndGetDisplacement(float dtime, my::Vector3 & disp);
 
 	Component * GetFirstComponent(DWORD Type);
 

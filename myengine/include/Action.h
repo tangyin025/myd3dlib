@@ -53,6 +53,8 @@ class ActionInst
 public:
 	boost::shared_ptr<const Action> m_Template;
 
+	float m_LastTime;
+
 	float m_Time;
 
 	typedef std::vector<ActionTrackInstPtr> ActionTrackInstPtrList;
@@ -111,7 +113,7 @@ public:
 
 	virtual void Stop(void) = 0;
 
-	virtual bool GetDisplacement(float dtime, my::Vector3 & disp) { return false; }
+	virtual bool GetDisplacement(float Time, float dtime, my::Vector3 & disp) { return false; }
 };
 
 class ActionTrackAnimation : public ActionTrack
@@ -372,8 +374,6 @@ protected:
 
 	my::Vector3 m_LasterPos;
 
-	float m_Time;
-
 public:
 	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
 
@@ -381,5 +381,5 @@ public:
 
 	virtual void Stop(void);
 
-	virtual bool GetDisplacement(float dtime, my::Vector3 & disp);
+	virtual bool GetDisplacement(float Time, float dtime, my::Vector3 & disp);
 };

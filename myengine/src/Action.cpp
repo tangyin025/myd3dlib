@@ -31,7 +31,8 @@ ActionInstPtr Action::CreateInstance(Actor * _Actor)
 
 ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 	: m_Template(Template)
-	, m_Time(0)
+	, m_LastTime(0.0f)
+	, m_Time(0.0f)
 {
 	Action::ActionTrackPtrList::const_iterator track_iter = m_Template->m_TrackList.begin();
 	for (; track_iter != m_Template->m_TrackList.end(); track_iter++)
@@ -42,12 +43,15 @@ ActionInst::ActionInst(Actor * _Actor, boost::shared_ptr<const Action> Template)
 
 void ActionInst::Update(float fElapsedTime)
 {
-	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
-	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
+	if (m_Time > m_LastTime)
 	{
-		(*track_inst_iter)->UpdateTime(m_Time, fElapsedTime);
+		ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
+		for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
+		{
+			(*track_inst_iter)->UpdateTime(m_LastTime, m_Time - m_LastTime);
+		}
+		m_LastTime = m_Time;
 	}
-	m_Time += fElapsedTime;
 }
 
 void ActionInst::Stop(void)
@@ -66,7 +70,7 @@ bool ActionInst::GetDisplacement(float dtime, my::Vector3 & disp)
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{
 		my::Vector3 local_disp;
-		if ((*track_inst_iter)->GetDisplacement(dtime, local_disp))
+		if ((*track_inst_iter)->GetDisplacement(m_Time, dtime, local_disp))
 		{
 			if (ret)
 			{
@@ -371,7 +375,6 @@ ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const
 	, m_Template(Template)
 	, m_StartPose(Template->m_StartRot, Template->m_StartPos)
 	, m_LasterPos(Template->m_StartPos)
-	, m_Time(0.0f)
 {
 }
 
@@ -406,15 +409,13 @@ void ActionTrackPoseInst::Stop(void)
 {
 }
 
-bool ActionTrackPoseInst::GetDisplacement(float dtime, my::Vector3 & disp)
+bool ActionTrackPoseInst::GetDisplacement(float Time, float dtime, my::Vector3 & disp)
 {
 	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
 
-	m_Time += dtime;
-
-	if (m_Time >= m_Template->m_Start && m_Time < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
+	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
 	{
-		float LocalTime = m_Template->m_Start + fmod(m_Time - m_Template->m_Start, m_Template->m_Length);
+		float LocalTime = m_Template->m_Start + fmod(Time - m_Template->m_Start, m_Template->m_Length);
 
 		my::Vector3 Pos(m_StartPose.m_position + m_StartPose.m_rotation * my::Vector3(
 			m_Template->m_InterpolateX.Interpolate(LocalTime, 0),

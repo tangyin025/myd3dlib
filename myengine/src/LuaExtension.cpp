@@ -2365,7 +2365,7 @@ void LuaContext::Init(void)
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("StopAllAction", &Actor::StopAllAction)
-			.def("GetActionDisplacement", &Actor::GetActionDisplacement, luabind::pure_out_value(boost::placeholders::_3))
+			.def("TickActionAndGetDisplacement", &Actor::TickActionAndGetDisplacement, luabind::pure_out_value(boost::placeholders::_3))
 			.def("GetFirstComponent", (Component * (Actor::*)(DWORD))&Actor::GetFirstComponent)
 
 		//, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)

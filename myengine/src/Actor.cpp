@@ -763,12 +763,14 @@ void Actor::StopAllAction(void)
 	m_ActionInstList.clear();
 }
 
-bool Actor::GetActionDisplacement(float dtime, my::Vector3 & disp)
+bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 {
 	bool ret = false;
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
 	{
+		action_inst_iter->first->m_Time += dtime;
+
 		if (action_inst_iter->first->m_Time < action_inst_iter->second)
 		{
 			my::Vector3 local_disp;
