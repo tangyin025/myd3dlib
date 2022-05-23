@@ -387,8 +387,6 @@ void ActionTrackPoseInst::Stop(void)
 
 bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
 {
-	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
-
 	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
 	{
 		float LocalTime = m_Template->m_Start + fmod(Time - m_Template->m_Start, m_Template->m_Length);

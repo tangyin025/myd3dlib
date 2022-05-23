@@ -765,6 +765,8 @@ void Actor::StopAllAction(void)
 
 bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 {
+	_ASSERT(PhysxSdk::getSingleton().m_RenderTickMuted);
+
 	bool ret = false;
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
