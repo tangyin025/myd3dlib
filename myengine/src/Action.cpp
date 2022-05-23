@@ -357,49 +357,31 @@ void ActionTrackEmitterInst::DoTask(void)
 	m_TaskEvent.SetEvent();
 }
 
-ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
+ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const
 {
-	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
+	return ActionTrackInstPtr(new ActionTrackVelocityInst(_Actor, boost::static_pointer_cast<const ActionTrackVelocity>(shared_from_this())));
 }
 
-void ActionTrackPose::AddKeyFrame(float Time, const my::Vector3 & Position)
-{
-	m_InterpolateX.AddNode(Time, Position.x, 0, 0);
-	m_InterpolateY.AddNode(Time, Position.y, 0, 0);
-	m_InterpolateZ.AddNode(Time, Position.z, 0, 0);
-}
-
-ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
+ActionTrackVelocityInst::ActionTrackVelocityInst(Actor * _Actor, boost::shared_ptr<const ActionTrackVelocity> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_StartPose(Template->m_StartRot, Template->m_StartPos)
-	, m_LasterPos(Template->m_StartPos)
+	, m_Velocity(Template->m_ParamVelocity)
 {
 }
 
-void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
+void ActionTrackVelocityInst::UpdateTime(float LastTime, float Time)
 {
 }
 
-void ActionTrackPoseInst::Stop(void)
+void ActionTrackVelocityInst::Stop(void)
 {
 }
 
-bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
+bool ActionTrackVelocityInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
 {
-	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length * m_Template->m_Repeat)
+	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
 	{
-		float LocalTime = m_Template->m_Start + fmod(Time - m_Template->m_Start, m_Template->m_Length);
-
-		my::Vector3 Pos(m_StartPose.m_position + m_StartPose.m_rotation * my::Vector3(
-			m_Template->m_InterpolateX.Interpolate(LocalTime, 0),
-			m_Template->m_InterpolateY.Interpolate(LocalTime, 0),
-			m_Template->m_InterpolateZ.Interpolate(LocalTime, 0)));
-
-		disp = Pos - m_LasterPos;
-
-		m_LasterPos = Pos;
-
+		disp = m_Velocity * dtime;
 		return true;
 	}
 	return false;

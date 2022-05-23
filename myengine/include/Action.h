@@ -331,51 +331,35 @@ public:
 	virtual void DoTask(void);
 };
 
-class ActionTrackPose : public ActionTrack
+class ActionTrackVelocity : public ActionTrack
 {
 public:
 	float m_Start;
 
 	float m_Length;
 
-	unsigned int m_Repeat;
-
-	my::Vector3 m_StartPos;
-
-	my::Quaternion m_StartRot;
-
-	my::Spline m_InterpolateX;
-
-	my::Spline m_InterpolateY;
-
-	my::Spline m_InterpolateZ;
+	my::Vector3 m_ParamVelocity;
 
 public:
-	ActionTrackPose(float Start, float Length, unsigned int Repeat)
+	ActionTrackVelocity(float Start, float Length)
 		: m_Start(Start)
 		, m_Length(Length)
-		, m_Repeat(Repeat)
-		, m_StartPos(0, 0, 0)
-		, m_StartRot(my::Quaternion::Identity())
+		, m_ParamVelocity(0,0,0)
 	{
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
-
-	void AddKeyFrame(float Time, const my::Vector3 & Position);
 };
 
-class ActionTrackPoseInst : public ActionTrackInst
+class ActionTrackVelocityInst : public ActionTrackInst
 {
 protected:
-	boost::shared_ptr<const ActionTrackPose> m_Template;
+	boost::shared_ptr<const ActionTrackVelocity> m_Template;
 
-	my::Bone m_StartPose;
-
-	my::Vector3 m_LasterPos;
+	my::Vector3 m_Velocity;
 
 public:
-	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
+	ActionTrackVelocityInst(Actor * _Actor, boost::shared_ptr<const ActionTrackVelocity> Template);
 
 	virtual void UpdateTime(float LastTime, float Time);
 
