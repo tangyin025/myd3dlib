@@ -100,6 +100,12 @@ public:
 
 	const my::Vector3 & GetContactNormalSidePass(void) const;
 
+	Component* GetTouchedComponent(void) const;
+
+	my::Vector3 & GetTouchedPosWorld(void) const;
+
+	my::Vector3 & GetTouchedPosLocal(void) const;
+
 	virtual void onShapeHit(const physx::PxControllerShapeHit & hit);
 
 	virtual void onControllerHit(const physx::PxControllersHit & hit);

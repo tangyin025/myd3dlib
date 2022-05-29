@@ -222,6 +222,67 @@ const my::Vector3 & Controller::GetContactNormalSidePass(void) const
 	return (Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mContactNormalSidePass;
 }
 
+static const physx::PxU32 GeomSizes[] =
+{
+	sizeof(physx::Cct::TouchedUserBox),
+	sizeof(physx::Cct::TouchedUserCapsule),
+	sizeof(physx::Cct::TouchedMesh),
+	sizeof(physx::Cct::TouchedBox),
+	sizeof(physx::Cct::TouchedSphere),
+	sizeof(physx::Cct::TouchedCapsule),
+};
+
+typedef std::vector<Component*> cmp_list;
+
+typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
+
+boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self)
+{
+	boost::shared_ptr<cmp_list> cmps(new cmp_list());
+	physx::Cct::CapsuleController* controller = static_cast<physx::Cct::CapsuleController*>(self->m_PxController.get());
+	const physx::PxU32* Data = controller->mCctModule.mGeomStream.begin();
+	const physx::PxU32* Last = controller->mCctModule.mGeomStream.end();
+	while (Data != Last)
+	{
+		const physx::Cct::TouchedGeom* CurrentGeom = reinterpret_cast<const physx::Cct::TouchedGeom*>(Data);
+		if (CurrentGeom->mType == physx::Cct::TouchedGeomType::eMESH
+			|| CurrentGeom->mType == physx::Cct::TouchedGeomType::eBOX
+			|| CurrentGeom->mType == physx::Cct::TouchedGeomType::eSPHERE
+			|| CurrentGeom->mType == physx::Cct::TouchedGeomType::eCAPSULE)
+		{
+			const physx::PxShape* touchedShape = reinterpret_cast<const physx::PxShape*>(CurrentGeom->mTGUserData);
+			Component* cmp = (Component*)touchedShape->userData;
+			cmps->push_back(cmp);
+		}
+
+		const physx::PxU8* ptr = reinterpret_cast<const physx::PxU8*>(Data);
+		ptr += GeomSizes[CurrentGeom->mType];
+		Data = reinterpret_cast<const physx::PxU32*>(ptr);
+	}
+	return boost::make_iterator_range(shared_cmp_list_iter(cmps->begin(), cmps), shared_cmp_list_iter(cmps->end(), cmps));
+}
+
+Component* Controller::GetTouchedComponent(void) const
+{
+	physx::Cct::CapsuleController* controller = static_cast<physx::Cct::CapsuleController*>(m_PxController.get());
+	if (controller->mCctModule.mTouchedShape && controller->mCctModule.mTouchedShape->userData)
+	{
+		Component* other_cmp = (Component*)controller->mCctModule.mTouchedShape->userData;
+		return other_cmp;
+	}
+	return NULL;
+}
+
+my::Vector3 & Controller::GetTouchedPosWorld(void) const
+{
+	return (my::Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mTouchedPosShape_World;
+}
+
+my::Vector3 & Controller::GetTouchedPosLocal(void) const
+{
+	return (my::Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mTouchedPosShape_Local;
+}
+
 void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 {
 	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
@@ -284,44 +345,4 @@ physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxCon
 physx::PxControllerBehaviorFlags Controller::getBehaviorFlags(const physx::PxObstacle & obstacle)
 {
 	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
-}
-
-static const physx::PxU32 GeomSizes[] =
-{
-	sizeof(physx::Cct::TouchedUserBox),
-	sizeof(physx::Cct::TouchedUserCapsule),
-	sizeof(physx::Cct::TouchedMesh),
-	sizeof(physx::Cct::TouchedBox),
-	sizeof(physx::Cct::TouchedSphere),
-	sizeof(physx::Cct::TouchedCapsule),
-};
-
-typedef std::vector<Component*> cmp_list;
-
-typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
-
-boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self)
-{
-	boost::shared_ptr<cmp_list> cmps(new cmp_list());
-	physx::Cct::CapsuleController* controller = static_cast<physx::Cct::CapsuleController*>(self->m_PxController.get());
-	const physx::PxU32* Data = controller->mCctModule.mGeomStream.begin();
-	const physx::PxU32* Last = controller->mCctModule.mGeomStream.end();
-	while (Data != Last)
-	{
-		const physx::Cct::TouchedGeom* CurrentGeom = reinterpret_cast<const physx::Cct::TouchedGeom*>(Data);
-		if (CurrentGeom->mType == physx::Cct::TouchedGeomType::eMESH
-			|| CurrentGeom->mType == physx::Cct::TouchedGeomType::eBOX
-			|| CurrentGeom->mType == physx::Cct::TouchedGeomType::eSPHERE
-			|| CurrentGeom->mType == physx::Cct::TouchedGeomType::eCAPSULE)
-		{
-			const physx::PxShape* touchedShape = reinterpret_cast<const physx::PxShape*>(CurrentGeom->mTGUserData);
-			Component* cmp = (Component*)touchedShape->userData;
-			cmps->push_back(cmp);
-		}
-
-		const physx::PxU8* ptr = reinterpret_cast<const physx::PxU8*>(Data);
-		ptr += GeomSizes[CurrentGeom->mType];
-		Data = reinterpret_cast<const physx::PxU32*>(ptr);
-	}
-	return boost::make_iterator_range(shared_cmp_list_iter(cmps->begin(), cmps), shared_cmp_list_iter(cmps->end(), cmps));
 }
