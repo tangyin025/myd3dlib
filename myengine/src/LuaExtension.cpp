@@ -685,6 +685,12 @@ static void action_add_track_adopt(Action* self, ScriptActionTrack* track)
 	self->AddTrack(ActionTrackPtr(track));
 }
 
+typedef std::vector<Component*> cmp_list;
+
+typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
+
+extern boost::iterator_range<shared_cmp_list_iter> controller_touched_geom_list(Controller* self);
+
 static void sqlcontext_exec(SqlConnection* self, const char* sql) {
 	self->Exec(sql, NULL, NULL);
 }
@@ -2270,6 +2276,7 @@ void LuaContext::Init(void)
 			.property("FootPosition", &Controller::GetFootPosition, &Controller::SetFootPosition)
 			.property("ContactNormalDownPass", &Controller::GetContactNormalDownPass)
 			.property("ContactNormalSidePass", &Controller::GetContactNormalSidePass)
+			.def("TouchedGeoms", &controller_touched_geom_list, luabind::return_stl_iterator)
 
 		, class_<Navigation, Component, boost::shared_ptr<Component> >("Navigation")
 			.def(constructor<const char*>())
