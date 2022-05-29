@@ -300,7 +300,7 @@ typedef std::vector<Component*> cmp_list;
 
 typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
-boost::iterator_range<shared_cmp_list_iter> controller_touched_geom_list(Controller* self)
+boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self)
 {
 	boost::shared_ptr<cmp_list> cmps(new cmp_list());
 	physx::Cct::CapsuleController* controller = static_cast<physx::Cct::CapsuleController*>(self->m_PxController.get());
