@@ -48,16 +48,13 @@ void Controller::RequestResource(void)
 
 	m_PxMaterial.reset(PhysxSdk::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f), PhysxDeleter<physx::PxMaterial>());
 
-	physx::PxCapsuleControllerDesc desc;
-	desc.height = m_Height;
-	desc.radius = m_Radius;
-	desc.contactOffset = m_ContactOffset;
-	desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y /*+ m_ContactOffset + m_Radius + m_Height * 0.5f*/, m_Actor->m_Position.z);
-	desc.material = m_PxMaterial.get();
-	desc.reportCallback = this;
-	desc.behaviorCallback = this;
-	desc.userData = this;
-	m_PxController.reset(scene->m_ControllerMgr->createController(desc), PhysxDeleter<physx::PxController>());
+	m_desc.position = physx::PxExtendedVec3(m_Actor->m_Position.x, m_Actor->m_Position.y /*+ m_desc.contactOffset + m_desc.radius + m_desc.height * 0.5f*/, m_Actor->m_Position.z);
+	m_desc.material = m_PxMaterial.get();
+	m_desc.reportCallback = this;
+	m_desc.behaviorCallback = this;
+	m_desc.userData = this;
+
+	m_PxController.reset(scene->m_ControllerMgr->createController(m_desc), PhysxDeleter<physx::PxController>());
 
 	//// ! recursively call Actor::SetPose by PhysxScene::TickPostRender
 	//physx::PxRigidDynamic * actor = m_PxController->getActor();
@@ -151,6 +148,46 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 	}
 
 	return moveFlags;
+}
+
+void Controller::SetHeight(float Height)
+{
+	static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->setHeight(Height);
+}
+
+float Controller::GetHeight(void) const
+{
+	return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getHeight();
+}
+
+void Controller::SetRadius(float Radius)
+{
+	static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->setRadius(Radius);
+}
+
+float Controller::GetRadius(void) const
+{
+	return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getRadius();
+}
+
+void Controller::SetContactOffset(float ContactOffset)
+{
+	m_PxController->setContactOffset(ContactOffset);
+}
+
+float Controller::GetContactOffset(void) const
+{
+	return m_PxController->getContactOffset();
+}
+
+void Controller::SetStepOffset(float StepOffset)
+{
+	m_PxController->setStepOffset(StepOffset);
+}
+
+float Controller::GetStepOffset(void) const
+{
+	return m_PxController->getStepOffset();
 }
 
 void Controller::SetPosition(const my::Vector3 & Pos)

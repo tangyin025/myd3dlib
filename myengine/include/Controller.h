@@ -10,11 +10,7 @@ class Controller
 public:
 	enum { TypeID = ComponentTypeController };
 
-	float m_Height;
-
-	float m_Radius;
-
-	float m_ContactOffset;
+	physx::PxCapsuleControllerDesc m_desc;
 
 	bool m_PxControllerMoveMuted;
 
@@ -24,21 +20,19 @@ public:
 
 protected:
 	Controller(void)
-		: m_Height(1.0f)
-		, m_Radius(1.0f)
-		, m_ContactOffset(0.1f)
-		, m_PxControllerMoveMuted(false)
+		: m_PxControllerMoveMuted(false)
 	{
 	}
 
 public:
-	Controller(const char * Name, float Height, float Radius, float ContactOffset)
+	Controller(const char * Name, float Height, float Radius, float ContactOffset, float StepOffset)
 		: Component(Name)
-		, m_Height(Height)
-		, m_Radius(Radius)
-		, m_ContactOffset(ContactOffset)
 		, m_PxControllerMoveMuted(false)
 	{
+		m_desc.height = Height;
+		m_desc.radius = Radius;
+		m_desc.contactOffset = ContactOffset;
+		m_desc.stepOffset = StepOffset;
 	}
 
 	virtual ~Controller(void);
@@ -77,6 +71,22 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	unsigned int Move(const my::Vector3 & disp, float minDist, float elapsedTime, unsigned int filterWord0);
+
+	void SetHeight(float Height);
+
+	float GetHeight(void) const;
+
+	void SetRadius(float Radius);
+
+	float GetRadius(void) const;
+
+	void SetContactOffset(float ContactOffset);
+
+	float GetContactOffset(void) const;
+
+	void SetStepOffset(float StepOffset);
+
+	float GetStepOffset(void) const;
 
 	void SetPosition(const my::Vector3 & Pos);
 

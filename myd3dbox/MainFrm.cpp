@@ -1210,7 +1210,7 @@ void CMainFrame::OnCreateController()
 		return;
 	}
 
-	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller").c_str()).c_str(), 1.0f, 1.0f, 0.1f));
+	ControllerPtr controller_cmp(new Controller(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_controller").c_str()).c_str(), 1.0f, 1.0f, 0.1f, 0.5f));
 	(*actor_iter)->InsertComponent(controller_cmp);
 	(*actor_iter)->UpdateAABB();
 	(*actor_iter)->UpdateOctNode();

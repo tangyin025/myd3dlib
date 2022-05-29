@@ -152,7 +152,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	const Controller* controller = m_Actor->GetFirstComponent<Controller>();
 	OctNode* Root = m_Actor->m_Node->GetTopNode();
 	const Vector3 pos = controller->GetPosition();
-	const float collisionQueryRange = controller->m_Radius * 12.0f;
+	const float collisionQueryRange = controller->GetRadius() * 12.0f;
 	Callback cb(m_Actor, pos);
 	Root->QueryEntity(AABB(pos, collisionQueryRange), &cb);
 	if (!cb.navi)
@@ -165,7 +165,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	bool replan = false;
 	dtQueryFilter filter;
-	float m_agentPlacementHalfExtents[3] = { controller->m_Radius * 2.0f, controller->m_Height * 1.5f, controller->m_Radius * 2.0f };
+	float m_agentPlacementHalfExtents[3] = { controller->GetRadius() * 2.0f, controller->GetHeight() * 1.5f, controller->GetRadius() * 2.0f };
 	if ((m_targetPos - Target).magnitude2D() > EPSILON_E3 || !cb.navi->m_navQuery->isValidPolyRef(m_targetRef, &filter))
 	{
 		// Find nearest point on navmesh and set move request to that location.
@@ -315,7 +315,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		{
 			Vector3 npos = neicontroller->GetPosition();
 			Vector3 vel = nei->m_Forward * nei->m_Speed;
-			ObstacleAvoidanceContext::getSingleton().addCircle(&npos.x, neicontroller->m_Radius, &vel.x, &vel.x);
+			ObstacleAvoidanceContext::getSingleton().addCircle(&npos.x, neicontroller->GetRadius(), &vel.x, &vel.x);
 		}
 	}
 
@@ -342,7 +342,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	params.adaptiveDepth = 5;
 	Vector3 nvel;
 	Vector3 vel = m_Forward * m_Speed;
-	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->m_Radius, m_MaxSpeed,
+	ObstacleAvoidanceContext::getSingleton().sampleVelocityAdaptive(&m_agentPos.x, controller->GetRadius(), m_MaxSpeed,
 		&vel.x, &dvel.x, &nvel.x, &params, NULL);
 	return SeekDir(nvel.normalize() * forceLength, dtime);
 }
