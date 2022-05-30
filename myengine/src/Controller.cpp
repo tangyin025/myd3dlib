@@ -292,7 +292,7 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 		// ! PxControllerShapeHit::actor may not have userData for Controller objs
 		Component* other_cmp = (Component*)hit.shape->userData;
 		ShapeHitEventArg arg(m_Actor, this, other_cmp->m_Actor, other_cmp);
-		arg.worldPos = (Vector3&)hit.worldPos;
+		arg.worldPos = (Vector3&)physx::toVec3(hit.worldPos);
 		arg.worldNormal = (Vector3&)hit.worldNormal;
 		arg.dir = (Vector3&)hit.dir;
 		arg.length = hit.length;
@@ -309,7 +309,7 @@ void Controller::onControllerHit(const physx::PxControllersHit & hit)
 	{
 		Component* other_cmp = (Component*)hit.other->getUserData();
 		ControllerHitEventArg arg(m_Actor, this, other_cmp->m_Actor, other_cmp);
-		arg.worldPos = (Vector3&)hit.worldPos;
+		arg.worldPos = (Vector3&)physx::toVec3(hit.worldPos);
 		arg.worldNormal = (Vector3&)hit.worldNormal;
 		arg.dir = (Vector3&)hit.dir;
 		arg.length = hit.length;
@@ -324,7 +324,7 @@ void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 	if (hit.userData)
 	{
 		ObstacleHitEventArg arg(m_Actor, this);
-		arg.worldPos = (Vector3&)hit.worldPos;
+		arg.worldPos = (Vector3&)physx::toVec3(hit.worldPos);
 		arg.worldNormal = (Vector3&)hit.worldNormal;
 		arg.dir = (Vector3&)hit.dir;
 		arg.length = hit.length;
