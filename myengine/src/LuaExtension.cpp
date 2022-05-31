@@ -2310,6 +2310,7 @@ void LuaContext::Init(void)
 			.def_readonly("worldNormal", &ControllerEventArg::worldNormal)
 			.def_readonly("dir", &ControllerEventArg::dir)
 			.def_readonly("length", &ControllerEventArg::length)
+			.def_readonly("flag", &ControllerEventArg::flag)
 
 		, class_<ShapeHitEventArg, ControllerEventArg>("ShapeHitEventArg")
 			.def_readonly("other", &ShapeHitEventArg::other)

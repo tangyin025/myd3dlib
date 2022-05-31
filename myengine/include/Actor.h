@@ -66,6 +66,7 @@ public:
 	my::Vector3 worldNormal;	//!< Contact normal in world space
 	my::Vector3 dir;			//!< Motion direction
 	float length;				//!< Motion length
+	unsigned int flag;
 
 	ControllerEventArg::ControllerEventArg(Actor* _self, Component* _self_cmp)
 		: ActorEventArg(_self)
@@ -74,6 +75,7 @@ public:
 		, worldNormal(1, 0, 0)
 		, dir(1, 0, 0)
 		, length(0)
+		, flag(0)
 	{
 	}
 };

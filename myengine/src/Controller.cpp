@@ -283,6 +283,12 @@ my::Vector3 & Controller::GetTouchedPosLocal(void) const
 	return (my::Vector3&)static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mTouchedPosShape_Local;
 }
 
+static unsigned int _get_collision_flag(unsigned int flags)
+{
+	return (flags & physx::Cct::STF_VALIDATE_TRIANGLE_DOWN) ? physx::PxControllerCollisionFlag::eCOLLISION_DOWN :
+		(flags & physx::Cct::STF_VALIDATE_TRIANGLE_SIDE) ? physx::PxControllerCollisionFlag::eCOLLISION_SIDES : 0;
+}
+
 void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 {
 	_ASSERT(m_Actor && hit.controller == this->m_PxController.get());
@@ -296,6 +302,7 @@ void Controller::onShapeHit(const physx::PxControllerShapeHit & hit)
 		arg.worldNormal = (Vector3&)hit.worldNormal;
 		arg.dir = (Vector3&)hit.dir;
 		arg.length = hit.length;
+		arg.flag = _get_collision_flag(static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags);
 		arg.triangleIndex = hit.triangleIndex;
 		m_Actor->m_EventPxThreadShapeHit(&arg);
 	}
@@ -313,6 +320,7 @@ void Controller::onControllerHit(const physx::PxControllersHit & hit)
 		arg.worldNormal = (Vector3&)hit.worldNormal;
 		arg.dir = (Vector3&)hit.dir;
 		arg.length = hit.length;
+		arg.flag = _get_collision_flag(static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags);
 		m_Actor->m_EventPxThreadControllerHit(&arg);
 	}
 }
@@ -328,6 +336,7 @@ void Controller::onObstacleHit(const physx::PxControllerObstacleHit & hit)
 		arg.worldNormal = (Vector3&)hit.worldNormal;
 		arg.dir = (Vector3&)hit.dir;
 		arg.length = hit.length;
+		arg.flag = _get_collision_flag(static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->mCctModule.mFlags);
 		m_Actor->m_EventPxThreadObstacleHit(&arg);
 	}
 }
