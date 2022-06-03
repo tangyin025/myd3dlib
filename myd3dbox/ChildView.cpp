@@ -11,6 +11,7 @@
 #include "NavigationSerialization.h"
 #include "StaticEmitter.h"
 #include <boost/scope_exit.hpp>
+#include "DebugDraw.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -66,7 +67,6 @@ CChildView::CChildView()
 	, m_raycmp(NULL)
 	, m_raychunkid(0, 0)
 	, m_rayinstid(0)
-	, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 {
 	// TODO: add construction code here
 	my::ModelViewerCamera * model_view_camera = new my::ModelViewerCamera(D3DXToRadian(theApp.default_fov), 1.333333f, 0.1f, 3000.0f);
@@ -172,12 +172,16 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 	return TRUE;
 }
 
+#define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
+
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 
-	struct Callback : public my::OctNode::QueryCallback
+	struct Callback
+		: public my::OctNode::QueryCallback
+		, public duDebugDraw
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -187,7 +191,9 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		CMainFrame * pFrame;
 		CChildView * pView;
 		CMainFrame::ViewedActorSet::iterator insert_actor_iter;
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, CMainFrame * _pFrame, CChildView * _pView)
+		DWORD m_duDebugDrawPrimitives;
+
+		Callback(const my::Frustum& _frustum, RenderPipeline* _pipeline, unsigned int _PassMask, const my::Vector3& _ViewPos, const my::Vector3& _TargetPos, CMainFrame* _pFrame, CChildView* _pView)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
@@ -196,22 +202,94 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pFrame(_pFrame)
 			, pView(_pView)
 			, insert_actor_iter(pFrame->m_ViewedActors.begin())
+			, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 		{
 		}
+
+		void depthMask(bool state)
+		{
+		}
+
+		void texture(bool state)
+		{
+		}
+
+		void begin(duDebugDrawPrimitives prim, float size)
+		{
+			m_duDebugDrawPrimitives = prim;
+		}
+
+		void vertex(const float* pos, unsigned int color)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				pView->PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				pView->PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void vertex(const float x, const float y, const float z, unsigned int color)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				pView->PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				pView->PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void vertex(const float* pos, unsigned int color, const float* uv)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				pView->PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				pView->PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				pView->PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				pView->PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void end()
+		{
+			m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
+		}
+
+		unsigned int areaToCol(unsigned int area)
+		{
+			return duDebugDraw::areaToCol(area);
+		}
+
 		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
 		{
 			ASSERT(dynamic_cast<Actor *>(oct_entity));
 
 			Actor * actor = static_cast<Actor *>(oct_entity);
 
-			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
-				&& my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, pView->m_ViewedDist)) == my::IntersectionTests::IntersectionTypeOutside)
-			{
-				return true;
-			}
-
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
+				if (my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, pView->m_ViewedDist)) == my::IntersectionTests::IntersectionTypeOutside)
+				{
+					return true;
+				}
+
 				if (actor->is_linked())
 				{
 					CMainFrame::ViewedActorSet::iterator actor_iter = pFrame->m_ViewedActors.iterator_to(*actor);
@@ -236,24 +314,24 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 				}
 
 				actor->UpdateLod(ViewPos, TargetPos);
-
-				if (pView->m_bShowNavigation)
-				{
-					Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
-					for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
-					{
-						if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
-						{
-							Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
-							navi->DebugDraw(pView, frustum, ViewPos, TargetPos);
-						}
-					}
-				}
 			}
 
 			if (actor->IsRequested())
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+			}
+
+			if (pView->m_bShowNavigation && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
+			{
+				Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
+				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+				{
+					if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
+					{
+						Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
+						navi->DebugDraw(this, frustum, ViewPos, TargetPos);
+					}
+				}
 			}
 			return true;
 		}
@@ -1071,74 +1149,6 @@ void CChildView::DrawTerrainHeightFieldHandle(Terrain* terrain)
 			last_handle_pt = handle_pt;
 		}
 	}
-}
-
-void CChildView::depthMask(bool state)
-{
-}
-
-void CChildView::texture(bool state)
-{
-}
-
-void CChildView::begin(duDebugDrawPrimitives prim, float size)
-{
-	m_duDebugDrawPrimitives = prim;
-}
-
-#define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
-
-void CChildView::vertex(const float* pos, unsigned int color)
-{
-	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-	{
-		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-	}
-	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-	{
-		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-	}
-}
-
-void CChildView::vertex(const float x, const float y, const float z, unsigned int color)
-{
-	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-	{
-		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-	}
-	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-	{
-		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-	}
-}
-
-void CChildView::vertex(const float* pos, unsigned int color, const float* uv)
-{
-	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-	{
-		PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-	}
-	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-	{
-		PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
-	}
-}
-
-void CChildView::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
-{
-	if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
-	{
-		PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-	}
-	else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
-	{
-		PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
-	}
-}
-
-void CChildView::end()
-{
-	m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
 }
 
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
