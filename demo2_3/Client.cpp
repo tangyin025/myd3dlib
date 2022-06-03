@@ -27,6 +27,7 @@
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
 #include <boost/assign/list_of.hpp>
+#include "DebugDraw.h"
 //#include "CctCharacterControllerManager.h"
 //#include "CctController.h"
 #include "CctBoxController.h"
@@ -833,6 +834,7 @@ Client::Client(void)
 		("keyweapon4", boost::program_options::value(&m_InitBindKeys[KeyWeapon4])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon4")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
 		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
+		("shownavigation", boost::program_options::value(&m_ShowNavigation)->default_value(false), "Show Navigation")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
@@ -1085,6 +1087,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
 			.def_readwrite("ViewedDistDiff", &Client::m_ViewedDistDiff)
+			.def_readwrite("ShowNavigation", &Client::m_ShowNavigation)
 			.enum_("Key")
 			[
 				luabind::value("KeyUIHorizontal", Client::KeyUIHorizontal),
@@ -1468,9 +1471,15 @@ void Client::OnFrameTick(
 		V(m_d3dDevice->SetVertexShader(NULL));
 		V(m_d3dDevice->SetPixelShader(NULL));
 		V(m_d3dDevice->SetTexture(0, NULL));
-		V(m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(m_d3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(m_d3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(m_d3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+		V(m_d3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+		V(m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 		V(m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 		V(m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+		V(m_d3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+		V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 		V(m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
 		V(m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
 		V(m_d3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
@@ -1648,25 +1657,101 @@ bool Client::ExecuteCode(const char * code) throw()
 	return true;
 }
 
+#define DUCOLOR_TO_D3DCOLOR(col) ((col & 0xff00ff00) | (col & 0x00ff0000) >> 16 | (col & 0x000000ff) << 16)
+
 void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	struct Callback : public my::OctNode::QueryCallback
+		, public duDebugDraw
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
 		const my::Vector3 & ViewPos;
 		const my::Vector3 & TargetPos;
-		ViewedActorSet& m_ViewedActors;
+		Client * client;
+		DWORD m_duDebugDrawPrimitives;
 
-		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, ViewedActorSet& ViewedActors)
+		Callback(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const my::Vector3 & _ViewPos, const my::Vector3 & _TargetPos, Client * _client)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, ViewPos(_ViewPos)
 			, TargetPos(_TargetPos)
-			, m_ViewedActors(ViewedActors)
+			, client(_client)
+			, m_duDebugDrawPrimitives(DU_DRAW_QUADS + 1)
 		{
+		}
+
+		void depthMask(bool state)
+		{
+		}
+
+		void texture(bool state)
+		{
+		}
+
+		void begin(duDebugDrawPrimitives prim, float size)
+		{
+			m_duDebugDrawPrimitives = prim;
+		}
+
+		void vertex(const float* pos, unsigned int color)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				client->PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				client->PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void vertex(const float x, const float y, const float z, unsigned int color)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				client->PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				client->PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void vertex(const float* pos, unsigned int color, const float* uv)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				client->PushLineVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				client->PushTriangleVertex(pos[0], pos[1], pos[2], DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
+		{
+			if (m_duDebugDrawPrimitives == DU_DRAW_LINES)
+			{
+				client->PushLineVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+			else if (m_duDebugDrawPrimitives == DU_DRAW_TRIS)
+			{
+				client->PushTriangleVertex(x, y, z, DUCOLOR_TO_D3DCOLOR(color));
+			}
+		}
+
+		void end()
+		{
+			m_duDebugDrawPrimitives = DU_DRAW_QUADS + 1;
+		}
+
+		unsigned int areaToCol(unsigned int area)
+		{
+			return duDebugDraw::areaToCol(area);
 		}
 
 		virtual bool OnQueryEntity(my::OctEntity * oct_entity, const my::AABB & aabb, my::IntersectionTests::IntersectionType)
@@ -1679,11 +1764,24 @@ void Client::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 			{
 				actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 			}
+
+			if (client->m_ShowNavigation && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
+			{
+				Actor::ComponentPtrList::const_iterator cmp_iter = actor->m_Cmps.begin();
+				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+				{
+					if ((*cmp_iter)->GetComponentType() == Component::ComponentTypeNavigation)
+					{
+						Navigation* navi = dynamic_cast<Navigation*>(cmp_iter->get());
+						navi->DebugDraw(this, frustum, ViewPos, TargetPos);
+					}
+				}
+			}
 			return true;
 		}
 	};
 
-	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, m_ViewedActors));
+	QueryEntity(frustum, &Callback(frustum, pipeline, PassMask, m_Camera->m_Eye, m_ViewedCenter, this));
 }
 
 void Client::AddEntity(my::OctEntity * entity, const my::AABB & aabb, float minblock, float threshold)

@@ -179,8 +179,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 
-	struct Callback
-		: public my::OctNode::QueryCallback
+	struct Callback : public my::OctNode::QueryCallback
 		, public duDebugDraw
 	{
 		const my::Frustum & frustum;
