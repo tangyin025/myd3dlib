@@ -118,8 +118,8 @@ void COutputWnd::OnEventLog(const char * str)
 	std::basic_string<TCHAR> logs = ms2ts(str);
 	boost::trim_if(logs, boost::algorithm::is_any_of(_T("\n\r")));
 	logs.append(_T("\n"));
-	m_wndOutputDebug.SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-	m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)logs.c_str());
+	m_wndOutputDebug.SetSel(-1, -1);
+	m_wndOutputDebug.ReplaceSel(logs.c_str());
 }
 
 void COutputWnd::OnDestroy()

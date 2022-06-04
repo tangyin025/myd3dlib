@@ -44,7 +44,7 @@ static int lua_print(lua_State * L)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
+	pFrame->m_wndOutput.m_wndOutputDebug.SetSel(-1, -1);
 
 	int n = lua_gettop(L);  /* number of arguments */
 	int i;
@@ -59,11 +59,11 @@ static int lua_print(lua_State * L)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "
 				LUA_QL("print"));
 		if (i > 1)
-			pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)_T("\t"));
-		pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)u8tots(s).c_str());
+			pFrame->m_wndOutput.m_wndOutputDebug.ReplaceSel(_T("\t"));
+		pFrame->m_wndOutput.m_wndOutputDebug.ReplaceSel(u8tots(s).c_str());
 		lua_pop(L, 1);  /* pop result */
 	}
-	pFrame->m_wndOutput.m_wndOutputDebug.SendMessage(EM_REPLACESEL, 0, (LPARAM)_T("\n"));
+	pFrame->m_wndOutput.m_wndOutputDebug.ReplaceSel(_T("\n"));
 	return 0;
 }
 
@@ -802,6 +802,8 @@ void CMainFrame::ClearFileContext()
 	LuaContext::Shutdown();
 	theApp.m_CollectionObjs.clear();
 	_ASSERT(theApp.m_NamedObjects.empty());
+	m_wndOutput.m_wndOutputDebug.SetSel(0, -1);
+	m_wndOutput.m_wndOutputDebug.ReplaceSel(_T(""));
 }
 
 BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
