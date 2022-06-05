@@ -235,14 +235,14 @@ void PhysxScene::TickPostRender(float dtime)
 			{
 			case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
 			{
-				// ! PxTriggerPair::triggerActor may not have userData for Controller objs
-				if (trigger_iter->triggerShape->userData)
+				// ! PxTriggerPair::otherActor may not have userData for Controller objs
+				if (trigger_iter->otherShape->userData)
 				{
-					Component* self_cmp = (Component*)trigger_iter->triggerShape->userData;
+					Component* self_cmp = (Component*)trigger_iter->otherShape->userData;
 					Actor* self = self_cmp->m_Actor;
-					if (trigger_iter->otherShape->userData)
+					if (trigger_iter->triggerShape->userData)
 					{
-						Component* other_cmp = (Component*)trigger_iter->otherShape->userData;
+						Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
 						Actor* other = other_cmp->m_Actor;
 						TriggerEventArg arg(self, self_cmp, other, other_cmp);
 						self->m_EventEnterTrigger(&arg);
@@ -252,13 +252,13 @@ void PhysxScene::TickPostRender(float dtime)
 			}
 			case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
 			{
-				if (trigger_iter->triggerShape->userData)
+				if (trigger_iter->otherShape->userData)
 				{
-					Component* self_cmp = (Component*)trigger_iter->triggerShape->userData;
+					Component* self_cmp = (Component*)trigger_iter->otherShape->userData;
 					Actor* self = self_cmp->m_Actor;
-					if (trigger_iter->otherShape->userData)
+					if (trigger_iter->triggerShape->userData)
 					{
-						Component* other_cmp = (Component*)trigger_iter->otherShape->userData;
+						Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
 						Actor* other = other_cmp->m_Actor;
 						TriggerEventArg arg(self, self_cmp, other, other_cmp);
 						self->m_EventLeaveTrigger(&arg);

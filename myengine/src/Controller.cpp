@@ -58,14 +58,13 @@ void Controller::RequestResource(void)
 
 	m_PxController.reset(scene->m_ControllerMgr->createController(m_desc), PhysxDeleter<physx::PxController>());
 
-	//// ! recursively call Actor::SetPose by PhysxScene::TickPostRender
-	//physx::PxRigidDynamic * actor = m_PxController->getActor();
-	//_ASSERT(actor);
-	////actor->userData = m_Actor;
-	//std::vector<physx::PxShape*> shapes(actor->getNbShapes());
-	//actor->getShapes(shapes.data(), shapes.size());
-	//_ASSERT(!shapes.empty());
-	//shapes.front()->userData = this;
+	physx::PxRigidDynamic * actor = m_PxController->getActor();
+	_ASSERT(actor);
+	//actor->userData = m_Actor; // ! PhysxScene::TickPostRender, actor->SetPose
+	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
+	actor->getShapes(shapes.data(), shapes.size());
+	_ASSERT(!shapes.empty());
+	shapes.front()->userData = this; // ! trigger_iter->otherShape->userData
 }
 
 void Controller::ReleaseResource(void)
