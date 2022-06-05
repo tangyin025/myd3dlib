@@ -119,7 +119,7 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	end
 	function Actor6Behavior:RequestResource()
 		Component.RequestResource(self)
-		self.Actor:PlayAction(SAction.act_moving,9999)
+		-- self.Actor:PlayAction(SAction.act_moving,9999)
 	end
 	local actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
 	actor6:InsertComponentAdopt(actor6_behavior)	
@@ -129,10 +129,10 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 
 end, 0)
 	
--- -- 特殊渲染选项
--- client.SsaoEnable=true
--- client:SetVisualizationParameter(PhysxScene.eSCALE,1)
--- client:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
--- client:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
--- client:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
--- client:SetControllerDebugRenderingFlags(PhysxScene.eALL)
+-- 特殊渲染选项
+client.SsaoEnable=true
+client:SetVisualizationParameter(PhysxScene.eSCALE,1)
+client:SetVisualizationParameter(PhysxScene.eCOLLISION_SHAPES,1)
+client:SetVisualizationParameter(PhysxScene.eCOLLISION_FNORMALS,1)
+client:SetVisualizationParameter(PhysxScene.eCOLLISION_AABBS,1)
+client:SetControllerDebugRenderingFlags(PhysxScene.eALL)

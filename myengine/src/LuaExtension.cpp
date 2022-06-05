@@ -2136,7 +2136,7 @@ void LuaContext::Init(void)
 			.def("CreateSphereShape", &Component::CreateSphereShape)
 			.property("SimulationFilterWord0", &Component::GetSimulationFilterWord0, &Component::SetSimulationFilterWord0)
 			.property("QueryFilterWord0", &Component::GetQueryFilterWord0, &Component::SetQueryFilterWord0)
-			.enum_("ShapeFlag")
+			.enum_("PxShapeFlag")
 			[
 				value("eSIMULATION_SHAPE", physx::PxShapeFlag::eSIMULATION_SHAPE),
 				value("eSCENE_QUERY_SHAPE", physx::PxShapeFlag::eSCENE_QUERY_SHAPE),
@@ -2146,6 +2146,17 @@ void LuaContext::Init(void)
 			]
 			.def("SetShapeFlag", &Component::SetShapeFlag)
 			.def("GetShapeFlag", &Component::GetShapeFlag)
+			.enum_("PxGeometryType")
+			[
+				value("eSPHERE", physx::PxGeometryType::eSPHERE),
+				value("ePLANE", physx::PxGeometryType::ePLANE),
+				value("eCAPSULE", physx::PxGeometryType::eCAPSULE),
+				value("eBOX", physx::PxGeometryType::eBOX),
+				value("eCONVEXMESH", physx::PxGeometryType::eCONVEXMESH),
+				value("eTRIANGLEMESH", physx::PxGeometryType::eTRIANGLEMESH),
+				value("eHEIGHTFIELD", physx::PxGeometryType::eHEIGHTFIELD),
+				value("eINVALID", physx::PxGeometryType::eINVALID)
+			]
 			.property("GeometryType", &Component::GetGeometryType)
 			.property("ShapeLocalPose", &Component::GetShapeLocalPose, &Component::SetShapeLocalPose)
 			.def("ClearShape", &Component::ClearShape)

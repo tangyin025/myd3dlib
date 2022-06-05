@@ -21,7 +21,7 @@ skel:Transform(Matrix4.Compose(
 
 -- 创建Player主体
 player=Actor("local_player",Vector3(0,3,0),Quaternion.Identity(),Vector3(0.01,0.01,0.01),AABB(-1,1))
-local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1)
+local controller_cmp=Controller(NamedObject.MakeUniqueName("controller_cmp"),1.5,0.1,0.1,0.5)
 player:InsertComponent(controller_cmp)
 
 -- 模型材质
@@ -156,13 +156,26 @@ function PlayerBehavior:Update(elapsedTime)
 	client.listener:CommitDeferredSettings()
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
+	self.Actor:TickActionAndGetDisplacement(dtime)
 	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime,1)
 	if bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end
 end
+function PlayerBehavior:OnEnterTrigger(arg)
+	print("enter trigger: "..arg.other.Name)
+end
+function PlayerBehavior:OnLeaveTrigger(arg)
+	print("leave trigger: "..arg.other.Name)
+end
 function PlayerBehavior:OnPxThreadShapeHit(arg)
 	-- print("shape hit: "..arg.other.Name.."pos("..arg.worldPos.x..","..arg.worldPos.y..","..arg.worldPos.z..") nol("..arg.worldNormal.x..","..arg.worldNormal.y..","..arg.worldNormal.z..") dir("..arg.dir.x..","..arg.dir.y..","..arg.dir.z..")")
+end
+function PlayerBehavior:OnPxThreadControllerHit(arg)
+	print("controller hit: "..arg.other.Name)
+end
+function PlayerBehavior:OnPxThreadObstacleHit(arg)
+	print("obscale hit:..")
 end
 function PlayerBehavior:OnGUI(ui_render,elapsedTime,viewport)
 	-- print("BehaviorComponent:OnGUI",viewport.x,viewport.y)
