@@ -661,9 +661,9 @@ void OgreSkeletonAnimation::ParseBasePoseAndNameMap(
 
 		if (id >= (int)base_pose.size())
 		{
-			base_pose.resize(id + 1, Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+			base_pose.resize(id + 1, Bone(Vector3(0, 0, 0)));
 		}
-		base_pose[id] = Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(x, y, z));
+		base_pose[id] = Bone(Vector3(x, y, z), Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle));
 	}
 }
 
@@ -707,7 +707,7 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
 		{
 			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
 			BoneList & pose = anim_iter->second[time];
-			pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+			pose.resize(m_boneHierarchy.size(), Bone(Vector3(0, 0, 0)));
 			Bone & bone = pose[name_iter->second];
 
 			rapidxml::xml_attribute<char> * attr_translate_x, *attr_translate_y, *attr_translate_z;
@@ -824,7 +824,7 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 				ofs << "\t\t\t\t\t\t<keyframe time=\"" << frame_iter->first << "\">\n";
 				const Bone & bone = frame_iter->second[name_iter->second];
 				const Bone & base_bone = m_boneBindPose[name_iter->second];
-				Bone anim_bone(bone.m_rotation * base_bone.m_rotation.conjugate(), bone.m_position - base_bone.m_position);
+				Bone anim_bone(bone.m_position - base_bone.m_position, bone.m_rotation * base_bone.m_rotation.conjugate());
 				ofs << "\t\t\t\t\t\t\t<translate x=\"" << anim_bone.m_position.x << "\" y=\"" << anim_bone.m_position.y << "\" z=\"" << anim_bone.m_position.x << "\"/>\n";
 				Vector3 axis; float angle;
 				anim_bone.m_rotation.toAxisAngle(axis, angle);

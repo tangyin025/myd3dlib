@@ -558,8 +558,8 @@ void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
 			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
 	}
-	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
-	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
+	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
 }
 
 void Animator::RequestResource(void)
@@ -772,8 +772,8 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 	_ASSERT(m_Skeleton);
 
 	Bone target(
-		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.m_rotation,
-		parent.m_rotation * m_Skeleton->m_boneBindPose[node_i].m_position + parent.m_position);
+		parent.m_rotation * m_Skeleton->m_boneBindPose[node_i].m_position + parent.m_position,
+		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.m_rotation);
 	Vector3 target_world_pos = target.m_position.transformCoord(m_Actor->m_World);
 
 	Particle & particle = context.m_ParticleList[particle_i];

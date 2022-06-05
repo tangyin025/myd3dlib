@@ -733,10 +733,10 @@ my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, con
 	{
 		const my::Bone& bone = animator->anim_pose_hier[BoneId];
 
-		return my::Bone(LocalRotation * bone.m_rotation * RootRotation, (bone.m_rotation * LocalPosition + bone.m_position).transformCoord(m_World));
+		return my::Bone((bone.m_rotation * LocalPosition + bone.m_position).transformCoord(m_World), LocalRotation * bone.m_rotation * RootRotation);
 	}
 
-	return my::Bone(LocalRotation * RootRotation, LocalPosition.transformCoord(m_World));
+	return my::Bone(LocalPosition.transformCoord(m_World), LocalRotation * RootRotation);
 }
 
 void Actor::ClearAllAttach(void)

@@ -361,8 +361,8 @@ Quaternion Matrix4::toRotation(void) const
 Bone Bone::Increment(const Bone & rhs) const
 {
 	return Bone(
-		m_rotation * rhs.m_rotation,
-		m_position + rhs.m_position);
+		m_position + rhs.m_position,
+		m_rotation * rhs.m_rotation);
 }
 
 Bone & Bone::IncrementSelf(const Bone & rhs)
@@ -375,8 +375,8 @@ Bone & Bone::IncrementSelf(const Bone & rhs)
 Bone Bone::Lerp(const Bone & rhs, float t) const
 {
 	return Bone(
-		m_rotation.slerp(rhs.m_rotation, t),
-		m_position.lerp(rhs.m_position, t));
+		m_position.lerp(rhs.m_position, t),
+		m_rotation.slerp(rhs.m_rotation, t));
 }
 
 Bone & Bone::LerpSelf(const Bone & rhs, float t)

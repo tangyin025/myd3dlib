@@ -2825,8 +2825,14 @@ namespace my
 		{
 		}
 
-		Bone(const Quaternion & rotation, const Vector3 & position)
+		Bone(const Vector3 & position, const Quaternion & rotation)
 			: m_rotation(rotation)
+			, m_position(position)
+		{
+		}
+
+		Bone(const Vector3 & position)
+			: m_rotation(Quaternion::Identity())
 			, m_position(position)
 		{
 		}

@@ -1074,6 +1074,8 @@ void LuaContext::Init(void)
 			]
 
 		, class_<my::Bone>("Bone")
+			.def(constructor<const my::Vector3 &, const my::Quaternion &>())
+			.def(constructor<const my::Vector3 &>())
 			.def_readwrite("rotation", &my::Bone::m_rotation)
 			.def_readwrite("position", &my::Bone::m_position)
 
@@ -2145,7 +2147,7 @@ void LuaContext::Init(void)
 			.def("SetShapeFlag", &Component::SetShapeFlag)
 			.def("GetShapeFlag", &Component::GetShapeFlag)
 			.property("GeometryType", &Component::GetGeometryType)
-			.property("ShapeLocalPose", &Component::GetShapeLocalPose, (void (Component::*)(const my::Bone&))&Component::SetShapeLocalPose)
+			.property("ShapeLocalPose", &Component::GetShapeLocalPose, &Component::SetShapeLocalPose)
 			.def("ClearShape", &Component::ClearShape)
 			.property("SiblingId", &Component::GetSiblingId)
 

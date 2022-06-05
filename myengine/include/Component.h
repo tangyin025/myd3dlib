@@ -216,8 +216,6 @@ public:
 
 	physx::PxGeometryType::Enum GetGeometryType(void) const;
 
-	void SetShapeLocalPose(const my::Vector3 & pos, const my::Quaternion & rot);
-
 	void SetShapeLocalPose(const my::Bone & pose);
 
 	my::Bone GetShapeLocalPose(void) const;
