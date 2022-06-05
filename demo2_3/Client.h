@@ -359,7 +359,7 @@ public:
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
 		const OverlapCallback & callback,
-		unsigned int MaxNbTouches);
+		unsigned int MaxNbTouches) const;
 
 	bool Raycast(
 		const my::Vector3 & origin,
@@ -368,7 +368,7 @@ public:
 		unsigned int filterWord0,
 		float & hitDistance,
 		Actor *& hitActor,
-		Component *& hitCmp);
+		Component *& hitCmp) const;
 
 	bool Sweep(
 		const physx::PxGeometry & geometry,
@@ -379,5 +379,5 @@ public:
 		unsigned int filterWord0,
 		float & hitDistance,
 		Actor *& hitActor,
-		Component *& hitCmp);
+		Component *& hitCmp) const;
 };

@@ -1938,7 +1938,7 @@ bool Client::Overlap(
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
 		const OverlapCallback & callback,
-		unsigned int MaxNbTouches)
+		unsigned int MaxNbTouches) const
 {
 	//physx::Cct::CharacterControllerManager* mManager = static_cast<physx::Cct::CharacterControllerManager*>(m_ControllerMgr.get());
 	//const physx::PxU32 nbControllers = mManager->getNbControllers();
@@ -2113,7 +2113,7 @@ bool Client::Raycast(
 	unsigned int filterWord0,
 	float & hitDistance,
 	Actor *& hitActor,
-	Component *& hitCmp)
+	Component *& hitCmp) const
 {
 	physx::PxRaycastBuffer hit;
 	hit.block.distance = FLT_MAX;
@@ -2141,7 +2141,7 @@ bool Client::Sweep(
 	unsigned int filterWord0,
 	float & hitDistance,
 	Actor *& hitActor,
-	Component *& hitCmp)
+	Component *& hitCmp) const
 {
 	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
 
