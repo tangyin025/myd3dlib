@@ -485,11 +485,11 @@ void Terrain::save(Archive & ar, const unsigned int version) const
 			ar << boost::serialization::make_nvp(str_printf("m_Chunk_%d_%d_aabb", i, j).c_str(), *m_Chunks[i][j].m_OctAabb);
 		}
 	}
-	switch (m_PxShapeGeometryType)
+	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eHEIGHTFIELD:
 	{
-		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
+		_ASSERT(m_PxShape && m_PxGeometryType == m_PxShape->getGeometryType());
 		ar << BOOST_SERIALIZATION_NVP(m_PxHeightFieldPath);
 		_ASSERT(m_Actor);
 		ar << boost::serialization::make_nvp("ActorScale", m_Actor->m_Scale);
@@ -547,7 +547,7 @@ void Terrain::load(Archive & ar, const unsigned int version)
 			AddEntity(&m_Chunks[i][j], aabb, MinBlock, Threshold);
 		}
 	}
-	switch (m_PxShapeGeometryType)
+	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eHEIGHTFIELD:
 	{
@@ -875,7 +875,7 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 
 	m_PxShape->userData = this;
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eHEIGHTFIELD;
+	m_PxGeometryType = physx::PxGeometryType::eHEIGHTFIELD;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{

@@ -72,7 +72,7 @@ public:
 
 	MaterialPtr m_Material;
 
-	physx::PxGeometryType::Enum m_PxShapeGeometryType;
+	physx::PxGeometryType::Enum m_PxGeometryType;
 
 	boost::shared_ptr<physx::PxShape> m_PxShape;
 
@@ -81,7 +81,7 @@ protected:
 		: m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
-		, m_PxShapeGeometryType(physx::PxGeometryType::eINVALID)
+		, m_PxGeometryType(physx::PxGeometryType::eINVALID)
 	{
 	}
 
@@ -90,7 +90,7 @@ protected:
 		, m_LodMask(LOD0_1_2)
 		, m_Actor(NULL)
 		, m_Requested(false)
-		, m_PxShapeGeometryType(physx::PxGeometryType::eINVALID)
+		, m_PxGeometryType(physx::PxGeometryType::eINVALID)
 	{
 	}
 
@@ -213,6 +213,14 @@ public:
 	void SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value);
 
 	bool GetShapeFlag(physx::PxShapeFlag::Enum Flag) const;
+
+	physx::PxGeometryType::Enum GetGeometryType(void) const;
+
+	void SetShapeLocalPose(const my::Vector3 & pos, const my::Quaternion & rot);
+
+	void SetShapeLocalPose(const my::Bone & pose);
+
+	my::Bone GetShapeLocalPose(void) const;
 
 	virtual void ClearShape(void);
 

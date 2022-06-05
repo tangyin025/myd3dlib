@@ -56,12 +56,12 @@ void Component::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar << BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	ar << BOOST_SERIALIZATION_NVP(m_PxShapeGeometryType);
-	switch (m_PxShapeGeometryType)
+	ar << BOOST_SERIALIZATION_NVP(m_PxGeometryType);
+	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eSPHERE:
 	{
-		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
+		_ASSERT(m_PxShape && m_PxGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -80,7 +80,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	}
 	case physx::PxGeometryType::ePLANE:
 	{
-		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
+		_ASSERT(m_PxShape && m_PxGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -95,7 +95,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	}
 	case physx::PxGeometryType::eCAPSULE:
 	{
-		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
+		_ASSERT(m_PxShape && m_PxGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -116,7 +116,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 	}
 	case physx::PxGeometryType::eBOX:
 	{
-		_ASSERT(m_PxShape && m_PxShapeGeometryType == m_PxShape->getGeometryType());
+		_ASSERT(m_PxShape && m_PxGeometryType == m_PxShape->getGeometryType());
 		my::Vector3 ShapePos = (my::Vector3&)m_PxShape->getLocalPose().p;
 		ar << BOOST_SERIALIZATION_NVP(ShapePos);
 		my::Quaternion ShapeRot = (my::Quaternion&)m_PxShape->getLocalPose().q;
@@ -145,8 +145,8 @@ void Component::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(NamedObject);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodMask);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	ar >> BOOST_SERIALIZATION_NVP(m_PxShapeGeometryType);
-	switch (m_PxShapeGeometryType)
+	ar >> BOOST_SERIALIZATION_NVP(m_PxGeometryType);
+	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eSPHERE:
 	{
@@ -331,11 +331,11 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+	SetShapeLocalPose(pos, rot);
 
 	m_PxShape->userData = this;
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eBOX;
+	m_PxGeometryType = physx::PxGeometryType::eBOX;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{
@@ -352,11 +352,11 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+	SetShapeLocalPose(pos, rot);
 
 	m_PxShape->userData = this;
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eCAPSULE;
+	m_PxGeometryType = physx::PxGeometryType::eCAPSULE;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{
@@ -373,11 +373,11 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+	SetShapeLocalPose(pos, rot);
 
 	m_PxShape->userData = this;
 
-	m_PxShapeGeometryType = physx::PxGeometryType::ePLANE;
+	m_PxGeometryType = physx::PxGeometryType::ePLANE;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{
@@ -394,11 +394,11 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 	m_PxShape.reset(PhysxSdk::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *material, true, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE), PhysxDeleter<physx::PxShape>());
 
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot));
+	SetShapeLocalPose(pos, rot);
 
 	m_PxShape->userData = this;
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eSPHERE;
+	m_PxGeometryType = physx::PxGeometryType::eSPHERE;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{
@@ -415,9 +415,7 @@ void Component::SetSimulationFilterWord0(unsigned int filterWord0)
 
 unsigned int Component::GetSimulationFilterWord0(void) const
 {
-	_ASSERT(m_PxShape);
-	physx::PxFilterData filter_data = m_PxShape->getSimulationFilterData();
-	return filter_data.word0;
+	return m_PxShape ? m_PxShape->getSimulationFilterData().word0 : 0;
 }
 
 void Component::SetQueryFilterWord0(unsigned int filterWord0)
@@ -425,6 +423,11 @@ void Component::SetQueryFilterWord0(unsigned int filterWord0)
 	_ASSERT(m_PxShape);
 	physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
 	m_PxShape->setQueryFilterData(filter_data);
+}
+
+unsigned int Component::GetQueryFilterWord0(void) const
+{
+	return m_PxShape ? m_PxShape->getQueryFilterData().word0 : 0;
 }
 
 void Component::SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value)
@@ -435,15 +438,29 @@ void Component::SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value)
 
 bool Component::GetShapeFlag(physx::PxShapeFlag::Enum Flag) const
 {
-	_ASSERT(m_PxShape);
-	return m_PxShape->getFlags() & Flag;
+	return m_PxShape ? m_PxShape->getFlags() & Flag : false;
 }
 
-unsigned int Component::GetQueryFilterWord0(void) const
+physx::PxGeometryType::Enum Component::GetGeometryType(void) const
+{
+	return m_PxShape ? m_PxShape->getGeometryType() : physx::PxGeometryType::Enum::eINVALID;
+}
+
+void Component::SetShapeLocalPose(const my::Vector3 & pos, const my::Quaternion & rot)
+{
+	SetShapeLocalPose(Bone(rot, pos));
+}
+
+void Component::SetShapeLocalPose(const my::Bone & pose)
 {
 	_ASSERT(m_PxShape);
-	physx::PxFilterData filter_data = m_PxShape->getQueryFilterData();
-	return filter_data.word0;
+	m_PxShape->setLocalPose((physx::PxTransform&)pose);
+}
+
+my::Bone Component::GetShapeLocalPose(void) const
+{
+	_ASSERT(m_PxShape);
+	return (my::Bone&)m_PxShape->getLocalPose();
 }
 
 void Component::ClearShape(void)
@@ -462,7 +479,7 @@ void Component::ClearShape(void)
 		m_PxShape.reset();
 	}
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eINVALID;
+	m_PxGeometryType = physx::PxGeometryType::eINVALID;
 }
 
 unsigned int Component::GetSiblingId(void) const
@@ -493,7 +510,7 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar << BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
-	switch (m_PxShapeGeometryType)
+	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eTRIANGLEMESH:
 	{
@@ -532,7 +549,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshSubMeshId);
 	ar >> BOOST_SERIALIZATION_NVP(m_MeshColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
-	switch (m_PxShapeGeometryType)
+	switch (m_PxGeometryType)
 	{
 	case physx::PxGeometryType::eTRIANGLEMESH:
 	{
@@ -733,7 +750,7 @@ void MeshComponent::EnterPhysxScene(PhysxScene * scene)
 	{
 		_ASSERT(!m_PxMesh);
 
-		switch (m_PxShapeGeometryType)
+		switch (m_PxGeometryType)
 		{
 		case physx::PxGeometryType::eTRIANGLEMESH:
 		{
@@ -765,7 +782,7 @@ void MeshComponent::LeavePhysxScene(PhysxScene * scene)
 
 	if (!m_PxMeshPath.empty() && m_Actor->m_PxActor)
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_PxMeshPath, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, m_PxShapeGeometryType));
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_PxMeshPath, boost::bind(&MeshComponent::OnPxMeshReady, this, boost::placeholders::_1, m_PxGeometryType));
 
 		if (m_PxMesh)
 		{
@@ -773,7 +790,7 @@ void MeshComponent::LeavePhysxScene(PhysxScene * scene)
 
 			m_Actor->m_PxActor->detachShape(*m_PxShape);
 
-			switch (m_PxShapeGeometryType)
+			switch (m_PxGeometryType)
 			{
 			case physx::PxGeometryType::eTRIANGLEMESH:
 			{
@@ -959,7 +976,7 @@ void MeshComponent::CreateTriangleMeshShape(const char * TriangleMeshPath)
 
 	m_PxMeshTmp = obj_res.first->second.get();
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eTRIANGLEMESH;
+	m_PxGeometryType = physx::PxGeometryType::eTRIANGLEMESH;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{
@@ -1033,7 +1050,7 @@ void MeshComponent::CreateConvexMeshShape(const char * ConvexMeshPath, bool bInf
 
 	m_PxMeshTmp = obj_res.first->second.get();
 
-	m_PxShapeGeometryType = physx::PxGeometryType::eCONVEXMESH;
+	m_PxGeometryType = physx::PxGeometryType::eCONVEXMESH;
 
 	if (m_Actor && m_Actor->IsRequested())
 	{

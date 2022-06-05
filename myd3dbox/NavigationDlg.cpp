@@ -330,7 +330,7 @@ public:
 				for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 				{
 					const Component* cmp = cmp_iter->get();
-					switch (cmp->m_PxShapeGeometryType)
+					switch (cmp->m_PxGeometryType)
 					{
 					case physx::PxGeometryType::eSPHERE:
 					case physx::PxGeometryType::eCAPSULE:

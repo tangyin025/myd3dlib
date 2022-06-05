@@ -2144,6 +2144,8 @@ void LuaContext::Init(void)
 			]
 			.def("SetShapeFlag", &Component::SetShapeFlag)
 			.def("GetShapeFlag", &Component::GetShapeFlag)
+			.property("GeometryType", &Component::GetGeometryType)
+			.property("ShapeLocalPose", &Component::GetShapeLocalPose, (void (Component::*)(const my::Bone&))&Component::SetShapeLocalPose)
 			.def("ClearShape", &Component::ClearShape)
 			.property("SiblingId", &Component::GetSiblingId)
 
