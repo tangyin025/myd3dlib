@@ -80,13 +80,17 @@ public:
 
 	float GetRadius(void) const;
 
+	void SetStepOffset(float StepOffset);
+
+	float GetStepOffset(void) const;
+
 	void SetContactOffset(float ContactOffset);
 
 	float GetContactOffset(void) const;
 
-	void SetStepOffset(float StepOffset);
+	void SetUpDirection(const my::Vector3 & Up);
 
-	float GetStepOffset(void) const;
+	my::Vector3 GetUpDirection(void) const;
 
 	void SetPosition(const my::Vector3 & Pos);
 

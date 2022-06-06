@@ -171,6 +171,16 @@ float Controller::GetRadius(void) const
 	return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getRadius();
 }
 
+void Controller::SetStepOffset(float StepOffset)
+{
+	m_PxController->setStepOffset(StepOffset);
+}
+
+float Controller::GetStepOffset(void) const
+{
+	return m_PxController->getStepOffset();
+}
+
 void Controller::SetContactOffset(float ContactOffset)
 {
 	m_PxController->setContactOffset(ContactOffset);
@@ -181,14 +191,14 @@ float Controller::GetContactOffset(void) const
 	return m_PxController->getContactOffset();
 }
 
-void Controller::SetStepOffset(float StepOffset)
+void Controller::SetUpDirection(const my::Vector3 & Up)
 {
-	m_PxController->setStepOffset(StepOffset);
+	m_PxController->setUpDirection((physx::PxVec3&)Up);
 }
 
-float Controller::GetStepOffset(void) const
+my::Vector3 Controller::GetUpDirection(void) const
 {
-	return m_PxController->getStepOffset();
+	return (my::Vector3&)m_PxController->getUpDirection();
 }
 
 void Controller::SetPosition(const my::Vector3 & Pos)

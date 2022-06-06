@@ -331,6 +331,45 @@ public:
 	virtual void DoTask(void);
 };
 
+class ActionTrackPose : public ActionTrack
+{
+public:
+	float m_Start;
+
+	float m_Length;
+
+	my::Bone m_ParamPose;
+
+public:
+	ActionTrackPose(float Start, float Length)
+		: m_Start(Start)
+		, m_Length(Length)
+		, m_ParamPose(my::Vector3(0, 0, 0), my::Quaternion::Identity())
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+};
+
+class ActionTrackPoseInst : public ActionTrackInst
+{
+protected:
+	boost::shared_ptr<const ActionTrackPose> m_Template;
+
+	my::Bone m_StartPose;
+
+	my::Bone m_Pose;
+
+public:
+	ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template);
+
+	virtual void UpdateTime(float LastTime, float Time);
+
+	virtual void Stop(void);
+
+	virtual bool GetDisplacement(float dtime, float Time, my::Vector3 & disp);
+};
+
 class ActionTrackVelocity : public ActionTrack
 {
 public:
