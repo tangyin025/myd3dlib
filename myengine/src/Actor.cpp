@@ -379,11 +379,14 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot, const m
 
 	m_Scale = Scale;
 
-	UpdateWorld();
-
-	if (m_Node)
+	if (!m_Base) // ! Actor::Update, m_Base->GetAttachPose
 	{
-		UpdateOctNode();
+		UpdateWorld();
+
+		if (m_Node)
+		{
+			UpdateOctNode();
+		}
 	}
 }
 
