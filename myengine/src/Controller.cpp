@@ -211,6 +211,11 @@ my::Vector3 Controller::GetPosition(void) const
 	return (my::Vector3&)physx::toVec3(m_PxController->getPosition());
 }
 
+my::Vector3 Controller::GetFootOffset(void) const
+{
+	return GetUpDirection() * (GetContactOffset() + GetRadius() + GetHeight() * 0.5f);
+}
+
 void Controller::SetFootPosition(const my::Vector3 & Pos)
 {
 	m_PxController->setFootPosition(physx::PxExtendedVec3(Pos.x, Pos.y, Pos.z));
