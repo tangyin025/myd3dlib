@@ -34,7 +34,7 @@ extern "C"
 #include "LargeImage.h"
 #include "SoundContext.h"
 #include "SqlConnection.h"
-#include "Action.h"
+#include "ActionTrack.h"
 #include "Steering.h"
 //#include "noise.h"
 #include <boost/scope_exit.hpp>

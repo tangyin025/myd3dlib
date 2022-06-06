@@ -60,7 +60,7 @@
     <ClInclude Include="include\SqlConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Action.h">
+    <ClInclude Include="include\ActionTrack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -110,7 +110,7 @@
     <ClCompile Include="src\SqlConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Action.cpp">
+    <ClCompile Include="src\ActionTrack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

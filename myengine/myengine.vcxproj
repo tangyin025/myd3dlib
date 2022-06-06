@@ -136,7 +136,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Action.h" />
+    <ClInclude Include="include\ActionTrack.h" />
     <ClInclude Include="include\Actor.h" />
     <ClInclude Include="include\Animator.h" />
     <ClInclude Include="include\Component.h" />
@@ -154,7 +154,7 @@
     <ClInclude Include="include\Terrain.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Action.cpp" />
+    <ClCompile Include="src\ActionTrack.cpp" />
     <ClCompile Include="src\Actor.cpp" />
     <ClCompile Include="src\Animator.cpp" />
     <ClCompile Include="src\Component.cpp">
