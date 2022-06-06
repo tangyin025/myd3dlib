@@ -259,11 +259,13 @@ public:
 
 	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot);
 
-	void SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale);
+	void SetPose(const my::Bone & Pose);
 
 	void SetPxPoseOrbyPxThread(const my::Vector3 & Pos);
 
 	void SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion & Rot, const Component * Exclusion);
+
+	void SetPxPoseOrbyPxThread(const my::Bone & Pose);
 
 	virtual my::AABB CalculateAABB(void) const;
 

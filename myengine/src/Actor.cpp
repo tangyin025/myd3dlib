@@ -368,16 +368,9 @@ void Actor::SetPose(const my::Vector3 & Pos)
 
 void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 {
-	SetPose(Pos, Rot, m_Scale);
-}
-
-void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot, const my::Vector3 & Scale)
-{
 	m_Position = Pos;
 
 	m_Rotation = Rot;
-
-	m_Scale = Scale;
 
 	if (!m_Base) // ! Actor::Update, m_Base->GetAttachPose
 	{
@@ -388,6 +381,11 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot, const m
 			UpdateOctNode();
 		}
 	}
+}
+
+void Actor::SetPose(const my::Bone & Pose)
+{
+	SetPose(Pose.m_position, Pose.m_rotation);
 }
 
 void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos)
@@ -418,6 +416,11 @@ void Actor::SetPxPoseOrbyPxThread(const my::Vector3 & Pos, const my::Quaternion 
 			(*cmp_iter)->SetPxPoseOrbyPxThread(Pos, Rot);
 		}
 	}
+}
+
+void Actor::SetPxPoseOrbyPxThread(const my::Bone & Pose)
+{
+	SetPxPoseOrbyPxThread(Pose.m_position, Pose.m_rotation, NULL);
 }
 
 my::AABB Actor::CalculateAABB(void) const

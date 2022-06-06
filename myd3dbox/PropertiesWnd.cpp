@@ -3025,10 +3025,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		Actor* actor = (Actor*)pActor->GetValue().pulVal;
 		if (PropertyId == PropertyActorScaleX)
 		{
-			pActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)pProp->GetValue().fltVal);
-			pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)pProp->GetValue().fltVal);
+			actor->m_Scale.x = actor->m_Scale.y = actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+			pActor->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)actor->m_Scale.y);
+			pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
 			m_wndPropList.InvalidateRect(pActor->GetSubItem(4)->GetSubItem(1)->GetRect());
 			m_wndPropList.InvalidateRect(pActor->GetSubItem(4)->GetSubItem(2)->GetRect());
+		}
+		else
+		{
+			actor->m_Scale.x = pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+			actor->m_Scale.y = pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
+			actor->m_Scale.z = pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal;
 		}
 		actor->SetPose(
 			my::Vector3(
@@ -3038,11 +3045,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			my::Quaternion::RotationEulerAngles(
 				D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal),
 				D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal),
-				D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal)),
-			my::Vector3(
-				pActor->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal,
-				pActor->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal,
-				pActor->GetSubItem(4)->GetSubItem(2)->GetValue().fltVal));
+				D3DXToRadian(pActor->GetSubItem(3)->GetSubItem(2)->GetValue().fltVal)));
 		actor->SetPxPoseOrbyPxThread(actor->m_Position, actor->m_Rotation, NULL);
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();

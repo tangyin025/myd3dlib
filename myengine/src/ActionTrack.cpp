@@ -357,46 +357,6 @@ void ActionTrackEmitterInst::DoTask(void)
 	m_TaskEvent.SetEvent();
 }
 
-ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
-{
-	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
-}
-
-ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
-	: ActionTrackInst(_Actor)
-	, m_Template(Template)
-	, m_StartPose(_Actor->m_Position, _Actor->m_Rotation)
-	, m_Pose(Template->m_ParamPose)
-{
-}
-
-void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
-{
-	float alpha = (Time - m_Template->m_Start) / m_Template->m_Length;
-	if (alpha >= 0 && alpha <= 1)
-	{
-		m_Actor->SetPose(
-			m_StartPose.m_position.lerp(m_Pose.m_position, alpha),
-			m_StartPose.m_rotation.slerp(m_Pose.m_rotation, alpha));
-
-		m_Actor->SetPxPoseOrbyPxThread(m_Actor->m_Position, m_Actor->m_Rotation, NULL);
-	}
-}
-
-void ActionTrackPoseInst::Stop(void)
-{
-}
-
-bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
-{
-	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
-	{
-		disp = Vector3(0, 0, 0);
-		return true;
-	}
-	return false;
-}
-
 ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const
 {
 	return ActionTrackInstPtr(new ActionTrackVelocityInst(_Actor, boost::static_pointer_cast<const ActionTrackVelocity>(shared_from_this())));
@@ -422,6 +382,47 @@ bool ActionTrackVelocityInst::GetDisplacement(float dtime, float Time, my::Vecto
 	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
 	{
 		disp = m_Velocity * dtime;
+		return true;
+	}
+	return false;
+}
+
+ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
+{
+	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
+}
+
+ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
+	: ActionTrackInst(_Actor)
+	, m_Template(Template)
+	, m_Pose(Template->m_ParamPose)
+{
+}
+
+void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
+{
+	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
+	{
+		float fElapsedTime = Time - my::Max(m_Template->m_Start, LastTime);
+
+		my::Bone Pose(m_Actor->m_Position.lerp(m_Pose.m_position, 1.0f - powf(0.8f, 30 * fElapsedTime)),
+			m_Actor->m_Rotation.slerp(m_Pose.m_rotation, 1.0f - powf(0.8f, 30 * fElapsedTime)));
+
+		m_Actor->SetPose(Pose);
+
+		m_Actor->SetPxPoseOrbyPxThread(Pose);
+	}
+}
+
+void ActionTrackPoseInst::Stop(void)
+{
+}
+
+bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
+{
+	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
+	{
+		disp = Vector3(0, 0, 0);
 		return true;
 	}
 	return false;
