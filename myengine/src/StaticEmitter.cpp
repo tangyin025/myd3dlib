@@ -354,19 +354,15 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 		return buff_res.first->second.get();
 	}
 
-	// ! m_emit->m_Chunks[std::make_pair(i, j)] may have requested
 	std::string path = StaticEmitterChunk::MakeChunkPath(m_emit->m_ChunkPath, i, j);
-	IORequestPtr request(new StaticEmitterChunkIORequest(path.c_str(), i, j, INT_MAX));
-	my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&StaticEmitterStream::SetBuffer, this, i, j, boost::placeholders::_1));
+	StaticEmitterChunkIORequest request(path.c_str(), i, j, INT_MAX);
+	request.LoadResource();
+	request.CreateResource(NULL);
+	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(request.m_res);
 
 	buff_iter = m_buffs.find(std::make_pair(i, j));
 	_ASSERT(buff_iter != m_buffs.end());
 	return buff_iter->second.get();
-}
-
-void StaticEmitterStream::SetBuffer(int i, int j, my::DeviceResourceBasePtr res)
-{
-	m_buffs[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 }
 
 void StaticEmitterStream::SpawnBuffer(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time)
