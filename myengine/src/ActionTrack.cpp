@@ -410,7 +410,10 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 
 		m_Actor->SetPose(Pose);
 
-		m_Actor->SetPxPoseOrbyPxThread(Pose);
+		if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
+		{
+			m_Actor->SetPxPoseOrbyPxThread(Pose);
+		}
 	}
 }
 
