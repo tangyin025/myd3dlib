@@ -2837,17 +2837,56 @@ namespace my
 		{
 		}
 
-		Bone Increment(const Bone & rhs) const;
+		Bone Increment(const Bone & rhs) const
+		{
+			return Bone(
+				m_position + rhs.m_position,
+				m_rotation * rhs.m_rotation);
+		}
 
-		Bone & IncrementSelf(const Bone & rhs);
+		Bone & IncrementSelf(const Bone & rhs)
+		{
+			m_position += rhs.m_position;
+			m_rotation *= rhs.m_rotation;
+			return *this;
+		}
 
-		Bone Lerp(const Bone & rhs, float t) const;
+		Bone Lerp(const Bone & rhs, float t) const
+		{
+			return Bone(
+				m_position.lerp(rhs.m_position, t),
+				m_rotation.slerp(rhs.m_rotation, t));
+		}
 
-		Bone & LerpSelf(const Bone & rhs, float t);
+		Bone & LerpSelf(const Bone & rhs, float t)
+		{
+			m_position.lerpSelf(rhs.m_position, t);
+			m_rotation.slerpSelf(rhs.m_rotation, t);
+			return *this;
+		}
 
-		Matrix4 BuildTransform(void) const;
+		Bone Transform(const Bone & parent) const
+		{
+			return Bone(
+				parent.m_rotation * m_position + parent.m_position, m_rotation * parent.m_rotation);
+		}
 
-		Matrix4 BuildInverseTransform(void) const;
+		Bone & TransformSelf(const Bone & parent)
+		{
+			m_position = parent.m_rotation * m_position + parent.m_position;
+			m_rotation *= parent.m_rotation;
+			return *this;
+		}
+
+		Matrix4 BuildTransform(void) const
+		{
+			return Matrix4::RotationQuaternion(m_rotation) * Matrix4::Translation(m_position);
+		}
+
+		Matrix4 BuildInverseTransform(void) const
+		{
+			return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
+		}
 	};
 
 	class Plane

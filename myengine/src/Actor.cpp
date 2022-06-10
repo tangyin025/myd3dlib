@@ -739,7 +739,9 @@ my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, con
 	{
 		const my::Bone& bone = animator->anim_pose_hier[BoneId];
 
-		return my::Bone((bone.m_rotation * LocalPosition + bone.m_position).transformCoord(m_World), LocalRotation * bone.m_rotation * RootRotation);
+		my::Bone parent(bone.m_position.transformCoord(m_World), bone.m_rotation * RootRotation);
+
+		return my::Bone(LocalPosition, LocalRotation).Transform(parent);
 	}
 
 	return my::Bone(LocalPosition.transformCoord(m_World), LocalRotation * RootRotation);

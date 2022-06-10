@@ -2102,7 +2102,7 @@ bool Client::Overlap(
 	std::vector<physx::PxOverlapHit> hitbuff(my::Min(32U, MaxNbTouches));
 	OverlapBuffer buff(hitbuff.data(), hitbuff.size(), callback, callback_i, MaxNbTouches);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER*/ | physx::PxQueryFlag::eANY_HIT);
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	m_PxScene->overlap(geometry, pose, buff, filterData, NULL);
 	return buff.callback_i > 0;
 }
