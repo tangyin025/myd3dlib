@@ -717,11 +717,11 @@ namespace my
 			return dot(rhs) / sqrtf(determinantSq);
 		}
 
-		//static float SinTheta(const Vector3 & v0, const Vector3 & v1)
+		//float sinTheta(const Vector3 & rhs) const
 		//{
-		//	float determinantSq = v0.magnitudeSq() * v1.magnitudeSq(); // |v0|*|v1|*Sin(Angle)
+		//	float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Sin(Angle)
 		//	_ASSERT(determinantSq != 0);
-		//	return sqrtf(v0.cross(v1).magnitudeSq() / determinantSq);
+		//	return sqrtf(cross(rhs).magnitudeSq() / determinantSq);
 		//}
 
 		static float Cosine(float a, float b, float c)
