@@ -848,7 +848,7 @@ void Animator::UpdateIK(IKContext & ik)
 	}
 
 	const Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
-	const float theta[2] = { acos(Vector3::CosTheta(normal[0], normal[2])), acos(Vector3::CosTheta(-normal[0], normal[1])) };
+	const float theta[2] = { normal[0].angle(normal[2]), (-normal[0]).angle(normal[1]) };
 	physx::PxSweepBuffer hit;
 	physx::PxSphereGeometry sphere(ik.hitRadius);
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(

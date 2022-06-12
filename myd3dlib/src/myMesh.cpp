@@ -775,9 +775,9 @@ void Mesh::ComputeNormalFrame(
 		const Vector3 & v2 = VertexElems.GetPosition(pv2);
 		const Vector3 & v3 = VertexElems.GetPosition(pv3);
 
-		VertexElems.GetNormal(pv1) += FNormals[face_i] * Vector3::Angle(v3 - v1, v2 - v1);
-		VertexElems.GetNormal(pv2) += FNormals[face_i] * Vector3::Angle(v3 - v2, v1 - v2);
-		VertexElems.GetNormal(pv3) += FNormals[face_i] * Vector3::Angle(v1 - v3, v2 - v3);
+		VertexElems.GetNormal(pv1) += FNormals[face_i] * (v3 - v1).angle(v2 - v1);
+		VertexElems.GetNormal(pv2) += FNormals[face_i] * (v3 - v2).angle(v1 - v2);
+		VertexElems.GetNormal(pv3) += FNormals[face_i] * (v1 - v3).angle(v2 - v3);
 	}
 
 	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)

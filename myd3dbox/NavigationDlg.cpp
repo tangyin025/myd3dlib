@@ -346,7 +346,7 @@ public:
 						my::Matrix4 World = my::Matrix4::Compose(
 							my::Vector3::one, (my::Quaternion&)localPose.q, (my::Vector3&)localPose.p) * my::Matrix4::Compose(my::Vector3::one, actor->m_Rotation, actor->m_Position);
 						my::Plane plane = my::Plane(1, 0, 0, 0).transform(World.inverse().transpose());
-						if (D3DXToDegree(acos(my::Vector3::CosTheta(plane.normal, my::Vector3::unitY))) > pdlg->m_agentMaxSlope)
+						if (D3DXToDegree(plane.normal.angle(my::Vector3::unitY)) > pdlg->m_agentMaxSlope)
 						{
 							continue;
 						}

@@ -705,16 +705,16 @@ namespace my
 			return Vector3(length, asinf(y / length), atan2f(z, x));
 		}
 
-		static float Angle(const Vector3 & v0, const Vector3 & v1)
+		float angle(const Vector3 & rhs) const
 		{
-			return acosf(CosTheta(v0, v1));
+			return acosf(cosTheta(rhs));
 		}
 
-		static float CosTheta(const Vector3 & v0, const Vector3 & v1)
+		float cosTheta(const Vector3 & rhs) const
 		{
-			float determinantSq = v0.magnitudeSq() * v1.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
+			float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
 			_ASSERT(determinantSq != 0);
-			return v0.dot(v1) / sqrtf(determinantSq);
+			return dot(rhs) / sqrtf(determinantSq);
 		}
 
 		//static float SinTheta(const Vector3 & v0, const Vector3 & v1)
