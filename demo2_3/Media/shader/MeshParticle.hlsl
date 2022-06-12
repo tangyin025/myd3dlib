@@ -38,10 +38,9 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 Offset =
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z;
 #elif EMITTER_FACE_TYPE == 5
+	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(0, 1, 0);
-	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	float3 Right = normalize(cross(Up, Dir));
-	Dir = cross(Right, Up);
+	float3 Dir = cross(Right, Up);
 	float3 Offset = RotateAngleAxis(
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z, In.SizeAngleTime.z, Dir);
 #endif
