@@ -331,10 +331,10 @@ void Actor::Update(float fElapsedTime)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
+		action_inst_iter->first->Update(fElapsedTime);
+
 		if (action_inst_iter->first->m_LastTime < action_inst_iter->second)
 		{
-			action_inst_iter->first->Update(fElapsedTime);
-
 			action_inst_iter++;
 		}
 		else

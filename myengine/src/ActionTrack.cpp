@@ -419,12 +419,6 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 
 void ActionTrackPoseInst::Stop(void)
 {
-	m_Actor->SetPose(m_Pose);
-
-	if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
-	{
-		m_Actor->SetPxPoseOrbyPxThread(m_Pose);
-	}
 }
 
 bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
