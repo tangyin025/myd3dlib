@@ -334,16 +334,16 @@ public:
 class ActionTrackVelocity : public ActionTrack
 {
 public:
-	float m_Start;
+	float m_ParamStart;
 
-	float m_Length;
+	float m_ParamLength;
 
 	my::Vector3 m_ParamVelocity;
 
 public:
 	ActionTrackVelocity(float Start, float Length)
-		: m_Start(Start)
-		, m_Length(Length)
+		: m_ParamStart(Start)
+		, m_ParamLength(Length)
 		, m_ParamVelocity(0,0,0)
 	{
 	}
@@ -355,6 +355,10 @@ class ActionTrackVelocityInst : public ActionTrackInst
 {
 protected:
 	boost::shared_ptr<const ActionTrackVelocity> m_Template;
+
+	float m_Start;
+
+	float m_Length;
 
 	my::Vector3 m_Velocity;
 
@@ -371,18 +375,22 @@ public:
 class ActionTrackPose : public ActionTrack
 {
 public:
-	float m_Start;
+	my::Spline m_Interpolation;
 
-	float m_Length;
+	float m_ParamStart;
+
+	float m_ParamLength;
 
 	my::Bone m_ParamPose;
 
 public:
 	ActionTrackPose(float Start, float Length)
-		: m_Start(Start)
-		, m_Length(Length)
+		: m_ParamStart(Start)
+		, m_ParamLength(Length)
 		, m_ParamPose(my::Vector3(0, 0, 0), my::Quaternion::Identity())
 	{
+		m_Interpolation.AddNode(0, 0, 0, 0);
+		m_Interpolation.AddNode(1, 1, 0, 0);
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
@@ -392,6 +400,12 @@ class ActionTrackPoseInst : public ActionTrackInst
 {
 protected:
 	boost::shared_ptr<const ActionTrackPose> m_Template;
+
+	float m_Start;
+
+	float m_Length;
+
+	my::Bone m_StartPose;
 
 	my::Bone m_Pose;
 
