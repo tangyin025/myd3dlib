@@ -392,25 +392,56 @@ ActionTrackInstPtr ActionTrackPose::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackPoseInst(_Actor, boost::static_pointer_cast<const ActionTrackPose>(shared_from_this())));
 }
 
+void ActionTrackPose::AddKeyFrame(float Time, float Length)
+{
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.Length = Length;
+}
+
+ActionTrackPoseInst::KeyFrameInst::KeyFrameInst(float Time, float Length, Actor * actor)
+	: m_Time(Time)
+	, m_Length(Length)
+	, m_StartPose(actor->m_Position, actor->m_Rotation)
+{
+}
+
 ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const ActionTrackPose> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_StartPose(_Actor->m_Position, _Actor->m_Rotation)
 	, m_Pose(Template->m_ParamPose)
 {
 }
 
 void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 {
-	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
+	ActionTrackPose::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
+	for (; key_iter != key_end; key_iter++)
 	{
-		const my::Bone pose = m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - m_Template->m_Start) / m_Template->m_Length, 0));
+		m_KeyInsts.push_back(KeyFrameInst(
+			key_iter->first, key_iter->second.Length, m_Actor));
+	}
 
-		m_Actor->SetPose(pose);
-
-		if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
+	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
+	for (; key_inst_iter != m_KeyInsts.rend(); )
+	{
+		if (Time >= key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{
-			m_Actor->SetPxPoseOrbyPxThread(pose);
+			key_inst_iter = KeyFrameInstList::reverse_iterator(m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base()));
+		}
+		else if (Time >= key_inst_iter->m_Time)
+		{
+			const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - key_inst_iter->m_Time) / key_inst_iter->m_Length, 0));
+
+			m_Actor->SetPose(pose);
+
+			if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
+			{
+				m_Actor->SetPxPoseOrbyPxThread(pose);
+			}
+
+			key_inst_iter++;
 		}
 	}
 }
@@ -421,10 +452,14 @@ void ActionTrackPoseInst::Stop(void)
 
 bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
 {
-	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
+	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
+	for (; key_inst_iter != m_KeyInsts.rend(); )
 	{
-		disp = Vector3(0, 0, 0);
-		return true;
+		if (Time >= key_inst_iter->m_Time && Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
+		{
+			disp = Vector3(0, 0, 0);
+			return true;
+		}
 	}
 	return false;
 }
