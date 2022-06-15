@@ -378,22 +378,6 @@ ActionTrackVelocityInst::ActionTrackVelocityInst(Actor * _Actor, boost::shared_p
 
 void ActionTrackVelocityInst::UpdateTime(float LastTime, float Time)
 {
-	ActionTrackVelocity::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
-	ActionTrackVelocity::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
-	for (; key_iter != key_end; key_iter++)
-	{
-		m_KeyInsts.push_back(KeyFrameInst(key_iter->first, key_iter->second.Length));
-	}
-
-	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
-	{
-		if (LastTime >= key_inst_iter->m_Time + key_inst_iter->m_Length)
-		{
-			m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base());
-			break;
-		}
-	}
 }
 
 void ActionTrackVelocityInst::Stop(void)
@@ -402,14 +386,11 @@ void ActionTrackVelocityInst::Stop(void)
 
 bool ActionTrackVelocityInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
 {
-	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
+	ActionTrackVelocity::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.upper_bound(LastTime);
+	if (key_iter != m_Template->m_Keys.begin() && LastTime < (--key_iter)->first + key_iter->second.Length)
 	{
-		if (LastTime >= key_inst_iter->m_Time && LastTime < key_inst_iter->m_Time + key_inst_iter->m_Length)
-		{
-			disp = m_Velocity * dtime;
-			return true;
-		}
+		disp = m_Velocity * dtime;
+		return true;
 	}
 	return false;
 }

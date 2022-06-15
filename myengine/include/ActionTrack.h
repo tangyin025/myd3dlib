@@ -361,23 +361,6 @@ class ActionTrackVelocityInst : public ActionTrackInst
 protected:
 	boost::shared_ptr<const ActionTrackVelocity> m_Template;
 
-	struct KeyFrameInst
-	{
-		float m_Time;
-
-		float m_Length;
-
-		KeyFrameInst(float Time, float Length)
-			: m_Time(Time)
-			, m_Length(Length)
-		{
-		}
-	};
-
-	typedef std::vector<KeyFrameInst> KeyFrameInstList;
-
-	KeyFrameInstList m_KeyInsts;
-
 	my::Vector3 m_Velocity;
 
 public:
