@@ -63,14 +63,14 @@ void ActionInst::Stop(void)
 	}
 }
 
-bool ActionInst::GetDisplacement(float dtime, my::Vector3 & disp)
+bool ActionInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
 {
 	bool ret = false;
 	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)
 	{
 		my::Vector3 local_disp;
-		if ((*track_inst_iter)->GetDisplacement(dtime, m_Time, local_disp))
+		if ((*track_inst_iter)->GetDisplacement(LastTime, dtime, local_disp))
 		{
 			if (ret)
 			{
@@ -400,12 +400,12 @@ void ActionTrackVelocityInst::Stop(void)
 {
 }
 
-bool ActionTrackVelocityInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
+bool ActionTrackVelocityInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
 {
 	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
 	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
 	{
-		if (Time >= key_inst_iter->m_Time && Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
+		if (LastTime >= key_inst_iter->m_Time && LastTime < key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{
 			disp = m_Velocity * dtime;
 			return true;
@@ -475,12 +475,12 @@ void ActionTrackPoseInst::Stop(void)
 {
 }
 
-bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
+bool ActionTrackPoseInst::GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
 {
 	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
 	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
 	{
-		if (Time >= key_inst_iter->m_Time && Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
+		if (LastTime >= key_inst_iter->m_Time && LastTime < key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{
 			disp = Vector3(0, 0, 0);
 			return true;

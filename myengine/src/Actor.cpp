@@ -779,12 +779,14 @@ bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
 	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
 	{
+		const float LastTime = action_inst_iter->first->m_Time;
+
 		action_inst_iter->first->m_Time += dtime;
 
 		if (action_inst_iter->first->m_Time < action_inst_iter->second)
 		{
 			my::Vector3 local_disp;
-			if (action_inst_iter->first->GetDisplacement(dtime, local_disp))
+			if (action_inst_iter->first->GetDisplacement(LastTime, dtime, local_disp))
 			{
 				if (ret)
 				{
