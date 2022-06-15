@@ -362,6 +362,13 @@ ActionTrackInstPtr ActionTrackVelocity::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackVelocityInst(_Actor, boost::static_pointer_cast<const ActionTrackVelocity>(shared_from_this())));
 }
 
+void ActionTrackVelocity::AddKeyFrame(float Time, float Length)
+{
+	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
+	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.Length = Length;
+}
+
 ActionTrackVelocityInst::ActionTrackVelocityInst(Actor * _Actor, boost::shared_ptr<const ActionTrackVelocity> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
@@ -371,6 +378,22 @@ ActionTrackVelocityInst::ActionTrackVelocityInst(Actor * _Actor, boost::shared_p
 
 void ActionTrackVelocityInst::UpdateTime(float LastTime, float Time)
 {
+	ActionTrackVelocity::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+	ActionTrackVelocity::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
+	for (; key_iter != key_end; key_iter++)
+	{
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->first, key_iter->second.Length));
+	}
+
+	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
+	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
+	{
+		if (LastTime >= key_inst_iter->m_Time + key_inst_iter->m_Length)
+		{
+			m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base());
+			break;
+		}
+	}
 }
 
 void ActionTrackVelocityInst::Stop(void)
@@ -379,10 +402,14 @@ void ActionTrackVelocityInst::Stop(void)
 
 bool ActionTrackVelocityInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
 {
-	if (Time >= m_Template->m_Start && Time < m_Template->m_Start + m_Template->m_Length)
+	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
+	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
 	{
-		disp = m_Velocity * dtime;
-		return true;
+		if (Time >= key_inst_iter->m_Time && Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
+		{
+			disp = m_Velocity * dtime;
+			return true;
+		}
 	}
 	return false;
 }
@@ -419,29 +446,27 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
-		m_KeyInsts.push_back(KeyFrameInst(
-			key_iter->first, key_iter->second.Length, m_Actor));
+		m_KeyInsts.push_back(KeyFrameInst(key_iter->first, key_iter->second.Length, m_Actor));
 	}
 
 	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	for (; key_inst_iter != m_KeyInsts.rend(); )
+	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
 	{
-		if (Time >= key_inst_iter->m_Time + key_inst_iter->m_Length)
+		if (LastTime >= key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{
-			key_inst_iter = KeyFrameInstList::reverse_iterator(m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base()));
+			m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base());
+			break;
 		}
-		else if (Time >= key_inst_iter->m_Time)
+
+		_ASSERT(Time >= key_inst_iter->m_Time);
+
+		const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - key_inst_iter->m_Time) / key_inst_iter->m_Length, 0));
+
+		m_Actor->SetPose(pose);
+
+		if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
 		{
-			const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - key_inst_iter->m_Time) / key_inst_iter->m_Length, 0));
-
-			m_Actor->SetPose(pose);
-
-			if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
-			{
-				m_Actor->SetPxPoseOrbyPxThread(pose);
-			}
-
-			key_inst_iter++;
+			m_Actor->SetPxPoseOrbyPxThread(pose);
 		}
 	}
 }
@@ -453,7 +478,7 @@ void ActionTrackPoseInst::Stop(void)
 bool ActionTrackPoseInst::GetDisplacement(float dtime, float Time, my::Vector3 & disp)
 {
 	KeyFrameInstList::reverse_iterator key_inst_iter = m_KeyInsts.rbegin();
-	for (; key_inst_iter != m_KeyInsts.rend(); )
+	for (; key_inst_iter != m_KeyInsts.rend(); key_inst_iter++)
 	{
 		if (Time >= key_inst_iter->m_Time && Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{

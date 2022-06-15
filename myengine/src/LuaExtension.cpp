@@ -2514,10 +2514,9 @@ void LuaContext::Init(void)
 			.def_readwrite("AttachBoneId", &ActionTrackEmitter::m_AttachBoneId)
 
 		, class_<ActionTrackVelocity, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackVelocity")
-			.def(constructor<float, float>())
-			.def_readwrite("Start", &ActionTrackVelocity::m_Start)
-			.def_readwrite("Length", &ActionTrackVelocity::m_Length)
+			.def(constructor<>())
 			.def_readwrite("ParamVelocity", &ActionTrackVelocity::m_ParamVelocity)
+			.def("AddKeyFrame", &ActionTrackVelocity::AddKeyFrame)
 
 		, class_<ActionTrackPose, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackPose")
 			.def(constructor<>())

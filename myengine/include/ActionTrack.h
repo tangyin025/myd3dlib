@@ -334,27 +334,49 @@ public:
 class ActionTrackVelocity : public ActionTrack
 {
 public:
-	float m_Start;
+	struct KeyFrame
+	{
+		float Length;
+	};
 
-	float m_Length;
+	typedef std::multimap<float, KeyFrame> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
 
 	my::Vector3 m_ParamVelocity;
 
 public:
-	ActionTrackVelocity(float Start, float Length)
-		: m_Start(Start)
-		, m_Length(Length)
-		, m_ParamVelocity(0,0,0)
+	ActionTrackVelocity(void)
+		: m_ParamVelocity(0,0,0)
 	{
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
+
+	void AddKeyFrame(float Time, float Length);
 };
 
 class ActionTrackVelocityInst : public ActionTrackInst
 {
 protected:
 	boost::shared_ptr<const ActionTrackVelocity> m_Template;
+
+	struct KeyFrameInst
+	{
+		float m_Time;
+
+		float m_Length;
+
+		KeyFrameInst(float Time, float Length)
+			: m_Time(Time)
+			, m_Length(Length)
+		{
+		}
+	};
+
+	typedef std::vector<KeyFrameInst> KeyFrameInstList;
+
+	KeyFrameInstList m_KeyInsts;
 
 	my::Vector3 m_Velocity;
 
