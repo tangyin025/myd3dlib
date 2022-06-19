@@ -1202,10 +1202,10 @@ my::VertexBuffer * TerrainStream::GetVB(int k, int l)
 		}
 	}
 
-	TerrainChunkIORequest request(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX);
-	request.LoadResource();
-	request.CreateResource(NULL);
-	m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request.m_res);
+	IORequestPtr request(new TerrainChunkIORequest(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
+	request->LoadResource();
+	request->CreateResource(NULL);
+	m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request->m_res);
 
 	return m_Vbs[k][l].get();
 }
