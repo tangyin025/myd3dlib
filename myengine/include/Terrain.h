@@ -203,7 +203,7 @@ public:
 
 	static void GetIndices(const Terrain* terrain, int i, int j, int& k, int& l, int& m, int& n, int& o, int& p);
 
-	my::VertexBufferPtr GetVB(int k, int l);
+	my::VertexBuffer * GetVB(int k, int l);
 
 	my::Vector3 GetPos(int i, int j);
 
