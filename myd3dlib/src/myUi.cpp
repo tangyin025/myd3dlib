@@ -554,18 +554,17 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 	PushWindowSimple(GetVertexList(texture), rect, color, WindowRect, WindowBorder, TextureSize, clip);
 }
 
-void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
+template <typename T>
+void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & character_info_getter, D3DCOLOR color, Font::Align align, Font * font)
 {
-	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
-
 	const wchar_t* p = str;
 	for (float x = pen.x, y = pen.y; *p; p++)
 	{
-		const Font::CharacterInfo* info = font->GetCharacterInfo(*p);
+		const Font::CharacterInfo* info = character_info_getter(*p);
 
 		if (align & Font::AlignMultiLine)
 		{
-			if (x + info->horiAdvance > rect.r)
+			if (x + info->horiAdvance > right)
 			{
 				x = pen.x;
 				y += font->m_LineHeight;
@@ -591,73 +590,20 @@ void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCO
 	}
 }
 
+void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
+{
+	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
+
+	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1), color, align, font);
+}
+
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font)
 {
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
-	const wchar_t* p = str;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const Font::CharacterInfo* info = font->GetCharacterOutlineInfo(*p, outlineWidth);
+	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth), outlineColor, align, font);
 
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > rect.r)
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-				continue;
-			}
-		}
-
-		Rectangle uv_rect(
-			(float)info->textureRect.left / font->m_textureDesc.Width,
-			(float)info->textureRect.top / font->m_textureDesc.Height,
-			(float)info->textureRect.right / font->m_textureDesc.Width,
-			(float)info->textureRect.bottom / font->m_textureDesc.Height);
-
-		PushRectangle(
-			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), uv_rect, outlineColor, font->m_Texture.get());
-
-		x += info->horiAdvance;
-	}
-
-	p = str;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const Font::CharacterInfo* info = font->GetCharacterInfo(*p);
-
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > rect.r)
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-				continue;
-			}
-		}
-
-		Rectangle uv_rect(
-			(float)info->textureRect.left / font->m_textureDesc.Width,
-			(float)info->textureRect.top / font->m_textureDesc.Height,
-			(float)info->textureRect.right / font->m_textureDesc.Width,
-			(float)info->textureRect.bottom / font->m_textureDesc.Height);
-
-		PushRectangle(
-			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), uv_rect, color, font->m_Texture.get());
-
-		x += info->horiAdvance;
-	}
+	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1), color, align, font);
 }
 
 ControlImage::~ControlImage(void)
