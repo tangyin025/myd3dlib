@@ -1202,10 +1202,20 @@ my::VertexBuffer * TerrainStream::GetVB(int k, int l)
 		}
 	}
 
+	// ! BuildTileMeshTask::DoTask需要在多线程环境下读取地形
 	IORequestPtr request(new TerrainChunkIORequest(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
 	request->LoadResource();
 	request->CreateResource(NULL);
 	m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request->m_res);
+
+	//struct Tmp
+	//{
+	//	static void Set(boost::multi_array<my::VertexBufferPtr, 2>* Vbs, int k, int l, my::DeviceResourceBasePtr res)
+	//	{
+	//		(*Vbs)[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(res);
+	//	}
+	//};
+	//my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&Tmp::Set, &m_Vbs, k, l, boost::placeholders::_1));
 
 	return m_Vbs[k][l].get();
 }

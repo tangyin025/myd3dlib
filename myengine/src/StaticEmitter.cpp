@@ -362,7 +362,7 @@ StaticEmitterChunkBuffer * StaticEmitterStream::GetBuffer(int i, int j)
 
 	struct Tmp
 	{
-		static void Set(BufferMap * buffs, int i, int j, my::DeviceResourceBasePtr res)
+		static void Set(BufferMap* buffs, int i, int j, my::DeviceResourceBasePtr res)
 		{
 			(*buffs)[std::make_pair(i, j)] = boost::dynamic_pointer_cast<StaticEmitterChunkBuffer>(res);
 		}
