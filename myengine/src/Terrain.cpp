@@ -1162,60 +1162,58 @@ void TerrainStream::GetIndices(const Terrain* terrain, int i, int j, int& k, int
 
 my::VertexBuffer * TerrainStream::GetVB(int k, int l)
 {
-	if (m_Vbs[k][l])
-	{
-		return m_Vbs[k][l].get();
-	}
-
 	if (m_terrain->m_Chunks[k][l].m_Vb)
 	{
 		return m_terrain->m_Chunks[k][l].m_Vb.get();
 	}
 
-	std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
-
-	if (!my::ResourceMgr::getSingleton().CheckPath(path.c_str()))
+	if (!m_Vbs[k][l])
 	{
-		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+		std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
 
-		for (int k = 0; k < m_terrain->m_RowChunks; k++)
+		if (!my::ResourceMgr::getSingleton().CheckPath(path.c_str()))
 		{
-			for (int l = 0; l < m_terrain->m_ColChunks; l++)
+			_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+			for (int k = 0; k < m_terrain->m_RowChunks; k++)
 			{
-				std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
-				std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
-				std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
-				_ASSERT(ofs.is_open());
-				std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
-				for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
+				for (int l = 0; l < m_terrain->m_ColChunks; l++)
 				{
-					for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
+					std::string path = TerrainChunk::MakeChunkPath(m_terrain->m_ChunkPath, k, l);
+					std::string FullPath = my::ResourceMgr::getSingleton().GetFullPath(path.c_str());
+					std::ofstream ofs(FullPath, std::ios::binary, _SH_DENYRW);
+					_ASSERT(ofs.is_open());
+					std::vector<char> buff(m_terrain->m_IndexTable.shape()[0] * m_terrain->m_IndexTable.shape()[1] * m_terrain->m_VertexStride);
+					for (int m = 0; m < (int)m_terrain->m_IndexTable.shape()[0]; m++)
 					{
-						char* pVertex = &buff[0] + m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride;
-						m_terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)l * m_terrain->m_ChunkSize + n, 0, (float)k * m_terrain->m_ChunkSize + m), 0);
-						m_terrain->m_VertexElems.SetNormal(pVertex, Vector3(0, 1, 0), 0);
-						m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 0, 0, 0), 0);
+						for (int n = 0; n < (int)m_terrain->m_IndexTable.shape()[1]; n++)
+						{
+							char* pVertex = &buff[0] + m_terrain->m_IndexTable[m][n] * m_terrain->m_VertexStride;
+							m_terrain->m_VertexElems.SetPosition(pVertex, Vector3((float)l * m_terrain->m_ChunkSize + n, 0, (float)k * m_terrain->m_ChunkSize + m), 0);
+							m_terrain->m_VertexElems.SetNormal(pVertex, Vector3(0, 1, 0), 0);
+							m_terrain->m_VertexElems.SetColor(pVertex, D3DCOLOR_ARGB(255, 0, 0, 0), 0);
+						}
 					}
+					ofs.write(&buff[0], buff.size());
 				}
-				ofs.write(&buff[0], buff.size());
 			}
 		}
+
+		// ! BuildTileMeshTask::DoTask需要在多线程环境下读取地形
+		IORequestPtr request(new TerrainChunkIORequest(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
+		request->LoadResource();
+		request->CreateResource(NULL);
+		m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request->m_res);
+
+		//struct Tmp
+		//{
+		//	static void Set(boost::multi_array<my::VertexBufferPtr, 2>* Vbs, int k, int l, my::DeviceResourceBasePtr res)
+		//	{
+		//		(*Vbs)[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(res);
+		//	}
+		//};
+		//my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&Tmp::Set, &m_Vbs, k, l, boost::placeholders::_1));
 	}
-
-	// ! BuildTileMeshTask::DoTask需要在多线程环境下读取地形
-	IORequestPtr request(new TerrainChunkIORequest(path.c_str(), m_terrain->m_ColChunks, k, l, m_terrain->m_ChunkSize, m_terrain->m_VertexStride, INT_MAX));
-	request->LoadResource();
-	request->CreateResource(NULL);
-	m_Vbs[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(request->m_res);
-
-	//struct Tmp
-	//{
-	//	static void Set(boost::multi_array<my::VertexBufferPtr, 2>* Vbs, int k, int l, my::DeviceResourceBasePtr res)
-	//	{
-	//		(*Vbs)[k][l] = boost::dynamic_pointer_cast<my::VertexBuffer>(res);
-	//	}
-	//};
-	//my::ResourceMgr::getSingleton().LoadIORequestAndWait(path, request, boost::bind(&Tmp::Set, &m_Vbs, k, l, boost::placeholders::_1));
 
 	return m_Vbs[k][l].get();
 }
