@@ -2109,7 +2109,7 @@ void LuaContext::Init(void)
 				value("ComponentTypeSteering", Component::ComponentTypeSteering),
 				value("ComponentTypeScript", Component::ComponentTypeScript)
 			]
-			.property("Type", &Component::GetComponentType)
+			.property("ComponentType", &Component::GetComponentType)
 			.enum_("LODMask")
 			[
 				value("LOD0", Component::LOD0),
