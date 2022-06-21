@@ -620,10 +620,10 @@ struct ScriptActionTrack : ActionTrack, luabind::wrap_base
 		{
 		}
 
-		virtual void UpdateTime(float Time, float fElapsedTime)
+		virtual void UpdateTime(float LastTime, float Time)
 		{
-			ScriptActionTrack::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(Time);
-			ScriptActionTrack::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time + fElapsedTime);
+			ScriptActionTrack::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+			ScriptActionTrack::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 			for (; key_iter != key_end; key_iter++)
 			{
 				const_cast<ScriptActionTrack*>(m_Template.get())->OnKeyFrame(key_iter->first, m_Actor);

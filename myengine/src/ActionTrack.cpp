@@ -116,7 +116,7 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 	if (animator)
 	{
 		ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
-		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
+		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 		for (; key_iter != key_end; key_iter++)
 		{
 			animator->Play(
@@ -202,7 +202,7 @@ void ActionTrackSoundInst::UpdateTime(float LastTime, float Time)
 	}
 
 	ActionTrackSound::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
-	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
+	ActionTrackSound::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
 		if (key_iter->second.Sound)
@@ -283,7 +283,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 	m_SpawnPose.rresize(m_WorldEmitterCmp->m_ParticleList.size());
 
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
-	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
+	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
 		m_KeyInsts.push_back(KeyFrameInst(
@@ -424,7 +424,7 @@ ActionTrackPoseInst::ActionTrackPoseInst(Actor * _Actor, boost::shared_ptr<const
 void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 {
 	ActionTrackPose::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
-	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.upper_bound(Time);
+	ActionTrackPose::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 	for (; key_iter != key_end; key_iter++)
 	{
 		m_KeyInsts.push_back(KeyFrameInst(key_iter->first, key_iter->second.Length, m_Actor));
