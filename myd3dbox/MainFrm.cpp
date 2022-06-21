@@ -33,6 +33,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/range/algorithm/find_if.hpp>
+#include <boost/range/algorithm/transform.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/shared_container_iterator.hpp>
 #include "DeleteCmpsDlg.h"
 #include <lualib.h>
 
@@ -211,6 +214,28 @@ static int os_exit(lua_State * L)
 //	}
 //	return 1;
 //}
+
+typedef boost::shared_container_iterator<CMainFrame::ActorList> shared_actor_list_iter;
+
+extern boost::iterator_range<shared_actor_list_iter> cmainframe_get_all_acts(const CMainFrame* self)
+{
+	boost::shared_ptr<CMainFrame::ActorList> acts(new CMainFrame::ActorList());
+	struct Callback : public my::OctNode::QueryCallback
+	{
+		boost::shared_ptr<CMainFrame::ActorList> acts;
+		Callback(boost::shared_ptr<CMainFrame::ActorList> _acts)
+			: acts(_acts)
+		{
+		}
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			acts->push_back(dynamic_cast<Actor*>(oct_entity));
+			return true;
+		}
+	} cb(acts);
+	self->QueryAllEntity(&cb);
+	return boost::make_iterator_range(shared_actor_list_iter(acts->begin(), acts), shared_actor_list_iter(acts->end(), acts));
+}
 
 // CMainFrame
 
@@ -773,6 +798,7 @@ void CMainFrame::InitFileContext()
 			.def("ClearAllEntity", &CMainFrame::ClearAllEntity)
 			.def("PushToActorList", luabind::tag_function<void(CMainFrame*,ActorPtr)>(
 				boost::bind((void(ActorPtrList::*)(ActorPtr const&)) & ActorPtrList::push_back, boost::bind<ActorPtrList&>(&CMainFrame::m_ActorList, boost::placeholders::_1), boost::placeholders::_2)))
+			.property("allactors", cmainframe_get_all_acts, luabind::return_stl_iterator)
 			.def_readonly("selactors", &CMainFrame::m_selactors, luabind::return_stl_iterator)
 			.def_readonly("selctls", &CMainFrame::m_selctls, luabind::return_stl_iterator)
 			.def_readonly("RenderingView", &CMainFrame::m_RenderingView)

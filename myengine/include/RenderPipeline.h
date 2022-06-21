@@ -355,6 +355,8 @@ public:
 		std::vector<D3DVERTEXELEMENT9> m_velist;
 		DWORD m_VertexStride;
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+		std::vector<my::Matrix4 *> worlds;
+		std::vector<int> world_nums;
 		std::vector<Component *> cmps;
 	};
 
