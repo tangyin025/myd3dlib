@@ -326,6 +326,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(Vector4);
 	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
 	offset += sizeof(Vector4);
+	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_COLOR, 1);
+	offset += sizeof(Vector4);
 	_ASSERT(m_MeshInstanceStride == offset);
 
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
@@ -779,6 +781,8 @@ void RenderPipeline::RenderAllObjects(
 			{
 				memcpy(m_MeshInstanceElems.GetVertexValue<void>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_POSITION, 1),
 					&mesh_inst_iter->second.cmps[i]->m_Actor->m_World, sizeof(Matrix4));
+				memcpy(m_MeshInstanceElems.GetVertexValue<void>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_COLOR, 1),
+					&mesh_inst_iter->second.cmps[i]->m_MeshColor, sizeof(Vector4));
 			}
 			m_MeshInstanceData.Unlock();
 

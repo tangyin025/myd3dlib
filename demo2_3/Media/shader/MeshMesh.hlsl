@@ -20,6 +20,7 @@ struct VS_INPUT
 	float4 Pos2				: POSITION2;
 	float4 Pos3				: POSITION3;
 	float4 Pos4				: POSITION4;
+	float4 Color1			: COLOR1;
 #endif
 };
 
@@ -123,5 +124,9 @@ float4 TransformLightWS(VS_INPUT In)
 
 float4 TransformColor(VS_INPUT In)
 {
+#ifdef INSTANCE
+	return In.Color1;
+#else
 	return g_MeshColor;
+#endif
 }

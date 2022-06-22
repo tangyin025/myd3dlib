@@ -93,7 +93,7 @@ public:
 
 	my::D3DVertexElementSet m_MeshInstanceElems;
 
-	static const DWORD m_MeshInstanceStride = 64;
+	static const DWORD m_MeshInstanceStride = 80;
 
 	std::vector<D3DVERTEXELEMENT9> m_MeshIEList;
 
