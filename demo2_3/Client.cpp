@@ -1460,7 +1460,7 @@ void Client::OnFrameTick(
 
 	DelayRemover<ActorPtr>::getSingleton().Leave();
 
-	//LuaContext::dogc(LUA_GCSTOP, 0);
+	LuaContext::dogc(LUA_GCSTOP, 0); // ! avoid gc called by ScriptComponent::OnPxThreadSubstep
 
 	PhysxScene::TickPreRender(fElapsedTime);
 
@@ -1499,7 +1499,7 @@ void Client::OnFrameTick(
 
 	PhysxScene::TickPostRender(fElapsedTime);
 
-	//LuaContext::dogc(LUA_GCRESTART, 0);
+	LuaContext::dogc(LUA_GCRESTART, 0);
 
 	//if (player && player->m_Node)
 	//{
