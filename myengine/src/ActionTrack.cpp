@@ -435,16 +435,23 @@ void ActionTrackPoseInst::UpdateTime(float LastTime, float Time)
 	{
 		_ASSERT(Time >= key_inst_iter->m_Time);
 
-		const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - key_inst_iter->m_Time) / key_inst_iter->m_Length, 0));
-
-		m_Actor->SetPose(pose);
-
-		if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
+		if (Time < key_inst_iter->m_Time + key_inst_iter->m_Length)
 		{
-			m_Actor->SetPxPoseOrbyPxThread(pose);
-		}
+			const my::Bone pose = key_inst_iter->m_StartPose.Lerp(m_Pose, m_Template->m_Interpolation.Interpolate((Time - key_inst_iter->m_Time) / key_inst_iter->m_Length, 0));
 
-		key_inst_iter = KeyFrameInstList::reverse_iterator(m_KeyInsts.erase(m_KeyInsts.begin(), (key_inst_iter + 1).base()));
+			m_Actor->SetPose(pose);
+
+			if (!m_Actor->m_Base) // ! Actor::Update, m_Base->GetAttachPose
+			{
+				m_Actor->SetPxPoseOrbyPxThread(pose);
+			}
+
+			break;
+		}
+		else
+		{
+			key_inst_iter = KeyFrameInstList::reverse_iterator(m_KeyInsts.erase(m_KeyInsts.begin(), key_inst_iter.base()));
+		}
 	}
 }
 

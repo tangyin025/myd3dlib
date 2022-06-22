@@ -156,9 +156,12 @@ function PlayerBehavior:Update(elapsedTime)
 	client.listener:CommitDeferredSettings()
 end
 function PlayerBehavior:OnPxThreadSubstep(dtime)
-	self.Actor:TickActionAndGetDisplacement(dtime)
-	local moveFlag=controller_cmp:Move(self.velocity*dtime,0.001,dtime,1)
-	if bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
+	local ret,disp=self.Actor:TickActionAndGetDisplacement(dtime)
+	if not ret then
+		disp=self.velocity*dtime
+	end
+	local moveFlag=controller_cmp:Move(disp,0.001,dtime,1)
+	if ret or bit.band(moveFlag,Controller.eCOLLISION_DOWN) ~= 0 then
 		self.velocity.y=0
 	end
 end
