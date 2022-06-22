@@ -295,6 +295,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(my::Vector3);
 	m_ParticleVertElems.InsertTexcoordElement(offset, 0);
 	offset += sizeof(my::Vector2);
+	_ASSERT(m_ParticleVertStride == offset);
 
 	offset = 0;
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 1);
@@ -305,6 +306,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(Vector4);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
 	offset += sizeof(Vector4);
+	_ASSERT(m_ParticleInstanceStride == offset);
 
 	m_ParticleIEList = m_ParticleVertElems.BuildVertexElementList(0);
 	std::vector<D3DVERTEXELEMENT9> elems = m_ParticleInstanceElems.BuildVertexElementList(1);
@@ -324,6 +326,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(Vector4);
 	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
 	offset += sizeof(Vector4);
+	_ASSERT(m_MeshInstanceStride == offset);
 
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
 
@@ -768,15 +771,14 @@ void RenderPipeline::RenderAllObjects(
 		{
 			DWORD AttribId = mesh_inst_iter->first.get<1>();
 			_ASSERT(AttribId < mesh_inst_iter->second.m_AttribTable.size());
-			UINT NumInstances = 0;
+			const UINT NumInstances = (UINT)mesh_inst_iter->second.cmps.size();
+			_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
-			Matrix4* trans = (Matrix4*)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
-			_ASSERT(mesh_inst_iter->second.worlds.size() == mesh_inst_iter->second.world_nums.size());
-			for (DWORD i = 0; i < mesh_inst_iter->second.worlds.size(); i++)
+			unsigned char * pVertices = (unsigned char *)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
+			for (DWORD i = 0; i < mesh_inst_iter->second.cmps.size(); i++)
 			{
-				int Count = Min<int>(MESH_INSTANCE_MAX - NumInstances, mesh_inst_iter->second.world_nums[i]);
-				memcpy(&trans[NumInstances], mesh_inst_iter->second.worlds[i], Count * sizeof(Matrix4));
-				NumInstances += Count;
+				memcpy(m_MeshInstanceElems.GetVertexValue<void>(pVertices + i * m_MeshInstanceStride, D3DDECLUSAGE_POSITION, 1),
+					&mesh_inst_iter->second.cmps[i]->m_Actor->m_World, sizeof(Matrix4));
 			}
 			m_MeshInstanceData.Unlock();
 
@@ -1115,7 +1117,7 @@ void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD Attrib
 	m_Pass[PassID].m_MeshList.push_back(atom);
 }
 
-void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader, mtl, lparam);
 	std::pair<MeshInstanceAtomMap::iterator, bool> res = m_Pass[PassID].m_MeshInstanceMap.insert(std::make_pair(key, MeshInstanceAtom()));
@@ -1151,9 +1153,7 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-	res.first->second.worlds.push_back(&cmp->m_Actor->m_World);
-	res.first->second.world_nums.push_back(1);
-	res.first->second.cmps.push_back(cmp);
+	res.first->second.cmps.push_back(mesh_cmp);
 }
 
 void RenderPipeline::PushEmitter(

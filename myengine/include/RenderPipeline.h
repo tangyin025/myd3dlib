@@ -11,6 +11,8 @@
 
 class Component;
 
+class MeshComponent;
+
 class RenderPipeline
 {
 public:
@@ -355,9 +357,7 @@ public:
 		std::vector<D3DVERTEXELEMENT9> m_velist;
 		DWORD m_VertexStride;
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-		std::vector<my::Matrix4 *> worlds;
-		std::vector<int> world_nums;
-		std::vector<Component *> cmps;
+		std::vector<MeshComponent *> cmps;
 	};
 
 	class MeshInstanceAtomKey : public boost::tuple<my::Mesh *, DWORD, my::Effect *, Material *, LPARAM>
@@ -601,7 +601,7 @@ public:
 
 	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
-	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
+	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, MeshComponent * mesh_cmp, Material * mtl, LPARAM lparam);
 
 	void PushEmitter(
 		unsigned int PassID,
