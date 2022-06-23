@@ -565,12 +565,12 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 }
 
 template <typename T>
-void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & character_info_getter, D3DCOLOR color, Font::Align align, Font * font)
+void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font)
 {
 	const wchar_t* p = str;
 	for (float x = pen.x, y = pen.y; *p; p++)
 	{
-		const Font::CharacterInfo* info = character_info_getter(*p);
+		const Font::CharacterInfo* info = get_character_info(*p);
 
 		if (align & Font::AlignMultiLine)
 		{

@@ -112,7 +112,7 @@ namespace my
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const BaseTexture * texture, const Rectangle & clip);
 
 		template <typename T>
-		void PushString(const Vector2 & pen, float right, const wchar_t * str, const T & characterInfoGetter, D3DCOLOR color, Font::Align align, Font * font);
+		void PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font);
 
 		void PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font);
 
