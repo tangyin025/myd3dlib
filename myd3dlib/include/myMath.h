@@ -1036,6 +1036,11 @@ namespace my
 		Vector4 transformTranspose(const Matrix4 & m) const;
 
 	public:
+		Vector2 xz(void) const
+		{
+			return Vector2(x, z);
+		}
+
 		static const Vector4 zero;
 
 		static const Vector4 one;

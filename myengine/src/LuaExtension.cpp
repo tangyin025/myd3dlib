@@ -13,6 +13,7 @@ extern "C"
 #include <luabind/out_value_policy.hpp>
 #include <luabind/copy_policy.hpp>
 #include <luabind/adopt_policy.hpp>
+#include <luabind/tag_function.hpp>
 #include "libc.h"
 #include "myDxutApp.h"
 #include "myResource.h"
@@ -829,6 +830,7 @@ void LuaContext::Init(void)
 			.def_readwrite("y", &my::Vector3::y)
 			.def_readwrite("z", &my::Vector3::z)
 			.def_readwrite("xy", &my::Vector3::xy, copy(result))
+			.def_readwrite("yz", &my::Vector3::yz, copy(result))
 			.def(self == other<const my::Vector3 &>())
 			.def(-const_self)
 			.def(self + other<const my::Vector3 &>())
@@ -878,7 +880,12 @@ void LuaContext::Init(void)
 			.def_readwrite("z", &my::Vector4::z)
 			.def_readwrite("w", &my::Vector4::w)
 			.def_readwrite("xy", &my::Vector4::xy, copy(result))
+			.def_readwrite("yz", &my::Vector4::yz, copy(result))
 			.def_readwrite("xyz", &my::Vector4::xyz, copy(result))
+			.def_readwrite("r", &my::Vector4::x)
+			.def_readwrite("g", &my::Vector4::y)
+			.def_readwrite("b", &my::Vector4::z)
+			.def_readwrite("a", &my::Vector4::w)
 			.def(self == other<const my::Vector4 &>())
 			.def(-const_self)
 			.def(self + other<const my::Vector4 &>())
@@ -899,6 +906,7 @@ void LuaContext::Init(void)
 			.def("normalizeSelf", &my::Vector4::normalizeSelf, return_reference_to(boost::placeholders::_1))
 			.def("transform", &my::Vector4::transform)
 			.def("transformTranspose", &my::Vector4::transformTranspose)
+			.property("xz", &my::Vector4::xz)
 
 		, class_<my::Rectangle>("Rectangle")
 			.def(constructor<float, float, float, float>())
@@ -2174,6 +2182,7 @@ void LuaContext::Init(void)
 			.def_readwrite("MeshSubMeshName", &MeshComponent::m_MeshSubMeshName)
 			.def_readwrite("MeshSubMeshId", &MeshComponent::m_MeshSubMeshId)
 			.def_readonly("Mesh", &MeshComponent::m_Mesh)
+			.def_readwrite("MeshColor", &MeshComponent::m_MeshColor)
 			.def_readwrite("bInstance", &MeshComponent::m_bInstance)
 			.def("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
 			.def("CreateConvexMeshShape", &MeshComponent::CreateConvexMeshShape)
@@ -2398,6 +2407,8 @@ void LuaContext::Init(void)
 			.def("Detach", &Actor::Detach)
 			.property("AttachNum", &Actor::GetAttachNum)
 			.def("GetAttachPose", &Actor::GetAttachPose)
+			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int)>(
+				boost::bind<my::Bone>(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0,0,0), my::Quaternion::Identity())))
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("StopAllAction", &Actor::StopAllAction)
