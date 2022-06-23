@@ -139,7 +139,7 @@ void LargeImage::Draw(my::UIRender * ui_render, const my::Rectangle & rect, DWOR
 				{
 					my::Rectangle Rect(rect.l + i * ChunkSize.x, rect.t + j * ChunkSize.y, rect.l + (i + 1) * ChunkSize.x, rect.t + (j + 1) * ChunkSize.y);
 
-					ui_render->PushRectangle(Rect, my::Rectangle(0, 0, 1, 1), color, res.first->second.m_Texture.get(), clip);
+					ui_render->PushRectangleSimple(ui_render->GetVertexList(res.first->second.m_Texture.get()), Rect, my::Rectangle(0, 0, 1, 1), color, clip);
 				}
 			}
 			else

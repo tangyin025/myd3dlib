@@ -95,13 +95,13 @@ namespace my
 
 		VertexList & GetVertexList(const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Rectangle & clip);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture, const Matrix4 & transform);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Matrix4 & transform);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, D3DCOLOR color, const Rectangle & WindowRect, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
 
 		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color);
 
