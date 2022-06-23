@@ -67,7 +67,7 @@ namespace my
 
 		DWORD SetLOD(DWORD LODNew);
 
-		virtual D3DSURFACE_DESC GetLevelDesc(UINT Level = 0) = 0;
+		virtual D3DSURFACE_DESC GetLevelDesc(UINT Level = 0) const = 0;
 	};
 
 	typedef boost::shared_ptr<BaseTexture> BaseTexturePtr;
@@ -126,7 +126,7 @@ namespace my
 
 		void AddDirtyRect(CONST CRect * pDirtyRect = NULL);
 
-		D3DSURFACE_DESC GetLevelDesc(UINT Level = 0);
+		D3DSURFACE_DESC GetLevelDesc(UINT Level = 0) const;
 
 		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level = 0);
 
@@ -194,7 +194,7 @@ namespace my
 			UINT Level = 0);
 
 		D3DSURFACE_DESC GetLevelDesc(
-			UINT Level = 0);
+			UINT Level = 0) const;
 
 		D3DLOCKED_RECT LockRect(
 			D3DCUBEMAP_FACES FaceType,

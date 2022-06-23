@@ -115,14 +115,13 @@ namespace my
 		: public DeviceResourceBase
 	{
 	public:
-		HRESULT hr;
+		__declspec(thread) static HRESULT hr;
 
 		DerivedClass * m_ptr;
 
 	public:
 		D3DDeviceResource(void)
-			: hr(S_OK)
-			, m_ptr(NULL)
+			: m_ptr(NULL)
 		{
 		}
 
@@ -145,6 +144,9 @@ namespace my
 			SAFE_RELEASE(m_ptr);
 		}
 	};
+
+	template <class DerivedClass>
+	HRESULT D3DDeviceResource<DerivedClass>::hr(S_OK);
 
 	typedef std::vector<unsigned char> Cache;
 

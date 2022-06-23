@@ -50,7 +50,7 @@ namespace my
 
 		typedef std::vector<CUSTOMVERTEX> VertexList;
 
-		typedef std::pair<BaseTexture *, VertexList> UILayer;
+		typedef std::pair<const BaseTexture *, VertexList> UILayer;
 
 		typedef std::vector<UILayer> UILayerList;
 
@@ -93,23 +93,23 @@ namespace my
 
 		static void PushRectangleSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const Rectangle & clip);
 
-		VertexList & GetVertexList(BaseTexture * texture);
+		VertexList & GetVertexList(const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture, const Rectangle & clip);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture, const Matrix4 & transform);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, const BaseTexture * texture, const Matrix4 & transform, const Rectangle & clip);
 
-		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize);
+		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color);
 
-		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, const Rectangle & clip);
+		static void PushWindowSimple(VertexList & vertex_list, const Rectangle & rect, const Rectangle & InRect, const Rectangle & OutUvRect, const Rectangle & InUvRect, DWORD color, const Rectangle & clip);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture);
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const BaseTexture * texture);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, const Rectangle & clip);
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const BaseTexture * texture, const Rectangle & clip);
 
 		template <typename T>
 		void PushString(const Vector2 & pen, float right, const wchar_t * str, const T & characterInfoGetter, D3DCOLOR color, Font::Align align, Font * font);
@@ -1565,7 +1565,7 @@ namespace my
 
 		Vector2 GetDlgViewport(void) const;
 
-		Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+		Ray CalculateRay(const Vector2 & pt, const Vector2 & dim);
 
 		void Draw(UIRender * ui_render, double fTime, float fElapsedTime, const Vector2 & Viewport);
 

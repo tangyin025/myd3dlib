@@ -219,7 +219,7 @@ void Texture2D::AddDirtyRect(CONST CRect * pDirtyRect)
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->AddDirtyRect(pDirtyRect));
 }
 
-D3DSURFACE_DESC Texture2D::GetLevelDesc(UINT Level)
+D3DSURFACE_DESC Texture2D::GetLevelDesc(UINT Level) const
 {
 	D3DSURFACE_DESC desc;
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
@@ -350,7 +350,7 @@ CComPtr<IDirect3DSurface9> CubeTexture::GetCubeMapSurface(
 }
 
 D3DSURFACE_DESC CubeTexture::GetLevelDesc(
-	UINT Level)
+	UINT Level) const
 {
 	D3DSURFACE_DESC desc;
 	V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
