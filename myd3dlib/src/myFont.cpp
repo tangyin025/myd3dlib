@@ -689,6 +689,53 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	return pen;
 }
 
+template <typename T>
+void Font::DrawString(
+	LPD3DXSPRITE pSprite,
+	const Vector2& pen,
+	float right,
+	LPCWSTR pString,
+	const T& get_character_info,
+	D3DCOLOR color,
+	Font::Align align)
+{
+	const wchar_t* p = pString;
+	for (float x = pen.x, y = pen.y; *p; p++)
+	{
+		const CharacterInfo* info = get_character_info(*p);
+
+		if (align & Font::AlignMultiLine)
+		{
+			if (x + info->horiAdvance > right)
+			{
+				x = pen.x;
+				y += m_LineHeight;
+			}
+			else if (*p == L'\n')
+			{
+				x = pen.x;
+				y += m_LineHeight;
+				continue;
+			}
+		}
+
+		CComPtr<IDirect3DDevice9> Device;
+		pSprite->GetDevice(&Device);
+		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+		V(pSprite->Draw(
+			(IDirect3DTexture9*)m_Texture->m_ptr,
+			&info->textureRect,
+			(D3DXVECTOR3*)&Vector3(0, 0, 0),
+			(D3DXVECTOR3*)&Vector3(x + info->horiBearingX, y - info->horiBearingY, 0),
+			color));
+
+		x += info->horiAdvance;
+	}
+}
+
 void Font::DrawString(
 	LPD3DXSPRITE pSprite,
 	LPCWSTR pString,
@@ -700,77 +747,9 @@ void Font::DrawString(
 {
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
-	const wchar_t* p = pString;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const CharacterInfo * info = GetCharacterOutlineInfo(*p, OutlineWidth);
+	DrawString(pSprite, pen, rect.r, pString, boost::bind(&Font::GetCharacterOutlineInfo, this, boost::placeholders::_1, OutlineWidth), OutlineColor, align);
 
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > rect.r)
-			{
-				x = pen.x;
-				y += m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += m_LineHeight;
-				continue;
-			}
-		}
-
-		CComPtr<IDirect3DDevice9> Device;
-		pSprite->GetDevice(&Device);
-		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-		V(pSprite->Draw(
-			(IDirect3DTexture9*)m_Texture->m_ptr,
-			&info->textureRect,
-			(D3DXVECTOR3*)&Vector3(0, 0, 0),
-			(D3DXVECTOR3*)&Vector3(x + info->horiBearingX, y - info->horiBearingY, 0),
-			OutlineColor));
-
-		x += info->horiAdvance;
-	}
-
-	p = pString;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const CharacterInfo * info = GetCharacterInfo(*p);
-
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > rect.r)
-			{
-				x = pen.x;
-				y += m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += m_LineHeight;
-				continue;
-			}
-		}
-
-		CComPtr<IDirect3DDevice9> Device;
-		pSprite->GetDevice(&Device);
-		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-		V(pSprite->Draw(
-			(IDirect3DTexture9*)m_Texture->m_ptr,
-			&info->textureRect,
-			(D3DXVECTOR3*)&Vector3(0, 0, 0),
-			(D3DXVECTOR3*)&Vector3(x + info->horiBearingX, y - info->horiBearingY, 0),
-			Color));
-
-		x += info->horiAdvance;
-	}
+	DrawString(pSprite, pen, rect.r, pString, boost::bind(&Font::GetCharacterInfo, this, boost::placeholders::_1), Color, align);
 }
 
 float Font::CPtoX(LPCWSTR pString, int nCP)
