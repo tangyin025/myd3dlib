@@ -123,6 +123,16 @@ static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect,
 	self->PushString(rect, str.c_str(), color, align, outlineColor, outlineWidth, font);
 }
 
+static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, my::Font* font, const my::Matrix4& transform)
+{
+	self->PushString(rect, str.c_str(), color, align, font, transform);
+}
+
+static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, D3DCOLOR outlineColor, float outlineWidth, my::Font* font, const my::Matrix4& transform)
+{
+	self->PushString(rect, str.c_str(), color, align, outlineColor, outlineWidth, font, transform);
+}
+
 static void ui_render_push_layer(my::UIRender* self, my::BaseTexture* texture)
 {
 	self->GetVertexList(texture);
@@ -1419,6 +1429,8 @@ void LuaContext::Init(void)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushWindow)
 			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*))& ui_render_push_string)
 			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*))& ui_render_push_string)
+			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*, const my::Matrix4&))& ui_render_push_string)
+			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*, const my::Matrix4&))& ui_render_push_string)
 			.def("PushLayer", &ui_render_push_layer)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
