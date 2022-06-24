@@ -1153,7 +1153,11 @@ void LuaContext::Init(void)
 		, class_<my::Spline>("Spline")
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
+			.def("AddNode", luabind::tag_function<void(my::Spline*,float,float)>(
+				boost::bind(&my::Spline::AddNode, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, 0.0f, 0.0f)))
 			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
+			.def("Interpolate", luabind::tag_function<float(my::Spline*, float)>(
+				boost::bind(&my::Spline::Interpolate, boost::placeholders::_1, boost::placeholders::_2, 0.0f)))
 
 		, class_<my::Emitter::Particle>("EmitterParticle")
 			.def_readwrite("Position", &my::Emitter::Particle::m_Position)
@@ -2408,7 +2412,7 @@ void LuaContext::Init(void)
 			.property("AttachNum", &Actor::GetAttachNum)
 			.def("GetAttachPose", &Actor::GetAttachPose)
 			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int)>(
-				boost::bind<my::Bone>(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0,0,0), my::Quaternion::Identity())))
+				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0, 0, 0), my::Quaternion::Identity())))
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("StopAllAction", &Actor::StopAllAction)
