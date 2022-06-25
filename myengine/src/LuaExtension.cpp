@@ -2551,6 +2551,11 @@ void LuaContext::Init(void)
 			.def_readwrite("Interpolation", &ActionTrackPose::m_Interpolation)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
 
+		, class_<ActionTrackEvent, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackEvent")
+			.def(constructor<>())
+			.def_readwrite("ParamEvent", &ActionTrackEvent::m_ParamEvent)
+			.def("AddKeyFrame", &ActionTrackEvent::AddKeyFrame)
+
 		, class_<RenderPipeline>("RenderPipeline")
 			.enum_("PassMask")
 			[

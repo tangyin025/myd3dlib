@@ -472,3 +472,32 @@ bool ActionTrackPoseInst::GetDisplacement(float LastTime, float dtime, my::Vecto
 	}
 	return false;
 }
+
+ActionTrackInstPtr ActionTrackEvent::CreateInstance(Actor* _Actor) const
+{
+	return ActionTrackInstPtr(new ActionTrackEventInst(_Actor, boost::static_pointer_cast<const ActionTrackEvent>(shared_from_this())));
+}
+
+void ActionTrackEvent::AddKeyFrame(float Time)
+{
+	KeyFrameMap::iterator key_iter = m_Keys.insert(Time);
+	_ASSERT(key_iter != m_Keys.end());
+}
+
+void ActionTrackEventInst::UpdateTime(float LastTime, float Time)
+{
+	if (m_Event)
+	{
+		ActionTrackEvent::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
+		ActionTrackEvent::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
+		for (; key_iter != key_end; key_iter++)
+		{
+			my::EventArg arg;
+			m_Event(&arg);
+		}
+	}
+}
+
+void ActionTrackEventInst::Stop(void)
+{
+}

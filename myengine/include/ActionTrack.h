@@ -433,3 +433,45 @@ public:
 
 	virtual bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp);
 };
+
+class ActionTrackEvent : public ActionTrack
+{
+public:
+	typedef std::multiset<float> KeyFrameMap;
+
+	KeyFrameMap m_Keys;
+
+	my::EventFunction m_ParamEvent;
+
+	ActionTrackEvent(void)
+	{
+	}
+
+	virtual ~ActionTrackEvent(void)
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const;
+
+	void AddKeyFrame(float Time);
+};
+
+class ActionTrackEventInst : public ActionTrackInst
+{
+protected:
+	boost::shared_ptr<const ActionTrackEvent> m_Template;
+
+	my::EventFunction m_Event;
+
+public:
+	ActionTrackEventInst(Actor* actor, boost::shared_ptr<const ActionTrackEvent> Template)
+		: ActionTrackInst(actor)
+		, m_Template(Template)
+		, m_Event(Template->m_ParamEvent)
+	{
+	}
+
+	virtual void UpdateTime(float LastTime, float Time);
+
+	virtual void Stop(void);
+};
