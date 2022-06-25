@@ -86,10 +86,6 @@ public:
 	{
 		return ActionTrackInstPtr();
 	}
-
-	virtual void OnKeyFrame(float Time, Actor * _Actor)
-	{
-	}
 };
 
 typedef boost::shared_ptr<ActionTrack> ActionTrackPtr;

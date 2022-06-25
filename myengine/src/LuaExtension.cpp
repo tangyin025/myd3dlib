@@ -192,10 +192,6 @@ static void animation_node_set_child_adopt(AnimationNode* self, int i, ScriptAni
 	self->SetChild(i, AnimationNodePtr(node));
 }
 
-struct ScriptActionTrack;
-
-static void action_add_track_adopt(Action* self, ScriptActionTrack* track);
-
 static my::Vector3 steering_get_corner(const Steering* self, int i)
 {
 	if (i < self->m_ncorners)
@@ -616,85 +612,6 @@ struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
 		ptr->AnimationNodeBlendList::Tick(fElapsedTime, fTotalWeight);
 	}
 };
-
-struct ScriptActionTrack : ActionTrack, luabind::wrap_base
-{
-	class ScriptActionTrackInst : public ActionTrackInst
-	{
-	protected:
-		boost::shared_ptr<const ScriptActionTrack> m_Template;
-
-	public:
-		ScriptActionTrackInst(Actor* actor, boost::shared_ptr<const ScriptActionTrack> Template)
-			: ActionTrackInst(actor)
-			, m_Template(Template)
-		{
-		}
-
-		virtual void UpdateTime(float LastTime, float Time)
-		{
-			ScriptActionTrack::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
-			ScriptActionTrack::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
-			for (; key_iter != key_end; key_iter++)
-			{
-				const_cast<ScriptActionTrack*>(m_Template.get())->OnKeyFrame(key_iter->first, m_Actor);
-			}
-		}
-
-		virtual void Stop(void)
-		{
-		}
-	};
-
-	struct KeyFrame
-	{
-	};
-
-	typedef std::multimap<float, KeyFrame> KeyFrameMap;
-
-	KeyFrameMap m_Keys;
-
-	ScriptActionTrack(void)
-	{
-	}
-
-	virtual ~ScriptActionTrack(void)
-	{
-	}
-
-	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
-	{
-		return ActionTrackInstPtr(new ScriptActionTrackInst(_Actor, boost::static_pointer_cast<const ScriptActionTrack>(shared_from_this())));
-	}
-
-	void AddKeyFrame(float Time)
-	{
-		KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
-		_ASSERT(key_iter != m_Keys.end());
-	}
-
-	virtual void OnKeyFrame(float Time, Actor * _Actor)
-	{
-		try
-		{
-			luabind::wrap_base::call<void>("OnKeyFrame", Time, _Actor);
-		}
-		catch (const luabind::error& e)
-		{
-			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-		}
-	}
-
-	static void default_OnKeyFrame(ScriptActionTrack* ptr, float Time, Actor * _Actor)
-	{
-		ptr->ActionTrack::OnKeyFrame(Time, _Actor);
-	}
-};
-
-static void action_add_track_adopt(Action* self, ScriptActionTrack* track)
-{
-	self->AddTrack(ActionTrackPtr(track));
-}
 
 typedef std::vector<Component*> cmp_list;
 
@@ -2502,13 +2419,9 @@ void LuaContext::Init(void)
 		, class_<Action, boost::shared_ptr<Action> >("Action")
 			.def(constructor<>())
 			.def("AddTrack", &Action::AddTrack)
-			.def("AddTrackAdopt", &action_add_track_adopt, adopt(boost::placeholders::_2))
 			.def("RemoveTrack", &Action::RemoveTrack)
 
-		, class_<ActionTrack, ScriptActionTrack/*, boost::shared_ptr<ActionTrack>*/ >("ActionTrack")
-			.def(constructor<>())
-			.def("AddKeyFrame", &ScriptActionTrack::AddKeyFrame)
-			.def("OnKeyFrame", &ActionTrack::OnKeyFrame, &ScriptActionTrack::default_OnKeyFrame)
+		, class_<ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrack")
 
 		, class_<ActionTrackAnimation, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())
