@@ -492,7 +492,7 @@ void ActionTrackEventInst::UpdateTime(float LastTime, float Time)
 		ActionTrackEvent::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 		for (; key_iter != key_end; key_iter++)
 		{
-			my::EventArg arg;
+			ActionTrackEventArg arg(*key_iter);
 			m_Event(&arg);
 		}
 	}

@@ -2467,6 +2467,9 @@ void LuaContext::Init(void)
 			.def_readwrite("Interpolation", &ActionTrackPose::m_Interpolation)
 			.def("AddKeyFrame", &ActionTrackPose::AddKeyFrame)
 
+		, class_<ActionTrackEventArg, my::EventArg>("ActionTrackEventArg")
+			.def_readonly("Time", &ActionTrackEventArg::Time)
+
 		, class_<ActionTrackEvent, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackEvent")
 			.def(constructor<>())
 			.def_readwrite("ParamEvent", &ActionTrackEvent::m_ParamEvent)

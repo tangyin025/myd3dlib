@@ -452,6 +452,17 @@ public:
 	void AddKeyFrame(float Time);
 };
 
+struct ActionTrackEventArg : public my::EventArg
+{
+public:
+	float Time;
+
+	ActionTrackEventArg(float _Time)
+		: Time(_Time)
+	{
+	}
+};
+
 class ActionTrackEventInst : public ActionTrackInst
 {
 protected:
