@@ -54,7 +54,7 @@ void ActionInst::Update(float fElapsedTime)
 	}
 }
 
-void ActionInst::Stop(void)
+void ActionInst::StopAllTrack(void)
 {
 	ActionTrackInstPtrList::iterator track_inst_iter = m_TrackInstList.begin();
 	for (; track_inst_iter != m_TrackInstList.end(); track_inst_iter++)

@@ -121,7 +121,8 @@ void OctNode::AddEntity(OctEntity * entity, const AABB & aabb, float minblock, f
 		}
 	}
 
-	_ASSERT(m_Entities.end() == boost::find_if(m_Entities, boost::bind(std::equal_to<OctEntity*>(), boost::bind(&std::pair<OctEntity*, AABB>::first, boost::placeholders::_1), entity)));
+	_ASSERT(m_Entities.end() == boost::find_if(m_Entities,
+		boost::bind(std::equal_to<OctEntity*>(), boost::bind(&std::pair<OctEntity*, AABB>::first, boost::placeholders::_1), entity)));
 	m_Entities.push_back(std::make_pair(entity, aabb));
 	entity->m_Node = this;
 	entity->m_OctAabb = &m_Entities.rbegin()->second;
@@ -318,8 +319,7 @@ bool OctNode::QueryAllEntity(QueryCallback * callback) const
 
 int OctNode::GetAllEntityNum(void) const
 {
-	int ret = 0;
-	ret += m_Entities.size();
+	int ret = m_Entities.size();
 
 	ChildArray::const_iterator node_iter = m_Childs.begin();
 	for (; node_iter != m_Childs.end(); node_iter++)

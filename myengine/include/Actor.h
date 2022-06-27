@@ -313,7 +313,11 @@ public:
 
 	void ClearAllAttach(void);
 
-	void PlayAction(Action * action, float Length);
+	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
+
+	ActionInstPtrList::iterator StopActionIter(ActionInstPtrList::iterator action_inst_iter);
+
+	void StopAction(boost::shared_ptr<ActionInst> action_inst);
 
 	void StopAllAction(void);
 

@@ -66,7 +66,7 @@ public:
 
 	void Update(float fElapsedTime);
 
-	void Stop(void);
+	void StopAllTrack(void);
 
 	bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp);
 };

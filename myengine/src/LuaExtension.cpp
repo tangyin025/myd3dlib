@@ -2347,6 +2347,7 @@ void LuaContext::Init(void)
 				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0, 0, 0), my::Quaternion::Identity())))
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
 			.def("PlayAction", &Actor::PlayAction)
+			.def("StopAction", &Actor::StopAction)
 			.def("StopAllAction", &Actor::StopAllAction)
 			.def("TickActionAndGetDisplacement", &Actor::TickActionAndGetDisplacement, pure_out_value(boost::placeholders::_3))
 			.def("GetFirstComponent", (Component * (Actor::*)(DWORD))&Actor::GetFirstComponent)
@@ -2423,6 +2424,10 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def("AddTrack", &Action::AddTrack)
 			.def("RemoveTrack", &Action::RemoveTrack)
+
+		, class_<ActionInst, boost::shared_ptr<ActionInst> >("ActionInst")
+			.def_readonly("LastTime", &ActionInst::m_LastTime)
+			.def_readonly("Time", &ActionInst::m_Time)
 
 		, class_<ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrack")
 

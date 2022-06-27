@@ -20,6 +20,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 using namespace my;
 
@@ -339,10 +340,8 @@ void Actor::Update(float fElapsedTime)
 		}
 		else
 		{
-			action_inst_iter->first->Stop();
-
 			// ! make sure action inst was not in parallel task list
-			action_inst_iter = m_ActionInstList.erase(action_inst_iter);
+			action_inst_iter = StopActionIter(action_inst_iter);
 		}
 	}
 
@@ -756,19 +755,39 @@ void Actor::ClearAllAttach(void)
 	}
 }
 
-void Actor::PlayAction(Action * action, float Length)
+boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, float Length)
 {
-	m_ActionInstList.push_back(std::make_pair(action->CreateInstance(this), Length));
+	ActionInstPtr action_inst = action->CreateInstance(this);
+	m_ActionInstList.push_back(std::make_pair(action_inst, Length));
+	return action_inst;
+}
+
+Actor::ActionInstPtrList::iterator Actor::StopActionIter(ActionInstPtrList::iterator action_inst_iter)
+{
+	_ASSERT(action_inst_iter != m_ActionInstList.end());
+
+	action_inst_iter->first->StopAllTrack();
+
+	return m_ActionInstList.erase(action_inst_iter);
+}
+
+void Actor::StopAction(boost::shared_ptr<ActionInst> action_inst)
+{
+	ActionInstPtrList::iterator action_inst_iter = boost::find_if(m_ActionInstList,
+		boost::bind(std::equal_to<const boost::shared_ptr<ActionInst>&>(), boost::bind(&std::pair< boost::shared_ptr<ActionInst>, float>::first, boost::placeholders::_1), action_inst));
+	if (action_inst_iter != m_ActionInstList.end())
+	{
+		StopActionIter(action_inst_iter);
+	}
 }
 
 void Actor::StopAllAction(void)
 {
 	ActionInstPtrList::iterator action_inst_iter = m_ActionInstList.begin();
-	for (; action_inst_iter != m_ActionInstList.end(); action_inst_iter++)
+	for (; action_inst_iter != m_ActionInstList.end(); )
 	{
-		action_inst_iter->first->Stop();
+		action_inst_iter = StopActionIter(action_inst_iter);
 	}
-	m_ActionInstList.clear();
 }
 
 bool Actor::TickActionAndGetDisplacement(float dtime, my::Vector3 & disp)
