@@ -37,6 +37,11 @@ public:
 	{
 	}
 
+	bool operator ==(const Action & rhs) const
+	{
+		return this == &rhs;
+	}
+
 	void AddTrack(ActionTrackPtr track);
 
 	void RemoveTrack(ActionTrackPtr track);
