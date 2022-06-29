@@ -766,6 +766,13 @@ Actor::ActionInstPtrList::iterator Actor::StopActionIter(ActionInstPtrList::iter
 
 	action_inst_iter->first->StopAllTrack();
 
+	// ! inst may out of the actor's lifetime
+	ActionInst::ActionTrackInstPtrList::iterator track_inst_iter = action_inst_iter->first->m_TrackInstList.begin();
+	for (; track_inst_iter != action_inst_iter->first->m_TrackInstList.end(); track_inst_iter++)
+	{
+		(*track_inst_iter)->m_Actor = NULL;
+	}
+
 	return m_ActionInstList.erase(action_inst_iter);
 }
 

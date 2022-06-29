@@ -265,15 +265,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 
 ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 {
-	_ASSERT(m_TaskEvent.Wait(0));
-
-	//if (m_WorldEmitterActor->m_Node)
-	//{
-	//	my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
-	//	Root->RemoveEntity(m_WorldEmitterActor.get());
-	//}
-
-	m_Actor->RemoveComponent(m_WorldEmitterCmp->GetSiblingId());
+	_ASSERT(m_TaskEvent.Wait(0) && !m_WorldEmitterCmp);
 }
 
 void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
@@ -325,7 +317,15 @@ void ActionTrackEmitterInst::Stop(void)
 {
 	m_TaskEvent.Wait(INFINITE);
 
-	m_WorldEmitterCmp->RemoveAllParticle();
+	//if (m_WorldEmitterActor->m_Node)
+	//{
+	//	my::OctNode * Root = m_WorldEmitterActor->m_Node->GetTopNode();
+	//	Root->RemoveEntity(m_WorldEmitterActor.get());
+	//}
+
+	m_Actor->RemoveComponent(m_WorldEmitterCmp->GetSiblingId());
+
+	m_WorldEmitterCmp.reset();
 }
 
 void ActionTrackEmitterInst::DoTask(void)
