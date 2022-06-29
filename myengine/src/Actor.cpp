@@ -695,11 +695,9 @@ void Actor::Attach(Actor * other, int BoneId)
 
 	const my::Bone pose = GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity());
 
-	const my::Matrix4 world2loc = my::Matrix4::Compose(m_Scale, pose.m_rotation, pose.m_position).inverse();
+	other->m_Position = pose.m_rotation.conjugate() * (other->m_Position - pose.m_position);
 
-	other->m_Position = other->m_Position.transformCoord(world2loc);
-
-	other->m_Rotation = pose.m_rotation.conjugate() * other->m_Rotation;
+	other->m_Rotation = other->m_Rotation * pose.m_rotation.conjugate();
 }
 
 void Actor::Detach(Actor * other)

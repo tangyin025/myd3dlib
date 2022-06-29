@@ -143,8 +143,6 @@ namespace my
 
 	class Vector4;
 
-	class Quaternion;
-
 	class Matrix4;
 
 	class Vector2
@@ -2879,7 +2877,7 @@ namespace my
 		Bone & TransformSelf(const Bone & parent)
 		{
 			m_position = parent.m_rotation * m_position + parent.m_position;
-			m_rotation *= parent.m_rotation;
+			m_rotation = m_rotation * parent.m_rotation;
 			return *this;
 		}
 
