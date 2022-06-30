@@ -838,7 +838,7 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	std::istream ifs(&buff);
 	LPCTSTR Ext = PathFindExtension(lpszFileName);
 	boost::shared_ptr<boost::archive::polymorphic_iarchive> ia = Actor::GetIArchive(ifs, ts2ms(Ext).c_str());
-	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
+	*ia >> boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam->m_Euler);
 	*ia >> boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*ia >> boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
 	*ia >> boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
@@ -879,7 +879,7 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	std::ofstream ofs(lpszPathName, std::ios::binary, _SH_DENYRW);
 	LPCTSTR Ext = PathFindExtension(lpszPathName);
 	boost::shared_ptr<boost::archive::polymorphic_oarchive> oa = Actor::GetOArchive(ofs, ts2ms(Ext).c_str());
-	*oa << boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam.m_Euler);
+	*oa << boost::serialization::make_nvp("SkyLightCam.m_Euler", theApp.m_SkyLightCam->m_Euler);
 	*oa << boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*oa << boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
 	*oa << boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
@@ -1070,7 +1070,7 @@ void CMainFrame::OnFileNew()
 	InitFileContext();
 	m_wndOutliner.OnInitItemList();
 	InitialUpdateFrame(NULL, TRUE);
-	theApp.m_SkyLightCam.m_Euler = my::Vector3(D3DXToRadian(-45), 0, 0);
+	theApp.m_SkyLightCam->m_Euler = my::Vector3(D3DXToRadian(-45), 0, 0);
 	theApp.m_SkyLightColor = my::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	theApp.m_AmbientColor = my::Vector4(0.3f, 0.3f, 0.3f, 0.3f);
 	OnSelChanged();

@@ -7,6 +7,7 @@
 #include "afxdialogex.h"
 #include "CtrlProps.h"
 #include "Component.h"
+#include "Material.h"
 #include "PropertiesWnd.h"
 
 // CTerrainDlg dialog

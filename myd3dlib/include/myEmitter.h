@@ -12,7 +12,7 @@ namespace my
 	class Emitter
 	{
 	public:
-		class Particle
+		struct Particle
 		{
 		public:
 			Vector4 m_Position;

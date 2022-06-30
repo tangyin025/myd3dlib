@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "StaticEmitterDlg.h"
 #include "afxdialogex.h"
+#include "Material.h"
 #include "MainApp.h"
 
 

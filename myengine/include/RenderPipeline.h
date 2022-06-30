@@ -1,17 +1,26 @@
 #pragma once
 
 #include "myMesh.h"
-#include "myEffect.h"
 #include "myEmitter.h"
-#include "myUtility.h"
-#include "Material.h"
 #include <boost/unordered_map.hpp>
 #include <boost/array.hpp>
 #include <boost/tuple/tuple.hpp>
 
+namespace my {
+	class Texture2D;
+
+	class Surface;
+
+	class Effect;
+
+	class Camera;
+}
+
 class Component;
 
 class MeshComponent;
+
+class Material;
 
 class RenderPipeline
 {
@@ -39,19 +48,7 @@ public:
 		PassTypeNum
 	};
 
-	enum PassMask
-	{
-		PassMaskNone = 0,
-		PassMaskShadow = 1 << PassTypeShadow,
-		PassMaskLight = 1 << PassTypeLight,
-		PassMaskBackground = 1 << PassTypeBackground,
-		PassMaskOpaque = 1 << PassTypeOpaque,
-		PassMaskNormalOpaque = 1 << PassTypeNormal | 1 << PassTypeOpaque,
-		PassMaskShadowNormalOpaque = 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
-		PassMaskTransparent = 1 << PassTypeTransparent,
-	};
-
-	typedef boost::unordered_map<size_t, my::EffectPtr> ShaderCacheMap;
+	typedef boost::unordered_map<size_t, boost::shared_ptr<my::Effect> > ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 
@@ -103,17 +100,17 @@ public:
 
 	float SHADOW_EPSILON;
 
-	my::Texture2DPtr m_ShadowRT;
+	boost::shared_ptr<my::Texture2D> m_ShadowRT;
 
-	my::SurfacePtr m_ShadowDS;
+	boost::shared_ptr<my::Surface> m_ShadowDS;
 
-	my::OrthoCamera m_SkyLightCam;
+	boost::shared_ptr<my::Camera> m_SkyLightCam;
 
 	my::Vector4 m_SkyLightColor;
 
 	my::Vector4 m_AmbientColor;
 
-	my::EffectPtr m_SimpleSample;
+	boost::shared_ptr<my::Effect> m_SimpleSample;
 
 	D3DXHANDLE handle_Time;
 
@@ -153,19 +150,19 @@ public:
 
 	D3DXHANDLE handle_DownFilterRT;
 
-	my::EffectPtr m_DofEffect;
+	boost::shared_ptr<my::Effect> m_DofEffect;
 
 	my::Vector4 m_DofParams;
 
 	D3DXHANDLE handle_DofParams;
 
-	my::EffectPtr m_FxaaEffect;
+	boost::shared_ptr<my::Effect> m_FxaaEffect;
 
 	D3DXHANDLE handle_InputTexture;
 
 	D3DXHANDLE handle_RCPFrame;
 
-	my::EffectPtr m_SsaoEffect;
+	boost::shared_ptr<my::Effect> m_SsaoEffect;
 
 	D3DXHANDLE handle_bias;
 
@@ -183,7 +180,7 @@ public:
 
 	float m_SsaoScale;
 
-	my::EffectPtr m_FogEffect;
+	boost::shared_ptr<my::Effect> m_FogEffect;
 
 	D3DXHANDLE handle_FogColor;
 
@@ -203,7 +200,7 @@ public:
 
 	struct RTChain
 	{
-		typedef boost::array<my::Texture2DPtr, 2> RTArray;
+		typedef boost::array<boost::shared_ptr<my::Texture2D>, 2> RTArray;
 
 		RTArray m_RenderTarget;
 
@@ -219,22 +216,22 @@ public:
 			m_Next = 1 - m_Next;
 		}
 
-		my::Texture2DPtr  GetPrevTarget(void)
+		boost::shared_ptr<my::Texture2D>  GetPrevTarget(void)
 		{
 			return m_RenderTarget[1 - m_Next];
 		}
 
-		my::Texture2DPtr  GetPrevSource(void)
+		boost::shared_ptr<my::Texture2D>  GetPrevSource(void)
 		{
 			return m_RenderTarget[m_Next];
 		}
 
-		my::Texture2DPtr & GetNextTarget(void)
+		boost::shared_ptr<my::Texture2D> & GetNextTarget(void)
 		{
 			return m_RenderTarget[m_Next];
 		}
 
-		my::Texture2DPtr & GetNextSource(void)
+		boost::shared_ptr<my::Texture2D> & GetNextSource(void)
 		{
 			return m_RenderTarget[1 - m_Next];
 		}
@@ -243,7 +240,7 @@ public:
 	class IRenderContext
 	{
 	public:
-		my::CameraPtr m_Camera;
+		boost::shared_ptr<my::Camera> m_Camera;
 
 		bool m_WireFrame;
 
@@ -255,11 +252,11 @@ public:
 
 		bool m_FogEnable;
 
-		my::Texture2DPtr m_NormalRT;
+		boost::shared_ptr<my::Texture2D> m_NormalRT;
 
-		my::Texture2DPtr m_PositionRT;
+		boost::shared_ptr<my::Texture2D> m_PositionRT;
 
-		my::Texture2DPtr m_LightRT;
+		boost::shared_ptr<my::Texture2D> m_LightRT;
 
 		RTChain m_OpaqueRT;
 
@@ -368,13 +365,7 @@ public:
 		{
 		}
 
-		bool operator == (const MeshInstanceAtomKey & rhs) const
-		{
-			return get<0>() == rhs.get<0>()
-				&& get<1>() == rhs.get<1>()
-				&& get<2>() == rhs.get<2>()
-				&& *get<3>() == *rhs.get<3>(); // ! mtl ptr must be valid object
-		}
+		bool operator == (const MeshInstanceAtomKey & rhs) const;
 	};
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
@@ -410,15 +401,7 @@ public:
 		{
 		}
 
-		bool operator == (const EmitterInstanceAtomKey & rhs) const
-		{
-			return get<0>() == rhs.get<0>()
-				&& get<1>() == rhs.get<1>()
-				&& get<2>() == rhs.get<2>()
-				&& get<3>() == rhs.get<3>()
-				&& get<4>() == rhs.get<4>()
-				&& *get<5>() == *rhs.get<5>();
-		}
+		bool operator == (const EmitterInstanceAtomKey & rhs) const;
 	};
 
 	typedef boost::unordered_map<EmitterInstanceAtomKey, EmitterInstanceAtom> EmitterInstanceAtomMap;

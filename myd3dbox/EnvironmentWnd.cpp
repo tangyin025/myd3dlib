@@ -205,9 +205,9 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pCamera->GetSubItem(CameraPropertyViewedDist)->SetValue((_variant_t)camera_prop_arg->pView->m_ViewedDist);
 
 	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
-	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.x));
-	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.y));
-	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam.m_Euler.z));
+	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Euler.x));
+	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Euler.y));
+	pSkyLight->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(theApp.m_SkyLightCam->m_Euler.z));
 
 	COLORREF color = RGB(theApp.m_SkyLightColor.x * 255, theApp.m_SkyLightColor.y * 255, theApp.m_SkyLightColor.z * 255);
 	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyDiffuse)))->SetColor((_variant_t)color);
@@ -344,7 +344,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertySkyLight:
 		{
-			theApp.m_SkyLightCam.m_Euler = my::Vector3(
+			theApp.m_SkyLightCam->m_Euler = my::Vector3(
 				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));

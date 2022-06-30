@@ -21,6 +21,7 @@ extern "C"
 #include "myInput.h"
 #include "mySound.h"
 #include "myAStar.h"
+#include "myEffect.h"
 #include "PrintCallStack.h"
 #include "LuaExtension.inl"
 #include "Material.h"
@@ -2013,6 +2014,17 @@ void LuaContext::Init(void)
 				value("BlendModeAlpha", Material::BlendModeAlpha),
 				value("BlendModeAdditive", Material::BlendModeAdditive)
 			]
+			.enum_("PassMask")
+			[
+				value("PassMaskNone", Material::PassMaskNone),
+				value("PassMaskShadow", Material::PassMaskShadow),
+				value("PassMaskLight", Material::PassMaskLight),
+				value("PassMaskBackground", Material::PassMaskBackground),
+				value("PassMaskOpaque", Material::PassMaskOpaque),
+				value("PassMaskNormalOpaque", Material::PassMaskNormalOpaque),
+				value("PassMaskShadowNormalOpaque", Material::PassMaskShadowNormalOpaque),
+				value("PassMaskTransparent", Material::PassMaskTransparent)
+			]
 			.def(constructor<>())
 			.def_readwrite("Shader", &Material::m_Shader)
 			.def_readwrite("PassMask", &Material::m_PassMask)
@@ -2483,17 +2495,6 @@ void LuaContext::Init(void)
 			.def("AddKeyFrame", &ActionTrackEvent::AddKeyFrame)
 
 		, class_<RenderPipeline>("RenderPipeline")
-			.enum_("PassMask")
-			[
-				value("PassMaskNone", RenderPipeline::PassMaskNone),
-				value("PassMaskShadow", RenderPipeline::PassMaskShadow),
-				value("PassMaskLight", RenderPipeline::PassMaskLight),
-				value("PassMaskBackground", RenderPipeline::PassMaskBackground),
-				value("PassMaskOpaque", RenderPipeline::PassMaskOpaque),
-				value("PassMaskNormalOpaque", RenderPipeline::PassMaskNormalOpaque),
-				value("PassMaskShadowNormalOpaque", RenderPipeline::PassMaskShadowNormalOpaque),
-				value("PassMaskTransparent", RenderPipeline::PassMaskTransparent)
-			]
 
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")

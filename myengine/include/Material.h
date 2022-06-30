@@ -5,6 +5,7 @@
 #include "myMath.h"
 #include "mySingleton.h"
 #include "myTexture.h"
+#include "RenderPipeline.h"
 
 namespace my
 {
@@ -281,6 +282,18 @@ public:
 	};
 
 	std::string m_Shader;
+
+	enum PassMask
+	{
+		PassMaskNone = 0,
+		PassMaskShadow = 1 << RenderPipeline::PassTypeShadow,
+		PassMaskLight = 1 << RenderPipeline::PassTypeLight,
+		PassMaskBackground = 1 << RenderPipeline::PassTypeBackground,
+		PassMaskOpaque = 1 << RenderPipeline::PassTypeOpaque,
+		PassMaskNormalOpaque = 1 << RenderPipeline::PassTypeNormal | 1 << RenderPipeline::PassTypeOpaque,
+		PassMaskShadowNormalOpaque = 1 << RenderPipeline::PassTypeShadow | 1 << RenderPipeline::PassTypeNormal | 1 << RenderPipeline::PassTypeOpaque,
+		PassMaskTransparent = 1 << RenderPipeline::PassTypeTransparent,
+	};
 
 	DWORD m_PassMask;
 

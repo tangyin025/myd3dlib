@@ -29,14 +29,14 @@ static char THIS_FILE[]=__FILE__;
 
 static const CPropertiesWnd::PassMaskDesc g_PassMaskDesc[] =
 {
-	{ _T("None"), RenderPipeline::PassMaskNone },
-	{ _T("Shadow"), RenderPipeline::PassMaskShadow },
-	{ _T("Light"), RenderPipeline::PassMaskLight },
-	{ _T("Background"), RenderPipeline::PassMaskBackground },
-	{ _T("Opaque"), RenderPipeline::PassMaskOpaque },
-	{ _T("NormalOpaque"), RenderPipeline::PassMaskNormalOpaque },
-	{ _T("ShadowNormalOpaque"), RenderPipeline::PassMaskShadowNormalOpaque },
-	{ _T("Transparent"), RenderPipeline::PassMaskTransparent },
+	{ _T("None"), Material::PassMaskNone },
+	{ _T("Shadow"), Material::PassMaskShadow },
+	{ _T("Light"), Material::PassMaskLight },
+	{ _T("Background"), Material::PassMaskBackground },
+	{ _T("Opaque"), Material::PassMaskOpaque },
+	{ _T("NormalOpaque"), Material::PassMaskNormalOpaque },
+	{ _T("ShadowNormalOpaque"), Material::PassMaskShadowNormalOpaque },
+	{ _T("Transparent"), Material::PassMaskTransparent },
 };
 
 static LPCTSTR GetPassMaskDesc(DWORD mask)

@@ -1211,8 +1211,8 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
 				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-				theApp.m_SkyLightCam.m_Eye = model_view_camera->m_LookAt;
-				theApp.m_SkyLightCam.UpdateViewProj();
+				theApp.m_SkyLightCam->m_Eye = model_view_camera->m_LookAt;
+				theApp.m_SkyLightCam->UpdateViewProj();
 				theApp.OnRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());

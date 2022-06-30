@@ -70,3 +70,21 @@ namespace boost
 		return seed;
 	}
 }
+
+inline bool RenderPipeline::MeshInstanceAtomKey::operator == (const MeshInstanceAtomKey& rhs) const
+{
+	return get<0>() == rhs.get<0>()
+		&& get<1>() == rhs.get<1>()
+		&& get<2>() == rhs.get<2>()
+		&& *get<3>() == *rhs.get<3>(); // ! mtl ptr must be valid object
+}
+
+inline bool RenderPipeline::EmitterInstanceAtomKey::operator == (const EmitterInstanceAtomKey& rhs) const
+{
+	return get<0>() == rhs.get<0>()
+		&& get<1>() == rhs.get<1>()
+		&& get<2>() == rhs.get<2>()
+		&& get<3>() == rhs.get<3>()
+		&& get<4>() == rhs.get<4>()
+		&& *get<5>() == *rhs.get<5>();
+}
