@@ -284,6 +284,8 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
+	Quaternion RootRotation; Vector3 RootPosition, RootScale;
+	m_Actor->m_World.Decompose(RootScale, RootRotation, RootPosition);
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
@@ -302,8 +304,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			if (m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 			{
 				m_WorldEmitterCmp->Spawn(
-					Vector4(SpawnPos.transformCoord(m_Actor->m_World), 1.0f),
-					Vector4(SpawnVel.transformNormal(m_Actor->m_World), 1.0f), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+					Vector4(SpawnPos + RootPosition, 1.0f), Vector4(RootRotation * SpawnVel, 1.0f), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
 			}
 			else
 			{
