@@ -245,7 +245,7 @@ ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
 	m_WorldEmitterCmp.reset(new CircularEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, EmitterComponent::SpaceTypeWorld,
+		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType,
 			m_Template->m_EmitterFaceType == EmitterComponent::FaceTypeCamera || m_Template->m_EmitterFaceType == EmitterComponent::FaceTypeAngleCamera ? EmitterComponent::VelocityTypeNone : EmitterComponent::VelocityTypeQuat, EmitterComponent::PrimitiveTypeQuad));
 	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
@@ -289,8 +289,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			m_SpawnPose.push_back(m_Actor->GetAttachPose(
-				m_Template->m_AttachBoneId, Vector3(0, 0, 0), Quaternion::Identity()));
+			m_SpawnPose.push_back(Bone(m_Actor->m_Position, m_Actor->m_Rotation));
 
 			m_WorldEmitterCmp->Spawn(
 				Vector4(0, 0, 0, 1), Vector4(0, 0, 0, 1), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
@@ -330,21 +329,36 @@ void ActionTrackEmitterInst::Stop(void)
 
 void ActionTrackEmitterInst::DoTask(void)
 {
+	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPose.size());
+
 	// ! take care of thread safe
 	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterCmp->m_ParticleList.begin();
-	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPose.size());
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_TaskTime - particle_iter->m_Time;
-		const my::Bone & SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
-		particle_iter->m_Position.xyz = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
-			m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
-			m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
-			m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0));
-		particle_iter->m_Velocity = (Vector4&)(Quaternion::RotationEulerAngles(
-			m_Template->m_ParticleEulerX.Interpolate(ParticleTime, 0),
-			m_Template->m_ParticleEulerY.Interpolate(ParticleTime, 0),
-			m_Template->m_ParticleEulerZ.Interpolate(ParticleTime, 0)) * SpawnPose.m_rotation);
+		if (m_Template->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+		{
+			const my::Bone& SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
+			particle_iter->m_Position.xyz = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
+				m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0));
+			particle_iter->m_Velocity = (Vector4&)(Quaternion::RotationEulerAngles(
+				m_Template->m_ParticleEulerX.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticleEulerY.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticleEulerZ.Interpolate(ParticleTime, 0)) * SpawnPose.m_rotation);
+		}
+		else
+		{
+			particle_iter->m_Position.xyz = my::Vector3(
+				m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0));
+			particle_iter->m_Velocity = (Vector4&)(Quaternion::RotationEulerAngles(
+				m_Template->m_ParticleEulerX.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticleEulerY.Interpolate(ParticleTime, 0),
+				m_Template->m_ParticleEulerZ.Interpolate(ParticleTime, 0)));
+		}
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);

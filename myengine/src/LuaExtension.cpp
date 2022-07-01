@@ -434,7 +434,13 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_Update(Component* ptr, float fElapsedTime)
 	{
-		ptr->Component::Update(fElapsedTime);
+		//ptr->Component::Update(fElapsedTime);
+
+		Animator* animator = ptr->m_Actor->GetFirstComponent<Animator>();
+		if (animator)
+		{
+			animator->Tick(fElapsedTime, 1.0f);
+		}
 	}
 
 	virtual void OnPxThreadSubstep(float dtime)
@@ -453,7 +459,10 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadSubstep(Component* ptr, float dtime)
 	{
-		ptr->Component::OnPxThreadSubstep(dtime);
+		//ptr->Component::OnPxThreadSubstep(dtime);
+
+		my::Vector3 disp;
+		ptr->m_Actor->TickActionAndGetDisplacement(dtime, disp);
 	}
 
 	virtual void OnEnterTrigger(my::EventArg* arg)
@@ -470,7 +479,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnEnterTrigger(Component* ptr, my::EventArg* arg)
 	{
-		ptr->Component::OnEnterTrigger(arg);
+		//ptr->Component::OnEnterTrigger(arg);
 	}
 
 	virtual void OnLeaveTrigger(my::EventArg* arg)
@@ -487,7 +496,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnLeaveTrigger(Component* ptr, my::EventArg* arg)
 	{
-		ptr->Component::OnLeaveTrigger(arg);
+		//ptr->Component::OnLeaveTrigger(arg);
 	}
 
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
@@ -504,7 +513,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadShapeHit(Component* ptr, my::EventArg* arg)
 	{
-		ptr->Component::OnPxThreadShapeHit(arg);
+		//ptr->Component::OnPxThreadShapeHit(arg);
 	}
 
 	virtual void OnPxThreadControllerHit(my::EventArg* arg)
@@ -521,7 +530,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadControllerHit(Component* ptr, my::EventArg* arg)
 	{
-		ptr->Component::OnPxThreadControllerHit(arg);
+		//ptr->Component::OnPxThreadControllerHit(arg);
 	}
 
 	virtual void OnPxThreadObstacleHit(my::EventArg* arg)
@@ -538,7 +547,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnPxThreadObstacleHit(Component* ptr, my::EventArg* arg)
 	{
-		ptr->Component::OnPxThreadObstacleHit(arg);
+		//ptr->Component::OnPxThreadObstacleHit(arg);
 	}
 
 	virtual void OnGUI(my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
@@ -557,7 +566,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_OnGUI(Component* ptr, my::UIRender* ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
-		ptr->Component::OnGUI(ui_render, fElapsedTime, Viewport);
+		//ptr->Component::OnGUI(ui_render, fElapsedTime, Viewport);
 	}
 
 	virtual void AddToPipeline(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
@@ -581,7 +590,7 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 	static void default_AddToPipeline(Component* ptr, const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask, const my::Vector3& ViewPos, const my::Vector3& TargetPos)
 	{
-		ptr->Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
+		//ptr->Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos, TargetPos);
 	}
 };
 
@@ -2459,6 +2468,7 @@ void LuaContext::Init(void)
 			.def_readwrite("EmitterMaterial", &ActionTrackEmitter::m_EmitterMaterial)
 			.def_readwrite("EmitterCapacity", &ActionTrackEmitter::m_EmitterCapacity)
 			.def_readwrite("EmitterFaceType", &ActionTrackEmitter::m_EmitterFaceType)
+			.def_readwrite("EmitterSpaceType", &ActionTrackEmitter::m_EmitterSpaceType)
 			.def_readwrite("ParticleLifeTime", &ActionTrackEmitter::m_ParticleLifeTime)
 			.def_readwrite("ParticlePositionX", &ActionTrackEmitter::m_ParticlePositionX)
 			.def_readwrite("ParticlePositionY", &ActionTrackEmitter::m_ParticlePositionY)
@@ -2473,7 +2483,6 @@ void LuaContext::Init(void)
 			.def_readwrite("ParticleSizeX", &ActionTrackEmitter::m_ParticleSizeX)
 			.def_readwrite("ParticleSizeY", &ActionTrackEmitter::m_ParticleSizeY)
 			.def_readwrite("ParticleAngle", &ActionTrackEmitter::m_ParticleAngle)
-			.def_readwrite("AttachBoneId", &ActionTrackEmitter::m_AttachBoneId)
 
 		, class_<ActionTrackVelocity, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackVelocity")
 			.def(constructor<>())

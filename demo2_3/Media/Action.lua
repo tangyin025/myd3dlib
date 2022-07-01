@@ -13,7 +13,7 @@ act_sound:AddTrack(track)
 act_tuowei=Action()
 local particle1=Material()
 particle1.Shader="shader/mtl_particle1.fx"
-particle1.PassMask=RenderPipeline.PassMaskTransparent
+particle1.PassMask=Material.PassMaskTransparent
 particle1.ZWriteEnable=false
 particle1.BlendMode=Material.BlendModeAdditive
 particle1:AddParameter("g_Texture", "texture/flare.dds")
@@ -28,7 +28,6 @@ track.ParticleColorB:AddNode(0,1,0,0)
 track.ParticleColorB:AddNode(3,0,0,0)
 track.ParticleColorA:AddNode(0,1,0,0)
 track.ParticleColorA:AddNode(3,0,0,0)
-track.AttachBoneId=0--SPlayer.skel:GetBoneIndex("Bip01_Spine")
 track:AddKeyFrame(0,99999,0.1)
 act_tuowei:AddTrack(track)
 

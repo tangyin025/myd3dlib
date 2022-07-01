@@ -228,6 +228,8 @@ public:
 
 	DWORD m_EmitterFaceType;
 
+	DWORD m_EmitterSpaceType;
+
 	float m_ParticleLifeTime;
 
 	my::Spline m_ParticlePositionX;
@@ -256,8 +258,6 @@ public:
 
 	my::Spline m_ParticleAngle;
 
-	int m_AttachBoneId;
-
 	struct KeyFrame
 	{
 		int SpawnCount;
@@ -273,8 +273,8 @@ public:
 	ActionTrackEmitter(void)
 		: m_EmitterCapacity(1024)
 		, m_EmitterFaceType(3) // FaceTypeCamera = 3
+		, m_EmitterSpaceType(0) // SpaceTypeWorld = 0
 		, m_ParticleLifeTime(FLT_MAX)
-		, m_AttachBoneId(-1)
 	{
 	}
 

@@ -7,7 +7,7 @@ require "Action.lua"
 actor2=Actor(NamedObject.MakeUniqueName("actor"),Vector3(0,1,-5),Quaternion.Identity(),Vector3(1,1,1),AABB(-1,1))
 local lambert2=Material()
 lambert2.Shader="shader/mtl_BlinnPhong.fx"
-lambert2.PassMask=RenderPipeline.PassMaskShadowNormalOpaque
+lambert2.PassMask=Material.PassMaskShadowNormalOpaque
 lambert2:AddParameter("g_DiffuseTexture", "texture/Checker.bmp")
 lambert2:AddParameter("g_NormalTexture", "texture/Normal.dds")
 lambert2:AddParameter("g_SpecularTexture", "texture/White.dds")
@@ -120,9 +120,6 @@ client:LoadSceneAsync("scene01.xml", "scene01_", function(res)
 	function Actor6Behavior:RequestResource()
 		Component.RequestResource(self)
 		self.Actor:PlayAction(SAction.act_pose,100)
-	end
-	function Actor6Behavior:OnPxThreadSubstep(dtime)
-		self.Actor:TickActionAndGetDisplacement(dtime)
 	end
 	local actor6_behavior=Actor6Behavior(NamedObject.MakeUniqueName('actor_behavior'))
 	actor6:InsertComponentAdopt(actor6_behavior)	
