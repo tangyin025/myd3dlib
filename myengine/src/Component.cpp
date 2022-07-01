@@ -1644,7 +1644,13 @@ void SphericalEmitter::Update(float fElapsedTime)
 {
 	_ASSERT(m_SpawnInterval > 0);
 
-	RemoveParticleBefore(D3DContext::getSingleton().m_fTotalTime - m_ParticleLifeTime);
+	ParticleList::iterator first_part_iter = std::upper_bound(
+		m_ParticleList.begin(), m_ParticleList.end(), D3DContext::getSingleton().m_fTotalTime - m_ParticleLifeTime,
+		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Particle::m_Time, boost::placeholders::_2)));
+	if (first_part_iter != m_ParticleList.end())
+	{
+		m_ParticleList.rerase(m_ParticleList.begin(), first_part_iter);
+	}
 
 	for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
 	{

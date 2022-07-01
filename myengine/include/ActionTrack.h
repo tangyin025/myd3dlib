@@ -230,19 +230,17 @@ public:
 
 	DWORD m_EmitterSpaceType;
 
+	my::AABB m_SpawnArea;
+
+	float m_SpawnSpeed;
+
+	my::Vector2 m_SpawnInclination;
+
+	my::Vector2 m_SpawnAzimuth;
+
 	float m_ParticleLifeTime;
 
-	my::Spline m_ParticlePositionX;
-
-	my::Spline m_ParticlePositionY;
-
-	my::Spline m_ParticlePositionZ;
-
-	my::Spline m_ParticleEulerX;
-
-	my::Spline m_ParticleEulerY;
-
-	my::Spline m_ParticleEulerZ;
+	float m_ParticleDamping;
 
 	my::Spline m_ParticleColorR;
 
@@ -274,7 +272,12 @@ public:
 		: m_EmitterCapacity(1024)
 		, m_EmitterFaceType(3) // FaceTypeCamera = 3
 		, m_EmitterSpaceType(0) // SpaceTypeWorld = 0
-		, m_ParticleLifeTime(FLT_MAX)
+		, m_SpawnArea(-0.0f,0.0f)
+		, m_SpawnSpeed(0.0f)
+		, m_SpawnInclination(D3DXToRadian(0), D3DXToRadian(180))
+		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
+		, m_ParticleLifeTime(1.0f)
+		, m_ParticleDamping(1.0f)
 	{
 	}
 
@@ -293,8 +296,6 @@ protected:
 	//boost::shared_ptr<Actor> m_WorldEmitterActor;
 
 	boost::shared_ptr<CircularEmitter> m_WorldEmitterCmp;
-
-	boost::circular_buffer<my::Bone> m_SpawnPose;
 
 	struct KeyFrameInst
 	{
@@ -318,7 +319,7 @@ protected:
 
 	my::Event m_TaskEvent;
 
-	float m_TaskTime;
+	float m_TaskDuration;
 
 public:
 	ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template);

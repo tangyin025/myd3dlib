@@ -18,20 +18,3 @@ void Emitter::RemoveAllParticle(void)
 {
 	m_ParticleList.clear();
 }
-
-void Emitter::RemoveParticleBefore(float fTimeBefore)
-{
-	ParticleList::iterator part_iter = m_ParticleList.begin();
-	for(; part_iter != m_ParticleList.end(); part_iter++)
-	{
-		if (part_iter->m_Time > fTimeBefore)
-		{
-			break;
-		}
-	}
-
-	if (part_iter != m_ParticleList.begin())
-	{
-		m_ParticleList.rerase(m_ParticleList.begin(), part_iter);
-	}
-}

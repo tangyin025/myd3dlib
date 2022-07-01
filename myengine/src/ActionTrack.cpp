@@ -241,12 +241,10 @@ void ActionTrackEmitter::AddKeyFrame(float Time, int SpawnCount, float SpawnInte
 ActionTrackEmitterInst::ActionTrackEmitterInst(Actor * _Actor, boost::shared_ptr<const ActionTrackEmitter> Template)
 	: ActionTrackInst(_Actor)
 	, m_Template(Template)
-	, m_SpawnPose(m_Template->m_EmitterCapacity)
 	, m_TaskEvent(NULL, TRUE, TRUE, NULL)
 {
 	m_WorldEmitterCmp.reset(new CircularEmitter(NamedObject::MakeUniqueName("ActionTrackEmitterInst_cmp").c_str(),
-		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType,
-			m_Template->m_EmitterFaceType == EmitterComponent::FaceTypeCamera || m_Template->m_EmitterFaceType == EmitterComponent::FaceTypeAngleCamera ? EmitterComponent::VelocityTypeNone : EmitterComponent::VelocityTypeQuat, EmitterComponent::PrimitiveTypeQuad));
+		m_Template->m_EmitterCapacity, (EmitterComponent::FaceType)m_Template->m_EmitterFaceType, (EmitterComponent::SpaceType)m_Template->m_EmitterSpaceType, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
 	m_WorldEmitterCmp->SetMaterial(m_Template->m_EmitterMaterial->Clone());
 
 	//if (!m_Actor->m_Node)
@@ -270,9 +268,13 @@ ActionTrackEmitterInst::~ActionTrackEmitterInst(void)
 
 void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 {
-	m_WorldEmitterCmp->RemoveParticleBefore(Time - m_Template->m_ParticleLifeTime);
-
-	m_SpawnPose.rresize(m_WorldEmitterCmp->m_ParticleList.size());
+	my::Emitter::ParticleList::iterator first_part_iter = std::upper_bound(
+		m_WorldEmitterCmp->m_ParticleList.begin(), m_WorldEmitterCmp->m_ParticleList.end(),	m_Template->m_ParticleLifeTime,
+		boost::bind(std::greater<float>(), boost::placeholders::_1, boost::bind(&my::Emitter::Particle::m_Time, boost::placeholders::_2)));
+	if (first_part_iter != m_WorldEmitterCmp->m_ParticleList.end())
+	{
+		m_WorldEmitterCmp->m_ParticleList.rerase(m_WorldEmitterCmp->m_ParticleList.begin(), first_part_iter);
+	}
 
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.lower_bound(LastTime);
 	ActionTrackEmitter::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
@@ -282,17 +284,32 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 			key_iter->first, key_iter->second.SpawnCount, key_iter->second.SpawnInterval));
 	}
 
-	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	KeyFrameInstList::iterator key_inst_iter = m_KeyInsts.begin();
 	for (; key_inst_iter != m_KeyInsts.end(); )
 	{
 		for (; key_inst_iter->m_Time < Time && key_inst_iter->m_SpawnCount > 0;
 			key_inst_iter->m_Time += key_inst_iter->m_SpawnInterval, key_inst_iter->m_SpawnCount--)
 		{
-			m_SpawnPose.push_back(Bone(m_Actor->m_Position, m_Actor->m_Rotation));
+			const Vector3 SpawnPos = Vector3(
+				Random(m_Template->m_SpawnArea.m_min.x, m_Template->m_SpawnArea.m_max.x),
+				Random(m_Template->m_SpawnArea.m_min.y, m_Template->m_SpawnArea.m_max.y),
+				Random(m_Template->m_SpawnArea.m_min.z, m_Template->m_SpawnArea.m_max.z));
 
-			m_WorldEmitterCmp->Spawn(
-				Vector4(0, 0, 0, 1), Vector4(0, 0, 0, 1), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, key_inst_iter->m_Time);
+			const Vector3 SpawnVel = Vector3::PolarToCartesian(m_Template->m_SpawnSpeed,
+				Random(m_Template->m_SpawnInclination.x, m_Template->m_SpawnInclination.y),
+				Random(m_Template->m_SpawnAzimuth.x, m_Template->m_SpawnAzimuth.y));
+
+			if (m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+			{
+				m_WorldEmitterCmp->Spawn(
+					Vector4(SpawnPos.transformCoord(m_Actor->m_World), 1.0f),
+					Vector4(SpawnVel.transformNormal(m_Actor->m_World), 1.0f), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+			}
+			else
+			{
+				m_WorldEmitterCmp->Spawn(
+					Vector4(SpawnPos, 1.0f), Vector4(SpawnVel, 1.0f), Vector4(1, 1, 1, 1), Vector2(1, 1), 0, 0);
+			}
 		}
 
 		if (key_inst_iter->m_SpawnCount <= 0)
@@ -307,7 +324,7 @@ void ActionTrackEmitterInst::UpdateTime(float LastTime, float Time)
 
 	m_TaskEvent.ResetEvent();
 
-	m_TaskTime = Time;
+	m_TaskDuration = Time - LastTime;
 
 	ParallelTaskManager::getSingleton().PushTask(this);
 }
@@ -329,36 +346,13 @@ void ActionTrackEmitterInst::Stop(void)
 
 void ActionTrackEmitterInst::DoTask(void)
 {
-	_ASSERT(m_WorldEmitterCmp->m_ParticleList.size() == m_SpawnPose.size());
-
 	// ! take care of thread safe
 	Emitter::ParticleList::iterator particle_iter = m_WorldEmitterCmp->m_ParticleList.begin();
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
-		const float ParticleTime = m_TaskTime - particle_iter->m_Time;
-		if (m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
-		{
-			const my::Bone& SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
-			particle_iter->m_Position.xyz = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(
-				m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0));
-			particle_iter->m_Velocity = (Vector4&)(Quaternion::RotationEulerAngles(
-				m_Template->m_ParticleEulerX.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticleEulerY.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticleEulerZ.Interpolate(ParticleTime, 0)) * SpawnPose.m_rotation);
-		}
-		else
-		{
-			particle_iter->m_Position.xyz = my::Vector3(
-				m_Template->m_ParticlePositionX.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticlePositionY.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticlePositionZ.Interpolate(ParticleTime, 0));
-			particle_iter->m_Velocity = (Vector4&)(Quaternion::RotationEulerAngles(
-				m_Template->m_ParticleEulerX.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticleEulerY.Interpolate(ParticleTime, 0),
-				m_Template->m_ParticleEulerZ.Interpolate(ParticleTime, 0)));
-		}
+		const float ParticleTime = particle_iter->m_Time + m_TaskDuration;
+		particle_iter->m_Velocity.xyz *= powf(m_Template->m_ParticleDamping, m_TaskDuration);
+		particle_iter->m_Position.xyz += particle_iter->m_Velocity.xyz * m_TaskDuration;
 		particle_iter->m_Color.x = m_Template->m_ParticleColorR.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.y = m_Template->m_ParticleColorG.Interpolate(ParticleTime, 1);
 		particle_iter->m_Color.z = m_Template->m_ParticleColorB.Interpolate(ParticleTime, 1);
@@ -366,6 +360,7 @@ void ActionTrackEmitterInst::DoTask(void)
 		particle_iter->m_Size.x = m_Template->m_ParticleSizeX.Interpolate(ParticleTime, 1);
 		particle_iter->m_Size.y = m_Template->m_ParticleSizeY.Interpolate(ParticleTime, 1);
 		particle_iter->m_Angle = m_Template->m_ParticleAngle.Interpolate(ParticleTime, 0);
+		particle_iter->m_Time = ParticleTime;
 	}
 
 	m_TaskEvent.SetEvent();

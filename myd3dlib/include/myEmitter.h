@@ -87,7 +87,5 @@ namespace my
 		void Spawn(const my::Vector4 & Position, const my::Vector4 & Velocity, const my::Vector4 & Color, const my::Vector2 & Size, float Angle, float Time);
 
 		void RemoveAllParticle(void);
-
-		void RemoveParticleBefore(float fTimeBefore);
 	};
 }
