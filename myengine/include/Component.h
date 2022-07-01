@@ -492,7 +492,6 @@ public:
 	{
 		VelocityTypeNone	= 0,
 		VelocityTypeVel		= 1,
-		VelocityTypeQuat	= 2,
 	};
 
 	VelocityType m_EmitterVelType;

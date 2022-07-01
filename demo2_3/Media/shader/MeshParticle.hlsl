@@ -1,4 +1,3 @@
-#include "Quaternion.hlsl"
 
 struct VS_INPUT
 {
@@ -14,21 +13,31 @@ struct VS_INPUT
 
 float4 TransformPosWS(VS_INPUT In)
 {
+#if EMITTER_VEL_TYPE == 1
+	float4 Pos = float4(In.Pos.xyz + In.Velocity.xyz * (g_Time - In.SizeAngleTime.w), In.Pos.w);
+#else
+	float4 Pos = In.Pos;
+#endif
 #if EMITTER_FACE_TYPE == 0
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos0.z, In.Pos0.y * In.SizeAngleTime.y, -In.Pos0.x * In.SizeAngleTime.x), In.SizeAngleTime.z, float3(1, 0, 0));
+	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 1
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.z, -In.Pos0.y * In.SizeAngleTime.y), In.SizeAngleTime.z, float3(0, 1, 0));
+	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 2
 	float3 Offset = RotateAngleAxis(
 		float3(In.Pos0.x * In.SizeAngleTime.x, In.Pos0.y * In.SizeAngleTime.y, In.Pos0.z), In.SizeAngleTime.z, float3(0, 0, 1));
+	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 3
+	// 注意，右手系空间Dir朝着屏幕向外
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(g_View[0][1],g_View[1][1],g_View[2][1]);
 	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 	float3 Offset = RotateAngleAxis(
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z, In.SizeAngleTime.z, Dir);
+	Pos = mul(Pos, g_World) + float4(Offset, 0);
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
@@ -37,22 +46,15 @@ float4 TransformPosWS(VS_INPUT In)
 	float3 Dir = float3(s, 0, c);
 	float3 Offset =
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z;
+	Pos = mul(float4(Pos.xyz + Offset, Pos.w), g_World);
 #elif EMITTER_FACE_TYPE == 5
 	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(0, 1, 0);
 	float3 Dir = cross(Right, Up);
 	float3 Offset = RotateAngleAxis(
 		Right * In.Pos0.x * In.SizeAngleTime.x + Up * In.Pos0.y * In.SizeAngleTime.y + Dir * In.Pos0.z, In.SizeAngleTime.z, Dir);
+	Pos = mul(Pos, g_World) + float4(Offset, 0);
 #endif
-#if EMITTER_VEL_TYPE == 1
-	float4 Pos = mul(float4(In.Pos.xyz + In.Velocity.xyz * (g_Time - In.SizeAngleTime.w), In.Pos.w), g_World);
-#elif EMITTER_VEL_TYPE == 2
-	float4 Pos = mul(In.Pos, g_World);
-	Offset = rotate_vector(Offset, In.Velocity);
-#else
-	float4 Pos = mul(In.Pos, g_World);
-#endif
-	Pos.xyz += Offset;
 	return Pos;
 }
 
@@ -74,50 +76,41 @@ float2 TransformUV(VS_INPUT In)
 float3 TransformNormal(VS_INPUT In)
 {
 #if EMITTER_FACE_TYPE == 0
-	float3 Normal = float3(1,0,0);
+	float3 Normal = normalize(mul(float3(1,0,0), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 1
-	float3 Normal = float3(0,1,0);
+	float3 Normal = normalize(mul(float3(0,1,0), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 2
-	float3 Normal = float3(0,0,1);
+	float3 Normal = normalize(mul(float3(0,0,1), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 3
 	float3 Normal = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Normal = float3(c, 0, -s);
+	float3 Normal = normalize(mul(float3(s, 0, c), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 5
+	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 	float3 Up = float3(0, 1, 0);
-	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	float3 Right = normalize(cross(Up, Dir));
 	float3 Normal = cross(Right, Up);
 #endif
-#if EMITTER_VEL_TYPE == 2
-	Normal = rotate_vector(Normal, In.Velocity);
-#endif
-return Normal;
+	return Normal;
 }
 
 float3 TransformTangent(VS_INPUT In)
 {
 #if EMITTER_FACE_TYPE == 0
-	float3 Tangent = float3(0,0,-1);
+	float3 Tangent = normalize(mul(float3(0,0,-1), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 1
-	float3 Tangent = float3(1,0,0);
+	float3 Tangent = normalize(mul(float3(1,0,0), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 2
-	float3 Tangent = float3(1,0,0);
+	float3 Tangent = normalize(mul(float3(1,0,0), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 3
 	float3 Tangent = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 #elif EMITTER_FACE_TYPE == 4
 	float s, c;
 	sincos(In.SizeAngleTime.z, s, c);
-	float3 Tangent = float3(-s, 0, -c);
+	float3 Tangent = normalize(mul(float3(c, 0, -s), (float3x3)g_World));
 #elif EMITTER_FACE_TYPE == 5
-	float3 Up = float3(0, 1, 0);
-	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
-	float3 Tangent = normalize(cross(Up, Dir));
-#endif
-#if EMITTER_VEL_TYPE == 2
-	Tangent = rotate_vector(Tangent, In.Velocity);
+	float3 Tangent = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
 #endif
 	return Tangent;
 }

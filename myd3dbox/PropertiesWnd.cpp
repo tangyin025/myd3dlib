@@ -126,11 +126,10 @@ static LPCTSTR g_EmitterSpaceType[EmitterComponent::SpaceTypeLocal + 1] =
 	_T("Local"),
 };
 
-static LPCTSTR g_EmitterVelType[EmitterComponent::VelocityTypeQuat + 1] =
+static LPCTSTR g_EmitterVelType[EmitterComponent::VelocityTypeVel + 1] =
 {
 	_T("None"),
 	_T("Velocity"),
-	_T("Quaternion"),
 };
 
 static LPCTSTR g_EmitterPrimitiveType[EmitterComponent::PrimitiveTypeQuad + 1] =

@@ -2166,8 +2166,7 @@ void LuaContext::Init(void)
 			.enum_("VelocityType")
 			[
 				value("VelocityTypeNone", EmitterComponent::VelocityTypeNone),
-				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel),
-				value("VelocityTypeQuat", EmitterComponent::VelocityTypeQuat)
+				value("VelocityTypeVel", EmitterComponent::VelocityTypeVel)
 			]
 			.def_readwrite("EmitterVelType", &EmitterComponent::m_EmitterVelType)
 			.enum_("PrimitiveType")
