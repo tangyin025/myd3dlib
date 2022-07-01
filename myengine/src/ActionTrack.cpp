@@ -336,7 +336,7 @@ void ActionTrackEmitterInst::DoTask(void)
 	for (; particle_iter != m_WorldEmitterCmp->m_ParticleList.end(); particle_iter++)
 	{
 		const float ParticleTime = m_TaskTime - particle_iter->m_Time;
-		if (m_Template->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
+		if (m_WorldEmitterCmp->m_EmitterSpaceType == EmitterComponent::SpaceTypeWorld)
 		{
 			const my::Bone& SpawnPose = m_SpawnPose[std::distance(m_WorldEmitterCmp->m_ParticleList.begin(), particle_iter)];
 			particle_iter->m_Position.xyz = SpawnPose.m_position + SpawnPose.m_rotation * my::Vector3(

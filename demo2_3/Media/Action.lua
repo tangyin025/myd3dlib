@@ -18,6 +18,7 @@ particle1.ZWriteEnable=false
 particle1.BlendMode=Material.BlendModeAdditive
 particle1:AddParameter("g_Texture", "texture/flare.dds")
 local track=ActionTrackEmitter()
+track.EmitterSpaceType=EmitterComponent.SpaceTypeWorld
 track.EmitterMaterial=particle1
 track.ParticleLifeTime=5
 track.ParticleColorR:AddNode(0,1,0,0)
