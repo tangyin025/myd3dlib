@@ -1652,8 +1652,6 @@ void SphericalEmitter::Update(float fElapsedTime)
 		m_ParticleList.rerase(m_ParticleList.begin(), first_part_iter);
 	}
 
-	Quaternion RootRotation; Vector3 RootPosition, RootScale;
-	m_Actor->m_World.Decompose(RootScale, RootRotation, RootPosition);
 	for (; m_SpawnTime < D3DContext::getSingleton().m_fTotalTime; m_SpawnTime += m_SpawnInterval)
 	{
 		const float SpawnTimeCycle = Wrap<float>(m_SpawnTime, 0, m_SpawnCycle);
@@ -1661,14 +1659,14 @@ void SphericalEmitter::Update(float fElapsedTime)
 		if (m_EmitterSpaceType == SpaceTypeWorld)
 		{
 			Spawn(
-				Vector4(Vector3(
+				Vector3(
 					Random(-m_HalfSpawnArea.x, m_HalfSpawnArea.x),
 					Random(-m_HalfSpawnArea.y, m_HalfSpawnArea.y),
-					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)) + RootPosition, 1),
-				Vector4(RootRotation * Vector3::PolarToCartesian(
+					Random(-m_HalfSpawnArea.z, m_HalfSpawnArea.z)).transform(m_Actor->m_World),
+				Vector4(Vector3::PolarToCartesian(
 					m_SpawnSpeed,
 					m_SpawnInclination.Interpolate(SpawnTimeCycle, 0),
-					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)), 1),
+					m_SpawnAzimuth.Interpolate(SpawnTimeCycle, 0)).transformNormal(m_Actor->m_World), 1),
 				Vector4(
 					m_SpawnColorR.Interpolate(SpawnTimeCycle, 1),
 					m_SpawnColorG.Interpolate(SpawnTimeCycle, 1),
