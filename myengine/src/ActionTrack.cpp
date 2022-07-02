@@ -119,17 +119,21 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 		for (; key_iter != key_end; key_iter++)
 		{
-			animator->Play(
-				key_iter->second.Name,
-				key_iter->second.Rate,
-				key_iter->second.Weight,
-				key_iter->second.BlendTime,
-				key_iter->second.BlendOutTime,
-				key_iter->second.Loop,
-				key_iter->second.Prority,
-				key_iter->second.Group,
-				key_iter->second.RootId,
-				(DWORD_PTR)this);
+			const float Weight = 1 - fabs(m_Weight - key_iter->second.Weight);
+			if (Weight > 0)
+			{
+				animator->Play(
+					key_iter->second.Name,
+					key_iter->second.Rate,
+					Weight,
+					key_iter->second.BlendTime,
+					key_iter->second.BlendOutTime,
+					key_iter->second.Loop,
+					key_iter->second.Prority,
+					key_iter->second.Group,
+					key_iter->second.RootId,
+					(DWORD_PTR)this);
+			}
 		}
 	}
 }
