@@ -255,8 +255,8 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 		m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
 	}
 
-	SequenceList::const_reverse_iterator seq_iter = m_SequenceSlot.rbegin();
-	for (; seq_iter != m_SequenceSlot.rend(); seq_iter++)
+	SequenceList::const_iterator seq_iter = m_SequenceSlot.begin();
+	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
 		my::BoneList OtherPose(pose.size());
 		seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
@@ -274,14 +274,8 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 
 void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, int RootId, DWORD_PTR UserData)
 {
-	SequenceList::iterator seq_iter = m_SequenceSlot.begin();
-	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
-	{
-		if (seq_iter->m_Priority)
-		{
-			break;
-		}
-	}
+	SequenceList::iterator seq_iter = std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
+		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2)));
 
 	SequenceList::iterator res_seq_iter = m_SequenceSlot.rinsert(seq_iter);
 	if (res_seq_iter != m_SequenceSlot.end())
