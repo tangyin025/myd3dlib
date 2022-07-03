@@ -277,9 +277,9 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 	SequenceList::iterator seq_iter = std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
 		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2)));
 
-	SequenceList::iterator res_seq_iter = m_SequenceSlot.rinsert(seq_iter);
-	if (res_seq_iter != m_SequenceSlot.end())
+	if (seq_iter != m_SequenceSlot.begin() or !m_SequenceSlot.full())
 	{
+		SequenceList::iterator res_seq_iter = m_SequenceSlot.insert(seq_iter);
 		res_seq_iter->m_Time = 0;
 		res_seq_iter->m_Weight = 0;
 		res_seq_iter->m_Name = Name;
