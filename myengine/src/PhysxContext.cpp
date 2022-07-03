@@ -139,9 +139,10 @@ bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * di
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
 	sceneDesc.gravity = (physx::PxVec3&)Vector3::Gravity;
 	sceneDesc.simulationEventCallback = this;
+	sceneDesc.contactModifyCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;
 	//sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-	sceneDesc.filterShader = filter;
+	sceneDesc.filterShader = PhysxScene::filter;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 	m_PxScene.reset(sdk->createScene(sceneDesc), PhysxDeleter<physx::PxScene>());
 	if (!m_PxScene)
@@ -418,7 +419,7 @@ physx::PxFilterFlags PhysxScene::filter(
 	}
 
 	// generate contacts for all that were not filtered above
-	pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+	pairFlags = /*physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eMODIFY_CONTACTS |*/ physx::PxPairFlag::eDETECT_DISCRETE_CONTACT | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
 
 	return physx::PxFilterFlag::eDEFAULT;
 }
@@ -455,6 +456,22 @@ void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const p
 
 				//FModContext::getSingleton().OnControlSound("demo2_3/untitled/15");
 			}
+		}
+	}
+}
+
+void PhysxScene::onContactModify(physx::PxContactModifyPair* const pairs, physx::PxU32 count)
+{
+	// ! set physx::PxPairFlag::eMODIFY_CONTACTS for PhysxScene::filter pairFlags
+	for (unsigned int i = 0; i < count; i++)
+	{
+		for (unsigned int j = 0; j < pairs[i].contacts.size(); j++)
+		{
+			// In addition to modifying contact properties, it is possible to :
+			// Set target velocities for each contact
+			// Limit the maximum impulse applied at each contact
+			// Adjust inverse massand inverse inertia scales separately for each body
+			pairs[i].contacts.setTargetVelocity(j, physx::PxVec3(0, 0, 0));
 		}
 	}
 }
@@ -724,7 +741,7 @@ my::AABB PhysxSpatialIndex::CalculateAABB(void) const
 	my::AABB ret(FLT_MAX, -FLT_MAX);
 	physx::NpSpatialIndex* idx = static_cast<physx::NpSpatialIndex*>(m_PxSpatialIndex.get());
 	physx::Sq::AABBPruner* pruner = static_cast<physx::Sq::AABBPruner*>(idx->*get(NpSpatialIndex_f()));
-	for (int i = 0; i < pruner->mPool.mNbObjects; i++)
+	for (unsigned int i = 0; i < pruner->mPool.mNbObjects; i++)
 	{
 		ret.unionSelf((AABB&)pruner->mPool.mWorldBoxes[i]);
 	}

@@ -106,6 +106,7 @@ public:
 
 class PhysxScene
 	: public physx::PxSimulationEventCallback
+	, public physx::PxContactModifyCallback
 {
 public:
 	class StepperTask
@@ -206,6 +207,8 @@ public:
 	virtual void onSleep(physx::PxActor** actors, physx::PxU32 count);
 
 	virtual void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs);
+
+	virtual void onContactModify(physx::PxContactModifyPair* const pairs, physx::PxU32 count);
 
 	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count);
 
