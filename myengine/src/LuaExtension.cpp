@@ -2350,6 +2350,7 @@ void LuaContext::Init(void)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
+			.property("RigidBodyLinearVelocity", &Actor::GetRigidBodyLinearVelocity, &Actor::SetRigidBodyLinearVelocity)
 			.def("InsertComponent", (void (Actor::*)(ComponentPtr))& Actor::InsertComponent)
 			.def("InsertComponent", (void (Actor::*)(unsigned int i, ComponentPtr))& Actor::InsertComponent)
 			.def("InsertComponentAdopt", (void(*)(Actor*, ScriptComponent*))& actor_insert_component_adopt, adopt(boost::placeholders::_2))

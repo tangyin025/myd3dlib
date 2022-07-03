@@ -293,6 +293,10 @@ public:
 
 	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;
 
+	void SetRigidBodyLinearVelocity(const my::Vector3 & LinearVelocity);
+
+	my::Vector3 GetRigidBodyLinearVelocity(void) const;
+
 	void InsertComponent(ComponentPtr cmp);
 
 	void InsertComponent(unsigned int i, ComponentPtr cmp);

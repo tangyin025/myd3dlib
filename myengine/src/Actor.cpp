@@ -589,24 +589,23 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)
 {
 	_ASSERT(m_PxActor);
-
-	physx::PxRigidBody * body = m_PxActor->is<physx::PxRigidBody>();
-	if (body)
-	{
-		body->setRigidBodyFlag(Flag, Value);
-	}
+	m_PxActor->is<physx::PxRigidBody>()->setRigidBodyFlag(Flag, Value);
 }
 
 bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 {
-	_ASSERT(m_PxActor);
+	return m_PxActor ? m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags() & Flag : false;
+}
 
-	physx::PxRigidBody * body = m_PxActor->is<physx::PxRigidBody>();
-	if (body)
-	{
-		return body->getRigidBodyFlags() & Flag;
-	}
-	return false;
+void Actor::SetRigidBodyLinearVelocity(const my::Vector3& LinearVelocity)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidBody>()->setLinearVelocity((physx::PxVec3&)LinearVelocity, true);
+}
+
+my::Vector3 Actor::GetRigidBodyLinearVelocity(void) const
+{
+	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getLinearVelocity() : Vector3(0);
 }
 
 void Actor::InsertComponent(ComponentPtr cmp)
