@@ -380,6 +380,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 		ptr->m_Actor->m_EventLeaveTrigger.connect(boost::bind(&Component::OnLeaveTrigger, ptr, boost::placeholders::_1));
 
+		ptr->m_Actor->m_EventOnContact.connect(boost::bind(&Component::OnContact, ptr, boost::placeholders::_1));
+
 		ptr->m_Actor->m_EventPxThreadShapeHit.connect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadControllerHit.connect(boost::bind(&Component::OnPxThreadControllerHit, ptr, boost::placeholders::_1));
@@ -412,6 +414,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 		ptr->m_Actor->m_EventEnterTrigger.disconnect(boost::bind(&Component::OnEnterTrigger, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventLeaveTrigger.disconnect(boost::bind(&Component::OnLeaveTrigger, ptr, boost::placeholders::_1));
+
+		ptr->m_Actor->m_EventOnContact.disconnect(boost::bind(&Component::OnContact, ptr, boost::placeholders::_1));
 
 		ptr->m_Actor->m_EventPxThreadShapeHit.disconnect(boost::bind(&Component::OnPxThreadShapeHit, ptr, boost::placeholders::_1));
 
@@ -497,6 +501,23 @@ struct ScriptComponent : Component, luabind::wrap_base
 	static void default_OnLeaveTrigger(Component* ptr, my::EventArg* arg)
 	{
 		//ptr->Component::OnLeaveTrigger(arg);
+	}
+
+	virtual void OnContact(my::EventArg* arg)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("OnContact", arg);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnContact(Component* ptr, my::EventArg* arg)
+	{
+		//ptr->Component::OnContact(arg);
 	}
 
 	virtual void OnPxThreadShapeHit(my::EventArg* arg)
@@ -2092,6 +2113,7 @@ void LuaContext::Init(void)
 			.def("OnPxThreadSubstep", &Component::OnPxThreadSubstep, &ScriptComponent::default_OnPxThreadSubstep)
 			.def("OnEnterTrigger", &Component::OnEnterTrigger, &ScriptComponent::default_OnEnterTrigger)
 			.def("OnLeaveTrigger", &Component::OnLeaveTrigger, &ScriptComponent::default_OnLeaveTrigger)
+			.def("OnContact", &Component::OnContact, &ScriptComponent::default_OnContact)
 			.def("OnPxThreadShapeHit", &Component::OnPxThreadShapeHit, &ScriptComponent::default_OnPxThreadShapeHit)
 			.def("OnPxThreadControllerHit", &Component::OnPxThreadControllerHit, &ScriptComponent::default_OnPxThreadControllerHit)
 			.def("OnPxThreadObstacleHit", &Component::OnPxThreadObstacleHit, &ScriptComponent::default_OnPxThreadObstacleHit)

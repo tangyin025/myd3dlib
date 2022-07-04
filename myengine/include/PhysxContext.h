@@ -153,6 +153,17 @@ public:
 	
 	TriggerPairList mTriggerPairs;
 
+	struct ContactPair : physx::PxContactPairPoint
+	{
+		physx::PxShape* shapes[2];
+		physx::PxContactPairFlags flags;
+		physx::PxPairFlags events;
+	};
+
+	typedef std::vector<ContactPair> ContactPairList;
+
+	ContactPairList mContactPairs;
+
 public:
 	PhysxScene(void)
 		: m_Completion0(this)

@@ -160,6 +160,10 @@ public:
 	{
 	}
 
+	virtual void OnContact(my::EventArg* arg)
+	{
+	}
+
 	virtual void OnPxThreadShapeHit(my::EventArg * arg)
 	{
 	}

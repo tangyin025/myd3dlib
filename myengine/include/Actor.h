@@ -58,6 +58,27 @@ public:
 	}
 };
 
+struct ContactEventArg : public TriggerEventArg
+{
+public:
+	my::Vector3 position;
+
+	float separation;
+
+	my::Vector3 normal;
+
+	my::Vector3 impulse;
+
+	ContactEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+		: TriggerEventArg(_self, _self_cmp, _other, _other_cmp)
+		, position(0, 0, 0)
+		, separation(0)
+		, normal(1, 0, 0)
+		, impulse(0, 0, 0)
+	{
+	}
+};
+
 struct ControllerEventArg : public ActorEventArg
 {
 public:
@@ -175,6 +196,8 @@ public:
 	my::EventSignal m_EventEnterTrigger;
 
 	my::EventSignal m_EventLeaveTrigger;
+
+	my::EventSignal m_EventOnContact;
 
 	my::EventSignal m_EventPxThreadShapeHit;
 

@@ -193,6 +193,8 @@ void PhysxScene::TickPreRender(float dtime)
 
 	mTriggerPairs.clear();
 
+	mContactPairs.clear();
+
 	PhysxSdk::getSingleton().m_RenderTickMuted = true;
 
 	m_WaitForResults = Advance(dtime);
@@ -200,7 +202,7 @@ void PhysxScene::TickPreRender(float dtime)
 
 void PhysxScene::TickPostRender(float dtime)
 {
-	if(m_WaitForResults)
+	if (m_WaitForResults)
 	{
 		m_Sync.Wait(INFINITE);
 
@@ -229,44 +231,50 @@ void PhysxScene::TickPostRender(float dtime)
 		}
 		mDeletedActors.clear();
 
-		TriggerPairList::iterator trigger_iter = mTriggerPairs.begin();
+		TriggerPairList::const_iterator trigger_iter = mTriggerPairs.begin();
 		for (; trigger_iter != mTriggerPairs.end(); trigger_iter++)
 		{
-			switch (trigger_iter->status)
+			// ! PxTriggerPair::otherActor may not have userData for Controller objs
+			if (trigger_iter->otherShape->userData)
 			{
-			case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
-			{
-				// ! PxTriggerPair::otherActor may not have userData for Controller objs
-				if (trigger_iter->otherShape->userData)
+				Component* self_cmp = (Component*)trigger_iter->otherShape->userData;
+				if (trigger_iter->triggerShape->userData)
 				{
-					Component* self_cmp = (Component*)trigger_iter->otherShape->userData;
-					Actor* self = self_cmp->m_Actor;
-					if (trigger_iter->triggerShape->userData)
+					Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
+					TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp);
+					switch (trigger_iter->status)
 					{
-						Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
-						Actor* other = other_cmp->m_Actor;
-						TriggerEventArg arg(self, self_cmp, other, other_cmp);
-						self->m_EventEnterTrigger(&arg);
+					case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
+						self_cmp->m_Actor->m_EventEnterTrigger(&arg);
+						break;
+					case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
+						self_cmp->m_Actor->m_EventLeaveTrigger(&arg);
+						break;
 					}
 				}
-				break;
 			}
-			case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
+		}
+
+		ContactPairList::const_iterator contact_iter = mContactPairs.begin();
+		for (; contact_iter != mContactPairs.end(); contact_iter++)
+		{
+			for (unsigned int i = 0; i < _countof(ContactPair::shapes); i++)
 			{
-				if (trigger_iter->otherShape->userData)
+				if (contact_iter->shapes[i]->userData)
 				{
-					Component* self_cmp = (Component*)trigger_iter->otherShape->userData;
-					Actor* self = self_cmp->m_Actor;
-					if (trigger_iter->triggerShape->userData)
+					Component* self_cmp = (Component*)contact_iter->shapes[i]->userData;
+					unsigned int other_i = (i + 1) % _countof(ContactPair::shapes);
+					if (contact_iter->shapes[other_i]->userData)
 					{
-						Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
-						Actor* other = other_cmp->m_Actor;
-						TriggerEventArg arg(self, self_cmp, other, other_cmp);
-						self->m_EventLeaveTrigger(&arg);
+						Component* other_cmp = (Component*)contact_iter->shapes[other_i]->userData;
+						ContactEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp);
+						arg.position = (Vector3&)contact_iter->position;
+						arg.separation = contact_iter->separation;
+						arg.normal = (Vector3&)contact_iter->normal;
+						arg.impulse = (Vector3&)contact_iter->impulse;
+						self_cmp->m_Actor->m_EventOnContact(&arg);
 					}
 				}
-				break;
-			}
 			}
 		}
 	}
@@ -426,14 +434,17 @@ physx::PxFilterFlags PhysxScene::filter(
 
 void PhysxScene::onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
 {
+	// This is called when a breakable constraint breaks.
 }
 
 void PhysxScene::onWake(physx::PxActor** actors, physx::PxU32 count)
 {
+	// Only called on actors for which the PxActorFlag eSEND_SLEEP_NOTIFIES has been set.
 }
 
 void PhysxScene::onSleep(physx::PxActor** actors, physx::PxU32 count)
 {
+	// Only called on actors for which the PxActorFlag eSEND_SLEEP_NOTIFIES has been set.
 }
 
 void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
@@ -442,6 +453,11 @@ void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const p
 	std::vector<physx::PxContactPairPoint> contactPoints;
 	for (physx::PxU32 i = 0; i < nbPairs; i++)
 	{
+		if (pairs[i].flags & (physx::PxContactPairFlag::eREMOVED_SHAPE_0 | physx::PxContactPairFlag::eREMOVED_SHAPE_1))
+		{
+			continue;
+		}
+
 		physx::PxU32 contactCount = pairs[i].contactCount;
 		if (contactCount)
 		{
@@ -449,10 +465,18 @@ void PhysxScene::onContact(const physx::PxContactPairHeader& pairHeader, const p
 			pairs[i].extractContacts(&contactPoints[0], contactCount);
 			for (physx::PxU32 j = 0; j < contactCount; j++)
 			{
-				physx::PxVec3 point = contactPoints[j].position;
-				physx::PxVec3 impulse = contactPoints[j].impulse;
-				physx::PxU32 internalFaceIndex0 = contactPoints[j].internalFaceIndex0;
-				physx::PxU32 internalFaceIndex1 = contactPoints[j].internalFaceIndex1;
+				// fetchResults true will block other px thread
+				ContactPairList::iterator pair_iter = mContactPairs.insert(mContactPairs.end(), ContactPair());
+				pair_iter->position = contactPoints[j].position;
+				pair_iter->separation = contactPoints[j].separation;
+				pair_iter->normal = contactPoints[j].normal;
+				pair_iter->internalFaceIndex0 = contactPoints[j].internalFaceIndex0;
+				pair_iter->impulse = contactPoints[j].impulse;
+				pair_iter->internalFaceIndex1 = contactPoints[j].internalFaceIndex1;
+				pair_iter->shapes[0] = pairs[i].shapes[0];
+				pair_iter->shapes[1] = pairs[i].shapes[1];
+				pair_iter->flags = pairs[i].flags;
+				pair_iter->events = pairs[i].events;
 
 				//FModContext::getSingleton().OnControlSound("demo2_3/untitled/15");
 			}
