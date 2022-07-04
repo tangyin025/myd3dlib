@@ -241,16 +241,8 @@ void PhysxScene::TickPostRender(float dtime)
 				if (trigger_iter->triggerShape->userData)
 				{
 					Component* other_cmp = (Component*)trigger_iter->triggerShape->userData;
-					TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp);
-					switch (trigger_iter->status)
-					{
-					case physx::PxPairFlag::eNOTIFY_TOUCH_FOUND:
-						self_cmp->m_Actor->m_EventEnterTrigger(&arg);
-						break;
-					case physx::PxPairFlag::eNOTIFY_TOUCH_LOST:
-						self_cmp->m_Actor->m_EventLeaveTrigger(&arg);
-						break;
-					}
+					TriggerEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, trigger_iter->status);
+					self_cmp->m_Actor->m_EventOnTrigger(&arg);
 				}
 			}
 		}
@@ -267,7 +259,7 @@ void PhysxScene::TickPostRender(float dtime)
 					if (contact_iter->shapes[other_i]->userData)
 					{
 						Component* other_cmp = (Component*)contact_iter->shapes[other_i]->userData;
-						ContactEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp);
+						ContactEventArg arg(self_cmp->m_Actor, self_cmp, other_cmp->m_Actor, other_cmp, contact_iter->events);
 						arg.position = (Vector3&)contact_iter->position;
 						arg.separation = contact_iter->separation;
 						arg.normal = (Vector3&)contact_iter->normal;

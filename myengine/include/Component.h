@@ -152,11 +152,7 @@ public:
 	{
 	}
 
-	virtual void OnEnterTrigger(my::EventArg * arg)
-	{
-	}
-
-	virtual void OnLeaveTrigger(my::EventArg * arg)
+	virtual void OnTrigger(my::EventArg * arg)
 	{
 	}
 

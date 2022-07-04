@@ -44,16 +44,16 @@ struct TriggerEventArg : public ActorEventArg
 {
 public:
 	Component* self_cmp;
-
 	Actor* other;
-
 	Component* other_cmp;
+	unsigned int events;
 
-	TriggerEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
+	TriggerEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp, unsigned int _events)
 		: ActorEventArg(_self)
 		, self_cmp(_self_cmp)
 		, other(_other)
 		, other_cmp(_other_cmp)
+		, events(_events)
 	{
 	}
 };
@@ -62,15 +62,12 @@ struct ContactEventArg : public TriggerEventArg
 {
 public:
 	my::Vector3 position;
-
 	float separation;
-
 	my::Vector3 normal;
-
 	my::Vector3 impulse;
 
-	ContactEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp)
-		: TriggerEventArg(_self, _self_cmp, _other, _other_cmp)
+	ContactEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp, unsigned int _events)
+		: TriggerEventArg(_self, _self_cmp, _other, _other_cmp, _events)
 		, position(0, 0, 0)
 		, separation(0)
 		, normal(1, 0, 0)
@@ -175,8 +172,6 @@ public:
 
 	ComponentPtrList m_Cmps;
 
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
 	boost::shared_ptr<physx::PxRigidActor> m_PxActor;
 
 	Actor * m_Base;
@@ -193,9 +188,7 @@ public:
 
 	int m_ActionTrackPoseInstRef;
 
-	my::EventSignal m_EventEnterTrigger;
-
-	my::EventSignal m_EventLeaveTrigger;
+	my::EventSignal m_EventOnTrigger;
 
 	my::EventSignal m_EventOnContact;
 

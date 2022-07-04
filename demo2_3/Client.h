@@ -28,7 +28,6 @@ public:
 	float m_FogStartDistance;
 	float m_FogHeight;
 	float m_FogFalloff;
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
 	typedef std::vector<ActorPtr> ActorPtrList;
 	ActorPtrList m_ActorList;
 	typedef std::vector<my::DialogPtr> DialogPtrList;
