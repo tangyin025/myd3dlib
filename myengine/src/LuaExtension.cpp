@@ -2312,6 +2312,12 @@ void LuaContext::Init(void)
 			.def_readonly("other", &TriggerEventArg::other)
 			.def_readonly("other_cmp", &TriggerEventArg::other_cmp)
 
+		, class_<ContactEventArg, TriggerEventArg>("ContactEventArg")
+			.def_readonly("position", &ContactEventArg::position)
+			.def_readonly("separation", &ContactEventArg::separation)
+			.def_readonly("normal", &ContactEventArg::normal)
+			.def_readonly("impulse", &ContactEventArg::impulse)
+
 		, class_<ControllerEventArg, ActorEventArg>("ControllerEventArg")
 			.def_readonly("self_cmp", &ControllerEventArg::self_cmp)
 			.def_readonly("worldPos", &ControllerEventArg::worldPos)
