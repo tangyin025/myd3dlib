@@ -257,6 +257,10 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 #if defined(DEBUG) | defined(_DEBUG)
 	// 设置crtdbg监视内存泄漏
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	// MSDN：Microsoft Visual C++ Floating-Point Optimization，当分子分母同时为0依然不会异常，只能使用_ASSERT(!isnan(value))
+	unsigned int control_word;
+	_controlfp_s(&control_word, _EM_INEXACT | _EM_UNDERFLOW | _EM_OVERFLOW /*| _EM_ZERODIVIDE*/ | _EM_INVALID | _EM_DENORMAL, _MCW_EM);
 #endif
 
 	SetUnhandledExceptionFilter(OnException);

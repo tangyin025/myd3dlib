@@ -466,7 +466,7 @@ void Actor::UpdateOctNode(void)
 
 int Actor::CalculateLod(float DistanceSq, float Scale) const
 {
-	return Max((int)(logf(sqrt(DistanceSq) / (m_LodDist * Scale)) / logf(m_LodFactor)), 0);
+	return DistanceSq > 0 ? Max((int)(logf(sqrt(DistanceSq) / (m_LodDist * Scale)) / logf(m_LodFactor)), 0) : 0;
 }
 
 int Actor::CalculateLod(const my::Vector3 & Center, const my::Vector3 & ViewPos, float Scale) const

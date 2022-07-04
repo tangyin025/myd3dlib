@@ -439,7 +439,7 @@ int AnimationNodeBlendList::GetActiveChild(void) const
 
 void AnimationNodeBlendList::Tick(float fElapsedTime, float fTotalWeight)
 {
-	if (m_BlendTime < fElapsedTime)
+	if (m_BlendTime < fElapsedTime + EPSILON_E12)
 	{
 		boost::range::copy(m_TargetWeight, m_Weight.begin());
 
