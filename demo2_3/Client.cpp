@@ -431,18 +431,30 @@ static bool client_overlap_sphere(Client * self, float radius, const my::Vector3
 	return self->Overlap(sphere, Position, Quaternion::Identity(), filterWord0, callback, MaxNbTouches);
 }
 
+template <typename T>
+static bool client_raycast(Client* self,
+	const my::Vector3& origin,
+	const my::Vector3& unitDir,
+	float distance,
+	unsigned int filterWord0,
+	const my::EventFunction& callback,
+	unsigned int MaxNbTouches)
+{
+	return self->Raycast(origin, unitDir, distance, filterWord0, callback, MaxNbTouches);
+}
+
+template <typename T>
 static bool client_sweep_sphere(Client * self,
 	float radius,
 	const my::Vector3 & Position,
 	const my::Vector3 & unitDir,
 	float distance,
 	unsigned int filterWord0,
-	float & hitDistance,
-	Actor *& hitActor,
-	Component *& hitCmp)
+	const T& callback,
+	unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
-	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, hitDistance, hitActor, hitCmp);
+	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, callback, MaxNbTouches);
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -1156,8 +1168,8 @@ HRESULT Client::OnCreateDevice(
 			.def("SavePlayerData", &Client::SavePlayerData)
 			.def("OverlapBox", &client_overlap_box<luabind::object>)
 			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
-			.def("Raycast", &Client::Raycast, luabind::pure_out_value(boost::placeholders::_6) + luabind::pure_out_value(boost::placeholders::_7) + luabind::pure_out_value(boost::placeholders::_8))
-			.def("SweepSphere", &client_sweep_sphere, luabind::pure_out_value(boost::placeholders::_7) + luabind::pure_out_value(boost::placeholders::_8) + luabind::pure_out_value(boost::placeholders::_9))
+			.def("Raycast", &client_raycast<luabind::object>)
+			.def("SweepSphere", &client_sweep_sphere<luabind::object>)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
@@ -1981,7 +1993,7 @@ bool Client::Overlap(
 					physx::PxTransform box_pose(physx::toVec3(BC->getPosition()), BC->mUserParams.mQuatFromUp);
 					if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
 					{
-						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0);
+						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0xFFFFffff);
 						callback(&arg);
 						callback_i++;
 					}
@@ -1994,7 +2006,7 @@ bool Client::Overlap(
 					physx::PxTransform capsule_pose(physx::toVec3(CC->getPosition()), CC->mUserParams.mQuatFromUp);
 					if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
 					{
-						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0);
+						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0xFFFFffff);
 						callback(&arg);
 						callback_i++;
 					}
@@ -2043,23 +2055,34 @@ bool Client::Raycast(
 	const my::Vector3 & unitDir,
 	float distance,
 	unsigned int filterWord0,
-	float & hitDistance,
-	Actor *& hitActor,
-	Component *& hitCmp) const
+	const my::EventFunction& callback,
+	unsigned int MaxNbTouches) const
 {
-	physx::PxRaycastBuffer hit;
-	hit.block.distance = FLT_MAX;
+	std::vector<physx::PxRaycastHit> buff(MaxNbTouches);
+	physx::PxRaycastBuffer hitbuff(buff.data(), buff.size());
+	hitbuff.block.distance = FLT_MAX;
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL))
+	if (m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
 	{
-		hitDistance = hit.block.distance;
-		if (hit.block.shape->userData)
+		try
 		{
-			hitCmp = (Component*)hit.block.shape->userData;
-			hitActor = hitCmp->m_Actor;
+			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+			{
+				const physx::PxRaycastHit& hit = buff[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					RaycastHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex, (Vector3&)hit.position, (Vector3&)hit.normal, hit.distance, hit.u, hit.v);
+					callback(&arg);
+				}
+			}
+			return true;
 		}
-		return true;
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 	return false;
 }
@@ -2071,25 +2094,36 @@ bool Client::Sweep(
 	const my::Vector3 & unitDir,
 	float distance,
 	unsigned int filterWord0,
-	float & hitDistance,
-	Actor *& hitActor,
-	Component *& hitCmp) const
+	const my::EventFunction& callback,
+	unsigned int MaxNbTouches) const
 {
 	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
 
-	physx::PxSweepBuffer hit;
-	hit.block.distance = FLT_MAX;
+	std::vector<physx::PxSweepHit> buff(MaxNbTouches);
+	physx::PxSweepBuffer hitbuff(buff.data(), buff.size());
+	hitbuff.block.distance = FLT_MAX;
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	if (m_PxScene->sweep(geometry, pose, (physx::PxVec3&)unitDir, distance, hit, physx::PxHitFlag::eDISTANCE, filterData, NULL, NULL, 0.0f))
+	if (m_PxScene->sweep(geometry, pose, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
 	{
-		hitDistance = hit.block.distance;
-		if (hit.block.shape->userData)
+		try
 		{
-			hitCmp = (Component*)hit.block.shape->userData;
-			hitActor = hitCmp->m_Actor;
+			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+			{
+				const physx::PxSweepHit& hit = buff[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					SweepHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex, (Vector3&)hit.position, (Vector3&)hit.normal, hit.distance);
+					callback(&arg);
+				}
+			}
+			return true;
 		}
-		return true;
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
 	}
 	return false;
 }

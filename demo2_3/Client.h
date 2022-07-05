@@ -417,9 +417,8 @@ public:
 		const my::Vector3 & unitDir,
 		float distance,
 		unsigned int filterWord0,
-		float & hitDistance,
-		Actor *& hitActor,
-		Component *& hitCmp) const;
+		const my::EventFunction& callback,
+		unsigned int MaxNbTouches) const;
 
 	bool Sweep(
 		const physx::PxGeometry & geometry,
@@ -428,7 +427,6 @@ public:
 		const my::Vector3 & unitDir,
 		float distance,
 		unsigned int filterWord0,
-		float & hitDistance,
-		Actor *& hitActor,
-		Component *& hitCmp) const;
+		const my::EventFunction& callback,
+		unsigned int MaxNbTouches) const;
 };
