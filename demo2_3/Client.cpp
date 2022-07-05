@@ -1992,119 +1992,24 @@ bool Client::Overlap(
 		}
 	}
 
-	//struct Callback : public my::OctNode::QueryCallback
-	//{
-	//	const physx::PxGeometry& geometry;
-	//	const physx::PxTransform& pose;
-	//	const OverlapCallback& callback;
-	//	int callback_i;
-	//	unsigned int RealMaxNbTouches;
-
-	//	Callback(const physx::PxGeometry& _geometry, const physx::PxTransform& _pose, const OverlapCallback& _callback, unsigned int _RealMaxNbTouches)
-	//		: geometry(_geometry)
-	//		, pose(_pose)
-	//		, callback(_callback)
-	//		, callback_i(0)
-	//		, RealMaxNbTouches(_RealMaxNbTouches)
-	//	{
-	//	}
-
-	//	virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
-	//	{
-	//		Actor* actor = dynamic_cast<Actor*>(oct_entity);
-
-	//		Controller* other_cmp = actor->GetFirstComponent<Controller>();
-	//		if (other_cmp && other_cmp->m_PxController)
-	//		{
-	//			try
-	//			{
-	//				switch (other_cmp->m_PxController->getType())
-	//				{
-	//				case physx::PxControllerShapeType::eBOX:
-	//				{
-	//					physx::Cct::BoxController* BC = static_cast<physx::Cct::BoxController*>(other_cmp->m_PxController.get());
-	//					physx::PxBoxGeometry box(BC->mHalfHeight, BC->mHalfSideExtent, BC->mHalfForwardExtent);
-	//					physx::PxTransform box_pose(physx::toVec3(BC->getPosition()), BC->mUserParams.mQuatFromUp);
-	//					if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
-	//					{
-	//						callback(other_cmp->m_Actor, other_cmp, 0);
-	//						callback_i++;
-	//					}
-	//					break;
-	//				}
-	//				case physx::PxControllerShapeType::eCAPSULE:
-	//				{
-	//					physx::Cct::CapsuleController* CC = static_cast<physx::Cct::CapsuleController*>(other_cmp->m_PxController.get());
-	//					physx::PxCapsuleGeometry capsule(CC->mRadius, CC->mHeight * 0.5f);
-	//					physx::PxTransform capsule_pose(physx::toVec3(CC->getPosition()), CC->mUserParams.mQuatFromUp);
-	//					if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
-	//					{
-	//						callback(other_cmp->m_Actor, other_cmp, 0);
-	//						callback_i++;
-	//					}
-	//					break;
-	//				}
-	//				}
-	//			}
-	//			catch (const luabind::error& e)
-	//			{
-	//				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-	//			}
-	//		}
-	//		return callback_i < RealMaxNbTouches;
-	//	}
-	//};
-
-	//physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
-	//Callback cb(geometry, pose, callback, MaxNbTouches);
-	//physx::PxBounds3 bounds = physx::PxGeometryQuery::getWorldBounds(geometry, pose);
-	//QueryEntity((my::AABB&)bounds, &cb);
-
-	struct OverlapBuffer : physx::PxOverlapCallback
-	{
-		const boost::function<void(Actor*, Component*, unsigned int)>& callback;
-
-		int callback_i;
-
-		unsigned int RealMaxNbTouches;
-
-		OverlapBuffer(physx::PxOverlapHit* aTouches, physx::PxU32 aMaxNbTouches, const boost::function<void(Actor*, Component*, unsigned int)>& _callback, int _callback_i, unsigned int _RealMaxNbTouches)
-			: PxHitCallback(aTouches, aMaxNbTouches)
-			, callback(_callback)
-			, callback_i(_callback_i)
-			, RealMaxNbTouches(_RealMaxNbTouches)
-		{
-		}
-
-		virtual physx::PxAgain processTouches(const physx::PxOverlapHit* buffer, physx::PxU32 nbHits)
-		{
-			try
-			{
-				for (unsigned int i = 0; i < nbHits && callback_i < RealMaxNbTouches; i++, callback_i++)
-				{
-					const physx::PxOverlapHit& hit = buffer[i];
-					if (hit.shape->userData)
-					{
-						Component* other_cmp = (Component*)hit.shape->userData;
-						callback(other_cmp->m_Actor, other_cmp, hit.faceIndex);
-					}
-				}
-			}
-			catch (const luabind::error& e)
-			{
-				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-				return false;
-			}
-			return callback_i < RealMaxNbTouches;
-		}
-	};
-
-	std::vector<physx::PxOverlapHit> hitbuff(my::Min(32U, MaxNbTouches));
-	OverlapBuffer buff(hitbuff.data(), hitbuff.size(), callback, callback_i, MaxNbTouches);
+	std::vector<physx::PxOverlapHit> buff(MaxNbTouches - callback_i);
+	physx::PxOverlapBuffer hitbuff(buff.data(), buff.size());
 	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
-	m_PxScene->overlap(geometry, pose, buff, filterData, NULL);
-	return buff.callback_i > 0;
+	if (m_PxScene->overlap(geometry, pose, hitbuff, filterData, NULL))
+	{
+		for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+		{
+			const physx::PxOverlapHit& hit = buff[i];
+			if (hit.shape->userData)
+			{
+				Component* other_cmp = (Component*)hit.shape->userData;
+				callback(other_cmp->m_Actor, other_cmp, hit.faceIndex);
+			}
+		}
+		return callback_i + hitbuff.nbTouches;
+	}
+	return callback_i;
 }
 
 bool Client::Raycast(
