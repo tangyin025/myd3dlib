@@ -1060,6 +1060,22 @@ HRESULT Client::OnCreateDevice(
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
+		, luabind::class_<HitArg, my::EventArg>("HitArg")
+			.def_readonly("actor", &HitArg::actor)
+			.def_readonly("cmp", &HitArg::cmp)
+
+		, luabind::class_<OverlapHitArg, HitArg>("OverlapHitArg")
+			.def_readonly("faceIndex", &OverlapHitArg::faceIndex)
+
+		, luabind::class_<SweepHitArg, OverlapHitArg>("SweepHitArg")
+			.def_readonly("position", &SweepHitArg::position)
+			.def_readonly("normal", &SweepHitArg::normal)
+			.def_readonly("distance", &SweepHitArg::distance)
+
+		, luabind::class_<RaycastHitArg, SweepHitArg>("RaycastHitArg")
+			.def_readonly("u", &RaycastHitArg::u)
+			.def_readonly("v", &RaycastHitArg::v)
+
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, my::DrawHelper> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)
@@ -1937,7 +1953,7 @@ bool Client::Overlap(
 		const my::Vector3 & Position,
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
-		const OverlapCallback & callback,
+		const my::EventFunction& callback,
 		unsigned int MaxNbTouches) const
 {
 	// ref: physx::Cct::Controller::move, userObstacles
@@ -1965,7 +1981,8 @@ bool Client::Overlap(
 					physx::PxTransform box_pose(physx::toVec3(BC->getPosition()), BC->mUserParams.mQuatFromUp);
 					if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
 					{
-						callback(other_cmp->m_Actor, other_cmp, 0);
+						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0);
+						callback(&arg);
 						callback_i++;
 					}
 					break;
@@ -1977,7 +1994,8 @@ bool Client::Overlap(
 					physx::PxTransform capsule_pose(physx::toVec3(CC->getPosition()), CC->mUserParams.mQuatFromUp);
 					if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
 					{
-						callback(other_cmp->m_Actor, other_cmp, 0);
+						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0);
+						callback(&arg);
 						callback_i++;
 					}
 					break;
@@ -1987,7 +2005,7 @@ bool Client::Overlap(
 			catch (const luabind::error& e)
 			{
 				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-				return false;
+				return callback_i;
 			}
 		}
 	}
@@ -1998,14 +2016,22 @@ bool Client::Overlap(
 		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
 	if (m_PxScene->overlap(geometry, pose, hitbuff, filterData, NULL))
 	{
-		for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+		try
 		{
-			const physx::PxOverlapHit& hit = buff[i];
-			if (hit.shape->userData)
+			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
 			{
-				Component* other_cmp = (Component*)hit.shape->userData;
-				callback(other_cmp->m_Actor, other_cmp, hit.faceIndex);
+				const physx::PxOverlapHit& hit = buff[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					OverlapHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex);
+					callback(&arg);
+				}
 			}
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
 		}
 		return callback_i + hitbuff.nbTouches;
 	}
