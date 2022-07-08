@@ -251,7 +251,7 @@ public:
 
 	std::string m_InitScript;
 
-	int m_InitLanguageId;
+	std::string m_InitLanguageId;
 
 	enum Key
 	{
