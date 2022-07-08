@@ -2,7 +2,6 @@
 
 #include "myOctree.h"
 #include "Component.h"
-#include <deque>
 #include <boost/intrusive/list_hook.hpp>
 
 class Actor;
@@ -178,7 +177,7 @@ public:
 
 	int m_BaseBoneId;
 
-	typedef std::set<Actor *> ActorList;
+	typedef std::vector<Actor *> ActorList;
 
 	ActorList m_Attaches;
 

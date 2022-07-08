@@ -174,6 +174,11 @@ static void actor_insert_component_adopt(Actor* self, unsigned int i, ScriptComp
 	self->InsertComponent(i, ComponentPtr(cmp));
 }
 
+static Actor* actor_get_attacher(const Actor* self, unsigned int i)
+{
+	return i < self->m_Attaches.size() ? self->m_Attaches[i] : NULL;
+}
+
 struct ScriptAnimationNodeBlendList;
 
 template <unsigned int i>
@@ -2332,7 +2337,6 @@ void LuaContext::Init(void)
 			.def_readonly("Cmps", &Actor::m_Cmps, return_stl_iterator)
 			.def_readonly("Base", &Actor::m_Base)
 			.def_readwrite("BaseBoneId", &Actor::m_BaseBoneId)
-			.def_readonly("Attaches", &Actor::m_Attaches, return_stl_iterator)
 			.property("Requested", &Actor::IsRequested)
 			.def("Clone", &Actor::Clone)
 			.def("RequestResource", &Actor::RequestResource)
@@ -2373,6 +2377,7 @@ void LuaContext::Init(void)
 			.def("Attach", &Actor::Attach)
 			.def("Detach", &Actor::Detach)
 			.property("AttachNum", &Actor::GetAttachNum)
+			.def("GetAttacher", &actor_get_attacher)
 			.def("GetAttachPose", &Actor::GetAttachPose)
 			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int, const my::Vector3&)>(
 				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, my::Quaternion::Identity())))

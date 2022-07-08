@@ -690,7 +690,7 @@ void Actor::Attach(Actor * other, int BoneId)
 
 	_ASSERT(m_Node && m_Node->GetTopNode()->HaveNode(other->m_Node));
 
-	m_Attaches.insert(other);
+	m_Attaches.push_back(other);
 
 	other->m_Base = this;
 
@@ -705,7 +705,7 @@ void Actor::Attach(Actor * other, int BoneId)
 
 void Actor::Detach(Actor * other)
 {
-	ActorList::iterator att_iter = m_Attaches.find(other);
+	ActorList::iterator att_iter = std::find(m_Attaches.begin(), m_Attaches.end(), other);
 	if (att_iter != m_Attaches.end())
 	{
 		_ASSERT((*att_iter)->m_Base == this);
