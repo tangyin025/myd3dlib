@@ -646,7 +646,7 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 {
 	Vector2 extent(0, (float)m_LineHeight);
 	wchar_t c;
-	while((c = *pString++))
+	while((c = *pString++) && c != L'\n')
 	{
 		const CharacterInfo * info = GetCharacterInfo(c);
 		extent.x += info->horiAdvance;

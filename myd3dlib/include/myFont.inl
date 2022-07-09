@@ -9,19 +9,16 @@ namespace my
 		{
 			const CharacterInfo* info = get_character_info(*p);
 
-			if (align & Font::AlignMultiLine)
+			if (*p == L'\n')
 			{
-				if (x + info->horiAdvance > right)
-				{
-					x = pen.x;
-					y += m_LineHeight;
-				}
-				else if (*p == L'\n')
-				{
-					x = pen.x;
-					y += m_LineHeight;
-					continue;
-				}
+				x = pen.x;
+				y += m_LineHeight;
+				continue;
+			}
+			else if (align & Font::AlignMultiLine && x + info->horiAdvance > right)
+			{
+				x = pen.x;
+				y += m_LineHeight;
 			}
 
 			draw_character(x, y, info);
