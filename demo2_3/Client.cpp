@@ -418,43 +418,34 @@ static bool client_file_exists(Client * self, const std::string & path)
 }
 
 template <typename T>
-static bool client_overlap_box(Client * self, float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+static bool client_overlap_box(Client * self,
+	float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxBoxGeometry box(hx, hy, hz);
-	return self->Overlap(box, Position, Rotation, filterWord0, callback, MaxNbTouches);
+	return self->Overlap(box, Position, Rotation, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
 template <typename T>
-static bool client_overlap_sphere(Client * self, float radius, const my::Vector3 & Position, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+static bool client_overlap_sphere(Client * self,
+	float radius, const my::Vector3 & Position, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
-	return self->Overlap(sphere, Position, Quaternion::Identity(), filterWord0, callback, MaxNbTouches);
+	return self->Overlap(sphere, Position, Quaternion::Identity(), filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
 template <typename T>
 static bool client_raycast(Client* self,
-	const my::Vector3& origin,
-	const my::Vector3& unitDir,
-	float distance,
-	unsigned int filterWord0,
-	const my::EventFunction& callback,
-	unsigned int MaxNbTouches)
+	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
 {
-	return self->Raycast(origin, unitDir, distance, filterWord0, callback, MaxNbTouches);
+	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
 template <typename T>
 static bool client_sweep_sphere(Client * self,
-	float radius,
-	const my::Vector3 & Position,
-	const my::Vector3 & unitDir,
-	float distance,
-	unsigned int filterWord0,
-	const T& callback,
-	unsigned int MaxNbTouches)
+	float radius, const my::Vector3 & Position, const my::Vector3 & unitDir, float distance, unsigned int filterWord0, const T& callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
-	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, callback, MaxNbTouches);
+	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -1965,7 +1956,7 @@ bool Client::Overlap(
 		const my::Vector3 & Position,
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
-		const my::EventFunction& callback,
+		const EventCallback& callback,
 		unsigned int MaxNbTouches) const
 {
 	// ref: physx::Cct::Controller::move, userObstacles
@@ -1994,7 +1985,10 @@ bool Client::Overlap(
 					if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
 					{
 						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0xFFFFffff);
-						callback(&arg);
+						if (!callback(&arg))
+						{
+							return false;
+						}
 						callback_i++;
 					}
 					break;
@@ -2007,7 +2001,10 @@ bool Client::Overlap(
 					if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
 					{
 						OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0xFFFFffff);
-						callback(&arg);
+						if (!callback(&arg))
+						{
+							return false;
+						}
 						callback_i++;
 					}
 					break;
@@ -2017,7 +2014,7 @@ bool Client::Overlap(
 			catch (const luabind::error& e)
 			{
 				my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
-				return callback_i;
+				return false;
 			}
 		}
 	}
@@ -2037,17 +2034,20 @@ bool Client::Overlap(
 				{
 					Component* other_cmp = (Component*)hit.shape->userData;
 					OverlapHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex);
-					callback(&arg);
+					if (!callback(&arg))
+					{
+						return false;
+					}
 				}
 			}
 		}
 		catch (const luabind::error& e)
 		{
 			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			return false;
 		}
-		return callback_i + hitbuff.nbTouches;
 	}
-	return callback_i;
+	return callback_i + hitbuff.nbTouches > 0;
 }
 
 bool Client::Raycast(
@@ -2055,7 +2055,7 @@ bool Client::Raycast(
 	const my::Vector3 & unitDir,
 	float distance,
 	unsigned int filterWord0,
-	const my::EventFunction& callback,
+	const EventCallback& callback,
 	unsigned int MaxNbTouches) const
 {
 	std::vector<physx::PxRaycastHit> buff(MaxNbTouches);
@@ -2074,17 +2074,20 @@ bool Client::Raycast(
 				{
 					Component* other_cmp = (Component*)hit.shape->userData;
 					RaycastHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex, (Vector3&)hit.position, (Vector3&)hit.normal, hit.distance, hit.u, hit.v);
-					callback(&arg);
+					if (!callback(&arg))
+					{
+						return false;
+					}
 				}
 			}
-			return true;
 		}
 		catch (const luabind::error& e)
 		{
 			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			return false;
 		}
 	}
-	return false;
+	return hitbuff.nbTouches > 0;
 }
 
 bool Client::Sweep(
@@ -2094,7 +2097,7 @@ bool Client::Sweep(
 	const my::Vector3 & unitDir,
 	float distance,
 	unsigned int filterWord0,
-	const my::EventFunction& callback,
+	const EventCallback& callback,
 	unsigned int MaxNbTouches) const
 {
 	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
@@ -2115,15 +2118,18 @@ bool Client::Sweep(
 				{
 					Component* other_cmp = (Component*)hit.shape->userData;
 					SweepHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex, (Vector3&)hit.position, (Vector3&)hit.normal, hit.distance);
-					callback(&arg);
+					if (!callback(&arg))
+					{
+						return false;
+					}
 				}
 			}
-			return true;
 		}
 		catch (const luabind::error& e)
 		{
 			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+			return false;
 		}
 	}
-	return false;
+	return hitbuff.nbTouches > 0;
 }

@@ -404,12 +404,14 @@ public:
 
 	void SavePlayerData(const PlayerData * data, const char * path);
 
+	typedef boost::function<bool(my::EventArg*)> EventCallback;
+
 	bool Overlap(
 		const physx::PxGeometry & geometry,
 		const my::Vector3 & Position,
 		const my::Quaternion & Rotation,
 		unsigned int filterWord0,
-		const my::EventFunction& callback,
+		const EventCallback& callback,
 		unsigned int MaxNbTouches) const;
 
 	bool Raycast(
@@ -417,7 +419,7 @@ public:
 		const my::Vector3 & unitDir,
 		float distance,
 		unsigned int filterWord0,
-		const my::EventFunction& callback,
+		const EventCallback& callback,
 		unsigned int MaxNbTouches) const;
 
 	bool Sweep(
@@ -427,6 +429,6 @@ public:
 		const my::Vector3 & unitDir,
 		float distance,
 		unsigned int filterWord0,
-		const my::EventFunction& callback,
+		const EventCallback& callback,
 		unsigned int MaxNbTouches) const;
 };
