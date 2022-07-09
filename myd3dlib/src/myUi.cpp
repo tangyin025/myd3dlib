@@ -1,4 +1,5 @@
 #include "myUi.h"
+#include "myFont.inl"
 #include "myDxutApp.h"
 #include "myResource.h"
 #include "myCollision.h"
@@ -564,111 +565,144 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rec
 	PushWindowSimple(GetVertexList(texture), rect, InRect, OutUvRect, InUvRect, color, clip);
 }
 
-template <typename T>
-void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font)
+void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color)
 {
-	const wchar_t* p = str;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const Font::CharacterInfo* info = get_character_info(*p);
+	Rectangle UvRect(
+		(float)info->textureRect.left / font->m_textureDesc.Width,
+		(float)info->textureRect.top / font->m_textureDesc.Height,
+		(float)info->textureRect.right / font->m_textureDesc.Width,
+		(float)info->textureRect.bottom / font->m_textureDesc.Height);
 
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > right)
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-				continue;
-			}
-		}
-
-		Rectangle UvRect(
-			(float)info->textureRect.left / font->m_textureDesc.Width,
-			(float)info->textureRect.top / font->m_textureDesc.Height,
-			(float)info->textureRect.right / font->m_textureDesc.Width,
-			(float)info->textureRect.bottom / font->m_textureDesc.Height);
-
-		PushRectangleSimple(GetVertexList(font->m_Texture.get()),
-			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), UvRect, color);
-
-		x += info->horiAdvance;
-	}
+	PushRectangleSimple(GetVertexList(font->m_Texture.get()),
+		Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), UvRect, color);
 }
 
-template <typename T>
-void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font, const Matrix4 & transform)
+void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color, const Matrix4& transform)
 {
-	const wchar_t* p = str;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const Font::CharacterInfo* info = get_character_info(*p);
+	const CUSTOMVERTEX v[] = {
+		{ x + info->horiBearingX, y - info->horiBearingY, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
+		{ x + info->horiBearingX + info->width, y - info->horiBearingY, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
+		{ x + info->horiBearingX + info->width, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
+		{ x + info->horiBearingX, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
+	};
 
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > right)
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += font->m_LineHeight;
-				continue;
-			}
-		}
+	D3DXVec3TransformCoordArray((D3DXVECTOR3*)v, sizeof(v[0]), (D3DXVECTOR3*)v, sizeof(v[0]), (D3DXMATRIX*)&transform, _countof(v));
 
-		const CUSTOMVERTEX v[] = {
-			{ x + info->horiBearingX, y - info->horiBearingY, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
-			{ x + info->horiBearingX + info->width, y - info->horiBearingY, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
-			{ x + info->horiBearingX + info->width, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
-			{ x + info->horiBearingX, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
-		};
-
-		D3DXVec3TransformCoordArray((D3DXVECTOR3*)v, sizeof(v[0]), (D3DXVECTOR3*)v, sizeof(v[0]), (D3DXMATRIX*)&transform, _countof(v));
-
-		PushTriangleSimple(GetVertexList(font->m_Texture.get()), v[0], v[1], v[3]);
-		PushTriangleSimple(GetVertexList(font->m_Texture.get()), v[2], v[3], v[1]);
-
-		x += info->horiAdvance;
-	}
+	PushTriangleSimple(GetVertexList(font->m_Texture.get()), v[0], v[1], v[3]);
+	PushTriangleSimple(GetVertexList(font->m_Texture.get()), v[2], v[3], v[1]);
 }
+//
+//template <typename T>
+//void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font)
+//{
+//	const wchar_t* p = str;
+//	for (float x = pen.x, y = pen.y; *p; p++)
+//	{
+//		const Font::CharacterInfo* info = get_character_info(*p);
+//
+//		if (align & Font::AlignMultiLine)
+//		{
+//			if (x + info->horiAdvance > right)
+//			{
+//				x = pen.x;
+//				y += font->m_LineHeight;
+//			}
+//			else if (*p == L'\n')
+//			{
+//				x = pen.x;
+//				y += font->m_LineHeight;
+//				continue;
+//			}
+//		}
+//
+//		Rectangle UvRect(
+//			(float)info->textureRect.left / font->m_textureDesc.Width,
+//			(float)info->textureRect.top / font->m_textureDesc.Height,
+//			(float)info->textureRect.right / font->m_textureDesc.Width,
+//			(float)info->textureRect.bottom / font->m_textureDesc.Height);
+//
+//		PushRectangleSimple(GetVertexList(font->m_Texture.get()),
+//			Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), UvRect, color);
+//
+//		x += info->horiAdvance;
+//	}
+//}
+//
+//template <typename T>
+//void UIRender::PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font, const Matrix4 & transform)
+//{
+//	const wchar_t* p = str;
+//	for (float x = pen.x, y = pen.y; *p; p++)
+//	{
+//		const Font::CharacterInfo* info = get_character_info(*p);
+//
+//		if (align & Font::AlignMultiLine)
+//		{
+//			if (x + info->horiAdvance > right)
+//			{
+//				x = pen.x;
+//				y += font->m_LineHeight;
+//			}
+//			else if (*p == L'\n')
+//			{
+//				x = pen.x;
+//				y += font->m_LineHeight;
+//				continue;
+//			}
+//		}
+//
+//		const CUSTOMVERTEX v[] = {
+//			{ x + info->horiBearingX, y - info->horiBearingY, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
+//			{ x + info->horiBearingX + info->width, y - info->horiBearingY, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.top / font->m_textureDesc.Height },
+//			{ x + info->horiBearingX + info->width, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.right / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
+//			{ x + info->horiBearingX, y - info->horiBearingY + info->height, 0, color, (float)info->textureRect.left / font->m_textureDesc.Width, (float)info->textureRect.bottom / font->m_textureDesc.Height },
+//		};
+//
+//		D3DXVec3TransformCoordArray((D3DXVECTOR3*)v, sizeof(v[0]), (D3DXVECTOR3*)v, sizeof(v[0]), (D3DXMATRIX*)&transform, _countof(v));
+//
+//		PushTriangleSimple(GetVertexList(font->m_Texture.get()), v[0], v[1], v[3]);
+//		PushTriangleSimple(GetVertexList(font->m_Texture.get()), v[2], v[3], v[1]);
+//
+//		x += info->horiAdvance;
+//	}
+//}
 
 void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
 {
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
-	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1), color, align, font);
+	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font)
 {
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
-	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth), outlineColor, align, font);
+	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth),
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, outlineColor));
 
-	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1), color, align, font);
+	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font, const Matrix4 & transform)
 {
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
-	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1), color, align, font, transform);
+	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color, transform));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font, const Matrix4 & transform)
 {
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
-	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth), outlineColor, align, font, transform);
+	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth),
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, outlineColor, boost::ref(transform)));
 
-	PushString(pen, rect.r, str, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1), color, align, font, transform);
+	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color, boost::ref(transform)));
 }
 
 ControlImage::~ControlImage(void)

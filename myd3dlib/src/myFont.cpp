@@ -1,4 +1,5 @@
 #include "myFont.h"
+#include "myFont.inl"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_STROKER_H
@@ -689,51 +690,16 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	return pen;
 }
 
-template <typename T>
-void Font::DrawString(
-	LPD3DXSPRITE pSprite,
-	const Vector2& pen,
-	float right,
-	LPCWSTR pString,
-	const T& get_character_info,
-	D3DCOLOR color,
-	Font::Align align)
+void Font::DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo* info, D3DCOLOR Color)
 {
-	const wchar_t* p = pString;
-	for (float x = pen.x, y = pen.y; *p; p++)
-	{
-		const CharacterInfo* info = get_character_info(*p);
-
-		if (align & Font::AlignMultiLine)
-		{
-			if (x + info->horiAdvance > right)
-			{
-				x = pen.x;
-				y += m_LineHeight;
-			}
-			else if (*p == L'\n')
-			{
-				x = pen.x;
-				y += m_LineHeight;
-				continue;
-			}
-		}
-
-		CComPtr<IDirect3DDevice9> Device;
-		pSprite->GetDevice(&Device);
-		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-		V(pSprite->Draw(
-			(IDirect3DTexture9*)m_Texture->m_ptr,
-			&info->textureRect,
-			(D3DXVECTOR3*)&Vector3(0, 0, 0),
-			(D3DXVECTOR3*)&Vector3(x + info->horiBearingX, y - info->horiBearingY, 0),
-			color));
-
-		x += info->horiAdvance;
-	}
+	CComPtr<IDirect3DDevice9> Device;
+	pSprite->GetDevice(&Device);
+	V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+	V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+	V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+	V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+	V(pSprite->Draw((IDirect3DTexture9*)m_Texture->m_ptr, &info->textureRect,
+		(D3DXVECTOR3*)&Vector3(0, 0, 0), (D3DXVECTOR3*)&Vector3(x + info->horiBearingX, y - info->horiBearingY, 0), Color));
 }
 
 void Font::DrawString(
@@ -747,9 +713,11 @@ void Font::DrawString(
 {
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
-	DrawString(pSprite, pen, rect.r, pString, boost::bind(&Font::GetCharacterOutlineInfo, this, boost::placeholders::_1, OutlineWidth), OutlineColor, align);
+	DrawString(pen, rect.r, pString, align, boost::bind(&Font::GetCharacterOutlineInfo, this, boost::placeholders::_1, OutlineWidth),
+		boost::bind(&Font::DrawCharacter, this, pSprite, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, OutlineColor));
 
-	DrawString(pSprite, pen, rect.r, pString, boost::bind(&Font::GetCharacterInfo, this, boost::placeholders::_1), Color, align);
+	DrawString(pen, rect.r, pString, align, boost::bind(&Font::GetCharacterInfo, this, boost::placeholders::_1),
+		boost::bind(&Font::DrawCharacter, this, pSprite, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, Color));
 }
 
 float Font::CPtoX(LPCWSTR pString, int nCP)

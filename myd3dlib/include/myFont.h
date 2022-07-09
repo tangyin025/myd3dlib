@@ -209,15 +209,10 @@ namespace my
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
 
-		template <typename T>
-		void DrawString(
-			LPD3DXSPRITE pSprite,
-			const Vector2& pen,
-			float right,
-			LPCWSTR pString,
-			const T& get_character_info,
-			D3DCOLOR color,
-			Font::Align align);
+		void DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo* info, D3DCOLOR Color);
+
+		template <typename T, typename U>
+		void DrawString(const Vector2& pen, float right, LPCWSTR pString, Font::Align align, const T& get_character_info, const U& draw_character);
 
 		void DrawString(
 			LPD3DXSPRITE pSprite,

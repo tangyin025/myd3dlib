@@ -111,11 +111,9 @@ namespace my
 
 		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const BaseTexture * texture, const Rectangle & clip);
 
-		template <typename T>
-		void PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font);
+		void PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color);
 
-		template <typename T>
-		void PushString(const Vector2 & pen, float right, const wchar_t * str, const T & get_character_info, D3DCOLOR color, Font::Align align, Font * font, const Matrix4 & transform);
+		void PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color, const Matrix4& transform);
 
 		void PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font);
 
