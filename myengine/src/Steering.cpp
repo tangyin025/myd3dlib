@@ -165,7 +165,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	bool replan = false;
 	dtQueryFilter filter;
-	float m_agentPlacementHalfExtents[3] = { controller->GetRadius() * 2.0f, controller->GetHeight() * 1.5f, controller->GetRadius() * 2.0f };
+	const float m_agentPlacementHalfExtents[3] = { 5,5,5 };// { controller->GetRadius() * 2.0f, controller->GetHeight() * 1.5f, controller->GetRadius() * 2.0f };
 	if ((m_targetPos - Target).magnitude2D() > EPSILON_E3 || !cb.navi->m_navQuery->isValidPolyRef(m_targetRef, &filter))
 	{
 		// Find nearest point on navmesh and set move request to that location.
