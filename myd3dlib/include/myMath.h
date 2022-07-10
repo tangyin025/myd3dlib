@@ -634,6 +634,26 @@ namespace my
 		{
 			return x * x + z * z;
 		}
+		
+		float distance(const Vector3 & rhs) const
+		{
+			return operator-(rhs).magnitude();
+		}
+
+		float distanceSq(const Vector3 & rhs) const
+		{
+			return operator-(rhs).magnitudeSq();
+		}
+
+		float distance2D(const Vector3 & rhs) const
+		{
+			return operator-(rhs).magnitude2D();
+		}
+
+		float distanceSq2D(const Vector3 & rhs) const
+		{
+			return operator-(rhs).magnitudeSq2D();
+		}
 
 		Vector3 lerp(const Vector3 & rhs, float s) const
 		{
