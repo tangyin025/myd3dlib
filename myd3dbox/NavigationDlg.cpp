@@ -11,8 +11,6 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourCommon.h"
 #include "Terrain.h"
-#include "mesh\GuTriangleMesh.h"
-#include "convex\GuConvexMesh.h"
 
 
 // CNavigationDlg dialog
@@ -415,7 +413,7 @@ public:
 						else
 						{
 							convexMesh.reset(mesh_cmp->m_PxMesh->m_ptr->is<physx::PxConvexMesh>(), PhysxDeleter<physx::PxConvexMesh>());
-							static_cast<physx::Gu::ConvexMesh*>(convexMesh.get())->acquireReference();
+							convexMesh->acquireReference();
 						}
 						boost::const_multi_array_ref<physx::PxVec3, 1> verts(convexMesh->getVertices(), boost::extents[convexMesh->getNbVertices()]);
 						const physx::PxU8* polys = convexMesh->getIndexBuffer();
@@ -450,7 +448,7 @@ public:
 						else
 						{
 							triangleMesh.reset(mesh_cmp->m_PxMesh->m_ptr->is<physx::PxTriangleMesh>(), PhysxDeleter<physx::PxTriangleMesh>());
-							static_cast<physx::Gu::TriangleMesh*>(triangleMesh.get())->acquireReference();
+							triangleMesh->acquireReference();
 						}
 						boost::const_multi_array_ref<physx::PxVec3, 1> verts(triangleMesh->getVertices(), boost::extents[triangleMesh->getNbVertices()]);
 						for (unsigned int i = 0; i < triangleMesh->getNbTriangles(); i++)

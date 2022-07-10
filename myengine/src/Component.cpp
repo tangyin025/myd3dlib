@@ -23,8 +23,6 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/range/algorithm/find_if.hpp>
-#include "mesh\GuTriangleMesh.h"
-#include "convex\GuConvexMesh.h"
 
 using namespace my;
 
@@ -594,12 +592,12 @@ MeshComponent::PhysxBaseResource::~PhysxBaseResource(void)
 		{
 		case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
 		{
-			_ASSERT(static_cast<physx::Gu::TriangleMesh*>(m_ptr)->getReferenceCount() == 1);
+			_ASSERT(m_ptr->is<physx::PxTriangleMesh>()->getReferenceCount() == 1);
 			break;
 		}
 		case physx::PxConcreteType::eCONVEX_MESH:
 		{
-			_ASSERT(static_cast<physx::Gu::ConvexMesh*>(m_ptr)->getReferenceCount() == 1);
+			_ASSERT(m_ptr->is<physx::PxConvexMesh>()->getReferenceCount() == 1);
 			break;
 		}
 		default:

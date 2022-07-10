@@ -63,8 +63,11 @@ void Controller::RequestResource(void)
 	//actor->userData = m_Actor; // ! PhysxScene::TickPostRender, actor->SetPose
 	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
 	actor->getShapes(shapes.data(), shapes.size());
-	_ASSERT(!shapes.empty());
-	shapes.front()->userData = this; // ! trigger_iter->otherShape->userData
+	_ASSERT(shapes.size() == 1);
+
+	m_PxShape.reset(shapes.front(), PhysxDeleter<physx::PxShape>());
+	m_PxShape->acquireReference();
+	m_PxShape->userData = this; // ! trigger_iter->otherShape->userData
 }
 
 void Controller::ReleaseResource(void)
@@ -75,6 +78,8 @@ void Controller::ReleaseResource(void)
 
 	scene->removeRenderActorsFromPhysicsActor(m_PxController->getActor());
 
+	m_PxShape.reset();
+
 	m_PxController.reset();
 
 	m_PxMaterial.reset();
@@ -84,12 +89,12 @@ void Controller::ReleaseResource(void)
 
 void Controller::EnterPhysxScene(PhysxScene * scene)
 {
-	Component::EnterPhysxScene(scene);
+	_ASSERT(!m_PxShape);
 }
 
 void Controller::LeavePhysxScene(PhysxScene * scene)
 {
-	Component::LeavePhysxScene(scene);
+	_ASSERT(!m_PxShape);
 }
 
 void Controller::Update(float fElapsedTime)
