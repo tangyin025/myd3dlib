@@ -297,6 +297,49 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	// Calculate steering.
 	Vector3 dvel = (*(Vector3*)&m_cornerVerts[0] - m_agentPos).normalize() * m_MaxSpeed;
 
+	// Separation
+	const float separationDist = collisionQueryRange;
+	const float invSeparationDist = 1.0f / separationDist;
+	const float separationWeight = 8.0f;
+
+	float w = 0;
+	float disp[3] = { 0,0,0 };
+
+	for (int i = 0; i < cb.neighbors.size(); ++i)
+	{
+		const Steering* nei = cb.neighbors[i];
+		const Controller* neicontroller = nei->m_Actor->GetFirstComponent<Controller>();
+		if (!neicontroller)
+			break;
+
+		float diff[3];
+		Vector3 neipos = neicontroller->GetPosition();
+		dtVsub(diff, &m_agentPos.x, &neipos.x);
+		diff[1] = 0;
+
+		const float distSqr = dtVlenSqr(diff);
+		if (distSqr < 0.00001f)
+			continue;
+		if (distSqr > dtSqr(separationDist))
+			continue;
+		const float dist = dtMathSqrtf(distSqr);
+		const float weight = separationWeight * (1.0f - dtSqr(dist * invSeparationDist));
+
+		dtVmad(disp, disp, diff, weight / dist);
+		w += 1.0f;
+	}
+
+	if (w > 0.0001f)
+	{
+		// Adjust desired velocity.
+		dtVmad(&dvel.x, &dvel.x, disp, 1.0f / w);
+		// Clamp desired velocity to desired speed.
+		const float speedSqr = dtVlenSqr(&dvel.x);
+		const float desiredSqr = dtSqr(m_MaxSpeed);
+		if (speedSqr > desiredSqr)
+			dtVscale(&dvel.x, &dvel.x, desiredSqr / speedSqr);
+	}
+
 	// Update the collision boundary after certain distance has been passed or
 	// if it has become invalid.
 	const float updateThr = collisionQueryRange * 0.25f;
