@@ -202,13 +202,13 @@ public:
 
 	void CreateSphereShape(const my::Vector3 & pos, const my::Quaternion & rot, float radius);
 
-	void SetSimulationFilterWord0(unsigned int filterWord0);
+	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
 
-	unsigned int GetSimulationFilterWord0(void) const;
+	virtual unsigned int GetSimulationFilterWord0(void) const;
 
-	void SetQueryFilterWord0(unsigned int filterWord0);
+	virtual void SetQueryFilterWord0(unsigned int filterWord0);
 
-	unsigned int GetQueryFilterWord0(void) const;
+	virtual unsigned int GetQueryFilterWord0(void) const;
 
 	void SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value);
 

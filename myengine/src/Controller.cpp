@@ -64,10 +64,14 @@ void Controller::RequestResource(void)
 	std::vector<physx::PxShape*> shapes(actor->getNbShapes());
 	actor->getShapes(shapes.data(), shapes.size());
 	_ASSERT(shapes.size() == 1);
-
 	m_PxShape.reset(shapes.front(), PhysxDeleter<physx::PxShape>());
 	m_PxShape->acquireReference();
+
 	m_PxShape->userData = this; // ! trigger_iter->otherShape->userData
+
+	SetSimulationFilterWord0(m_DescSimulationFilterWord0);
+
+	SetQueryFilterWord0(m_DescQueryFilterWord0);
 }
 
 void Controller::ReleaseResource(void)
@@ -158,42 +162,124 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 
 void Controller::SetHeight(float Height)
 {
-	static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->setHeight(Height);
+	m_desc.height = Height;
+
+	if (m_PxController)
+	{
+		static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->setHeight(Height);
+	}
 }
 
 float Controller::GetHeight(void) const
 {
-	return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getHeight();
+	if (m_PxController)
+	{
+		return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getHeight();
+	}
+
+	return m_desc.height;
 }
 
 void Controller::SetRadius(float Radius)
 {
-	static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->setRadius(Radius);
+	m_desc.radius = Radius;
+
+	if (m_PxController)
+	{
+		static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->setRadius(Radius);
+	}
 }
 
 float Controller::GetRadius(void) const
 {
-	return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getRadius();
+	if (m_PxController)
+	{
+		return static_cast<physx::Cct::CapsuleController*>(m_PxController.get())->getRadius();
+	}
+
+	return m_desc.radius;
 }
 
 void Controller::SetStepOffset(float StepOffset)
 {
-	m_PxController->setStepOffset(StepOffset);
+	m_desc.stepOffset = StepOffset;
+
+	if (m_PxController)
+	{
+		m_PxController->setStepOffset(StepOffset);
+	}
 }
 
 float Controller::GetStepOffset(void) const
 {
-	return m_PxController->getStepOffset();
+	if (m_PxController)
+	{
+		return m_PxController->getStepOffset();
+	}
+
+	return m_desc.stepOffset;
 }
 
 void Controller::SetContactOffset(float ContactOffset)
 {
-	m_PxController->setContactOffset(ContactOffset);
+	m_desc.contactOffset = ContactOffset;
+
+	if (m_PxController)
+	{
+		m_PxController->setContactOffset(ContactOffset);
+	}
 }
 
 float Controller::GetContactOffset(void) const
 {
-	return m_PxController->getContactOffset();
+	if (m_PxController)
+	{
+		return m_PxController->getContactOffset();
+	}
+
+	return m_desc.contactOffset;
+}
+
+void Controller::SetSimulationFilterWord0(unsigned int filterWord0)
+{
+	m_DescSimulationFilterWord0 = filterWord0;
+
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+		m_PxShape->setSimulationFilterData(filter_data);
+	}
+}
+
+unsigned int Controller::GetSimulationFilterWord0(void) const
+{
+	if (m_PxShape)
+	{
+		return m_PxShape->getSimulationFilterData().word0;
+	}
+
+	return m_DescSimulationFilterWord0;
+}
+
+void Controller::SetQueryFilterWord0(unsigned int filterWord0)
+{
+	m_DescQueryFilterWord0 = filterWord0;
+
+	if (m_PxShape)
+	{
+		physx::PxFilterData filter_data(filterWord0, 0, 0, 0);
+		m_PxShape->setQueryFilterData(filter_data);
+	}
+}
+
+unsigned int Controller::GetQueryFilterWord0(void) const
+{
+	if (m_PxShape)
+	{
+		return m_PxShape->getQueryFilterData().word0;
+	}
+
+	return m_DescQueryFilterWord0;
 }
 
 void Controller::SetUpDirection(const my::Vector3 & Up)

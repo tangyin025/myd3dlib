@@ -12,6 +12,10 @@ public:
 
 	physx::PxCapsuleControllerDesc m_desc;
 
+	unsigned int m_DescSimulationFilterWord0;
+
+	unsigned int m_DescQueryFilterWord0;
+
 	bool m_PxControllerMoveMuted;
 
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
@@ -20,13 +24,17 @@ public:
 
 protected:
 	Controller(void)
-		: m_PxControllerMoveMuted(false)
+		: m_DescSimulationFilterWord0(0)
+		, m_DescQueryFilterWord0(0)
+		, m_PxControllerMoveMuted(false)
 	{
 	}
 
 public:
 	Controller(const char * Name, float Height, float Radius, float ContactOffset, float StepOffset)
 		: Component(Name)
+		, m_DescSimulationFilterWord0(0)
+		, m_DescQueryFilterWord0(0)
 		, m_PxControllerMoveMuted(false)
 	{
 		m_desc.height = Height;
@@ -87,6 +95,14 @@ public:
 	void SetContactOffset(float ContactOffset);
 
 	float GetContactOffset(void) const;
+
+	void SetSimulationFilterWord0(unsigned int filterWord0);
+
+	unsigned int GetSimulationFilterWord0(void) const;
+
+	void SetQueryFilterWord0(unsigned int filterWord0);
+
+	unsigned int GetQueryFilterWord0(void) const;
 
 	void SetUpDirection(const my::Vector3 & Up);
 
