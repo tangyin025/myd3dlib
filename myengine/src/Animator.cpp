@@ -297,7 +297,7 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		if (!Group.empty())
 		{
 			Animator* Root = dynamic_cast<Animator*>(GetTopNode());
-			Root->AddSequenceGroup(Group, &m_SequenceSlot.front());
+			Root->AddSequenceGroup(Group, &*res_seq_iter);
 			Root->SyncSequenceGroupTime(Group, res_seq_iter->m_Time / res_seq_iter->GetLength());
 		}
 	}
@@ -309,6 +309,12 @@ void AnimationNodeSlot::StopIndex(int i)
 
 	m_SequenceSlot[i].m_TargetWeight = 0;
 	m_SequenceSlot[i].m_BlendTime = m_SequenceSlot[i].m_BlendOutTime;
+
+	if (!m_SequenceSlot[i].m_Group.empty())
+	{
+		Animator* Root = dynamic_cast<Animator*>(GetTopNode());
+		Root->RemoveSequenceGroup(m_SequenceSlot[i].m_Group, &m_SequenceSlot[i]);
+	}
 }
 
 void AnimationNodeSlot::Stop(DWORD_PTR UserData)
