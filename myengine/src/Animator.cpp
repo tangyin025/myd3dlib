@@ -258,7 +258,7 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 	SequenceList::const_iterator seq_iter = m_SequenceSlot.begin();
 	for (; seq_iter != m_SequenceSlot.end(); seq_iter++)
 	{
-		my::BoneList OtherPose(pose.size());
+		my::BoneList OtherPose(pose.size(), Bone(Vector3(0, 0, 0)));
 		seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
 		if (seq_iter->m_RootId < 0)
 		{
@@ -485,7 +485,7 @@ my::BoneList & AnimationNodeBlendList::GetPose(my::BoneList & pose, int root_i, 
 			}
 			else
 			{
-				my::BoneList OtherPose(pose.size());
+				my::BoneList OtherPose(pose.size(), Bone(Vector3(0, 0, 0)));
 				m_Childs[i]->GetPose(OtherPose, root_i, boneHierarchy);
 				pose.LerpSelf(OtherPose, boneHierarchy, root_i, m_Weight[i]);
 			}
