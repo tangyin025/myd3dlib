@@ -720,6 +720,8 @@ namespace my
 		{
 			float length = magnitude();
 
+			_ASSERT(length > EPSILON_E12);
+
 			return Vector3(length, asinf(y / length), atan2f(z, x));
 		}
 
@@ -731,8 +733,10 @@ namespace my
 		float cosTheta(const Vector3 & rhs) const
 		{
 			float determinantSq = magnitudeSq() * rhs.magnitudeSq(); // |v0|*|v1|*Cos(Angle)
-			_ASSERT(determinantSq != 0);
-			return dot(rhs) / sqrtf(determinantSq);
+
+			_ASSERT(determinantSq > EPSILON_E12 * EPSILON_E12);
+
+			return Min(dot(rhs) / sqrtf(determinantSq), 1.0f);
 		}
 
 		//float sinTheta(const Vector3 & rhs) const
