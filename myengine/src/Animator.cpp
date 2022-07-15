@@ -115,7 +115,7 @@ AnimationNode * AnimationNode::GetTopNode(void)
 	return this;
 }
 
-const AnimationNode * AnimationNode::FindSubNode(const char * Name) const
+const AnimationNode * AnimationNode::FindSubNode(const std::string & Name) const
 {
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
@@ -137,7 +137,7 @@ const AnimationNode * AnimationNode::FindSubNode(const char * Name) const
 	return NULL;
 }
 
-AnimationNode * AnimationNode::FindSubNode(const char * Name)
+AnimationNode * AnimationNode::FindSubNode(const std::string & Name)
 {
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
@@ -272,10 +272,7 @@ void AnimationNodeSlot::Tick(float fElapsedTime, float fTotalWeight)
 
 		seq_iter->Tick(fElapsedTime, Weight);
 
-		if (seq_iter->m_RootId < 0)
-		{
-			fTotalWeight = Max(0.0f, fTotalWeight - Weight);
-		}
+		fTotalWeight = Max(0.0f, fTotalWeight - Weight);
 
 		if (seq_iter->m_TargetWeight > 0 && !seq_iter->m_Loop && seq_iter->m_Time >= seq_iter->GetLength())
 		{
@@ -304,19 +301,12 @@ my::BoneList & AnimationNodeSlot::GetPose(my::BoneList & pose, int root_i, const
 	{
 		my::BoneList OtherPose(pose.size(), Bone(Vector3(0, 0, 0)));
 		seq_iter->GetPose(OtherPose, root_i, boneHierarchy);
-		if (seq_iter->m_RootId < 0)
-		{
-			pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight);
-		}
-		else
-		{
-			pose.LerpSelf(OtherPose, boneHierarchy, seq_iter->m_RootId, seq_iter->m_Weight);
-		}
+		pose.LerpSelf(OtherPose, boneHierarchy, root_i, seq_iter->m_Weight);
 	}
 	return pose;
 }
 
-void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, int RootId, DWORD_PTR UserData)
+void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, DWORD_PTR UserData)
 {
 	SequenceList::iterator seq_iter = std::upper_bound(m_SequenceSlot.begin(), m_SequenceSlot.end(), Priority,
 		boost::bind(std::less<float>(), boost::placeholders::_1, boost::bind(&Sequence::m_Priority, boost::placeholders::_2)));
@@ -334,7 +324,6 @@ void AnimationNodeSlot::Play(const std::string & Name, float Rate, float Weight,
 		res_seq_iter->m_BlendTime = BlendTime;
 		res_seq_iter->m_BlendOutTime = BlendOutTime;
 		res_seq_iter->m_TargetWeight = Weight;
-		res_seq_iter->m_RootId = RootId;
 		res_seq_iter->m_UserData = UserData;
 		res_seq_iter->m_Parent = this;
 

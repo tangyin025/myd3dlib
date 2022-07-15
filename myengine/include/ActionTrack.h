@@ -122,6 +122,7 @@ class ActionTrackAnimation : public ActionTrack
 public:
 	struct KeyFrame
 	{
+		std::string SlotName;
 		std::string Name;
 		float Rate;
 		float Weight;
@@ -130,24 +131,20 @@ public:
 		bool Loop;
 		int Prority;
 		std::string Group;
-		int RootId;
 	};
 
 	typedef std::multimap<float, KeyFrame> KeyFrameMap;
 
 	KeyFrameMap m_Keys;
 
-	float m_ParamWeight;
-
 public:
 	ActionTrackAnimation(void)
-		: m_ParamWeight(1.0f)
 	{
 	}
 
 	virtual ActionTrackInstPtr CreateInstance(Actor * _Actor) const;
 
-	void AddKeyFrame(float Time, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group, int RootId);
+	void AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group);
 };
 
 class ActionTrackAnimationInst : public ActionTrackInst
@@ -155,13 +152,10 @@ class ActionTrackAnimationInst : public ActionTrackInst
 protected:
 	boost::shared_ptr<const ActionTrackAnimation> m_Template;
 
-	float m_Weight;
-
 public:
 	ActionTrackAnimationInst(Actor * _Actor, boost::shared_ptr<const ActionTrackAnimation> Template)
 		: ActionTrackInst(_Actor)
 		, m_Template(Template)
-		, m_Weight(Template->m_ParamWeight)
 	{
 	}
 

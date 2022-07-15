@@ -2418,7 +2418,7 @@ void LuaContext::Init(void)
 			//	boost::bind(&AnimationNode::AnimationNodePtrList::size, boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
 			.property("ChildNum", &animation_node_get_child_num)
 			.def("RemoveChild", &AnimationNode::RemoveChild)
-			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const char*))& AnimationNode::FindSubNode)
+			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const std::string&))& AnimationNode::FindSubNode)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<const char*>())
@@ -2491,7 +2491,6 @@ void LuaContext::Init(void)
 
 		, class_<ActionTrackAnimation, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackAnimation")
 			.def(constructor<>())
-			.def_readwrite("ParamWeight", &ActionTrackAnimation::m_ParamWeight)
 			.def("AddKeyFrame", &ActionTrackAnimation::AddKeyFrame)
 
 		, class_<ActionTrackSound, ActionTrack, boost::shared_ptr<ActionTrack> >("ActionTrackSound")

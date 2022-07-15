@@ -91,10 +91,11 @@ ActionTrackInstPtr ActionTrackAnimation::CreateInstance(Actor * _Actor) const
 	return ActionTrackInstPtr(new ActionTrackAnimationInst(_Actor, boost::static_pointer_cast<const ActionTrackAnimation>(shared_from_this())));
 }
 
-void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group, int RootId)
+void ActionTrackAnimation::AddKeyFrame(float Time, const char * SlotName, const char * Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Prority, const char * Group)
 {
 	KeyFrameMap::iterator key_iter = m_Keys.insert(std::make_pair(Time, KeyFrame()));
 	_ASSERT(key_iter != m_Keys.end());
+	key_iter->second.SlotName = SlotName;
 	key_iter->second.Name = Name;
 	key_iter->second.Rate = Rate;
 	key_iter->second.Weight = Weight;
@@ -103,7 +104,6 @@ void ActionTrackAnimation::AddKeyFrame(float Time, const char * Name, float Rate
 	key_iter->second.Loop = Loop;
 	key_iter->second.Prority = Prority;
 	key_iter->second.Group = Group;
-	key_iter->second.RootId = RootId;
 }
 
 void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
@@ -119,20 +119,19 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 		ActionTrackAnimation::KeyFrameMap::const_iterator key_end = m_Template->m_Keys.lower_bound(Time);
 		for (; key_iter != key_end; key_iter++)
 		{
-			const float Weight = 1 - fabs(m_Weight - key_iter->second.Weight);
-			if (Weight > 0)
+			AnimationNodeSlot * slot = dynamic_cast<AnimationNodeSlot *>(animator->FindSubNode(key_iter->second.SlotName));
+			if (slot)
 			{
-				//animator->Play(
-				//	key_iter->second.Name,
-				//	key_iter->second.Rate,
-				//	Weight,
-				//	key_iter->second.BlendTime,
-				//	key_iter->second.BlendOutTime,
-				//	key_iter->second.Loop,
-				//	key_iter->second.Prority,
-				//	key_iter->second.Group,
-				//	key_iter->second.RootId,
-				//	(DWORD_PTR)this);
+				slot->Play(
+					key_iter->second.Name,
+					key_iter->second.Rate,
+					key_iter->second.Weight,
+					key_iter->second.BlendTime,
+					key_iter->second.BlendOutTime,
+					key_iter->second.Loop,
+					key_iter->second.Prority,
+					key_iter->second.Group,
+					(DWORD_PTR)this);
 			}
 		}
 	}
@@ -143,7 +142,15 @@ void ActionTrackAnimationInst::Stop(void)
 	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
 	{
-		//animator->Stop((DWORD_PTR)this);
+		ActionTrackAnimation::KeyFrameMap::const_iterator key_iter = m_Template->m_Keys.begin();
+		for (; key_iter != m_Template->m_Keys.end(); key_iter++)
+		{
+			AnimationNodeSlot* slot = dynamic_cast<AnimationNodeSlot*>(animator->FindSubNode(key_iter->second.SlotName));
+			if (slot)
+			{
+				slot->Stop((DWORD_PTR)this);
+			}
+		}
 	}
 }
 

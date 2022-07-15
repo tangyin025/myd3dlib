@@ -60,9 +60,9 @@ public:
 
 	AnimationNode * GetTopNode(void);
 
-	const AnimationNode * FindSubNode(const char * Name) const;
+	const AnimationNode * FindSubNode(const std::string & Name) const;
 
-	AnimationNode * FindSubNode(const char * Name);
+	AnimationNode * FindSubNode(const std::string & Name);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 
@@ -153,8 +153,6 @@ public:
 
 		float m_TargetWeight;
 
-		int m_RootId;
-
 		DWORD_PTR m_UserData;
 
 		Sequence(void)
@@ -162,7 +160,6 @@ public:
 			, m_BlendTime(0)
 			, m_BlendOutTime(0)
 			, m_TargetWeight(1.0f)
-			, m_RootId(-1)
 			, m_UserData(0)
 		{
 		}
@@ -203,7 +200,7 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
-	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, int RootId, DWORD_PTR UserData);
+	void Play(const std::string & Name, float Rate, float Weight, float BlendTime, float BlendOutTime, bool Loop, int Priority, const std::string & Group, DWORD_PTR UserData);
 
 	void StopIndex(int i);
 
