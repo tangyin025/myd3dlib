@@ -632,14 +632,14 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 	{
 		_ASSERT(m_Node);
 
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		cmp->EnterPhysxScene(scene);
+
 		if (cmp->m_LodMask & 1 << m_Lod)
 		{
 			cmp->RequestResource();
 		}
-
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
-		cmp->EnterPhysxScene(scene);
 	}
 }
 
