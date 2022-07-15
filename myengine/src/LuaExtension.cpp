@@ -606,8 +606,8 @@ struct ScriptComponent : Component, luabind::wrap_base
 
 struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
 {
-	ScriptAnimationNodeBlendList(unsigned int ChildNum)
-		: AnimationNodeBlendList(ChildNum)
+	ScriptAnimationNodeBlendList(const char* Name, unsigned int ChildNum)
+		: AnimationNodeBlendList(Name, ChildNum)
 	{
 	}
 
@@ -2406,6 +2406,7 @@ void LuaContext::Init(void)
 		//, def("act2entity", (boost::shared_ptr<my::OctEntity>(*)(const boost::shared_ptr<Actor>&))& boost::static_pointer_cast<my::OctEntity, Actor>)
 
 		, class_<AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNode")
+			.def_readonly("Name", &AnimationNode::m_Name)
 			.property("Child0", &animation_node_get_child<0>, &animation_node_set_child<0>)
 			.property("Child1", &animation_node_get_child<1>, &animation_node_set_child<1>)
 			.property("Child2", &animation_node_get_child<2>, &animation_node_set_child<2>)
@@ -2417,6 +2418,7 @@ void LuaContext::Init(void)
 			//	boost::bind(&AnimationNode::AnimationNodePtrList::size, boost::bind(&AnimationNode::m_Childs, boost::placeholders::_1))))
 			.property("ChildNum", &animation_node_get_child_num)
 			.def("RemoveChild", &AnimationNode::RemoveChild)
+			.def("FindSubNode", (AnimationNode* (AnimationNode::*)(const char*))& AnimationNode::FindSubNode)
 
 		, class_<AnimationNodeSequence, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSequence")
 			.def(constructor<const char*>())
@@ -2429,16 +2431,16 @@ void LuaContext::Init(void)
 			.def_readwrite("Group", &AnimationNodeSequence::m_Group)
 
 		, class_<AnimationNodeSlot, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSlot")
-			.def(constructor<>())
-			.def("Play", &AnimationNodeSlot::Play)
-			.def("Stop", &AnimationNodeSlot::Stop)
+			.def(constructor<const char*>())
+			//.def("Play", &AnimationNodeSlot::Play)
+			//.def("Stop", &AnimationNodeSlot::Stop)
 
 		, class_<AnimationNodeSubTree, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeSubTree")
-			.def(constructor<>())
+			.def(constructor<const char*>())
 			.def_readwrite("NodeId", &AnimationNodeSubTree::m_NodeId)
 
 		, class_<AnimationNodeBlendList, AnimationNode, ScriptAnimationNodeBlendList/*, boost::shared_ptr<AnimationNode>*/ >("AnimationNodeBlendList")
-			.def(constructor<unsigned int>())
+			.def(constructor<const char*, unsigned int>())
 			.def_readwrite("BlendTime", &AnimationNodeBlendList::m_BlendTime)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float))&AnimationNodeBlendList::SetTargetWeight)
 			.def("SetTargetWeight", (void (AnimationNodeBlendList::*)(int, float, bool))&AnimationNodeBlendList::SetTargetWeight)
@@ -2448,13 +2450,13 @@ void LuaContext::Init(void)
 			.def("Tick", &AnimationNodeBlendList::Tick, &ScriptAnimationNodeBlendList::default_Tick)
 
 		, class_<AnimationNodeRate, AnimationNode, boost::shared_ptr<AnimationNode> >("AnimationNodeRate")
-			.def(constructor<>())
+			.def(constructor<const char*>())
 			.def_readwrite("Rate", &AnimationNodeRate::m_Rate)
 
 		, class_<AnimationEventArg, my::EventArg>("AnimationEventArg")
 			.def_readonly("self", &AnimationEventArg::self)
 
-		, class_<Animator, bases<Component, AnimationNodeSlot>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
+		, class_<Animator, bases<Component, AnimationNode>, boost::shared_ptr<Component> >("Animator") // ! luabind::bases for accessing AnimationNodeSlot properties from boost::shared_ptr<Component>
 			.def(constructor<const char*>())
 			.def_readwrite("SkeletonPath", &Animator::m_SkeletonPath)
 			.def_readonly("Skeleton", &Animator::m_Skeleton)

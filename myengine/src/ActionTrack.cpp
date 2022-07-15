@@ -122,17 +122,17 @@ void ActionTrackAnimationInst::UpdateTime(float LastTime, float Time)
 			const float Weight = 1 - fabs(m_Weight - key_iter->second.Weight);
 			if (Weight > 0)
 			{
-				animator->Play(
-					key_iter->second.Name,
-					key_iter->second.Rate,
-					Weight,
-					key_iter->second.BlendTime,
-					key_iter->second.BlendOutTime,
-					key_iter->second.Loop,
-					key_iter->second.Prority,
-					key_iter->second.Group,
-					key_iter->second.RootId,
-					(DWORD_PTR)this);
+				//animator->Play(
+				//	key_iter->second.Name,
+				//	key_iter->second.Rate,
+				//	Weight,
+				//	key_iter->second.BlendTime,
+				//	key_iter->second.BlendOutTime,
+				//	key_iter->second.Loop,
+				//	key_iter->second.Prority,
+				//	key_iter->second.Group,
+				//	key_iter->second.RootId,
+				//	(DWORD_PTR)this);
 			}
 		}
 	}
@@ -143,7 +143,7 @@ void ActionTrackAnimationInst::Stop(void)
 	Animator* animator = m_Actor->GetFirstComponent<Animator>();
 	if (animator)
 	{
-		animator->Stop((DWORD_PTR)this);
+		//animator->Stop((DWORD_PTR)this);
 	}
 }
 

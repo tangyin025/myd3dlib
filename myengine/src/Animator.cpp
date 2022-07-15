@@ -115,6 +115,50 @@ AnimationNode * AnimationNode::GetTopNode(void)
 	return this;
 }
 
+const AnimationNode * AnimationNode::FindSubNode(const char * Name) const
+{
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		if (m_Childs[i])
+		{
+			if (m_Childs[i]->m_Name == Name)
+			{
+				return m_Childs[i].get();
+			}
+
+			AnimationNode* node = m_Childs[i]->FindSubNode(Name);
+			if (node)
+			{
+				return node;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+AnimationNode * AnimationNode::FindSubNode(const char * Name)
+{
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		if (m_Childs[i])
+		{
+			if (m_Childs[i]->m_Name == Name)
+			{
+				return m_Childs[i].get();
+			}
+
+			AnimationNode* node = m_Childs[i]->FindSubNode(Name);
+			if (node)
+			{
+				return node;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 AnimationNodeSequence::~AnimationNodeSequence(void)
 {
 	if (m_GroupOwner)
@@ -379,8 +423,8 @@ my::BoneList & AnimationNodeSubTree::GetPose(my::BoneList & pose, int root_i, co
 	return pose;
 }
 
-AnimationNodeBlendList::AnimationNodeBlendList(unsigned int ChildNum)
-	: AnimationNode(ChildNum)
+AnimationNodeBlendList::AnimationNodeBlendList(const char * Name, unsigned int ChildNum)
+	: AnimationNode(Name, ChildNum)
 	, m_BlendTime(0)
 	, m_Weight(ChildNum, 0.0f)
 	, m_TargetWeight(boost::assign::list_of(1.0f).repeat(ChildNum - 1, 0.0f))
@@ -516,7 +560,7 @@ template<class Archive>
 void Animator::save(Archive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar << BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 }
 
@@ -524,7 +568,7 @@ template<class Archive>
 void Animator::load(Archive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeSlot);
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
 	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonPath);
 	ReloadSequenceGroup();
 }
@@ -626,12 +670,21 @@ void Animator::Update(float fElapsedTime)
 
 void Animator::Tick(float fElapsedTime, float fTotalWeight)
 {
-	if (m_Skeleton)
+	if (m_Skeleton && m_Childs[0])
 	{
-		AnimationNodeSlot::Tick(fElapsedTime, fTotalWeight);
+		m_Childs[0]->Tick(fElapsedTime, fTotalWeight);
 
 		UpdateSequenceGroup();
 	}
+}
+
+my::BoneList & Animator::GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const
+{
+	if (m_Childs[0])
+	{
+		m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
+	}
+	return pose;
 }
 
 void Animator::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)

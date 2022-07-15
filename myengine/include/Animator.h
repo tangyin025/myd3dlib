@@ -14,6 +14,8 @@ class AnimationNode
 public:
 	AnimationNode * m_Parent;
 
+	std::string m_Name;
+
 	typedef std::vector<AnimationNodePtr> AnimationNodePtrList;
 
 	AnimationNodePtrList m_Childs;
@@ -25,8 +27,9 @@ protected:
 	}
 
 public:
-	AnimationNode(unsigned int ChildNum)
+	AnimationNode(const char * Name, unsigned int ChildNum)
 		: m_Parent(NULL)
+		, m_Name(Name)
 		, m_Childs(ChildNum)
 	{
 	}
@@ -57,6 +60,10 @@ public:
 
 	AnimationNode * GetTopNode(void);
 
+	const AnimationNode * FindSubNode(const char * Name) const;
+
+	AnimationNode * FindSubNode(const char * Name);
+
 	virtual void Tick(float fElapsedTime, float fTotalWeight) = 0;
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const = 0;
@@ -71,8 +78,6 @@ public:
 
 	float m_LastElapsedTime;
 
-	std::string m_Name;
-
 	float m_Rate;
 
 	bool m_Loop;
@@ -85,8 +90,7 @@ protected:
 	Animator * m_GroupOwner;
 
 	AnimationNodeSequence(void)
-		: AnimationNode(0)
-		, m_Time(0)
+		: m_Time(0)
 		, m_Weight(1.0f)
 		, m_LastElapsedTime(0)
 		, m_Rate(1.0f)
@@ -97,11 +101,10 @@ protected:
 
 public:
 	AnimationNodeSequence(const char * Name, float Rate = 1.0f, bool Loop = true, const char * Group = "")
-		: AnimationNode(0)
+		: AnimationNode(Name, 0)
 		, m_Time(0)
 		, m_Weight(1.0f)
 		, m_LastElapsedTime(0)
-		, m_Name(Name)
 		, m_Rate(Rate)
 		, m_Loop(Loop)
 		, m_Group(Group)
@@ -175,9 +178,15 @@ public:
 
 	SequenceList m_SequenceSlot;
 
-public:
+protected:
 	AnimationNodeSlot(void)
-		: AnimationNode(1)
+		: m_SequenceSlot(2)
+	{
+	}
+
+public:
+	AnimationNodeSlot(const char * Name)
+		: AnimationNode(Name, 1)
 		, m_SequenceSlot(2)
 	{
 	}
@@ -212,9 +221,15 @@ public:
 
 	my::BoneHierarchy m_boneHierarchy;
 
-public:
+protected:
 	AnimationNodeSubTree(void)
-		: AnimationNode(2)
+		: m_NodeId(-1)
+	{
+	}
+
+public:
+	AnimationNodeSubTree(const char * Name)
+		: AnimationNode(Name, 2)
 		, m_NodeId(-1)
 	{
 	}
@@ -248,11 +263,12 @@ public:
 
 protected:
 	AnimationNodeBlendList(void)
+		: m_BlendTime(0)
 	{
 	}
 
 public:
-	AnimationNodeBlendList(unsigned int ChildNum);
+	AnimationNodeBlendList(const char * Name, unsigned int ChildNum);
 
 	virtual ~AnimationNodeBlendList(void)
 	{
@@ -287,9 +303,15 @@ class AnimationNodeRate : public AnimationNode
 public:
 	float m_Rate;
 
-public:
+protected:
 	AnimationNodeRate(void)
-		: AnimationNode(1)
+		: m_Rate(1.0f)
+	{
+	}
+
+public:
+	AnimationNodeRate(const char * Name)
+		: AnimationNode(Name, 1)
 		, m_Rate(1.0f)
 	{
 	}
@@ -336,7 +358,7 @@ namespace my
 
 class Animator
 	: public Component
-	, public AnimationNodeSlot
+	, public AnimationNode
 {
 public:
 	enum { TypeID = ComponentTypeAnimator };
@@ -397,6 +419,7 @@ protected:
 public:
 	Animator(const char* Name)
 		: Component(Name)
+		, AnimationNode(Name, 1)
 	{
 	}
 
@@ -430,6 +453,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual void Tick(float fElapsedTime, float fTotalWeight);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
 	void AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
