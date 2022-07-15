@@ -616,7 +616,7 @@ void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR 
 	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
 
 	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
-		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color, transform));
+		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color, boost::ref(transform)));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font, const Matrix4 & transform)
