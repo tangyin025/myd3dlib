@@ -40,22 +40,24 @@ cmp.Material=lambert1
 player:InsertComponent(cmp)
 
 -- 构建动画树
-local rate_walk=AnimationNodeRate()
+local rate_walk=AnimationNodeRate("rate_walk")
 rate_walk.Speed0=1.2
 rate_walk.Child0=AnimationNodeSequence("walk",1.0,true,"move")
-local node_walk=AnimationNodeBlendList(2)
+local node_walk=AnimationNodeBlendList("node_walk",2)
 node_walk.Child0=AnimationNodeSequence("idle1")
 node_walk.Child1=rate_walk
-local rate_run=AnimationNodeRate()
+local rate_run=AnimationNodeRate("rate_run")
 rate_run.Speed0=7
 rate_run.Child0=AnimationNodeSequence("run",1.0,true,"move")
-local node_run=AnimationNodeBlendList(2)
+local node_run=AnimationNodeBlendList("node_run",2)
 node_run:SetChildAdopt(0,node_walk)
 node_run.Child1=rate_run
+local node_run_slot=AnimationNodeSlot("node_run_slot")
+node_run_slot:SetChildAdopt(0,node_run)
 
 -- 加载动画资源
 local animator_cmp=Animator(NamedObject.MakeUniqueName("anim_cmp"))
-animator_cmp:SetChildAdopt(0,node_run)
+animator_cmp.Child0=node_run_slot
 animator_cmp:ReloadSequenceGroup()
 animator_cmp.SkeletonPath="character/casual19_m_highpoly.skeleton.xml"
 client:LoadSkeletonAsync(animator_cmp.SkeletonPath, function(res)

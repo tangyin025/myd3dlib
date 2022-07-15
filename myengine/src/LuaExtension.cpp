@@ -633,6 +633,69 @@ struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
 	}
 };
 
+class ScriptActionTrack : public ActionTrack
+{
+public:
+	luabind::object m_creator;
+
+	ScriptActionTrack(const luabind::object& creator)
+		: m_creator(creator)
+	{
+	}
+
+	virtual ~ScriptActionTrack(void)
+	{
+	}
+
+	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
+	{
+		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_creator, _Actor)[luabind::adopt(luabind::result)]);
+	}
+};
+
+struct ScriptActionTrackInst : ActionTrackInst, luabind::wrap_base
+{
+public:
+	ScriptActionTrackInst(Actor* actor)
+		: ActionTrackInst(actor)
+	{
+	}
+
+	virtual void UpdateTime(float LastTime, float Time)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("UpdateTime", LastTime, Time);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_UpdateTime(ScriptActionTrackInst* ptr, float LastTime, float Time)
+	{
+		ptr->UpdateTime(LastTime, Time);
+	}
+
+	virtual void Stop(void)
+	{
+		try
+		{
+			luabind::wrap_base::call<void>("Stop");
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_Stop(ScriptActionTrackInst* ptr)
+	{
+		ptr->Stop();
+	}
+};
+
 typedef std::vector<Component*> cmp_list;
 
 typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
@@ -2536,6 +2599,15 @@ void LuaContext::Init(void)
 			.def(constructor<>())
 			.def_readwrite("ParamEvent", &ActionTrackEvent::m_ParamEvent)
 			.def("AddKeyFrame", &ActionTrackEvent::AddKeyFrame)
+
+		, class_<ScriptActionTrack, ActionTrack, boost::shared_ptr<ActionTrack> >("ScriptActionTrack")
+			.def(constructor<const luabind::object &>())
+
+		, class_<ActionTrackInst, ScriptActionTrackInst>("ActionTrackInst")
+			.def(constructor<Actor*>())
+			.def_readonly("Actor", &ActionTrackInst::m_Actor)
+			.def("UpdateTime", &ActionTrackInst::UpdateTime, &ScriptActionTrackInst::default_UpdateTime)
+			.def("Stop", &ActionTrackInst::Stop, &ScriptActionTrackInst::default_Stop)
 
 		, class_<RenderPipeline>("RenderPipeline")
 
