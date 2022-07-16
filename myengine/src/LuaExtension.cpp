@@ -661,6 +661,10 @@ public:
 	{
 	}
 
+	virtual ~ScriptActionTrackInst(void)
+	{
+	}
+
 	virtual void UpdateTime(float LastTime, float Time)
 	{
 		try
