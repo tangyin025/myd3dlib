@@ -636,10 +636,10 @@ struct ScriptAnimationNodeBlendList : AnimationNodeBlendList, luabind::wrap_base
 class ScriptActionTrack : public ActionTrack
 {
 public:
-	luabind::object m_creator;
+	luabind::object m_Creator;
 
-	ScriptActionTrack(const luabind::object& creator)
-		: m_creator(creator)
+	ScriptActionTrack(const luabind::object& Creator)
+		: m_Creator(Creator)
 	{
 	}
 
@@ -649,7 +649,7 @@ public:
 
 	virtual ActionTrackInstPtr CreateInstance(Actor* _Actor) const
 	{
-		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_creator, _Actor)[luabind::adopt(luabind::result)]);
+		return ActionTrackInstPtr(luabind::call_function<ActionTrackInst*>(m_Creator, _Actor)[luabind::adopt(luabind::result)]);
 	}
 };
 
@@ -675,7 +675,7 @@ public:
 
 	static void default_UpdateTime(ScriptActionTrackInst* ptr, float LastTime, float Time)
 	{
-		ptr->UpdateTime(LastTime, Time);
+		//ptr->ActionTrackInst::UpdateTime(LastTime, Time);
 	}
 
 	virtual void Stop(void)
@@ -692,7 +692,25 @@ public:
 
 	static void default_Stop(ScriptActionTrackInst* ptr)
 	{
-		ptr->Stop();
+		//ptr->ActionTrackInst::Stop();
+	}
+
+	virtual bool GetDisplacement(float LastTime, float dtime, my::Vector3 & disp)
+	{
+		try
+		{
+			return luabind::wrap_base::call<bool>("GetDisplacement", LastTime, dtime, disp);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+		return false;
+	}
+
+	static bool default_GetDisplacement(ScriptActionTrackInst* ptr, float LastTime, float dtime, my::Vector3 & disp)
+	{
+		return ptr->ActionTrackInst::GetDisplacement(LastTime, dtime, disp);
 	}
 };
 
@@ -2608,6 +2626,7 @@ void LuaContext::Init(void)
 			.def_readonly("Actor", &ActionTrackInst::m_Actor)
 			.def("UpdateTime", &ActionTrackInst::UpdateTime, &ScriptActionTrackInst::default_UpdateTime)
 			.def("Stop", &ActionTrackInst::Stop, &ScriptActionTrackInst::default_Stop)
+			.def("GetDisplacement", &ActionTrackInst::GetDisplacement, &ScriptActionTrackInst::default_GetDisplacement)
 
 		, class_<RenderPipeline>("RenderPipeline")
 
