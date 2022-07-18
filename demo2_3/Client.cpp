@@ -357,49 +357,49 @@ static int PlayerData_getattr(const PlayerData * self, int i)
 	return my::Subscribe<int>(self->attrs, i);
 }
 
-static void PlayerData_setattr(PlayerData * self, int i, int v)
+static void PlayerData_setattr(PlayerData * self, int i, int attr)
 {
-	my::Subscribe<int>(self->attrs, i) = v;
+	my::Subscribe<int>(self->attrs, i) = attr;
 }
 
-static int PlayerData_getitem(const PlayerData* self, int i)
+static void PlayerData_getitem(const PlayerData* self, int i, int & item, int & status)
 {
-	return my::Subscribe<int>(self->items, i);
+	item = my::Subscribe<int>(self->items, i);
+	status = my::Subscribe<int>(self->itemstatus, i);
 }
 
-static void PlayerData_setitem(PlayerData* self, int i, int v)
+static void PlayerData_setitem(PlayerData* self, int i, int item, int status)
 {
-	my::Subscribe<int>(self->items, i) = v;
+	my::Subscribe<int>(self->items, i) = item;
+	my::Subscribe<int>(self->itemstatus, i) = status;
 }
 
-static int PlayerData_getitemstatus(const PlayerData* self, int i)
+static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
 {
-	return my::Subscribe<int>(self->itemstatus, i);
+	_ASSERT(src + count <= _countof(PlayerData::attrs));
+	_ASSERT(dst + count <= _countof(PlayerData::attrs));
+	std::copy(&self->items[src], &self->items[src + count], &self->items[dst]);
+	std::copy(&self->itemstatus[src], &self->itemstatus[src + count], &self->itemstatus[dst]);
 }
 
-static void PlayerData_setitemstatus(PlayerData* self, int i, int v)
+static void PlayerData_getquest(const PlayerData * self, int i, int & quest, int & status)
 {
-	my::Subscribe<int>(self->itemstatus, i) = v;
+	quest = my::Subscribe<int>(self->quests, i);
+	status = my::Subscribe<int>(self->queststatus, i);
 }
 
-static int PlayerData_getquest(const PlayerData * self, int i)
+static void PlayerData_setquest(PlayerData * self, int i, int quest, int status)
 {
-	return my::Subscribe<int>(self->quests, i);
+	my::Subscribe<int>(self->quests, i) = quest;
+	my::Subscribe<int>(self->queststatus, i) = status;
 }
 
-static void PlayerData_setquest(PlayerData * self, int i, int v)
+static void PlayerData_movequests(PlayerData* self, int src, int count, int dst)
 {
-	my::Subscribe<int>(self->quests, i) = v;
-}
-
-static int PlayerData_getqueststatus(const PlayerData* self, int i)
-{
-	return my::Subscribe<int>(self->queststatus, i);
-}
-
-static void PlayerData_setqueststatus(PlayerData* self, int i, int v)
-{
-	my::Subscribe<int>(self->queststatus, i) = v;
+	_ASSERT(src + count <= _countof(PlayerData::attrs));
+	_ASSERT(dst + count <= _countof(PlayerData::attrs));
+	std::copy(&self->quests[src], &self->quests[src + count], &self->quests[dst]);
+	std::copy(&self->queststatus[src], &self->queststatus[src + count], &self->queststatus[dst]);
 }
 
 static void client_add_state_adopt(Client * self, StateBase * state)
@@ -1044,14 +1044,12 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("angle", &PlayerData::angle)
 			.def("getattr", &PlayerData_getattr)
 			.def("setattr", &PlayerData_setattr)
-			.def("getitem", &PlayerData_getitem)
+			.def("getitem", &PlayerData_getitem, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
 			.def("setitem", &PlayerData_setitem)
-			.def("getitemstatus", &PlayerData_getitemstatus)
-			.def("setitemstatus", &PlayerData_setitemstatus)
-			.def("getquest", &PlayerData_getquest)
+			.def("moveitems", &PlayerData_moveitems)
+			.def("getquest", &PlayerData_getquest, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
 			.def("setquest", &PlayerData_setquest)
-			.def("getqueststatus", &PlayerData_getqueststatus)
-			.def("setqueststatus", &PlayerData_setqueststatus)
+			.def("movequests", &PlayerData_movequests)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")
 			.def(luabind::constructor<>())
