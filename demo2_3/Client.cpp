@@ -547,16 +547,21 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 template<class Archive>
 void PlayerData::load(Archive& ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(logintime);
-	ar >> BOOST_SERIALIZATION_NVP(gametime);
-	ar >> BOOST_SERIALIZATION_NVP(sceneid);
-	ar >> BOOST_SERIALIZATION_NVP(pos);
-	ar >> BOOST_SERIALIZATION_NVP(angle);
-	ar >> BOOST_SERIALIZATION_NVP(attrs);
-	ar >> BOOST_SERIALIZATION_NVP(items);
-	ar >> BOOST_SERIALIZATION_NVP(itemstatus);
-	ar >> BOOST_SERIALIZATION_NVP(quests);
-	ar >> BOOST_SERIALIZATION_NVP(queststatus);
+	if (version == 1)
+	{
+		ar >> boost::serialization::make_nvp("logintime", logintime);
+		ar >> boost::serialization::make_nvp("gametime", gametime);
+		ar >> boost::serialization::make_nvp("sceneid", sceneid);
+		ar >> boost::serialization::make_nvp("pos", pos);
+		ar >> boost::serialization::make_nvp("angle", angle);
+		ar >> boost::serialization::make_nvp("attrs", attrs);
+		ar >> boost::serialization::make_nvp("items", items);
+		ar >> boost::serialization::make_nvp("itemstatus", itemstatus);
+		ar >> boost::serialization::make_nvp("quests", quests);
+		ar >> boost::serialization::make_nvp("queststatus", queststatus);
+		return;
+	}
+	_ASSERT(false);
 }
 
 PlayerDataRequest::PlayerDataRequest(const PlayerData* data, const char* path, int Priority)
