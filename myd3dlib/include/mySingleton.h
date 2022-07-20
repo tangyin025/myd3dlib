@@ -60,7 +60,7 @@ namespace my
 	public:
 		static DerivedClass * getSingletonPtr(void)
 		{
-			return dynamic_cast<DerivedClass *>(s_ptr);
+			return static_cast<DerivedClass *>(s_ptr);
 		}
 
 		static DerivedClass & getSingleton(void)
