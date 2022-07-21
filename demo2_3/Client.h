@@ -157,60 +157,6 @@ public:
 
 typedef boost::shared_ptr<StateBase> StateBasePtr;
 
-struct HitArg : my::EventArg
-{
-public:
-	Actor* actor;
-	Component* cmp;
-
-	HitArg(Actor* _actor, Component* _cmp)
-		: actor(_actor)
-		, cmp(_cmp)
-	{
-	}
-};
-
-struct OverlapHitArg : HitArg
-{
-public:
-	unsigned int faceIndex;
-
-	OverlapHitArg(Actor* _actor, Component* _cmp, unsigned int _faceIndex)
-		: HitArg(_actor, _cmp)
-		, faceIndex(_faceIndex)
-	{
-	}
-};
-
-struct SweepHitArg : OverlapHitArg
-{
-public:
-	my::Vector3 position;
-	my::Vector3 normal;
-	float distance;
-
-	SweepHitArg(Actor* _actor, Component* _cmp, unsigned int _faceIndex, const my::Vector3& _position, const my::Vector3& _normal, float _distance)
-		: OverlapHitArg(_actor, _cmp, _faceIndex)
-		, position(_position)
-		, normal(_normal)
-		, distance(_distance)
-	{
-	}
-};
-
-struct RaycastHitArg : SweepHitArg
-{
-public:
-	float u, v;
-
-	RaycastHitArg(Actor* _actor, Component* _cmp, unsigned int _faceIndex, const my::Vector3& _position, const my::Vector3& _normal, float _distance, float _u, float _v)
-		: SweepHitArg(_actor, _cmp, _faceIndex, _position, _normal, _distance)
-		, u(_u)
-		, v(_v)
-	{
-	}
-};
-
 class Client
 	: public my::DxutApp
 	, public my::FontLibrary
@@ -403,32 +349,4 @@ public:
 	}
 
 	void SavePlayerData(const PlayerData * data, const char * path);
-
-	typedef boost::function<bool(my::EventArg*)> EventCallback;
-
-	bool Overlap(
-		const physx::PxGeometry & geometry,
-		const my::Vector3 & Position,
-		const my::Quaternion & Rotation,
-		unsigned int filterWord0,
-		const EventCallback& callback,
-		unsigned int MaxNbTouches) const;
-
-	bool Raycast(
-		const my::Vector3 & origin,
-		const my::Vector3 & unitDir,
-		float distance,
-		unsigned int filterWord0,
-		const EventCallback& callback,
-		unsigned int MaxNbTouches) const;
-
-	bool Sweep(
-		const physx::PxGeometry & geometry,
-		const my::Vector3 & Position,
-		const my::Quaternion & Rotation,
-		const my::Vector3 & unitDir,
-		float distance,
-		unsigned int filterWord0,
-		const EventCallback& callback,
-		unsigned int MaxNbTouches) const;
 };

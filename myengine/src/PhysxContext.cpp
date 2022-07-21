@@ -530,6 +530,189 @@ void PhysxScene::removeRenderActorsFromPhysicsActor(const physx::PxActor * actor
 	}
 }
 
+bool PhysxScene::Overlap(
+		const physx::PxGeometry & geometry,
+		const my::Vector3 & Position,
+		const my::Quaternion & Rotation,
+		unsigned int filterWord0,
+		const my::EventCallback & callback,
+		unsigned int MaxNbTouches) const
+{
+	//// ref: physx::Cct::Controller::move, userObstacles
+	//physx::Cct::CharacterControllerManager* mManager = static_cast<physx::Cct::CharacterControllerManager*>(m_ControllerMgr.get());
+	//const physx::PxU32 nbControllers = mManager->getNbControllers();
+	//physx::Cct::Controller** controllers = mManager->getControllers();
+
+	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
+	int callback_i = 0;
+	//for (physx::PxU32 i = 0; i < nbControllers && callback_i < MaxNbTouches; i++)
+	//{
+	//	physx::Cct::Controller* currentController = controllers[i];
+	//	if (currentController->mUserData)
+	//	{
+	//		try
+	//		{
+	//			_ASSERT(Component::ComponentTypeController == ((Component*)currentController->mUserData)->GetComponentType());
+	//			Controller* other_cmp = static_cast<Controller*>((Component*)currentController->mUserData);
+	//			switch (currentController->mType)
+	//			{
+	//			case physx::PxControllerShapeType::eBOX:
+	//			{
+	//				physx::Cct::BoxController* BC = static_cast<physx::Cct::BoxController*>(currentController);
+	//				physx::PxBoxGeometry box(BC->mHalfHeight, BC->mHalfSideExtent, BC->mHalfForwardExtent);
+	//				physx::PxTransform box_pose(physx::toVec3(BC->getPosition()), BC->mUserParams.mQuatFromUp);
+	//				if (physx::PxGeometryQuery::overlap(geometry, pose, box, box_pose))
+	//				{
+	//					OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0xFFFFffff);
+	//					if (!callback(&arg))
+	//					{
+	//						return false;
+	//					}
+	//					callback_i++;
+	//				}
+	//				break;
+	//			}
+	//			case physx::PxControllerShapeType::eCAPSULE:
+	//			{
+	//				physx::Cct::CapsuleController* CC = static_cast<physx::Cct::CapsuleController*>(currentController);
+	//				physx::PxCapsuleGeometry capsule(CC->mRadius, CC->mHeight * 0.5f);
+	//				physx::PxTransform capsule_pose(physx::toVec3(CC->getPosition()), CC->mUserParams.mQuatFromUp);
+	//				if (physx::PxGeometryQuery::overlap(geometry, pose, capsule, capsule_pose))
+	//				{
+	//					OverlapHitArg arg(other_cmp->m_Actor, other_cmp, 0xFFFFffff);
+	//					if (!callback(&arg))
+	//					{
+	//						return false;
+	//					}
+	//					callback_i++;
+	//				}
+	//				break;
+	//			}
+	//			}
+	//		}
+	//		catch (const luabind::error& e)
+	//		{
+	//			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+	//			return false;
+	//		}
+	//	}
+	//}
+
+	std::vector<physx::PxOverlapHit> buff(MaxNbTouches - callback_i);
+	physx::PxOverlapBuffer hitbuff(buff.data(), buff.size());
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (m_PxScene->overlap(geometry, pose, hitbuff, filterData, NULL))
+	{
+		//try
+		//{
+			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+			{
+				const physx::PxOverlapHit& hit = buff[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					OverlapHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex);
+					if (!callback(&arg))
+					{
+						return false;
+					}
+				}
+			}
+		//}
+		//catch (const luabind::error& e)
+		//{
+		//	my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		//	return false;
+		//}
+	}
+	return callback_i + hitbuff.nbTouches > 0;
+}
+
+bool PhysxScene::Raycast(
+	const my::Vector3 & origin,
+	const my::Vector3 & unitDir,
+	float distance,
+	unsigned int filterWord0,
+	const my::EventCallback & callback,
+	unsigned int MaxNbTouches) const
+{
+	std::vector<physx::PxRaycastHit> buff(MaxNbTouches);
+	physx::PxRaycastBuffer hitbuff(buff.data(), buff.size());
+	hitbuff.block.distance = FLT_MAX;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (m_PxScene->raycast((physx::PxVec3&)origin, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL))
+	{
+		//try
+		//{
+			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+			{
+				const physx::PxRaycastHit& hit = buff[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					RaycastHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex, (Vector3&)hit.position, (Vector3&)hit.normal, hit.distance, hit.u, hit.v);
+					if (!callback(&arg))
+					{
+						return false;
+					}
+				}
+			}
+		//}
+		//catch (const luabind::error& e)
+		//{
+		//	my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		//	return false;
+		//}
+	}
+	return hitbuff.nbTouches > 0;
+}
+
+bool PhysxScene::Sweep(
+	const physx::PxGeometry & geometry,
+	const my::Vector3 & Position,
+	const my::Quaternion & Rotation,
+	const my::Vector3 & unitDir,
+	float distance,
+	unsigned int filterWord0,
+	const my::EventCallback & callback,
+	unsigned int MaxNbTouches) const
+{
+	physx::PxTransform pose((physx::PxVec3&)Position, (physx::PxQuat&)Rotation);
+
+	std::vector<physx::PxSweepHit> buff(MaxNbTouches);
+	physx::PxSweepBuffer hitbuff(buff.data(), buff.size());
+	hitbuff.block.distance = FLT_MAX;
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC /*| physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eANY_HIT*/);
+	if (m_PxScene->sweep(geometry, pose, (physx::PxVec3&)unitDir, distance, hitbuff, physx::PxHitFlag::eDEFAULT, filterData, NULL, NULL, 0.0f))
+	{
+		//try
+		//{
+			for (unsigned int i = 0; i < hitbuff.nbTouches; i++)
+			{
+				const physx::PxSweepHit& hit = buff[i];
+				if (hit.shape->userData)
+				{
+					Component* other_cmp = (Component*)hit.shape->userData;
+					SweepHitArg arg(other_cmp->m_Actor, other_cmp, hit.faceIndex, (Vector3&)hit.position, (Vector3&)hit.normal, hit.distance);
+					if (!callback(&arg))
+					{
+						return false;
+					}
+				}
+			}
+		//}
+		//catch (const luabind::error& e)
+		//{
+		//	my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		//	return false;
+		//}
+	}
+	return hitbuff.nbTouches > 0;
+}
+
 PhysxSpatialIndex::PhysxSpatialIndex(void)
 	: m_PxSpatialIndex(physx::PxCreateSpatialIndex(), PhysxDeleter<physx::PxSpatialIndex>())
 {

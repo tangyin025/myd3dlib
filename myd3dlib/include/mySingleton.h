@@ -237,5 +237,7 @@ namespace my
 
 	typedef boost::function<void(EventArg *)> EventFunction;
 
+	typedef boost::function<bool(my::EventArg*)> EventCallback;
+
 	typedef boost::signals2::signal<void(EventArg *)> EventSignal;
 }
