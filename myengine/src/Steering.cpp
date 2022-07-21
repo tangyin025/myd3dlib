@@ -120,6 +120,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 		const Actor* self;
 		Vector3 pos;
 		std::vector<Steering*> neighbors;
+		std::vector<Controller*> nei_controllers;
 		Navigation* navi;
 		Callback(const Actor* _self, const my::Vector3& _pos)
 			: self(_self)
@@ -140,9 +141,11 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 				}
 
 				Steering* neighbor = actor->GetFirstComponent<Steering>();
-				if (neighbor)
+				Controller* nei_controller = actor->GetFirstComponent<Controller>();
+				if (neighbor && nei_controller && nei_controller->GetQueryFilterWord0() & ~0x03 && !actor->m_Base)
 				{
 					neighbors.push_back(neighbor);
+					nei_controllers.push_back(nei_controller);
 				}
 			}
 			return true;
@@ -308,9 +311,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	for (int i = 0; i < cb.neighbors.size(); ++i)
 	{
 		const Steering* nei = cb.neighbors[i];
-		const Controller* neicontroller = nei->m_Actor->GetFirstComponent<Controller>();
-		if (!neicontroller)
-			break;
+		const Controller* neicontroller = cb.nei_controllers[i];
 
 		float diff[3];
 		Vector3 neipos = neicontroller->GetPosition();
@@ -353,13 +354,11 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	for (int i = 0; i < cb.neighbors.size(); ++i)
 	{
 		const Steering* nei = cb.neighbors[i];
-		const Controller* neicontroller = nei->m_Actor->GetFirstComponent<Controller>();
-		if (neicontroller)
-		{
-			Vector3 npos = neicontroller->GetPosition();
-			Vector3 vel = nei->m_Forward * nei->m_Speed;
-			ObstacleAvoidanceContext::getSingleton().addCircle(&npos.x, neicontroller->GetRadius(), &vel.x, &vel.x);
-		}
+		const Controller* neicontroller = cb.nei_controllers[i];
+
+		Vector3 npos = neicontroller->GetPosition();
+		Vector3 vel = nei->m_Forward * nei->m_Speed;
+		ObstacleAvoidanceContext::getSingleton().addCircle(&npos.x, neicontroller->GetRadius(), &vel.x, &vel.x);
 	}
 
 	// Append neighbour segments as obstacles.
