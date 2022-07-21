@@ -1062,22 +1062,6 @@ HRESULT Client::OnCreateDevice(
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
-		, luabind::class_<HitArg, my::EventArg>("HitArg")
-			.def_readonly("actor", &HitArg::actor)
-			.def_readonly("cmp", &HitArg::cmp)
-
-		, luabind::class_<OverlapHitArg, HitArg>("OverlapHitArg")
-			.def_readonly("faceIndex", &OverlapHitArg::faceIndex)
-
-		, luabind::class_<SweepHitArg, OverlapHitArg>("SweepHitArg")
-			.def_readonly("position", &SweepHitArg::position)
-			.def_readonly("normal", &SweepHitArg::normal)
-			.def_readonly("distance", &SweepHitArg::distance)
-
-		, luabind::class_<RaycastHitArg, SweepHitArg>("RaycastHitArg")
-			.def_readonly("u", &RaycastHitArg::u)
-			.def_readonly("v", &RaycastHitArg::v)
-
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, my::DrawHelper> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)

@@ -2626,6 +2626,22 @@ void LuaContext::Init(void)
 
 		, class_<RenderPipeline>("RenderPipeline")
 
+		, class_<HitArg, my::EventArg>("HitArg")
+			.def_readonly("actor", &HitArg::actor)
+			.def_readonly("cmp", &HitArg::cmp)
+
+		, class_<OverlapHitArg, HitArg>("OverlapHitArg")
+			.def_readonly("faceIndex", &OverlapHitArg::faceIndex)
+
+		, class_<SweepHitArg, OverlapHitArg>("SweepHitArg")
+			.def_readonly("position", &SweepHitArg::position)
+			.def_readonly("normal", &SweepHitArg::normal)
+			.def_readonly("distance", &SweepHitArg::distance)
+
+		, class_<RaycastHitArg, SweepHitArg>("RaycastHitArg")
+			.def_readonly("u", &RaycastHitArg::u)
+			.def_readonly("v", &RaycastHitArg::v)
+
 		, class_<PhysxScene>("PhysxScene")
 			.enum_("PxVisualizationParameter")
 			[
