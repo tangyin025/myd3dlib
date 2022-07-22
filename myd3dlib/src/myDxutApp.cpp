@@ -2,13 +2,10 @@
 #include "myResource.h"
 #include "mySound.h"
 #include "libc.h"
-extern "C"
-{
+extern "C" {
 #include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
 }
-#include <luabind/luabind.hpp> // only for luabind::error exception
+#include <luabind/error.hpp>
 
 using namespace my;
 
