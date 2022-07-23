@@ -604,11 +604,11 @@ public:
 
 	my::Vector3 m_HalfSpawnArea;
 
-	float m_SpawnSpeed;
-
 	my::Spline m_SpawnInclination;
 
 	my::Spline m_SpawnAzimuth;
+
+	float m_SpawnSpeed;
 
 	my::Spline m_SpawnColorR;
 

@@ -232,11 +232,11 @@ public:
 
 	my::AABB m_SpawnArea;
 
-	float m_SpawnSpeed;
-
 	my::Vector2 m_SpawnInclination;
 
 	my::Vector2 m_SpawnAzimuth;
+
+	float m_SpawnSpeed;
 
 	float m_ParticleLifeTime;
 
@@ -273,9 +273,9 @@ public:
 		, m_EmitterFaceType(3) // FaceTypeCamera = 3
 		, m_EmitterSpaceType(0) // SpaceTypeWorld = 0
 		, m_SpawnArea(-0.0f,0.0f)
-		, m_SpawnSpeed(0.0f)
 		, m_SpawnInclination(D3DXToRadian(-90), D3DXToRadian(90))
 		, m_SpawnAzimuth(D3DXToRadian(0), D3DXToRadian(360))
+		, m_SpawnSpeed(0.0f)
 		, m_ParticleLifeTime(1.0f)
 		, m_ParticleDamping(1.0f)
 	{

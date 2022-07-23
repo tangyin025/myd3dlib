@@ -1590,9 +1590,9 @@ void SphericalEmitter::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 	ar << BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
-	ar << BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
+	ar << BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorR);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorG);
 	ar << BOOST_SERIALIZATION_NVP(m_SpawnColorB);
@@ -1613,9 +1613,9 @@ void SphericalEmitter::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 	ar >> BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
-	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
+	ar >> BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorR);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorG);
 	ar >> BOOST_SERIALIZATION_NVP(m_SpawnColorB);
