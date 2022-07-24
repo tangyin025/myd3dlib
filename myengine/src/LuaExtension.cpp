@@ -2461,6 +2461,7 @@ void LuaContext::Init(void)
 				value("eENABLE_CCD", physx::PxRigidBodyFlag::eENABLE_CCD),
 				value("eENABLE_CCD_FRICTION", physx::PxRigidBodyFlag::eENABLE_CCD_FRICTION)
 			]
+			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
 			.property("RigidBodyLinearVelocity", &Actor::GetRigidBodyLinearVelocity, &Actor::SetRigidBodyLinearVelocity)

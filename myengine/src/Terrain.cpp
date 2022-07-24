@@ -933,6 +933,7 @@ my::RayResult Terrain::RayTest(const my::Ray& local_ray, const my::Vector3& Loca
 					terrain->m_VertexStride,
 					&ib[0],
 					true,
+					0,
 					ib.size() / 3,
 					terrain->m_VertexElems);
 				terrain->m_rootVb.Unlock();
@@ -952,6 +953,7 @@ my::RayResult Terrain::RayTest(const my::Ray& local_ray, const my::Vector3& Loca
 					terrain->m_VertexStride,
 					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
 					false,
+					0,
 					frag.PrimitiveCount,
 					terrain->m_VertexElems);
 				chunk->m_Vb->Unlock();

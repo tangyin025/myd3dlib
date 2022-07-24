@@ -304,6 +304,8 @@ public:
 
 	void CreateRigidActor(physx::PxActorType::Enum ActorType);
 
+	void UpdateMassAndInertia(float density);
+
 	void SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value);
 
 	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;

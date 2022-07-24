@@ -874,11 +874,12 @@ RayResult Mesh::RayTest(
 	DWORD VertexStride,
 	void* pIndices,
 	bool bIndices16,
+	DWORD FaceStart,
 	DWORD NumFaces,
 	const D3DVertexElementSet& VertexElems)
 {
 	RayResult ret(false, FLT_MAX);
-	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	for (unsigned int face_i = FaceStart; face_i < FaceStart + NumFaces; face_i++)
 	{
 		int i0 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 0) : *((DWORD*)pIndices + face_i * 3 + 0);
 		int i1 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 1) : *((DWORD*)pIndices + face_i * 3 + 1);
@@ -907,10 +908,11 @@ bool Mesh::FrustumTest(
 	DWORD VertexStride,
 	void* pIndices,
 	bool bIndices16,
+	DWORD FaceStart,
 	DWORD NumFaces,
 	const D3DVertexElementSet& VertexElems)
 {
-	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	for (unsigned int face_i = FaceStart; face_i < FaceStart + NumFaces; face_i++)
 	{
 		int i0 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 0) : *((DWORD*)pIndices + face_i * 3 + 0);
 		int i1 = bIndices16 ? *((WORD*)pIndices + face_i * 3 + 1) : *((DWORD*)pIndices + face_i * 3 + 1);

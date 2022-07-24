@@ -364,6 +364,7 @@ namespace my
 			DWORD VertexStride,
 			void* pIndices,
 			bool bIndices16,
+			DWORD FaceStart,
 			DWORD NumFaces,
 			const D3DVertexElementSet& VertexElems);
 
@@ -374,6 +375,7 @@ namespace my
 			DWORD VertexStride,
 			void* pIndices,
 			bool bIndices16,
+			DWORD FaceStart,
 			DWORD NumFaces,
 			const D3DVertexElementSet& VertexElems);
 	};

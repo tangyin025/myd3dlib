@@ -489,7 +489,7 @@ public:
 
 	//void UpdateIK(IKContext & ik);
 
-	void AddRagdollCapsule(int node_i, float radius, float halfHeight);
+	void AddRagdollCapsule(int node_i, float radius, float halfHeight, const my::Vector3 & localPos, const my::Quaternion & localRot, float density);
 
 	void UpdateRagdollBone(const RagdollBone & ragdollBone);
 

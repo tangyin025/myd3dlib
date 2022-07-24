@@ -940,15 +940,16 @@ void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceG
 //	}
 //}
 
-void Animator::AddRagdollCapsule(int node_i, float radius, float halfHeight)
+void Animator::AddRagdollCapsule(int node_i, float radius, float halfHeight, const my::Vector3 & localPos, const my::Quaternion & localRot, float density)
 {
 	RagdollBone bone;
 	bone.id = node_i;
 	bone.act.reset(new Actor(NamedObject::MakeUniqueName("ragdoll_bone").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), AABB(-1, 1)));
 	bone.act->CreateRigidActor(physx::PxActorType::eRIGID_DYNAMIC);
 	ComponentPtr cmp(new Component(NamedObject::MakeUniqueName("ragdoll_bone_cmp").c_str()));
-	cmp->CreateCapsuleShape(Vector3(0, 0, 0), Quaternion::Identity(), radius, halfHeight);
+	cmp->CreateCapsuleShape(localPos, localRot, radius, halfHeight);
 	bone.act->InsertComponent(cmp);
+	bone.act->UpdateMassAndInertia(density);
 	m_RagdollBones.push_back(bone);
 
 	if (IsRequested())

@@ -590,6 +590,12 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	}
 }
 
+void Actor::UpdateMassAndInertia(float density)
+{
+	_ASSERT(m_PxActor);
+	physx::PxRigidBodyExt::updateMassAndInertia(*m_PxActor->is<physx::PxRigidBody>(), density);
+}
+
 void Actor::SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value)
 {
 	_ASSERT(m_PxActor);

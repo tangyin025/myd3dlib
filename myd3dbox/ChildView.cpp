@@ -625,7 +625,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					sizeof(vertices[0]),
 					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh_cmp->m_Mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceStart,
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceCount,
 					elems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
@@ -642,7 +643,8 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh_cmp->m_Mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceStart,
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceCount,
 					mesh_cmp->m_Mesh->m_VertexElems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
@@ -741,6 +743,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					sizeof(vertices[0]),
 					&cloth_cmp->m_IndexData[0],
 					true,
+					0,
 					cloth_cmp->m_IndexData.size() / 3,
 					elems);
 				if (ret)
@@ -756,6 +759,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, con
 					cloth_cmp->m_VertexStride,
 					&cloth_cmp->m_IndexData[0],
 					true,
+					0,
 					cloth_cmp->m_IndexData.size() / 3,
 					cloth_cmp->m_VertexElems);
 				if (ret)
@@ -792,7 +796,7 @@ bool CChildView::OverlapTestFrustumAndParticles(const my::Frustum & frustum, con
 		my::Frustum particle_ftm = frustum.transform(p2World.transpose());
 		bool ret = my::Mesh::FrustumTest(particle_ftm, pvb, 0, theApp.m_ParticleVertStride,
 			(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
-			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
+			0, RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
 		if (ret)
 		{
 			theApp.m_ParticleVb.Unlock();
@@ -872,7 +876,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					sizeof(vertices[0]),
 					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh_cmp->m_Mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceStart,
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceCount,
 					elems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
@@ -885,7 +890,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					mesh_cmp->m_Mesh->GetNumBytesPerVertex(),
 					mesh_cmp->m_Mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh_cmp->m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh_cmp->m_Mesh->GetNumFaces(),
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceStart,
+					mesh_cmp->m_Mesh->m_AttribTable[mesh_cmp->m_MeshSubMeshId].FaceCount,
 					mesh_cmp->m_Mesh->m_VertexElems);
 				mesh_cmp->m_Mesh->UnlockVertexBuffer();
 				mesh_cmp->m_Mesh->UnlockIndexBuffer();
@@ -1007,6 +1013,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					sizeof(vertices[0]),
 					&cloth_cmp->m_IndexData[0],
 					true,
+					0,
 					cloth_cmp->m_IndexData.size() / 3,
 					elems);
 			}
@@ -1018,6 +1025,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, const 
 					cloth_cmp->m_VertexStride,
 					&cloth_cmp->m_IndexData[0],
 					true,
+					0,
 					cloth_cmp->m_IndexData.size() / 3,
 					cloth_cmp->m_VertexElems);
 			}
@@ -1069,7 +1077,7 @@ my::RayResult CChildView::OverlapTestRayAndParticles(const my::Ray & ray, const 
 		my::Ray particle_ray = ray.transform(p2World.inverse());
 		my::RayResult result = my::Mesh::RayTest(particle_ray, pvb, 0, theApp.m_ParticleVertStride,
 			(unsigned short*)pib + RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitiveStartIndex], true,
-			RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
+			0, RenderPipeline::m_ParticlePrimitiveInfo[emitter->m_EmitterPrimitiveType][RenderPipeline::ParticlePrimitivePrimitiveCount], theApp.m_ParticleVertElems);
 		if (result.first)
 		{
 			result.second = (particle_ray.d * result.second).transformNormal(p2World).magnitude();
