@@ -502,7 +502,7 @@ public:
 
 	void DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color);
 
-	void BuildHierarchyBoneList(int root_i, const my::Quaternion& parentRot, const my::Vector3& parentPos);
+	void BuildHierarchyBoneList(const int node_i, const my::Bone& parent);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

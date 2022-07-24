@@ -16,6 +16,7 @@
 #include <boost/serialization/export.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 #include <boost/assign/list_of.hpp>
 
 using namespace my;
@@ -644,7 +645,7 @@ void Animator::Update(float fElapsedTime)
 		{
 			GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
 
-			BuildHierarchyBoneList(*root_iter, Quaternion::Identity(), Vector3(0));
+			BuildHierarchyBoneList(*root_iter, Bone(Vector3(0)));
 		}
 
 		//DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
@@ -1019,8 +1020,24 @@ void Animator::DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color)
 	}
 }
 
-void Animator::BuildHierarchyBoneList(int root_i, const my::Quaternion& parentRot, const my::Vector3& parentPos)
+void Animator::BuildHierarchyBoneList(const int node_i, const my::Bone& parent)
 {
-	anim_pose.BuildHierarchyBoneList(
-		anim_pose_hier, m_Skeleton->m_boneHierarchy, root_i, parentRot, parentPos);
+	const Bone& src = anim_pose[node_i];
+	Bone& dst = anim_pose_hier[node_i];
+	RagdollBoneList::iterator rag_iter = boost::find_if(m_RagdollBones, boost::bind(std::equal_to<int>(), node_i, boost::bind(&RagdollBone::id, boost::placeholders::_1)));
+	if (rag_iter != m_RagdollBones.end())
+	{
+		dst.m_rotation = rag_iter->act->m_Rotation * m_Actor->m_Rotation.conjugate();
+		dst.m_position = rag_iter->act->m_Position.transformCoord(m_Actor->m_World.inverse());
+	}
+	else
+	{
+		dst = src.Transform(parent);
+	}
+
+	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
+	{
+		BuildHierarchyBoneList(child_i, dst);
+	}
 }
