@@ -605,6 +605,14 @@ void Animator::RequestResource(void)
 
 		my::ResourceMgr::getSingleton().LoadSkeletonAsync(m_SkeletonPath.c_str(), boost::bind(&Animator::OnSkeletonReady, this, boost::placeholders::_1));
 	}
+
+	_ASSERT(m_Actor);
+	OctNode* Root = m_Actor->m_Node->GetTopNode();
+	RagdollBoneList::iterator rag_iter = m_RagdollBones.begin();
+	for (; rag_iter != m_RagdollBones.end(); rag_iter++)
+	{
+		Root->AddEntity(rag_iter->act.get(), rag_iter->act->m_aabb.transform(rag_iter->act->m_World), Actor::MinBlock, Actor::Threshold);
+	}
 }
 
 void Animator::ReleaseResource(void)
@@ -617,6 +625,14 @@ void Animator::ReleaseResource(void)
 
 		m_Skeleton.reset();
 	}
+
+	_ASSERT(m_Actor);
+	OctNode* Root = m_Actor->m_Node->GetTopNode();
+	RagdollBoneList::iterator rag_iter = m_RagdollBones.begin();
+	for (; rag_iter != m_RagdollBones.end(); rag_iter++)
+	{
+		Root->RemoveEntity(rag_iter->act.get());
+	}
 }
 
 void Animator::Update(float fElapsedTime)
@@ -628,23 +644,28 @@ void Animator::Update(float fElapsedTime)
 		{
 			GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
 
-			anim_pose.BuildHierarchyBoneList(
-				anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
+			BuildHierarchyBoneList(*root_iter, Quaternion::Identity(), Vector3(0));
 		}
 
-		DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
-		for (; db_iter != m_DynamicBones.end(); db_iter++)
-		{
-			int particle_i = 0;
-			UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
-				anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
-		}
+		//DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
+		//for (; db_iter != m_DynamicBones.end(); db_iter++)
+		//{
+		//	int particle_i = 0;
+		//	UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
+		//		anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
+		//}
 
-		IKContextMap::iterator ik_iter = m_Iks.begin();
-		for (; ik_iter != m_Iks.end(); ik_iter++)
-		{
-			UpdateIK(ik_iter->second);
-		}
+		//IKContextMap::iterator ik_iter = m_Iks.begin();
+		//for (; ik_iter != m_Iks.end(); ik_iter++)
+		//{
+		//	UpdateIK(ik_iter->second);
+		//}
+
+		//RagdollBoneList::iterator rag_iter = m_RagdollBones.begin();
+		//for (; rag_iter != m_RagdollBones.end(); rag_iter++)
+		//{
+		//	UpdateRagdollBone(*rag_iter);
+		//}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
@@ -918,6 +939,40 @@ void Animator::UpdateIK(IKContext & ik)
 	}
 }
 
+void Animator::AddRagdollCapsule(int node_i, float radius, float halfHeight)
+{
+	RagdollBone bone;
+	bone.id = node_i;
+	bone.act.reset(new Actor(NamedObject::MakeUniqueName("ragdoll_bone").c_str(), Vector3(0, 0, 0), Quaternion::Identity(), Vector3(1, 1, 1), AABB(-1, 1)));
+	bone.act->CreateRigidActor(physx::PxActorType::eRIGID_DYNAMIC);
+	ComponentPtr cmp(new Component(NamedObject::MakeUniqueName("ragdoll_bone_cmp").c_str()));
+	cmp->CreateCapsuleShape(Vector3(0, 0, 0), Quaternion::Identity(), radius, halfHeight);
+	bone.act->InsertComponent(cmp);
+	m_RagdollBones.push_back(bone);
+
+	if (IsRequested())
+	{
+		_ASSERT(m_Actor);
+		OctNode* Root = m_Actor->m_Node->GetTopNode();
+		Root->AddEntity(bone.act.get(), bone.act->m_aabb.transform(bone.act->m_World), Actor::MinBlock, Actor::Threshold);
+	}
+}
+
+void Animator::UpdateRagdollBone(const RagdollBone & ragdollBone)
+{
+	////anim_pose_hier[ragdollBone.id].m_rotation =
+	////	//target.m_rotation * m_Actor->m_Rotation * Quaternion::RotationFromTo(d0, d1, Vector3::zero) * m_Actor->m_Rotation.conjugate();
+	////	ragdollBone.act->m_Rotation * m_Actor->m_Rotation.conjugate();
+
+	////anim_pose_hier[ragdollBone.id].m_position =
+	////	//particle.getPosition().transformCoord(m_Actor->m_World.inverse());
+	////	ragdollBone.act->m_Position.transformCoord(m_Actor->m_World.inverse());
+
+	//TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy, ragdollBone.id,
+	//	ragdollBone.act->m_Rotation * m_Actor->m_Rotation.conjugate() * anim_pose_hier[ragdollBone.id].m_rotation.conjugate(),
+	//	ragdollBone.act->m_Position.transformCoord(m_Actor->m_World.inverse()) );
+}
+
 void Animator::TransformHierarchyBoneList(
 	my::BoneList & boneList,
 	const my::BoneHierarchy & boneHierarchy,
@@ -962,4 +1017,10 @@ void Animator::DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color)
 			}
 		}
 	}
+}
+
+void Animator::BuildHierarchyBoneList(int root_i, const my::Quaternion& parentRot, const my::Vector3& parentPos)
+{
+	anim_pose.BuildHierarchyBoneList(
+		anim_pose_hier, m_Skeleton->m_boneHierarchy, root_i, parentRot, parentPos);
 }
