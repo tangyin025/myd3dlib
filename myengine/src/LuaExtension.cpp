@@ -79,6 +79,11 @@ static void texture2d_create_texture_from_file(my::Texture2D* self, const std::s
 	self->CreateTextureFromFile(u8tows(path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 }
 
+static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
+{
+	return (unsigned int)self->m_boneBindPose.size();
+}
+
 static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
@@ -1281,6 +1286,8 @@ void LuaContext::Init(void)
 		, class_<my::OgreSkeletonAnimation, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("OgreSkeletonAnimation")
 			.def_readonly("boneHierarchy", &my::OgreSkeletonAnimation::m_boneHierarchy)
 			.def("GetBoneIndex", &my::OgreSkeletonAnimation::GetBoneIndex)
+			.def("GetBoneName", &my::OgreSkeletonAnimation::FindBoneName)
+			.property("BoneNum", &ogreskeletonanimation_get_bone_num)
 			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
 			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
 			.def("Transform", &my::OgreSkeletonAnimation::Transform)
@@ -2454,6 +2461,7 @@ void LuaContext::Init(void)
 				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC)
 			]
 			.def("CreateRigidActor", &Actor::CreateRigidActor)
+			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.enum_("RigidBodyFlag")
 			[
 				value("eKINEMATIC", physx::PxRigidBodyFlag::eKINEMATIC),
@@ -2461,7 +2469,6 @@ void LuaContext::Init(void)
 				value("eENABLE_CCD", physx::PxRigidBodyFlag::eENABLE_CCD),
 				value("eENABLE_CCD_FRICTION", physx::PxRigidBodyFlag::eENABLE_CCD_FRICTION)
 			]
-			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
 			.property("RigidBodyLinearVelocity", &Actor::GetRigidBodyLinearVelocity, &Actor::SetRigidBodyLinearVelocity)
