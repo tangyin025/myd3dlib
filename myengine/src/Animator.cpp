@@ -244,6 +244,10 @@ my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose, int root_i, c
 	{
 		anim->GetPose(pose, boneHierarchy, root_i, m_Time);
 	}
+	else
+	{
+		pose.assign(Root->m_Skeleton->m_boneBindPose.begin(), Root->m_Skeleton->m_boneBindPose.end());
+	}
 	return pose;
 }
 
