@@ -85,7 +85,6 @@ protected:
 	{
 	}
 
-public:
 	Component(const char * Name)
 		: NamedObject(Name)
 		, m_LodMask(LOD0_1_2)
@@ -95,6 +94,7 @@ public:
 	{
 	}
 
+public:
 	virtual ~Component(void);
 
 	bool operator ==(const Component & rhs) const
