@@ -181,6 +181,10 @@ public:
 
 	ActorList m_Attaches;
 
+	typedef std::vector<boost::shared_ptr<physx::PxJoint> > JointPtrList;
+
+	JointPtrList m_Joints;
+
 	typedef std::vector<std::pair<boost::shared_ptr<ActionInst>, float> > ActionInstPtrList;
 
 	ActionInstPtrList m_ActionInstList;
@@ -333,6 +337,8 @@ public:
 	my::Bone GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, const my::Quaternion & LocalRotation) const;
 
 	void ClearAllAttach(void);
+
+	void AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
 
 	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
 

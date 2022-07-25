@@ -84,6 +84,11 @@ static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation
 	return (unsigned int)self->m_boneBindPose.size();
 }
 
+static const my::Bone & ogreskeletonanimation_get_bind_pose_bone(const my::OgreSkeletonAnimation* self, int i)
+{
+	return self->m_boneBindPose[i];
+}
+
 static DWORD ARGB(int a, int r, int g, int b)
 {
 	return D3DCOLOR_ARGB(a,r,g,b);
@@ -1288,6 +1293,7 @@ void LuaContext::Init(void)
 			.def("GetBoneIndex", &my::OgreSkeletonAnimation::GetBoneIndex)
 			.def("GetBoneName", &my::OgreSkeletonAnimation::FindBoneName)
 			.property("BoneNum", &ogreskeletonanimation_get_bone_num)
+			.def("GetBindPoseBone", &ogreskeletonanimation_get_bind_pose_bone)
 			.def("AddOgreSkeletonAnimationFromFile", &my::OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile)
 			.def("SaveOgreSkeletonAnimation", &my::OgreSkeletonAnimation::SaveOgreSkeletonAnimation)
 			.def("Transform", &my::OgreSkeletonAnimation::Transform)
@@ -2489,6 +2495,7 @@ void LuaContext::Init(void)
 			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int)>(
 				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0, 0, 0), my::Quaternion::Identity())))
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
+			.def("AddD6Joint", &Actor::AddD6Joint)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("StopAction", &Actor::StopAction)
 			.def("StopAllAction", &Actor::StopAllAction)
