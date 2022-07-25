@@ -408,18 +408,6 @@ public:
 
 	//IKContextMap m_Iks;
 
-	class RagdollBone
-	{
-	public:
-		int id;
-
-		boost::shared_ptr<Actor> act;
-	};
-
-	typedef std::vector<RagdollBone> RagdollBoneList;
-
-	RagdollBoneList m_RagdollBones;
-
 protected:
 	Animator(void)
 	{
@@ -488,10 +476,6 @@ public:
 	//void AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0);
 
 	//void UpdateIK(IKContext & ik);
-
-	void AddRagdollCapsule(int node_i, float radius, float halfHeight, const my::Vector3 & localPos, const my::Quaternion & localRot, float density);
-
-	void UpdateRagdollBone(const RagdollBone & ragdollBone);
 
 	static void TransformHierarchyBoneList(
 		my::BoneList & boneList,

@@ -2557,7 +2557,6 @@ void LuaContext::Init(void)
 			.def("ReloadSequenceGroup", &Animator::ReloadSequenceGroup)
 			//.def("AddDynamicBone", (void (Animator::*)(int, const my::BoneHierarchy &, float, float, float))&Animator::AddDynamicBone)
 			//.def("AddIK", &Animator::AddIK)
-			.def("AddRagdollCapsule", &Animator::AddRagdollCapsule)
 			.def("DrawDebugBone", &Animator::DrawDebugBone)
 			.def("GetBone", &animator_get_bone)
 
