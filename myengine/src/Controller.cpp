@@ -91,16 +91,6 @@ void Controller::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void Controller::EnterPhysxScene(PhysxScene * scene)
-{
-	_ASSERT(!m_PxShape);
-}
-
-void Controller::LeavePhysxScene(PhysxScene * scene)
-{
-	_ASSERT(!m_PxShape);
-}
-
 void Controller::Update(float fElapsedTime)
 {
 	//m_Actor->SetPose(GetPosition());

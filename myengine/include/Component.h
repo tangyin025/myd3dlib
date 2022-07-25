@@ -132,10 +132,6 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void EnterPhysxScene(PhysxScene * scene);
-
-	virtual void LeavePhysxScene(PhysxScene * scene);
-
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
 	{
 	}
@@ -264,7 +260,7 @@ public:
 
 	PhysxBaseResourcePtr m_PxMesh;
 
-	physx::PxBase * m_PxMeshTmp;
+	//physx::PxBase * m_PxMeshTmp;
 
 	D3DXHANDLE handle_Time;
 
@@ -279,7 +275,7 @@ protected:
 		: m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
-		, m_PxMeshTmp(NULL)
+		//, m_PxMeshTmp(NULL)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -293,7 +289,7 @@ public:
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
-		, m_PxMeshTmp(NULL)
+		//, m_PxMeshTmp(NULL)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -329,10 +325,6 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
-
-	virtual void EnterPhysxScene(PhysxScene * scene);
-
-	virtual void LeavePhysxScene(PhysxScene * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 
@@ -440,10 +432,6 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
-
-	virtual void EnterPhysxScene(PhysxScene * scene);
-
-	virtual void LeavePhysxScene(PhysxScene * scene);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 

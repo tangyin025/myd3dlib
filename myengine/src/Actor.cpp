@@ -133,11 +133,12 @@ void Actor::load(Archive & ar, const unsigned int version)
 	}
 	}
 
-	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
+	ComponentPtrList cmps;
+	ar >> boost::serialization::make_nvp("m_Cmps", cmps);
+	ComponentPtrList::iterator cmp_iter = cmps.begin();
+	for(; cmp_iter != cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->m_Actor = this;
+		InsertComponent(*cmp_iter);
 	}
 
 	UpdateWorld();
@@ -278,12 +279,6 @@ void Actor::RequestResource(void)
 
 		scene->m_PxScene->addActor(*m_PxActor);
 	}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->EnterPhysxScene(scene);
-	}
 }
 
 void Actor::ReleaseResource(void)
@@ -301,8 +296,6 @@ void Actor::ReleaseResource(void)
 			{
 				(*cmp_iter)->ReleaseResource();
 			}
-
-			(*cmp_iter)->LeavePhysxScene(scene);
 		}
 	}
 
@@ -633,14 +626,17 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 
 	cmp->m_Actor = this;
 
+	if (cmp->m_PxShape && m_PxActor)
+	{
+		_ASSERT(!cmp->m_PxShape->getActor());
+
+		m_PxActor->attachShape(*cmp->m_PxShape);
+	}
+
 	// ! Component::RequestResource may change other cmp's life time
 	if (IsRequested())
 	{
 		_ASSERT(m_Node);
-
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
-		cmp->EnterPhysxScene(scene);
 
 		if (cmp->m_LodMask & 1 << m_Lod)
 		{
@@ -666,10 +662,13 @@ void Actor::RemoveComponent(unsigned int i)
 		{
 			(*cmp_iter)->ReleaseResource();
 		}
+	}
 
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+	if ((*cmp_iter)->m_PxShape && m_PxActor)
+	{
+		_ASSERT((*cmp_iter)->m_PxShape->getActor() == m_PxActor.get());
 
-		(*cmp_iter)->LeavePhysxScene(scene);
+		m_PxActor->detachShape(*(*cmp_iter)->m_PxShape);
 	}
 
 	(*cmp_iter)->m_Actor = NULL;
