@@ -702,11 +702,9 @@ void Actor::Attach(Actor * other, int BoneId)
 
 	other->m_BaseBoneId = BoneId;
 
-	const my::Bone pose = GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity());
+	const my::Bone pose = Bone(other->m_Position, other->m_Rotation).TransformTranspose(GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity()));
 
-	other->m_Position = pose.m_rotation.conjugate() * (other->m_Position - pose.m_position);
-
-	other->m_Rotation = other->m_Rotation * pose.m_rotation.conjugate();
+	other->SetPose(pose);
 }
 
 void Actor::Detach(Actor * other)

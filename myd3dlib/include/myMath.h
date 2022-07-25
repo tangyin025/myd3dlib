@@ -2895,7 +2895,8 @@ namespace my
 		Bone Transform(const Bone & parent) const
 		{
 			return Bone(
-				parent.m_rotation * m_position + parent.m_position, m_rotation * parent.m_rotation);
+				parent.m_rotation * m_position + parent.m_position,
+				m_rotation * parent.m_rotation);
 		}
 
 		Bone & TransformSelf(const Bone & parent)
@@ -2903,6 +2904,14 @@ namespace my
 			m_position = parent.m_rotation * m_position + parent.m_position;
 			m_rotation = m_rotation * parent.m_rotation;
 			return *this;
+		}
+
+		Bone TransformTranspose(const Bone & parent) const
+		{
+			const Quaternion parent_rot_con = parent.m_rotation.conjugate();
+			return Bone(
+				parent_rot_con * (m_position - parent.m_position),
+				m_rotation * parent_rot_con);
 		}
 
 		Matrix4 BuildTransform(void) const
