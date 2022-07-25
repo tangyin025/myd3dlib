@@ -709,12 +709,30 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 	ActorList::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		(*actor_iter)->Update(fElapsedTime);
-
-		Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
-		if (animator)
+		if ((*actor_iter)->IsRequested())
 		{
-			animator->Tick(fElapsedTime, 1.0f);
+			(*actor_iter)->Update(fElapsedTime);
+
+			Animator* animator = (*actor_iter)->GetFirstComponent<Animator>();
+			if (animator)
+			{
+				animator->Tick(fElapsedTime, 1.0f);
+			}
+		}
+
+		Actor::ActorList::iterator attach_iter = (*actor_iter)->m_Attaches.begin();
+		for (; attach_iter != (*actor_iter)->m_Attaches.end(); attach_iter++)
+		{
+			if ((*attach_iter)->IsRequested())
+			{
+				(*attach_iter)->Update(fElapsedTime);
+
+				Animator* animator = (*attach_iter)->GetFirstComponent<Animator>();
+				if (animator)
+				{
+					animator->Tick(fElapsedTime, 1.0f);
+				}
+			}
 		}
 	}
 
@@ -728,7 +746,7 @@ void CMainFrame::OnFrameTick(float fElapsedTime)
 		if (activeTransforms[i].userData)
 		{
 			Actor* actor = (Actor*)activeTransforms[i].userData;
-			if (!actor->m_Base)
+			if (!actor->m_Base || !actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC)) // ! Actor::Update, m_Base->GetAttachPose
 			{
 				actor->SetPose((my::Vector3&)activeTransforms[i].actor2World.p, (my::Quaternion&)activeTransforms[i].actor2World.q);
 			}
