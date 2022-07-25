@@ -1029,11 +1029,12 @@ void Animator::BuildHierarchyBoneList(const int node_i, const my::Bone& parent)
 {
 	const Bone& src = anim_pose[node_i];
 	Bone& dst = anim_pose_hier[node_i];
-	RagdollBoneList::iterator rag_iter = boost::find_if(m_RagdollBones, boost::bind(std::equal_to<int>(), node_i, boost::bind(&RagdollBone::id, boost::placeholders::_1)));
-	if (rag_iter != m_RagdollBones.end())
+	Actor::ActorList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
+	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
-		dst.m_rotation = rag_iter->act->m_Rotation * m_Actor->m_Rotation.conjugate();
-		dst.m_position = rag_iter->act->m_Position.transformCoord(m_Actor->m_World.inverse());
+		_ASSERT(physx::PxActorType::eRIGID_DYNAMIC == (*act_iter)->m_PxActor->getType());
+		dst.m_rotation = (*act_iter)->m_Rotation * m_Actor->m_Rotation.conjugate();
+		dst.m_position = (*act_iter)->m_Position.transformCoord(m_Actor->m_World.inverse());
 	}
 	else
 	{

@@ -322,7 +322,7 @@ void Actor::ReleaseResource(void)
 
 void Actor::Update(float fElapsedTime)
 {
-	if (m_Base)
+	if (m_Base && (!m_PxActor || GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC)))
 	{
 		Bone attach_pose = m_Base->GetAttachPose(m_BaseBoneId, m_Position, m_Rotation);
 
@@ -375,7 +375,7 @@ void Actor::SetPose(const my::Vector3 & Pos, const my::Quaternion & Rot)
 
 	m_Rotation = Rot;
 
-	if (!m_Base) // ! Actor::Update, m_Base->GetAttachPose
+	if (!m_Base || (m_PxActor && !GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))) // ! Actor::Update, m_Base->GetAttachPose
 	{
 		UpdateWorld();
 
@@ -450,7 +450,7 @@ void Actor::UpdateAABB(void)
 
 void Actor::UpdateWorld(void)
 {
-	_ASSERT(!m_Base);
+	_ASSERT(!m_Base || (m_PxActor && !GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC)));
 
 	_ASSERT(!m_Node || !PhysxSdk::getSingleton().m_RenderTickMuted);
 

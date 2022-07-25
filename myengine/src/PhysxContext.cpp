@@ -222,7 +222,7 @@ void PhysxScene::TickPostRender(float dtime)
 				if (mBufferedActiveTransforms[i].userData)
 				{
 					Actor* actor = (Actor*)mBufferedActiveTransforms[i].userData;
-					if (!actor->m_Base)
+					if (!actor->m_Base || !actor->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC)) // ! Actor::Update, m_Base->GetAttachPose
 					{
 						actor->SetPose((Vector3&)mBufferedActiveTransforms[i].actor2World.p, (Quaternion&)mBufferedActiveTransforms[i].actor2World.q);
 					}
