@@ -636,19 +636,19 @@ void Animator::Update(float fElapsedTime)
 			BuildHierarchyBoneList(*root_iter, Bone(Vector3(0)));
 		}
 
-		//DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
-		//for (; db_iter != m_DynamicBones.end(); db_iter++)
-		//{
-		//	int particle_i = 0;
-		//	UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
-		//		anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
-		//}
+		DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
+		for (; db_iter != m_DynamicBones.end(); db_iter++)
+		{
+			int particle_i = 0;
+			UpdateDynamicBone(db_iter->second, anim_pose_hier[db_iter->second.parent_i],
+				anim_pose_hier[db_iter->second.parent_i].m_position.transformCoord(m_Actor->m_World), db_iter->first, particle_i, fElapsedTime);
+		}
 
-		//IKContextMap::iterator ik_iter = m_Iks.begin();
-		//for (; ik_iter != m_Iks.end(); ik_iter++)
-		//{
-		//	UpdateIK(ik_iter->second);
-		//}
+		IKContextMap::iterator ik_iter = m_Iks.begin();
+		for (; ik_iter != m_Iks.end(); ik_iter++)
+		{
+			UpdateIK(ik_iter->second);
+		}
 
 		for (size_t i = 0; i < bind_pose_hier.size(); i++)
 		{
@@ -778,149 +778,149 @@ void Animator::SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceG
 		seq_iter->second->m_Time = Lerp(0.0f, seq_iter->second->GetLength(), Percent);
 	}
 }
-//
-//void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant)
-//{
-//	_ASSERT(mass > 0);
-//
-//	int parent_i = boneHierarchy.FindParent(node_i);
-//	if (parent_i < 0)
-//	{
-//		return;
-//	}
-//
-//	std::pair<DynamicBoneContextMap::iterator, bool> res = m_DynamicBones.insert(std::make_pair(node_i, DynamicBoneContext()));
-//	if (!res.second)
-//	{
-//		return;
-//	}
-//
-//	res.first->second.parent_i = parent_i;
-//	res.first->second.springConstant = springConstant;
-//	AddDynamicBone(res.first->second, node_i, boneHierarchy, mass, damping);
-//}
-//
-//void Animator::AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping)
-//{
-//	context.m_ParticleList.push_back(Particle(
-//		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
-//	int child_i = boneHierarchy[node_i].m_child;
-//	for (; child_i >= 0; child_i = boneHierarchy[child_i].m_sibling)
-//	{
-//		AddDynamicBone(context, child_i, boneHierarchy, mass, damping);
-//	}
-//}
-//
-//void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
-//{
-//	_ASSERT(m_Actor);
-//
-//	_ASSERT(m_Skeleton);
-//
-//	Bone target(
-//		parent.m_rotation * m_Skeleton->m_boneBindPose[node_i].m_position + parent.m_position,
-//		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.m_rotation);
-//	Vector3 target_world_pos = target.m_position.transformCoord(m_Actor->m_World);
-//
-//	Particle & particle = context.m_ParticleList[particle_i];
-//	particle.clearAccumulator();
-//	particle.setAcceleration(Vector3::Gravity);
-//	Vector3 distance = target_world_pos - particle.getPosition();
-//	float length = distance.magnitude();
-//	Vector3 direction = distance.normalize();
-//	Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * length) : Vector3(0, 0, 0);
-//	particle.addForce(force);
-//	particle.integrate(fElapsedTime);
-//	Vector3 d0 = target_world_pos - parent_world_pos;
-//	Vector3 d1 = particle.getPosition() - parent_world_pos;
-//	particle.setPosition(parent_world_pos + d1.normalize() * d0.magnitude());
-//
-//	anim_pose_hier[node_i].m_rotation =
-//		target.m_rotation * m_Actor->m_Rotation * Quaternion::RotationFromTo(d0, d1, Vector3::zero) * m_Actor->m_Rotation.conjugate();
-//
-//	anim_pose_hier[node_i].m_position =
-//		particle.getPosition().transformCoord(m_Actor->m_World.inverse());
-//
-//	particle_i++;
-//	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
-//	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
-//	{
-//		UpdateDynamicBone(context, anim_pose_hier[node_i], particle.getPosition(), child_i, particle_i, fElapsedTime);
-//	}
-//}
-//
-//void Animator::AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0)
-//{
-//	std::pair<IKContextMap::iterator, bool> res = m_Iks.insert(std::make_pair(node_i, IKContext()));
-//	if (!res.second)
-//	{
-//		return;
-//	}
-//
-//	int child_i = node_i;
-//	for (int i = 0; i < _countof(res.first->second.id); i++, child_i = boneHierarchy[child_i].m_child)
-//	{
-//		if (child_i < 0)
-//		{
-//			m_Iks.erase(node_i);
-//			return;
-//		}
-//		res.first->second.id[i] = child_i;
-//	}
-//
-//	res.first->second.hitRadius = hitRadius;
-//
-//	res.first->second.filterWord0 = filterWord0;
-//}
-//
-//void Animator::UpdateIK(IKContext & ik)
-//{
-//	_ASSERT(m_Actor);
-//
-//	_ASSERT(m_Skeleton);
-//
-//	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
-//	_ASSERT(scene);
-//
-//	const Vector3 pos[3] = {
-//		anim_pose_hier[ik.id[0]].m_position,
-//		anim_pose_hier[ik.id[1]].m_position,
-//		anim_pose_hier[ik.id[2]].m_position };
-//	const Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
-//	const float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
-//	if (length[0] < EPSILON_E12 || length[1] < EPSILON_E12 || length[2] < EPSILON_E12)
-//	{
-//		return;
-//	}
-//
-//	const Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
-//	const float theta[2] = { normal[0].angle(normal[2]), (-normal[0]).angle(normal[1]) };
-//	physx::PxSweepBuffer hit;
-//	physx::PxSphereGeometry sphere(ik.hitRadius);
-//	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
-//		physx::PxFilterData(ik.filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
-//	bool status = scene->m_PxScene->sweep(sphere, physx::PxTransform((physx::PxVec3&)pos[0].transformCoord(m_Actor->m_World)),
-//		(physx::PxVec3&)(normal[2].transformNormal(m_Actor->m_World).normalize()), length[2] * m_Actor->m_Scale.x, hit, physx::PxHitFlag::eDEFAULT, filterData);
-//	if (status && hit.block.distance > 0)
-//	{
-//		float local_dist = hit.block.distance / m_Actor->m_Scale.x; // ! m_Actor must be orthogonal Scale
-//		float new_theta[2] = {
-//			acos(Vector3::Cosine(length[1], length[0], local_dist)),
-//			acos(Vector3::Cosine(local_dist, length[1], length[0])) };
-//		Quaternion rot[2] = {
-//			Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
-//			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
-//
-//		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-//			ik.id[0], rot[0], anim_pose_hier[ik.id[0]].m_position);
-//
-//		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-//			ik.id[1], rot[1], anim_pose_hier[ik.id[1]].m_position);
-//
-//		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
-//			ik.id[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ik.id[2]].m_position);
-//	}
-//}
+
+void Animator::AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant)
+{
+	_ASSERT(mass > 0);
+
+	int parent_i = boneHierarchy.FindParent(node_i);
+	if (parent_i < 0)
+	{
+		return;
+	}
+
+	std::pair<DynamicBoneContextMap::iterator, bool> res = m_DynamicBones.insert(std::make_pair(node_i, DynamicBoneContext()));
+	if (!res.second)
+	{
+		return;
+	}
+
+	res.first->second.parent_i = parent_i;
+	res.first->second.springConstant = springConstant;
+	AddDynamicBone(res.first->second, node_i, boneHierarchy, mass, damping);
+}
+
+void Animator::AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping)
+{
+	context.m_ParticleList.push_back(Particle(
+		Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), 1 / mass, damping));
+	int child_i = boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = boneHierarchy[child_i].m_sibling)
+	{
+		AddDynamicBone(context, child_i, boneHierarchy, mass, damping);
+	}
+}
+
+void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3& parent_world_pos, int node_i, int & particle_i, float fElapsedTime)
+{
+	_ASSERT(m_Actor);
+
+	_ASSERT(m_Skeleton);
+
+	Bone target(
+		parent.m_rotation * m_Skeleton->m_boneBindPose[node_i].m_position + parent.m_position,
+		m_Skeleton->m_boneBindPose[node_i].m_rotation * parent.m_rotation);
+	Vector3 target_world_pos = target.m_position.transformCoord(m_Actor->m_World);
+
+	Particle & particle = context.m_ParticleList[particle_i];
+	particle.clearAccumulator();
+	particle.setAcceleration(Vector3::Gravity);
+	Vector3 distance = target_world_pos - particle.getPosition();
+	float length = distance.magnitude();
+	Vector3 direction = distance.normalize();
+	Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * length) : Vector3(0, 0, 0);
+	particle.addForce(force);
+	particle.integrate(fElapsedTime);
+	Vector3 d0 = target_world_pos - parent_world_pos;
+	Vector3 d1 = particle.getPosition() - parent_world_pos;
+	particle.setPosition(parent_world_pos + d1.normalize() * d0.magnitude());
+
+	anim_pose_hier[node_i].m_rotation =
+		target.m_rotation * m_Actor->m_Rotation * Quaternion::RotationFromTo(d0, d1, Vector3::zero) * m_Actor->m_Rotation.conjugate();
+
+	anim_pose_hier[node_i].m_position =
+		particle.getPosition().transformCoord(m_Actor->m_World.inverse());
+
+	particle_i++;
+	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
+	{
+		UpdateDynamicBone(context, anim_pose_hier[node_i], particle.getPosition(), child_i, particle_i, fElapsedTime);
+	}
+}
+
+void Animator::AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0)
+{
+	std::pair<IKContextMap::iterator, bool> res = m_Iks.insert(std::make_pair(node_i, IKContext()));
+	if (!res.second)
+	{
+		return;
+	}
+
+	int child_i = node_i;
+	for (int i = 0; i < _countof(res.first->second.id); i++, child_i = boneHierarchy[child_i].m_child)
+	{
+		if (child_i < 0)
+		{
+			m_Iks.erase(node_i);
+			return;
+		}
+		res.first->second.id[i] = child_i;
+	}
+
+	res.first->second.hitRadius = hitRadius;
+
+	res.first->second.filterWord0 = filterWord0;
+}
+
+void Animator::UpdateIK(IKContext & ik)
+{
+	_ASSERT(m_Actor);
+
+	_ASSERT(m_Skeleton);
+
+	PhysxScene * scene = dynamic_cast<PhysxScene *>(m_Actor->m_Node->GetTopNode());
+	_ASSERT(scene);
+
+	const Vector3 pos[3] = {
+		anim_pose_hier[ik.id[0]].m_position,
+		anim_pose_hier[ik.id[1]].m_position,
+		anim_pose_hier[ik.id[2]].m_position };
+	const Vector3 dir[3] = { pos[1] - pos[0], pos[2] - pos[1], pos[2] - pos[0] };
+	const float length[3] = { dir[0].magnitude(), dir[1].magnitude(), dir[2].magnitude() };
+	if (length[0] < EPSILON_E12 || length[1] < EPSILON_E12 || length[2] < EPSILON_E12)
+	{
+		return;
+	}
+
+	const Vector3 normal[3] = { dir[0] / length[0], dir[1] / length[1], dir[2] / length[2] };
+	const float theta[2] = { normal[0].angle(normal[2]), (-normal[0]).angle(normal[1]) };
+	physx::PxSweepBuffer hit;
+	physx::PxSphereGeometry sphere(ik.hitRadius);
+	physx::PxQueryFilterData filterData = physx::PxQueryFilterData(
+		physx::PxFilterData(ik.filterWord0, 0, 0, 0), physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC);
+	bool status = scene->m_PxScene->sweep(sphere, physx::PxTransform((physx::PxVec3&)pos[0].transformCoord(m_Actor->m_World)),
+		(physx::PxVec3&)(normal[2].transformNormal(m_Actor->m_World).normalize()), length[2] * m_Actor->m_Scale.x, hit, physx::PxHitFlag::eDEFAULT, filterData);
+	if (status && hit.block.distance > 0)
+	{
+		float local_dist = hit.block.distance / m_Actor->m_Scale.x; // ! m_Actor must be orthogonal Scale
+		float new_theta[2] = {
+			acos(Vector3::Cosine(length[1], length[0], local_dist)),
+			acos(Vector3::Cosine(local_dist, length[1], length[0])) };
+		Quaternion rot[2] = {
+			Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
+			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
+
+		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+			ik.id[0], rot[0], anim_pose_hier[ik.id[0]].m_position);
+
+		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+			ik.id[1], rot[1], anim_pose_hier[ik.id[1]].m_position);
+
+		TransformHierarchyBoneList(anim_pose_hier, m_Skeleton->m_boneHierarchy,
+			ik.id[2], rot[1].conjugate() * rot[0].conjugate(), anim_pose_hier[ik.id[2]].m_position);
+	}
+}
 
 void Animator::TransformHierarchyBoneList(
 	my::BoneList & boneList,

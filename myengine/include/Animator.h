@@ -380,33 +380,33 @@ public:
 
 	typedef std::vector<my::Particle> ParticleList;
 
-	//class DynamicBoneContext
-	//{
-	//public:
-	//	int parent_i;
+	class DynamicBoneContext
+	{
+	public:
+		int parent_i;
 
-	//	float springConstant;
+		float springConstant;
 
-	//	ParticleList m_ParticleList;
-	//};
+		ParticleList m_ParticleList;
+	};
 
-	//typedef std::map<int, DynamicBoneContext> DynamicBoneContextMap;
+	typedef std::map<int, DynamicBoneContext> DynamicBoneContextMap;
 
-	//DynamicBoneContextMap m_DynamicBones;
+	DynamicBoneContextMap m_DynamicBones;
 
-	//class IKContext
-	//{
-	//public:
-	//	int id[3];
+	class IKContext
+	{
+	public:
+		int id[3];
 
-	//	float hitRadius;
+		float hitRadius;
 
-	//	unsigned int filterWord0;
-	//};
+		unsigned int filterWord0;
+	};
 
-	//typedef std::map<int, IKContext> IKContextMap;
+	typedef std::map<int, IKContext> IKContextMap;
 
-	//IKContextMap m_Iks;
+	IKContextMap m_Iks;
 
 protected:
 	Animator(void)
@@ -467,15 +467,15 @@ public:
 
 	void SyncSequenceGroupTime(SequenceGroupMap::iterator begin, SequenceGroupMap::iterator end, float Percent);
 
-	//void AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant);
+	void AddDynamicBone(int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping, float springConstant);
 
-	//static void AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping);
+	static void AddDynamicBone(DynamicBoneContext & context, int node_i, const my::BoneHierarchy & boneHierarchy, float mass, float damping);
 
-	//void UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
+	void UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & parent, const my::Vector3 & parent_world_pos, int node_i, int & particle_i, float fElapsedTime);
 
-	//void AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0);
+	void AddIK(int node_i, const my::BoneHierarchy & boneHierarchy, float hitRadius, unsigned int filterWord0);
 
-	//void UpdateIK(IKContext & ik);
+	void UpdateIK(IKContext & ik);
 
 	static void TransformHierarchyBoneList(
 		my::BoneList & boneList,
