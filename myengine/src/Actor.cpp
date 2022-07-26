@@ -58,6 +58,8 @@ Actor::~Actor(void)
 
 	_ASSERT(m_Attaches.empty());
 
+	_ASSERT(m_Joints.empty());
+
 	_ASSERT(!m_Base);
 
 	_ASSERT(!IsRequested());
@@ -633,16 +635,16 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 		m_PxActor->attachShape(*cmp->m_PxShape);
 	}
 
-	// ! Component::RequestResource may change other cmp's life time
-	if (IsRequested())
-	{
-		_ASSERT(m_Node);
+	//// ! Component::RequestResource may change other cmp's life time
+	//if (IsRequested())
+	//{
+	//	_ASSERT(m_Node);
 
-		if (cmp->m_LodMask & 1 << m_Lod)
-		{
-			cmp->RequestResource();
-		}
-	}
+	//	if (cmp->m_LodMask & 1 << m_Lod)
+	//	{
+	//		cmp->RequestResource();
+	//	}
+	//}
 }
 
 void Actor::RemoveComponent(unsigned int i)
@@ -712,6 +714,25 @@ void Actor::Detach(Actor * other)
 	if (att_iter != m_Attaches.end())
 	{
 		_ASSERT((*att_iter)->m_Base == this);
+
+		if ((*att_iter)->m_PxActor)
+		{
+			JointPtrList::iterator joint_iter = m_Joints.begin();
+			for (; joint_iter != m_Joints.end(); )
+			{
+				physx::PxRigidActor* actor0, * actor1;
+				(*joint_iter)->getActors(actor0, actor1);
+				if ((*att_iter)->m_PxActor.get() == actor0 || (*att_iter)->m_PxActor.get() == actor1)
+				{
+					(*joint_iter)->setActors(NULL, NULL);
+					joint_iter = m_Joints.erase(joint_iter);
+				}
+				else
+				{
+					joint_iter++;
+				}
+			}
+		}
 
 		(*att_iter)->m_Base = NULL;
 
