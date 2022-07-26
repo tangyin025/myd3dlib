@@ -43,6 +43,7 @@ extern "C" {
 #include <boost/range/iterator_range.hpp>
 #include <boost/shared_container_iterator.hpp>
 #include <boost/regex.hpp>
+#include <boost/functional/value_factory.hpp>
 
 static int add_file_and_line(lua_State * L)
 {
@@ -2729,6 +2730,52 @@ void LuaContext::Init(void)
 	];
 
 	module(m_State)[
+		// ! remove /GR- from PhysXExtensions.vcxproj
+		class_<physx::PxJoint>("Joint")
+			.def("setLocalPose", (void (physx::PxJoint::*)(physx::PxJointActorIndex::Enum actor, const my::Bone & pose)) & physx::PxJoint::setLocalPose)
+			.def("getLocalPose", (my::Bone(physx::PxJoint::*)(physx::PxJointActorIndex::Enum)) & physx::PxJoint::getLocalPose)
+			.enum_("PxConstraintFlag")
+			[
+				value("eBROKEN", physx::PxConstraintFlag::eBROKEN),
+				value("ePROJECT_TO_ACTOR0", physx::PxConstraintFlag::ePROJECT_TO_ACTOR0),
+				value("ePROJECT_TO_ACTOR1", physx::PxConstraintFlag::ePROJECT_TO_ACTOR1),
+				value("ePROJECTION", physx::PxConstraintFlag::ePROJECTION),
+				value("eCOLLISION_ENABLED", physx::PxConstraintFlag::eCOLLISION_ENABLED),
+				value("eVISUALIZATION", physx::PxConstraintFlag::eVISUALIZATION),
+				value("eDRIVE_LIMITS_ARE_FORCES", physx::PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES),
+				value("eIMPROVED_SLERP", physx::PxConstraintFlag::eIMPROVED_SLERP),
+				value("eDISABLE_PREPROCESSING", physx::PxConstraintFlag::eDISABLE_PREPROCESSING),
+				value("eGPU_COMPATIBLE", physx::PxConstraintFlag::eGPU_COMPATIBLE)
+			]
+			.def("setConstraintFlag", &physx::PxJoint::setConstraintFlag)
+
+		, class_<physx::PxD6Joint, physx::PxJoint>("D6Joint")
+			.enum_("PxD6Axis")
+			[
+				value("eX", physx::PxD6Axis::eX),
+				value("eY", physx::PxD6Axis::eY),
+				value("eZ", physx::PxD6Axis::eZ),
+				value("eTWIST", physx::PxD6Axis::eTWIST),
+				value("eSWING1", physx::PxD6Axis::eSWING1),
+				value("eSWING2", physx::PxD6Axis::eSWING2),
+				value("eCOUNT", physx::PxD6Axis::eCOUNT)
+			]
+			.enum_("PxD6Motion")
+			[
+				value("eLOCKED", physx::PxD6Motion::eLOCKED),
+				value("eLIMITED", physx::PxD6Motion::eLIMITED),
+				value("eFREE", physx::PxD6Motion::eFREE)
+			]
+			.def("setMotion", &physx::PxD6Joint::setMotion)
+			.def("getMotion", &physx::PxD6Joint::getMotion)
+			.property("Twist", &physx::PxD6Joint::getTwist)
+			.property("SwingYAngle", &physx::PxD6Joint::getSwingYAngle)
+			.property("SwingZAngle", &physx::PxD6Joint::getSwingZAngle)
+			.def("setTwistLimit", luabind::tag_function<void(physx::PxD6Joint*,float,float)>(
+				boost::bind(&physx::PxD6Joint::setTwistLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointAngularLimitPair>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
+			.def("setSwingLimit", luabind::tag_function<void(physx::PxD6Joint*,float,float)>(
+				boost::bind(&physx::PxD6Joint::setSwingLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointLimitCone>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
+
 		//class_<noise::module::Perlin>("Perlin")
 		//	.def(constructor<>())
 		//	.property("Frequency", &noise::module::Perlin::GetFrequency, &noise::module::Perlin::SetFrequency)
@@ -2739,7 +2786,7 @@ void LuaContext::Init(void)
 		//	.property("Seed", &noise::module::Perlin::GetSeed, &noise::module::Perlin::SetSeed)
 		//	.def("GetValue", &noise::module::Perlin::GetValue)
 
-		class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
+		, class_<my::BilinearFiltering<unsigned short> >("BilinearFilteringL16")
 			.def(constructor<unsigned short*, int, int, int>())
 			.def(constructor<const D3DLOCKED_RECT&, int, int>())
 			.def("Sample", &my::BilinearFiltering<unsigned short>::Sample)

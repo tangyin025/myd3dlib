@@ -338,7 +338,7 @@ public:
 
 	void ClearAllAttach(void);
 
-	void AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
+	physx::PxD6Joint * AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
 
 	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
 
