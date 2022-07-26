@@ -185,6 +185,8 @@ public:
 
 	JointPtrList m_Joints;
 
+	boost::shared_ptr<physx::PxAggregate> m_Aggregate;
+
 	typedef std::vector<std::pair<boost::shared_ptr<ActionInst>, float> > ActionInstPtrList;
 
 	ActionInstPtrList m_ActionInstList;
@@ -341,6 +343,8 @@ public:
 	physx::PxRevoluteJoint * AddRevoluteJoint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
 
 	physx::PxD6Joint * AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
+
+	void CreateAggregate(void);
 
 	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
 

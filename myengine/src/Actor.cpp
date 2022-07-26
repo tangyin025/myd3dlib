@@ -60,6 +60,8 @@ Actor::~Actor(void)
 
 	_ASSERT(m_Joints.empty());
 
+	_ASSERT(!m_Aggregate || m_Aggregate->getNbActors() == 0);
+
 	_ASSERT(!m_Base);
 
 	_ASSERT(!IsRequested());
@@ -275,11 +277,16 @@ void Actor::RequestResource(void)
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
-	if (m_PxActor)
+	if (!m_Base && m_PxActor)
 	{
 		_ASSERT(!m_PxActor->getScene());
 
 		scene->m_PxScene->addActor(*m_PxActor);
+	}
+
+	if (m_Aggregate)
+	{
+		scene->m_PxScene->addAggregate(*m_Aggregate);
 	}
 }
 
@@ -305,13 +312,18 @@ void Actor::ReleaseResource(void)
 
 	m_Lod = Component::LOD_INFINITE;
 
-	if (m_PxActor)
+	if (!m_Base && m_PxActor)
 	{
 		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
 
 		scene->m_PxScene->removeActor(*m_PxActor, false);
 
 		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
+	}
+
+	if (m_Aggregate)
+	{
+		scene->m_PxScene->removeAggregate(*m_Aggregate, false);
 	}
 }
 
@@ -537,13 +549,22 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 
 void Actor::ClearRigidActor(void)
 {
-	if (m_PxActor && IsRequested())
-	{
-		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
+	if (!m_Base && m_PxActor && IsRequested())
+	{
 		_ASSERT(m_PxActor->getScene() == scene->m_PxScene.get());
 
 		scene->m_PxScene->removeActor(*m_PxActor, false);
+
+		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
+	}
+
+	if (m_Base && m_PxActor)
+	{
+		_ASSERT(m_Base->m_Aggregate);
+
+		BOOST_VERIFY(m_Base->m_Aggregate->removeActor(*m_PxActor));
 
 		scene->removeRenderActorsFromPhysicsActor(m_PxActor.get());
 	}
@@ -575,13 +596,23 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 		break;
 	}
 
-	if (m_PxActor && IsRequested())
+	if (!m_Base && m_PxActor && IsRequested())
 	{
 		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 		_ASSERT(!m_PxActor->getScene());
 
 		scene->m_PxScene->addActor(*m_PxActor);
+	}
+
+	if (m_Base && m_PxActor)
+	{
+		if (!m_Base->m_Aggregate)
+		{
+			m_Base->CreateAggregate();
+		}
+
+		BOOST_VERIFY(m_Base->m_Aggregate->addActor(*m_PxActor));
 	}
 }
 
@@ -635,16 +666,16 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 		m_PxActor->attachShape(*cmp->m_PxShape);
 	}
 
-	//// ! Component::RequestResource may change other cmp's life time
-	//if (IsRequested())
-	//{
-	//	_ASSERT(m_Node);
+	// ! Component::RequestResource may change other cmp's life time
+	if (IsRequested())
+	{
+		_ASSERT(m_Node);
 
-	//	if (cmp->m_LodMask & 1 << m_Lod)
-	//	{
-	//		cmp->RequestResource();
-	//	}
-	//}
+		if (cmp->m_LodMask & 1 << m_Lod)
+		{
+			cmp->RequestResource();
+		}
+	}
 }
 
 void Actor::RemoveComponent(unsigned int i)
@@ -706,6 +737,18 @@ void Actor::Attach(Actor * other, int BoneId)
 	const my::Bone pose = Bone(other->m_Position, other->m_Rotation).TransformTranspose(GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity()));
 
 	other->SetPose(pose);
+
+	if (other->m_PxActor)
+	{
+		if (!m_Aggregate)
+		{
+			CreateAggregate();
+		}
+
+		_ASSERT(!other->m_PxActor->getScene());
+
+		BOOST_VERIFY(m_Aggregate->addActor(*other->m_PxActor));
+	}
 }
 
 void Actor::Detach(Actor * other)
@@ -732,6 +775,14 @@ void Actor::Detach(Actor * other)
 					joint_iter++;
 				}
 			}
+
+			_ASSERT(m_Aggregate);
+
+			BOOST_VERIFY(m_Aggregate->removeActor(*(*att_iter)->m_PxActor));
+
+			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+			scene->removeRenderActorsFromPhysicsActor((*att_iter)->m_PxActor.get());
 		}
 
 		(*att_iter)->m_Base = NULL;
@@ -794,6 +845,20 @@ physx::PxD6Joint * Actor::AddD6Joint(Actor * actor0, const my::Bone & localFrame
 		actor0->m_PxActor.get(), (physx::PxTransform&)localFrame0, actor1->m_PxActor.get(), (physx::PxTransform&)localFrame1);
 	m_Joints.push_back(boost::shared_ptr<physx::PxJoint>(joint, PhysxDeleter<physx::PxJoint>()));
 	return joint;
+}
+
+void Actor::CreateAggregate(void)
+{
+	_ASSERT(!m_Aggregate);
+
+	m_Aggregate.reset(PhysxSdk::getSingleton().m_sdk->createAggregate(64, false), PhysxDeleter<physx::PxBase>());
+
+	if (IsRequested())
+	{
+		PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+		scene->m_PxScene->addAggregate(*m_Aggregate);
+	}
 }
 
 boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, float Length)
