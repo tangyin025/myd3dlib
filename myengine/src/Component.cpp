@@ -72,7 +72,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
@@ -87,7 +87,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
@@ -108,7 +108,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
@@ -127,7 +127,7 @@ void Component::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
@@ -161,9 +161,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags;
+		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
-		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
+		SetShapeFlags(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::ePLANE:
@@ -179,9 +179,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags;
+		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
-		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
+		SetShapeFlags(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
@@ -201,9 +201,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags;
+		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
-		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
+		SetShapeFlags(ShapeFlags);
 		break;
 	}
 	case physx::PxGeometryType::eBOX:
@@ -221,9 +221,9 @@ void Component::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		SetQueryFilterWord0(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags;
+		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
-		m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
+		SetShapeFlags(ShapeFlags);
 		break;
 	}
 	}
@@ -400,15 +400,15 @@ unsigned int Component::GetQueryFilterWord0(void) const
 	return m_PxShape ? m_PxShape->getQueryFilterData().word0 : 0;
 }
 
-void Component::SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value)
+void Component::SetShapeFlags(unsigned int Flags)
 {
 	_ASSERT(m_PxShape);
-	m_PxShape->setFlag(Flag, Value);
+	m_PxShape->setFlags(physx::PxShapeFlags(Flags));
 }
 
-bool Component::GetShapeFlag(physx::PxShapeFlag::Enum Flag) const
+unsigned int Component::GetShapeFlags(void) const
 {
-	return m_PxShape ? m_PxShape->getFlags() & Flag : false;
+	return m_PxShape ? (unsigned int)m_PxShape->getFlags() : 0;
 }
 
 physx::PxGeometryType::Enum Component::GetGeometryType(void) const
@@ -484,7 +484,7 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
@@ -495,7 +495,7 @@ void MeshComponent::save(Archive & ar, const unsigned int version) const
 		ar << BOOST_SERIALIZATION_NVP(SimulationFilterWord0);
 		unsigned int QueryFilterWord0 = GetQueryFilterWord0();
 		ar << BOOST_SERIALIZATION_NVP(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags = (physx::PxShapeFlags::InternalType)m_PxShape->getFlags();
+		unsigned int ShapeFlags = GetShapeFlags();
 		ar << BOOST_SERIALIZATION_NVP(ShapeFlags);
 		break;
 	}
@@ -527,7 +527,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		//SetQueryFilterWord0(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags;
+		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		//m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;
@@ -543,7 +543,7 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 		unsigned int QueryFilterWord0;
 		ar >> BOOST_SERIALIZATION_NVP(QueryFilterWord0);
 		//SetQueryFilterWord0(QueryFilterWord0);
-		physx::PxShapeFlags::InternalType ShapeFlags;
+		unsigned int ShapeFlags;
 		ar >> BOOST_SERIALIZATION_NVP(ShapeFlags);
 		//m_PxShape->setFlags(physx::PxShapeFlags(ShapeFlags));
 		break;

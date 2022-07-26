@@ -16,6 +16,8 @@ public:
 
 	unsigned int m_DescQueryFilterWord0;
 
+	unsigned int m_DescShapeFlags;
+
 	bool m_PxControllerMoveMuted;
 
 	boost::shared_ptr<physx::PxMaterial> m_PxMaterial;
@@ -26,6 +28,7 @@ protected:
 	Controller(void)
 		: m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
+		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 		, m_PxControllerMoveMuted(false)
 	{
 	}
@@ -35,6 +38,7 @@ public:
 		: Component(Name)
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
+		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 		, m_PxControllerMoveMuted(false)
 	{
 		m_desc.height = Height;
@@ -99,6 +103,10 @@ public:
 	void SetQueryFilterWord0(unsigned int filterWord0);
 
 	unsigned int GetQueryFilterWord0(void) const;
+
+	virtual void SetShapeFlags(unsigned int Flags);
+
+	virtual unsigned int GetShapeFlags(void) const;
 
 	void SetUpDirection(const my::Vector3 & Up);
 

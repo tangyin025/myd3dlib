@@ -72,6 +72,8 @@ void Controller::RequestResource(void)
 	SetSimulationFilterWord0(m_DescSimulationFilterWord0);
 
 	SetQueryFilterWord0(m_DescQueryFilterWord0);
+
+	SetShapeFlags(m_DescShapeFlags);
 }
 
 void Controller::ReleaseResource(void)
@@ -271,6 +273,26 @@ unsigned int Controller::GetQueryFilterWord0(void) const
 	}
 
 	return m_DescQueryFilterWord0;
+}
+
+void Controller::SetShapeFlags(unsigned int Flags)
+{
+	m_DescShapeFlags = Flags;
+
+	if (m_PxShape)
+	{
+		m_PxShape->setFlags(physx::PxShapeFlags(Flags));
+	}
+}
+
+unsigned int Controller::GetShapeFlags(void) const
+{
+	if (m_PxShape)
+	{
+		return m_PxShape->getFlags();
+	}
+
+	return m_DescShapeFlags;
 }
 
 void Controller::SetUpDirection(const my::Vector3 & Up)

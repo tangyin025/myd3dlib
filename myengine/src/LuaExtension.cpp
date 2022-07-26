@@ -2229,8 +2229,7 @@ void LuaContext::Init(void)
 				value("eVISUALIZATION", physx::PxShapeFlag::eVISUALIZATION),
 				value("ePARTICLE_DRAIN", physx::PxShapeFlag::ePARTICLE_DRAIN)
 			]
-			.def("SetShapeFlag", &Component::SetShapeFlag)
-			.def("GetShapeFlag", &Component::GetShapeFlag)
+			.property("ShapeFlags", &Component::GetShapeFlags, &Component::SetShapeFlags)
 			.enum_("PxGeometryType")
 			[
 				value("eSPHERE", physx::PxGeometryType::eSPHERE),

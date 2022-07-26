@@ -206,9 +206,9 @@ public:
 
 	virtual unsigned int GetQueryFilterWord0(void) const;
 
-	void SetShapeFlag(physx::PxShapeFlag::Enum Flag, bool Value);
+	virtual void SetShapeFlags(unsigned int Flags);
 
-	bool GetShapeFlag(physx::PxShapeFlag::Enum Flag) const;
+	virtual unsigned int GetShapeFlags(void) const;
 
 	physx::PxGeometryType::Enum GetGeometryType(void) const;
 
