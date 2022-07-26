@@ -260,7 +260,11 @@ public:
 
 	PhysxBaseResourcePtr m_PxMesh;
 
-	//physx::PxBase * m_PxMeshTmp;
+	unsigned int m_DescSimulationFilterWord0;
+
+	unsigned int m_DescQueryFilterWord0;
+
+	unsigned int m_DescShapeFlags;
 
 	D3DXHANDLE handle_Time;
 
@@ -275,7 +279,9 @@ protected:
 		: m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
-		//, m_PxMeshTmp(NULL)
+		, m_DescSimulationFilterWord0(0)
+		, m_DescQueryFilterWord0(0)
+		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -289,7 +295,9 @@ public:
 		, m_MeshSubMeshId(0)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
 		, m_bInstance(false)
-		//, m_PxMeshTmp(NULL)
+		, m_DescSimulationFilterWord0(0)
+		, m_DescQueryFilterWord0(0)
+		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
 		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
@@ -337,6 +345,18 @@ public:
 	void CreateTriangleMeshShape(const char * TriangleMeshPath);
 
 	void CreateConvexMeshShape(const char * ConvexMeshPath, bool bInflateConvex);
+
+	virtual void SetSimulationFilterWord0(unsigned int filterWord0);
+
+	virtual unsigned int GetSimulationFilterWord0(void) const;
+
+	virtual void SetQueryFilterWord0(unsigned int filterWord0);
+
+	virtual unsigned int GetQueryFilterWord0(void) const;
+
+	virtual void SetShapeFlags(unsigned int Flags);
+
+	virtual unsigned int GetShapeFlags(void) const;
 
 	virtual void ClearShape(void);
 };
