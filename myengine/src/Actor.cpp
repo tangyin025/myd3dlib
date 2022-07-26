@@ -759,12 +759,20 @@ void Actor::ClearAllAttach(void)
 	}
 }
 
+physx::PxRevoluteJoint * Actor::AddRevoluteJoint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1)
+{
+	physx::PxRevoluteJoint* joint = physx::PxRevoluteJointCreate(*PhysxSdk::getSingleton().m_sdk,
+		actor0->m_PxActor.get(), (physx::PxTransform&)localFrame0, actor1->m_PxActor.get(), (physx::PxTransform&)localFrame1);
+	m_Joints.push_back(boost::shared_ptr<physx::PxJoint>(joint, PhysxDeleter<physx::PxJoint>()));
+	return joint;
+}
+
 physx::PxD6Joint * Actor::AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1)
 {
-	physx::PxD6Joint* d6joint = physx::PxD6JointCreate(*PhysxSdk::getSingleton().m_sdk,
+	physx::PxD6Joint* joint = physx::PxD6JointCreate(*PhysxSdk::getSingleton().m_sdk,
 		actor0->m_PxActor.get(), (physx::PxTransform&)localFrame0, actor1->m_PxActor.get(), (physx::PxTransform&)localFrame1);
-	m_Joints.push_back(boost::shared_ptr<physx::PxJoint>(d6joint, PhysxDeleter<physx::PxD6Joint>()));
-	return d6joint;
+	m_Joints.push_back(boost::shared_ptr<physx::PxJoint>(joint, PhysxDeleter<physx::PxJoint>()));
+	return joint;
 }
 
 boost::shared_ptr<ActionInst> Actor::PlayAction(Action * action, float Length)

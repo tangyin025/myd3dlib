@@ -1131,6 +1131,7 @@ void LuaContext::Init(void)
 		, class_<my::Bone>("Bone")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &>())
 			.def(constructor<const my::Vector3 &>())
+			.def(constructor<const my::Bone &>())
 			.def_readwrite("rotation", &my::Bone::m_rotation)
 			.def_readwrite("position", &my::Bone::m_position)
 			.def("Increment", &my::Bone::Increment)
@@ -2495,6 +2496,7 @@ void LuaContext::Init(void)
 			.def("GetAttachPose", luabind::tag_function<my::Bone(Actor*, int)>(
 				boost::bind(&Actor::GetAttachPose, boost::placeholders::_1, boost::placeholders::_2, my::Vector3(0, 0, 0), my::Quaternion::Identity())))
 			.def("ClearAllAttach", &Actor::ClearAllAttach)
+			.def("AddRevoluteJoint", &Actor::AddRevoluteJoint)
 			.def("AddD6Joint", &Actor::AddD6Joint)
 			.def("PlayAction", &Actor::PlayAction)
 			.def("StopAction", &Actor::StopAction)
@@ -2749,6 +2751,17 @@ void LuaContext::Init(void)
 			]
 			.def("setConstraintFlag", &physx::PxJoint::setConstraintFlag)
 
+		, class_<physx::PxRevoluteJoint, physx::PxJoint>("RevoluteJoint")
+			.enum_("PxRevoluteJointFlag")
+			[
+				value("eLIMIT_ENABLED", physx::PxRevoluteJointFlag::eLIMIT_ENABLED),
+				value("eDRIVE_ENABLED", physx::PxRevoluteJointFlag::eDRIVE_ENABLED),
+				value("eDRIVE_FREESPIN", physx::PxRevoluteJointFlag::eDRIVE_FREESPIN)
+			]
+			.def("setRevoluteJointFlag", &physx::PxRevoluteJoint::setRevoluteJointFlag)
+			.def("setLimit", luabind::tag_function<void(physx::PxRevoluteJoint*, float, float)>(
+				boost::bind(&physx::PxRevoluteJoint::setLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointAngularLimitPair>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
+
 		, class_<physx::PxD6Joint, physx::PxJoint>("D6Joint")
 			.enum_("PxD6Axis")
 			[
@@ -2768,9 +2781,6 @@ void LuaContext::Init(void)
 			]
 			.def("setMotion", &physx::PxD6Joint::setMotion)
 			.def("getMotion", &physx::PxD6Joint::getMotion)
-			.property("Twist", &physx::PxD6Joint::getTwist)
-			.property("SwingYAngle", &physx::PxD6Joint::getSwingYAngle)
-			.property("SwingZAngle", &physx::PxD6Joint::getSwingZAngle)
 			.def("setTwistLimit", luabind::tag_function<void(physx::PxD6Joint*,float,float)>(
 				boost::bind(&physx::PxD6Joint::setTwistLimit, boost::placeholders::_1, boost::bind(boost::value_factory<physx::PxJointAngularLimitPair>(), boost::placeholders::_2, boost::placeholders::_3, -1.0f))))
 			.def("setSwingLimit", luabind::tag_function<void(physx::PxD6Joint*,float,float)>(
