@@ -131,8 +131,7 @@ namespace my
 			BoneList & hierarchyBoneList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
-			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
-			const Vector3 & rootPosition = Vector3::zero);
+			const Bone & parent);
 
 		TransformList & BuildTransformList(
 			TransformList & transformList) const;

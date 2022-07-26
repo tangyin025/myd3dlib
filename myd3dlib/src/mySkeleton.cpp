@@ -340,21 +340,19 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	BoneList & hierarchyBoneList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
-	const Quaternion & rootRotation,
-	const Vector3 & rootPosition)
+	const Bone & parent)
 {
 	_ASSERT(hierarchyBoneList.size() == size());
 	_ASSERT(hierarchyBoneList.size() == boneHierarchy.size());
 
 	const_reference bone = operator[](root_i);
 	reference hier_bone = hierarchyBoneList[root_i];
-	hier_bone.m_rotation = bone.m_rotation * rootRotation;
-	hier_bone.m_position = rootRotation * bone.m_position + rootPosition;
+	hier_bone = bone.Transform(parent);
 
 	int node_i = boneHierarchy[root_i].m_child;
 	for (; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone.m_rotation, hier_bone.m_position);
+		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone);
 	}
 
 	return hierarchyBoneList;

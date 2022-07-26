@@ -453,6 +453,8 @@ public:
 
 	virtual my::BoneList & GetPose(my::BoneList & pose, int root_i, const my::BoneHierarchy & boneHierarchy) const;
 
+	void UpdateHierarchyBoneList(const int node_i, const my::Bone& parent);
+
 	void AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
 
 	void RemoveSequenceGroup(const std::string & name, AnimationNodeSequence * sequence);
@@ -485,8 +487,6 @@ public:
 		const my::Vector3 & Position);
 
 	void DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color);
-
-	void BuildHierarchyBoneList(const int node_i, const my::Bone& parent);
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

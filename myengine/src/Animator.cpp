@@ -591,13 +591,13 @@ void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 	{
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
+			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0)));
 
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Quaternion::Identity(), Vector3(0, 0, 0));
+			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0)));
 	}
-	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
-	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0)));
+	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0)));
 }
 
 void Animator::RequestResource(void)
@@ -633,7 +633,7 @@ void Animator::Update(float fElapsedTime)
 		{
 			GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
 
-			BuildHierarchyBoneList(*root_iter, Bone(Vector3(0)));
+			UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0)));
 		}
 
 		DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();
@@ -678,6 +678,29 @@ my::BoneList & Animator::GetPose(my::BoneList & pose, int root_i, const my::Bone
 		m_Childs[0]->GetPose(pose, root_i, boneHierarchy);
 	}
 	return pose;
+}
+
+void Animator::UpdateHierarchyBoneList(const int node_i, const my::Bone& parent)
+{
+	const Bone& src = anim_pose[node_i];
+	Bone& dst = anim_pose_hier[node_i];
+	Actor::ActorList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
+	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
+	{
+		_ASSERT(physx::PxActorType::eRIGID_DYNAMIC == (*act_iter)->m_PxActor->getType());
+		dst.m_rotation = (*act_iter)->m_Rotation * m_Actor->m_Rotation.conjugate();
+		dst.m_position = (*act_iter)->m_Position.transformCoord(m_Actor->m_World.inverse());
+	}
+	else
+	{
+		dst = src.Transform(parent);
+	}
+
+	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
+	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
+	{
+		UpdateHierarchyBoneList(child_i, dst);
+	}
 }
 
 void Animator::AddSequenceGroup(const std::string & name, AnimationNodeSequence * sequence)
@@ -965,28 +988,5 @@ void Animator::DrawDebugBone(my::DrawHelper * helper, D3DCOLOR color)
 				}
 			}
 		}
-	}
-}
-
-void Animator::BuildHierarchyBoneList(const int node_i, const my::Bone& parent)
-{
-	const Bone& src = anim_pose[node_i];
-	Bone& dst = anim_pose_hier[node_i];
-	Actor::ActorList::iterator act_iter = boost::find_if(m_Actor->m_Attaches, boost::bind(std::equal_to<int>(), node_i, boost::bind(&Actor::m_BaseBoneId, boost::placeholders::_1)));
-	if (act_iter != m_Actor->m_Attaches.end() && (*act_iter)->m_PxActor && !(*act_iter)->GetRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC))
-	{
-		_ASSERT(physx::PxActorType::eRIGID_DYNAMIC == (*act_iter)->m_PxActor->getType());
-		dst.m_rotation = (*act_iter)->m_Rotation * m_Actor->m_Rotation.conjugate();
-		dst.m_position = (*act_iter)->m_Position.transformCoord(m_Actor->m_World.inverse());
-	}
-	else
-	{
-		dst = src.Transform(parent);
-	}
-
-	int child_i = m_Skeleton->m_boneHierarchy[node_i].m_child;
-	for (; child_i >= 0; child_i = m_Skeleton->m_boneHierarchy[child_i].m_sibling)
-	{
-		BuildHierarchyBoneList(child_i, dst);
 	}
 }
