@@ -344,7 +344,7 @@ public:
 
 	physx::PxD6Joint * AddD6Joint(Actor * actor0, const my::Bone & localFrame0, Actor * actor1, const my::Bone & localFrame1);
 
-	void CreateAggregate(void);
+	void CreateAggregate(bool enableSelfCollision);
 
 	boost::shared_ptr<ActionInst> PlayAction(Action * action, float Length);
 

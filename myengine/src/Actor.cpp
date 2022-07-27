@@ -609,7 +609,7 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 	{
 		if (!m_Base->m_Aggregate)
 		{
-			m_Base->CreateAggregate();
+			m_Base->CreateAggregate(true);
 		}
 
 		BOOST_VERIFY(m_Base->m_Aggregate->addActor(*m_PxActor));
@@ -738,7 +738,7 @@ void Actor::Attach(Actor * other, int BoneId)
 	{
 		if (!m_Aggregate)
 		{
-			CreateAggregate();
+			CreateAggregate(true);
 		}
 
 		if (other->IsRequested())
@@ -874,11 +874,11 @@ physx::PxD6Joint * Actor::AddD6Joint(Actor * actor0, const my::Bone & localFrame
 	return joint;
 }
 
-void Actor::CreateAggregate(void)
+void Actor::CreateAggregate(bool enableSelfCollision)
 {
 	_ASSERT(!m_Aggregate);
 
-	m_Aggregate.reset(PhysxSdk::getSingleton().m_sdk->createAggregate(64, false), PhysxDeleter<physx::PxBase>());
+	m_Aggregate.reset(PhysxSdk::getSingleton().m_sdk->createAggregate(64, enableSelfCollision), PhysxDeleter<physx::PxBase>());
 
 	if (IsRequested())
 	{
