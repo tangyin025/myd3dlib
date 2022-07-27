@@ -983,6 +983,11 @@ void CMainFrame::RemoveEntity(my::OctEntity * entity)
 {
 	Actor * actor = dynamic_cast<Actor *>(entity);
 
+	if (actor->IsRequested())
+	{
+		actor->ReleaseResource();
+	}
+
 	actor->StopAllAction();
 
 	actor->ClearAllAttach();
@@ -990,11 +995,6 @@ void CMainFrame::RemoveEntity(my::OctEntity * entity)
 	if (actor->m_Base)
 	{
 		actor->m_Base->Detach(actor);
-	}
-
-	if (actor->IsRequested())
-	{
-		actor->ReleaseResource();
 	}
 
 	if (actor->is_linked())
