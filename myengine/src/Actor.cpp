@@ -778,7 +778,6 @@ void Actor::Detach(Actor * other)
 				(*joint_iter)->getActors(actor0, actor1);
 				if (other->m_PxActor.get() == actor0 || other->m_PxActor.get() == actor1)
 				{
-					(*joint_iter)->setActors(NULL, NULL);
 					joint_iter = m_Joints.erase(joint_iter);
 				}
 				else
@@ -789,16 +788,30 @@ void Actor::Detach(Actor * other)
 
 			_ASSERT(m_Aggregate);
 
-			BOOST_VERIFY(m_Aggregate->removeActor(*other->m_PxActor));
+			BOOST_VERIFY(m_Aggregate->removeActor(*other->m_PxActor)); // ! the actor is reinserted in that scene
 
 			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 			if (other->IsRequested())
 			{
-				scene->m_PxScene->addActor(*other->m_PxActor);
+				if (IsRequested())
+				{
+					_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
+				}
+				else
+				{
+					scene->m_PxScene->addActor(*other->m_PxActor);
+				}
 			}
 			else
 			{
+				if (IsRequested())
+				{
+					_ASSERT(other->m_PxActor->getScene() == scene->m_PxScene.get());
+
+					scene->m_PxScene->removeActor(*other->m_PxActor);
+				}
+
 				scene->removeRenderActorsFromPhysicsActor(other->m_PxActor.get());
 			}
 		}
