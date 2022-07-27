@@ -167,10 +167,10 @@ public:
 		: public physx::PxLightCpuTask
 	{
 	public:
-		PhysxScene * m_PxScene;
+		PhysxScene * m_Scene;
 
 		StepperTask(PhysxScene * Scene)
-			: m_PxScene(Scene)
+			: m_Scene(Scene)
 		{
 		}
 
@@ -237,6 +237,10 @@ public:
 	void SetVisualizationParameter(physx::PxVisualizationParameter::Enum param, float value);
 
 	void SetControllerDebugRenderingFlags(physx::PxU32 flags);
+
+	void SetGravity(const my::Vector3 & vec);
+
+	my::Vector3 GetGravity(void) const;
 
 	void Shutdown(void);
 

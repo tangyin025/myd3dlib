@@ -1132,6 +1132,7 @@ HRESULT Client::OnCreateDevice(
 			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
 			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
 			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
+			.property("Gravity", &Client::GetGravity, &Client::SetGravity)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)

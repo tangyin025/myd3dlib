@@ -125,7 +125,7 @@ void PhysxSdk::reportError(physx::PxErrorCode::Enum code, const char* message, c
 
 void PhysxScene::StepperTask::run(void)
 {
-	m_PxScene->SubstepDone(this);
+	m_Scene->SubstepDone(this);
 	release();
 }
 
@@ -176,6 +176,16 @@ void PhysxScene::SetVisualizationParameter(physx::PxVisualizationParameter::Enum
 void PhysxScene::SetControllerDebugRenderingFlags(physx::PxU32 flags)
 {
 	m_ControllerMgr->setDebugRenderingFlags(physx::PxControllerDebugRenderFlags(flags));
+}
+
+void PhysxScene::SetGravity(const my::Vector3 & vec)
+{
+	m_PxScene->setGravity((physx::PxVec3&)vec);
+}
+
+my::Vector3 PhysxScene::GetGravity(void) const
+{
+	return (my::Vector3&)m_PxScene->getGravity();
 }
 
 void PhysxScene::Shutdown(void)

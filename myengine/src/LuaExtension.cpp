@@ -2699,8 +2699,8 @@ void LuaContext::Init(void)
 				value("eMBP_REGIONS", physx::PxVisualizationParameter::eMBP_REGIONS),
 				value("eNUM_VALUES", physx::PxVisualizationParameter::eNUM_VALUES)
 			]
-			.def("GetVisualizationParameter", &PhysxScene::GetVisualizationParameter)
-			.def("SetVisualizationParameter", &PhysxScene::SetVisualizationParameter)
+			//.def("GetVisualizationParameter", &PhysxScene::GetVisualizationParameter)
+			//.def("SetVisualizationParameter", &PhysxScene::SetVisualizationParameter)
 			.enum_("PxControllerDebugRenderFlag")
 			[
 				value("eTEMPORAL_BV", physx::PxControllerDebugRenderFlag::eTEMPORAL_BV),
@@ -2709,7 +2709,8 @@ void LuaContext::Init(void)
 				value("eNONE", physx::PxControllerDebugRenderFlag::eNONE),
 				value("eALL", physx::PxControllerDebugRenderFlag::eALL)
 			]
-			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
+			//.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
+			//.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)
