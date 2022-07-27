@@ -928,8 +928,8 @@ void Animator::UpdateIK(IKContext & ik)
 	{
 		float local_dist = hit.block.distance / m_Actor->m_Scale.x; // ! m_Actor must be orthogonal Scale
 		float new_theta[2] = {
-			acos(Vector3::Cosine(length[1], length[0], local_dist)),
-			acos(Vector3::Cosine(local_dist, length[1], length[0])) };
+			acos(my::Clamp(Vector3::Cosine(length[1], length[0], local_dist), -1.0f, 1.0f)),
+			acos(my::Clamp(Vector3::Cosine(local_dist, length[1], length[0]), -1.0f, 1.0f)) };
 		Quaternion rot[2] = {
 			Quaternion::RotationAxis(normal[2].cross(normal[0]), new_theta[0] - theta[0]),
 			Quaternion::RotationAxis(normal[1].cross(normal[0]), new_theta[1] - theta[1]) };
