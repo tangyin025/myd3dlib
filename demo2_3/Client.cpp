@@ -1801,15 +1801,6 @@ void Client::RemoveEntity(my::OctEntity * entity)
 		return;
 	}
 
-	actor->StopAllAction();
-
-	actor->ClearAllAttach();
-
-	if (actor->m_Base)
-	{
-		actor->m_Base->Detach(actor);
-	}
-
 	if (actor->IsRequested())
 	{
 		actor->ReleaseResource();
@@ -1819,6 +1810,15 @@ void Client::RemoveEntity(my::OctEntity * entity)
 		{
 			curr_iter->OnActorReleaseResource(actor);
 		}
+	}
+
+	actor->StopAllAction();
+
+	actor->ClearAllAttach();
+
+	if (actor->m_Base)
+	{
+		actor->m_Base->Detach(actor);
 	}
 
 	if (actor->is_linked())
