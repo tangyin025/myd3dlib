@@ -66,7 +66,7 @@ Actor::~Actor(void)
 
 	_ASSERT(!IsRequested());
 
-	_ASSERT(!m_PxActor || !m_PxActor->getScene());
+	_ASSERT(!m_PxActor || (!m_PxActor->getScene() && !m_PxActor->getAggregate()));
 }
 
 template<class Archive>
@@ -292,8 +292,6 @@ void Actor::RequestResource(void)
 
 void Actor::ReleaseResource(void)
 {
-	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
-
 	// ! Component::ReleaseResource may change other cmp's life time
 	ComponentPtrList dummy_cmps(m_Cmps.begin(), m_Cmps.end());
 	ComponentPtrList::iterator cmp_iter = dummy_cmps.begin();
@@ -311,6 +309,8 @@ void Actor::ReleaseResource(void)
 	m_Requested = false;
 
 	m_Lod = Component::LOD_INFINITE;
+
+	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
 	if (!m_Base && m_PxActor)
 	{
@@ -734,10 +734,6 @@ void Actor::Attach(Actor * other, int BoneId)
 
 	other->m_BaseBoneId = BoneId;
 
-	const my::Bone pose = Bone(other->m_Position, other->m_Rotation).TransformTranspose(GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity()));
-
-	other->SetPose(pose);
-
 	if (other->m_PxActor)
 	{
 		if (!m_Aggregate)
@@ -745,10 +741,21 @@ void Actor::Attach(Actor * other, int BoneId)
 			CreateAggregate();
 		}
 
+		if (other->IsRequested())
+		{
+			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
+
+			scene->m_PxScene->removeActor(*other->m_PxActor);
+		}
+
 		_ASSERT(!other->m_PxActor->getScene());
 
 		BOOST_VERIFY(m_Aggregate->addActor(*other->m_PxActor));
 	}
+
+	const my::Bone pose = Bone(other->m_Position, other->m_Rotation).TransformTranspose(GetAttachPose(BoneId, Vector3(0, 0, 0), Quaternion::Identity()));
+
+	other->SetPose(pose);
 }
 
 void Actor::Detach(Actor * other)
@@ -758,14 +765,18 @@ void Actor::Detach(Actor * other)
 	{
 		_ASSERT((*att_iter)->m_Base == this);
 
-		if ((*att_iter)->m_PxActor)
+		(*att_iter)->m_Base = NULL;
+
+		m_Attaches.erase(att_iter);
+
+		if (other->m_PxActor)
 		{
 			JointPtrList::iterator joint_iter = m_Joints.begin();
 			for (; joint_iter != m_Joints.end(); )
 			{
 				physx::PxRigidActor* actor0, * actor1;
 				(*joint_iter)->getActors(actor0, actor1);
-				if ((*att_iter)->m_PxActor.get() == actor0 || (*att_iter)->m_PxActor.get() == actor1)
+				if (other->m_PxActor.get() == actor0 || other->m_PxActor.get() == actor1)
 				{
 					(*joint_iter)->setActors(NULL, NULL);
 					joint_iter = m_Joints.erase(joint_iter);
@@ -778,16 +789,19 @@ void Actor::Detach(Actor * other)
 
 			_ASSERT(m_Aggregate);
 
-			BOOST_VERIFY(m_Aggregate->removeActor(*(*att_iter)->m_PxActor));
+			BOOST_VERIFY(m_Aggregate->removeActor(*other->m_PxActor));
 
 			PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
-			scene->removeRenderActorsFromPhysicsActor((*att_iter)->m_PxActor.get());
+			if (other->IsRequested())
+			{
+				scene->m_PxScene->addActor(*other->m_PxActor);
+			}
+			else
+			{
+				scene->removeRenderActorsFromPhysicsActor(other->m_PxActor.get());
+			}
 		}
-
-		(*att_iter)->m_Base = NULL;
-
-		m_Attaches.erase(att_iter);
 
 		const my::Bone pose = GetAttachPose(other->m_BaseBoneId, other->m_Position, other->m_Rotation);
 
