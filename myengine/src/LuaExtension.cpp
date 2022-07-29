@@ -1053,7 +1053,8 @@ void LuaContext::Init(void)
 				def("RotationMatrix", &my::Quaternion::RotationMatrix),
 				def("RotationYawPitchRoll", &my::Quaternion::RotationYawPitchRoll),
 				def("RotationFromTo", (my::Quaternion(*)(const my::Vector3 &, const my::Vector3 &, const my::Vector3 &))&my::Quaternion::RotationFromTo),
-				def("RotationFromTo", (my::Quaternion(*)(const my::Vector3 &, const my::Vector3 &))&my::Quaternion::RotationFromTo),
+				def("RotationFromTo", luabind::tag_function<my::Quaternion(const my::Vector3&, const my::Vector3&)>(
+					boost::bind(&my::Quaternion::RotationFromTo, boost::placeholders::_1, boost::placeholders::_2, boost::ref(my::Vector3::zero)))),
 				def("RotationEulerAngles", &my::Quaternion::RotationEulerAngles)
 			]
 

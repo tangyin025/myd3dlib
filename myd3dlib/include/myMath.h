@@ -1826,8 +1826,6 @@ namespace my
 
 		static Quaternion RotationFromTo(const Vector3 & from, const Vector3 & to, const Vector3 & _fallback_axis);
 
-		static Quaternion RotationFromTo(const Vector3 & from, const Vector3 & to);
-
 		Quaternion lerp(const Quaternion & rhs, float t) const
 		{
 			return Quaternion(
