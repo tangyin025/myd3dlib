@@ -846,7 +846,7 @@ my::Bone Actor::GetAttachPose(int BoneId, const my::Vector3 & LocalPosition, con
 		return my::Bone(LocalPosition, LocalRotation).Transform(parent);
 	}
 
-	return my::Bone(LocalPosition.transformCoord(m_World), LocalRotation * RootRotation);
+	return my::Bone(LocalPosition, LocalRotation).Transform(RootPosition, RootRotation);
 }
 
 void Actor::ClearAllAttach(void)

@@ -2856,7 +2856,7 @@ namespace my
 		{
 		}
 
-		Bone(const Vector3 & position)
+		explicit Bone(const Vector3 & position)
 			: m_rotation(Quaternion::Identity())
 			, m_position(position)
 		{
@@ -2890,26 +2890,37 @@ namespace my
 			return *this;
 		}
 
+		Bone Transform(const my::Vector3 & pos, const my::Quaternion & rot) const
+		{
+			return Bone(rot * m_position + pos, m_rotation * rot);
+		}
+
 		Bone Transform(const Bone & parent) const
 		{
-			return Bone(
-				parent.m_rotation * m_position + parent.m_position,
-				m_rotation * parent.m_rotation);
+			return Transform(parent.m_position, parent.m_rotation);
+		}
+
+		Bone & TransformSelf(const my::Vector3 & pos, const my::Quaternion & rot)
+		{
+			m_position = rot * m_position + pos;
+			m_rotation = m_rotation * rot;
+			return *this;
 		}
 
 		Bone & TransformSelf(const Bone & parent)
 		{
-			m_position = parent.m_rotation * m_position + parent.m_position;
-			m_rotation = m_rotation * parent.m_rotation;
-			return *this;
+			return TransformSelf(parent.m_position, parent.m_rotation);
+		}
+
+		Bone TransformTranspose(const my::Vector3 & pos, const my::Quaternion & rot) const
+		{
+			const Quaternion rot_con = rot.conjugate();
+			return Bone(rot_con * (m_position - pos), m_rotation * rot_con);
 		}
 
 		Bone TransformTranspose(const Bone & parent) const
 		{
-			const Quaternion parent_rot_con = parent.m_rotation.conjugate();
-			return Bone(
-				parent_rot_con * (m_position - parent.m_position),
-				m_rotation * parent_rot_con);
+			return TransformTranspose(parent.m_position, parent.m_rotation);
 		}
 
 		Matrix4 BuildTransform(void) const
