@@ -118,15 +118,18 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	struct Callback : public my::OctNode::QueryCallback
 	{
 		const Actor* self;
+		const Controller* self_controller;
 		Vector3 pos;
 		std::vector<Steering*> neighbors;
 		std::vector<Controller*> nei_controllers;
 		Navigation* navi;
-		Callback(const Actor* _self, const my::Vector3& _pos)
+		Callback(const Actor* _self, const Controller* _self_controller, const my::Vector3& _pos)
 			: self(_self)
+			, self_controller(_self_controller)
 			, pos(_pos)
 			, navi(NULL)
 		{
+			_ASSERT(!self->m_Base);
 		}
 
 		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
@@ -142,7 +145,8 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 
 				Steering* neighbor = actor->GetFirstComponent<Steering>();
 				Controller* nei_controller = actor->GetFirstComponent<Controller>();
-				if (neighbor && nei_controller && nei_controller->GetQueryFilterWord0() & ~0x03 && !actor->m_Base)
+				if (!actor->m_Base && neighbor && nei_controller
+					&& self_controller->GetQueryFilterWord0() & nei_controller->GetQueryFilterWord0())
 				{
 					neighbors.push_back(neighbor);
 					nei_controllers.push_back(nei_controller);
@@ -156,7 +160,7 @@ my::Vector3 Steering::SeekTarget(const my::Vector3& Target, float forceLength, f
 	OctNode* Root = m_Actor->m_Node->GetTopNode();
 	const Vector3 pos = controller->GetPosition();
 	const float collisionQueryRange = controller->GetRadius() * 12.0f;
-	Callback cb(m_Actor, pos);
+	Callback cb(m_Actor, controller, pos);
 	Root->QueryEntity(AABB(pos, collisionQueryRange), &cb);
 	if (!cb.navi)
 	{

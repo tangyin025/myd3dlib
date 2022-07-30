@@ -134,8 +134,9 @@ unsigned int Controller::Move(const my::Vector3 & disp, float minDist, float ela
 				{
 					Controller* controller0 = static_cast<Controller*>((Component*)a.getUserData());
 					Controller* controller1 = static_cast<Controller*>((Component*)b.getUserData());
-					if (controller0->GetQueryFilterWord0() & ~0x03 && !controller0->m_Actor->m_Base
-						&& controller1->GetQueryFilterWord0() & ~0x03 && !controller1->m_Actor->m_Base)
+					_ASSERT(!controller0->m_Actor->m_Base);
+					if (!controller1->m_Actor->m_Base
+						&& controller0->GetQueryFilterWord0() & controller1->GetQueryFilterWord0())
 					{
 						return true;
 					}
