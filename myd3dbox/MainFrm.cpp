@@ -1416,7 +1416,7 @@ void CMainFrame::OnComponentCloth()
 				ClothFabricPath += "_" + boost::lexical_cast<std::string>(std::distance(mesh->m_AttribTable.begin(), att_iter));
 			}
 			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, std::distance(mesh->m_AttribTable.begin(), att_iter));
+			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, std::distance(mesh->m_AttribTable.begin(), att_iter), GetGravity());
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();
@@ -1442,7 +1442,7 @@ void CMainFrame::OnComponentCloth()
 				ClothFabricPath += std::string("_") + attr_name->value();
 			}
 			ClothComponentPtr cloth_cmp(new ClothComponent(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_cloth").c_str()).c_str()));
-			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, 0);
+			cloth_cmp->CreateClothFromMesh(ClothFabricPath.c_str(), mesh, 0, GetGravity());
 			MaterialPtr mtl(new Material());
 			mtl->m_Shader = theApp.default_shader;
 			mtl->ParseShaderParameters();

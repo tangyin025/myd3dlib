@@ -591,13 +591,13 @@ void Animator::OnSkeletonReady(my::DeviceResourceBasePtr res)
 	for (; root_iter != m_Skeleton->m_boneRootSet.end(); root_iter++)
 	{
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0)));
+			bind_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
 
 		m_Skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0)));
+			anim_pose_hier, m_Skeleton->m_boneHierarchy, *root_iter, Bone(Vector3(0, 0, 0)));
 	}
-	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0)));
-	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0)));
+	anim_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
+	final_pose.resize(m_Skeleton->m_boneBindPose.size(), Bone(Vector3(0, 0, 0)));
 }
 
 void Animator::RequestResource(void)
@@ -633,7 +633,7 @@ void Animator::Update(float fElapsedTime)
 		{
 			GetPose(anim_pose, *root_iter, m_Skeleton->m_boneHierarchy);
 
-			UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0)));
+			UpdateHierarchyBoneList(*root_iter, Bone(Vector3(0, 0, 0)));
 		}
 
 		DynamicBoneContextMap::iterator db_iter = m_DynamicBones.begin();

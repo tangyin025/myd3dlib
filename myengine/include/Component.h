@@ -447,7 +447,7 @@ public:
 		return TypeID;
 	}
 
-	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId);
+	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId, const my::Vector3 & gravity);
 
 	virtual void RequestResource(void);
 

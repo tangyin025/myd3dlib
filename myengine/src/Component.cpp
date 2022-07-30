@@ -1106,12 +1106,12 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 
 	std::string ClothFabricPath;
 	ar >> boost::serialization::make_nvp("m_ClothFabricPath", ClothFabricPath);
-	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0);
+	CreateClothFromMesh(ClothFabricPath.c_str(), my::OgreMeshPtr(), 0, Vector3(0, 0, 0));
 
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
-void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId)
+void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId, const my::Vector3 & gravity)
 {
 	if (m_VertexData.empty())
 	{
@@ -1192,7 +1192,7 @@ void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreM
 		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 
 		physx::PxDefaultFileOutputStream writeBuffer(my::ResourceMgr::getSingleton().GetFullPath(ClothFabricPath).c_str());
-		physx::PxClothFabricCooker cooker(desc, (physx::PxVec3&)my::Vector3::Gravity, true);
+		physx::PxClothFabricCooker cooker(desc, (physx::PxVec3&)gravity, true);
 		cooker.save(writeBuffer, true);
 	}
 

@@ -641,7 +641,7 @@ void Actor::SetRigidBodyLinearVelocity(const my::Vector3& LinearVelocity)
 
 my::Vector3 Actor::GetRigidBodyLinearVelocity(void) const
 {
-	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getLinearVelocity() : Vector3(0);
+	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getLinearVelocity() : Vector3(0, 0, 0);
 }
 
 void Actor::InsertComponent(ComponentPtr cmp)
