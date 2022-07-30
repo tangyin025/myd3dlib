@@ -355,7 +355,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	if (!PhysxScene::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
+	if (!PhysxScene::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get(), physx::PxSceneFlags(theApp.default_physx_scene_flags)))
 		return -1;
 
 	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);

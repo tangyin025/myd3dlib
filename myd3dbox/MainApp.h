@@ -34,6 +34,7 @@ public:
 	// cfg
 	float default_fov;
 	float default_viewed_dist;
+	unsigned int default_physx_scene_flags;
 	int default_io_thread_num;
 	bool default_load_shader_cache;
 	std::string default_tool_scrpit_pattern;

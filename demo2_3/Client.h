@@ -183,6 +183,8 @@ public:
 
 	float m_InitFov;
 
+	unsigned int m_InitPhysxSceneFlags;
+
 	int m_InitIOThreadNum;
 
 	bool m_InitLoadShaderCache;
