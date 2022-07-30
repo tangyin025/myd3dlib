@@ -215,6 +215,7 @@ public:
 		KeyMouseY,
 		KeyJump,
 		KeyFire,
+		KeyCheck,
 		KeyLock,
 		KeyMenu,
 		KeyWeapon1,
