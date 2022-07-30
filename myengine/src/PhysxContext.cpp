@@ -134,12 +134,12 @@ const char * PhysxScene::StepperTask::getName(void) const
 	return "Stepper Task";
 }
 
-bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher, const physx::PxSceneFlags & flags)
+bool PhysxScene::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher, const physx::PxSceneFlags & flags, const my::Vector3 & gravity)
 {
 	_ASSERT(flags.isSet(physx::PxSceneFlag::eENABLE_PCM));
 
 	physx::PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = (physx::PxVec3&)Vector3::Gravity;
+	sceneDesc.gravity = (physx::PxVec3&)gravity;
 	sceneDesc.simulationEventCallback = this;
 	sceneDesc.contactModifyCallback = this;
 	sceneDesc.cpuDispatcher = dispatcher;

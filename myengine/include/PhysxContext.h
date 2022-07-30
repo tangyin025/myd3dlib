@@ -230,7 +230,7 @@ public:
 	{
 	}
 
-	bool Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher, const physx::PxSceneFlags & flags);
+	bool Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher, const physx::PxSceneFlags & flags, const my::Vector3 & gravity);
 
 	float GetVisualizationParameter(physx::PxVisualizationParameter::Enum paramEnum) const;
 

@@ -723,6 +723,32 @@ namespace boost
 	{
 		void validate(boost::any& v,
 			const std::vector<std::string>& values,
+			my::Vector3*, int)
+		{
+			static boost::regex r("([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+),([+-]?(\\d*[.])?\\d+)");
+
+			// Make sure no previous assignment to 'a' was made.
+			boost::program_options::validators::check_first_occurrence(v);
+			// Extract the first string from 'values'. If there is more than
+			// one string, it's an error, and exception will be thrown.
+			const std::string& s = boost::program_options::validators::get_single_string(values);
+
+			// Do regex match and convert the interesting part to
+			// int.
+			boost::smatch match;
+			if (boost::regex_match(s, match, r)) {
+				v = boost::any(my::Vector3(
+					boost::lexical_cast<float>(match[1]),
+					boost::lexical_cast<float>(match[3]),
+					boost::lexical_cast<float>(match[5])));
+			}
+			else {
+				throw boost::program_options::validation_error(boost::program_options::validation_error::invalid_option_value);
+			}
+		}
+
+		void validate(boost::any& v,
+			const std::vector<std::string>& values,
 			my::InputMgr::KeyPairList*, int)
 		{
 			//                      2                3                        4           5             6              7                      8             9                     10               11
@@ -813,6 +839,7 @@ Client::Client(void)
 		("physxframeinterval", boost::program_options::value(&PhysxScene::m_Timer.m_Interval)->default_value(1/60.0f), "Physx Frame Interval")
 		("fov", boost::program_options::value(&m_InitFov)->default_value(75.0f), "Fov")
 		("physxsceneflags", boost::program_options::value(&m_InitPhysxSceneFlags)->default_value(physx::PxSceneFlag::eENABLE_PCM | physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS), "Physx Scene Flags")
+		("physxscenegravity", boost::program_options::value(&m_InitPhysxSceneGravity)->default_value(Vector3::Gravity, ""), "Init Physx Scene Gravity")
 		("iothreadnum", boost::program_options::value(&m_InitIOThreadNum)->default_value(3), "IO Thread Number")
 		("loadshadercache", boost::program_options::value(&m_InitLoadShaderCache)->default_value(true), "Load Shader Cache")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
@@ -947,7 +974,7 @@ HRESULT Client::OnCreateDevice(
 		THROW_CUSEXCEPTION("PhysxSdk::Init failed");
 	}
 
-	if (!PhysxScene::Init(m_sdk.get(), m_CpuDispatcher.get(), physx::PxSceneFlags(m_InitPhysxSceneFlags)))
+	if (!PhysxScene::Init(m_sdk.get(), m_CpuDispatcher.get(), physx::PxSceneFlags(m_InitPhysxSceneFlags), m_InitPhysxSceneGravity))
 	{
 		THROW_CUSEXCEPTION("PhysxScene::Init failed");
 	}

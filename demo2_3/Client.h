@@ -185,6 +185,8 @@ public:
 
 	unsigned int m_InitPhysxSceneFlags;
 
+	my::Vector3 m_InitPhysxSceneGravity;
+
 	int m_InitIOThreadNum;
 
 	bool m_InitLoadShaderCache;
