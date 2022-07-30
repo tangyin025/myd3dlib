@@ -319,6 +319,9 @@ void Console::OnEventPageDown(my::EventArg * arg)
 
 void Console::OnEventLog(const char * str)
 {
+	// ! avoid call from ScriptComponent::OnPxThreadSubstep, see MessagePanel::_push_line, m_Font->CPtoX
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	std::wstring logs = ms2ws(str);
 	boost::trim_if(logs, boost::algorithm::is_any_of(L"\n\r"));
 	m_Panel->AddLine(logs);
