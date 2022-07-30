@@ -413,32 +413,28 @@ static bool client_file_exists(Client * self, const std::string & path)
 	return PathFileExists(u8tots(path).c_str());
 }
 
-template <typename T>
-static bool client_overlap_box(Client * self,
-	float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+static bool client_overlap_box(Client* self,
+	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
 {
 	physx::PxBoxGeometry box(hx, hy, hz);
 	return self->Overlap(box, Position, Rotation, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
-template <typename T>
-static bool client_overlap_sphere(Client * self,
-	float radius, const my::Vector3 & Position, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+static bool client_overlap_sphere(Client* self,
+	float radius, const my::Vector3& Position, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
 	return self->Overlap(sphere, Position, Quaternion::Identity(), filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
-template <typename T>
 static bool client_raycast(Client* self,
-	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const T & callback, unsigned int MaxNbTouches)
+	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
 {
 	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
-template <typename T>
-static bool client_sweep_sphere(Client * self,
-	float radius, const my::Vector3 & Position, const my::Vector3 & unitDir, float distance, unsigned int filterWord0, const T& callback, unsigned int MaxNbTouches)
+static bool client_sweep_sphere(Client* self,
+	float radius, const my::Vector3& Position, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
 {
 	physx::PxSphereGeometry sphere(radius);
 	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
@@ -1171,10 +1167,10 @@ HRESULT Client::OnCreateDevice(
 			.def("LoadPlayerData", &Client::LoadPlayerData)
 			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
 			.def("SavePlayerData", &Client::SavePlayerData)
-			.def("OverlapBox", &client_overlap_box<luabind::object>)
-			.def("OverlapSphere", &client_overlap_sphere<luabind::object>)
-			.def("Raycast", &client_raycast<luabind::object>)
-			.def("SweepSphere", &client_sweep_sphere<luabind::object>)
+			.def("OverlapBox", &client_overlap_box)
+			.def("OverlapSphere", &client_overlap_sphere)
+			.def("Raycast", &client_raycast)
+			.def("SweepSphere", &client_sweep_sphere)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
