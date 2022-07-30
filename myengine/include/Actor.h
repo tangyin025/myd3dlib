@@ -33,8 +33,11 @@ struct ActorEventArg : public my::EventArg
 public:
 	Actor* self;
 
-	ActorEventArg(Actor* _self)
+	Component* self_cmp;
+
+	ActorEventArg(Actor* _self, Component* _self_cmp)
 		: self(_self)
+		, self_cmp(_self_cmp)
 	{
 	}
 };
@@ -42,14 +45,12 @@ public:
 struct TriggerEventArg : public ActorEventArg
 {
 public:
-	Component* self_cmp;
 	Actor* other;
 	Component* other_cmp;
 	unsigned int events;
 
 	TriggerEventArg(Actor* _self, Component* _self_cmp, Actor* _other, Component* _other_cmp, unsigned int _events)
-		: ActorEventArg(_self)
-		, self_cmp(_self_cmp)
+		: ActorEventArg(_self, _self_cmp)
 		, other(_other)
 		, other_cmp(_other_cmp)
 		, events(_events)
@@ -78,7 +79,6 @@ public:
 struct ControllerEventArg : public ActorEventArg
 {
 public:
-	Component* self_cmp;
 	my::Vector3 worldPos;		//!< Contact position in world space
 	my::Vector3 worldNormal;	//!< Contact normal in world space
 	my::Vector3 dir;			//!< Motion direction
@@ -86,8 +86,7 @@ public:
 	unsigned int flag;
 
 	ControllerEventArg::ControllerEventArg(Actor* _self, Component* _self_cmp)
-		: ActorEventArg(_self)
-		, self_cmp(_self_cmp)
+		: ActorEventArg(_self, _self_cmp)
 		, worldPos(0, 0, 0)
 		, worldNormal(1, 0, 0)
 		, dir(1, 0, 0)

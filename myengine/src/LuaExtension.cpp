@@ -2410,9 +2410,9 @@ void LuaContext::Init(void)
 
 		, class_<ActorEventArg, my::EventArg>("ActorEventArg")
 			.def_readonly("self", &ActorEventArg::self)
+			.def_readonly("self_cmp", &ActorEventArg::self_cmp)
 
 		, class_<TriggerEventArg, ActorEventArg>("TriggerEventArg")
-			.def_readonly("self_cmp", &TriggerEventArg::self_cmp)
 			.def_readonly("other", &TriggerEventArg::other)
 			.def_readonly("other_cmp", &TriggerEventArg::other_cmp)
 			.def_readonly("events", &TriggerEventArg::events)
@@ -2424,7 +2424,6 @@ void LuaContext::Init(void)
 			.def_readonly("impulse", &ContactEventArg::impulse)
 
 		, class_<ControllerEventArg, ActorEventArg>("ControllerEventArg")
-			.def_readonly("self_cmp", &ControllerEventArg::self_cmp)
 			.def_readonly("worldPos", &ControllerEventArg::worldPos)
 			.def_readonly("worldNormal", &ControllerEventArg::worldNormal)
 			.def_readonly("dir", &ControllerEventArg::dir)
