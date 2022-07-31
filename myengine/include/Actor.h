@@ -313,11 +313,28 @@ public:
 
 	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;
 
-	void SetLinearVelocity(const my::Vector3 & LinearVelocity);
+	void SetMass(float mass);
+
+	float GetMass(void) const;
+
+	void SetCMassLocalPose(const my::Bone & pose);
+
+	my::Bone GetCMassLocalPose(void) const;
+
+	// ! ref: my::RigidBody::setInertialTensor, getInertialTensor
+	void SetMassSpaceInertiaTensor(const my::Vector3 & m);
+
+	my::Vector3 GetMassSpaceInertiaTensor(void);
+
+	void UpdateMassAndInertia(float density);
+
+	void SetLinearVelocity(const my::Vector3& LinearVelocity);
 
 	my::Vector3 GetLinearVelocity(void) const;
 
-	void UpdateMassAndInertia(float density);
+	void SetAngularVelocity(const my::Vector3 & angVel);
+
+	my::Vector3 GetAngularVelocity(void) const;
 
 	void InsertComponent(ComponentPtr cmp);
 

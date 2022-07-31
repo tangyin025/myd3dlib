@@ -627,6 +627,45 @@ bool Actor::GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const
 	return m_PxActor ? m_PxActor->is<physx::PxRigidBody>()->getRigidBodyFlags() & Flag : false;
 }
 
+void Actor::SetMass(float mass)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidBody>()->setMass(mass);
+}
+
+float Actor::GetMass(void) const
+{
+	return m_PxActor ? m_PxActor->is<physx::PxRigidBody>()->getMass() : 0.0f;
+}
+
+void Actor::SetCMassLocalPose(const my::Bone & pose)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidBody>()->setCMassLocalPose((physx::PxTransform&)pose);
+}
+
+my::Bone Actor::GetCMassLocalPose(void) const
+{
+	return m_PxActor ? (Bone&)m_PxActor->is<physx::PxRigidBody>()->getCMassLocalPose() : Bone(Vector3(0, 0, 0));
+}
+
+void Actor::SetMassSpaceInertiaTensor(const my::Vector3 & m)
+{
+	_ASSERT(m_PxActor);
+	m_PxActor->is<physx::PxRigidBody>()->setMassSpaceInertiaTensor((physx::PxVec3&)m);
+}
+
+my::Vector3 Actor::GetMassSpaceInertiaTensor(void)
+{
+	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getCMassLocalPose() : Vector3(0, 0, 0);
+}
+
+void Actor::UpdateMassAndInertia(float density)
+{
+	_ASSERT(m_PxActor);
+	physx::PxRigidBodyExt::updateMassAndInertia(*m_PxActor->is<physx::PxRigidBody>(), density);
+}
+
 void Actor::SetLinearVelocity(const my::Vector3& LinearVelocity)
 {
 	_ASSERT(m_PxActor);
@@ -638,10 +677,15 @@ my::Vector3 Actor::GetLinearVelocity(void) const
 	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getLinearVelocity() : Vector3(0, 0, 0);
 }
 
-void Actor::UpdateMassAndInertia(float density)
+void Actor::SetAngularVelocity(const my::Vector3 & angVel)
 {
 	_ASSERT(m_PxActor);
-	physx::PxRigidBodyExt::updateMassAndInertia(*m_PxActor->is<physx::PxRigidBody>(), density);
+	m_PxActor->is<physx::PxRigidBody>()->setAngularVelocity((physx::PxVec3&)angVel);
+}
+
+my::Vector3 Actor::GetAngularVelocity(void) const
+{
+	return m_PxActor ? (Vector3&)m_PxActor->is<physx::PxRigidBody>()->getAngularVelocity() : Vector3(0, 0, 0);
 }
 
 void Actor::InsertComponent(ComponentPtr cmp)
