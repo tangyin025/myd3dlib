@@ -309,15 +309,15 @@ public:
 
 	void CreateRigidActor(physx::PxActorType::Enum ActorType);
 
-	void UpdateMassAndInertia(float density);
-
 	void SetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag, bool Value);
 
 	bool GetRigidBodyFlag(physx::PxRigidBodyFlag::Enum Flag) const;
 
-	void SetRigidBodyLinearVelocity(const my::Vector3 & LinearVelocity);
+	void SetLinearVelocity(const my::Vector3 & LinearVelocity);
 
-	my::Vector3 GetRigidBodyLinearVelocity(void) const;
+	my::Vector3 GetLinearVelocity(void) const;
+
+	void UpdateMassAndInertia(float density);
 
 	void InsertComponent(ComponentPtr cmp);
 

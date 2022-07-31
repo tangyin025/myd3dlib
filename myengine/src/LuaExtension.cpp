@@ -2472,7 +2472,6 @@ void LuaContext::Init(void)
 				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC)
 			]
 			.def("CreateRigidActor", &Actor::CreateRigidActor)
-			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.enum_("RigidBodyFlag")
 			[
 				value("eKINEMATIC", physx::PxRigidBodyFlag::eKINEMATIC),
@@ -2482,7 +2481,8 @@ void LuaContext::Init(void)
 			]
 			.def("SetRigidBodyFlag", &Actor::SetRigidBodyFlag)
 			.def("GetRigidBodyFlag", &Actor::GetRigidBodyFlag)
-			.property("RigidBodyLinearVelocity", &Actor::GetRigidBodyLinearVelocity, &Actor::SetRigidBodyLinearVelocity)
+			.property("LinearVelocity", &Actor::GetLinearVelocity, &Actor::SetLinearVelocity)
+			.def("UpdateMassAndInertia", &Actor::UpdateMassAndInertia)
 			.def("InsertComponent", (void (Actor::*)(ComponentPtr))& Actor::InsertComponent)
 			.def("InsertComponent", (void (Actor::*)(unsigned int i, ComponentPtr))& Actor::InsertComponent)
 			.def("InsertComponentAdopt", (void(*)(Actor*, ScriptComponent*))& actor_insert_component_adopt, adopt(boost::placeholders::_2))
