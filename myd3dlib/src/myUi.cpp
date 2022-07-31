@@ -4389,7 +4389,8 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				Control::SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
 			}
 
-			if ((uMsg == WM_LBUTTONDOWN || uMsg == WM_MBUTTONDOWN || uMsg == WM_RBUTTONDOWN || uMsg == WM_XBUTTONDOWN) && !bFindMouseOver && Control::s_FocusControl)
+			// ! WM_RBUTTONDOWN + Mouse::Unacquire may cause Visual Studio IDE input issue
+			if ((uMsg == WM_LBUTTONDOWN || uMsg == WM_MBUTTONDOWN /*|| uMsg == WM_RBUTTONDOWN */|| uMsg == WM_XBUTTONDOWN) && !bFindMouseOver && Control::s_FocusControl)
 			{
 				Control::SetFocusControl(NULL);
 			}
