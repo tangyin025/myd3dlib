@@ -734,6 +734,33 @@ typedef boost::shared_container_iterator<cmp_list> shared_cmp_list_iter;
 
 extern boost::iterator_range<shared_cmp_list_iter> controller_get_geom_stream(const Controller* self);
 
+static bool physxscene_overlap_box(PhysxScene* self,
+	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+{
+	physx::PxBoxGeometry box(hx, hy, hz);
+	return self->Overlap(box, Position, Rotation, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+}
+
+static bool physxscene_overlap_sphere(PhysxScene* self,
+	float radius, const my::Vector3& Position, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+{
+	physx::PxSphereGeometry sphere(radius);
+	return self->Overlap(sphere, Position, my::Quaternion::Identity(), filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+}
+
+static bool physxscene_raycast(PhysxScene* self,
+	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+{
+	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+}
+
+static bool physxscene_sweep_sphere(PhysxScene* self,
+	float radius, const my::Vector3& Position, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
+{
+	physx::PxSphereGeometry sphere(radius);
+	return self->Sweep(sphere, Position, my::Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
+}
+
 static void sqlcontext_exec(SqlConnection* self, const char* sql) {
 	self->Exec(sql, NULL, NULL);
 }
@@ -2054,9 +2081,6 @@ void LuaContext::Init(void)
 			.def("IsButtonRelease", &my::Joystick::IsButtonRelease)
 
 		, class_<my::InputMgr>("InputMgr")
-			.def_readonly("keyboard", &my::InputMgr::m_keyboard)
-			.def_readonly("mouse", &my::InputMgr::m_mouse)
-			.def_readonly("joystick", &my::InputMgr::m_joystick)
 			.enum_("Type")
 			[
 				value("KeyboardButton", my::InputMgr::KeyboardButton),
@@ -2069,13 +2093,6 @@ void LuaContext::Init(void)
 				value("JoystickNegativePov", my::InputMgr::JoystickNegativePov),
 				value("JoystickButton", my::InputMgr::JoystickButton)
 			]
-			.def("BindKey", &my::InputMgr::BindKey)
-			.def("UnbindKey", &my::InputMgr::UnbindKey)
-			.def("GetKeyAxisRaw", &my::InputMgr::GetKeyAxisRaw)
-			.def("IsKeyDown", &my::InputMgr::IsKeyDown)
-			.def("IsKeyPressRaw", &my::InputMgr::IsKeyPressRaw)
-			.def("IsKeyPress", &my::InputMgr::IsKeyPress)
-			.def("IsKeyRelease", &my::InputMgr::IsKeyRelease)
 
 		, class_<my::SoundBuffer, boost::shared_ptr<my::SoundBuffer> >("SoundBuffer")
 			.def("Play", &my::SoundBuffer::Play)
@@ -2707,8 +2724,8 @@ void LuaContext::Init(void)
 				value("eMBP_REGIONS", physx::PxVisualizationParameter::eMBP_REGIONS),
 				value("eNUM_VALUES", physx::PxVisualizationParameter::eNUM_VALUES)
 			]
-			//.def("GetVisualizationParameter", &PhysxScene::GetVisualizationParameter)
-			//.def("SetVisualizationParameter", &PhysxScene::SetVisualizationParameter)
+			.def("GetVisualizationParameter", &PhysxScene::GetVisualizationParameter)
+			.def("SetVisualizationParameter", &PhysxScene::SetVisualizationParameter)
 			.enum_("PxControllerDebugRenderFlag")
 			[
 				value("eTEMPORAL_BV", physx::PxControllerDebugRenderFlag::eTEMPORAL_BV),
@@ -2717,8 +2734,12 @@ void LuaContext::Init(void)
 				value("eNONE", physx::PxControllerDebugRenderFlag::eNONE),
 				value("eALL", physx::PxControllerDebugRenderFlag::eALL)
 			]
-			//.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
-			//.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
+			.def("SetControllerDebugRenderingFlags", &PhysxScene::SetControllerDebugRenderingFlags)
+			.property("Gravity", &PhysxScene::GetGravity, &PhysxScene::SetGravity)
+			.def("OverlapBox", &physxscene_overlap_box)
+			.def("OverlapSphere", &physxscene_overlap_sphere)
+			.def("Raycast", &physxscene_raycast)
+			.def("SweepSphere", &physxscene_sweep_sphere)
 
 		, class_<SoundEvent, boost::shared_ptr<SoundEvent> >("SoundEvent")
 			.def_readonly("sbuffer", &SoundEvent::m_sbuffer)

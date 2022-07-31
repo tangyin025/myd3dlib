@@ -413,33 +413,6 @@ static bool client_file_exists(Client * self, const std::string & path)
 	return PathFileExists(u8tots(path).c_str());
 }
 
-static bool client_overlap_box(Client* self,
-	float hx, float hy, float hz, const my::Vector3& Position, const my::Quaternion& Rotation, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
-{
-	physx::PxBoxGeometry box(hx, hy, hz);
-	return self->Overlap(box, Position, Rotation, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
-}
-
-static bool client_overlap_sphere(Client* self,
-	float radius, const my::Vector3& Position, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
-{
-	physx::PxSphereGeometry sphere(radius);
-	return self->Overlap(sphere, Position, Quaternion::Identity(), filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
-}
-
-static bool client_raycast(Client* self,
-	const my::Vector3& origin, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
-{
-	return self->Raycast(origin, unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
-}
-
-static bool client_sweep_sphere(Client* self,
-	float radius, const my::Vector3& Position, const my::Vector3& unitDir, float distance, unsigned int filterWord0, const luabind::object& callback, unsigned int MaxNbTouches)
-{
-	physx::PxSphereGeometry sphere(radius);
-	return self->Sweep(sphere, Position, Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
-}
-
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
 	: IORequest(Priority)
 	, m_path(path)
@@ -1087,7 +1060,7 @@ HRESULT Client::OnCreateDevice(
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
 
-		, luabind::class_<Client, luabind::bases<my::DxutApp, my::InputMgr, my::ResourceMgr, my::DrawHelper> >("Client")
+		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, my::DrawHelper, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
 			.def_readwrite("Camera", &Client::m_Camera)
 			.def_readonly("SkyLightCam", &Client::m_SkyLightCam)
@@ -1136,6 +1109,16 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("KeyWeapon4", Client::KeyWeapon4),
 				luabind::value("KeyCount", Client::KeyCount)
 			]
+			.def_readonly("keyboard", &Client::m_keyboard)
+			.def_readonly("mouse", &Client::m_mouse)
+			.def_readonly("joystick", &Client::m_joystick)
+			.def("BindKey", &Client::BindKey)
+			.def("UnbindKey", &Client::UnbindKey)
+			.def("GetKeyAxisRaw", &Client::GetKeyAxisRaw)
+			.def("IsKeyDown", &Client::IsKeyDown)
+			.def("IsKeyPressRaw", &Client::IsKeyPressRaw)
+			.def("IsKeyPress", &Client::IsKeyPress)
+			.def("IsKeyRelease", &Client::IsKeyRelease)
 			.property("DlgViewport", &Client::GetDlgViewport, &Client::SetDlgViewport)
 			.def("InsertDlg", &Client::InsertDlg)
 			.def("RemoveDlg", &Client::RemoveDlg)
@@ -1155,10 +1138,6 @@ HRESULT Client::OnCreateDevice(
 			//.def("OnControlSound", &Client::OnControlSound)
 			.def("GetTranslation", &Client::OnControlTranslate)
 			.def("SetTranslation", &Client::SetTranslation)
-			.def("GetVisualizationParameter", &Client::GetVisualizationParameter)
-			.def("SetVisualizationParameter", &Client::SetVisualizationParameter)
-			.def("SetControllerDebugRenderingFlags", &Client::SetControllerDebugRenderingFlags)
-			.property("Gravity", &Client::GetGravity, &Client::SetGravity)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool)) & Client::Play)
 			.def("Play", (SoundEventPtr(SoundContext::*)(my::WavPtr, bool, const my::Vector3&, const my::Vector3&, float, float)) & Client::Play)
 			.def("LoadSceneAsync", &Client::LoadSceneAsync<luabind::object>)
@@ -1167,10 +1146,6 @@ HRESULT Client::OnCreateDevice(
 			.def("LoadPlayerData", &Client::LoadPlayerData)
 			.def("SavePlayerDataAsync", &Client::SavePlayerDataAsync<luabind::object>)
 			.def("SavePlayerData", &Client::SavePlayerData)
-			.def("OverlapBox", &client_overlap_box)
-			.def("OverlapSphere", &client_overlap_sphere)
-			.def("Raycast", &client_raycast)
-			.def("SweepSphere", &client_sweep_sphere)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
 	];
