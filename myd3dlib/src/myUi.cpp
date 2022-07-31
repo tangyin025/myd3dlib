@@ -4389,7 +4389,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				Control::SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
 			}
 
-			if (uMsg != WM_MOUSEMOVE && uMsg != WM_MOUSEWHEEL && dlg_iter == m_DlgList.rend() && Control::s_FocusControl)
+			if ((uMsg == WM_LBUTTONDOWN || uMsg == WM_MBUTTONDOWN || uMsg == WM_RBUTTONDOWN || uMsg == WM_XBUTTONDOWN) && !bFindMouseOver && Control::s_FocusControl)
 			{
 				Control::SetFocusControl(NULL);
 			}
