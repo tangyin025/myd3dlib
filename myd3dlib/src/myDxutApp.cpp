@@ -293,7 +293,7 @@ int DxutApp::Run(void)
 	CRect desktopRect;
 	GetClientRect(GetDesktopWindow(), &desktopRect);
 	CRect clientRect(0, 0, m_WindowBackBufferWidthAtModeChange, m_WindowBackBufferHeightAtModeChange);
-	AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
+	AdjustWindowRect(&clientRect, DxutWindow::GetWndStyle(0), FALSE);
 	clientRect.MoveToXY((desktopRect.Width() - clientRect.Width()) / 2, (desktopRect.Height() - clientRect.Height()) / 2);
 	m_wnd->Create(NULL, clientRect, GetModuleFileName().c_str());
 

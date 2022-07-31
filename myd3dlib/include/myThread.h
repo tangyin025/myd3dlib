@@ -191,7 +191,7 @@ namespace my
 	typedef boost::shared_ptr<Thread> ThreadPtr;
 
 	class Window
-		: public CWindowImpl<Window, CWindow, CWinTraits<WS_OVERLAPPEDWINDOW, 0> >
+		: public CWindowImpl<Window, CWindow, CWinTraits<WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX, 0> >
 	{
 	public:
 		static std::string GetWindowMessageStr(UINT message);
