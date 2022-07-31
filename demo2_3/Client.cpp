@@ -1034,7 +1034,10 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_WEAPON2", 5),
 				luabind::value("ATTR_ITEM_NUM", 6),
 				luabind::value("ATTR_QUEST_NUM", 7),
-				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs))
+				luabind::value("ATTR_ITEM_MAX_NUM", 8),
+				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
+				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items)),
+				luabind::value("MAX_QUEST_NUM", _countof(PlayerData::quests))
 			]
 			.def_readwrite("logintime", &PlayerData::logintime)
 			.def_readwrite("gametime", &PlayerData::gametime)
