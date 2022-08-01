@@ -1478,6 +1478,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	CStaticEmitterDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_static_emit").c_str()).c_str());
 	dlg.m_BoundingBox = (*actor_iter)->m_aabb;
 	dlg.m_ChunkWidth = theApp.default_emitter_chunk_width / (*actor_iter)->m_Scale.x;
+	dlg.m_ChunkLodScale = 1 / (*actor_iter)->m_Scale.x;
 	if (dlg.DoModal() != IDOK)
 	{
 		return;
@@ -1556,7 +1557,8 @@ void CMainFrame::OnComponentTerrain()
 	}
 
 	CTerrainDlg dlg(my::NamedObject::MakeUniqueName((std::string((*actor_iter)->GetName()) + "_terrain").c_str()).c_str());
-	dlg.m_ChunkLodScale = (dlg.m_ActorScale = (*actor_iter)->m_Scale).x;
+	dlg.m_ActorScale = (*actor_iter)->m_Scale;
+	dlg.m_ChunkLodScale = 1 / (*actor_iter)->m_Scale.x;
 	if (dlg.DoModal() != IDOK)
 	{
 		return;

@@ -9,6 +9,7 @@
 #include "Component.h"
 #include "Material.h"
 #include "PropertiesWnd.h"
+#include <boost/lexical_cast.hpp>
 
 // CTerrainDlg dialog
 
@@ -22,8 +23,8 @@ CTerrainDlg::CTerrainDlg(const char * TerrainComponentName, CWnd* pParent /*=NUL
 	, m_ChunkSize(64)
 	, m_AlignToCenter(TRUE)
 	, m_MinChunkLodSize(2)
-	, m_ActorScale(0)
-	, m_ChunkLodScale(0)
+	, m_ActorScale(1.0f)
+	, m_ChunkLodScale(1.0f)
 {
 	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_terrain_name).c_str());
 }
@@ -163,5 +164,6 @@ void CTerrainDlg::OnChangeEdit6()
 	GetDlgItemText(IDC_EDIT6, strText);
 	SetDlgItemText(IDC_EDIT7, strText);
 	SetDlgItemText(IDC_EDIT8, strText);
-	SetDlgItemText(IDC_EDIT9, strText);
+	float scale = boost::lexical_cast<float>((LPCTSTR)strText);
+	SetDlgItemText(IDC_EDIT9, boost::lexical_cast<std::basic_string<TCHAR> >(1 / scale).c_str());
 }

@@ -15,7 +15,8 @@ IMPLEMENT_DYNAMIC(CStaticEmitterDlg, CDialogEx)
 CStaticEmitterDlg::CStaticEmitterDlg(const char* StaticEmitterName, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG5, pParent)
 	, m_emit_cmp_name(StaticEmitterName)
-	, m_ChunkWidth(theApp.default_emitter_chunk_width)
+	, m_ChunkWidth(4.0f)
+	, m_ChunkLodScale(1.0f)
 {
 	m_AssetPath.Format(_T("terrain/%s"), ms2ts(m_emit_cmp_name).c_str());
 }
@@ -36,6 +37,8 @@ void CStaticEmitterDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT7, m_BoundingBox.m_max.z);
 	DDX_Text(pDX, IDC_EDIT8, m_ChunkWidth);
 	DDV_MinMaxFloat(pDX, m_ChunkWidth, EPSILON_E3, 1024);
+	DDX_Text(pDX, IDC_EDIT9, m_ChunkLodScale);
+	DDV_MinMaxFloat(pDX, m_ChunkLodScale, EPSILON_E6, FLT_MAX);
 }
 
 
@@ -95,6 +98,8 @@ void CStaticEmitterDlg::OnOK()
 
 	m_emit_cmp.reset(new StaticEmitter(m_emit_cmp_name.c_str(), m_BoundingBox, m_ChunkWidth,
 		EmitterComponent::FaceTypeCamera, EmitterComponent::SpaceTypeLocal, EmitterComponent::VelocityTypeNone, EmitterComponent::PrimitiveTypeQuad));
+
+	m_emit_cmp->m_ChunkLodScale = m_ChunkLodScale;
 
 	m_emit_cmp->m_ChunkPath = ts2ms((LPCTSTR)m_AssetPath);
 

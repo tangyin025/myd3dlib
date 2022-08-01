@@ -32,4 +32,5 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	afx_msg void OnChangeEdit1();
+	float m_ChunkLodScale;
 };
