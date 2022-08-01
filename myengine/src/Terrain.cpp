@@ -267,8 +267,8 @@ Terrain::~Terrain(void)
 
 int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos) const
 {
-	return Min(m_Actor->CalculateLod2D(
-		my::Vector3((j + 0.5f) * m_ChunkSize, 0, (i + 0.5f) * m_ChunkSize), LocalViewPos, m_ChunkLodScale / m_Actor->m_Scale.x), _Quad(m_ChunkSize, m_MinChunkLodSize));
+	return Min(_Quad(m_ChunkSize, m_MinChunkLodSize), m_Actor->CalculateLod(
+		my::Vector3((j + 0.5f) * m_ChunkSize - LocalViewPos.x, 0, (i + 0.5f) * m_ChunkSize - LocalViewPos.z).magnitude2D() / m_ChunkLodScale));
 }
 
 void Terrain::CreateElements(void)
@@ -775,11 +775,11 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 		{
 			int LastLod = _Quad(m_ChunkSize, m_MinChunkLodSize);
-			const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale / m_Actor->m_Scale.x, 2.0);
+			const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
 			ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 			for (; chunk_iter != m_ViewedChunks.end(); )
 			{
-				if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDistSq)
+				if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDist * LocalCullingDist)
 				{
 					chunk_iter->ReleaseResource();
 

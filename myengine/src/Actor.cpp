@@ -475,26 +475,16 @@ void Actor::UpdateOctNode(void)
 	Root->OctNode::AddEntity(this, m_aabb.transform(m_World), MinBlock, Threshold);
 }
 
-int Actor::CalculateLod(float DistanceSq, float Scale) const
+int Actor::CalculateLod(float dist) const
 {
-	return DistanceSq > 0 ? Max((int)(logf(sqrt(DistanceSq) / (m_LodDist * Scale)) / logf(m_LodFactor)), 0) : 0;
-}
-
-int Actor::CalculateLod(const my::Vector3 & Center, const my::Vector3 & ViewPos, float Scale) const
-{
-	return CalculateLod((Center - ViewPos).magnitudeSq(), Scale);
-}
-
-int Actor::CalculateLod2D(const my::Vector3 & Center, const my::Vector3 & ViewPos, float Scale) const
-{
-	return CalculateLod((Center - ViewPos).magnitudeSq2D(), Scale);
+	return dist > 0 ? Max((int)(logf(dist / m_LodDist) / logf(m_LodFactor)), 0) : 0;
 }
 
 void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
 	_ASSERT(IsRequested());
 
-	int Lod = Min(CalculateLod(m_OctAabb->Center(), ViewPos, 1.0f), Component::LOD_INFINITE - 1);
+	int Lod = Min(CalculateLod((m_OctAabb->Center() - ViewPos).magnitude()), Component::LOD_INFINITE - 1);
 	if (m_Lod != Lod)
 	{
 		m_Lod = Lod;

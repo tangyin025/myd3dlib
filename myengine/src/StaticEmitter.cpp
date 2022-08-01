@@ -229,7 +229,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 			StaticEmitterChunk* chunk = dynamic_cast<StaticEmitterChunk*>(oct_entity);
 			if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 			{
-				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod(chunk->m_OctAabb->Center(), LocalViewPos, emit_cmp->m_ChunkLodScale / emit_cmp->m_Actor->m_Scale.x);
+				chunk->m_Lod = emit_cmp->m_Actor->CalculateLod((chunk->m_OctAabb->Center() - LocalViewPos).magnitude() / emit_cmp->m_ChunkLodScale);
 			}
 
 			if (chunk->m_Lod >= LastLod)
@@ -280,11 +280,11 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 
 	if (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal))
 	{
-		const float LocalCullingDistSq = powf(m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale / m_Actor->m_Scale.x, 2.0);
+		const float LocalCullingDist = m_Actor->m_LodDist * powf(m_Actor->m_LodFactor, LastLod) * m_ChunkLodScale;
 		ChunkSet::iterator chunk_iter = cb.insert_chunk_iter;
 		for (; chunk_iter != m_ViewedChunks.end(); )
 		{
-			if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDistSq)
+			if ((chunk_iter->m_OctAabb->Center() - LocalViewPos).magnitudeSq() > LocalCullingDist * LocalCullingDist)
 			{
 				chunk_iter->ReleaseResource();
 
