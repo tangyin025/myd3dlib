@@ -876,7 +876,7 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 
 	m_PxGeometryType = physx::PxGeometryType::eHEIGHTFIELD;
 
-	if (m_Actor && m_Actor->IsRequested())
+	if (m_Actor && m_Actor->m_PxActor)
 	{
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 	}

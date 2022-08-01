@@ -582,6 +582,8 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 {
 	_ASSERT(!m_PxActor);
 
+	_ASSERT(m_Cmps.end() == boost::find_if(m_Cmps, boost::bind(&Component::m_PxShape, boost::bind(&ComponentPtr::operator->, boost::placeholders::_1))));
+
 	switch (ActorType)
 	{
 	case physx::PxActorType::eRIGID_STATIC:

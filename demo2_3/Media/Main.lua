@@ -60,8 +60,7 @@ actor5:CreateRigidActor(Actor.eRIGID_STATIC)
 cmp5:CreateBoxShape(Vector3(0,0,0),Quaternion(0,0,0,1),1,1,1)
 cmp5.SimulationFilterWord0=2
 cmp5.QueryFilterWord0=2
-cmp5:SetShapeFlag(Component.eSIMULATION_SHAPE,false)
-cmp5:SetShapeFlag(Component.eTRIGGER_SHAPE,true)
+cmp5.ShapeFlags=bit.bor(Component.eSCENE_QUERY_SHAPE,Component.eTRIGGER_SHAPE,Component.eVISUALIZATION)
 
 -- 加载场景资源
 scene01=nil

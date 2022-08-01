@@ -307,7 +307,7 @@ void Component::CreateBoxShape(const my::Vector3 & pos, const my::Quaternion & r
 
 	m_PxGeometryType = physx::PxGeometryType::eBOX;
 
-	if (m_Actor && m_Actor->IsRequested())
+	if (m_Actor && m_Actor->m_PxActor)
 	{
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 	}
@@ -328,7 +328,7 @@ void Component::CreateCapsuleShape(const my::Vector3 & pos, const my::Quaternion
 
 	m_PxGeometryType = physx::PxGeometryType::eCAPSULE;
 
-	if (m_Actor && m_Actor->IsRequested())
+	if (m_Actor && m_Actor->m_PxActor)
 	{
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 	}
@@ -349,7 +349,7 @@ void Component::CreatePlaneShape(const my::Vector3 & pos, const my::Quaternion &
 
 	m_PxGeometryType = physx::PxGeometryType::ePLANE;
 
-	if (m_Actor && m_Actor->IsRequested())
+	if (m_Actor && m_Actor->m_PxActor)
 	{
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 	}
@@ -370,7 +370,7 @@ void Component::CreateSphereShape(const my::Vector3 & pos, const my::Quaternion 
 
 	m_PxGeometryType = physx::PxGeometryType::eSPHERE;
 
-	if (m_Actor && m_Actor->IsRequested())
+	if (m_Actor && m_Actor->m_PxActor)
 	{
 		m_Actor->m_PxActor->attachShape(*m_PxShape);
 	}
@@ -672,7 +672,7 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 		m_PxShape->userData = this;
 		SetSimulationFilterWord0(m_DescSimulationFilterWord0);
 		SetQueryFilterWord0(m_DescQueryFilterWord0);
-		if (m_Actor->m_PxActor)
+		if (m_Actor && m_Actor->m_PxActor)
 		{
 			m_Actor->m_PxActor->attachShape(*m_PxShape);
 		}
@@ -686,7 +686,7 @@ void MeshComponent::OnPxMeshReady(my::DeviceResourceBasePtr res, physx::PxGeomet
 		m_PxShape->userData = this;
 		SetSimulationFilterWord0(m_DescSimulationFilterWord0);
 		SetQueryFilterWord0(m_DescQueryFilterWord0);
-		if (m_Actor->m_PxActor)
+		if (m_Actor && m_Actor->m_PxActor)
 		{
 			m_Actor->m_PxActor->attachShape(*m_PxShape);
 		}
