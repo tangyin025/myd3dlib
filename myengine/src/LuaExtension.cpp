@@ -367,6 +367,9 @@ struct ScriptComponent : Component, luabind::wrap_base
 	virtual ~ScriptComponent(void)
 	{
 		_ASSERT(!IsRequested());
+
+		_ASSERT(my::DialogMgr::getSingleton().m_UIPassObjs.end() == std::find(my::DialogMgr::getSingleton().m_UIPassObjs.begin(), my::DialogMgr::getSingleton().m_UIPassObjs.end(),
+			boost::bind(&Component::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3)));
 	}
 
 	virtual DWORD GetComponentType(void) const

@@ -126,6 +126,10 @@ public:
 	{
 	}
 
+	virtual ~StateBase(void)
+	{
+	}
+
 	virtual void OnAdd(void)
 	{
 	}
@@ -138,7 +142,7 @@ public:
 	{
 	}
 
-	virtual void OnTick(float fElapsedTime)
+	virtual void OnUpdate(float fElapsedTime)
 	{
 	}
 
@@ -151,6 +155,10 @@ public:
 	}
 
 	virtual void OnActorReleaseResource(Actor * actor)
+	{
+	}
+
+	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
 	{
 	}
 };

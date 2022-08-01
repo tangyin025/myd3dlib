@@ -564,6 +564,8 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 
 	virtual ~ScriptStateBase(void)
 	{
+		_ASSERT(my::DialogMgr::getSingleton().m_UIPassObjs.end() == std::find(my::DialogMgr::getSingleton().m_UIPassObjs.begin(), my::DialogMgr::getSingleton().m_UIPassObjs.end(),
+			boost::bind(&ScriptStateBase::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3)));
 	}
 
 	virtual void OnAdd(void)
@@ -617,11 +619,13 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		ptr->StateBase::OnExit();
 	}
 
-	virtual void OnTick(float fElapsedTime)
+	virtual void OnUpdate(float fElapsedTime)
 	{
+		my::DialogMgr::getSingleton().m_UIPassObjs.push_back(boost::bind(&ScriptStateBase::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
+
 		try
 		{
-			luabind::wrap_base::call<void>("OnTick", fElapsedTime);
+			luabind::wrap_base::call<void>("OnUpdate", fElapsedTime);
 		}
 		catch (const luabind::error& e)
 		{
@@ -629,9 +633,9 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 		}
 	}
 
-	static void default_OnTick(StateBase * ptr, float fElapsedTime)
+	static void default_OnUpdate(StateBase * ptr, float fElapsedTime)
 	{
-		ptr->StateBase::OnTick(fElapsedTime);
+		ptr->StateBase::OnUpdate(fElapsedTime);
 	}
 
 	virtual void OnControlFocus(my::Control * control)
@@ -683,6 +687,25 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 	static void default_OnActorReleaseResource(StateBase * ptr, Actor * actor)
 	{
 		ptr->StateBase::OnActorReleaseResource(actor);
+	}
+
+	virtual void OnGUI(my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
+	{
+		my::CriticalSectionLock lock(LuaContext::getSingleton().m_StateSec);
+
+		try
+		{
+			luabind::wrap_base::call<void>("OnGUI", ui_render, fElapsedTime, Viewport);
+		}
+		catch (const luabind::error& e)
+		{
+			my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+		}
+	}
+
+	static void default_OnGUI(StateBase * ptr, my::UIRender * ui_render, float fElapsedTime, const my::Vector2 & Viewport)
+	{
+		ptr->StateBase::OnGUI(ui_render, fElapsedTime, Viewport);
 	}
 };
 
@@ -1058,10 +1081,11 @@ HRESULT Client::OnCreateDevice(
 			.def("OnAdd", &StateBase::OnAdd, &ScriptStateBase::default_OnAdd)
 			.def("OnEnter", &StateBase::OnEnter, &ScriptStateBase::default_OnEnter)
 			.def("OnExit", &StateBase::OnExit, &ScriptStateBase::default_OnExit)
-			.def("OnTick", &StateBase::OnTick, &ScriptStateBase::default_OnTick)
+			.def("OnUpdate", &StateBase::OnUpdate, &ScriptStateBase::default_OnUpdate)
 			.def("OnControlFocus", &StateBase::OnControlFocus, &ScriptStateBase::default_OnControlFocus)
 			.def("OnActorRequestResource", &StateBase::OnActorRequestResource, &ScriptStateBase::default_OnActorRequestResource)
 			.def("OnActorReleaseResource", &StateBase::OnActorReleaseResource, &ScriptStateBase::default_OnActorReleaseResource)
+			.def("OnGUI", &StateBase::OnGUI, &ScriptStateBase::default_OnGUI)
 
 		, luabind::class_<Client, luabind::bases<my::DxutApp, my::ResourceMgr, my::DrawHelper, PhysxScene> >("Client")
 			.def_readonly("wnd", &Client::m_wnd)
@@ -1354,7 +1378,7 @@ void Client::OnFrameTick(
 	StateBase * curr_iter = m_Current;
 	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
 	{
-		curr_iter->OnTick(fElapsedTime);
+		curr_iter->OnUpdate(fElapsedTime);
 	}
 
 	struct Callback : public OctNode::QueryCallback
