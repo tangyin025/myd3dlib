@@ -1287,10 +1287,6 @@ void LuaContext::Init(void)
 
 		, class_<my::OctEntity>("OctEntity")
 			.def_readonly("OctAabb", &my::OctEntity::m_OctAabb)
-
-		, class_<my::OctNode, my::AABB>("OctNode")
-
-		, class_<my::OctRoot, my::OctNode>("OctRoot")
 	];
 
 	module(m_State)[
@@ -2361,7 +2357,7 @@ void LuaContext::Init(void)
 			.def_readonly("Row", &TerrainChunk::m_Row)
 			.def_readonly("Col", &TerrainChunk::m_Col)
 
-		, class_<Terrain, bases<Component, my::OctRoot>, boost::shared_ptr<Component> >("Terrain")
+		, class_<Terrain, bases<Component, my::AABB>, boost::shared_ptr<Component> >("Terrain")
 			.def(constructor<const char *, int, int, int, int>())
 			.def_readonly("RowChunks", &Terrain::m_RowChunks)
 			.def_readonly("ColChunks", &Terrain::m_ColChunks)

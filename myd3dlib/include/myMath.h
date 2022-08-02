@@ -1318,7 +1318,7 @@ namespace my
 
 		Vector2 LeftMiddle(void) const
 		{
-			return Vector2(l, Lerp(t,b,0.5f));
+			return Vector2(l, (t + b) * 0.5f);
 		}
 
 		Vector2 LeftBottom(void) const
@@ -1328,17 +1328,17 @@ namespace my
 
 		Vector2 CenterTop(void) const
 		{
-			return Vector2(Lerp(l,r,0.5f), t);
+			return Vector2((l + r) * 0.5f, t);
 		}
 
 		Vector2 CenterMiddle(void) const
 		{
-			return Vector2(Lerp(l,r,0.5f), Lerp(t,b,0.5f));
+			return Vector2((l + r) * 0.5f, (t + b) * 0.5f);
 		}
 
 		Vector2 CenterBottom(void) const
 		{
-			return Vector2(Lerp(l,r,0.5f), b);
+			return Vector2((l + r) * 0.5f, b);
 		}
 
 		Vector2 RightTop(void) const
@@ -1348,7 +1348,7 @@ namespace my
 
 		Vector2 RightMiddle(void) const
 		{
-			return Vector2(r, Lerp(t,b,0.5f));
+			return Vector2(r, (t + b) * 0.5f);
 		}
 
 		Vector2 RightBottom(void) const
@@ -1358,7 +1358,7 @@ namespace my
 
 		Vector2 Center(void) const
 		{
-			return Vector2(l + (r - l) * 0.5f, t + (b - t) * 0.5f);
+			return Vector2((l + r) * 0.5f, (t + b) * 0.5f);
 		}
 
 		float Width(void) const
@@ -3241,9 +3241,9 @@ namespace my
 		Vector3 Center(void) const
 		{
 			return Vector3(
-				Lerp(m_min.x, m_max.x, 0.5f),
-				Lerp(m_min.y, m_max.y, 0.5f),
-				Lerp(m_min.z, m_max.z, 0.5f));
+				(m_min.x + m_max.x) * 0.5f,
+				(m_min.y + m_max.y) * 0.5f,
+				(m_min.z + m_max.z) * 0.5f);
 		}
 
 		Vector3 Extent(void) const
