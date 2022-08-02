@@ -33,7 +33,6 @@ public:
 
 	// cfg
 	float default_fov;
-	float default_viewed_dist;
 	unsigned int default_physx_scene_flags;
 	my::Vector3 default_physx_scene_gravity;
 	int default_io_thread_num;

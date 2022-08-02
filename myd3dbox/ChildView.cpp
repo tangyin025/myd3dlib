@@ -58,7 +58,6 @@ END_MESSAGE_MAP()
 CChildView::CChildView()
 	: m_PivotScale(1.0f)
 	, m_CameraDiagonal(30.0f)
-	, m_ViewedDist(theApp.default_viewed_dist)
 	, m_bShowGrid(TRUE)
 	, m_bShowCmpHandle(TRUE)
 	, m_bShowNavigation(TRUE)
@@ -284,7 +283,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
-				if (my::IntersectionTests::IntersectAABBAndAABB(aabb, my::AABB(TargetPos, pView->m_ViewedDist)) == my::IntersectionTests::IntersectionTypeOutside)
+				if ((actor->m_World.getRow<3>().xyz - TargetPos).magnitudeSq() > actor->m_CullingDistSq) // ! derestrict update sequence of attached actors
 				{
 					return true;
 				}
