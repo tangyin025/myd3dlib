@@ -691,6 +691,7 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 
 	_ASSERT(i <= m_Cmps.size());
 
+	// ! Component::RequestResource may change other cmp's life time
 	m_Cmps.insert(m_Cmps.begin() + i, cmp);
 
 	cmp->m_Actor = this;
@@ -702,7 +703,6 @@ void Actor::InsertComponent(unsigned int i, ComponentPtr cmp)
 		m_PxActor->attachShape(*cmp->m_PxShape);
 	}
 
-	// ! Component::RequestResource may change other cmp's life time
 	if (IsRequested())
 	{
 		_ASSERT(m_Node);
@@ -720,29 +720,31 @@ void Actor::RemoveComponent(unsigned int i)
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin() + i;
 
-	_ASSERT((*cmp_iter)->m_Actor == this);
-
 	// ! Component::ReleaseResource may change other cmp's life time
+	ComponentPtr dummy_cmp = *cmp_iter;
+
+	_ASSERT(dummy_cmp->m_Actor == this);
+
+	m_Cmps.erase(cmp_iter);
+
 	if (IsRequested())
 	{
 		_ASSERT(m_Node);
 
-		if ((*cmp_iter)->IsRequested())
+		if (dummy_cmp->IsRequested())
 		{
-			(*cmp_iter)->ReleaseResource();
+			dummy_cmp->ReleaseResource();
 		}
 	}
 
-	if ((*cmp_iter)->m_PxShape && m_PxActor)
+	if (dummy_cmp->m_PxShape && m_PxActor)
 	{
-		_ASSERT((*cmp_iter)->m_PxShape->getActor() == m_PxActor.get());
+		_ASSERT(dummy_cmp->m_PxShape->getActor() == m_PxActor.get());
 
-		m_PxActor->detachShape(*(*cmp_iter)->m_PxShape);
+		m_PxActor->detachShape(*dummy_cmp->m_PxShape);
 	}
 
-	(*cmp_iter)->m_Actor = NULL;
-
-	m_Cmps.erase(cmp_iter);
+	dummy_cmp->m_Actor = NULL;
 }
 
 unsigned int Actor::GetComponentNum(void) const
