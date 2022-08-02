@@ -73,6 +73,7 @@
 		</m_Scale>
 		<m_LodDist>3.300000000e+01</m_LodDist>
 		<m_LodFactor>2.000000000e+00</m_LodFactor>
+		<m_CullingDistSq>6.969600000e+04</m_CullingDistSq>
 		<ActorType>0</ActorType>
 		<m_Cmps class_id="7" tracking_level="0" version="0">
 			<count>7</count>
@@ -579,6 +580,7 @@ AAAAAAAAgEIAAAAAAACAPwAAAAAAAAD/
 		</m_Scale>
 		<m_LodDist>3.300000000e+01</m_LodDist>
 		<m_LodFactor>2.000000000e+00</m_LodFactor>
+		<m_CullingDistSq>6.969600000e+04</m_CullingDistSq>
 		<ActorType>1</ActorType>
 		<RigidBodyFlags>1</RigidBodyFlags>
 		<m_Cmps>

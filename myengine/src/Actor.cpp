@@ -82,6 +82,7 @@ void Actor::save(Archive & ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar << BOOST_SERIALIZATION_NVP(m_LodFactor);
+	ar << BOOST_SERIALIZATION_NVP(m_CullingDistSq);
 
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
@@ -116,6 +117,7 @@ void Actor::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDist);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodFactor);
+	ar >> BOOST_SERIALIZATION_NVP(m_CullingDistSq);
 
 	physx::PxActorType::Enum ActorType;
 	ar >> BOOST_SERIALIZATION_NVP(ActorType);

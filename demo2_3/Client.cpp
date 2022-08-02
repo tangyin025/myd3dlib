@@ -858,7 +858,7 @@ Client::Client(void)
 		("keyweapon3", boost::program_options::value(&m_InitBindKeys[KeyWeapon3])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon3")
 		("keyweapon4", boost::program_options::value(&m_InitBindKeys[KeyWeapon4])->default_value(InputMgr::KeyPairList(), ""), "Key Weapon4")
 		("vieweddist", boost::program_options::value(&m_ViewedDist)->default_value(1000.0f), "Viewed Distance")
-		("vieweddistdiff", boost::program_options::value(&m_ViewedDistDiff)->default_value(10.0f), "Viewed Distance Difference")
+		("actorcullingthreshold", boost::program_options::value(&m_ActorCullingThreshold)->default_value(10.0f), "Actor Culling Threshold")
 		("shownavigation", boost::program_options::value(&m_ShowNavigation)->default_value(false), "Show Navigation")
 		;
 	boost::program_options::variables_map vm;
@@ -1113,7 +1113,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("LanguageId", &Client::m_InitLanguageId)
 			.def_readwrite("ViewedCenter", &Client::m_ViewedCenter)
 			.def_readwrite("ViewedDist", &Client::m_ViewedDist)
-			.def_readwrite("ViewedDistDiff", &Client::m_ViewedDistDiff)
+			.def_readwrite("ActorCullingThreshold", &Client::m_ActorCullingThreshold)
 			.def_readwrite("ShowNavigation", &Client::m_ShowNavigation)
 			.enum_("Key")
 			[
@@ -1385,13 +1385,13 @@ void Client::OnFrameTick(
 	{
 		Client* m_client;
 
-		AABB m_aabb;
+		Vector3 m_ViewedCenter;
 
 		Client::ViewedActorSet::iterator insert_actor_iter;
 
-		Callback(Client* client, const AABB& aabb)
+		Callback(Client* client, const Vector3 & ViewedCenter)
 			: m_client(client)
-			, m_aabb(aabb)
+			, m_ViewedCenter(ViewedCenter)
 			, insert_actor_iter(m_client->m_ViewedActors.begin())
 		{
 		}
@@ -1400,7 +1400,7 @@ void Client::OnFrameTick(
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (!actor->m_Base)
+			if (!actor->m_Base && (actor->m_Position - m_ViewedCenter).magnitudeSq() < actor->m_CullingDistSq)
 			{
 				InsertViewedActor(actor);
 			}
@@ -1449,8 +1449,8 @@ void Client::OnFrameTick(
 	// ! OnActorRequestResource, UpdateLod, Update may change other actor's life time, DoAllParallelTasks also dependent it
 	DelayRemover<ActorPtr>::getSingleton().Enter(boost::bind(&Client::RemoveEntity, this, boost::bind(&boost::shared_ptr<Actor>::get, boost::placeholders::_1)));
 
-	Callback cb(this, AABB(m_ViewedCenter, m_ViewedDist));
-	QueryEntity(cb.m_aabb, &cb);
+	Callback cb(this, m_ViewedCenter);
+	QueryEntity(AABB(m_ViewedCenter, m_ViewedDist), &cb);
 
 	ViewedActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != cb.insert_actor_iter; actor_iter++)
@@ -1466,8 +1466,7 @@ void Client::OnFrameTick(
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(*actor_iter->m_OctAabb, AABB(m_ViewedCenter, m_ViewedDist + m_ViewedDistDiff));
-		if (intersect_type == IntersectionTests::IntersectionTypeOutside)
+		if (actor_iter->m_Base ? !actor_iter->m_Base->IsRequested() : (actor_iter->m_Position - m_ViewedCenter).magnitudeSq() > actor_iter->m_CullingDistSq + m_ActorCullingThreshold)
 		{
 			actor_iter->ReleaseResource();
 

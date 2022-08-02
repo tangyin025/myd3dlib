@@ -243,7 +243,7 @@ public:
 
 	float m_ViewedDist;
 
-	float m_ViewedDistDiff;
+	float m_ActorCullingThreshold;
 
 	bool m_ShowNavigation;
 

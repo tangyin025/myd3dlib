@@ -166,6 +166,8 @@ public:
 
 	float m_LodFactor;
 
+	float m_CullingDistSq;
+
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
@@ -213,6 +215,7 @@ protected:
 		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
+		, m_CullingDistSq(69696.0f)
 		, m_Base(NULL)
 		, m_BaseBoneId(-1)
 		, m_ActionTrackPoseInstRef(0)
@@ -231,6 +234,7 @@ public:
 		, m_Lod(Component::LOD_INFINITE)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
+		, m_CullingDistSq(69696.0f)
 		, m_Base(NULL)
 		, m_BaseBoneId(-1)
 		, m_ActionTrackPoseInstRef(0)
