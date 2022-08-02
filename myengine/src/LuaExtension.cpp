@@ -1287,6 +1287,10 @@ void LuaContext::Init(void)
 
 		, class_<my::OctEntity>("OctEntity")
 			.def_readonly("OctAabb", &my::OctEntity::m_OctAabb)
+
+		, class_<my::OctNode, my::AABB>("OctNode")
+
+		, class_<my::OctRoot, my::OctNode>("OctRoot")
 	];
 
 	module(m_State)[
@@ -2357,7 +2361,7 @@ void LuaContext::Init(void)
 			.def_readonly("Row", &TerrainChunk::m_Row)
 			.def_readonly("Col", &TerrainChunk::m_Col)
 
-		, class_<Terrain, Component, boost::shared_ptr<Component> >("Terrain")
+		, class_<Terrain, bases<Component, my::OctRoot>, boost::shared_ptr<Component> >("Terrain")
 			.def(constructor<const char *, int, int, int, int>())
 			.def_readonly("RowChunks", &Terrain::m_RowChunks)
 			.def_readonly("ColChunks", &Terrain::m_ColChunks)
@@ -2469,6 +2473,7 @@ void LuaContext::Init(void)
 			.def_readonly("World", &Actor::m_World)
 			.def_readwrite("LodDist", &Actor::m_LodDist)
 			.def_readwrite("LodFactor", &Actor::m_LodFactor)
+			.def_readwrite("CullingDistSq", &Actor::m_CullingDistSq)
 			.def_readonly("Cmps", &Actor::m_Cmps, return_stl_iterator)
 			.def_readonly("Base", &Actor::m_Base)
 			.def_readwrite("BaseBoneId", &Actor::m_BaseBoneId)
