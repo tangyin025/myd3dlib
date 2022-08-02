@@ -326,7 +326,8 @@ void CPropertiesWnd::UpdatePropertiesActor(Actor * actor)
 	pActor->GetSubItem(4)->GetSubItem(2)->SetValue((_variant_t)actor->m_Scale.z);
 	pActor->GetSubItem(5)->SetValue((_variant_t)actor->m_LodDist);
 	pActor->GetSubItem(6)->SetValue((_variant_t)actor->m_LodFactor);
-	UpdatePropertiesRigidActor(pActor->GetSubItem(7), actor);
+	pActor->GetSubItem(7)->SetValue((_variant_t)actor->m_CullingDistSq);
+	UpdatePropertiesRigidActor(pActor->GetSubItem(8), actor);
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeActor);
 	Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 	for (unsigned int i = 0; cmp_iter != actor->m_Cmps.end(); cmp_iter++, i++)
@@ -1270,6 +1271,8 @@ void CPropertiesWnd::CreatePropertiesActor(Actor * actor)
 	pActor->AddSubItem(pLodDist);
 	CMFCPropertyGridProperty * pLodFactor = new CSimpleProp(_T("LodFactor"), (_variant_t)actor->m_LodFactor, NULL, PropertyActorLodFactor);
 	pActor->AddSubItem(pLodFactor);
+	CMFCPropertyGridProperty * pCullingDistSq = new CSimpleProp(_T("CullingDistSq"), (_variant_t)actor->m_CullingDistSq, NULL, PropertyActorCullingDistSq);
+	pActor->AddSubItem(pCullingDistSq);
 
 	CreatePropertiesRigidActor(pActor, actor);
 
@@ -2591,7 +2594,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return 8;
+		return 9;
 	case Component::ComponentTypeController:
 		return GetComponentPropCount(Component::ComponentTypeComponent);
 	case Component::ComponentTypeMesh:
@@ -3075,6 +3078,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		Actor * actor = (Actor *)pProp->GetParent()->GetValue().pulVal;
 		actor->m_LodFactor = pProp->GetValue().fltVal;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyActorCullingDistSq:
+	{
+		Actor* actor = (Actor*)pProp->GetParent()->GetValue().pulVal;
+		actor->m_CullingDistSq = pProp->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
