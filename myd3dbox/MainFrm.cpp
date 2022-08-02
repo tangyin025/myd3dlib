@@ -2370,8 +2370,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						PathCombine(m_ToolScripts[i - first_script_index].GetBufferSetLength(MAX_PATH), Dir, ffd.cFileName);
-						m_ToolScripts[i - first_script_index].ReleaseBuffer();
+						m_ToolScripts[i - first_script_index] = Dir + _T("\\") + ffd.cFileName;
 						CString strText;
 						strText.Format(_T("&%d %s"), i - first_script_index + 1, m_ToolScripts[i - first_script_index]);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
