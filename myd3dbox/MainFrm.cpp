@@ -36,6 +36,7 @@
 #include <boost/range/algorithm/transform.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/shared_container_iterator.hpp>
+#include <boost/algorithm/string.hpp>
 #include "DeleteCmpsDlg.h"
 #include <lualib.h>
 
@@ -1567,10 +1568,11 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->InsertComponent(dlg.m_terrain);
 	if (dlg.m_AlignToCenter)
 	{
-		my::Vector3 center = dlg.m_terrain->Center();
+		const my::Vector3 center = dlg.m_terrain->Center() * dlg.m_ActorScale;
+		(*actor_iter)->m_Position.x = -center.x;
+		(*actor_iter)->m_Position.z = -center.z;
 		(*actor_iter)->m_Scale = dlg.m_ActorScale;
-		(*actor_iter)->m_Position.x = -center.x * (*actor_iter)->m_Scale.x;
-		(*actor_iter)->m_Position.z = -center.z * (*actor_iter)->m_Scale.z;
+		(*actor_iter)->m_CullingDistSq = center.magnitudeSq();
 		(*actor_iter)->UpdateWorld();
 		// TODO: update pxactor, ref Actor::SetPose
 	}
@@ -2354,17 +2356,22 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 				const int first_script_index = i;
 				WIN32_FIND_DATA ffd;
 				HANDLE hFind = INVALID_HANDLE_VALUE;
-				CString pattern = ms2ts(theApp.default_tool_scrpit_pattern).c_str();
-				hFind = FindFirstFile(pattern, &ffd);
+				std::basic_string<TCHAR> pattern = ms2ts(theApp.default_tool_scrpit_pattern);
+				boost::algorithm::replace_all(pattern, "/", "\\");
+				hFind = FindFirstFile(pattern.c_str(), &ffd);
 				if (hFind == INVALID_HANDLE_VALUE)
 				{
 					break;
 				}
+				CString Dir = pattern.c_str();
+				PathRemoveFileSpec(Dir.GetBuffer());
+				Dir.ReleaseBuffer();
 				do
 				{
 					if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
-						m_ToolScripts[i - first_script_index] = ffd.cFileName;
+						PathCombine(m_ToolScripts[i - first_script_index].GetBufferSetLength(MAX_PATH), Dir, ffd.cFileName);
+						m_ToolScripts[i - first_script_index].ReleaseBuffer();
 						CString strText;
 						strText.Format(_T("&%d %s"), i - first_script_index + 1, m_ToolScripts[i - first_script_index]);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
