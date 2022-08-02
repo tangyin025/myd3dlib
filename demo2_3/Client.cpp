@@ -1400,7 +1400,7 @@ void Client::OnFrameTick(
 		{
 			Actor* actor = dynamic_cast<Actor*>(oct_entity);
 
-			if (!actor->m_Base && (actor->m_Position - m_ViewedCenter).magnitudeSq() < actor->m_CullingDistSq)
+			if (!actor->m_Base && (actor->m_OctAabb->Center() - m_ViewedCenter).magnitudeSq() < actor->m_CullingDistSq)
 			{
 				InsertViewedActor(actor);
 			}
@@ -1466,7 +1466,7 @@ void Client::OnFrameTick(
 	{
 		_ASSERT(OctNode::HaveNode(actor_iter->m_Node));
 
-		if (actor_iter->m_Base ? !actor_iter->m_Base->IsRequested() : (actor_iter->m_Position - m_ViewedCenter).magnitudeSq() > actor_iter->m_CullingDistSq + m_ActorCullingThreshold)
+		if (actor_iter->m_Base ? !actor_iter->m_Base->IsRequested() : (actor_iter->m_OctAabb->Center() - m_ViewedCenter).magnitudeSq() > actor_iter->m_CullingDistSq + m_ActorCullingThreshold)
 		{
 			actor_iter->ReleaseResource();
 

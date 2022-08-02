@@ -283,7 +283,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 			if (pFrame->GetActiveView() == pView && (PassMask & RenderPipeline::PassTypeToMask(RenderPipeline::PassTypeNormal)))
 			{
-				if ((actor->m_World.getRow<3>().xyz - TargetPos).magnitudeSq() > actor->m_CullingDistSq) // ! derestrict update sequence of attached actors
+				if ((actor->m_OctAabb->Center() - TargetPos).magnitudeSq() > actor->m_CullingDistSq) // ! derestrict update sequence of attached actors
 				{
 					return true;
 				}
