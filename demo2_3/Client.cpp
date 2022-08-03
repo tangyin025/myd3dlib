@@ -348,46 +348,12 @@ static int os_exit(lua_State * L)
 	return 0;
 }
 
-static int PlayerData_getattr(const PlayerData * self, int i)
-{
-	return self->attrs[i];
-}
-
-static void PlayerData_setattr(PlayerData * self, int i, int attr)
-{
-	self->attrs[i] = attr;
-}
-
-static void PlayerData_getitem(const PlayerData* self, int i, int & item, int & status)
-{
-	item = self->items[i];
-	status = self->itemstatus[i];
-}
-
-static void PlayerData_setitem(PlayerData* self, int i, int item, int status)
-{
-	self->items[i] = item;
-	self->itemstatus[i] = status;
-}
-
 static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
 {
 	_ASSERT(src + count <= _countof(PlayerData::attrs));
 	_ASSERT(dst + count <= _countof(PlayerData::attrs));
 	std::copy(&self->items[src], &self->items[src + count], &self->items[dst]);
 	std::copy(&self->itemstatus[src], &self->itemstatus[src + count], &self->itemstatus[dst]);
-}
-
-static void PlayerData_getquest(const PlayerData * self, int i, int & quest, int & status)
-{
-	quest = self->quests[i];
-	status = self->queststatus[i];
-}
-
-static void PlayerData_setquest(PlayerData * self, int i, int quest, int status)
-{
-	self->quests[i] = quest;
-	self->queststatus[i] = status;
 }
 
 static void PlayerData_movequests(PlayerData* self, int src, int count, int dst)
@@ -1067,13 +1033,27 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("sceneid", &PlayerData::sceneid)
 			.def_readwrite("pos", &PlayerData::pos)
 			.def_readwrite("angle", &PlayerData::angle)
-			.def("getattr", &PlayerData_getattr)
-			.def("setattr", &PlayerData_setattr)
-			.def("getitem", &PlayerData_getitem, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
-			.def("setitem", &PlayerData_setitem)
+			.def("getattr", luabind::tag_function<int(const PlayerData*, int)>(
+				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::attrs)>, boost::bind(&PlayerData::attrs, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("setattr", luabind::tag_function<void(PlayerData*, int, int)>(
+				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::attrs)>, boost::bind<int*>(&PlayerData::attrs, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
+			.def("getitem", luabind::tag_function<int(const PlayerData*, int)>(
+				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::items)>, boost::bind(&PlayerData::items, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("setitem", luabind::tag_function<void(PlayerData*, int, int)>(
+				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::items)>, boost::bind<int*>(&PlayerData::items, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
+			.def("getitemstatus", luabind::tag_function<int(const PlayerData*, int)>(
+				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::itemstatus)>, boost::bind(&PlayerData::itemstatus, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("setitemstatus", luabind::tag_function<void(PlayerData*, int, int)>(
+				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::itemstatus)>, boost::bind<int*>(&PlayerData::itemstatus, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
 			.def("moveitems", &PlayerData_moveitems)
-			.def("getquest", &PlayerData_getquest, luabind::pure_out_value(boost::placeholders::_3) + luabind::pure_out_value(boost::placeholders::_4))
-			.def("setquest", &PlayerData_setquest)
+			.def("getquest", luabind::tag_function<int(const PlayerData*, int)>(
+				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::quests)>, boost::bind(&PlayerData::quests, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("setquest", luabind::tag_function<void(PlayerData*, int, int)>(
+				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::quests)>, boost::bind<int*>(&PlayerData::quests, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
+			.def("getqueststatus", luabind::tag_function<int(const PlayerData*, int)>(
+				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::queststatus)>, boost::bind(&PlayerData::queststatus, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("setqueststatus", luabind::tag_function<void(PlayerData*, int, int)>(
+				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::queststatus)>, boost::bind<int*>(&PlayerData::queststatus, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
 			.def("movequests", &PlayerData_movequests)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")

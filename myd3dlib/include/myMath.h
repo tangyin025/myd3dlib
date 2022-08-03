@@ -78,9 +78,17 @@ namespace my
 	T Random(T min, T max);
 
 	template <typename T, int N>
-	T & SubscribeGetter(T arr[N], size_t i)
+	T & SubscribeGetter(T arr[N], int i)
 	{
-		_ASSERT(i < N); return arr[i];
+		_ASSERT(i < N);
+		return arr[i];
+	}
+
+	template <typename T, int N>
+	void SubscribeSetter(T arr[N], int i, const T & v)
+	{
+		_ASSERT(i < N);
+		arr[i] = v;
 	}
 
 	template <typename Type1, typename Type2>
