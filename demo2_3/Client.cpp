@@ -350,24 +350,24 @@ static int os_exit(lua_State * L)
 
 static int PlayerData_getattr(const PlayerData * self, int i)
 {
-	return my::Subscribe<int>(self->attrs, i);
+	return self->attrs[i];
 }
 
 static void PlayerData_setattr(PlayerData * self, int i, int attr)
 {
-	my::Subscribe<int>(self->attrs, i) = attr;
+	self->attrs[i] = attr;
 }
 
 static void PlayerData_getitem(const PlayerData* self, int i, int & item, int & status)
 {
-	item = my::Subscribe<int>(self->items, i);
-	status = my::Subscribe<int>(self->itemstatus, i);
+	item = self->items[i];
+	status = self->itemstatus[i];
 }
 
 static void PlayerData_setitem(PlayerData* self, int i, int item, int status)
 {
-	my::Subscribe<int>(self->items, i) = item;
-	my::Subscribe<int>(self->itemstatus, i) = status;
+	self->items[i] = item;
+	self->itemstatus[i] = status;
 }
 
 static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
@@ -380,14 +380,14 @@ static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
 
 static void PlayerData_getquest(const PlayerData * self, int i, int & quest, int & status)
 {
-	quest = my::Subscribe<int>(self->quests, i);
-	status = my::Subscribe<int>(self->queststatus, i);
+	quest = self->quests[i];
+	status = self->queststatus[i];
 }
 
 static void PlayerData_setquest(PlayerData * self, int i, int quest, int status)
 {
-	my::Subscribe<int>(self->quests, i) = quest;
-	my::Subscribe<int>(self->queststatus, i) = status;
+	self->quests[i] = quest;
+	self->queststatus[i] = status;
 }
 
 static void PlayerData_movequests(PlayerData* self, int src, int count, int dst)

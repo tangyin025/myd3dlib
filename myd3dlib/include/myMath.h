@@ -77,20 +77,10 @@ namespace my
 	template <typename T>
 	T Random(T min, T max);
 
-	template <typename V, typename T>
-	V & Subscribe(T & t, size_t i)
+	template <typename T, int N>
+	T & SubscribeGetter(T arr[N], size_t i)
 	{
-		_ASSERT(i < sizeof(t) / sizeof(V));
-
-		return ((V*)&t)[i];
-	}
-
-	template <typename V, size_t i, typename T>
-	V & Subscribe(T & t)
-	{
-		BOOST_STATIC_ASSERT(i < sizeof(t) / sizeof(V));
-
-		return ((V*)&t)[i];
+		_ASSERT(i < N); return arr[i];
 	}
 
 	template <typename Type1, typename Type2>
@@ -179,12 +169,12 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return Subscribe<float>(*this, i);
+			return SubscribeGetter<float, 2>(&x, i);
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return Subscribe<float>(*this, i);
+			return SubscribeGetter<const float, 2>(&x, i);
 		}
 
 		bool operator ==(const Vector2 & rhs) const
@@ -463,12 +453,12 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return Subscribe<float>(*this, i);
+			return SubscribeGetter<float, 3>(&x, i);
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return Subscribe<float>(*this, i);
+			return SubscribeGetter<const float, 3>(&x, i);
 		}
 
 		bool operator ==(const Vector3 & rhs) const
@@ -852,12 +842,12 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return Subscribe<float>(*this, i);
+			return SubscribeGetter<float, 4>(&x, i);
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return Subscribe<float>(*this, i);
+			return SubscribeGetter<const float, 4>(&x, i);
 		}
 
 		bool operator ==(const Vector4 & rhs) const
@@ -1952,51 +1942,51 @@ namespace my
 	public:
 		Vector4 & operator [](size_t i)
 		{
-			return Subscribe<Vector4>(*this, i);
+			return SubscribeGetter<Vector4, 4>((Vector4*)&_11, i);
 		}
 
 		const Vector4 & operator [](size_t i) const
 		{
-			return Subscribe<Vector4>(*this, i);
+			return SubscribeGetter<const Vector4, 4>((Vector4*)&_11, i);
 		}
 
-		template <size_t i>
+		template <int i>
 		const Vector4 & getRow(void) const
 		{
-			return Subscribe<Vector4, i>(*this);
+			return operator [](i);
 		}
 
-		template <size_t i>
+		template <int i>
 		void setRow(Vector4 & value)
 		{
-			Subscribe<Vector4, i>(*this) = value;
+			operator [](i) = value;
 		}
 
-		template <size_t i>
+		template <int i>
 		Vector4 getColumn(void) const
 		{
 			return Vector4(
-				Subscribe<float, i>(Subscribe<Vector4, 0>(*this)),
-				Subscribe<float, i>(Subscribe<Vector4, 1>(*this)),
-				Subscribe<float, i>(Subscribe<Vector4, 2>(*this)),
-				Subscribe<float, i>(Subscribe<Vector4, 3>(*this)));
+				operator[](0)[i],
+				operator[](1)[i],
+				operator[](2)[i],
+				operator[](3)[i]);
 		}
 
-		template <size_t i>
-		void setColumn(Vector4& value)
+		template <int i>
+		void setColumn(Vector4 & value)
 		{
-			Subscribe<float, i>(Subscribe<Vector4, 0>(*this)) = value.x;
-			Subscribe<float, i>(Subscribe<Vector4, 1>(*this)) = value.y;
-			Subscribe<float, i>(Subscribe<Vector4, 2>(*this)) = value.z;
-			Subscribe<float, i>(Subscribe<Vector4, 3>(*this)) = value.w;
+			operator[](0)[i] = value.x;
+			operator[](1)[i] = value.y;
+			operator[](2)[i] = value.z;
+			operator[](3)[i] = value.w;
 		}
 
 		bool operator ==(const Matrix4 & rhs) const
 		{
-			return Subscribe<Vector4, 0>(*this) == Subscribe<Vector4, 0>(rhs)
-				&& Subscribe<Vector4, 1>(*this) == Subscribe<Vector4, 1>(rhs)
-				&& Subscribe<Vector4, 2>(*this) == Subscribe<Vector4, 2>(rhs)
-				&& Subscribe<Vector4, 3>(*this) == Subscribe<Vector4, 3>(rhs);
+			return operator[](0) == rhs[0]
+				&& operator[](1) == rhs[1]
+				&& operator[](2) == rhs[2]
+				&& operator[](3) == rhs[3];
 		}
 
 		bool operator !=(const Matrix4 & rhs) const
@@ -3077,12 +3067,12 @@ namespace my
 
 		Plane & operator [](size_t i)
 		{
-			return Subscribe<Plane>(*this, i);
+			return SubscribeGetter<Plane, 6>(&Up, i);
 		}
 
 		const Plane & operator [](size_t i) const
 		{
-			return Subscribe<Plane>(*this, i);
+			return SubscribeGetter<const Plane, 6>(&Up, i);
 		}
 
 		static Frustum ExtractMatrix(const Matrix4 & m)
