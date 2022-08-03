@@ -13,6 +13,7 @@ extern "C" {
 #include <luabind/copy_policy.hpp>
 #include <luabind/adopt_policy.hpp>
 #include <luabind/tag_function.hpp>
+#include <luabind/discard_result_policy.hpp>
 #include "libc.h"
 #include "myDxutApp.h"
 #include "myResource.h"
@@ -117,31 +118,6 @@ static boost::iterator_range<shared_obj_list_iter> d3dcontext_get_named_object_l
 static my::Bone animator_get_bone(Animator* self, int i)
 {
 	return self->anim_pose_hier[i];
-}
-
-static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, my::Font* font)
-{
-	self->PushString(rect, str.c_str(), color, align, font);
-}
-
-static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, D3DCOLOR outlineColor, float outlineWidth, my::Font* font)
-{
-	self->PushString(rect, str.c_str(), color, align, outlineColor, outlineWidth, font);
-}
-
-static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, my::Font* font, const my::Matrix4& transform)
-{
-	self->PushString(rect, str.c_str(), color, align, font, transform);
-}
-
-static void ui_render_push_string(my::UIRender* self, const my::Rectangle& rect, const std::wstring& str, D3DCOLOR color, my::Font::Align align, D3DCOLOR outlineColor, float outlineWidth, my::Font* font, const my::Matrix4& transform)
-{
-	self->PushString(rect, str.c_str(), color, align, outlineColor, outlineWidth, font, transform);
-}
-
-static void ui_render_push_layer(my::UIRender* self, my::BaseTexture* texture)
-{
-	self->GetVertexList(texture);
 }
 
 struct ScriptControl;
@@ -1499,11 +1475,15 @@ void LuaContext::Init(void)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, D3DCOLOR, const my::Rectangle&, const my::BaseTexture*, const my::Matrix4&, const my::Rectangle&))& my::UIRender::PushRectangle)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const my::BaseTexture*))& my::UIRender::PushWindow)
 			.def("PushWindow", (void (my::UIRender::*)(const my::Rectangle&, DWORD, const my::Rectangle&, const my::Vector4&, const my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushWindow)
-			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*))& ui_render_push_string)
-			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*))& ui_render_push_string)
-			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*, const my::Matrix4&))& ui_render_push_string)
-			.def("PushString", (void (*)(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*, const my::Matrix4&))& ui_render_push_string)
-			.def("PushLayer", &ui_render_push_layer)
+			.def("PushString", luabind::tag_function<void(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*)>(
+				boost::bind(&my::UIRender::PushString, boost::placeholders::_1, boost::placeholders::_2, boost::bind(&std::wstring::c_str, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5, boost::placeholders::_6)))
+			.def("PushString", luabind::tag_function<void(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*)>(
+				boost::bind(&my::UIRender::PushString, boost::placeholders::_1, boost::placeholders::_2, boost::bind(&std::wstring::c_str, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8)))
+			.def("PushString", luabind::tag_function<void(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, my::Font*, const my::Matrix4&)>(
+				boost::bind(&my::UIRender::PushString, boost::placeholders::_1, boost::placeholders::_2, boost::bind(&std::wstring::c_str, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7)))
+			.def("PushString", luabind::tag_function<void(my::UIRender*, const my::Rectangle&, const std::wstring&, D3DCOLOR, my::Font::Align, D3DCOLOR, float, my::Font*, const my::Matrix4&)>(
+				boost::bind(&my::UIRender::PushString, boost::placeholders::_1, boost::placeholders::_2, boost::bind(&std::wstring::c_str, boost::placeholders::_3), boost::placeholders::_4, boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8, boost::placeholders::_9)))
+			.def("PushLayer", &my::UIRender::GetVertexList, luabind::discard_result)
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(constructor<>())
