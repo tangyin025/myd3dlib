@@ -350,16 +350,16 @@ static int os_exit(lua_State * L)
 
 static void PlayerData_moveitems(PlayerData* self, int src, int count, int dst)
 {
-	_ASSERT(src + count <= _countof(PlayerData::attrs));
-	_ASSERT(dst + count <= _countof(PlayerData::attrs));
+	_ASSERT(src + count <= _countof(PlayerData::items));
+	_ASSERT(dst + count <= _countof(PlayerData::items));
 	std::copy(&self->items[src], &self->items[src + count], &self->items[dst]);
 	std::copy(&self->itemstatus[src], &self->itemstatus[src + count], &self->itemstatus[dst]);
 }
 
 static void PlayerData_movequests(PlayerData* self, int src, int count, int dst)
 {
-	_ASSERT(src + count <= _countof(PlayerData::attrs));
-	_ASSERT(dst + count <= _countof(PlayerData::attrs));
+	_ASSERT(src + count <= _countof(PlayerData::quests));
+	_ASSERT(dst + count <= _countof(PlayerData::quests));
 	std::copy(&self->quests[src], &self->quests[src + count], &self->quests[dst]);
 	std::copy(&self->queststatus[src], &self->queststatus[src + count], &self->queststatus[dst]);
 }
