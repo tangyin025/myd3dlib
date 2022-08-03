@@ -70,11 +70,6 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
-static D3DLOCKED_RECT texture2d_lock_rect(my::Texture2D* self, unsigned int level)
-{
-	return self->LockRect(NULL, 0, level);
-}
-
 static void texture2d_create_texture_from_file(my::Texture2D* self, const std::string& path)
 {
 	self->CreateTextureFromFile(u8tows(path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
@@ -1298,11 +1293,12 @@ void LuaContext::Init(void)
 			.def_readonly("Key", &my::DeviceResourceBase::m_Key)
 
 		, class_<my::BaseTexture, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("BaseTexture")
+			.def("GetLevelDesc", &my::BaseTexture::GetLevelDesc)
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
 			.def(constructor<>())
-			.def("GetLevelDesc", &my::Texture2D::GetLevelDesc)
-			.def("LockRect", &texture2d_lock_rect)
+			.def("LockRect", luabind::tag_function<D3DLOCKED_RECT(my::Texture2D*,unsigned int)>(
+				boost::bind(&my::Texture2D::LockRect, boost::placeholders::_1, (RECT*)NULL, 0, boost::placeholders::_2)))
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
 
