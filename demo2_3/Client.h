@@ -8,6 +8,7 @@
 #include "SoundContext.h"
 #include "myStateChart.h"
 #include <boost/intrusive/list.hpp>
+#include <boost/align/align_up.hpp>
 
 class dtNavMesh;
 
@@ -164,6 +165,40 @@ public:
 };
 
 typedef boost::shared_ptr<StateBase> StateBasePtr;
+
+class IndexedBitmap : protected boost::multi_array<unsigned char, 2>
+{
+public:
+	IndexedBitmap(int width, int height)
+		: multi_array(boost::extents[height][boost::alignment::align_up(width, 4)])
+	{
+		std::fill_n(origin(), num_elements(), 0);
+	}
+
+	int GetWidth(void) const
+	{
+		return shape()[1];
+	}
+
+	int GetHeight(void) const
+	{
+		return shape()[0];
+	}
+
+	unsigned char GetPixel(int i, int j) const
+	{
+		return operator[](i)[j];
+	}
+
+	void SetPixel(int i, int j, unsigned char pixel)
+	{
+		operator[](i)[j] = pixel;
+	}
+
+	void LoadFromFile(const char* path);
+
+	void SaveIndexedBitmap(const char* path);
+};
 
 class Client
 	: public my::DxutApp

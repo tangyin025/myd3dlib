@@ -715,6 +715,111 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 	}
 };
 
+void IndexedBitmap::LoadFromFile(const char* path)
+{
+	my::IStreamPtr ifs = Client::getSingleton().OpenIStream(path);
+
+//-		bfh	{bfType=19778 bfSize=787512 bfReserved1=0 ...}	tagBITMAPFILEHEADER
+//		bfType	19778	unsigned short
+//		bfSize	787512	unsigned long
+//		bfReserved1	0	unsigned short
+//		bfReserved2	0	unsigned short
+//		bfOffBits	1078	unsigned long
+	BITMAPFILEHEADER bfh;
+
+//-		bih	{biSize=40 biWidth=1024 biHeight=768 ...}	tagBITMAPINFOHEADER
+//		biSize	40	unsigned long
+//		biWidth	1024	long
+//		biHeight	768	long
+//		biPlanes	1	unsigned short
+//		biBitCount	8	unsigned short
+//		biCompression	0	unsigned long
+//		biSizeImage	786434	unsigned long
+//		biXPelsPerMeter	11808	long
+//		biYPelsPerMeter	11808	long
+//		biClrUsed	0	unsigned long
+//		biClrImportant	0	unsigned long
+	BITMAPINFOHEADER bih;
+
+	if (sizeof(bfh) != ifs->read(&bfh, sizeof(bfh)) || bfh.bfType != 0x4D42)
+	{
+		THROW_CUSEXCEPTION("sizeof(bfh) != ifs->read");
+	}
+
+	if (sizeof(bih) != ifs->read(&bih, sizeof(bih)))
+	{
+		THROW_CUSEXCEPTION("sizeof(bih) != ifs->read");
+	}
+
+	if (bih.biBitCount != 8)
+	{
+		THROW_CUSEXCEPTION("bih.biBitCount != 8");
+	}
+
+	int m = (bih.biWidth * bih.biBitCount + 31) / 32 * 4;
+	int n = (bih.biHeight * bih.biBitCount + 31) / 32 * 4;
+	for (int i = 0; i < Min<int>(shape()[0], bih.biHeight); i++)
+	{
+		long offset = bfh.bfOffBits + (bih.biHeight - i - 1) * m;
+		if (offset != ifs->seek(offset, SEEK_SET))
+		{
+			THROW_CUSEXCEPTION("offset != ifs->seek");
+		}
+
+		int rdnum = Min<int>(shape()[1], bih.biWidth) * sizeof(element);
+		if (rdnum != ifs->read(&operator[](i)[0], rdnum))
+		{
+			THROW_CUSEXCEPTION("rdnum != ifs->read");
+		}
+
+		_ASSERT(ifs->tell() <= bfh.bfSize);
+	}
+}
+
+void IndexedBitmap::SaveIndexedBitmap(const char* path)
+{
+	std::ofstream ofs(path, std::ios::binary, _SH_DENYRW);
+	if (!ofs.is_open())
+	{
+		THROW_CUSEXCEPTION("!ofs.is_open()");
+	}
+
+	BITMAPFILEHEADER bfh = { 0 };
+	BITMAPINFOHEADER bih = { 0 };
+	bfh.bfType = 0x4D42;
+	bfh.bfOffBits = sizeof(bfh) + sizeof(bih) + sizeof(RGBQUAD) * 256;
+	bfh.bfSize = bfh.bfOffBits + num_elements() * sizeof(element);
+	bih.biSize = sizeof(bih);
+	bih.biWidth = shape()[1];
+	bih.biHeight = shape()[0];
+	bih.biPlanes = 1;
+	bih.biBitCount = 8;
+	bih.biCompression = 0;
+	bih.biSizeImage = num_elements() * sizeof(element);
+	bih.biXPelsPerMeter = 11808;
+	bih.biYPelsPerMeter = 11808;
+	bih.biClrUsed = 0;
+	bih.biClrImportant = 0;
+
+	ofs.write((char*)&bfh, sizeof(bfh));
+	ofs.write((char*)&bih, sizeof(bih));
+
+	for (int p = 0; p < 256; p++)
+	{
+		RGBQUAD q = { p, p, p, 0 };
+		ofs.write((char*)&q, sizeof(q));
+	}
+
+	_ASSERT(ofs.tellp() == bfh.bfOffBits);
+
+	for (int i = 0; i < shape()[0]; i++)
+	{
+		ofs.write((char*)&operator[](shape()[0] - i - 1)[0], shape()[1] * sizeof(element));
+	}
+
+	_ASSERT(ofs.tellp() == bfh.bfSize);
+}
+
 namespace boost
 {
 	namespace program_options
@@ -1203,6 +1308,15 @@ HRESULT Client::OnCreateDevice(
 			.def("Exec", (void(*)(SqlConnection*, const char*))& sqlcontext_exec)
 			.def("Exec", (void(*)(SqlConnection*, const char*, const luabind::object&))& sqlcontext_exec)
 			.def("Clone", &SqlConnection::Clone)
+
+		, luabind::class_<IndexedBitmap>("IndexedBitmap")
+			.def(luabind::constructor<int, int>())
+			.property("Width", &IndexedBitmap::GetWidth)
+			.property("Height", &IndexedBitmap::GetHeight)
+			.def("GetPixel", &IndexedBitmap::GetPixel)
+			.def("SetPixel", &IndexedBitmap::SetPixel)
+			.def("LoadFromFile", &IndexedBitmap::LoadFromFile)
+			.def("SaveIndexedBitmap", &IndexedBitmap::SaveIndexedBitmap)
 	];
 	luabind::globals(m_State)["client"] = this;
 
