@@ -8,6 +8,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "LargeImage.h"
+#include "SqlConnection.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -377,6 +378,45 @@ static void client_add_state_adopt(Client * self, StateBase * state, StateBase *
 static bool client_file_exists(Client * self, const std::string & path)
 {
 	return PathFileExists(u8tots(path).c_str());
+}
+
+static void sqlcontext_exec(SqlConnection* self, const char* sql) {
+	self->Exec(sql, NULL, NULL);
+}
+
+static int sqlcontext_exec_callback(void* data, int argc, char** argv, char** azColName)
+{
+	try
+	{
+		const luabind::object& callback = *(luabind::object*)data;
+		luabind::object param = luabind::newtable(callback.interpreter());
+		for (int i = 0; i < argc; i++)
+		{
+			if (argv[i])
+			{
+				param[(const char*)azColName[i]] = (const char*)argv[i];
+			}
+			else
+			{
+				param[(const char*)azColName[i]] = luabind::nil;
+			}
+		}
+		luabind::call_function<void>(callback, param);
+		return 0;
+	}
+	catch (const luabind::error& e)
+	{
+		my::D3DContext::getSingleton().m_EventLog(lua_tostring(e.state(), -1));
+	}
+	catch (const std::exception& e)
+	{
+		my::D3DContext::getSingleton().m_EventLog(e.what());
+	}
+	return 1;
+}
+
+static void sqlcontext_exec(SqlConnection* self, const char* sql, const luabind::object& callback) {
+	self->Exec(sql, sqlcontext_exec_callback, const_cast<luabind::object*>(&callback));
 }
 
 SceneContextRequest::SceneContextRequest(const char* path, const char* prefix, int Priority)
@@ -1155,6 +1195,14 @@ HRESULT Client::OnCreateDevice(
 			.def("SavePlayerData", &Client::SavePlayerData)
 
 		, luabind::def("res2scene", (boost::shared_ptr<SceneContext>(*)(const boost::shared_ptr<my::DeviceResourceBase>&)) & boost::dynamic_pointer_cast<SceneContext, my::DeviceResourceBase>)
+
+		, luabind::class_<SqlConnection>("SqlConnection")
+			.def(luabind::constructor<const char*>())
+			.def("Open", &SqlConnection::Open)
+			.def("Close", &SqlConnection::Close)
+			.def("Exec", (void(*)(SqlConnection*, const char*))& sqlcontext_exec)
+			.def("Exec", (void(*)(SqlConnection*, const char*, const luabind::object&))& sqlcontext_exec)
+			.def("Clone", &SqlConnection::Clone)
 	];
 	luabind::globals(m_State)["client"] = this;
 

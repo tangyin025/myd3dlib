@@ -57,9 +57,6 @@
     <ClInclude Include="include\Steering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\SqlConnection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\ActionTrack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +102,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Steering.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SqlConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ActionTrack.cpp">
