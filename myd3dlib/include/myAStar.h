@@ -6,6 +6,7 @@
 #include <atlbase.h>
 #include <atltypes.h>
 #include "myMath.h"
+#include <boost/align/align_up.hpp>
 
 namespace my
 {
@@ -226,4 +227,38 @@ namespace my
 
 	template <>
 	D3DCOLOR BilinearFiltering<D3DCOLOR>::Sample(float u, float v);
+
+	class IndexedBitmap : protected boost::multi_array<unsigned char, 2>
+	{
+	public:
+		IndexedBitmap(int width, int height)
+			: multi_array(boost::extents[height][boost::alignment::align_up(width, 4)])
+		{
+			std::fill_n(origin(), num_elements(), 0);
+		}
+
+		int GetWidth(void) const
+		{
+			return shape()[1];
+		}
+
+		int GetHeight(void) const
+		{
+			return shape()[0];
+		}
+
+		unsigned char GetPixel(int i, int j) const
+		{
+			return operator[](i)[j];
+		}
+
+		void SetPixel(int i, int j, unsigned char pixel)
+		{
+			operator[](i)[j] = pixel;
+		}
+
+		void LoadFromFile(const char* path);
+
+		void SaveIndexedBitmap(const char* path);
+	};
 }
