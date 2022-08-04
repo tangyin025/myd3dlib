@@ -53,16 +53,15 @@ void IndexedBitmap::LoadFromFile(const char* path)
 		THROW_CUSEXCEPTION("sizeof(bih) != ifs->read");
 	}
 
-	if (bih.biBitCount != 8)
+	if (bih.biCompression != BI_RGB || bih.biBitCount != 8)
 	{
-		THROW_CUSEXCEPTION("bih.biBitCount != 8");
+		THROW_CUSEXCEPTION("bih.biCompression != BI_RGB || bih.biBitCount != 8");
 	}
 
-	int m = (bih.biWidth * bih.biBitCount + 31) / 32 * 4;
-	int n = (bih.biHeight * bih.biBitCount + 31) / 32 * 4;
+	int pitch = (bih.biWidth * bih.biBitCount + 31) / 32 * 4;
 	for (int i = 0; i < Min<int>(shape()[0], bih.biHeight); i++)
 	{
-		long offset = bfh.bfOffBits + (bih.biHeight - i - 1) * m;
+		long offset = bfh.bfOffBits + (bih.biHeight - i - 1) * pitch;
 		if (offset != ifs->seek(offset, SEEK_SET))
 		{
 			THROW_CUSEXCEPTION("offset != ifs->seek");
@@ -96,7 +95,7 @@ void IndexedBitmap::SaveIndexedBitmap(const char* path)
 	bih.biHeight = shape()[0];
 	bih.biPlanes = 1;
 	bih.biBitCount = 8;
-	bih.biCompression = 0;
+	bih.biCompression = BI_RGB;
 	bih.biSizeImage = num_elements() * sizeof(element);
 	bih.biXPelsPerMeter = 11808;
 	bih.biYPelsPerMeter = 11808;
