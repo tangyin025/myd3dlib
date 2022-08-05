@@ -1076,31 +1076,19 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("sceneid", &PlayerData::sceneid)
 			.def_readwrite("pos", &PlayerData::pos)
 			.def_readwrite("angle", &PlayerData::angle)
-			.def("getattr", luabind::tag_function<unsigned int(const PlayerData*, int)>(
-				boost::bind(&my::SubscribeGetter<const unsigned int, _countof(PlayerData::attrs)>, boost::bind(&PlayerData::attrs, boost::placeholders::_1), boost::placeholders::_2)))
-			.def("setattr", luabind::tag_function<void(PlayerData*, int, unsigned int)>(
-				boost::bind(&my::SubscribeSetter<unsigned int, _countof(PlayerData::attrs)>, boost::bind<unsigned int*>(&PlayerData::attrs, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
-			.def("getarea", luabind::tag_function<unsigned int(const PlayerData*, int)>(
-				boost::bind(&my::SubscribeGetter<const unsigned int, _countof(PlayerData::areas)>, boost::bind(&PlayerData::areas, boost::placeholders::_1), boost::placeholders::_2)))
-			.def("setarea", luabind::tag_function<void(PlayerData*, int, unsigned int)>(
-				boost::bind(&my::SubscribeSetter<unsigned int, _countof(PlayerData::areas)>, boost::bind<unsigned int*>(&PlayerData::areas, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
-			.def("getitem", luabind::tag_function<int(const PlayerData*, int)>(
-				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::items)>, boost::bind(&PlayerData::items, boost::placeholders::_1), boost::placeholders::_2)))
-			.def("setitem", luabind::tag_function<void(PlayerData*, int, int)>(
-				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::items)>, boost::bind<int*>(&PlayerData::items, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
-			.def("getitemstatus", luabind::tag_function<unsigned int(const PlayerData*, int)>(
-				boost::bind(&my::SubscribeGetter<const unsigned int, _countof(PlayerData::itemstatus)>, boost::bind(&PlayerData::itemstatus, boost::placeholders::_1), boost::placeholders::_2)))
-			.def("setitemstatus", luabind::tag_function<void(PlayerData*, int, unsigned int)>(
-				boost::bind(&my::SubscribeSetter<unsigned int, _countof(PlayerData::itemstatus)>, boost::bind<unsigned int*>(&PlayerData::itemstatus, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
+			.def("setattr", &PlayerData::setattr)
+			.def("getattr", &PlayerData::getattr)
+			.def("setarea", &PlayerData::setarea)
+			.def("getarea", &PlayerData::getarea)
+			.def("setitem", &PlayerData::setitem)
+			.def("getitem", &PlayerData::getitem)
+			.def("setitemstatus", &PlayerData::setitemstatus)
+			.def("getitemstatus", &PlayerData::getitemstatus)
 			.def("moveitems", &PlayerData_moveitems)
-			.def("getquest", luabind::tag_function<int(const PlayerData*, int)>(
-				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::quests)>, boost::bind(&PlayerData::quests, boost::placeholders::_1), boost::placeholders::_2)))
-			.def("setquest", luabind::tag_function<void(PlayerData*, int, int)>(
-				boost::bind(&my::SubscribeSetter<int, _countof(PlayerData::quests)>, boost::bind<int*>(&PlayerData::quests, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
-			.def("getqueststatus", luabind::tag_function<unsigned int(const PlayerData*, int)>(
-				boost::bind(&my::SubscribeGetter<const unsigned int, _countof(PlayerData::queststatus)>, boost::bind(&PlayerData::queststatus, boost::placeholders::_1), boost::placeholders::_2)))
-			.def("setqueststatus", luabind::tag_function<void(PlayerData*, int, unsigned int)>(
-				boost::bind(&my::SubscribeSetter<unsigned int, _countof(PlayerData::queststatus)>, boost::bind<unsigned int*>(&PlayerData::queststatus, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
+			.def("setquest", &PlayerData::setquest)
+			.def("getquest", &PlayerData::getquest)
+			.def("setqueststatus", &PlayerData::setqueststatus)
+			.def("getqueststatus", &PlayerData::getqueststatus)
 			.def("movequests", &PlayerData_movequests)
 
 		, luabind::class_<StateBase, ScriptStateBase/*, boost::shared_ptr<StateBase>*/ >("StateBase")

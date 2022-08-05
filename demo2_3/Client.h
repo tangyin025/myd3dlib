@@ -103,6 +103,66 @@ struct PlayerData : public my::DeviceResourceBase
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
+
+	void setattr(int i, unsigned int value)
+	{
+		attrs[i] = value;
+	}
+
+	unsigned int getattr(int i) const
+	{
+		return attrs[i];
+	}
+
+	void setarea(int i, unsigned int value)
+	{
+		areas[i] = value;
+	}
+
+	unsigned int getarea(int i) const
+	{
+		return areas[i];
+	}
+
+	void setitem(int i, int value)
+	{
+		items[i] = value;
+	}
+
+	int getitem(int i) const
+	{
+		return items[i];
+	}
+
+	void setitemstatus(int i, unsigned int value)
+	{
+		itemstatus[i] = value;
+	}
+
+	unsigned int getitemstatus(int i) const
+	{
+		return itemstatus[i];
+	}
+
+	void setquest(int i, int value)
+	{
+		quests[i] = value;
+	}
+
+	int getquest(int i) const
+	{
+		return quests[i];
+	}
+
+	void setqueststatus(int i, unsigned int value)
+	{
+		queststatus[i] = value;
+	}
+
+	unsigned int getqueststatus(int i) const
+	{
+		return queststatus[i];
+	}
 };
 
 typedef boost::shared_ptr<PlayerData> PlayerDataPtr;
