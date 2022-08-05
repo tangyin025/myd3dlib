@@ -488,6 +488,7 @@ PlayerData::PlayerData(void)
 	, angle(D3DXToRadian(0))
 {
 	std::fill_n(attrs, _countof(attrs), 0);
+	std::fill_n(areas, _countof(areas), 0);
 	std::fill_n(items, _countof(items), 0);
 	std::fill_n(itemstatus, _countof(itemstatus), 0);
 	std::fill_n(quests, _countof(quests), 0);
@@ -509,6 +510,7 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(pos);
 	ar << BOOST_SERIALIZATION_NVP(angle);
 	ar << BOOST_SERIALIZATION_NVP(attrs);
+	ar << BOOST_SERIALIZATION_NVP(areas);
 	ar << BOOST_SERIALIZATION_NVP(items);
 	ar << BOOST_SERIALIZATION_NVP(itemstatus);
 	ar << BOOST_SERIALIZATION_NVP(quests);
@@ -526,6 +528,7 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 		ar >> boost::serialization::make_nvp("pos", pos);
 		ar >> boost::serialization::make_nvp("angle", angle);
 		ar >> boost::serialization::make_nvp("attrs", attrs);
+		ar >> boost::serialization::make_nvp("areas", areas);
 		ar >> boost::serialization::make_nvp("items", items);
 		ar >> boost::serialization::make_nvp("itemstatus", itemstatus);
 		ar >> boost::serialization::make_nvp("quests", quests);
@@ -1077,6 +1080,10 @@ HRESULT Client::OnCreateDevice(
 				boost::bind(&my::SubscribeGetter<const unsigned int, _countof(PlayerData::attrs)>, boost::bind(&PlayerData::attrs, boost::placeholders::_1), boost::placeholders::_2)))
 			.def("setattr", luabind::tag_function<void(PlayerData*, int, unsigned int)>(
 				boost::bind(&my::SubscribeSetter<unsigned int, _countof(PlayerData::attrs)>, boost::bind<unsigned int*>(&PlayerData::attrs, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
+			.def("getarea", luabind::tag_function<unsigned int(const PlayerData*, int)>(
+				boost::bind(&my::SubscribeGetter<const unsigned int, _countof(PlayerData::areas)>, boost::bind(&PlayerData::areas, boost::placeholders::_1), boost::placeholders::_2)))
+			.def("setarea", luabind::tag_function<void(PlayerData*, int, unsigned int)>(
+				boost::bind(&my::SubscribeSetter<unsigned int, _countof(PlayerData::areas)>, boost::bind<unsigned int*>(&PlayerData::areas, boost::placeholders::_1), boost::placeholders::_2, boost::placeholders::_3)))
 			.def("getitem", luabind::tag_function<int(const PlayerData*, int)>(
 				boost::bind(&my::SubscribeGetter<const int, _countof(PlayerData::items)>, boost::bind(&PlayerData::items, boost::placeholders::_1), boost::placeholders::_2)))
 			.def("setitem", luabind::tag_function<void(PlayerData*, int, int)>(

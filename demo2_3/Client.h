@@ -78,6 +78,8 @@ struct PlayerData : public my::DeviceResourceBase
 
 	unsigned int attrs[64];
 
+	unsigned int areas[256];
+
 	int items[512];
 
 	unsigned int itemstatus[_countof(items)];
