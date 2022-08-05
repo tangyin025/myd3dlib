@@ -488,7 +488,6 @@ PlayerData::PlayerData(void)
 	, angle(D3DXToRadian(0))
 {
 	std::fill_n(attrs, _countof(attrs), 0);
-	std::fill_n(areas, _countof(areas), 0);
 	std::fill_n(items, _countof(items), 0);
 	std::fill_n(itemstatus, _countof(itemstatus), 0);
 	std::fill_n(quests, _countof(quests), 0);
@@ -510,7 +509,6 @@ void PlayerData::save(Archive& ar, const unsigned int version) const
 	ar << BOOST_SERIALIZATION_NVP(pos);
 	ar << BOOST_SERIALIZATION_NVP(angle);
 	ar << BOOST_SERIALIZATION_NVP(attrs);
-	ar << BOOST_SERIALIZATION_NVP(areas);
 	ar << BOOST_SERIALIZATION_NVP(items);
 	ar << BOOST_SERIALIZATION_NVP(itemstatus);
 	ar << BOOST_SERIALIZATION_NVP(quests);
@@ -528,7 +526,6 @@ void PlayerData::load(Archive& ar, const unsigned int version)
 		ar >> boost::serialization::make_nvp("pos", pos);
 		ar >> boost::serialization::make_nvp("angle", angle);
 		ar >> boost::serialization::make_nvp("attrs", attrs);
-		ar >> boost::serialization::make_nvp("areas", areas);
 		ar >> boost::serialization::make_nvp("items", items);
 		ar >> boost::serialization::make_nvp("itemstatus", itemstatus);
 		ar >> boost::serialization::make_nvp("quests", quests);
@@ -1067,6 +1064,8 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_ITEM_NUM", 6),
 				luabind::value("ATTR_QUEST_NUM", 7),
 				luabind::value("ATTR_ITEM_MAX_NUM", 8),
+				luabind::value("ATTR_NPC_GROUP_BEGIN", 9),
+				luabind::value("ATTR_NPC_GROUP_END", 109),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
 				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items)),
 				luabind::value("MAX_QUEST_NUM", _countof(PlayerData::quests))
@@ -1078,8 +1077,6 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("angle", &PlayerData::angle)
 			.def("setattr", &PlayerData::setattr)
 			.def("getattr", &PlayerData::getattr)
-			.def("setarea", &PlayerData::setarea)
-			.def("getarea", &PlayerData::getarea)
 			.def("setitem", &PlayerData::setitem)
 			.def("getitem", &PlayerData::getitem)
 			.def("setitemstatus", &PlayerData::setitemstatus)

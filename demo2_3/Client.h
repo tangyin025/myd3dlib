@@ -76,9 +76,7 @@ struct PlayerData : public my::DeviceResourceBase
 
 	float angle;
 
-	unsigned int attrs[64];
-
-	unsigned int areas[256];
+	unsigned int attrs[1024];
 
 	int items[512];
 
@@ -112,16 +110,6 @@ struct PlayerData : public my::DeviceResourceBase
 	unsigned int getattr(int i) const
 	{
 		return attrs[i];
-	}
-
-	void setarea(int i, unsigned int value)
-	{
-		areas[i] = value;
-	}
-
-	unsigned int getarea(int i) const
-	{
-		return areas[i];
 	}
 
 	void setitem(int i, int value)
