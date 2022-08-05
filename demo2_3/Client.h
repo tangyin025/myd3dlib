@@ -76,15 +76,15 @@ struct PlayerData : public my::DeviceResourceBase
 
 	float angle;
 
-	int attrs[64];
+	unsigned int attrs[64];
 
 	int items[512];
 
-	int itemstatus[_countof(items)];
+	unsigned int itemstatus[_countof(items)];
 
 	int quests[16];
 
-	int queststatus[_countof(quests)];
+	unsigned int queststatus[_countof(quests)];
 
 	PlayerData(void);
 
