@@ -77,18 +77,17 @@ namespace my
 	template <typename T>
 	T Random(T min, T max);
 
-	template <typename T, int N>
-	T & SubscribeGetter(T arr[N], size_t i)
+	template <typename T>
+	T & Subscribe(T * arr, size_t N, size_t i)
 	{
 		_ASSERT(i < N);
 		return arr[i];
 	}
 
 	template <typename T, int N>
-	void SubscribeSetter(T arr[N], size_t i, const T & v)
+	T & Subscribe(T (&arr)[N], size_t i)
 	{
-		_ASSERT(i < N);
-		arr[i] = v;
+		return Subscribe(arr, N, i);
 	}
 
 	template <typename Type1, typename Type2>
@@ -177,12 +176,12 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return SubscribeGetter<float, 2>(&x, i);
+			return Subscribe(&x, 2, i);
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return SubscribeGetter<const float, 2>(&x, i);
+			return Subscribe(&x, 2, i);
 		}
 
 		bool operator ==(const Vector2 & rhs) const
@@ -461,12 +460,12 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return SubscribeGetter<float, 3>(&x, i);
+			return Subscribe(&x, 3, i);
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return SubscribeGetter<const float, 3>(&x, i);
+			return Subscribe(&x, 3, i);
 		}
 
 		bool operator ==(const Vector3 & rhs) const
@@ -850,12 +849,12 @@ namespace my
 	public:
 		float & operator [](size_t i)
 		{
-			return SubscribeGetter<float, 4>(&x, i);
+			return Subscribe(&x, 4, i);
 		}
 
 		const float & operator [](size_t i) const
 		{
-			return SubscribeGetter<const float, 4>(&x, i);
+			return Subscribe(&x, 4, i);
 		}
 
 		bool operator ==(const Vector4 & rhs) const
@@ -1950,12 +1949,12 @@ namespace my
 	public:
 		Vector4 & operator [](size_t i)
 		{
-			return SubscribeGetter<Vector4, 4>((Vector4*)&_11, i);
+			return Subscribe((Vector4*)&_11, 4, i);
 		}
 
 		const Vector4 & operator [](size_t i) const
 		{
-			return SubscribeGetter<const Vector4, 4>((Vector4*)&_11, i);
+			return Subscribe((Vector4*)&_11, 4, i);
 		}
 
 		template <int i>
@@ -3075,12 +3074,12 @@ namespace my
 
 		Plane & operator [](size_t i)
 		{
-			return SubscribeGetter<Plane, 6>(&Up, i);
+			return Subscribe(&Up, 6, i);
 		}
 
 		const Plane & operator [](size_t i) const
 		{
-			return SubscribeGetter<const Plane, 6>(&Up, i);
+			return Subscribe(&Up, 6, i);
 		}
 
 		static Frustum ExtractMatrix(const Matrix4 & m)

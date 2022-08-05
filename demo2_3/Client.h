@@ -104,52 +104,52 @@ struct PlayerData : public my::DeviceResourceBase
 
 	void setattr(int i, unsigned int value)
 	{
-		attrs[i] = value;
+		my::Subscribe(attrs, i) = value;
 	}
 
 	unsigned int getattr(int i) const
 	{
-		return attrs[i];
+		return my::Subscribe(attrs, i);
 	}
 
 	void setitem(int i, int value)
 	{
-		items[i] = value;
+		my::Subscribe(items, i) = value;
 	}
 
 	int getitem(int i) const
 	{
-		return items[i];
+		return my::Subscribe(items, i);
 	}
 
 	void setitemstatus(int i, unsigned int value)
 	{
-		itemstatus[i] = value;
+		my::Subscribe(itemstatus, i) = value;
 	}
 
 	unsigned int getitemstatus(int i) const
 	{
-		return itemstatus[i];
+		return my::Subscribe(itemstatus, i);
 	}
 
 	void setquest(int i, int value)
 	{
-		quests[i] = value;
+		my::Subscribe(quests, i) = value;
 	}
 
 	int getquest(int i) const
 	{
-		return quests[i];
+		return my::Subscribe(quests, i);
 	}
 
 	void setqueststatus(int i, unsigned int value)
 	{
-		queststatus[i] = value;
+		my::Subscribe(queststatus, i) = value;
 	}
 
 	unsigned int getqueststatus(int i) const
 	{
-		return queststatus[i];
+		return my::Subscribe(queststatus, i);
 	}
 };
 
