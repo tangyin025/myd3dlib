@@ -287,6 +287,18 @@ namespace my
 		}
 	};
 
+	class FocusEventArg : public ControlEventArg
+	{
+	public:
+		bool Focused;
+
+		FocusEventArg(Control * _self, bool _Focused)
+			: ControlEventArg(_self)
+			, Focused(_Focused)
+		{
+		}
+	};
+
 	class MouseEventArg : public ControlEventArg
 	{
 	public:
@@ -357,6 +369,8 @@ namespace my
 		bool m_bPressed;
 
 		EventFunction m_EventVisibleChanged;
+
+		EventFunction m_EventFocusChanged;
 
 		EventFunction m_EventMouseEnter;
 

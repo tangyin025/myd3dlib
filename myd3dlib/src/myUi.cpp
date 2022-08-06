@@ -1184,10 +1184,21 @@ void Control::OnFocusIn(void)
 		}
 		listBox->m_ScrollBar->ScrollTo(i);
 	}
+
+	if (m_EventFocusChanged)
+	{
+		FocusEventArg arg(this, true);
+		m_EventFocusChanged(&arg);
+	}
 }
 
 void Control::OnFocusOut(void)
 {
+	if (m_EventFocusChanged)
+	{
+		FocusEventArg arg(this, false);
+		m_EventFocusChanged(&arg);
+	}
 }
 
 void Control::OnMouseEnter(const Vector2 & pt)

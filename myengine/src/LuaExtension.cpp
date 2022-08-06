@@ -1423,6 +1423,9 @@ void LuaContext::Init(void)
 		, class_<my::VisibleEventArg, my::ControlEventArg>("VisibleEventArg")
 			.def_readonly("Visible", &my::VisibleEventArg::Visible)
 
+		, class_<my::FocusEventArg, my::ControlEventArg>("FocusEventArg")
+			.def_readonly("Focused", &my::FocusEventArg::Focused)
+
 		, class_<my::MouseEventArg, my::ControlEventArg>("MouseEventArg")
 			.def_readonly("pt", &my::MouseEventArg::pt)
 
@@ -1498,6 +1501,7 @@ void LuaContext::Init(void)
 			.def_readwrite("Skin", &my::Control::m_Skin)
 			.def_readwrite("Pressed", &my::Control::m_bPressed)
 			.def_readwrite("EventVisibleChanged", &my::Control::m_EventVisibleChanged)
+			.def_readwrite("EventFocusChanged", &my::Control::m_EventFocusChanged)
 			.def_readwrite("EventMouseEnter", &my::Control::m_EventMouseEnter)
 			.def_readwrite("EventMouseLeave", &my::Control::m_EventMouseLeave)
 			.def_readwrite("EventMouseClick", &my::Control::m_EventMouseClick)
