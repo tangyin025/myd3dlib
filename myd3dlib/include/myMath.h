@@ -3572,7 +3572,7 @@ namespace my
 	{
 		Vector4 ret = transform(m);
 
-		if (ret.w > EPSILON_E6)
+		if (abs(ret.w) > EPSILON_E6)
 		{
 			return ret.xy / ret.w;
 		}
@@ -3583,7 +3583,7 @@ namespace my
 	{
 		Vector4 ret = transformTranspose(m);
 
-		if (ret.w > EPSILON_E6)
+		if (abs(ret.w) > EPSILON_E6)
 		{
 			return ret.xy / ret.w;
 		}
@@ -3614,7 +3614,7 @@ namespace my
 	{
 		Vector4 ret = transform(m);
 
-		if (ret.w > EPSILON_E6)
+		if (abs(ret.w) > EPSILON_E6)
 		{
 			return ret.xyz / ret.w;
 		}
@@ -3625,7 +3625,7 @@ namespace my
 	{
 		Vector4 ret = transformTranspose(m);
 
-		if (ret.w > EPSILON_E6)
+		if (abs(ret.w) > EPSILON_E6)
 		{
 			return ret.xyz / ret.w;
 		}
