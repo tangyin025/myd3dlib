@@ -3574,7 +3574,7 @@ namespace my
 
 		if (ret.w > EPSILON_E6)
 		{
-			return ret.xy * (1.0f / ret.w);
+			return ret.xy / ret.w;
 		}
 		return Vector2(0, 0);
 	}
@@ -3585,7 +3585,7 @@ namespace my
 
 		if (ret.w > EPSILON_E6)
 		{
-			return ret.xy * (1.0f / ret.w);
+			return ret.xy / ret.w;
 		}
 		return Vector2(0, 0);
 	}
@@ -3616,7 +3616,7 @@ namespace my
 
 		if (ret.w > EPSILON_E6)
 		{
-			return ret.xyz * (1.0f / ret.w);
+			return ret.xyz / ret.w;
 		}
 		return Vector3(0, 0, 0);
 	}
@@ -3627,7 +3627,7 @@ namespace my
 
 		if (ret.w > EPSILON_E6)
 		{
-			return ret.xyz * (1.0f / ret.w);
+			return ret.xyz / ret.w;
 		}
 		return Vector3(0, 0, 0);
 	}
