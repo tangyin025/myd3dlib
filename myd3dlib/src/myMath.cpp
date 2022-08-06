@@ -2,76 +2,6 @@
 
 using namespace my;
 
-template <>
-int my::Wrap<int>(int v, int min, int max)
-{
-	return v >= max ? min + (v - max) % (max - min) : (v < min ? max - (min - v) % (max - min) : v);
-}
-
-template <>
-float my::Wrap<float>(float v, float min, float max)
-{
-	return v >= max ? min + fmodf(v - max, max - min) : (v < min ? max - fmodf(min - v, max - min) : v);
-}
-
-template <>
-int my::Random<int>(int range)
-{
-	return rand() % range;
-}
-
-template <>
-float my::Random<float>(float range)
-{
-	return range * ((float)rand() / RAND_MAX);
-}
-
-template <>
-int my::Random<int>(int min, int max)
-{
-	return min + rand() % (max - min);
-}
-
-template <>
-float my::Random<float>(float min, float max)
-{
-	return min + (max - min) * ((float)rand() / RAND_MAX);
-}
-
-Vector4 Vector2::transform(const Matrix4 & m) const
-{
-	return Vector4(x, y, 0, 1).transform(m);
-}
-
-Vector4 Vector2::transformTranspose(const Matrix4 & m) const
-{
-	return Vector4(x, y, 0, 1).transformTranspose(m);
-}
-
-Vector2 Vector2::transformCoord(const Matrix4 & m) const
-{
-	Vector4 ret = transform(m);
-
-	return ret.xy / ret.w;
-}
-
-Vector2 Vector2::transformCoordTranspose(const Matrix4 & m) const
-{
-	Vector4 ret = transformTranspose(m);
-
-	return ret.xy / ret.w;
-}
-
-Vector2 Vector2::transformNormal(const Matrix4 & m) const
-{
-	return Vector4(x, y, 0, 0).transform(m).xy;
-}
-
-Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
-{
-	return Vector4(x, y, 0, 0).transformTranspose(m).xy;
-}
-
 Vector2 Vector2::RandomUnit(void)
 {
 	float theta = Random(0.0f, 2.0f * D3DX_PI);
@@ -90,40 +20,6 @@ const Vector2 Vector2::one(1, 1);
 const Vector2 Vector2::unitX(1, 0);
 
 const Vector2 Vector2::unitY(0, 1);
-
-Vector4 Vector3::transform(const Matrix4 & m) const
-{
-	return Vector4(x, y, z, 1).transform(m);
-}
-
-Vector4 Vector3::transformTranspose(const Matrix4 & m) const
-{
-	return Vector4(x, y, z, 1).transformTranspose(m);
-}
-
-Vector3 Vector3::transformCoord(const Matrix4 & m) const
-{
-	Vector4 ret = transform(m);
-
-	return ret.xyz / ret.w;
-}
-
-Vector3 Vector3::transformCoordTranspose(const Matrix4 & m) const
-{
-	Vector4 ret = transformTranspose(m);
-
-	return ret.xyz / ret.w;
-}
-
-Vector3 Vector3::transformNormal(const Matrix4 & m) const
-{
-	return Vector4(x, y, z, 0).transform(m).xyz;
-}
-
-Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
-{
-	return Vector4(x, y, z, 0).transformTranspose(m).xyz;
-}
 
 Vector3 Vector3::RandomUnit(void)
 {
@@ -149,24 +45,6 @@ const Vector3 Vector3::unitY(0, 1, 0);
 const Vector3 Vector3::unitZ(0, 0, 1);
 
 const Vector3 Vector3::Gravity(0.0f, -9.81f, 0.0f);
-
-Vector4 Vector4::transform(const Matrix4 & m) const
-{
-	return Vector4(
-		x * m._11 + y * m._21 + z * m._31 + w * m._41,
-		x * m._12 + y * m._22 + z * m._32 + w * m._42,
-		x * m._13 + y * m._23 + z * m._33 + w * m._43,
-		x * m._14 + y * m._24 + z * m._34 + w * m._44);
-}
-
-Vector4 Vector4::transformTranspose(const Matrix4 & m) const
-{
-	return Vector4(
-		x * m._11 + y * m._12 + z * m._13 + w * m._14,
-		x * m._21 + y * m._22 + z * m._23 + w * m._24,
-		x * m._31 + y * m._32 + z * m._33 + w * m._34,
-		x * m._41 + y * m._42 + z * m._43 + w * m._44);
-}
 
 const Vector4 Vector4::zero(0, 0, 0, 0);
 
@@ -419,54 +297,6 @@ Frustum & Frustum::transformSelf(const Matrix4 & InverseTranspose)
 }
 
 const AABB AABB::invalid(FLT_MAX, -FLT_MAX);
-
-template <>
-AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente)
-{
-	return AABB(cente.x, cente.y, cente.z, m_max.x, m_max.y, m_max.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente)
-{
-	return AABB(cente.x, cente.y, m_min.z, m_max.x, m_max.y, cente.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente)
-{
-	return AABB(cente.x, m_min.y, cente.z, m_max.x, cente.y, m_max.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente)
-{
-	return AABB(cente.x, m_min.y, m_min.z, m_max.x, cente.y, cente.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente)
-{
-	return AABB(m_min.x, cente.y, cente.z, cente.x, m_max.y, m_max.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente)
-{
-	return AABB(m_min.x, cente.y, m_min.z, cente.x, m_max.y, cente.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente)
-{
-	return AABB(m_min.x, m_min.y, cente.z, cente.x, cente.y, m_max.z);
-}
-
-template <>
-AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente)
-{
-	return AABB(m_min.x, m_min.y, m_min.z, cente.x, cente.y, cente.z);
-}
 
 AABB AABB::transform(const Matrix4 & m) const
 {

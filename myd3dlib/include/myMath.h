@@ -3380,30 +3380,6 @@ namespace my
 		AABB & transformSelf(const Matrix4 & m);
 	};
 
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente);
-
-	template <>
-	AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente);
-
 	class UDim // ref: CEGUI::UDim
 	{
 	public:
@@ -3545,4 +3521,190 @@ namespace my
 			return UDim(0.0f, 1.0f);
 		}
 	};
+
+	template <>
+	inline int my::Wrap<int>(int v, int min, int max)
+	{
+		return v >= max ? min + (v - max) % (max - min) : (v < min ? max - (min - v) % (max - min) : v);
+	}
+
+	template <>
+	inline float my::Wrap<float>(float v, float min, float max)
+	{
+		return v >= max ? min + fmodf(v - max, max - min) : (v < min ? max - fmodf(min - v, max - min) : v);
+	}
+
+	template <>
+	inline int my::Random<int>(int range)
+	{
+		return rand() % range;
+	}
+
+	template <>
+	inline float my::Random<float>(float range)
+	{
+		return range * ((float)rand() / RAND_MAX);
+	}
+
+	template <>
+	inline int my::Random<int>(int min, int max)
+	{
+		return min + rand() % (max - min);
+	}
+
+	template <>
+	inline float my::Random<float>(float min, float max)
+	{
+		return min + (max - min) * ((float)rand() / RAND_MAX);
+	}
+
+	inline Vector4 Vector2::transform(const Matrix4 & m) const
+	{
+		return Vector4(x, y, 0, 1).transform(m);
+	}
+
+	inline Vector4 Vector2::transformTranspose(const Matrix4 & m) const
+	{
+		return Vector4(x, y, 0, 1).transformTranspose(m);
+	}
+
+	inline Vector2 Vector2::transformCoord(const Matrix4 & m) const
+	{
+		Vector4 ret = transform(m);
+
+		if (ret.w > EPSILON_E6)
+		{
+			return ret.xy * (1.0f / ret.w);
+		}
+		return Vector2(0, 0);
+	}
+
+	inline Vector2 Vector2::transformCoordTranspose(const Matrix4 & m) const
+	{
+		Vector4 ret = transformTranspose(m);
+
+		if (ret.w > EPSILON_E6)
+		{
+			return ret.xy * (1.0f / ret.w);
+		}
+		return Vector2(0, 0);
+	}
+
+	inline Vector2 Vector2::transformNormal(const Matrix4 & m) const
+	{
+		return Vector4(x, y, 0, 0).transform(m).xy;
+	}
+
+	inline Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
+	{
+		return Vector4(x, y, 0, 0).transformTranspose(m).xy;
+	}
+
+	inline Vector4 Vector3::transform(const Matrix4 & m) const
+	{
+		return Vector4(x, y, z, 1).transform(m);
+	}
+
+	inline Vector4 Vector3::transformTranspose(const Matrix4 & m) const
+	{
+		return Vector4(x, y, z, 1).transformTranspose(m);
+	}
+
+	inline Vector3 Vector3::transformCoord(const Matrix4 & m) const
+	{
+		Vector4 ret = transform(m);
+
+		if (ret.w > EPSILON_E6)
+		{
+			return ret.xyz * (1.0f / ret.w);
+		}
+		return Vector3(0, 0, 0);
+	}
+
+	inline Vector3 Vector3::transformCoordTranspose(const Matrix4 & m) const
+	{
+		Vector4 ret = transformTranspose(m);
+
+		if (ret.w > EPSILON_E6)
+		{
+			return ret.xyz * (1.0f / ret.w);
+		}
+		return Vector3(0, 0, 0);
+	}
+
+	inline Vector3 Vector3::transformNormal(const Matrix4 & m) const
+	{
+		return Vector4(x, y, z, 0).transform(m).xyz;
+	}
+
+	inline Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
+	{
+		return Vector4(x, y, z, 0).transformTranspose(m).xyz;
+	}
+
+	inline Vector4 Vector4::transform(const Matrix4 & m) const
+	{
+		return Vector4(
+			x * m._11 + y * m._21 + z * m._31 + w * m._41,
+			x * m._12 + y * m._22 + z * m._32 + w * m._42,
+			x * m._13 + y * m._23 + z * m._33 + w * m._43,
+			x * m._14 + y * m._24 + z * m._34 + w * m._44);
+	}
+
+	inline Vector4 Vector4::transformTranspose(const Matrix4 & m) const
+	{
+		return Vector4(
+			x * m._11 + y * m._12 + z * m._13 + w * m._14,
+			x * m._21 + y * m._22 + z * m._23 + w * m._24,
+			x * m._31 + y * m._32 + z * m._33 + w * m._34,
+			x * m._41 + y * m._42 + z * m._43 + w * m._44);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantPxPyPz>(const Vector3 & cente)
+	{
+		return AABB(cente.x, cente.y, cente.z, m_max.x, m_max.y, m_max.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantPxPyNz>(const Vector3 & cente)
+	{
+		return AABB(cente.x, cente.y, m_min.z, m_max.x, m_max.y, cente.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantPxNyPz>(const Vector3 & cente)
+	{
+		return AABB(cente.x, m_min.y, cente.z, m_max.x, cente.y, m_max.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantPxNyNz>(const Vector3 & cente)
+	{
+		return AABB(cente.x, m_min.y, m_min.z, m_max.x, cente.y, cente.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantNxPyPz>(const Vector3 & cente)
+	{
+		return AABB(m_min.x, cente.y, cente.z, cente.x, m_max.y, m_max.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantNxPyNz>(const Vector3 & cente)
+	{
+		return AABB(m_min.x, cente.y, m_min.z, cente.x, m_max.y, cente.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantNxNyPz>(const Vector3 & cente)
+	{
+		return AABB(m_min.x, m_min.y, cente.z, cente.x, cente.y, m_max.z);
+	}
+
+	template <>
+	inline AABB AABB::Slice<AABB::QuadrantNxNyNz>(const Vector3 & cente)
+	{
+		return AABB(m_min.x, m_min.y, m_min.z, cente.x, cente.y, cente.z);
+	}
 }
