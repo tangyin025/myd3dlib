@@ -734,6 +734,11 @@ static bool physxscene_sweep_sphere(PhysxScene* self,
 	return self->Sweep(sphere, Position, my::Quaternion::Identity(), unitDir, distance, filterWord0, boost::bind(&luabind::call_function<bool, my::EventArg*>, boost::ref(callback), boost::placeholders::_1), MaxNbTouches);
 }
 
+static void indexedbitmap_save_indexed_bitmap(my::IndexedBitmap * self, const char * path, const luabind::object & get_color)
+{
+	self->SaveIndexedBitmap(path, boost::bind(&luabind::call_function<DWORD, unsigned char>, boost::ref(get_color), boost::placeholders::_1));
+}
+
 typedef std::vector<boost::cmatch> sub_match_list;
 
 typedef boost::shared_container_iterator<sub_match_list> shared_sub_match_list_iter;
@@ -2774,7 +2779,7 @@ void LuaContext::Init(void)
 			.def("GetPixel", &my::IndexedBitmap::GetPixel)
 			.def("SetPixel", &my::IndexedBitmap::SetPixel)
 			.def("LoadFromFile", &my::IndexedBitmap::LoadFromFile)
-			.def("SaveIndexedBitmap", &my::IndexedBitmap::SaveIndexedBitmap)
+			.def("SaveIndexedBitmap", &indexedbitmap_save_indexed_bitmap)
 
 		, class_<my::RayResult>("RayResult")
 			.def(constructor<bool, float>())

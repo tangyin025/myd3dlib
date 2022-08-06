@@ -7,6 +7,7 @@
 #include <atltypes.h>
 #include "myMath.h"
 #include <boost/align/align_up.hpp>
+#include <boost/function.hpp>
 
 namespace my
 {
@@ -239,12 +240,12 @@ namespace my
 
 		int GetWidth(void) const
 		{
-			return shape()[1];
+			return (int)shape()[1];
 		}
 
 		int GetHeight(void) const
 		{
-			return shape()[0];
+			return (int)shape()[0];
 		}
 
 		unsigned char GetPixel(int i, int j) const
@@ -259,6 +260,6 @@ namespace my
 
 		void LoadFromFile(const char* path);
 
-		void SaveIndexedBitmap(const char* path);
+		void SaveIndexedBitmap(const char* path, const boost::function<DWORD(unsigned char)> & get_color);
 	};
 }

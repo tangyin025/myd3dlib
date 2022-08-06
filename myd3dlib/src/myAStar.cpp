@@ -59,7 +59,7 @@ void IndexedBitmap::LoadFromFile(const char* path)
 	}
 
 	int pitch = (bih.biWidth * bih.biBitCount + 31) / 32 * 4;
-	for (int i = 0; i < Min<int>(shape()[0], bih.biHeight); i++)
+	for (int i = 0; i < Min<int>(GetHeight(), bih.biHeight); i++)
 	{
 		long offset = bfh.bfOffBits + (bih.biHeight - i - 1) * pitch;
 		if (offset != ifs->seek(offset, SEEK_SET))
@@ -67,7 +67,7 @@ void IndexedBitmap::LoadFromFile(const char* path)
 			THROW_CUSEXCEPTION("offset != ifs->seek");
 		}
 
-		int rdnum = Min<int>(shape()[1], bih.biWidth) * sizeof(element);
+		int rdnum = Min<int>(GetWidth(), bih.biWidth) * sizeof(element);
 		if (rdnum != ifs->read(&operator[](i)[0], rdnum))
 		{
 			THROW_CUSEXCEPTION("rdnum != ifs->read");
@@ -77,7 +77,7 @@ void IndexedBitmap::LoadFromFile(const char* path)
 	}
 }
 
-void IndexedBitmap::SaveIndexedBitmap(const char* path)
+void IndexedBitmap::SaveIndexedBitmap(const char* path, const boost::function<DWORD(unsigned char)> & get_color)
 {
 	std::ofstream ofs(path, std::ios::binary, _SH_DENYRW);
 	if (!ofs.is_open())
@@ -91,8 +91,8 @@ void IndexedBitmap::SaveIndexedBitmap(const char* path)
 	bfh.bfOffBits = sizeof(bfh) + sizeof(bih) + sizeof(RGBQUAD) * 256;
 	bfh.bfSize = bfh.bfOffBits + num_elements() * sizeof(element);
 	bih.biSize = sizeof(bih);
-	bih.biWidth = shape()[1];
-	bih.biHeight = shape()[0];
+	bih.biWidth = GetWidth();
+	bih.biHeight = GetHeight();
 	bih.biPlanes = 1;
 	bih.biBitCount = 8;
 	bih.biCompression = BI_RGB;
@@ -105,17 +105,18 @@ void IndexedBitmap::SaveIndexedBitmap(const char* path)
 	ofs.write((char*)&bfh, sizeof(bfh));
 	ofs.write((char*)&bih, sizeof(bih));
 
-	for (int p = 0; p < 256; p++)
+	for (int i = 0; i < 256; i++)
 	{
-		RGBQUAD q = { p, p, p, 0 };
+		DWORD color = get_color(i);
+		RGBQUAD q = { LOBYTE(color), LOBYTE(color >> 8), LOBYTE(color >> 16), 0 };
 		ofs.write((char*)&q, sizeof(q));
 	}
 
 	_ASSERT(ofs.tellp() == bfh.bfOffBits);
 
-	for (int i = 0; i < shape()[0]; i++)
+	for (int i = 0; i < GetHeight(); i++)
 	{
-		ofs.write((char*)&operator[](shape()[0] - i - 1)[0], shape()[1] * sizeof(element));
+		ofs.write((char*)&operator[](GetHeight() - i - 1)[0], GetWidth() * sizeof(element));
 	}
 
 	_ASSERT(ofs.tellp() == bfh.bfSize);
