@@ -255,7 +255,7 @@ void Font::Create(FT_Face face, int height)
 
 	SetScale(FontLibrary::getSingleton().m_Scale);
 
-	m_LineHeight = m_face->size->metrics.height / 64;
+	m_LineHeight = m_face->size->metrics.height / 64 / FontLibrary::getSingleton().m_Scale.y;
 }
 
 void Font::CreateFontFromFile(
