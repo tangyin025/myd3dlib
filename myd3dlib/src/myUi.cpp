@@ -976,18 +976,43 @@ void Control::SetFocusControl(Control * control)
 {
 	if (s_FocusControl != control)
 	{
+		Control* focusParent = NULL;
+
 		if (s_FocusControl)
 		{
-			s_FocusControl->OnFocusOut();
+			if (control)
+			{
+				if (s_FocusControl->m_Parent && s_FocusControl->m_Parent->ContainsControl(control))
+				{
+					focusParent = s_FocusControl->m_Parent;
+				}
+				else if (control->m_Parent && control->m_Parent->ContainsControl(s_FocusControl))
+				{
+					focusParent = control->m_Parent;
+				}
+			}
 		}
 
 		Control * old_control = s_FocusControl;
 
 		s_FocusControl = control;
 
+		if (old_control)
+		{
+			Control* ctrl = old_control;
+			for (; ctrl != focusParent; ctrl = ctrl->m_Parent)
+			{
+				ctrl->OnFocusOut();
+			}
+		}
+
 		if (s_FocusControl)
 		{
-			control->OnFocusIn();
+			Control* ctrl = s_FocusControl;
+			for (; ctrl != focusParent; ctrl = ctrl->m_Parent)
+			{
+				ctrl->OnFocusIn();
+			}
 		}
 
 		D3DContext::getSingleton().OnControlFocus(s_FocusControl);
