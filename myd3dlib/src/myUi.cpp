@@ -4190,18 +4190,39 @@ void Dialog::SetVisible(bool bVisible)
 
 		if (m_bVisible)
 		{
+			if (my::Control::s_FocusControl)
+			{
+				m_LastFocusControl = my::Control::s_FocusControl->shared_from_this();
+			}
 			SetFocused(true);
 		}
 		else if (m_Manager && !my::Control::s_FocusControl)
 		{
-			DialogMgr::DialogList::reverse_iterator dlg_iter = m_Manager->m_DlgList.rbegin();
-			for (; dlg_iter != m_Manager->m_DlgList.rend(); dlg_iter++)
+			ControlPtr control = m_LastFocusControl.lock();
+			m_LastFocusControl.reset();
+			Control* ctrl = control.get();
+			for (; ctrl; ctrl = ctrl->m_Parent)
 			{
-				(*dlg_iter)->SetFocused(true);
-
-				if (Control::s_FocusControl)
+				if (!ctrl->GetVisible())
 				{
-					return;
+					break;
+				}
+			}
+			if (control && !ctrl)
+			{
+				control->SetFocused(true);
+			}
+			else
+			{
+				DialogMgr::DialogList::reverse_iterator dlg_iter = m_Manager->m_DlgList.rbegin();
+				for (; dlg_iter != m_Manager->m_DlgList.rend(); dlg_iter++)
+				{
+					(*dlg_iter)->SetFocused(true);
+
+					if (Control::s_FocusControl)
+					{
+						return;
+					}
 				}
 			}
 		}

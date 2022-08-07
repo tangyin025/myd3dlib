@@ -1489,6 +1489,8 @@ namespace my
 
 		EventFunction m_EventAlign;
 
+		boost::weak_ptr<Control> m_LastFocusControl;
+
 	protected:
 		Dialog(void)
 			: m_Manager(NULL)
