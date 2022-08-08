@@ -872,17 +872,17 @@ Control * Control::s_MouseOverControl = NULL;
 Control::~Control(void)
 {
 	// ! must clear global reference
-	if (this == s_FocusControl)
+	if (ContainsControl(s_FocusControl))
 	{
 		SetFocusControl(NULL);
 	}
 
-	if (this == s_CaptureControl)
+	if (ContainsControl(s_CaptureControl))
 	{
 		SetCaptureControl(NULL);
 	}
 
-	if (this == s_MouseOverControl)
+	if (ContainsControl(s_MouseOverControl))
 	{
 		SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
 	}
@@ -1312,17 +1312,17 @@ void Control::SetVisible(bool bVisible)
 
 		if (!m_bVisible)
 		{
-			if (s_FocusControl && ContainsControl(s_FocusControl))
+			if (ContainsControl(s_FocusControl))
 			{
-				SetFocusControl(NULL);
+				GetTopControl()->SetFocusRecursive();
 			}
 
-			if (s_CaptureControl && ContainsControl(s_CaptureControl))
+			if (ContainsControl(s_CaptureControl))
 			{
 				SetCaptureControl(NULL);
 			}
 
-			if (s_MouseOverControl && ContainsControl(s_MouseOverControl))
+			if (ContainsControl(s_MouseOverControl))
 			{
 				SetMouseOverControl(NULL, Vector2(FLT_MAX, FLT_MAX));
 			}
@@ -1355,7 +1355,7 @@ void Control::SetFocused(bool bFocused)
 
 bool Control::GetFocused(void) const
 {
-	return s_FocusControl && ContainsControl(s_FocusControl);
+	return ContainsControl(s_FocusControl);
 }
 
 void Control::SetCaptured(bool bCaptured)
@@ -1423,16 +1423,23 @@ void Control::RemoveControl(unsigned int i)
 
 	ControlPtrList::iterator ctrl_iter = m_Childs.begin() + i;
 
-	_ASSERT((*ctrl_iter)->m_Parent == this);
+	ControlPtr dummy_ctrl = *ctrl_iter;
 
-	if ((*ctrl_iter)->IsRequested())
-	{
-		(*ctrl_iter)->ReleaseResource();
-	}
-
-	(*ctrl_iter)->m_Parent = NULL;
+	_ASSERT(dummy_ctrl->m_Parent == this);
 
 	m_Childs.erase(ctrl_iter);
+
+	if (dummy_ctrl->IsRequested())
+	{
+		dummy_ctrl->ReleaseResource();
+	}
+
+	dummy_ctrl->m_Parent = NULL;
+
+	if (dummy_ctrl->ContainsControl(s_FocusControl))
+	{
+		GetTopControl()->SetFocusRecursive();
+	}
 }
 
 unsigned int Control::GetChildNum(void) const
