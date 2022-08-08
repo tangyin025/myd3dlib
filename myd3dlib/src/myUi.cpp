@@ -1312,9 +1312,9 @@ void Control::SetVisible(bool bVisible)
 
 		if (!m_bVisible)
 		{
-			if (ContainsControl(s_FocusControl))
+			if (ContainsControl(s_FocusControl) && !GetTopControl()->SetFocusRecursive())
 			{
-				GetTopControl()->SetFocusRecursive();
+				SetFocusControl(NULL);
 			}
 
 			if (ContainsControl(s_CaptureControl))
@@ -1436,9 +1436,9 @@ void Control::RemoveControl(unsigned int i)
 
 	dummy_ctrl->m_Parent = NULL;
 
-	if (dummy_ctrl->ContainsControl(s_FocusControl))
+	if (dummy_ctrl->ContainsControl(s_FocusControl) && !GetTopControl()->SetFocusRecursive())
 	{
-		GetTopControl()->SetFocusRecursive();
+		SetFocusControl(NULL);
 	}
 }
 
