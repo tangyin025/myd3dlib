@@ -1063,7 +1063,7 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_WEAPON2", 5),
 				luabind::value("ATTR_ITEM_NUM", 6),
 				luabind::value("ATTR_QUEST_NUM", 7),
-				luabind::value("ATTR_ITEM_MAX_NUM", 8),
+				luabind::value("ATTR_ITEM_CAPACITY", 8),
 				luabind::value("ATTR_NPC_GROUP_BEGIN", 9),
 				luabind::value("ATTR_NPC_GROUP_END", 109),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
