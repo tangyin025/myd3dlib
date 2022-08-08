@@ -76,7 +76,7 @@ struct PlayerData : public my::DeviceResourceBase
 
 	float angle;
 
-	unsigned int attrs[1024];
+	int attrs[1024];
 
 	int items[512];
 
@@ -102,12 +102,12 @@ struct PlayerData : public my::DeviceResourceBase
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void setattr(int i, unsigned int value)
+	void setattr(int i, int value)
 	{
 		my::Subscribe(attrs, i) = value;
 	}
 
-	unsigned int getattr(int i) const
+	int getattr(int i) const
 	{
 		return my::Subscribe(attrs, i);
 	}
