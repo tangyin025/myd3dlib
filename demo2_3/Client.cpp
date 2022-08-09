@@ -570,8 +570,6 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 
 	virtual ~ScriptStateBase(void)
 	{
-		_ASSERT(my::DialogMgr::getSingleton().m_UIPassObjs.end() == std::find(my::DialogMgr::getSingleton().m_UIPassObjs.begin(), my::DialogMgr::getSingleton().m_UIPassObjs.end(),
-			boost::bind(&ScriptStateBase::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3)));
 	}
 
 	virtual void OnAdd(void)
@@ -627,8 +625,6 @@ struct ScriptStateBase : StateBase, luabind::wrap_base
 
 	virtual void OnUpdate(float fElapsedTime)
 	{
-		my::DialogMgr::getSingleton().m_UIPassObjs.push_back(boost::bind(&ScriptStateBase::OnGUI, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3));
-
 		try
 		{
 			luabind::wrap_base::call<void>("OnUpdate", fElapsedTime);
@@ -1589,6 +1585,11 @@ void Client::OnUIRender(
 	float fElapsedTime)
 {
 	DialogMgr::Draw(ui_render, m_fAbsoluteTime, m_fAbsoluteElapsedTime, DialogMgr::GetDlgViewport());
+	StateBase* curr_iter = m_Current;
+	for (; curr_iter != NULL; curr_iter = curr_iter->m_Current)
+	{
+		curr_iter->OnGUI(ui_render, m_fAbsoluteElapsedTime, DialogMgr::GetDlgViewport());
+	}
 	_ASSERT(m_Font);
 	ui_render->SetWorld(Matrix4::identity);
 	ScrInfoMap::const_iterator info_iter = m_ScrInfo.begin();
