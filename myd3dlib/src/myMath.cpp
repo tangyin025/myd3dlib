@@ -61,9 +61,8 @@ const Vector4 Vector4::unitW(0, 0, 0, 1);
 Quaternion Quaternion::RotationFromTo(const Vector3 & from, const Vector3 & to, const Vector3 & fallback_axis)
 {
 	// Copy, since cannot modify local
-	Vector3 v0 = from.normalize();
-	Vector3 v1 = to.normalize();
-	float d = v0.dot(v1);
+	_ASSERT(IS_NORMALIZED(from) && IS_NORMALIZED(to));
+	float d = from.dot(to);
 	// If dot == 1, vectors are the same
 	if (d >= 1.0f)
 	{
@@ -80,11 +79,11 @@ Quaternion Quaternion::RotationFromTo(const Vector3 & from, const Vector3 & to, 
 		else
 		{
 			// Generate an axis
-			Vector3 axis = Vector3::unitX.cross(v0);
+			Vector3 axis = Vector3::unitX.cross(from);
 			if (axis.magnitudeSq() < 0.000001f)
 			{
 				// pick another if colinear
-				axis = Vector3::unitY.cross(v0);
+				axis = Vector3::unitY.cross(from);
 			}
 			return RotationAxis(axis.normalize(), D3DX_PI);
 		}
@@ -92,8 +91,20 @@ Quaternion Quaternion::RotationFromTo(const Vector3 & from, const Vector3 & to, 
 
 	float s = sqrtf((1 + d) * 2);
 	float invs = 1 / s;
-	Vector3 c = v0.cross(v1);
+	Vector3 c = from.cross(to);
 	return Quaternion(c.x * invs, c.y * invs, c.z * invs, s * 0.5f).normalize();
+}
+
+Quaternion Quaternion::RotationFromToSafe(const Vector3 & from, const Vector3 & to)
+{
+	float lensq0 = from.magnitudeSq();
+	float lensq1 = to.magnitudeSq();
+	if (lensq0 < EPSILON_E12 || lensq1 < EPSILON_E12)
+	{
+		return Identity();
+	}
+
+	return RotationFromTo(from * (1.0f / sqrtf(lensq0)), to * (1.0f / sqrt(lensq1)), Vector3::zero);
 }
 
 Vector3 Quaternion::toEulerAngles(void) const

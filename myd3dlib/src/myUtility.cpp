@@ -121,7 +121,7 @@ Vector3 BaseCamera::ScreenToWorld(const Vector2 & pt, const Vector2 & dim, float
 
 Vector3 BaseCamera::WorldToScreen(const Vector3 & pos, const Vector2 & dim)
 {
-	const Vector3 ptProj = pos.transformCoord(m_ViewProj);
+	const Vector3 ptProj = pos.transformCoordSafe(m_ViewProj);
 
 	return Vector3(Lerp(0.0f, dim.x, (ptProj.x + 1) / 2), Lerp(0.0f, dim.y, (1 - ptProj.y) / 2), ptProj.z);
 }

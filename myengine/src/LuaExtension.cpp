@@ -862,12 +862,12 @@ void LuaContext::Init(void)
 			.def("distanceSq2D", &my::Vector3::distanceSq2D)
 			.def("lerp", &my::Vector3::lerp)
 			.def("lerpSelf", &my::Vector3::lerpSelf, return_reference_to(boost::placeholders::_1))
-			.property("normalize", &my::Vector3::normalize)
+			.property("normalize", &my::Vector3::normalizeSafe)
 			.property("normalize2D", &my::Vector3::normalize2D)
 			.def("normalizeSelf", &my::Vector3::normalizeSelf, return_reference_to(boost::placeholders::_1))
 			.def("transform", (my::Vector4(my::Vector3::*)(const my::Matrix4 &) const)&my::Vector3::transform)
 			.def("transformTranspose", &my::Vector3::transformTranspose)
-			.def("transformCoord", &my::Vector3::transformCoord)
+			.def("transformCoord", &my::Vector3::transformCoordSafe)
 			.def("transformCoordTranspose", &my::Vector3::transformCoordTranspose)
 			.def("transformNormal", &my::Vector3::transformNormal)
 			.def("transformNormalTranspose", &my::Vector3::transformNormalTranspose)
@@ -1018,9 +1018,7 @@ void LuaContext::Init(void)
 				def("RotationAxis", &my::Quaternion::RotationAxis),
 				def("RotationMatrix", &my::Quaternion::RotationMatrix),
 				def("RotationYawPitchRoll", &my::Quaternion::RotationYawPitchRoll),
-				def("RotationFromTo", (my::Quaternion(*)(const my::Vector3 &, const my::Vector3 &, const my::Vector3 &))&my::Quaternion::RotationFromTo),
-				def("RotationFromTo", luabind::tag_function<my::Quaternion(const my::Vector3&, const my::Vector3&)>(
-					boost::bind(&my::Quaternion::RotationFromTo, boost::placeholders::_1, boost::placeholders::_2, boost::ref(my::Vector3::zero)))),
+				def("RotationFromTo", &my::Quaternion::RotationFromToSafe),
 				def("RotationEulerAngles", &my::Quaternion::RotationEulerAngles)
 			]
 

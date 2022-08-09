@@ -677,6 +677,17 @@ namespace my
 			return operator *(1.0f / length);
 		}
 
+		Vector3 normalizeSafe(void) const
+		{
+			float length = magnitude();
+
+			if (length > EPSILON_E6)
+			{
+				return operator *(1.0f / length);
+			}
+			return Vector3(0, 0, 0);
+		}
+
 		Vector3 normalize2D(void) const
 		{
 			float length = magnitude2D();
@@ -700,6 +711,8 @@ namespace my
 		Vector4 transformTranspose(const Matrix4 & m) const;
 
 		Vector3 transformCoord(const Matrix4 & m) const;
+
+		Vector3 transformCoordSafe(const Matrix4 & m) const;
 
 		Vector3 transformCoordTranspose(const Matrix4 & m) const;
 
@@ -1822,6 +1835,8 @@ namespace my
 		}
 
 		static Quaternion RotationFromTo(const Vector3 & from, const Vector3 & to, const Vector3 & _fallback_axis);
+
+		static Quaternion RotationFromToSafe(const Vector3 & from, const Vector3 & to);
 
 		Quaternion lerp(const Quaternion & rhs, float t) const
 		{
@@ -3572,22 +3587,18 @@ namespace my
 	{
 		Vector4 ret = transform(m);
 
-		if (abs(ret.w) > EPSILON_E6)
-		{
-			return ret.xy / ret.w;
-		}
-		return Vector2(0, 0);
+		_ASSERT(abs(ret.w) > EPSILON_E6);
+
+		return ret.xy / ret.w;
 	}
 
 	inline Vector2 Vector2::transformCoordTranspose(const Matrix4 & m) const
 	{
 		Vector4 ret = transformTranspose(m);
 
-		if (abs(ret.w) > EPSILON_E6)
-		{
-			return ret.xy / ret.w;
-		}
-		return Vector2(0, 0);
+		_ASSERT(abs(ret.w) > EPSILON_E6);
+
+		return ret.xy / ret.w;
 	}
 
 	inline Vector2 Vector2::transformNormal(const Matrix4 & m) const
@@ -3614,6 +3625,15 @@ namespace my
 	{
 		Vector4 ret = transform(m);
 
+		_ASSERT(abs(ret.w) > EPSILON_E6);
+
+		return ret.xyz / ret.w;
+	}
+
+	inline Vector3 Vector3::transformCoordSafe(const Matrix4 & m) const
+	{
+		Vector4 ret = transform(m);
+
 		if (abs(ret.w) > EPSILON_E6)
 		{
 			return ret.xyz / ret.w;
@@ -3625,11 +3645,9 @@ namespace my
 	{
 		Vector4 ret = transformTranspose(m);
 
-		if (abs(ret.w) > EPSILON_E6)
-		{
-			return ret.xyz / ret.w;
-		}
-		return Vector3(0, 0, 0);
+		_ASSERT(abs(ret.w) > EPSILON_E6);
+
+		return ret.xyz / ret.w;
 	}
 
 	inline Vector3 Vector3::transformNormal(const Matrix4 & m) const
