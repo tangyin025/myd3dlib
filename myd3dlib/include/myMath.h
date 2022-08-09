@@ -339,7 +339,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *(1.0f / length);
 		}
@@ -348,7 +348,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *=(1.0f / length);
 		}
@@ -672,7 +672,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *(1.0f / length);
 		}
@@ -681,7 +681,7 @@ namespace my
 		{
 			float length = magnitude2D();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return Vector3(x, 0, z) * (1.0f / length);
 		}
@@ -690,7 +690,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *=(1.0f / length);
 		}
@@ -717,7 +717,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return Vector3(length, asinf(y / length), atan2f(z, x));
 		}
@@ -1036,7 +1036,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *(1.0f / length);
 		}
@@ -1045,7 +1045,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *=(1.0f / length);
 		}
@@ -1782,7 +1782,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *(1.0f / length);
 		}
@@ -1791,7 +1791,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			return operator *=(1.0f / length);
 		}
@@ -1888,7 +1888,7 @@ namespace my
 			Quaternion qZ(0.0f, 0.0f, sZ, cZ);
 
 			Quaternion q = (qY * qX) * qZ;
-			_ASSERT(abs(q.magnitudeSq() - 1.0f) < EPSILON_E6);
+			_ASSERT(abs(q.magnitude() - 1.0f) < EPSILON_E6);
 			return q;
 		}
 
@@ -2986,7 +2986,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			float invLength = 1 / length;
 
@@ -2997,7 +2997,7 @@ namespace my
 		{
 			float length = magnitude();
 
-			_ASSERT(length > EPSILON_E12);
+			_ASSERT(length > EPSILON_E6);
 
 			float invLength = 1 / length;
 
