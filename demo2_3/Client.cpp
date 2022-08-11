@@ -1063,8 +1063,10 @@ HRESULT Client::OnCreateDevice(
 				luabind::value("ATTR_HEALTH", 9),
 				luabind::value("ATTR_MAX_HEALTH", 10),
 				luabind::value("ATTR_ITEM_CAPACITY", 11),
-				luabind::value("ATTR_NPC_GROUP_BEGIN", 12),
-				luabind::value("ATTR_NPC_GROUP_END", 112),
+				luabind::value("ATTR_NPC_GROUP_BEGIN", 100),
+				luabind::value("ATTR_NPC_GROUP_END", 199),
+				luabind::value("ATTR_QUEST_GROUP_BEGIN", 200),
+				luabind::value("ATTR_QUEST_GROUP_END", 299),
 				luabind::value("ATTR_COUNT", _countof(PlayerData::attrs)),
 				luabind::value("MAX_ITEM_NUM", _countof(PlayerData::items)),
 				luabind::value("MAX_QUEST_NUM", _countof(PlayerData::quests))
