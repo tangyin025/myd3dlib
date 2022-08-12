@@ -53,7 +53,7 @@ public:
 
 	enum LODMask
 	{
-		LOD_INFINITE = 3,
+		MAX_LOD = 3,
 		LOD0 = 1 << 0,
 		LOD1 = 1 << 1,
 		LOD2 = 1 << 2,
