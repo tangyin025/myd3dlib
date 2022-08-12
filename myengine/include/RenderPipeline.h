@@ -152,11 +152,23 @@ public:
 
 	boost::shared_ptr<my::Effect> m_DofEffect;
 
-	my::Vector4 m_DofParams;
-
 	D3DXHANDLE handle_DofParams;
 
+	my::Vector4 m_DofParams;
+
 	boost::shared_ptr<my::Effect> m_BloomEffect;
+
+	D3DXHANDLE handle_LuminanceThreshold;
+
+	D3DXHANDLE handle_BloomColor;
+
+	D3DXHANDLE handle_BloomFactor;
+
+	float m_LuminanceThreshold;
+
+	my::Vector3 m_BloomColor;
+
+	float m_BloomFactor;
 
 	boost::shared_ptr<my::Effect> m_FxaaEffect;
 

@@ -47,8 +47,14 @@ RenderPipeline::RenderPipeline(void)
 	, handle_LightRT(NULL)
 	, handle_OpaqueRT(NULL)
 	, handle_DownFilterRT(NULL)
-	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
 	, handle_DofParams(NULL)
+	, m_DofParams(5.0f, 15.0f, 25.0f, 1.0f)
+	, handle_LuminanceThreshold(NULL)
+	, handle_BloomColor(NULL)
+	, handle_BloomFactor(NULL)
+	, m_LuminanceThreshold(0.5f)
+	, m_BloomColor(1.0f, 1.0f, 1.0f)
+	, m_BloomFactor(1.0f)
 	, handle_InputTexture(NULL)
 	, handle_RCPFrame(NULL)
 	, handle_bias(NULL)
@@ -371,6 +377,10 @@ HRESULT RenderPipeline::OnCreateDevice(
 		THROW_CUSEXCEPTION("create m_BloomEffect failed");
 	}
 
+	BOOST_VERIFY(handle_LuminanceThreshold = m_BloomEffect->GetParameterByName(NULL, "_LuminanceThreshold"));
+	BOOST_VERIFY(handle_BloomColor = m_BloomEffect->GetParameterByName(NULL, "_BloomColor"));
+	BOOST_VERIFY(handle_BloomFactor = m_BloomEffect->GetParameterByName(NULL, "_BloomFactor"));
+
 	if (!(m_FxaaEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/FXAA.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_FxaaEffect failed");
@@ -655,6 +665,9 @@ void RenderPipeline::OnRender(
 	if (pRC->m_BloomEnable)
 	{
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+		m_BloomEffect->SetFloat(handle_LuminanceThreshold, m_LuminanceThreshold);
+		m_BloomEffect->SetVector(handle_BloomColor, m_BloomColor);
+		m_BloomEffect->SetFloat(handle_BloomFactor, m_BloomFactor);
 		m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -663,7 +676,29 @@ void RenderPipeline::OnRender(
 		m_BloomEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_BloomEffect->EndPass();
+		pRC->m_DownFilterRT.Flip();
+
+		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+		m_BloomEffect->BeginPass(1);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+		m_BloomEffect->EndPass();
+		pRC->m_DownFilterRT.Flip();
+
+		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+		m_BloomEffect->BeginPass(2);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
+		m_BloomEffect->EndPass();
+		pRC->m_DownFilterRT.Flip();
+
+		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
+		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
+		m_BloomEffect->BeginPass(3);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		m_BloomEffect->EndPass();
 		m_BloomEffect->End();
+		pRC->m_OpaqueRT.Flip();
 		if (false)
 			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextTarget()->m_ptr, NULL);
 	}
