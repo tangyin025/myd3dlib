@@ -366,6 +366,11 @@ HRESULT RenderPipeline::OnCreateDevice(
 
 	BOOST_VERIFY(handle_DofParams = m_DofEffect->GetParameterByName(NULL, "g_DofParams"));
 
+	if (!(m_BloomEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/Bloom.fx", "")))
+	{
+		THROW_CUSEXCEPTION("create m_BloomEffect failed");
+	}
+
 	if (!(m_FxaaEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/FXAA.fx", "")))
 	{
 		THROW_CUSEXCEPTION("create m_FxaaEffect failed");
@@ -645,6 +650,18 @@ void RenderPipeline::OnRender(
 		m_DofEffect->EndPass();
 		m_DofEffect->End();
 		pRC->m_OpaqueRT.Flip();
+	}
+
+	if (pRC->m_BloomEnable)
+	{
+		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
+		m_SimpleSample->SetTexture(handle_OpaqueRT, pRC->m_OpaqueRT.GetNextSource().get());
+		UINT passes = m_BloomEffect->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
+		m_BloomEffect->BeginPass(0);
+		m_BloomEffect->EndPass();
+		m_BloomEffect->End();
+		if (false)
+			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextTarget()->m_ptr, NULL);
 	}
 
 	if (pRC->m_FxaaEnable)

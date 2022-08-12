@@ -156,6 +156,8 @@ public:
 
 	D3DXHANDLE handle_DofParams;
 
+	boost::shared_ptr<my::Effect> m_BloomEffect;
+
 	boost::shared_ptr<my::Effect> m_FxaaEffect;
 
 	D3DXHANDLE handle_InputTexture;
@@ -246,6 +248,8 @@ public:
 
 		bool m_DofEnable;
 
+		bool m_BloomEnable;
+
 		bool m_FxaaEnable;
 
 		bool m_SsaoEnable;
@@ -265,6 +269,7 @@ public:
 		IRenderContext(void)
 			: m_WireFrame(false)
 			, m_DofEnable(false)
+			, m_BloomEnable(false)
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)
 			, m_FogEnable(false)

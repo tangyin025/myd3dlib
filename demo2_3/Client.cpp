@@ -1114,6 +1114,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("FogFalloff", &Client::m_FogFalloff)
 			.def_readwrite("WireFrame", &Client::m_WireFrame)
 			.def_readwrite("DofEnable", &Client::m_DofEnable)
+			.def_readwrite("BloomEnable", &Client::m_BloomEnable)
 			.def_readwrite("DofParams", &Client::m_DofParams)
 			.def_readwrite("FxaaEnable", &Client::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Client::m_SsaoEnable)
