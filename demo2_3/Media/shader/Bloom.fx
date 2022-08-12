@@ -12,7 +12,8 @@ struct VS_OUTPUT
 
 float4 MainPS(VS_OUTPUT In) : COLOR0
 {
-	return float4(1,0,0,1);
+    float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV );
+	return float4(ColorOrig,1);
 }
 
 //--------------------------------------------------------------------------------------
