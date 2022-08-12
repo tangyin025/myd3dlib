@@ -127,13 +127,14 @@
 #define ID_TOOLS_SCRIPT9                32821
 #define ID_TOOLS_SCRIPT10               32822
 #define ID_TOOLS_SCRIPT_LAST            32823
+#define ID_RENDERMODE_BLOOM             32824
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32824
+#define _APS_NEXT_COMMAND_VALUE         32825
 #define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

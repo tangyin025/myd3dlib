@@ -147,6 +147,18 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("Param3"), (_variant_t)1.0f, NULL, DepthOfFieldParam3);
 	pDepthOfField->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty * pBloom = new CSimpleProp(_T("Bloom"), PropertyBloom, FALSE);
+	m_wndPropList.AddProperty(pBloom, FALSE, FALSE);
+	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, BloomPropertyEnable);
+	pBloom->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("LuminanceThreshold"), (_variant_t)1.0f, NULL, BloomPropertyLuminanceThreshold);
+	pBloom->AddSubItem(pProp);
+	CColorProp * pBloomColor = new CColorProp(_T("Color"), color, NULL, NULL, BloomPropertyColor);
+	pBloomColor->EnableOtherButton(_T("Other..."));
+	pBloom->AddSubItem(pBloomColor);
+	pProp = new CSimpleProp(_T("Factor"), (_variant_t)1.0f, NULL, BloomPropertyFactor);
+	pBloom->AddSubItem(pProp);
+
 	CMFCPropertyGridProperty * pSSAO = new CSimpleProp(_T("SSAO"), PropertySSAO, FALSE);
 	m_wndPropList.AddProperty(pSSAO, FALSE, FALSE);
 	pProp = new CCheckBoxProp(_T("Enable"), FALSE, NULL, SSAOPropertyEnable);
@@ -222,6 +234,13 @@ void CEnvironmentWnd::OnCameraPropChanged(my::EventArg * arg)
 	pDepthOfField->GetSubItem(DepthOfFieldParam1)->SetValue((_variant_t)theApp.m_DofParams.y);
 	pDepthOfField->GetSubItem(DepthOfFieldParam2)->SetValue((_variant_t)theApp.m_DofParams.z);
 	pDepthOfField->GetSubItem(DepthOfFieldParam3)->SetValue((_variant_t)theApp.m_DofParams.w);
+
+	CMFCPropertyGridProperty * pBloom = m_wndPropList.GetProperty(PropertyBloom);
+	pBloom->GetSubItem(BloomPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_BloomEnable);
+	pBloom->GetSubItem(BloomPropertyLuminanceThreshold)->SetValue((_variant_t)theApp.m_LuminanceThreshold);
+	color = RGB(theApp.m_BloomColor.x * 255, theApp.m_BloomColor.y * 255, theApp.m_BloomColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pBloom->GetSubItem(BloomPropertyColor)))->SetColor((_variant_t)color);
+	pBloom->GetSubItem(BloomPropertyFactor)->SetValue((_variant_t)theApp.m_BloomFactor);
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
 	pSSAO->GetSubItem(SSAOPropertyEnable)->SetValue((_variant_t)(VARIANT_BOOL)camera_prop_arg->pView->m_SsaoEnable);
@@ -321,69 +340,78 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	switch (PropertyId)
 	{
 	case PropertyCamera:
-		{
-			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
-			model_view_camera->m_Fov = D3DXToRadian(
-				pTopProp->GetSubItem(CameraPropertyFov)->GetValue().fltVal);
-			model_view_camera->m_LookAt = my::Vector3(
-				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
-				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
-				pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal);
-			pView->m_Camera->m_Euler = my::Vector3(
-				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
-				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
-				D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
-			pView->m_Camera->m_Nz = pTopProp->GetSubItem(CameraPropertyNearZ)->GetValue().fltVal;
-			pView->m_Camera->m_Fz = pTopProp->GetSubItem(CameraPropertyFarZ)->GetValue().fltVal;
-			pView->m_Camera->UpdateViewProj();
-		}
-		break;
+	{
+		my::ModelViewerCamera* model_view_camera = dynamic_cast<my::ModelViewerCamera*>(pView->m_Camera.get());
+		model_view_camera->m_Fov = D3DXToRadian(
+			pTopProp->GetSubItem(CameraPropertyFov)->GetValue().fltVal);
+		model_view_camera->m_LookAt = my::Vector3(
+			pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
+			pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
+			pTopProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal);
+		pView->m_Camera->m_Euler = my::Vector3(
+			D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
+			D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
+			D3DXToRadian(pTopProp->GetSubItem(CameraPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+		pView->m_Camera->m_Nz = pTopProp->GetSubItem(CameraPropertyNearZ)->GetValue().fltVal;
+		pView->m_Camera->m_Fz = pTopProp->GetSubItem(CameraPropertyFarZ)->GetValue().fltVal;
+		pView->m_Camera->UpdateViewProj();
+	}
+	break;
 	case PropertySkyLight:
-		{
-			theApp.m_SkyLightCam->m_Euler = my::Vector3(
-				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
-				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
-				D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+	{
+		theApp.m_SkyLightCam->m_Euler = my::Vector3(
+			D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
+			D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
+			D3DXToRadian(pTopProp->GetSubItem(SkyLightPropertyEuler)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyDiffuse)))->GetColor();
-			theApp.m_SkyLightColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyDiffuse)))->GetColor();
+		theApp.m_SkyLightColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 
-			theApp.m_SkyLightColor.w = pTopProp->GetSubItem(SkyLightPropertySpecular)->GetValue().fltVal;
+		theApp.m_SkyLightColor.w = pTopProp->GetSubItem(SkyLightPropertySpecular)->GetValue().fltVal;
 
-			color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
-			theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(SkyLightPropertyAmbientColor)))->GetColor();
+		theApp.m_AmbientColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 
-			theApp.m_AmbientColor.w = pTopProp->GetSubItem(SkyLightPropertyAmbientSpecular)->GetValue().fltVal;
-		}
-		break;
+		theApp.m_AmbientColor.w = pTopProp->GetSubItem(SkyLightPropertyAmbientSpecular)->GetValue().fltVal;
+	}
+	break;
 	case PropertyDepthOfField:
-		{
-			pView->m_DofEnable = pTopProp->GetSubItem(DepthOfFieldEnable)->GetValue().boolVal != 0;
-			theApp.m_DofParams.x = pTopProp->GetSubItem(DepthOfFieldParam0)->GetValue().fltVal;
-			theApp.m_DofParams.y = pTopProp->GetSubItem(DepthOfFieldParam1)->GetValue().fltVal;
-			theApp.m_DofParams.z = pTopProp->GetSubItem(DepthOfFieldParam2)->GetValue().fltVal;
-			theApp.m_DofParams.w = pTopProp->GetSubItem(DepthOfFieldParam3)->GetValue().fltVal;
-		}
+	{
+		pView->m_DofEnable = pTopProp->GetSubItem(DepthOfFieldEnable)->GetValue().boolVal != 0;
+		theApp.m_DofParams.x = pTopProp->GetSubItem(DepthOfFieldParam0)->GetValue().fltVal;
+		theApp.m_DofParams.y = pTopProp->GetSubItem(DepthOfFieldParam1)->GetValue().fltVal;
+		theApp.m_DofParams.z = pTopProp->GetSubItem(DepthOfFieldParam2)->GetValue().fltVal;
+		theApp.m_DofParams.w = pTopProp->GetSubItem(DepthOfFieldParam3)->GetValue().fltVal;
+	}
+	break;
+	case PropertyBloom:
+	{
+		pView->m_BloomEnable = pTopProp->GetSubItem(BloomPropertyEnable)->GetValue().boolVal != 0;
+		theApp.m_LuminanceThreshold = pTopProp->GetSubItem(BloomPropertyLuminanceThreshold)->GetValue().fltVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(BloomPropertyColor)))->GetColor();
+		theApp.m_BloomColor = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		theApp.m_BloomFactor = pTopProp->GetSubItem(BloomPropertyFactor)->GetValue().fltVal;
 		break;
+	}
 	case PropertySSAO:
-		{
-			pView->m_SsaoEnable = pTopProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
-			theApp.m_SsaoBias = pTopProp->GetSubItem(SSAOPropertyBias)->GetValue().fltVal;
-			theApp.m_SsaoIntensity = pTopProp->GetSubItem(SSAOPropertyIntensity)->GetValue().fltVal;
-			theApp.m_SsaoRadius = pTopProp->GetSubItem(SSAOPropertyRadius)->GetValue().fltVal;
-			theApp.m_SsaoScale = pTopProp->GetSubItem(SSAOPropertyScale)->GetValue().fltVal;
-		}
-		break;
+	{
+		pView->m_SsaoEnable = pTopProp->GetSubItem(SSAOPropertyEnable)->GetValue().boolVal != 0;
+		theApp.m_SsaoBias = pTopProp->GetSubItem(SSAOPropertyBias)->GetValue().fltVal;
+		theApp.m_SsaoIntensity = pTopProp->GetSubItem(SSAOPropertyIntensity)->GetValue().fltVal;
+		theApp.m_SsaoRadius = pTopProp->GetSubItem(SSAOPropertyRadius)->GetValue().fltVal;
+		theApp.m_SsaoScale = pTopProp->GetSubItem(SSAOPropertyScale)->GetValue().fltVal;
+	}
+	break;
 	case PropertyFog:
-		{
-			pView->m_FogEnable = pTopProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
-			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(FogPropertyColor)))->GetColor();
-			theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
-			theApp.m_FogStartDistance = pTopProp->GetSubItem(FogPropertyStartDistance)->GetValue().fltVal;
-			theApp.m_FogHeight = pTopProp->GetSubItem(FogPropertyHeight)->GetValue().fltVal;
-			theApp.m_FogFalloff = pTopProp->GetSubItem(FogPropertyFalloff)->GetValue().fltVal;
-		}
-		break;
+	{
+		pView->m_FogEnable = pTopProp->GetSubItem(FogPropertyEnable)->GetValue().boolVal != 0;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pTopProp->GetSubItem(FogPropertyColor)))->GetColor();
+		theApp.m_FogColor.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+		theApp.m_FogStartDistance = pTopProp->GetSubItem(FogPropertyStartDistance)->GetValue().fltVal;
+		theApp.m_FogHeight = pTopProp->GetSubItem(FogPropertyHeight)->GetValue().fltVal;
+		theApp.m_FogFalloff = pTopProp->GetSubItem(FogPropertyFalloff)->GetValue().fltVal;
+	}
+	break;
 	}
 	pView->Invalidate();
 	return 0l;

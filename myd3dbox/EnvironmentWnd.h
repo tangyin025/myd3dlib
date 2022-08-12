@@ -15,6 +15,7 @@ class CEnvironmentWnd : public CDockablePane
 		PropertyCamera,
 		PropertySkyLight,
 		PropertyDepthOfField,
+		PropertyBloom,
 		PropertySSAO,
 		PropertyFog,
 	};
@@ -54,6 +55,14 @@ class CEnvironmentWnd : public CDockablePane
 		DepthOfFieldParam1,
 		DepthOfFieldParam2,
 		DepthOfFieldParam3,
+	};
+
+	enum BloomProperty
+	{
+		BloomPropertyEnable,
+		BloomPropertyLuminanceThreshold,
+		BloomPropertyColor,
+		BloomPropertyFactor,
 	};
 
 	enum SSAOProperty

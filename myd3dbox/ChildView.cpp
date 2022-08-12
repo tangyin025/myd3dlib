@@ -45,6 +45,8 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_COLLISION, &CChildView::OnUpdateShowCollisiondebug)
 	ON_COMMAND(ID_RENDERMODE_DEPTHOFFIELD, &CChildView::OnRendermodeDepthoffield)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_DEPTHOFFIELD, &CChildView::OnUpdateRendermodeDepthoffield)
+	ON_COMMAND(ID_RENDERMODE_BLOOM, &CChildView::OnRendermodeBloom)
+	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_BLOOM, &CChildView::OnUpdateRendermodeBloom)
 	ON_COMMAND(ID_RENDERMODE_FXAA, &CChildView::OnRendermodeFxaa)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_FXAA, &CChildView::OnUpdateRendermodeFxaa)
 	ON_COMMAND(ID_RENDERMODE_SSAO, &CChildView::OnRendermodeSsao)
@@ -2305,6 +2307,19 @@ void CChildView::OnUpdateRendermodeDepthoffield(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_DofEnable);
+}
+
+void CChildView::OnRendermodeBloom()
+{
+	// TODO: Add your command handler code here
+	m_BloomEnable = !m_BloomEnable;
+	Invalidate();
+}
+
+void CChildView::OnUpdateRendermodeBloom(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_BloomEnable);
 }
 
 void CChildView::OnRendermodeFxaa()

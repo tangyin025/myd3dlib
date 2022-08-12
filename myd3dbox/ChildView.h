@@ -115,6 +115,8 @@ public:
 	afx_msg void OnUpdateShowCollisiondebug(CCmdUI *pCmdUI);
 	afx_msg void OnRendermodeDepthoffield();
 	afx_msg void OnUpdateRendermodeDepthoffield(CCmdUI *pCmdUI);
+	afx_msg void OnRendermodeBloom();
+	afx_msg void OnUpdateRendermodeBloom(CCmdUI* pCmdUI);
 	afx_msg void OnRendermodeFxaa();
 	afx_msg void OnUpdateRendermodeFxaa(CCmdUI *pCmdUI);
 	afx_msg void OnRendermodeSsao();

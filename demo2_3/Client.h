@@ -20,6 +20,9 @@ public:
 	my::Vector4 m_SkyLightColor;
 	my::Vector4 m_AmbientColor;
 	my::Vector4 m_DofParams;
+	float m_LuminanceThreshold;
+	my::Vector3 m_BloomColor;
+	float m_BloomFactor;
 	float m_SsaoBias;
 	float m_SsaoIntensity;
 	float m_SsaoRadius;

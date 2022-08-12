@@ -864,6 +864,9 @@ BOOL CMainFrame::OpenFileContext(LPCTSTR lpszFileName)
 	*ia >> boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*ia >> boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
 	*ia >> boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
+	*ia >> boost::serialization::make_nvp("LuminanceThreshold", theApp.m_LuminanceThreshold);
+	*ia >> boost::serialization::make_nvp("BloomColor", theApp.m_BloomColor);
+	*ia >> boost::serialization::make_nvp("BloomFactor", theApp.m_BloomFactor);
 	*ia >> boost::serialization::make_nvp("SsaoBias", theApp.m_SsaoBias);
 	*ia >> boost::serialization::make_nvp("SsaoIntensity", theApp.m_SsaoIntensity);
 	*ia >> boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);
@@ -905,6 +908,9 @@ BOOL CMainFrame::SaveFileContext(LPCTSTR lpszPathName)
 	*oa << boost::serialization::make_nvp("SkyLightColor", theApp.m_SkyLightColor);
 	*oa << boost::serialization::make_nvp("AmbientColor", theApp.m_AmbientColor);
 	*oa << boost::serialization::make_nvp("DofParams", theApp.m_DofParams);
+	*oa << boost::serialization::make_nvp("LuminanceThreshold", theApp.m_LuminanceThreshold);
+	*oa << boost::serialization::make_nvp("BloomColor", theApp.m_BloomColor);
+	*oa << boost::serialization::make_nvp("BloomFactor", theApp.m_BloomFactor);
 	*oa << boost::serialization::make_nvp("SsaoBias", theApp.m_SsaoBias);
 	*oa << boost::serialization::make_nvp("SsaoIntensity", theApp.m_SsaoIntensity);
 	*oa << boost::serialization::make_nvp("SsaoRadius", theApp.m_SsaoRadius);

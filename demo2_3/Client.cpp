@@ -443,6 +443,9 @@ void SceneContextRequest::LoadResource(void)
 		*ia >> boost::serialization::make_nvp("SkyLightColor", scene->m_SkyLightColor);
 		*ia >> boost::serialization::make_nvp("AmbientColor", scene->m_AmbientColor);
 		*ia >> boost::serialization::make_nvp("DofParams", scene->m_DofParams);
+		*ia >> boost::serialization::make_nvp("LuminanceThreshold", scene->m_LuminanceThreshold);
+		*ia >> boost::serialization::make_nvp("BloomColor", scene->m_BloomColor);
+		*ia >> boost::serialization::make_nvp("BloomFactor", scene->m_BloomFactor);
 		*ia >> boost::serialization::make_nvp("SsaoBias", scene->m_SsaoBias);
 		*ia >> boost::serialization::make_nvp("SsaoIntensity", scene->m_SsaoIntensity);
 		*ia >> boost::serialization::make_nvp("SsaoRadius", scene->m_SsaoRadius);
@@ -1036,6 +1039,9 @@ HRESULT Client::OnCreateDevice(
 			.def_readonly("SkyLightColor", &SceneContext::m_SkyLightColor)
 			.def_readonly("AmbientColor", &SceneContext::m_AmbientColor)
 			.def_readonly("DofParams", &SceneContext::m_DofParams)
+			.def_readonly("LuminanceThreshold", &SceneContext::m_LuminanceThreshold)
+			.def_readonly("BloomColor", &SceneContext::m_BloomColor)
+			.def_readonly("BloomFactor", &SceneContext::m_BloomFactor)
 			.def_readonly("SsaoBias", &SceneContext::m_SsaoBias)
 			.def_readonly("SsaoIntensity", &SceneContext::m_SsaoIntensity)
 			.def_readonly("SsaoRadius", &SceneContext::m_SsaoRadius)
@@ -1116,6 +1122,9 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("DofEnable", &Client::m_DofEnable)
 			.def_readwrite("BloomEnable", &Client::m_BloomEnable)
 			.def_readwrite("DofParams", &Client::m_DofParams)
+			.def_readwrite("LuminanceThreshold", &Client::m_LuminanceThreshold)
+			.def_readwrite("BloomColor", &Client::m_BloomColor)
+			.def_readwrite("BloomFactor", &Client::m_BloomFactor)
 			.def_readwrite("FxaaEnable", &Client::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Client::m_SsaoEnable)
 			.def_readwrite("FogEnable", &Client::m_FogEnable)
