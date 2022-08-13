@@ -1128,6 +1128,7 @@ HRESULT Client::OnCreateDevice(
 			.def_readwrite("FxaaEnable", &Client::m_FxaaEnable)
 			.def_readwrite("SsaoEnable", &Client::m_SsaoEnable)
 			.def_readwrite("FogEnable", &Client::m_FogEnable)
+			.def_readwrite("RTType", &Client::m_RTType)
 			.def_readonly("listener", &Client::m_listener)
 			.def_readonly("Font", &Client::m_Font)
 			.def_readonly("Console", &Client::m_Console)

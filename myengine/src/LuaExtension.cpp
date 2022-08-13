@@ -2613,6 +2613,14 @@ void LuaContext::Init(void)
 			.def("GetDisplacement", &ActionTrackInst::GetDisplacement, &ScriptActionTrackInst::default_GetDisplacement)
 
 		, class_<RenderPipeline>("RenderPipeline")
+			.enum_("RenderTargetType")
+			[
+				luabind::value("RenderTargetNormal", RenderPipeline::RenderTargetNormal),
+				luabind::value("RenderTargetPosition", RenderPipeline::RenderTargetPosition),
+				luabind::value("RenderTargetLight", RenderPipeline::RenderTargetLight),
+				luabind::value("RenderTargetOpaque", RenderPipeline::RenderTargetOpaque),
+				luabind::value("RenderTargetDownFilter", RenderPipeline::RenderTargetDownFilter)
+			]
 
 		, class_<HitArg, my::EventArg>("HitArg")
 			.def_readonly("actor", &HitArg::actor)
