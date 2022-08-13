@@ -1500,39 +1500,41 @@ Control * Control::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 	return NULL;
 }
 
-int Control::GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> & childs)
+int Control::GetChildAtFrustum(const my::Frustum & ftm, bool bIgnoreVisible, std::vector<Control *> & childs)
 {
-	int deep = 0;
-	ControlPtrList::const_reverse_iterator ctrl_iter = m_Childs.rbegin();
-	for (; ctrl_iter != m_Childs.rend(); ctrl_iter++)
+	if (bIgnoreVisible || m_bEnabled && m_bVisible)
 	{
-		deep = Max(deep, (*ctrl_iter)->GetChildAtFrustum(ftm, childs));
-		if (deep > 1)
+		int deep = 0;
+		ControlPtrList::const_reverse_iterator ctrl_iter = m_Childs.rbegin();
+		for (; ctrl_iter != m_Childs.rend(); ctrl_iter++)
+		{
+			deep = Max(deep, (*ctrl_iter)->GetChildAtFrustum(ftm, bIgnoreVisible, childs));
+			if (deep > 1)
+			{
+				return deep + 1;
+			}
+		}
+
+		if (deep > 0)
 		{
 			return deep + 1;
 		}
+
+		Dialog* dlg = GetTopControl();
+
+		Vector3 v[] = {
+			Vector3(m_Rect.l, m_Rect.t, 0).transformCoord(dlg->m_World),
+			Vector3(m_Rect.r, m_Rect.t, 0).transformCoord(dlg->m_World),
+			Vector3(m_Rect.r, m_Rect.b, 0).transformCoord(dlg->m_World),
+			Vector3(m_Rect.l, m_Rect.b, 0).transformCoord(dlg->m_World) };
+
+		if (IntersectionTests::IntersectionTypeOutside != IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], ftm)
+			|| IntersectionTests::IntersectionTypeOutside != IntersectionTests::IntersectTriangleAndFrustum(v[0], v[2], v[3], ftm))
+		{
+			childs.push_back(this);
+			return 1;
+		}
 	}
-
-	if (deep > 0)
-	{
-		return deep + 1;
-	}
-
-	Dialog* dlg = GetTopControl();
-
-	Vector3 v[] = {
-		Vector3(m_Rect.l, m_Rect.t, 0).transformCoord(dlg->m_World),
-		Vector3(m_Rect.r, m_Rect.t, 0).transformCoord(dlg->m_World),
-		Vector3(m_Rect.r, m_Rect.b, 0).transformCoord(dlg->m_World),
-		Vector3(m_Rect.l, m_Rect.b, 0).transformCoord(dlg->m_World)};
-
-	if (IntersectionTests::IntersectionTypeOutside != IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], ftm)
-		|| IntersectionTests::IntersectionTypeOutside != IntersectionTests::IntersectTriangleAndFrustum(v[0], v[2], v[3], ftm))
-	{
-		childs.push_back(this);
-		return 1;
-	}
-
 	return 0;
 }
 

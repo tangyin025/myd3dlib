@@ -522,7 +522,7 @@ namespace my
 
 		virtual Control * GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible);
 
-		int GetChildAtFrustum(const my::Frustum & ftm, std::vector<Control *> & childs);
+		int GetChildAtFrustum(const my::Frustum & ftm, bool bIgnoreVisible, std::vector<Control *> & childs);
 
 		Dialog * GetTopControl(void);
 

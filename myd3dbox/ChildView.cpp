@@ -1700,7 +1700,7 @@ ctrl_handle_end:
 		for (; dlg_iter != pFrame->m_DlgList.rend(); dlg_iter++)
 		{
 			std::vector<my::Control*> ctrl_list;
-			if ((*dlg_iter)->GetChildAtFrustum(ui_ftm, ctrl_list))
+			if ((*dlg_iter)->GetChildAtFrustum(ui_ftm, false, ctrl_list))
 			{
 				pFrame->m_selactors.clear();
 				pFrame->m_selcmp = NULL;
@@ -1769,7 +1769,7 @@ ctrl_handle_end:
 			my::Vector2 pt;
 			if ((*dlg_iter)->RayToWorld(ui_ray, pt))
 			{
-				my::Control* ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, true);
+				my::Control* ControlPtd = (*dlg_iter)->GetChildAtPoint(pt, false);
 				if (ControlPtd)
 				{
 					CMainFrame::ControlList::iterator ctrl_iter = std::find(pFrame->m_selctls.begin(), pFrame->m_selctls.end(), ControlPtd);

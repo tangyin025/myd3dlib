@@ -819,21 +819,22 @@ void CPropertiesWnd::UpdatePropertiesControl(my::Control * control)
 	pControl->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)control->m_Width.offset);
 	pControl->GetSubItem(4)->GetSubItem(0)->SetValue((_variant_t)control->m_Height.scale);
 	pControl->GetSubItem(4)->GetSubItem(1)->SetValue((_variant_t)control->m_Height.offset);
-	pControl->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)control->m_bEnabled);
-	pControl->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)(my::Control::GetFocusControl() == control));
+	pControl->GetSubItem(5)->SetValue((_variant_t)(VARIANT_BOOL)control->GetEnabled());
+	pControl->GetSubItem(6)->SetValue((_variant_t)(VARIANT_BOOL)control->GetVisible());
+	pControl->GetSubItem(7)->SetValue((_variant_t)(VARIANT_BOOL)(my::Control::GetFocusControl() == control));
 
 	COLORREF color = RGB(LOBYTE(control->m_Skin->m_Color >> 16), LOBYTE(control->m_Skin->m_Color >> 8), LOBYTE(control->m_Skin->m_Color));
-	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(7)))->SetColor(color);
-	pControl->GetSubItem(8)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
-	pControl->GetSubItem(9)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
-	pControl->GetSubItem(10)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
-	pControl->GetSubItem(10)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
-	pControl->GetSubItem(10)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
-	pControl->GetSubItem(10)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
-	pControl->GetSubItem(11)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.x);
-	pControl->GetSubItem(11)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
-	pControl->GetSubItem(11)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
-	pControl->GetSubItem(11)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
+	(DYNAMIC_DOWNCAST(CColorProp, pControl->GetSubItem(8)))->SetColor(color);
+	pControl->GetSubItem(9)->SetValue((_variant_t)(long)LOBYTE(control->m_Skin->m_Color >> 24));
+	pControl->GetSubItem(10)->SetValue((_variant_t)ms2ts(theApp.GetFullPath(control->m_Skin->m_Image->m_TexturePath.c_str())).c_str());
+	pControl->GetSubItem(11)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.l);
+	pControl->GetSubItem(11)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.t);
+	pControl->GetSubItem(11)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Width());
+	pControl->GetSubItem(11)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Rect.Height());
+	pControl->GetSubItem(12)->GetSubItem(0)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.x);
+	pControl->GetSubItem(12)->GetSubItem(1)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.y);
+	pControl->GetSubItem(12)->GetSubItem(2)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.z);
+	pControl->GetSubItem(12)->GetSubItem(3)->SetValue((_variant_t)control->m_Skin->m_Image->m_Border.w);
 
 	switch (control->GetControlType())
 	{
@@ -1903,8 +1904,11 @@ void CPropertiesWnd::CreatePropertiesControl(my::Control * control)
 	pProp = new CSimpleProp(_T("offset"), (_variant_t)control->m_Height.offset, NULL, PropertyControlHeightOffset);
 	pHeight->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty* pEnabled = new CCheckBoxProp(_T("Enabled"), control->m_bEnabled, NULL, PropertyControlEnabled);
+	CMFCPropertyGridProperty* pEnabled = new CCheckBoxProp(_T("Enabled"), control->GetEnabled(), NULL, PropertyControlEnabled);
 	pControl->AddSubItem(pEnabled);
+
+	CMFCPropertyGridProperty* pVisible = new CCheckBoxProp(_T("Visible"), control->GetVisible(), NULL, PropertyControlVisible);
+	pControl->AddSubItem(pVisible);
 
 	CMFCPropertyGridProperty* pFocused = new CCheckBoxProp(_T("Focused"), my::Control::GetFocusControl() == control, NULL, PropertyControlFocused);
 	pControl->AddSubItem(pFocused);
@@ -2677,7 +2681,7 @@ unsigned int CPropertiesWnd::GetControlPropCount(DWORD type)
 	switch (type)
 	{
 	case my::Control::ControlTypeControl:
-		return 12;
+		return 13;
 	case my::Control::ControlTypeStatic:
 		return GetControlPropCount(my::Control::ControlTypeControl) + 10;
 	case my::Control::ControlTypeButton:
@@ -4039,7 +4043,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlEnabled:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		control->m_bEnabled = pProp->GetValue().boolVal;
+		control->SetEnabled(pProp->GetValue().boolVal);
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyControlVisible:
+	{
+		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
+		control->SetVisible(pProp->GetValue().boolVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

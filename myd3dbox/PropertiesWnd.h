@@ -240,6 +240,7 @@ public:
 		PropertyControlHeightScale,
 		PropertyControlHeightOffset,
 		PropertyControlEnabled,
+		PropertyControlVisible,
 		PropertyControlFocused,
 		PropertyControlColor,
 		PropertyControlColorAlpha,
