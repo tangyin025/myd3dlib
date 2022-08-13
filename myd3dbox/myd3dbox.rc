@@ -98,6 +98,14 @@ BEGIN
             MENUITEM "FXAA",                        ID_RENDERMODE_FXAA
             MENUITEM "SSAO",                        ID_RENDERMODE_SSAO
         END
+        POPUP "Render Target"
+        BEGIN
+            MENUITEM "Normal",                      ID_RENDERTARGET_NORMAL
+            MENUITEM "Position",                    ID_RENDERTARGET_POSITION
+            MENUITEM "Light",                       ID_RENDERTARGET_LIGHT
+            MENUITEM "Opaque",                      ID_RENDERTARGET_OPAQUE
+            MENUITEM "DownFilter",                  ID_RENDERTARGET_DOWNFILTER
+        END
     END
 END
 

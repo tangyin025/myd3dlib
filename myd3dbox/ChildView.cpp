@@ -53,6 +53,16 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_SSAO, &CChildView::OnUpdateRendermodeSsao)
 	ON_COMMAND(ID_SHOW_NAVIGATION, &CChildView::OnShowNavigation)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_NAVIGATION, &CChildView::OnUpdateShowNavigation)
+	ON_COMMAND(ID_RENDERTARGET_NORMAL, &CChildView::OnRendertargetNormal)
+	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_NORMAL, &CChildView::OnUpdateRendertargetNormal)
+	ON_COMMAND(ID_RENDERTARGET_POSITION, &CChildView::OnRendertargetPosition)
+	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_POSITION, &CChildView::OnUpdateRendertargetPosition)
+	ON_COMMAND(ID_RENDERTARGET_LIGHT, &CChildView::OnRendertargetLight)
+	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_LIGHT, &CChildView::OnUpdateRendertargetLight)
+	ON_COMMAND(ID_RENDERTARGET_OPAQUE, &CChildView::OnRendertargetOpaque)
+	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_OPAQUE, &CChildView::OnUpdateRendertargetOpaque)
+	ON_COMMAND(ID_RENDERTARGET_DOWNFILTER, &CChildView::OnRendertargetDownfilter)
+	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_DOWNFILTER, &CChildView::OnUpdateRendertargetDownfilter)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -2504,4 +2514,79 @@ void CChildView::OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr,
 			}
 		}
 	}
+}
+
+
+void CChildView::OnRendertargetNormal()
+{
+	// TODO: Add your command handler code here
+	m_RTType = RenderPipeline::RenderTargetNormal;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateRendertargetNormal(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(RenderPipeline::RenderTargetNormal == m_RTType);
+}
+
+
+void CChildView::OnRendertargetPosition()
+{
+	// TODO: Add your command handler code here
+	m_RTType = RenderPipeline::RenderTargetPosition;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateRendertargetPosition(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(RenderPipeline::RenderTargetPosition == m_RTType);
+}
+
+
+void CChildView::OnRendertargetLight()
+{
+	// TODO: Add your command handler code here
+	m_RTType = RenderPipeline::RenderTargetLight;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateRendertargetLight(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(RenderPipeline::RenderTargetLight == m_RTType);
+}
+
+
+void CChildView::OnRendertargetOpaque()
+{
+	// TODO: Add your command handler code here
+	m_RTType = RenderPipeline::RenderTargetOpaque;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateRendertargetOpaque(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(RenderPipeline::RenderTargetOpaque == m_RTType);
+}
+
+
+void CChildView::OnRendertargetDownfilter()
+{
+	// TODO: Add your command handler code here
+	m_RTType = RenderPipeline::RenderTargetDownFilter;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateRendertargetDownfilter(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(RenderPipeline::RenderTargetDownFilter == m_RTType);
 }

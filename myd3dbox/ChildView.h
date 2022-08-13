@@ -127,6 +127,16 @@ public:
 	void OnPaintTerrainHeightField(const my::Ray& ray, TerrainStream & tstr);
 	void OnPaintTerrainColor(const my::Ray& ray, TerrainStream& tstr);
 	void OnPaintEmitterInstance(const my::Ray& ray, TerrainStream& tstr, StaticEmitterStream& estr);
+	afx_msg void OnRendertargetNormal();
+	afx_msg void OnUpdateRendertargetNormal(CCmdUI* pCmdUI);
+	afx_msg void OnRendertargetPosition();
+	afx_msg void OnUpdateRendertargetPosition(CCmdUI* pCmdUI);
+	afx_msg void OnRendertargetLight();
+	afx_msg void OnUpdateRendertargetLight(CCmdUI* pCmdUI);
+	afx_msg void OnRendertargetOpaque();
+	afx_msg void OnUpdateRendertargetOpaque(CCmdUI* pCmdUI);
+	afx_msg void OnRendertargetDownfilter();
+	afx_msg void OnUpdateRendertargetDownfilter(CCmdUI* pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp
