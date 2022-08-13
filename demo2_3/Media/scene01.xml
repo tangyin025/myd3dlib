@@ -24,6 +24,13 @@
 	<z>2.500000000e+01</z>
 	<w>1.000000000e+00</w>
 </DofParams>
+<LuminanceThreshold>5.000000000e-01</LuminanceThreshold>
+<BloomColor>
+	<x>1.000000000e+00</x>
+	<y>1.000000000e+00</y>
+	<z>1.000000000e+00</z>
+</BloomColor>
+<BloomFactor>1.000000000e+00</BloomFactor>
 <SsaoBias>2.000000030e-01</SsaoBias>
 <SsaoIntensity>5.000000000e+00</SsaoIntensity>
 <SsaoRadius>1.000000000e+02</SsaoRadius>
