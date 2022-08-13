@@ -251,6 +251,15 @@ public:
 		}
 	};
 
+	enum RenderTargetType
+	{
+		RenderTargetNormal,
+		RenderTargetPosition,
+		RenderTargetLight,
+		RenderTargetOpaque,
+		RenderTargetDownFilter
+	};
+
 	class IRenderContext
 	{
 	public:
@@ -278,6 +287,8 @@ public:
 
 		RTChain m_DownFilterRT;
 
+		RenderTargetType m_RTType;
+
 		IRenderContext(void)
 			: m_WireFrame(false)
 			, m_DofEnable(false)
@@ -285,6 +296,7 @@ public:
 			, m_FxaaEnable(false)
 			, m_SsaoEnable(false)
 			, m_FogEnable(false)
+			, m_RTType(RenderTargetOpaque)
 		{
 		}
 

@@ -731,9 +731,34 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
 	V(pd3dDevice->SetVertexShader(NULL));
 	V(pd3dDevice->SetPixelShader(NULL));
-	V(pd3dDevice->SetTexture(0, pRC->m_OpaqueRT.GetNextSource()->m_ptr));
-	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+	switch (pRC->m_RTType)
+	{
+	case RenderTargetNormal:
+		V(pd3dDevice->SetTexture(0, pRC->m_NormalRT->m_ptr));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		break;
+	case RenderTargetPosition:
+		V(pd3dDevice->SetTexture(0, pRC->m_PositionRT->m_ptr));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		break;
+	case RenderTargetLight:
+		V(pd3dDevice->SetTexture(0, pRC->m_LightRT->m_ptr));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		break;
+	case RenderTargetOpaque:
+		V(pd3dDevice->SetTexture(0, pRC->m_OpaqueRT.GetNextSource()->m_ptr));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		break;
+	case RenderTargetDownFilter:
+		V(pd3dDevice->SetTexture(0, pRC->m_DownFilterRT.GetNextSource()->m_ptr));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		break;
+	}
 
 	ClearAllObjects();
 }
