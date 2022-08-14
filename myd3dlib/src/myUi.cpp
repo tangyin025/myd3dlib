@@ -1283,6 +1283,11 @@ bool Control::GetEnabled(void) const
 	return m_bEnabled;
 }
 
+bool Control::GetEnabledHierarchy(void) const
+{
+	return GetEnabled() && (!m_Parent || m_Parent->GetEnabledHierarchy());
+}
+
 void Control::SetVisible(bool bVisible)
 {
 	if (m_bVisible != bVisible)
@@ -1333,6 +1338,11 @@ void Control::SetVisible(bool bVisible)
 bool Control::GetVisible(void) const
 {
 	return m_bVisible;
+}
+
+bool Control::GetVisibleHierarchy(void) const
+{
+	return GetVisible() && (!m_Parent || m_Parent->GetVisibleHierarchy());
 }
 
 void Control::SetFocused(bool bFocused)

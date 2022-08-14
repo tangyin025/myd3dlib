@@ -44,5 +44,6 @@ public:
     afx_msg void OnNotifyClick(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnNotifyDblclk(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnLvnColumnClickList(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult);
 };
 

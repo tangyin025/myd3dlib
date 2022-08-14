@@ -490,9 +490,13 @@ namespace my
 
 		virtual bool GetEnabled(void) const;
 
+		virtual bool GetEnabledHierarchy(void) const;
+
 		virtual void SetVisible(bool bVisible);
 
 		virtual bool GetVisible(void) const;
+
+		virtual bool GetVisibleHierarchy(void) const;
 
 		virtual void SetFocused(bool bFocused);
 

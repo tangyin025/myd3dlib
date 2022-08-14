@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(COutlinerWnd, CDockablePane)
 	ON_NOTIFY(NM_CLICK, 1, &COutlinerWnd::OnNotifyClick)
 	ON_NOTIFY(NM_DBLCLK, 1, &COutlinerWnd::OnNotifyDblclk)
 	ON_NOTIFY(LVN_COLUMNCLICK, 1, &COutlinerWnd::OnLvnColumnClickList)
+	ON_NOTIFY(NM_CUSTOMDRAW, 1, &COutlinerWnd::OnNMCustomdraw)
 END_MESSAGE_MAP()
 
 COutlinerWnd::COutlinerWnd() noexcept
@@ -139,17 +140,15 @@ void COutlinerWnd::OnLvnGetdispinfoList(NMHDR* pNMHDR, LRESULT* pResult)
 	NMLVDISPINFO* pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem = &(pDispInfo)->item;
 
-	int iItem = pItem->iItem;
-
 	if (pItem->mask & LVIF_TEXT) //valid text buffer?
 	{
 		switch (pItem->iSubItem)
 		{
 		case 0: //fill in main text
 #ifdef UNICODE
-			MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, m_Items[iItem]->GetName(), -1, pItem->pszText, pItem->cchTextMax);
+			MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, m_Items[pItem->iItem]->GetName(), -1, pItem->pszText, pItem->cchTextMax);
 #else
-			_tcscpy_s(pItem->pszText, pItem->cchTextMax, m_Items[iItem]->GetName());
+			_tcscpy_s(pItem->pszText, pItem->cchTextMax, m_Items[pItem->iItem]->GetName());
 #endif
 			break;
 		}
@@ -415,5 +414,28 @@ void COutlinerWnd::OnLvnColumnClickList(NMHDR* pNMHDR, LRESULT* pResult)
 		std::sort(v.begin(), v.end(), ItemCompare());
 		m_Items.rearrange(v.begin());
 		m_listCtrl.Invalidate();
+	}
+}
+
+void COutlinerWnd::OnNMCustomdraw(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	NMLVCUSTOMDRAW* pcd = (NMLVCUSTOMDRAW*)pNMHDR;
+	switch (pcd->nmcd.dwDrawStage)
+	{
+	case CDDS_PREPAINT:
+		*pResult = CDRF_NOTIFYITEMDRAW;
+		break;
+
+	case CDDS_ITEMPREPAINT:
+	{
+		my::NamedObject* obj = m_Items[pcd->nmcd.dwItemSpec];
+		my::Control* control = dynamic_cast<my::Control*>(obj);
+		if (control && !control->GetVisibleHierarchy())
+		{
+			pcd->clrText = GetSysColor(COLOR_GRAYTEXT);
+		}
+		*pResult = CDRF_DODEFAULT;// do not set *pResult = CDRF_SKIPDEFAULT
+		break;
+	}
 	}
 }
