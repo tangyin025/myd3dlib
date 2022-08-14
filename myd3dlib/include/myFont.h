@@ -207,17 +207,19 @@ namespace my
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
-		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
+		void DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo * info, D3DCOLOR Color);
 
-		void DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo* info, D3DCOLOR Color);
-
-		template <typename T, typename U>
-		void DrawString(const Vector2& pen, float right, LPCWSTR pString, Font::Align align, const T& get_character_info, const U& draw_character);
+		void DrawString(
+			const my::Rectangle & rect,
+			LPCWSTR pString,
+			Align align,
+			const boost::function<const CharacterInfo * (wchar_t)> & get_character_info,
+			const boost::function<void(float, float, const CharacterInfo *)> & draw_character);
 
 		void DrawString(
 			LPD3DXSPRITE pSprite,
 			LPCWSTR pString,
-			const Rectangle& rect,
+			const Rectangle & rect,
 			D3DCOLOR Color,
 			Align align,
 			D3DCOLOR OutlineColor,

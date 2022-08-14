@@ -1,5 +1,4 @@
 #include "myFont.h"
-#include "myFont.inl"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_STROKER_H
@@ -655,41 +654,6 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 	return extent;
 }
 
-Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, Align align)
-{
-	Vector2 pen;
-	if(align & AlignLeft)
-	{
-		pen.x = rect.l;
-	}
-	else if(align & AlignCenter)
-	{
-		Vector2 extent = CalculateStringExtent(pString);
-		pen.x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
-	}
-	else
-	{
-		Vector2 extent = CalculateStringExtent(pString);
-		pen.x = rect.r - extent.x;
-	}
-
-	if(align & AlignTop)
-	{
-		pen.y = rect.t;
-	}
-	else if(align & AlignMiddle)
-	{
-		pen.y = rect.t + (rect.b - rect.t - m_LineHeight) * 0.5f;
-	}
-	else
-	{
-		pen.y = rect.b - m_LineHeight;
-	}
-	pen.y += m_LineHeight + m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
-
-	return pen;
-}
-
 void Font::DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo* info, D3DCOLOR Color)
 {
 	CComPtr<IDirect3DDevice9> Device;
@@ -703,6 +667,64 @@ void Font::DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const Character
 }
 
 void Font::DrawString(
+	const my::Rectangle & rect,
+	LPCWSTR pString,
+	Align align,
+	const boost::function<const CharacterInfo * (wchar_t)> & get_character_info,
+	const boost::function<void(float, float, const CharacterInfo *)> & draw_character)
+{
+	float y;
+	if (align & AlignTop)
+	{
+		y = rect.t;
+	}
+	else if (align & AlignMiddle)
+	{
+		y = rect.t + (rect.b - rect.t - m_LineHeight) * 0.5f;
+	}
+	else
+	{
+		y = rect.b - m_LineHeight;
+	}
+	y += m_LineHeight + m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
+
+	const wchar_t* p = pString;
+	for (; *p; y += m_LineHeight)
+	{
+		float x;
+		if (align & AlignLeft)
+		{
+			x = rect.l;
+		}
+		else if (align & AlignCenter)
+		{
+			Vector2 extent = CalculateStringExtent(p);
+			x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
+		}
+		else
+		{
+			Vector2 extent = CalculateStringExtent(p);
+			x = rect.r - extent.x;
+		}
+
+		for (; *p && (!(align & Font::AlignMultiLine) || x < rect.r); p++)
+		{
+			if (*p == L'\n')
+			{
+				p++;
+				break;
+			}
+
+			const CharacterInfo* info = get_character_info(*p);
+
+			draw_character(x, y, info);
+
+			x += info->horiAdvance;
+		}
+	}
+}
+
+void Font::DrawString(
 	LPD3DXSPRITE pSprite,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
@@ -711,12 +733,10 @@ void Font::DrawString(
 	D3DCOLOR OutlineColor,
 	float OutlineWidth)
 {
-	Vector2 pen = CalculateAlignedPen(pString, rect, align);
-
-	DrawString(pen, rect.r, pString, align, boost::bind(&Font::GetCharacterOutlineInfo, this, boost::placeholders::_1, OutlineWidth),
+	DrawString(rect, pString, align, boost::bind(&Font::GetCharacterOutlineInfo, this, boost::placeholders::_1, OutlineWidth),
 		boost::bind(&Font::DrawCharacter, this, pSprite, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, OutlineColor));
 
-	DrawString(pen, rect.r, pString, align, boost::bind(&Font::GetCharacterInfo, this, boost::placeholders::_1),
+	DrawString(rect, pString, align, boost::bind(&Font::GetCharacterInfo, this, boost::placeholders::_1),
 		boost::bind(&Font::DrawCharacter, this, pSprite, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, Color));
 }
 

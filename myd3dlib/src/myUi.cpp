@@ -1,5 +1,4 @@
 #include "myUi.h"
-#include "myFont.inl"
 #include "myDxutApp.h"
 #include "myResource.h"
 #include "myCollision.h"
@@ -594,39 +593,31 @@ void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, 
 
 void UIRender::PushString(const my::Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font)
 {
-	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
-
-	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+	font->DrawString(rect, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
 		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font)
 {
-	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
-
-	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth),
+	font->DrawString(rect, str, align, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth),
 		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, outlineColor));
 
-	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+	font->DrawString(rect, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
 		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, Font * font, const Matrix4 & transform)
 {
-	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
-
-	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+	font->DrawString(rect, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
 		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color, boost::ref(transform)));
 }
 
 void UIRender::PushString(const Rectangle & rect, const wchar_t * str, D3DCOLOR color, Font::Align align, D3DCOLOR outlineColor, float outlineWidth, Font * font, const Matrix4 & transform)
 {
-	Vector2 pen = font->CalculateAlignedPen(str, rect, align);
-
-	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth),
+	font->DrawString(rect, str, align, boost::bind(&Font::GetCharacterOutlineInfo, font, boost::placeholders::_1, outlineWidth),
 		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, outlineColor, boost::ref(transform)));
 
-	font->DrawString(pen, rect.r, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
+	font->DrawString(rect, str, align, boost::bind(&Font::GetCharacterInfo, font, boost::placeholders::_1),
 		boost::bind(&UIRender::PushCharacter, this, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, font, color, boost::ref(transform)));
 }
 
