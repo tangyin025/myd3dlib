@@ -1253,6 +1253,19 @@ void Control::OnMouseLeave(const Vector2 & pt)
 
 void Control::OnHotkey(void)
 {
+	if (m_bEnabled && m_bVisible)
+	{
+		if (m_Skin && m_Skin->m_MouseClickSound)
+		{
+			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
+		}
+
+		if (m_EventMouseClick)
+		{
+			MouseEventArg arg(this, Vector2(0, 0));
+			m_EventMouseClick(&arg);
+		}
+	}
 }
 
 bool Control::HitTest(const Vector2 & pt) const
@@ -1951,23 +1964,6 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 bool Button::CanHaveFocus(void) const
 {
 	return m_bVisible && m_bEnabled;
-}
-
-void Button::OnHotkey(void)
-{
-	if(m_bEnabled && m_bVisible)
-	{
-		if (m_Skin && m_Skin->m_MouseClickSound)
-		{
-			D3DContext::getSingleton().OnControlSound(m_Skin->m_MouseClickSound);
-		}
-
-		if(m_EventMouseClick)
-		{
-			MouseEventArg arg(this, Vector2(0, 0));
-			m_EventMouseClick(&arg);
-		}
-	}
 }
 
 void EditBoxSkin::RequestResource(void)
@@ -4376,7 +4372,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					Control::ControlPtrList::iterator ctrl_iter = (*dlg_iter)->m_Childs.begin();
 					for (; ctrl_iter != (*dlg_iter)->m_Childs.end(); ctrl_iter++)
 					{
-						if ((*ctrl_iter)->GetHotkey() == wParam)
+						if ((*ctrl_iter)->GetVisibleHierarchy() && (*ctrl_iter)->GetEnabledHierarchy() && (*ctrl_iter)->GetHotkey() == wParam)
 						{
 							(*ctrl_iter)->OnHotkey();
 							return true;

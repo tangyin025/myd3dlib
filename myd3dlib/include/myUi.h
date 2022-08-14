@@ -766,8 +766,6 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual bool CanHaveFocus(void) const;
-
-		virtual void OnHotkey(void);
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
