@@ -4075,8 +4075,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyControlColorAlpha:
 	{
 		my::Control* control = (my::Control*)pProp->GetParent()->GetValue().pulVal;
-		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(7)))->GetColor();
-		BYTE alpha = pProp->GetParent()->GetSubItem(8)->GetValue().lVal;
+		COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetParent()->GetSubItem(8)))->GetColor();
+		BYTE alpha = pProp->GetParent()->GetSubItem(9)->GetValue().lVal;
 		control->m_Skin->m_Color = D3DCOLOR_ARGB(alpha, GetRValue(color), GetGValue(color), GetBValue(color));
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
@@ -4133,14 +4133,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		my::Control* control = (my::Control *)pControl->GetValue().pulVal;
 		control->m_Skin->m_Image->m_Rect = my::Rectangle::LeftTop(
-			pControl->GetSubItem(10)->GetSubItem(0)->GetValue().fltVal,
-			pControl->GetSubItem(10)->GetSubItem(1)->GetValue().fltVal,
-			pControl->GetSubItem(10)->GetSubItem(2)->GetValue().fltVal,
-			pControl->GetSubItem(10)->GetSubItem(3)->GetValue().fltVal);
-		control->m_Skin->m_Image->m_Border.x = pControl->GetSubItem(11)->GetSubItem(0)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.y = pControl->GetSubItem(11)->GetSubItem(1)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.z = pControl->GetSubItem(11)->GetSubItem(2)->GetValue().fltVal;
-		control->m_Skin->m_Image->m_Border.w = pControl->GetSubItem(11)->GetSubItem(3)->GetValue().fltVal;
+			pControl->GetSubItem(11)->GetSubItem(0)->GetValue().fltVal,
+			pControl->GetSubItem(11)->GetSubItem(1)->GetValue().fltVal,
+			pControl->GetSubItem(11)->GetSubItem(2)->GetValue().fltVal,
+			pControl->GetSubItem(11)->GetSubItem(3)->GetValue().fltVal);
+		control->m_Skin->m_Image->m_Border.x = pControl->GetSubItem(12)->GetSubItem(0)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.y = pControl->GetSubItem(12)->GetSubItem(1)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.z = pControl->GetSubItem(12)->GetSubItem(2)->GetValue().fltVal;
+		control->m_Skin->m_Image->m_Border.w = pControl->GetSubItem(12)->GetSubItem(3)->GetValue().fltVal;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;
