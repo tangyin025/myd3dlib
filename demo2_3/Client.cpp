@@ -1362,15 +1362,16 @@ void Client::OnFrameTick(
 
 	if (InputMgr::Capture(fTime, fElapsedTime))
 	{
+		bool bNoFurtherProcessing = false;
 		if (IsKeyPress(KeyUIHorizontal))
 		{
 			if (GetKeyAxisRaw(KeyUIHorizontal) < 32767)
 			{
-				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_LEFT, 0);
+				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_LEFT, 0);
 			}
 			else
 			{
-				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RIGHT, 0);
+				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RIGHT, 0);
 			}
 		}
 
@@ -1378,30 +1379,35 @@ void Client::OnFrameTick(
 		{
 			if (GetKeyAxisRaw(KeyUIVertical) < 32767)
 			{
-				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_UP, 0);
+				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_UP, 0);
 			}
 			else
 			{
-				DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_DOWN, 0);
+				bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_DOWN, 0);
 			}
 		}
 
 		if (IsKeyPress(KeyUIConfirm))
 		{
-			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RETURN, 0);
+			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_RETURN, 0);
 		}
 		else if (IsKeyRelease(KeyUIConfirm))
 		{
-			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_RETURN, 0);
+			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_RETURN, 0);
 		}
 		
 		if (IsKeyPress(KeyUICancel))
 		{
-			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_ESCAPE, 0);
+			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYDOWN, VK_ESCAPE, 0);
 		}
 		else if (IsKeyRelease(KeyUICancel))
 		{
-			DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_ESCAPE, 0);
+			bNoFurtherProcessing = DialogMgr::MsgProc(m_wnd->m_hWnd, WM_KEYUP, VK_ESCAPE, 0);
+		}
+
+		if (bNoFurtherProcessing)
+		{
+			InputMgr::Capture(fTime, fElapsedTime);
 		}
 	}
 
