@@ -162,11 +162,15 @@ void UIRender::Flush(void)
 	UILayerList::iterator layer_iter = m_Layer.begin();
 	for (; layer_iter != m_Layer.end(); layer_iter++)
 	{
-		_ASSERT(!layer_iter->second.empty() && layer_iter->first && layer_iter->first->m_ptr);
-		V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
-		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
-		m_LayerDrawCall++;
+		if (!layer_iter->second.empty())
+		{
+			_ASSERT(layer_iter->first && layer_iter->first->m_ptr);
+
+			V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
+			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
+			m_LayerDrawCall++;
+		}
 	}
 	m_Layer.clear();
 }
@@ -1176,28 +1180,20 @@ void Control::OnFocusIn(void)
 	{
 		ListBox* listBox = dynamic_cast<ListBox*>(m_Parent);
 		_ASSERT(listBox);
-		ControlPtrList::iterator ctrl_iter = listBox->m_Childs.begin();
-		int i = 0, j = 0;
-		for (; ctrl_iter != listBox->m_Childs.end(); ctrl_iter++)
+		int i = 0;
+		for (; i < listBox->m_ScrollBar->m_nEnd; i++)
 		{
-			if ((*ctrl_iter)->GetVisible())
+			const int column = Min(listBox->m_ItemColumn, (int)m_Parent->m_Childs.size() - i * listBox->m_ItemColumn);
+			for (int j = 0; j < column; j++)
 			{
-				if (ctrl_iter->get() == this)
+				ControlPtr& ctrl = m_Parent->m_Childs[i * listBox->m_ItemColumn + j];
+				if (ctrl->GetVisible() && ctrl.get() == this)
 				{
-					break;
+					goto listbox_loop_end;
 				}
-
-				if (++j >= listBox->m_ItemColumn)
-				{
-					j = 0;
-					i++;
-				}
-			}
-			else
-			{
-				continue;
 			}
 		}
+listbox_loop_end:
 		listBox->m_ScrollBar->ScrollTo(i);
 	}
 
@@ -3838,26 +3834,16 @@ void ListBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 			m_ScrollBar->Draw(ui_render, fElapsedTime, Vector2(m_Rect.l + m_Rect.Width() - m_ScrollbarWidth, m_Rect.t), Vector2(m_ScrollbarWidth, m_Rect.Height()));
 
-			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-			int i = 0, j = 0;
-			for (; ctrl_iter != m_Childs.end() && i < (m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize); ctrl_iter++)
+			for (int i = m_ScrollBar->m_nPosition; i < m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize; i++)
 			{
-				if ((*ctrl_iter)->GetVisible())
+				const int column = Min(m_ItemColumn, (int)m_Childs.size() - i * m_ItemColumn);
+				for (int j = 0; j < column; j++)
 				{
-					if (i >= m_ScrollBar->m_nPosition)
+					ControlPtr& ctrl = m_Childs[i * m_ItemColumn + j];
+					if (ctrl->GetVisible())
 					{
-						(*ctrl_iter)->Draw(ui_render, fElapsedTime, Vector2(m_Rect.l + j * m_ItemSize.x, m_Rect.t + (i - m_ScrollBar->m_nPosition) * m_ItemSize.y), m_ItemSize);
+						ctrl->Draw(ui_render, fElapsedTime, Vector2(m_Rect.l + j * m_ItemSize.x, m_Rect.t + (i - m_ScrollBar->m_nPosition) * m_ItemSize.y), m_ItemSize);
 					}
-
-					if (++j >= m_ItemColumn)
-					{
-						j = 0;
-						i++;
-					}
-				}
-				else
-				{
-					continue;
 				}
 			}
 		}
@@ -3950,30 +3936,16 @@ Control * ListBox::GetChildAtPoint(const Vector2 & pt, bool bIgnoreVisible)
 {
 	if (bIgnoreVisible || m_bEnabled && m_bVisible)
 	{
-		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-		int i = 0, j = 0;
-		for (; ctrl_iter != m_Childs.end() && i < (m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize); ctrl_iter++)
+		for (int i = m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize - 1; i >= m_ScrollBar->m_nPosition; i--)
 		{
-			if ((*ctrl_iter)->GetVisible())
+			const int column = Min(m_ItemColumn, (int)m_Childs.size() - i * m_ItemColumn);
+			for (int j = column - 1; j >= 0; j--)
 			{
-				if (i >= m_ScrollBar->m_nPosition)
+				Control* ctrl = m_Childs[i * m_ItemColumn + j]->GetChildAtPoint(pt, bIgnoreVisible);
+				if (ctrl)
 				{
-					Control* ctrl = (*ctrl_iter)->GetChildAtPoint(pt, bIgnoreVisible);
-					if (ctrl)
-					{
-						return ctrl;
-					}
+					return ctrl;
 				}
-
-				if (++j >= m_ItemColumn)
-				{
-					j = 0;
-					i++;
-				}
-			}
-			else
-			{
-				continue;
 			}
 		}
 
@@ -4018,32 +3990,23 @@ void ListBox::GetNearestControl(const Rectangle & rect, DWORD dir, Control ** ne
 			end_i = m_ScrollBar->m_nPosition + m_ScrollBar->m_nPageSize + 1;
 			y = m_Rect.t - m_ItemSize.y;
 		}
-		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-		int i = 0, j = 0;
-		for (; ctrl_iter != m_Childs.end() && i < end_i; ctrl_iter++)
+
+		for (int i = Max(0, start_i); i < end_i; i++)
 		{
-			if ((*ctrl_iter)->GetVisible())
+			const int column = Min(m_ItemColumn, (int)m_Childs.size() - i * m_ItemColumn);
+			for (int j = 0; j < column; j++)
 			{
-				if (i >= start_i && (*ctrl_iter)->CanHaveFocus())
+				ControlPtr& ctrl = m_Childs[i * m_ItemColumn + j];
+				if (ctrl->CanHaveFocus())
 				{
-					(*ctrl_iter)->m_Rect = Rectangle::LeftTop(m_Rect.l + j * m_ItemSize.x, y + (i - start_i) * m_ItemSize.y, m_ItemSize.x, m_ItemSize.y);
-					float dist = _GetNearestDist(rect, (*ctrl_iter)->m_Rect, dir);
+					ctrl->m_Rect = Rectangle::LeftTop(m_Rect.l + j * m_ItemSize.x, y + (i - start_i) * m_ItemSize.y, m_ItemSize.x, m_ItemSize.y);
+					float dist = _GetNearestDist(rect, ctrl->m_Rect, dir);
 					if (dist > 0 && dist < nearest_ctrl_dist)
 					{
-						*nearest_ctrl = ctrl_iter->get();
+						*nearest_ctrl = ctrl.get();
 						nearest_ctrl_dist = dist;
 					}
 				}
-
-				if (++j >= m_ItemColumn)
-				{
-					j = 0;
-					i++;
-				}
-			}
-			else
-			{
-				continue;
 			}
 		}
 
