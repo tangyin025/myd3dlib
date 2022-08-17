@@ -242,6 +242,7 @@ public:
 		PropertyControlEnabled,
 		PropertyControlVisible,
 		PropertyControlFocused,
+		PropertyControlSiblingId,
 		PropertyControlColor,
 		PropertyControlColorAlpha,
 		PropertyControlImagePath,

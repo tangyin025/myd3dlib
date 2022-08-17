@@ -1538,7 +1538,7 @@ void LuaContext::Init(void)
 			.def("InsertControlAdopt", &control_insert_control_adopt, adopt(boost::placeholders::_3))
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.property("ChildNum", &my::Control::GetChildNum)
-			.property("SiblingId", &my::Control::GetSiblingId)
+			.property("SiblingId", &my::Control::GetSiblingId, &my::Control::SetSiblingId)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
 			.def("ContainsControl", &my::Control::ContainsControl)
 
