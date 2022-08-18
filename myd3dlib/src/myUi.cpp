@@ -1455,21 +1455,6 @@ void Control::RemoveControl(unsigned int i)
 	}
 }
 
-void Control::MoveChildFromTo(unsigned int from, unsigned int to)
-{
-	_ASSERT(from < m_Childs.size());
-
-	_ASSERT(to <= m_Childs.size());
-
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin() + from;
-
-	ControlPtr dummy_ctrl = *ctrl_iter;
-
-	m_Childs.erase(ctrl_iter);
-
-	m_Childs.insert(m_Childs.begin() + (to > from ? to - 1 : to), dummy_ctrl);
-}
-
 unsigned int Control::GetChildNum(void) const
 {
 	return m_Childs.size();
@@ -1488,9 +1473,17 @@ unsigned int Control::GetSiblingId(void) const
 
 void Control::SetSiblingId(unsigned int i)
 {
-	if (m_Parent && i <= m_Parent->m_Childs.size())
+	if (m_Parent && i < m_Parent->m_Childs.size())
 	{
-		m_Parent->MoveChildFromTo(GetSiblingId(), i);
+		int sibling_id = GetSiblingId();
+		if (i < sibling_id)
+		{
+			std::rotate(m_Parent->m_Childs.rend() - sibling_id - 1, m_Parent->m_Childs.rend() - sibling_id, m_Parent->m_Childs.rend() - i);
+		}
+		else if (i > sibling_id)
+		{
+			std::rotate(m_Parent->m_Childs.begin() + sibling_id, m_Parent->m_Childs.begin() + sibling_id + 1, m_Parent->m_Childs.begin() + i + 1);
+		}
 	}
 }
 

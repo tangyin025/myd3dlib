@@ -516,8 +516,6 @@ namespace my
 
 		virtual void RemoveControl(unsigned int i);
 
-		void MoveChildFromTo(unsigned int from, unsigned int to);
-
 		unsigned int GetChildNum(void) const;
 
 		unsigned int GetSiblingId(void) const;
