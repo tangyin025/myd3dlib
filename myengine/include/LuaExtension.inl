@@ -2,6 +2,64 @@
 namespace luabind
 {
 	template <>
+	struct default_converter<signed __int64>
+		: native_converter_base<signed __int64>
+	{
+		int compute_score(lua_State* L, int index)
+		{
+			return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+		};
+		signed __int64 from(lua_State* L, int index)
+		{
+			return static_cast<signed __int64>(BOOST_PP_CAT(lua_to, integer)(L, index));
+		}
+
+		void to(lua_State* L, signed __int64 const& value)
+		{
+			BOOST_PP_CAT(lua_push, integer)(L, BOOST_PP_CAT(as_lua_, integer)(value));
+		}
+	};
+
+	template <>
+	struct default_converter<signed __int64 const>
+		: default_converter<signed __int64>
+	{};
+
+	template <>
+	struct default_converter<signed __int64 const&>
+		: default_converter<signed __int64>
+	{};
+
+	template <>
+	struct default_converter<unsigned __int64>
+		: native_converter_base<unsigned __int64>
+	{
+		int compute_score(lua_State* L, int index)
+		{
+			return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+		};
+		unsigned __int64 from(lua_State* L, int index)
+		{
+			return static_cast<unsigned __int64>(BOOST_PP_CAT(lua_to, integer)(L, index));
+		}
+
+		void to(lua_State* L, unsigned __int64 const& value)
+		{
+			BOOST_PP_CAT(lua_push, integer)(L, BOOST_PP_CAT(as_lua_, integer)(value));
+		}
+	};
+
+	template <>
+	struct default_converter<unsigned __int64 const>
+		: default_converter<unsigned __int64>
+	{};
+
+	template <>
+	struct default_converter<unsigned __int64 const&>
+		: default_converter<unsigned __int64>
+	{};
+
+	template <>
 	struct default_converter<std::wstring>
 		: native_converter_base<std::wstring>
 	{
