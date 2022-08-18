@@ -365,17 +365,40 @@ static void PlayerData_movequests(PlayerData* self, int src, int count, int dst)
 	std::copy(&self->queststatus[src], &self->queststatus[src + count], &self->queststatus[dst]);
 }
 
-static void client_add_state_adopt(Client * self, StateBase * state)
+static void client_query_entity(Client* self, const my::AABB& aabb, const luabind::object& callback)
+{
+	struct Callback : public OctNode::QueryCallback
+	{
+		const luabind::object& callback;
+
+		Callback(const luabind::object& _callback)
+			: callback(_callback)
+		{
+		}
+
+		virtual bool OnQueryEntity(my::OctEntity* oct_entity, const my::AABB& aabb, my::IntersectionTests::IntersectionType)
+		{
+			Actor* actor = dynamic_cast<Actor*>(oct_entity);
+			luabind::call_function<void>(callback, actor);
+			return true;
+		}
+	};
+
+	Callback cb(callback);
+	self->QueryEntity(aabb, &cb);
+}
+
+static void client_add_state_adopt(Client* self, StateBase* state)
 {
 	self->AddState(StateBasePtr(state));
 }
 
-static void client_add_state_adopt(Client * self, StateBase * state, StateBase * parent)
+static void client_add_state_adopt(Client* self, StateBase* state, StateBase* parent)
 {
 	self->AddState(StateBasePtr(state), parent);
 }
 
-static bool client_file_exists(Client * self, const std::string & path)
+static bool client_file_exists(Client* self, const std::string& path)
 {
 	return PathFileExists(u8tots(path).c_str());
 }
@@ -1178,6 +1201,7 @@ HRESULT Client::OnCreateDevice(
 			.def("RemoveEntity", &Client::RemoveEntity)
 			.def("ClearAllEntity", &Client::ClearAllEntity)
 			.property("AllEntityNum", &Client::GetAllEntityNum)
+			.def("QueryEntity", &client_query_entity)
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2))
 			.def("AddStateAdopt", (void(*)(Client*, StateBase*, StateBase*)) & client_add_state_adopt, luabind::adopt(boost::placeholders::_2)) // ! luabind::class_::def does not support default arguments (Release build.)
 			.def("FileExists", &client_file_exists)
