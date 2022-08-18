@@ -458,6 +458,22 @@ unsigned int Component::GetSiblingId(void) const
 	return 0;
 }
 
+void Component::SetSiblingId(unsigned int i)
+{
+	if (m_Actor && i < m_Actor->m_Cmps.size())
+	{
+		int sibling_id = GetSiblingId();
+		if (i < sibling_id)
+		{
+			std::rotate(m_Actor->m_Cmps.rend() - sibling_id - 1, m_Actor->m_Cmps.rend() - sibling_id, m_Actor->m_Cmps.rend() - i);
+		}
+		else if (i > sibling_id)
+		{
+			std::rotate(m_Actor->m_Cmps.begin() + sibling_id, m_Actor->m_Cmps.begin() + sibling_id + 1, m_Actor->m_Cmps.begin() + i + 1);
+		}
+	}
+}
+
 MeshComponent::~MeshComponent(void)
 {
 	if (IsRequested())

@@ -2217,7 +2217,7 @@ void LuaContext::Init(void)
 			.property("GeometryType", &Component::GetGeometryType)
 			.property("ShapeLocalPose", &Component::GetShapeLocalPose, &Component::SetShapeLocalPose)
 			.def("ClearShape", &Component::ClearShape)
-			.property("SiblingId", &Component::GetSiblingId)
+			.property("SiblingId", &Component::GetSiblingId, &Component::SetSiblingId)
 
 		, class_<MeshComponent, Component, boost::shared_ptr<Component> >("MeshComponent")
 			.def(constructor<const char *>())

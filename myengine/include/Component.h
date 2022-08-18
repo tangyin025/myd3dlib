@@ -219,6 +219,8 @@ public:
 	virtual void ClearShape(void);
 
 	unsigned int GetSiblingId(void) const;
+
+	void SetSiblingId(unsigned int i);
 };
 
 class MeshComponent

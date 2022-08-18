@@ -377,7 +377,8 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pComponent, int
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	pComponent->GetSubItem(0)->SetValue((_variant_t)ms2ts(cmp->GetName()).c_str());
 	pComponent->GetSubItem(1)->SetValue((_variant_t)GetLodMaskDesc(cmp->m_LodMask));
-	UpdatePropertiesShape(pComponent->GetSubItem(2), cmp);
+	pComponent->GetSubItem(2)->SetValue((_variant_t)cmp->GetSiblingId());
+	UpdatePropertiesShape(pComponent->GetSubItem(3), cmp);
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -1328,6 +1329,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 		pLodMask->AddOption(g_LodMaskDesc[i].desc, TRUE);
 	}
 	pComponent->AddSubItem(pLodMask);
+
+	CMFCPropertyGridProperty* pSiblingId = new CSimpleProp(_T("SiblingId"), (_variant_t)cmp->GetSiblingId(), NULL, PropertyComponentSiblingId);
+	pComponent->AddSubItem(pSiblingId);
 
 	CreatePropertiesShape(pComponent, cmp);
 
@@ -2622,7 +2626,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(DWORD type)
 	}
 
 	ASSERT(Component::ComponentTypeComponent == type);
-	return 3;
+	return 4;
 }
 
 LPCTSTR CPropertiesWnd::GetComponentTypeName(DWORD type)
@@ -3147,6 +3151,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_LodMaskDesc));
 		cmp->m_LodMask = (Component::LODMask)g_LodMaskDesc[i].mask;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+		break;
+	}
+	case PropertyComponentSiblingId:
+	{
+		Component* cmp = (Component*)pProp->GetParent()->GetValue().pulVal;
+		cmp->SetSiblingId(pProp->GetValue().uintVal);
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
 		break;

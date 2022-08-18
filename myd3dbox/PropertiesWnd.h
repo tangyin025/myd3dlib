@@ -101,6 +101,7 @@ public:
 		PropertyActorRigidActorKinematic,
 		PropertyComponentName,
 		PropertyComponentLODMask,
+		PropertyComponentSiblingId,
 		PropertyShape,
 		PropertyShapeType,
 		PropertyShapeLocalPos,
