@@ -1,6 +1,7 @@
 
 namespace luabind
 {
+#ifdef _WIN64
 	template <>
 	struct default_converter<signed __int64>
 		: native_converter_base<signed __int64>
@@ -58,6 +59,7 @@ namespace luabind
 	struct default_converter<unsigned __int64 const&>
 		: default_converter<unsigned __int64>
 	{};
+#endif
 
 	template <>
 	struct default_converter<std::wstring>
