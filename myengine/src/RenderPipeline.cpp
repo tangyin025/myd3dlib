@@ -652,6 +652,8 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
+		if (false)
+			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
@@ -691,6 +693,8 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_BloomEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
+		if (false)
+			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextSource()->m_ptr, NULL);
 
 		m_SimpleSample->SetTexture(handle_DownFilterRT, pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
@@ -699,8 +703,6 @@ void RenderPipeline::OnRender(
 		m_BloomEffect->EndPass();
 		m_BloomEffect->End();
 		pRC->m_OpaqueRT.Flip();
-		if (false)
-			D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, pRC->m_DownFilterRT.GetNextTarget()->m_ptr, NULL);
 	}
 
 	if (pRC->m_FxaaEnable)

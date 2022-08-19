@@ -101,7 +101,7 @@ float ComputeDepthBlur(float depth)
 		f = (depth - g_DofParams.y) / (g_DofParams.z - g_DofParams.y);
 		f = clamp(f, 0, g_DofParams.w);
 	}
-	return f * 0.5 + 0.5;
+	return f;
 }
 
 float4 DofCombine( VS_OUTPUT In ) : COLOR0
