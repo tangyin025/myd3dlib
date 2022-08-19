@@ -394,7 +394,6 @@ namespace my
 		{
 		}
 
-	public:
 		Control(const char * Name)
 			: NamedObject(Name)
 			, m_Requested(false)
@@ -411,6 +410,7 @@ namespace my
 		{
 		}
 
+	public:
 		virtual ~Control(void);
 
 		friend class boost::serialization::access;
@@ -623,10 +623,6 @@ namespace my
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
-
-		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 	};
 
 	typedef boost::shared_ptr<Static> StaticPtr;
@@ -692,6 +688,10 @@ namespace my
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset, const Vector2 & Size);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 	};
 
 	typedef boost::shared_ptr<ProgressBar> ProgressBarPtr;

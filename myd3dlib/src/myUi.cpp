@@ -1796,16 +1796,6 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	}
 }
 
-bool Static::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return false;
-}
-
-bool Static::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
-{
-	return false;
-}
-
 void ProgressBarSkin::RequestResource(void)
 {
 	StaticSkin::RequestResource();
@@ -1850,6 +1840,16 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Rect.LeftTop(), m_Rect.Extent());
 		}
 	}
+}
+
+bool ProgressBar::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool ProgressBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	return false;
 }
 
 void ButtonSkin::RequestResource(void)
