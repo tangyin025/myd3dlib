@@ -3101,11 +3101,6 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	return false;
 }
 
-bool ScrollBar::CanHaveFocus(void) const
-{
-	return false;
-}
-
 void ScrollBar::SimulateRepeatedScroll(void)
 {
 	// Check if the arrow button has been held for a while.
@@ -3896,11 +3891,6 @@ bool ListBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 	return Control::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
-bool ListBox::CanHaveFocus(void) const
-{
-	return false;
-}
-
 void ListBox::OnLayout(void)
 {
 	m_ScrollBar->m_x = UDim(0, 0);
@@ -4162,11 +4152,6 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			break;
 		}
 	}
-	return false;
-}
-
-bool Dialog::CanHaveFocus(void) const
-{
 	return false;
 }
 

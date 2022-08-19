@@ -1103,8 +1103,6 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void) const;
-
 		void SimulateRepeatedScroll(void);
 
 		void Scroll(int nDelta);
@@ -1423,8 +1421,6 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-		virtual bool CanHaveFocus(void) const;
-
 		virtual void OnLayout(void);
 
 		virtual void InsertControl(unsigned int i, ControlPtr control);
@@ -1540,8 +1536,6 @@ namespace my
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
-
-		virtual bool CanHaveFocus(void) const;
 
 		virtual void SetVisible(bool bVisible);
 
