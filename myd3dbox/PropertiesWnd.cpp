@@ -3387,6 +3387,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	{
 		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().pulVal);
 		mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
+		my::EventArg arg;
+		pFrame->m_EventAttributeChanged(&arg);
+
 		// ! reset shader handles
 		mesh_cmp->handle_World = NULL;
 		Material::MaterialParameterPtrList::iterator param_iter = mesh_cmp->m_Material->m_ParameterList.begin();
@@ -3394,8 +3397,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			(*param_iter)->m_Handle = NULL;
 		}
-		my::EventArg arg;
-		pFrame->m_EventAttributeChanged(&arg);
 		break;
 	}
 	case PropertyMaterialShader:
@@ -3416,6 +3417,23 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		m_wndPropList.AdjustLayout();
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+
+		// ! reset shader handlers of mesh or terrain
+		switch (pProp->GetParent()->GetParent()->GetData())
+		{
+		case PropertyMesh:
+		{
+			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
+			mesh_cmp->handle_World = NULL;
+			break;
+		}
+		case PropertyTerrain:
+		{
+			Terrain* terrain = dynamic_cast<Terrain*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
+			terrain->handle_World = NULL;
+			break;
+		}
+		}
 		break;
 	}
 	case PropertyMaterialPassMask:
@@ -3569,10 +3587,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 		ASSERT(i >= 0 && i < _countof(g_EmitterFaceType));
 		emit_cmp->m_EmitterFaceType = (EmitterComponent::FaceType)i;
-		// ! reset shader handles
-		emit_cmp->handle_World = NULL;
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);
+
+		// ! reset shader handles
+		emit_cmp->handle_World = NULL;
 		break;
 	}
 	case PropertyEmitterSpaceType:
