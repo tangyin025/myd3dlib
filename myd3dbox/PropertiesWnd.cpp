@@ -3427,6 +3427,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			mesh_cmp->handle_World = NULL;
 			break;
 		}
+		case PropertyStaticEmitter:
+		case PropertySphericalEmitter:
+		{
+			EmitterComponent* emit_cmp = dynamic_cast<EmitterComponent*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
+			emit_cmp->handle_World = NULL;
+			break;
+		}
 		case PropertyTerrain:
 		{
 			Terrain* terrain = dynamic_cast<Terrain*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
