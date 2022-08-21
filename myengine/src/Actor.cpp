@@ -35,6 +35,8 @@ const float Actor::MinBlock = 1.0f;
 
 const float Actor::Threshold = 0.1f;
 
+const int Actor::MaxLod = 3;
+
 Actor::~Actor(void)
 {
 	if (m_Node)
@@ -310,7 +312,7 @@ void Actor::ReleaseResource(void)
 
 	m_Requested = false;
 
-	m_Lod = Component::MAX_LOD;
+	m_Lod = MaxLod;
 
 	PhysxScene* scene = dynamic_cast<PhysxScene*>(m_Node->GetTopNode());
 
@@ -486,7 +488,7 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 {
 	_ASSERT(IsRequested());
 
-	int Lod = Min(CalculateLod((m_OctAabb->Center() - ViewPos).magnitude()), (int)Component::MAX_LOD);
+	int Lod = Min(CalculateLod((m_OctAabb->Center() - ViewPos).magnitude()), MaxLod - 1);
 	if (m_Lod != Lod)
 	{
 		m_Lod = Lod;
@@ -519,7 +521,7 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos, const my::Vector3 & TargetPos
 
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos, const my::Vector3 & TargetPos)
 {
-	for (int Lod = m_Lod; Lod < Component::MAX_LOD; Lod++)
+	for (int Lod = m_Lod; Lod < MaxLod; Lod++)
 	{
 		bool lodRequested = false;
 		ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

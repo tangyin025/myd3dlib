@@ -148,6 +148,8 @@ public:
 
 	static const float Threshold;
 
+	static const int MaxLod;
+
 	my::AABB m_aabb;
 
 	my::Vector3 m_Position;
@@ -212,7 +214,7 @@ protected:
 		, m_Scale(1, 1, 1)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_Lod(Component::MAX_LOD)
+		, m_Lod(MaxLod)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_CullingDistSq(69696.0f)
@@ -231,7 +233,7 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Compose(Scale, Rotation, Position))
 		, m_Requested(false)
-		, m_Lod(Component::MAX_LOD)
+		, m_Lod(MaxLod)
 		, m_LodDist(33.0f)
 		, m_LodFactor(2.0f)
 		, m_CullingDistSq(69696.0f)
