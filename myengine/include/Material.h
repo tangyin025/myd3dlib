@@ -271,7 +271,9 @@ class Material;
 
 typedef boost::shared_ptr<Material> MaterialPtr;
 
-class Material : public boost::enable_shared_from_this<Material>
+class Material
+	: public my::ShaderResourceBase
+	, public boost::enable_shared_from_this<Material>
 {
 public:
 	enum BlendMode
@@ -340,6 +342,8 @@ public:
 	bool operator == (const Material & rhs) const;
 
 	virtual MaterialPtr Clone(void) const;
+
+	virtual void OnResetShader(void);
 
 	void RequestResource(void);
 

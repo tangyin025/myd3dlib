@@ -567,6 +567,12 @@ void MeshComponent::load(Archive & ar, const unsigned int version)
 	}
 }
 
+void MeshComponent::OnResetShader(void)
+{
+	handle_World = NULL;
+	handle_dualquat = NULL;
+}
+
 void MeshComponent::OnMeshReady(my::DeviceResourceBasePtr res)
 {
 	m_Mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
@@ -1127,6 +1133,12 @@ void ClothComponent::load(Archive & ar, const unsigned int version)
 	ar >> BOOST_SERIALIZATION_NVP(m_ClothSpheres);
 }
 
+void ClothComponent::OnResetShader(void)
+{
+	handle_World = NULL;
+	handle_dualquat = NULL;
+}
+
 void ClothComponent::CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId, const my::Vector3 & gravity)
 {
 	if (m_VertexData.empty())
@@ -1449,6 +1461,11 @@ void ClothComponent::OnPxThreadSubstep(float dtime)
 
 		m_Cloth->setCollisionSpheres(&m_ClothSpheresTmp[0], m_ClothSpheresTmp.size());
 	}
+}
+
+void EmitterComponent::OnResetShader(void)
+{
+	handle_World = NULL;
 }
 
 void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)

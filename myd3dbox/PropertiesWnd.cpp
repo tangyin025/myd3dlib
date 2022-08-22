@@ -3391,12 +3391,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 
 		// ! reset shader handles
-		mesh_cmp->handle_World = NULL;
-		Material::MaterialParameterPtrList::iterator param_iter = mesh_cmp->m_Material->m_ParameterList.begin();
-		for (; param_iter != mesh_cmp->m_Material->m_ParameterList.end(); param_iter++)
-		{
-			(*param_iter)->m_Handle = NULL;
-		}
+		mesh_cmp->OnResetShader();
+		mesh_cmp->m_Material->OnResetShader();
 		break;
 	}
 	case PropertyMaterialShader:
@@ -3422,22 +3418,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		switch (pProp->GetParent()->GetParent()->GetData())
 		{
 		case PropertyMesh:
-		{
-			MeshComponent* mesh_cmp = dynamic_cast<MeshComponent*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
-			mesh_cmp->handle_World = NULL;
-			break;
-		}
+		case PropertyCloth:
 		case PropertyStaticEmitter:
 		case PropertySphericalEmitter:
-		{
-			EmitterComponent* emit_cmp = dynamic_cast<EmitterComponent*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
-			emit_cmp->handle_World = NULL;
-			break;
-		}
 		case PropertyTerrain:
 		{
-			Terrain* terrain = dynamic_cast<Terrain*>((Component*)pProp->GetParent()->GetParent()->GetValue().pulVal);
-			terrain->handle_World = NULL;
+			Component* cmp = (Component*)pProp->GetParent()->GetParent()->GetValue().pulVal;
+			cmp->OnResetShader();
 			break;
 		}
 		}
@@ -3598,7 +3585,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		pFrame->m_EventAttributeChanged(&arg);
 
 		// ! reset shader handles
-		emit_cmp->handle_World = NULL;
+		emit_cmp->OnResetShader();
+		emit_cmp->m_Material->OnResetShader();
 		break;
 	}
 	case PropertyEmitterSpaceType:

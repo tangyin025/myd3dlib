@@ -30,6 +30,7 @@ typedef boost::shared_ptr<Component> ComponentPtr;
 
 class Component
 	: public my::NamedObject
+	, public my::ShaderResourceBase
 	, public boost::enable_shared_from_this<Component>
 {
 public:
@@ -123,6 +124,10 @@ public:
 	bool IsRequested(void) const
 	{
 		return m_Requested;
+	}
+
+	virtual void OnResetShader(void)
+	{
 	}
 
 	virtual ComponentPtr Clone(void) const;
@@ -279,8 +284,6 @@ public:
 
 	unsigned int m_DescShapeFlags;
 
-	D3DXHANDLE handle_Time;
-
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_MeshColor;
@@ -295,7 +298,6 @@ protected:
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
-		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
@@ -311,7 +313,6 @@ public:
 		, m_DescSimulationFilterWord0(0)
 		, m_DescQueryFilterWord0(0)
 		, m_DescShapeFlags(physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSIMULATION_SHAPE | physx::PxShapeFlag::eSCENE_QUERY_SHAPE)
-		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
@@ -338,6 +339,8 @@ public:
 	{
 		return TypeID;
 	}
+
+	virtual void OnResetShader(void);
 
 	void OnMeshReady(my::DeviceResourceBasePtr res);
 
@@ -410,8 +413,6 @@ public:
 
 	std::vector<physx::PxClothCollisionSphere> m_ClothSpheresTmp;
 
-	D3DXHANDLE handle_Time;
-
 	D3DXHANDLE handle_World;
 
 	D3DXHANDLE handle_MeshColor;
@@ -421,7 +422,6 @@ public:
 protected:
 	ClothComponent(void)
 		: m_MeshColor(my::Vector4(1, 1, 1, 1))
-		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
@@ -432,7 +432,6 @@ public:
 	ClothComponent(const char * Name)
 		: Component(Name)
 		, m_MeshColor(my::Vector4(1, 1, 1, 1))
-		, handle_Time(NULL)
 		, handle_World(NULL)
 		, handle_MeshColor(NULL)
 		, handle_dualquat(NULL)
@@ -459,6 +458,8 @@ public:
 	{
 		return TypeID;
 	}
+
+	virtual void OnResetShader(void);
 
 	void CreateClothFromMesh(const char * ClothFabricPath, my::OgreMeshPtr mesh, DWORD AttribId, const my::Vector3 & gravity);
 
@@ -564,6 +565,8 @@ public:
 	{
 		return TypeID;
 	}
+
+	virtual void OnResetShader(void);
 
 	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
 

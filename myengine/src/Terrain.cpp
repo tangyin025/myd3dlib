@@ -569,6 +569,11 @@ void Terrain::load(Archive & ar, const unsigned int version)
 	}
 }
 
+void Terrain::OnResetShader(void)
+{
+	handle_World = NULL;
+}
+
 void Terrain::RequestResource(void)
 {
 	Component::RequestResource();
