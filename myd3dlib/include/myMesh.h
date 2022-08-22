@@ -425,6 +425,16 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
+		void CreateMeshFromObjInFile(
+			LPCTSTR pFilename,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
+		void CreateMeshFromObjInStream(
+			std::istream & is,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
 		void SaveOgreMesh(const char * path);
 
 		void SaveSimplifiedOgreMesh(const char * path, DWORD MinValue, DWORD Options);

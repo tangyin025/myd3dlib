@@ -70,9 +70,14 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
-static void texture2d_create_texture_from_file(my::Texture2D* self, const std::string& path)
+static void texture2d_create_texture_from_file(my::Texture2D* self, const std::string& u8_path)
 {
-	self->CreateTextureFromFile(u8tows(path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+	self->CreateTextureFromFile(u8tots(u8_path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+}
+
+static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const std::string& u8_path)
+{
+	self->CreateMeshFromObjInFile(u8tots(u8_path).c_str(), true, D3DXMESH_MANAGED);
 }
 
 static unsigned int ogreskeletonanimation_get_bone_num(my::OgreSkeletonAnimation* self)
@@ -1248,6 +1253,8 @@ void LuaContext::Init(void)
 			.property("NumVertices", &my::Mesh::GetNumVertices)
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::DeviceResourceBase> >("OgreMesh")
+			.def(constructor<>())
+			.def("CreateMeshFromObjInFile", &ogremesh_create_mesh_from_obj_in_file)
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
 			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
 			.def("Transform", &my::OgreMesh::Transform)

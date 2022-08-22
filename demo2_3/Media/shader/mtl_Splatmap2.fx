@@ -1,6 +1,6 @@
 
-texture g_NormalTex:MaterialParameter<string Initialize="terrain/project2 Normal Output 1025.png";>;
-texture g_WeightTex:MaterialParameter<string Initialize="terrain/project2 Weightmap Output 1025.png";>;
+texture g_NormalTex:MaterialParameter<string Initialize="texture/Normal.dds";>;
+texture g_WeightTex:MaterialParameter<string Initialize="texture/Black.dds";>;
 texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Red.dds";>;
 texture g_NormalTexture0:MaterialParameter<string Initialize="texture/Normal.dds";>;
 texture g_SpecularTexture0:MaterialParameter<string Initialize="texture/White.dds";>;

@@ -1289,6 +1289,28 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	ResourceMgr::getSingleton().LeaveDeviceSection();
 }
 
+void OgreMesh::CreateMeshFromObjInFile(
+	LPCTSTR pFilename,
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
+{
+	my::IStreamBuff buff(my::FileIStream::Open(pFilename));
+	std::istream ifs(&buff);
+	CreateMeshFromObjInStream(ifs, bComputeTangentFrame, dwMeshOptions);
+}
+
+void OgreMesh::CreateMeshFromObjInStream(
+	std::istream & is,
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
+{
+	char line[2048];
+	while (!is.eof())
+	{
+		is.getline(line, _countof(line));
+	}
+}
+
 void OgreMesh::SaveOgreMesh(const char * path)
 {
 	std::ofstream ofs(path);
