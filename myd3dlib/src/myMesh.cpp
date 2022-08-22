@@ -6,6 +6,7 @@
 #include "libc.h"
 #include <fstream>
 #include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 
 using namespace my;
@@ -740,9 +741,7 @@ void Mesh::ComputeNormalFrame(
 		const Vector3 & v2 = VertexElems.GetPosition(pv2);
 		const Vector3 & v3 = VertexElems.GetPosition(pv3);
 
-		FNormals[face_i] = (v2 - v1).cross(v3 - v1);
-		_ASSERT(Vector3::zero != FNormals[face_i]);
-		FNormals[face_i].normalizeSelf();
+		FNormals[face_i] = (v2 - v1).cross(v3 - v1).normalizeSafe();
 	}
 
 	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)
@@ -783,7 +782,7 @@ void Mesh::ComputeNormalFrame(
 	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)
 	{
 		unsigned char * pVertex = (unsigned char *)pVertices + vert_i * VertexStride;
-		VertexElems.GetNormal(pVertex).normalizeSelf();
+		VertexElems.SetNormal(pVertex, VertexElems.GetNormal(pVertex).normalizeSafe());
 	}
 }
 
@@ -1304,10 +1303,135 @@ void OgreMesh::CreateMeshFromObjInStream(
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
+	//                1    2      3             4      5             6      7
+	boost::regex reg("(v\\s(-?\\d+(\\.\\d+)?)\\s(-?\\d+(\\.\\d+)?)\\s(-?\\d+(\\.\\d+)?))"
+		//8     9      10            11     12
+		"|(vt\\s(-?\\d+(\\.\\d+)?)\\s(-?\\d+(\\.\\d+)?))"
+		//13   14     15       16     17       18     19
+		"|(f\\s(\\d+)/(\\d+)\\s(\\d+)/(\\d+)\\s(\\d+)/(\\d+))");
+
 	char line[2048];
+	boost::match_results<const char*> what;
+	std::vector<Vector3> verts;
+	std::vector<Vector2> uvs;
+	std::vector<int> faces;
 	while (!is.eof())
 	{
 		is.getline(line, _countof(line));
+		if (boost::regex_search(line, what, reg, boost::match_default))
+		{
+			if (what[1].matched)
+			{
+				Vector3 vert(boost::lexical_cast<float>(what[2]), boost::lexical_cast<float>(what[4]), boost::lexical_cast<float>(what[6]));
+				verts.push_back(vert);
+			}
+			else if (what[8].matched)
+			{
+				Vector2 uv(boost::lexical_cast<float>(what[9]), boost::lexical_cast<float>(what[11]));
+				uvs.push_back(uv);
+			}
+			else if (what[13].matched)
+			{
+				int face[] = {
+					boost::lexical_cast<int>(what[14]) - 1,
+					boost::lexical_cast<int>(what[16]) - 1,
+					boost::lexical_cast<int>(what[18]) - 1 };
+				faces.insert(faces.end(), &face[0], &face[3]);
+			}
+		}
+	}
+
+	if (!verts.empty() && verts.size() == uvs.size())
+	{
+		_ASSERT(m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Type == D3DDECLTYPE_UNUSED);
+		m_VertexElems.InsertPositionElement(0);
+		WORD offset = sizeof(Vector3);
+
+		m_VertexElems.InsertTexcoordElement(offset, 0);
+		offset += sizeof(Vector2);
+
+		m_VertexElems.InsertNormalElement(offset, 0);
+		offset += sizeof(Vector3);
+
+		if (bComputeTangentFrame)
+		{
+			m_VertexElems.InsertTangentElement(offset, 0);
+			offset += sizeof(Vector3);
+		}
+
+		std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
+		D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+		velist.push_back(ve_end);
+
+		if ((dwMeshOptions & ~D3DXMESH_32BIT) && verts.size() >= USHRT_MAX)
+		{
+			//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
+			dwMeshOptions |= D3DXMESH_32BIT;
+		}
+
+		ResourceMgr::getSingleton().EnterDeviceSection();
+		CreateMesh(faces.size() / 3, verts.size(), (D3DVERTEXELEMENT9*)&velist[0], dwMeshOptions);
+		ResourceMgr::getSingleton().LeaveDeviceSection();
+
+		ResourceMgr::getSingleton().EnterDeviceSection();
+		VOID* pVertices = LockVertexBuffer();
+		VOID* pIndices = LockIndexBuffer();
+		DWORD* pAttrBuffer = LockAttributeBuffer();
+		ResourceMgr::getSingleton().LeaveDeviceSection();
+
+		for (int i = 0; i < verts.size(); i++)
+		{
+			unsigned char* pVertex = (unsigned char*)pVertices + i * offset;
+			m_VertexElems.SetPosition(pVertex, verts[i]);
+			m_VertexElems.SetTexcoord(pVertex, uvs[i]);
+		}
+
+		for (int i = 0; i < faces.size() / 3; i++)
+		{
+			if (dwMeshOptions & D3DXMESH_32BIT)
+			{
+				*((DWORD*)pIndices + i * 3 + 0) = faces[i * 3 + 0];
+				*((DWORD*)pIndices + i * 3 + 1) = faces[i * 3 + 1];
+				*((DWORD*)pIndices + i * 3 + 2) = faces[i * 3 + 2];
+			}
+			else
+			{
+				*((WORD*)pIndices + i * 3 + 0) = faces[i * 3 + 0];
+				*((WORD*)pIndices + i * 3 + 1) = faces[i * 3 + 1];
+				*((WORD*)pIndices + i * 3 + 2) = faces[i * 3 + 2];
+			}
+			pAttrBuffer[i] = 0;
+		}
+		m_MaterialNameList.push_back("aaa");
+
+		ComputeNormalFrame(
+			pVertices, GetNumVertices(), GetNumBytesPerVertex(), pIndices, !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);
+
+		if (bComputeTangentFrame)
+		{
+			ComputeTangentFrame(
+				pVertices, GetNumVertices(), GetNumBytesPerVertex(), pIndices, !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);
+		}
+
+		ResourceMgr::getSingleton().EnterDeviceSection();
+		UnlockVertexBuffer();
+		UnlockIndexBuffer();
+		UnlockAttributeBuffer();
+		ResourceMgr::getSingleton().LeaveDeviceSection();
+
+		std::vector<DWORD> adjacency(GetNumFaces() * 3);
+		ResourceMgr::getSingleton().EnterDeviceSection();
+		GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
+		m_Adjacency.resize(adjacency.size());
+		OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
+		ResourceMgr::getSingleton().LeaveDeviceSection();
+
+		DWORD AttribTblCount = 0;
+		ResourceMgr::getSingleton().EnterDeviceSection();
+		GetAttributeTable(NULL, &AttribTblCount);
+		m_AttribTable.resize(AttribTblCount);
+		GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
+		ResourceMgr::getSingleton().LeaveDeviceSection();
 	}
 }
 

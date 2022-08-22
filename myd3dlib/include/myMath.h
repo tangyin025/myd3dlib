@@ -685,7 +685,7 @@ namespace my
 			{
 				return operator *(1.0f / length);
 			}
-			return Vector3(0, 0, 0);
+			return Vector3(1, 0, 0);
 		}
 
 		Vector3 normalize2D(void) const
