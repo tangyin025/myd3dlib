@@ -960,6 +960,8 @@ void RenderPipeline::ClearAllObjects(void)
 
 void RenderPipeline::ClearShaderCache(void)
 {
+	CriticalSectionLock lock(D3DContext::getSingleton().m_ShaderObjectsSec);
+
 	m_ShaderCache.clear();
 
 	D3DContext::ShaderResourceBaseSet::iterator obj_iter = D3DContext::getSingleton().m_ShaderObjects.begin();

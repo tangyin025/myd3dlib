@@ -91,6 +91,8 @@ namespace my
 
 		ShaderResourceBaseSet m_ShaderObjects;
 
+		CriticalSection m_ShaderObjectsSec;
+
 		typedef boost::unordered_map<std::string, NamedObject *> NamedObjectMap;
 
 		NamedObjectMap m_NamedObjects;

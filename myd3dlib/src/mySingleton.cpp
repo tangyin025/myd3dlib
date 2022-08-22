@@ -40,14 +40,14 @@ DeviceResourceBase::~DeviceResourceBase(void)
 
 ShaderResourceBase::ShaderResourceBase(void)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	CriticalSectionLock lock(D3DContext::getSingleton().m_ShaderObjectsSec);
 
 	D3DContext::getSingleton().m_ShaderObjects.insert(this);
 }
 
 ShaderResourceBase::~ShaderResourceBase(void)
 {
-	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+	CriticalSectionLock lock(D3DContext::getSingleton().m_ShaderObjectsSec);
 
 	D3DContext::getSingleton().m_ShaderObjects.erase(this);
 }
