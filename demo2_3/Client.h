@@ -40,6 +40,18 @@ public:
 	SceneContext(void)
 	{
 	}
+
+	void OnResetDevice(void)
+	{
+	}
+
+	void OnLostDevice(void)
+	{
+	}
+
+	void OnDestroyDevice(void)
+	{
+	}
 };
 
 typedef boost::shared_ptr<SceneContext> SceneContextPtr;
@@ -103,6 +115,18 @@ struct PlayerData : public my::DeviceResourceBase
 	void serialize(Archive& ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	void OnResetDevice(void)
+	{
+	}
+
+	void OnLostDevice(void)
+	{
+	}
+
+	void OnDestroyDevice(void)
+	{
 	}
 
 	void setattr(int i, int value)

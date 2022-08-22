@@ -11,6 +11,18 @@ public:
 	StaticEmitterChunkBuffer(void)
 	{
 	}
+
+	void OnResetDevice(void)
+	{
+	}
+
+	void OnLostDevice(void)
+	{
+	}
+
+	void OnDestroyDevice(void)
+	{
+	}
 };
 
 typedef boost::shared_ptr<StaticEmitterChunkBuffer> StaticEmitterChunkBufferPtr;

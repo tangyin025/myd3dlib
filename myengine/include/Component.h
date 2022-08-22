@@ -254,6 +254,18 @@ public:
 
 		virtual ~PhysxBaseResource(void);
 
+		void OnResetDevice(void)
+		{
+		}
+
+		void OnLostDevice(void)
+		{
+		}
+
+		void OnDestroyDevice(void)
+		{
+		}
+
 		void Create(physx::PxBase* ptr);
 	};
 

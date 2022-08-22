@@ -295,6 +295,18 @@ namespace my
 		{
 		}
 
+		void OnResetDevice(void)
+		{
+		}
+
+		void OnLostDevice(void)
+		{
+		}
+
+		void OnDestroyDevice(void)
+		{
+		}
+
 		void CreateWavFromMmio(
 			HMMIO hmmio);
 
