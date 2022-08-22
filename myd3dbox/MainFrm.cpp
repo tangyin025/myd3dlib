@@ -1738,7 +1738,7 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 void CMainFrame::OnViewClearshader()
 {
 	// TODO: Add your command handler code here
-	theApp.m_ShaderCache.clear();
+	theApp.ClearShaderCache();
 	my::EventArg arg;
 	m_EventAttributeChanged(&arg);
 }

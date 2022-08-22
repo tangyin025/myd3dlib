@@ -87,6 +87,10 @@ namespace my
 
 		CriticalSection m_DeviceObjectsSec;
 
+		typedef boost::unordered_set<ShaderResourceBase *> ShaderResourceBaseSet;
+
+		ShaderResourceBaseSet m_ShaderObjects;
+
 		typedef boost::unordered_map<std::string, NamedObject *> NamedObjectMap;
 
 		NamedObjectMap m_NamedObjects;

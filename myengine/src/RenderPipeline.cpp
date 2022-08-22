@@ -491,7 +491,7 @@ void RenderPipeline::OnDestroyDevice(void)
 
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 
-	m_ShaderCache.clear();
+	ClearShaderCache();
 
 	ClearAllObjects();
 
@@ -955,6 +955,17 @@ void RenderPipeline::ClearAllObjects(void)
 		//}
 		m_Pass[PassID].m_MeshInstanceMap.clear();
 		m_Pass[PassID].m_EmitterInstanceMap.clear();
+	}
+}
+
+void RenderPipeline::ClearShaderCache(void)
+{
+	m_ShaderCache.clear();
+
+	D3DContext::ShaderResourceBaseSet::iterator obj_iter = D3DContext::getSingleton().m_ShaderObjects.begin();
+	for (; obj_iter != D3DContext::getSingleton().m_ShaderObjects.end(); obj_iter++)
+	{
+		(*obj_iter)->OnResetShader();
 	}
 }
 

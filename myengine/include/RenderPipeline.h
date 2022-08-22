@@ -500,6 +500,8 @@ public:
 
 	void ClearAllObjects(void);
 
+	void ClearShaderCache(void);
+
 	void DrawIndexedPrimitive(
 		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,

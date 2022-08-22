@@ -38,6 +38,20 @@ DeviceResourceBase::~DeviceResourceBase(void)
 	D3DContext::getSingleton().m_DeviceObjects.erase(this);
 }
 
+ShaderResourceBase::ShaderResourceBase(void)
+{
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+	D3DContext::getSingleton().m_ShaderObjects.insert(this);
+}
+
+ShaderResourceBase::~ShaderResourceBase(void)
+{
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
+	D3DContext::getSingleton().m_ShaderObjects.erase(this);
+}
+
 NamedObject::NamedObject(void)
 	: m_Name(NULL)
 {

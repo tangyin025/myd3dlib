@@ -142,6 +142,16 @@ namespace my
 	template <class DerivedClass>
 	HRESULT D3DDeviceResource<DerivedClass>::hr(S_OK);
 
+	class ShaderResourceBase
+	{
+	public:
+		ShaderResourceBase(void);
+
+		virtual ~ShaderResourceBase(void);
+
+		virtual void OnResetShader(void) = 0;
+	};
+
 	typedef std::vector<unsigned char> Cache;
 
 	typedef boost::shared_ptr<Cache> CachePtr;
