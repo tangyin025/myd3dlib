@@ -34,8 +34,6 @@ END_MESSAGE_MAP()
 
 CMainApp::CMainApp()
 {
-	technique_RenderSceneColor = NULL;
-	handle_MeshColor = NULL;
 	m_bNeedDraw = FALSE;
 	m_bHiColorIcons = TRUE;
 
@@ -628,9 +626,6 @@ HRESULT CMainApp::OnCreateDevice(
 		GetCurrentDirectory(_countof(szDir), szDir);
 		RenderPipeline::LoadShaderCache(szDir);
 	}
-
-	BOOST_VERIFY(technique_RenderSceneColor = m_SimpleSample->GetTechniqueByName("RenderSceneColor"));
-	BOOST_VERIFY(handle_MeshColor = m_SimpleSample->GetParameterByName(NULL, "g_MeshColor"));
 
 	if (FAILED(hr = m_UIRender->OnCreateDevice(pd3dDevice, &m_BackBufferSurfaceDesc)))
 	{

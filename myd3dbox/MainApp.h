@@ -172,8 +172,6 @@ public:
 	std::string default_listbox_scrollbar_img;
 	my::Rectangle default_listbox_scrollbar_img_rect;
 	my::Vector4 default_listbox_scrollbar_img_border;
-	D3DXHANDLE technique_RenderSceneColor;
-	D3DXHANDLE handle_MeshColor;
 	BOOL m_bNeedDraw;
 	my::EventSignal m_EventNamedObjectCreate;
 	my::EventSignal m_EventNamedObjectDestroy;
