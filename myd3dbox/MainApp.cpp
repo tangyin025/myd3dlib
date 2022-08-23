@@ -827,7 +827,7 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_strPathName = lpszFileName;
-	//theApp.AddToRecentFileList(lpszFileName);
+	theApp.AddToRecentFileList(lpszFileName);
 	pFrame->m_wndOutliner.OnDestroyItemList();
 	CWaitCursor wait;
 	pFrame->ClearFileContext();

@@ -283,56 +283,60 @@ void Terrain::CreateElements(void)
 }
 
 template <class T>
-unsigned int _EdgeNv1(T & setter, int N, int r0, int rs, int c0, int cs)
+unsigned int _EdgeNv1(T & setter, int N, int M0, int M2, int r0, int rs, int c0, int cs)
 {
     _ASSERT((N & (N - 1)) == 0);
     unsigned int k = 0;
     for (int i = 0; i < N; i++)
     {
         int cb = c0 + cs * i;
-		if (i < N - 1)
+
+		if (i <= 0)
+		{
+			setter.set(k++, r0, cb);
+			setter.set(k++, r0 + rs, cb + cs);
+			setter.set(k++, r0, cb + cs);
+		}
+		else if (i >= N - 1)
+		{
+			setter.set(k++, r0, cb);
+			setter.set(k++, r0 + rs, cb);
+			setter.set(k++, r0, cb + cs);
+		}
+		else
 		{
 			setter.set(k++, r0, cb);
 			setter.set(k++, r0 + rs, cb + cs);
 			setter.set(k++, r0, cb + cs);
 
-			if (i > 0)
-			{
-				setter.set(k++, r0, cb);
-				setter.set(k++, r0 + rs, cb);
-				setter.set(k++, r0 + rs, cb + cs);
-			}
-		}
-		else
-		{
 			setter.set(k++, r0, cb);
 			setter.set(k++, r0 + rs, cb);
-			setter.set(k++, r0, cb + cs);
+			setter.set(k++, r0 + rs, cb + cs);
 		}
 	}
 	return k;
 };
 
 template <class T>
-unsigned int _EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
+unsigned int _EdgeNvM(T & setter, int N, int M0, int M1, int M2, int r0, int rs, int c0, int cs)
 {
     _ASSERT((N & (N - 1)) == 0);
-    _ASSERT((M & (M - 1)) == 0);
-	if (M == 1)
+    _ASSERT((M1 & (M1 - 1)) == 0);
+	if (M1 == 1)
 	{
-		return _EdgeNv1(setter, N, r0, rs, c0, cs);
+		return _EdgeNv1(setter, N, M0, M2, r0, rs, c0, cs);
 	}
     unsigned int k = 0;
     for (int i = 0; i < N; i++)
     {
-        int cb = c0 + cs * i * M;
+        int cb = c0 + cs * i * M1;
 
         setter.set(k++, r0, cb);
-        setter.set(k++, r0 + rs, cb + cs * M / 2);
-        setter.set(k++, r0, cb + cs * M);
+        setter.set(k++, r0 + rs, cb + cs * M1 / 2);
+        setter.set(k++, r0, cb + cs * M1);
 
         int j = 0;
-        for (; j < M / 2; j++)
+        for (; j < M1 / 2; j++)
         {
             if (i > 0 || j > 0)
             {
@@ -342,13 +346,13 @@ unsigned int _EdgeNvM(T & setter, int N, int M, int r0, int rs, int c0, int cs)
             }
         }
 
-        for (; j < M; j++)
+        for (; j < M1; j++)
         {
-            if (i < N - 1 || j < M - 1)
+            if (i < N - 1 || j < M1 - 1)
             {
                 setter.set(k++, r0 + rs, cb + cs * j);
                 setter.set(k++, r0 + rs, cb + cs * (j + 1));
-                setter.set(k++, r0, cb + cs * M);
+                setter.set(k++, r0, cb + cs * M1);
             }
         }
     }
@@ -439,11 +443,11 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		IndexTable::element k = 0;
 		const int step = 1 << center;
 		k += _FillNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[0] - 2, N[0] - 2, 0 + step, step, 0 + step, step);
-		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[1], M[1], 0, step, N[0] * step, -step);
-		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[2], M[2], 0, step, 0, step);
-		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
-		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
-		_ASSERT(k == frag.PrimitiveCount * 3);
+		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[1], M[4], M[1], M[2], 0, step, N[0] * step, -step);
+		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[2], M[1], M[2], M[3], 0, step, 0, step);
+		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[3], M[2], M[3], M[4], N[0] * step, -step, 0, step);
+		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[4], M[3], M[4], M[1], N[0] * step, -step, N[0] * step, -step);
+		//_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
 	else
