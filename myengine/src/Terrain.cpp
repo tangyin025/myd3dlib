@@ -478,7 +478,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[2], M[1], M[2], M[3], 0, step, 0, step);
 		k += _EdgeNvM(SetterTranspose(m_IndexTable, (IndexTable::element *)pIndices + k), N[3], M[2], M[3], M[4], N[0] * step, -step, 0, step);
 		k += _EdgeNvM(Setter(m_IndexTable, (IndexTable::element *)pIndices + k), N[4], M[3], M[4], M[1], N[0] * step, -step, N[0] * step, -step);
-		//_ASSERT(k == frag.PrimitiveCount * 3);
+		_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
 	else
