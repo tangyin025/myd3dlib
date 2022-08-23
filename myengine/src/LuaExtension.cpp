@@ -70,9 +70,29 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
+static void basetexture_generate_mip_sub_levels(my::BaseTexture* self)
+{
+	// ! https://gamedev.net/forums/topic/633842-idirect3dbasetexture9generatemipsublevels-not-working/4996937/
+	HRESULT hr;
+	V(D3DXFilterTexture(self->m_ptr, NULL, 0, D3DX_DEFAULT));
+}
+
+static void basetexture_save_texture_to_file(my::BaseTexture* self, const std::string& u8_path, D3DXIMAGE_FILEFORMAT DestFormat)
+{
+	HRESULT hr;
+	V(D3DXSaveTextureToFile(u8tots(u8_path).c_str(), DestFormat, self->m_ptr, NULL));
+}
+
 static void texture2d_create_texture_from_file(my::Texture2D* self, const std::string& u8_path)
 {
 	self->CreateTextureFromFile(u8tots(u8_path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
+}
+
+static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const std::string& u8_path)
+{
+	CComPtr<IDirect3DSurface9> surf = self->GetCubeMapSurface(FaceType, 0);
+	HRESULT hr;
+	V(D3DXLoadSurfaceFromFileW(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
 }
 
 static void ogremesh_create_mesh_from_obj_in_file(my::OgreMesh* self, const std::string& u8_path)
@@ -1237,7 +1257,28 @@ void LuaContext::Init(void)
 			.def_readonly("Key", &my::DeviceResourceBase::m_Key)
 
 		, class_<my::BaseTexture, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("BaseTexture")
+			.enum_("D3DFORMAT")
+			[
+				value("D3DFMT_UNKNOWN", D3DFMT_UNKNOWN),
+				value("D3DFMT_R8G8B8", D3DFMT_R8G8B8),
+				value("D3DFMT_A8R8G8B8", D3DFMT_A8R8G8B8),
+				value("D3DFMT_X8R8G8B8", D3DFMT_X8R8G8B8)
+			]
+			.def("GenerateMipSubLevels", &basetexture_generate_mip_sub_levels)
 			.def("GetLevelDesc", &my::BaseTexture::GetLevelDesc)
+			.enum_("D3DXIMAGE_FILEFORMAT")
+			[
+				value("D3DXIFF_BMP", D3DXIFF_BMP),
+				value("D3DXIFF_JPG", D3DXIFF_JPG),
+				value("D3DXIFF_TGA", D3DXIFF_TGA),
+				value("D3DXIFF_PNG", D3DXIFF_PNG),
+				value("D3DXIFF_DDS", D3DXIFF_DDS),
+				value("D3DXIFF_PPM", D3DXIFF_PPM),
+				value("D3DXIFF_DIB", D3DXIFF_DIB),
+				value("D3DXIFF_HDR", D3DXIFF_HDR),
+				value("D3DXIFF_PFM", D3DXIFF_PFM)
+			]
+			.def("SaveTextureToFile", &basetexture_save_texture_to_file)
 
 		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("Texture2D")
 			.def(constructor<>())
@@ -1247,6 +1288,19 @@ void LuaContext::Init(void)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
+			.def(constructor<>())
+			.def("CreateCubeTexture", luabind::tag_function<void(my::CubeTexture*, UINT, UINT, D3DFORMAT)>(
+				boost::bind(&my::CubeTexture::CreateAdjustedCubeTexture, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3, 0, boost::placeholders::_4, D3DPOOL_MANAGED)))
+			.enum_("D3DCUBEMAP_FACES")
+			[
+				value("D3DCUBEMAP_FACE_POSITIVE_X", D3DCUBEMAP_FACE_POSITIVE_X),
+				value("D3DCUBEMAP_FACE_NEGATIVE_X", D3DCUBEMAP_FACE_NEGATIVE_X),
+				value("D3DCUBEMAP_FACE_POSITIVE_Y", D3DCUBEMAP_FACE_POSITIVE_Y),
+				value("D3DCUBEMAP_FACE_NEGATIVE_Y", D3DCUBEMAP_FACE_NEGATIVE_Y),
+				value("D3DCUBEMAP_FACE_POSITIVE_Z", D3DCUBEMAP_FACE_POSITIVE_Z),
+				value("D3DCUBEMAP_FACE_NEGATIVE_Z", D3DCUBEMAP_FACE_NEGATIVE_Z)
+			]
+			.def("LoadCubeMapSurfaceFromFile", &cubetexture_load_cube_map_surface_from_file)
 
 		, class_<my::Mesh, my::DeviceResourceBase, boost::shared_ptr<my::DeviceResourceBase> >("Mesh")
 			.property("NumFaces", &my::Mesh::GetNumFaces)

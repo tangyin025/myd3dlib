@@ -12,10 +12,10 @@
 
 float g_FresExp:MaterialParameter = 3.0;
 float g_ReflStrength:MaterialParameter = 3.4;
-float g_WaterHeight:MaterialParameter = 0.0;
 float3 g_WaterColor:MaterialParameter = { 0.00784, 0.03921, 0.12156 };
 texture g_NormalTexture:MaterialParameter<string Initialize="texture/WaterNormal2.png";>;
 texture g_ReflectTexture:MaterialParameter<string Initialize="texture/galileo_cross.dds";>;
+float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 
 sampler NormalTextureSampler = sampler_state
 {
@@ -53,8 +53,7 @@ TRANSPARENT_VS_OUTPUT TransparentVS( VS_INPUT In )
 {
 	TRANSPARENT_VS_OUTPUT Output;
 	float4 PosWS = TransformPosWS(In);
-	PosWS.y = g_World[3].y + g_WaterHeight;
-	float2 Tex0 = TransformUV(In);
+	float2 Tex0 = TransformUV(In) * g_TextureScale;
 	// float3 Normal = TransformNormal(In);
 	// float3 Tangent = TransformTangent(In);
 	// float3 Binormal = cross(Normal, Tangent);
@@ -106,7 +105,7 @@ float4 TransparentPS( TRANSPARENT_VS_OUTPUT In ) : COLOR
 	float3 reflection = Reflection(Normal, pixel_to_eye_vector);
 	float3 reflection_color = texCUBE(ReflectTextureSampler, reflection).xyz;
 	float fres = Fresnel(Normal, pixel_to_eye_vector, g_FresExp, g_ReflStrength);
-	return float4(reflection_color * fres + g_WaterColor * (1 - fres), 1);
+	return float4(reflection_color * fres + g_WaterColor * (1 - fres), 0.5);
 }
 
 technique RenderScene
