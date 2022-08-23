@@ -293,25 +293,56 @@ unsigned int _EdgeNv1(T & setter, int N, int M0, int M2, int r0, int rs, int c0,
 
 		if (i <= 0)
 		{
-			setter.set(k++, r0, cb);
-			setter.set(k++, r0 + rs, cb + cs);
-			setter.set(k++, r0, cb + cs);
+			if (rs * cs >= 0 && M0 <= 1)
+			{
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0, cb + cs);
+			}
+			else
+			{
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb + cs);
+				setter.set(k++, r0, cb + cs);
+			}
 		}
 		else if (i >= N - 1)
 		{
-			setter.set(k++, r0, cb);
-			setter.set(k++, r0 + rs, cb);
-			setter.set(k++, r0, cb + cs);
+			if (rs * cs < 0 && M2 <= 1)
+			{
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0 + rs, cb + cs);
+			}
+			else
+			{
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0, cb + cs);
+			}
 		}
 		else
 		{
-			setter.set(k++, r0, cb);
-			setter.set(k++, r0 + rs, cb + cs);
-			setter.set(k++, r0, cb + cs);
+			if (rs * cs >= 0)
+			{
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0, cb + cs);
 
-			setter.set(k++, r0, cb);
-			setter.set(k++, r0 + rs, cb);
-			setter.set(k++, r0 + rs, cb + cs);
+				setter.set(k++, r0, cb + cs);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0 + rs, cb + cs);
+			}
+			else
+			{
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb + cs);
+				setter.set(k++, r0, cb + cs);
+
+				setter.set(k++, r0, cb);
+				setter.set(k++, r0 + rs, cb);
+				setter.set(k++, r0 + rs, cb + cs);
+			}
 		}
 	}
 	return k;
