@@ -505,10 +505,10 @@ BEGIN
         MENUITEM "Paint Terrain Color",         ID_PAINT_TERRAINCOLOR
         MENUITEM "Paint Emitter Instance",      ID_PAINT_EMITTERINSTANCE
         MENUITEM SEPARATOR
+        MENUITEM "Script1",                     ID_TOOLS_SCRIPT1
+        MENUITEM SEPARATOR
         MENUITEM "&Clear Shader",               ID_TOOLS_CLEARSHADER
         MENUITEM "&Snapshot...",                ID_TOOLS_SNAPSHOT
-        MENUITEM SEPARATOR
-        MENUITEM "Script1",                     ID_TOOLS_SCRIPT1
     END
     POPUP "&View"
     BEGIN
@@ -661,7 +661,6 @@ BEGIN
     BUTTON      ID_COMPONENT_NAVIGATION
     SEPARATOR
     BUTTON      ID_CREATE_DIALOG
-    SEPARATOR
     BUTTON      ID_CONTROL_STATIC
     BUTTON      ID_CONTROL_PROGRESSBAR
     BUTTON      ID_CONTROL_BUTTON
