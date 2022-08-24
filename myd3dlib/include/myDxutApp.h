@@ -75,6 +75,10 @@ namespace my
 
 		DXUTD3D9DeviceSettings m_DeviceSettings;
 
+		CComPtr<IDirect3DSurface9> m_BackBuffer;
+
+		CComPtr<IDirect3DSurface9> m_DepthStencil;
+
 		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
 
 		bool m_DeviceObjectsCreated;

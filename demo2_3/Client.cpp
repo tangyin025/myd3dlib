@@ -1556,7 +1556,15 @@ void Client::OnFrameTick(
 
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		OnRender(m_d3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
+		D3DVIEWPORT9 vp = { 0, 0, m_BackBufferSurfaceDesc.Width, m_BackBufferSurfaceDesc.Height, 0.0f, 1.0f };
+		RenderPipeline::OnRender(
+			m_d3dDevice,
+			m_BackBuffer,
+			m_DepthStencil,
+			&vp,
+			this,
+			fTime,
+			fElapsedTime);
 
 		V(m_d3dDevice->SetVertexShader(NULL));
 		V(m_d3dDevice->SetPixelShader(NULL));
@@ -1611,16 +1619,6 @@ void Client::OnFrameTick(
 	//FModContext::Update();
 
 	EnterDeviceSection();
-}
-
-void Client::OnRender(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-	IRenderContext * pRC,
-	double fTime,
-	float fElapsedTime)
-{
-	RenderPipeline::OnRender(pd3dDevice, pBackBufferSurfaceDesc, pRC, fTime, fElapsedTime);
 }
 
 void Client::OnUIRender(

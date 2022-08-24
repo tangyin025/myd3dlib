@@ -2431,13 +2431,43 @@ void CMainFrame::OnUpdateToolsScript1(CCmdUI* pCmdUI)
 void CMainFrame::OnToolsSnapshot()
 {
 	// TODO: Add your command handler code here
+	Actor* terrain_act = dynamic_cast<Actor*>(theApp.GetNamedObject("actor0"));
+	Terrain* terrain = terrain_act->GetFirstComponent<Terrain>();
+	if (!terrain)
+	{
+		return;
+	}
+
+	my::Texture2D rt;
+	rt.CreateTexture(1024, 1024, 1, 0, D3DFMT_X8B8G8R8, D3DPOOL_MANAGED);
+	const D3DSURFACE_DESC desc = rt.GetLevelDesc(0);
+
+	my::Surface DepthStencil;
+	DepthStencil.CreateDepthStencilSurface(
+		desc.Width, desc.Height, D3DFMT_D24X8, D3DMULTISAMPLE_NONE, 0);
+
 	struct RenderContext : RenderPipeline::IRenderContext
 	{
-		RenderContext(void)
+		virtual void QueryRenderComponent(const my::Frustum& frustum, RenderPipeline* pipeline, unsigned int PassMask)
 		{
 		}
 	};
 
-	my::Texture2D rt;
-	rt.CreateTexture(1024, 1024, 1, 0, D3DFMT_X8B8G8R8, D3DPOOL_MANAGED);
+	RenderContext rc;
+	rc.m_Camera.reset(new my::OrthoCamera(terrain->m_ChunkSize, terrain->m_ChunkSize, 1, 1000));
+	rc.m_NormalRT.reset(new my::Texture2D());
+	rc.m_NormalRT->CreateTexture(
+		desc.Width / terrain->m_ColChunks, desc.Height / terrain->m_RowChunks, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+	rc.m_PositionRT.reset(new my::Texture2D());
+	rc.m_PositionRT->CreateTexture(
+		desc.Width / terrain->m_ColChunks, desc.Height / terrain->m_RowChunks, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+	rc.m_LightRT.reset(new my::Texture2D());
+	rc.m_LightRT->CreateTexture(
+		desc.Width / terrain->m_ColChunks, desc.Height / terrain->m_RowChunks, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
+	{
+		rc.m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
+		rc.m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
+			desc.Width / terrain->m_ColChunks, desc.Height / terrain->m_RowChunks, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	}
 }

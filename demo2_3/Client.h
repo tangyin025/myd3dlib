@@ -376,13 +376,6 @@ public:
 		double fTime,
 		float fElapsedTime);
 
-	virtual void OnRender(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-		IRenderContext * pRC,
-		double fTime,
-		float fElapsedTime);
-
 	virtual void OnUIRender(
 		my::UIRender * ui_render,
 		double fTime,

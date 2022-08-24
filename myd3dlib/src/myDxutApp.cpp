@@ -1930,9 +1930,9 @@ HRESULT DxutApp::Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 		return hr;
 	}
 
-	CComPtr<IDirect3DSurface9> BackBuffer;
-	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
-	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
+	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &m_BackBuffer));
+	V(m_d3dDevice->GetDepthStencilSurface(&m_DepthStencil));
+	V(m_BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
 	if(FAILED(hr = OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
@@ -1951,6 +1951,8 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(m_DeviceObjectsReset)
 	{
+		m_BackBuffer.Release();
+		m_DepthStencil.Release();
 		OnLostDevice();
 	}
 
@@ -1959,12 +1961,14 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 		return hr;
 	}
 
-	CComPtr<IDirect3DSurface9> BackBuffer;
-	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
-	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
+	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &m_BackBuffer));
+	V(m_d3dDevice->GetDepthStencilSurface(&m_DepthStencil));
+	V(m_BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
 	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
+		m_BackBuffer.Release();
+		m_DepthStencil.Release();
 		OnLostDevice();
 		return hr;
 	}
@@ -2028,6 +2032,8 @@ void DxutApp::Cleanup3DEnvironment(void)
 {
 	if(m_DeviceObjectsReset)
 	{
+		m_BackBuffer.Release();
+		m_DepthStencil.Release();
 		OnLostDevice();
 	}
 

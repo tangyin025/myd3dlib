@@ -485,9 +485,11 @@ public:
 
 	void OnDestroyDevice(void);
 
-	virtual void OnRender(
+	void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+		IDirect3DSurface9* ScreenSurf,
+		IDirect3DSurface9* ScreenDepthStencilSurf,
+		const D3DVIEWPORT9* pVP,
 		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime);

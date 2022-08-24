@@ -1239,12 +1239,20 @@ void CChildView::OnPaint()
 				//m_BgColor = D3DCOLOR_ARGB(0,161,161,161);
 				//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BgColor, 1.0f, 0)); // ! d3dmultisample will not work
 				//V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
-				V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
+				//V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
+				//V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
 				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 				theApp.m_SkyLightCam->m_Eye = model_view_camera->m_LookAt;
 				theApp.m_SkyLightCam->UpdateViewProj();
-				theApp.OnRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+				D3DVIEWPORT9 vp = { 0, 0, m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 0.0f, 1.0f };
+				theApp.OnRender(
+					theApp.m_d3dDevice,
+					m_SwapChainBuffer->m_ptr,
+					m_DepthStencil->m_ptr,
+					&vp,
+					this,
+					theApp.m_fAbsoluteTime,
+					theApp.m_fElapsedTime);
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
