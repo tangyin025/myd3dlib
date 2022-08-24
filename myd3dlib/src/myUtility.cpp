@@ -152,7 +152,7 @@ void OrthoCamera::UpdateViewProj(void)
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 
-	m_Proj = Matrix4::OrthoRH(m_Diagonal * cosf(atan2f(1, m_Aspect)), m_Diagonal * sinf(atan2f(1, m_Aspect)), m_Nz, m_Fz);
+	m_Proj = Matrix4::OrthoRH(m_Width, m_Height, m_Nz, m_Fz);
 
 	m_ViewProj = m_View * m_Proj;
 
@@ -185,12 +185,19 @@ Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & di
 
 void OrthoCamera::OnViewportChanged(const Vector2 & Viewport)
 {
-	m_Aspect = Viewport.x / Viewport.y;
+	if (Viewport.x > Viewport.y)
+	{
+		m_Width = Viewport.x / Viewport.y * m_Height;
+	}
+	else
+	{
+		m_Height = Viewport.y / Viewport.x * m_Width;
+	}
 }
 
 float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
 {
-	return m_Diagonal * cosf(atan2f(1, m_Aspect)) * 0.5f;
+	return m_Width > m_Height ? m_Height * 0.5f : m_Width * 0.5f;
 }
 
 void PerspectiveCamera::UpdateViewProj(void)

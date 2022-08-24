@@ -1228,7 +1228,8 @@ void LuaContext::Init(void)
 
 		, class_<my::OrthoCamera, my::Camera, boost::shared_ptr<my::Camera> >("OrthoCamera")
 			.def(constructor<float, float, float, float>())
-			.def_readwrite("Diagonal", &my::OrthoCamera::m_Diagonal)
+			.def_readwrite("Width", &my::OrthoCamera::m_Width)
+			.def_readwrite("Height", &my::OrthoCamera::m_Height)
 
 		, class_<my::PerspectiveCamera, my::Camera, boost::shared_ptr<my::Camera> >("PerspectiveCamera")
 			.def(constructor<float, float, float, float>())

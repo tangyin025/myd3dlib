@@ -145,17 +145,17 @@ namespace my
 	class OrthoCamera : public Camera
 	{
 	public:
-		float m_Diagonal;
+		float m_Width;
 
-		float m_Aspect;
+		float m_Height;
 
 	public:
-		OrthoCamera(float Diagonal, float Aspect, float Nz, float Fz)
+		OrthoCamera(float Width, float Height, float Nz, float Fz)
 			: Camera(Nz, Fz)
-			, m_Diagonal(Diagonal)
-			, m_Aspect(Aspect)
+			, m_Width(Width)
+			, m_Height(Height)
 		{
-			_ASSERT(m_Aspect != 0);
+			_ASSERT(m_Width > 0 && m_Height > 0);
 		}
 
 		virtual void UpdateViewProj(void);
@@ -189,6 +189,7 @@ namespace my
 			, m_Fov(Fov)
 			, m_Aspect(Aspect)
 		{
+			_ASSERT(m_Aspect > 0);
 		}
 
 		virtual void UpdateViewProj(void);
