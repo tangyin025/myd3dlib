@@ -105,8 +105,6 @@ namespace my
 		: public BaseCamera
 	{
 	public:
-		float m_Aspect;
-
 		Vector3 m_Eye;
 
 		Vector3 m_Euler;
@@ -116,9 +114,8 @@ namespace my
 		float m_Fz;
 
 	public:
-		Camera(float Aspect, float Nz, float Fz)
-			: m_Aspect(Aspect)
-			, m_Eye(0,0,0)
+		Camera(float Nz, float Fz)
+			: m_Eye(0,0,0)
 			, m_Euler(0,0,0)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
@@ -150,10 +147,13 @@ namespace my
 	public:
 		float m_Diagonal;
 
+		float m_Aspect;
+
 	public:
 		OrthoCamera(float Diagonal, float Aspect, float Nz, float Fz)
-			: Camera(Aspect, Nz, Fz)
+			: Camera(Nz, Fz)
 			, m_Diagonal(Diagonal)
+			, m_Aspect(Aspect)
 		{
 			_ASSERT(m_Aspect != 0);
 		}
@@ -181,10 +181,13 @@ namespace my
 	public:
 		float m_Fov;
 
+		float m_Aspect;
+
 	public:
 		PerspectiveCamera(float Fov, float Aspect, float Nz, float Fz)
-			: Camera(Aspect, Nz, Fz)
+			: Camera(Nz, Fz)
 			, m_Fov(Fov)
+			, m_Aspect(Aspect)
 		{
 		}
 

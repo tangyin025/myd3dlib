@@ -1252,9 +1252,9 @@ HRESULT Client::OnResetDevice(
 {
 	m_EventLog("Client::OnResetDevice");
 
-	m_Camera->m_Aspect = (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height;
+	boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect = (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height;
 
-	DialogMgr::SetDlgViewport(Vector2(600 * m_Camera->m_Aspect, 600), D3DXToRadian(75.0f));
+	DialogMgr::SetDlgViewport(Vector2(600 * boost::dynamic_pointer_cast<my::PerspectiveCamera>(m_Camera)->m_Aspect, 600), D3DXToRadian(75.0f));
 
 	FontLibrary::m_Scale = Vector2(pBackBufferSurfaceDesc->Height / DialogMgr::GetDlgViewport().y);
 
