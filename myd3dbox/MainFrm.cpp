@@ -306,6 +306,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CONTROL_LISTBOX, &CMainFrame::OnUpdateControlListbox)
 	ON_COMMAND_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnToolsScript1)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnUpdateToolsScript1)
+	ON_COMMAND(ID_TOOLS_SNAPSHOT, &CMainFrame::OnToolsSnapshot)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -2424,4 +2425,19 @@ void CMainFrame::OnUpdateToolsScript1(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_ToolScripts[pCmdUI->m_nID - ID_TOOLS_SCRIPT1].IsEmpty());
+}
+
+
+void CMainFrame::OnToolsSnapshot()
+{
+	// TODO: Add your command handler code here
+	struct RenderContext : RenderPipeline::IRenderContext
+	{
+		RenderContext(void)
+		{
+		}
+	};
+
+	my::Texture2D rt;
+	rt.CreateTexture(1024, 1024, 1, 0, D3DFMT_X8B8G8R8, D3DPOOL_MANAGED);
 }
