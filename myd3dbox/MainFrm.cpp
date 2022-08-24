@@ -2432,7 +2432,7 @@ void CMainFrame::OnToolsSnapshot()
 {
 	// TODO: Add your command handler code here
 	my::Texture2D rt;
-	rt.CreateTexture(1024, 1024, 1, D3DUSAGE_RENDERTARGET, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT);
+	rt.CreateTexture(1024, 1024, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	const D3DSURFACE_DESC desc = rt.GetLevelDesc();
 	CComPtr<IDirect3DSurface9> rtsurf = rt.GetSurfaceLevel(0);
 
