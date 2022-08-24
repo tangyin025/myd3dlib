@@ -1557,14 +1557,7 @@ void Client::OnFrameTick(
 	if (SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
 		D3DVIEWPORT9 vp = { 0, 0, m_BackBufferSurfaceDesc.Width, m_BackBufferSurfaceDesc.Height, 0.0f, 1.0f };
-		RenderPipeline::OnRender(
-			m_d3dDevice,
-			m_BackBuffer,
-			m_DepthStencil,
-			&vp,
-			this,
-			fTime,
-			fElapsedTime);
+		RenderPipeline::OnRender(m_d3dDevice, m_BackBuffer, m_DepthStencil, &vp, this, fTime, fElapsedTime);
 
 		V(m_d3dDevice->SetVertexShader(NULL));
 		V(m_d3dDevice->SetPixelShader(NULL));

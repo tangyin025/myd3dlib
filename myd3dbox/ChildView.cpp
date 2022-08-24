@@ -1245,14 +1245,7 @@ void CChildView::OnPaint()
 				theApp.m_SkyLightCam->m_Eye = model_view_camera->m_LookAt;
 				theApp.m_SkyLightCam->UpdateViewProj();
 				D3DVIEWPORT9 vp = { 0, 0, m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 0.0f, 1.0f };
-				theApp.OnRender(
-					theApp.m_d3dDevice,
-					m_SwapChainBuffer->m_ptr,
-					m_DepthStencil->m_ptr,
-					&vp,
-					this,
-					theApp.m_fAbsoluteTime,
-					theApp.m_fElapsedTime);
+				theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &vp, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)

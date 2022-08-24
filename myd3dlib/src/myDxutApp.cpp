@@ -175,6 +175,10 @@ HRESULT D3DContext::OnResetDevice(
 
 void D3DContext::OnLostDevice(void)
 {
+	m_BackBuffer.Release();
+
+	m_DepthStencil.Release();
+
 	CriticalSectionLock lock(m_DeviceObjectsSec);
 
 	m_DeviceObjectsReset = false;
@@ -1951,8 +1955,6 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(m_DeviceObjectsReset)
 	{
-		m_BackBuffer.Release();
-		m_DepthStencil.Release();
 		OnLostDevice();
 	}
 
@@ -1967,8 +1969,6 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 
 	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
-		m_BackBuffer.Release();
-		m_DepthStencil.Release();
 		OnLostDevice();
 		return hr;
 	}
@@ -2032,8 +2032,6 @@ void DxutApp::Cleanup3DEnvironment(void)
 {
 	if(m_DeviceObjectsReset)
 	{
-		m_BackBuffer.Release();
-		m_DepthStencil.Release();
 		OnLostDevice();
 	}
 

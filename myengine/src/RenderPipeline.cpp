@@ -528,6 +528,9 @@ void RenderPipeline::OnRender(
 	//V(pd3dDevice->GetRenderTarget(0, &ScreenSurf));
 	//V(pd3dDevice->GetDepthStencilSurface(&ScreenDepthStencilSurf));
 
+	D3DVIEWPORT9 vp = { 0, 0, pVP->Width, pVP->Height, 0.0f, 1.0f };
+	V(pd3dDevice->SetViewport(&vp));
+
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
@@ -735,6 +738,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
 	V(pd3dDevice->SetVertexShader(NULL));
 	V(pd3dDevice->SetPixelShader(NULL));
+	V(pd3dDevice->SetViewport(pVP));
 	switch (pRC->m_RTType)
 	{
 	case RenderTargetNormal:
