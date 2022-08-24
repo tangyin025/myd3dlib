@@ -29,7 +29,7 @@ namespace my
 			UINT Width,
 			UINT Height,
 			D3DFORMAT Format,
-			D3DPOOL Pool = D3DPOOL_MANAGED);
+			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
 		CComPtr<IUnknown> GetContainer(REFIID riid);
 
