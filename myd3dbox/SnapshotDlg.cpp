@@ -15,6 +15,13 @@ IMPLEMENT_DYNAMIC(CSnapshotDlg, CDialogEx)
 
 CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG7, pParent)
+	, m_TexPath(_T("aaa.bmp"))
+	, m_TexWidth(1024)
+	, m_TexHeight(1024)
+	, m_SnapPos(0, 0)
+	, m_SnapSize(33.0f, 33.0f)
+	, m_SnapCol(1)
+	, m_SnapRow(1)
 {
 
 }
@@ -26,10 +33,26 @@ CSnapshotDlg::~CSnapshotDlg()
 void CSnapshotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT1, m_TexPath);
+	DDX_Text(pDX, IDC_EDIT2, m_TexWidth);
+	DDV_MinMaxInt(pDX, m_TexWidth, 1, INT_MAX);
+	DDX_Text(pDX, IDC_EDIT3, m_TexHeight);
+	DDV_MinMaxInt(pDX, m_TexHeight, 1, INT_MAX);
+	DDX_Text(pDX, IDC_EDIT4, m_SnapPos.x);
+	DDX_Text(pDX, IDC_EDIT5, m_SnapSize.x);
+	DDV_MinMaxFloat(pDX, m_SnapSize.x, EPSILON_E6, FLT_MAX);
+	DDX_Text(pDX, IDC_EDIT6, m_SnapCol);
+	DDV_MinMaxInt(pDX, m_SnapCol, 1, INT_MAX);
+	DDX_Text(pDX, IDC_EDIT7, m_SnapPos.y);
+	DDX_Text(pDX, IDC_EDIT8, m_SnapSize.y);
+	DDV_MinMaxFloat(pDX, m_SnapSize.y, EPSILON_E6, FLT_MAX);
+	DDX_Text(pDX, IDC_EDIT9, m_SnapRow);
+	DDV_MinMaxInt(pDX, m_SnapRow, 1, INT_MAX);
 }
 
 
 BEGIN_MESSAGE_MAP(CSnapshotDlg, CDialogEx)
+	ON_BN_CLICKED(IDC_BUTTON1, &CSnapshotDlg::OnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -50,10 +73,19 @@ BOOL CSnapshotDlg::OnInitDialog()
 void CSnapshotDlg::OnOK()
 {
 	// TODO: Add your specialized code here and/or call the base class
+	if (!UpdateData(TRUE))
+	{
+		TRACE(traceAppMsg, 0, "UpdateData failed during dialog termination.\n");
+		// the UpdateData routine will set focus to correct item
+		return;
+	}
+
 	my::Texture2D rt;
-	rt.CreateTexture(1024, 1024, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-	const D3DSURFACE_DESC desc = rt.GetLevelDesc();
+	rt.CreateTexture(m_TexWidth, m_TexHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	CComPtr<IDirect3DSurface9> rtsurf = rt.GetSurfaceLevel(0);
+	D3DSURFACE_DESC desc;
+	HRESULT hr;
+	V(rtsurf->GetDesc(&desc));
 
 	my::Surface DepthStencil;
 	DepthStencil.CreateDepthStencilSurface(
@@ -101,7 +133,9 @@ void CSnapshotDlg::OnOK()
 	};
 
 	RenderContext rc;
-	rc.m_Camera.reset(new my::OrthoCamera(30, 30, -1000, 3000));
+	rc.m_Camera.reset(new my::OrthoCamera(m_SnapSize.x, m_SnapSize.y, -1000, 1000));
+	rc.m_Camera->m_Eye = my::Vector3(m_SnapPos, 0);
+	rc.m_Camera->m_Euler = my::Vector3(D3DXToRadian(-90), 0, 0);
 	rc.m_Camera->UpdateViewProj();
 	rc.m_NormalRT.reset(new my::Texture2D());
 	rc.m_NormalRT->CreateTexture(
@@ -119,10 +153,20 @@ void CSnapshotDlg::OnOK()
 			desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
-	D3DVIEWPORT9 vp = { 0, 0, 1024, 1024, 0.0, 1.0f };
+	D3DVIEWPORT9 vp = { 0, 0, desc.Width, desc.Height, 0.0, 1.0f };
 	theApp.OnRender(theApp.m_d3dDevice, rtsurf, DepthStencil.m_ptr, &vp, &rc, 0, 0);
-	HRESULT hr;
-	V(D3DXSaveTextureToFileA("aaa.bmp", D3DXIFF_BMP, rt.m_ptr, NULL));
+	V(D3DXSaveTextureToFile(m_TexPath, D3DXIFF_BMP, rt.m_ptr, NULL));
 
 	CDialogEx::OnOK();
+}
+
+
+void CSnapshotDlg::OnClickedButton1()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog dlg(FALSE, _T("bmp"), m_TexPath, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (dlg.DoModal() == IDOK)
+	{
+		SetDlgItemText(IDC_EDIT1, dlg.GetPathName());
+	}
 }

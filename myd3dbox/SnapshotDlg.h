@@ -23,4 +23,12 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+	CString m_TexPath;
+	int m_TexWidth;
+	int m_TexHeight;
+	my::Vector2 m_SnapPos;
+	my::Vector2 m_SnapSize;
+	int m_SnapCol;
+	int m_SnapRow;
+	afx_msg void OnClickedButton1();
 };
