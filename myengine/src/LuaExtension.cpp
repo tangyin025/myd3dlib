@@ -1315,6 +1315,7 @@ void LuaContext::Init(void)
 			.def("Transform", &my::OgreMesh::Transform)
 			.property("MaterialNum", &my::OgreMesh::GetMaterialNum)
 			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
+			.def("CalculateAABB", &my::OgreMesh::CalculateAABB)
 
 		, class_<my::BoneHierarchyNode>("BoneHierarchyNode")
 			.def_readonly("sibling", &my::BoneHierarchyNode::m_sibling)
