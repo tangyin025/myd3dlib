@@ -13,8 +13,8 @@
 float g_FresExp:MaterialParameter = 3.0;
 float g_ReflStrength:MaterialParameter = 3.4;
 float3 g_WaterColor:MaterialParameter = { 0.00784, 0.03921, 0.12156 };
-texture g_NormalTexture:MaterialParameter<string Initialize="texture/WaterNormal2.png";>;
-texture g_ReflectTexture:MaterialParameter<string Initialize="texture/galileo_cross.dds";>;
+texture g_NormalTexture:MaterialParameter<string path="texture/WaterNormal2.png";>;
+texture g_ReflectTexture:MaterialParameter<string path="texture/galileo_cross.dds";>;
 float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 
 sampler NormalTextureSampler = sampler_state

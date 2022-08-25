@@ -1,7 +1,7 @@
 
-texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-texture g_NormalTexture:MaterialParameter<string Initialize="texture/Normal.dds";>;
-texture g_SpecularTexture:MaterialParameter<string Initialize="texture/White.dds";>;
+texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
+texture g_NormalTexture:MaterialParameter<string path="texture/Normal.dds";>;
+texture g_SpecularTexture:MaterialParameter<string path="texture/White.dds";>;
 float g_Shininess:MaterialParameter = 25;
 
 sampler DiffuseTextureSampler = sampler_state

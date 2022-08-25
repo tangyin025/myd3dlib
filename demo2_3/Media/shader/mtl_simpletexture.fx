@@ -1,5 +1,5 @@
 
-texture g_DiffuseTexture:MaterialParameter<string Initialize="texture/Checker.bmp";>;
+texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
 
 sampler DiffuseTextureSampler = sampler_state
 {

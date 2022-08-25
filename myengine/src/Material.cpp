@@ -328,7 +328,7 @@ void Material::ParseShaderParameters(void)
 		else if (what[6].matched)
 		{
 			std::string Path;
-			boost::regex reg_value("string\\s+Initialize\\s*=\\s*\\\"([^\"]+)\\\"");
+			boost::regex reg_value("string\\s+path\\s*=\\s*\\\"([^\"]+)\\\"");
 			boost::match_results<std::string::const_iterator> what2;
 			if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
 			{

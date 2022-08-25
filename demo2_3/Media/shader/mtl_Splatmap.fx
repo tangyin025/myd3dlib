@@ -1,16 +1,16 @@
 
-texture g_DiffuseTexture0:MaterialParameter<string Initialize="texture/Red.dds";>;
-texture g_NormalTexture0:MaterialParameter<string Initialize="texture/Normal.dds";>;
-texture g_SpecularTexture0:MaterialParameter<string Initialize="texture/White.dds";>;
-texture g_DiffuseTexture1:MaterialParameter<string Initialize="texture/Green.dds";>;
-texture g_NormalTexture1:MaterialParameter<string Initialize="texture/Normal.dds";>;
-texture g_SpecularTexture1:MaterialParameter<string Initialize="texture/White.dds";>;
-texture g_DiffuseTexture2:MaterialParameter<string Initialize="texture/Blue.dds";>;
-texture g_NormalTexture2:MaterialParameter<string Initialize="texture/Normal.dds";>;
-texture g_SpecularTexture2:MaterialParameter<string Initialize="texture/White.dds";>;
-texture g_DiffuseTexture3:MaterialParameter<string Initialize="texture/Checker.bmp";>;
-texture g_NormalTexture3:MaterialParameter<string Initialize="texture/Normal.dds";>;
-texture g_SpecularTexture3:MaterialParameter<string Initialize="texture/White.dds";>;
+texture g_DiffuseTexture0:MaterialParameter<string path="texture/Red.dds";>;
+texture g_NormalTexture0:MaterialParameter<string path="texture/Normal.dds";>;
+texture g_SpecularTexture0:MaterialParameter<string path="texture/White.dds";>;
+texture g_DiffuseTexture1:MaterialParameter<string path="texture/Green.dds";>;
+texture g_NormalTexture1:MaterialParameter<string path="texture/Normal.dds";>;
+texture g_SpecularTexture1:MaterialParameter<string path="texture/White.dds";>;
+texture g_DiffuseTexture2:MaterialParameter<string path="texture/Blue.dds";>;
+texture g_NormalTexture2:MaterialParameter<string path="texture/Normal.dds";>;
+texture g_SpecularTexture2:MaterialParameter<string path="texture/White.dds";>;
+texture g_DiffuseTexture3:MaterialParameter<string path="texture/Checker.bmp";>;
+texture g_NormalTexture3:MaterialParameter<string path="texture/Normal.dds";>;
+texture g_SpecularTexture3:MaterialParameter<string path="texture/White.dds";>;
 float g_Shininess:MaterialParameter = 25;
 float2 g_TextureScale:MaterialParameter = float2(1.0, 1.0);
 

@@ -1,5 +1,5 @@
 
-texture g_Texture:MaterialParameter<string Initialize="texture/flare.dds";>;
+texture g_Texture:MaterialParameter<string path="texture/flare.dds";>;
 
 sampler TextureSampler = sampler_state
 {

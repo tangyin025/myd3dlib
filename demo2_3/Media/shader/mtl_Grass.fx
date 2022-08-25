@@ -1,5 +1,5 @@
 
-texture _BaseColorTexture:MaterialParameter<string Initialize="texture/InstancedIndirectGrassVertexColor.jpg";>;
+texture _BaseColorTexture:MaterialParameter<string path="texture/InstancedIndirectGrassVertexColor.jpg";>;
 float g_Shininess:MaterialParameter = 25;
 float _GrassWidth:MaterialParameter = 1;
 float _GrassHeight:MaterialParameter = 1;

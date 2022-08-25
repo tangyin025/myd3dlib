@@ -1,7 +1,7 @@
 
 float g_FresExp:MaterialParameter = 4.0;
 float g_ReflStrength:MaterialParameter = 1.0;
-texture g_NormalTexture:MaterialParameter<string Initialize="texture/water_bump.dds";>;
+texture g_NormalTexture:MaterialParameter<string path="texture/water_bump.dds";>;
 float3 g_refraction_color:MaterialParameter = {0.00784,0.03921,0.12156};
 float3 g_reflection_color:MaterialParameter = {0.8,0.88,0.89};
 float3 g_WaterScatterColor:MaterialParameter = {0.3,0.7,0.6};
