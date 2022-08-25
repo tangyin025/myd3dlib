@@ -493,8 +493,9 @@ public:
 		float fElapsedTime);
 
 	void RenderAllObjects(
-		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
+		unsigned int PassID,
+		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime);
 
@@ -503,8 +504,9 @@ public:
 	void ClearShaderCache(void);
 
 	void DrawIndexedPrimitive(
-		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
+		unsigned int PassID,
+		IRenderContext * pRC,
 		IDirect3DVertexDeclaration9* pDecl,
 		IDirect3DVertexBuffer9 * pVB,
 		IDirect3DIndexBuffer9 * pIB,
@@ -521,8 +523,9 @@ public:
 		LPARAM lparam);
 
 	void DrawIndexedPrimitiveInstance(
-		unsigned int PassID,
 		IDirect3DDevice9* pd3dDevice,
+		unsigned int PassID,
+		IRenderContext * pRC,
 		IDirect3DVertexDeclaration9* pDecl,
 		IDirect3DVertexBuffer9* pVB,
 		IDirect3DIndexBuffer9* pIB,
@@ -542,8 +545,9 @@ public:
 		LPARAM lparam);
 
 	void DrawIndexedPrimitiveUP(
-		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
+		unsigned int PassID,
+		IRenderContext * pRC,
 		IDirect3DVertexDeclaration9* pDecl,
 		D3DPRIMITIVETYPE PrimitiveType,
 		UINT MinVertexIndex,
@@ -558,7 +562,7 @@ public:
 		Material * mtl,
 		LPARAM lparam);
 
-	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
+	void DrawMesh(IDirect3DDevice9 * pd3dDevice, unsigned int PassID, IRenderContext * pRC, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam);
 
 	void PushIndexedPrimitive(
 		unsigned int PassID,

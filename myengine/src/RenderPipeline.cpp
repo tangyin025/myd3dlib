@@ -549,7 +549,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
@@ -563,7 +563,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeNormal, pRC, fTime, fElapsedTime);
 	NormalSurf.Release();
 	PositionSurf.Release();
 
@@ -592,11 +592,11 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
 			m_AmbientColor.x, m_AmbientColor.y, m_AmbientColor.z, 0), 0, 0));
 	}
-	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeLight, pRC, fTime, fElapsedTime);
 
 	m_SimpleSample->SetTexture(handle_LightRT, pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
-	RenderAllObjects(PassTypeBackground, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeBackground, pRC, fTime, fElapsedTime);
 	if (m_PassDrawCall[PassTypeBackground] <= 0)
 	{
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0)); // ! d3dmultisample will not work
@@ -604,9 +604,9 @@ void RenderPipeline::OnRender(
 
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID: D3DFILL_WIREFRAME));
 
-	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeOpaque, pRC, fTime, fElapsedTime);
 
-	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(pd3dDevice, PassTypeTransparent, pRC, fTime, fElapsedTime);
 
 	if (pRC->m_FogEnable)
 	{
@@ -769,8 +769,9 @@ void RenderPipeline::OnRender(
 }
 
 void RenderPipeline::RenderAllObjects(
-	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
+	unsigned int PassID,
+	IRenderContext * pRC,
 	double fTime,
 	float fElapsedTime)
 {
@@ -780,8 +781,9 @@ void RenderPipeline::RenderAllObjects(
 	for (; prim_iter != m_Pass[PassID].m_IndexedPrimitiveList.end(); prim_iter++)
 	{
 		DrawIndexedPrimitive(
-			PassID,
 			pd3dDevice,
+			PassID,
+			pRC,
 			prim_iter->pDecl,
 			prim_iter->pVB,
 			prim_iter->pIB,
@@ -803,8 +805,9 @@ void RenderPipeline::RenderAllObjects(
 	for (; prim_inst_iter != m_Pass[PassID].m_IndexedPrimitiveInstanceList.end(); prim_inst_iter++)
 	{
 		DrawIndexedPrimitiveInstance(
-			PassID,
 			pd3dDevice,
+			PassID,
+			pRC,
 			prim_inst_iter->pDecl,
 			prim_inst_iter->pVB,
 			prim_inst_iter->pIB,
@@ -829,8 +832,9 @@ void RenderPipeline::RenderAllObjects(
 	for (; prim_up_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); prim_up_iter++)
 	{
 		DrawIndexedPrimitiveUP(
-			PassID,
 			pd3dDevice,
+			PassID,
+			pRC,
 			prim_up_iter->pDecl,
 			prim_up_iter->PrimitiveType,
 			prim_up_iter->MinVertexIndex,
@@ -850,7 +854,7 @@ void RenderPipeline::RenderAllObjects(
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawMesh(PassID, pd3dDevice, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
+		DrawMesh(pd3dDevice, PassID, pRC, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->cmp, mesh_iter->mtl, mesh_iter->lparam);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -876,8 +880,9 @@ void RenderPipeline::RenderAllObjects(
 
 			my::Mesh* mesh = mesh_inst_iter->first.get<0>();
 			DrawIndexedPrimitiveInstance(
-				PassID,
 				pd3dDevice,
+				PassID,
+				pRC,
 				mesh_inst_iter->second.m_Decl,
 				mesh->GetVertexBuffer(),
 				mesh->GetIndexBuffer(),
@@ -918,8 +923,9 @@ void RenderPipeline::RenderAllObjects(
 			if (NumTotalInstances > 0)
 			{
 				DrawIndexedPrimitiveInstance(
-					PassID,
 					pd3dDevice,
+					PassID,
+					pRC,
 					m_ParticleIEDecl,
 					emitter_inst_iter->first.get<0>(),
 					emitter_inst_iter->first.get<1>(),
@@ -975,8 +981,9 @@ void RenderPipeline::ClearShaderCache(void)
 }
 
 void RenderPipeline::DrawIndexedPrimitive(
-	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
+	unsigned int PassID,
+	IRenderContext * pRC,
 	IDirect3DVertexDeclaration9* pDecl,
 	IDirect3DVertexBuffer9 * pVB,
 	IDirect3DIndexBuffer9 * pIB,
@@ -1001,7 +1008,7 @@ void RenderPipeline::DrawIndexedPrimitive(
 		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		V(pd3dDevice->SetIndices(pIB));
-		mtl->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
@@ -1010,8 +1017,9 @@ void RenderPipeline::DrawIndexedPrimitive(
 }
 
 void RenderPipeline::DrawIndexedPrimitiveInstance(
-	unsigned int PassID,
 	IDirect3DDevice9* pd3dDevice,
+	unsigned int PassID,
+	IRenderContext * pRC,
 	IDirect3DVertexDeclaration9* pDecl,
 	IDirect3DVertexBuffer9* pVB,
 	IDirect3DIndexBuffer9* pIB,
@@ -1042,7 +1050,7 @@ void RenderPipeline::DrawIndexedPrimitiveInstance(
 		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		V(pd3dDevice->SetIndices(pIB));
-		mtl->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		V(pd3dDevice->SetStreamSourceFreq(0, 1));
@@ -1053,8 +1061,9 @@ void RenderPipeline::DrawIndexedPrimitiveInstance(
 }
 
 void RenderPipeline::DrawIndexedPrimitiveUP(
-	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
+	unsigned int PassID,
+	IRenderContext * pRC,
 	IDirect3DVertexDeclaration9* pDecl,
 	D3DPRIMITIVETYPE PrimitiveType,
 	UINT MinVertexIndex,
@@ -1076,7 +1085,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		mtl->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
 		shader->CommitChanges();
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
 			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
@@ -1085,14 +1094,14 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
+void RenderPipeline::DrawMesh(IDirect3DDevice9 * pd3dDevice, unsigned int PassID, IRenderContext * pRC, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, Component * cmp, Material * mtl, LPARAM lparam)
 {
 	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
 		shader->BeginPass(PassID);
-		mtl->OnSetShader(pd3dDevice, shader, lparam);
+		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
 		shader->CommitChanges();
 		mesh->DrawSubset(AttribId);
 		shader->EndPass();

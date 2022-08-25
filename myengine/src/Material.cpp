@@ -66,25 +66,25 @@ void MaterialParameter::Init(my::Effect * shader)
 	m_Handle = shader->GetParameterByName(NULL, m_Name.c_str());
 }
 
-void MaterialParameterFloat::Set(my::Effect * shader)
+void MaterialParameterFloat::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloat(m_Handle, m_Value);
 }
 
-void MaterialParameterFloat2::Set(my::Effect * shader)
+void MaterialParameterFloat2::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 2);
 }
 
-void MaterialParameterFloat3::Set(my::Effect * shader)
+void MaterialParameterFloat3::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 3);
 }
 
-void MaterialParameterFloat4::Set(my::Effect * shader)
+void MaterialParameterFloat4::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
 	_ASSERT(m_Handle);
 	shader->SetFloatArray(m_Handle, &m_Value.x, 4);
@@ -123,7 +123,7 @@ void MaterialParameterTexture::ReleaseResource(void)
 	}
 }
 
-void MaterialParameterTexture::Set(my::Effect * shader)
+void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
 	_ASSERT(m_Handle);
 	shader->SetTexture(m_Handle, m_Texture.get());
@@ -214,7 +214,7 @@ void Material::ReleaseResource(void)
 	}
 }
 
-void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam)
+void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 {
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
@@ -251,7 +251,7 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, L
 	MaterialParameterPtrList::iterator param_iter = m_ParameterList.begin();
 	for (; param_iter != m_ParameterList.end(); param_iter++)
 	{
-		(*param_iter)->Set(shader);
+		(*param_iter)->Set(shader, lparam, pRC, actor);
 	}
 }
 

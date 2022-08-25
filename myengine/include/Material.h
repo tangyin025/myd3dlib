@@ -12,6 +12,8 @@ namespace my
 	class Effect;
 };
 
+class Actor;
+
 class MaterialParameter;
 
 typedef boost::shared_ptr<MaterialParameter> MaterialParameterPtr;
@@ -68,7 +70,7 @@ public:
 
 	void Init(my::Effect * shader);
 
-	virtual void Set(my::Effect * shader)
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
 	{
 	}
 
@@ -113,7 +115,7 @@ public:
 		return ParameterTypeFloat;
 	}
 
-	virtual void Set(my::Effect * shader);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 };
 
 class MaterialParameterFloat2 : public MaterialParameter
@@ -148,7 +150,7 @@ public:
 		return ParameterTypeFloat2;
 	}
 
-	virtual void Set(my::Effect * shader);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 };
 
 class MaterialParameterFloat3 : public MaterialParameter
@@ -183,7 +185,7 @@ public:
 		return ParameterTypeFloat3;
 	}
 
-	virtual void Set(my::Effect * shader);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 };
 
 class MaterialParameterFloat4 : public MaterialParameter
@@ -218,7 +220,7 @@ public:
 		return ParameterTypeFloat4;
 	}
 
-	virtual void Set(my::Effect * shader);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 };
 
 class MaterialParameterTexture : public MaterialParameter
@@ -264,7 +266,7 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void Set(my::Effect * shader);
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 };
 
 class Material;
@@ -349,7 +351,7 @@ public:
 
 	void ReleaseResource(void);
 
-	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam);
+	void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 
 	void ParseShaderParameters(void);
 
