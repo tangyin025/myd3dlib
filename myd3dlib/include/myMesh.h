@@ -207,7 +207,7 @@ namespace my
 			DWORD Options = D3DXMESH_MANAGED);
 
 		void CreateMeshFromX(
-			LPCSTR pFilename,
+			LPCTSTR pFilename,
 			DWORD Options = D3DXMESH_MANAGED,
 			LPD3DXBUFFER * ppAdjacency = NULL,
 			LPD3DXBUFFER * ppMaterials = NULL,

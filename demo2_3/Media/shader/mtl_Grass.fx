@@ -60,10 +60,10 @@ void TransformGrassPos(VS_INPUT In, out float3 perGrassPivotPosWS, out float3 po
 	//per grass height scale
 	positionOS.y *= perGrassHeight;
 
-	//camera distance scale (make grass width larger if grass is far away to camera, to hide smaller than pixel size triangle flicker)        
-	float3 viewWS = g_Eye - perGrassPivotPosWS;
-	float ViewWSLength = length(viewWS);
-	positionOS += cameraTransformRightWS * In.Pos0.x * max(0, ViewWSLength * 0.0225);
+	// //camera distance scale (make grass width larger if grass is far away to camera, to hide smaller than pixel size triangle flicker)        
+	// float3 viewWS = g_Eye - perGrassPivotPosWS;
+	// float ViewWSLength = length(viewWS);
+	// positionOS += cameraTransformRightWS * In.Pos0.x * max(0, ViewWSLength * 0.0225);
 
 
 	//move grass posOS -> posWS

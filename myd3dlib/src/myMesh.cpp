@@ -353,7 +353,7 @@ void Mesh::CreateMeshFVF(
 }
 
 void Mesh::CreateMeshFromX(
-	LPCSTR pFilename,
+	LPCTSTR pFilename,
 	DWORD Options,
 	LPD3DXBUFFER * ppAdjacency,
 	LPD3DXBUFFER * ppMaterials,
@@ -361,7 +361,7 @@ void Mesh::CreateMeshFromX(
 	DWORD * pNumMaterials)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXLoadMeshFromXA(
+	hr = D3DXLoadMeshFromX(
 		pFilename, Options, my::D3DContext::getSingleton().m_d3dDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
 	if(FAILED(hr))
 	{
