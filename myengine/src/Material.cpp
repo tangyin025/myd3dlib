@@ -3,6 +3,7 @@
 #include "myDxutApp.h"
 #include "myResource.h"
 #include "RenderPipeline.h"
+#include "myUtility.h"
 #include "libc.h"
 #include "Actor.h"
 #include <fstream>
@@ -35,6 +36,8 @@ BOOST_CLASS_EXPORT(MaterialParameterFloat3)
 BOOST_CLASS_EXPORT(MaterialParameterFloat4)
 
 BOOST_CLASS_EXPORT(MaterialParameterTexture)
+
+BOOST_CLASS_EXPORT(MaterialParameterInvWorldView)
 
 BOOST_CLASS_EXPORT(Material)
 
@@ -127,6 +130,13 @@ void MaterialParameterTexture::Set(my::Effect * shader, LPARAM lparam, RenderPip
 {
 	_ASSERT(m_Handle);
 	shader->SetTexture(m_Handle, m_Texture.get());
+}
+
+void MaterialParameterInvWorldView::Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor)
+{
+	_ASSERT(m_Handle);
+	Matrix4 InvWorldView = (actor->m_World * pRC->m_Camera->m_View).inverse();
+	shader->SetMatrix(m_Handle, InvWorldView);
 }
 
 template<class Archive>
@@ -264,17 +274,17 @@ void Material::ParseShaderParameters(void)
 
 	CachePtr cache = my::ResourceMgr::getSingleton().OpenIStream(m_Shader.c_str())->GetWholeCache();
 	cache->push_back(0);
-	//                     12       3        4        5        6             7                               8             9
-	boost::regex reg("^\\s*((float)|(float2)|(float3)|(float4)|(texture))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
+	//                     1 2      3        4        5        6         7              8                               9             10
+	boost::regex reg("^\\s*((float)|(float2)|(float3)|(float4)|(texture)|(float4x4))\\s+(\\w+)\\s*:\\s*MaterialParameter(\\s*<[^>]+>)?(\\s*=\\s*[^;]+)?;");
 	boost::match_results<const char *> what;
 	const char * start = (const char *)&(*cache)[0];
 	const char * end = (const char *)&(*cache)[cache->size() - 1];
 	m_ParameterList.clear();
 	for (; boost::regex_search(start, end, what, reg, boost::match_default); start = what[0].second)
 	{
-		std::string Name = what[7];
-		std::string Annotations = what[8];
-		std::string Initialize = what[9];
+		std::string Name = what[8];
+		std::string Annotations = what[9];
+		std::string Initialize = what[10];
 		if (what[2].matched)
 		{
 			float Value = 0.0f;
@@ -335,6 +345,15 @@ void Material::ParseShaderParameters(void)
 				Path = what2[1];
 			}
 			AddParameter(Name, Path);
+		}
+		else if (what[7].matched)
+		{
+			boost::regex reg_value("bool\\s+UseInvWorldView\\s*=\\s*true");
+			boost::match_results<std::string::const_iterator> what2;
+			if (boost::regex_search(Annotations, what2, reg_value, boost::match_default))
+			{
+				m_ParameterList.push_back(MaterialParameterPtr(new MaterialParameterInvWorldView(Name)));
+			}
 		}
 	}
 

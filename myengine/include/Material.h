@@ -29,6 +29,7 @@ public:
 		ParameterTypeFloat3,
 		ParameterTypeFloat4,
 		ParameterTypeTexture,
+		ParameterTypeInvWorldView
 	};
 
 	std::string m_Name;
@@ -265,6 +266,35 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
+};
+
+class MaterialParameterInvWorldView : public MaterialParameter
+{
+protected:
+	MaterialParameterInvWorldView(void)
+	{
+	}
+
+public:
+	MaterialParameterInvWorldView(const std::string & Name)
+		: MaterialParameter(Name)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(MaterialParameter);
+	}
+
+	virtual ParameterType GetParameterType(void) const
+	{
+		return ParameterTypeInvWorldView;
+	}
 
 	virtual void Set(my::Effect * shader, LPARAM lparam, RenderPipeline::IRenderContext * pRC, Actor * actor);
 };
