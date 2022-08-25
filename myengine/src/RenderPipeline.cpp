@@ -36,7 +36,6 @@ RenderPipeline::RenderPipeline(void)
 	, handle_Eye(NULL)
 	, handle_View(NULL)
 	, handle_ViewProj(NULL)
-	, handle_InvViewProj(NULL)
 	, handle_SkyLightView(NULL)
 	, handle_SkyLightViewProj(NULL)
 	, handle_SkyLightColor(NULL)
@@ -353,7 +352,6 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
 	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
 	BOOST_VERIFY(handle_ViewProj = m_SimpleSample->GetParameterByName(NULL, "g_ViewProj"));
-	BOOST_VERIFY(handle_InvViewProj = m_SimpleSample->GetParameterByName(NULL, "g_InvViewProj"));
 	BOOST_VERIFY(handle_SkyLightView = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightView"));
 	BOOST_VERIFY(handle_SkyLightViewProj = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightViewProj"));
 	BOOST_VERIFY(handle_SkyLightColor = m_SimpleSample->GetParameterByName(NULL, "g_SkyLightColor"));
@@ -546,7 +544,6 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix(handle_ViewProj, pRC->m_Camera->m_ViewProj);
-	m_SimpleSample->SetMatrix(handle_InvViewProj, pRC->m_Camera->m_InverseViewProj);
 	m_SimpleSample->SetMatrix(handle_SkyLightView, m_SkyLightCam->m_View); // ! RH -z
 	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));

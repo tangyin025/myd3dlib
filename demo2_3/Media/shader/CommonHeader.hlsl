@@ -6,7 +6,6 @@ shared float4x4 g_World;
 shared float3 g_Eye;
 shared float4x4 g_View;
 shared float4x4 g_ViewProj;
-shared float4x4 g_InvViewProj;
 shared float4x4 g_SkyLightView;
 shared float4x4 g_SkyLightViewProj;
 shared float4 g_SkyLightColor;

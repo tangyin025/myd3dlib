@@ -128,8 +128,6 @@ public:
 
 	D3DXHANDLE handle_ViewProj;
 
-	D3DXHANDLE handle_InvViewProj;
-
 	D3DXHANDLE handle_SkyLightView;
 
 	D3DXHANDLE handle_SkyLightViewProj;
