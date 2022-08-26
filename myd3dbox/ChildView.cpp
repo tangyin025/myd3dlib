@@ -63,6 +63,8 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_OPAQUE, &CChildView::OnUpdateRendertargetOpaque)
 	ON_COMMAND(ID_RENDERTARGET_DOWNFILTER, &CChildView::OnRendertargetDownfilter)
 	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_DOWNFILTER, &CChildView::OnUpdateRendertargetDownfilter)
+	ON_COMMAND(ID_RENDERTARGET_SPECULAR, &CChildView::OnRendertargetSpecular)
+	ON_UPDATE_COMMAND_UI(ID_RENDERTARGET_SPECULAR, &CChildView::OnUpdateRendertargetSpecular)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -93,6 +95,7 @@ CChildView::CChildView()
 	m_DepthStencil.reset(new my::Surface());
 	m_NormalRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
+	m_SpecularRT.reset(new my::Texture2D());
 	m_LightRT.reset(new my::Texture2D());
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
@@ -164,6 +167,10 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 
 	m_PositionRT->OnDestroyDevice();
 	m_PositionRT->CreateTexture(
+		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_SpecularRT->OnDestroyDevice();
+	m_SpecularRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
 	m_LightRT->OnDestroyDevice();
@@ -2590,4 +2597,19 @@ void CChildView::OnUpdateRendertargetDownfilter(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(RenderPipeline::RenderTargetDownFilter == m_RTType);
+}
+
+
+void CChildView::OnRendertargetSpecular()
+{
+	// TODO: Add your command handler code here
+	m_RTType = RenderPipeline::RenderTargetSpecular;
+	Invalidate();
+}
+
+
+void CChildView::OnUpdateRendertargetSpecular(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(RenderPipeline::RenderTargetSpecular == m_RTType);
 }

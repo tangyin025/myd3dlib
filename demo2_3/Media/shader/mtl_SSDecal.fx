@@ -123,8 +123,8 @@ technique RenderScene
     }
     pass PassTypeNormal
     {          
-        VertexShader = compile vs_3_0 NormalVS();
-        PixelShader  = compile ps_3_0 NormalPS(); 
+        // VertexShader = compile vs_3_0 NormalVS();
+        // PixelShader  = compile ps_3_0 NormalPS(); 
     }
     pass PassTypeLight
     {          

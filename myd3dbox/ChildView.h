@@ -137,6 +137,8 @@ public:
 	afx_msg void OnUpdateRendertargetOpaque(CCmdUI* pCmdUI);
 	afx_msg void OnRendertargetDownfilter();
 	afx_msg void OnUpdateRendertargetDownfilter(CCmdUI* pCmdUI);
+	afx_msg void OnRendertargetSpecular();
+	afx_msg void OnUpdateRendertargetSpecular(CCmdUI* pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

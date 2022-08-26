@@ -136,13 +136,14 @@
 #define ID_RENDERTARGET_OPAQUE          32829
 #define ID_RENDERTARGET_DOWNFILTER      32830
 #define ID_TOOLS_SNAPSHOT               32831
+#define ID_RENDERTARGET_SPECULAR        32832
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        321
-#define _APS_NEXT_COMMAND_VALUE         32832
+#define _APS_NEXT_COMMAND_VALUE         32833
 #define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

@@ -1,3 +1,31 @@
+// Registers - vs_3_0
+// Register		Name						Count
+// v#			Input Register				16
+// r#			Temporary Register			32
+// c#			Constant Float Register		D3DCAPS9.MaxVertexShaderConst (at least 256)
+// a0			Address Register			1
+// b#			Constant Boolean Register	16
+// i#			Constant Integer Register	16
+// aL			Loop Counter Register		1
+// p0			Predicate Register			1
+// s#			Sampler (Direct3D 9 asm-vs)	4
+// o#			Output Register				12
+
+// ps_3_0 Registers
+// Register		Name						Count
+// v#			Input Register				10
+// r#			Temporary Register			32
+// c#			Constant Float Register		224
+// i#			Constant Integer Register	16
+// b#			Constant Boolean Register	16
+// p0			Predicate Register			1
+// s#			Sampler (Direct3D 9 asm-ps)	16
+// vFace		Face_Register				1
+// vPos			Position_Register			1
+// aL			Loop_Counter_Register		1 
+// oC#			Output Color Register		See Multiple-element Textures (Direct3D 9)
+// oDepth		Output Depth Register		1
+
 shared float g_Time;
 shared float2 g_ScreenDim;
 shared float g_ShadowMapSize;
@@ -13,6 +41,7 @@ shared float4 g_AmbientColor;
 shared texture g_ShadowRT;
 shared texture g_NormalRT;
 shared texture g_PositionRT;
+shared texture g_SpecularRT;
 shared texture g_LightRT;
 shared texture g_OpaqueRT;
 shared texture g_DownFilterRT;
@@ -36,6 +65,14 @@ sampler NormalRTSampler = sampler_state
 sampler PositionRTSampler = sampler_state
 {
 	Texture = <g_PositionRT>;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
+};
+
+sampler SpecularRTSampler = sampler_state
+{
+	Texture = <g_SpecularRT>;
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;

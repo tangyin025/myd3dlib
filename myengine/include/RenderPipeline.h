@@ -142,6 +142,8 @@ public:
 
 	D3DXHANDLE handle_PositionRT;
 
+	D3DXHANDLE handle_SpecularRT;
+
 	D3DXHANDLE handle_LightRT;
 
 	D3DXHANDLE handle_OpaqueRT;
@@ -253,6 +255,7 @@ public:
 	{
 		RenderTargetNormal,
 		RenderTargetPosition,
+		RenderTargetSpecular,
 		RenderTargetLight,
 		RenderTargetOpaque,
 		RenderTargetDownFilter
@@ -278,6 +281,8 @@ public:
 		boost::shared_ptr<my::Texture2D> m_NormalRT;
 
 		boost::shared_ptr<my::Texture2D> m_PositionRT;
+
+		boost::shared_ptr<my::Texture2D> m_SpecularRT;
 
 		boost::shared_ptr<my::Texture2D> m_LightRT;
 

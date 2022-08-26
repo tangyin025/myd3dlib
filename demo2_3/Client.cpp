@@ -924,6 +924,7 @@ Client::Client(void)
 
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
+	m_SpecularRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
@@ -1286,6 +1287,9 @@ HRESULT Client::OnResetDevice(
 	m_PositionRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
+	m_SpecularRT->CreateTexture(
+		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
 	m_LightRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
@@ -1308,6 +1312,8 @@ void Client::OnLostDevice(void)
 	m_NormalRT->OnDestroyDevice();
 
 	m_PositionRT->OnDestroyDevice();
+
+	m_SpecularRT->OnDestroyDevice();
 
 	m_LightRT->OnDestroyDevice();
 
