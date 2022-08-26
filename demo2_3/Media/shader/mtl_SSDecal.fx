@@ -35,45 +35,45 @@ sampler SpecularTextureSampler = sampler_state
     ADDRESSV = WRAP;
 };
 
-struct NORMAL_VS_OUTPUT
-{
-	float4 Pos				: SV_Position;
-	float4 Color			: COLOR0;
-	float2 Tex0				: TEXCOORD0;
-	float3 Normal			: NORMAL;
-	float3 Tangent			: TEXCOORD1;
-	float3 Binormal			: TEXCOORD2;
-	float3 PosVS			: TEXCOORD3;
-};
+// struct NORMAL_VS_OUTPUT
+// {
+// 	float4 Pos				: SV_Position;
+// 	float4 Color			: COLOR0;
+// 	float2 Tex0				: TEXCOORD0;
+// 	float3 Normal			: NORMAL;
+// 	float3 Tangent			: TEXCOORD1;
+// 	float3 Binormal			: TEXCOORD2;
+// 	float3 PosVS			: TEXCOORD3;
+// };
 
-NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
-{
-	NORMAL_VS_OUTPUT Output;
-	float4 PosWS = TransformPosWS(In);
-	Output.Pos = mul(PosWS, g_ViewProj);
-	Output.Color = TransformColor(In);
-	Output.Tex0 = TransformUV(In);
-	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
-	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
-	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.PosVS = mul(PosWS, g_View).xyz;
-	return Output;
-}
+// NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
+// {
+// 	NORMAL_VS_OUTPUT Output;
+// 	float4 PosWS = TransformPosWS(In);
+// 	Output.Pos = mul(PosWS, g_ViewProj);
+// 	Output.Color = TransformColor(In);
+// 	Output.Tex0 = TransformUV(In);
+// 	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
+// 	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
+// 	Output.Binormal = cross(Output.Normal, Output.Tangent);
+// 	Output.PosVS = mul(PosWS, g_View).xyz;
+// 	return Output;
+// }
 
-void NormalPS( 	NORMAL_VS_OUTPUT In,
-				out float4 oNormal : COLOR0,
-				out float4 oPos : COLOR1 )
-{
-	// 这里无法取出PositionRTSampler
-	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float4 Pos = mul(PosVS, g_InvWorldView);
-	clip(float3(0.5,0.5,0.5)-abs(Pos));
+// void NormalPS( 	NORMAL_VS_OUTPUT In,
+// 				out float4 oNormal : COLOR0,
+// 				out float4 oPos : COLOR1 )
+// {
+// 	// 这里无法取出PositionRTSampler
+// 	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
+// 	float4 Pos = mul(PosVS, g_InvWorldView);
+// 	clip(float3(0.5,0.5,0.5)-abs(Pos));
 
-	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
-	float3 NormalTS = tex2D(NormalTextureSampler, Pos.xz + 0.5).xyz * 2 - 1;
-	oNormal = float4(mul(NormalTS, m), g_Shininess);
-	oPos = float4(In.PosVS, 1.0);
-}
+// 	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
+// 	float3 NormalTS = tex2D(NormalTextureSampler, Pos.xz + 0.5).xyz * 2 - 1;
+// 	oNormal = float4(mul(NormalTS, m), g_Shininess);
+// 	oPos = float4(In.PosVS, 1.0);
+// }
 
 struct OPAQUE_VS_OUTPUT
 {
@@ -113,7 +113,7 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	float3 Specular = tex2D(SpecularTextureSampler, Pos.xz + 0.5).xyz;
 	float4 ScreenLight = tex2D(LightRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float3 Final = Diffuse.xyz * In.Color.xyz * (ScreenLight.xyz + SkyDiffuse) + Specular * (ScreenLight.w + SkySpecular);
-    return float4(Final, 1);
+    return float4(Final, In.Color.w * Diffuse.a);
 }
 
 technique RenderScene

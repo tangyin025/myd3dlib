@@ -609,7 +609,7 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0)); // ! d3dmultisample will not work
 	}
 
-	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID: D3DFILL_WIREFRAME));
+	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID : D3DFILL_WIREFRAME));
 
 	RenderAllObjects(pd3dDevice, PassTypeOpaque, pRC, fTime, fElapsedTime);
 

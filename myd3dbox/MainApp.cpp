@@ -827,12 +827,12 @@ CDocument* CMainApp::OpenDocumentFile(LPCTSTR lpszFileName)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_strPathName = lpszFileName;
-	theApp.AddToRecentFileList(lpszFileName);
+	theApp.AddToRecentFileList(pFrame->m_strPathName); // ! invalid lpszFileName by resizing list
 	pFrame->m_wndOutliner.OnDestroyItemList();
 	CWaitCursor wait;
 	pFrame->ClearFileContext();
 	pFrame->InitFileContext();
-	if (pFrame->OpenFileContext(lpszFileName))
+	if (pFrame->OpenFileContext(pFrame->m_strPathName))
 	{
 		g_bRemoveFromMRU = FALSE;
 
