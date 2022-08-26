@@ -59,7 +59,10 @@ bool MaterialParameter::operator == (const MaterialParameter & rhs) const
 			return static_cast<const MaterialParameterFloat4 &>(*this).m_Value == static_cast<const MaterialParameterFloat4 &>(rhs).m_Value;
 		case ParameterTypeTexture:
 			return static_cast<const MaterialParameterTexture &>(*this).m_TexturePath == static_cast<const MaterialParameterTexture &>(rhs).m_TexturePath;
+		case ParameterTypeInvWorldView:
+			return true;
 		}
+		_ASSERT(false);
 	}
 	return false;
 }
