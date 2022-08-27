@@ -231,7 +231,7 @@ void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, L
 {
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable));
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable ? D3DZB_TRUE : D3DZB_FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, m_ZWriteEnable));
 	switch (m_BlendMode)
 	{

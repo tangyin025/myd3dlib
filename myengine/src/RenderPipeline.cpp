@@ -542,6 +542,7 @@ void RenderPipeline::OnRender(
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
+	V(pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_GREATEREQUAL));
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
@@ -558,7 +559,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 0.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
@@ -574,7 +575,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(1, SpecularSurf));
 	V(pd3dDevice->SetRenderTarget(2, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 0.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeNormal, pRC, fTime, fElapsedTime);
 
 	PositionSurf.Release();

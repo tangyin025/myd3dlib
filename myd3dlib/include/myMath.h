@@ -2470,11 +2470,17 @@ namespace my
 			float yScale = cotf(fovy / 2);
 			float xScale = yScale / aspect;
 
+			//return Matrix4(
+			//	xScale,	0,		0,						0,
+			//	0,		yScale,	0,						0,
+			//	0,		0,		zf / (zn - zf),			-1,
+			//	0,		0,		zn * zf / (zn - zf),	0);
+
 			return Matrix4(
 				xScale,	0,		0,						0,
 				0,		yScale,	0,						0,
-				0,		0,		zf / (zn - zf),			-1,
-				0,		0,		zn * zf / (zn - zf),	0);
+				0,		0,		-zn / (zn - zf),		-1,
+				0,		0,		-zn * zf / (zn - zf),	0);
 		}
 
 		static Matrix4 PerspectiveAovLH(float fovx, float aspect, float zn, float zf)
