@@ -2171,7 +2171,8 @@ void LuaContext::Init(void)
 				value("PassMaskOpaque", Material::PassMaskOpaque),
 				value("PassMaskNormalOpaque", Material::PassMaskNormalOpaque),
 				value("PassMaskShadowNormalOpaque", Material::PassMaskShadowNormalOpaque),
-				value("PassMaskTransparent", Material::PassMaskTransparent)
+				value("PassMaskTransparent", Material::PassMaskTransparent),
+				value("PassMaskNormalTransparent", Material::PassMaskNormalTransparent)
 			]
 			.def(constructor<>())
 			.def_readwrite("Shader", &Material::m_Shader)
