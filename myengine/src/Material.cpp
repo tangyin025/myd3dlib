@@ -360,14 +360,14 @@ void Material::ParseShaderParameters(void)
 		}
 	}
 
-	//                             12                3                4               5                    6                7                     8                      9
-	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
+	//                             1 2               3                4                     5               6                    7                8                     9                      10
+	boost::regex reg_pass("pass\\s+((PassTypeShadow)|(PassTypeNormal)|(PassTypeNormalTrans)|(PassTypeLight)|(PassTypeBackground)|(PassTypeOpaque)|(PassTypeTransparent))(\\s*<[^>]+>)?\\s*{\\s*(\\w*)[^}]*}");
 	start = (const char *)&(*cache)[0];
 	end = (const char *)&(*cache)[cache->size() - 1];
 	m_PassMask = 0;
 	for (; boost::regex_search(start, end, what, reg_pass, boost::match_default); start = what[0].second)
 	{
-		std::string assignment = what[9];
+		std::string assignment = what[10];
 		if (what[2].matched)
 		{
 			if (!assignment.empty())
@@ -386,24 +386,31 @@ void Material::ParseShaderParameters(void)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
+				m_PassMask |= 1 << RenderPipeline::PassTypeNormalTrans;
 			}
 		}
 		else if (what[5].matched)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeBackground;
+				m_PassMask |= 1 << RenderPipeline::PassTypeLight;
 			}
 		}
 		else if (what[6].matched)
 		{
 			if (!assignment.empty())
 			{
-				m_PassMask |= 1 << RenderPipeline::PassTypeOpaque;
+				m_PassMask |= 1 << RenderPipeline::PassTypeBackground;
 			}
 		}
 		else if (what[7].matched)
+		{
+			if (!assignment.empty())
+			{
+				m_PassMask |= 1 << RenderPipeline::PassTypeOpaque;
+			}
+		}
+		else if (what[8].matched)
 		{
 			if (!assignment.empty())
 			{

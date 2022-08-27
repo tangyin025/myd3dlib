@@ -37,6 +37,7 @@ static const CPropertiesWnd::PassMaskDesc g_PassMaskDesc[] =
 	{ _T("NormalOpaque"), Material::PassMaskNormalOpaque },
 	{ _T("ShadowNormalOpaque"), Material::PassMaskShadowNormalOpaque },
 	{ _T("Transparent"), Material::PassMaskTransparent },
+	{ _T("NormalTransparent"), Material::PassMaskNormalTransparent },
 };
 
 static LPCTSTR GetPassMaskDesc(DWORD mask)
