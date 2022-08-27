@@ -22,15 +22,16 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 
 float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
-	float4 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
-	float3 LightDir = In.LightVS.xyz - PosVS.xyz;
+	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+	float3 SpecularVS = tex2D(SpecularRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+	float3 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+	float3 LightDir = In.LightVS.xyz - PosVS;
 	float LightDist = length(LightDir);
 	LightDir = LightDir / LightDist;
-	float diffuse = saturate(dot(NormalVS.xyz, LightDir));
-	float3 ViewVS = In.EyeVS - PosVS.xyz;
-	float3 Ref = Reflection(NormalVS.xyz, ViewVS);
-	float Specular = pow(saturate(dot(Ref, LightDir)), NormalVS.w);
+	float diffuse = saturate(dot(NormalVS, LightDir));
+	float3 ViewVS = In.EyeVS - PosVS;
+	float3 Ref = Reflection(NormalVS, ViewVS);
+	float Specular = pow(saturate(dot(Ref, LightDir)), SpecularVS.x);
 	return float4(In.Color.xyz * diffuse, In.Color.w * Specular) * saturate(1 - LightDist / In.LightVS.w);
 }
 
@@ -40,6 +41,9 @@ technique RenderScene
     {          
     }
     pass PassTypeNormal
+    {          
+    }
+    pass PassTypeNormalTrans
     {          
     }
     pass PassTypeLight

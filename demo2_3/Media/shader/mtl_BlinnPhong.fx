@@ -80,12 +80,14 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 
 void NormalPS( 	NORMAL_VS_OUTPUT In,
 				out float4 oNormal : COLOR0,
-				out float4 oPos : COLOR1 )
+				out float4 oSpecular : COLOR1,
+				out float4 oPos : COLOR2 )
 {
 	clip(ScreenDoorTransparency(In.Color.w, In.Pos.xy));
 	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
 	float3 NormalTS = tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1;
-	oNormal = float4(mul(NormalTS, m), g_Shininess);
+	oNormal = float4(mul(NormalTS, m), 1);
+	oSpecular = float4(g_Shininess, 0, 0, 1);
 	oPos = float4(In.PosVS, 1.0);
 }
 
@@ -138,6 +140,9 @@ technique RenderScene
     {          
         VertexShader = compile vs_3_0 NormalVS();
         PixelShader  = compile ps_3_0 NormalPS(); 
+    }
+    pass PassTypeNormalTrans
+    {          
     }
     pass PassTypeLight
     {          

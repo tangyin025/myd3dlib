@@ -94,8 +94,8 @@ CChildView::CChildView()
 	m_SwapChainBufferDesc.Height = 100;
 	m_DepthStencil.reset(new my::Surface());
 	m_NormalRT.reset(new my::Texture2D());
-	m_PositionRT.reset(new my::Texture2D());
 	m_SpecularRT.reset(new my::Texture2D());
+	m_PositionRT.reset(new my::Texture2D());
 	m_LightRT.reset(new my::Texture2D());
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
@@ -165,12 +165,12 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 	m_NormalRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
-	m_PositionRT->OnDestroyDevice();
-	m_PositionRT->CreateTexture(
-		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
-
 	m_SpecularRT->OnDestroyDevice();
 	m_SpecularRT->CreateTexture(
+		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_PositionRT->OnDestroyDevice();
+	m_PositionRT->CreateTexture(
 		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
 	m_LightRT->OnDestroyDevice();

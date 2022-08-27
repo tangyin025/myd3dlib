@@ -42,8 +42,8 @@ RenderPipeline::RenderPipeline(void)
 	, handle_AmbientColor(NULL)
 	, handle_ShadowRT(NULL)
 	, handle_NormalRT(NULL)
-	, handle_PositionRT(NULL)
 	, handle_SpecularRT(NULL)
+	, handle_PositionRT(NULL)
 	, handle_LightRT(NULL)
 	, handle_OpaqueRT(NULL)
 	, handle_DownFilterRT(NULL)
@@ -253,12 +253,20 @@ const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
 {
 	switch (pass_type)
 	{
-	case PassTypeShadow: return "PassTypeShadow";
-	case PassTypeNormal: return "PassTypeNormal";
-	case PassTypeLight: return "PassTypeLight";
-	case PassTypeBackground: return "PassTypeBackground";
-	case PassTypeOpaque: return "PassTypeOpaque";
-	case PassTypeTransparent: return "PassTypeTransparent";
+	case PassTypeShadow:
+		return "PassTypeShadow";
+	case PassTypeNormal:
+		return "PassTypeNormal";
+	case PassTypeNormalTrans:
+		return "PassTypeNormalTrans";
+	case PassTypeLight:
+		return "PassTypeLight";
+	case PassTypeBackground:
+		return "PassTypeBackground";
+	case PassTypeOpaque:
+		return "PassTypeOpaque";
+	case PassTypeTransparent:
+		return "PassTypeTransparent";
 	}
 	return "unknown pass type";
 }
@@ -359,8 +367,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_AmbientColor = m_SimpleSample->GetParameterByName(NULL, "g_AmbientColor"));
 	BOOST_VERIFY(handle_ShadowRT = m_SimpleSample->GetParameterByName(NULL, "g_ShadowRT"));
 	BOOST_VERIFY(handle_NormalRT = m_SimpleSample->GetParameterByName(NULL, "g_NormalRT"));
-	BOOST_VERIFY(handle_PositionRT = m_SimpleSample->GetParameterByName(NULL, "g_PositionRT"));
 	BOOST_VERIFY(handle_SpecularRT = m_SimpleSample->GetParameterByName(NULL, "g_SpecularRT"));
+	BOOST_VERIFY(handle_PositionRT = m_SimpleSample->GetParameterByName(NULL, "g_PositionRT"));
 	BOOST_VERIFY(handle_LightRT = m_SimpleSample->GetParameterByName(NULL, "g_LightRT"));
 	BOOST_VERIFY(handle_OpaqueRT = m_SimpleSample->GetParameterByName(NULL, "g_OpaqueRT"));
 	BOOST_VERIFY(handle_DownFilterRT = m_SimpleSample->GetParameterByName(NULL, "g_DownFilterRT"));
@@ -554,30 +562,33 @@ void RenderPipeline::OnRender(
 	RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
-	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeNormalTrans) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeBackground) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
-	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
 	CComPtr<IDirect3DSurface9> SpecularSurf = pRC->m_SpecularRT->GetSurfaceLevel(0);
+	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetVector(handle_SkyLightColor, m_SkyLightColor);
 	m_SimpleSample->SetVector(handle_AmbientColor, m_AmbientColor);
 	m_SimpleSample->SetTexture(handle_ShadowRT, m_ShadowRT.get());
 	V(pd3dDevice->SetRenderTarget(0, NormalSurf));
-	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
-	V(pd3dDevice->SetRenderTarget(2, SpecularSurf));
+	V(pd3dDevice->SetRenderTarget(1, SpecularSurf));
+	V(pd3dDevice->SetRenderTarget(2, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeNormal, pRC, fTime, fElapsedTime);
-	NormalSurf.Release();
-	PositionSurf.Release();
-	SpecularSurf.Release();
 
-	m_SimpleSample->SetTexture(handle_NormalRT, pRC->m_NormalRT.get());
+	PositionSurf.Release();
 	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
+	V(pd3dDevice->SetRenderTarget(2, NULL));
+	RenderAllObjects(pd3dDevice, PassTypeNormalTrans, pRC, fTime, fElapsedTime);
+
+	NormalSurf.Release();
+	SpecularSurf.Release();
+	m_SimpleSample->SetTexture(handle_NormalRT, pRC->m_NormalRT.get());
 	m_SimpleSample->SetTexture(handle_SpecularRT, pRC->m_SpecularRT.get());
+	m_SimpleSample->SetTexture(handle_PositionRT, pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
-	V(pd3dDevice->SetRenderTarget(2, NULL));
 	if (pRC->m_SsaoEnable)
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
@@ -750,13 +761,13 @@ void RenderPipeline::OnRender(
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		break;
-	case RenderTargetPosition:
-		V(pd3dDevice->SetTexture(0, pRC->m_PositionRT->m_ptr));
+	case RenderTargetSpecular:
+		V(pd3dDevice->SetTexture(0, pRC->m_SpecularRT->m_ptr));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		break;
-	case RenderTargetSpecular:
-		V(pd3dDevice->SetTexture(0, pRC->m_SpecularRT->m_ptr));
+	case RenderTargetPosition:
+		V(pd3dDevice->SetTexture(0, pRC->m_PositionRT->m_ptr));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
 		break;

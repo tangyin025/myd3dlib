@@ -41,10 +41,11 @@ public:
 	{
 		PassTypeShadow			= 0,
 		PassTypeNormal			= 1,
-		PassTypeLight			= 2,
-		PassTypeBackground		= 3,
-		PassTypeOpaque			= 4,
-		PassTypeTransparent		= 5,
+		PassTypeNormalTrans		= 2,
+		PassTypeLight			= 3,
+		PassTypeBackground		= 4,
+		PassTypeOpaque			= 5,
+		PassTypeTransparent		= 6,
 		PassTypeNum
 	};
 
@@ -140,9 +141,9 @@ public:
 
 	D3DXHANDLE handle_NormalRT;
 
-	D3DXHANDLE handle_PositionRT;
-
 	D3DXHANDLE handle_SpecularRT;
+
+	D3DXHANDLE handle_PositionRT;
 
 	D3DXHANDLE handle_LightRT;
 
@@ -280,9 +281,9 @@ public:
 
 		boost::shared_ptr<my::Texture2D> m_NormalRT;
 
-		boost::shared_ptr<my::Texture2D> m_PositionRT;
-
 		boost::shared_ptr<my::Texture2D> m_SpecularRT;
+
+		boost::shared_ptr<my::Texture2D> m_PositionRT;
 
 		boost::shared_ptr<my::Texture2D> m_LightRT;
 

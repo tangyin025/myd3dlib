@@ -101,8 +101,8 @@ BEGIN
         POPUP "Render Target"
         BEGIN
             MENUITEM "Normal",                      ID_RENDERTARGET_NORMAL
-            MENUITEM "Position",                    ID_RENDERTARGET_POSITION
             MENUITEM "Specular",                    ID_RENDERTARGET_SPECULAR
+            MENUITEM "Position",                    ID_RENDERTARGET_POSITION
             MENUITEM "Light",                       ID_RENDERTARGET_LIGHT
             MENUITEM "Opaque",                      ID_RENDERTARGET_OPAQUE
             MENUITEM "DownFilter",                  ID_RENDERTARGET_DOWNFILTER
