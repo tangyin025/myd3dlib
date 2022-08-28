@@ -128,14 +128,14 @@ Vector3 BaseCamera::WorldToScreen(const Vector3 & pos, const Vector2 & dim)
 
 Frustum BaseCamera::RectangleToFrustum(const my::Rectangle & rc, const Vector2 & dim)
 {
-	Vector3 nlt = ScreenToWorld(rc.LeftTop(), dim, 0.0f);
-	Vector3 nrt = ScreenToWorld(rc.RightTop(), dim, 0.0f);
-	Vector3 nlb = ScreenToWorld(rc.LeftBottom(), dim, 0.0f);
-	Vector3 nrb = ScreenToWorld(rc.RightBottom(), dim, 0.0f);
-	Vector3 flt = ScreenToWorld(rc.LeftTop(), dim, 1.0f);
-	Vector3 frt = ScreenToWorld(rc.RightTop(), dim, 1.0f);
-	Vector3 flb = ScreenToWorld(rc.LeftBottom(), dim, 1.0f);
-	Vector3 frb = ScreenToWorld(rc.RightBottom(), dim, 1.0f);
+	Vector3 nlt = ScreenToWorld(rc.LeftTop(), dim, 1.0f);
+	Vector3 nrt = ScreenToWorld(rc.RightTop(), dim, 1.0f);
+	Vector3 nlb = ScreenToWorld(rc.LeftBottom(), dim, 1.0f);
+	Vector3 nrb = ScreenToWorld(rc.RightBottom(), dim, 1.0f);
+	Vector3 flt = ScreenToWorld(rc.LeftTop(), dim, 0.0f);
+	Vector3 frt = ScreenToWorld(rc.RightTop(), dim, 0.0f);
+	Vector3 flb = ScreenToWorld(rc.LeftBottom(), dim, 0.0f);
+	Vector3 frb = ScreenToWorld(rc.RightBottom(), dim, 0.0f);
 
 	return Frustum(
 		Plane::FromTriangle(nlt,flt,frt),
@@ -173,7 +173,7 @@ Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	Vector3 dir = -m_View.getColumn<2>().xyz.normalize();
 
-	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 0.0f);
+	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 1.0f);
 
 	return Ray(At, dir);
 }
@@ -223,7 +223,7 @@ LRESULT PerspectiveCamera::MsgProc(
 
 Ray PerspectiveCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 0.0f);
+	Vector3 At = ScreenToWorld(pt, Vector2((float)dim.cx, (float)dim.cy), 1.0f);
 
 	return Ray(At, (At - m_Eye).normalize());
 }

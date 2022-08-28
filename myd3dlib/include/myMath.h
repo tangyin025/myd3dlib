@@ -2421,8 +2421,8 @@ namespace my
 			return Matrix4(
 				2 / w,	0,		0,					0,
 				0,		2 / h,	0,					0,
-				0,		0,		1 / (zf - zn),		0,
-				0,		0,		-zn / (zf - zn),	1);
+				0,		0,		1 / (zn - zf),		0,
+				0,		0,		-zf / (zn - zf),	1);
 		}
 
 		static Matrix4 OrthoRH(float w, float h, float zn, float zf)
@@ -2430,8 +2430,8 @@ namespace my
 			return Matrix4(
 				2 / w,	0,		0,					0,
 				0,		2 / h,	0,					0,
-				0,		0,		1 / (zn - zf),		0,
-				0,		0,		zn / (zn - zf),		1);
+				0,		0,		1 / (zf - zn),		0,
+				0,		0,		zf / (zf - zn),		1);
 		}
 
 		static Matrix4 OrthoOffCenterLH(float l, float r, float b, float t, float zn, float zf)
@@ -2439,8 +2439,8 @@ namespace my
 			return Matrix4(
 				2 / (r - l),		0,					0,					0,
 				0,					2 / (t - b),		0,					0,
-				0,					0,					1 / (zf - zn),		0,
-				(l + r) / (l - r),	(t + b) / (b - t),	zn / (zn - zf),		1);
+				0,					0,					1 / (zn - zf),		0,
+				(l + r) / (l - r),	(t + b) / (b - t),	-zf / (zn - zf),		1);
 		}
 
 		static Matrix4 OrthoOffCenterRH(float l, float r, float b, float t, float zn, float zf)
@@ -2448,8 +2448,8 @@ namespace my
 			return Matrix4(
 				2 / (r - l),		0,					0,					0,
 				0,					2 / (t - b),		0,					0,
-				0,					0,					1 / (zn - zf),		0,
-				(l + r) / (l - r),	(t + b) / (b - t),	zn / (zn - zf),		1);
+				0,					0,					1 / (zf - zn),		0,
+				(l + r) / (l - r),	(t + b) / (b - t),	zf / (zf - zn),		1);
 		}
 
 		static Matrix4 PerspectiveFovLH(float fovy, float aspect, float zn, float zf)
@@ -2460,8 +2460,8 @@ namespace my
 			return Matrix4(
 				xScale,	0,		0,						0,
 				0,		yScale,	0,						0,
-				0,		0,		zf / (zf - zn),			1,
-				0,		0,		-zn * zf / (zf - zn),	0);
+				0,		0,		zn / (zn - zf),			1,
+				0,		0,		-zn * zf / (zn - zf),	0);
 
 		}
 
@@ -2470,17 +2470,12 @@ namespace my
 			float yScale = cotf(fovy / 2);
 			float xScale = yScale / aspect;
 
-			//return Matrix4(
-			//	xScale,	0,		0,						0,
-			//	0,		yScale,	0,						0,
-			//	0,		0,		zf / (zn - zf),			-1,
-			//	0,		0,		zn * zf / (zn - zf),	0);
-
+			// ! Reversed-Z, ref: https://developer.nvidia.com/content/depth-precision-visualized
 			return Matrix4(
 				xScale,	0,		0,						0,
 				0,		yScale,	0,						0,
-				0,		0,		-zn / (zn - zf),		-1,
-				0,		0,		-zn * zf / (zn - zf),	0);
+				0,		0,		zn / (zf - zn),			-1,
+				0,		0,		zn * zf / (zf - zn),	0);
 		}
 
 		static Matrix4 PerspectiveAovLH(float fovx, float aspect, float zn, float zf)
@@ -2491,8 +2486,8 @@ namespace my
 			return Matrix4(
 				xScale,	0,		0,						0,
 				0,		yScale,	0,						0,
-				0,		0,		zf / (zf - zn),			1,
-				0,		0,		-zn * zf / (zf - zn),	0);
+				0,		0,		zn / (zn - zf),			1,
+				0,		0,		-zn * zf / (zn - zf),	0);
 		}
 
 		static Matrix4 PerspectiveAovRH(float fovx, float aspect, float zn, float zf)
@@ -2503,8 +2498,8 @@ namespace my
 			return Matrix4(
 				xScale,	0,		0,						0,
 				0,		yScale,	0,						0,
-				0,		0,		zf / (zn - zf),			-1,
-				0,		0,		zn * zf / (zn - zf),	0);
+				0,		0,		zn / (zf - zn),			-1,
+				0,		0,		zn * zf / (zf - zn),	0);
 		}
 
 		static Matrix4 PerspectiveLH(float w, float h, float zn, float zf)
@@ -2512,8 +2507,8 @@ namespace my
 			return Matrix4(
 				2 * zn / w,	0,			0,						0,
 				0,			2 * zn / h,	0,						0,
-				0,			0,			zf / (zf - zn),			1,
-				0,			0,			zn * zf / (zn - zf),	0);
+				0,			0,			zn / (zn - zf),			1,
+				0,			0,			-zn * zf / (zn - zf),	0);
 		}
 
 		static Matrix4 PerspectiveRH(float w, float h, float zn, float zf)
@@ -2521,8 +2516,8 @@ namespace my
 			return Matrix4(
 				2 * zn / w,	0,			0,						0,
 				0,			2 * zn / h,	0,						0,
-				0,			0,			zf / (zn - zf),			-1,
-				0,			0,			zn * zf / (zn - zf),	0);
+				0,			0,			zn / (zf - zn),			-1,
+				0,			0,			zn * zf / (zf - zn),	0);
 		}
 
 		static Matrix4 PerspectiveOffCenterLH(float l, float r, float b, float t, float zn, float zf)
@@ -2530,8 +2525,8 @@ namespace my
 			return Matrix4(
 				2 * zn / (r - l),	0,					0,						0,
 				0,					2 * zn / (t - b),	0,						0,
-				(l + r) / (l - r),	(t + b) / (b - t),	zf / (zf - zn),			1,
-				0,					0,					zn * zf / (zn - zf),	0);
+				(l + r) / (l - r),	(t + b) / (b - t),	zn / (zn - zf),			1,
+				0,					0,					-zn * zf / (zn - zf),	0);
 		}
 
 		static Matrix4 PerspectiveOffCenterRH(float l, float r, float b, float t, float zn, float zf)
@@ -2539,8 +2534,8 @@ namespace my
 			return Matrix4(
 				2 * zn / (r - l),	0,					0,						0,
 				0,					2 * zn / (t - b),	0,						0,
-				(l + r) / (r - l),	(t + b) / (t - b),	zf / (zn - zf),			-1,
-				0,					0,					zn * zf / (zn - zf),	0);
+				(l + r) / (r - l),	(t + b) / (t - b),	zn / (zf - zn),			-1,
+				0,					0,					zn * zf / (zf - zn),	0);
 		}
 
 		static Matrix4 RotationAxis(const Vector3 & v, float angle)
