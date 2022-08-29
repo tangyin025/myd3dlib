@@ -153,7 +153,7 @@ public:
 
 	std::map<std::pair<int, int>, bool> m_dirty;
 
-	void Release(void);
+	void Flush(void);
 
 	StaticEmitterChunkBuffer * GetBuffer(int i, int j);
 
@@ -170,6 +170,6 @@ public:
 
 	~StaticEmitterStream(void)
 	{
-		Release();
+		Flush();
 	}
 };

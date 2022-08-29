@@ -296,7 +296,7 @@ void StaticEmitter::AddToPipeline(const my::Frustum& frustum, RenderPipeline* pi
 	}
 }
 
-void StaticEmitterStream::Release(void)
+void StaticEmitterStream::Flush(void)
 {
 	std::map<std::pair<int, int>, bool>::iterator dirty_iter = m_dirty.begin();
 	for (; dirty_iter != m_dirty.end(); dirty_iter++)

@@ -116,7 +116,7 @@ void CTerrainDlg::OnOK()
 
 	TerrainStream tstr(m_terrain.get());
 	tstr.GetPos(0, 0);
-	tstr.Release();
+	tstr.Flush();
 
 	{
 		MaterialPtr mtl(new Material());

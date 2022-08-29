@@ -2328,7 +2328,7 @@ void LuaContext::Init(void)
 
 		, class_<StaticEmitterStream>("StaticEmitterStream")
 			.def(constructor<StaticEmitter *>())
-			.def("Release", &StaticEmitterStream::Release)
+			.def("Flush", &StaticEmitterStream::Flush)
 			.def("Spawn", &StaticEmitterStream::Spawn)
 
 		, class_<CircularEmitter, EmitterComponent, boost::shared_ptr<Component> >("CircularEmitter")
@@ -2376,7 +2376,7 @@ void LuaContext::Init(void)
 
 		, class_<TerrainStream>("TerrainStream")
 			.def(constructor<Terrain *>())
-			.def("Release", &TerrainStream::Release)
+			.def("Flush", &TerrainStream::Flush)
 			.def("GetPos", &TerrainStream::GetPos)
 			.def("SetPos", (void(TerrainStream::*)(int, int, const my::Vector3&))&TerrainStream::SetPos)
 			.def("GetColor", &TerrainStream::GetColor)

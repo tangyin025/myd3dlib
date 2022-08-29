@@ -885,7 +885,7 @@ void Terrain::CreateHeightFieldShape(const char * HeightFieldPath, const my::Vec
 				Samples[j][i].materialIndex1 = physx::PxBitAndByte(0, false);
 			}
 		}
-		tstr.Release();
+		tstr.Flush();
 
 		physx::PxHeightFieldDesc hfDesc;
 		hfDesc.nbRows = m_ColChunks * m_ChunkSize + 1;
@@ -1107,10 +1107,10 @@ TerrainStream::TerrainStream(Terrain* terrain)
 
 TerrainStream::~TerrainStream(void)
 {
-	Release();
+	Flush();
 }
 
-void TerrainStream::Release(void)
+void TerrainStream::Flush(void)
 {
 	for (int k = 0; k < m_terrain->m_RowChunks; k++)
 	{
@@ -1154,7 +1154,6 @@ void TerrainStream::Release(void)
 				vb->Unlock();
 
 				m_VertDirty[k][l] = false;
-				m_Vbs[k][l].reset();
 			}
 		}
 	}

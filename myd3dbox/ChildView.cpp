@@ -1887,7 +1887,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		if (m_PaintTerrainCaptured)
 		{
-			m_PaintTerrainCaptured->Release();
+			m_PaintTerrainCaptured->Flush();
 			m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateAABB();
 			m_PaintTerrainCaptured->m_terrain->m_Actor->UpdateOctNode();
 			m_PaintTerrainCaptured.reset();
@@ -1895,7 +1895,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 
 		if (m_PaintEmitterCaptured)
 		{
-			m_PaintEmitterCaptured->Release();
+			m_PaintEmitterCaptured->Flush();
 			m_PaintEmitterCaptured->m_emit->m_Actor->UpdateAABB();
 			m_PaintEmitterCaptured->m_emit->m_Actor->UpdateOctNode();
 			m_PaintEmitterCaptured.reset();

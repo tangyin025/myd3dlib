@@ -3696,7 +3696,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		particle->m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
 		particle->m_Angle = D3DXToRadian(pParticle->GetSubItem(5)->GetValue().fltVal);
 		estr.m_dirty[std::make_pair(chunkid.x, chunkid.y)] = true;
-		estr.Release();
+		estr.Flush();
 		Actor * actor = emit_cmp->m_Actor;
 		actor->UpdateAABB();
 		actor->UpdateOctNode();
@@ -3854,7 +3854,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			}
 			tstr.UpdateNormal();
 			tex.UnlockRect(0);
-			tstr.Release();
+			tstr.Flush();
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			actor->UpdateOctNode();
@@ -3899,7 +3899,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				}
 			}
 			tex.UnlockRect(0);
-			tstr.Release();
+			tstr.Flush();
 		}
 		my::EventArg arg;
 		pFrame->m_EventAttributeChanged(&arg);

@@ -201,7 +201,7 @@ public:
 
 	~TerrainStream(void);
 
-	void Release(void);
+	void Flush(void);
 
 	static void GetIndices(const Terrain* terrain, int i, int j, int& k, int& l, int& m, int& n, int& o, int& p);
 
