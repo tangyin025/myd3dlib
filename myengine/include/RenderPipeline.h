@@ -99,7 +99,7 @@ public:
 
 	unsigned int SHADOW_MAP_SIZE;
 
-	float SHADOW_EPSILON;
+	float SHADOW_BIAS;
 
 	boost::shared_ptr<my::Texture2D> m_ShadowRT;
 
@@ -119,7 +119,7 @@ public:
 
 	D3DXHANDLE handle_ShadowMapSize;
 
-	D3DXHANDLE handle_ShadowEpsilon;
+	D3DXHANDLE handle_ShadowBias;
 
 	D3DXHANDLE handle_World;
 

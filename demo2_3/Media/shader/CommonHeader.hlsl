@@ -29,7 +29,7 @@
 shared float g_Time;
 shared float2 g_ScreenDim;
 shared float g_ShadowMapSize;
-shared float g_ShadowEpsilon;
+shared float g_ShadowBias;
 shared float4x4 g_World;
 shared float3 g_Eye;
 shared float4x4 g_View;
@@ -150,10 +150,10 @@ float GetLigthAmount(float4 ShadowCoord)
 	
 	//read in bilerp stamp, doing the shadow checks
 	float sourcevals[4];
-	sourcevals[0] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex,0,0) ).r - g_ShadowEpsilon > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[1] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - g_ShadowEpsilon > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[2] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowEpsilon > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
-	sourcevals[3] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowEpsilon > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[0] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex,0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[1] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 0),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[2] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(0, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
+	sourcevals[3] = (tex2Dlod( ShadowRTSampler, float4(ShadowTex + float2(1.0/g_ShadowMapSize, 1.0/g_ShadowMapSize),0,0) ).r - g_ShadowBias > ShadowCoord.z / ShadowCoord.w)? 0.0f: 1.0f;  
         
 	// lerp between the shadow values to calculate our light amount
 	float LightAmount = lerp( lerp( sourcevals[0], sourcevals[1], lerps.x ),

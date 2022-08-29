@@ -22,7 +22,7 @@ const UINT RenderPipeline::m_ParticlePrimitiveInfo[ParticlePrimitiveTypeCount][4
 
 RenderPipeline::RenderPipeline(void)
 	: SHADOW_MAP_SIZE(1024)
-	, SHADOW_EPSILON(0.001f)
+	, SHADOW_BIAS(0.001f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
 	, m_SkyLightCam(new my::OrthoCamera(30.0f, 30.0f, -100, 100))
@@ -31,7 +31,7 @@ RenderPipeline::RenderPipeline(void)
 	, handle_Time(NULL)
 	, handle_ScreenDim(NULL)
 	, handle_ShadowMapSize(NULL)
-	, handle_ShadowEpsilon(NULL)
+	, handle_ShadowBias(NULL)
 	, handle_World(NULL)
 	, handle_Eye(NULL)
 	, handle_View(NULL)
@@ -140,8 +140,6 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 	my::D3DContext::getSingleton().m_EventLog(logoss.str().c_str());
 
 	std::ostringstream oss;
-	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
-	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
 	oss << "#include \"CommonHeader.hlsl\"" << std::endl;
 	oss << "#include \"";
 	switch (mesh_type)
@@ -169,7 +167,8 @@ my::Effect * RenderPipeline::QueryShader(MeshType mesh_type, const D3DXMACRO* pD
 
 	CComPtr<ID3DXBuffer> err;
 	CComPtr<ID3DXEffectCompiler> compiler;
-	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), (UINT)source.length(), pDefines, my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
+	if (FAILED(D3DXCreateEffectCompiler(source.c_str(), (UINT)source.length(), pDefines,
+		my::ResourceMgr::getSingletonPtr(), D3DXSHADER_PACKMATRIX_COLUMNMAJOR | D3DXSHADER_OPTIMIZATION_LEVEL3 | D3DXFX_LARGEADDRESSAWARE, &compiler, &err)))
 	{
 		my::D3DContext::getSingleton().m_EventLog(err ? (char *)err->GetBufferPointer() : "QueryShader failed");
 		m_ShaderCache.insert(std::make_pair(seed, my::EffectPtr()));
@@ -356,7 +355,7 @@ HRESULT RenderPipeline::OnCreateDevice(
 	BOOST_VERIFY(handle_Time = m_SimpleSample->GetParameterByName(NULL, "g_Time"));
 	BOOST_VERIFY(handle_ScreenDim = m_SimpleSample->GetParameterByName(NULL, "g_ScreenDim"));
 	BOOST_VERIFY(handle_ShadowMapSize = m_SimpleSample->GetParameterByName(NULL, "g_ShadowMapSize"));
-	BOOST_VERIFY(handle_ShadowEpsilon = m_SimpleSample->GetParameterByName(NULL, "g_ShadowEpsilon"));
+	BOOST_VERIFY(handle_ShadowBias = m_SimpleSample->GetParameterByName(NULL, "g_ShadowBias"));
 	BOOST_VERIFY(handle_World = m_SimpleSample->GetParameterByName(NULL, "g_World"));
 	BOOST_VERIFY(handle_Eye = m_SimpleSample->GetParameterByName(NULL, "g_Eye"));
 	BOOST_VERIFY(handle_View = m_SimpleSample->GetParameterByName(NULL, "g_View"));
@@ -550,7 +549,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetFloat(handle_Time, my::D3DContext::getSingleton().m_fTotalTime);
 	m_SimpleSample->SetVector(handle_ScreenDim, Vector2((float)pVP->Width, (float)pVP->Height));
 	m_SimpleSample->SetFloat(handle_ShadowMapSize, (float)SHADOW_MAP_SIZE);
-	m_SimpleSample->SetFloat(handle_ShadowEpsilon, SHADOW_EPSILON);
+	m_SimpleSample->SetFloat(handle_ShadowBias, SHADOW_BIAS);
 	m_SimpleSample->SetMatrix(handle_World, Matrix4::identity);
 	m_SimpleSample->SetVector(handle_Eye, pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetMatrix(handle_View, pRC->m_Camera->m_View);
