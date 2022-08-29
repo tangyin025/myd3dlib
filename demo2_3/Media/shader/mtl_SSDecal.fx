@@ -1,3 +1,6 @@
+#if defined(INSTANCE) || defined(EMITTER_FACE_TYPE)
+#error Cannot use Decal with instance or particle system, because of invalid g_InvWorldView
+#endif
 
 texture g_DiffuseTexture:MaterialParameter<string path="texture/Checker.bmp";>;
 texture g_NormalTexture:MaterialParameter<string path="texture/Normal.dds";>;
