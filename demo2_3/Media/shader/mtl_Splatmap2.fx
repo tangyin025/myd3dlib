@@ -22,6 +22,8 @@ sampler NormalTexSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler WeightTexSampler = sampler_state
@@ -30,6 +32,8 @@ sampler WeightTexSampler = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler DiffuseTextureSampler0 = sampler_state
@@ -38,6 +42,8 @@ sampler DiffuseTextureSampler0 = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler NormalTextureSampler0 = sampler_state
@@ -46,6 +52,8 @@ sampler NormalTextureSampler0 = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler SpecularTextureSampler0 = sampler_state
@@ -64,6 +72,8 @@ sampler DiffuseTextureSampler1 = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler NormalTextureSampler1 = sampler_state
@@ -72,6 +82,8 @@ sampler NormalTextureSampler1 = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler SpecularTextureSampler1 = sampler_state
@@ -90,6 +102,8 @@ sampler DiffuseTextureSampler2 = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler NormalTextureSampler2 = sampler_state
@@ -98,6 +112,8 @@ sampler NormalTextureSampler2 = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler SpecularTextureSampler2 = sampler_state
@@ -116,6 +132,8 @@ sampler DiffuseTextureSampler3 = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler NormalTextureSampler3 = sampler_state
@@ -124,6 +142,8 @@ sampler NormalTextureSampler3 = sampler_state
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
 };
 
 sampler SpecularTextureSampler3 = sampler_state

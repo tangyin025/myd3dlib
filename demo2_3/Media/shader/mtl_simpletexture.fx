@@ -7,8 +7,6 @@ sampler DiffuseTextureSampler = sampler_state
     MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
-    ADDRESSU = WRAP;
-    ADDRESSV = WRAP;
 };
 
 struct TRANSPARENT_VS_OUTPUT

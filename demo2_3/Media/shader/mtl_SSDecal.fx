@@ -56,8 +56,8 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
 	Output.Tex0 = TransformUV(In);
-	Output.Normal = mul(float3(g_World[0][1],g_World[1][1],g_World[2][1]), (float3x3)g_View);
-	Output.Tangent = mul(float3(g_World[0][0],g_World[1][0],g_World[2][0]), (float3x3)g_View);
+	Output.Normal = mul(normalize(float3(g_World[0][1],g_World[1][1],g_World[2][1])), (float3x3)g_View);
+	Output.Tangent = mul(normalize(float3(g_World[0][0],g_World[1][0],g_World[2][0])), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
 	Output.PosVS = mul(PosWS, g_View).xyz;
 	return Output;
@@ -69,7 +69,9 @@ void NormalPS( 	NORMAL_VS_OUTPUT In,
 {
 	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float4 Pos = mul(PosVS, g_InvWorldView);
-	clip(float3(0.5,0.5,0.5)-abs(Pos));
+	// ! clip sky box with invalid w
+	Pos.xyz /= Pos.w;
+	clip(float3(0.5, 0.5, 0.5) - abs(Pos));
 
 	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
 	float3 NormalTS = tex2D(NormalTextureSampler, Pos.xz + 0.5).xyz * 2 - 1;
@@ -103,7 +105,9 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 { 
 	float4 PosVS = tex2D(PositionRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim);
 	float4 Pos = mul(PosVS, g_InvWorldView);
-	clip(float3(0.5,0.5,0.5)-abs(Pos));
+	// ! clip sky box with invalid w
+	Pos.xyz /= Pos.w;
+	clip(float3(0.5, 0.5, 0.5) - abs(Pos));
 
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
