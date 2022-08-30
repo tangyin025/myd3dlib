@@ -31,6 +31,7 @@
 #define IDB_CLASS_VIEW                  308
 #define IDR_POPUP_VIEW                  309
 #define IDD_DIALOG1                     310
+#define ID_INDICATOR_COORD              310
 #define IDD_DIALOG2                     312
 #define IDD_DIALOG3                     313
 #define IDD_DIALOG4                     314
@@ -145,6 +146,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        321
 #define _APS_NEXT_COMMAND_VALUE         32833
 #define _APS_NEXT_CONTROL_VALUE         1033
-#define _APS_NEXT_SYMED_VALUE           310
+#define _APS_NEXT_SYMED_VALUE           311
 #endif
 #endif

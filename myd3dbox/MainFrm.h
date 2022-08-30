@@ -213,6 +213,7 @@ public:
 	afx_msg void OnToolsScript1(UINT id);
 	afx_msg void OnUpdateToolsScript1(CCmdUI* pCmdUI);
 	afx_msg void OnToolsSnapshot();
+	afx_msg void OnUpdateIndicatorCoord(CCmdUI* pCmdUI);
 };
 
 

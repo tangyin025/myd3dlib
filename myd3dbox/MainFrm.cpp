@@ -308,6 +308,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnToolsScript1)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_TOOLS_SCRIPT1, ID_TOOLS_SCRIPT_LAST, &CMainFrame::OnUpdateToolsScript1)
 	ON_COMMAND(ID_TOOLS_SNAPSHOT, &CMainFrame::OnToolsSnapshot)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_COORD, &CMainFrame::OnUpdateIndicatorCoord)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -410,6 +411,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+	m_wndStatusBar.SetPaneInfo(1, ID_INDICATOR_COORD, SBPS_NORMAL, 200);
 
 	if (!m_wndProperties.Create(_T("Properties"), this, CRect(0, 0, 200, 200), TRUE, 3001,
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
@@ -2434,4 +2436,25 @@ void CMainFrame::OnToolsSnapshot()
 	// TODO: Add your command handler code here
 	CSnapshotDlg dlg;
 	dlg.DoModal();
+}
+
+
+void CMainFrame::OnUpdateIndicatorCoord(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	CPoint pt;
+	GetCursorPos(&pt);
+	CChildView* pView = DYNAMIC_DOWNCAST(CChildView, WindowFromPoint(pt));
+	if (pView)
+	{
+		pView->ScreenToClient(&pt);
+		CRect rc(pt, CSize(1,1));
+		D3DLOCKED_RECT lrc = pView->m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
+		my::Vector3 pos = (*(my::Vector4*)lrc.pBits).xyz.transformCoord(pView->m_Camera->m_View.inverse());
+		pView->m_OffscreenPositionRT->UnlockRect();
+
+		CString text;
+		text.Format(_T("%f, %f, %f"), pos.x, pos.y, pos.z);
+		pCmdUI->SetText(text);
+	}
 }

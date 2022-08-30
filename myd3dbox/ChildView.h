@@ -48,6 +48,7 @@ protected:
 	my::SurfacePtr m_SwapChainBuffer;
 	D3DSURFACE_DESC m_SwapChainBufferDesc;
 	my::SurfacePtr m_DepthStencil;
+public: my::SurfacePtr m_OffscreenPositionRT; protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoMap;
 	ScrInfoMap m_ScrInfo;
 	LARGE_INTEGER m_qwTime[2];
@@ -56,7 +57,6 @@ protected:
 	int m_rayinstid;
 
 	BOOL ResetD3DSwapChain(void);
-	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 	void RenderSelectedActor(IDirect3DDevice9 * pd3dDevice, Actor * actor, D3DCOLOR color);
 	void RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp, D3DCOLOR color);

@@ -860,6 +860,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_EDIT_MENU           "Edit"
+    ID_INDICATOR_COORD      "COORD"
 END
 
 #endif    // English (United States) resources

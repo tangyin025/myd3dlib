@@ -102,6 +102,7 @@ CChildView::CChildView()
 		m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new my::Texture2D());
 	}
+	m_OffscreenPositionRT.reset(new my::Surface());
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
 }
 
@@ -154,39 +155,37 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	m_DepthStencil->CreateDepthStencilSurface(
 		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
-	ResetRenderTargets(theApp.m_d3dDevice, &m_SwapChainBufferDesc);
-
-	return TRUE;
-}
-
-BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
 	m_NormalRT->OnDestroyDevice();
 	m_NormalRT->CreateTexture(
-		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
 	m_SpecularRT->OnDestroyDevice();
 	m_SpecularRT->CreateTexture(
-		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
 	m_PositionRT->OnDestroyDevice();
 	m_PositionRT->CreateTexture(
-		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
 	m_LightRT->OnDestroyDevice();
 	m_LightRT->CreateTexture(
-		pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
 		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
 		m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
-			pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+			m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
 		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
-			pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+			m_SwapChainBufferDesc.Width / 4, m_SwapChainBufferDesc.Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
+
+	m_OffscreenPositionRT->OnDestroyDevice();
+	m_OffscreenPositionRT->CreateOffscreenPlainSurface(
+		m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_A32B32G32R32F, D3DPOOL_SYSTEMMEM);
+
 	return TRUE;
 }
 
@@ -1253,6 +1252,7 @@ void CChildView::OnPaint()
 				theApp.m_SkyLightCam->UpdateViewProj();
 				D3DVIEWPORT9 vp = { 0, 0, m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, 0.0f, 1.0f };
 				theApp.OnRender(theApp.m_d3dDevice, m_SwapChainBuffer->m_ptr, m_DepthStencil->m_ptr, &vp, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+				V(theApp.m_d3dDevice->GetRenderTargetData(m_PositionRT->GetSurfaceLevel(0), m_OffscreenPositionRT->m_ptr));
 
 				swprintf_s(&m_ScrInfo[0][0], m_ScrInfo[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
