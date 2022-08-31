@@ -56,8 +56,8 @@ NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Color = TransformColor(In);
 	Output.Tex0 = TransformUV(In);
-	Output.Normal = mul(normalize(float3(g_World[0][1],g_World[1][1],g_World[2][1])), (float3x3)g_View);
-	Output.Tangent = mul(normalize(float3(g_World[0][0],g_World[1][0],g_World[2][0])), (float3x3)g_View);
+	Output.Normal = mul(normalize(mul(float3(0, 1, 0), (float3x3)g_World)), (float3x3)g_View);
+	Output.Tangent = mul(normalize(mul(float3(1, 0, 0), (float3x3)g_World)), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
 	Output.PosVS = mul(PosWS, g_View).xyz;
 	return Output;
