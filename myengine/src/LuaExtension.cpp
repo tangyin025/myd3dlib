@@ -95,6 +95,13 @@ static void texture2d_set_as_render_target(my::Texture2D* self, int target_id)
 	V(my::D3DContext::getSingleton().m_d3dDevice->SetRenderTarget(target_id, surf));
 }
 
+static void texture2d_fill_color(my::Texture2D* self, D3DCOLOR color)
+{
+	HRESULT hr;
+	CComPtr<IDirect3DSurface9> surf = self->GetSurfaceLevel(0);
+	V(my::D3DContext::getSingleton().m_d3dDevice->ColorFill(surf, NULL, color));
+}
+
 static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const std::string& u8_path)
 {
 	HRESULT hr;
@@ -1296,6 +1303,7 @@ void LuaContext::Init(void)
 			.def("CreateTexture", &my::Texture2D::CreateTexture)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
 			.def("SetAsRenderTarget", &texture2d_set_as_render_target)
+			.def("FillColor", &texture2d_fill_color)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 			.def(constructor<>())
