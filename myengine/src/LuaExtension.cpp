@@ -88,10 +88,17 @@ static void texture2d_create_texture_from_file(my::Texture2D* self, const std::s
 	self->CreateTextureFromFile(u8tots(u8_path).c_str(), D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT_NONPOW2, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL);
 }
 
+static void texture2d_set_as_render_target(my::Texture2D* self, int target_id)
+{
+	HRESULT hr;
+	CComPtr<IDirect3DSurface9> surf = self->GetSurfaceLevel(0);
+	V(my::D3DContext::getSingleton().m_d3dDevice->SetRenderTarget(target_id, surf));
+}
+
 static void cubetexture_load_cube_map_surface_from_file(my::CubeTexture* self, D3DCUBEMAP_FACES FaceType, const std::string& u8_path)
 {
-	CComPtr<IDirect3DSurface9> surf = self->GetCubeMapSurface(FaceType, 0);
 	HRESULT hr;
+	CComPtr<IDirect3DSurface9> surf = self->GetCubeMapSurface(FaceType, 0);
 	V(D3DXLoadSurfaceFromFileW(surf, NULL, NULL, u8tots(u8_path).c_str(), NULL, D3DX_DEFAULT, 0, NULL));
 }
 
@@ -1286,7 +1293,9 @@ void LuaContext::Init(void)
 			.def("LockRect", luabind::tag_function<D3DLOCKED_RECT(my::Texture2D*,unsigned int)>(
 				boost::bind(&my::Texture2D::LockRect, boost::placeholders::_1, (RECT*)NULL, 0, boost::placeholders::_2)))
 			.def("UnlockRect", &my::Texture2D::UnlockRect)
+			.def("CreateTexture", &my::Texture2D::CreateTexture)
 			.def("CreateTextureFromFile", &texture2d_create_texture_from_file)
+			.def("SetAsRenderTarget", &texture2d_set_as_render_target)
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::DeviceResourceBase> >("CubeTexture")
 			.def(constructor<>())
@@ -1489,6 +1498,10 @@ void LuaContext::Init(void)
 
 		, class_<my::UIRender>("UIRender")
 			.def_readonly("WhiteTex", &my::UIRender::m_WhiteTex)
+			.def("Begin", &my::UIRender::Begin)
+			.def("End", &my::UIRender::End)
+			.def("SetWorld", &my::UIRender::SetWorld)
+			.def("SetViewProj", &my::UIRender::SetViewProj)
 			.def("Flush", &my::UIRender::Flush)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, D3DCOLOR, const my::Rectangle&, const my::BaseTexture*))& my::UIRender::PushRectangle)
 			.def("PushRectangle", (void (my::UIRender::*)(const my::Rectangle&, D3DCOLOR, const my::Rectangle&, const my::BaseTexture*, const my::Rectangle&))& my::UIRender::PushRectangle)

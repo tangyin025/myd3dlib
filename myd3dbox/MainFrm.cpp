@@ -834,6 +834,7 @@ void CMainFrame::InitFileContext()
 			.def_readonly("SkyLightCam", &CMainApp::m_SkyLightCam)
 			.def_readwrite("SkyLightColor", &CMainApp::m_SkyLightColor)
 			.def_readwrite("AmbientColor", &CMainApp::m_AmbientColor)
+			.def_readonly("UIRender", &CMainApp::m_UIRender)
 			.def_readonly("Font", &CMainApp::m_Font)
 	];
 	luabind::globals(m_State)["theApp"] = &theApp;
