@@ -641,17 +641,32 @@ const Font::CharacterInfo * Font::GetCharacterOutlineInfo(unsigned long characte
 	return LoadCharacterOutline(character, outlineWidth);
 }
 
-Vector2 Font::CalculateStringExtent(LPCWSTR pString)
+float Font::CalculateStringWidth(LPCWSTR pString)
 {
-	Vector2 extent(0, (float)m_LineHeight);
+	float Width = 0;
 	wchar_t c;
-	while((c = *pString++) && c != L'\n')
+	while ((c = *pString++) && c != L'\n')
 	{
-		const CharacterInfo * info = GetCharacterInfo(c);
-		extent.x += info->horiAdvance;
+		const CharacterInfo* info = GetCharacterInfo(c);
+		Width += info->horiAdvance;
 	}
 
-	return extent;
+	return Width;
+}
+
+float Font::CalculateStringHeight(LPCWSTR pString)
+{
+	float Height = m_LineHeight;
+	wchar_t c;
+	while (c = *pString++)
+	{
+		if (c == L'\n')
+		{
+			Height += m_LineHeight;
+		}
+	}
+
+	return Height;
 }
 
 void Font::DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo* info, D3DCOLOR Color)
@@ -680,11 +695,11 @@ void Font::DrawString(
 	}
 	else if (align & AlignMiddle)
 	{
-		y = rect.t + (rect.b - rect.t - m_LineHeight) * 0.5f;
+		y = rect.t + (rect.b - rect.t - CalculateStringHeight(pString)) * 0.5f;
 	}
 	else
 	{
-		y = rect.b - m_LineHeight;
+		y = rect.b - CalculateStringHeight(pString);
 	}
 	y += m_LineHeight + m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
 
@@ -698,16 +713,14 @@ void Font::DrawString(
 		}
 		else if (align & AlignCenter)
 		{
-			Vector2 extent = CalculateStringExtent(p);
-			x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
+			x = rect.l + (rect.r - rect.l - CalculateStringWidth(p)) * 0.5f;
 		}
 		else
 		{
-			Vector2 extent = CalculateStringExtent(p);
-			x = rect.r - extent.x;
+			x = rect.r - CalculateStringWidth(p);
 		}
 
-		for (; *p && (!(align & Font::AlignMultiLine) || x < rect.r); p++)
+		for (; *p; p++)
 		{
 			if (*p == L'\n')
 			{
@@ -716,6 +729,11 @@ void Font::DrawString(
 			}
 
 			const CharacterInfo* info = get_character_info(*p);
+
+			if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+			{
+				break;
+			}
 
 			draw_character(x, y, info);
 

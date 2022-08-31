@@ -2816,9 +2816,8 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime)
 			float x, x1st;
 			x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
 			x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-			Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
 
-			Rectangle rc(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
+			Rectangle rc(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + Skin->m_Font->CalculateStringWidth(s_CompString.c_str()), TextRect.b);
 			if (rc.r > TextRect.r)
 				rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
@@ -2851,9 +2850,8 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 			float x, x1st, comp_x;
 			x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
 			x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-			Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
 
-			Rectangle CompRect(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
+			Rectangle CompRect(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + Skin->m_Font->CalculateStringWidth(s_CompString.c_str()), TextRect.b);
 			if (CompRect.r > TextRect.r)
 				CompRect.offsetSelf(TextRect.l - CompRect.l, TextRect.Height());
 
@@ -2868,9 +2866,8 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime)
 			{
 				horizontalText += ts2ws(ImeUi_GetCandidate(i));
 			}
-			extent = Skin->m_Font->CalculateStringExtent(horizontalText.c_str());
 
-			Rectangle CandRect = Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight);
+			Rectangle CandRect = Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, Skin->m_Font->CalculateStringWidth(horizontalText.c_str()), (float)Skin->m_Font->m_LineHeight);
 
 			Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
 

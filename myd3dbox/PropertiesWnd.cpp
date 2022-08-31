@@ -166,7 +166,7 @@ static LPCTSTR g_PaintMode[CMainFrame::PaintModeGreater + 1] =
 static CPropertiesWnd::PassMaskDesc g_FontAlignDesc[] =
 {
 	{ _T("AlignLeftTop"), my::Font::AlignLeftTop },
-	{ _T("AlignLeftTopMultiLine"), my::Font::AlignLeftTopMultiLine },
+	{ _T("AlignLeftTopMultiLine"), my::Font::AlignLeftTop | my::Font::AlignMultiLine },
 	{ _T("AlignCenterTop"), my::Font::AlignCenterTop },
 	{ _T("AlignRightTop"), my::Font::AlignRightTop },
 	{ _T("AlignLeftMiddle"), my::Font::AlignLeftMiddle },

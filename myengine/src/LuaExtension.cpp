@@ -1427,7 +1427,7 @@ void LuaContext::Init(void)
 			.enum_("Align")
 			[
 				value("AlignLeftTop", my::Font::AlignLeftTop),
-				value("AlignLeftTopMultiLine", my::Font::AlignLeftTopMultiLine),
+				value("AlignLeftTopMultiLine", my::Font::AlignLeftTop | my::Font::AlignMultiLine),
 				value("AlignCenterTop", my::Font::AlignCenterTop),
 				value("AlignRightTop", my::Font::AlignRightTop),
 				value("AlignLeftMiddle", my::Font::AlignLeftMiddle),

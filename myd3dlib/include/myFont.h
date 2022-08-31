@@ -105,7 +105,6 @@ namespace my
 			AlignBottom			= 32,
 			AlignMultiLine		= 64,
 			AlignLeftTop		= AlignLeft | AlignTop,
-			AlignLeftTopMultiLine = AlignLeftTop | AlignMultiLine,
 			AlignCenterTop		= AlignCenter | AlignTop,
 			AlignRightTop		= AlignRight | AlignTop,
 			AlignLeftMiddle		= AlignLeft | AlignMiddle,
@@ -205,7 +204,9 @@ namespace my
 
 		const CharacterInfo * GetCharacterOutlineInfo(unsigned long character, float outlineWidth);
 
-		Vector2 CalculateStringExtent(LPCWSTR pString);
+		float CalculateStringWidth(LPCWSTR pString);
+
+		float CalculateStringHeight(LPCWSTR pString);
 
 		void DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo * info, D3DCOLOR Color);
 
