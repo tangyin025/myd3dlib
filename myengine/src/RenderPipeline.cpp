@@ -1022,17 +1022,16 @@ void RenderPipeline::DrawIndexedPrimitive(
 	Material * mtl,
 	LPARAM lparam)
 {
+	HRESULT hr;
+	V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
+	V(pd3dDevice->SetVertexDeclaration(pDecl));
+	V(pd3dDevice->SetIndices(pIB));
 	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		shader->BeginPass(PassID);
-		HRESULT hr;
-		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
-		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		V(pd3dDevice->SetIndices(pIB));
 		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
-		shader->CommitChanges();
+		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
 	}
@@ -1061,20 +1060,19 @@ void RenderPipeline::DrawIndexedPrimitiveInstance(
 	Material* mtl,
 	LPARAM lparam)
 {
+	HRESULT hr;
+	V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
+	V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
+	V(pd3dDevice->SetStreamSource(1, pInstance, 0, InstanceStride));
+	V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
+	V(pd3dDevice->SetVertexDeclaration(pDecl));
+	V(pd3dDevice->SetIndices(pIB));
 	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		shader->BeginPass(PassID);
-		HRESULT hr;
-		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
-		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
-		V(pd3dDevice->SetStreamSource(1, pInstance, 0, InstanceStride));
-		V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
-		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		V(pd3dDevice->SetIndices(pIB));
 		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
-		shader->CommitChanges();
+		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		V(pd3dDevice->SetStreamSourceFreq(0, 1));
 		V(pd3dDevice->SetStreamSourceFreq(1, 1));
@@ -1101,15 +1099,14 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	Material * mtl,
 	LPARAM lparam)
 {
+	HRESULT hr;
+	V(pd3dDevice->SetVertexDeclaration(pDecl));
 	cmp->OnSetShader(pd3dDevice, shader, lparam);
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		shader->BeginPass(PassID);
-		HRESULT hr;
-		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
-		shader->CommitChanges();
+		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
 			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
 		shader->EndPass();
@@ -1123,9 +1120,8 @@ void RenderPipeline::DrawMesh(IDirect3DDevice9 * pd3dDevice, unsigned int PassID
 	const UINT passes = shader->Begin(D3DXFX_DONOTSAVESTATE | D3DXFX_DONOTSAVESAMPLERSTATE | D3DXFX_DONOTSAVESHADERSTATE);
 	_ASSERT(PassID < passes);
 	{
-		shader->BeginPass(PassID);
 		mtl->OnSetShader(pd3dDevice, shader, lparam, pRC, cmp->m_Actor);
-		shader->CommitChanges();
+		shader->BeginPass(PassID);
 		mesh->DrawSubset(AttribId);
 		shader->EndPass();
 	}

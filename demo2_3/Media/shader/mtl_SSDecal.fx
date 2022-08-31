@@ -112,7 +112,7 @@ float4 OpaquePS( OPAQUE_VS_OUTPUT In ) : COLOR0
 	float3 SkyLightDir = normalize(float3(g_SkyLightView[0][2], g_SkyLightView[1][2], g_SkyLightView[2][2]));
 	float3 SkyLightDirVS = mul(SkyLightDir, (float3x3)g_View);
 	float LightAmount = GetLigthAmount(In.ShadowCoord);
-	float3 NormalVS = tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz;
+	float3 NormalVS = normalize(tex2D(NormalRTSampler, (In.Pos.xy + 0.5f) / g_ScreenDim).xyz);
 	float3 SkyDiffuse = saturate(dot(NormalVS, SkyLightDirVS) * LightAmount) * g_SkyLightColor.xyz;
 	float3 Ref = Reflection(NormalVS, In.ViewVS);
 	float SkySpecular = pow(saturate(dot(Ref, SkyLightDirVS) * LightAmount), g_Shininess) * g_SkyLightColor.w;
@@ -133,6 +133,9 @@ technique RenderScene
     }
     pass PassTypeNormalTrans
     {          
+		BlendOp = ADD;
+		SrcBlend = SRCALPHA;
+		DestBlend = ONE;
         VertexShader = compile vs_3_0 NormalVS();
         PixelShader  = compile ps_3_0 NormalPS(); 
     }
