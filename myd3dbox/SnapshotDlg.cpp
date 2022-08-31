@@ -19,7 +19,7 @@ CSnapshotDlg::CSnapshotDlg(CWnd* pParent /*=nullptr*/)
 	, m_TexWidth(1024)
 	, m_TexHeight(1024)
 	, m_SnapPos(0, 0)
-	, m_SnapSize(33.0f, 33.0f)
+	, m_SnapSize(8192, 8192)
 	, m_SnapCol(1)
 	, m_SnapRow(1)
 {
@@ -133,7 +133,7 @@ void CSnapshotDlg::OnOK()
 	};
 
 	RenderContext rc;
-	rc.m_Camera.reset(new my::OrthoCamera(m_SnapSize.x, m_SnapSize.y, -1000, 1000));
+	rc.m_Camera.reset(new my::OrthoCamera(m_SnapSize.x, m_SnapSize.y, -2000, 2000));
 	rc.m_Camera->m_Eye = my::Vector3(m_SnapPos, 0);
 	rc.m_Camera->m_Euler = my::Vector3(D3DXToRadian(-90), 0, 0);
 	rc.m_Camera->UpdateViewProj();
