@@ -354,6 +354,9 @@ const Font::CharacterInfo * Font::InsertCharacter(
 	float horiBearingX,
 	float horiBearingY,
 	float horiAdvance,
+	float vertBearingX,
+	float vertBearingY,
+	float vertAdvance,
 	const unsigned char * bmpBuffer,
 	int bmpWidth,
 	int bmpHeight,
@@ -367,6 +370,9 @@ const Font::CharacterInfo * Font::InsertCharacter(
 	info.horiBearingX = horiBearingX;
 	info.horiBearingY = horiBearingY;
 	info.horiAdvance = horiAdvance;
+	info.vertBearingX = vertBearingX;
+	info.vertBearingY = vertBearingY;
+	info.vertAdvance = vertAdvance;
 
 	// Add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
 	AssignTextureRect(CSize(bmpWidth + FONT_PIXEL_GAP * 2, bmpHeight + FONT_PIXEL_GAP * 2), info.textureRect);
@@ -460,8 +466,9 @@ const Font::CharacterInfo * Font::LoadCharacter(unsigned long character)
 	// Now we need to put it all together.
 	if (spans.empty())
 	{
-		return InsertCharacter(
-			character, 0, 0, 0, 0, m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x, NULL, 0, 0, 0);
+		return InsertCharacter(character, 0, 0,
+			0, 0, m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
+			0, 0, m_face->glyph->metrics.vertAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.y, NULL, 0, 0, 0);
 	}
 
 	// Figure out what the bounding rect is for both the span lists.
@@ -498,6 +505,9 @@ const Font::CharacterInfo * Font::LoadCharacter(unsigned long character)
 		rect.l / FontLibrary::getSingleton().m_Scale.x,
 		rect.b / FontLibrary::getSingleton().m_Scale.y,
 		m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
+		rect.l / FontLibrary::getSingleton().m_Scale.x,
+		rect.b / FontLibrary::getSingleton().m_Scale.y,
+		m_face->glyph->metrics.vertAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.y,
 		pxl.data(),
 		imgWidth,
 		imgHeight,
@@ -574,7 +584,9 @@ const Font::CharacterInfo * Font::LoadCharacterOutline(unsigned long character, 
 	if (outlineSpans.empty())
 	{
 		return InsertCharacter(
-			character_key, 0, 0, 0, 0, m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x, NULL, 0, 0, 0);
+			character_key, 0, 0,
+			0, 0, m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
+			0, 0, m_face->glyph->metrics.vertAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.y, NULL, 0, 0, 0);
 	}
 
 	// Figure out what the bounding rect is for both the span lists.
@@ -611,6 +623,9 @@ const Font::CharacterInfo * Font::LoadCharacterOutline(unsigned long character, 
 		rect.l / FontLibrary::getSingleton().m_Scale.x,
 		rect.b / FontLibrary::getSingleton().m_Scale.y,
 		m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
+		rect.l / FontLibrary::getSingleton().m_Scale.x,
+		rect.b / FontLibrary::getSingleton().m_Scale.y,
+		m_face->glyph->metrics.vertAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.y,
 		pxl.data(),
 		imgWidth,
 		imgHeight,

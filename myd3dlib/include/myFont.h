@@ -122,6 +122,9 @@ namespace my
 			float horiBearingX;
 			float horiBearingY;
 			float horiAdvance;
+			float vertBearingX;
+			float vertBearingY;
+			float vertAdvance;
 			CRect textureRect;
 		};
 
@@ -191,6 +194,9 @@ namespace my
 			float horiBearingX,
 			float horiBearingY,
 			float horiAdvance,
+			float vertBearingX,
+			float vertBearingY,
+			float vertAdvance,
 			const unsigned char * bmpBuffer,
 			int bmpWidth,
 			int bmpHeight,
