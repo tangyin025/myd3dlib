@@ -2410,7 +2410,7 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 void CMainFrame::OnToolsScript1(UINT id)
 {
 	// TODO: Add your command handler code here
-	if (luaL_loadfile(m_State, tstou8((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1))
+	if (luaL_loadfile(m_State, ts2ms((LPCTSTR)m_ToolScripts[id - ID_TOOLS_SCRIPT1]).c_str()) || docall(0, 1))
 	{
 		if (!lua_isnil(m_State, -1))
 		{
