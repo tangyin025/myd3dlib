@@ -2383,7 +2383,8 @@ BOOL CMainFrame::OnShowPopupMenu(CMFCPopupMenu* pMenuPopup)
 					{
 						m_ToolScripts[i - first_script_index] = Dir + _T("\\") + ffd.cFileName;
 						CString strText;
-						strText.Format(_T("&%d %s"), i - first_script_index + 1, m_ToolScripts[i - first_script_index]);
+						const TCHAR* pref[] = { _T("&1 "), _T("&2 "), _T("&3 "), _T("&4 "), _T("&5 "), _T("&6 "), _T("&7 "), _T("&8 "), _T("&9 "), _T("1&0 ") };
+						strText.Format(_T("%s%s"), i - first_script_index < _countof(pref) ? pref[i - first_script_index] : _T(""), m_ToolScripts[i - first_script_index]);
 						if (i < pMenuBar->GetCount() && pMenuBar->GetButtonStyle(i) != TBBS_SEPARATOR && pMenuBar->GetItemID(i) < ID_TOOLS_SCRIPT_LAST)
 						{
 							pMenuBar->SetButtonText(i, strText);
