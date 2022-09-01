@@ -850,8 +850,7 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 	particle.setAcceleration(Vector3::Gravity);
 	Vector3 distance = target_world_pos - particle.getPosition();
 	float length = distance.magnitude();
-	Vector3 direction = distance.normalize();
-	Vector3 force = fabs(length) > EPSILON_E6 ? direction * (-context.springConstant * length) : Vector3(0, 0, 0);
+	Vector3 force = fabs(length) > EPSILON_E6 ? distance.normalize() * (-context.springConstant * length) : Vector3(0, 0, 0);
 	particle.addForce(force);
 	particle.integrate(fElapsedTime);
 	Vector3 d0 = target_world_pos - parent_world_pos;
@@ -859,7 +858,7 @@ void Animator::UpdateDynamicBone(DynamicBoneContext & context, const my::Bone & 
 	particle.setPosition(parent_world_pos + d1.normalize() * d0.magnitude());
 
 	anim_pose_hier[node_i].m_rotation =
-		target.m_rotation * m_Actor->m_Rotation * Quaternion::RotationFromTo(d0, d1, Vector3::zero) * m_Actor->m_Rotation.conjugate();
+		target.m_rotation * m_Actor->m_Rotation * Quaternion::RotationFromToSafe(d0, d1) * m_Actor->m_Rotation.conjugate();
 
 	anim_pose_hier[node_i].m_position =
 		particle.getPosition().transformCoord(m_Actor->m_World.inverse());
