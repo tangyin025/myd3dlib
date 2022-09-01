@@ -558,7 +558,7 @@ void RenderPipeline::OnRender(
 	m_SimpleSample->SetMatrix(handle_SkyLightViewProj, m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 0.0f, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeShadow, pRC, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
@@ -574,7 +574,7 @@ void RenderPipeline::OnRender(
 	V(pd3dDevice->SetRenderTarget(1, SpecularSurf));
 	V(pd3dDevice->SetRenderTarget(2, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 0.0f, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 0.0f, 0));
 	RenderAllObjects(pd3dDevice, PassTypeNormal, pRC, fTime, fElapsedTime);
 
 	PositionSurf.Release();
@@ -617,7 +617,7 @@ void RenderPipeline::OnRender(
 	RenderAllObjects(pd3dDevice, PassTypeBackground, pRC, fTime, fElapsedTime);
 	if (m_PassDrawCall[PassTypeBackground] <= 0)
 	{
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0)); // ! d3dmultisample will not work
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 66, 75, 121), 0, 0)); // ! d3dmultisample will not work
 	}
 
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, !pRC->m_WireFrame ? D3DFILL_SOLID : D3DFILL_WIREFRAME));

@@ -1246,7 +1246,20 @@ void CMainFrame::OnCreateActor()
 	my::Vector3 Pos(0,0,0);
 	if (pView)
 	{
-		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
+		CRect rc;
+		pView->GetClientRect(&rc);
+		rc.SetRect(rc.Width() / 2, rc.Height() / 2, rc.Width() / 2 + 1, rc.Height() / 2 + 1);
+		D3DLOCKED_RECT lrc = pView->m_OffscreenPositionRT->LockRect(&rc, D3DLOCK_READONLY);
+		my::Vector3 posVS = (*(my::Vector4*)lrc.pBits).xyz;
+		pView->m_OffscreenPositionRT->UnlockRect();
+		if (posVS.z < 0 && posVS.z > -boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_Distance)
+		{
+			Pos = posVS.transformCoord(pView->m_Camera->m_View.inverse());
+		}
+		else
+		{
+			Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
+		}
 	}
 	ActorPtr actor(new Actor(my::NamedObject::MakeUniqueName("actor").c_str(), Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld();
