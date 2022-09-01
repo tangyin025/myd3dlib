@@ -1443,7 +1443,8 @@ void LuaContext::Init(void)
 				value("AlignRightMiddle", my::Font::AlignRightMiddle),
 				value("AlignLeftBottom", my::Font::AlignLeftBottom),
 				value("AlignCenterBottom", my::Font::AlignCenterBottom),
-				value("AlignRightBottom", my::Font::AlignRightBottom)
+				value("AlignRightBottom", my::Font::AlignRightBottom),
+				value("AlignVertical", my::Font::AlignVertical)
 			]
 			.def_readonly("Height", &my::Font::m_Height)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)

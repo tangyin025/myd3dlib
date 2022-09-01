@@ -505,8 +505,8 @@ const Font::CharacterInfo * Font::LoadCharacter(unsigned long character)
 		rect.l / FontLibrary::getSingleton().m_Scale.x,
 		rect.b / FontLibrary::getSingleton().m_Scale.y,
 		m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
-		rect.l / FontLibrary::getSingleton().m_Scale.x,
-		rect.b / FontLibrary::getSingleton().m_Scale.y,
+		rect.Width() * 0.5f / FontLibrary::getSingleton().m_Scale.x,
+		rect.t / FontLibrary::getSingleton().m_Scale.y,
 		m_face->glyph->metrics.vertAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.y,
 		pxl.data(),
 		imgWidth,
@@ -716,23 +716,62 @@ void Font::DrawString(
 	const boost::function<const CharacterInfo * (wchar_t)> & get_character_info,
 	const boost::function<void(float, float, const CharacterInfo *)> & draw_character)
 {
-	float y;
-	if (align & AlignTop)
+	if (!(align & AlignVertical))
 	{
-		y = rect.t;
-	}
-	else if (align & AlignMiddle)
-	{
-		y = rect.t + (rect.b - rect.t - CalculateStringLine(pString)) * 0.5f;
+		float y;
+		if (align & AlignTop)
+		{
+			y = rect.t;
+		}
+		else if (align & AlignMiddle)
+		{
+			y = rect.t + (rect.Height() - CalculateStringLine(pString)) * 0.5f;
+		}
+		else
+		{
+			y = rect.b - CalculateStringLine(pString);
+		}
+		y += m_LineHeight + m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
+
+		const wchar_t* p = pString;
+		for (; *p; y += m_LineHeight)
+		{
+			float x;
+			if (align & AlignLeft)
+			{
+				x = rect.l;
+			}
+			else if (align & AlignCenter)
+			{
+				x = rect.l + (rect.Width() - CalculateStringWidth(p)) * 0.5f;
+			}
+			else
+			{
+				x = rect.r - CalculateStringWidth(p);
+			}
+
+			for (; *p; p++)
+			{
+				if (*p == L'\n')
+				{
+					p++;
+					break;
+				}
+
+				const CharacterInfo* info = get_character_info(*p);
+
+				if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+				{
+					break;
+				}
+
+				draw_character(x + info->horiBearingX, y - info->horiBearingY, info);
+
+				x += info->horiAdvance;
+			}
+		}
 	}
 	else
-	{
-		y = rect.b - CalculateStringLine(pString);
-	}
-	y += m_LineHeight + m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
-
-	const wchar_t* p = pString;
-	for (; *p; y += m_LineHeight)
 	{
 		float x;
 		if (align & AlignLeft)
@@ -741,31 +780,51 @@ void Font::DrawString(
 		}
 		else if (align & AlignCenter)
 		{
-			x = rect.l + (rect.r - rect.l - CalculateStringWidth(p)) * 0.5f;
+			x = rect.l + (rect.Width() - CalculateStringLine(pString)) * 0.5f;
 		}
 		else
 		{
-			x = rect.r - CalculateStringWidth(p);
+			x = rect.r - CalculateStringLine(pString);
 		}
+		x += m_LineHeight * 0.5f;
 
-		for (; *p; p++)
+		const wchar_t* p = pString;
+		for (; *p; x += m_LineHeight)
 		{
-			if (*p == L'\n')
+			float y;
+			if (align & AlignTop)
 			{
-				p++;
-				break;
+				y = rect.t;
 			}
-
-			const CharacterInfo* info = get_character_info(*p);
-
-			if (align & Font::AlignMultiLine && x + info->horiAdvance > rect.r)
+			else if (align & AlignMiddle)
 			{
-				break;
+				y = rect.t + (rect.Height() - CalculateStringHeight(p)) * 0.5f;
 			}
+			else
+			{
+				y = rect.b - CalculateStringHeight(p);
+			}
+			y -= m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
 
-			draw_character(x + info->horiBearingX, y - info->horiBearingY, info);
+			for (; *p; p++)
+			{
+				if (*p == L'\n')
+				{
+					p++;
+					break;
+				}
 
-			x += info->horiAdvance;
+				const CharacterInfo* info = get_character_info(*p);
+
+				if (align & Font::AlignMultiLine && y + info->vertAdvance > rect.b)
+				{
+					break;
+				}
+
+				draw_character(x - info->vertBearingX, y + info->vertBearingY, info);
+
+				y += info->vertAdvance;
+			}
 		}
 	}
 }

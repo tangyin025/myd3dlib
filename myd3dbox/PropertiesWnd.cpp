@@ -167,6 +167,8 @@ static CPropertiesWnd::PassMaskDesc g_FontAlignDesc[] =
 {
 	{ _T("AlignLeftTop"), my::Font::AlignLeftTop },
 	{ _T("AlignLeftTopMultiLine"), my::Font::AlignLeftTop | my::Font::AlignMultiLine },
+	{ _T("AlignLeftTopVertical"), my::Font::AlignLeftTop | my::Font::AlignVertical },
+	{ _T("AlignLeftTopVerticalMultiLine"), my::Font::AlignLeftTop | my::Font::AlignVertical | my::Font::AlignMultiLine },
 	{ _T("AlignCenterTop"), my::Font::AlignCenterTop },
 	{ _T("AlignRightTop"), my::Font::AlignRightTop },
 	{ _T("AlignLeftMiddle"), my::Font::AlignLeftMiddle },

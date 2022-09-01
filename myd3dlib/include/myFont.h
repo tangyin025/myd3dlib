@@ -104,6 +104,7 @@ namespace my
 			AlignMiddle			= 16,
 			AlignBottom			= 32,
 			AlignMultiLine		= 64,
+			AlignVertical		= 128,
 			AlignLeftTop		= AlignLeft | AlignTop,
 			AlignCenterTop		= AlignCenter | AlignTop,
 			AlignRightTop		= AlignRight | AlignTop,
