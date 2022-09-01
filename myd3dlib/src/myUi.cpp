@@ -576,8 +576,8 @@ void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, 
 		(float)info->textureRect.right / font->m_textureDesc.Width,
 		(float)info->textureRect.bottom / font->m_textureDesc.Height);
 
-	PushRectangleSimple(GetVertexList(font->m_Texture.get()),
-		Rectangle::LeftTop(x + info->horiBearingX, y - info->horiBearingY, info->width, info->height), UvRect, color);
+	PushRectangleSimple(
+		GetVertexList(font->m_Texture.get()), Rectangle::LeftTop(x, y, info->width, info->height), UvRect, color);
 }
 
 void UIRender::PushCharacter(float x, float y, const Font::CharacterInfo* info, Font* font, D3DCOLOR color, const Matrix4& transform)

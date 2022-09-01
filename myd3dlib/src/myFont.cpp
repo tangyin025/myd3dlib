@@ -623,8 +623,8 @@ const Font::CharacterInfo * Font::LoadCharacterOutline(unsigned long character, 
 		rect.l / FontLibrary::getSingleton().m_Scale.x,
 		rect.b / FontLibrary::getSingleton().m_Scale.y,
 		m_face->glyph->metrics.horiAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.x,
-		rect.l / FontLibrary::getSingleton().m_Scale.x,
-		rect.b / FontLibrary::getSingleton().m_Scale.y,
+		rect.Width() * 0.5f / FontLibrary::getSingleton().m_Scale.x,
+		rect.t / FontLibrary::getSingleton().m_Scale.y,
 		m_face->glyph->metrics.vertAdvance / 64.0f / FontLibrary::getSingleton().m_Scale.y,
 		pxl.data(),
 		imgWidth,
@@ -671,6 +671,19 @@ float Font::CalculateStringWidth(LPCWSTR pString)
 
 float Font::CalculateStringHeight(LPCWSTR pString)
 {
+	float Height = 0;
+	wchar_t c;
+	while ((c = *pString++) && c != L'\n')
+	{
+		const CharacterInfo* info = GetCharacterInfo(c);
+		Height += info->vertAdvance;
+	}
+
+	return Height;
+}
+
+float Font::CalculateStringLine(LPCWSTR pString)
+{
 	float Height = m_LineHeight;
 	wchar_t c;
 	while (c = *pString++)
@@ -692,8 +705,8 @@ void Font::DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const Character
 	V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
 	V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
 	V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-	V(pSprite->Draw((IDirect3DTexture9*)m_Texture->m_ptr, &info->textureRect,
-		(D3DXVECTOR3*)&Vector3(0, 0, 0), (D3DXVECTOR3*)&Vector3(x + info->horiBearingX, y - info->horiBearingY, 0), Color));
+	V(pSprite->Draw((IDirect3DTexture9*)m_Texture->m_ptr,
+		&info->textureRect, (D3DXVECTOR3*)&Vector3(0, 0, 0), (D3DXVECTOR3*)&Vector3(x, y, 0), Color));
 }
 
 void Font::DrawString(
@@ -710,11 +723,11 @@ void Font::DrawString(
 	}
 	else if (align & AlignMiddle)
 	{
-		y = rect.t + (rect.b - rect.t - CalculateStringHeight(pString)) * 0.5f;
+		y = rect.t + (rect.b - rect.t - CalculateStringLine(pString)) * 0.5f;
 	}
 	else
 	{
-		y = rect.b - CalculateStringHeight(pString);
+		y = rect.b - CalculateStringLine(pString);
 	}
 	y += m_LineHeight + m_face->size->metrics.descender / 64 / FontLibrary::getSingleton().m_Scale.y;
 
@@ -750,7 +763,7 @@ void Font::DrawString(
 				break;
 			}
 
-			draw_character(x, y, info);
+			draw_character(x + info->horiBearingX, y - info->horiBearingY, info);
 
 			x += info->horiAdvance;
 		}

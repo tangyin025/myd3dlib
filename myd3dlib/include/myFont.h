@@ -214,6 +214,8 @@ namespace my
 
 		float CalculateStringHeight(LPCWSTR pString);
 
+		float CalculateStringLine(LPCWSTR pString);
+
 		void DrawCharacter(LPD3DXSPRITE pSprite, float x, float y, const CharacterInfo * info, D3DCOLOR Color);
 
 		void DrawString(
